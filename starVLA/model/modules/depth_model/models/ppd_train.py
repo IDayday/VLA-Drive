@@ -126,7 +126,14 @@ class PixelPerfectDepth(nn.Module):
         batch_size = batch['image'].shape[0]
         cond = self.get_cond(batch['image'])
         latent, mask = self.get_gt(batch)
-        semantics = self.semantics_prompt(batch['image'])
+        semantics = batch.get('semantics')
+        if semantics is None:
+            semantics = self.semantics_prompt(batch['image'])
+        else:
+            # Keep the cached encoder dtype (normally bf16). Casting to the raw
+            # image dtype here would silently turn the cached path into fp32,
+            # unlike the online semantic encoder under autocast.
+            semantics = semantics.to(batch['image'].device)
         noises = torch.randn_like(latent)
         timesteps = self.training_timesteps.sample([batch_size], device=get_device())
         latent_noised = self.schedule.forward(latent, noises, timesteps)
@@ -157,19 +164,17 @@ class PixelPerfectDepth(nn.Module):
             target=loss_target,
             reduction='none',
             )
-        loss = loss * mask.float()
-        loss = loss.sum() / (mask.float().sum() + 1e-6)
+        loss_mask = mask.float()
+        loss = loss * loss_mask
+        loss = loss.sum() / (loss_mask.sum() + 1e-6)
 
         if not self.config.pretrain:
             grad_loss = multi_scale_grad_loss(
-                latent_pred.squeeze(1), latent.squeeze(1), mask.float().squeeze(1)
+                latent_pred.squeeze(1), latent.squeeze(1), loss_mask.squeeze(1)
                 )
             loss = loss + 0.2 * grad_loss
 
         return {'loss': loss, 'depth': latent_pred+0.5, 'image': batch['image']}
 
         
-
-
-
 

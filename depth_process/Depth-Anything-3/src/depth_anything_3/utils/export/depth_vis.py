@@ -55,14 +55,20 @@ def export_to_depth_vis(
 
     pkl_path = os.path.join(data_dir + "-depth.pkl")
 
-    with open(pkl_path, "wb") as f:
+    # Write atomically so an interrupted long-running preprocessing job never
+    # leaves a truncated file that a resumable run would mistake for success.
+    tmp_path = f"{pkl_path}.tmp.{os.getpid()}"
+    with open(tmp_path, "wb") as f:
         pickle.dump(dep_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_path, pkl_path)
 
-        # save_path = os.path.join(export_dir_this + "-depth.jpg")
-        # imageio.imwrite(save_path, vis_image, quality=95)
-        # feat_map = feat[idx].detach().cpu().numpy()  # 128, 280, 504
-        # save_path = os.path.join(export_dir_this + "-depth_feat.npy")
-        # np.save(save_path, feat_map)
+    # save_path = os.path.join(export_dir_this + "-depth.jpg")
+    # imageio.imwrite(save_path, vis_image, quality=95)
+    # feat_map = feat[idx].detach().cpu().numpy()  # 128, 280, 504
+    # save_path = os.path.join(export_dir_this + "-depth_feat.npy")
+    # np.save(save_path, feat_map)
 
     if vis_flag:
         vis_flag=False
@@ -73,5 +79,3 @@ def export_to_depth_vis(
         vis_image = np.concatenate([image_vis, depth_vis], axis=1)
         save_path = os.path.join(f'./vis/{tok}' + "-depth.jpg")
         imageio.imwrite(save_path, vis_image, quality=95)
-
-

@@ -4,13 +4,83 @@ from accelerate.logging import get_logger
 import numpy as np
 from torch.utils.data import DataLoader
 import numpy as np
+import torch
 import torch.distributed as dist
 from pathlib import Path
 from starVLA.dataloader.vlm_datasets import make_vlm_dataloader
+from starVLA.cache.navsim_feature_cache import append_world_action_tokens
 
 from omegaconf import OmegaConf
 
 logger = get_logger(__name__)
+
+
+class NavsimQwenBatchCollator:
+    """Build the CPU side of Qwen inputs in DataLoader workers.
+
+    The original path runs ``AutoProcessor.apply_chat_template`` serially in
+    the training process immediately before the GPU forward.  For NAVSIM this
+    takes hundreds of milliseconds when the rank is intentionally limited to
+    one CPU thread.  Collating the exact same batch in loader workers lets the
+    81 MiB batch payload be prefetched while the accelerator is busy.
+    """
+
+    def __init__(self, model_path, act_tok, w_depth, cot_prompt=None):
+        from transformers import AutoProcessor
+
+        self.processor = AutoProcessor.from_pretrained(model_path)
+        self.processor.tokenizer.padding_side = "left"
+        self.act_tok = int(act_tok)
+        self.w_depth = bool(w_depth)
+        self.cot_prompt = cot_prompt
+
+    def __call__(self, batch):
+        instructions = [
+            append_world_action_tokens(sample["lang"], self.act_tok, self.w_depth)
+            for sample in batch
+        ]
+        messages = []
+        for sample, instruction in zip(batch, instructions):
+            content = [
+                {"type": "image", "image": image}
+                for image in sample["image"]
+            ]
+            prompt = (
+                self.cot_prompt.replace("{instruction}", instruction)
+                if self.cot_prompt is not None
+                else instruction
+            )
+            content.append({"type": "text", "text": prompt})
+            messages.append([{"role": "user", "content": content}])
+
+        qwen_inputs = self.processor.apply_chat_template(
+            messages,
+            tokenize=True,
+            padding=True,
+            add_generation_prompt=True,
+            return_dict=True,
+            return_tensors="pt",
+        )
+        # The framework consumes this batch-level payload from the first
+        # sample.  Keeping the surrounding list-of-dicts contract unchanged
+        # avoids perturbing the other three training branches and evaluation.
+        batch[0]["_qwen_prefetched_inputs"] = dict(qwen_inputs)
+        return batch
+
+
+def _navsim_worker_init_fn(_worker_id):
+    """Apply the per-worker CPU budget without oversubscribing the host."""
+    worker_threads = max(1, int(os.environ.get("NAVSIM_WORKER_THREADS", "1")))
+    torch.set_num_threads(worker_threads)
+    os.environ["OMP_NUM_THREADS"] = str(worker_threads)
+    os.environ["MKL_NUM_THREADS"] = str(worker_threads)
+    os.environ["OPENBLAS_NUM_THREADS"] = str(worker_threads)
+    try:
+        import cv2
+
+        cv2.setNumThreads(0)
+    except Exception:
+        pass
 
 def save_dataset_statistics(dataset_statistics, run_dir):
     """Saves a `dataset_statistics.json` file."""
@@ -78,16 +148,57 @@ def build_dataloader(cfg, dataset_py="lerobot_datasets_oxe"): # TODO now here on
             all_cfg = cfg,
         )
         
+        navsim_num_workers = int(os.environ.get("NAVSIM_NUM_WORKERS", "7"))
+        navsim_prefetch_factor = int(os.environ.get("NAVSIM_PREFETCH_FACTOR", "2"))
+        navsim_pin_memory = os.environ.get("NAVSIM_PIN_MEMORY", "1") == "1"
+        prefetch_qwen = os.environ.get("STARVLA_PREFETCH_QWEN", "0") == "1"
+        if navsim_num_workers < 0:
+            raise ValueError("NAVSIM_NUM_WORKERS must be non-negative")
+        if navsim_prefetch_factor < 1:
+            raise ValueError("NAVSIM_PREFETCH_FACTOR must be positive")
+        dataloader_kwargs = {}
+        if navsim_num_workers > 0:
+            dataloader_kwargs.update(
+                persistent_workers=True,
+                prefetch_factor=navsim_prefetch_factor,
+                worker_init_fn=_navsim_worker_init_fn,
+            )
+        navsim_collate_fn = collate_fn
+        if prefetch_qwen:
+            if navsim_num_workers == 0:
+                raise ValueError(
+                    "STARVLA_PREFETCH_QWEN=1 requires NAVSIM_NUM_WORKERS > 0"
+                )
+            cot_prompt = OmegaConf.select(
+                cfg, "datasets.vla_data.CoT_prompt", default=None
+            )
+            navsim_collate_fn = NavsimQwenBatchCollator(
+                model_path=cfg.framework.qwenvl.base_vlm,
+                act_tok=OmegaConf.select(cfg, "act_tok", default=8),
+                w_depth=OmegaConf.select(cfg, "w_depth", default=False),
+                cot_prompt=cot_prompt,
+            )
+        if not dist.is_initialized() or dist.get_rank() == 0:
+            batch_size = int(cfg.datasets.vla_data.per_device_batch_size)
+            logger.info(
+                "NAVSIM DataLoader: workers_per_rank=%d prefetch_factor=%d "
+                "prefetched_batches_per_rank=%d prefetched_samples_per_rank=%d "
+                "pin_memory=%s qwen_worker_preprocess=%s",
+                navsim_num_workers,
+                navsim_prefetch_factor,
+                navsim_num_workers * navsim_prefetch_factor,
+                navsim_num_workers * navsim_prefetch_factor * batch_size,
+                navsim_pin_memory,
+                prefetch_qwen,
+            )
         navsim_train_dataloader = DataLoader(
             navsim_dataset,
             batch_size=cfg.datasets.vla_data.per_device_batch_size,
-            collate_fn=collate_fn,
-            num_workers=7,  # for video it's need big
+            collate_fn=navsim_collate_fn,
+            num_workers=navsim_num_workers,
             # shuffle=True,
             drop_last=False,
-            persistent_workers=True,
-            prefetch_factor=2,
-            pin_memory=True
+            pin_memory=navsim_pin_memory,
+            **dataloader_kwargs,
         )
-        return navsim_train_dataloader        
-        
+        return navsim_train_dataloader

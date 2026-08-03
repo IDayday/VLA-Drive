@@ -9,6 +9,11 @@ import json
 import os
 from PIL import Image
 import torch
+
+from starVLA.cache.navsim_feature_cache import (
+    NavsimFeatureCacheReader,
+    parse_components,
+)
 import numpy as np
 from func_timeout import FunctionTimedOut, func_timeout
 import torchvision.transforms as transforms
@@ -148,6 +153,27 @@ y_std = 2.277741
 import cv2, numpy as np
 
 
+def resolve_navsim_data_path(file_name):
+    """Map absolute paths embedded during preprocessing to this runtime root."""
+    if file_name is None:
+        return None
+
+    file_path = os.fspath(file_name)
+    runtime_root = os.environ.get("OPENSCENE_DATA_ROOT", "")
+    marker = f"{os.sep}navsim_dataset_raw{os.sep}"
+    if runtime_root and marker in file_path:
+        relative_path = file_path.split(marker, 1)[1]
+        trainval_prefix = os.path.join("sensor_blobs", "trainval") + os.sep
+        trainval_sensor_root = os.environ.get("NAVSIM_TRAINVAL_SENSOR_ROOT", "")
+        if trainval_sensor_root and relative_path.startswith(trainval_prefix):
+            return os.path.join(
+                trainval_sensor_root,
+                relative_path[len(trainval_prefix):],
+            )
+        return os.path.join(runtime_root, relative_path)
+    return file_path
+
+
 def bev_rgb_to_occ(bev_rgb):  # (500,500,3) uint8
     gray = cv2.cvtColor(bev_rgb[:496, :496], cv2.COLOR_RGB2GRAY)
     occ = (gray < 255).astype(np.uint8)          # 白底≈255，框/线更暗
@@ -196,6 +222,23 @@ class NavSimDataset(Dataset):
 
         self.raw_list = raw_list
         self.split = split
+        cache_root = os.environ.get("NAVSIM_FEATURE_CACHE_ROOT", "").strip()
+        cache_components = parse_components(os.environ.get("NAVSIM_CACHE_COMPONENTS"))
+        cache_strict = os.environ.get("NAVSIM_CACHE_STRICT", "1") == "1"
+        self.feature_cache = (
+            NavsimFeatureCacheReader(
+                cache_root=cache_root,
+                components=cache_components,
+                strict=cache_strict,
+            )
+            if cache_root
+            else None
+        )
+        if self.feature_cache is not None:
+            print(
+                f"loading NAVSIM feature cache {cache_root} "
+                f"components={','.join(cache_components)} strict={int(cache_strict)}"
+            )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
         if self.split == "mini":
@@ -214,8 +257,15 @@ class NavSimDataset(Dataset):
         self.s2_pred_dir = s2_pred_dir
         
         self.video_data_cfg = video_data_cfg
+        self.video_source = os.environ.get("NAVSIM_VIDEO_SOURCE", "mp4").lower()
+        if self.video_source not in {"mp4", "images"}:
+            raise ValueError(
+                "NAVSIM_VIDEO_SOURCE must be either 'mp4' or 'images', "
+                f"got {self.video_source!r}"
+            )
         if self.video_data_cfg.load_2d_data:
             print(f'loading video data {self.video_data_cfg.rgb_meta_dir}')
+            print(f'video source: {self.video_source}')
             self.rgb_meta_dir = os.path.join(self.video_data_cfg.rgb_meta_dir, split)
             # sample_size = (self.video_data_cfg.sample_size, self.video_data_cfg.sample_size)
             sample_size = (self.video_data_cfg.sample_size[0], self.video_data_cfg.sample_size[1])
@@ -372,20 +422,41 @@ class NavSimDataset(Dataset):
 
         bev = None
 
+        cached_features = {}
+        if self.feature_cache is not None:
+            for component in self.feature_cache.components:
+                if self.feature_cache.has_component(component):
+                    payload = self.feature_cache.get(component, idx, raw)
+                    if payload is not None:
+                        cached_features[component] = payload
+
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')
             with open(bev_path, "rb") as f:
                 bev_data = pickle.load(f)   # 500, 500, 3
 
-        if self.w_depth:
+        if self.w_depth and "ppd" not in cached_features:
             depth_map_path = os.path.join(self.base_dir, raw+'.pkl-depth.pkl')
             with open(depth_map_path, "rb") as f:
                 depth_map_data = pickle.load(f)
 
-        sample = self._get_sample(raw_data, raw, self_pred)
+        sample = self._get_sample(
+            raw_data,
+            raw,
+            self_pred,
+            cached_features=cached_features,
+        )
         if self.vit_pre:
             sample['bev'] = bev_rgb_to_occ(bev_data)    # np array unit8  hwc
-        if self.w_depth:
+        if self.w_depth and "ppd" in cached_features:
+            ppd_cache = cached_features["ppd"]
+            sample['depth_data'] = {
+                'image': ppd_cache['image_uint8'].float().div_(255.0),
+                'depth': ppd_cache['depth'].float(),
+                'mask': ppd_cache['mask'].bool(),
+                'semantics': ppd_cache['semantics'],
+            }
+        elif self.w_depth:
             views = ['cam_l0', 'cam_f0', 'cam_r0']
             depths = []
             masks = []
@@ -430,7 +501,8 @@ class NavSimDataset(Dataset):
 
         return sample
 
-    def _get_sample(self, raw, token, self_pred=None):
+    def _get_sample(self, raw, token, self_pred=None, cached_features=None):
+        cached_features = cached_features or {}
         glo_images = raw['glo_images']
         # temporarily only use one view
         views = ['cam_f0', 'cam_l0', 'cam_r0']
@@ -438,11 +510,16 @@ class NavSimDataset(Dataset):
         # if self.w_depth:
         #     depth_feats = []
 
-        for view in views:
-            cur_image_path = glo_images[view]['image_paths'][3]
-            if self.split == 'waymo_train':
-                cur_image_path = glo_images[view]['image_paths'][0]
-            images.append(self._load_image(cur_image_path))
+        need_policy_images = (
+            "qwen" not in cached_features
+            or (self.w_depth and "ppd" not in cached_features)
+        )
+        if need_policy_images:
+            for view in views:
+                cur_image_path = glo_images[view]['image_paths'][3]
+                if self.split == 'waymo_train':
+                    cur_image_path = glo_images[view]['image_paths'][0]
+                images.append(self._load_image(cur_image_path))
             # if self.w_depth:
             #     # img, not good
             #     # depth_image_path = cur_image_path + '-depth.jpg'
@@ -604,6 +681,8 @@ class NavSimDataset(Dataset):
             # 'depth_feat': depth_feats,
             # 'target': target    # 16, 2
         }
+        if "qwen" in cached_features:
+            sample['qwen_feature_cache'] = cached_features["qwen"]
 
         # if self.video_data_cfg.load_2d_data:
         #     sample['2d_gen_data'] = {}
@@ -626,7 +705,19 @@ class NavSimDataset(Dataset):
         #         # 512x512x3, 0~255: why float?
         #         sample['2d_gen_data']["clip_pixel_values"] = clip_pixel_values
 
-        if self.video_data_cfg.load_2d_data:
+        if self.video_data_cfg.load_2d_data and "wan" in cached_features:
+            wan_cache = dict(cached_features["wan"])
+            # Keep this scalar as a Python bool so Accelerate does not move it
+            # to the device and force a GPU->CPU synchronization every step.
+            mask_flag = wan_cache.get("mask_is_all_ones", False)
+            if isinstance(mask_flag, torch.Tensor):
+                mask_flag = bool(mask_flag.item())
+            wan_cache["mask_is_all_ones"] = mask_flag
+            sample['2d_gen_data'] = {
+                "idx": f"{token}-cam_l0_cam_f0_cam_r0",
+                "feature_cache": wan_cache,
+            }
+        elif self.video_data_cfg.load_2d_data:
             views = ['cam_l0', 'cam_f0', 'cam_r0']   # 左前、前、右前
 
             sample['2d_gen_data'] = {}
@@ -634,17 +725,25 @@ class NavSimDataset(Dataset):
             pixel_values_list = []
             name_list = []
 
-            # 1. 逐视角读视频
+            # 1. Read each view either from the pre-built MP4 or directly from
+            # the same nine source frames. The latter avoids a redundant
+            # encode/decode pass when a complete camera tree is available.
             for view in views:
-                video_path = os.path.join(
-                    self.video_data_cfg.rgb_meta_dir,
-                    self.split,
-                    view,
-                    token + '.mp4'
-                )
+                if self.video_source == "images":
+                    image_paths = glo_images[view]["image_paths"][3:12]
+                    pixel_values, name = self.rgb_gen_get_batch_from_images(
+                        image_paths
+                    )
+                else:
+                    video_path = os.path.join(
+                        self.video_data_cfg.rgb_meta_dir,
+                        self.split,
+                        view,
+                        token + '.mp4'
+                    )
 
-                # -1~1, shape: (F, C, H, W)
-                pixel_values, name = self.rgb_gen_get_batch(video_path)
+                    # -1~1, shape: (F, C, H, W)
+                    pixel_values, name = self.rgb_gen_get_batch(video_path)
 
                 pixel_values_list.append(pixel_values)
                 name_list.append(name)
@@ -717,6 +816,7 @@ class NavSimDataset(Dataset):
         return im
     
     def _load_image(self, file_name, target_height=576, target_width=1024):
+        file_name = resolve_navsim_data_path(file_name)
         if file_name is not None:
             image = Image.open(file_name)
             if image.mode != "RGB":
@@ -806,6 +906,24 @@ class NavSimDataset(Dataset):
             self.text = text
 
             return pixel_values, text
+
+    def rgb_gen_get_batch_from_images(self, image_paths):
+        if len(image_paths) != 9:
+            raise ValueError(
+                f"Expected 9 source frames, received {len(image_paths)}"
+            )
+
+        frames = []
+        for image_path in image_paths:
+            image_path = resolve_navsim_data_path(image_path)
+            with Image.open(image_path) as image:
+                frames.append(np.asarray(image.convert("RGB")).copy())
+
+        pixel_values = torch.from_numpy(np.stack(frames))
+        pixel_values = pixel_values.permute(0, 3, 1, 2).contiguous()
+        pixel_values = pixel_values / 255.
+        pixel_values = self.video_transforms(pixel_values)
+        return pixel_values, ''
 
     def get_storm_data(self, data_dict, token):
         # value range:

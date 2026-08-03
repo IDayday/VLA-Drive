@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import torch
 from omegaconf import OmegaConf
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 
 from starVLA.dataloader.navsim_dataset import NavSimDataset, collate_fn
@@ -215,6 +215,15 @@ class VLAAgent:
         if os.environ.get("BASE_VLM"):
             OmegaConf.update(self.model_config, "framework.qwenvl.base_vlm",
                              os.environ["BASE_VLM"], force_add=True)
+        # The PPU-adapted PyTorch build provides native SDPA.  The released
+        # config records the authors' NVIDIA flash-attention setting, which is
+        # not installed or needed in this environment.
+        OmegaConf.update(
+            self.model_config,
+            "framework.qwenvl.attn_implementation",
+            os.environ.get("VLM_ATTN_IMPLEMENTATION", "sdpa"),
+            force_add=True,
+        )
 
         # Disable optional data loading heads during inference
         OmegaConf.update(self.model_config, "datasets.reward_data", {"load_reward_data": False}, force_add=True)
@@ -261,8 +270,18 @@ class VLAAgent:
 
         state = torch.load(self.model_path, map_location="cpu", weights_only=True)
         missing, unexpected = self.model.load_state_dict(state, strict=False)
-        print("[Agent] missing keys:",    missing)
-        print("[Agent] unexpected keys:", unexpected)
+        unexpected_runtime_only = [
+            key for key in unexpected if not key.startswith("rgb_model.")
+        ]
+        print(f"[Agent] missing keys: {len(missing)}", missing[:20])
+        print(
+            f"[Agent] unused rgb_model keys (Wan intentionally disabled): "
+            f"{len(unexpected) - len(unexpected_runtime_only)}"
+        )
+        print(
+            f"[Agent] other unexpected keys: {len(unexpected_runtime_only)}",
+            unexpected_runtime_only[:20],
+        )
 
         self.model.to(self.device).eval()
 
@@ -289,6 +308,21 @@ def infer_and_save(
 ):
     os.makedirs(out_dir, exist_ok=True)
 
+    if not overwrite:
+        with open(datalist_path, "r", encoding="utf-8") as datalist_file:
+            shard_tokens = json.load(datalist_file)[args.rank::args.world_size]
+        missing_tokens = [
+            token
+            for token in shard_tokens
+            if not os.path.isfile(os.path.join(out_dir, token + ".npy"))
+        ]
+        if not missing_tokens:
+            print(
+                f"[Infer] shard {args.rank}/{args.world_size}: "
+                "all predictions already exist"
+            )
+            return
+
     agent = VLAAgent(ckpt_dir, model_iter=model_iter, device=device)
     cfg = agent.model_config
 
@@ -314,6 +348,24 @@ def infer_and_save(
         all_cfg=data_cfg,
         data_root=getattr(args, "data_root", None),
     )
+    if args.world_size < 1 or not 0 <= args.rank < args.world_size:
+        raise ValueError("--rank must be in [0, --world_size)")
+
+    indices = list(range(args.rank, len(dataset), args.world_size))
+    if not overwrite:
+        indices = [
+            index
+            for index in indices
+            if not os.path.isfile(
+                os.path.join(out_dir, dataset.raw_list[index] + ".npy")
+            )
+        ]
+    if args.world_size > 1 or not overwrite:
+        dataset = Subset(dataset, indices)
+        print(
+            f"[Infer] shard {args.rank}/{args.world_size}: "
+            f"{len(dataset)} samples remaining"
+        )
 
     loader = DataLoader(
         dataset,
@@ -324,8 +376,6 @@ def infer_and_save(
         pin_memory=False,
         drop_last=False,
     )
-
-    all_preds: Dict[str, np.ndarray] = {}
 
     for batch in tqdm(loader, desc="Infer"):
         batch_on_device = to_device(batch, agent.device)
@@ -344,10 +394,13 @@ def infer_and_save(
 
         tokens = [b["token"] for b in batch]
         for i, tok in enumerate(tokens):
-            all_preds[tok] = final_xy[i]
-
-    for k, v in tqdm(all_preds.items(), desc="Store"):
-        np.save(os.path.join(out_dir, k + ".npy"), v)
+            output_path = os.path.join(out_dir, tok + ".npy")
+            temporary_path = output_path + f".tmp-{os.getpid()}"
+            with open(temporary_path, "wb") as output_file:
+                np.save(output_file, final_xy[i])
+                output_file.flush()
+                os.fsync(output_file.fileno())
+            os.replace(temporary_path, output_path)
 
 
 # ---------------------------------------------------------------------------
@@ -366,6 +419,8 @@ def parse_args():
     p.add_argument("--model_iter",    type=int, default=None)
     p.add_argument("--overwrite",     action="store_true")
     p.add_argument("--smooth",        type=int, default=0)
+    p.add_argument("--rank",          type=int, default=0)
+    p.add_argument("--world_size",    type=int, default=1)
     p.add_argument("--data_root",     type=str, default=None,
                    help="Root of processed navsim_dataset/. Overrides OPENSCENE_DATA_ROOT.")
     return p.parse_args()

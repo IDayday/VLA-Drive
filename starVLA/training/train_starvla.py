@@ -21,6 +21,16 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import time
 
+# DeepSpeed's Triton autotune table is updated at interpreter exit. Give each
+# local rank its own node-local cache to avoid concurrent pickle updates and
+# stale handles on shared filesystems.
+if "TRITON_CACHE_DIR" in os.environ and "LOCAL_RANK" in os.environ:
+    os.environ["TRITON_CACHE_DIR"] = os.path.join(
+        os.environ["TRITON_CACHE_DIR"],
+        f"local_rank{os.environ['LOCAL_RANK']}",
+    )
+    os.makedirs(os.environ["TRITON_CACHE_DIR"], exist_ok=True)
+
 # Third-Party Libraries
 import torch
 import torch.distributed as dist
@@ -38,10 +48,6 @@ from starVLA.training.trainer_utils.trainer_tools import normalize_dotlist_args
 from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
-
-deepspeed_plugin = DeepSpeedPlugin()
-accelerator = Accelerator(deepspeed_plugin=deepspeed_plugin)
-accelerator.print(accelerator.state)
 
 # Sane Defaults
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -101,16 +107,19 @@ def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, to
     """set optimizer and scheduler"""
     # initialize optimizer
     param_groups = build_param_lr_groups(model=model, cfg=cfg)
+    fused_adamw = os.environ.get("STARVLA_FUSED_ADAMW", "0") == "1"
     optimizer = torch.optim.AdamW(
         param_groups,
         lr=cfg.trainer.learning_rate.base,
         betas=tuple(cfg.trainer.optimizer.betas),
         weight_decay=cfg.trainer.optimizer.weight_decay,
         eps=cfg.trainer.optimizer.eps,
+        fused=fused_adamw,
     )
 
     # print optimizer group info
     if dist.is_initialized() and dist.get_rank() == 0:
+        logger.info("AdamW fused=%s", fused_adamw)
         for i, group in enumerate(optimizer.param_groups):
             logger.info(f"LR Group {group['name']}: lr={group['lr']}, num_params={len(group['params'])}")
 
@@ -138,11 +147,18 @@ class VLATrainer(TrainerUtils):
         # training status tracking
         self.completed_steps = 0
         self.total_batch_size = self._calculate_total_batch_size()
+        self._timing_window = []
+        self._train_profile_steps_remaining = int(
+            os.environ.get("STARVLA_PROFILE_TRAIN_STEPS", "0")
+        )
 
         # --- Grad monitor (NEW) ---
         self._gm_handles = []
         self._gm_names = []
         self._gm_mask = None
+        self._gm_steps_remaining = int(
+            os.environ.get("STARVLA_GRAD_MONITOR_STEPS", "0")
+        )
 
     # ====== NEW: 参数梯度监控（DeepSpeed/ZeRO 兼容） ======
     def _setup_grad_monitor(self):
@@ -249,7 +265,11 @@ class VLATrainer(TrainerUtils):
             self.vla_train_dataloader,
             # self.vlm_train_dataloader
         )
-        # self._setup_grad_monitor()
+        # Optional diagnostic: identify trainable tensors that never enter the
+        # backward graph.  It is off in formal training because parameter hooks
+        # add overhead; enable only for short profiling runs.
+        if self._gm_steps_remaining > 0:
+            self._setup_grad_monitor()
 
         self._init_wandb()
         self._init_checkpointing()
@@ -293,7 +313,7 @@ class VLATrainer(TrainerUtils):
     def _save_checkpoint(self):
         """save current training state"""
 
-        if accelerator.is_main_process:
+        if self.accelerator.is_main_process:
 
             checkpoint_path = os.path.join(self.checkpoint_dir, f"steps_{self.completed_steps}")
             # save model state
@@ -307,12 +327,22 @@ class VLATrainer(TrainerUtils):
             with open(os.path.join(self.config.output_dir, "summary.jsonl"), "a") as f:
                 f.write(json.dumps(summary_data) + "\n")
             self.accelerator.print(f"✅ Checkpoint saved at {checkpoint_path}")
-        accelerator.wait_for_everyone()
+        self.accelerator.wait_for_everyone()
 
     def _log_metrics(self, metrics):
         """record training metrics"""
         if self.completed_steps % self.config.trainer.logging_frequency == 0:
             if dist.get_rank() == 0:
+                # Scalar extraction synchronizes the accelerator.  Keep it at
+                # logging frequency instead of forcing four syncs every step.
+                metrics = {
+                    key: (
+                        value.detach().float().item()
+                        if isinstance(value, torch.Tensor) and value.numel() == 1
+                        else value
+                    )
+                    for key, value in metrics.items()
+                }
                 # add learning rate
                 metrics["learning_rate"] = self.lr_scheduler.get_last_lr()[0]
 
@@ -393,6 +423,9 @@ class VLATrainer(TrainerUtils):
         )
 
         # main training loop
+        optimizer_step_start = time.perf_counter()
+        optimizer_data_time = 0.0
+        optimizer_model_time = 0.0
         while self.completed_steps < self.config.trainer.max_train_steps:
             # get data batch
             t_start_data = time.perf_counter()
@@ -403,36 +436,72 @@ class VLATrainer(TrainerUtils):
             t_start_model = time.perf_counter()
             step_metrics = self._train_step(batch_vla)
             t_end_model = time.perf_counter()
+            optimizer_data_time += t_end_data - t_start_data
+            optimizer_model_time += t_end_model - t_start_model
 
             # update progress
             if self.accelerator.sync_gradients:
                 progress_bar.update(1)
                 self.completed_steps += 1
-            
-            if self.accelerator.is_local_main_process:
-                progress_bar.set_postfix(
-                        {
-                            "data_times": f"{t_end_data - t_start_data:.3f}",
-                            "model_times": f"{t_end_model - t_start_model:.3f}",
-                        }
-                    )
 
-            # evaluate model
-            if self.completed_steps % self.config.trainer.eval_interval == 0:
-                step_metrics = self.eval_action_model(step_metrics)
+                # Evaluation, logging, and checkpointing are optimizer-step
+                # operations. Running them on unsynchronized accumulation
+                # microsteps repeatedly evaluates "step 0" and breaks the
+                # intended accumulation schedule.
+                if self.completed_steps % self.config.trainer.eval_interval == 0:
+                    step_metrics = self.eval_action_model(step_metrics)
 
-            # record metrics
-            step_metrics["data_time"] = t_end_data - t_start_data
-            step_metrics["model_time"] = t_end_model - t_start_model
-            self._log_metrics(step_metrics)
+                step_metrics["data_time"] = optimizer_data_time
+                step_metrics["model_time"] = optimizer_model_time
+                self._log_metrics(step_metrics)
 
-            # save checkpoint
-            if self.completed_steps % self.config.trainer.save_interval == 0 and self.completed_steps > 0:
-                self._save_checkpoint()
+                if self.completed_steps % self.config.trainer.save_interval == 0:
+                    self._save_checkpoint()
 
-            # check termination condition
-            if self.completed_steps >= self.config.trainer.max_train_steps:
-                break
+                optimizer_step_end = time.perf_counter()
+                wall_time = optimizer_step_end - optimizer_step_start
+                overhead_time = max(
+                    0.0,
+                    wall_time - optimizer_data_time - optimizer_model_time,
+                )
+                self._timing_window.append(
+                    (optimizer_data_time, optimizer_model_time, overhead_time, wall_time)
+                )
+
+                if self.completed_steps % self.config.trainer.logging_frequency == 0:
+                    if self.accelerator.is_local_main_process:
+                        timing = np.asarray(self._timing_window, dtype=np.float64)
+                        means = timing.mean(axis=0)
+                        p95 = np.percentile(timing, 95, axis=0)
+                        progress_bar.set_postfix(
+                            {
+                                "data_avg": f"{means[0]:.3f}",
+                                "data_p95": f"{p95[0]:.3f}",
+                                "model_avg": f"{means[1]:.3f}",
+                                "wall_avg": f"{means[3]:.3f}",
+                            },
+                            refresh=False,
+                        )
+                        logger.info(
+                            "Timing[%d steps]: data avg/p95=%.3f/%.3fs, "
+                            "model avg/p95=%.3f/%.3fs, overhead avg/p95=%.3f/%.3fs, "
+                            "wall avg/p95=%.3f/%.3fs",
+                            len(self._timing_window),
+                            means[0], p95[0],
+                            means[1], p95[1],
+                            means[2], p95[2],
+                            means[3], p95[3],
+                        )
+                    # Every rank owns a timing window. Clear it everywhere so
+                    # non-main ranks do not retain one tuple per training step.
+                    self._timing_window.clear()
+
+                optimizer_step_start = time.perf_counter()
+                optimizer_data_time = 0.0
+                optimizer_model_time = 0.0
+
+                if self.completed_steps >= self.config.trainer.max_train_steps:
+                    break
 
         # training end processing
         self._finalize_training()
@@ -519,13 +588,24 @@ class VLATrainer(TrainerUtils):
 
     def _train_step(self, batch_vla, batch_vlm=None):
         """execute single training step"""
+        profile = None
+        if self._train_profile_steps_remaining > 0:
+            torch.cuda.synchronize()
+            profile = {"last": time.perf_counter(), "stages": []}
+
+        def profile_mark(name):
+            if profile is None:
+                return
+            torch.cuda.synchronize()
+            now = time.perf_counter()
+            profile["stages"].append((name, now - profile["last"]))
+            profile["last"] = now
+
         if self.config.datasets.gs_data.load_3d_data:
             if self.config.framework.gs_model.enable_perceptual_loss and self.completed_steps >= self.config.framework.gs_model.perceptual_loss_start_iter:
                 logger.info('starting set_perceptual_loss')
                 self.model.gs_model.rgb_and_lpips_loss.set_perceptual_loss(True)
         with self.accelerator.accumulate(self.model):
-            self.optimizer.zero_grad()
-
             # VLA task forward propagation
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 output_dict = self.model.forward(batch_vla)
@@ -553,37 +633,55 @@ class VLATrainer(TrainerUtils):
                 if self.config.datasets.vla_data.load_act_data == 1:
                     total_loss += action_loss
 
+            profile_mark("forward")
 
             # VLA backward propagation
             self.accelerator.backward(total_loss)
-            # for debug
-            # self._report_unused_after_backward()
+            profile_mark("backward")
+            if self._gm_steps_remaining > 0:
+                self._report_unused_after_backward()
+                self._gm_steps_remaining -= 1
 
             # gradient clipping
             if self.accelerator.sync_gradients:
                 if self.config.trainer.gradient_clipping is not None:
                     self.accelerator.clip_grad_norm_(self.model.parameters(), self.config.trainer.gradient_clipping)
+                profile_mark("grad_clip")
 
                 # optimizer step
                 self.optimizer.step()
                 self.lr_scheduler.step()
+                self.optimizer.zero_grad()
+                profile_mark("optimizer_scheduler_zero")
+
+        if profile is not None:
+            self._train_profile_steps_remaining -= 1
+            total = sum(duration for _, duration in profile["stages"])
+            detail = " ".join(
+                f"{name}={duration * 1000:.1f}ms"
+                for name, duration in profile["stages"]
+            )
+            logger.info("StarVLATrainProfile total=%.1fms %s", total * 1000, detail)
 
         return {
-            "action_dit_loss": action_loss.item(),
-            "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.item(),
-            "gs_loss": 0 if self.config.datasets.gs_data.load_3d_data == 0 and self.config.w_depth==0 else gs_loss.item(),
-            "reward_loss": 0 if self.config.datasets.reward_data.load_reward_data == 0 else reward_loss.item()
+            "action_dit_loss": action_loss.detach(),
+            "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.detach(),
+            "gs_loss": 0 if self.config.datasets.gs_data.load_3d_data == 0 and self.config.w_depth==0 else gs_loss.detach(),
+            "reward_loss": 0 if self.config.datasets.reward_data.load_reward_data == 0 else reward_loss.detach()
         }
 
     def _finalize_training(self):
         """training end processing"""
         # save final model
-        if self.accelerator.is_main_process:
+        skip_final_save = os.environ.get("TRAINING_SKIP_FINAL_SAVE", "0") == "1"
+        if self.accelerator.is_main_process and not skip_final_save:
             final_checkpoint = os.path.join(self.config.output_dir, "final_model")
             os.makedirs(final_checkpoint, exist_ok=True)
             state_dict = self.accelerator.get_state_dict(self.model)
             torch.save(state_dict, os.path.join(final_checkpoint, "pytorch_model.pt"))
             logger.info(f"Training complete. Final model saved at {final_checkpoint}")
+        elif self.accelerator.is_main_process:
+            logger.info("TRAINING_SKIP_FINAL_SAVE=1; skipped final checkpoint (smoke test only)")
 
         # close W&B
         if self.accelerator.is_main_process:
@@ -593,6 +691,14 @@ class VLATrainer(TrainerUtils):
 
 
 def main(cfg) -> None:
+    deepspeed_plugin = DeepSpeedPlugin()
+    accelerator = Accelerator(
+        gradient_accumulation_steps=int(
+            cfg.trainer.gradient_accumulation_steps
+        ),
+        deepspeed_plugin=deepspeed_plugin,
+    )
+    accelerator.print(accelerator.state)
     logger.info("VLA Training :: Warming Up")
 
     # create output directory and save config
@@ -602,23 +708,39 @@ def main(cfg) -> None:
     import os
     from shutil import ignore_patterns
     code_dir = os.path.join(output_dir, 'code/')
-    os.makedirs(code_dir, exist_ok=True)
     project_root = str(Path(__file__).resolve().parent.parent.parent)
-    # Snapshot training scripts and starVLA source for reproducibility.
-    for fname in ('debug.sh', '8-train.sh'):
-        src = os.path.join(project_root, fname)
-        if os.path.exists(src):
-            shutil.copy2(src, code_dir)
-    shutil.copytree(os.path.join(project_root, 'starVLA'), os.path.join(code_dir, 'starVLA'),
-                    ignore=ignore_patterns('__pycache__', '*.pyc', '*.egg-info'),
-                    dirs_exist_ok=True)
+    # Only rank 0 writes the source snapshot.  Sixteen ranks copying the same
+    # tree concurrently needlessly hammers shared storage at job startup.
+    if accelerator.is_main_process:
+        os.makedirs(code_dir, exist_ok=True)
+        for fname in ('debug.sh', '8-train.sh', 'training.sh', 'pre_cache.sh'):
+            src = os.path.join(project_root, fname)
+            if os.path.exists(src):
+                shutil.copy2(src, code_dir)
+        shutil.copytree(
+            os.path.join(project_root, 'starVLA'),
+            os.path.join(code_dir, 'starVLA'),
+            ignore=ignore_patterns('__pycache__', '*.pyc', '*.egg-info'),
+            dirs_exist_ok=True,
+        )
+    accelerator.wait_for_everyone()
 
 
 
 
     # build model
     vla = build_framework(cfg, accelerator)
-    logger.info(vla)
+    if accelerator.is_main_process:
+        total_parameters = sum(parameter.numel() for parameter in vla.parameters())
+        trainable_parameters = sum(
+            parameter.numel() for parameter in vla.parameters() if parameter.requires_grad
+        )
+        logger.info(
+            "Model ready: %s total_params=%.3fB trainable_params=%.3fB",
+            type(vla).__name__,
+            total_parameters / 1e9,
+            trainable_parameters / 1e9,
+        )
     # prepare data
     vla_train_dataloader = prepare_data(cfg=cfg, accelerator=accelerator, output_dir=output_dir)
 

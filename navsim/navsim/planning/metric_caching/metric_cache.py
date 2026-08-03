@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import lzma
+import os
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
@@ -54,4 +55,8 @@ class MetricCache:
         """Dump metric cache to pickle with lzma compression."""
         # TODO: check if file_path must really be pickled
         pickle_object = pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
-        save_buffer(self.file_path, lzma.compress(pickle_object, preset=0))
+        temporary_path = self.file_path.with_name(
+            self.file_path.name + f".tmp-{os.getpid()}"
+        )
+        save_buffer(temporary_path, lzma.compress(pickle_object, preset=0))
+        os.replace(temporary_path, self.file_path)

@@ -4,9 +4,12 @@
 
 set -euo pipefail
 
-SPLIT=mini
-DATA_ROOT=navsim_dataset
+SPLIT="${SPLIT:-mini}"
+DATA_ROOT="${DATA_ROOT:-navsim_dataset}"
+if [ "$SPLIT" = "navtrain" ]; then
+    SPLIT=train
+fi
 
-CUDA_VISIBLE_DEVICES=0 python navsim_data_process/data_list.py \
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}" python navsim_data_process/data_list.py \
     --split "$SPLIT" \
     --data_root "$DATA_ROOT"

@@ -134,8 +134,17 @@ def get_resize_crop_region_for_grid(src, tgt_width, tgt_height):
 
 @amp.autocast(enabled=False)
 @torch.compiler.disable()
-def rope_apply(x, grid_sizes, freqs):
+def rope_apply(x, grid_sizes, freqs, rotary_freqs=None):
     n, c = x.size(2), x.size(3) // 2
+
+    if rotary_freqs is not None:
+        x_complex = torch.view_as_complex(
+            x.to(torch.float32).reshape(*x.shape[:-1], -1, 2)
+        )
+        x_rotated = torch.view_as_real(
+            x_complex * rotary_freqs[:, :x.size(1)]
+        ).flatten(3)
+        return x_rotated.to(x.dtype)
 
     # split freqs
     freqs = freqs.split([c - 2 * (c // 3), c // 3, c // 3], dim=1)
@@ -164,10 +173,43 @@ def rope_apply(x, grid_sizes, freqs):
     return torch.stack(output).to(x.dtype)
 
 
-def rope_apply_qk(q, k, grid_sizes, freqs):
-    q = rope_apply(q, grid_sizes, freqs)
-    k = rope_apply(k, grid_sizes, freqs)
+def rope_apply_qk(q, k, grid_sizes, freqs, rotary_freqs=None):
+    q = rope_apply(q, grid_sizes, freqs, rotary_freqs=rotary_freqs)
+    k = rope_apply(k, grid_sizes, freqs, rotary_freqs=rotary_freqs)
     return q, k
+
+
+@torch.no_grad()
+def precompute_rope_freqs(grid_sizes, freqs, padded_seq_len):
+    """Build the fixed 3D RoPE multipliers once instead of once per block/QK."""
+    channel_dim = freqs.size(1)
+    split_freqs = freqs.split(
+        [
+            channel_dim - 2 * (channel_dim // 3),
+            channel_dim // 3,
+            channel_dim // 3,
+        ],
+        dim=1,
+    )
+    batch_freqs = []
+    for frames, height, width in grid_sizes.tolist():
+        valid_seq_len = frames * height * width
+        sample_freqs = torch.cat(
+            [
+                split_freqs[0][:frames].view(frames, 1, 1, -1).expand(frames, height, width, -1),
+                split_freqs[1][:height].view(1, height, 1, -1).expand(frames, height, width, -1),
+                split_freqs[2][:width].view(1, 1, width, -1).expand(frames, height, width, -1),
+            ],
+            dim=-1,
+        ).reshape(valid_seq_len, 1, -1)
+        if valid_seq_len < padded_seq_len:
+            # Padded tokens were left unchanged by the original implementation.
+            padding = sample_freqs.new_ones(
+                padded_seq_len - valid_seq_len, 1, channel_dim
+            )
+            sample_freqs = torch.cat((sample_freqs, padding), dim=0)
+        batch_freqs.append(sample_freqs)
+    return torch.stack(batch_freqs)
 
 
 class WanRMSNorm(nn.Module):
@@ -227,7 +269,16 @@ class WanSelfAttention(nn.Module):
         self.norm_q = WanRMSNorm(dim, eps=eps) if qk_norm else nn.Identity()
         self.norm_k = WanRMSNorm(dim, eps=eps) if qk_norm else nn.Identity()
 
-    def forward(self, x, seq_lens, grid_sizes, freqs, dtype=torch.bfloat16, t=0):
+    def forward(
+        self,
+        x,
+        seq_lens,
+        grid_sizes,
+        freqs,
+        dtype=torch.bfloat16,
+        t=0,
+        rotary_freqs=None,
+    ):
         r"""
         Args:
             x(Tensor): Shape [B, L, num_heads, C / num_heads]
@@ -246,7 +297,13 @@ class WanSelfAttention(nn.Module):
 
         q, k, v = qkv_fn(x)
 
-        q, k = rope_apply_qk(q, k, grid_sizes, freqs)
+        q, k = rope_apply_qk(
+            q,
+            k,
+            grid_sizes,
+            freqs,
+            rotary_freqs=rotary_freqs,
+        )
 
         x = attention(
             q.to(dtype), 
@@ -429,6 +486,7 @@ class WanAttentionBlock(nn.Module):
         context_lens,
         dtype=torch.bfloat16,
         t=0,
+        rotary_freqs=None,
     ):
         r"""
         Args:
@@ -448,7 +506,15 @@ class WanAttentionBlock(nn.Module):
         temp_x = self.norm1(x) * (1 + e[1]) + e[0]
         temp_x = temp_x.to(dtype)
 
-        y = self.self_attn(temp_x, seq_lens, grid_sizes, freqs, dtype, t=t)
+        y = self.self_attn(
+            temp_x,
+            seq_lens,
+            grid_sizes,
+            freqs,
+            dtype,
+            t=t,
+            rotary_freqs=rotary_freqs,
+        )
         x = x + y * e[2]
 
         # cross-attention & ffn function
@@ -650,6 +716,7 @@ class WanTransformer3DModel(ModelMixin, ConfigMixin, FromOriginalModelMixin):
             ],
             dim=1
         )
+        self._rope_freqs_cache = {}
 
         if model_type == 'i2v':
             self.img_emb = MLPProj(1280, dim)
@@ -865,6 +932,30 @@ class WanTransformer3DModel(ModelMixin, ConfigMixin, FromOriginalModelMixin):
                       dim=1) for u in x
         ])
 
+        rotary_freqs = None
+        if (
+            self.sp_world_size == 1
+            and os.environ.get("STARVLA_CACHE_WAN_ROPE", "1") == "1"
+        ):
+            grid_key = tuple(tuple(int(value) for value in row) for row in grid_sizes.tolist())
+            rope_cache_key = (
+                self.freqs.data_ptr(),
+                str(self.freqs.device),
+                int(seq_len),
+                grid_key,
+            )
+            rotary_freqs = self._rope_freqs_cache.get(rope_cache_key)
+            if rotary_freqs is None:
+                # Keep the cache bounded for unusual dynamic-resolution use.
+                if len(self._rope_freqs_cache) >= 4:
+                    self._rope_freqs_cache.clear()
+                rotary_freqs = precompute_rope_freqs(
+                    grid_sizes,
+                    self.freqs,
+                    seq_len,
+                )
+                self._rope_freqs_cache[rope_cache_key] = rotary_freqs
+
         # time embeddings
         with amp.autocast(dtype=torch.float32):
             if t.dim() != 1:
@@ -961,6 +1052,7 @@ class WanTransformer3DModel(ModelMixin, ConfigMixin, FromOriginalModelMixin):
                             context_lens,
                             dtype,
                             t,
+                            rotary_freqs,
                             **ckpt_kwargs,
                         )
                     else:
@@ -973,7 +1065,8 @@ class WanTransformer3DModel(ModelMixin, ConfigMixin, FromOriginalModelMixin):
                             context=context,
                             context_lens=context_lens,
                             dtype=dtype,
-                            t=t  
+                            t=t,
+                            rotary_freqs=rotary_freqs,
                         )
                         x = block(x, **kwargs)
                     
@@ -1002,6 +1095,7 @@ class WanTransformer3DModel(ModelMixin, ConfigMixin, FromOriginalModelMixin):
                         context_lens,
                         dtype,
                         t,
+                        rotary_freqs,
                         **ckpt_kwargs,
                     )
                 else:
@@ -1014,7 +1108,8 @@ class WanTransformer3DModel(ModelMixin, ConfigMixin, FromOriginalModelMixin):
                         context=context,
                         context_lens=context_lens,
                         dtype=dtype,
-                        t=t  
+                        t=t,
+                        rotary_freqs=rotary_freqs,
                     )
                     x = block(x, **kwargs)
 

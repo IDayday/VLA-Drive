@@ -31,15 +31,15 @@ class Attention(nn.Module):
         self.proj_drop = nn.Dropout(proj_drop)
         self.rope = rope
 
-    def forward(self, x: torch.Tensor, pos=None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, pos=None, max_position=None) -> torch.Tensor:
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)
         q, k = self.q_norm(q), self.k_norm(k)
 
         if self.rope is not None:
-            q = self.rope(q, pos)
-            k = self.rope(k, pos)
+            q = self.rope(q, pos, max_position=max_position)
+            k = self.rope(k, pos, max_position=max_position)
 
         if self.fused_attn:
             x = F.scaled_dot_product_attention(

@@ -188,6 +188,12 @@ def main():
     parser.set_defaults(as_special=True)
     parser.add_argument("--padding-side", default="left", choices=["left", "right"])
     parser.add_argument("--device", default="cuda", help="cuda / cpu / mps / auto")
+    parser.add_argument(
+        "--attn-implementation",
+        default="sdpa",
+        choices=["sdpa", "eager", "flash_attention_2"],
+        help="Attention backend. Use sdpa for the PPU CUDA-compatible runtime.",
+    )
     args = parser.parse_args()
 
 
@@ -210,9 +216,9 @@ def main():
 
     model = Qwen3VLForConditionalGeneration.from_pretrained(
         args.model_id,
-        attn_implementation="flash_attention_2",
+        attn_implementation=args.attn_implementation,
         dtype=torch.bfloat16,
-        device_map="cuda",
+        device_map="auto" if args.device == "auto" else args.device,
     )
     processor = AutoProcessor.from_pretrained(args.model_id, trust_remote_code=True)
     processor.tokenizer.padding_side = "left"

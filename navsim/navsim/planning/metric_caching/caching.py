@@ -18,7 +18,7 @@ from omegaconf import DictConfig
 from navsim.common.dataclasses import Scene, SensorConfig
 from navsim.common.dataloader import SceneFilter, SceneLoader
 from navsim.planning.metric_caching.metric_cache_processor import MetricCacheProcessor
-from navsim.planning.scenario_builder.navsim_scenario import NavSimScenario
+from navsim.planning.scenario_builder.navsim_scenario import DUMMY_SCENARIO_TYPE, NavSimScenario
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +93,22 @@ def cache_scenarios(args: List[Dict[str, Union[List[str], DictConfig]]]) -> List
             proposal_sampling=instantiate(cfg.proposal_sampling),
         )
 
+        def get_existing_cache_metadata(scene_dict: Dict[str, Any]) -> Optional[CacheMetadataEntry]:
+            """Resolve an existing cache before constructing the full scene and map API."""
+            if cfg.force_feature_computation:
+                return None
+            initial_frame = scene_dict[
+                cfg.train_test_split.scene_filter.num_history_frames - 1
+            ]
+            cache_file = (
+                Path(cfg.metric_cache_path)
+                / initial_frame["log_name"]
+                / DUMMY_SCENARIO_TYPE
+                / initial_frame["token"]
+                / "metric_cache.pkl"
+            )
+            return CacheMetadataEntry(cache_file) if cache_file.exists() else None
+
         logger.info(f"Extracted {len(scene_loader)} scenarios for thread_id={thread_id}, node_id={node_id}.")
         num_failures = 0
         num_successes = 0
@@ -101,8 +117,10 @@ def cache_scenarios(args: List[Dict[str, Union[List[str], DictConfig]]]) -> List
             logger.info(
                 f"Processing scenario {idx + 1} / {len(scene_loader.scene_frames_dicts)} in thread_id={thread_id}, node_id={node_id}"
             )
-            file_cache_metadata = cache_single_scenario(scene_dict, processor)
-            gc.collect()
+            file_cache_metadata = get_existing_cache_metadata(scene_dict)
+            if file_cache_metadata is None:
+                file_cache_metadata = cache_single_scenario(scene_dict, processor)
+                gc.collect()
 
             num_failures += 0 if file_cache_metadata else 1
             num_successes += 1 if file_cache_metadata else 0

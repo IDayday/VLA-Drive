@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import shutil
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
@@ -165,9 +166,13 @@ def gen_info(root):
                     img_list = glo_images[view]['image_paths'][3:12]
                     video_view_dir = os.path.join(video_dir, view)
                     os.makedirs(video_view_dir, exist_ok=True)
-                    images_to_video(img_list, os.path.join(video_view_dir, container['token']+'.mp4'), fps=2)
+                    video_path = os.path.join(video_view_dir, container['token'] + '.mp4')
+                    if not os.path.isfile(video_path):
+                        images_to_video(img_list, video_path, fps=2)
                     ext = img_list[0][-4:]
-                    os.system(f'cp {img_list[0]} {os.path.join(video_view_dir, container["token"] + ext)}')
+                    still_path = os.path.join(video_view_dir, container["token"] + ext)
+                    if not os.path.isfile(still_path):
+                        shutil.copy2(img_list[0], still_path)
 
             all_x.append(gt_2_ego(glo_status['global_poses'][3:12,:2])[1:,0])
             all_y.append(gt_2_ego(glo_status['global_poses'][3:12,:2])[1:,1])

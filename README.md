@@ -2,6 +2,10 @@
 
 **DriveDreamer-Policy: A Geometry-Grounded World–Action Model for Unified Generation and Planning**
 
+> The tested PPU setup, local weight layout, and end-to-end reproduction
+> commands for this workspace are documented in
+> [`PPU_REPRODUCTION.md`](PPU_REPRODUCTION.md).
+
 [![arXiv](https://img.shields.io/badge/arXiv-2604.01765-b31b1b.svg)](https://arxiv.org/abs/2604.01765)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -259,7 +263,9 @@ python infer.py \
 
 ## 6. Evaluation
 
-Evaluation requires a pre-computed metric cache. If you do not have one, run the caching script first (commented out at the top of each eval script).
+Evaluation requires a metric cache. The PPU-compatible `6-eval_v2.sh` checks
+the prediction count and generates/resumes the NAVSIM v2 cache automatically
+when it is incomplete.
 
 ### NAVSIM v2
 
@@ -269,6 +275,10 @@ bash 6-eval_v2.sh
 ```
 
 Uses the PDM-Score evaluator from the NAVSIM v2 devkit (`navsim/`). Set `PRED_DIR` and `METRIC_CACHE_PATH` at the top of `6-eval_v2.sh`.
+
+The released checkpoint was verified on all 12,146 navtest scenarios with no
+failures and produced EPDMS `0.8868952559565824` (`88.6895`, rounding to the
+paper-reported `88.7`).
 
 ### NAVSIM v1.1
 

@@ -4,10 +4,18 @@
 
 set -euo pipefail
 
-SPLIT=mini
-DATA_ROOT=navsim_dataset
-# Add --make_video to generate video clips; omit it to skip and speed up processing
+SPLIT="${SPLIT:-mini}"
+DATA_ROOT="${DATA_ROOT:-navsim_dataset}"
+if [ "$SPLIT" = "navtrain" ]; then
+    SPLIT=train
+fi
 
-CUDA_VISIBLE_DEVICES=0 python navsim_data_process/make_data.py \
+extra_args=()
+if [ "${MAKE_VIDEO:-0}" = "1" ]; then
+    extra_args+=(--make_video)
+fi
+
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}" python navsim_data_process/make_data.py \
     --split "$SPLIT" \
-    --data_root "$DATA_ROOT"
+    --data_root "$DATA_ROOT" \
+    "${extra_args[@]}"

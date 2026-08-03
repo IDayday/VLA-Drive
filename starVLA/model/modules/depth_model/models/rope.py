@@ -32,7 +32,7 @@ class PositionGetter:
 
     def __init__(self):
         """Initializes the position generator with an empty cache."""
-        self.position_cache: Dict[Tuple[int, int], torch.Tensor] = {}
+        self.position_cache: Dict[Tuple[int, int, str], torch.Tensor] = {}
 
     def __call__(self, batch_size: int, height: int, width: int, device: torch.device) -> torch.Tensor:
         """Generates spatial positions for a batch of patches.
@@ -47,14 +47,17 @@ class PositionGetter:
             Tensor of shape (batch_size, height*width, 2) containing y,x coordinates
             for each position in the grid, repeated for each batch item.
         """
-        if (height, width) not in self.position_cache:
+        cache_key = (height, width, str(device))
+        if cache_key not in self.position_cache:
             y_coords = torch.arange(height, device=device)
             x_coords = torch.arange(width, device=device)
             positions = torch.cartesian_prod(y_coords, x_coords)
-            self.position_cache[height, width] = positions
+            self.position_cache[cache_key] = positions
 
-        cached_positions = self.position_cache[height, width]
-        return cached_positions.view(1, height * width, 2).expand(batch_size, -1, -1).clone()
+        cached_positions = self.position_cache[cache_key]
+        # The positions are read-only. Returning an expanded view avoids allocating
+        # and copying the same grid on every training step.
+        return cached_positions.view(1, height * width, 2).expand(batch_size, -1, -1)
 
 
 class RotaryPositionEmbedding2D(nn.Module):
@@ -149,7 +152,12 @@ class RotaryPositionEmbedding2D(nn.Module):
         # Apply rotation
         return (tokens * cos) + (self._rotate_features(tokens) * sin)
 
-    def forward(self, tokens: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        tokens: torch.Tensor,
+        positions: torch.Tensor,
+        max_position: int = None,
+    ) -> torch.Tensor:
         """Applies 2D rotary position embeddings to input tokens.
 
         Args:
@@ -172,7 +180,10 @@ class RotaryPositionEmbedding2D(nn.Module):
         feature_dim = tokens.size(-1) // 2
 
         # Get frequency components
-        max_position = int(positions.max()) + 1
+        # DiT already knows the spatial grid size. Supplying it avoids a device
+        # synchronization from ``int(positions.max())`` for every Q/K RoPE call.
+        if max_position is None:
+            max_position = int(positions.max()) + 1
         cos_comp, sin_comp = self._compute_frequency_components(feature_dim, max_position, tokens.device, tokens.dtype)
 
         # Split features for vertical and horizontal processing

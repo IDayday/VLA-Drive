@@ -74,11 +74,15 @@ class DiTBlock(nn.Module):
             nn.SiLU(), nn.Linear(hidden_size, 6 * hidden_size, bias=True)
         )
 
-    def forward(self, x, c, pos=None):
+    def forward(self, x, c, pos=None, max_position=None):
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = self.adaLN_modulation(
             c
         ).chunk(6, dim=1)
-        x = x + gate_msa.unsqueeze(1) * self.attn(modulate(self.norm1(x), shift_msa, scale_msa), pos=pos)
+        x = x + gate_msa.unsqueeze(1) * self.attn(
+            modulate(self.norm1(x), shift_msa, scale_msa),
+            pos=pos,
+            max_position=max_position,
+        )
         x = x + gate_mlp.unsqueeze(1) * self.mlp(modulate(self.norm2(x), shift_mlp, scale_mlp))
         return x
 
@@ -210,9 +214,15 @@ class DiT(nn.Module):
 
         pos0 = None
         pos1 = None
+        pos0_max = None
+        pos1_max = None
         if self.rope is not None:
-            pos0 = self.position_getter(N, H // 16, W // 16, device=x.device)
-            pos1 = self.position_getter(N, H // 8, W // 8, device=x.device)
+            pos0_height, pos0_width = H // 16, W // 16
+            pos1_height, pos1_width = H // 8, W // 8
+            pos0 = self.position_getter(N, pos0_height, pos0_width, device=x.device)
+            pos1 = self.position_getter(N, pos1_height, pos1_width, device=x.device)
+            pos0_max = max(pos0_height, pos0_width)
+            pos1_max = max(pos1_height, pos1_width)
 
         x = self.x_embedder(x)
         N, T, D = x.shape
@@ -221,16 +231,21 @@ class DiT(nn.Module):
         # for block in self.blocks:
         for i, block in enumerate(self.blocks):
             if i < (self.depth//2):
-                x = block(x, t, pos0)  # (N, T, D)
+                x = block(x, t, pos0, pos0_max)  # (N, T, D)
             else:
-                x = block(x, t, pos1)  # (N, T, D)
+                x = block(x, t, pos1, pos1_max)  # (N, T, D)
 
             if i == (self.depth//2)-1:
 
                 semantics = F.normalize(semantics, dim=-1)
 
                 qwen_emb = self.qwen_proj(qwen_tokens)  # [B, L, D]
-                x_qwen, _ = self.qwen_cross_attn(x, qwen_emb, qwen_emb)
+                x_qwen, _ = self.qwen_cross_attn(
+                    x,
+                    qwen_emb,
+                    qwen_emb,
+                    need_weights=False,
+                )
                 x = x + x_qwen
 
                 x = self.proj_fusion(torch.cat([x, semantics], dim=-1))
@@ -243,4 +258,3 @@ class DiT(nn.Module):
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
         x = self.unpatchify(x, height=H, width=W)  # (N, out_channels, H, W)
         return x
-

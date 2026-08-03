@@ -28,6 +28,7 @@ from einops import rearrange
 import torchvision.transforms.functional as TF
 from PIL import Image
 from diffusers import DDIMScheduler, FlowMatchEulerDiscreteScheduler
+from diffusers.models.autoencoders.vae import DiagonalGaussianDistribution
 import math
 import pickle
 import time
@@ -158,90 +159,120 @@ class WanWorldHead(nn.Module):
 
 
     def forward(self, rgb_data, prompt_embeds):
+        weight_dtype = prompt_embeds.dtype
+        cached = [item.get("feature_cache") for item in rgb_data]
+        if any(value is not None for value in cached) and not all(value is not None for value in cached):
+            raise RuntimeError("A batch cannot mix cached and uncached Wan samples")
 
         batch = {}
-
-        a = time.time()
-
-
-        batch["pixel_values"] = torch.stack([b['pixel_values'] for b in rgb_data])
-        batch["clip_pixel_values"] = torch.stack([b['clip_pixel_values'] for b in rgb_data])
-        batch["mask_pixel_values"] = torch.stack([b['mask_pixel_values'] for b in rgb_data])
-        batch["mask"] = torch.stack([b['mask'] for b in rgb_data])
-
         if self.full_config.datasets.video_data.text_input:
-            batch['text'] = [b['text'] for b in rgb_data]
-
-        weight_dtype = prompt_embeds.dtype
-        pixel_values = batch["pixel_values"].to(weight_dtype)
-        clip_pixel_values = batch["clip_pixel_values"].to(weight_dtype)
-        mask_pixel_values = batch["mask_pixel_values"].to(weight_dtype)
-        mask = batch["mask"].to(weight_dtype)
-
-
-        t2v_flag = [(_mask == 1).all() for _mask in mask]
-        new_t2v_flag = []
-        for _mask in t2v_flag:
-            if _mask and np.random.rand() < 0.90:
-                new_t2v_flag.append(0)
-            else:
-                new_t2v_flag.append(1)
-        t2v_flag = torch.from_numpy(np.array(new_t2v_flag)).to(prompt_embeds.device, dtype=weight_dtype)
+            if all(value is not None for value in cached):
+                raise RuntimeError("Wan text-input caching is not supported")
+            batch['text'] = [item['text'] for item in rgb_data]
 
         with torch.no_grad():
-            # This way is quicker when batch grows up
-            def _batch_encode_vae(pixel_values):
-                pixel_values = rearrange(pixel_values, "b f c h w -> b c f h w")
-                bs = 32
-                new_pixel_values = []
-                for i in range(0, pixel_values.shape[0], bs):
-                    pixel_values_bs = pixel_values[i : i + bs]
-                    pixel_values_bs = self.vae.encode(pixel_values_bs)[0]
-                    pixel_values_bs = pixel_values_bs.sample()
-                    new_pixel_values.append(pixel_values_bs)
-                return torch.cat(new_pixel_values, dim = 0)
-            latents = _batch_encode_vae(pixel_values)
+            if all(value is not None for value in cached):
+                latent_parameters = torch.stack(
+                    [value["latent_parameters"] for value in cached]
+                ).to(prompt_embeds.device, dtype=weight_dtype, non_blocking=True)
+                mask_latent_parameters = torch.stack(
+                    [value["mask_latent_parameters"] for value in cached]
+                ).to(prompt_embeds.device, dtype=weight_dtype, non_blocking=True)
+                latents = DiagonalGaussianDistribution(latent_parameters).sample()
+                mask_latents = DiagonalGaussianDistribution(mask_latent_parameters).sample()
+                latent_mask = torch.stack(
+                    [value["latent_mask"] for value in cached]
+                ).to(prompt_embeds.device, dtype=weight_dtype, non_blocking=True)
+                clip_context = torch.stack(
+                    [value["clip_context"] for value in cached]
+                ).to(prompt_embeds.device, dtype=weight_dtype, non_blocking=True)
+                t2v_source = [bool(value["mask_is_all_ones"]) for value in cached]
+            else:
+                batch["pixel_values"] = torch.stack([item['pixel_values'] for item in rgb_data])
+                batch["clip_pixel_values"] = torch.stack([item['clip_pixel_values'] for item in rgb_data])
+                batch["mask_pixel_values"] = torch.stack([item['mask_pixel_values'] for item in rgb_data])
+                batch["mask"] = torch.stack([item['mask'] for item in rgb_data])
 
+                pixel_values = batch["pixel_values"].to(weight_dtype)
+                clip_pixel_values = batch["clip_pixel_values"].to(weight_dtype)
+                mask_pixel_values = batch["mask_pixel_values"].to(weight_dtype)
+                mask = batch["mask"].to(weight_dtype)
 
-            mask = rearrange(mask, "b f c h w -> b c f h w")
-            mask = torch.concat(
-                [
-                    torch.repeat_interleave(mask[:, :, 0:1], repeats=4, dim=2), 
-                    mask[:, :, 1:]
-                ], dim=2
+                def _batch_encode_vae(values):
+                    values = rearrange(values, "b f c h w -> b c f h w")
+                    posterior = self.vae.encode(values)[0]
+                    return posterior.sample()
+
+                latents = _batch_encode_vae(pixel_values)
+                mask_latents = _batch_encode_vae(mask_pixel_values)
+                t2v_source = mask.eq(1).flatten(1).all(1).detach().cpu().tolist()
+                mask = rearrange(mask, "b f c h w -> b c f h w")
+                mask = torch.concat(
+                    [
+                        torch.repeat_interleave(mask[:, :, 0:1], repeats=4, dim=2),
+                        mask[:, :, 1:],
+                    ],
+                    dim=2,
+                )
+                mask = mask.view(mask.shape[0], mask.shape[2] // 4, 4, mask.shape[3], mask.shape[4])
+                mask = mask.transpose(1, 2)
+                latent_mask = resize_mask(1 - mask, latents)
+
+                clip_images = []
+                for clip_pixel_value in clip_pixel_values:
+                    clip_image = Image.fromarray(np.uint8(clip_pixel_value.float().cpu().numpy()))
+                    clip_image = TF.to_tensor(clip_image).sub_(0.5).div_(0.5)
+                    clip_images.append(
+                        clip_image[:, None, :, :].to(
+                            self.clip_image_encoder.device,
+                            weight_dtype,
+                        )
+                    )
+                clip_context = self.clip_image_encoder(clip_images)
+
+            t2v_values = []
+            for is_all_ones in t2v_source:
+                if is_all_ones and np.random.rand() < 0.90:
+                    t2v_values.append(0)
+                else:
+                    t2v_values.append(1)
+            t2v_flag = torch.as_tensor(
+                t2v_values,
+                device=prompt_embeds.device,
+                dtype=weight_dtype,
             )
-            mask = mask.view(mask.shape[0], mask.shape[2] // 4, 4, mask.shape[3], mask.shape[4])
-            mask = mask.transpose(1, 2)
-            mask = resize_mask(1 - mask, latents)
 
-            mask_latents = _batch_encode_vae(mask_pixel_values)
-            inpaint_latents = torch.concat([mask, mask_latents], dim=1)
+            inpaint_latents = torch.concat([latent_mask, mask_latents], dim=1)
             inpaint_latents = t2v_flag[:, None, None, None, None] * inpaint_latents
 
-            clip_context = []
-            qwen_context = []
-
             qwen_query = self.qwen_proj_video(prompt_embeds)
-
-            for b_id, clip_pixel_value in enumerate(clip_pixel_values):
-                clip_image = Image.fromarray(np.uint8(clip_pixel_value.float().cpu().numpy()))
-                clip_image = TF.to_tensor(clip_image).sub_(0.5).div_(0.5).to(self.clip_image_encoder.device, weight_dtype)
-                _clip_context = self.clip_image_encoder([clip_image[:, None, :, :]])
-
+            clip_keep = []
+            qwen_keep = []
+            for _ in range(len(rgb_data)):
                 if self.rng is None:
                     zero_init_clip_in = np.random.choice([True, False], p=[0.1, 0.9])
                 else:
                     zero_init_clip_in = self.rng.choice([True, False], p=[0.1, 0.9])
-                clip_context.append(_clip_context if not zero_init_clip_in else torch.zeros_like(_clip_context))
-                
+                clip_keep.append(not zero_init_clip_in)
+
                 if self.rng_2 is None:
                     zero_init_clip_in = np.random.choice([True, False], p=[0.0, 1.0])
                 else:
                     zero_init_clip_in = self.rng.choice([True, False], p=[0.0, 1.0])
-                qwen_context.append(qwen_query[b_id] if not zero_init_clip_in else torch.zeros_like(qwen_query[b_id]))
-                
-            clip_context = torch.cat(clip_context)
-            qwen_query = torch.stack(qwen_context)
+                qwen_keep.append(not zero_init_clip_in)
+
+            clip_keep = torch.as_tensor(clip_keep, device=clip_context.device)
+            qwen_keep = torch.as_tensor(qwen_keep, device=qwen_query.device)
+            clip_context = torch.where(
+                clip_keep.view(-1, *([1] * (clip_context.ndim - 1))),
+                clip_context,
+                torch.zeros_like(clip_context),
+            )
+            qwen_query = torch.where(
+                qwen_keep.view(-1, 1, 1),
+                qwen_query,
+                torch.zeros_like(qwen_query),
+            )
 
         if self.full_config.datasets.video_data.text_input:
             with torch.no_grad():
@@ -266,24 +297,18 @@ class WanWorldHead(nn.Module):
         bsz, channel, num_frames, height, width = latents.size()
         noise = torch.randn(latents.size(), device=latents.device, generator=self.torch_rng, dtype=weight_dtype)
 
-        indices = self.idx_sampling(bsz, generator=self.torch_rng, device=latents.device)
-        indices = indices.long().cpu()
-        timesteps = self.noise_scheduler.timesteps[indices].to(device=latents.device)
+        indices = self.idx_sampling(bsz, generator=self.torch_rng, device=latents.device).long()
+        schedule_timesteps = self.noise_scheduler.timesteps.to(latents.device)
+        schedule_sigmas = self.noise_scheduler.sigmas.to(latents.device, dtype=latents.dtype)
+        timesteps = schedule_timesteps.index_select(0, indices)
 
-        def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
-            sigmas = self.noise_scheduler.sigmas.to(device=prompt_embeds.device, dtype=dtype)
-            schedule_timesteps = self.noise_scheduler.timesteps.to(prompt_embeds.device)
-            timesteps = timesteps.to(prompt_embeds.device)
-            step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps]
-
-            sigma = sigmas[step_indices].flatten()
-            while len(sigma.shape) < n_dim:
-                sigma = sigma.unsqueeze(-1)
-            return sigma
+        def get_sigmas(step_indices, n_dim=4):
+            sigma = schedule_sigmas.index_select(0, step_indices).flatten()
+            return sigma.view(sigma.shape[0], *([1] * (n_dim - 1)))
 
         # Add noise according to flow matching.
         # zt = (1 - texp) * x + texp * z1
-        sigmas = get_sigmas(timesteps, n_dim=latents.ndim, dtype=latents.dtype)
+        sigmas = get_sigmas(indices, n_dim=latents.ndim)
         noisy_latents = (1.0 - sigmas) * latents + sigmas * noise
 
         # Add noise
@@ -315,17 +340,15 @@ class WanWorldHead(nn.Module):
             noise_pred = noise_pred.float()
             target = target.float()
             diff = noise_pred - target
-            mse_loss = F.mse_loss(noise_pred, target, reduction='none')
-            mask = (diff.abs() <= threshold).float()
-            masked_loss = mse_loss * mask
+            # Reuse the subtraction for both the threshold mask and squared
+            # error instead of launching a second subtraction in mse_loss.
+            masked_loss = diff.square() * (diff.abs() <= threshold)
             if weighting is not None:
-                masked_loss = masked_loss * weighting
-            final_loss = masked_loss.mean()
-            return final_loss
+                masked_loss = masked_loss * weighting.float()
+            return masked_loss.mean()
         
         weighting = compute_loss_weighting_for_sd3(weighting_scheme=self.config.weighting_scheme, sigmas=sigmas)
-        loss = custom_mse_loss(noise_pred.float(), target.float(), weighting.float())
-        loss = loss.mean()
+        loss = custom_mse_loss(noise_pred, target, weighting)
 
         sigma = sigmas.to(dtype=noise_pred.dtype, device=noise_pred.device)
 

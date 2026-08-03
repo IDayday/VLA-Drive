@@ -16,17 +16,18 @@ set -euo pipefail
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # Path to the original Qwen3-VL-2B-Instruct checkpoint (downloaded from HF)
-SOURCE_VLM="${HF_HOME}/hub/models--Qwen--Qwen3-VL-2B-Instruct/snapshots/your-snapshot-hash"
+: "${SOURCE_VLM:?Set SOURCE_VLM in env.sh}"
 
 # Where to save the token-extended model (set this as BASE_VLM in env.sh afterwards)
-TARGET_VLM="${HF_HOME}/hub/models--Qwen--Qwen3-VL-2B-WorldAction"
+: "${BASE_VLM:?Set BASE_VLM in env.sh}"
+TARGET_VLM="${BASE_VLM}"
 
 # Token list bundled with this repo
 TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/world_tokens_all_64.txt"
 
 set -x
 
-CUDA_VISIBLE_DEVICES=0 python starVLA/model/modules/vlm/tools/add_qwen_special_tokens/add_special_tokens_to_qwen.py \
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}" python starVLA/model/modules/vlm/tools/add_qwen_special_tokens/add_special_tokens_to_qwen.py \
   --model-id  "${SOURCE_VLM}" \
   --tokens-file "${TOKEN_LIST}" \
   --save-dir  "${TARGET_VLM}" \

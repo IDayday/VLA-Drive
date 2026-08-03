@@ -20,6 +20,7 @@ Note: How to add special tokens to Qwen2.5:
   
 """
 from typing import List
+import os
 from tqdm import tqdm
 from typing import List, Optional, Tuple
 import torch
@@ -50,6 +51,14 @@ from omegaconf import OmegaConf
 
 ##### depth ppd
 from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
+from starVLA.cache.navsim_feature_cache import (
+    GS_QUERY_TOKENS,
+    REWARD_QUERY_TOKENS,
+    RGB_QUERY_TOKENS,
+    ROBOT_HISTORY_TOKEN,
+    action_query_tokens,
+    append_world_action_tokens,
+)
 
 import torch
 import torch.nn as nn
@@ -130,24 +139,37 @@ class Qwenvl_OFT(baseframework):
             **kwargs: Reserved for future overrides (unused).
         """
         super().__init__()
+        self._profile_steps_remaining = int(
+            os.environ.get("STARVLA_PROFILE_STEPS", "0")
+        )
+        self._profile_state = None
         self.config = config
         self.qwen_vl_interface = get_vlm_model(config=self.config)
 
         # 历史轨迹 token（单个 repeated K 次）
-        self.robot_history_token = "<robot_history_action_0>"
+        self.robot_history_token = ROBOT_HISTORY_TOKEN
 
         # rgb（2d）token 64 个
-        self.rgb_query_tokens = [f"<2d_world_{i}>" for i in range(64)]
+        self.rgb_query_tokens = list(RGB_QUERY_TOKENS)
 
         # gs（3d）token 64 个
-        self.gs_query_tokens = [f"<3d_world_{i}>" for i in range(64)]
+        self.gs_query_tokens = list(GS_QUERY_TOKENS)
 
         # act token 8 个
         self.act_tok = OmegaConf.select(config, "act_tok", default=8)
-        self.act_query_tokens = [f"<robot_action_{i}>" for i in range(self.act_tok)]
+        self.act_query_tokens = list(action_query_tokens(self.act_tok))
 
         # reward token
-        self.reward_query_tokens = ["<reward_0>"]
+        self.reward_query_tokens = list(REWARD_QUERY_TOKENS)
+
+        tokenizer = self.qwen_vl_interface.processor.tokenizer
+        self._special_token_ids = {
+            "history": (tokenizer.convert_tokens_to_ids(self.robot_history_token),),
+            "rgb": tuple(tokenizer.convert_tokens_to_ids(self.rgb_query_tokens)),
+            "gs": tuple(tokenizer.convert_tokens_to_ids(self.gs_query_tokens)),
+            "action": tuple(tokenizer.convert_tokens_to_ids(self.act_query_tokens)),
+            "reward": tuple(tokenizer.convert_tokens_to_ids(self.reward_query_tokens)),
+        }
 
         # if self.config.datasets.vla_data.load_act_data:
         self.action_input_model = MLP(
@@ -231,8 +253,8 @@ class Qwenvl_OFT(baseframework):
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
             missing, unexpected = self.gs_model.load_state_dict(torch.load(self.depth_ppd_cfg.model.pipeline.config.ckpt_path, map_location='cpu'), strict=False)
-            print(f'missing: {missing}')
-            print(f'unexpected: {unexpected}')
+            print(f'[PPD] missing keys: {len(missing)} {missing[:8]}')
+            print(f'[PPD] unexpected keys: {len(unexpected)} {unexpected[:8]}')
         
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
             self.gs_query = nn.Parameter(torch.randn(64, self.qwen_vl_interface.model.config.hidden_size) * 0.02)
@@ -263,6 +285,175 @@ class Qwenvl_OFT(baseframework):
             self.rgb_latent_type = nn.Parameter(torch.randn(1, 1, self.config.framework.action_model.hidden_size) * 0.02)
 
 
+    @staticmethod
+    def _find_token_positions(input_ids, token_ids):
+        """Find ordered special-token positions without Python/CUDA scalar syncs."""
+        ids = torch.as_tensor(token_ids, device=input_ids.device, dtype=input_ids.dtype)
+        matches = input_ids.unsqueeze(-1).eq(ids.view(1, 1, -1))
+        return matches.to(torch.int8).argmax(dim=1)
+
+    def _profile_begin(self):
+        """Start an opt-in synchronized stage timer for bottleneck diagnosis."""
+        if self._profile_steps_remaining <= 0:
+            return None
+        torch.cuda.synchronize()
+        return {"last": time.perf_counter(), "stages": []}
+
+    @staticmethod
+    def _profile_mark(profile, name):
+        if profile is None:
+            return
+        torch.cuda.synchronize()
+        now = time.perf_counter()
+        profile["stages"].append((name, now - profile["last"]))
+        profile["last"] = now
+
+    def _profile_finish(self, profile):
+        if profile is None:
+            return
+        self._profile_steps_remaining -= 1
+        total = sum(duration for _, duration in profile["stages"])
+        detail = " ".join(
+            f"{name}={duration * 1000:.1f}ms"
+            for name, duration in profile["stages"]
+        )
+        logger.info("StarVLAForwardProfile total=%.1fms %s", total * 1000, detail)
+
+    def _build_qwen_batch(self, examples, instructions):
+        """Build either cached or ordinary Qwen inputs for one training batch."""
+        cached = [example.get("qwen_feature_cache") for example in examples]
+        if any(payload is not None for payload in cached) and not all(payload is not None for payload in cached):
+            raise RuntimeError("A batch cannot mix cached and uncached Qwen samples")
+
+        device = self.qwen_vl_interface.model.device
+        if all(payload is not None for payload in cached):
+            lengths = [int(payload["input_ids"].numel()) for payload in cached]
+            max_length = max(lengths)
+            batch_size = len(cached)
+            tokenizer = self.qwen_vl_interface.processor.tokenizer
+            input_ids = torch.full(
+                (batch_size, max_length),
+                int(tokenizer.pad_token_id),
+                dtype=torch.long,
+                device=device,
+            )
+            attention_mask = torch.zeros(
+                (batch_size, max_length), dtype=torch.long, device=device
+            )
+            position_ids = torch.ones(
+                (3, batch_size, max_length), dtype=torch.long, device=device
+            )
+            position_names = ("history", "rgb", "gs", "action", "reward")
+            positions = {name: [] for name in position_names}
+            for batch_index, (payload, length) in enumerate(zip(cached, lengths)):
+                offset = max_length - length
+                input_ids[batch_index, offset:] = payload["input_ids"].to(device=device, dtype=torch.long)
+                attention_mask[batch_index, offset:] = payload["attention_mask"].to(
+                    device=device, dtype=torch.long
+                )
+                position_ids[:, batch_index, offset:] = payload["position_ids"].to(
+                    device=device, dtype=torch.long
+                )
+                for name in position_names:
+                    positions[name].append(
+                        payload[f"{name}_positions"].to(device=device, dtype=torch.long) + offset
+                    )
+
+            deepstack_keys = sorted(
+                key for key in cached[0] if key.startswith("deepstack_")
+            )
+            image_embeds = torch.cat([payload["image_embeds"] for payload in cached], dim=0)
+            deepstack_embeds = [
+                torch.cat([payload[key] for payload in cached], dim=0)
+                for key in deepstack_keys
+            ]
+            return (
+                input_ids,
+                attention_mask,
+                position_ids,
+                {name: torch.stack(values) for name, values in positions.items()},
+                image_embeds.to(device, non_blocking=True),
+                [value.to(device, non_blocking=True) for value in deepstack_embeds],
+            )
+
+        prefetched_inputs = examples[0].get("_qwen_prefetched_inputs")
+        if prefetched_inputs is None:
+            batch_images = [example["image"] for example in examples]
+            qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(
+                images=batch_images,
+                instructions=instructions,
+            )
+            self._profile_mark(self._profile_state, "qwen_cpu_pack")
+        else:
+            qwen_inputs = {
+                key: value.to(device, non_blocking=True)
+                if isinstance(value, torch.Tensor)
+                else value
+                for key, value in prefetched_inputs.items()
+            }
+            self._profile_mark(self._profile_state, "qwen_prefetched_transfer")
+        input_ids = qwen_inputs["input_ids"]
+        attention_mask = qwen_inputs["attention_mask"]
+        with torch.no_grad():
+            position_ids, _ = self.qwen_vl_interface.model.model.get_rope_index(
+                input_ids=input_ids,
+                image_grid_thw=qwen_inputs["image_grid_thw"],
+                video_grid_thw=qwen_inputs.get("video_grid_thw", None),
+                attention_mask=attention_mask,
+            )
+            image_parts, deepstack_embeds = self.qwen_vl_interface.model.model.get_image_features(
+                qwen_inputs["pixel_values"],
+                qwen_inputs["image_grid_thw"],
+            )
+            image_embeds = torch.cat(image_parts, dim=0)
+        self._profile_mark(self._profile_state, "qwen_rope_vision")
+        positions = {
+            name: self._find_token_positions(input_ids, token_ids)
+            for name, token_ids in self._special_token_ids.items()
+        }
+        return (
+            input_ids,
+            attention_mask,
+            position_ids,
+            positions,
+            image_embeds,
+            deepstack_embeds,
+        )
+
+    def _qwen_language_forward(
+        self,
+        input_ids,
+        inputs_embeds,
+        attention_mask,
+        position_ids,
+        image_embeds,
+        deepstack_embeds,
+    ):
+        """Run only the trainable Qwen backbone, skipping the unused LM head."""
+        image_mask = input_ids.eq(self.qwen_vl_interface.model.config.image_token_id)
+        expanded_mask = image_mask.unsqueeze(-1).expand_as(inputs_embeds)
+        image_embeds = image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
+        # Cache generation validates the placeholder/token contract.  Avoid a
+        # boolean gather of every hidden element here; it allocated a temporary
+        # tensor of the same size as all visual embeddings on every step.
+        # The embedding output is non-leaf.  In-place scatter has identical
+        # values/gradients here and avoids allocating/copying another complete
+        # [batch, sequence, hidden] tensor every step.
+        inputs_embeds.masked_scatter_(expanded_mask, image_embeds)
+        outputs = self.qwen_vl_interface.model.model.language_model(
+            input_ids=None,
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            visual_pos_masks=image_mask,
+            deepstack_visual_embeds=[
+                value.to(inputs_embeds.device, inputs_embeds.dtype)
+                for value in deepstack_embeds
+            ],
+            use_cache=False,
+        )
+        return outputs.last_hidden_state
+
     def forward(
         self,
         examples: List[dict] = None,
@@ -270,7 +461,9 @@ class Qwenvl_OFT(baseframework):
         **kwargs,
     ) -> Tuple:
 
-        batch_images = [example["image"] for example in examples]  #  [B，[PLT]]
+        profile = self._profile_begin()
+        self._profile_state = profile
+
         instructions = [example["lang"] for example in examples]  # [B, str]
         try:
             actions = [example["action"] for example in examples]  # label [B， len, 7]
@@ -285,47 +478,21 @@ class Qwenvl_OFT(baseframework):
             depth_data = [example['depth_data'] for example in examples]
 
         
-        # step 0: add special action token to instruction
-        hist_str  = self.robot_history_token
-        rgb_str   = "".join(self.rgb_query_tokens)
-        gs_str    = "".join(self.gs_query_tokens)
-        act_str   = "".join(self.act_query_tokens)
-        rew_str   = "".join(self.reward_query_tokens)
+        instructions = [
+            append_world_action_tokens(instruction, self.act_tok, bool(self.w_depth))
+            for instruction in instructions
+        ]
+        (
+            input_ids,
+            attention_mask,
+            position_ids,
+            token_positions,
+            image_embeds,
+            deepstack_embeds,
+        ) = self._build_qwen_batch(examples, instructions)
+        if not any(name == "qwen_rope_vision" for name, _ in (profile or {}).get("stages", [])):
+            self._profile_mark(profile, "qwen_cached_batch")
 
-
-        if not self.w_depth:
-            suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
-            instructions = [instruction + suffix for instruction in instructions]
-        else:
-            # 3d first
-            suffix = f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
-            instructions = [instruction + suffix for instruction in instructions]
-
-        # Step 1: QWenVL input format
-        qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)
-
-
-        # —— 覆盖 <robot_history_action_0> 的 embedding ——
-        tok   = self.qwen_vl_interface.processor.tokenizer
-        # if self.config.datasets.vla_data.load_act_data:
-        hist_id = tok.convert_tokens_to_ids(self.robot_history_token)  # "<robot_history_action_0>"
-
-        if self.config.datasets.video_data.load_2d_data:
-            rgb_ids = tok.convert_tokens_to_ids(self.rgb_query_tokens)
-        
-        if self.config.datasets.gs_data.load_3d_data or self.w_depth:
-            gs_ids = tok.convert_tokens_to_ids(self.gs_query_tokens)
-        
-        # if self.w_depth:
-        #     depth_ids = tok.convert_tokens_to_ids(self.robot_history_token)[:-1]
-        #     hist_id = hist_id[-1]
-        
-        if self.config.datasets.reward_data.load_reward_data:
-            # one token
-            reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
-
-        input_ids      = qwen_inputs["input_ids"]          # [B, L]
-        attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
             text_embeds = self.qwen_vl_interface.model.get_input_embeddings()(input_ids)  # [B, L, H]
 
@@ -333,7 +500,7 @@ class Qwenvl_OFT(baseframework):
         # if self.config.datasets.vla_data.load_act_data: 
         with torch.autocast("cuda", dtype=torch.float32):
             # 映射到 hidden 维: [B, H]
-            states = torch.from_numpy(np.array(states)).cuda()[:, 0, :]
+            states = torch.as_tensor(np.asarray(states), device=text_embeds.device)[:, 0, :]
             states_embed = self.action_input_model(states)  # [B, H]
         states_embed = states_embed.to(dtype=text_embeds.dtype)
 
@@ -351,101 +518,36 @@ class Qwenvl_OFT(baseframework):
         #     depth_token = depth_token.to(dtype=text_embeds.dtype)
         #     depth_token = depth_token + self.depth_type.to(depth_token.dtype)
 
-        # 逐样本把 hist_id 的那个位置替换成对应的 states_embed[b]
         B, L, H = text_embeds.shape
-        # if self.config.datasets.vla_data.load_act_data:
-        for b in range(B):
-            where = (input_ids[b] == hist_id).nonzero(as_tuple=False)
-            if where.numel() == 0:
-                raise RuntimeError(f"Sample {b}: robot_history token not found in input_ids.")
-            if where.numel() > 1:
-                # 如果你只想覆盖第一个出现的位置，就取 where[0]
-                # 这里严格要求只有一个
-                # raise RuntimeError(f"Sample {b}: found multiple robot_history tokens: {where.squeeze(-1).tolist()}")
-                pass
-            pos = int(where[0])
-            text_embeds[b, pos, :] = states_embed[b]
-
-            # replace rgb token
-            # no need since we dont freeze backbone now
-            if self.config.datasets.video_data.load_2d_data:
-                # where = (input_ids[b] == rgb_ids).nonzero(as_tuple=False)
-                rgb_ids_tensor = torch.tensor(rgb_ids, device=input_ids.device)
-                where = torch.isin(input_ids[b], rgb_ids_tensor).nonzero(as_tuple=False).squeeze(1)
-                _, order = torch.sort(where)
-                rgb_query_reordered = self.rgb_query[order]    # [64, H]
-
-                text_embeds[b, where, :] = rgb_query_reordered
-
-            # if self.w_depth:
-            #     # where = (input_ids[b] == rgb_ids).nonzero(as_tuple=False)
-            #     # depth_ids_tensor = torch.tensor(depth_ids, device=input_ids.device)
-            #     # where = torch.isin(input_ids[b], depth_ids_tensor).nonzero(as_tuple=False).squeeze(1)
-
-            #     text_embeds[b, dep_where[:-1], :] = depth_token[b]
-        
-            # replace 3d gs token
-            if self.config.datasets.gs_data.load_3d_data or self.w_depth:
-                # where = (input_ids[b] == rgb_ids).nonzero(as_tuple=False)
-                gs_ids_tensor = torch.tensor(gs_ids, device=input_ids.device)
-                where = torch.isin(input_ids[b], gs_ids_tensor).nonzero(as_tuple=False).squeeze(1)
-                _, order = torch.sort(where)
-                gs_query_reordered = self.gs_query[order]    # [64, H]
-
-                text_embeds[b, where, :] = gs_query_reordered
-            
-            # # replace reward token
-            # if self.config.datasets.reward_data.load_reward_data:
-            #     # where = (input_ids[b] == rgb_ids).nonzero(as_tuple=False)
-            #     reward_ids_tensor = torch.tensor(reward_ids, device=input_ids.device)
-            #     where = torch.isin(input_ids[b], reward_ids_tensor).nonzero(as_tuple=False).squeeze(1)
-            #     _, order = torch.sort(where)
-            #     reward_query_reordered = self.reward_query[order]    # [64, H]
-
-            #     text_embeds[b, where, :] = reward_query_reordered
-
-        # 前向：用 inputs_embeds（不要再传 input_ids）
-        # position_ids = (attention_mask.long().cumsum(-1) - 1).clamp(min=0)
-        with torch.no_grad():
-            # 注意：这里用的是底层 Qwen3VLModel 的 get_rope_index
-            position_ids, _ = self.qwen_vl_interface.model.model.get_rope_index(
-                input_ids=qwen_inputs["input_ids"],
-                image_grid_thw=qwen_inputs["image_grid_thw"],
-                video_grid_thw=qwen_inputs.get("video_grid_thw", None),
-                attention_mask=attention_mask,   # 2D mask 就行
-            )
-
+        batch_indices = torch.arange(B, device=text_embeds.device)
+        text_embeds[batch_indices, token_positions["history"][:, 0], :] = states_embed
+        if self.config.datasets.video_data.load_2d_data:
+            text_embeds[
+                batch_indices[:, None], token_positions["rgb"], :
+            ] = self.rgb_query.unsqueeze(0).to(text_embeds.dtype)
+        if self.config.datasets.gs_data.load_3d_data or self.w_depth:
+            text_embeds[
+                batch_indices[:, None], token_positions["gs"], :
+            ] = self.gs_query.unsqueeze(0).to(text_embeds.dtype)
+        self._profile_mark(profile, "embedding_injection")
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            qw_out = self.qwen_vl_interface(
+            last_hidden = self._qwen_language_forward(
+                input_ids=input_ids,
                 inputs_embeds=text_embeds,
                 attention_mask=attention_mask,
                 position_ids=position_ids,
-                # 视觉侧保持不变
-                pixel_values=qwen_inputs["pixel_values"],
-                image_grid_thw=qwen_inputs["image_grid_thw"],
-                output_hidden_states=True,
-                return_dict=True,
+                image_embeds=image_embeds,
+                deepstack_embeds=deepstack_embeds,
             )
-            last_hidden = qw_out.hidden_states[-1]   # [B, L, H]
+        self._profile_mark(profile, "qwen_language")
 
         #### video gen ####
         if self.config.datasets.video_data.load_2d_data:
 
             rgb_data = [example['2d_gen_data'] for example in examples]
 
-            rgb_ids = [tok.convert_tokens_to_ids(t) for t in self.rgb_query_tokens]  # 长度 T
-            rgb_pos_idx = []
-            for b in range(B):
-                pos_list = []
-                for tid in rgb_ids:
-                    w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
-                    pos_list.append(int(w[0]))
-                rgb_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
-            rgb_pos_idx = torch.stack(rgb_pos_idx, dim=0)                            # [B, T]
-            g_idx = rgb_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
+            g_idx = token_positions["rgb"].unsqueeze(-1).expand(-1, -1, H)
             rgb_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
 
             if self.rgb_query_loss:
@@ -467,22 +569,12 @@ class Qwenvl_OFT(baseframework):
                 rgb_loss += rgb_query_loss
         else:
             rgb_loss = torch.tensor(0.).cuda()
+        self._profile_mark(profile, "wan")
 
 
         # Step 4: Action Expert Forward and Loss
         if self.config.datasets.vla_data.load_act_data == 1:
-            act_ids = [tok.convert_tokens_to_ids(t) for t in self.act_query_tokens]  # 长度 T
-            act_pos_idx = []
-            for b in range(B):
-                pos_list = []
-                for tid in act_ids:
-                    w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
-                    pos_list.append(int(w[0]))
-                act_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
-            act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
-            g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
+            g_idx = token_positions["action"].unsqueeze(-1).expand(-1, -1, H)
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
 
             with torch.autocast("cuda", dtype=torch.float32):
@@ -495,8 +587,24 @@ class Qwenvl_OFT(baseframework):
                     self.config.framework.action_model.get("repeated_diffusion_steps", 1) if self.config else 1
                 )
                 repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
-                # 对每层特征做 repeat
-                repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
+                # qwen_proj is deterministic and receives the same action
+                # queries for every diffusion repeat.  Project once before
+                # expanding the batch instead of repeating the two GEMMs
+                # ``repeated_diffusion_steps`` times.  The diffusion noise and
+                # timestep sampling remain independent for every repeat.
+                preproject_action = (
+                    os.environ.get("STARVLA_ACTION_PREPROJECT", "0") == "1"
+                    and self.mlp_head == 0
+                )
+                if preproject_action:
+                    projected_action_queries = self.action_model.qwen_proj(action_queries)
+                    repeat_action_queries = projected_action_queries.repeat(
+                        repeated_diffusion_steps, 1, 1
+                    )
+                else:
+                    repeat_action_queries = action_queries.repeat(
+                        repeated_diffusion_steps, 1, 1
+                    )
 
                 if self.w_video_latent:
                     video_token = self.rgb_latent_adapter(video_latent)
@@ -505,13 +613,19 @@ class Qwenvl_OFT(baseframework):
                     video_token = None
 
                 if self.mlp_head == 0:
-                    action_loss = self.action_model(repeat_action_queries, repeat_actions, video_token)  # (B, chunk_len, action_dim)
+                    action_loss = self.action_model(
+                        repeat_action_queries,
+                        repeat_actions,
+                        video_token,
+                        vl_embs_preprojected=preproject_action,
+                    )  # (B, chunk_len, action_dim)
                 else:
                     b, l, h = action_queries.shape
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
                     action_loss = nn.SmoothL1Loss()(pred_action, actions)
         else:
             action_loss = torch.tensor(0.).cuda()
+        self._profile_mark(profile, "action")
 
 
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
@@ -522,6 +636,9 @@ class Qwenvl_OFT(baseframework):
                 data_img = torch.stack([d['image'] for d in depth_data])
                 data_depth = torch.stack([d['depth'] for d in depth_data])
                 data_mask = torch.stack([d['mask'] for d in depth_data])
+                cached_semantics = None
+                if all('semantics' in value for value in depth_data):
+                    cached_semantics = torch.stack([value['semantics'] for value in depth_data])
 
                 # 合并 batch 和 view 维度
                 B, V = data_img.shape[:2]
@@ -534,19 +651,12 @@ class Qwenvl_OFT(baseframework):
                     'depth': data_depth,
                     'mask': data_mask,
                 }
+                if cached_semantics is not None:
+                    depth_data['semantics'] = cached_semantics.reshape(
+                        B * V, *cached_semantics.shape[2:]
+                    )
 
-            gs_ids = [tok.convert_tokens_to_ids(t) for t in self.gs_query_tokens]  # 长度 T
-            gs_pos_idx = []
-            for b in range(B):
-                pos_list = []
-                for tid in gs_ids:
-                    w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
-                    pos_list.append(int(w[0]))
-                gs_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
-            gs_pos_idx = torch.stack(gs_pos_idx, dim=0)                            # [B, T]
-            g_idx = gs_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
+            g_idx = token_positions["gs"].unsqueeze(-1).expand(-1, -1, H)
             gs_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
 
             if self.config.datasets.gs_data.load_3d_data:
@@ -578,23 +688,13 @@ class Qwenvl_OFT(baseframework):
             # return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss}
         else:
             gs_loss = torch.tensor(0.).cuda()
+        self._profile_mark(profile, "ppd")
 
         if self.config.datasets.reward_data.load_reward_data:
 
             reward_data = np.array([example['reward_data'] for example in examples])  # list of reward (B)
 
-            reward_ids = [tok.convert_tokens_to_ids(t) for t in self.reward_query_tokens]  # 长度 T
-            reward_pos_idx = []
-            for b in range(B):
-                pos_list = []
-                for tid in reward_ids:
-                    w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
-                    pos_list.append(int(w[0]))
-                reward_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
-            reward_pos_idx = torch.stack(reward_pos_idx, dim=0)                            # [B, T]
-            g_idx = reward_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
+            g_idx = token_positions["reward"].unsqueeze(-1).expand(-1, -1, H)
             reward_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
 
             # debug here
@@ -607,8 +707,9 @@ class Qwenvl_OFT(baseframework):
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        print(gs_loss)
-
+        self._profile_mark(profile, "reward_and_return")
+        self._profile_finish(profile)
+        self._profile_state = None
         return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss}
 
     @torch.inference_mode()
