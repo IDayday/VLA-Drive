@@ -194,7 +194,13 @@ def deal_action_1226(action_norm: np.ndarray, origin: Optional[np.ndarray] = Non
 class VLAAgent:
     """Wraps a trained VLA checkpoint for inference."""
 
-    def __init__(self, ckpt_dir: str, model_iter: Optional[int] = None, device: str = "cuda"):
+    def __init__(
+        self,
+        ckpt_dir: str,
+        model_iter: Optional[int] = None,
+        device: str = "cuda",
+        qwen_forward_mode: str = "auto",
+    ):
         self.device = torch.device(device if torch.cuda.is_available() else "cpu")
 
         # ── Resolve config path ────────────────────────────────────────────
@@ -235,28 +241,77 @@ class VLAAgent:
         else:
             final_path = os.path.join(ckpt_dir, "final_model", "pytorch_model.pt")
             flat_path   = os.path.join(ckpt_dir, "pytorch_model.pt")
-            if os.path.exists(final_path):
+            ckpt_subdir = os.path.join(ckpt_dir, "checkpoints")
+            if model_iter is not None:
+                chosen = os.path.join(
+                    ckpt_subdir, f"steps_{int(model_iter)}_pytorch_model.pt"
+                )
+                if not os.path.isfile(chosen):
+                    raise FileNotFoundError(
+                        f"steps_{model_iter}_pytorch_model.pt not found in {ckpt_subdir}"
+                    )
+                self.model_path = chosen
+            elif os.path.exists(final_path):
                 self.model_path = final_path
             elif os.path.exists(flat_path):
                 # HuggingFace flat layout: config.yaml + pytorch_model.pt in the same dir
                 self.model_path = flat_path
             else:
-                ckpt_subdir = os.path.join(ckpt_dir, "checkpoints")
                 if not os.path.isdir(ckpt_subdir):
                     raise FileNotFoundError(f"Neither final_model/pytorch_model.pt, pytorch_model.pt, nor checkpoints/ found under: {ckpt_dir}")
                 pat = re.compile(r"steps_(\d+)_pytorch_model\.pt")
                 step_files = [f for f in os.listdir(ckpt_subdir) if pat.search(f)]
                 if not step_files:
                     raise FileNotFoundError(f"No steps_*_pytorch_model.pt found in {ckpt_subdir}")
-                if model_iter is None:
-                    chosen = sorted(step_files, key=lambda s: int(pat.search(s).group(1)))[-1]
-                else:
-                    chosen = next(
-                        (f for f in step_files if int(pat.search(f).group(1)) == int(model_iter)), None
-                    )
-                    if chosen is None:
-                        raise FileNotFoundError(f"steps_{model_iter}_pytorch_model.pt not found in {ckpt_subdir}")
+                chosen = sorted(step_files, key=lambda s: int(pat.search(s).group(1)))[-1]
                 self.model_path = os.path.join(ckpt_subdir, chosen)
+
+        if qwen_forward_mode not in {"auto", "legacy", "optimized"}:
+            raise ValueError(
+                "qwen_forward_mode must be one of: auto, legacy, optimized"
+            )
+        if qwen_forward_mode == "auto":
+            # Experiments save the exact training source under code/.  The
+            # optimized trainer bypasses the unused LM head and conditions the
+            # action head on language_model.last_hidden_state.  Older/released
+            # checkpoints instead used qw_out.hidden_states[-1].  Those two
+            # tensors are not interchangeable, so inference must follow the
+            # path used to train the selected checkpoint.
+            experiment_root = Path(ckpt_dir)
+            if experiment_root.suffix == ".pt":
+                experiment_root = experiment_root.parent
+                if experiment_root.name in {"checkpoints", "final_model"}:
+                    experiment_root = experiment_root.parent
+            snapshot = (
+                experiment_root
+                / "code"
+                / "starVLA"
+                / "model"
+                / "framework"
+                / "QwenOFT.py"
+            )
+            optimized_snapshot = False
+            if snapshot.is_file():
+                optimized_snapshot = "def _qwen_language_forward" in snapshot.read_text(
+                    encoding="utf-8", errors="ignore"
+                )
+            freeze_modules = str(
+                OmegaConf.select(
+                    self.model_config, "trainer.freeze_modules", default=""
+                )
+            )
+            saved_hidden_mode = OmegaConf.select(
+                self.model_config, "qwen_hidden_state_mode", default=None
+            )
+            if optimized_snapshot and saved_hidden_mode == "pre_norm":
+                # The stable 193514 model helper returns normalized output.
+                # Use the legacy full-model path for newer pre-norm snapshots.
+                qwen_forward_mode = "legacy"
+            elif optimized_snapshot or "qwen_vl_interface.model.lm_head" in freeze_modules:
+                qwen_forward_mode = "optimized"
+            else:
+                qwen_forward_mode = "legacy"
+        self.qwen_forward_mode = qwen_forward_mode
 
         print(f"[Agent] config:  {cfg_path}")
         print(f"[Agent] weights: {self.model_path}")
@@ -267,6 +322,8 @@ class VLAAgent:
             self.model = Qwenvl_OFT_s2(self.model_config)
         else:
             self.model = Qwenvl_OFT(self.model_config, infer_not_load_wan=1)
+        self.model._inference_qwen_forward_mode = self.qwen_forward_mode
+        print(f"[Agent] Qwen forward mode: {self.qwen_forward_mode}")
 
         state = torch.load(self.model_path, map_location="cpu", weights_only=True)
         missing, unexpected = self.model.load_state_dict(state, strict=False)
@@ -323,7 +380,32 @@ def infer_and_save(
             )
             return
 
-    agent = VLAAgent(ckpt_dir, model_iter=model_iter, device=device)
+    agent = VLAAgent(
+        ckpt_dir,
+        model_iter=model_iter,
+        device=device,
+        qwen_forward_mode=args.qwen_forward_mode,
+    )
+    manifest_path = os.path.join(out_dir, f"inference_manifest.rank{args.rank}.json")
+    manifest_tmp = manifest_path + f".tmp-{os.getpid()}"
+    with open(manifest_tmp, "w", encoding="utf-8") as manifest_file:
+        json.dump(
+            {
+                "checkpoint_dir": str(Path(ckpt_dir).resolve()),
+                "checkpoint_file": str(Path(agent.model_path).resolve()),
+                "model_iter": model_iter,
+                "qwen_forward_mode": agent.qwen_forward_mode,
+                "split": split,
+                "rank": args.rank,
+                "world_size": args.world_size,
+            },
+            manifest_file,
+            indent=2,
+            sort_keys=True,
+        )
+        manifest_file.flush()
+        os.fsync(manifest_file.fileno())
+    os.replace(manifest_tmp, manifest_path)
     cfg = agent.model_config
 
     ver_1225 = OmegaConf.select(cfg, "ver_1225", default=False)
@@ -417,6 +499,15 @@ def parse_args():
     p.add_argument("--num_workers",   type=int, default=7)
     p.add_argument("--device",        type=str, default="cuda")
     p.add_argument("--model_iter",    type=int, default=None)
+    p.add_argument(
+        "--qwen_forward_mode",
+        choices=("auto", "legacy", "optimized"),
+        default="auto",
+        help=(
+            "Match the Qwen hidden-state path used during training. auto reads "
+            "the saved experiment source/config."
+        ),
+    )
     p.add_argument("--overwrite",     action="store_true")
     p.add_argument("--smooth",        type=int, default=0)
     p.add_argument("--rank",          type=int, default=0)
@@ -429,9 +520,10 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     smooth_suffix = "-smooth" if args.smooth != 0 else ""
+    checkpoint_suffix = f"-step{args.model_iter}" if args.model_iter is not None else ""
     args.out_dir = os.path.join(
         args.out_dir,
-        Path(args.ckpt_dir).name + smooth_suffix,
+        Path(args.ckpt_dir).name + checkpoint_suffix + smooth_suffix,
         args.split,
     )
     infer_and_save(

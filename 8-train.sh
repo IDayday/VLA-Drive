@@ -102,7 +102,7 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --w_depth 1 \
   --gs_query_loss 1 \
   --rgb_query_loss 1 \
-  --trainer.freeze_modules "rgb_model.vae,rgb_model.clip_image_encoder,rgb_model.text_encoder,rgb_model.qwen_proj_video,qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head" \
+  --trainer.freeze_modules "rgb_model.vae,rgb_model.clip_image_encoder,rgb_model.text_encoder,qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head" \
   --framework.action_model.hidden_size ${act_fm_size} \
   --framework.action_model.diffusion_model_cfg.cross_attention_dim ${act_fm_size} \
   --framework.action_model.diffusion_model_cfg.output_dim ${act_fm_size} \

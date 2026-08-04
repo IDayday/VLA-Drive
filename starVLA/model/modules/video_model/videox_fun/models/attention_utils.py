@@ -78,47 +78,6 @@ def flash_attention(
     def half(x):
         return x if x.dtype in half_dtypes else x.to(dtype)
 
-    def all_sequences_are_full(lengths, full_length):
-        if lengths is None:
-            return True
-        if isinstance(lengths, torch.Tensor):
-            # Do not introduce a device synchronization merely to select a
-            # kernel. Wan's training sequence lengths are constructed on CPU.
-            if lengths.device.type != "cpu":
-                return False
-            return bool(torch.all(lengths == full_length))
-        return all(int(length) == full_length for length in lengths)
-
-    # Wan training uses fixed-size, unpadded batches. The dense FA2 entrypoint
-    # avoids flatten/cat, cumulative-length construction and the varlen kernel.
-    # Keep the varlen implementation for genuinely padded inputs and FA3.
-    dense_fa2 = (
-        os.environ.get("STARVLA_DENSE_FLASH_ATTN", "1") == "1"
-        and FLASH_ATTN_2_AVAILABLE
-        and not ((version is None or version == 3) and FLASH_ATTN_3_AVAILABLE)
-        and q_lens is None
-        and all_sequences_are_full(k_lens, lk)
-    )
-    if dense_fa2:
-        q = half(q)
-        k = half(k)
-        v = half(v)
-        q = q.to(v.dtype)
-        k = k.to(v.dtype)
-        if q_scale is not None:
-            q = q * q_scale
-        x = flash_attn.flash_attn_func(
-            q=q,
-            k=k,
-            v=v,
-            dropout_p=dropout_p,
-            softmax_scale=softmax_scale,
-            causal=causal,
-            window_size=window_size,
-            deterministic=deterministic,
-        )
-        return x.type(out_dtype)
-
     # preprocess query
     if q_lens is None:
         q = half(q.flatten(0, 1))

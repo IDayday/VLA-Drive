@@ -20,7 +20,6 @@ Note: How to add special tokens to Qwen2.5:
   
 """
 from typing import List
-import os
 from tqdm import tqdm
 from typing import List, Optional, Tuple
 import torch
@@ -139,10 +138,6 @@ class Qwenvl_OFT(baseframework):
             **kwargs: Reserved for future overrides (unused).
         """
         super().__init__()
-        self._profile_steps_remaining = int(
-            os.environ.get("STARVLA_PROFILE_STEPS", "0")
-        )
-        self._profile_state = None
         self.config = config
         self.qwen_vl_interface = get_vlm_model(config=self.config)
 
@@ -292,33 +287,6 @@ class Qwenvl_OFT(baseframework):
         matches = input_ids.unsqueeze(-1).eq(ids.view(1, 1, -1))
         return matches.to(torch.int8).argmax(dim=1)
 
-    def _profile_begin(self):
-        """Start an opt-in synchronized stage timer for bottleneck diagnosis."""
-        if self._profile_steps_remaining <= 0:
-            return None
-        torch.cuda.synchronize()
-        return {"last": time.perf_counter(), "stages": []}
-
-    @staticmethod
-    def _profile_mark(profile, name):
-        if profile is None:
-            return
-        torch.cuda.synchronize()
-        now = time.perf_counter()
-        profile["stages"].append((name, now - profile["last"]))
-        profile["last"] = now
-
-    def _profile_finish(self, profile):
-        if profile is None:
-            return
-        self._profile_steps_remaining -= 1
-        total = sum(duration for _, duration in profile["stages"])
-        detail = " ".join(
-            f"{name}={duration * 1000:.1f}ms"
-            for name, duration in profile["stages"]
-        )
-        logger.info("StarVLAForwardProfile total=%.1fms %s", total * 1000, detail)
-
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
         cached = [example.get("qwen_feature_cache") for example in examples]
@@ -376,22 +344,11 @@ class Qwenvl_OFT(baseframework):
                 [value.to(device, non_blocking=True) for value in deepstack_embeds],
             )
 
-        prefetched_inputs = examples[0].get("_qwen_prefetched_inputs")
-        if prefetched_inputs is None:
-            batch_images = [example["image"] for example in examples]
-            qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(
-                images=batch_images,
-                instructions=instructions,
-            )
-            self._profile_mark(self._profile_state, "qwen_cpu_pack")
-        else:
-            qwen_inputs = {
-                key: value.to(device, non_blocking=True)
-                if isinstance(value, torch.Tensor)
-                else value
-                for key, value in prefetched_inputs.items()
-            }
-            self._profile_mark(self._profile_state, "qwen_prefetched_transfer")
+        batch_images = [example["image"] for example in examples]
+        qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(
+            images=batch_images,
+            instructions=instructions,
+        )
         input_ids = qwen_inputs["input_ids"]
         attention_mask = qwen_inputs["attention_mask"]
         with torch.no_grad():
@@ -406,7 +363,6 @@ class Qwenvl_OFT(baseframework):
                 qwen_inputs["image_grid_thw"],
             )
             image_embeds = torch.cat(image_parts, dim=0)
-        self._profile_mark(self._profile_state, "qwen_rope_vision")
         positions = {
             name: self._find_token_positions(input_ids, token_ids)
             for name, token_ids in self._special_token_ids.items()
@@ -436,10 +392,7 @@ class Qwenvl_OFT(baseframework):
         # Cache generation validates the placeholder/token contract.  Avoid a
         # boolean gather of every hidden element here; it allocated a temporary
         # tensor of the same size as all visual embeddings on every step.
-        # The embedding output is non-leaf.  In-place scatter has identical
-        # values/gradients here and avoids allocating/copying another complete
-        # [batch, sequence, hidden] tensor every step.
-        inputs_embeds.masked_scatter_(expanded_mask, image_embeds)
+        inputs_embeds = inputs_embeds.masked_scatter(expanded_mask, image_embeds)
         outputs = self.qwen_vl_interface.model.model.language_model(
             input_ids=None,
             inputs_embeds=inputs_embeds,
@@ -460,9 +413,6 @@ class Qwenvl_OFT(baseframework):
         accelerator = None,
         **kwargs,
     ) -> Tuple:
-
-        profile = self._profile_begin()
-        self._profile_state = profile
 
         instructions = [example["lang"] for example in examples]  # [B, str]
         try:
@@ -490,8 +440,6 @@ class Qwenvl_OFT(baseframework):
             image_embeds,
             deepstack_embeds,
         ) = self._build_qwen_batch(examples, instructions)
-        if not any(name == "qwen_rope_vision" for name, _ in (profile or {}).get("stages", [])):
-            self._profile_mark(profile, "qwen_cached_batch")
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
             text_embeds = self.qwen_vl_interface.model.get_input_embeddings()(input_ids)  # [B, L, H]
@@ -529,7 +477,6 @@ class Qwenvl_OFT(baseframework):
             text_embeds[
                 batch_indices[:, None], token_positions["gs"], :
             ] = self.gs_query.unsqueeze(0).to(text_embeds.dtype)
-        self._profile_mark(profile, "embedding_injection")
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
             last_hidden = self._qwen_language_forward(
@@ -540,7 +487,6 @@ class Qwenvl_OFT(baseframework):
                 image_embeds=image_embeds,
                 deepstack_embeds=deepstack_embeds,
             )
-        self._profile_mark(profile, "qwen_language")
 
         #### video gen ####
         if self.config.datasets.video_data.load_2d_data:
@@ -569,7 +515,6 @@ class Qwenvl_OFT(baseframework):
                 rgb_loss += rgb_query_loss
         else:
             rgb_loss = torch.tensor(0.).cuda()
-        self._profile_mark(profile, "wan")
 
 
         # Step 4: Action Expert Forward and Loss
@@ -587,24 +532,8 @@ class Qwenvl_OFT(baseframework):
                     self.config.framework.action_model.get("repeated_diffusion_steps", 1) if self.config else 1
                 )
                 repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
-                # qwen_proj is deterministic and receives the same action
-                # queries for every diffusion repeat.  Project once before
-                # expanding the batch instead of repeating the two GEMMs
-                # ``repeated_diffusion_steps`` times.  The diffusion noise and
-                # timestep sampling remain independent for every repeat.
-                preproject_action = (
-                    os.environ.get("STARVLA_ACTION_PREPROJECT", "0") == "1"
-                    and self.mlp_head == 0
-                )
-                if preproject_action:
-                    projected_action_queries = self.action_model.qwen_proj(action_queries)
-                    repeat_action_queries = projected_action_queries.repeat(
-                        repeated_diffusion_steps, 1, 1
-                    )
-                else:
-                    repeat_action_queries = action_queries.repeat(
-                        repeated_diffusion_steps, 1, 1
-                    )
+                # 对每层特征做 repeat
+                repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
 
                 if self.w_video_latent:
                     video_token = self.rgb_latent_adapter(video_latent)
@@ -613,19 +542,13 @@ class Qwenvl_OFT(baseframework):
                     video_token = None
 
                 if self.mlp_head == 0:
-                    action_loss = self.action_model(
-                        repeat_action_queries,
-                        repeat_actions,
-                        video_token,
-                        vl_embs_preprojected=preproject_action,
-                    )  # (B, chunk_len, action_dim)
+                    action_loss = self.action_model(repeat_action_queries, repeat_actions, video_token)  # (B, chunk_len, action_dim)
                 else:
                     b, l, h = action_queries.shape
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
                     action_loss = nn.SmoothL1Loss()(pred_action, actions)
         else:
             action_loss = torch.tensor(0.).cuda()
-        self._profile_mark(profile, "action")
 
 
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
@@ -688,7 +611,6 @@ class Qwenvl_OFT(baseframework):
             # return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss}
         else:
             gs_loss = torch.tensor(0.).cuda()
-        self._profile_mark(profile, "ppd")
 
         if self.config.datasets.reward_data.load_reward_data:
 
@@ -707,9 +629,6 @@ class Qwenvl_OFT(baseframework):
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        self._profile_mark(profile, "reward_and_return")
-        self._profile_finish(profile)
-        self._profile_state = None
         return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss}
 
     @torch.inference_mode()
@@ -851,18 +770,38 @@ class Qwenvl_OFT(baseframework):
                 attention_mask=attention_mask,   # 2D mask 就行
             )
 
+        qwen_forward_mode = getattr(
+            self, "_inference_qwen_forward_mode", "legacy"
+        )
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            qw_out = self.qwen_vl_interface(
-                inputs_embeds=text_embeds,
-                attention_mask=attention_mask,
-                position_ids=position_ids,
-                # 视觉侧保持不变
-                pixel_values=qwen_inputs.get("pixel_values", None),
-                image_grid_thw=qwen_inputs.get("image_grid_thw", None),
-                output_hidden_states=True,
-                return_dict=True,
-            )
-            last_hidden = qw_out.hidden_states[-1]   # [B, L, H]
+            if qwen_forward_mode == "optimized":
+                image_parts, deepstack_embeds = (
+                    self.qwen_vl_interface.model.model.get_image_features(
+                        qwen_inputs["pixel_values"],
+                        qwen_inputs["image_grid_thw"],
+                    )
+                )
+                image_embeds = torch.cat(image_parts, dim=0)
+                last_hidden = self._qwen_language_forward(
+                    input_ids=input_ids,
+                    inputs_embeds=text_embeds,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    image_embeds=image_embeds,
+                    deepstack_embeds=deepstack_embeds,
+                )
+            else:
+                qw_out = self.qwen_vl_interface(
+                    inputs_embeds=text_embeds,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    # 视觉侧保持不变
+                    pixel_values=qwen_inputs.get("pixel_values", None),
+                    image_grid_thw=qwen_inputs.get("image_grid_thw", None),
+                    output_hidden_states=True,
+                    return_dict=True,
+                )
+                last_hidden = qw_out.hidden_states[-1]   # [B, L, H]
 
         # Step 1: QWenVL input format
         # qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)
@@ -1159,18 +1098,38 @@ class Qwenvl_OFT(baseframework):
                 attention_mask=attention_mask,   # 2D mask 就行
             )
 
+        qwen_forward_mode = getattr(
+            self, "_inference_qwen_forward_mode", "legacy"
+        )
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            qw_out = self.qwen_vl_interface(
-                inputs_embeds=text_embeds,
-                attention_mask=attention_mask,
-                position_ids=position_ids,
-                # 视觉侧保持不变
-                pixel_values=qwen_inputs.get("pixel_values", None),
-                image_grid_thw=qwen_inputs.get("image_grid_thw", None),
-                output_hidden_states=True,
-                return_dict=True,
-            )
-            last_hidden = qw_out.hidden_states[-1]   # [B, L, H]
+            if qwen_forward_mode == "optimized":
+                image_parts, deepstack_embeds = (
+                    self.qwen_vl_interface.model.model.get_image_features(
+                        qwen_inputs["pixel_values"],
+                        qwen_inputs["image_grid_thw"],
+                    )
+                )
+                image_embeds = torch.cat(image_parts, dim=0)
+                last_hidden = self._qwen_language_forward(
+                    input_ids=input_ids,
+                    inputs_embeds=text_embeds,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    image_embeds=image_embeds,
+                    deepstack_embeds=deepstack_embeds,
+                )
+            else:
+                qw_out = self.qwen_vl_interface(
+                    inputs_embeds=text_embeds,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    # 视觉侧保持不变
+                    pixel_values=qwen_inputs.get("pixel_values", None),
+                    image_grid_thw=qwen_inputs.get("image_grid_thw", None),
+                    output_hidden_states=True,
+                    return_dict=True,
+                )
+                last_hidden = qw_out.hidden_states[-1]   # [B, L, H]
 
         # Step 1: QWenVL input format
         # qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)

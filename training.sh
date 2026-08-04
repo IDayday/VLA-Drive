@@ -140,39 +140,29 @@ if [ -z "${GRADIENT_ACCUMULATION_STEPS:-}" ]; then
 fi
 export MAX_TRAIN_STEPS="${MAX_TRAIN_STEPS:-100000}"
 export NAVSIM_VIDEO_SOURCE="${NAVSIM_VIDEO_SOURCE:-images}"
-export STARVLA_PREFETCH_QWEN="${STARVLA_PREFETCH_QWEN:-1}"
 host_cpu_count="${TRAINING_HOST_CPU_COUNT_OVERRIDE:-$(getconf _NPROCESSORS_ONLN)}"
 if ! [[ "$host_cpu_count" =~ ^[1-9][0-9]*$ ]]; then
   echo "[training] host CPU count must be a positive integer, got: $host_cpu_count" >&2
   exit 2
 fi
 if (( formal_job == 1 )); then
-  # Qwen CPU preprocessing is compute-heavy while cached NAVSIM I/O is not.
-  # On the formal 128-CPU/16-rank host, two workers x three threads per rank
-  # overlap preprocessing with the accelerator and leave one spare CPU/rank.
+  # 128 CPUs / 16 ranks: six loader workers plus the rank process and one
+  # spare CPU per rank. This yields 96 I/O workers without oversubscribing.
   cpu_per_rank=$((host_cpu_count / LOCAL_NUM_PROCESSES))
-  if [ "$STARVLA_PREFETCH_QWEN" = "1" ]; then
-    default_workers=2
-    default_worker_threads=$(((cpu_per_rank - 2) / default_workers))
-    if (( default_worker_threads < 1 )); then default_worker_threads=1; fi
-  else
-    default_workers=$((cpu_per_rank - 2))
-    if (( default_workers < 1 )); then default_workers=1; fi
-    if (( default_workers > 8 )); then default_workers=8; fi
-    default_worker_threads=1
-  fi
+  default_workers=$((cpu_per_rank - 2))
+  if (( default_workers < 1 )); then default_workers=1; fi
+  if (( default_workers > 8 )); then default_workers=8; fi
   export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-$default_workers}"
-  export NAVSIM_PREFETCH_FACTOR="${NAVSIM_PREFETCH_FACTOR:-2}"
-  export NAVSIM_WORKER_THREADS="${NAVSIM_WORKER_THREADS:-$default_worker_threads}"
+  export NAVSIM_PREFETCH_FACTOR="${NAVSIM_PREFETCH_FACTOR:-4}"
   export NAVSIM_STAGE_CACHE_TO_RAM="${NAVSIM_STAGE_CACHE_TO_RAM:-auto}"
   export NAVSIM_STAGE_METADATA_TO_RAM="${NAVSIM_STAGE_METADATA_TO_RAM:-auto}"
 else
-  export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-1}"
+  export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-3}"
   export NAVSIM_PREFETCH_FACTOR="${NAVSIM_PREFETCH_FACTOR:-2}"
-  export NAVSIM_WORKER_THREADS="${NAVSIM_WORKER_THREADS:-1}"
   export NAVSIM_STAGE_CACHE_TO_RAM="${NAVSIM_STAGE_CACHE_TO_RAM:-0}"
   export NAVSIM_STAGE_METADATA_TO_RAM="${NAVSIM_STAGE_METADATA_TO_RAM:-0}"
 fi
+export NAVSIM_WORKER_THREADS="${NAVSIM_WORKER_THREADS:-1}"
 export NAVSIM_PIN_MEMORY="${NAVSIM_PIN_MEMORY:-1}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
@@ -202,31 +192,13 @@ if ! [[ "${NAVSIM_METADATA_COPY_WORKERS:-}" =~ ^[1-9][0-9]*$ ]]; then
   exit 2
 fi
 total_loader_workers=$((NAVSIM_NUM_WORKERS * LOCAL_NUM_PROCESSES))
-total_loader_worker_threads=$((total_loader_workers * NAVSIM_WORKER_THREADS))
-if (( formal_job == 1 && total_loader_worker_threads + LOCAL_NUM_PROCESSES > host_cpu_count )); then
-  echo "[training] DataLoader oversubscription: worker_threads=$total_loader_worker_threads ranks=$LOCAL_NUM_PROCESSES host_cpus=$host_cpu_count" >&2
+if (( formal_job == 1 && total_loader_workers + LOCAL_NUM_PROCESSES > host_cpu_count )); then
+  echo "[training] DataLoader oversubscription: workers=$total_loader_workers ranks=$LOCAL_NUM_PROCESSES host_cpus=$host_cpu_count" >&2
   exit 2
 fi
 export VLM_ATTN_IMPLEMENTATION="${VLM_ATTN_IMPLEMENTATION:-flash_attention_2}"
-export STARVLA_DENSE_FLASH_ATTN="${STARVLA_DENSE_FLASH_ATTN:-1}"
-export STARVLA_CACHE_WAN_ROPE="${STARVLA_CACHE_WAN_ROPE:-1}"
-export STARVLA_FUSED_ADAMW="${STARVLA_FUSED_ADAMW:-1}"
-export STARVLA_ACTION_PREPROJECT="${STARVLA_ACTION_PREPROJECT:-1}"
 export TRAIN_ACCELERATE_CONFIG="${TRAIN_ACCELERATE_CONFIG:-starVLA/config/deepseeds/deepspeed_zero2.yaml}"
 export WANDB_MODE="${WANDB_MODE:-offline}"
-
-for optimization_flag in \
-  STARVLA_DENSE_FLASH_ATTN \
-  STARVLA_CACHE_WAN_ROPE \
-  STARVLA_FUSED_ADAMW \
-  STARVLA_ACTION_PREPROJECT \
-  STARVLA_PREFETCH_QWEN; do
-  optimization_value="${!optimization_flag}"
-  if [ "$optimization_value" != "0" ] && [ "$optimization_value" != "1" ]; then
-    echo "[training] $optimization_flag must be 0 or 1, got: $optimization_value" >&2
-    exit 2
-  fi
-done
 
 if [ "${NAVSIM_USE_FEATURE_CACHE:-1}" = "1" ]; then
   : "${NAVSIM_FEATURE_CACHE_ROOT:?NAVSIM_FEATURE_CACHE_ROOT is required when NAVSIM_USE_FEATURE_CACHE=1}"
@@ -278,10 +250,9 @@ echo "[training] devices=$CUDA_VISIBLE_DEVICES"
 echo "[training] topology=nodes:${NUM_MACHINES} node_rank:${MACHINE_RANK} local_processes:${LOCAL_NUM_PROCESSES} global_processes:${NUM_PROCESSES} available_local_devices:${available_local_devices} master:${MAIN_PROCESS_IP}:${MAIN_PROCESS_PORT}"
 echo "[training] per_device_batch=$PER_DEVICE_BATCH_SIZE gradient_accumulation=$GRADIENT_ACCUMULATION_STEPS effective_batch=$effective_batch (target=$TARGET_EFFECTIVE_BATCH_SIZE)"
 echo "[training] attention=$VLM_ATTN_IMPLEMENTATION deepspeed_config=$TRAIN_ACCELERATE_CONFIG"
-echo "[training] kernel_optimizations=dense_flash:${STARVLA_DENSE_FLASH_ATTN} wan_rope_cache:${STARVLA_CACHE_WAN_ROPE} qwen_worker_preprocess:${STARVLA_PREFETCH_QWEN} fused_adamw:${STARVLA_FUSED_ADAMW} action_preproject:${STARVLA_ACTION_PREPROJECT}"
 echo "[training] max_steps=$MAX_TRAIN_STEPS log=$launcher_log"
 echo "[training] feature_cache=${NAVSIM_FEATURE_CACHE_ROOT:-disabled} components=${NAVSIM_CACHE_COMPONENTS:-none} strict=${NAVSIM_CACHE_STRICT:-0}"
-echo "[training] dataloader=host_cpus:${host_cpu_count} workers_per_rank:${NAVSIM_NUM_WORKERS} worker_threads:${NAVSIM_WORKER_THREADS} total_workers:${total_loader_workers} prefetch_factor:${NAVSIM_PREFETCH_FACTOR} pin_memory:${NAVSIM_PIN_MEMORY}"
+echo "[training] dataloader=host_cpus:${host_cpu_count} workers_per_rank:${NAVSIM_NUM_WORKERS} total_workers:${total_loader_workers} prefetch_factor:${NAVSIM_PREFETCH_FACTOR} pin_memory:${NAVSIM_PIN_MEMORY}"
 echo "[training] ram_cache=mode:${NAVSIM_STAGE_CACHE_TO_RAM} components:${NAVSIM_RAM_CACHE_COMPONENTS:-none} root:${NAVSIM_RAM_CACHE_ROOT:-unset} reserve_gb:${NAVSIM_RAM_RESERVE_GB:-unset} copy_workers:${NAVSIM_RAM_COPY_WORKERS:-unset}"
 echo "[training] ram_metadata=mode:${NAVSIM_STAGE_METADATA_TO_RAM} root:${NAVSIM_RAM_DATA_ROOT:-unset} copy_workers:${NAVSIM_METADATA_COPY_WORKERS:-unset}"
 
@@ -379,20 +350,10 @@ if cache_root:
                 f"Cache sample count mismatch for {component}: "
                 f"cache={manifest.get('sample_count')} dataset={sample_count}"
             )
-        # Cache ownership is fixed by the cache manifest, not by the current
-        # training world size.  Every training rank can read every shared
-        # shard, so a 2-card smoke test can safely consume a complete cache
-        # produced by the formal 16-card precompute job.
-        cache_world_size = int(manifest.get("world_size", -1))
-        if cache_world_size < 1:
+        if int(manifest.get("world_size", -1)) != int(os.environ["NUM_PROCESSES"]):
             raise RuntimeError(
-                f"Invalid cache shard count for {component}: {cache_world_size}"
-            )
-        if cache_world_size != int(os.environ["NUM_PROCESSES"]):
-            print(
-                f"[training] cache shards differ from training ranks for {component}: "
-                f"cache={cache_world_size} training={os.environ['NUM_PROCESSES']} "
-                "(supported: cache files are shared and manifest-addressed)"
+                f"Cache shard count mismatch for {component}: "
+                f"cache={manifest.get('world_size')} training={os.environ['NUM_PROCESSES']}"
             )
         if manifest.get("datalist_sha256") != datalist_sha256:
             raise RuntimeError(f"Cache datalist fingerprint mismatch: {manifest_path}")

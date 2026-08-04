@@ -273,14 +273,7 @@ class FlowmatchingActionHead(nn.Module):
         return BatchFeature(data=batch)
 
 
-    def forward(
-        self,
-        vl_embs: torch.Tensor,
-        actions: torch.Tensor,
-        video_token=None,
-        state: torch.Tensor = None,
-        vl_embs_preprojected: bool = False,
-    ):
+    def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None):
         """
         vl_embs: shape (B, seq_length, feature_dim)
         actions: shape (B, future_action_window_size, D_action)
@@ -304,8 +297,7 @@ class FlowmatchingActionHead(nn.Module):
         state_features = self.state_encoder(state) if state is not None else None
 
 
-        if not vl_embs_preprojected:
-            vl_embs = self.qwen_proj(vl_embs)
+        vl_embs = self.qwen_proj(vl_embs)
 
         if video_token is not None:
             vl_embs = torch.cat((vl_embs, video_token), dim =1)

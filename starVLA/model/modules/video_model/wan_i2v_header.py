@@ -340,15 +340,17 @@ class WanWorldHead(nn.Module):
             noise_pred = noise_pred.float()
             target = target.float()
             diff = noise_pred - target
-            # Reuse the subtraction for both the threshold mask and squared
-            # error instead of launching a second subtraction in mse_loss.
-            masked_loss = diff.square() * (diff.abs() <= threshold)
+            mse_loss = F.mse_loss(noise_pred, target, reduction='none')
+            mask = (diff.abs() <= threshold).float()
+            masked_loss = mse_loss * mask
             if weighting is not None:
-                masked_loss = masked_loss * weighting.float()
-            return masked_loss.mean()
+                masked_loss = masked_loss * weighting
+            final_loss = masked_loss.mean()
+            return final_loss
         
         weighting = compute_loss_weighting_for_sd3(weighting_scheme=self.config.weighting_scheme, sigmas=sigmas)
-        loss = custom_mse_loss(noise_pred, target, weighting)
+        loss = custom_mse_loss(noise_pred.float(), target.float(), weighting.float())
+        loss = loss.mean()
 
         sigma = sigmas.to(dtype=noise_pred.dtype, device=noise_pred.device)
 

@@ -164,13 +164,12 @@ class PixelPerfectDepth(nn.Module):
             target=loss_target,
             reduction='none',
             )
-        loss_mask = mask.float()
-        loss = loss * loss_mask
-        loss = loss.sum() / (loss_mask.sum() + 1e-6)
+        loss = loss * mask.float()
+        loss = loss.sum() / (mask.float().sum() + 1e-6)
 
         if not self.config.pretrain:
             grad_loss = multi_scale_grad_loss(
-                latent_pred.squeeze(1), latent.squeeze(1), loss_mask.squeeze(1)
+                latent_pred.squeeze(1), latent.squeeze(1), mask.float().squeeze(1)
                 )
             loss = loss + 0.2 * grad_loss
 

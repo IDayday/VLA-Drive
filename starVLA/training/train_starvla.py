@@ -107,19 +107,16 @@ def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, to
     """set optimizer and scheduler"""
     # initialize optimizer
     param_groups = build_param_lr_groups(model=model, cfg=cfg)
-    fused_adamw = os.environ.get("STARVLA_FUSED_ADAMW", "0") == "1"
     optimizer = torch.optim.AdamW(
         param_groups,
         lr=cfg.trainer.learning_rate.base,
         betas=tuple(cfg.trainer.optimizer.betas),
         weight_decay=cfg.trainer.optimizer.weight_decay,
         eps=cfg.trainer.optimizer.eps,
-        fused=fused_adamw,
     )
 
     # print optimizer group info
     if dist.is_initialized() and dist.get_rank() == 0:
-        logger.info("AdamW fused=%s", fused_adamw)
         for i, group in enumerate(optimizer.param_groups):
             logger.info(f"LR Group {group['name']}: lr={group['lr']}, num_params={len(group['params'])}")
 
@@ -148,17 +145,11 @@ class VLATrainer(TrainerUtils):
         self.completed_steps = 0
         self.total_batch_size = self._calculate_total_batch_size()
         self._timing_window = []
-        self._train_profile_steps_remaining = int(
-            os.environ.get("STARVLA_PROFILE_TRAIN_STEPS", "0")
-        )
 
         # --- Grad monitor (NEW) ---
         self._gm_handles = []
         self._gm_names = []
         self._gm_mask = None
-        self._gm_steps_remaining = int(
-            os.environ.get("STARVLA_GRAD_MONITOR_STEPS", "0")
-        )
 
     # ====== NEW: 参数梯度监控（DeepSpeed/ZeRO 兼容） ======
     def _setup_grad_monitor(self):
@@ -265,11 +256,7 @@ class VLATrainer(TrainerUtils):
             self.vla_train_dataloader,
             # self.vlm_train_dataloader
         )
-        # Optional diagnostic: identify trainable tensors that never enter the
-        # backward graph.  It is off in formal training because parameter hooks
-        # add overhead; enable only for short profiling runs.
-        if self._gm_steps_remaining > 0:
-            self._setup_grad_monitor()
+        # self._setup_grad_monitor()
 
         self._init_wandb()
         self._init_checkpointing()
@@ -588,19 +575,6 @@ class VLATrainer(TrainerUtils):
 
     def _train_step(self, batch_vla, batch_vlm=None):
         """execute single training step"""
-        profile = None
-        if self._train_profile_steps_remaining > 0:
-            torch.cuda.synchronize()
-            profile = {"last": time.perf_counter(), "stages": []}
-
-        def profile_mark(name):
-            if profile is None:
-                return
-            torch.cuda.synchronize()
-            now = time.perf_counter()
-            profile["stages"].append((name, now - profile["last"]))
-            profile["last"] = now
-
         if self.config.datasets.gs_data.load_3d_data:
             if self.config.framework.gs_model.enable_perceptual_loss and self.completed_steps >= self.config.framework.gs_model.perceptual_loss_start_iter:
                 logger.info('starting set_perceptual_loss')
@@ -633,35 +607,21 @@ class VLATrainer(TrainerUtils):
                 if self.config.datasets.vla_data.load_act_data == 1:
                     total_loss += action_loss
 
-            profile_mark("forward")
 
             # VLA backward propagation
             self.accelerator.backward(total_loss)
-            profile_mark("backward")
-            if self._gm_steps_remaining > 0:
-                self._report_unused_after_backward()
-                self._gm_steps_remaining -= 1
+            # for debug
+            # self._report_unused_after_backward()
 
             # gradient clipping
             if self.accelerator.sync_gradients:
                 if self.config.trainer.gradient_clipping is not None:
                     self.accelerator.clip_grad_norm_(self.model.parameters(), self.config.trainer.gradient_clipping)
-                profile_mark("grad_clip")
 
                 # optimizer step
                 self.optimizer.step()
                 self.lr_scheduler.step()
                 self.optimizer.zero_grad()
-                profile_mark("optimizer_scheduler_zero")
-
-        if profile is not None:
-            self._train_profile_steps_remaining -= 1
-            total = sum(duration for _, duration in profile["stages"])
-            detail = " ".join(
-                f"{name}={duration * 1000:.1f}ms"
-                for name, duration in profile["stages"]
-            )
-            logger.info("StarVLATrainProfile total=%.1fms %s", total * 1000, detail)
 
         return {
             "action_dit_loss": action_loss.detach(),
