@@ -28,6 +28,7 @@ from PIL import Image
 from starVLA.cache.navsim_feature_cache import (
     CACHE_SCHEMA_VERSION,
     GS_QUERY_TOKENS,
+    MINE_AGENT_QUERY_TOKENS,
     REWARD_QUERY_TOKENS,
     RGB_QUERY_TOKENS,
     ROBOT_HISTORY_TOKEN,
@@ -78,14 +79,25 @@ def tensor_cpu(value: torch.Tensor, dtype=None) -> torch.Tensor:
     return value.contiguous().cpu()
 
 
-def token_positions(input_ids: torch.Tensor, tokenizer, act_token_count: int) -> Dict[str, torch.Tensor]:
+def token_positions(
+    input_ids: torch.Tensor,
+    tokenizer,
+    act_token_count: int,
+    with_mine_agent: bool = False,
+) -> Dict[str, torch.Tensor]:
     groups = {
         "history": (ROBOT_HISTORY_TOKEN,),
         "rgb": RGB_QUERY_TOKENS,
         "gs": GS_QUERY_TOKENS,
-        "action": action_query_tokens(act_token_count),
-        "reward": REWARD_QUERY_TOKENS,
     }
+    if with_mine_agent:
+        groups["mine_agent"] = MINE_AGENT_QUERY_TOKENS
+    groups.update(
+        {
+            "action": action_query_tokens(act_token_count),
+            "reward": REWARD_QUERY_TOKENS,
+        }
+    )
     result = {}
     for name, tokens in groups.items():
         ids = torch.as_tensor(tokenizer.convert_tokens_to_ids(list(tokens)), dtype=input_ids.dtype)
@@ -139,11 +151,17 @@ class QwenPrecomputer:
         self.tokenizer = self.interface.processor.tokenizer
         self.act_token_count = int(cfg.act_tok)
         self.w_depth = bool(cfg.w_depth)
+        self.action_prompt_mode = str(getattr(cfg.framework, "action_prompt_mode", "full")).lower()
 
     @torch.inference_mode()
     def __call__(self, samples: List[dict]) -> List[Dict[str, torch.Tensor]]:
         instructions = [
-            append_world_action_tokens(sample["lang"], self.act_token_count, self.w_depth)
+            append_world_action_tokens(
+                sample["lang"],
+                self.act_token_count,
+                self.w_depth,
+                with_mine_agent=(self.action_prompt_mode == "minimal_agent"),
+            )
             for sample in samples
         ]
         inputs = self.interface.build_qwenvl_inputs(
@@ -204,7 +222,14 @@ class QwenPrecomputer:
                 ),
                 "image_embeds": tensor_cpu(sample_embeds, torch.bfloat16),
             }
-            payload.update(token_positions(active_ids, self.tokenizer, self.act_token_count))
+            payload.update(
+                token_positions(
+                    active_ids,
+                    self.tokenizer,
+                    self.act_token_count,
+                    with_mine_agent=(self.action_prompt_mode == "minimal_agent"),
+                )
+            )
             for layer_index, layer_values in enumerate(split_deepstack):
                 payload[f"deepstack_{layer_index}"] = tensor_cpu(
                     layer_values[batch_index],

@@ -241,10 +241,8 @@ class VLMNavsim(torch.utils.data.Dataset):
             else:
                 test_scene_filter.log_names = cfg.test_logs
 
-            data_path_test = Path(
-                f"{project_root}/navsim_logs/test")
-            sensor_blobs_path_test = Path(
-                f"{project_root}/sensor_blobs/test")
+            data_path_test = Path(os.environ.get("NAVSIM_TEST_LOG_ROOT", f"{project_root}/navsim_logs/test"))
+            sensor_blobs_path_test = Path(os.environ.get("NAVSIM_TEST_SENSOR_ROOT", f"{project_root}/sensor_blobs/test"))
 
             test_scene_loader = SceneLoader(
                 original_sensor_path=sensor_blobs_path_test,

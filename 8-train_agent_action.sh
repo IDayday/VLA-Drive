@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
-# Step 8 (train): Multi-node/multi-GPU training with DeepSpeed ZeRO-2.
+# Step 8 (train): Agent-action training with DeepSpeed ZeRO-2 and minimal_agent prompt.
+# This script loads env.sh automatically so it can run on its own.
 # Prerequisites:
-#   1. source env.sh           (sets NAVSIM_EXP_ROOT, BASE_VLM, WANDB_*, …)
-#   2. Prepare data (steps 0-3) and generate the meta-list JSON.
-# Run: source env.sh && bash 8-train.sh
+#   1. Prepare data (steps 0-3) and generate the meta-list JSON.
+# Run: bash 8-train_agent_action.sh
 
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$project_root/scripts/load_env.sh"
 
-# ── Required env vars (set in env.sh) ─────────────────────────────────────────
-: "${NAVSIM_EXP_ROOT:?Set NAVSIM_EXP_ROOT in env.sh}"
-: "${BASE_VLM:?Set BASE_VLM in env.sh}"
-: "${VIDEO_MODEL:?Set VIDEO_MODEL in env.sh}"
-: "${DATA_ROOT:?Set DATA_ROOT in env.sh}"
-: "${WANDB_ENTITY:?Set WANDB_ENTITY in env.sh}"
-: "${WANDB_PROJECT:?Set WANDB_PROJECT in env.sh}"
+# Agent-action training does not rely on the shared feature cache.
+unset NAVSIM_FEATURE_CACHE_ROOT
+export NAVSIM_USE_FEATURE_CACHE=0
+export NAVSIM_AGENT_DINO_CACHE_ROOT="${NAVSIM_AGENT_DINO_CACHE_ROOT:-$DRIVEDREAMER_ROOT/navsim_feature_cache/agent_dino_vits14_train_top4}"
+export NAVSIM_AGENT_DINO_CACHE_STRICT="${NAVSIM_AGENT_DINO_CACHE_STRICT:-1}"
 
-# ── Experiment ID ─────────────────────────────────────────────────────────────
+# -- Experiment ID ------------------------------------------------------------
 debug=false
 if [ "${debug,,}" = "true" ]; then
   timestamp="debug"
@@ -27,35 +25,30 @@ else
 fi
 echo "timestamp: $timestamp"
 
-# ── Hyper-parameters ──────────────────────────────────────────────────────────
-num_processes="${NUM_PROCESSES:-2}"
+# -- Hyper-parameters ---------------------------------------------------------
+num_processes="${NUM_PROCESSES:-16}"
 num_machines="${NUM_MACHINES:-1}"
 machine_rank="${MACHINE_RANK:-0}"
 local_num_processes="${LOCAL_NUM_PROCESSES:-${num_processes}}"
-bz="${PER_DEVICE_BATCH_SIZE:-4}"
-# training.sh derives this value to preserve the released global batch of 32.
-gradient_accumulation_steps="${GRADIENT_ACCUMULATION_STEPS:-4}"
-act_fm_size=1536      # action DiT hidden size
-act_fm_layer=24       # action DiT number of layers
-fm_repeat=8           # repeated diffusion steps
+bz="${PER_DEVICE_BATCH_SIZE:-2}"
+gradient_accumulation_steps="${GRADIENT_ACCUMULATION_STEPS:-1}"
+act_fm_size=1536
+act_fm_layer=24
+fm_repeat=8
 max_train_steps="${MAX_TRAIN_STEPS:-100000}"
-
-VIDEO_CONFIG=starVLA/model/modules/video_model/config/wan2.1/wan_civitai.yaml
-VIDEO_DATA_DIR="${DATA_ROOT}/navsim_video"
 
 split=train
 datalist="${NAVSIM_DATALIST_PATH:-${DRIVEDREAMER_ROOT}/${split}_meta.json}"
 
-run_id="${RUN_ID:-${timestamp}-3d-2d-1d-lr1e5-3d_loss_1e1-decay1e3-${split}_data-bz_${bz}_${num_processes}}"
+run_id="${RUN_ID:-${timestamp}-agent-action-lr1e5-16g-bz_${bz}-ga_${gradient_accumulation_steps}-${split}}"
 
 Framework_name=QwenOFT
 vl_hidden_dim=2048
 
-export WANDB_MODE="${WANDB_MODE:-offline}"
 export NAVSIM_VIDEO_SOURCE="${NAVSIM_VIDEO_SOURCE:-images}"
 export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-3}"
 export NAVSIM_PREFETCH_FACTOR="${NAVSIM_PREFETCH_FACTOR:-2}"
-visible_devices="${CUDA_VISIBLE_DEVICES:-0,1}"
+visible_devices="${CUDA_VISIBLE_DEVICES:-0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}"
 accelerate_config="${TRAIN_ACCELERATE_CONFIG:-starVLA/config/deepseeds/deepspeed_zero2.yaml}"
 main_process_ip="${MAIN_PROCESS_IP:-${MASTER_ADDR:-127.0.0.1}}"
 main_process_port="${MAIN_PROCESS_PORT:-29687}"
@@ -91,6 +84,9 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --framework.qwenvl.base_vlm ${BASE_VLM} \
   --framework.qwenvl.attn_implementation "${VLM_ATTN_IMPLEMENTATION:-flash_attention_2}" \
   --framework.qwenvl.vl_hidden_dim ${vl_hidden_dim} \
+  --framework.action_prompt_mode minimal_agent \
+  --framework.agent_dino.loss_weight 0.1 \
+  --framework.agent_dino.feature_dim 384 \
   --run_root_dir ${NAVSIM_EXP_ROOT} \
   --run_id ${run_id} \
   --wandb_project ${WANDB_PROJECT} \
@@ -99,22 +95,21 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --datasets.vla_data.data_root ${DATA_ROOT} \
   --datasets.vla_data.split ${split} \
   --datasets.vla_data.per_device_batch_size ${bz} \
+  --datasets.vla_data.load_act_data 1 \
+  --datasets.video_data.load_2d_data 0 \
+  --datasets.gs_data.load_3d_data 0 \
+  --datasets.reward_data.load_reward_data 0 \
+  --w_depth 0 \
+  --rgb_query_loss 0 \
+  --gs_query_loss 0 \
   --trainer.gradient_accumulation_steps ${gradient_accumulation_steps} \
   --framework.action_model.repeated_diffusion_steps ${fm_repeat} \
-  --datasets.video_data.load_2d_data 1 \
-  --w_depth 1 \
-  --gs_query_loss 1 \
-  --rgb_query_loss 1 \
-  --trainer.freeze_modules "rgb_model.vae,rgb_model.clip_image_encoder,rgb_model.text_encoder,qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head" \
   --framework.action_model.hidden_size ${act_fm_size} \
   --framework.action_model.diffusion_model_cfg.cross_attention_dim ${act_fm_size} \
   --framework.action_model.diffusion_model_cfg.output_dim ${act_fm_size} \
   --framework.action_model.diffusion_model_cfg.num_layers ${act_fm_layer} \
   --trainer.optimizer.weight_decay 1e-3 \
   --trainer.learning_rate.base 1e-5 \
-  --trainer.learning_rate.rgb_model 1e-5 \
-  --framework.video_model.model_name ${VIDEO_MODEL} \
-  --framework.video_model.config_path ${VIDEO_CONFIG} \
-  --datasets.video_data.rgb_meta_dir ${VIDEO_DATA_DIR} \
+  --trainer.learning_rate.action_model 1e-5 \
   --trainer.max_train_steps "${max_train_steps}" \
   "${training_extra_args[@]}"

@@ -52,11 +52,11 @@ from omegaconf import OmegaConf
 from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
 from starVLA.cache.navsim_feature_cache import (
     GS_QUERY_TOKENS,
+    MINE_AGENT_QUERY_TOKENS,
     REWARD_QUERY_TOKENS,
     RGB_QUERY_TOKENS,
     ROBOT_HISTORY_TOKEN,
     action_query_tokens,
-    append_world_action_tokens,
 )
 
 import torch
@@ -156,15 +156,31 @@ class Qwenvl_OFT(baseframework):
 
         # reward token
         self.reward_query_tokens = list(REWARD_QUERY_TOKENS)
+        self.mine_agent_query_tokens = list(MINE_AGENT_QUERY_TOKENS)
+
+        self.action_prompt_mode = str(
+            OmegaConf.select(self.config, "framework.action_prompt_mode", default="full")
+        ).lower()
 
         tokenizer = self.qwen_vl_interface.processor.tokenizer
         self._special_token_ids = {
             "history": (tokenizer.convert_tokens_to_ids(self.robot_history_token),),
-            "rgb": tuple(tokenizer.convert_tokens_to_ids(self.rgb_query_tokens)),
-            "gs": tuple(tokenizer.convert_tokens_to_ids(self.gs_query_tokens)),
             "action": tuple(tokenizer.convert_tokens_to_ids(self.act_query_tokens)),
-            "reward": tuple(tokenizer.convert_tokens_to_ids(self.reward_query_tokens)),
         }
+        if self.action_prompt_mode != "minimal":
+            self._special_token_ids.update(
+                {
+                    "rgb": tuple(tokenizer.convert_tokens_to_ids(self.rgb_query_tokens)),
+                    "gs": tuple(tokenizer.convert_tokens_to_ids(self.gs_query_tokens)),
+                    "reward": tuple(tokenizer.convert_tokens_to_ids(self.reward_query_tokens)),
+                }
+            )
+        if self.action_prompt_mode == "minimal_agent":
+            self._special_token_ids.update(
+                {
+                    "mine_agent": tuple(tokenizer.convert_tokens_to_ids(self.mine_agent_query_tokens)),
+                }
+            )
 
         # if self.config.datasets.vla_data.load_act_data:
         self.action_input_model = MLP(
@@ -175,6 +191,14 @@ class Qwenvl_OFT(baseframework):
 
         self.infer_not_load_wan = infer_not_load_wan
 
+        self.agent_dino_loss_weight = float(OmegaConf.select(self.config, "framework.agent_dino.loss_weight", default=0.1))
+        self.agent_dino_dim = int(OmegaConf.select(self.config, "framework.agent_dino.feature_dim", default=384))
+        self.agent_dino_head = nn.Sequential(
+            nn.LayerNorm(self.qwen_vl_interface.model.config.hidden_size),
+            nn.Linear(self.qwen_vl_interface.model.config.hidden_size, self.qwen_vl_interface.model.config.hidden_size),
+            nn.GELU(),
+            nn.Linear(self.qwen_vl_interface.model.config.hidden_size, self.agent_dino_dim),
+        )
 
         llm_layers, llm_hidden_size = self.config.framework.action_model.diffusion_model_cfg.num_layers, self.qwen_vl_interface.model.config.hidden_size
 
@@ -287,6 +311,23 @@ class Qwenvl_OFT(baseframework):
         matches = input_ids.unsqueeze(-1).eq(ids.view(1, 1, -1))
         return matches.to(torch.int8).argmax(dim=1)
 
+    def _build_action_prompt_suffix(self) -> str:
+        """Build the instruction suffix used by action-only prompting."""
+        hist_str = self.robot_history_token
+        act_str = "".join(self.act_query_tokens)
+        if self.action_prompt_mode == "minimal":
+            return f" {hist_str}{act_str}"
+        if self.action_prompt_mode == "minimal_agent":
+            mine_agent_str = "".join(self.mine_agent_query_tokens)
+            return f" {hist_str}{mine_agent_str}{act_str}"
+
+        rgb_str = "".join(self.rgb_query_tokens)
+        gs_str = "".join(self.gs_query_tokens)
+        rew_str = "".join(self.reward_query_tokens)
+        if self.w_depth:
+            return f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
+        return f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
+
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
         cached = [example.get("qwen_feature_cache") for example in examples]
@@ -311,7 +352,7 @@ class Qwenvl_OFT(baseframework):
             position_ids = torch.ones(
                 (3, batch_size, max_length), dtype=torch.long, device=device
             )
-            position_names = ("history", "rgb", "gs", "action", "reward")
+            position_names = tuple(self._special_token_ids.keys())
             positions = {name: [] for name in position_names}
             for batch_index, (payload, length) in enumerate(zip(cached, lengths)):
                 offset = max_length - length
@@ -428,10 +469,8 @@ class Qwenvl_OFT(baseframework):
             depth_data = [example['depth_data'] for example in examples]
 
         
-        instructions = [
-            append_world_action_tokens(instruction, self.act_tok, bool(self.w_depth))
-            for instruction in instructions
-        ]
+        suffix = self._build_action_prompt_suffix()
+        instructions = [instruction + suffix for instruction in instructions]
         (
             input_ids,
             attention_mask,
@@ -446,11 +485,12 @@ class Qwenvl_OFT(baseframework):
 
 
         # if self.config.datasets.vla_data.load_act_data: 
+        state_device = next(self.action_input_model.parameters()).device
         with torch.autocast("cuda", dtype=torch.float32):
             # 映射到 hidden 维: [B, H]
-            states = torch.as_tensor(np.asarray(states), device=text_embeds.device)[:, 0, :]
+            states = torch.as_tensor(np.asarray(states), dtype=torch.float32).to(state_device)[:, 0, :]
             states_embed = self.action_input_model(states)  # [B, H]
-        states_embed = states_embed.to(dtype=text_embeds.dtype)
+        states_embed = states_embed.to(dtype=text_embeds.dtype, device=text_embeds.device)
 
         # if self.w_depth:
         #     with torch.autocast("cuda", dtype=torch.float32):
@@ -487,6 +527,37 @@ class Qwenvl_OFT(baseframework):
                 image_embeds=image_embeds,
                 deepstack_embeds=deepstack_embeds,
             )
+
+        agent_dino_loss = torch.tensor(0.).to(text_embeds.device)
+        if self.action_prompt_mode == "minimal_agent":
+            mine_agent_g_idx = token_positions["mine_agent"].unsqueeze(-1).expand(-1, -1, H)
+            mine_agent_queries = last_hidden.gather(dim=1, index=mine_agent_g_idx)  # [B, 4, H]
+            agent_dino_payloads = [example.get("agent_dino_feature_cache") for example in examples]
+            if all(payload is not None for payload in agent_dino_payloads):
+                teacher_features = []
+                teacher_masks = []
+                for payload in agent_dino_payloads:
+                    feats = payload["agent_features"].to(device=mine_agent_queries.device, dtype=torch.float32)
+                    valid_count = int(feats.shape[0])
+                    pad_count = max(0, 4 - valid_count)
+                    if pad_count:
+                        pad = torch.zeros((pad_count, feats.shape[1]), device=feats.device, dtype=feats.dtype)
+                        feats = torch.cat([feats, pad], dim=0)
+                    teacher_features.append(feats[:4])
+                    mask = torch.zeros((4,), device=mine_agent_queries.device, dtype=torch.bool)
+                    mask[:min(valid_count, 4)] = True
+                    teacher_masks.append(mask)
+                teacher_features = torch.stack(teacher_features, dim=0)  # [B,4,D]
+                teacher_masks = torch.stack(teacher_masks, dim=0)        # [B,4]
+                if next(self.agent_dino_head.parameters()).device != mine_agent_queries.device:
+                    self.agent_dino_head = self.agent_dino_head.to(mine_agent_queries.device)
+                pred_features = self.agent_dino_head(mine_agent_queries.float())  # [B,4,D]
+                if teacher_masks.any():
+                    agent_dino_loss = F.smooth_l1_loss(
+                        pred_features[teacher_masks],
+                        teacher_features[teacher_masks],
+                    )
+            agent_dino_loss = agent_dino_loss * self.agent_dino_loss_weight
 
         #### video gen ####
         if self.config.datasets.video_data.load_2d_data:
@@ -625,11 +696,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss}
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss}
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
 
     @torch.inference_mode()
     def predict_action(
@@ -674,14 +745,7 @@ class Qwenvl_OFT(baseframework):
         except:
             state = None
 
-        # step 0: add special action token to instruction
-        hist_str  = self.robot_history_token
-        rgb_str   = "".join(self.rgb_query_tokens)
-        gs_str    = "".join(self.gs_query_tokens)
-        act_str   = "".join(self.act_query_tokens)
-        rew_str   = "".join(self.reward_query_tokens)
-
-        suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
+        suffix = self._build_action_prompt_suffix()
         instructions = [instruction + suffix for instruction in instructions]
 
         # Step 1: QWenVL input format
@@ -701,7 +765,6 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.reward_data.load_reward_data:
             # one token
             reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
-
         input_ids      = qwen_inputs["input_ids"]          # [B, L]
         attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -963,23 +1026,8 @@ class Qwenvl_OFT(baseframework):
             pass
             # depth_feats = [example['depth_feat'] for example in examples]
 
-        # step 0: add special action token to instruction
-        hist_str  = self.robot_history_token
-        rgb_str   = "".join(self.rgb_query_tokens)
-        gs_str    = "".join(self.gs_query_tokens)
-        act_str   = "".join(self.act_query_tokens)
-        rew_str   = "".join(self.reward_query_tokens)
-
-        # suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
-        # instructions = [instruction + suffix for instruction in instructions]
-
-        if not self.w_depth:
-            suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
-            instructions = [instruction + suffix for instruction in instructions]
-        else:
-            # 3d first
-            suffix = f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
-            instructions = [instruction + suffix for instruction in instructions]
+        suffix = self._build_action_prompt_suffix()
+        instructions = [instruction + suffix for instruction in instructions]
 
         # Step 1: QWenVL input format
         qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)
@@ -1001,7 +1049,6 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.reward_data.load_reward_data:
             # one token
             reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
-
         input_ids      = qwen_inputs["input_ids"]          # [B, L]
         attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -1288,14 +1335,7 @@ class Qwenvl_OFT(baseframework):
         
         states = [example["state"] for example in examples]
 
-        # step 0: add special action token to instruction
-        hist_str  = self.robot_history_token
-        rgb_str   = "".join(self.rgb_query_tokens)
-        gs_str    = "".join(self.gs_query_tokens)
-        act_str   = "".join(self.act_query_tokens)
-        rew_str   = "".join(self.reward_query_tokens)
-
-        suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
+        suffix = self._build_action_prompt_suffix()
         instructions = [instruction + suffix for instruction in instructions]
 
         # Step 1: QWenVL input format
@@ -1314,7 +1354,6 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.reward_data.load_reward_data:
             # one token
             reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
-
         input_ids      = qwen_inputs["input_ids"]          # [B, L]
         attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -1361,6 +1400,12 @@ class Qwenvl_OFT(baseframework):
                 gs_query_reordered = self.gs_query[order]    # [64, H]
 
                 text_embeds[b, where, :] = gs_query_reordered
+
+            if self.action_prompt_mode == "minimal_agent":
+                mine_agent_ids_tensor = torch.tensor(mine_agent_ids, device=input_ids.device)
+                where = torch.isin(input_ids[b], mine_agent_ids_tensor).nonzero(as_tuple=False).squeeze(1)
+                _, order = torch.sort(where)
+                mine_agent_query_reordered = self.mine_agent_query[order] if hasattr(self, "mine_agent_query") else None
 
             # replace reward token
             if self.config.datasets.reward_data.load_reward_data:

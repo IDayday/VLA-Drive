@@ -103,10 +103,12 @@ pip install -r requirements_vla.txt
 
 ### 1.5 Environment Variables
 
-Fill in your paths in `env.sh` and source it before running any pipeline script:
+Shared defaults live in `env.sh`. For multi-user development, keep machine-specific paths and credentials in `env.local.sh`; it is ignored by git and is loaded automatically by the top-level training/evaluation scripts.
 
 ```bash
-vim env.sh
+cp env.sh env.local.sh
+vim env.local.sh
+# Optional for interactive shells; entrypoint scripts load it automatically.
 source env.sh
 ```
 
@@ -119,6 +121,8 @@ Key variables:
 | `NUPLAN_MAPS_ROOT` | Path to nuPlan map files |
 | `OPENSCENE_DATA_ROOT` | Root of the NAVSIM/OpenScene dataset |
 | `NAVSIM_EXP_ROOT` | Where training experiments are saved |
+| `NAVSIM_V1_METRIC_CACHE_PATH` | NAVSIM v1.1 metric cache used by `5-eval_v1.sh` |
+| `NAVSIM_V2_METRIC_CACHE_ROOT` | Parent directory for NAVSIM v2 metric caches used by `6-eval_v2.sh` |
 | `BASE_VLM` | Path to the base Qwen3-VL-2B-WorldAction checkpoint |
 | `WANDB_API_KEY` | Your Weights & Biases API key (optional) |
 

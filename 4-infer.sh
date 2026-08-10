@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$project_root/scripts/load_env.sh"
+
 # ── Required env vars (set in env.sh) ─────────────────────────────────────────
 : "${NAVSIM_EXP_ROOT:?Set NAVSIM_EXP_ROOT in env.sh}"
 : "${OPENSCENE_DATA_ROOT:?Set OPENSCENE_DATA_ROOT in env.sh}"
@@ -13,7 +16,7 @@ set -euo pipefail
 : "${RELEASE_MODEL:?Set RELEASE_MODEL in env.sh}"
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-SPLIT="${SPLIT:-mini}"  # mini | test | navhard_two_stage
+SPLIT="${SPLIT:-test}"  # mini | test | navhard_two_stage
 MODEL_DIR="${MODEL_DIR:-${RELEASE_MODEL}}"
 MODEL_ITER="${MODEL_ITER:-}"
 QWEN_FORWARD_MODE="${QWEN_FORWARD_MODE:-auto}"

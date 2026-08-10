@@ -1,25 +1,27 @@
 #!/usr/bin/env bash
 # Evaluate saved trajectories with the official NAVSIM v1.1 PDM-Score code.
 # Example:
-#   source env.sh
 #   PRED_DIR=/path/to/run SPLIT=test bash 5-eval_v1.sh
 
 set -euo pipefail
+
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$project_root/scripts/load_env.sh"
 
 : "${NUPLAN_MAPS_ROOT:?Set NUPLAN_MAPS_ROOT in env.sh}"
 : "${OPENSCENE_DATA_ROOT:?Set OPENSCENE_DATA_ROOT in env.sh}"
 : "${DRIVEDREAMER_ROOT:?Run 'source env.sh' first}"
 
 SPLIT="${SPLIT:-test}"
-PRED_DIR="${PRED_DIR:-$DRIVEDREAMER_ROOT/navsim_planning_results/DriveDreamer-Policy}"
-METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-$DRIVEDREAMER_ROOT/navsim_exp/metric_cache_nav${SPLIT}_v1_1}"
+PRED_DIR="${PRED_DIR:-$DRIVEDREAMER_ROOT/navsim_planning_results/pytorch_model.pt}"
+METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-${NAVSIM_V1_METRIC_CACHE_PATH}}"
 
-export NUPLAN_MAP_VERSION="nuplan-maps-v1.0"
+export NUPLAN_MAP_VERSION="${NUPLAN_MAP_VERSION:-nuplan-maps-v1.0}"
 export NAVSIM_EXP_ROOT="${NAVSIM_EVAL_ROOT:-$DRIVEDREAMER_ROOT/navsim_exp/eval_v1.1}"
-export NAVSIM_DEVKIT_ROOT="$DRIVEDREAMER_ROOT/navsim_v1.1/navsim"
+export NAVSIM_DEVKIT_ROOT="${NAVSIM_V1_DEVKIT_ROOT:-$DRIVEDREAMER_ROOT/navsim_v1.1/navsim}"
 export PYTHONPATH="$NAVSIM_DEVKIT_ROOT:${PYTHONPATH:-}"
 
-prediction_dir="$PRED_DIR/$SPLIT"
+prediction_dir="$PRED_DIR/test"
 if [[ ! -d "$prediction_dir" ]]; then
   echo "Prediction directory does not exist: $prediction_dir" >&2
   exit 1

@@ -239,6 +239,21 @@ class NavSimDataset(Dataset):
                 f"loading NAVSIM feature cache {cache_root} "
                 f"components={','.join(cache_components)} strict={int(cache_strict)}"
             )
+        agent_dino_cache_root = os.environ.get("NAVSIM_AGENT_DINO_CACHE_ROOT", "").strip()
+        agent_dino_cache_strict = os.environ.get("NAVSIM_AGENT_DINO_CACHE_STRICT", "1") == "1"
+        self.agent_dino_cache = (
+            NavsimFeatureCacheReader(
+                cache_root=agent_dino_cache_root,
+                components=("agent_dino",),
+                strict=agent_dino_cache_strict,
+            )
+            if agent_dino_cache_root
+            else None
+        )
+        if self.agent_dino_cache is not None:
+            print(
+                f"loading NAVSIM agent dino cache {agent_dino_cache_root} strict={int(agent_dino_cache_strict)}"
+            )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
         if self.split == "mini":
@@ -429,6 +444,10 @@ class NavSimDataset(Dataset):
                     payload = self.feature_cache.get(component, idx, raw)
                     if payload is not None:
                         cached_features[component] = payload
+        if self.agent_dino_cache is not None and self.agent_dino_cache.has_component("agent_dino"):
+            payload = self.agent_dino_cache.get("agent_dino", idx, raw)
+            if payload is not None:
+                cached_features["agent_dino"] = payload
 
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')
@@ -683,6 +702,8 @@ class NavSimDataset(Dataset):
         }
         if "qwen" in cached_features:
             sample['qwen_feature_cache'] = cached_features["qwen"]
+        if "agent_dino" in cached_features:
+            sample['agent_dino_feature_cache'] = cached_features["agent_dino"]
 
         # if self.video_data_cfg.load_2d_data:
         #     sample['2d_gen_data'] = {}

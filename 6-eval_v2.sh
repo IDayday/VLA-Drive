@@ -10,16 +10,19 @@
 
 set -euo pipefail
 
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$project_root/scripts/load_env.sh"
+
 : "${NUPLAN_MAPS_ROOT:?Set NUPLAN_MAPS_ROOT in env.sh}"
 : "${OPENSCENE_DATA_ROOT:?Set OPENSCENE_DATA_ROOT in env.sh}"
 : "${DRIVEDREAMER_ROOT:?Run 'source env.sh' first}"
 
 SPLIT="${SPLIT:-test}"
 PRED_DIR="${PRED_DIR:-$DRIVEDREAMER_ROOT/navsim_planning_results/DriveDreamer-Policy}"
-METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-$DRIVEDREAMER_ROOT/navsim_exp/metric_cache_nav${SPLIT}}"
+METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-${NAVSIM_V2_METRIC_CACHE_PATH:-${NAVSIM_V2_METRIC_CACHE_ROOT}/metric_cache_nav${SPLIT}}}"
 CACHE_WORKERS="${CACHE_WORKERS:-2}"
 
-export NUPLAN_MAP_VERSION="nuplan-maps-v1.0"
+export NUPLAN_MAP_VERSION="${NUPLAN_MAP_VERSION:-nuplan-maps-v1.0}"
 export NAVSIM_EXP_ROOT="${NAVSIM_EVAL_ROOT:-$DRIVEDREAMER_ROOT/navsim_exp/eval_v2}"
 export NAVSIM_DEVKIT_ROOT="$DRIVEDREAMER_ROOT/navsim"
 export PYTHONPATH="$NAVSIM_DEVKIT_ROOT:${PYTHONPATH:-}"

@@ -18,11 +18,12 @@ import torch
 
 
 CACHE_SCHEMA_VERSION = 1
-CACHE_COMPONENTS = ("qwen", "wan", "ppd")
+CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino")
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"
 RGB_QUERY_TOKENS = tuple(f"<2d_world_{index}>" for index in range(64))
 GS_QUERY_TOKENS = tuple(f"<3d_world_{index}>" for index in range(64))
+MINE_AGENT_QUERY_TOKENS = tuple(f"<mine_agent_{index}>" for index in range(4))
 REWARD_QUERY_TOKENS = ("<reward_0>",)
 
 
@@ -30,17 +31,23 @@ def action_query_tokens(count: int) -> tuple[str, ...]:
     return tuple(f"<robot_action_{index}>" for index in range(count))
 
 
-def append_world_action_tokens(instruction: str, act_token_count: int, w_depth: bool) -> str:
+def append_world_action_tokens(
+    instruction: str,
+    act_token_count: int,
+    w_depth: bool,
+    with_mine_agent: bool = False,
+) -> str:
     """Append the exact released special-token suffix to one instruction."""
     history = ROBOT_HISTORY_TOKEN
     rgb = "".join(RGB_QUERY_TOKENS)
     gs = "".join(GS_QUERY_TOKENS)
+    mine_agent = "".join(MINE_AGENT_QUERY_TOKENS) if with_mine_agent else ""
     actions = "".join(action_query_tokens(act_token_count))
     reward = "".join(REWARD_QUERY_TOKENS)
     if w_depth:
-        suffix = f" {history}{gs}{rgb}{actions}{reward}"
+        suffix = f" {history}{gs}{rgb}{mine_agent}{actions}{reward}"
     else:
-        suffix = f" {history}{rgb}{gs}{actions}{reward}"
+        suffix = f" {history}{rgb}{gs}{mine_agent}{actions}{reward}"
     return instruction + suffix
 
 
@@ -176,6 +183,7 @@ class NavsimFeatureCacheReader:
             self.manifests[component] = manifest
         self._pid: Optional[int] = None
         self._environments: Dict[tuple[str, int], lmdb.Environment] = {}
+        self._token_rank_cache: Dict[tuple[str, str], int] = {}
 
     def has_component(self, component: str) -> bool:
         return component in self.manifests
@@ -213,19 +221,33 @@ class NavsimFeatureCacheReader:
             if self.strict:
                 raise KeyError(f"Cache component {component!r} is unavailable")
             return None
+
+        token_key = (component, token)
+        if token_key in self._token_rank_cache:
+            owner_rank = self._token_rank_cache[token_key]
+            environment = self._environment(component, owner_rank)
+            with environment.begin(write=False, buffers=True) as transaction:
+                value = transaction.get(token.encode("utf-8"))
+            if value is not None:
+                return _deserialize(bytes(value))
+
         world_size = int(manifest["world_size"])
         owner_rank = int(sample_index) % world_size
-        environment = self._environment(component, owner_rank)
-        with environment.begin(write=False, buffers=True) as transaction:
-            value = transaction.get(token.encode("utf-8"))
-            if value is None:
-                if self.strict:
-                    raise KeyError(
-                        f"Cache miss: component={component} token={token} "
-                        f"sample_index={sample_index} owner_rank={owner_rank}"
-                    )
-                return None
-            return _deserialize(bytes(value))
+        search_ranks = [owner_rank] + [rank for rank in range(world_size) if rank != owner_rank]
+        for rank in search_ranks:
+            environment = self._environment(component, rank)
+            with environment.begin(write=False, buffers=True) as transaction:
+                value = transaction.get(token.encode("utf-8"))
+            if value is not None:
+                self._token_rank_cache[token_key] = rank
+                return _deserialize(bytes(value))
+
+        if self.strict:
+            raise KeyError(
+                f"Cache miss: component={component} token={token} "
+                f"sample_index={sample_index} owner_rank={owner_rank}"
+            )
+        return None
 
 
 def write_rank_completion(

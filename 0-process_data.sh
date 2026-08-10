@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-SPLIT="${SPLIT:-mini}"
+SPLIT="${SPLIT:-test}"
 DATA_ROOT="${DATA_ROOT:-navsim_dataset}"
 if [ "$SPLIT" = "navtrain" ]; then
     SPLIT=train
