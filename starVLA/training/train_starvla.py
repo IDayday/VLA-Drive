@@ -59,6 +59,81 @@ from accelerate.logging import get_logger
 logger = get_logger(__name__)
 
 
+def _cfg_select(cfg, path, default=None):
+    """Read an OmegaConf/dict/namespace path without mutating configuration."""
+
+    if OmegaConf.is_config(cfg):
+        return OmegaConf.select(cfg, path, default=default)
+    value = cfg
+    for part in path.split("."):
+        if isinstance(value, dict):
+            if part not in value:
+                return default
+            value = value[part]
+        elif hasattr(value, part):
+            value = getattr(value, part)
+        else:
+            return default
+    return value
+
+
+def aggregate_losses(output_dict, cfg):
+    """Aggregate structured Field2Plan or unchanged legacy framework losses.
+
+    Returns ``(total_loss, named_losses)``. Structured ``output_dict['losses']``
+    uses ``trainer.loss_weights``. A legacy flat output follows the exact
+    historical action/rgb/gs/reward switches and ignores the new weights.
+    """
+
+    structured = output_dict.get("losses")
+    if structured is not None:
+        if not isinstance(structured, dict) or not structured:
+            raise ValueError("output_dict['losses'] must be a non-empty dict")
+        weights = _cfg_select(cfg, "trainer.loss_weights", {}) or {}
+        total = None
+        named = {}
+        for name, loss in structured.items():
+            if not isinstance(loss, torch.Tensor) or loss.numel() != 1:
+                raise ValueError(f"structured loss {name!r} must be a scalar tensor")
+            weight = float(weights.get(name, 1.0))
+            named[name] = loss
+            weighted = loss * weight
+            total = weighted if total is None else total + weighted
+        return total, named
+
+    named = {}
+    if int(_cfg_select(cfg, "datasets.video_data.load_2d_data", 0)) == 1:
+        named["rgb"] = output_dict["rgb_loss"]
+    if int(_cfg_select(cfg, "datasets.gs_data.load_3d_data", 0)) == 1 or bool(
+        _cfg_select(cfg, "w_depth", 0)
+    ):
+        named["gs"] = output_dict["gs_loss"]
+    if int(_cfg_select(cfg, "datasets.reward_data.load_reward_data", 0)) == 1:
+        named["reward"] = output_dict["reward_loss"]
+    if int(_cfg_select(cfg, "datasets.vla_data.load_act_data", 0)) == 1:
+        named["action"] = output_dict["action_loss"]
+    if not named:
+        raise ValueError("no enabled legacy losses")
+    total = None
+    for loss in named.values():
+        total = loss if total is None else total + loss
+    return total, named
+
+
+def json_scalar_metrics(metrics, step: int):
+    """Return a JSON-safe scalar record for local checkpoint diagnostics."""
+
+    record = {"step": int(step)}
+    for name, value in metrics.items():
+        if isinstance(value, torch.Tensor):
+            if value.numel() != 1:
+                continue
+            value = value.detach().float().item()
+        if isinstance(value, (bool, int, float, str)):
+            record[str(name)] = value
+    return record
+
+
 
 def setup_directories(cfg) -> Path:
     """create output directory and save config"""
@@ -372,6 +447,14 @@ class VLATrainer(TrainerUtils):
                     metrics["generated_gs"] = wandb_gs
                     del metrics["gs"]  # 不建议直接 log 巨大的 numpy list
 
+                local_record = json_scalar_metrics(metrics, self.completed_steps)
+                with open(
+                    os.path.join(self.config.output_dir, "training_metrics.jsonl"),
+                    "a",
+                    encoding="utf-8",
+                ) as stream:
+                    stream.write(json.dumps(local_record, sort_keys=True) + "\n")
+
                 # record to W&B
                 wandb.log(metrics, step=self.completed_steps)
                 # debug output
@@ -583,29 +666,7 @@ class VLATrainer(TrainerUtils):
             # VLA task forward propagation
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 output_dict = self.model.forward(batch_vla)
-
-                action_loss = output_dict["action_loss"]
-                # total_loss = action_loss
-
-                if self.config.datasets.video_data.load_2d_data == 1:
-                    rgb_loss = output_dict['rgb_loss']
-                
-                if self.config.datasets.gs_data.load_3d_data == 1 or self.config.w_depth:
-                    gs_loss = output_dict['gs_loss']
-                
-                if self.config.datasets.reward_data.load_reward_data == 1:
-                    reward_loss = output_dict['reward_loss']
-                
-
-                total_loss = 0
-                if self.config.datasets.video_data.load_2d_data == 1:
-                    total_loss += rgb_loss
-                if self.config.datasets.gs_data.load_3d_data == 1 or self.config.w_depth:
-                    total_loss += gs_loss
-                if self.config.datasets.reward_data.load_reward_data == 1:
-                    total_loss += reward_loss
-                if self.config.datasets.vla_data.load_act_data == 1:
-                    total_loss += action_loss
+                total_loss, named_losses = aggregate_losses(output_dict, self.config)
 
 
             # VLA backward propagation
@@ -621,13 +682,28 @@ class VLATrainer(TrainerUtils):
                 # optimizer step
                 self.optimizer.step()
                 self.lr_scheduler.step()
+                raw_model = self.accelerator.unwrap_model(self.model)
+                update_ema = getattr(raw_model, "update_ema", None)
+                if callable(update_ema):
+                    update_ema()
                 self.optimizer.zero_grad()
 
+        if "losses" in output_dict:
+            metrics = {
+                f"{name}_loss": loss.detach() for name, loss in named_losses.items()
+            }
+            metrics.update(
+                {
+                    name: value.detach() if isinstance(value, torch.Tensor) else value
+                    for name, value in output_dict.get("metrics", {}).items()
+                }
+            )
+            return metrics
         return {
-            "action_dit_loss": action_loss.detach(),
-            "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.detach(),
-            "gs_loss": 0 if self.config.datasets.gs_data.load_3d_data == 0 and self.config.w_depth==0 else gs_loss.detach(),
-            "reward_loss": 0 if self.config.datasets.reward_data.load_reward_data == 0 else reward_loss.detach()
+            "action_dit_loss": named_losses["action"].detach(),
+            "rgb_gen_loss": 0 if "rgb" not in named_losses else named_losses["rgb"].detach(),
+            "gs_loss": 0 if "gs" not in named_losses else named_losses["gs"].detach(),
+            "reward_loss": 0 if "reward" not in named_losses else named_losses["reward"].detach(),
         }
 
     def _finalize_training(self):

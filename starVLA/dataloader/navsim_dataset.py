@@ -9,10 +9,29 @@ import json
 import os
 from PIL import Image
 import torch
+from omegaconf import OmegaConf
 
 from starVLA.cache.navsim_feature_cache import (
     NavsimFeatureCacheReader,
     parse_components,
+)
+from starVLA.dataloader.field2plan_cache import (
+    DraftCacheReader,
+    DynamicsCacheReader,
+    GeometryCacheReader,
+)
+from starVLA.dataloader.grounded_world_cache import (
+    ConsequenceCacheReader,
+    FutureTargetCacheReader,
+    PriorCacheReader,
+)
+from starVLA.model.modules.field2plan.camera_geometry import (
+    center_crop_xywh,
+    scale_intrinsics_for_crop_resize,
+    sensor_to_lidar_to_ego_to_camera,
+)
+from starVLA.model.modules.field2plan.temporal_alignment import (
+    build_temporal_alignment,
 )
 import numpy as np
 from func_timeout import FunctionTimedOut, func_timeout
@@ -163,6 +182,10 @@ def resolve_navsim_data_path(file_name):
     marker = f"{os.sep}navsim_dataset_raw{os.sep}"
     if runtime_root and marker in file_path:
         relative_path = file_path.split(marker, 1)[1]
+        sensor_prefix = "sensor_blobs" + os.sep
+        sensor_root = os.environ.get("NAVSIM_SENSOR_BLOBS_ROOT", "")
+        if sensor_root and relative_path.startswith(sensor_prefix):
+            return os.path.join(sensor_root, relative_path[len(sensor_prefix):])
         trainval_prefix = os.path.join("sensor_blobs", "trainval") + os.sep
         trainval_sensor_root = os.environ.get("NAVSIM_TRAINVAL_SENSOR_ROOT", "")
         if trainval_sensor_root and relative_path.startswith(trainval_prefix):
@@ -317,10 +340,491 @@ class NavSimDataset(Dataset):
         self.act_norm = dataset_cfg.act_norm
 
         self.all_cfg = all_cfg
-        try:
-            self.enable_image_aug = all_cfg.enable_image_aug
-        except:
-            self.enable_image_aug = 0
+        self.field2plan_enabled = bool(
+            OmegaConf.select(all_cfg, "field2plan.enabled", default=False)
+        )
+        self.field2plan_frame_index = int(
+            OmegaConf.select(all_cfg, "field2plan.camera.frame_index", default=3)
+        )
+        self.field2plan_raw_image_hw = tuple(
+            OmegaConf.select(
+                all_cfg, "field2plan.camera.raw_image_hw", default=[1080, 1920]
+            )
+        )
+        self.field2plan_output_image_hw = tuple(
+            OmegaConf.select(
+                all_cfg, "field2plan.camera.output_image_hw", default=[576, 1024]
+            )
+        )
+        self.field2plan_assume_lidar_is_ego = bool(
+            OmegaConf.select(
+                all_cfg,
+                "field2plan.camera.assume_lidar_is_planning_ego",
+                default=False,
+            )
+        )
+        self.field2plan_lidar_to_ego = OmegaConf.select(
+            all_cfg, "field2plan.camera.lidar_to_planning_ego", default=None
+        )
+        self.field2plan_dynamics_enabled = bool(
+            OmegaConf.select(all_cfg, "field2plan.dynamics.enabled", default=False)
+        )
+        self.field2plan_frame_interval_s = float(
+            OmegaConf.select(
+                all_cfg, "field2plan.dynamics.frame_interval_s", default=0.5
+            )
+        )
+        self.field2plan_history_indices = tuple(
+            int(value)
+            for value in OmegaConf.select(
+                all_cfg,
+                "field2plan.dynamics.history_frame_indices",
+                default=[0, 1, 2, 3],
+            )
+        )
+        self.field2plan_future_indices = tuple(
+            int(value)
+            for value in OmegaConf.select(
+                all_cfg,
+                "field2plan.dynamics.future_frame_indices",
+                default=list(range(4, 12)),
+            )
+        )
+        self.field2plan_dynamics_image_hw = tuple(
+            int(value)
+            for value in OmegaConf.select(
+                all_cfg,
+                "field2plan.dynamics.teacher.input_image_hw",
+                default=[384, 384],
+            )
+        )
+        self.draft_cache_reader = None
+        self.geometry_cache_reader = None
+        self.dynamics_cache_reader = None
+        self.grounded_world_prior_cache_reader = None
+        self.grounded_world_future_cache_reader = None
+        self.grounded_world_consequence_cache_reader = None
+        self.field2plan_proposal_source = None
+        if self.field2plan_enabled:
+            proposal_source = str(
+                OmegaConf.select(
+                    all_cfg, "field2plan.proposal.source", default="cache"
+                )
+            )
+            self.field2plan_proposal_source = proposal_source
+            cache_splits = tuple(
+                str(value)
+                for value in OmegaConf.select(
+                    all_cfg,
+                    "field2plan.proposal.cache_splits",
+                    default=[self.split],
+                )
+            )
+            if proposal_source == "cache" and self.split in cache_splits:
+                cache_dir = OmegaConf.select(
+                    all_cfg, "field2plan.proposal.cache_dir", default=None
+                )
+                if not cache_dir:
+                    raise ValueError(
+                        "field2plan proposal.source=cache requires proposal.cache_dir"
+                    )
+                self.draft_cache_reader = DraftCacheReader(
+                    cache_root=os.fspath(cache_dir),
+                    split=self.split,
+                    expected_manifest_sha256=OmegaConf.select(
+                        all_cfg,
+                        "field2plan.proposal.manifest_sha256",
+                        default=None,
+                    ),
+                )
+                self.draft_cache_reader.validate_dataset_binding(
+                    self.raw_list, os.fspath(datalist_path)
+                )
+            elif proposal_source not in {"cache", "online_debug"}:
+                raise ValueError(
+                    "field2plan proposal.source must be cache or online_debug"
+                )
+            geometry_supervision = bool(
+                OmegaConf.select(
+                    all_cfg,
+                    "field2plan.geometry.supervision.enabled",
+                    default=False,
+                )
+            )
+            geometry_teacher_type = str(
+                OmegaConf.select(
+                    all_cfg, "field2plan.geometry.teacher_type", default="none"
+                )
+            )
+            if geometry_supervision:
+                if geometry_teacher_type not in {"da3", "vggt"}:
+                    raise ValueError(
+                        "geometry supervision requires teacher_type=da3 or vggt"
+                    )
+                geometry_cache_splits = tuple(
+                    str(value)
+                    for value in OmegaConf.select(
+                        all_cfg,
+                        "field2plan.geometry.cache_splits",
+                        default=[self.split],
+                    )
+                )
+                if self.split in geometry_cache_splits:
+                    geometry_cache_dir = OmegaConf.select(
+                        all_cfg,
+                        "field2plan.geometry.cache_dir",
+                        default=None,
+                    )
+                    if not geometry_cache_dir:
+                        raise ValueError(
+                            "geometry supervision requires geometry.cache_dir"
+                        )
+                    self.geometry_cache_reader = GeometryCacheReader(
+                        cache_root=os.fspath(geometry_cache_dir),
+                        split=self.split,
+                        expected_manifest_sha256=OmegaConf.select(
+                            all_cfg,
+                            "field2plan.geometry.manifest_sha256",
+                            default=None,
+                        ),
+                    )
+                    self.geometry_cache_reader.validate_dataset_binding(
+                        self.raw_list, os.fspath(datalist_path)
+                    )
+                    teacher_name = self.geometry_cache_reader.manifest["teacher"][
+                        "name"
+                    ]
+                    expected_teacher = {
+                        "da3": "depth_anything_3_metric_depth",
+                        "vggt": "vggt",
+                    }[geometry_teacher_type]
+                    if teacher_name != expected_teacher:
+                        raise ValueError(
+                            "geometry cache teacher mismatch: "
+                            f"configured={geometry_teacher_type}, manifest={teacher_name}"
+                        )
+                    manifest_frame = self.geometry_cache_reader.manifest[
+                        "coordinates"
+                    ]["frame_index"]
+                    if manifest_frame != self.field2plan_frame_index:
+                        raise ValueError(
+                            "geometry cache frame_index differs from camera contract"
+                        )
+            dynamics_supervision = bool(
+                OmegaConf.select(
+                    all_cfg,
+                    "field2plan.dynamics.supervision.enabled",
+                    default=False,
+                )
+            )
+            if dynamics_supervision and not self.field2plan_dynamics_enabled:
+                raise ValueError(
+                    "dynamics supervision requires field2plan.dynamics.enabled=true"
+                )
+            if dynamics_supervision:
+                dynamics_teacher_type = str(
+                    OmegaConf.select(
+                        all_cfg,
+                        "field2plan.dynamics.teacher.type",
+                        default="none",
+                    )
+                )
+                if dynamics_teacher_type not in {"vjepa2", "vjepa2_1", "drive_jepa"}:
+                    raise ValueError(
+                        "dynamics supervision requires teacher.type=vjepa2_1, "
+                        "vjepa2, or drive_jepa"
+                    )
+                dynamics_cache_splits = tuple(
+                    str(value)
+                    for value in OmegaConf.select(
+                        all_cfg,
+                        "field2plan.dynamics.teacher.cache_splits",
+                        default=[self.split],
+                    )
+                )
+                if self.split in dynamics_cache_splits:
+                    dynamics_cache_dir = OmegaConf.select(
+                        all_cfg,
+                        "field2plan.dynamics.teacher.cache_dir",
+                        default=None,
+                    )
+                    if not dynamics_cache_dir:
+                        raise ValueError(
+                            "dynamics supervision requires dynamics.teacher.cache_dir"
+                        )
+                    self.dynamics_cache_reader = DynamicsCacheReader(
+                        cache_root=os.fspath(dynamics_cache_dir),
+                        split=self.split,
+                        expected_manifest_sha256=OmegaConf.select(
+                            all_cfg,
+                            "field2plan.dynamics.teacher.manifest_sha256",
+                            default=None,
+                        ),
+                    )
+                    self.dynamics_cache_reader.validate_dataset_binding(
+                        self.raw_list, os.fspath(datalist_path)
+                    )
+                    manifest = self.dynamics_cache_reader
+                    if manifest.current_frame_index != self.field2plan_frame_index:
+                        raise ValueError(
+                            "dynamics cache current frame differs from dataset contract"
+                        )
+                    if manifest.history_frame_indices != self.field2plan_history_indices:
+                        raise ValueError(
+                            "dynamics cache history frames differ from dataset contract"
+                        )
+                    if manifest.future_frame_indices != self.field2plan_future_indices:
+                        raise ValueError(
+                            "dynamics cache future frames differ from dataset contract"
+                        )
+                    if manifest.input_image_hw != self.field2plan_dynamics_image_hw:
+                        raise ValueError(
+                            "dynamics cache preprocessing image size differs from "
+                            "dataset camera contract"
+                        )
+                    if not np.isclose(
+                        manifest.frame_interval_s,
+                        self.field2plan_frame_interval_s,
+                        atol=1e-8,
+                        rtol=0,
+                    ):
+                        raise ValueError(
+                            "dynamics cache frame interval differs from dataset contract"
+                        )
+        self.grounded_world_enabled = bool(
+            OmegaConf.select(all_cfg, "grounded_world.enabled", default=False)
+        )
+        if self.grounded_world_enabled and self.field2plan_enabled:
+            raise ValueError("grounded_world and field2plan cannot be enabled together")
+        if self.grounded_world_enabled:
+            self.field2plan_frame_index = int(
+                OmegaConf.select(
+                    all_cfg, "grounded_world.camera.frame_index", default=3
+                )
+            )
+            self.field2plan_raw_image_hw = tuple(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.camera.raw_image_hw",
+                    default=[1080, 1920],
+                )
+            )
+            self.field2plan_output_image_hw = tuple(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.camera.output_image_hw",
+                    default=[576, 1024],
+                )
+            )
+            self.field2plan_assume_lidar_is_ego = bool(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.camera.assume_lidar_is_planning_ego",
+                    default=False,
+                )
+            )
+            self.field2plan_lidar_to_ego = OmegaConf.select(
+                all_cfg,
+                "grounded_world.camera.lidar_to_planning_ego",
+                default=None,
+            )
+            history_length = int(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.memory.history_length",
+                    default=4,
+                )
+            )
+            horizon = int(
+                OmegaConf.select(
+                    all_cfg, "grounded_world.memory.horizon", default=8
+                )
+            )
+            self.field2plan_history_indices = tuple(range(history_length))
+            self.field2plan_future_indices = tuple(
+                range(history_length, history_length + horizon)
+            )
+            self.field2plan_frame_interval_s = float(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.memory.frame_interval_s",
+                    default=0.5,
+                )
+            )
+            self.field2plan_dynamics_image_hw = tuple(
+                int(value)
+                for value in OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.prior.input_image_hw",
+                    default=[384, 384],
+                )
+            )
+            self.field2plan_dynamics_enabled = True
+            self.grounded_world_use_history_images = bool(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.prior.use_history_images",
+                    default=True,
+                )
+            )
+            prior_source = str(
+                OmegaConf.select(
+                    all_cfg, "grounded_world.prior.source", default="none"
+                )
+            )
+            teacher_mode = str(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.prior.teacher_mode",
+                    default="real",
+                )
+            )
+            prior_cache_splits = tuple(
+                str(value)
+                for value in OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.prior.cache_splits",
+                    default=["train"],
+                )
+            )
+            cache_this_split = self.split in prior_cache_splits
+            if (
+                "vggt" in prior_source
+                and teacher_mode != "none"
+                and cache_this_split
+            ):
+                geometry_root = OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.prior.geometry_cache_dir",
+                    default=None,
+                )
+                if not geometry_root:
+                    raise ValueError("VGGT supervision requires geometry_cache_dir")
+                self.geometry_cache_reader = GeometryCacheReader(
+                    cache_root=os.fspath(geometry_root),
+                    split=self.split,
+                    expected_manifest_sha256=OmegaConf.select(
+                        all_cfg,
+                        "grounded_world.prior.geometry_manifest_sha256",
+                        default=None,
+                    ),
+                )
+                self.geometry_cache_reader.validate_dataset_binding(
+                    self.raw_list, os.fspath(datalist_path)
+                )
+                if self.geometry_cache_reader.manifest["teacher"]["name"] != "vggt":
+                    raise ValueError("GroundedWorld geometry cache must use VGGT")
+            needs_dynamics_prior = (
+                "jepa" in prior_source
+                or "random_frozen" in prior_source
+            )
+            if needs_dynamics_prior and teacher_mode != "none" and cache_this_split:
+                prior_root = OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.prior.dynamics_cache_dir",
+                    default=None,
+                )
+                if not prior_root:
+                    raise ValueError("JEPA supervision requires dynamics_cache_dir")
+                self.grounded_world_prior_cache_reader = PriorCacheReader(
+                    cache_root=os.fspath(prior_root),
+                    split=self.split,
+                    expected_manifest_sha256=OmegaConf.select(
+                        all_cfg,
+                        "grounded_world.prior.dynamics_manifest_sha256",
+                        default=None,
+                    ),
+                )
+                self.grounded_world_prior_cache_reader.validate_dataset_binding(
+                    self.raw_list, os.fspath(datalist_path)
+                )
+                if (
+                    self.grounded_world_prior_cache_reader.current_frame_index
+                    != self.field2plan_frame_index
+                ):
+                    raise ValueError("GroundedWorld prior current frame mismatch")
+                if (
+                    self.grounded_world_prior_cache_reader.history_frame_indices
+                    != self.field2plan_history_indices
+                ):
+                    raise ValueError("GroundedWorld prior history frame mismatch")
+            future_enabled = bool(
+                OmegaConf.select(
+                    all_cfg, "grounded_world.future.enabled", default=False
+                )
+            )
+            if future_enabled:
+                future_cache_splits = tuple(
+                    str(value)
+                    for value in OmegaConf.select(
+                        all_cfg,
+                        "grounded_world.future.cache_splits",
+                        default=["train"],
+                    )
+                )
+            if future_enabled and self.split in future_cache_splits:
+                future_root = OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.future.target_cache_dir",
+                    default=None,
+                )
+                if not future_root:
+                    raise ValueError("future prediction requires target_cache_dir")
+                self.grounded_world_future_cache_reader = FutureTargetCacheReader(
+                    cache_root=os.fspath(future_root),
+                    split=self.split,
+                    expected_manifest_sha256=OmegaConf.select(
+                        all_cfg,
+                        "grounded_world.future.target_manifest_sha256",
+                        default=None,
+                    ),
+                )
+                self.grounded_world_future_cache_reader.validate_dataset_binding(
+                    self.raw_list, os.fspath(datalist_path)
+                )
+                if (
+                    self.grounded_world_future_cache_reader.future_frame_indices
+                    != self.field2plan_future_indices
+                ):
+                    raise ValueError("GroundedWorld future target frame mismatch")
+            consequence_enabled = bool(
+                OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.consequence.enabled",
+                    default=False,
+                )
+            )
+            consequence_splits = tuple(
+                str(value)
+                for value in OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.consequence.cache_splits",
+                    default=["train"],
+                )
+            )
+            if consequence_enabled and self.split in consequence_splits:
+                consequence_root = OmegaConf.select(
+                    all_cfg,
+                    "grounded_world.consequence.cache_dir",
+                    default=None,
+                )
+                if not consequence_root:
+                    raise ValueError("consequence training requires cache_dir")
+                self.grounded_world_consequence_cache_reader = ConsequenceCacheReader(
+                    cache_root=os.fspath(consequence_root),
+                    split=self.split,
+                    expected_manifest_sha256=OmegaConf.select(
+                        all_cfg,
+                        "grounded_world.consequence.manifest_sha256",
+                        default=None,
+                    ),
+                )
+                self.grounded_world_consequence_cache_reader.validate_dataset_binding(
+                    self.raw_list, os.fspath(datalist_path)
+                )
+        self.enable_image_aug = OmegaConf.select(
+            all_cfg, "enable_image_aug", default=0
+        )
         if self.enable_image_aug:
             print('using img aug')
         self.image_aug = T.Compose([
@@ -446,6 +950,64 @@ class NavSimDataset(Dataset):
             self_pred,
             cached_features=cached_features,
         )
+        if self.field2plan_enabled:
+            sample["camera"] = self._build_field2plan_camera(raw_data)
+            if self.field2plan_dynamics_enabled:
+                sample["temporal"] = self._build_field2plan_temporal(raw_data)
+            if self.draft_cache_reader is not None:
+                sample["proposal"] = self.draft_cache_reader.load(raw)
+            else:
+                sample["proposal"] = {
+                    "draft_action": None,
+                    "source": (
+                        "online_inference"
+                        if self.field2plan_proposal_source == "cache"
+                        else "online_debug"
+                    ),
+                    "manifest_sha256": None,
+                }
+            geometry_teacher = self._load_field2plan_geometry(raw)
+            if geometry_teacher is not None:
+                sample["geometry_teacher"] = geometry_teacher
+            dynamics_teacher = self._load_field2plan_dynamics(raw)
+            if dynamics_teacher is not None:
+                sample["dynamics_teacher"] = dynamics_teacher
+        if self.grounded_world_enabled:
+            sample["camera"] = self._build_field2plan_camera(raw_data)
+            sample["temporal"] = self._build_field2plan_temporal(raw_data)
+            if self.grounded_world_use_history_images:
+                history_images = []
+                history_views = ("cam_f0", "cam_l0", "cam_r0")
+                for frame in self.field2plan_history_indices:
+                    if (
+                        frame == self.field2plan_frame_index
+                        and len(sample.get("image", [])) == len(history_views)
+                    ):
+                        frame_images = list(sample["image"])
+                    else:
+                        frame_images = [
+                            self._load_image(
+                                raw_data["glo_images"][view]["image_paths"][frame]
+                            )
+                            for view in history_views
+                        ]
+                    history_images.append(frame_images)
+                sample["world_history_images"] = history_images
+            geometry_teacher = self._load_field2plan_geometry(raw)
+            if geometry_teacher is not None:
+                sample["geometry_teacher"] = geometry_teacher
+            if self.grounded_world_prior_cache_reader is not None:
+                sample["grounded_world_prior"] = (
+                    self.grounded_world_prior_cache_reader.load(str(raw))
+                )
+            if self.grounded_world_future_cache_reader is not None:
+                sample["grounded_world_future_target"] = (
+                    self.grounded_world_future_cache_reader.load(str(raw))
+                )
+            if self.grounded_world_consequence_cache_reader is not None:
+                sample["planning_consequence"] = (
+                    self.grounded_world_consequence_cache_reader.load(str(raw))
+                )
         if self.vit_pre:
             sample['bev'] = bev_rgb_to_occ(bev_data)    # np array unit8  hwc
         if self.w_depth and "ppd" in cached_features:
@@ -500,6 +1062,254 @@ class NavSimDataset(Dataset):
             # sample = self.transform(sample)
 
         return sample
+
+    def _load_field2plan_geometry(self, token):
+        """Load one strict offline teacher entry, or return None if disabled."""
+
+        if self.geometry_cache_reader is None:
+            return None
+        return self.geometry_cache_reader.load(str(token))
+
+    def _load_field2plan_dynamics(self, token):
+        """Load one strict offline dynamics entry, or None when disabled."""
+
+        if self.dynamics_cache_reader is None:
+            return None
+        return self.dynamics_cache_reader.load(str(token))
+
+    def _build_field2plan_camera(
+        self,
+        raw_data,
+        frame: Optional[int] = None,
+        output_image_hw: Optional[Sequence[int]] = None,
+    ):
+        """Build the explicit Phase 1 camera contract without frame guesses."""
+
+        views = ("cam_f0", "cam_l0", "cam_r0")
+        frame = self.field2plan_frame_index if frame is None else int(frame)
+        try:
+            intrinsics = np.stack(
+                [raw_data["glo_images"][view]["intrinsics"][frame] for view in views]
+            ).astype(np.float32)
+            rotations = np.stack(
+                [
+                    raw_data["glo_images"][view]["sensor2lidar_rotations"][frame]
+                    for view in views
+                ]
+            ).astype(np.float32)
+            translations = np.stack(
+                [
+                    raw_data["glo_images"][view]["sensor2lidar_translations"][frame]
+                    for view in views
+                ]
+            ).astype(np.float32)
+        except (KeyError, IndexError, TypeError, ValueError) as error:
+            raise ValueError(
+                f"invalid Field2Plan camera metadata at frame {frame}"
+            ) from error
+
+        raw_hw = torch.tensor(
+            [self.field2plan_raw_image_hw] * len(views), dtype=torch.float32
+        )
+        selected_output_hw = tuple(
+            output_image_hw or self.field2plan_output_image_hw
+        )
+        if len(selected_output_hw) != 2 or min(selected_output_hw) <= 0:
+            raise ValueError("Field2Plan output_image_hw must be positive [H,W]")
+        output_hw = torch.tensor(
+            [selected_output_hw] * len(views), dtype=torch.float32
+        )
+        crop_xywh = center_crop_xywh(raw_hw, output_hw)
+        resized_intrinsics = scale_intrinsics_for_crop_resize(
+            torch.from_numpy(intrinsics), crop_xywh, output_hw
+        )
+        sensor_to_lidar = torch.eye(4, dtype=torch.float32).repeat(len(views), 1, 1)
+        sensor_to_lidar[:, :3, :3] = torch.from_numpy(rotations)
+        sensor_to_lidar[:, :3, 3] = torch.from_numpy(translations)
+
+        ego_to_camera = None
+        transform_status = "unresolved_lidar_to_planning_ego"
+        if self.field2plan_lidar_to_ego is not None:
+            lidar_to_ego = torch.as_tensor(
+                self.field2plan_lidar_to_ego, dtype=torch.float32
+            )
+            if lidar_to_ego.shape != (4, 4):
+                raise ValueError(
+                    "field2plan.camera.lidar_to_planning_ego must be [4,4]"
+                )
+            transform_status = "configured_lidar_to_planning_ego"
+        elif self.field2plan_assume_lidar_is_ego:
+            lidar_to_ego = torch.eye(4, dtype=torch.float32)
+            transform_status = "explicit_identity_assumption"
+        else:
+            lidar_to_ego = None
+        if lidar_to_ego is not None:
+            ego_to_camera = sensor_to_lidar_to_ego_to_camera(
+                sensor_to_lidar[None], lidar_to_ego[None]
+            )[0].numpy()
+
+        return {
+            "view_names": list(views),
+            "frame_index": frame,
+            "intrinsics": resized_intrinsics.numpy(),
+            "raw_intrinsics": intrinsics,
+            "sensor2lidar_rotation": rotations,
+            "sensor2lidar_translation": translations,
+            "sensor_to_lidar": sensor_to_lidar.numpy(),
+            "ego_to_camera": ego_to_camera,
+            "raw_image_hw": raw_hw.numpy(),
+            "image_hw": output_hw.numpy(),
+            "crop_xywh": crop_xywh.numpy(),
+            "transform_status": transform_status,
+        }
+
+    def _build_field2plan_temporal(self, raw_data):
+        """Build explicit history/future transforms and calibrated cameras.
+
+        Future transforms are returned only for offline teacher alignment.
+        The action-free dynamics writer receives the history slice exclusively.
+        """
+
+        try:
+            global_poses = np.asarray(
+                raw_data["glo_status"]["global_poses"], dtype=np.float32
+            )
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError("invalid Field2Plan global pose metadata") from error
+        required_count = max(
+            self.field2plan_frame_index,
+            *self.field2plan_history_indices,
+            *self.field2plan_future_indices,
+        ) + 1
+        if global_poses.ndim != 2 or global_poses.shape[1] != 3:
+            raise ValueError("global_poses must have shape [T,3]")
+        if global_poses.shape[0] < required_count:
+            raise ValueError(
+                f"global_poses has {global_poses.shape[0]} frames; "
+                f"Field2Plan dynamics requires {required_count}"
+            )
+        selected_poses = torch.from_numpy(global_poses[:required_count])
+        alignment = build_temporal_alignment(
+            selected_poses,
+            current_index=self.field2plan_frame_index,
+            history_indices=self.field2plan_history_indices,
+            future_indices=self.field2plan_future_indices,
+            frame_interval_s=self.field2plan_frame_interval_s,
+        ).validate()
+        future_cameras = [
+            self._build_field2plan_camera(
+                raw_data,
+                frame=frame,
+                output_image_hw=self.field2plan_dynamics_image_hw,
+            )
+            for frame in self.field2plan_future_indices
+        ]
+        view_names = future_cameras[0]["view_names"]
+        if any(camera["view_names"] != view_names for camera in future_cameras):
+            raise ValueError("future camera view ordering changed across time")
+        if any(camera["ego_to_camera"] is None for camera in future_cameras):
+            raise ValueError(
+                "future camera ego_to_camera is unresolved for dynamics alignment"
+            )
+        future_camera = {
+            "view_names": list(view_names),
+            "frame_indices": np.asarray(
+                self.field2plan_future_indices, dtype=np.int64
+            ),
+            "intrinsics": np.stack(
+                [camera["intrinsics"] for camera in future_cameras]
+            ).astype(np.float32),
+            "raw_intrinsics": np.stack(
+                [camera["raw_intrinsics"] for camera in future_cameras]
+            ).astype(np.float32),
+            "ego_to_camera": np.stack(
+                [camera["ego_to_camera"] for camera in future_cameras]
+            ).astype(np.float32),
+            "image_hw": np.stack(
+                [camera["image_hw"] for camera in future_cameras]
+            ).astype(np.float32),
+            "raw_image_hw": np.stack(
+                [camera["raw_image_hw"] for camera in future_cameras]
+            ).astype(np.float32),
+            "crop_xywh": np.stack(
+                [camera["crop_xywh"] for camera in future_cameras]
+            ).astype(np.float32),
+            "valid_mask": np.ones(
+                (len(self.field2plan_future_indices), len(view_names)),
+                dtype=np.bool_,
+            ),
+            "transform_status": tuple(
+                camera["transform_status"] for camera in future_cameras
+            ),
+        }
+        history_cameras = [
+            self._build_field2plan_camera(raw_data, frame=frame)
+            for frame in self.field2plan_history_indices
+        ]
+        if any(camera["view_names"] != view_names for camera in history_cameras):
+            raise ValueError("history camera view ordering changed across time")
+        if any(camera["ego_to_camera"] is None for camera in history_cameras):
+            raise ValueError(
+                "history camera ego_to_camera is unresolved for dynamics alignment"
+            )
+        history_camera = {
+            "view_names": list(view_names),
+            "frame_indices": np.asarray(
+                self.field2plan_history_indices, dtype=np.int64
+            ),
+            "intrinsics": np.stack(
+                [camera["intrinsics"] for camera in history_cameras]
+            ).astype(np.float32),
+            "raw_intrinsics": np.stack(
+                [camera["raw_intrinsics"] for camera in history_cameras]
+            ).astype(np.float32),
+            "ego_to_camera": np.stack(
+                [camera["ego_to_camera"] for camera in history_cameras]
+            ).astype(np.float32),
+            "image_hw": np.stack(
+                [camera["image_hw"] for camera in history_cameras]
+            ).astype(np.float32),
+            "raw_image_hw": np.stack(
+                [camera["raw_image_hw"] for camera in history_cameras]
+            ).astype(np.float32),
+            "crop_xywh": np.stack(
+                [camera["crop_xywh"] for camera in history_cameras]
+            ).astype(np.float32),
+            "valid_mask": np.ones(
+                (len(self.field2plan_history_indices), len(view_names)),
+                dtype=np.bool_,
+            ),
+            "transform_status": tuple(
+                camera["transform_status"] for camera in history_cameras
+            ),
+        }
+        frame_times = alignment.frame_times_s - alignment.frame_times_s[
+            self.field2plan_frame_index
+        ]
+        return {
+            "current_frame_index": self.field2plan_frame_index,
+            "history_frame_indices": np.asarray(
+                self.field2plan_history_indices, dtype=np.int64
+            ),
+            "future_frame_indices": np.asarray(
+                self.field2plan_future_indices, dtype=np.int64
+            ),
+            "frame_interval_s": np.float32(self.field2plan_frame_interval_s),
+            "frame_times_s": frame_times.cpu().numpy().astype(np.float32),
+            "global_poses": selected_poses.numpy().astype(np.float32),
+            "global_from_ego": alignment.global_from_ego.cpu().numpy().astype(
+                np.float32
+            ),
+            "current_from_ego": alignment.current_from_ego.cpu().numpy().astype(
+                np.float32
+            ),
+            "ego_from_current": alignment.ego_from_current.cpu().numpy().astype(
+                np.float32
+            ),
+            "valid_mask": alignment.valid_mask.cpu().numpy().astype(np.bool_),
+            "history_camera": history_camera,
+            "future_camera": future_camera,
+        }
 
     def _get_sample(self, raw, token, self_pred=None, cached_features=None):
         cached_features = cached_features or {}
@@ -672,6 +1482,7 @@ class NavSimDataset(Dataset):
             'state': cur_state, # vector 3
             'action': action,
             'lang': cur_instruction,
+            'navigation_command': cur_command,
             # for infer
             'token': token,
             # for s2

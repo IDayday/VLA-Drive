@@ -45,6 +45,14 @@ def build_framework(cfg, accelerator=None):
     if cfg.framework.name == "QwenOFT":
         from starVLA.model.framework.QwenOFT import Qwenvl_OFT
         return Qwenvl_OFT(cfg, accelerator)
+    elif cfg.framework.name == "QwenOFT_Field2Plan":
+        from starVLA.model.framework.QwenOFT_Field2Plan import Qwenvl_OFT_Field2Plan
+        return Qwenvl_OFT_Field2Plan(cfg, accelerator)
+    elif cfg.framework.name == "QwenOFT_GroundedWorld":
+        from starVLA.model.framework.QwenOFT_GroundedWorld import (
+            Qwenvl_OFT_GroundedWorld,
+        )
+        return Qwenvl_OFT_GroundedWorld(cfg, accelerator)
     elif cfg.framework.name == "QwenFast":
         from starVLA.model.framework.QwenFast import Qwenvl_Fast
         return Qwenvl_Fast(cfg)

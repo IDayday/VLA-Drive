@@ -20,6 +20,7 @@ Note: How to add special tokens to Qwen2.5:
   
 """
 from typing import List
+import os
 from tqdm import tqdm
 from typing import List, Optional, Tuple
 import torch
@@ -246,6 +247,20 @@ class Qwenvl_OFT(baseframework):
         if self.w_depth:
             depth_ppd_path = 'starVLA/model/modules/depth_model/configs/train_finetune.yaml'
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
+            if os.environ.get("DEPTH_ANYTHING_V2_VITL_PATH"):
+                OmegaConf.update(
+                    self.depth_ppd_cfg,
+                    "model.pipeline.config.semantics_pth",
+                    os.environ["DEPTH_ANYTHING_V2_VITL_PATH"],
+                    force_add=True,
+                )
+            if os.environ.get("PPD_CKPT_PATH"):
+                OmegaConf.update(
+                    self.depth_ppd_cfg,
+                    "model.pipeline.config.ckpt_path",
+                    os.environ["PPD_CKPT_PATH"],
+                    force_add=True,
+                )
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
             missing, unexpected = self.gs_model.load_state_dict(torch.load(self.depth_ppd_cfg.model.pipeline.config.ckpt_path, map_location='cpu'), strict=False)
             print(f'[PPD] missing keys: {len(missing)} {missing[:8]}')

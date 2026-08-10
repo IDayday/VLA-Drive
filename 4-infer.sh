@@ -26,6 +26,9 @@ RANK="${RANK:-0}"
 WORLD_SIZE="${WORLD_SIZE:-1}"
 OVERWRITE="${OVERWRITE:-0}"
 INFER_USE_FEATURE_CACHE="${INFER_USE_FEATURE_CACHE:-0}"
+INFER_SEED="${INFER_SEED:-20260808}"
+GROUNDEDWORLD_INFERENCE_INTERVENTION="${GROUNDEDWORLD_INFERENCE_INTERVENTION:-none}"
+SAVE_DIAGNOSTICS="${SAVE_DIAGNOSTICS:-0}"
 
 # The training feature cache is normally built only for the train split.  A
 # sourced env.sh exports NAVSIM_FEATURE_CACHE_ROOT, which would otherwise make
@@ -48,7 +51,9 @@ args=(
   --num_workers "${NUM_WORKERS}"
   --rank "${RANK}"
   --world_size "${WORLD_SIZE}"
+  --seed "${INFER_SEED}"
   --qwen_forward_mode "${QWEN_FORWARD_MODE}"
+  --grounded_world_intervention "${GROUNDEDWORLD_INFERENCE_INTERVENTION}"
   --smooth 0
 )
 
@@ -58,6 +63,9 @@ fi
 
 if [[ "$OVERWRITE" == "1" ]]; then
   args+=(--overwrite)
+fi
+if [[ "$SAVE_DIAGNOSTICS" == "1" ]]; then
+  args+=(--save_diagnostics)
 fi
 
 CUDA_VISIBLE_DEVICES="${GPU}" python infer.py "${args[@]}"

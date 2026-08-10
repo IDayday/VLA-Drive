@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "manifest_kind": "field2plan_phase0_baseline_example",
+  "audit_date_utc": "2026-08-08",
+  "portable": false,
+  "notes": [
+    "This records the locally audited optimized 193514 baseline; local absolute paths remain environment-specific.",
+    "The selected checkpoint has trajectory-only inference, but its training objective also enabled cached RGB/depth auxiliary supervision.",
+    "The historic full-navtest inference command did not record a random seed; Phase 0 therefore generated a separate fixed-seed mini-split reference without changing inference/model source."
+  ],
+  "git": {
+    "commit": "30505ee3a86326892f8be6c2cc04ca30ab18c93f",
+    "branch": "main",
+    "status_at_audit_start": [
+      "?? docs/"
+    ],
+    "status_note": "docs/ was already untracked and contained the user-provided Field2Plan research specification. Phase 0 did not overwrite it."
+  },
+  "environment": {
+    "python": "3.10.13",
+    "pytorch": "2.4.0",
+    "torch_cuda": "12.4",
+    "cuda_compiler": "12.4 (V12.4.1)",
+    "cudnn": 8905,
+    "transformers": "4.57.0",
+    "accelerate": "1.13.0",
+    "deepspeed": "0.16.9",
+    "flash_attn": "2.8.2+v0.1.0.ppu2.1.0.oe",
+    "numpy": "1.26.4",
+    "audit_visible_devices": [
+      "PPU-ZW810E",
+      "PPU-ZW810E"
+    ],
+    "environment_note": "These versions describe the two-device interactive audit container, not the historical one-node 16-device DLC training container."
+  },
+  "field2plan": {
+    "config_key_present": false,
+    "enabled": false,
+    "disabled_contract": "framework.name=QwenOFT selects the unchanged legacy framework. No Field2Plan implementation or configuration key exists at Phase 0."
+  },
+  "baseline": {
+    "name": "navsim-v1-formal-16gpu-bz2-ga1-flashattn-20260801_193514",
+    "classification": "optimized trajectory-output baseline with RGB/depth auxiliary training losses",
+    "checkpoint_path": "navsim_exp/navsim-v1-formal-16gpu-bz2-ga1-flashattn-20260801_193514/final_model/pytorch_model.pt",
+    "checkpoint_exists_at_audit": true,
+    "checkpoint_size_bytes": 14073233617,
+    "checkpoint_sha256": null,
+    "checkpoint_hash_status": "not_recorded_for_large_local_artifact",
+    "config_path": "navsim_exp/navsim-v1-formal-16gpu-bz2-ga1-flashattn-20260801_193514/config.yaml",
+    "config_sha256": "ee3ae57c88927a4b545d8e6bcc3e226d1b62d624e690e69e026fcc6de99f90e4",
+    "config_contract": {
+      "framework_name": "QwenOFT",
+      "ver_1225": 1,
+      "act_norm": 1,
+      "load_act_data": 1,
+      "load_2d_data": 1,
+      "load_3d_data": 0,
+      "load_reward_data": 0,
+      "w_depth": 1,
+      "w_video_latent": 0,
+      "rgb_query_loss": 1,
+      "gs_query_loss": 1,
+      "action_horizon": 8,
+      "action_dim": 4,
+      "action_query_tokens": 8,
+      "qwen_hidden_dim": 2048,
+      "action_hidden_dim": 1536,
+      "action_dit_layers": 24,
+      "flow_training_repeats": 8,
+      "flow_inference_steps": 10,
+      "attention_implementation": "flash_attention_2"
+    },
+    "training_topology": {
+      "nodes": 1,
+      "global_processes": 16,
+      "per_device_batch_size": 2,
+      "gradient_accumulation_steps": 1,
+      "effective_batch_size": 32,
+      "launcher": "Accelerate + DeepSpeed ZeRO-2"
+    },
+    "training_command_template": "source env.sh && RUN_ID=navsim-v1-formal-16gpu-bz2-ga1-flashattn-20260801_193514 bash training.sh",
+    "inference_command_template": "source env.sh && MODEL_DIR=${REPO_ROOT}/navsim_exp/navsim-v1-formal-16gpu-bz2-ga1-flashattn-20260801_193514 SPLIT=test DATALIST=${REPO_ROOT}/test_meta.json OUT_DIR=${REPO_ROOT}/navsim_planning_results/ckpt-eval-aligned QWEN_FORWARD_MODE=optimized BATCH_SIZE=8 NUM_WORKERS=7 WORLD_SIZE=2 RANK=${RANK} GPU=${GPU} OVERWRITE=1 bash 4-infer.sh",
+    "evaluation_command_template": "source env.sh && SPLIT=test PRED_DIR=${PREDICTION_DIR} METRIC_CACHE_PATH=${METRIC_CACHE_PATH} bash 6-eval_v2.sh",
+    "reference_prediction": {
+      "token": "8ec0cd02d7705766",
+      "split": "mini",
+      "path": "artifacts/field2plan/fixed_seed_reference/8ec0cd02d7705766.npy",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float32",
+      "sha256": "954b013a3ee5da20523dabf0f0a8e7b74c0bca7298b7d9fd06edc8ecd6cdacba",
+      "seed": 20260808,
+      "qwen_forward_mode": "optimized",
+      "determinism_check": "same loaded model and input were evaluated twice after resetting Python, NumPy, torch, and all-device torch seeds; arrays were byte-identical"
+    },
+    "historic_reference_prediction": {
+      "token": "0000548db87959c2",
+      "path": "navsim_planning_results/ckpt-eval-aligned/navsim-v1-formal-16gpu-bz2-ga1-flashattn-20260801_193514/test/0000548db87959c2.npy",
+      "shape": [
+        8,
+        3
+      ],
+      "dtype": "float32",
+      "sha256": "b5c87e3cbe08d8af8bbb2bb62b5b48af66b7052a3d88d8106f1210831ae0beb8",
+      "seed": null,
+      "seed_status": "historic_inference_command_did_not_record_seed"
+    }
+  },
+  "trajectory_contract": {
+    "model_action_shape": [
+      "B",
+      8,
+      4
+    ],
+    "model_action_columns": [
+      "x_normalized",
+      "y_normalized",
+      "sin_heading",
+      "cos_heading"
+    ],
+    "navsim_file_shape": [
+      8,
+      3
+    ],
+    "navsim_columns": [
+      "x_m",
+      "y_m",
+      "heading_rad"
+    ],
+    "reference_frame": "future poses at indices 4:12 expressed relative to current pose index 3",
+    "normalization": {
+      "x": {
+        "mean": 10.172484,
+        "std": 8.805105,
+        "encode": "(x_m - mean) / std",
+        "decode": "x_normalized * std + mean"
+      },
+      "y": {
+        "mean": 0.360762,
+        "std": 2.277741,
+        "encode": "(y_m - mean) / std",
+        "decode": "y_normalized * std + mean"
+      },
+      "heading": {
+        "encode": "[sin(wrap_to_pi(theta)), cos(wrap_to_pi(theta))]",
+        "decode": "wrap_to_pi(atan2(sin_heading, cos_heading))"
+      }
+    }
+  },
+  "evaluation": {
+    "split": "navtest",
+    "prediction_count": 12146,
+    "v1_1_pdms": 0.891571521337326,
+    "v1_1_log": "navsim_exp/eval_v1_193514_aligned/drivedreamer-policy/2026.08.04.02.01.32/log.txt",
+    "v2_pdms": 0.8863148336312178,
+    "v2_log": "navsim_exp/eval_v2_193514_aligned/drivedreamer-policy/2026.08.04.01.47.56/log.txt"
+  },
+  "source_sha256": {
+    "training.sh": "fe31eee5875636823ab6eb27042d81c55375bb17b455f56d850afde81ba176c7",
+    "8-train.sh": "d4b36ce5d9e419e5f5409feea408c8fff09a25128871f7b4d292588dd01c788a",
+    "4-infer.sh": "e0972830ff9657cac5642693b0c89e487aabace14cc2b98a01c554bdc720559e",
+    "6-eval_v2.sh": "0cc204ea23280175fab4e1f69d7718c136589a4340fa99bedcd9db8deca6801d",
+    "starVLA/model/framework/__init__.py": "4145f0bf2758c53d61f2dffadaecce83a4bfd96af05b223524c93b9cfa135d3f",
+    "starVLA/model/framework/QwenOFT.py": "1e490a2542adfb2acf1c2844fba922e0d8027d580aa7d309b53856640c5c6fa2",
+    "starVLA/model/modules/vlm/QWen3.py": "31f4d0fed86f671af29c8691f4666d1b64c661c9e1d21aa886f117a0832fdaa4",
+    "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661",
+    "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "777a63abec1c48101691cb60221b30a0c0e402fe33f7b26df6b13740d5b79fe7",
+    "starVLA/dataloader/navsim_dataset.py": "abce98d9b081c54d1d65020fc30463a8b2a5539f396be680174d174c18c43983",
+    "starVLA/training/train_starvla.py": "f95e09e437bfcd010eb77fb048a2d700adb2bbfa407ea7d478c85b4474661da6",
+    "infer.py": "ed3ae885c253376ee85e4040a037bc91b889f104ca9104be84679a0d7dfcec63",
+    "navsim/scripts/evaluation/run_human_agent_pdm_score_evaluation.sh": "7553b9bb38349c95393371fbae423b2cff1db147abde228bda53ca4074cc2a34",
+    "navsim/navsim/planning/script/run_pdm_score_one_stage.py": "da0e441b036b0bf07d1360aa46070e22be08d95a2ec2b442ab4c810af011f7ee"
+  },
+    "phase1_extension_points": [
+        "starVLA/model/framework/__init__.py",
+        "starVLA/model/framework/QwenOFT.py",
+        "starVLA/dataloader/navsim_dataset.py",
+    "starVLA/training/train_starvla.py",
+    "infer.py",
+    "4-infer.sh"
+  ]
+}

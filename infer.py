@@ -9,6 +9,7 @@ import os
 import re
 import json
 import argparse
+import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -20,6 +21,8 @@ from tqdm import tqdm
 
 from starVLA.dataloader.navsim_dataset import NavSimDataset, collate_fn
 from starVLA.model.framework.QwenOFT import Qwenvl_OFT
+from starVLA.model.framework.QwenOFT_Field2Plan import Qwenvl_OFT_Field2Plan
+from starVLA.model.framework.QwenOFT_GroundedWorld import Qwenvl_OFT_GroundedWorld
 from starVLA.model.framework.QwenOFT_s2 import Qwenvl_OFT_s2
 import copy
 
@@ -27,6 +30,26 @@ import copy
 # ---------------------------------------------------------------------------
 # Utilities
 # ---------------------------------------------------------------------------
+
+def seed_inference(seed: int, rank: int = 0) -> int:
+    """Seed one inference shard and return its rank-specific seed.
+
+    ``seed`` and ``rank`` are non-negative integers.  Using ``seed + rank``
+    keeps flow-sampling noise identical for the same shard across checkpoints
+    while avoiding duplicate streams between parallel shards.
+    """
+
+    seed = int(seed)
+    rank = int(rank)
+    if seed < 0 or rank < 0:
+        raise ValueError("inference seed and rank must be non-negative")
+    process_seed = seed + rank
+    random.seed(process_seed)
+    np.random.seed(process_seed % (2**32))
+    torch.manual_seed(process_seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(process_seed)
+    return process_seed
 
 def to_device(batch: Any, device: torch.device) -> Any:
     """Recursively move tensors to *device*."""
@@ -48,6 +71,21 @@ def tensor_to_py(x: Any) -> Any:
     if isinstance(x, (list, tuple)):
         return [tensor_to_py(v) for v in x]
     return x
+
+
+def atomic_save_npz(path: str, **arrays: np.ndarray) -> None:
+    """Atomically save diagnostic arrays without pickle payloads."""
+
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = output_path.with_name(
+        f"{output_path.name}.tmp-{os.getpid()}"
+    )
+    with temporary_path.open("wb") as output_file:
+        np.savez(output_file, **arrays)
+        output_file.flush()
+        os.fsync(output_file.fileno())
+    os.replace(temporary_path, output_path)
 
 
 def wrap_to_pi(a: np.ndarray) -> np.ndarray:
@@ -200,6 +238,8 @@ class VLAAgent:
         model_iter: Optional[int] = None,
         device: str = "cuda",
         qwen_forward_mode: str = "auto",
+        disable_aux_models: bool = False,
+        grounded_world_intervention: str = "none",
     ):
         self.device = torch.device(device if torch.cuda.is_available() else "cpu")
 
@@ -234,6 +274,23 @@ class VLAAgent:
         # Disable optional data loading heads during inference
         OmegaConf.update(self.model_config, "datasets.reward_data", {"load_reward_data": False}, force_add=True)
         OmegaConf.update(self.model_config, "datasets.vla_data",    {"w_neg_traj": None},         force_add=True)
+        if disable_aux_models:
+            # Offline draft caching only needs the pure-trajectory proposal.
+            # Keep this opt-in so the established inference entrypoint retains
+            # its prior construction behavior.
+            OmegaConf.update(self.model_config, "w_depth", 0, force_add=True)
+            OmegaConf.update(
+                self.model_config,
+                "datasets.video_data.load_2d_data",
+                0,
+                force_add=True,
+            )
+            OmegaConf.update(
+                self.model_config,
+                "datasets.video_data.load_3d_data",
+                0,
+                force_add=True,
+            )
 
         # ── Resolve weight path ────────────────────────────────────────────
         if ckpt_dir.endswith(".pt"):
@@ -317,16 +374,62 @@ class VLAAgent:
         print(f"[Agent] weights: {self.model_path}")
 
         # ── Build model ────────────────────────────────────────────────────
-        if "s2" in self.model_path:
+        framework_name = str(
+            OmegaConf.select(self.model_config, "framework.name", default="QwenOFT")
+        )
+        if grounded_world_intervention != "none":
+            if framework_name != "QwenOFT_GroundedWorld":
+                raise ValueError(
+                    "--grounded_world_intervention requires a GroundedWorld checkpoint"
+                )
+            OmegaConf.update(
+                self.model_config,
+                "grounded_world.diagnostics.inference_intervention",
+                grounded_world_intervention,
+                force_add=True,
+            )
+        if framework_name == "QwenOFT_Field2Plan":
+            # A trained Field2Plan checkpoint already contains the frozen
+            # proposal weights under baseline_model.*. Do not require the
+            # original initialization checkpoint to remain mounted at eval.
+            OmegaConf.update(
+                self.model_config,
+                "field2plan.proposal.checkpoint",
+                None,
+                force_add=True,
+            )
+            self.model = Qwenvl_OFT_Field2Plan(self.model_config)
+            self.model.baseline_model._inference_qwen_forward_mode = (
+                self.qwen_forward_mode
+            )
+        elif framework_name == "QwenOFT_GroundedWorld":
+            # A planning-stage GroundedWorld checkpoint is self-contained: it
+            # includes the baseline planner and world path. Do not re-open the
+            # Stage-I/II or pure-baseline initialization paths recorded in the
+            # training config on a different evaluation machine.
+            self.model = Qwenvl_OFT_GroundedWorld(
+                self.model_config,
+                load_checkpoints=False,
+            )
+            self.model.baseline_model._inference_qwen_forward_mode = (
+                self.qwen_forward_mode
+            )
+        elif "s2" in self.model_path:
             print("[Agent] Loading s2 model")
             self.model = Qwenvl_OFT_s2(self.model_config)
         else:
             self.model = Qwenvl_OFT(self.model_config, infer_not_load_wan=1)
-        self.model._inference_qwen_forward_mode = self.qwen_forward_mode
+            self.model._inference_qwen_forward_mode = self.qwen_forward_mode
         print(f"[Agent] Qwen forward mode: {self.qwen_forward_mode}")
 
         state = torch.load(self.model_path, map_location="cpu", weights_only=True)
-        missing, unexpected = self.model.load_state_dict(state, strict=False)
+        strict_field2plan = framework_name in {
+            "QwenOFT_Field2Plan",
+            "QwenOFT_GroundedWorld",
+        }
+        missing, unexpected = self.model.load_state_dict(
+            state, strict=strict_field2plan
+        )
         unexpected_runtime_only = [
             key for key in unexpected if not key.startswith("rgb_model.")
         ]
@@ -364,6 +467,9 @@ def infer_and_save(
     args=None,
 ):
     os.makedirs(out_dir, exist_ok=True)
+    diagnostics_dir = os.path.join(out_dir, "diagnostics")
+    if args.save_diagnostics:
+        os.makedirs(diagnostics_dir, exist_ok=True)
 
     if not overwrite:
         with open(datalist_path, "r", encoding="utf-8") as datalist_file:
@@ -372,6 +478,12 @@ def infer_and_save(
             token
             for token in shard_tokens
             if not os.path.isfile(os.path.join(out_dir, token + ".npy"))
+            or (
+                args.save_diagnostics
+                and not os.path.isfile(
+                    os.path.join(diagnostics_dir, token + ".npz")
+                )
+            )
         ]
         if not missing_tokens:
             print(
@@ -385,6 +497,7 @@ def infer_and_save(
         model_iter=model_iter,
         device=device,
         qwen_forward_mode=args.qwen_forward_mode,
+        grounded_world_intervention=args.grounded_world_intervention,
     )
     manifest_path = os.path.join(out_dir, f"inference_manifest.rank{args.rank}.json")
     manifest_tmp = manifest_path + f".tmp-{os.getpid()}"
@@ -398,6 +511,11 @@ def infer_and_save(
                 "split": split,
                 "rank": args.rank,
                 "world_size": args.world_size,
+                "seed": args.seed,
+                "process_seed": args.process_seed,
+                "seed_reset_stage": "after_dataloader_iterator_init",
+                "save_diagnostics": bool(args.save_diagnostics),
+                "grounded_world_intervention": args.grounded_world_intervention,
             },
             manifest_file,
             indent=2,
@@ -441,6 +559,14 @@ def infer_and_save(
             if not os.path.isfile(
                 os.path.join(out_dir, dataset.raw_list[index] + ".npy")
             )
+            or (
+                args.save_diagnostics
+                and not os.path.isfile(
+                    os.path.join(
+                        diagnostics_dir, dataset.raw_list[index] + ".npz"
+                    )
+                )
+            )
         ]
     if args.world_size > 1 or not overwrite:
         dataset = Subset(dataset, indices)
@@ -459,7 +585,12 @@ def infer_and_save(
         drop_last=False,
     )
 
-    for batch in tqdm(loader, desc="Infer"):
+    # DataLoader iterator creation and model construction both consume the
+    # process RNG. Reset after both so identical shards/batches use identical
+    # flow noise across Field2Plan ablations with different module graphs.
+    loader_iterator = iter(loader)
+    args.process_seed = seed_inference(args.seed, args.rank)
+    for batch in tqdm(loader_iterator, total=len(loader), desc="Infer"):
         batch_on_device = to_device(batch, agent.device)
         pred = agent.predict(batch_on_device)
 
@@ -483,6 +614,24 @@ def infer_and_save(
                 output_file.flush()
                 os.fsync(output_file.fileno())
             os.replace(temporary_path, output_path)
+            if args.save_diagnostics:
+                diagnostics = pred.get("diagnostics")
+                if not isinstance(diagnostics, dict):
+                    raise RuntimeError(
+                        "--save_diagnostics requires Field2Plan diagnostic output"
+                    )
+                per_sample = {}
+                for name, values in diagnostics.items():
+                    array = np.asarray(values)
+                    if array.shape[0] != len(tokens):
+                        raise ValueError(
+                            f"diagnostic {name} batch dimension mismatch: {array.shape}"
+                        )
+                    per_sample[name] = array[i]
+                atomic_save_npz(
+                    os.path.join(diagnostics_dir, tok + ".npz"),
+                    **per_sample,
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -512,13 +661,35 @@ def parse_args():
     p.add_argument("--smooth",        type=int, default=0)
     p.add_argument("--rank",          type=int, default=0)
     p.add_argument("--world_size",    type=int, default=1)
+    p.add_argument(
+        "--seed",
+        type=int,
+        default=20260808,
+        help="Base seed; each inference shard uses seed + rank.",
+    )
     p.add_argument("--data_root",     type=str, default=None,
                    help="Root of processed navsim_dataset/. Overrides OPENSCENE_DATA_ROOT.")
+    p.add_argument(
+        "--save_diagnostics",
+        action="store_true",
+        help="Optionally save Field2Plan/GroundedWorld draft/final/delta/gates under diagnostics/.",
+    )
+    p.add_argument(
+        "--grounded_world_intervention",
+        choices=("none", "disable_access"),
+        default="none",
+        help="Same-checkpoint causal test that zeros GroundedWorld reader access.",
+    )
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
+    args.process_seed = seed_inference(args.seed, args.rank)
+    print(
+        f"[Infer] deterministic seed: base={args.seed} rank={args.rank} "
+        f"process={args.process_seed}"
+    )
     smooth_suffix = "-smooth" if args.smooth != 0 else ""
     checkpoint_suffix = f"-step{args.model_iter}" if args.model_iter is not None else ""
     args.out_dir = os.path.join(

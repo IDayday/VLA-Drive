@@ -22,6 +22,22 @@ parser.add_argument(
 parser.add_argument("--rank", type=int, default=0)
 parser.add_argument("--world_size", type=int, default=1)
 args = parser.parse_args()
+
+
+def resolve_navsim_data_path(file_name):
+    if file_name is None:
+        return None
+    file_path = os.fspath(file_name)
+    runtime_root = os.environ.get("OPENSCENE_DATA_ROOT", "")
+    marker = f"{os.sep}navsim_dataset_raw{os.sep}"
+    if runtime_root and marker in file_path:
+        relative_path = file_path.split(marker, 1)[1]
+        sensor_prefix = "sensor_blobs" + os.sep
+        sensor_root = os.environ.get("NAVSIM_SENSOR_BLOBS_ROOT", "")
+        if sensor_root and relative_path.startswith(sensor_prefix):
+            return os.path.join(sensor_root, relative_path[len(sensor_prefix):])
+        return os.path.join(runtime_root, relative_path)
+    return file_path
 if not 0 <= args.rank < args.world_size:
     parser.error("--rank must be in [0, --world_size)")
 
@@ -76,6 +92,7 @@ for data_n in tqdm(
     images = []
     sample_missing = []
     for source_image, key in zip(source_images, keys):
+        source_image = resolve_navsim_data_path(source_image)
         if os.path.isfile(source_image):
             images.append(source_image)
             continue
