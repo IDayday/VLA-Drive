@@ -49,7 +49,7 @@ In this release, the deployable components are:
 
 | Component | NAVSIM target | Purpose | Weights |
 | --- | --- | --- | --- |
-| DriveVLA-M0 Base Model | `navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent` | Planning / PDMS evaluation | [Hugging Face](https://huggingface.co/XXXXing/DriveVLA-M0) / [ModelScope](https://www.modelscope.cn/models/ArteMe/DriveVLA-M0) |
+| Base Model | `navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent` | Planning / PDMS evaluation | [Hugging Face](https://huggingface.co/XXXXing/DriveVLA-M0) / [ModelScope](https://www.modelscope.cn/models/ArteMe/DriveVLA-M0) |
 | Retrieve Model | `navsim.agents.EpisodeDrive.retrieve_model.retrieve_agent.RetrieveModelAgent` | Map and agent retrieval verification | [Hugging Face](https://huggingface.co/XXXXing/DriveVLA-M0) / [ModelScope](https://www.modelscope.cn/models/ArteMe/DriveVLA-M0) |
 
 Both checkpoint groups are available from the Hugging Face and ModelScope mirrors above.
