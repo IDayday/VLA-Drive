@@ -1,0 +1,105 @@
+_target_: navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent
+
+checkpoint_path: ${oc.env:DRIVEVLA_BASE_CHECKPOINT,/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/base_model/DriveVLA_M0/checkpoints/best-epoch_26-step_174312.server_merged.ckpt}
+
+vlm_config:
+  vlm_path: ${oc.env:DRIVEVLA_VLM_CONFIG,/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/base_model/InternVL3-2B}
+  cam_type: single
+  vlm_type: internvl
+  vlm_size: large
+  cache_mode: false
+  cache_hidden_state: false
+  freeze_backbone: true
+  trainable_layers: [language_model, merger]
+  initialize_from_config: true
+  use_flash_attn: false
+  extra_token_count: 8
+  target_vocab_size: 151682
+
+lora_config:
+  use_lora: true
+  lora_rank: 8
+  lora_dropout: 0.1
+  lora_target_modules: [attn.qkv, attn.proj, q_proj, v_proj, k_proj, o_proj]
+  checkpoint_path: ''
+
+trajectory_sampling:
+  _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+  _convert_: all
+  time_horizon: 4
+  interval_length: 0.5
+
+action_head_config:
+  checkpoint_path: ''
+  shared_refiner: false
+  ref_num: 4
+  scorer_ref_num: 4
+  proposal_num: 64
+  num_poses: 8
+  num_scene_tokens: 16
+  one_token_per_traj: true
+  full_history_status: false
+  long_trajectory_additional_poses: -1
+  noc: 1.0
+  dac: 1.0
+  ddc: 0.0
+  ttc: 5.0
+  ep: 5.0
+  comfort: 2.0
+  tf_d_model: 256
+  tf_d_ffn: 1024
+  cam_f0: [3]
+  cam_l0: [3]
+  cam_l1: []
+  cam_l2: []
+  cam_r0: [3]
+  cam_r1: []
+  cam_r2: []
+  cam_b0: [3]
+  lidar_pc: []
+  image_size: [1148, 672]
+  image_backbone:
+    model_name: timm/vit_small_patch14_reg4_dinov2.lvd142m
+    model_weights: ${oc.env:DRIVEVLA_DINO_WEIGHTS,/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/pretrained/dinov2/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors}
+    use_lora: true
+    finetune: false
+    lora_rank: 32
+    focus_front_cam: false
+    use_feature_pooling: false
+    compress_fc: false
+  double_score: false
+  agent_pred: false
+  area_pred: false
+  bev_map: false
+  bev_agent: false
+  refiner_num_heads: 1
+  refiner_ls_values: 0.0
+  trajectory_sampling:
+    _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+    time_horizon: 4
+    interval_length: 0.5
+
+loss:
+  _target_: navsim.agents.EpisodeDrive.layers.losses.episode_drive_loss.EpisodeDriveLoss
+  trajectory_weight: 1.0
+  inter_weight: 0.0
+  sub_score_weight: 0.0
+  final_score_weight: 1.0
+  pred_ce_weight: 1.0
+  pred_l1_weight: 0.1
+  pred_area_weight: 2.0
+  prev_weight: 0.0
+  agent_class_weight: 1.0
+  agent_box_weight: 0.1
+  bev_semantic_weight: 1.0
+  div_weight: 0.0
+
+lr_args:
+  name: AdamW
+  base_lr: 5e-4
+  base_batch_size: 64
+
+scheduler_args: null
+batch_size: 2
+num_gpus: 1
+progress_bar: true

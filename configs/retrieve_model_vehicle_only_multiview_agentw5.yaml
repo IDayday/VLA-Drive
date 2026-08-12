@@ -1,0 +1,67 @@
+_target_: navsim.agents.EpisodeDrive.retrieve_model.retrieve_agent.RetrieveModelAgent
+
+model_config:
+  model_name: timm/vit_small_patch14_reg4_dinov2.lvd142m
+  model_weights: ${oc.env:DRIVEVLA_DINO_WEIGHTS,/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/pretrained/dinov2/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors}
+  image_size: [1148, 672]
+  d_model: 256
+  lora_rank: 32
+  pooled_grid: [12, 20]
+  max_cameras: 4
+  bev_query_grid: [8, 16]
+  nhead: 8
+  num_layers: 3
+  dim_feedforward: 1024
+  dropout: 0.1
+  conv_channels: [128, 64, 32, 16]
+  map_num_classes: 4
+  agent_num_classes: 2
+
+feature_config:
+  image_size: [1148, 672]
+  camera_names: [cam_f0, cam_l0, cam_r0, cam_b0]
+
+target_config:
+  bev_pixel_height: 128
+  bev_pixel_width: 256
+  bev_pixel_size: 0.25
+  bev_radius: 32.0
+  centerline_thickness: 2
+  include_pedestrians: false
+
+loss_config:
+  stats_path: ${oc.env:DRIVEVLA_RETRIEVE_TARGET_STATS,/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/retrieve_model_vehicle_only_multiview_agentw5_finetune/trainval_full_cam4/20260729_1012/target_stats.json}
+  map_class_weights: [1.0, 1.0, 1.0, 1.0]
+  agent_class_weights: [1.0, 1.0]
+  alpha: 1.0
+  class_weight_cap: 10.0
+  map_num_classes: 4
+  agent_num_classes: 2
+
+optimizer_config:
+  name: AdamW
+  lr: 2.0e-4
+  weight_decay: 1.0e-4
+  scheduler:
+    enabled: true
+    name: ReduceLROnPlateau
+    monitor: val_loss_epoch
+    factor: 0.5
+    patience: 2
+    threshold: 1.0e-3
+    cooldown: 0
+    min_lr: 1.0e-6
+
+training_config:
+  monitor: val_loss_epoch
+  aggregate_validation_loss: true
+  checkpoint:
+    save_last: true
+    save_top_k: 1
+    filename: retrieve-vehicle-only-cam4-agentw5-{epoch:02d}-{val_loss_epoch:.4f}
+  early_stopping:
+    enabled: true
+    patience: 6
+    min_delta: 1.0e-3
+
+checkpoint_path: ${oc.env:DRIVEVLA_RETRIEVE_CHECKPOINT,'/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/retrieve_model_vehicle_only_multiview_agentw5_finetune/trainval_full_cam4/20260729_1012/checkpoints/retrieve-vehicle-only-cam4-agentw5-epoch=13-val_loss_epoch=0.5591.ckpt'}
