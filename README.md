@@ -69,17 +69,6 @@ Main paper NAVSIMv1 result reported for DriveVLA-M0:
     <img src="assets/drivevla_m0_navsimv1_results.png" alt="DriveVLA-M0 main results on NAVSIMv1 Navtest" width="95%">
 </p>
 
-| Benchmark | Metric | Score |
-| --- | ---: | ---: |
-| NAVSIMv1 Navtest | PDMS | 94.1 |
-
-Sanity checks for this deployment package on A800:
-
-| Check | Split | Result |
-| --- | --- | --- |
-| Base Model PDMS | NAVSIMv1 mini | 0.9332151815, 109 successful / 0 failed |
-| Retrieve Model visualization | NAVSIMv1 mini, 1 sample | `status=ok`, map IoU 0.4223, agent IoU 0.2822 |
-
 ## Repository Layout
 
 ```text
