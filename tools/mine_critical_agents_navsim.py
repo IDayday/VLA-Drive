@@ -111,6 +111,7 @@ class AgentCandidate:
     occlusion_ratio: float
     visible_box_ratio: float
     image_path: Optional[str]
+    camera_projections: List[Dict[str, Any]]
     valid: bool = True
 
 
@@ -445,6 +446,7 @@ def score_candidates(
                 occlusion_ratio=float(candidate["best_camera_projection"].get("occlusion_ratio", 0.0)),
                 visible_box_ratio=float(candidate["best_camera_projection"].get("visible_box_ratio", 1.0)),
                 image_path=candidate["best_camera_projection"].get("image_path"),
+                camera_projections=candidate.get("camera_projections", []),
                 score_terms={
                     "path_corridor": float(future_path_corridor),
                     "distance": distance_term,
@@ -489,6 +491,7 @@ def pad_agents(agents: List[AgentCandidate], top_k: int) -> List[Dict[str, Any]]
                 "occlusion_ratio": 1.0,
                 "visible_box_ratio": 0.0,
                 "image_path": None,
+                "camera_projections": [],
                 "valid": False,
             }
         )
@@ -830,7 +833,7 @@ def mine_one(container: Dict[str, Any], args: argparse.Namespace) -> Dict[str, A
     return {
         "token": container["token"],
         "frame_idx": current_idx,
-        "schema_version": 1,
+        "schema_version": 2,
         "ego_motion_events": events,
         "critical_agents": pad_agents(scored, args.top_k),
     }
@@ -993,7 +996,7 @@ def main() -> None:
             payload = {
                 "token": container.get("token", str(index)),
                 "frame_idx": args.current_frame_index,
-                "schema_version": 1,
+                "schema_version": 2,
                 "error": repr(exc),
                 "critical_agents": pad_agents([], args.top_k),
             }

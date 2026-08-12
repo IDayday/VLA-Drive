@@ -89,7 +89,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in os.sys.path:
     os.sys.path.insert(0, str(REPO_ROOT))
 
-CACHE_SCHEMA_VERSION = 1
+CACHE_SCHEMA_VERSION = 2
 COMPONENT = "agent_dino"
 VIEW_TO_ID = {"cam_f0": 0, "cam_l0": 1, "cam_r0": 2, "cam_l1": 3, "cam_l2": 4, "cam_r1": 5, "cam_r2": 6, "cam_b0": 7}
 
@@ -284,6 +284,55 @@ def crop_agent(image: Image.Image, bbox_xyxy: Sequence[float], min_size: int) ->
     return image.crop((x1, y1, max(x1 + 1, x2), max(y1 + 1, y2)))
 
 
+def build_multiview_tensors(agents: List[Dict[str, Any]]) -> Dict[str, torch.Tensor]:
+    view_count = len(VIEW_TO_ID)
+    num_agents = len(agents)
+    bbox_per_view = torch.zeros((num_agents, view_count, 4), dtype=torch.float32)
+    bbox_norm_per_view = torch.zeros((num_agents, view_count, 4), dtype=torch.float32)
+    image_size_per_view = torch.zeros((num_agents, view_count, 2), dtype=torch.float32)
+    visible_per_view = torch.zeros((num_agents, view_count), dtype=torch.float32)
+    occlusion_per_view = torch.ones((num_agents, view_count), dtype=torch.float32)
+    visible_box_ratio_per_view = torch.zeros((num_agents, view_count), dtype=torch.float32)
+    view_mask = torch.zeros((num_agents, view_count), dtype=torch.bool)
+
+    for agent_index, agent in enumerate(agents):
+        projections = agent.get("camera_projections") or []
+        if not projections and agent.get("bbox_xyxy") is not None and agent.get("view"):
+            projections = [agent]
+        for projection in projections:
+            view_id = VIEW_TO_ID.get(str(projection.get("view", "")), -1)
+            if view_id < 0:
+                continue
+            bbox = projection.get("bbox_xyxy")
+            if bbox is None:
+                continue
+            bbox_tensor = torch.tensor([float(value) for value in bbox[:4]], dtype=torch.float32)
+            image_size = projection.get("image_size") or projection.get("image_hw")
+            if image_size is None:
+                height = max(float(bbox_tensor[3].item()), 1.0)
+                width = max(float(bbox_tensor[2].item()), 1.0)
+            else:
+                height, width = [float(value) for value in image_size[:2]]
+            scale = torch.tensor([max(width, 1.0), max(height, 1.0), max(width, 1.0), max(height, 1.0)], dtype=torch.float32)
+            bbox_per_view[agent_index, view_id] = bbox_tensor
+            bbox_norm_per_view[agent_index, view_id] = (bbox_tensor / scale).clamp(0.0, 1.0)
+            image_size_per_view[agent_index, view_id] = torch.tensor([height, width], dtype=torch.float32)
+            visible_per_view[agent_index, view_id] = float(projection.get("visible_ratio", 1.0))
+            occlusion_per_view[agent_index, view_id] = float(projection.get("occlusion_ratio", 0.0))
+            visible_box_ratio_per_view[agent_index, view_id] = float(projection.get("visible_box_ratio", 1.0))
+            view_mask[agent_index, view_id] = True
+
+    return {
+        "bbox_per_view": bbox_per_view,
+        "bbox_norm_per_view": bbox_norm_per_view,
+        "visible_per_view": visible_per_view,
+        "occlusion_per_view": occlusion_per_view,
+        "visible_box_ratio_per_view": visible_box_ratio_per_view,
+        "view_mask": view_mask,
+        "image_size_per_view": image_size_per_view,
+    }
+
+
 def dino_feature_dim(backbone_name: str) -> int:
     dims = {
         "dinov2_vits14": 384,
@@ -414,6 +463,7 @@ class AgentDinoPrecomputer:
 
     def empty_payload(self, token: str, sidecar: Dict[str, Any], reason: str) -> Dict[str, Any]:
         metadata = {"token": token, "reason": reason, "agents": [], "feature_mode": self.feature_mode}
+        view_count = len(VIEW_TO_ID)
         return {
             "agent_features": torch.empty((0, self.feature_dim), dtype=torch.bfloat16),
             "agent_ranks": torch.empty((0,), dtype=torch.long),
@@ -422,6 +472,13 @@ class AgentDinoPrecomputer:
             "box_ego": torch.empty((0, 7), dtype=torch.float32),
             "view_ids": torch.empty((0,), dtype=torch.long),
             "patch_counts": torch.empty((0,), dtype=torch.long),
+            "bbox_per_view": torch.empty((0, view_count, 4), dtype=torch.float32),
+            "bbox_norm_per_view": torch.empty((0, view_count, 4), dtype=torch.float32),
+            "visible_per_view": torch.empty((0, view_count), dtype=torch.float32),
+            "occlusion_per_view": torch.empty((0, view_count), dtype=torch.float32),
+            "visible_box_ratio_per_view": torch.empty((0, view_count), dtype=torch.float32),
+            "view_mask": torch.empty((0, view_count), dtype=torch.bool),
+            "image_size_per_view": torch.empty((0, view_count, 2), dtype=torch.float32),
             "metadata_json_uint8": metadata_to_tensor(metadata),
         }
 
@@ -487,6 +544,7 @@ class AgentDinoPrecomputer:
                     "visible_ratio": float(agent.get("visible_ratio", 0.0)),
                     "occlusion_ratio": float(agent.get("occlusion_ratio", 0.0)),
                     "visible_box_ratio": float(agent.get("visible_box_ratio", 0.0)),
+                    "camera_projections": agent.get("camera_projections", []),
                 }
             )
         metadata = {
@@ -496,7 +554,7 @@ class AgentDinoPrecomputer:
             "dino_backbone": self.backbone_name,
             "agents": metadata_agents,
         }
-        return {
+        payload = {
             "agent_features": tensor_cpu(torch.stack(list(features), dim=0), torch.bfloat16),
             "agent_ranks": torch.tensor([int(agent.get("rank", -1)) for agent in agents], dtype=torch.long),
             "agent_scores": torch.tensor([float(agent.get("score", 0.0)) for agent in agents], dtype=torch.float32),
@@ -506,6 +564,8 @@ class AgentDinoPrecomputer:
             "patch_counts": torch.tensor(list(patch_counts), dtype=torch.long),
             "metadata_json_uint8": metadata_to_tensor(metadata),
         }
+        payload.update(build_multiview_tensors(agents))
+        return payload
 
 
 def chunks(values: List[int], size: int) -> Iterable[List[int]]:
@@ -608,6 +668,13 @@ def main(args: argparse.Namespace) -> None:
                 "box_ego": "float32[num_agents,7] current ego frame",
                 "view_ids": VIEW_TO_ID,
                 "patch_counts": "int64[num_agents] pooled DINO patch count",
+                "bbox_per_view": "float32[num_agents,8,4] original image pixels",
+                "bbox_norm_per_view": "float32[num_agents,8,4] normalized xyxy by per-view image size",
+                "visible_per_view": "float32[num_agents,8] visible ratio, 0 for absent views",
+                "occlusion_per_view": "float32[num_agents,8] occlusion ratio, 1 for absent views",
+                "visible_box_ratio_per_view": "float32[num_agents,8] visible projected box ratio, 0 for absent views",
+                "view_mask": "bool[num_agents,8] whether bbox supervision exists for the view",
+                "image_size_per_view": "float32[num_agents,8,2] height,width",
                 "metadata_json_uint8": "UTF-8 JSON bytes",
             },
             "batch_size_per_rank": args.batch_size,

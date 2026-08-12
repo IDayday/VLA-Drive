@@ -8,7 +8,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 # Action-only training does not rely on the shared feature cache.
 unset NAVSIM_FEATURE_CACHE_ROOT

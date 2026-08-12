@@ -22,6 +22,7 @@ Note: How to add special tokens to Qwen2.5:
 from typing import List
 from tqdm import tqdm
 from typing import List, Optional, Tuple
+import itertools
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -62,6 +63,57 @@ from starVLA.cache.navsim_feature_cache import (
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+
+def _bruteforce_linear_sum_assignment(cost: torch.Tensor) -> Tuple[List[int], List[int]]:
+    """Small dependency-free Hungarian substitute for <= few object queries."""
+    cost_cpu = cost.detach().float().cpu()
+    num_queries, num_targets = cost_cpu.shape
+    match_count = min(num_queries, num_targets)
+    if match_count == 0:
+        return [], []
+
+    best_value = None
+    best_rows = None
+    best_cols = None
+    query_indices = range(num_queries)
+    target_indices = range(num_targets)
+    if num_queries <= num_targets:
+        for cols in itertools.permutations(target_indices, match_count):
+            rows = tuple(query_indices)
+            value = sum(float(cost_cpu[row, col]) for row, col in zip(rows, cols))
+            if best_value is None or value < best_value:
+                best_value = value
+                best_rows = rows
+                best_cols = cols
+    else:
+        for rows in itertools.combinations(query_indices, match_count):
+            for cols in itertools.permutations(target_indices, match_count):
+                value = sum(float(cost_cpu[row, col]) for row, col in zip(rows, cols))
+                if best_value is None or value < best_value:
+                    best_value = value
+                    best_rows = rows
+                    best_cols = cols
+    return list(best_rows), list(best_cols)
+
+
+def _normalize_teacher_bboxes(bboxes: torch.Tensor) -> torch.Tensor:
+    """Normalize legacy raw-pixel bboxes when cache lacks explicit image size."""
+    if bboxes.numel() == 0:
+        return bboxes
+    max_x = bboxes[:, [0, 2]].amax().clamp(min=1.0)
+    max_y = bboxes[:, [1, 3]].amax().clamp(min=1.0)
+    scale = torch.stack([max_x, max_y, max_x, max_y]).to(device=bboxes.device, dtype=bboxes.dtype)
+    return (bboxes / scale).clamp(0.0, 1.0)
+
+
+def _xywh_to_xyxy(boxes: torch.Tensor) -> torch.Tensor:
+    center = boxes[..., :2]
+    size = boxes[..., 2:].clamp(min=1e-4)
+    top_left = center - size * 0.5
+    bottom_right = center + size * 0.5
+    return torch.cat([top_left, bottom_right], dim=-1).clamp(0.0, 1.0)
+
 class TinyDepthAdapter(nn.Module):
     def __init__(self, in_c=128, hidden=2048, grid=(8, 8)):
         super().__init__()
@@ -192,12 +244,34 @@ class Qwenvl_OFT(baseframework):
         self.infer_not_load_wan = infer_not_load_wan
 
         self.agent_dino_loss_weight = float(OmegaConf.select(self.config, "framework.agent_dino.loss_weight", default=0.1))
+        self.agent_bbox_loss_weight = float(OmegaConf.select(self.config, "framework.agent_dino.lambda_bbox", default=0.2))
+        self.agent_vis_loss_weight = float(OmegaConf.select(self.config, "framework.agent_dino.lambda_vis", default=0.1))
+        self.agent_match_lambda_feat = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_feat", default=0.2))
+        self.agent_match_lambda_bbox = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_bbox", default=1.0))
+        self.agent_match_lambda_vis = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_vis", default=0.5))
+        self.agent_match_lambda_rank = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_rank", default=0.05))
         self.agent_dino_dim = int(OmegaConf.select(self.config, "framework.agent_dino.feature_dim", default=384))
+        self.agent_view_ids = tuple(OmegaConf.select(self.config, "framework.agent_dino.view_ids", default=[0, 1, 2]))
+        self.agent_view_count = len(self.agent_view_ids)
+        hidden_size = self.qwen_vl_interface.model.config.hidden_size
         self.agent_dino_head = nn.Sequential(
-            nn.LayerNorm(self.qwen_vl_interface.model.config.hidden_size),
-            nn.Linear(self.qwen_vl_interface.model.config.hidden_size, self.qwen_vl_interface.model.config.hidden_size),
+            nn.LayerNorm(hidden_size),
+            nn.Linear(hidden_size, hidden_size),
             nn.GELU(),
-            nn.Linear(self.qwen_vl_interface.model.config.hidden_size, self.agent_dino_dim),
+            nn.Linear(hidden_size, self.agent_dino_dim),
+        )
+        self.agent_bbox_head = nn.Sequential(
+            nn.LayerNorm(hidden_size),
+            nn.Linear(hidden_size, hidden_size // 2),
+            nn.GELU(),
+            nn.Linear(hidden_size // 2, self.agent_view_count * 4),
+            nn.Sigmoid(),
+        )
+        self.agent_vis_head = nn.Sequential(
+            nn.LayerNorm(hidden_size),
+            nn.Linear(hidden_size, hidden_size // 2),
+            nn.GELU(),
+            nn.Linear(hidden_size // 2, self.agent_view_count),
         )
 
         llm_layers, llm_hidden_size = self.config.framework.action_model.diffusion_model_cfg.num_layers, self.qwen_vl_interface.model.config.hidden_size
@@ -529,35 +603,126 @@ class Qwenvl_OFT(baseframework):
             )
 
         agent_dino_loss = torch.tensor(0.).to(text_embeds.device)
+        agent_bbox_loss = torch.tensor(0.).to(text_embeds.device)
+        agent_vis_loss = torch.tensor(0.).to(text_embeds.device)
+        agent_match_count = torch.tensor(0., device=text_embeds.device)
         if self.action_prompt_mode == "minimal_agent":
             mine_agent_g_idx = token_positions["mine_agent"].unsqueeze(-1).expand(-1, -1, H)
             mine_agent_queries = last_hidden.gather(dim=1, index=mine_agent_g_idx)  # [B, 4, H]
             agent_dino_payloads = [example.get("agent_dino_feature_cache") for example in examples]
             if all(payload is not None for payload in agent_dino_payloads):
-                teacher_features = []
-                teacher_masks = []
-                for payload in agent_dino_payloads:
-                    feats = payload["agent_features"].to(device=mine_agent_queries.device, dtype=torch.float32)
-                    valid_count = int(feats.shape[0])
-                    pad_count = max(0, 4 - valid_count)
-                    if pad_count:
-                        pad = torch.zeros((pad_count, feats.shape[1]), device=feats.device, dtype=feats.dtype)
-                        feats = torch.cat([feats, pad], dim=0)
-                    teacher_features.append(feats[:4])
-                    mask = torch.zeros((4,), device=mine_agent_queries.device, dtype=torch.bool)
-                    mask[:min(valid_count, 4)] = True
-                    teacher_masks.append(mask)
-                teacher_features = torch.stack(teacher_features, dim=0)  # [B,4,D]
-                teacher_masks = torch.stack(teacher_masks, dim=0)        # [B,4]
                 if next(self.agent_dino_head.parameters()).device != mine_agent_queries.device:
                     self.agent_dino_head = self.agent_dino_head.to(mine_agent_queries.device)
+                    self.agent_bbox_head = self.agent_bbox_head.to(mine_agent_queries.device)
+                    self.agent_vis_head = self.agent_vis_head.to(mine_agent_queries.device)
                 pred_features = self.agent_dino_head(mine_agent_queries.float())  # [B,4,D]
-                if teacher_masks.any():
-                    agent_dino_loss = F.smooth_l1_loss(
-                        pred_features[teacher_masks],
-                        teacher_features[teacher_masks],
-                    )
-            agent_dino_loss = agent_dino_loss * self.agent_dino_loss_weight
+                pred_bbox_raw = self.agent_bbox_head(mine_agent_queries.float()).view(B, -1, self.agent_view_count, 4)
+                pred_bboxes_per_view = _xywh_to_xyxy(pred_bbox_raw)  # [B,4,V,4]
+                pred_vis_logits_per_view = self.agent_vis_head(mine_agent_queries.float()).view(B, -1, self.agent_view_count)
+
+                feature_losses = []
+                bbox_losses = []
+                use_multiview = all(
+                    "bbox_norm_per_view" in payload and "visible_per_view" in payload and "view_mask" in payload
+                    for payload in agent_dino_payloads
+                )
+                if use_multiview:
+                    vis_targets = torch.zeros_like(pred_vis_logits_per_view, dtype=torch.float32)
+                    view_index = torch.as_tensor(self.agent_view_ids, device=mine_agent_queries.device, dtype=torch.long)
+                else:
+                    pred_bboxes = pred_bboxes_per_view[:, :, 0, :]
+                    pred_vis_logits = pred_vis_logits_per_view[:, :, 0]
+                    vis_targets = torch.zeros_like(pred_vis_logits, dtype=torch.float32)
+
+                for batch_index, payload in enumerate(agent_dino_payloads):
+                    feats = payload["agent_features"].to(device=mine_agent_queries.device, dtype=torch.float32)
+                    valid_count = int(feats.shape[0])
+                    if use_multiview:
+                        bboxes_mv = payload["bbox_norm_per_view"].to(device=mine_agent_queries.device, dtype=torch.float32)
+                        visible_mv = payload["visible_per_view"].to(device=mine_agent_queries.device, dtype=torch.float32)
+                        view_mask_mv = payload["view_mask"].to(device=mine_agent_queries.device, dtype=torch.bool)
+                        valid_count = min(valid_count, int(bboxes_mv.shape[0]), int(visible_mv.shape[0]), int(view_mask_mv.shape[0]))
+                    else:
+                        bboxes = payload.get("bbox_xyxy")
+                        if bboxes is None:
+                            continue
+                        bboxes = bboxes.to(device=mine_agent_queries.device, dtype=torch.float32)
+                        valid_count = min(valid_count, int(bboxes.shape[0]))
+                    if valid_count <= 0:
+                        continue
+
+                    feats = feats[:valid_count]
+                    ranks = payload.get("agent_ranks")
+                    if ranks is None:
+                        rank_prior = torch.zeros((valid_count,), device=mine_agent_queries.device, dtype=torch.float32)
+                    else:
+                        ranks = ranks[:valid_count].to(device=mine_agent_queries.device, dtype=torch.float32)
+                        rank_prior = ranks / ranks.max().clamp(min=1.0)
+
+                    feat_cost = F.smooth_l1_loss(
+                        pred_features[batch_index, :, None, :].expand(-1, valid_count, -1),
+                        feats[None, :, :].expand(pred_features.shape[1], -1, -1),
+                        reduction="none",
+                    ).mean(dim=-1)
+                    if use_multiview:
+                        bboxes_mv = bboxes_mv[:valid_count].index_select(dim=1, index=view_index)
+                        visible_mv = visible_mv[:valid_count].index_select(dim=1, index=view_index).clamp(0.0, 1.0)
+                        view_mask_mv = view_mask_mv[:valid_count].index_select(dim=1, index=view_index)
+                        mask_float = view_mask_mv.to(dtype=torch.float32)
+                        bbox_diff = torch.abs(
+                            pred_bboxes_per_view[batch_index, :, None, :, :]
+                            - bboxes_mv[None, :, :, :]
+                        ).mean(dim=-1)
+                        bbox_cost = (bbox_diff * mask_float[None, :, :]).sum(dim=-1) / mask_float.sum(dim=-1).clamp(min=1.0)[None, :]
+                        vis_cost = F.binary_cross_entropy_with_logits(
+                            pred_vis_logits_per_view[batch_index, :, None, :].expand(-1, valid_count, -1),
+                            visible_mv[None, :, :].expand(pred_vis_logits_per_view.shape[1], -1, -1),
+                            reduction="none",
+                        ).mean(dim=-1)
+                        cost = (
+                            self.agent_match_lambda_feat * feat_cost.detach()
+                            + self.agent_match_lambda_bbox * bbox_cost.detach()
+                            + self.agent_match_lambda_vis * vis_cost.detach()
+                            + self.agent_match_lambda_rank * rank_prior[None, :]
+                        )
+                    else:
+                        bboxes = _normalize_teacher_bboxes(bboxes[:valid_count])
+                        bbox_cost = torch.abs(
+                            pred_bboxes[batch_index, :, None, :].expand(-1, valid_count, -1)
+                            - bboxes[None, :, :].expand(pred_bboxes.shape[1], -1, -1)
+                        ).mean(dim=-1)
+                        cost = (
+                            self.agent_match_lambda_feat * feat_cost.detach()
+                            + self.agent_match_lambda_bbox * bbox_cost.detach()
+                            + self.agent_match_lambda_rank * rank_prior[None, :]
+                        )
+
+                    query_indices, target_indices = _bruteforce_linear_sum_assignment(cost)
+                    if not query_indices:
+                        continue
+                    q_idx = torch.as_tensor(query_indices, device=mine_agent_queries.device, dtype=torch.long)
+                    t_idx = torch.as_tensor(target_indices, device=mine_agent_queries.device, dtype=torch.long)
+                    feature_losses.append(F.smooth_l1_loss(pred_features[batch_index, q_idx], feats[t_idx]))
+                    if use_multiview:
+                        vis_targets[batch_index, q_idx, :] = visible_mv[t_idx]
+                        matched_mask = view_mask_mv[t_idx]
+                        matched_pred_bbox = pred_bboxes_per_view[batch_index, q_idx]
+                        matched_teacher_bbox = bboxes_mv[t_idx]
+                        if bool(matched_mask.any()):
+                            bbox_losses.append(F.smooth_l1_loss(matched_pred_bbox[matched_mask], matched_teacher_bbox[matched_mask]))
+                    else:
+                        vis_targets[batch_index, q_idx] = 1.0
+                        bbox_losses.append(F.smooth_l1_loss(pred_bboxes[batch_index, q_idx], bboxes[t_idx]))
+                    agent_match_count = agent_match_count + float(len(query_indices))
+
+                if feature_losses:
+                    agent_dino_loss = torch.stack(feature_losses).mean() * self.agent_dino_loss_weight
+                if bbox_losses:
+                    agent_bbox_loss = torch.stack(bbox_losses).mean() * self.agent_bbox_loss_weight
+                if use_multiview:
+                    agent_vis_loss = F.binary_cross_entropy_with_logits(pred_vis_logits_per_view.float(), vis_targets) * self.agent_vis_loss_weight
+                else:
+                    agent_vis_loss = F.binary_cross_entropy_with_logits(pred_vis_logits.float(), vis_targets) * self.agent_vis_loss_weight
 
         #### video gen ####
         if self.config.datasets.video_data.load_2d_data:
@@ -696,11 +861,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count}
 
     @torch.inference_mode()
     def predict_action(

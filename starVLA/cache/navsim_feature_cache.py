@@ -19,6 +19,12 @@ import torch
 
 CACHE_SCHEMA_VERSION = 1
 CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino")
+CACHE_SCHEMA_VERSIONS = {
+    "qwen": (1,),
+    "wan": (1,),
+    "ppd": (1,),
+    "agent_dino": (1, 2),
+}
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"
 RGB_QUERY_TOKENS = tuple(f"<2d_world_{index}>" for index in range(64))
@@ -173,10 +179,11 @@ class NavsimFeatureCacheReader:
                 continue
             with manifest_path.open("r", encoding="utf-8") as stream:
                 manifest = json.load(stream)
-            if manifest.get("schema_version") != CACHE_SCHEMA_VERSION:
+            allowed_versions = CACHE_SCHEMA_VERSIONS.get(component, (CACHE_SCHEMA_VERSION,))
+            if manifest.get("schema_version") not in allowed_versions:
                 raise RuntimeError(
                     f"Cache schema mismatch for {component}: "
-                    f"expected {CACHE_SCHEMA_VERSION}, found {manifest.get('schema_version')}"
+                    f"expected one of {allowed_versions}, found {manifest.get('schema_version')}"
                 )
             if not manifest.get("complete", False):
                 raise RuntimeError(f"Cache manifest is not marked complete: {manifest_path}")

@@ -8,7 +8,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 # Agent-action training does not rely on the shared feature cache.
 unset NAVSIM_FEATURE_CACHE_ROOT
@@ -38,7 +38,7 @@ fm_repeat=8
 max_train_steps="${MAX_TRAIN_STEPS:-100000}"
 
 split=train
-datalist="${NAVSIM_DATALIST_PATH:-${DRIVEDREAMER_ROOT}/${split}_meta.json}"
+datalist="${DATALIST:-${NAVSIM_DATALIST_PATH:-${DRIVEDREAMER_ROOT}/${split}_meta.json}}"
 
 run_id="${RUN_ID:-${timestamp}-agent-action-lr1e5-16g-bz_${bz}-ga_${gradient_accumulation_steps}-${split}}"
 
@@ -86,7 +86,14 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --framework.qwenvl.vl_hidden_dim ${vl_hidden_dim} \
   --framework.action_prompt_mode minimal_agent \
   --framework.agent_dino.loss_weight 0.1 \
+  --framework.agent_dino.lambda_bbox 0.2 \
+  --framework.agent_dino.lambda_vis 0.1 \
+  --framework.agent_dino.match_lambda_feat 0.2 \
+  --framework.agent_dino.match_lambda_bbox 1.0 \
+  --framework.agent_dino.match_lambda_vis 0.5 \
+  --framework.agent_dino.match_lambda_rank 0.05 \
   --framework.agent_dino.feature_dim 384 \
+  --framework.agent_dino.view_ids "[0,1,2]" \
   --run_root_dir ${NAVSIM_EXP_ROOT} \
   --run_id ${run_id} \
   --wandb_project ${WANDB_PROJECT} \

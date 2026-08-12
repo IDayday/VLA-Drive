@@ -596,6 +596,9 @@ class VLATrainer(TrainerUtils):
                 if self.config.datasets.reward_data.load_reward_data == 1:
                     reward_loss = output_dict['reward_loss']
                 agent_dino_loss = output_dict.get('agent_dino_loss', torch.tensor(0.0, device=action_loss.device))
+                agent_bbox_loss = output_dict.get('agent_bbox_loss', torch.tensor(0.0, device=action_loss.device))
+                agent_vis_loss = output_dict.get('agent_vis_loss', torch.tensor(0.0, device=action_loss.device))
+                agent_match_count = output_dict.get('agent_match_count', torch.tensor(0.0, device=action_loss.device))
 
                 total_loss = 0
                 if self.config.datasets.video_data.load_2d_data == 1:
@@ -608,6 +611,8 @@ class VLATrainer(TrainerUtils):
                     total_loss += action_loss
                 if getattr(self.config.framework, "action_prompt_mode", "full") == "minimal_agent":
                     total_loss += agent_dino_loss
+                    total_loss += agent_bbox_loss
+                    total_loss += agent_vis_loss
 
 
             # VLA backward propagation
@@ -630,7 +635,10 @@ class VLATrainer(TrainerUtils):
             "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.detach(),
             "gs_loss": 0 if self.config.datasets.gs_data.load_3d_data == 0 and self.config.w_depth==0 else gs_loss.detach(),
             "reward_loss": 0 if self.config.datasets.reward_data.load_reward_data == 0 else reward_loss.detach(),
-            "agent_dino_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_dino_loss.detach()
+            "agent_dino_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_dino_loss.detach(),
+            "agent_bbox_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_bbox_loss.detach(),
+            "agent_vis_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_vis_loss.detach(),
+            "agent_match_count": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_match_count.detach(),
         }
 
     def _finalize_training(self):
