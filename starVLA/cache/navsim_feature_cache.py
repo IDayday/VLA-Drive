@@ -19,6 +19,8 @@ import torch
 
 CACHE_SCHEMA_VERSION = 1
 CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino")
+OPTIONAL_CACHE_COMPONENTS = ("vggt_query",)
+SUPPORTED_CACHE_COMPONENTS = CACHE_COMPONENTS + OPTIONAL_CACHE_COMPONENTS
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"
 RGB_QUERY_TOKENS = tuple(f"<2d_world_{index}>" for index in range(64))
@@ -72,7 +74,7 @@ def _deserialize(value: bytes) -> Dict[str, torch.Tensor]:
 
 
 def component_dir(cache_root: os.PathLike[str] | str, component: str) -> Path:
-    if component not in CACHE_COMPONENTS:
+    if component not in SUPPORTED_CACHE_COMPONENTS:
         raise ValueError(f"Unsupported cache component: {component}")
     return Path(cache_root) / component
 

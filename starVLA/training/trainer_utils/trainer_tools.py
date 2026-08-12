@@ -135,6 +135,40 @@ from torchvision.ops import box_iou
 from PIL import Image
 
 
+def aggregate_output_losses(output_dict, cfg, optimizer_step: int | None = None):
+    """Aggregate a framework's named losses with explicit trainer weights.
+
+    Frameworks using the legacy flat output contract remain handled by the
+    trainer's unchanged legacy branch. A named loss without a configured
+    weight is an error so a new objective can never be silently ignored.
+    """
+
+    losses = output_dict.get("losses")
+    if losses is None:
+        raise KeyError("output_dict does not contain named 'losses'")
+    if not losses:
+        raise ValueError("output_dict['losses'] must not be empty")
+    weights = cfg.trainer.loss_weights
+    weighted = {}
+    total = None
+    for name, loss in losses.items():
+        if name not in weights:
+            raise KeyError(f"Missing trainer.loss_weights.{name}")
+        if loss.ndim != 0:
+            raise AssertionError(f"Named loss {name!r} must be scalar, found {tuple(loss.shape)}")
+        warmup_scale = 1.0
+        warmup_steps = int(getattr(cfg.trainer, "named_loss_warmup_steps", 0))
+        if name != "action" and warmup_steps > 0:
+            if optimizer_step is None:
+                raise ValueError(
+                    "optimizer_step is required when named_loss_warmup_steps > 0"
+                )
+            warmup_scale = min(1.0, max(0.0, (int(optimizer_step) + 1) / warmup_steps))
+        weighted[name] = loss * float(weights[name]) * warmup_scale
+        total = weighted[name] if total is None else total + weighted[name]
+    return total, weighted
+
+
 def resize_images(images, target_size=(224, 224)):
     """
     recursively resize all images in the nested list.

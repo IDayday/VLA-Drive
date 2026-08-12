@@ -6,9 +6,11 @@ from typing import Callable, Iterable, List, Optional, Sequence
 from torch.utils.data import Dataset
 import pickle
 import json
+import hashlib
 import os
 from PIL import Image
 import torch
+from omegaconf import OmegaConf
 
 from starVLA.cache.navsim_feature_cache import (
     NavsimFeatureCacheReader,
@@ -239,7 +241,20 @@ class NavSimDataset(Dataset):
                 f"loading NAVSIM feature cache {cache_root} "
                 f"components={','.join(cache_components)} strict={int(cache_strict)}"
             )
-        agent_dino_cache_root = os.environ.get("NAVSIM_AGENT_DINO_CACHE_ROOT", "").strip()
+        action_prompt_mode = str(
+            OmegaConf.select(all_cfg, "framework.action_prompt_mode", default="full")
+            if all_cfg is not None
+            else "full"
+        ).strip().lower()
+        agent_dino_enabled = action_prompt_mode == "minimal_agent"
+        # Keep optional cache dependencies capability-scoped. A developer may
+        # configure agent-DINO for another branch in env.local.sh; action-only
+        # VGGT and baseline runs must not validate or open that cache.
+        agent_dino_cache_root = (
+            os.environ.get("NAVSIM_AGENT_DINO_CACHE_ROOT", "").strip()
+            if agent_dino_enabled
+            else ""
+        )
         agent_dino_cache_strict = os.environ.get("NAVSIM_AGENT_DINO_CACHE_STRICT", "1") == "1"
         self.agent_dino_cache = (
             NavsimFeatureCacheReader(
@@ -253,6 +268,84 @@ class NavSimDataset(Dataset):
         if self.agent_dino_cache is not None:
             print(
                 f"loading NAVSIM agent dino cache {agent_dino_cache_root} strict={int(agent_dino_cache_strict)}"
+            )
+        vggt_cache_enabled = bool(
+            OmegaConf.select(all_cfg, "framework.vggt.cache.enabled", default=False)
+        ) if all_cfg is not None else False
+        configured_vggt_root = (
+            OmegaConf.select(all_cfg, "framework.vggt.cache.root", default="")
+            if all_cfg is not None
+            else ""
+        )
+        vggt_cache_root = str(
+            configured_vggt_root or os.environ.get("NAVSIM_VGGT_CACHE_ROOT", "")
+        ).strip()
+        vggt_cache_strict = bool(
+            OmegaConf.select(all_cfg, "framework.vggt.cache.strict", default=True)
+        ) if all_cfg is not None else True
+        if vggt_cache_enabled and not vggt_cache_root:
+            raise ValueError(
+                "VGGT query cache is enabled but no path was configured. Set "
+                "framework.vggt.cache.root or NAVSIM_VGGT_CACHE_ROOT."
+            )
+        self.vggt_query_cache = (
+            NavsimFeatureCacheReader(
+                cache_root=vggt_cache_root,
+                components=("vggt_query",),
+                strict=vggt_cache_strict,
+            )
+            if vggt_cache_enabled
+            else None
+        )
+        if self.vggt_query_cache is not None:
+            manifest = self.vggt_query_cache.manifests["vggt_query"]
+            with open(datalist_path, "rb") as datalist_stream:
+                datalist_sha256 = hashlib.sha256(datalist_stream.read()).hexdigest()
+            if manifest.get("datalist_sha256") != datalist_sha256:
+                raise RuntimeError(
+                    "VGGT cache datalist hash does not match the selected training datalist"
+                )
+            if int(manifest.get("sample_count", -1)) != len(self.raw_list):
+                raise RuntimeError("VGGT cache sample count does not match the dataset")
+            if manifest.get("view_order") != ["cam_f0", "cam_l0", "cam_r0"]:
+                raise RuntimeError(
+                    f"VGGT cache view order mismatch: {manifest.get('view_order')}"
+                )
+            expected_query_count = int(
+                OmegaConf.select(
+                    all_cfg,
+                    "framework.vggt.expected_memory_query_count",
+                    default=195,
+                )
+            )
+            expected_feature_dim = int(
+                OmegaConf.select(all_cfg, "framework.vggt.layout.teacher_dim", default=1024)
+            )
+            if int(manifest.get("query_count", -1)) != expected_query_count:
+                raise RuntimeError("VGGT cache query count does not match framework config")
+            if int(manifest.get("feature_dim", -1)) != expected_feature_dim:
+                raise RuntimeError("VGGT cache feature dim does not match framework config")
+            expected_teacher_layer = int(
+                OmegaConf.select(
+                    all_cfg,
+                    "framework.vggt.teacher.layer_index",
+                    default=11,
+                )
+            )
+            expected_teacher_branch = str(
+                OmegaConf.select(
+                    all_cfg,
+                    "framework.vggt.teacher.attention_branch",
+                    default="global",
+                )
+            )
+            if int(manifest.get("teacher_layer_index", -1)) != expected_teacher_layer:
+                raise RuntimeError("VGGT cache teacher layer does not match framework config")
+            if manifest.get("teacher_attention_branch") != expected_teacher_branch:
+                raise RuntimeError("VGGT cache teacher branch does not match framework config")
+            print(
+                f"loading NAVSIM VGGT query cache {vggt_cache_root} "
+                f"strict={int(vggt_cache_strict)}"
             )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
@@ -448,6 +541,18 @@ class NavSimDataset(Dataset):
             payload = self.agent_dino_cache.get("agent_dino", idx, raw)
             if payload is not None:
                 cached_features["agent_dino"] = payload
+        if self.vggt_query_cache is not None:
+            payload = self.vggt_query_cache.get("vggt_query", idx, raw)
+            if payload is not None:
+                payload = dict(payload)
+                active_mask = self.vggt_query_cache.manifests["vggt_query"].get(
+                    "active_slot_mask"
+                )
+                if active_mask is not None:
+                    payload["active_slot_mask"] = torch.as_tensor(
+                        active_mask, dtype=torch.bool
+                    )
+                cached_features["vggt_query"] = payload
 
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')
@@ -704,6 +809,8 @@ class NavSimDataset(Dataset):
             sample['qwen_feature_cache'] = cached_features["qwen"]
         if "agent_dino" in cached_features:
             sample['agent_dino_feature_cache'] = cached_features["agent_dino"]
+        if "vggt_query" in cached_features:
+            sample['vggt_query_feature_cache'] = cached_features["vggt_query"]
 
         # if self.video_data_cfg.load_2d_data:
         #     sample['2d_gen_data'] = {}

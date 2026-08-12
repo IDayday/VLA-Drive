@@ -1,0 +1,64 @@
+# Full VGGT V2 overlay. Merge on top of cfg_yaw_1225.yaml.
+framework:
+  name: QwenOFT_VGGT
+  action_prompt_mode: minimal
+  vggt:
+    enabled: true
+    # Only 15 global tokens enter Qwen's language sequence. The runtime/cache
+    # memory is 15 global + 3*6*10 spatial = 195 slots.
+    expected_global_query_count: 15
+    expected_memory_query_count: 195
+    teacher:
+      layer_index: 11
+      attention_branch: global
+    supervision_enabled: true
+    access_enabled: true
+    cache:
+      enabled: true
+      root: ""  # NAVSIM_VGGT_CACHE_ROOT supplies the machine-local path.
+      strict: true
+    layout:
+      view_count: 3
+      special_per_view: 5
+      spatial_rows: 6
+      spatial_cols: 10
+      teacher_dim: 1024
+    geometry_adapter:
+      expansion: 2
+    alignment:
+      mode: raw
+      scene_residual_enabled: false
+      log_scene_residual_metrics: true
+      cosine_weight: 1.0
+      smooth_l1_weight: 0.1
+      relational_weight: 0.0
+    planner_reader:
+      num_heads: 16
+      output_query_count: 8
+    geometry_probe:
+      hidden_dim: 512
+    aux_plan_head:
+      hidden_dim: 512
+    diagnostics:
+      intervention_interval: 500
+      intervention_seed: 20260811
+      intervention_trajectory: true
+
+trainer:
+  save_interval: 5000
+  logging_frequency: 50
+  # Auxiliary objectives ramp from zero over the first 1k optimizer steps.
+  named_loss_warmup_steps: 1000
+  loss_weights:
+    action: 1.0
+    vggt_global_alignment: 0.05
+    vggt_spatial_alignment: 0.10
+    vggt_scene_relation: 0.05
+    vggt_geometry: 0.10
+    vggt_aux_plan: 0.05
+  learning_rate:
+    vggt_geometry_adapter: 3.0e-05
+    vggt_aligner: 3.0e-05
+    vggt_waypoint_reader: 3.0e-05
+    vggt_geometry_probe: 3.0e-05
+    vggt_aux_plan_head: 3.0e-05

@@ -23,6 +23,30 @@ from starVLA.model.modules.action_model.flow_matching_head.cross_attention_dit i
 
 # TODO try to meger DiT Modules with follow_match_head, they are just the same arch, but diff loss, use diffusers package will be simple
 
+
+def merge_action_context(
+    vl_embs: torch.Tensor,
+    extra_context: torch.Tensor | None,
+) -> torch.Tensor:
+    """Append optional planner context to VLM queries.
+
+    Args:
+        vl_embs: Action-query features ``[B, A, H]``.
+        extra_context: Optional context features ``[B, Q, H]``.
+
+    Returning ``vl_embs`` itself for ``None`` preserves the baseline path
+    exactly, including storage identity and numerical behavior.
+    """
+
+    assert vl_embs.ndim == 3, "vl_embs must be [B,A,H]"
+    if extra_context is None:
+        return vl_embs
+    assert extra_context.ndim == 3, "extra_context must be [B,Q,H]"
+    assert extra_context.shape[0] == vl_embs.shape[0], "action context batch mismatch"
+    assert extra_context.shape[2] == vl_embs.shape[2], "action context hidden dim mismatch"
+    assert extra_context.device == vl_embs.device, "action context device mismatch"
+    return torch.cat((vl_embs, extra_context.to(dtype=vl_embs.dtype)), dim=1)
+
 class CategorySpecificLinear(nn.Module):
     def __init__(self, num_categories, input_dim, hidden_dim):
         super().__init__()
@@ -273,7 +297,14 @@ class FlowmatchingActionHead(nn.Module):
         return BatchFeature(data=batch)
 
 
-    def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None):
+    def forward(
+        self,
+        vl_embs: torch.Tensor,
+        actions: torch.Tensor,
+        video_token=None,
+        state: torch.Tensor = None,
+        extra_context: torch.Tensor | None = None,
+    ):
         """
         vl_embs: shape (B, seq_length, feature_dim)
         actions: shape (B, future_action_window_size, D_action)
@@ -297,7 +328,7 @@ class FlowmatchingActionHead(nn.Module):
         state_features = self.state_encoder(state) if state is not None else None
 
 
-        vl_embs = self.qwen_proj(vl_embs)
+        vl_embs = self.qwen_proj(merge_action_context(vl_embs, extra_context))
 
         if video_token is not None:
             vl_embs = torch.cat((vl_embs, video_token), dim =1)
@@ -332,7 +363,12 @@ class FlowmatchingActionHead(nn.Module):
         return loss
 
     @torch.no_grad()
-    def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None) -> torch.Tensor:
+    def predict_action(
+        self,
+        vl_embs: torch.Tensor,
+        state: torch.Tensor = None,
+        extra_context: torch.Tensor | None = None,
+    ) -> torch.Tensor:
         # Set initial actions as the sampled noise.
         batch_size = vl_embs.shape[0]
         device = vl_embs.device
@@ -347,7 +383,7 @@ class FlowmatchingActionHead(nn.Module):
         
         state_features = self.state_encoder(state) if state is not None else None
 
-        vl_embs = self.qwen_proj(vl_embs)
+        vl_embs = self.qwen_proj(merge_action_context(vl_embs, extra_context))
 
         # Run denoising steps.
         for t in range(num_steps):

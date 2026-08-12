@@ -1,0 +1,23 @@
+# V2 causal control: identical student/planner capacity, but no offline VGGT
+# teacher is loaded or supervised. The 195-slot memory and 8-waypoint reader
+# can still learn from action and auxiliary trajectory losses.
+framework:
+  vggt:
+    supervision_enabled: false
+    access_enabled: true
+    cache:
+      enabled: false
+    alignment:
+      log_scene_residual_metrics: false
+    diagnostics:
+      # slot_mean requires teacher cache statistics. Full real/zero/shuffled
+      # inference interventions should be run on saved checkpoints instead.
+      intervention_interval: 0
+
+trainer:
+  loss_weights:
+    vggt_global_alignment: 0.0
+    vggt_spatial_alignment: 0.0
+    vggt_scene_relation: 0.0
+    vggt_geometry: 0.0
+    vggt_aux_plan: 0.05

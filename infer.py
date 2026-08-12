@@ -216,11 +216,18 @@ class VLAAgent:
             raise FileNotFoundError(f"config.yaml not found: {cfg_path}")
         self.model_config = OmegaConf.load(cfg_path)
 
-        # Override base_vlm with the local path set in env.sh (BASE_VLM).
+        # Override base_vlm with the capability-specific local path. A VGGT
+        # query checkpoint must not accidentally use the baseline vocabulary.
         # The saved config.yaml may contain a hardcoded path from the training machine.
-        if os.environ.get("BASE_VLM"):
+        framework_name = str(
+            OmegaConf.select(self.model_config, "framework.name", default="QwenOFT")
+        )
+        base_vlm_environment = (
+            "VGGT_BASE_VLM" if framework_name == "QwenOFT_VGGT" else "BASE_VLM"
+        )
+        if os.environ.get(base_vlm_environment):
             OmegaConf.update(self.model_config, "framework.qwenvl.base_vlm",
-                             os.environ["BASE_VLM"], force_add=True)
+                             os.environ[base_vlm_environment], force_add=True)
         # The PPU-adapted PyTorch build provides native SDPA.  The released
         # config records the authors' NVIDIA flash-attention setting, which is
         # not installed or needed in this environment.
@@ -234,6 +241,23 @@ class VLAAgent:
         # Disable optional data loading heads during inference
         OmegaConf.update(self.model_config, "datasets.reward_data", {"load_reward_data": False}, force_add=True)
         OmegaConf.update(self.model_config, "datasets.vla_data",    {"w_neg_traj": None},         force_add=True)
+        # VGGT is a training-only teacher. Inference consumes student queries
+        # and must not require the train-split teacher cache.
+        OmegaConf.update(
+            self.model_config,
+            "framework.vggt.cache.enabled",
+            False,
+            force_add=True,
+        )
+        # Residual diagnostics consume train-cache slot statistics only for
+        # logging/interventions.  They are not part of the planning forward
+        # path, so inference must not depend on the training-machine cache.
+        OmegaConf.update(
+            self.model_config,
+            "framework.vggt.alignment.log_scene_residual_metrics",
+            False,
+            force_add=True,
+        )
 
         # ── Resolve weight path ────────────────────────────────────────────
         if ckpt_dir.endswith(".pt"):
@@ -320,6 +344,31 @@ class VLAAgent:
         if "s2" in self.model_path:
             print("[Agent] Loading s2 model")
             self.model = Qwenvl_OFT_s2(self.model_config)
+        elif framework_name == "QwenOFT_VGGT":
+            legacy_query_count = OmegaConf.select(
+                self.model_config,
+                "framework.vggt.expected_query_count",
+                default=None,
+            )
+            if legacy_query_count is not None:
+                from starVLA.model.framework.QwenOFT_VGGT_V1_Inference import (
+                    Qwenvl_OFT_VGGT_V1_Inference,
+                )
+
+                print(
+                    "[Agent] VGGT route: legacy V1 "
+                    f"({int(legacy_query_count)} text queries)"
+                )
+                self.model = Qwenvl_OFT_VGGT_V1_Inference(
+                    self.model_config, infer_not_load_wan=1
+                )
+            else:
+                from starVLA.model.framework.QwenOFT_VGGT import Qwenvl_OFT_VGGT
+
+                print("[Agent] VGGT route: V2 geometry memory")
+                self.model = Qwenvl_OFT_VGGT(
+                    self.model_config, infer_not_load_wan=1
+                )
         else:
             self.model = Qwenvl_OFT(self.model_config, infer_not_load_wan=1)
         self.model._inference_qwen_forward_mode = self.qwen_forward_mode

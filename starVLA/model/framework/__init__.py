@@ -45,6 +45,9 @@ def build_framework(cfg, accelerator=None):
     if cfg.framework.name == "QwenOFT":
         from starVLA.model.framework.QwenOFT import Qwenvl_OFT
         return Qwenvl_OFT(cfg, accelerator)
+    elif cfg.framework.name == "QwenOFT_VGGT":
+        from starVLA.model.framework.QwenOFT_VGGT import Qwenvl_OFT_VGGT
+        return Qwenvl_OFT_VGGT(cfg, accelerator)
     elif cfg.framework.name == "QwenFast":
         from starVLA.model.framework.QwenFast import Qwenvl_Fast
         return Qwenvl_Fast(cfg)

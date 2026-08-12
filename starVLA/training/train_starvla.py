@@ -45,6 +45,8 @@ from transformers import AutoProcessor, get_scheduler
 
 # Local Modules
 from starVLA.training.trainer_utils.trainer_tools import normalize_dotlist_args
+from starVLA.training.trainer_utils.trainer_tools import aggregate_output_losses
+from starVLA.path_config import apply_environment_path_overrides
 from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
@@ -374,6 +376,23 @@ class VLATrainer(TrainerUtils):
 
                 # record to W&B
                 wandb.log(metrics, step=self.completed_steps)
+                if str(getattr(self.config.framework, "name", "")) == "QwenOFT_VGGT":
+                    diagnostic_record = {
+                        "step": self.completed_steps,
+                        **{
+                            key: value
+                            for key, value in metrics.items()
+                            if key.startswith("vggt/")
+                            or key.startswith("weighted_loss/")
+                            or key == "action_dit_loss"
+                        },
+                    }
+                    with open(
+                        os.path.join(self.config.output_dir, "vggt_diagnostics.jsonl"),
+                        "a",
+                        encoding="utf-8",
+                    ) as diagnostic_stream:
+                        diagnostic_stream.write(json.dumps(diagnostic_record) + "\n")
                 # debug output
                 logger.info(f"Step {self.completed_steps}, Loss: {metrics})")
 
@@ -395,6 +414,101 @@ class VLATrainer(TrainerUtils):
             batch_vla = next(self.vla_iter)
 
         return batch_vla
+
+    def _run_vggt_intervention_diagnostics(self, batch_vla):
+        """Compare real/zero/shuffled/template memory with identical RNG."""
+
+        interval = int(
+            OmegaConf.select(
+                self.config,
+                "framework.vggt.diagnostics.intervention_interval",
+                default=0,
+            )
+        )
+        if interval <= 0 or (self.completed_steps + 1) % interval != 0:
+            return {}
+        raw_model = self.accelerator.unwrap_model(self.model)
+        if not hasattr(raw_model, "set_vggt_intervention"):
+            return {}
+        modes = ("real", "zero", "shuffled", "slot_mean")
+        losses = {}
+        predictions = {}
+        collect_trajectory = bool(
+            OmegaConf.select(
+                self.config,
+                "framework.vggt.diagnostics.intervention_trajectory",
+                default=True,
+            )
+        )
+        diagnostic_seed = int(
+            OmegaConf.select(
+                self.config,
+                "framework.vggt.diagnostics.intervention_seed",
+                default=20260811,
+            )
+        ) + self.completed_steps
+        rng_devices = [torch.cuda.current_device()] if torch.cuda.is_available() else []
+        try:
+            for mode in modes:
+                raw_model.set_vggt_intervention(mode)
+                with torch.random.fork_rng(devices=rng_devices):
+                    torch.manual_seed(diagnostic_seed)
+                    if torch.cuda.is_available():
+                        torch.cuda.manual_seed_all(diagnostic_seed)
+                    with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
+                        diagnostic_output = self.model.forward(batch_vla)
+                losses[mode] = diagnostic_output["action_loss"].detach()
+                if collect_trajectory:
+                    with torch.random.fork_rng(devices=rng_devices):
+                        torch.manual_seed(diagnostic_seed)
+                        if torch.cuda.is_available():
+                            torch.cuda.manual_seed_all(diagnostic_seed)
+                        with torch.no_grad():
+                            prediction_output = raw_model.predict_action(batch_vla)
+                    predictions[mode] = torch.as_tensor(
+                        prediction_output["normalized_actions"], dtype=torch.float32
+                    )
+        finally:
+            raw_model.set_vggt_intervention("real")
+        real = losses["real"]
+        metrics = {
+            f"intervention_flow_loss_{mode}": value for mode, value in losses.items()
+        }
+        metrics.update(
+            {
+                f"intervention_{mode}_minus_real": value - real
+                for mode, value in losses.items()
+                if mode != "real"
+            }
+        )
+        if predictions:
+            real_prediction = predictions["real"]
+            target = torch.as_tensor(
+                np.asarray([example["action"] for example in batch_vla]),
+                dtype=torch.float32,
+            )
+            assert target.shape == real_prediction.shape
+            for mode, prediction in predictions.items():
+                xy_error = (prediction[..., :2] - target[..., :2]).norm(dim=-1)
+                heading_cosine = torch.nn.functional.cosine_similarity(
+                    prediction[..., 2:4], target[..., 2:4], dim=-1
+                )
+                metrics[f"intervention_{mode}_ade"] = xy_error.mean()
+                metrics[f"intervention_{mode}_fde"] = xy_error[:, -1].mean()
+                metrics[f"intervention_{mode}_heading_error"] = (
+                    1.0 - heading_cosine
+                ).mean()
+                if mode != "real":
+                    trajectory_change = (
+                        prediction[..., :2] - real_prediction[..., :2]
+                    ).norm(dim=-1)
+                    metrics[f"intervention_{mode}_trajectory_l2"] = (
+                        trajectory_change.mean()
+                    )
+                    metrics[f"intervention_{mode}_final_trajectory_l2"] = (
+                        trajectory_change[:, -1].mean()
+                    )
+        return metrics
 
     def train(self):
         """execute training loop"""
@@ -597,21 +711,34 @@ class VLATrainer(TrainerUtils):
                     reward_loss = output_dict['reward_loss']
                 agent_dino_loss = output_dict.get('agent_dino_loss', torch.tensor(0.0, device=action_loss.device))
 
-                total_loss = 0
-                if self.config.datasets.video_data.load_2d_data == 1:
-                    total_loss += rgb_loss
-                if self.config.datasets.gs_data.load_3d_data == 1 or self.config.w_depth:
-                    total_loss += gs_loss
-                if self.config.datasets.reward_data.load_reward_data == 1:
-                    total_loss += reward_loss
-                if self.config.datasets.vla_data.load_act_data == 1:
-                    total_loss += action_loss
-                if getattr(self.config.framework, "action_prompt_mode", "full") == "minimal_agent":
-                    total_loss += agent_dino_loss
+                if "losses" in output_dict:
+                    total_loss, weighted_named_losses = aggregate_output_losses(
+                        output_dict,
+                        self.config,
+                        optimizer_step=self.completed_steps,
+                    )
+                else:
+                    weighted_named_losses = {}
+                    total_loss = 0
+                    if self.config.datasets.video_data.load_2d_data == 1:
+                        total_loss += rgb_loss
+                    if self.config.datasets.gs_data.load_3d_data == 1 or self.config.w_depth:
+                        total_loss += gs_loss
+                    if self.config.datasets.reward_data.load_reward_data == 1:
+                        total_loss += reward_loss
+                    if self.config.datasets.vla_data.load_act_data == 1:
+                        total_loss += action_loss
+                    if getattr(self.config.framework, "action_prompt_mode", "full") == "minimal_agent":
+                        total_loss += agent_dino_loss
 
 
             # VLA backward propagation
             self.accelerator.backward(total_loss)
+            raw_model = self.accelerator.unwrap_model(self.model)
+            if hasattr(raw_model, "get_planning_usage_metrics"):
+                output_dict.setdefault("backward_metrics", {}).update(
+                    raw_model.get_planning_usage_metrics()
+                )
             # for debug
             # self._report_unused_after_backward()
 
@@ -624,14 +751,26 @@ class VLATrainer(TrainerUtils):
                 self.optimizer.step()
                 self.lr_scheduler.step()
                 self.optimizer.zero_grad()
+                output_dict.setdefault("metrics", {}).update(
+                    self._run_vggt_intervention_diagnostics(batch_vla)
+                )
 
-        return {
+        step_metrics = {
             "action_dit_loss": action_loss.detach(),
             "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.detach(),
             "gs_loss": 0 if self.config.datasets.gs_data.load_3d_data == 0 and self.config.w_depth==0 else gs_loss.detach(),
             "reward_loss": 0 if self.config.datasets.reward_data.load_reward_data == 0 else reward_loss.detach(),
             "agent_dino_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_dino_loss.detach()
         }
+        for name, value in output_dict.get("metrics", {}).items():
+            if torch.is_tensor(value) and value.numel() == 1:
+                step_metrics[f"vggt/{name}"] = value.detach()
+        for name, value in output_dict.get("backward_metrics", {}).items():
+            if torch.is_tensor(value) and value.numel() == 1:
+                step_metrics[name] = value.detach()
+        for name, value in weighted_named_losses.items():
+            step_metrics[f"weighted_loss/{name}"] = value.detach()
+        return step_metrics
 
     def _finalize_training(self):
         """training end processing"""
@@ -735,10 +874,19 @@ def main(cfg) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_yaml", type=str, default="starVLA/config/training/starvla_cotrain_oxe.yaml", help="Path to YAML config")
+    parser.add_argument(
+        "--config_overlay",
+        action="append",
+        default=[],
+        help="Optional YAML overlay; may be repeated. CLI values still have highest precedence.",
+    )
     args, clipargs = parser.parse_known_args()
 
     # Load YAML config & Convert CLI overrides to dotlist config
     cfg = OmegaConf.load(args.config_yaml)
+    for overlay_path in args.config_overlay:
+        cfg = OmegaConf.merge(cfg, OmegaConf.load(overlay_path))
+    apply_environment_path_overrides(cfg)
     dotlist = normalize_dotlist_args(clipargs)  # Normalize CLI args to dotlist format
     cli_cfg = OmegaConf.from_dotlist(dotlist)
     cfg = OmegaConf.merge(cfg, cli_cfg)

@@ -139,6 +139,7 @@ class Qwenvl_OFT(baseframework):
         """
         super().__init__()
         self.config = config
+        self._use_named_loss_contract = False
         self.qwen_vl_interface = get_vlm_model(config=self.config)
 
         # 历史轨迹 token（单个 repeated K 次）
@@ -383,6 +384,9 @@ class Qwenvl_OFT(baseframework):
                 {name: torch.stack(values) for name, values in positions.items()},
                 image_embeds.to(device, non_blocking=True),
                 [value.to(device, non_blocking=True) for value in deepstack_embeds],
+                torch.stack(
+                    [payload["image_grid_thw"] for payload in cached], dim=0
+                ).to(device=device, dtype=torch.long, non_blocking=True),
             )
 
         batch_images = [example["image"] for example in examples]
@@ -415,6 +419,9 @@ class Qwenvl_OFT(baseframework):
             positions,
             image_embeds,
             deepstack_embeds,
+            qwen_inputs["image_grid_thw"].reshape(
+                len(examples), len(examples[0]["image"]), 3
+            ),
         )
 
     def _qwen_language_forward(
@@ -448,6 +455,53 @@ class Qwenvl_OFT(baseframework):
         )
         return outputs.last_hidden_state
 
+    def _compute_query_extension(
+        self,
+        last_hidden,
+        token_positions,
+        examples,
+        *,
+        input_ids=None,
+        image_grid_thw=None,
+    ):
+        """Extension hook; the legacy framework has no auxiliary query source."""
+        return {
+            "action_context": None,
+            "context_mask": None,
+            "losses": {},
+            "metrics": {},
+        }
+
+    def _condition_action_queries(self, action_queries, extension):
+        """Extension hook returning action queries, context and diagnostics."""
+        return action_queries, extension.get("action_context"), {}
+
+    def _condition_inference_action_queries(
+        self,
+        last_hidden,
+        input_ids,
+        action_queries,
+        *,
+        image_grid_thw=None,
+    ):
+        """Inference extension hook; ``None`` context is exact baseline behavior."""
+        return action_queries, None, {}
+
+    def _attach_framework_outputs(self, result, action_loss, extension, planner_metrics):
+        """Attach opt-in named losses/metrics without changing legacy outputs."""
+        if not self._use_named_loss_contract:
+            return result
+        result["losses"] = {"action": action_loss, **extension.get("losses", {})}
+        result["metrics"] = {
+            **extension.get("metrics", {}),
+            **{
+                name: value
+                for name, value in planner_metrics.items()
+                if torch.is_tensor(value) and value.numel() == 1
+            },
+        }
+        return result
+
     def forward(
         self,
         examples: List[dict] = None,
@@ -478,6 +532,7 @@ class Qwenvl_OFT(baseframework):
             token_positions,
             image_embeds,
             deepstack_embeds,
+            image_grid_thw,
         ) = self._build_qwen_batch(examples, instructions)
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -527,6 +582,15 @@ class Qwenvl_OFT(baseframework):
                 image_embeds=image_embeds,
                 deepstack_embeds=deepstack_embeds,
             )
+
+        query_extension = self._compute_query_extension(
+            last_hidden,
+            token_positions,
+            examples,
+            input_ids=input_ids,
+            image_grid_thw=image_grid_thw,
+        )
+        planner_metrics = {}
 
         agent_dino_loss = torch.tensor(0.).to(text_embeds.device)
         if self.action_prompt_mode == "minimal_agent":
@@ -592,6 +656,9 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.vla_data.load_act_data == 1:
             g_idx = token_positions["action"].unsqueeze(-1).expand(-1, -1, H)
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
+            action_queries, action_context, planner_metrics = self._condition_action_queries(
+                action_queries, query_extension
+            )
 
             with torch.autocast("cuda", dtype=torch.float32):
                 if type(actions) == list:
@@ -605,6 +672,11 @@ class Qwenvl_OFT(baseframework):
                 repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
                 # 对每层特征做 repeat
                 repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
+                repeat_action_context = (
+                    action_context.repeat(repeated_diffusion_steps, 1, 1)
+                    if action_context is not None
+                    else None
+                )
 
                 if self.w_video_latent:
                     video_token = self.rgb_latent_adapter(video_latent)
@@ -613,7 +685,12 @@ class Qwenvl_OFT(baseframework):
                     video_token = None
 
                 if self.mlp_head == 0:
-                    action_loss = self.action_model(repeat_action_queries, repeat_actions, video_token)  # (B, chunk_len, action_dim)
+                    action_loss = self.action_model(
+                        repeat_action_queries,
+                        repeat_actions,
+                        video_token,
+                        extra_context=repeat_action_context,
+                    )  # scalar flow-matching loss
                 else:
                     b, l, h = action_queries.shape
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
@@ -696,11 +773,17 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
+            result = {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
+            return self._attach_framework_outputs(
+                result, action_loss, query_extension, planner_metrics
+            )
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
+        result = {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
+        return self._attach_framework_outputs(
+            result, action_loss, query_extension, planner_metrics
+        )
 
     @torch.inference_mode()
     def predict_action(
@@ -897,13 +980,21 @@ class Qwenvl_OFT(baseframework):
             act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
             g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
+            action_queries, action_context, _ = self._condition_inference_action_queries(
+                last_hidden,
+                input_ids,
+                action_queries,
+                image_grid_thw=qwen_inputs["image_grid_thw"],
+            )
 
             with torch.autocast("cuda", dtype=torch.float32):
                 # 提取动作 token embedding 作为动作预测查询
                 # input_ids = qwen_inputs.get("input_ids", None)
                 # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
                 if self.mlp_head == 0:
-                    pred_actions = self.action_model.predict_action(action_queries)  # (B, chunk_len, action_dim)
+                    pred_actions = self.action_model.predict_action(
+                        action_queries, extra_context=action_context
+                    )  # (B, chunk_len, action_dim)
                 else:
                     pred_actions = self.action_model(action_queries)
 
@@ -1208,13 +1299,21 @@ class Qwenvl_OFT(baseframework):
         act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
         g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
         action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
+        action_queries, action_context, _ = self._condition_inference_action_queries(
+            last_hidden,
+            input_ids,
+            action_queries,
+            image_grid_thw=qwen_inputs["image_grid_thw"],
+        )
 
         with torch.autocast("cuda", dtype=torch.float32):
             # 提取动作 token embedding 作为动作预测查询
             # input_ids = qwen_inputs.get("input_ids", None)
             # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
             if self.mlp_head == 0:
-                pred_actions = self.action_model.predict_action(action_queries)  # (B, chunk_len, action_dim)
+                pred_actions = self.action_model.predict_action(
+                    action_queries, extra_context=action_context
+                )  # (B, chunk_len, action_dim)
             else:
                 pred_actions = self.action_model(action_queries)
 

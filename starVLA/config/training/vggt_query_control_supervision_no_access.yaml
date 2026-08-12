@@ -1,0 +1,19 @@
+# V2 causal control: learn the layer-11 VGGT representation and physical
+# geometry probe, while preventing all geometry memory/readout from reaching
+# the ActionHead. This isolates representation supervision from planner access.
+framework:
+  vggt:
+    supervision_enabled: true
+    access_enabled: false
+    cache:
+      enabled: true
+    diagnostics:
+      # Access is structurally disabled, so repeated planning interventions
+      # would be identical and only add compute.
+      intervention_interval: 0
+
+trainer:
+  loss_weights:
+    # The auxiliary plan head reads the disabled waypoint path and is therefore
+    # intentionally absent from forward in this control.
+    vggt_aux_plan: 0.0

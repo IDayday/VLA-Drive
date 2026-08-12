@@ -1,0 +1,12 @@
+# CPU-contract/single-node smoke settings layered after vggt_query_main.yaml.
+is_debug: true
+datasets:
+  vla_data:
+    per_device_batch_size: 1
+trainer:
+  max_train_steps: 20
+  save_interval: 20
+  eval_interval: 1000
+  num_warmup_steps: 2
+  logging_frequency: 1
+  gradient_accumulation_steps: 1
