@@ -29,6 +29,11 @@ framework:
     base_vlm: /path/to/Qwen3-VL-2B-WorldAction
     attn_implementation: flash_attention_2
     vl_hidden_dim: 2048
+    # Preserve the released baseline: image features are computed without a
+    # gradient graph unless an experiment explicitly opts into visual tuning.
+    freeze_visual: true
+    visual_gradient_checkpointing: false
+    visual_action_only_experiment: false
   dino:
     dino_backbone: dinov2_vits14
 

@@ -241,6 +241,20 @@ class VLAAgent:
         # Disable optional data loading heads during inference
         OmegaConf.update(self.model_config, "datasets.reward_data", {"load_reward_data": False}, force_add=True)
         OmegaConf.update(self.model_config, "datasets.vla_data",    {"w_neg_traj": None},         force_add=True)
+        # Fine-tuned visual weights are still loaded, but inference never needs
+        # autograd or activation checkpointing.
+        OmegaConf.update(
+            self.model_config,
+            "framework.qwenvl.freeze_visual",
+            True,
+            force_add=True,
+        )
+        OmegaConf.update(
+            self.model_config,
+            "framework.qwenvl.visual_gradient_checkpointing",
+            False,
+            force_add=True,
+        )
         # VGGT is a training-only teacher. Inference consumes student queries
         # and must not require the train-split teacher cache.
         OmegaConf.update(

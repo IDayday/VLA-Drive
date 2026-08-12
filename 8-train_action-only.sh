@@ -64,6 +64,15 @@ training_extra_args=()
 if [ -n "${TRAINING_LOGGING_FREQUENCY:-}" ]; then
   training_extra_args+=(--trainer.logging_frequency "${TRAINING_LOGGING_FREQUENCY}")
 fi
+if [ -n "${NUM_WARMUP_STEPS:-}" ]; then
+  training_extra_args+=(--trainer.num_warmup_steps "${NUM_WARMUP_STEPS}")
+fi
+if [ -n "${SAVE_INTERVAL:-}" ]; then
+  training_extra_args+=(--trainer.save_interval "${SAVE_INTERVAL}")
+fi
+if [ -n "${ACTION_ONLY_FREEZE_MODULES:-}" ]; then
+  training_extra_args+=(--trainer.freeze_modules "${ACTION_ONLY_FREEZE_MODULES}")
+fi
 if (( num_machines > 1 )); then
   launch_args+=(
     --main_process_ip "${main_process_ip}"

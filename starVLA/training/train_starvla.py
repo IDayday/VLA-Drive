@@ -50,6 +50,7 @@ from starVLA.path_config import apply_environment_path_overrides
 from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
+from starVLA.training.trainer_utils.trainer_tools import collect_learning_rate_metrics
 
 # Sane Defaults
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -332,8 +333,10 @@ class VLATrainer(TrainerUtils):
                     )
                     for key, value in metrics.items()
                 }
-                # add learning rate
-                metrics["learning_rate"] = self.lr_scheduler.get_last_lr()[0]
+                # Keep the legacy scalar and expose each optimizer group. This
+                # is required when Qwen visual uses a lower LR than language
+                # and Action DiT parameters.
+                metrics.update(collect_learning_rate_metrics(self.lr_scheduler))
 
                 # add epoch info
                 metrics["epoch"] = round(self.completed_steps / len(self.vla_train_dataloader), 2)
@@ -629,7 +632,7 @@ class VLATrainer(TrainerUtils):
             instructions = [example["lang"] for example in examples]  # [B, str]
             try:
                 actions = [example["action"] for example in examples]  # label
-            except:
+            except KeyError:
                 actions = None
 
             # Predict actions using the model
@@ -739,6 +742,10 @@ class VLATrainer(TrainerUtils):
                 output_dict.setdefault("backward_metrics", {}).update(
                     raw_model.get_planning_usage_metrics()
                 )
+            if hasattr(raw_model, "get_backbone_training_metrics"):
+                output_dict.setdefault("backward_metrics", {}).update(
+                    raw_model.get_backbone_training_metrics()
+                )
             # for debug
             # self._report_unused_after_backward()
 
@@ -815,7 +822,13 @@ def main(cfg) -> None:
     # tree concurrently needlessly hammers shared storage at job startup.
     if accelerator.is_main_process:
         os.makedirs(code_dir, exist_ok=True)
-        for fname in ('debug.sh', '8-train.sh', 'training.sh', 'pre_cache.sh'):
+        for fname in (
+            'debug.sh',
+            '8-train.sh',
+            '8-train_action-only-qwen-visual.sh',
+            'training.sh',
+            'pre_cache.sh',
+        ):
             src = os.path.join(project_root, fname)
             if os.path.exists(src):
                 shutil.copy2(src, code_dir)
@@ -890,6 +903,18 @@ if __name__ == "__main__":
     dotlist = normalize_dotlist_args(clipargs)  # Normalize CLI args to dotlist format
     cli_cfg = OmegaConf.from_dotlist(dotlist)
     cfg = OmegaConf.merge(cfg, cli_cfg)
+    if bool(
+        OmegaConf.select(
+            cfg,
+            "framework.qwenvl.visual_action_only_experiment",
+            default=False,
+        )
+    ):
+        from starVLA.model.modules.vlm.visual_training import (
+            validate_visual_action_only_config,
+        )
+
+        validate_visual_action_only_config(cfg)
 
     # if cfg.is_debug:
     # if cfg.is_debug and dist.is_initialized() and dist.get_rank() == 0:

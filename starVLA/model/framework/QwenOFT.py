@@ -44,12 +44,13 @@ from starVLA.model.modules.vlm import get_vlm_model
 # from starVLA.model.modules.action_model.MLP_ActionHeader import get_action_model
 from starVLA.model.modules.action_model.GR00T_ActionHeader import get_action_model, FlowmatchingActionHead, MLP, FlowmatchingRewardHead, get_reward_model
 from starVLA.training.trainer_utils.trainer_tools import resize_images
-from starVLA.model.modules.video_model.wan_i2v_header import WanWorldHead
+from starVLA.model.modules.vlm.visual_training import (
+    configure_qwen_visual_backbone,
+    encode_qwen_images,
+)
 import time
 from omegaconf import OmegaConf
 
-##### depth ppd
-from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
 from starVLA.cache.navsim_feature_cache import (
     GS_QUERY_TOKENS,
     MINE_AGENT_QUERY_TOKENS,
@@ -141,6 +142,25 @@ class Qwenvl_OFT(baseframework):
         self.config = config
         self._use_named_loss_contract = False
         self.qwen_vl_interface = get_vlm_model(config=self.config)
+        self.qwen_visual_frozen = bool(
+            OmegaConf.select(
+                self.config, "framework.qwenvl.freeze_visual", default=True
+            )
+        )
+        self.qwen_visual_gradient_checkpointing = bool(
+            OmegaConf.select(
+                self.config,
+                "framework.qwenvl.visual_gradient_checkpointing",
+                default=False,
+            )
+        )
+        qwen_visual = self.qwen_vl_interface.model.model.visual
+        self.qwen_visual_trainable_parameters = configure_qwen_visual_backbone(
+            qwen_visual,
+            freeze_visual=self.qwen_visual_frozen,
+            gradient_checkpointing=self.qwen_visual_gradient_checkpointing,
+        )
+        self._last_qwen_visual_feature_grad_norm = None
 
         # 历史轨迹 token（单个 repeated K 次）
         self.robot_history_token = ROBOT_HISTORY_TOKEN
@@ -234,6 +254,14 @@ class Qwenvl_OFT(baseframework):
         ## 2d gen
         if self.config.datasets.video_data.load_2d_data:
             if not infer_not_load_wan:
+                try:
+                    from starVLA.model.modules.video_model.wan_i2v_header import (
+                        WanWorldHead,
+                    )
+                except ModuleNotFoundError as error:
+                    raise ModuleNotFoundError(
+                        "2D world-head training requires the optional Wan dependencies"
+                    ) from error
                 self.rgb_model = WanWorldHead(self.config, accelerator)
 
         if self.config.datasets.video_data.load_2d_data:
@@ -253,6 +281,14 @@ class Qwenvl_OFT(baseframework):
                 )
 
         if self.config.datasets.gs_data.load_3d_data:
+            try:
+                from starVLA.model.modules.gs_model.storm_gs_header import (
+                    StormWorldHead,
+                )
+            except ModuleNotFoundError as error:
+                raise ModuleNotFoundError(
+                    "3D GS training requires the optional GaussianSTORM dependencies"
+                ) from error
             self.gs_model = StormWorldHead(self.config, accelerator)
 
         if self.config.datasets.reward_data.load_reward_data:
@@ -269,6 +305,14 @@ class Qwenvl_OFT(baseframework):
         self.w_depth = OmegaConf.select(self.config, "w_depth", default=0)
 
         if self.w_depth:
+            try:
+                from starVLA.model.modules.depth_model.models.ppd_train import (
+                    PixelPerfectDepth,
+                )
+            except ModuleNotFoundError as error:
+                raise ModuleNotFoundError(
+                    "Depth world-head training requires the optional PPD dependencies"
+                ) from error
             depth_ppd_path = 'starVLA/model/modules/depth_model/configs/train_finetune.yaml'
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
@@ -304,6 +348,12 @@ class Qwenvl_OFT(baseframework):
             )
             self.rgb_latent_type = nn.Parameter(torch.randn(1, 1, self.config.framework.action_model.hidden_size) * 0.02)
 
+    @property
+    def qwen_visual(self) -> nn.Module:
+        """Optimizer-facing alias for the nested Qwen visual backbone."""
+
+        return self.qwen_vl_interface.model.model.visual
+
 
     @staticmethod
     def _find_token_positions(input_ids, token_ids):
@@ -329,6 +379,38 @@ class Qwenvl_OFT(baseframework):
             return f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
         return f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
 
+    def _record_qwen_visual_feature_gradient(
+        self, gradient: torch.Tensor
+    ) -> torch.Tensor:
+        """Record the action-loss gradient arriving at ``[N,C]`` image tokens."""
+
+        assert gradient.ndim == 2, "Qwen image-token gradient must be [N,C]"
+        self._last_qwen_visual_feature_grad_norm = (
+            gradient.detach().float().norm(dim=-1).mean()
+        )
+        return gradient
+
+    def get_backbone_training_metrics(self) -> dict[str, torch.Tensor]:
+        """Return low-cost evidence that the visual backbone receives gradients."""
+
+        visual = self.qwen_vl_interface.model.model.visual
+        reference = next(visual.parameters())
+        metrics = {
+            "qwen/visual_trainable": torch.tensor(
+                float(not self.qwen_visual_frozen), device=reference.device
+            ),
+            "qwen/visual_trainable_parameters": torch.tensor(
+                self.qwen_visual_trainable_parameters,
+                device=reference.device,
+                dtype=torch.int64,
+            ),
+        }
+        if self._last_qwen_visual_feature_grad_norm is not None:
+            metrics["qwen/visual_feature_grad_norm"] = (
+                self._last_qwen_visual_feature_grad_norm
+            )
+        return metrics
+
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
         cached = [example.get("qwen_feature_cache") for example in examples]
@@ -337,6 +419,11 @@ class Qwenvl_OFT(baseframework):
 
         device = self.qwen_vl_interface.model.device
         if all(payload is not None for payload in cached):
+            if not self.qwen_visual_frozen:
+                raise RuntimeError(
+                    "Qwen visual fine-tuning requires raw images; a frozen Qwen "
+                    "feature cache would block gradients"
+                )
             lengths = [int(payload["input_ids"].numel()) for payload in cached]
             max_length = max(lengths)
             batch_size = len(cached)
@@ -403,11 +490,19 @@ class Qwenvl_OFT(baseframework):
                 video_grid_thw=qwen_inputs.get("video_grid_thw", None),
                 attention_mask=attention_mask,
             )
-            image_parts, deepstack_embeds = self.qwen_vl_interface.model.model.get_image_features(
-                qwen_inputs["pixel_values"],
-                qwen_inputs["image_grid_thw"],
-            )
-            image_embeds = torch.cat(image_parts, dim=0)
+        self._last_qwen_visual_feature_grad_norm = None
+        image_embeds, deepstack_embeds = encode_qwen_images(
+            self.qwen_vl_interface.model.model,
+            pixel_values=qwen_inputs["pixel_values"],
+            image_grid_thw=qwen_inputs["image_grid_thw"],
+            freeze_visual=self.qwen_visual_frozen,
+        )
+        if (
+            not self.qwen_visual_frozen
+            and torch.is_grad_enabled()
+            and image_embeds.requires_grad
+        ):
+            image_embeds.register_hook(self._record_qwen_visual_feature_gradient)
         positions = {
             name: self._find_token_positions(input_ids, token_ids)
             for name, token_ids in self._special_token_ids.items()
@@ -512,11 +607,11 @@ class Qwenvl_OFT(baseframework):
         instructions = [example["lang"] for example in examples]  # [B, str]
         try:
             actions = [example["action"] for example in examples]  # label [B， len, 7]
-        except:
+        except KeyError:
             actions = None
         try:
             states = [example["state"] for example in examples]
-        except:
+        except KeyError:
             states = None
 
         if self.w_depth:
@@ -825,8 +920,8 @@ class Qwenvl_OFT(baseframework):
         # actions = [example["action"] for example in examples]  # label [B， len, 7]
         try:
             states = [example["state"] for example in examples]
-        except:
-            state = None
+        except KeyError:
+            states = None
 
         suffix = self._build_action_prompt_suffix()
         instructions = [instruction + suffix for instruction in instructions]

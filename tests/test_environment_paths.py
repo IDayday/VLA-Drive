@@ -60,6 +60,7 @@ ROOT_ENTRYPOINTS = (
     "7-add_vggt_tokens.sh",
     "8-train.sh",
     "8-train_action-only.sh",
+    "8-train_action-only-qwen-visual.sh",
     "8-train_agent_action.sh",
     "8-train_vggt_action.sh",
     "run_vggt_pipeline.sh",

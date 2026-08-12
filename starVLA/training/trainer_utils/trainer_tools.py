@@ -83,24 +83,35 @@ def build_param_lr_groups(model, cfg):
             print(f"⚠️ freeze module path does not exist: {freeze_path}")
             continue
 
+    # A child module may intentionally use a smaller learning rate than its
+    # parent (for example Qwen visual vs. the remaining Qwen backbone). Resolve
+    # first, then visit the smallest parameter sets first. This works for both
+    # dotted paths and explicit module properties such as ``qwen_visual``.
+    configured_modules = []
     for module_name, lr in lr_cfg.items():
         if module_name == "base":
             continue
-        # try to find the module under vla by module_name (support nested paths)
         module = model
         try:
             for attr in module_name.split("."):
                 module = getattr(module, attr)
-            # filter out frozen parameters
-            params = [
-                p for p in module.parameters()
-                if p.requires_grad and id(p) not in frozen_params
-            ]
-            if params:  # only add param group if there are trainable parameters
-                param_groups.append({"params": params, "lr": lr, "name": module_name})
-                used_params.update(id(p) for p in params)
+            module_params = list(module.parameters())
+            configured_modules.append((len(module_params), module_name, lr, module_params))
         except AttributeError:
-            ReferenceError(f"⚠️ module path `{module_name}` not found in vla")
+            print(f"⚠️ learning-rate module path does not exist: {module_name}")
+
+    configured_modules.sort(key=lambda item: (item[0], item[1]))
+    for _, module_name, lr, module_params in configured_modules:
+        params = [
+            parameter
+            for parameter in module_params
+            if parameter.requires_grad
+            and id(parameter) not in frozen_params
+            and id(parameter) not in used_params
+        ]
+        if params:
+            param_groups.append({"params": params, "lr": lr, "name": module_name})
+            used_params.update(id(parameter) for parameter in params)
 
     # assign base learning rate to the remaining unused parameters (exclude frozen ones)
     other_params = [
@@ -113,6 +124,38 @@ def build_param_lr_groups(model, cfg):
         param_groups.append({"params": other_params, "lr": base_lr, "name": "base"})
 
     return param_groups
+
+
+def collect_learning_rate_metrics(lr_scheduler):
+    """Return the legacy LR plus one scalar for every optimizer group.
+
+    The returned keys are ``learning_rate`` and
+    ``learning_rate/<group-name>``.  Group names come from
+    :func:`build_param_lr_groups`; an indexed fallback keeps the function
+    compatible with optimizers built elsewhere.
+    """
+
+    learning_rates = list(lr_scheduler.get_last_lr())
+    optimizer_groups = lr_scheduler.optimizer.param_groups
+    if len(learning_rates) != len(optimizer_groups):
+        raise AssertionError(
+            "Scheduler LR count does not match optimizer parameter groups: "
+            f"{len(learning_rates)} != {len(optimizer_groups)}"
+        )
+    if not learning_rates:
+        raise AssertionError("Optimizer must contain at least one parameter group")
+
+    metrics = {"learning_rate": float(learning_rates[0])}
+    used_names = set()
+    for index, (group, learning_rate) in enumerate(
+        zip(optimizer_groups, learning_rates)
+    ):
+        group_name = str(group.get("name", f"group_{index}"))
+        if group_name in used_names:
+            group_name = f"{group_name}_{index}"
+        used_names.add(group_name)
+        metrics[f"learning_rate/{group_name}"] = float(learning_rate)
+    return metrics
 
 
 import torch.distributed as dist

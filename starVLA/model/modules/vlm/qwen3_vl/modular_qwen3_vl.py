@@ -58,6 +58,7 @@ from transformers.models.qwen3.modeling_qwen3 import (
     apply_rotary_pos_emb,
     eager_attention_forward,
 )
+from starVLA.model.modules.vlm.visual_training import run_visual_block
 
 
 logger = logging.get_logger(__name__)
@@ -709,8 +710,12 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
 
         deepstack_feature_lists = []
         for layer_num, blk in enumerate(self.blocks):
-            hidden_states = blk(
+            hidden_states = run_visual_block(
+                blk,
                 hidden_states,
+                checkpoint_enabled=bool(
+                    self.gradient_checkpointing and self.training
+                ),
                 cu_seqlens=cu_seqlens,
                 position_embeddings=position_embeddings,
                 **kwargs,

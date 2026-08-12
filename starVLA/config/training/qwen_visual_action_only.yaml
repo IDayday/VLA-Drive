@@ -1,0 +1,35 @@
+# Pure action-only experiment with end-to-end Qwen visual fine-tuning.
+# Merge on top of cfg_yaw_1225.yaml; machine paths remain in env.local.sh.
+framework:
+  name: QwenOFT
+  action_prompt_mode: minimal
+  qwenvl:
+    freeze_visual: false
+    visual_gradient_checkpointing: true
+    visual_action_only_experiment: true
+
+datasets:
+  vla_data:
+    load_act_data: 1
+  video_data:
+    load_2d_data: 0
+  gs_data:
+    load_3d_data: 0
+  reward_data:
+    load_reward_data: 0
+
+w_depth: 0
+rgb_query_loss: 0
+gs_query_loss: 0
+
+trainer:
+  # The LM vocabulary projection and unused DINO adapter are not part of the
+  # planner. Qwen language layers, Qwen visual layers and Action DiT train.
+  freeze_modules: "qwen_vl_interface.model.lm_head,agent_dino_head"
+  num_warmup_steps: 5000
+  save_interval: 10000
+  logging_frequency: 50
+  learning_rate:
+    qwen_vl_interface: 1.0e-05
+    qwen_visual: 2.0e-06
+    action_model: 1.0e-05

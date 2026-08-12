@@ -11,23 +11,16 @@ Each framework module (e.g., M1.py, QwenFast.py) should register itself:
         return InternVLA_M1(config=config)
 """
 
-import pkgutil
 import importlib
 from starVLA.model.tools import FRAMEWORK_REGISTRY
 
-
-try:
-    pkg_path = __path__
-except NameError:
-    pkg_path = None
-
-# Auto-import all framework submodules to trigger registration
-if pkg_path is not None:
-    try:
-        for _, module_name, _ in pkgutil.iter_modules(pkg_path):
-            importlib.import_module(f"{__name__}.{module_name}")
-    except Exception as e:
-        print(f"Warning: Failed to auto-import framework submodules: {e}")
+_LAZY_FRAMEWORK_MODULES = {
+    "InternVLA-M1": "M1",
+    "Qwen-Dual": "QwenDual",
+    "QwenPI": "QwenPI",
+    "QwenGR00T": "QwenGR00T",
+    "QwenOFT_s2": "QwenOFT_s2",
+}
         
 def build_framework(cfg, accelerator=None):
     """
@@ -51,12 +44,12 @@ def build_framework(cfg, accelerator=None):
     elif cfg.framework.name == "QwenFast":
         from starVLA.model.framework.QwenFast import Qwenvl_Fast
         return Qwenvl_Fast(cfg)
-    elif cfg.framework.name == "QWenGROOT":
-        from starVLA.model.framework.QWenGROOT import Qwenvl_GROOT
-        return Qwenvl_GROOT(cfg)
-    elif cfg.framework.name == "QWenGROOT":
-        from starVLA.model.framework.QWenPI import Qwenvl_PI
-        return Qwenvl_PI(cfg)
+    elif cfg.framework.name in ("QWenGROOT", "QwenGR00T"):
+        from starVLA.model.framework.QwenGR00T import Qwen_GR00T
+        return Qwen_GR00T(cfg)
+    elif cfg.framework.name == "QwenPI":
+        from starVLA.model.framework.QwenPI import Qwen_PI
+        return Qwen_PI(cfg)
 
     elif cfg.framework.name == "QwenVision":
         from starVLA.model.framework.QWenVision import Qwenvl_Vision
@@ -65,6 +58,9 @@ def build_framework(cfg, accelerator=None):
     
     # auto detect from registry
     framework_id = cfg.framework.name
+    module_name = _LAZY_FRAMEWORK_MODULES.get(framework_id)
+    if module_name is not None and framework_id not in FRAMEWORK_REGISTRY._registry:
+        importlib.import_module(f"{__name__}.{module_name}")
     if framework_id not in FRAMEWORK_REGISTRY._registry:
         raise NotImplementedError(f"Framework {cfg.framework.name} is not implemented.")
     
