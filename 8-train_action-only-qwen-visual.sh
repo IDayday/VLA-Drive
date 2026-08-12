@@ -18,8 +18,11 @@ num_machines="${NUM_MACHINES:-${WORLD_SIZE:-1}}"
 machine_rank="${MACHINE_RANK:-${RANK:-0}}"
 local_processes="${LOCAL_NUM_PROCESSES:-${NPROC_PER_NODE:-16}}"
 num_processes="${NUM_PROCESSES:-$((num_machines * local_processes))}"
-per_device_batch="${PER_DEVICE_BATCH_SIZE:-1}"
-gradient_accumulation="${GRADIENT_ACCUMULATION_STEPS:-2}"
+# Match the released DDP action-only optimization geometry by default. Visual
+# activation checkpointing keeps the trainable vision tower within the PPU
+# memory budget; callers can still opt into 1x2 through one-shot overrides.
+per_device_batch="${PER_DEVICE_BATCH_SIZE:-2}"
+gradient_accumulation="${GRADIENT_ACCUMULATION_STEPS:-1}"
 target_effective_batch="${TARGET_EFFECTIVE_BATCH_SIZE:-32}"
 
 for pair in \

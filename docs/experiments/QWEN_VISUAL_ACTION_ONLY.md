@@ -39,7 +39,7 @@ they would silently break the gradient path.
 The formal default is one 16-PPU node:
 
 ```text
-16 processes x micro-batch 1 x accumulation 2 = effective batch 32
+16 processes x micro-batch 2 x accumulation 1 = effective batch 32
 max steps:       100000
 warmup:          5000
 checkpoint:      every 10000 steps
@@ -93,8 +93,8 @@ attention implementation:
 
 ```bash
 RUN_ID=qwen-frozen-visual-action-only-seed42 \
-PER_DEVICE_BATCH_SIZE=1 \
-GRADIENT_ACCUMULATION_STEPS=2 \
+PER_DEVICE_BATCH_SIZE=2 \
+GRADIENT_ACCUMULATION_STEPS=1 \
 VLM_ATTN_IMPLEMENTATION=sdpa \
 MAX_TRAIN_STEPS=100000 \
 NUM_WARMUP_STEPS=5000 \

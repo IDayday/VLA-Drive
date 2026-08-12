@@ -198,6 +198,8 @@ def test_visual_action_launcher_disables_all_external_feature_caches():
     assert "VISUAL_LEARNING_RATE" in launcher
     assert "QWEN_VISUAL_RUN_SMOKE_BEFORE_FORMAL" in launcher
     assert "MAX_TRAIN_STEPS=2" in launcher
+    assert 'per_device_batch="${PER_DEVICE_BATCH_SIZE:-2}"' in launcher
+    assert 'gradient_accumulation="${GRADIENT_ACCUMULATION_STEPS:-1}"' in launcher
 
 
 def test_framework_registry_does_not_eagerly_import_optional_world_heads():
