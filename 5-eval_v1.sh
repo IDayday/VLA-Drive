@@ -6,7 +6,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 : "${NUPLAN_MAPS_ROOT:?Set NUPLAN_MAPS_ROOT in env.sh}"
 : "${OPENSCENE_DATA_ROOT:?Set OPENSCENE_DATA_ROOT in env.sh}"
@@ -15,6 +15,7 @@ source "$project_root/scripts/load_env.sh"
 SPLIT="${SPLIT:-test}"
 PRED_DIR="${PRED_DIR:-$DRIVEDREAMER_ROOT/navsim_planning_results/pytorch_model.pt}"
 METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-${NAVSIM_V1_METRIC_CACHE_PATH}}"
+DATALIST="${DATALIST:-${DRIVEDREAMER_ROOT}/${SPLIT}_meta.json}"
 
 export NUPLAN_MAP_VERSION="${NUPLAN_MAP_VERSION:-nuplan-maps-v1.0}"
 export NAVSIM_EXP_ROOT="${NAVSIM_EVAL_ROOT:-$DRIVEDREAMER_ROOT/navsim_exp/eval_v1.1}"
@@ -27,7 +28,11 @@ if [[ ! -d "$prediction_dir" ]]; then
   exit 1
 fi
 prediction_count="$(find "$prediction_dir" -maxdepth 1 -type f -name '*.npy' | wc -l)"
-expected_count="$(python -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$DRIVEDREAMER_ROOT/${SPLIT}_meta.json")"
+if [[ ! -f "$DATALIST" ]]; then
+  echo "Datalist does not exist: $DATALIST" >&2
+  exit 1
+fi
+expected_count="$(python -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$DATALIST")"
 if [[ "$prediction_count" -ne "$expected_count" ]]; then
   echo "Prediction count mismatch: found $prediction_count, expected $expected_count" >&2
   exit 1
@@ -38,10 +43,34 @@ if [[ ! -d "$METRIC_CACHE_PATH/metadata" ]]; then
 fi
 
 mkdir -p "$NAVSIM_EXP_ROOT"
-python "$NAVSIM_DEVKIT_ROOT/navsim/planning/script/run_pdm_score.py" \
+score_args=(
   train_test_split="nav${SPLIT}" \
   metric_cache_path="$METRIC_CACHE_PATH" \
   agent=human_agent \
   experiment_name=drivedreamer-policy \
   pred_dir="$PRED_DIR" \
   split="$SPLIT"
+)
+
+# NAVSIM v1.1's default evaluation config assumes the legacy directory names
+# ${OPENSCENE_DATA_ROOT}/test_navsim_logs and test_sensor_blobs.  Use the
+# explicit portable split paths when evaluating navtest so developers may keep
+# any local mount layout without changing the vendored devkit.
+if [[ "$SPLIT" == "test" ]]; then
+  : "${NAVSIM_TEST_LOG_ROOT:?Set NAVSIM_TEST_LOG_ROOT for navtest evaluation}"
+  : "${NAVSIM_TEST_SENSOR_ROOT:?Set NAVSIM_TEST_SENSOR_ROOT for navtest evaluation}"
+  if [[ ! -d "$NAVSIM_TEST_LOG_ROOT" ]]; then
+    echo "NAVSIM test log path does not exist: $NAVSIM_TEST_LOG_ROOT" >&2
+    exit 1
+  fi
+  if [[ ! -d "$NAVSIM_TEST_SENSOR_ROOT" ]]; then
+    echo "NAVSIM test sensor path does not exist: $NAVSIM_TEST_SENSOR_ROOT" >&2
+    exit 1
+  fi
+  score_args+=(
+    navsim_log_path="$NAVSIM_TEST_LOG_ROOT"
+    sensor_blobs_path="$NAVSIM_TEST_SENSOR_ROOT"
+  )
+fi
+
+python "$NAVSIM_DEVKIT_ROOT/navsim/planning/script/run_pdm_score.py" "${score_args[@]}"

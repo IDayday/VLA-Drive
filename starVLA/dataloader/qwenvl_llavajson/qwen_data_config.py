@@ -1,3 +1,4 @@
+import os
 import re
 
 from pathlib import Path
@@ -6,8 +7,21 @@ from pathlib import Path
 # The data format should follow the general multimodal VLM format, for example:
 # https://github.com/QwenLM/Qwen2.5-VL/blob/main/qwen-vl-finetune/README.md
 
-json_root = f"./playground/Datasets/LLaVA-OneVision-Data/decoders/llava_format"
-image_root = f"./playground/Datasets/LLaVA-OneVision-Data/decoders/visualData"
+repository_root = Path(__file__).resolve().parents[3]
+onevision_root = Path(
+    os.environ.get(
+        "VLM_ONEVISION_ROOT",
+        repository_root / "playground" / "Datasets" / "LLaVA-OneVision-Data",
+    )
+)
+json_root = os.environ.get(
+    "VLM_JSON_ROOT",
+    str(onevision_root / "decoders" / "llava_format"),
+)
+image_root = os.environ.get(
+    "VLM_IMAGE_ROOT",
+    str(onevision_root / "decoders" / "visualData"),
+)
 MAPQA_MATHV360K = {
     "annotation_path": f"{json_root}/MapQA_MathV360K.json",
     "data_path": f"{image_root}/",
@@ -185,8 +199,14 @@ data_dict.update(
 
 # Grounding data
 
-llava_format_root = "/mnt/petrelfs/share/efm_p/sys2_data/coco/coco_internvl3/qwen_224_format_minp_3136_maxp_12845056"
-data_root = "/mnt/petrelfs/share/efm_p/sys2_data/coco"
+data_root = os.environ.get(
+    "VLM_DATA_ROOT",
+    str(repository_root / "playground" / "Datasets" / "coco"),
+)
+llava_format_root = os.environ.get(
+    "VLM_LLAVA_FORMAT_ROOT",
+    str(Path(data_root) / "coco_internvl3" / "qwen_224_format_minp_3136_maxp_12845056"),
+)
 # Define llava_format datasets
 asv2_conversation_en = {
     "annotation_path": f"{llava_format_root}/asv2_conversation_en.jsonl",

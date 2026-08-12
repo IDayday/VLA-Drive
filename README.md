@@ -103,14 +103,24 @@ pip install -r requirements_vla.txt
 
 ### 1.5 Environment Variables
 
-Shared defaults live in `env.sh`. For multi-user development, keep machine-specific paths and credentials in `env.local.sh`; it is ignored by git and is loaded automatically by the top-level training/evaluation scripts.
+Shared, repository-relative defaults live in `env.sh`. For multi-user development, keep machine-specific paths and credentials in `env.local.sh`; it is ignored by git and is loaded automatically by all top-level data, training, inference, and evaluation scripts. `DRIVEDREAMER_ROOT` is always resolved from the active checkout, so an environment inherited from another checkout cannot redirect execution to the wrong branch.
 
 ```bash
-cp env.sh env.local.sh
+cp env.local.example.sh env.local.sh
 vim env.local.sh
 # Optional for interactive shells; entrypoint scripts load it automatically.
 source env.sh
 ```
+
+Path precedence is: explicit CLI argument, then a one-shot environment value,
+then `env.local.sh`, then the repository-relative default in `env.sh`. Keep the
+`${VAR:-local_default}` form shown in the example file so one-shot overrides
+continue to work.
+
+Only configure dependencies used by your branch. Loading `env.sh` does not
+require every optional teacher or world-model checkpoint to exist: action-only,
+agent-query, VGGT, video/depth, and evaluation entrypoints validate their own
+inputs when that capability is selected.
 
 Key variables:
 
@@ -120,6 +130,8 @@ Key variables:
 | `HF_HOME` | HuggingFace model cache directory |
 | `NUPLAN_MAPS_ROOT` | Path to nuPlan map files |
 | `OPENSCENE_DATA_ROOT` | Root of the NAVSIM/OpenScene dataset |
+| `DATA_ROOT` | Processed NAVSIM metadata root |
+| `NAVSIM_DATALIST_PATH` | Training token-list JSON; defaults to `<repo>/train_meta.json` |
 | `NAVSIM_EXP_ROOT` | Where training experiments are saved |
 | `NAVSIM_V1_METRIC_CACHE_PATH` | NAVSIM v1.1 metric cache used by `5-eval_v1.sh` |
 | `NAVSIM_V2_METRIC_CACHE_ROOT` | Parent directory for NAVSIM v2 metric caches used by `6-eval_v2.sh` |
@@ -144,7 +156,7 @@ Run the numbered scripts in order after sourcing your env file:
 bash 0-process_data.sh
 ```
 
-Edit `SPLIT` and `DATA_ROOT` at the top of the script to match your setup. Add `--make_video` to the python call to also generate video clips; omit it to skip and significantly speed up processing (recommended for planning-only runs).
+Set `DATA_ROOT` in your `env.local.sh` and optionally launch with `SPLIT=<split> bash 0-process_data.sh`. Set `MAKE_VIDEO=1` to also generate video clips; omit it to skip and significantly speed up processing (recommended for planning-only runs).
 
 Writes one pickle file per scene:
 
@@ -230,19 +242,19 @@ source env.sh
 bash 7-add_token.sh
 ```
 
-After it finishes, update `BASE_VLM` in `env.sh` to point to the new extended model:
+After it finishes, update `BASE_VLM` in your ignored `env.local.sh` to point to the new extended model:
 
 ```bash
 export BASE_VLM=/path/to/Qwen3-VL-2B-WorldAction   # TARGET_VLM from 7-add_token.sh
 ```
 
-Also set `VIDEO_MODEL` in `8-train.sh` / `debug.sh` to your local Wan2.1 model root directory.
+Also set `VIDEO_MODEL` in `env.local.sh` to your local Wan2.1 model root directory.
 
 ---
 
 ## 5. Inference
 
-Set `MODEL_DIR` at the top of `4-infer.sh` to your checkpoint directory, then run:
+Set `RELEASE_MODEL` in `env.local.sh`, or pass `MODEL_DIR=/path/to/checkpoint` for one run:
 
 ```bash
 source env.sh
@@ -278,7 +290,7 @@ source env.sh
 bash 6-eval_v2.sh
 ```
 
-Uses the PDM-Score evaluator from the NAVSIM v2 devkit (`navsim/`). Set `PRED_DIR` and `METRIC_CACHE_PATH` at the top of `6-eval_v2.sh`.
+Uses the PDM-Score evaluator from the NAVSIM v2 devkit (`navsim/`). Configure persistent roots in `env.local.sh`, or pass `PRED_DIR`, `METRIC_CACHE_PATH`, and `DATALIST` for one run.
 
 The released checkpoint was verified on all 12,146 navtest scenarios with no
 failures and produced EPDMS `0.8868952559565824` (`88.6895`, rounding to the
@@ -292,7 +304,7 @@ source env.sh
 bash 5-eval_v1.sh
 ```
 
-Uses the PDM-Score evaluator from the NAVSIM v1.1 devkit (`navsim_v1.1/navsim/`). Requires the separate `navsim_v1.1` conda environment (see [Section 1.2](#12-navsim-devkit)). Set `PRED_DIR` and `METRIC_CACHE_PATH` at the top of `5-eval_v1.sh`.
+Uses the PDM-Score evaluator from the NAVSIM v1.1 devkit (`navsim_v1.1/navsim/`). Requires the separate `navsim_v1.1` conda environment (see [Section 1.2](#12-navsim-devkit)). Configure persistent roots in `env.local.sh`, or pass `PRED_DIR`, `METRIC_CACHE_PATH`, and `DATALIST` for one run.
 
 ---
 
@@ -305,7 +317,7 @@ source env.sh
 bash 8-train.sh
 ```
 
-Launches DeepSpeed ZeRO-2 training across 8 GPUs with all three heads active (1D action + 2D video + 3D depth). Set `VIDEO_MODEL`, `VIDEO_CONFIG`, `VIDEO_DATA_DIR`, and `BASE_VLM` (extended model from [Section 4](#4-add-world--action-tokens)) at the top of `8-train.sh`. The run ID is auto-timestamped; checkpoints are saved to `$NAVSIM_EXP_ROOT/<run_id>/`.
+Launches DeepSpeed ZeRO-2 training with all three heads active (1D action + 2D video + 3D depth). Configure machine-specific model, dataset, datalist, cache, and output roots in `env.local.sh`; launcher CLI overrides then replace the portable placeholders in the shared YAML. The run ID is auto-timestamped and checkpoints are saved to `$NAVSIM_EXP_ROOT/<run_id>/`.
 
 ### Debug / sanity check (1×GPU, mini split)
 

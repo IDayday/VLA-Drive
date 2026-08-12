@@ -11,7 +11,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 : "${NUPLAN_MAPS_ROOT:?Set NUPLAN_MAPS_ROOT in env.sh}"
 : "${OPENSCENE_DATA_ROOT:?Set OPENSCENE_DATA_ROOT in env.sh}"
@@ -21,6 +21,7 @@ SPLIT="${SPLIT:-test}"
 PRED_DIR="${PRED_DIR:-$DRIVEDREAMER_ROOT/navsim_planning_results/DriveDreamer-Policy}"
 METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-${NAVSIM_V2_METRIC_CACHE_PATH:-${NAVSIM_V2_METRIC_CACHE_ROOT}/metric_cache_nav${SPLIT}}}"
 CACHE_WORKERS="${CACHE_WORKERS:-2}"
+DATALIST="${DATALIST:-${DRIVEDREAMER_ROOT}/${SPLIT}_meta.json}"
 
 export NUPLAN_MAP_VERSION="${NUPLAN_MAP_VERSION:-nuplan-maps-v1.0}"
 export NAVSIM_EXP_ROOT="${NAVSIM_EVAL_ROOT:-$DRIVEDREAMER_ROOT/navsim_exp/eval_v2}"
@@ -39,9 +40,8 @@ if [[ "$prediction_count" -eq 0 ]]; then
     exit 1
 fi
 
-datalist="$DRIVEDREAMER_ROOT/${SPLIT}_meta.json"
-if [[ -f "$datalist" ]]; then
-    expected_count="$(python -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$datalist")"
+if [[ -f "$DATALIST" ]]; then
+    expected_count="$(python -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$DATALIST")"
     if [[ "$prediction_count" -ne "$expected_count" ]]; then
         echo "Prediction count mismatch: found $prediction_count, expected $expected_count" >&2
         exit 1

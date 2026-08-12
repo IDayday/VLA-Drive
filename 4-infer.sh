@@ -6,7 +6,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 # ── Required env vars (set in env.sh) ─────────────────────────────────────────
 : "${NAVSIM_EXP_ROOT:?Set NAVSIM_EXP_ROOT in env.sh}"

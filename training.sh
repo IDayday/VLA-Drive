@@ -9,8 +9,7 @@
 set -Eeuo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-cd "$project_root"
-source "$project_root/env.sh"
+source "$project_root/load_env.sh"
 
 export TARGET_EFFECTIVE_BATCH_SIZE="${TARGET_EFFECTIVE_BATCH_SIZE:-32}"
 
@@ -266,7 +265,7 @@ required_paths=(
   "$VIDEO_MODEL"
   "$DATA_ROOT/meta/train"
   "$NAVSIM_TRAINVAL_SENSOR_ROOT"
-  "$project_root/train_meta.json"
+  "$NAVSIM_DATALIST_PATH"
 )
 if [ -n "${NAVSIM_FEATURE_CACHE_ROOT:-}" ]; then
   IFS=',' read -r -a cache_components <<< "${NAVSIM_CACHE_COMPONENTS:-wan,ppd}"
@@ -296,10 +295,11 @@ import torch
 from nuplan.common.actor_state.state_representation import StateSE2
 from starVLA.dataloader.navsim_dataset import NavSimDataset, resolve_navsim_data_path
 
-with open("train_meta.json", "r", encoding="utf-8") as stream:
+datalist_path = Path(os.environ["NAVSIM_DATALIST_PATH"])
+with datalist_path.open("r", encoding="utf-8") as stream:
     train_samples = json.load(stream)
 sample_count = len(train_samples)
-with open("train_meta.json", "rb") as stream:
+with datalist_path.open("rb") as stream:
     datalist_sha256 = hashlib.sha256(stream.read()).hexdigest()
 
 def model_tree_signature(path_value):
@@ -458,7 +458,7 @@ if [ "$NAVSIM_STAGE_METADATA_TO_RAM" != "0" ]; then
         bash "$project_root/tools/stage_navsim_metadata.sh" \
           "$shared_data_root" \
           "$NAVSIM_RAM_DATA_ROOT/$RUN_ID" \
-          "$project_root/train_meta.json"
+          "$NAVSIM_DATALIST_PATH"
       )"
       export NAVSIM_SHARED_DATA_ROOT="$shared_data_root"
       export DATA_ROOT="$runtime_data_root"

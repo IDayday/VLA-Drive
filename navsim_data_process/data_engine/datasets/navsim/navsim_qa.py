@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import shutil
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
@@ -13,7 +14,10 @@ script_path = Path(__file__).resolve()
 project_root = script_path.parent.parent.parent.parent.parent
 sys.path.append(f"{project_root}/data_qa_generate/")
 from data_engine.datasets.navsim.dataset_navsim import VLMNavsim
-qa_root = "/shared_disk/users/yang.zhou/navsim_dataset/" + "data_qa_results_ours"
+qa_root = os.environ.get(
+    "NAVSIM_QA_ROOT",
+    str(project_root / "navsim_dataset" / "data_qa_results_ours"),
+)
 os.makedirs(qa_root, exist_ok=True)
 from data_engine.datasets.navsim.dataset_navsim import VLMNavsim
 import pdb
@@ -583,11 +587,26 @@ def smooth_traj_sg(xy, dt=0.5, win_sec=1.5, poly=3, pin_first=True):
     xy_s[1:] = xy[0] + np.cumsum(dxy_s, axis=0)
     return xy_s
 
-def setup_model(device: torch.device, depth_ckpt: str = '/shared_disk/users/yang.zhou/storm_data/depth_anything_v2_vitl.pth'):
-    import sys
-    sys.path.append('/mnt/pfs/users/zhouyang/proj/GaussianSTORM/third_party')
-    from depth_anything_v2.dpt import DepthAnythingV2
+def setup_model(device: torch.device, depth_ckpt: str | None = None):
     """Initialize and setup the depth estimation model."""
+
+    depth_ckpt = depth_ckpt or os.environ.get("DEPTH_ANYTHING_MODEL")
+    if not depth_ckpt:
+        raise ValueError(
+            "Depth checkpoint is not configured. Set DEPTH_ANYTHING_MODEL "
+            "in env.local.sh or pass depth_ckpt explicitly."
+        )
+    third_party_root = os.environ.get("GAUSSIAN_STORM_THIRD_PARTY")
+    if third_party_root and third_party_root not in sys.path:
+        sys.path.insert(0, third_party_root)
+    try:
+        from depth_anything_v2.dpt import DepthAnythingV2
+    except ModuleNotFoundError as error:
+        raise ModuleNotFoundError(
+            "depth_anything_v2 is unavailable. Install it in the active "
+            "environment or set GAUSSIAN_STORM_THIRD_PARTY in env.local.sh."
+        ) from error
+
     depthv2 = DepthAnythingV2(encoder="vitl", features=256, out_channels=[256, 512, 1024, 1024])
     depthv2.load_state_dict(torch.load(depth_ckpt, map_location="cpu"))
     depthv2 = depthv2.eval().to(device)
@@ -1289,19 +1308,32 @@ def reproj_err_plucker(dd, lidar_idx=0, view_name="cam_f0", n=20000, use_canonic
 
 
 import pickle
-video_root = "/shared_disk/users/yang.zhou/navsim_video"
+processed_data_root = os.environ.get(
+    "DATA_ROOT",
+    str(project_root / "navsim_dataset"),
+)
+video_root = os.environ.get(
+    "NAVSIM_VIDEO_ROOT",
+    str(Path(processed_data_root) / "navsim_video"),
+)
 load_video = 0
 load_lidar = 0
 only_lidar = 0
-only_lidar_root = "/shared_disk/users/yang.zhou/navsim_gt_depth_144256_single_frame"
+only_lidar_root = os.environ.get(
+    "NAVSIM_LIDAR_DEPTH_ROOT",
+    str(Path(processed_data_root) / "navsim_gt_depth_144256_single_frame"),
+)
 from data_engine.datasets.navsim.loaders.navsim.visualization.camera import _transform_pcs_to_images
-gs_root = "/shared_disk/users/yang.zhou/navsim_storm_144256_12frame_1209"
+gs_root = os.environ.get(
+    "NAVSIM_GS_ROOT",
+    str(Path(processed_data_root) / "navsim_storm_144256_12frame_1209"),
+)
 gs_tar_h, gs_tar_w = 144, 256
 # gs_tar_h, gs_tar_w = 160*2, 240*2
 import sys
 try:
     local_rank = int(sys.argv[1])
-except:
+except (IndexError, ValueError):
     local_rank = 0
 
 load_ann = 0
@@ -1309,9 +1341,16 @@ if load_ann:
     from data_engine.datasets.navsim.anno_utils import *
 
 load_q = 0
-q_root = "/shared_disk/users/yang.zhou/navsim_vqa_ours"
+q_root = os.environ.get(
+    "NAVSIM_VQA_ROOT",
+    str(Path(processed_data_root) / "navsim_vqa_ours"),
+)
 
-with open("/shared_disk/users/yang.zhou/mini_test_meta.json", "r") as f:
+mini_test_datalist = os.environ.get(
+    "NAVSIM_MINI_TEST_DATALIST",
+    str(project_root / "mini_meta.json"),
+)
+with open(mini_test_datalist, "r") as f:
     meta_test_mini_list = json.load(f)
 
 if load_lidar:
@@ -1624,7 +1663,10 @@ def gen_info(root):
                             os.makedirs(video_view_dir, exist_ok=True)
                             images_to_video(img_list, os.path.join(video_view_dir, container['token']+'.mp4'), fps=2)
                             ext = img_list[0][-4:]
-                            os.system(f'cp {img_list[0]} {os.path.join(video_view_dir, container['token']+ext)}')
+                            shutil.copy2(
+                                img_list[0],
+                                os.path.join(video_view_dir, container['token'] + ext),
+                            )
                         except Exception as e:
                             # print(glo_images[view]['image_paths'][3:12])
                             print(f'data missing: {e}')
@@ -1720,7 +1762,7 @@ def gen_info(root):
                             # try:
                             #     import pdb
                             #     pdb.set_trace()
-                            #     pkl_path = os.path.join('/shared_disk/users/yang.zhou/navsim_storm/mini', f"{container['token']}.pkl")
+                            #     pkl_path = os.path.join(gs_root, "mini", f"{container['token']}.pkl")
                             #     with open(pkl_path, "rb") as f:
                             #         dd = pickle.load(f)
 
@@ -2003,5 +2045,5 @@ def gen_qa(data_root, qa_root,data_fps =2, target_fps = 2):
         with open(f"{qa_root}/{mode}_q6.json", "w") as f:
             json.dump(q6s, f)
 
-gen_info(root="/shared_disk/users/yang.zhou/navsim_dataset/meta/")
+gen_info(root=os.environ.get("NAVSIM_META_ROOT", str(Path(processed_data_root) / "meta")))
 # gen_qa()

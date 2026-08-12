@@ -4,9 +4,12 @@
 
 set -euo pipefail
 
-SPLIT=mini
-DATA_ROOT=navsim_dataset
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$project_root/load_env.sh"
 
-CUDA_VISIBLE_DEVICES=0 python navsim_data_process/data_stat.py \
+SPLIT="${SPLIT:-mini}"
+DATA_ROOT="${DATA_ROOT:-navsim_dataset}"
+
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}" python navsim_data_process/data_stat.py \
     --split "$SPLIT" \
     --data_root "$DATA_ROOT"

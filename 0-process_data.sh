@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$project_root/load_env.sh"
+
 SPLIT="${SPLIT:-test}"
 DATA_ROOT="${DATA_ROOT:-navsim_dataset}"
 if [ "$SPLIT" = "navtrain" ]; then

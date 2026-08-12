@@ -8,7 +8,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 # Action-only training does not rely on the shared feature cache.
 unset NAVSIM_FEATURE_CACHE_ROOT
@@ -34,6 +34,7 @@ act_fm_size=1536
 act_fm_layer=24
 fm_repeat=8
 max_train_steps="${MAX_TRAIN_STEPS:-100000}"
+training_config="${TRAIN_CONFIG_YAML:-$DRIVEDREAMER_ROOT/starVLA/config/training/cfg_yaw_1225.yaml}"
 
 split=train
 datalist="${NAVSIM_DATALIST_PATH:-${DRIVEDREAMER_ROOT}/${split}_meta.json}"
@@ -77,20 +78,20 @@ echo "launch topology: nodes=${num_machines} node_rank=${machine_rank} local_pro
 CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   "${launch_args[@]}" \
   starVLA/training/train_starvla.py \
-  --config_yaml ./starVLA/config/training/cfg_yaw_1225.yaml \
-  --framework.name ${Framework_name} \
-  --framework.qwenvl.base_vlm ${BASE_VLM} \
+  --config_yaml "${training_config}" \
+  --framework.name "${Framework_name}" \
+  --framework.qwenvl.base_vlm "${BASE_VLM}" \
   --framework.qwenvl.attn_implementation "${VLM_ATTN_IMPLEMENTATION:-flash_attention_2}" \
-  --framework.qwenvl.vl_hidden_dim ${vl_hidden_dim} \
+  --framework.qwenvl.vl_hidden_dim "${vl_hidden_dim}" \
   --framework.action_prompt_mode minimal \
-  --run_root_dir ${NAVSIM_EXP_ROOT} \
-  --run_id ${run_id} \
-  --wandb_project ${WANDB_PROJECT} \
-  --wandb_entity ${WANDB_ENTITY} \
-  --datasets.vla_data.datalist_path ${datalist} \
-  --datasets.vla_data.data_root ${DATA_ROOT} \
-  --datasets.vla_data.split ${split} \
-  --datasets.vla_data.per_device_batch_size ${bz} \
+  --run_root_dir "${NAVSIM_EXP_ROOT}" \
+  --run_id "${run_id}" \
+  --wandb_project "${WANDB_PROJECT}" \
+  --wandb_entity "${WANDB_ENTITY}" \
+  --datasets.vla_data.datalist_path "${datalist}" \
+  --datasets.vla_data.data_root "${DATA_ROOT}" \
+  --datasets.vla_data.split "${split}" \
+  --datasets.vla_data.per_device_batch_size "${bz}" \
   --datasets.vla_data.load_act_data 1 \
   --datasets.video_data.load_2d_data 0 \
   --datasets.gs_data.load_3d_data 0 \
@@ -98,12 +99,12 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --w_depth 0 \
   --rgb_query_loss 0 \
   --gs_query_loss 0 \
-  --trainer.gradient_accumulation_steps ${gradient_accumulation_steps} \
-  --framework.action_model.repeated_diffusion_steps ${fm_repeat} \
-  --framework.action_model.hidden_size ${act_fm_size} \
-  --framework.action_model.diffusion_model_cfg.cross_attention_dim ${act_fm_size} \
-  --framework.action_model.diffusion_model_cfg.output_dim ${act_fm_size} \
-  --framework.action_model.diffusion_model_cfg.num_layers ${act_fm_layer} \
+  --trainer.gradient_accumulation_steps "${gradient_accumulation_steps}" \
+  --framework.action_model.repeated_diffusion_steps "${fm_repeat}" \
+  --framework.action_model.hidden_size "${act_fm_size}" \
+  --framework.action_model.diffusion_model_cfg.cross_attention_dim "${act_fm_size}" \
+  --framework.action_model.diffusion_model_cfg.output_dim "${act_fm_size}" \
+  --framework.action_model.diffusion_model_cfg.num_layers "${act_fm_layer}" \
   --trainer.optimizer.weight_decay 1e-3 \
   --trainer.learning_rate.base 1e-5 \
   --trainer.learning_rate.action_model 1e-5 \

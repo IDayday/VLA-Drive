@@ -36,6 +36,7 @@ from transformers import AutoProcessor, get_scheduler
 # Local Modules
 from starVLA.dataloader import build_dataloader
 from starVLA.training.trainer_utils.trainer_tools import normalize_dotlist_args
+from starVLA.path_config import apply_environment_path_overrides
 from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
@@ -474,6 +475,7 @@ if __name__ == "__main__":
 
     # Load YAML config & Convert CLI overrides to dotlist config
     cfg = OmegaConf.load(args.config_yaml)
+    apply_environment_path_overrides(cfg)
     dotlist = normalize_dotlist_args(clipargs)  # Normalize CLI args to dotlist format
     cli_cfg = OmegaConf.from_dotlist(dotlist)
     cfg = OmegaConf.merge(cfg, cli_cfg)

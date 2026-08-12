@@ -5,8 +5,7 @@
 set -Eeuo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-cd "$project_root"
-source "$project_root/env.sh"
+source "$project_root/load_env.sh"
 
 # Match the formal training input path exactly.  The MP4 alternative contains
 # the same frames but is H.264-lossy, so it must never be mixed into an
@@ -95,7 +94,7 @@ required_paths=(
   "$DEPTH_ANYTHING_MODEL"
   "$DATA_ROOT/meta/train"
   "$NAVSIM_TRAINVAL_SENSOR_ROOT"
-  "$project_root/train_meta.json"
+  "$NAVSIM_DATALIST_PATH"
 )
 for path in "${required_paths[@]}"; do
   if [ ! -e "$path" ]; then
@@ -125,7 +124,8 @@ fi
 
 sample_count="$(python - <<'PY'
 import json
-with open("train_meta.json", "r", encoding="utf-8") as stream:
+import os
+with open(os.environ["NAVSIM_DATALIST_PATH"], "r", encoding="utf-8") as stream:
     print(len(json.load(stream)))
 PY
 )"
@@ -142,13 +142,13 @@ mkdir -p "$TRITON_CACHE_DIR" "$TORCH_EXTENSIONS_DIR"
 
 common_args=(
   --cache-root "$cache_root"
-  --config-yaml "$project_root/starVLA/config/training/cfg_yaw_1225.yaml"
+  --config-yaml "${TRAIN_CONFIG_YAML:-$project_root/starVLA/config/training/cfg_yaw_1225.yaml}"
   --base-vlm "$BASE_VLM"
   --video-model "$VIDEO_MODEL"
   --ppd-model "$PPD_MODEL"
   --depth-model "$DEPTH_ANYTHING_MODEL"
-  --video-config "$project_root/starVLA/model/modules/video_model/config/wan2.1/wan_civitai.yaml"
-  --datalist "$project_root/train_meta.json"
+  --video-config "${VIDEO_CONFIG:-$project_root/starVLA/model/modules/video_model/config/wan2.1/wan_civitai.yaml}"
+  --datalist "$NAVSIM_DATALIST_PATH"
   --data-root "$DATA_ROOT"
   --split train
   --attn-implementation "$VLM_ATTN_IMPLEMENTATION"
