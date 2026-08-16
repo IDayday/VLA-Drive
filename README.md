@@ -1,12 +1,10 @@
 <p align="center">
     <h1 align="center">DriveVLA-M0: Failure-Aware Memory Augmentation for Autonomous Driving</h1>
-    <h3 align="center">Base Model and Retrieve Model Deployment on NAVSIM 1.1</h3>
     <h3 align="center">
         <a href="https://arxiv.org/abs/2608.10413">Paper</a> |
         <a href="https://github.com/ZebinX/DriveVLA-M0">Code</a> |
         <a href="https://huggingface.co/XXXXing/DriveVLA-M0">Hugging Face Weights</a> |
-        <a href="https://www.modelscope.cn/models/ArteMe/DriveVLA-M0">ModelScope Weights</a> |
-        <a href="#deployment">Deployment</a>
+        <a href="https://www.modelscope.cn/models/ArteMe/DriveVLA-M0">ModelScope Weights</a>
     </h3>
 </p>
 
@@ -17,10 +15,14 @@
 > ACM Multimedia, 2026
 
 <p align="center">
+  <img src="assets/DriveVLA_M0_demo.gif" alt="DriveVLA-demo" width="95%">
+</p>
+
+<p align="center">
     <img src="assets/drivevla_m0_teaser.png" alt="DriveVLA-M0 teaser" width="95%">
 </p>
 
-This repository packages the NAVSIM 1.1 deployment code for **DriveVLA-M0**, including the Base Model agent and the structurally grounded **Retrieve Model** used for map and agent retrieval experiments.
+This repository packages the NAVSIM 1.1 deployment code for **DriveVLA-M0**, including the **Base Model** and the structurally grounded **Retrieve Model** used for map and agent retrieval experiments.
 
 DriveVLA-M0 augments a VLA-based autonomous driving planner with failure-aware latent memory. The full framework stores past failure cases, retrieves structurally similar scenarios through decoupled map and agent embeddings, and injects retrieved knowledge through lightweight test-time adaptation. This release focuses on the NAVSIM 1.1 Base Model and Retrieve Model code paths that are needed for deployment and checkpoint verification.
 
@@ -29,13 +31,12 @@ DriveVLA-M0 augments a VLA-based autonomous driving planner with failure-aware l
 ## News
 
 * **12 Aug, 2026:** Released the cleaned NAVSIM 1.1 DriveVLA-M0 deployment package with Base Model and Retrieve Model checkpoints verified on A800.
-* **ACM MM 2026:** DriveVLA-M0 is prepared as a failure-aware memory augmentation framework for autonomous driving.
+* **10 Jul, 2026:** DriveVLA-M0 is prepared as a failure-aware memory augmentation framework for autonomous driving.
 
 ## Highlights
 
-* **NAVSIM-native agent layout.** DriveVLA-M0 is integrated as a NAVSIM agent under `navsim/agents/EpisodeDrive`, following the same agent-style integration pattern used by NAVSIM projects such as GoalFlow and DiffusionDrive.
-* **Base Model deployment.** The DriveVLA-M0 Base Model is exposed through the compatibility target `EpisodeDriveAgent` and can be evaluated directly with NAVSIM PDMS scripts.
-* **Structurally grounded retrieval.** The Retrieve Model decouples static road structure and dynamic agent interaction cues for map/agent retrieval visualization.
+* **Base Model deployment.** The Base Model is exposed through the compatibility target `EpisodeDriveAgent` and can be evaluated directly with NAVSIM PDMS scripts.
+* **Retrieve Model deployment.** The Retrieve Model decouples static road structure and dynamic agent interaction cues for map/agent retrieval visualization.
 * **Checkpoint-compatible naming.** Public documentation uses DriveVLA-M0. The current NAVSIM Python target keeps `EpisodeDriveAgent` as a compatibility entry point so that verified checkpoints load without changing the module state-dict layout.
 
 ## Method Overview
