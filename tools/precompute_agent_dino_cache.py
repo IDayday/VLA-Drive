@@ -89,7 +89,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in os.sys.path:
     os.sys.path.insert(0, str(REPO_ROOT))
 
-CACHE_SCHEMA_VERSION = 2
+CACHE_SCHEMA_VERSION = 3
 COMPONENT = "agent_dino"
 VIEW_TO_ID = {"cam_f0": 0, "cam_l0": 1, "cam_r0": 2, "cam_l1": 3, "cam_l2": 4, "cam_r1": 5, "cam_r2": 6, "cam_b0": 7}
 
@@ -224,8 +224,15 @@ def load_sidecar_paths(args: argparse.Namespace) -> List[Path]:
     return paths
 
 
+def sidecar_agents(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    agents = payload.get("visible_agents")
+    if agents is None:
+        agents = payload.get("critical_agents", [])
+    return list(agents)
+
+
 def valid_agents(payload: Dict[str, Any], top_k: Optional[int]) -> List[Dict[str, Any]]:
-    agents = [agent for agent in payload.get("critical_agents", []) if agent.get("valid", False)]
+    agents = [agent for agent in sidecar_agents(payload) if agent.get("valid", False)]
     agents = [agent for agent in agents if agent.get("image_path") and agent.get("bbox_xyxy") and agent.get("view")]
     agents.sort(key=lambda item: int(item.get("rank", 10**9)))
     if top_k is not None:
@@ -447,42 +454,44 @@ class AgentDinoPrecomputer:
         return selected.mean(dim=0), int(flat_mask.sum().item())
 
     @torch.inference_mode()
-    def __call__(self, sidecars: List[Dict[str, Any]], top_k: Optional[int]) -> List[Dict[str, Any]]:
+    def __call__(self, sidecars: List[Dict[str, Any]], top_k: Optional[int], fixed_agent_count: Optional[int]) -> List[Dict[str, Any]]:
         outputs: List[Dict[str, Any]] = []
         for sidecar in sidecars:
             token = str(sidecar["token"])
             agents = valid_agents(sidecar, top_k=top_k)
             if not agents:
-                outputs.append(self.empty_payload(token, sidecar, reason="no_valid_visible_agents"))
+                outputs.append(self.empty_payload(token, sidecar, reason="no_valid_visible_agents", fixed_agent_count=fixed_agent_count))
                 continue
             if self.feature_mode == "roi_pool":
-                outputs.append(self.precompute_roi_pool(token, sidecar, agents))
+                outputs.append(self.precompute_roi_pool(token, sidecar, agents, fixed_agent_count=fixed_agent_count))
             else:
-                outputs.append(self.precompute_crop(token, sidecar, agents))
+                outputs.append(self.precompute_crop(token, sidecar, agents, fixed_agent_count=fixed_agent_count))
         return outputs
 
-    def empty_payload(self, token: str, sidecar: Dict[str, Any], reason: str) -> Dict[str, Any]:
+    def empty_payload(self, token: str, sidecar: Dict[str, Any], reason: str, fixed_agent_count: Optional[int]) -> Dict[str, Any]:
         metadata = {"token": token, "reason": reason, "agents": [], "feature_mode": self.feature_mode}
         view_count = len(VIEW_TO_ID)
+        count = int(fixed_agent_count or 0)
         return {
-            "agent_features": torch.empty((0, self.feature_dim), dtype=torch.bfloat16),
-            "agent_ranks": torch.empty((0,), dtype=torch.long),
-            "agent_scores": torch.empty((0,), dtype=torch.float32),
-            "bbox_xyxy": torch.empty((0, 4), dtype=torch.float32),
-            "box_ego": torch.empty((0, 7), dtype=torch.float32),
-            "view_ids": torch.empty((0,), dtype=torch.long),
-            "patch_counts": torch.empty((0,), dtype=torch.long),
-            "bbox_per_view": torch.empty((0, view_count, 4), dtype=torch.float32),
-            "bbox_norm_per_view": torch.empty((0, view_count, 4), dtype=torch.float32),
-            "visible_per_view": torch.empty((0, view_count), dtype=torch.float32),
-            "occlusion_per_view": torch.empty((0, view_count), dtype=torch.float32),
-            "visible_box_ratio_per_view": torch.empty((0, view_count), dtype=torch.float32),
-            "view_mask": torch.empty((0, view_count), dtype=torch.bool),
-            "image_size_per_view": torch.empty((0, view_count, 2), dtype=torch.float32),
+            "agent_features": torch.zeros((count, self.feature_dim), dtype=torch.bfloat16),
+            "agent_valid_mask": torch.zeros((count,), dtype=torch.bool),
+            "agent_ranks": torch.full((count,), -1, dtype=torch.long),
+            "agent_scores": torch.zeros((count,), dtype=torch.float32),
+            "bbox_xyxy": torch.zeros((count, 4), dtype=torch.float32),
+            "box_ego": torch.zeros((count, 7), dtype=torch.float32),
+            "view_ids": torch.full((count,), -1, dtype=torch.long),
+            "patch_counts": torch.zeros((count,), dtype=torch.long),
+            "bbox_per_view": torch.zeros((count, view_count, 4), dtype=torch.float32),
+            "bbox_norm_per_view": torch.zeros((count, view_count, 4), dtype=torch.float32),
+            "visible_per_view": torch.zeros((count, view_count), dtype=torch.float32),
+            "occlusion_per_view": torch.ones((count, view_count), dtype=torch.float32),
+            "visible_box_ratio_per_view": torch.zeros((count, view_count), dtype=torch.float32),
+            "view_mask": torch.zeros((count, view_count), dtype=torch.bool),
+            "image_size_per_view": torch.zeros((count, view_count, 2), dtype=torch.float32),
             "metadata_json_uint8": metadata_to_tensor(metadata),
         }
 
-    def precompute_roi_pool(self, token: str, sidecar: Dict[str, Any], agents: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def precompute_roi_pool(self, token: str, sidecar: Dict[str, Any], agents: List[Dict[str, Any]], fixed_agent_count: Optional[int]) -> Dict[str, Any]:
         image_paths = []
         images = []
         image_sizes = []
@@ -504,9 +513,9 @@ class AgentDinoPrecomputer:
             )
             features.append(feature)
             patch_counts.append(patch_count)
-        return self.build_payload(token, sidecar, agents, features, patch_counts)
+        return self.build_payload(token, sidecar, agents, features, patch_counts, fixed_agent_count=fixed_agent_count)
 
-    def precompute_crop(self, token: str, sidecar: Dict[str, Any], agents: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def precompute_crop(self, token: str, sidecar: Dict[str, Any], agents: List[Dict[str, Any]], fixed_agent_count: Optional[int]) -> Dict[str, Any]:
         crops = []
         for agent in agents:
             image = self.load_rgb(str(agent["image_path"]))
@@ -520,7 +529,7 @@ class AgentDinoPrecomputer:
             patch_counts = [int(dino["patch"].shape[1]) for _ in agents]
         else:
             raise ValueError(self.feature_mode)
-        return self.build_payload(token, sidecar, agents, features, patch_counts)
+        return self.build_payload(token, sidecar, agents, features, patch_counts, fixed_agent_count=fixed_agent_count)
 
     def build_payload(
         self,
@@ -529,6 +538,7 @@ class AgentDinoPrecomputer:
         agents: List[Dict[str, Any]],
         features: Sequence[torch.Tensor],
         patch_counts: Sequence[int],
+        fixed_agent_count: Optional[int],
     ) -> Dict[str, Any]:
         metadata_agents = []
         for agent in agents:
@@ -540,6 +550,8 @@ class AgentDinoPrecomputer:
                     "instance_token": str(agent.get("instance_token", "")),
                     "view": str(agent.get("view", "")),
                     "image_path": str(agent.get("image_path", "")),
+                    "score": float(agent.get("score", 0.0)),
+                    "visible_sort_score": float(agent.get("visible_sort_score", 0.0)),
                     "score_terms": agent.get("score_terms", {}),
                     "visible_ratio": float(agent.get("visible_ratio", 0.0)),
                     "occlusion_ratio": float(agent.get("occlusion_ratio", 0.0)),
@@ -554,17 +566,41 @@ class AgentDinoPrecomputer:
             "dino_backbone": self.backbone_name,
             "agents": metadata_agents,
         }
+        valid_count = len(agents)
+        target_count = int(fixed_agent_count or valid_count)
+        if valid_count > target_count:
+            agents = agents[:target_count]
+            features = list(features)[:target_count]
+            patch_counts = list(patch_counts)[:target_count]
+            valid_count = target_count
+        feature_tensor = torch.zeros((target_count, self.feature_dim), dtype=torch.float32)
+        if valid_count:
+            feature_tensor[:valid_count] = torch.stack(list(features), dim=0).to(dtype=torch.float32).cpu()
+        agent_valid_mask = torch.zeros((target_count,), dtype=torch.bool)
+        agent_valid_mask[:valid_count] = True
         payload = {
-            "agent_features": tensor_cpu(torch.stack(list(features), dim=0), torch.bfloat16),
-            "agent_ranks": torch.tensor([int(agent.get("rank", -1)) for agent in agents], dtype=torch.long),
-            "agent_scores": torch.tensor([float(agent.get("score", 0.0)) for agent in agents], dtype=torch.float32),
-            "bbox_xyxy": torch.tensor([agent["bbox_xyxy"] for agent in agents], dtype=torch.float32),
-            "box_ego": torch.tensor([agent["box_ego"] for agent in agents], dtype=torch.float32),
-            "view_ids": torch.tensor([VIEW_TO_ID.get(str(agent.get("view", "")), -1) for agent in agents], dtype=torch.long),
-            "patch_counts": torch.tensor(list(patch_counts), dtype=torch.long),
+            "agent_features": tensor_cpu(feature_tensor, torch.bfloat16),
+            "agent_valid_mask": agent_valid_mask,
+            "agent_ranks": torch.cat([torch.tensor([int(agent.get("rank", -1)) for agent in agents], dtype=torch.long), torch.full((target_count - valid_count,), -1, dtype=torch.long)]),
+            "agent_scores": torch.cat([torch.tensor([float(agent.get("score", 0.0)) for agent in agents], dtype=torch.float32), torch.zeros((target_count - valid_count,), dtype=torch.float32)]),
+            "bbox_xyxy": torch.cat([torch.tensor([agent["bbox_xyxy"] for agent in agents], dtype=torch.float32), torch.zeros((target_count - valid_count, 4), dtype=torch.float32)], dim=0),
+            "box_ego": torch.cat([torch.tensor([agent["box_ego"] for agent in agents], dtype=torch.float32), torch.zeros((target_count - valid_count, 7), dtype=torch.float32)], dim=0),
+            "view_ids": torch.cat([torch.tensor([VIEW_TO_ID.get(str(agent.get("view", "")), -1) for agent in agents], dtype=torch.long), torch.full((target_count - valid_count,), -1, dtype=torch.long)]),
+            "patch_counts": torch.cat([torch.tensor(list(patch_counts), dtype=torch.long), torch.zeros((target_count - valid_count,), dtype=torch.long)]),
             "metadata_json_uint8": metadata_to_tensor(metadata),
         }
-        payload.update(build_multiview_tensors(agents))
+        multiview = build_multiview_tensors(agents)
+        if target_count > valid_count:
+            pad = target_count - valid_count
+            view_count = len(VIEW_TO_ID)
+            multiview["bbox_per_view"] = torch.cat([multiview["bbox_per_view"], torch.zeros((pad, view_count, 4), dtype=torch.float32)], dim=0)
+            multiview["bbox_norm_per_view"] = torch.cat([multiview["bbox_norm_per_view"], torch.zeros((pad, view_count, 4), dtype=torch.float32)], dim=0)
+            multiview["visible_per_view"] = torch.cat([multiview["visible_per_view"], torch.zeros((pad, view_count), dtype=torch.float32)], dim=0)
+            multiview["occlusion_per_view"] = torch.cat([multiview["occlusion_per_view"], torch.ones((pad, view_count), dtype=torch.float32)], dim=0)
+            multiview["visible_box_ratio_per_view"] = torch.cat([multiview["visible_box_ratio_per_view"], torch.zeros((pad, view_count), dtype=torch.float32)], dim=0)
+            multiview["view_mask"] = torch.cat([multiview["view_mask"], torch.zeros((pad, view_count), dtype=torch.bool)], dim=0)
+            multiview["image_size_per_view"] = torch.cat([multiview["image_size_per_view"], torch.zeros((pad, view_count, 2), dtype=torch.float32)], dim=0)
+        payload.update(multiview)
         return payload
 
 
@@ -611,7 +647,7 @@ def main(args: argparse.Namespace) -> None:
                 sidecars.append(payload)
             if not pending:
                 continue
-            payloads = precomputer(sidecars, top_k=args.top_k)
+            payloads = precomputer(sidecars, top_k=args.top_k, fixed_agent_count=args.fixed_agent_count)
             for (_, token, _), payload in zip(pending, payloads):
                 writer.put(token, payload, overwrite=args.overwrite)
                 processed += 1
@@ -660,6 +696,7 @@ def main(args: argparse.Namespace) -> None:
             "dino_model_signature": file_tree_signature(args.dino_cache_dir),
             "feature_mode": args.feature_mode,
             "top_k": args.top_k,
+            "fixed_agent_count": args.fixed_agent_count,
             "payload_contract": {
                 "agent_features": "bfloat16[num_agents,dino_dim]",
                 "agent_ranks": "int64[num_agents]",
@@ -707,6 +744,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sensor-dir", default=None, help="Real NAVSIM sensor root used to remap stale /tmp sidecar image paths")
     parser.add_argument("--feature-mode", choices=("roi_pool", "crop_patch_mean", "crop_cls"), default="roi_pool")
     parser.add_argument("--top-k", type=int, default=None)
+    parser.add_argument("--fixed-agent-count", type=int, default=None, help="Pad payload tensors to this many agent slots and add agent_valid_mask")
     parser.add_argument("--tokens-file", default=None)
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--batch-size", type=int, default=8)

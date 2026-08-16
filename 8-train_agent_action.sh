@@ -13,7 +13,7 @@ source "$project_root/load_env.sh"
 # Agent-action training does not rely on the shared feature cache.
 unset NAVSIM_FEATURE_CACHE_ROOT
 export NAVSIM_USE_FEATURE_CACHE=0
-export NAVSIM_AGENT_DINO_CACHE_ROOT="${NAVSIM_AGENT_DINO_CACHE_ROOT:-$DRIVEDREAMER_ROOT/navsim_feature_cache/agent_dino_vits14_train_top4}"
+export NAVSIM_AGENT_DINO_CACHE_ROOT="${NAVSIM_AGENT_DINO_CACHE_ROOT:-$DRIVEDREAMER_ROOT/navsim_feature_cache/agent_dino_vits14_train_visible32}"
 export NAVSIM_AGENT_DINO_CACHE_STRICT="${NAVSIM_AGENT_DINO_CACHE_STRICT:-1}"
 
 # -- Experiment ID ------------------------------------------------------------
@@ -85,13 +85,15 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --framework.qwenvl.attn_implementation "${VLM_ATTN_IMPLEMENTATION:-flash_attention_2}" \
   --framework.qwenvl.vl_hidden_dim ${vl_hidden_dim} \
   --framework.action_prompt_mode minimal_agent \
+  --framework.agent_dino.query_count "${AGENT_QUERY_COUNT:-32}" \
   --framework.agent_dino.loss_weight 0.1 \
   --framework.agent_dino.lambda_bbox 0.2 \
   --framework.agent_dino.lambda_vis 0.1 \
   --framework.agent_dino.match_lambda_feat 0.2 \
   --framework.agent_dino.match_lambda_bbox 1.0 \
   --framework.agent_dino.match_lambda_vis 0.5 \
-  --framework.agent_dino.match_lambda_rank 0.05 \
+  --framework.agent_dino.match_lambda_rank 0.0 \
+  --framework.agent_dino.match_strategy "${AGENT_MATCH_STRATEGY:-hungarian}" \
   --framework.agent_dino.feature_dim 384 \
   --framework.agent_dino.view_ids "[0,1,2]" \
   --run_root_dir ${NAVSIM_EXP_ROOT} \

@@ -35,7 +35,8 @@ Important arguments:
     --tokens-file: Optional newline-separated scene tokens to process.
     --output-dir: Destination for one JSON sidecar per scene token.
     --max-samples: Optional cap for debugging.
-    --top-k: Maximum number of critical agents kept per scene.
+    --top-k: Maximum number of agents kept per scene. Use 32 with --selection-mode visible for object-slot pretraining.
+    --selection-mode: critical ranks by planning-risk score; visible ranks by visual quality only.
     --agent-classes: Classes considered as critical-agent candidates. Defaults to
         vehicle, pedestrian, and bicycle.
     --min-bbox-area: Minimum projected 2D bbox area in pixels.
@@ -464,11 +465,39 @@ def score_candidates(
     return scored
 
 
+def visible_sort_score(agent: AgentCandidate) -> float:
+    area_score = float(np.clip(math.log1p(max(agent.bbox_area, 0.0)) / math.log1p(20000.0), 0.0, 1.0))
+    multi_view_score = float(np.clip(len(agent.camera_projections) / 3.0, 0.0, 1.0))
+    distance_score = score_distance(agent.distance, max_distance=60.0)
+    class_score = CLASS_PRIORITY.get(agent.class_name, CLASS_PRIORITY["generic_object"])
+    return float(
+        0.40 * area_score
+        + 0.25 * agent.visible_box_ratio
+        + 0.15 * agent.visible_ratio
+        + 0.10 * multi_view_score
+        + 0.05 * distance_score
+        + 0.05 * class_score
+    )
+
+
+def order_agents(agents: List[AgentCandidate], selection_mode: str) -> List[AgentCandidate]:
+    if selection_mode == "visible":
+        return sorted(
+            agents,
+            key=lambda item: (visible_sort_score(item), item.bbox_area, -item.distance),
+            reverse=True,
+        )
+    if selection_mode == "critical":
+        return sorted(agents, key=lambda item: item.score, reverse=True)
+    raise ValueError(f"Unsupported selection_mode: {selection_mode}")
+
+
 def pad_agents(agents: List[AgentCandidate], top_k: int) -> List[Dict[str, Any]]:
     result = []
     for rank, agent in enumerate(agents[:top_k]):
         item = asdict(agent)
         item["rank"] = rank
+        item["visible_sort_score"] = visible_sort_score(agent)
         result.append(item)
 
     while len(result) < top_k:
@@ -830,12 +859,16 @@ def mine_one(container: Dict[str, Any], args: argparse.Namespace) -> Dict[str, A
         inner_width=args.inner_corridor_width,
         outer_width=args.outer_corridor_width,
     )
+    ordered = order_agents(scored, args.selection_mode)
+    agents = pad_agents(ordered, args.top_k)
     return {
         "token": container["token"],
         "frame_idx": current_idx,
         "schema_version": 2,
+        "agent_selection_mode": args.selection_mode,
         "ego_motion_events": events,
-        "critical_agents": pad_agents(scored, args.top_k),
+        "critical_agents": agents,
+        "visible_agents": agents,
     }
 
 
@@ -851,6 +884,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sensor-dir", default=None, help="Optional explicit sensor split dir, e.g. /mnt/data/navsim/sensor_blobs/mini.")
     parser.add_argument("--output-dir", default="navsim_dataset/critical_agents")
     parser.add_argument("--top-k", type=int, default=8)
+    parser.add_argument("--selection-mode", choices=("critical", "visible"), default="critical")
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--tokens-file", default=None, help="Optional newline-delimited scene tokens to process.")
     parser.add_argument("--current-frame-index", type=int, default=CURRENT_FRAME_INDEX)
@@ -998,7 +1032,9 @@ def main() -> None:
                 "frame_idx": args.current_frame_index,
                 "schema_version": 2,
                 "error": repr(exc),
+                "agent_selection_mode": args.selection_mode,
                 "critical_agents": pad_agents([], args.top_k),
+                "visible_agents": pad_agents([], args.top_k),
             }
         with output_path.open("w", encoding="utf-8") as stream:
             json.dump(payload, stream, indent=2)
@@ -1009,7 +1045,7 @@ def main() -> None:
             if args.visualize_camera_dir is not None:
                 visualize_camera_bboxes(payload, Path(args.visualize_camera_dir) / args.split)
 
-    print(f"wrote critical-agent sidecars to {output_dir}")
+    print(f"wrote {args.selection_mode}-agent sidecars to {output_dir}")
     if args.visualize_dir is not None:
         print(f"wrote BEV visualizations to {Path(args.visualize_dir) / args.split}")
     if args.visualize_camera_dir is not None:

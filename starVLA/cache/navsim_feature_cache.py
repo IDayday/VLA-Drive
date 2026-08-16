@@ -23,13 +23,13 @@ CACHE_SCHEMA_VERSIONS = {
     "qwen": (1,),
     "wan": (1,),
     "ppd": (1,),
-    "agent_dino": (1, 2),
+    "agent_dino": (1, 2, 3),
 }
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"
 RGB_QUERY_TOKENS = tuple(f"<2d_world_{index}>" for index in range(64))
 GS_QUERY_TOKENS = tuple(f"<3d_world_{index}>" for index in range(64))
-MINE_AGENT_QUERY_TOKENS = tuple(f"<mine_agent_{index}>" for index in range(4))
+MINE_AGENT_QUERY_TOKENS = tuple(f"<mine_agent_{index}>" for index in range(32))
 REWARD_QUERY_TOKENS = ("<reward_0>",)
 
 

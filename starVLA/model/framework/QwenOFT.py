@@ -22,7 +22,9 @@ Note: How to add special tokens to Qwen2.5:
 from typing import List
 from tqdm import tqdm
 from typing import List, Optional, Tuple
-import itertools
+from scipy.optimize import linear_sum_assignment
+import json
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -65,36 +67,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def _bruteforce_linear_sum_assignment(cost: torch.Tensor) -> Tuple[List[int], List[int]]:
-    """Small dependency-free Hungarian substitute for <= few object queries."""
-    cost_cpu = cost.detach().float().cpu()
-    num_queries, num_targets = cost_cpu.shape
-    match_count = min(num_queries, num_targets)
-    if match_count == 0:
+def _linear_sum_assignment(cost: torch.Tensor) -> Tuple[List[int], List[int]]:
+    """Hungarian assignment for object queries and teacher agents."""
+    if cost.numel() == 0:
         return [], []
-
-    best_value = None
-    best_rows = None
-    best_cols = None
-    query_indices = range(num_queries)
-    target_indices = range(num_targets)
-    if num_queries <= num_targets:
-        for cols in itertools.permutations(target_indices, match_count):
-            rows = tuple(query_indices)
-            value = sum(float(cost_cpu[row, col]) for row, col in zip(rows, cols))
-            if best_value is None or value < best_value:
-                best_value = value
-                best_rows = rows
-                best_cols = cols
-    else:
-        for rows in itertools.combinations(query_indices, match_count):
-            for cols in itertools.permutations(target_indices, match_count):
-                value = sum(float(cost_cpu[row, col]) for row, col in zip(rows, cols))
-                if best_value is None or value < best_value:
-                    best_value = value
-                    best_rows = rows
-                    best_cols = cols
-    return list(best_rows), list(best_cols)
+    rows, cols = linear_sum_assignment(cost.detach().float().cpu().numpy())
+    return list(map(int, rows)), list(map(int, cols))
 
 
 def _normalize_teacher_bboxes(bboxes: torch.Tensor) -> torch.Tensor:
@@ -208,7 +186,8 @@ class Qwenvl_OFT(baseframework):
 
         # reward token
         self.reward_query_tokens = list(REWARD_QUERY_TOKENS)
-        self.mine_agent_query_tokens = list(MINE_AGENT_QUERY_TOKENS)
+        self.agent_query_count = int(OmegaConf.select(self.config, "framework.agent_dino.query_count", default=os.environ.get("AGENT_QUERY_COUNT", len(MINE_AGENT_QUERY_TOKENS))))
+        self.mine_agent_query_tokens = list(MINE_AGENT_QUERY_TOKENS[: self.agent_query_count])
 
         self.action_prompt_mode = str(
             OmegaConf.select(self.config, "framework.action_prompt_mode", default="full")
@@ -250,6 +229,12 @@ class Qwenvl_OFT(baseframework):
         self.agent_match_lambda_bbox = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_bbox", default=1.0))
         self.agent_match_lambda_vis = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_vis", default=0.5))
         self.agent_match_lambda_rank = float(OmegaConf.select(self.config, "framework.agent_dino.match_lambda_rank", default=0.05))
+        self.agent_match_strategy = str(OmegaConf.select(self.config, "framework.agent_dino.match_strategy", default="hungarian")).lower()
+        if self.agent_match_strategy not in {"hungarian", "ordered"}:
+            raise ValueError(f"Unsupported framework.agent_dino.match_strategy={self.agent_match_strategy!r}")
+        self.agent_match_debug_path = os.environ.get("NAVSIM_AGENT_MATCH_DEBUG_PATH", "").strip()
+        self.agent_match_debug_interval = max(0, int(os.environ.get("NAVSIM_AGENT_MATCH_DEBUG_INTERVAL", "0")))
+        self.agent_match_debug_step = 0
         self.agent_dino_dim = int(OmegaConf.select(self.config, "framework.agent_dino.feature_dim", default=384))
         self.agent_view_ids = tuple(OmegaConf.select(self.config, "framework.agent_dino.view_ids", default=[0, 1, 2]))
         self.agent_view_count = len(self.agent_view_ids)
@@ -377,6 +362,34 @@ class Qwenvl_OFT(baseframework):
             )
             self.rgb_latent_type = nn.Parameter(torch.randn(1, 1, self.config.framework.action_model.hidden_size) * 0.02)
 
+
+    def _decode_agent_dino_metadata(self, payload):
+        value = payload.get("metadata_json_uint8")
+        if value is None:
+            return {}
+        try:
+            if isinstance(value, torch.Tensor):
+                data = bytes(value.detach().cpu().tolist())
+            else:
+                data = bytes(value)
+            return json.loads(data.decode("utf-8"))
+        except Exception:
+            return {}
+
+    def _write_agent_match_debug(self, records):
+        if not records or not self.agent_match_debug_path:
+            return
+        rank = int(os.environ.get("RANK", "0"))
+        path = self.agent_match_debug_path
+        if "{rank}" in path:
+            path = path.format(rank=rank)
+        else:
+            root, ext = os.path.splitext(path)
+            path = f"{root}.rank{rank}{ext or '.jsonl'}"
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "a", encoding="utf-8") as stream:
+            for record in records:
+                stream.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
 
     @staticmethod
     def _find_token_positions(input_ids, token_ids):
@@ -626,6 +639,12 @@ class Qwenvl_OFT(baseframework):
                     "bbox_norm_per_view" in payload and "visible_per_view" in payload and "view_mask" in payload
                     for payload in agent_dino_payloads
                 )
+                debug_records = []
+                debug_this_step = bool(
+                    self.agent_match_debug_path
+                    and self.agent_match_debug_interval > 0
+                    and self.agent_match_debug_step % self.agent_match_debug_interval == 0
+                )
                 if use_multiview:
                     vis_targets = torch.zeros_like(pred_vis_logits_per_view, dtype=torch.float32)
                     view_index = torch.as_tensor(self.agent_view_ids, device=mine_agent_queries.device, dtype=torch.long)
@@ -651,12 +670,39 @@ class Qwenvl_OFT(baseframework):
                     if valid_count <= 0:
                         continue
 
-                    feats = feats[:valid_count]
+                    original_valid_count = valid_count
+                    valid_indices = None
+                    agent_valid_mask = payload.get("agent_valid_mask")
+                    if agent_valid_mask is not None:
+                        agent_valid_mask = agent_valid_mask[:valid_count].to(device=mine_agent_queries.device, dtype=torch.bool)
+                        valid_indices = torch.nonzero(agent_valid_mask, as_tuple=False).squeeze(1)
+                        if valid_indices.numel() == 0:
+                            continue
+                        feats = feats.index_select(dim=0, index=valid_indices)
+                        if use_multiview:
+                            bboxes_mv = bboxes_mv.index_select(dim=0, index=valid_indices)
+                            visible_mv = visible_mv.index_select(dim=0, index=valid_indices)
+                            view_mask_mv = view_mask_mv.index_select(dim=0, index=valid_indices)
+                        else:
+                            bboxes = bboxes.index_select(dim=0, index=valid_indices)
+                        valid_count = int(valid_indices.numel())
+                    else:
+                        feats = feats[:valid_count]
+                    metadata = self._decode_agent_dino_metadata(payload) if debug_this_step else {}
+                    metadata_agents = metadata.get("agents", []) if isinstance(metadata, dict) else []
+                    if valid_indices is not None:
+                        original_teacher_indices = [int(value) for value in valid_indices.detach().cpu().tolist()]
+                    else:
+                        original_teacher_indices = list(range(valid_count))
                     ranks = payload.get("agent_ranks")
                     if ranks is None:
                         rank_prior = torch.zeros((valid_count,), device=mine_agent_queries.device, dtype=torch.float32)
                     else:
-                        ranks = ranks[:valid_count].to(device=mine_agent_queries.device, dtype=torch.float32)
+                        ranks = ranks[:original_valid_count].to(device=mine_agent_queries.device, dtype=torch.float32)
+                        if valid_indices is not None:
+                            ranks = ranks.index_select(dim=0, index=valid_indices)
+                        else:
+                            ranks = ranks[:valid_count]
                         rank_prior = ranks / ranks.max().clamp(min=1.0)
 
                     feat_cost = F.smooth_l1_loss(
@@ -697,11 +743,46 @@ class Qwenvl_OFT(baseframework):
                             + self.agent_match_lambda_rank * rank_prior[None, :]
                         )
 
-                    query_indices, target_indices = _bruteforce_linear_sum_assignment(cost)
+                    if self.agent_match_strategy == "ordered":
+                        match_count = min(int(cost.shape[0]), int(cost.shape[1]))
+                        query_indices = list(range(match_count))
+                        target_indices = list(range(match_count))
+                    else:
+                        query_indices, target_indices = _linear_sum_assignment(cost)
                     if not query_indices:
                         continue
                     q_idx = torch.as_tensor(query_indices, device=mine_agent_queries.device, dtype=torch.long)
                     t_idx = torch.as_tensor(target_indices, device=mine_agent_queries.device, dtype=torch.long)
+                    if debug_this_step:
+                        cost_cpu = cost.detach().float().cpu()
+                        feat_cost_cpu = feat_cost.detach().float().cpu()
+                        bbox_cost_cpu = bbox_cost.detach().float().cpu()
+                        vis_cost_cpu = vis_cost.detach().float().cpu() if use_multiview else None
+                        rank_prior_cpu = rank_prior.detach().float().cpu()
+                        for query_index, target_index in zip(query_indices, target_indices):
+                            original_index = original_teacher_indices[int(target_index)] if int(target_index) < len(original_teacher_indices) else int(target_index)
+                            agent_meta = metadata_agents[original_index] if original_index < len(metadata_agents) else {}
+                            debug_records.append({
+                                "debug_step": int(self.agent_match_debug_step),
+                                "batch_index": int(batch_index),
+                                "token": metadata.get("token", "") if isinstance(metadata, dict) else "",
+                                "query_index": int(query_index),
+                                "teacher_index": int(original_index),
+                                "teacher_rank": int(agent_meta.get("rank", original_index)) if agent_meta else int(original_index),
+                                "class_name": agent_meta.get("class_name", "") if agent_meta else "",
+                                "track_token": agent_meta.get("track_token", "") if agent_meta else "",
+                                "instance_token": agent_meta.get("instance_token", "") if agent_meta else "",
+                                "score": float(agent_meta.get("score", 0.0)) if agent_meta else 0.0,
+                                "visible_sort_score": float(agent_meta.get("visible_sort_score", 0.0)) if agent_meta else 0.0,
+                                "view": agent_meta.get("view", "") if agent_meta else "",
+                                "num_views": len(agent_meta.get("camera_projections", [])) if agent_meta else 0,
+                                "match_cost": float(cost_cpu[int(query_index), int(target_index)]),
+                                "feature_cost": float(feat_cost_cpu[int(query_index), int(target_index)]),
+                                "bbox_cost": float(bbox_cost_cpu[int(query_index), int(target_index)]),
+                                "vis_cost": float(vis_cost_cpu[int(query_index), int(target_index)]) if vis_cost_cpu is not None else 0.0,
+                                "rank_prior": float(rank_prior_cpu[int(target_index)]),
+                                "match_strategy": self.agent_match_strategy,
+                            })
                     feature_losses.append(F.smooth_l1_loss(pred_features[batch_index, q_idx], feats[t_idx]))
                     if use_multiview:
                         vis_targets[batch_index, q_idx, :] = visible_mv[t_idx]
@@ -714,6 +795,10 @@ class Qwenvl_OFT(baseframework):
                         vis_targets[batch_index, q_idx] = 1.0
                         bbox_losses.append(F.smooth_l1_loss(pred_bboxes[batch_index, q_idx], bboxes[t_idx]))
                     agent_match_count = agent_match_count + float(len(query_indices))
+
+                if debug_this_step:
+                    self._write_agent_match_debug(debug_records)
+                self.agent_match_debug_step += 1
 
                 if feature_losses:
                     agent_dino_loss = torch.stack(feature_losses).mean() * self.agent_dino_loss_weight

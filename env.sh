@@ -69,20 +69,20 @@ export NAVSIM_DEVKIT_ROOT="${NAVSIM_DEVKIT_ROOT:-$DRIVEDREAMER_ROOT/navsim}"
 export NAVSIM_V1_DEVKIT_ROOT="${NAVSIM_V1_DEVKIT_ROOT:-$DRIVEDREAMER_ROOT/navsim_v1.1/navsim}"
 export OPENSCENE_DATA_ROOT="${OPENSCENE_DATA_ROOT:-$NAVSIM_PUBLIC_ROOT}"
 export DATA_ROOT="${DATA_ROOT:-$DRIVEDREAMER_ROOT/navsim_dataset}"
-export NAVSIM_V1_METRIC_CACHE_PATH="${NAVSIM_V1_METRIC_CACHE_PATH:-$DRIVEDREAMER_ROOT/navsim_exp/metric_cache_v1.1}"
+export NAVSIM_V1_METRIC_CACHE_PATH="/mnt/workspace/ReCogDrive/ReCogDrive/recogdrive/navsim/exp/metric_cache"
 export NAVSIM_V2_METRIC_CACHE_ROOT="${NAVSIM_V2_METRIC_CACHE_ROOT:-$DRIVEDREAMER_ROOT/navsim_exp}"
 export PYTHONPATH="$DRIVEDREAMER_ROOT:$DRIVEDREAMER_ROOT/navsim_data_process:$NAVSIM_DEVKIT_ROOT:${PYTHONPATH:-}"
 
 # ── Base VLM checkpoint ───────────────────────────────────────────────────────
 # Output of step 7 (7-add_token.sh): Qwen3-VL-2B-Instruct with extended world & action tokens
 export SOURCE_VLM="${SOURCE_VLM:-$SHARED_WEIGHT_ROOT/Qwen/Qwen3-VL-2B-Instruct}"
-export BASE_VLM="${BASE_VLM:-$DRIVEDREAMER_ROOT/weights/derived/Qwen3-VL-2B-WorldAction}"
+export BASE_VLM="${BASE_VLM:-$DRIVEDREAMER_ROOT/weights/derived/Qwen3-VL-2B-WorldAction-Agent32}"
 export VLM_ATTN_IMPLEMENTATION="${VLM_ATTN_IMPLEMENTATION:-flash_attention_2}"
 export VIDEO_MODEL="${VIDEO_MODEL:-$SHARED_WEIGHT_ROOT/alibaba-pai/Wan2.1-Fun-V1.1-1.3B-InP}"
 export PPD_MODEL="${PPD_MODEL:-$SHARED_WEIGHT_ROOT/gangweix/Pixel-Perfect-Depth/ppd.pth}"
 export DEPTH_ANYTHING_MODEL="${DEPTH_ANYTHING_MODEL:-$SHARED_WEIGHT_ROOT/depth-anything/Depth-Anything-V2-Large/depth_anything_v2_vitl.pth}"
 export DA3_MODEL="${DA3_MODEL:-$SHARED_WEIGHT_ROOT/depth-anything/da3metric-large}"
-export RELEASE_MODEL="${RELEASE_MODEL:-$DRIVEDREAMER_ROOT/navsim_exp/0808_11-agent-action-lr1e5-16g-bz_2-ga_1-train/final_model/pytorch_model.pt}"
+export RELEASE_MODEL="${RELEASE_MODEL:-$DRIVEDREAMER_ROOT/navsim_exp/agent-action-visible32-objectslot-debug/final_model/pytorch_model.pt}"
 
 # ── Weights & Biases (optional) ───────────────────────────────────────────────
 export WANDB_API_KEY="${WANDB_API_KEY:-}"

@@ -12,7 +12,7 @@
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$project_root/scripts/load_env.sh"
+source "$project_root/load_env.sh"
 
 # ── Required env vars (set in env.sh) ─────────────────────────────────────────
 : "${HF_HOME:?Set HF_HOME in env.sh}"
@@ -23,11 +23,11 @@ source "$project_root/scripts/load_env.sh"
 
 # Where to save the token-extended model (set this as BASE_VLM in env.sh afterwards)
 : "${BASE_VLM:?Set BASE_VLM in env.sh}"
-TARGET_VLM="${BASE_VLM}"
+TARGET_VLM="${TARGET_VLM:-${BASE_VLM}}"
 
 # Token lists bundled with this repo
 WORLD_TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/world_tokens_all_64.txt"
-MINE_AGENT_TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/mine_agent_tokens_4.txt"
+MINE_AGENT_TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/mine_agent_tokens_32.txt"
 COMBINED_TOKEN_LIST="$(mktemp /tmp/qwen_special_tokens.XXXXXX)"
 trap 'rm -f "${COMBINED_TOKEN_LIST}"' EXIT
 
