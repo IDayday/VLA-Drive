@@ -254,6 +254,21 @@ class NavSimDataset(Dataset):
             print(
                 f"loading NAVSIM agent dino cache {agent_dino_cache_root} strict={int(agent_dino_cache_strict)}"
             )
+        vggt_cache_root = os.environ.get("NAVSIM_VGGT_CACHE_ROOT", "").strip()
+        vggt_cache_strict = os.environ.get("NAVSIM_VGGT_CACHE_STRICT", "1") == "1"
+        self.vggt_cache = (
+            NavsimFeatureCacheReader(
+                cache_root=vggt_cache_root,
+                components=("vggt_query",),
+                strict=vggt_cache_strict,
+            )
+            if vggt_cache_root
+            else None
+        )
+        if self.vggt_cache is not None:
+            print(
+                f"loading NAVSIM VGGT cache {vggt_cache_root} strict={int(vggt_cache_strict)}"
+            )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
         if self.split == "mini":
@@ -448,6 +463,10 @@ class NavSimDataset(Dataset):
             payload = self.agent_dino_cache.get("agent_dino", idx, raw)
             if payload is not None:
                 cached_features["agent_dino"] = payload
+        if self.vggt_cache is not None and self.vggt_cache.has_component("vggt_query"):
+            payload = self.vggt_cache.get("vggt_query", idx, raw)
+            if payload is not None:
+                cached_features["vggt_query"] = payload
 
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')
@@ -704,6 +723,8 @@ class NavSimDataset(Dataset):
             sample['qwen_feature_cache'] = cached_features["qwen"]
         if "agent_dino" in cached_features:
             sample['agent_dino_feature_cache'] = cached_features["agent_dino"]
+        if "vggt_query" in cached_features:
+            sample['vggt_feature_cache'] = cached_features["vggt_query"]
 
         # if self.video_data_cfg.load_2d_data:
         #     sample['2d_gen_data'] = {}

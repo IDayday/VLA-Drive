@@ -599,6 +599,13 @@ class VLATrainer(TrainerUtils):
                 agent_bbox_loss = output_dict.get('agent_bbox_loss', torch.tensor(0.0, device=action_loss.device))
                 agent_vis_loss = output_dict.get('agent_vis_loss', torch.tensor(0.0, device=action_loss.device))
                 agent_match_count = output_dict.get('agent_match_count', torch.tensor(0.0, device=action_loss.device))
+                vggt_loss = output_dict.get('vggt_loss', torch.tensor(0.0, device=action_loss.device))
+                vggt_loss_raw = output_dict.get('vggt_loss_raw', torch.tensor(0.0, device=action_loss.device))
+                vggt_action_grad_norm = output_dict.get('vggt_action_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_align_grad_norm = output_dict.get('vggt_align_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_cosine_loss = output_dict.get('vggt_cosine_loss', torch.tensor(0.0, device=action_loss.device))
+                vggt_smooth_l1_loss = output_dict.get('vggt_smooth_l1_loss', torch.tensor(0.0, device=action_loss.device))
+                vggt_relational_loss = output_dict.get('vggt_relational_loss', torch.tensor(0.0, device=action_loss.device))
 
                 total_loss = 0
                 if self.config.datasets.video_data.load_2d_data == 1:
@@ -613,6 +620,8 @@ class VLATrainer(TrainerUtils):
                     total_loss += agent_dino_loss
                     total_loss += agent_bbox_loss
                     total_loss += agent_vis_loss
+                if bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)):
+                    total_loss += vggt_loss
 
 
             # VLA backward propagation
@@ -639,6 +648,13 @@ class VLATrainer(TrainerUtils):
             "agent_bbox_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_bbox_loss.detach(),
             "agent_vis_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_vis_loss.detach(),
             "agent_match_count": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_match_count.detach(),
+            "vggt_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_loss.detach(),
+            "vggt_loss_raw": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_loss_raw.detach(),
+            "vggt_action_grad_norm": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_action_grad_norm.detach(),
+            "vggt_align_grad_norm": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_align_grad_norm.detach(),
+            "vggt_cosine_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_cosine_loss.detach(),
+            "vggt_smooth_l1_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_smooth_l1_loss.detach(),
+            "vggt_relational_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_relational_loss.detach(),
         }
 
     def _finalize_training(self):

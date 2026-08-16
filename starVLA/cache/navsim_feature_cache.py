@@ -18,12 +18,13 @@ import torch
 
 
 CACHE_SCHEMA_VERSION = 1
-CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino")
+CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino", "vggt_query")
 CACHE_SCHEMA_VERSIONS = {
     "qwen": (1,),
     "wan": (1,),
     "ppd": (1,),
     "agent_dino": (1, 2, 3),
+    "vggt_query": (1,),
 }
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"
@@ -31,6 +32,11 @@ RGB_QUERY_TOKENS = tuple(f"<2d_world_{index}>" for index in range(64))
 GS_QUERY_TOKENS = tuple(f"<3d_world_{index}>" for index in range(64))
 MINE_AGENT_QUERY_TOKENS = tuple(f"<mine_agent_{index}>" for index in range(32))
 REWARD_QUERY_TOKENS = ("<reward_0>",)
+VGGT_LATENT_START_TOKEN = "<latent_start_3d>"
+VGGT_LATENT_END_TOKEN = "<latent_end_3d>"
+ACTION_START_TOKEN = "<action_start>"
+ACTION_END_TOKEN = "<action_end>"
+VGGT_QUERY_TOKENS = tuple(f"<vggt_latent_{index}>" for index in range(195))
 
 
 def action_query_tokens(count: int) -> tuple[str, ...]:

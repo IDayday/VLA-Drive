@@ -32,6 +32,25 @@ framework:
   dino:
     dino_backbone: dinov2_vits14
 
+  vggt:
+    enabled: false
+    mode: fixed_query
+    query_count: 63
+    teacher_dim: 1024
+    hidden_dim: 2048
+    bridge_heads: 16
+    bridge_init_std: 0.001
+    loss_weight: 0.1
+    cosine_weight: 1.0
+    smooth_l1_weight: 0.1
+    relational_weight: 0.05
+    log_grad_norms: true
+    loss_type: cosine_smoothl1_relational
+    alignment_mask: valid_mask
+    planner_mask: all_true
+    use_bridge: true
+    use_context: true
+
   action_model:
     action_model_type: DiT-B
     hidden_size: 1024     # 和 DiT 最后的 projection 对应，用于 ActionDecoder
@@ -60,6 +79,7 @@ framework:
       output_dim: 1024
       positional_embeddings: null
     mlp_head: 0
+    vggt_fusion: planning_bridge_context
   
   video_model:
     model_name: /path/to/wan2.1/model

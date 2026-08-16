@@ -54,11 +54,16 @@ from omegaconf import OmegaConf
 ##### depth ppd
 from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
 from starVLA.cache.navsim_feature_cache import (
+    ACTION_END_TOKEN,
+    ACTION_START_TOKEN,
     GS_QUERY_TOKENS,
     MINE_AGENT_QUERY_TOKENS,
     REWARD_QUERY_TOKENS,
     RGB_QUERY_TOKENS,
     ROBOT_HISTORY_TOKEN,
+    VGGT_LATENT_END_TOKEN,
+    VGGT_LATENT_START_TOKEN,
+    VGGT_QUERY_TOKENS,
     action_query_tokens,
 )
 
@@ -105,6 +110,36 @@ class TinyDepthAdapter(nn.Module):
         x = self.ln(x)
         x = self.proj(x)                                    # [B,64,2048]
         return x
+
+class PlanningQueryBridge(nn.Module):
+    """Action-conditioned VGGT readout before the action DiT."""
+
+    def __init__(self, hidden_size: int, num_heads: int = 16, out_init_std: float = 1e-3):
+        super().__init__()
+        self.action_norm = nn.LayerNorm(hidden_size)
+        self.vggt_norm = nn.LayerNorm(hidden_size)
+        self.attn = nn.MultiheadAttention(
+            embed_dim=hidden_size,
+            num_heads=num_heads,
+            batch_first=True,
+        )
+        self.gamma = nn.Parameter(torch.zeros(()))
+        nn.init.normal_(self.attn.out_proj.weight, mean=0.0, std=out_init_std)
+        nn.init.zeros_(self.attn.out_proj.bias)
+
+    def forward(self, action_queries, vggt_queries, planner_mask=None):
+        key_padding_mask = None
+        if planner_mask is not None:
+            key_padding_mask = ~planner_mask.bool()
+        delta, _ = self.attn(
+            self.action_norm(action_queries),
+            self.vggt_norm(vggt_queries),
+            self.vggt_norm(vggt_queries),
+            key_padding_mask=key_padding_mask,
+            need_weights=False,
+        )
+        return action_queries + torch.sigmoid(self.gamma) * delta
+
 
 class RGBLatentAdapter(nn.Module):
     def __init__(self, in_c=16, hidden=1024, grid=(1,4,8), n_view=3):
@@ -192,12 +227,36 @@ class Qwenvl_OFT(baseframework):
         self.action_prompt_mode = str(
             OmegaConf.select(self.config, "framework.action_prompt_mode", default="full")
         ).lower()
+        self.vggt_enabled = bool(OmegaConf.select(self.config, "framework.vggt.enabled", default=False))
+        self.vggt_mode = str(OmegaConf.select(self.config, "framework.vggt.mode", default="fixed_query")).lower()
+        self.vggt_query_count = int(OmegaConf.select(self.config, "framework.vggt.query_count", default=63))
+        self.vggt_query_count = min(self.vggt_query_count, len(VGGT_QUERY_TOKENS))
+        self.vggt_query_tokens = list(VGGT_QUERY_TOKENS[: self.vggt_query_count])
+        self.vggt_latent_start_token = VGGT_LATENT_START_TOKEN
+        self.vggt_latent_end_token = VGGT_LATENT_END_TOKEN
+        self.action_start_token = ACTION_START_TOKEN
+        self.action_end_token = ACTION_END_TOKEN
 
         tokenizer = self.qwen_vl_interface.processor.tokenizer
         self._special_token_ids = {
             "history": (tokenizer.convert_tokens_to_ids(self.robot_history_token),),
             "action": tuple(tokenizer.convert_tokens_to_ids(self.act_query_tokens)),
         }
+        if self.vggt_enabled:
+            self._special_token_ids.update(
+                {
+                    "vggt": tuple(tokenizer.convert_tokens_to_ids(self.vggt_query_tokens)),
+                }
+            )
+            if self.vggt_mode != "fixed_query":
+                self._special_token_ids.update(
+                    {
+                        "latent_start_3d": (tokenizer.convert_tokens_to_ids(self.vggt_latent_start_token),),
+                        "latent_end_3d": (tokenizer.convert_tokens_to_ids(self.vggt_latent_end_token),),
+                        "action_start": (tokenizer.convert_tokens_to_ids(self.action_start_token),),
+                        "action_end": (tokenizer.convert_tokens_to_ids(self.action_end_token),),
+                    }
+                )
         if self.action_prompt_mode != "minimal":
             self._special_token_ids.update(
                 {
@@ -219,6 +278,27 @@ class Qwenvl_OFT(baseframework):
             hidden_dim=self.qwen_vl_interface.model.config.hidden_size,
             output_dim=self.qwen_vl_interface.model.config.hidden_size,
         )
+
+        hidden_size = self.qwen_vl_interface.model.config.hidden_size
+        self.vggt_loss_weight = float(OmegaConf.select(self.config, "framework.vggt.loss_weight", default=0.1))
+        self.vggt_cosine_weight = float(OmegaConf.select(self.config, "framework.vggt.cosine_weight", default=1.0))
+        self.vggt_smooth_l1_weight = float(OmegaConf.select(self.config, "framework.vggt.smooth_l1_weight", default=0.1))
+        self.vggt_relational_weight = float(OmegaConf.select(self.config, "framework.vggt.relational_weight", default=0.05))
+        self.vggt_log_grad_norms = bool(OmegaConf.select(self.config, "framework.vggt.log_grad_norms", default=True))
+        self.vggt_teacher_dim = int(OmegaConf.select(self.config, "framework.vggt.teacher_dim", default=1024))
+        self.vggt_use_bridge = bool(OmegaConf.select(self.config, "framework.vggt.use_bridge", default=True))
+        self.vggt_use_context = bool(OmegaConf.select(self.config, "framework.vggt.use_context", default=True))
+        self.vggt_planner_mask = str(OmegaConf.select(self.config, "framework.vggt.planner_mask", default="all_true")).lower()
+        if self.vggt_enabled:
+            bridge_heads = int(OmegaConf.select(self.config, "framework.vggt.bridge_heads", default=16))
+            bridge_init_std = float(OmegaConf.select(self.config, "framework.vggt.bridge_init_std", default=1e-3))
+            self.vggt_bridge = PlanningQueryBridge(hidden_size, bridge_heads, bridge_init_std)
+            self.vggt_alignment_head = nn.Sequential(
+                nn.LayerNorm(hidden_size),
+                nn.Linear(hidden_size, hidden_size),
+                nn.GELU(),
+                nn.Linear(hidden_size, self.vggt_teacher_dim),
+            )
 
         self.infer_not_load_wan = infer_not_load_wan
 
@@ -402,6 +482,13 @@ class Qwenvl_OFT(baseframework):
         """Build the instruction suffix used by action-only prompting."""
         hist_str = self.robot_history_token
         act_str = "".join(self.act_query_tokens)
+        if self.vggt_enabled:
+            vggt_str = "".join(self.vggt_query_tokens)
+            if self.vggt_mode == "fixed_query":
+                return f" {hist_str}{vggt_str}{act_str}"
+            latent_span = f"{self.vggt_latent_start_token}{vggt_str}{self.vggt_latent_end_token}"
+            action_span = f"{self.action_start_token}{act_str}{self.action_end_token}"
+            return f" {hist_str}{latent_span}{action_span}"
         if self.action_prompt_mode == "minimal":
             return f" {hist_str}{act_str}"
         if self.action_prompt_mode == "minimal_agent":
@@ -414,6 +501,111 @@ class Qwenvl_OFT(baseframework):
         if self.w_depth:
             return f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
         return f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
+
+    def _gather_ordered_token_queries(self, last_hidden, input_ids, tokens, tokenizer):
+        token_ids = [tokenizer.convert_tokens_to_ids(token) for token in tokens]
+        B, _, H = last_hidden.shape
+        positions = []
+        for batch_index in range(B):
+            current = []
+            for token_id in token_ids:
+                where = (input_ids[batch_index] == token_id).nonzero(as_tuple=False)
+                if where.numel() == 0:
+                    raise RuntimeError(f"Sample {batch_index}: token {token_id} not found. Did you add the required special tokens?")
+                current.append(int(where[0]))
+            positions.append(torch.tensor(current, device=last_hidden.device))
+        positions = torch.stack(positions, dim=0)
+        gather_index = positions.unsqueeze(-1).expand(-1, -1, H)
+        return last_hidden.gather(dim=1, index=gather_index)
+
+    def _build_action_condition_from_queries(self, action_queries, vggt_queries=None, examples=None):
+        if not self.vggt_enabled or vggt_queries is None:
+            return action_queries
+        planner_mask = None
+        if examples is not None:
+            planner_mask = self._build_vggt_planner_mask(vggt_queries, examples)
+        else:
+            planner_mask = torch.ones(vggt_queries.shape[:2], device=vggt_queries.device, dtype=torch.bool)
+        enhanced = action_queries
+        if self.vggt_use_bridge:
+            enhanced = self.vggt_bridge(action_queries, vggt_queries, planner_mask)
+        if self.vggt_use_context:
+            return torch.cat([enhanced, vggt_queries], dim=1)
+        return enhanced
+
+    def _compute_vggt_query_grad_norm(self, loss, vggt_queries):
+        if not self.vggt_log_grad_norms or vggt_queries is None or not torch.is_tensor(loss):
+            device = vggt_queries.device if vggt_queries is not None else next(self.parameters()).device
+            return torch.tensor(0.0, device=device)
+        if not loss.requires_grad:
+            return torch.tensor(0.0, device=vggt_queries.device)
+        grad = torch.autograd.grad(
+            loss,
+            vggt_queries,
+            retain_graph=True,
+            create_graph=False,
+            allow_unused=True,
+        )[0]
+        if grad is None:
+            return torch.tensor(0.0, device=vggt_queries.device)
+        return grad.detach().float().norm()
+
+    def _compute_vggt_alignment_loss(self, vggt_queries, examples):
+        payloads = [example.get("vggt_feature_cache") for example in examples]
+        if not all(payload is not None for payload in payloads):
+            raise RuntimeError("framework.vggt.enabled requires vggt_feature_cache for every sample")
+        cosine_losses = []
+        smooth_l1_losses = []
+        relational_losses = []
+        device = vggt_queries.device
+        pred = self.vggt_alignment_head(vggt_queries.float())
+        for batch_index, payload in enumerate(payloads):
+            target = payload["features"][: self.vggt_query_count].to(device=device, dtype=pred.dtype)
+            valid = payload.get("valid_mask")
+            if valid is None:
+                valid = torch.ones(target.shape[0], device=device, dtype=torch.bool)
+            else:
+                valid = valid[: self.vggt_query_count].to(device=device, dtype=torch.bool)
+            if not bool(valid.any()):
+                continue
+            pred_valid = pred[batch_index, valid]
+            target_valid = target[valid]
+            pred_norm = F.normalize(pred_valid, dim=-1, eps=1e-6)
+            target_norm = F.normalize(target_valid, dim=-1, eps=1e-6)
+            cosine_losses.append((1.0 - (pred_norm * target_norm).sum(dim=-1)).mean())
+            smooth_l1_losses.append(F.smooth_l1_loss(pred_valid, target_valid))
+            if pred_valid.shape[0] > 1:
+                pred_rel = pred_norm @ pred_norm.transpose(0, 1)
+                target_rel = target_norm @ target_norm.transpose(0, 1)
+                relational_losses.append(F.smooth_l1_loss(pred_rel, target_rel))
+        zero = pred.sum() * 0.0
+        cosine_loss = torch.stack(cosine_losses).mean() if cosine_losses else zero
+        smooth_l1_loss = torch.stack(smooth_l1_losses).mean() if smooth_l1_losses else zero
+        relational_loss = torch.stack(relational_losses).mean() if relational_losses else zero
+        raw_loss = (
+            self.vggt_cosine_weight * cosine_loss
+            + self.vggt_smooth_l1_weight * smooth_l1_loss
+            + self.vggt_relational_weight * relational_loss
+        )
+        return {
+            "loss": raw_loss * self.vggt_loss_weight,
+            "raw": raw_loss.detach(),
+            "cosine": cosine_loss.detach(),
+            "smooth_l1": smooth_l1_loss.detach(),
+            "relational": relational_loss.detach(),
+        }
+
+    def _build_vggt_planner_mask(self, vggt_queries, examples):
+        if self.vggt_planner_mask == "valid_mask":
+            masks = []
+            for example in examples:
+                payload = example.get("vggt_feature_cache")
+                if payload is None or "valid_mask" not in payload:
+                    masks.append(torch.ones(self.vggt_query_count, device=vggt_queries.device, dtype=torch.bool))
+                else:
+                    masks.append(payload["valid_mask"][: self.vggt_query_count].to(device=vggt_queries.device, dtype=torch.bool))
+            return torch.stack(masks, dim=0)
+        return torch.ones(vggt_queries.shape[:2], device=vggt_queries.device, dtype=torch.bool)
 
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
@@ -619,6 +811,26 @@ class Qwenvl_OFT(baseframework):
         agent_bbox_loss = torch.tensor(0.).to(text_embeds.device)
         agent_vis_loss = torch.tensor(0.).to(text_embeds.device)
         agent_match_count = torch.tensor(0., device=text_embeds.device)
+        vggt_loss = torch.tensor(0.).to(text_embeds.device)
+        vggt_loss_raw = torch.tensor(0.).to(text_embeds.device)
+        vggt_action_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_align_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_cosine_loss = torch.tensor(0.).to(text_embeds.device)
+        vggt_smooth_l1_loss = torch.tensor(0.).to(text_embeds.device)
+        vggt_relational_loss = torch.tensor(0.).to(text_embeds.device)
+        vggt_queries = None
+        vggt_planner_mask = None
+        if self.vggt_enabled:
+            vggt_g_idx = token_positions["vggt"].unsqueeze(-1).expand(-1, -1, H)
+            vggt_queries = last_hidden.gather(dim=1, index=vggt_g_idx)
+            vggt_loss_dict = self._compute_vggt_alignment_loss(vggt_queries, examples)
+            vggt_loss = vggt_loss_dict["loss"]
+            vggt_loss_raw = vggt_loss_dict["raw"]
+            vggt_cosine_loss = vggt_loss_dict["cosine"]
+            vggt_smooth_l1_loss = vggt_loss_dict["smooth_l1"]
+            vggt_relational_loss = vggt_loss_dict["relational"]
+            vggt_planner_mask = self._build_vggt_planner_mask(vggt_queries, examples)
+
         if self.action_prompt_mode == "minimal_agent":
             mine_agent_g_idx = token_positions["mine_agent"].unsqueeze(-1).expand(-1, -1, H)
             mine_agent_queries = last_hidden.gather(dim=1, index=mine_agent_g_idx)  # [B, 4, H]
@@ -842,7 +1054,6 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.vla_data.load_act_data == 1:
             g_idx = token_positions["action"].unsqueeze(-1).expand(-1, -1, H)
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
-
             with torch.autocast("cuda", dtype=torch.float32):
                 if type(actions) == list:
                     actions = torch.tensor(
@@ -853,8 +1064,17 @@ class Qwenvl_OFT(baseframework):
                     self.config.framework.action_model.get("repeated_diffusion_steps", 1) if self.config else 1
                 )
                 repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
+                action_condition = action_queries
+                if self.vggt_enabled and vggt_queries is not None:
+                    enhanced_action_queries = action_queries
+                    if self.vggt_use_bridge:
+                        enhanced_action_queries = self.vggt_bridge(action_queries, vggt_queries, vggt_planner_mask)
+                    if self.vggt_use_context:
+                        action_condition = torch.cat([enhanced_action_queries, vggt_queries], dim=1)
+                    else:
+                        action_condition = enhanced_action_queries
                 # 对每层特征做 repeat
-                repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
+                repeat_action_queries = action_condition.repeat(repeated_diffusion_steps, 1, 1)
 
                 if self.w_video_latent:
                     video_token = self.rgb_latent_adapter(video_latent)
@@ -871,6 +1091,9 @@ class Qwenvl_OFT(baseframework):
         else:
             action_loss = torch.tensor(0.).cuda()
 
+        if self.vggt_enabled and vggt_queries is not None:
+            vggt_action_grad_norm = self._compute_vggt_query_grad_norm(action_loss, vggt_queries)
+            vggt_align_grad_norm = self._compute_vggt_query_grad_norm(vggt_loss, vggt_queries)
 
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
 
@@ -946,11 +1169,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count}
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count}
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
 
     @torch.inference_mode()
     def predict_action(
@@ -1147,13 +1370,19 @@ class Qwenvl_OFT(baseframework):
             act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
             g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
+            vggt_queries = None
+            if self.vggt_enabled:
+                vggt_queries = self._gather_ordered_token_queries(
+                    last_hidden, input_ids, self.vggt_query_tokens, tok
+                )
 
             with torch.autocast("cuda", dtype=torch.float32):
                 # 提取动作 token embedding 作为动作预测查询
                 # input_ids = qwen_inputs.get("input_ids", None)
                 # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
                 if self.mlp_head == 0:
-                    pred_actions = self.action_model.predict_action(action_queries)  # (B, chunk_len, action_dim)
+                    action_condition = self._build_action_condition_from_queries(action_queries, vggt_queries)
+                    pred_actions = self.action_model.predict_action(action_condition)  # (B, chunk_len, action_dim)
                 else:
                     pred_actions = self.action_model(action_queries)
 
@@ -1458,13 +1687,19 @@ class Qwenvl_OFT(baseframework):
         act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
         g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
         action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
+        vggt_queries = None
+        if self.vggt_enabled:
+            vggt_queries = self._gather_ordered_token_queries(
+                last_hidden, input_ids, self.vggt_query_tokens, tok
+            )
 
         with torch.autocast("cuda", dtype=torch.float32):
             # 提取动作 token embedding 作为动作预测查询
             # input_ids = qwen_inputs.get("input_ids", None)
             # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
             if self.mlp_head == 0:
-                pred_actions = self.action_model.predict_action(action_queries)  # (B, chunk_len, action_dim)
+                action_condition = self._build_action_condition_from_queries(action_queries, vggt_queries)
+                pred_actions = self.action_model.predict_action(action_condition)  # (B, chunk_len, action_dim)
             else:
                 pred_actions = self.action_model(action_queries)
 
