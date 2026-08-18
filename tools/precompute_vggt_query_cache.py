@@ -45,6 +45,9 @@ from starVLA.model.modules.vggt_query.targets import (  # noqa: E402
     select_vggt_global_teacher_layer,
 )
 from starVLA.model.modules.vggt_query.types import VGGTQueryLayout  # noqa: E402
+from starVLA.model.modules.vggt_query.native_codec import (  # noqa: E402
+    load_native_codec_checkpoint,
+)
 
 
 COMPONENT = "vggt_query"
@@ -178,7 +181,14 @@ def patch_validity_for_image(path: Path, target_size: int = 518, patch_size: int
     return validity
 
 
-def load_local_vggt(repo_path: Path, checkpoint_path: Path, device: torch.device):
+def load_local_vggt(
+    repo_path: Path,
+    checkpoint_path: Path,
+    device: torch.device,
+    *,
+    enable_camera: bool = False,
+    enable_geometry: bool = True,
+):
     if not repo_path.is_dir():
         raise FileNotFoundError(
             f"Missing local VGGT repository: {repo_path}. Set VGGT_REPO; no download is attempted."
@@ -197,12 +207,16 @@ def load_local_vggt(repo_path: Path, checkpoint_path: Path, device: torch.device
         ) from error
 
     model = VGGT(
-        enable_camera=False,
-        enable_point=True,
-        enable_depth=True,
+        enable_camera=enable_camera,
+        enable_point=enable_geometry,
+        enable_depth=enable_geometry,
         enable_track=False,
     )
-    allowed_prefixes = ("aggregator.", "depth_head.", "point_head.")
+    allowed_prefixes = ("aggregator.",)
+    if enable_geometry:
+        allowed_prefixes = (*allowed_prefixes, "depth_head.", "point_head.")
+    if enable_camera:
+        allowed_prefixes = (*allowed_prefixes, "camera_head.")
     if checkpoint_path.suffix == ".safetensors":
         try:
             from safetensors import safe_open
@@ -411,12 +425,23 @@ def validate_cache(args: argparse.Namespace) -> None:
     )
     manifest = reader.manifests[COMPONENT]
     layout = VGGTQueryLayout()
+    representation = manifest.get("teacher_representation", "layer11_global_v2")
     expected_manifest = {
         "query_count": layout.query_count,
         "feature_dim": layout.teacher_dim,
-        "teacher_layer_index": VGGT_TEACHER_LAYER_INDEX,
-        "teacher_attention_branch": "global",
     }
+    is_v3 = representation == "layer11_global_codec_tail_reconstructable"
+    if is_v3:
+        if not manifest.get("codec_gates", {}).get("teacher_codec_downstream", False):
+            raise RuntimeError("V3 cache codec did not pass its native downstream gate")
+        if manifest.get("codec_source_feature") != "layer11_global":
+            raise RuntimeError("V3 cache codec source is not layer11_global")
+    expected_manifest.update(
+        {
+            "teacher_layer_index": VGGT_TEACHER_LAYER_INDEX,
+            "teacher_attention_branch": "global",
+        }
+    )
     for key, expected in expected_manifest.items():
         if manifest.get(key) != expected:
             raise RuntimeError(
@@ -448,12 +473,16 @@ def validate_cache(args: argparse.Namespace) -> None:
         if payload["valid_mask"].shape != (expected_q,):
             raise RuntimeError(f"Invalid validity shape for {token}")
         expected_spatial = layout.spatial_query_count
-        if payload.get("geometry_target", torch.empty(0)).shape != (expected_spatial, 3):
-            raise RuntimeError(f"Invalid geometry target shape for {token}")
-        if payload.get("geometry_confidence", torch.empty(0)).shape != (expected_spatial,):
-            raise RuntimeError(f"Invalid geometry confidence shape for {token}")
-        if payload.get("geometry_valid_mask", torch.empty(0)).shape != (expected_spatial,):
-            raise RuntimeError(f"Invalid geometry validity shape for {token}")
+        if is_v3:
+            if payload.get("camera_target", torch.empty(0)).shape != (3, 9):
+                raise RuntimeError(f"Invalid V3 camera target shape for {token}")
+        else:
+            if payload.get("geometry_target", torch.empty(0)).shape != (expected_spatial, 3):
+                raise RuntimeError(f"Invalid geometry target shape for {token}")
+            if payload.get("geometry_confidence", torch.empty(0)).shape != (expected_spatial,):
+                raise RuntimeError(f"Invalid geometry confidence shape for {token}")
+            if payload.get("geometry_valid_mask", torch.empty(0)).shape != (expected_spatial,):
+                raise RuntimeError(f"Invalid geometry validity shape for {token}")
     print(f"[vggt-query-cache] VALID samples={len(tokens)} manifest={args.cache_root}")
 
 
@@ -479,7 +508,26 @@ def main(args: argparse.Namespace) -> None:
     if len(views) != 3:
         raise ValueError("The current VGGT query contract requires exactly three views")
     tokens = load_tokens(Path(args.datalist_path), args.max_samples)
-    model, preprocess = load_local_vggt(repo_path, checkpoint_path, device)
+    codec = None
+    codec_metadata = None
+    if args.native_codec:
+        codec_path = Path(args.native_codec).expanduser().resolve()
+        codec, codec_metadata = load_native_codec_checkpoint(codec_path)
+        if not args.allow_failed_codec and not codec_metadata.get("gates", {}).get(
+            "teacher_codec_downstream", False
+        ):
+            raise RuntimeError(
+                "Refusing to cache V3 targets: native codec has not passed all "
+                "frozen VGGT downstream gates. Use --allow-failed-codec only for diagnostics."
+            )
+        codec = codec.to(device).freeze_pretrained()
+    model, preprocess = load_local_vggt(
+        repo_path,
+        checkpoint_path,
+        device,
+        enable_camera=codec is not None,
+        enable_geometry=codec is None,
+    )
     layout = VGGTQueryLayout(view_count=len(views))
     owned = list(range(rank, len(tokens), world_size))
     statistics = SlotStatistics(layout.query_count, layout.teacher_dim)
@@ -516,15 +564,16 @@ def main(args: argparse.Namespace) -> None:
                             "Existing VGGT cache record uses a different teacher contract. "
                             "Select a new NAVSIM_VGGT_CACHE_ROOT for layer11-global V2."
                         )
-                    required_geometry = (
-                        "geometry_target",
-                        "geometry_confidence",
-                        "geometry_valid_mask",
-                    )
-                    if any(key not in payload for key in required_geometry):
+                    required_geometry = ("geometry_target", "geometry_confidence", "geometry_valid_mask")
+                    if codec is None and any(key not in payload for key in required_geometry):
                         raise RuntimeError(
                             "Existing record predates V2 physical geometry targets. "
                             "Select a new NAVSIM_VGGT_CACHE_ROOT."
+                        )
+                    if codec is not None and "camera_target" not in payload:
+                        raise RuntimeError(
+                            "Existing record is not a V3 native-codec target. "
+                            "Select a new NAVSIM_VGGT_V3_CACHE_ROOT."
                         )
                     statistics.update(payload["features"], payload["valid_mask"])
                     writer.skipped += 1
@@ -562,7 +611,7 @@ def main(args: argparse.Namespace) -> None:
                 layer_index=VGGT_TEACHER_LAYER_INDEX,
                 branch_dim=VGGT_TEACHER_BRANCH_DIM,
             )
-            targets, masks = extract_vggt_layer11_memory_targets(
+            v2_targets, masks = extract_vggt_layer11_memory_targets(
                 layer_tokens,
                 spatial_validity=validity,
                 patch_start_idx=int(patch_start_idx),
@@ -570,35 +619,58 @@ def main(args: argparse.Namespace) -> None:
                 output_size=(layout.spatial_rows, layout.spatial_cols),
                 minimum_valid_ratio=args.minimum_valid_ratio,
             )
+            if codec is None:
+                targets = v2_targets
+            else:
+                with torch.inference_mode():
+                    # `layer_tokens` is exactly aggregator layer 11's global
+                    # branch.  No other tap/branch enters the V3 encoder.
+                    targets = codec.encode(layer_tokens).float()
             assert targets.shape == (len(pending), layout.query_count, layout.teacher_dim)
             head_inputs = [value.float() if value is not None else None for value in aggregated]
             with torch.inference_mode():
-                depth, depth_confidence = model.depth_head(
-                    head_inputs, images=images, patch_start_idx=patch_start_idx
+                if codec is None:
+                    depth, depth_confidence = model.depth_head(
+                        head_inputs, images=images, patch_start_idx=patch_start_idx
+                    )
+                    points, point_confidence = model.point_head(
+                        head_inputs, images=images, patch_start_idx=patch_start_idx
+                    )
+                    camera_target = None
+                else:
+                    camera_target = model.camera_head(head_inputs)[-1]
+            if codec is None:
+                geometry_target, geometry_confidence, geometry_valid = (
+                    build_physical_geometry_targets(
+                        depth,
+                        depth_confidence,
+                        points,
+                        point_confidence,
+                        path_batches=path_batches,
+                        output_size=(layout.spatial_rows, layout.spatial_cols),
+                    )
                 )
-                points, point_confidence = model.point_head(
-                    head_inputs, images=images, patch_start_idx=patch_start_idx
-                )
-            geometry_target, geometry_confidence, geometry_valid = (
-                build_physical_geometry_targets(
-                    depth,
-                    depth_confidence,
-                    points,
-                    point_confidence,
-                    path_batches=path_batches,
-                    output_size=(layout.spatial_rows, layout.spatial_cols),
-                )
-            )
+            else:
+                geometry_target = geometry_confidence = geometry_valid = None
             for batch_index, ((_, token), features, valid_mask) in enumerate(
                 zip(pending, targets, masks)
             ):
                 payload = {
                     "features": features.detach().to(dtype=torch.bfloat16).cpu().contiguous(),
                     "valid_mask": valid_mask.detach().cpu().bool().contiguous(),
-                    "geometry_target": geometry_target[batch_index].detach().cpu().float().contiguous(),
-                    "geometry_confidence": geometry_confidence[batch_index].detach().cpu().float().contiguous(),
-                    "geometry_valid_mask": geometry_valid[batch_index].detach().cpu().bool().contiguous(),
                 }
+                if geometry_target is not None:
+                    payload.update(
+                        {
+                            "geometry_target": geometry_target[batch_index].detach().cpu().float().contiguous(),
+                            "geometry_confidence": geometry_confidence[batch_index].detach().cpu().float().contiguous(),
+                            "geometry_valid_mask": geometry_valid[batch_index].detach().cpu().bool().contiguous(),
+                        }
+                    )
+                if camera_target is not None:
+                    payload["camera_target"] = (
+                        camera_target[batch_index].detach().cpu().float().contiguous()
+                    )
                 writer.put(token, payload, overwrite=args.overwrite)
                 statistics.update(payload["features"], payload["valid_mask"])
 
@@ -652,9 +724,34 @@ def main(args: argparse.Namespace) -> None:
             "preprocess": {"mode": "pad", "target_size": 518},
             "minimum_valid_ratio": args.minimum_valid_ratio,
             "minimum_slot_variance": args.minimum_slot_variance,
-            "geometry_target": ["x_over_z", "y_over_z", "log_depth_over_scene_median"],
-            "geometry_confidence": "min(depth_head,point_head)_per_scene_normalized",
         }
+        if codec_metadata is not None:
+            extraction_config.update(
+                {
+                    "teacher_representation": "layer11_global_codec_tail_reconstructable",
+                    "teacher_layer": "codec(aggregator.global_blocks[11]_before_dpt)",
+                    "teacher_layer_index": 11,
+                    "teacher_attention_branch": "global",
+                    "codec_source_feature": "layer11_global",
+                    "codec_directly_reconstructs": "layer11_global",
+                    "codec_resumes_frozen_layers": [12, 23],
+                    "codec_reuses_native_heads": ["camera"],
+                }
+            )
+        else:
+            extraction_config["teacher_representation"] = "layer11_global_v2"
+            extraction_config.update(
+                {
+                    "geometry_target": [
+                        "x_over_z",
+                        "y_over_z",
+                        "log_depth_over_scene_median",
+                    ],
+                    "geometry_confidence": (
+                        "min(depth_head,point_head)_per_scene_normalized"
+                    ),
+                }
+            )
         extraction_config_sha256 = hashlib.sha256(
             json.dumps(extraction_config, sort_keys=True).encode("utf-8")
         ).hexdigest()
@@ -699,12 +796,33 @@ def main(args: argparse.Namespace) -> None:
                     f"bfloat16[{layout.query_count},{layout.teacher_dim}]"
                 ),
                 "valid_mask": f"bool[{layout.query_count}]",
-                "geometry_target": f"float32[{layout.spatial_query_count},3]",
-                "geometry_confidence": f"float32[{layout.spatial_query_count}]",
-                "geometry_valid_mask": f"bool[{layout.spatial_query_count}]",
             },
             "rank_completions": completions,
         }
+        if codec_metadata is not None:
+            codec_path = Path(args.native_codec).expanduser().resolve()
+            manifest.update(
+                {
+                    "native_codec_sha256": sha256_file(codec_path),
+                    "native_codec_schema_version": codec_metadata["schema_version"],
+                    "native_scalar_compression_ratio": (
+                        codec.native_scalar_compression_ratio
+                    ),
+                    "codec_gates": codec_metadata.get("gates", {}),
+                    "codec_metrics": codec_metadata.get("metrics", {}),
+                    "codec_thresholds": codec_metadata.get("thresholds", {}),
+                    "codec_source": codec_metadata.get("source", {}),
+                }
+            )
+            manifest["payload_contract"]["camera_target"] = "float32[3,9]"
+        else:
+            manifest["payload_contract"].update(
+                {
+                    "geometry_target": f"float32[{layout.spatial_query_count},3]",
+                    "geometry_confidence": f"float32[{layout.spatial_query_count}]",
+                    "geometry_valid_mask": f"bool[{layout.spatial_query_count}]",
+                }
+            )
         write_manifest(args.cache_root, COMPONENT, manifest)
         print(
             f"[vggt-query-cache] COMPLETE samples={len(tokens)} active_slots="
@@ -725,6 +843,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--cache-root", required=True)
     parser.add_argument("--vggt-repo", default=os.environ.get("VGGT_REPO", ""))
     parser.add_argument("--vggt-checkpoint", default=os.environ.get("VGGT_CHECKPOINT", ""))
+    parser.add_argument(
+        "--native-codec",
+        default="",
+        help="V3 codec checkpoint; when set, cache its 195 reconstructable latents",
+    )
+    parser.add_argument(
+        "--allow-failed-codec",
+        action="store_true",
+        help="diagnostic only: materialize a V3 codec that failed downstream gates",
+    )
     parser.add_argument("--views", default=",".join(DEFAULT_VIEWS))
     parser.add_argument("--frame-index", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=1)

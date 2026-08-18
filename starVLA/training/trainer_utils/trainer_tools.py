@@ -48,6 +48,33 @@ def normalize_dotlist_args(args):
     return normalized
 
 
+def resolve_training_step_contract(cfg):
+    """Return ``(initial_step, remaining_steps)`` for weight continuation.
+
+    ``trainer.resume_step`` is a global optimizer-step offset used for logging
+    and checkpoint names. It is accepted only together with a model checkpoint;
+    optimizer and scheduler state are not implied by this interface.
+    """
+
+    trainer_cfg = cfg.trainer
+    max_train_steps = int(trainer_cfg.max_train_steps)
+    resume_ckpt = str(getattr(trainer_cfg, "resume_ckpt", "none") or "none")
+    raw_resume_step = getattr(trainer_cfg, "resume_step", None)
+    resume_step = 0 if raw_resume_step is None else int(raw_resume_step)
+
+    if max_train_steps <= 0:
+        raise ValueError("trainer.max_train_steps must be positive")
+    if resume_step < 0:
+        raise ValueError("trainer.resume_step must be non-negative")
+    if resume_step > 0 and resume_ckpt == "none":
+        raise ValueError("trainer.resume_step requires trainer.resume_ckpt")
+    if resume_step >= max_train_steps:
+        raise ValueError(
+            "trainer.resume_step must be smaller than trainer.max_train_steps"
+        )
+    return resume_step, max_train_steps - resume_step
+
+
 def build_param_lr_groups(model, cfg):
     """
     build multiple param groups based on cfg.trainer.learning_rate.
@@ -89,7 +116,9 @@ def build_param_lr_groups(model, cfg):
     # dotted paths and explicit module properties such as ``qwen_visual``.
     configured_modules = []
     for module_name, lr in lr_cfg.items():
-        if module_name == "base":
+        # A version overlay may explicitly disable a parent overlay's module
+        # group with YAML null (V3 removes V2-only reader/probe heads).
+        if module_name == "base" or lr is None:
             continue
         module = model
         try:

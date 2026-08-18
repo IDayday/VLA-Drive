@@ -72,8 +72,40 @@ qwen_learning_rate="${QWEN_LEARNING_RATE:-1e-5}"
 visual_learning_rate="${VISUAL_LEARNING_RATE:-2e-6}"
 action_learning_rate="${ACTION_LEARNING_RATE:-1e-5}"
 weight_decay="${OPTIMIZER_WEIGHT_DECAY:-1e-3}"
+resume_ckpt="${QWEN_VISUAL_RESUME_CKPT:-none}"
+initial_step="${QWEN_VISUAL_INITIAL_STEP:-0}"
+resume_strict="${QWEN_VISUAL_RESUME_STRICT:-0}"
+expected_train_samples="${EXPECTED_TRAIN_SAMPLES:-}"
 timestamp="$(date +'%Y%m%d_%H%M%S')"
 run_id="${RUN_ID:-qwen-visual-action-only-${PAI_JOB_ID:-$timestamp}}"
+
+if ! [[ "$initial_step" =~ ^[0-9]+$ ]]; then
+  echo "QWEN_VISUAL_INITIAL_STEP must be a non-negative integer, got: $initial_step" >&2
+  exit 2
+fi
+if [[ "$resume_strict" != "0" && "$resume_strict" != "1" ]]; then
+  echo "QWEN_VISUAL_RESUME_STRICT must be 0 or 1, got: $resume_strict" >&2
+  exit 2
+fi
+if [[ "$resume_ckpt" == "none" && "$initial_step" -ne 0 ]]; then
+  echo "QWEN_VISUAL_INITIAL_STEP requires QWEN_VISUAL_RESUME_CKPT" >&2
+  exit 2
+fi
+if [[ "$resume_ckpt" != "none" ]]; then
+  resume_ckpt="$(readlink -m "$resume_ckpt")"
+  if [[ ! -f "$resume_ckpt" ]]; then
+    echo "Qwen visual continuation checkpoint is missing: $resume_ckpt" >&2
+    exit 2
+  fi
+  if (( initial_step >= max_train_steps )); then
+    echo "QWEN_VISUAL_INITIAL_STEP must be smaller than MAX_TRAIN_STEPS" >&2
+    exit 2
+  fi
+fi
+if [[ -n "$expected_train_samples" ]] && ! [[ "$expected_train_samples" =~ ^[1-9][0-9]*$ ]]; then
+  echo "EXPECTED_TRAIN_SAMPLES must be a positive integer, got: $expected_train_samples" >&2
+  exit 2
+fi
 
 visible_devices="${CUDA_VISIBLE_DEVICES:-}"
 if [[ -z "$visible_devices" ]]; then
@@ -127,12 +159,28 @@ training_args=(
   --framework.action_model.diffusion_model_cfg.output_dim "${ACTION_HIDDEN_SIZE:-1536}"
   --framework.action_model.diffusion_model_cfg.num_layers "${ACTION_LAYERS:-24}"
 )
+if [[ "$resume_ckpt" != "none" ]]; then
+  training_args+=(
+    --trainer.resume_ckpt "$resume_ckpt"
+    --trainer.resume_step "$initial_step"
+    --trainer.resume_strict "$resume_strict"
+  )
+fi
+if [[ -n "$expected_train_samples" ]]; then
+  training_args+=(
+    --datasets.vla_data.expected_sample_count "$expected_train_samples"
+  )
+fi
 
 echo "[qwen-visual] project=$DRIVEDREAMER_ROOT run_id=$run_id"
 echo "[qwen-visual] topology=nodes:$num_machines rank:$machine_rank local:$local_processes global:$num_processes"
 echo "[qwen-visual] effective_batch=$effective_batch (per_device=$per_device_batch accumulation=$gradient_accumulation)"
 echo "[qwen-visual] lr=qwen:$qwen_learning_rate visual:$visual_learning_rate action:$action_learning_rate"
 echo "[qwen-visual] auxiliary_models=disabled feature_caches=disabled attention=${QWEN_VISUAL_ATTN_IMPLEMENTATION:-sdpa}"
+echo "[qwen-visual] global_steps=$initial_step->$max_train_steps expected_train_samples=${expected_train_samples:-unchecked}"
+if [[ "$resume_ckpt" != "none" ]]; then
+  echo "[qwen-visual] weight_continuation=$resume_ckpt strict=$resume_strict optimizer_state=fresh"
+fi
 
 if [[ "${QWEN_VISUAL_TUNE_DRY_RUN:-0}" == "1" ]]; then
   printf '[qwen-visual] DRY-RUN:'

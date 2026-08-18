@@ -129,6 +129,159 @@ class WaypointGeometryReader(nn.Module):
         return readout.to(dtype=action_queries.dtype), diagnostics
 
 
+class V3ResidualGeometryFusion(nn.Module):
+    """Fuse all 195 structured VGGT slots into the eight action queries.
+
+    V3 deliberately retains the complete ``15 global + 3 * 6 * 10 spatial``
+    memory.  Decomposed type/view/position embeddings make slot identity
+    explicit without pruning or pooling the memory.  The only planner entry is
+    a bounded near-identity residual, so the DiT cannot bypass the readout via
+    a separately appended context sequence.
+    """
+
+    def __init__(
+        self,
+        *,
+        action_dim: int,
+        memory_dim: int,
+        num_heads: int,
+        layout: VGGTQueryLayout,
+        minimum_scale: float = 0.05,
+        maximum_scale: float = 0.50,
+        initial_scale: float = 0.10,
+        reference_memory: torch.Tensor | None = None,
+    ) -> None:
+        super().__init__()
+        if not 0.0 <= minimum_scale < maximum_scale:
+            raise ValueError("residual scale bounds must satisfy 0 <= min < max")
+        if not minimum_scale < initial_scale < maximum_scale:
+            raise ValueError("initial residual scale must lie strictly inside its bounds")
+        self.layout = layout
+        self.memory_dim = int(memory_dim)
+        self.minimum_scale = float(minimum_scale)
+        self.maximum_scale = float(maximum_scale)
+        self.reader = WaypointGeometryReader(
+            action_dim=action_dim,
+            memory_dim=memory_dim,
+            num_heads=num_heads,
+            layout=layout,
+        )
+        if reference_memory is not None:
+            if tuple(reference_memory.shape) != (
+                layout.query_count,
+                self.memory_dim,
+            ):
+                raise ValueError("V3 reference memory does not match the 195-slot layout")
+            reference_memory = reference_memory.detach().float().clone()
+        self.register_buffer("reference_memory", reference_memory)
+        self.kind_embedding = nn.Embedding(2, self.memory_dim)
+        self.view_embedding = nn.Embedding(layout.view_count, self.memory_dim)
+        self.special_embedding = nn.Embedding(layout.special_per_view, self.memory_dim)
+        self.row_embedding = nn.Embedding(layout.spatial_rows, self.memory_dim)
+        self.col_embedding = nn.Embedding(layout.spatial_cols, self.memory_dim)
+        for embedding in (
+            self.kind_embedding,
+            self.view_embedding,
+            self.special_embedding,
+            self.row_embedding,
+            self.col_embedding,
+        ):
+            nn.init.zeros_(embedding.weight)
+        ratio = (initial_scale - minimum_scale) / (maximum_scale - minimum_scale)
+        self.residual_scale_logit = nn.Parameter(
+            torch.tensor(torch.logit(torch.tensor(ratio)).item(), dtype=torch.float32)
+        )
+
+        kinds, views, specials, rows, cols = [], [], [], [], []
+        for view_index in range(layout.view_count):
+            for special_index in range(layout.special_per_view):
+                kinds.append(0)
+                views.append(view_index)
+                specials.append(special_index)
+                rows.append(0)
+                cols.append(0)
+        for view_index in range(layout.view_count):
+            for row_index in range(layout.spatial_rows):
+                for col_index in range(layout.spatial_cols):
+                    kinds.append(1)
+                    views.append(view_index)
+                    specials.append(0)
+                    rows.append(row_index)
+                    cols.append(col_index)
+        if len(kinds) != layout.query_count:
+            raise AssertionError("structured VGGT slot layout does not cover every memory slot")
+        self.register_buffer("slot_kind", torch.tensor(kinds, dtype=torch.long))
+        self.register_buffer("slot_view", torch.tensor(views, dtype=torch.long))
+        self.register_buffer("slot_special", torch.tensor(specials, dtype=torch.long))
+        self.register_buffer("slot_row", torch.tensor(rows, dtype=torch.long))
+        self.register_buffer("slot_col", torch.tensor(cols, dtype=torch.long))
+
+    @property
+    def residual_scale(self) -> torch.Tensor:
+        span = self.maximum_scale - self.minimum_scale
+        return self.minimum_scale + span * self.residual_scale_logit.sigmoid()
+
+    def structured_memory(self, geometry_memory: torch.Tensor) -> torch.Tensor:
+        """Add decomposed identity encodings while preserving all 195 slots."""
+
+        assert geometry_memory.ndim == 3
+        assert geometry_memory.shape[1:] == (
+            self.layout.query_count,
+            self.memory_dim,
+        )
+        position = self.kind_embedding(self.slot_kind)
+        position = position + self.view_embedding(self.slot_view)
+        position = position + self.special_embedding(self.slot_special) * self.slot_kind.eq(0).unsqueeze(-1)
+        position = position + self.row_embedding(self.slot_row) * self.slot_kind.eq(1).unsqueeze(-1)
+        position = position + self.col_embedding(self.slot_col) * self.slot_kind.eq(1).unsqueeze(-1)
+        return geometry_memory + position.unsqueeze(0).to(dtype=geometry_memory.dtype)
+
+    def set_reference_memory(self, reference_memory: torch.Tensor) -> None:
+        """Set the fixed slot template whose planner readout is cancelled."""
+
+        if tuple(reference_memory.shape) != (
+            self.layout.query_count,
+            self.memory_dim,
+        ):
+            raise ValueError("V3 reference memory does not match the 195-slot layout")
+        self.reference_memory = reference_memory.detach().float().clone()
+
+    def forward(
+        self,
+        action_queries: torch.Tensor,
+        geometry_memory: torch.Tensor,
+        valid_mask: torch.Tensor,
+    ) -> tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+        """Return eight residual-conditioned queries and diagnostics."""
+
+        if self.reference_memory is None:
+            raise RuntimeError("V3 fusion requires fixed slot-reference statistics")
+        structured = self.structured_memory(geometry_memory)
+        readout, diagnostics = self.reader(action_queries, structured, valid_mask)
+        reference = self.reference_memory.to(
+            device=geometry_memory.device, dtype=geometry_memory.dtype
+        ).unsqueeze(0).expand(geometry_memory.shape[0], -1, -1)
+        structured_reference = self.structured_memory(reference)
+        reference_readout, _ = self.reader(
+            action_queries, structured_reference, valid_mask
+        )
+        scene_readout = readout - reference_readout
+        scale = self.residual_scale.to(device=readout.device, dtype=readout.dtype)
+        conditioned = action_queries + scale * scene_readout
+        action_norm = action_queries.float().norm(dim=-1).mean().clamp_min(1e-8)
+        diagnostics = {
+            **diagnostics,
+            "residual_scale": self.residual_scale.detach(),
+            "reference_readout_norm": reference_readout.float().norm(dim=-1).mean().detach(),
+            "scene_readout_norm": scene_readout.float().norm(dim=-1).mean().detach(),
+            "residual_to_action_norm_ratio": (
+                (scale.float() * scene_readout.float()).norm(dim=-1).mean() / action_norm
+            ).detach(),
+        }
+        assert conditioned.shape == action_queries.shape
+        return conditioned, diagnostics
+
+
 class PhysicalGeometryHead(nn.Module):
     """Predict ``x/z, y/z, log(z/median_z)`` for 180 spatial slots."""
 

@@ -578,8 +578,10 @@ class Qwenvl_OFT(baseframework):
         action_queries,
         *,
         image_grid_thw=None,
+        examples=None,
     ):
         """Inference extension hook; ``None`` context is exact baseline behavior."""
+        del examples
         return action_queries, None, {}
 
     def _attach_framework_outputs(self, result, action_loss, extension, planner_metrics):
@@ -1080,6 +1082,7 @@ class Qwenvl_OFT(baseframework):
                 input_ids,
                 action_queries,
                 image_grid_thw=qwen_inputs["image_grid_thw"],
+                examples=examples,
             )
 
             with torch.autocast("cuda", dtype=torch.float32):
@@ -1399,6 +1402,7 @@ class Qwenvl_OFT(baseframework):
             input_ids,
             action_queries,
             image_grid_thw=qwen_inputs["image_grid_thw"],
+            examples=examples,
         )
 
         with torch.autocast("cuda", dtype=torch.float32):

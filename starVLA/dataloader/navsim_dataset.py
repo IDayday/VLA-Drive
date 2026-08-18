@@ -325,27 +325,177 @@ class NavSimDataset(Dataset):
                 raise RuntimeError("VGGT cache query count does not match framework config")
             if int(manifest.get("feature_dim", -1)) != expected_feature_dim:
                 raise RuntimeError("VGGT cache feature dim does not match framework config")
-            expected_teacher_layer = int(
-                OmegaConf.select(
-                    all_cfg,
-                    "framework.vggt.teacher.layer_index",
-                    default=11,
-                )
+            vggt_version = int(
+                OmegaConf.select(all_cfg, "framework.vggt.version", default=2)
             )
-            expected_teacher_branch = str(
-                OmegaConf.select(
-                    all_cfg,
-                    "framework.vggt.teacher.attention_branch",
-                    default="global",
+            if vggt_version == 3:
+                expected_representation = "layer11_global_codec_tail_reconstructable"
+                if manifest.get("teacher_representation") != expected_representation:
+                    raise RuntimeError(
+                        "VGGT V3 requires a reconstructable native-codec cache"
+                    )
+                if manifest.get("teacher_layer_index") != 11:
+                    raise RuntimeError("VGGT V3 cache must encode only native layer 11")
+                if manifest.get("teacher_attention_branch") != "global":
+                    raise RuntimeError("VGGT V3 cache must encode only the global branch")
+                if manifest.get("codec_source_feature") != "layer11_global":
+                    raise RuntimeError("VGGT V3 codec source must be layer11_global")
+                if not manifest.get("codec_gates", {}).get(
+                    "teacher_codec_downstream", False
+                ):
+                    raise RuntimeError("VGGT V3 codec failed its downstream gate")
+            else:
+                expected_teacher_layer = int(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt.teacher.layer_index",
+                        default=11,
+                    )
                 )
-            )
-            if int(manifest.get("teacher_layer_index", -1)) != expected_teacher_layer:
-                raise RuntimeError("VGGT cache teacher layer does not match framework config")
-            if manifest.get("teacher_attention_branch") != expected_teacher_branch:
-                raise RuntimeError("VGGT cache teacher branch does not match framework config")
+                expected_teacher_branch = str(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt.teacher.attention_branch",
+                        default="global",
+                    )
+                )
+                if int(manifest.get("teacher_layer_index", -1)) != expected_teacher_layer:
+                    raise RuntimeError(
+                        "VGGT cache teacher layer does not match framework config"
+                    )
+                if manifest.get("teacher_attention_branch") != expected_teacher_branch:
+                    raise RuntimeError(
+                        "VGGT cache teacher branch does not match framework config"
+                    )
             print(
                 f"loading NAVSIM VGGT query cache {vggt_cache_root} "
                 f"strict={int(vggt_cache_strict)}"
+            )
+        dense_cache_enabled = bool(
+            OmegaConf.select(
+                all_cfg,
+                "framework.vggt_bottleneck.cache.enabled",
+                default=False,
+            )
+        ) if all_cfg is not None else False
+        configured_dense_root = (
+            OmegaConf.select(
+                all_cfg,
+                "framework.vggt_bottleneck.cache.root",
+                default="",
+            )
+            if all_cfg is not None
+            else ""
+        )
+        dense_cache_root = str(
+            configured_dense_root
+            or os.environ.get("NAVSIM_VGGT_DENSE_CACHE_ROOT", "")
+        ).strip()
+        dense_cache_strict = bool(
+            OmegaConf.select(
+                all_cfg,
+                "framework.vggt_bottleneck.cache.strict",
+                default=True,
+            )
+        ) if all_cfg is not None else True
+        dense_component = str(
+            OmegaConf.select(
+                all_cfg,
+                "framework.vggt_bottleneck.cache.component",
+                default="vggt_dense",
+            )
+        ) if all_cfg is not None else "vggt_dense"
+        if dense_component != "vggt_dense":
+            raise ValueError(
+                "Planning-conditioned dense VGGT requires cache component 'vggt_dense'"
+            )
+        if dense_cache_enabled and not dense_cache_root:
+            raise ValueError(
+                "Dense VGGT cache is enabled but no path was configured. Set "
+                "framework.vggt_bottleneck.cache.root or "
+                "NAVSIM_VGGT_DENSE_CACHE_ROOT."
+            )
+        self.vggt_dense_cache = (
+            NavsimFeatureCacheReader(
+                cache_root=dense_cache_root,
+                components=(dense_component,),
+                strict=dense_cache_strict,
+            )
+            if dense_cache_enabled
+            else None
+        )
+        if (
+            self.vggt_dense_cache is not None
+            and self.vggt_dense_cache.has_component(dense_component)
+        ):
+            manifest = self.vggt_dense_cache.manifests[dense_component]
+            with open(datalist_path, "rb") as datalist_stream:
+                datalist_sha256 = hashlib.sha256(datalist_stream.read()).hexdigest()
+            expected_manifest = {
+                "component": "vggt_dense",
+                "datalist_sha256": datalist_sha256,
+                "sample_count": len(self.raw_list),
+                "view_order": ["cam_f0", "cam_l0", "cam_r0"],
+                "frame_index": 3,
+                "teacher_layer_index": int(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt_bottleneck.teacher.layer_index",
+                        default=23,
+                    )
+                ),
+                "teacher_layer": "aggregator[-1]",
+                "teacher_attention_branch": "full_aggregated_feature",
+                "include_special_tokens": False,
+                "patch_start_idx": 5,
+                "spatial_pooling": None,
+                "flatten_order": "view-major,row-major,col-major",
+                "feature_dim": int(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt_bottleneck.teacher.feature_dim",
+                        default=2048,
+                    )
+                ),
+            }
+            configured_views = list(
+                OmegaConf.select(
+                    all_cfg,
+                    "framework.vggt_bottleneck.source.view_order",
+                    default=["cam_f0", "cam_l0", "cam_r0"],
+                )
+            )
+            expected_manifest["view_order"] = configured_views
+            expected_manifest["frame_index"] = int(
+                OmegaConf.select(
+                    all_cfg,
+                    "framework.vggt_bottleneck.teacher.frame_index",
+                    default=3,
+                )
+            )
+            for key, expected in expected_manifest.items():
+                if manifest.get(key) != expected:
+                    raise RuntimeError(
+                        f"Dense VGGT cache {key} mismatch: expected "
+                        f"{expected!r}, found {manifest.get(key)!r}"
+                    )
+            preprocess = manifest.get("preprocess", {})
+            if (
+                preprocess.get("mode") != "crop"
+                or int(preprocess.get("target_long_side", -1)) != 518
+                or int(preprocess.get("patch_size", -1)) != 14
+                or not preprocess.get("preserve_aspect_ratio", False)
+            ):
+                raise RuntimeError(
+                    "Dense VGGT cache must use aspect-preserving mode='crop'"
+                )
+            if manifest.get("ray_frame") != "navsim_current_ego_planning_frame":
+                raise RuntimeError(
+                    "Dense VGGT cache rays are not in the current planning ego frame"
+                )
+            print(
+                f"loading NAVSIM dense VGGT cache {dense_cache_root} "
+                f"strict={int(dense_cache_strict)}"
             )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
@@ -553,6 +703,10 @@ class NavSimDataset(Dataset):
                         active_mask, dtype=torch.bool
                     )
                 cached_features["vggt_query"] = payload
+        if self.vggt_dense_cache is not None:
+            payload = self.vggt_dense_cache.get("vggt_dense", idx, raw)
+            if payload is not None:
+                cached_features["vggt_dense"] = payload
 
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')
@@ -811,6 +965,8 @@ class NavSimDataset(Dataset):
             sample['agent_dino_feature_cache'] = cached_features["agent_dino"]
         if "vggt_query" in cached_features:
             sample['vggt_query_feature_cache'] = cached_features["vggt_query"]
+        if "vggt_dense" in cached_features:
+            sample['vggt_dense_feature_cache'] = cached_features["vggt_dense"]
 
         # if self.video_data_cfg.load_2d_data:
         #     sample['2d_gen_data'] = {}

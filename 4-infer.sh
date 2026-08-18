@@ -29,6 +29,7 @@ RANK="${RANK:-0}"
 WORLD_SIZE="${WORLD_SIZE:-1}"
 OVERWRITE="${OVERWRITE:-0}"
 INFER_USE_FEATURE_CACHE="${INFER_USE_FEATURE_CACHE:-0}"
+INFER_SEED="${INFER_SEED:-}"
 
 # The training feature cache is normally built only for the train split.  A
 # sourced env.sh exports NAVSIM_FEATURE_CACHE_ROOT, which would otherwise make
@@ -57,6 +58,10 @@ args=(
 
 if [[ -n "$MODEL_ITER" ]]; then
   args+=(--model_iter "$MODEL_ITER")
+fi
+
+if [[ -n "$INFER_SEED" ]]; then
+  args+=(--seed "$INFER_SEED")
 fi
 
 if [[ "$OVERWRITE" == "1" ]]; then

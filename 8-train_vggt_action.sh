@@ -33,6 +33,11 @@ if [[ -n "$experiment_overlay" && ! -f "$experiment_overlay" ]]; then
   echo "Missing VGGT experiment overlay: $experiment_overlay" >&2
   exit 2
 fi
+vggt_planner_version="${VGGT_PLANNER_VERSION:-2}"
+if [[ "$vggt_planner_version" != "2" && "$vggt_planner_version" != "3" ]]; then
+  echo "VGGT_PLANNER_VERSION must be 2 or 3, got: $vggt_planner_version" >&2
+  exit 2
+fi
 
 num_machines="${NUM_MACHINES:-${WORLD_SIZE:-1}}"
 machine_rank="${MACHINE_RANK:-${RANK:-0}}"
@@ -106,15 +111,24 @@ training_args=(
   --trainer.learning_rate.action_model "${ACTION_LEARNING_RATE:-1e-5}"
   --trainer.learning_rate.vggt_geometry_adapter "${VGGT_LEARNING_RATE:-3e-5}"
   --trainer.learning_rate.vggt_aligner "${VGGT_LEARNING_RATE:-3e-5}"
-  --trainer.learning_rate.vggt_waypoint_reader "${VGGT_LEARNING_RATE:-3e-5}"
-  --trainer.learning_rate.vggt_geometry_probe "${VGGT_LEARNING_RATE:-3e-5}"
-  --trainer.learning_rate.vggt_aux_plan_head "${VGGT_LEARNING_RATE:-3e-5}"
   --framework.action_model.repeated_diffusion_steps "${FM_REPEAT:-8}"
   --framework.action_model.hidden_size "${ACTION_HIDDEN_SIZE:-1536}"
   --framework.action_model.diffusion_model_cfg.cross_attention_dim "${ACTION_HIDDEN_SIZE:-1536}"
   --framework.action_model.diffusion_model_cfg.output_dim "${ACTION_HIDDEN_SIZE:-1536}"
   --framework.action_model.diffusion_model_cfg.num_layers "${ACTION_LAYERS:-24}"
 )
+if [[ "$vggt_planner_version" == "3" ]]; then
+  training_args+=(
+    --framework.vggt.version 3
+    --trainer.learning_rate.vggt_residual_fusion "${VGGT_LEARNING_RATE:-3e-5}"
+  )
+else
+  training_args+=(
+    --trainer.learning_rate.vggt_waypoint_reader "${VGGT_LEARNING_RATE:-3e-5}"
+    --trainer.learning_rate.vggt_geometry_probe "${VGGT_LEARNING_RATE:-3e-5}"
+    --trainer.learning_rate.vggt_aux_plan_head "${VGGT_LEARNING_RATE:-3e-5}"
+  )
+fi
 if [[ -n "$experiment_overlay" ]]; then
   training_args+=(--config_overlay "$experiment_overlay")
 fi
@@ -154,7 +168,7 @@ mkdir -p "$TRITON_CACHE_DIR"
 echo "VGGT training topology: nodes=$num_machines node_rank=$machine_rank local_ppus=$local_num_processes global_processes=$num_processes"
 echo "VGGT effective batch: $effective_batch (target=$target_effective_batch)"
 echo "VGGT optimization: max_steps=${MAX_TRAIN_STEPS:-100000} base_lr=${BASE_LEARNING_RATE:-1e-5} action_lr=${ACTION_LEARNING_RATE:-1e-5} vggt_lr=${VGGT_LEARNING_RATE:-3e-5} weight_decay=${OPTIMIZER_WEIGHT_DECAY:-1e-3}"
-echo "VGGT experiment: overlay=${experiment_overlay:-none} require_teacher_cache=$vggt_require_teacher_cache"
+echo "VGGT experiment: version=$vggt_planner_version overlay=${experiment_overlay:-none} require_teacher_cache=$vggt_require_teacher_cache"
 echo "VGGT diagnostics: intervention_interval=${intervention_interval:-config-default}"
 
 set -x

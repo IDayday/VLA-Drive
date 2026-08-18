@@ -8,6 +8,7 @@ from starVLA.model.modules.vggt_query.geometry_memory import (
 from starVLA.model.modules.vggt_query.planning_heads import (
     AuxiliaryTrajectoryHead,
     PhysicalGeometryHead,
+    V3ResidualGeometryFusion,
     WaypointGeometryReader,
 )
 from starVLA.model.modules.vggt_query.types import VGGTQueryLayout
@@ -147,3 +148,50 @@ def test_v2_planning_modules_accept_deepspeed_bfloat16_parameters_without_autoca
     assert adapter.adapter[0].weight.grad is not None
     assert aligner.student_projection.weight.grad is not None
     assert reader.cross_attention.out_proj.weight.grad is not None
+
+
+def test_v3_fusion_preserves_all_195_slots_and_has_one_residual_output():
+    torch.manual_seed(19)
+    layout = VGGTQueryLayout()
+    fusion = V3ResidualGeometryFusion(
+        action_dim=32,
+        memory_dim=layout.teacher_dim,
+        num_heads=4,
+        layout=layout,
+        reference_memory=torch.zeros(195, layout.teacher_dim),
+    )
+    actions = torch.randn(2, 8, 32, requires_grad=True)
+    memory = torch.randn(2, 195, layout.teacher_dim, requires_grad=True)
+    mask = torch.ones(2, 195, dtype=torch.bool)
+
+    conditioned, diagnostics = fusion(actions, memory, mask)
+
+    assert conditioned.shape == actions.shape
+    assert diagnostics["planner_attention"].shape == (2, 8, 195)
+    assert fusion.structured_memory(memory).shape == memory.shape
+    assert 0.05 < float(fusion.residual_scale) < 0.50
+    conditioned.square().mean().backward()
+    assert memory.grad is not None
+    assert fusion.reader.cross_attention.out_proj.weight.grad is not None
+    assert fusion.view_embedding.weight.grad is not None
+
+
+def test_v3_fusion_cancels_the_static_slot_template_exactly():
+    torch.manual_seed(23)
+    layout = VGGTQueryLayout()
+    reference = torch.randn(195, layout.teacher_dim)
+    fusion = V3ResidualGeometryFusion(
+        action_dim=32,
+        memory_dim=layout.teacher_dim,
+        num_heads=4,
+        layout=layout,
+        reference_memory=reference,
+    ).eval()
+    actions = torch.randn(2, 8, 32)
+    memory = reference.unsqueeze(0).expand(2, -1, -1).clone()
+    mask = torch.ones(2, 195, dtype=torch.bool)
+
+    conditioned, diagnostics = fusion(actions, memory, mask)
+
+    torch.testing.assert_close(conditioned, actions, rtol=0.0, atol=0.0)
+    assert float(diagnostics["scene_readout_norm"]) == 0.0

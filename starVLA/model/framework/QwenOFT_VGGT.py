@@ -1,9 +1,8 @@
-"""Independent VGGT V2 planner with offline teacher supervision.
+"""Independent VGGT V2/V3 planner with offline teacher supervision.
 
 The model does not load a baseline planner, draft trajectory, or VGGT during
-training/inference. VGGT layer-11 global features and physical geometry are
-strict offline cache targets. At runtime Qwen builds one shared 195-slot
-geometry memory and the action planner receives only eight waypoint readouts.
+training/inference. V2 uses layer-11 global targets; V3 uses a reconstructable
+native-VGGT codec target. At runtime Qwen builds one shared 195-slot memory.
 """
 
 from __future__ import annotations
@@ -26,6 +25,7 @@ from starVLA.model.modules.vggt_query.geometry_memory import (
 from starVLA.model.modules.vggt_query.planning_heads import (
     AuxiliaryTrajectoryHead,
     PhysicalGeometryHead,
+    V3ResidualGeometryFusion,
     WaypointGeometryReader,
 )
 from starVLA.model.modules.vggt_query.types import (
@@ -45,7 +45,7 @@ def _sha256_file(path: Path, chunk_size: int = 16 * 1024 * 1024) -> str:
 
 @FRAMEWORK_REGISTRY.register("QwenOFT_VGGT")
 class Qwenvl_OFT_VGGT(Qwenvl_OFT):
-    """End-to-end planner whose shared memory learns VGGT geometry."""
+    """End-to-end planner whose shared 195-slot memory learns VGGT knowledge."""
 
     def __init__(
         self,
@@ -67,6 +67,11 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         self._vggt_intervention_mode = "real"
         if not self.vggt_enabled:
             return
+        self.vggt_version = int(
+            OmegaConf.select(config, "framework.vggt.version", default=2)
+        )
+        if self.vggt_version not in (2, 3):
+            raise ValueError(f"Unsupported VGGT planner version: {self.vggt_version}")
         if (
             bool(config.datasets.video_data.load_2d_data)
             or bool(config.datasets.gs_data.load_3d_data)
@@ -74,7 +79,7 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
             or bool(OmegaConf.select(config, "w_depth", default=False))
         ):
             raise ValueError(
-                "QwenOFT_VGGT supports action-only V2 training; disable video, "
+                "QwenOFT_VGGT supports action-only V2/V3 training; disable video, "
                 "GS/depth and reward losses."
             )
 
@@ -144,7 +149,7 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         )
         if alignment_mode != "raw" or self.vggt_scene_residual_enabled:
             raise ValueError(
-                "This V2 run intentionally uses raw alignment; scene-residual remains "
+                "This run intentionally uses raw alignment; scene-residual remains "
                 "a disabled configuration/diagnostic interface."
             )
         self.vggt_aligner = VGGTQueryAligner(
@@ -166,23 +171,6 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         )
         if output_query_count != len(self.act_query_tokens):
             raise ValueError("VGGT reader must emit exactly one readout per action query")
-        self.vggt_waypoint_reader = WaypointGeometryReader(
-            action_dim=hidden_dim,
-            memory_dim=memory_dim,
-            num_heads=int(OmegaConf.select(reader_cfg, "num_heads", default=16)),
-            layout=self.vggt_layout,
-        )
-        probe_cfg = OmegaConf.select(config, "framework.vggt.geometry_probe", default={})
-        self.vggt_geometry_probe = PhysicalGeometryHead(
-            memory_dim=memory_dim,
-            hidden_dim=int(OmegaConf.select(probe_cfg, "hidden_dim", default=512)),
-        )
-        aux_cfg = OmegaConf.select(config, "framework.vggt.aux_plan_head", default={})
-        self.vggt_aux_plan_head = AuxiliaryTrajectoryHead(
-            input_dim=hidden_dim,
-            hidden_dim=int(OmegaConf.select(aux_cfg, "hidden_dim", default=512)),
-            action_dim=4,
-        )
         self.vggt_supervision_enabled = bool(
             OmegaConf.select(config, "framework.vggt.supervision_enabled", default=True)
         )
@@ -192,6 +180,54 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         if not self.vggt_supervision_enabled and not self.vggt_access_enabled:
             raise ValueError("Enabled VGGT framework needs supervision or planner access")
         self._load_slot_statistics(config)
+        if self.vggt_version == 3:
+            if self.vggt_slot_mean is None:
+                raise RuntimeError(
+                    "VGGT V3 needs cache slot statistics for centered residual fusion"
+                )
+            fusion_cfg = OmegaConf.select(
+                config, "framework.vggt.residual_fusion", default={}
+            )
+            self.vggt_residual_fusion = V3ResidualGeometryFusion(
+                action_dim=hidden_dim,
+                memory_dim=memory_dim,
+                num_heads=int(OmegaConf.select(reader_cfg, "num_heads", default=16)),
+                layout=self.vggt_layout,
+                minimum_scale=float(
+                    OmegaConf.select(fusion_cfg, "minimum_scale", default=0.05)
+                ),
+                maximum_scale=float(
+                    OmegaConf.select(fusion_cfg, "maximum_scale", default=0.50)
+                ),
+                initial_scale=float(
+                    OmegaConf.select(fusion_cfg, "initial_scale", default=0.10)
+                ),
+                reference_memory=self.vggt_slot_mean,
+            )
+        else:
+            self.vggt_waypoint_reader = WaypointGeometryReader(
+                action_dim=hidden_dim,
+                memory_dim=memory_dim,
+                num_heads=int(OmegaConf.select(reader_cfg, "num_heads", default=16)),
+                layout=self.vggt_layout,
+            )
+            probe_cfg = OmegaConf.select(
+                config, "framework.vggt.geometry_probe", default={}
+            )
+            self.vggt_geometry_probe = PhysicalGeometryHead(
+                memory_dim=memory_dim,
+                hidden_dim=int(
+                    OmegaConf.select(probe_cfg, "hidden_dim", default=512)
+                ),
+            )
+            aux_cfg = OmegaConf.select(
+                config, "framework.vggt.aux_plan_head", default={}
+            )
+            self.vggt_aux_plan_head = AuxiliaryTrajectoryHead(
+                input_dim=hidden_dim,
+                hidden_dim=int(OmegaConf.select(aux_cfg, "hidden_dim", default=512)),
+                action_dim=4,
+            )
         self._use_named_loss_contract = True
 
     def _load_slot_statistics(self, config) -> None:
@@ -216,6 +252,26 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         if not manifest_path.is_file():
             raise FileNotFoundError(f"Missing VGGT cache manifest: {manifest_path}")
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if getattr(self, "vggt_version", 2) == 3:
+            expected_representation = "layer11_global_codec_tail_reconstructable"
+            if manifest.get("teacher_representation") != expected_representation:
+                raise RuntimeError(
+                    "VGGT V3 requires the reconstructable native-codec cache; "
+                    f"found {manifest.get('teacher_representation')!r}"
+                )
+            if manifest.get("teacher_layer_index") != 11 or manifest.get(
+                "teacher_attention_branch"
+            ) != "global":
+                raise RuntimeError("VGGT V3 teacher source must be layer-11 global")
+            if manifest.get("codec_source_feature") != "layer11_global":
+                raise RuntimeError("VGGT V3 codec source contract changed")
+            if not manifest.get("codec_gates", {}).get(
+                "teacher_codec_downstream", False
+            ):
+                raise RuntimeError(
+                    "VGGT V3 cache was not produced by a codec that passed the "
+                    "frozen native downstream gate"
+                )
         statistics_name = manifest.get("slot_statistics_file")
         if not statistics_name:
             raise RuntimeError("VGGT cache manifest has no slot_statistics_file")
@@ -241,7 +297,7 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
             return super()._build_action_prompt_suffix()
         # Action queries precede VGGT global tokens so causal Qwen attention
         # cannot create a hidden global-query bypass into the ActionHead. The
-        # explicit waypoint reader is the only VGGT-memory access path.
+        # explicit waypoint reader/fusion is the only VGGT-memory access path.
         return (
             f" {self.robot_history_token}"
             f"{''.join(self.act_query_tokens)}"
@@ -255,7 +311,7 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
                 if payload is not None and "vggt_positions" not in payload:
                     raise RuntimeError(
                         "The Qwen feature cache predates VGGT global tokens. Disable "
-                        "the Qwen cache or regenerate it with the V2 prompt."
+                        "the Qwen cache or regenerate it with the VGGT prompt."
                     )
         return super()._build_qwen_batch(examples, instructions)
 
@@ -360,18 +416,22 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
                 if active_mask is not None:
                     assert active_mask.shape == mask.shape
                     mask = mask & active_mask.bool()
-                geometry_target = payload["geometry_target"]
-                geometry_confidence = payload["geometry_confidence"]
-                geometry_mask = payload["geometry_valid_mask"].bool()
-                assert geometry_target.shape == (self.vggt_layout.spatial_query_count, 3)
-                assert geometry_confidence.shape == geometry_mask.shape == (
-                    self.vggt_layout.spatial_query_count,
-                )
                 teacher_features.append(features)
                 teacher_masks.append(mask)
-                geometry_targets.append(geometry_target)
-                geometry_confidences.append(geometry_confidence)
-                geometry_masks.append(geometry_mask)
+                if self.vggt_version == 2:
+                    geometry_target = payload["geometry_target"]
+                    geometry_confidence = payload["geometry_confidence"]
+                    geometry_mask = payload["geometry_valid_mask"].bool()
+                    assert geometry_target.shape == (
+                        self.vggt_layout.spatial_query_count,
+                        3,
+                    )
+                    assert geometry_confidence.shape == geometry_mask.shape == (
+                        self.vggt_layout.spatial_query_count,
+                    )
+                    geometry_targets.append(geometry_target)
+                    geometry_confidences.append(geometry_confidence)
+                    geometry_masks.append(geometry_mask)
             teacher = torch.stack(teacher_features).to(
                 device=raw_memory.device, dtype=torch.float32, non_blocking=True
             )
@@ -400,26 +460,27 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
             metrics.update(
                 {f"alignment_{key}": value for key, value in aligned.metrics.items()}
             )
-            geometry_target = torch.stack(geometry_targets).to(
-                device=raw_memory.device, dtype=torch.float32, non_blocking=True
-            )
-            geometry_confidence = torch.stack(geometry_confidences).to(
-                device=raw_memory.device, dtype=torch.float32, non_blocking=True
-            )
-            geometry_mask = torch.stack(geometry_masks).to(
-                device=raw_memory.device, dtype=torch.bool, non_blocking=True
-            )
-            geometry_mask = geometry_mask & alignment_mask[
-                :, self.vggt_layout.special_query_count :
-            ]
-            geometry_output = self.vggt_geometry_probe(
-                planning_memory[:, self.vggt_layout.special_query_count :],
-                geometry_target,
-                geometry_confidence,
-                geometry_mask,
-            )
-            losses["vggt_geometry"] = geometry_output.loss
-            metrics.update(geometry_output.metrics)
+            if self.vggt_version == 2:
+                geometry_target = torch.stack(geometry_targets).to(
+                    device=raw_memory.device, dtype=torch.float32, non_blocking=True
+                )
+                geometry_confidence = torch.stack(geometry_confidences).to(
+                    device=raw_memory.device, dtype=torch.float32, non_blocking=True
+                )
+                geometry_mask = torch.stack(geometry_masks).to(
+                    device=raw_memory.device, dtype=torch.bool, non_blocking=True
+                )
+                geometry_mask = geometry_mask & alignment_mask[
+                    :, self.vggt_layout.special_query_count :
+                ]
+                geometry_output = self.vggt_geometry_probe(
+                    planning_memory[:, self.vggt_layout.special_query_count :],
+                    geometry_target,
+                    geometry_confidence,
+                    geometry_mask,
+                )
+                losses["vggt_geometry"] = geometry_output.loss
+                metrics.update(geometry_output.metrics)
 
         planning_context = planning_memory if self.vggt_access_enabled else None
         if planning_context is not None and planning_context.requires_grad:
@@ -440,6 +501,15 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         intervention_mask = extension["context_mask"]
         if self._vggt_intervention_mode == "shuffled" and context.shape[0] > 1:
             intervention_mask = intervention_mask.roll(shifts=1, dims=0)
+        if self.vggt_version == 3:
+            conditioned, diagnostics = self.vggt_residual_fusion(
+                action_queries, intervention_context, intervention_mask
+            )
+            extension["metrics"]["planner_context_norm"] = (
+                context.float().norm(dim=-1).sum()
+                / extension["context_mask"].sum().clamp_min(1)
+            ).detach()
+            return conditioned, None, diagnostics
         readout, diagnostics = self.vggt_waypoint_reader(
             action_queries, intervention_context, intervention_mask
         )
@@ -489,7 +559,9 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         action_queries,
         *,
         image_grid_thw=None,
+        examples=None,
     ):
+        del examples
         if not self.vggt_enabled or not self.vggt_access_enabled:
             return action_queries, None, {}
         token_ids = self._special_token_ids["vggt"]
@@ -506,6 +578,11 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         )
         planning_memory = self.vggt_aligner.project_student(raw_memory)
         planning_memory = self._apply_vggt_intervention(planning_memory)
+        if self.vggt_version == 3:
+            conditioned, diagnostics = self.vggt_residual_fusion(
+                action_queries, planning_memory, valid_mask
+            )
+            return conditioned, None, diagnostics
         readout, diagnostics = self.vggt_waypoint_reader(
             action_queries, planning_memory, valid_mask
         )
@@ -522,10 +599,20 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         modules = {
             "geometry_adapter": self.vggt_geometry_adapter.adapter[3].weight,
             "alignment_projection": self.vggt_aligner.student_projection.weight,
-            "waypoint_reader": self.vggt_waypoint_reader.cross_attention.out_proj.weight,
-            "geometry_probe": self.vggt_geometry_probe.head[-1].weight,
-            "aux_plan_head": self.vggt_aux_plan_head.head[-1].weight,
         }
+        if self.vggt_version == 3:
+            modules["residual_fusion"] = (
+                self.vggt_residual_fusion.reader.cross_attention.out_proj.weight
+            )
+            modules["residual_scale"] = self.vggt_residual_fusion.residual_scale_logit
+        else:
+            modules.update(
+                {
+                    "waypoint_reader": self.vggt_waypoint_reader.cross_attention.out_proj.weight,
+                    "geometry_probe": self.vggt_geometry_probe.head[-1].weight,
+                    "aux_plan_head": self.vggt_aux_plan_head.head[-1].weight,
+                }
+            )
         for name, parameter in modules.items():
             if parameter.grad is not None:
                 metrics[f"vggt/{name}_grad_norm"] = parameter.grad.detach().float().norm()

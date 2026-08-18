@@ -57,6 +57,7 @@ class Layout:
     rows: int
     cols: int
     crop_padding: bool
+    native_resolution: bool = False
 
 
 LAYOUTS = (
@@ -64,6 +65,7 @@ LAYOUTS = (
     Layout("cropped_4x4", 4, 4, True),
     Layout("cropped_6x10", 6, 10, True),
     Layout("cropped_8x12", 8, 12, True),
+    Layout("native_valid_37x37", 37, 37, False, True),
 )
 
 
@@ -213,6 +215,7 @@ class LayoutAccumulator:
             "rows": self.layout.rows,
             "cols": self.layout.cols,
             "crop_padding": self.layout.crop_padding,
+            "native_resolution": self.layout.native_resolution,
             "stored_tokens_per_sample": stored_tokens,
             "mean_valid_spatial_tokens_per_sample": self.valid_token_total / self.sample_count,
             "estimated_full_bf16_cache_gib": estimated_bytes / 1024**3,
@@ -282,7 +285,13 @@ def main(args: argparse.Namespace) -> None:
     if device.type == "cuda":
         torch.cuda.set_device(device)
     dtype = torch.bfloat16 if device.type == "cuda" else torch.float32
-    aggregator, preprocess = load_local_vggt(repo_path, checkpoint_path, device)
+    model, preprocess = load_local_vggt(
+        repo_path,
+        checkpoint_path,
+        device,
+        enable_geometry=False,
+    )
+    aggregator = model.aggregator
     accumulators: dict[str, LayoutAccumulator] | None = None
     started = time.time()
 
@@ -332,7 +341,11 @@ def main(args: argparse.Namespace) -> None:
                 for layout in LAYOUTS
             }
         for layout in LAYOUTS:
-            if layout.crop_padding:
+            if layout.native_resolution:
+                assert (layout.rows, layout.cols) == (PATCH_GRID_SIZE, PATCH_GRID_SIZE)
+                pooled = patches
+                spatial_mask = validity >= float(args.minimum_valid_ratio)
+            elif layout.crop_padding:
                 pooled, spatial_mask = crop_and_pool_valid_patches(
                     patches,
                     validity,

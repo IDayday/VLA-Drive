@@ -40,6 +40,7 @@ PATH_VARIABLES = {
     "VGGT_SOURCE_VLM",
     "VGGT_BASE_VLM",
     "NAVSIM_VGGT_CACHE_ROOT",
+    "NAVSIM_VGGT_DENSE_CACHE_ROOT",
     "NAVSIM_VIDEO_ROOT",
     "TRAIN_CONFIG_YAML",
     "VIDEO_CONFIG",
@@ -61,8 +62,12 @@ ROOT_ENTRYPOINTS = (
     "8-train.sh",
     "8-train_action-only.sh",
     "8-train_action-only-qwen-visual.sh",
+    "8-continue_action-only-qwen-visual-200k.sh",
     "8-train_agent_action.sh",
     "8-train_vggt_action.sh",
+    "11-precompute_vggt_dense_cache.sh",
+    "11-train_vggt_dense_bottleneck.sh",
+    "run_vggt_dense_bottleneck_dlc.sh",
     "run_vggt_pipeline.sh",
     "debug.sh",
     "pre_cache.sh",
@@ -243,6 +248,7 @@ def test_environment_paths_override_yaml_but_explicit_cli_stays_highest_priority
             "framework": {
                 "qwenvl": {"base_vlm": "yaml-vlm"},
                 "video_model": {"model_name": "yaml-video"},
+                "vggt_bottleneck": {"cache": {"root": "yaml-dense-cache"}},
             },
             "datasets": {
                 "vla_data": {"data_root": "yaml-data", "datalist_path": "yaml-list"},
@@ -259,9 +265,15 @@ def test_environment_paths_override_yaml_but_explicit_cli_stays_highest_priority
             "DATA_ROOT": "/developer/data",
             "NAVSIM_DATALIST_PATH": "/developer/train.json",
             "NAVSIM_VIDEO_ROOT": "/developer/videos",
+            "NAVSIM_VGGT_DENSE_CACHE_ROOT": "/developer/dense-cache",
         },
     )
-    cli_cfg = OmegaConf.from_dotlist(["framework.qwenvl.base_vlm=/one-shot/vlm"])
+    cli_cfg = OmegaConf.from_dotlist(
+        [
+            "framework.qwenvl.base_vlm=/one-shot/vlm",
+            "framework.vggt_bottleneck.cache.root=/one-shot/dense-cache",
+        ]
+    )
     cfg = OmegaConf.merge(cfg, cli_cfg)
 
     assert cfg.run_root_dir == "/developer/output"
@@ -270,6 +282,218 @@ def test_environment_paths_override_yaml_but_explicit_cli_stays_highest_priority
     assert cfg.datasets.vla_data.data_root == "/developer/data"
     assert cfg.datasets.vla_data.datalist_path == "/developer/train.json"
     assert cfg.datasets.video_data.rgb_meta_dir == "/developer/videos"
+    assert cfg.framework.vggt_bottleneck.cache.root == "/one-shot/dense-cache"
+
+
+def test_dense_cache_launcher_cli_paths_override_invalid_environment_and_support_multinode(
+    tmp_path: Path,
+):
+    fake_bin = tmp_path / "fake bin"
+    fake_bin.mkdir()
+    captured_arguments = tmp_path / "torchrun-arguments.txt"
+    fake_torchrun = fake_bin / "torchrun"
+    fake_torchrun.write_text(
+        '#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "$CAPTURE_ARGS"\n',
+        encoding="utf-8",
+    )
+    fake_torchrun.chmod(0o755)
+
+    teacher_repo = tmp_path / "teacher repo with spaces"
+    teacher_repo.mkdir()
+    teacher_checkpoint = tmp_path / "teacher weights" / "model.safetensors"
+    teacher_checkpoint.parent.mkdir()
+    teacher_checkpoint.touch()
+    cache_root = tmp_path / "dense cache with spaces"
+    datalist = tmp_path / "train list.json"
+    datalist.write_text("[]\n", encoding="utf-8")
+    environment = _clean_environment()
+    environment.update(
+        {
+            "PATH": f"{fake_bin}:{environment['PATH']}",
+            "CAPTURE_ARGS": str(captured_arguments),
+            "VLA_DRIVE_SKIP_ENV_LOCAL": "1",
+            "VGGT_REPO": str(tmp_path / "invalid environment repo"),
+            "VGGT_CHECKPOINT": str(tmp_path / "invalid environment checkpoint"),
+            "NAVSIM_VGGT_DENSE_CACHE_ROOT": str(tmp_path / "invalid environment cache"),
+            "VGGT_DENSE_CACHE_MAX_SAMPLES": "1",
+            "VGGT_DENSE_CACHE_FULL": "1",
+            "DATA_ROOT": str(tmp_path / "processed data"),
+            "NAVSIM_DATALIST_PATH": str(datalist),
+            "NAVSIM_TRAINVAL_SENSOR_ROOT": str(tmp_path / "sensors"),
+            "NUM_MACHINES": "2",
+            "MACHINE_RANK": "1",
+            "LOCAL_NUM_PROCESSES": "4",
+            "MASTER_ADDR": "127.0.0.1",
+            "MASTER_PORT": "29671",
+        }
+    )
+    result = subprocess.run(
+        [
+            "bash",
+            str(REPO_ROOT / "11-precompute_vggt_dense_cache.sh"),
+            "--vggt-repo",
+            str(teacher_repo),
+            "--vggt-checkpoint",
+            str(teacher_checkpoint),
+            "--cache-root",
+            str(cache_root),
+        ],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert result.returncode == 0, result.stderr
+
+    arguments = captured_arguments.read_text(encoding="utf-8").splitlines()
+    assert "--max-samples" not in arguments
+    expected_torchrun = {
+        "--nnodes": "2",
+        "--node-rank": "1",
+        "--nproc-per-node": "4",
+        "--master-addr": "127.0.0.1",
+        "--master-port": "29671",
+    }
+    for flag, expected in expected_torchrun.items():
+        index = arguments.index(flag)
+        assert arguments[index + 1] == expected
+    expected_tool = {
+        "--vggt-repo": str(teacher_repo),
+        "--vggt-checkpoint": str(teacher_checkpoint),
+        "--cache-root": str(cache_root),
+    }
+    for flag, expected in expected_tool.items():
+        indices = [index for index, value in enumerate(arguments) if value == flag]
+        assert arguments[indices[-1] + 1] == expected
+
+
+def test_dense_training_launcher_cli_paths_override_invalid_environment(tmp_path: Path):
+    fake_bin = tmp_path / "fake bin"
+    fake_bin.mkdir()
+    captured_arguments = tmp_path / "accelerate-arguments.txt"
+    fake_accelerate = fake_bin / "accelerate"
+    fake_accelerate.write_text(
+        '#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "$CAPTURE_ARGS"\n',
+        encoding="utf-8",
+    )
+    fake_accelerate.chmod(0o755)
+
+    base_vlm = tmp_path / "base vlm with spaces"
+    base_vlm.mkdir()
+    cache_root = tmp_path / "dense cache with spaces"
+    (cache_root / "vggt_dense").mkdir(parents=True)
+    (cache_root / "vggt_dense" / "manifest.json").write_text(
+        "{}\n", encoding="utf-8"
+    )
+    datalist = tmp_path / "train list.json"
+    datalist.write_text("[]\n", encoding="utf-8")
+    action_checkpoint = tmp_path / "action checkpoint" / "pytorch_model.pt"
+    action_checkpoint.parent.mkdir()
+    action_checkpoint.touch()
+    invalid_experiment_root = tmp_path / "invalid experiments"
+    (invalid_experiment_root / "dense-cli-precedence").mkdir(parents=True)
+    explicit_experiment_root = tmp_path / "explicit experiments"
+
+    environment = _clean_environment()
+    environment.update(
+        {
+            "PATH": f"{fake_bin}:{environment['PATH']}",
+            "CAPTURE_ARGS": str(captured_arguments),
+            "VLA_DRIVE_SKIP_ENV_LOCAL": "1",
+            "BASE_VLM": str(tmp_path / "invalid environment vlm"),
+            "NAVSIM_VGGT_DENSE_CACHE_ROOT": str(tmp_path / "invalid environment cache"),
+            "DATA_ROOT": str(tmp_path / "processed data"),
+            "NAVSIM_DATALIST_PATH": str(datalist),
+            "NAVSIM_EXP_ROOT": str(invalid_experiment_root),
+            "ACTION_ONLY_CHECKPOINT": str(tmp_path / "missing action checkpoint"),
+            "LOCAL_NUM_PROCESSES": "1",
+            "NUM_PROCESSES": "1",
+            "PER_DEVICE_BATCH_SIZE": "1",
+            "TARGET_EFFECTIVE_BATCH_SIZE": "1",
+            "RUN_ID": "dense-cli-precedence",
+            "CUDA_VISIBLE_DEVICES": "0",
+        }
+    )
+    result = subprocess.run(
+        [
+            "bash",
+            str(REPO_ROOT / "11-train_vggt_dense_bottleneck.sh"),
+            "--framework.qwenvl.base_vlm",
+            str(base_vlm),
+            "--framework.vggt_bottleneck.cache.root",
+            str(cache_root),
+            "--trainer.pretrained_checkpoint",
+            str(action_checkpoint),
+            "--run_root_dir",
+            str(explicit_experiment_root),
+            "--trainer.max_train_steps",
+            "1",
+        ],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert result.returncode == 0, result.stderr
+
+    arguments = captured_arguments.read_text(encoding="utf-8").splitlines()
+    expected = {
+        "--framework.qwenvl.base_vlm": str(base_vlm),
+        "--framework.qwenvl.attn_implementation": "sdpa",
+        "--framework.vggt_bottleneck.cache.root": str(cache_root),
+        "--trainer.pretrained_checkpoint": str(action_checkpoint),
+        "--run_root_dir": str(explicit_experiment_root),
+        "--trainer.max_train_steps": "1",
+        "--trainer.num_warmup_steps": "5000",
+        "--trainer.save_interval": "5000",
+        "--trainer.logging_frequency": "50",
+        "--framework.action_model.repeated_diffusion_steps": "8",
+        "--framework.action_model.hidden_size": "1536",
+        "--framework.action_model.diffusion_model_cfg.cross_attention_dim": "1536",
+        "--framework.action_model.diffusion_model_cfg.output_dim": "1536",
+        "--framework.action_model.diffusion_model_cfg.num_layers": "24",
+    }
+    for flag, value in expected.items():
+        indices = [index for index, argument in enumerate(arguments) if argument == flag]
+        assert arguments[indices[-1] + 1] == value
+
+
+def test_dense_dlc_pipeline_dry_run_matches_standard_single_node_contract(tmp_path: Path):
+    environment = _clean_environment()
+    environment.update(
+        {
+            "VLA_DRIVE_SKIP_ENV_LOCAL": "1",
+            "VGGT_DENSE_DLC_DRY_RUN": "1",
+            "LOCAL_NUM_PROCESSES": "16",
+            "NUM_PROCESSES": "16",
+            "PER_DEVICE_BATCH_SIZE": "2",
+            "GRADIENT_ACCUMULATION_STEPS": "1",
+            "TARGET_EFFECTIVE_BATCH_SIZE": "32",
+            "PAI_JOB_ID": "dlc-contract-test",
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(REPO_ROOT / "run_vggt_dense_bottleneck_dlc.sh")],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert result.returncode == 0, result.stderr
+
+    output = result.stdout
+    assert "local_ppus:16" in output
+    assert "effective_batch=32" in output
+    assert "attention=sdpa" in output
+    assert "11-precompute_vggt_dense_cache.sh" in output
+    assert "--validate-only" in output
+    assert "MAX_TRAIN_STEPS=2" in output
+    assert "11-train_vggt_dense_bottleneck.sh" in output
+    assert "7-add_token.sh" not in output
+    assert "7-add_vggt_tokens.sh" not in output
 
 
 def test_agent_training_launcher_forwards_paths_as_single_arguments(tmp_path: Path):

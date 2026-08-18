@@ -41,6 +41,11 @@ def build_framework(cfg, accelerator=None):
     elif cfg.framework.name == "QwenOFT_VGGT":
         from starVLA.model.framework.QwenOFT_VGGT import Qwenvl_OFT_VGGT
         return Qwenvl_OFT_VGGT(cfg, accelerator)
+    elif cfg.framework.name == "QwenOFT_VGGT_Bottleneck":
+        from starVLA.model.framework.QwenOFT_VGGT_Bottleneck import (
+            Qwenvl_OFT_VGGT_Bottleneck,
+        )
+        return Qwenvl_OFT_VGGT_Bottleneck(cfg, accelerator)
     elif cfg.framework.name == "QwenFast":
         from starVLA.model.framework.QwenFast import Qwenvl_Fast
         return Qwenvl_Fast(cfg)

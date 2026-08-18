@@ -150,10 +150,11 @@ class Qwenvl_OFT_VGGT_V1_Inference(Qwenvl_OFT):
         action_queries: torch.Tensor,
         *,
         image_grid_thw=None,
+        examples=None,
     ):
         """Read all 63 V1 query states and return eight conditioned queries."""
 
-        del image_grid_thw
+        del image_grid_thw, examples
         if not self.vggt_enabled or not self.vggt_access_enabled:
             return action_queries, None, {}
         token_ids = self._special_token_ids["vggt"]

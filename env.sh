@@ -104,6 +104,14 @@ export VGGT_CHECKPOINT="${VGGT_CHECKPOINT:-}"
 export VGGT_SOURCE_VLM="${VGGT_SOURCE_VLM:-$BASE_VLM}"
 export VGGT_BASE_VLM="${VGGT_BASE_VLM:-$DRIVEDREAMER_ROOT/weights/derived/Qwen3-VL-2B-VGGTAction-V2-G15}"
 export NAVSIM_VGGT_CACHE_ROOT="${NAVSIM_VGGT_CACHE_ROOT:-$DRIVEDREAMER_SHARED_ROOT/navsim_feature_cache/vggt_query_train_v2_layer11_global_m195}"
+# V3 uses distinct artifacts so a V2 cache can never be accepted implicitly.
+# The native codec is trained offline and is absent from student train/infer.
+export VGGT_V3_CODEC_ROOT="${VGGT_V3_CODEC_ROOT:-$DRIVEDREAMER_SHARED_ROOT/navsim_feature_cache/vggt_native_codec_v3_l11_global}"
+export VGGT_V3_CODEC="${VGGT_V3_CODEC:-$VGGT_V3_CODEC_ROOT/native_codec.pt}"
+export NAVSIM_VGGT_V3_CACHE_ROOT="${NAVSIM_VGGT_V3_CACHE_ROOT:-$DRIVEDREAMER_SHARED_ROOT/navsim_feature_cache/vggt_query_train_v3_layer11_global_codec_m195}"
+# Final-layer dense patch cache for the independent planning-conditioned
+# bottleneck. It is read by train/inference; VGGT itself remains offline-only.
+export NAVSIM_VGGT_DENSE_CACHE_ROOT="${NAVSIM_VGGT_DENSE_CACHE_ROOT:-$DRIVEDREAMER_SHARED_ROOT/navsim_feature_cache/vggt_dense_final_crop}"
 
 # ── Weights & Biases (optional) ───────────────────────────────────────────────
 export WANDB_API_KEY="${WANDB_API_KEY:-}"

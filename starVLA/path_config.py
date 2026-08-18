@@ -19,6 +19,10 @@ ENVIRONMENT_PATH_BINDINGS: tuple[tuple[str, str], ...] = (
     ("NAVSIM_GS_ROOT", "datasets.gs_data.gs_meta_dir"),
     ("NAVSIM_REWARD_ROOT", "datasets.reward_data.reward_meta_dir"),
     ("NAVSIM_VGGT_CACHE_ROOT", "framework.vggt.cache.root"),
+    (
+        "NAVSIM_VGGT_DENSE_CACHE_ROOT",
+        "framework.vggt_bottleneck.cache.root",
+    ),
 )
 
 

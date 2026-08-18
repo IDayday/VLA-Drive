@@ -51,6 +51,7 @@ from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
 from starVLA.training.trainer_utils.trainer_tools import collect_learning_rate_metrics
+from starVLA.training.trainer_utils.trainer_tools import resolve_training_step_contract
 
 # Sane Defaults
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -100,6 +101,25 @@ def prepare_data(cfg, accelerator, output_dir) -> DataLoader:
     # logger.info(f"Creating VLA Dataset with Mixture `{cfg.datasets.vla_data.data_mix}`")
     vla_train_dataloader = build_dataloader(cfg=cfg, dataset_py=cfg.datasets.vla_data.dataset_py)
 
+    expected_sample_count = OmegaConf.select(
+        cfg,
+        "datasets.vla_data.expected_sample_count",
+        default=None,
+    )
+    if expected_sample_count is not None:
+        expected_sample_count = int(expected_sample_count)
+        actual_sample_count = len(vla_train_dataloader.dataset)
+        if actual_sample_count != expected_sample_count:
+            raise RuntimeError(
+                "NAVSIM training dataset size mismatch: "
+                f"expected {expected_sample_count}, found {actual_sample_count}"
+            )
+        if accelerator.is_main_process:
+            logger.info(
+                "Validated complete NAVSIM training set: %d samples",
+                actual_sample_count,
+            )
+
     accelerator.dataloader_config.dispatch_batches = False
     dist.barrier()
 
@@ -123,12 +143,15 @@ def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, to
         for i, group in enumerate(optimizer.param_groups):
             logger.info(f"LR Group {group['name']}: lr={group['lr']}, num_params={len(group['params'])}")
 
-    # initialize learning rate scheduler
+    # Weight-only continuation starts a fresh optimizer/scheduler for only the
+    # remaining global steps. The launcher keeps the learning rates equal to
+    # the source run's endpoint so no LR restart is introduced.
+    _, scheduler_training_steps = resolve_training_step_contract(cfg)
     lr_scheduler = get_scheduler(
         name=cfg.trainer.lr_scheduler_type,
         optimizer=optimizer,
         num_warmup_steps=cfg.trainer.num_warmup_steps,
-        num_training_steps=cfg.trainer.max_train_steps,
+        num_training_steps=scheduler_training_steps,
         scheduler_specific_kwargs=cfg.trainer.scheduler_specific_kwargs,  # minimum learning rate
     )
 
@@ -145,7 +168,8 @@ class VLATrainer(TrainerUtils):
         self.accelerator = accelerator
 
         # training status tracking
-        self.completed_steps = 0
+        self.initial_step, self.remaining_steps = resolve_training_step_contract(cfg)
+        self.completed_steps = self.initial_step
         self.total_batch_size = self._calculate_total_batch_size()
         self._timing_window = []
 
@@ -239,9 +263,31 @@ class VLATrainer(TrainerUtils):
         self.model = self.freeze_backbones(self.model, freeze_modules=freeze_modules)
 
         if self.config.trainer.resume_ckpt != 'none':
-            state = torch.load(self.config.trainer.resume_ckpt, map_location="cpu", weights_only=True)
-            missing, unexpected = self.model.load_state_dict(state, strict=False)
-            print("missing:", missing, "unexpected:", unexpected)
+            resume_ckpt = os.fspath(self.config.trainer.resume_ckpt)
+            if not os.path.isfile(resume_ckpt):
+                raise FileNotFoundError(f"Resume model checkpoint is missing: {resume_ckpt}")
+            state = torch.load(resume_ckpt, map_location="cpu", weights_only=True)
+            resume_strict = bool(
+                OmegaConf.select(
+                    self.config,
+                    "trainer.resume_strict",
+                    default=False,
+                )
+            )
+            missing, unexpected = self.model.load_state_dict(
+                state,
+                strict=resume_strict,
+            )
+            if self.accelerator.is_main_process:
+                logger.info(
+                    "Loaded model continuation checkpoint %s "
+                    "(strict=%s, missing=%d, unexpected=%d, initial_step=%d)",
+                    resume_ckpt,
+                    resume_strict,
+                    len(missing),
+                    len(unexpected),
+                    self.initial_step,
+                )
         
         if self.config.pretrain_model_2d is not None:
             state = torch.load(self.config.pretrain_model_2d, map_location="cpu", weights_only=True)
@@ -379,13 +425,26 @@ class VLATrainer(TrainerUtils):
 
                 # record to W&B
                 wandb.log(metrics, step=self.completed_steps)
-                if str(getattr(self.config.framework, "name", "")) == "QwenOFT_VGGT":
+                if str(getattr(self.config.framework, "name", "")) in (
+                    "QwenOFT_VGGT",
+                    "QwenOFT_VGGT_Bottleneck",
+                ):
                     diagnostic_record = {
                         "step": self.completed_steps,
                         **{
                             key: value
                             for key, value in metrics.items()
-                            if key.startswith("vggt/")
+                            if key.startswith("vggt")
+                            or key
+                            in {
+                                "source_token_count_mean",
+                                "source_feature_norm",
+                                "task_geometry_norm",
+                                "horizon_readout_norm",
+                                "planning_delta_norm",
+                                "planning_delta_ratio",
+                                "slot_pairwise_cosine",
+                            }
                             or key.startswith("weighted_loss/")
                             or key == "action_dit_loss"
                         },
@@ -421,19 +480,26 @@ class VLATrainer(TrainerUtils):
     def _run_vggt_intervention_diagnostics(self, batch_vla):
         """Compare real/zero/shuffled/template memory with identical RNG."""
 
-        interval = int(
-            OmegaConf.select(
-                self.config,
-                "framework.vggt.diagnostics.intervention_interval",
-                default=0,
-            )
+        framework_name = str(
+            OmegaConf.select(self.config, "framework.name", default="")
         )
+        is_dense_bottleneck = framework_name == "QwenOFT_VGGT_Bottleneck"
+        diagnostic_path = (
+            "framework.vggt_bottleneck.diagnostics.intervention_interval"
+            if is_dense_bottleneck
+            else "framework.vggt.diagnostics.intervention_interval"
+        )
+        interval = int(OmegaConf.select(self.config, diagnostic_path, default=0))
         if interval <= 0 or (self.completed_steps + 1) % interval != 0:
             return {}
         raw_model = self.accelerator.unwrap_model(self.model)
         if not hasattr(raw_model, "set_vggt_intervention"):
             return {}
-        modes = ("real", "zero", "shuffled", "slot_mean")
+        modes = (
+            ("real", "zero", "shuffled")
+            if is_dense_bottleneck
+            else ("real", "zero", "shuffled", "slot_mean")
+        )
         losses = {}
         predictions = {}
         collect_trajectory = bool(
@@ -443,12 +509,13 @@ class VLATrainer(TrainerUtils):
                 default=True,
             )
         )
+        seed_path = (
+            "framework.vggt_bottleneck.diagnostics.intervention_seed"
+            if is_dense_bottleneck
+            else "framework.vggt.diagnostics.intervention_seed"
+        )
         diagnostic_seed = int(
-            OmegaConf.select(
-                self.config,
-                "framework.vggt.diagnostics.intervention_seed",
-                default=20260811,
-            )
+            OmegaConf.select(self.config, seed_path, default=20260811)
         ) + self.completed_steps
         rng_devices = [torch.cuda.current_device()] if torch.cuda.is_available() else []
         try:
@@ -523,7 +590,8 @@ class VLATrainer(TrainerUtils):
 
         # create progress bar
         progress_bar = tqdm(
-            range(self.config.trainer.max_train_steps), disable=not self.accelerator.is_local_main_process
+            range(self.initial_step, self.config.trainer.max_train_steps),
+            disable=not self.accelerator.is_local_main_process,
         )
 
         # main training loop
@@ -686,6 +754,8 @@ class VLATrainer(TrainerUtils):
         if self.accelerator.is_main_process:
             logger.info("***** Training Configuration *****")
             logger.info(f"  Total optimization steps = {self.config.trainer.max_train_steps}")
+            logger.info(f"  Initial global step = {self.initial_step}")
+            logger.info(f"  Remaining optimization steps = {self.remaining_steps}")
             logger.info(f"  Per device batch size = {self.config.datasets.vla_data.per_device_batch_size}")
             logger.info(f"  Gradient accumulation steps = {self.config.trainer.gradient_accumulation_steps}")
             logger.info(f"  Total batch size = {self.total_batch_size}")
@@ -826,6 +896,7 @@ def main(cfg) -> None:
             'debug.sh',
             '8-train.sh',
             '8-train_action-only-qwen-visual.sh',
+            '8-continue_action-only-qwen-visual-200k.sh',
             'training.sh',
             'pre_cache.sh',
         ):

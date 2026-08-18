@@ -1,0 +1,64 @@
+# Independent Planning-Conditioned Dense VGGT Bottleneck overlay.
+# Merge on top of cfg_yaw_1225.yaml. Paths come from the environment or CLI.
+enable_image_aug: 0
+
+framework:
+  name: QwenOFT_VGGT_Bottleneck
+  action_prompt_mode: minimal
+  qwenvl:
+    freeze_visual: true
+
+  vggt_bottleneck:
+    enabled: true
+
+    cache:
+      enabled: true
+      root: ""
+      strict: true
+      component: vggt_dense
+
+    teacher:
+      layer_index: 23
+      representation: full_aggregated_feature
+      feature_dim: 2048
+      include_special_tokens: false
+      preprocess_mode: crop
+      frame_index: 3
+
+    source:
+      view_count: 3
+      view_order: [cam_f0, cam_l0, cam_r0]
+      use_view_embedding: true
+      use_uv_embedding: true
+      use_ray_embedding: true
+
+    bottleneck:
+      hidden_dim: 512
+      num_heads: 8
+      slots_per_horizon: 4
+      expected_horizons: 8
+      ffn_expansion: 2
+      detach_planning_queries: true
+      attention_dropout: 0.0
+      return_attention_diagnostics: false
+
+    aux_plan_head:
+      enabled: true
+      hidden_dim: 512
+      loss_name: vggt_bottleneck_aux_plan
+
+    diagnostics:
+      intervention_interval: 500
+      intervention_seed: 20260818
+
+trainer:
+  named_loss_warmup_steps: 1000
+  freeze_modules: qwen_vl_interface
+
+  loss_weights:
+    action: 1.0
+    vggt_bottleneck_aux_plan: 0.05
+
+  learning_rate:
+    vggt_dense_bottleneck: 5.0e-05
+    vggt_bottleneck_aux_plan_head: 5.0e-05

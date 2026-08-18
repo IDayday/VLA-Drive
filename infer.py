@@ -9,6 +9,7 @@ import os
 import re
 import json
 import argparse
+import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -48,6 +49,24 @@ def tensor_to_py(x: Any) -> Any:
     if isinstance(x, (list, tuple)):
         return [tensor_to_py(v) for v in x]
     return x
+
+
+def configure_inference_seed(seed: Optional[int], rank: int = 0) -> Optional[int]:
+    """Seed stochastic inference for a rank, returning the effective seed."""
+    if seed is None:
+        return None
+    if seed < 0:
+        raise ValueError("inference seed must be non-negative")
+    if rank < 0:
+        raise ValueError("inference rank must be non-negative")
+
+    effective_seed = int(seed) + int(rank)
+    random.seed(effective_seed)
+    np.random.seed(effective_seed)
+    torch.manual_seed(effective_seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(effective_seed)
+    return effective_seed
 
 
 def wrap_to_pi(a: np.ndarray) -> np.ndarray:
@@ -449,6 +468,10 @@ def infer_and_save(
         device=device,
         qwen_forward_mode=args.qwen_forward_mode,
     )
+    # Model construction can consume random numbers for runtime-only modules.
+    # Reset immediately afterwards so flow noise is identical for paired
+    # checkpoints evaluated with the same seed and shard topology.
+    effective_seed = configure_inference_seed(args.seed, args.rank)
     manifest_path = os.path.join(out_dir, f"inference_manifest.rank{args.rank}.json")
     manifest_tmp = manifest_path + f".tmp-{os.getpid()}"
     with open(manifest_tmp, "w", encoding="utf-8") as manifest_file:
@@ -458,6 +481,8 @@ def infer_and_save(
                 "checkpoint_file": str(Path(agent.model_path).resolve()),
                 "model_iter": model_iter,
                 "qwen_forward_mode": agent.qwen_forward_mode,
+                "seed": args.seed,
+                "effective_seed": effective_seed,
                 "split": split,
                 "rank": args.rank,
                 "world_size": args.world_size,
@@ -520,6 +545,11 @@ def infer_and_save(
         shuffle=False,
         pin_memory=False,
         drop_last=False,
+        generator=(
+            torch.Generator().manual_seed(effective_seed)
+            if effective_seed is not None
+            else None
+        ),
     )
 
     for batch in tqdm(loader, desc="Infer"):
@@ -562,6 +592,12 @@ def parse_args():
     p.add_argument("--num_workers",   type=int, default=7)
     p.add_argument("--device",        type=str, default="cuda")
     p.add_argument("--model_iter",    type=int, default=None)
+    p.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional reproducible inference seed; rank is added per shard.",
+    )
     p.add_argument(
         "--qwen_forward_mode",
         choices=("auto", "legacy", "optimized"),

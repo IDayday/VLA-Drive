@@ -28,9 +28,35 @@ output_root="${OUT_DIR:-$NAVSIM_EVAL_ROOT/vggt-navtest-ckpt-comparison/predictio
 evaluation_root="${EVALUATION_ROOT:-$NAVSIM_EVAL_ROOT/vggt-navtest-ckpt-comparison/pdms}"
 log_root="${LOG_ROOT:-$NAVSIM_EVAL_ROOT/vggt-navtest-ckpt-comparison/logs}"
 preflight_only="${EVAL_PREFLIGHT_ONLY:-0}"
+# Unset defaults to a reproducible seed. An explicitly empty value preserves
+# the legacy unseeded protocol for queues whose existing manifests predate
+# seeded inference.
+inference_seed="${INFER_SEED-42}"
+
+if [[ ! -f "$run_dir/config.yaml" ]]; then
+  echo "Required evaluation config is missing: $run_dir/config.yaml" >&2
+  exit 1
+fi
+framework_name="$(python - "$run_dir/config.yaml" <<'PY'
+import sys
+from omegaconf import OmegaConf
+
+config = OmegaConf.load(sys.argv[1])
+print(OmegaConf.select(config, "framework.name", default="QwenOFT"))
+PY
+)"
+if [[ "$framework_name" == "QwenOFT_VGGT" ]]; then
+  evaluation_base_vlm="$VGGT_BASE_VLM"
+else
+  evaluation_base_vlm="$BASE_VLM"
+fi
 
 if [[ ! "$device_count" =~ ^[1-9][0-9]*$ ]]; then
   echo "EVAL_DEVICE_COUNT must be a positive integer, got: $device_count" >&2
+  exit 1
+fi
+if [[ -n "$inference_seed" && ! "$inference_seed" =~ ^[0-9]+$ ]]; then
+  echo "INFER_SEED must be a non-negative integer, got: $inference_seed" >&2
   exit 1
 fi
 
@@ -44,10 +70,9 @@ if [[ "${#devices[@]}" -ne "$device_count" ]]; then
 fi
 
 required_paths=(
-  "$run_dir/config.yaml"
   "$datalist"
   "$DATA_ROOT/meta/test"
-  "$VGGT_BASE_VLM"
+  "$evaluation_base_vlm"
   "$metric_cache/metadata"
   "$NUPLAN_MAPS_ROOT"
   "$NAVSIM_TEST_LOG_ROOT"
@@ -98,7 +123,9 @@ echo "[eval] navtest samples:  $expected_count"
 echo "[eval] metric cache:     $metric_cache"
 echo "[eval] prediction root:  $output_root"
 echo "[eval] PDMS root:        $evaluation_root"
-echo "[eval] base VLM:         $VGGT_BASE_VLM"
+echo "[eval] framework:        $framework_name"
+echo "[eval] base VLM:         $evaluation_base_vlm"
+echo "[eval] inference seed:   ${inference_seed:-unseeded (legacy)}"
 
 if [[ "$preflight_only" == "1" ]]; then
   echo "[eval] preflight passed; no inference or scoring was started"
@@ -116,6 +143,7 @@ for step in "${steps[@]}"; do
   prediction_run="$output_root/${run_name}-step${step}"
   prediction_dir="$prediction_run/test"
   step_log_root="$log_root/step${step}"
+  step_evaluation_root="$evaluation_root/step${step}"
   mkdir -p "$step_log_root"
 
   existing_count=0
@@ -124,12 +152,12 @@ for step in "${steps[@]}"; do
   fi
   if [[ "$existing_count" -gt 0 && "$overwrite" != "1" ]]; then
     manifest_count="$(find "$prediction_dir" -maxdepth 1 -type f -name 'inference_manifest.rank*.json' 2>/dev/null | wc -l)"
-    if [[ "$manifest_count" -eq 0 ]]; then
-      echo "Refusing an unverifiable resume: $prediction_dir has predictions but no manifests" >&2
+    if [[ "$manifest_count" -ne "$device_count" ]]; then
+      echo "Refusing an unverifiable resume: $prediction_dir has $manifest_count manifests, expected $device_count" >&2
       echo "Set OVERWRITE=1 to regenerate them explicitly." >&2
       exit 1
     fi
-    python - "$prediction_dir" "$step" "$checkpoint_name" <<'PY'
+    python - "$prediction_dir" "$step" "$checkpoint_name" "$inference_seed" "$device_count" <<'PY'
 import json
 import pathlib
 import sys
@@ -137,13 +165,63 @@ import sys
 prediction_dir = pathlib.Path(sys.argv[1])
 expected_step = int(sys.argv[2])
 expected_name = sys.argv[3]
-for manifest_path in prediction_dir.glob("inference_manifest.rank*.json"):
+expected_seed = int(sys.argv[4]) if sys.argv[4] else None
+expected_world_size = int(sys.argv[5])
+manifest_paths = sorted(prediction_dir.glob("inference_manifest.rank*.json"))
+ranks = set()
+for manifest_path in manifest_paths:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("model_iter") != expected_step:
         raise SystemExit(f"Resume manifest step mismatch: {manifest_path}")
     if pathlib.Path(manifest.get("checkpoint_file", "")).name != expected_name:
         raise SystemExit(f"Resume checkpoint mismatch: {manifest_path}")
+    if manifest.get("seed") != expected_seed:
+        raise SystemExit(f"Resume inference seed mismatch: {manifest_path}")
+    if manifest.get("split") != "test":
+        raise SystemExit(f"Resume split mismatch: {manifest_path}")
+    if manifest.get("world_size") != expected_world_size:
+        raise SystemExit(f"Resume world-size mismatch: {manifest_path}")
+    rank = manifest.get("rank")
+    if not isinstance(rank, int) or not 0 <= rank < expected_world_size:
+        raise SystemExit(f"Resume rank mismatch: {manifest_path}")
+    expected_effective_seed = None if expected_seed is None else expected_seed + rank
+    if manifest.get("effective_seed") != expected_effective_seed:
+        raise SystemExit(f"Resume effective-seed mismatch: {manifest_path}")
+    ranks.add(rank)
+if ranks != set(range(expected_world_size)):
+    raise SystemExit(f"Resume rank coverage mismatch: {sorted(ranks)}")
 PY
+  fi
+
+  completed_summary="$evaluation_root/summary.csv"
+  if [[ "$existing_count" -eq "$expected_count" && "$overwrite" != "1" && -f "$completed_summary" ]]; then
+    python - "$completed_summary" "$step" >> "$summary_tmp" <<'PY'
+import csv
+import sys
+
+summary_path = sys.argv[1]
+expected_step = int(sys.argv[2])
+with open(summary_path, newline="", encoding="utf-8") as summary_file:
+    rows = list(csv.DictReader(summary_file))
+row = next((item for item in rows if int(item["step"]) == expected_step), None)
+if row is None:
+    raise SystemExit(f"Completed summary does not contain step {expected_step}: {summary_path}")
+columns = (
+    "step",
+    "pdms",
+    "no_at_fault_collisions",
+    "drivable_area_compliance",
+    "ego_progress",
+    "time_to_collision_within_bound",
+    "comfort",
+    "driving_direction_compliance",
+    "result_csv",
+)
+writer = csv.writer(sys.stdout, lineterminator="\n")
+writer.writerow([row[column] for column in columns])
+PY
+    echo "[eval][step $step] reusing completed inference and PDMS summary"
+    continue
   fi
 
   echo "[eval][step $step] starting $device_count inference shards"
@@ -164,6 +242,7 @@ PY
       WORLD_SIZE="$device_count" \
       OVERWRITE="$overwrite" \
       INFER_USE_FEATURE_CACHE=0 \
+      INFER_SEED="$inference_seed" \
       VLM_ATTN_IMPLEMENTATION="${VLM_ATTN_IMPLEMENTATION:-sdpa}" \
         bash "$project_root/4-infer.sh"
     ) >"$rank_log" 2>&1 &
@@ -188,7 +267,6 @@ PY
   fi
   echo "[eval][step $step] inference complete: $prediction_count predictions"
 
-  step_evaluation_root="$evaluation_root/step${step}"
   mkdir -p "$step_evaluation_root"
   PRED_DIR="$prediction_run" \
   SPLIT=test \

@@ -1,0 +1,47 @@
+# V3 overlay: compress only VGGT layer-11 global into 195 reconstructable
+# latent slots, then use a single centered residual entry into trajectory DiT.
+# Merge after
+# vggt_query_main.yaml; all machine-local paths still come from CLI/env.local.
+framework:
+  vggt:
+    version: 3
+    teacher:
+      representation: layer11_global_codec_tail_reconstructable
+      layer_index: 11
+      attention_branch: global
+      codec_source_feature: layer11_global
+      frozen_tail_layers: [12, 23]
+      # CameraHead consumes only the final tap, so it is the native downstream
+      # head reachable by strictly continuing after layer 11 global.
+      reused_native_heads: [camera]
+    supervision_enabled: true
+    access_enabled: true
+    # V3 keeps the full 15 + 3*6*10 = 195-slot capacity. The slot mean is
+    # loaded from the V3 cache and is subtracted at the reader output.
+    residual_fusion:
+      minimum_scale: 0.05
+      maximum_scale: 0.50
+      initial_scale: 0.10
+    diagnostics:
+      intervention_interval: 500
+      intervention_seed: 20260814
+      intervention_trajectory: true
+
+trainer:
+  # The codec/tail downstream objectives belong to the teacher-only pre-stage,
+  # not trajectory training. Student training aligns to that gated latent.
+  loss_weights:
+    action: 1.0
+    vggt_global_alignment: 0.05
+    vggt_spatial_alignment: 0.10
+    vggt_scene_relation: 0.05
+    vggt_geometry: 0.0
+    vggt_aux_plan: 0.0
+  learning_rate:
+    vggt_geometry_adapter: 3.0e-05
+    vggt_aligner: 3.0e-05
+    vggt_residual_fusion: 3.0e-05
+    # Remove V2-only optimizer groups inherited from vggt_query_main.yaml.
+    vggt_waypoint_reader: null
+    vggt_geometry_probe: null
+    vggt_aux_plan_head: null

@@ -29,6 +29,8 @@ SIGNALS = (
     "vggt/planning_context_grad_norm",
     "vggt/geometry_adapter_grad_norm",
     "vggt/waypoint_reader_grad_norm",
+    "vggt/residual_fusion_grad_norm",
+    "vggt/residual_scale_grad_norm",
     "vggt/geometry_probe_grad_norm",
     "vggt/aux_plan_head_grad_norm",
     "vggt/attention_entropy",
@@ -36,6 +38,9 @@ SIGNALS = (
     "vggt/attention_front_view_mass",
     "vggt/attention_left_view_mass",
     "vggt/attention_right_view_mass",
+    "vggt/residual_scale",
+    "vggt/scene_readout_norm",
+    "vggt/residual_to_action_norm_ratio",
     "vggt/intervention_zero_minus_real",
     "vggt/intervention_shuffled_minus_real",
     "vggt/intervention_slot_mean_minus_real",
@@ -86,6 +91,10 @@ def main(args: argparse.Namespace) -> None:
 
     context_grad = finite_values(window, "vggt/planning_context_grad_norm")
     reader_grad = finite_values(window, "vggt/waypoint_reader_grad_norm")
+    residual_fusion_grad = finite_values(
+        window, "vggt/residual_fusion_grad_norm"
+    )
+    planner_reader_grad = residual_fusion_grad or reader_grad
     geometry_error = finite_values(window, "vggt/geometry_log_depth_mae")
     aux_ade = finite_values(window, "vggt/aux_plan_ade")
     shuffled_change = finite_values(window, "vggt/intervention_shuffled_trajectory_l2")
@@ -94,8 +103,10 @@ def main(args: argparse.Namespace) -> None:
         "planner_context_receives_action_gradient": (
             median(context_grad) > args.gradient_epsilon if context_grad else "MISSING"
         ),
-        "waypoint_reader_receives_gradient": (
-            median(reader_grad) > args.gradient_epsilon if reader_grad else "MISSING"
+        "planner_reader_receives_gradient": (
+            median(planner_reader_grad) > args.gradient_epsilon
+            if planner_reader_grad
+            else "MISSING"
         ),
         "student_queries_not_collapsed": (
             median(student_std) > args.std_epsilon if student_std else "MISSING"

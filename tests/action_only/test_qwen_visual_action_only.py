@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from omegaconf import OmegaConf
+import pytest
 import torch
 from torch import nn
 
@@ -200,6 +201,71 @@ def test_visual_action_launcher_disables_all_external_feature_caches():
     assert "MAX_TRAIN_STEPS=2" in launcher
     assert 'per_device_batch="${PER_DEVICE_BATCH_SIZE:-2}"' in launcher
     assert 'gradient_accumulation="${GRADIENT_ACCUMULATION_STEPS:-1}"' in launcher
+
+
+def test_visual_action_200k_continuation_uses_full_dataset_and_global_steps():
+    launcher = (
+        REPO_ROOT / "8-continue_action-only-qwen-visual-200k.sh"
+    ).read_text(encoding="utf-8")
+
+    assert 'expected_train_samples="${EXPECTED_TRAIN_SAMPLES:-103288}"' in launcher
+    assert 'source_step="${QWEN_VISUAL_SOURCE_STEP:-100000}"' in launcher
+    assert 'target_step="${MAX_TRAIN_STEPS:-200000}"' in launcher
+    assert "len(set(records))" in launcher
+    assert "QWEN_VISUAL_RESUME_CKPT" in launcher
+    assert "QWEN_VISUAL_INITIAL_STEP" in launcher
+    assert "QWEN_VISUAL_RESUME_STRICT=1" in launcher
+    assert "QWEN_VISUAL_RUN_SMOKE_BEFORE_FORMAL=0" in launcher
+    assert 'qwen_learning_rate="${QWEN_LEARNING_RATE:-5e-7}"' in launcher
+    assert 'visual_learning_rate="${VISUAL_LEARNING_RATE:-1e-7}"' in launcher
+    assert 'action_learning_rate="${ACTION_LEARNING_RATE:-5e-7}"' in launcher
+
+
+def test_continuation_step_contract_counts_only_remaining_optimizer_steps():
+    from starVLA.training.trainer_utils.trainer_tools import (
+        resolve_training_step_contract,
+    )
+
+    cfg = OmegaConf.create(
+        {
+            "trainer": {
+                "max_train_steps": 200000,
+                "resume_ckpt": "/checkpoint/steps_100000_pytorch_model.pt",
+                "resume_step": 100000,
+            }
+        }
+    )
+    assert resolve_training_step_contract(cfg) == (100000, 100000)
+
+
+def test_continuation_step_requires_checkpoint_and_strict_bounds():
+    from starVLA.training.trainer_utils.trainer_tools import (
+        resolve_training_step_contract,
+    )
+
+    no_checkpoint = OmegaConf.create(
+        {
+            "trainer": {
+                "max_train_steps": 200000,
+                "resume_ckpt": "none",
+                "resume_step": 100000,
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="resume_step requires"):
+        resolve_training_step_contract(no_checkpoint)
+
+    no_remaining_steps = OmegaConf.create(
+        {
+            "trainer": {
+                "max_train_steps": 100000,
+                "resume_ckpt": "/checkpoint/model.pt",
+                "resume_step": 100000,
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="smaller than"):
+        resolve_training_step_contract(no_remaining_steps)
 
 
 def test_framework_registry_does_not_eagerly_import_optional_world_heads():

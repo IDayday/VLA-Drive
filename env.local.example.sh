@@ -37,6 +37,16 @@
 # export NAVSIM_EVAL_ROOT="${NAVSIM_EVAL_ROOT:-$NAVSIM_EXP_ROOT}"
 # export NAVSIM_V1_METRIC_CACHE_PATH="${NAVSIM_V1_METRIC_CACHE_PATH:-/absolute/path/to/v1-metric-cache}"
 # export NAVSIM_V2_METRIC_CACHE_ROOT="${NAVSIM_V2_METRIC_CACHE_ROOT:-/absolute/path/to/v2-metric-caches}"
+# Frozen/trainable visual action-only checkpoint comparison. The frozen run
+# may live in a collaborator-specific shared mount; keep it out of shared YAML.
+# export FROZEN_ACTION_ONLY_RUN_DIR="${FROZEN_ACTION_ONLY_RUN_DIR:-$NAVSIM_EXP_ROOT/frozen-action-only-run}"
+# export VISUAL_ACTION_ONLY_RUN_DIR="${VISUAL_ACTION_ONLY_RUN_DIR:-$NAVSIM_EXP_ROOT/qwen-visual-action-only-run}"
+# export ACTION_ONLY_COMPARISON_ROOT="${ACTION_ONLY_COMPARISON_ROOT:-$NAVSIM_EVAL_ROOT/action-only-visual-comparison}"
+# Weight-only continuation of the completed trainable-visual action-only run.
+# The launcher verifies that the selected datalist has 103,288 unique samples.
+# export QWEN_VISUAL_SOURCE_RUN="${QWEN_VISUAL_SOURCE_RUN:-$NAVSIM_EXP_ROOT/qwen-visual-action-only-20260814_001706}"
+# export QWEN_VISUAL_SOURCE_STEP="${QWEN_VISUAL_SOURCE_STEP:-100000}"
+# export EXPECTED_TRAIN_SAMPLES="${EXPECTED_TRAIN_SAMPLES:-103288}"
 
 # Models/checkpoints
 # export SOURCE_VLM="${SOURCE_VLM:-/absolute/path/to/Qwen3-VL-2B-Instruct}"
@@ -56,7 +66,36 @@
 # export VGGT_BASE_VLM="${VGGT_BASE_VLM:-/absolute/path/to/Qwen3-VL-2B-VGGTAction-V2-G15}"
 # export VGGT_TOKEN_DEVICE="${VGGT_TOKEN_DEVICE:-cpu}"  # set cuda on a compatible GPU
 # export NAVSIM_VGGT_CACHE_ROOT="${NAVSIM_VGGT_CACHE_ROOT:-/absolute/path/to/vggt-query-v2-layer11-global-m195-cache}"
-# export VGGT_CACHE_NUM_PROCESSES="${VGGT_CACHE_NUM_PROCESSES:-16}"
+# V3 teacher-only codec and its separate reconstructable 195-token cache.
+# export VGGT_V3_CODEC_ROOT="${VGGT_V3_CODEC_ROOT:-/absolute/path/to/vggt-native-codec-v3-layer11-global}"
+# export VGGT_V3_CODEC="${VGGT_V3_CODEC:-$VGGT_V3_CODEC_ROOT/native_codec.pt}"
+# export NAVSIM_VGGT_V3_CACHE_ROOT="${NAVSIM_VGGT_V3_CACHE_ROOT:-/absolute/path/to/vggt-query-v3-layer11-global-codec-m195-cache}"
+# Final-layer, unpooled VGGT patch cache used by QwenOFT_VGGT_Bottleneck.
+# export NAVSIM_VGGT_DENSE_CACHE_ROOT="/path/to/vggt_dense_cache"
+# Dense-cache generation. Leave VGGT_DENSE_CACHE_MAX_SAMPLES unset for the
+# complete datalist. map_size is a per-rank upper bound, not eager allocation.
+# export VGGT_DENSE_CACHE_NUM_PROCESSES="${VGGT_DENSE_CACHE_NUM_PROCESSES:-16}"
+# export VGGT_DENSE_CACHE_BATCH_SIZE="${VGGT_DENSE_CACHE_BATCH_SIZE:-1}"
+# export VGGT_DENSE_CACHE_MAP_SIZE_GB="${VGGT_DENSE_CACHE_MAP_SIZE_GB:-80}"
+# export VGGT_DENSE_CACHE_FULL="${VGGT_DENSE_CACHE_FULL:-1}"  # ignores a stale smoke max-samples setting
+# Full bottleneck training may initialize from an action-only model checkpoint.
+# export ACTION_ONLY_CHECKPOINT="/path/to/action_only/pytorch_model.pt"
+# export VGGT_DENSE_LEARNING_RATE="${VGGT_DENSE_LEARNING_RATE:-5e-5}"
+# export VGGT_DENSE_VLM_ATTN_IMPLEMENTATION="${VGGT_DENSE_VLM_ATTN_IMPLEMENTATION:-sdpa}"
+# export VGGT_DENSE_INTERVENTION_INTERVAL="${VGGT_DENSE_INTERVENTION_INTERVAL:-500}"
+# One-command dense-cache + bottleneck training on one 16-PPU PAI-DLC node.
+# export VGGT_DENSE_EXPECTED_PPU_COUNT="${VGGT_DENSE_EXPECTED_PPU_COUNT:-16}"
+# export VGGT_DENSE_CACHE_FULL_VALIDATE="${VGGT_DENSE_CACHE_FULL_VALIDATE:-1}"
+# export VGGT_DENSE_RUN_SMOKE_BEFORE_FORMAL="${VGGT_DENSE_RUN_SMOKE_BEFORE_FORMAL:-1}"
+# Direct launcher normally detects all visible devices; set only to use fewer.
+# export LOCAL_NUM_PROCESSES="${LOCAL_NUM_PROCESSES:-8}"
+# export VGGT_CODEC_NUM_PROCESSES="${VGGT_CODEC_NUM_PROCESSES:-$LOCAL_NUM_PROCESSES}"
+# export VGGT_CODEC_TRAIN_SAMPLES="${VGGT_CODEC_TRAIN_SAMPLES:-4096}"
+# export VGGT_CODEC_VALIDATION_SAMPLES="${VGGT_CODEC_VALIDATION_SAMPLES:-512}"
+# export VGGT_CODEC_STEPS="${VGGT_CODEC_STEPS:-10000}"
+# export VGGT_CODEC_CHECKPOINT_INTERVAL="${VGGT_CODEC_CHECKPOINT_INTERVAL:-250}"
+# export VGGT_CODEC_RESUME="${VGGT_CODEC_RESUME:-1}"
+# export VGGT_CACHE_NUM_PROCESSES="${VGGT_CACHE_NUM_PROCESSES:-$LOCAL_NUM_PROCESSES}"
 # export VGGT_CACHE_BATCH_SIZE="${VGGT_CACHE_BATCH_SIZE:-1}"
 # export VGGT_CACHE_MAP_SIZE_GB="${VGGT_CACHE_MAP_SIZE_GB:-16}"  # per rank
 # Low-cost VGGT spatial-resolution probe. The report is written atomically and

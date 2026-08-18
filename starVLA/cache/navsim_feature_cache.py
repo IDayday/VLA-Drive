@@ -19,7 +19,10 @@ import torch
 
 CACHE_SCHEMA_VERSION = 1
 CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino")
-OPTIONAL_CACHE_COMPONENTS = ("vggt_query",)
+OPTIONAL_CACHE_COMPONENTS = (
+    "vggt_query",
+    "vggt_dense",
+)
 SUPPORTED_CACHE_COMPONENTS = CACHE_COMPONENTS + OPTIONAL_CACHE_COMPONENTS
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"
