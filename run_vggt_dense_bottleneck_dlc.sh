@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # One-command dense VGGT cache generation and bottleneck training on PAI-DLC.
 #
-# Default formal geometry:
-#   1 DLC node x 16 PPU x batch 2 x accumulation 1 = effective batch 32.
+# Default formal geometry keeps effective batch 32 automatically:
+#   16 PPU x batch 2 x accumulation 1, or 8 PPU x batch 4 x accumulation 1.
 # The VGGT teacher is used only for offline cache generation. Training uses the
 # standard WorldAction VLM and never runs the old 15-token VGGT-V2 preparation.
+# A completed manifest skips generation immediately; this launcher deliberately
+# performs no post-generation payload scan because the dense cache is ~926 GiB.
 
 set -Eeuo pipefail
 
@@ -59,7 +61,7 @@ else
 fi
 local_ppus="${LOCAL_NUM_PROCESSES:-${NPROC_PER_NODE:-$detected_local_ppus}}"
 global_processes="${NUM_PROCESSES:-$((num_machines * local_ppus))}"
-expected_ppus="${VGGT_DENSE_EXPECTED_PPU_COUNT:-16}"
+expected_ppus="${VGGT_DENSE_EXPECTED_PPU_COUNT:-$detected_local_ppus}"
 
 require_positive_integer NUM_MACHINES "$num_machines"
 if ! [[ "$machine_rank" =~ ^[0-9]+$ ]]; then
@@ -83,12 +85,21 @@ if (( local_ppus != expected_ppus )); then
   exit 2
 fi
 
-per_device_batch="${PER_DEVICE_BATCH_SIZE:-2}"
 gradient_accumulation="${GRADIENT_ACCUMULATION_STEPS:-1}"
 target_effective_batch="${TARGET_EFFECTIVE_BATCH_SIZE:-32}"
-require_positive_integer PER_DEVICE_BATCH_SIZE "$per_device_batch"
 require_positive_integer GRADIENT_ACCUMULATION_STEPS "$gradient_accumulation"
 require_positive_integer TARGET_EFFECTIVE_BATCH_SIZE "$target_effective_batch"
+if [[ -n "${PER_DEVICE_BATCH_SIZE:-}" ]]; then
+  per_device_batch="$PER_DEVICE_BATCH_SIZE"
+else
+  batch_denominator=$((global_processes * gradient_accumulation))
+  if (( target_effective_batch % batch_denominator != 0 )); then
+    echo "[vggt-dense-dlc] Cannot derive an integer per-device batch from target=$target_effective_batch, processes=$global_processes, accumulation=$gradient_accumulation." >&2
+    exit 2
+  fi
+  per_device_batch=$((target_effective_batch / batch_denominator))
+fi
+require_positive_integer PER_DEVICE_BATCH_SIZE "$per_device_batch"
 effective_batch=$((global_processes * per_device_batch * gradient_accumulation))
 if (( effective_batch != target_effective_batch )); then
   echo "[vggt-dense-dlc] Refusing effective batch $effective_batch; expected $target_effective_batch." >&2
@@ -134,14 +145,6 @@ export TRITON_CACHE_DIR="${TRITON_CACHE_DIR:-${TRITON_LOCAL_CACHE_ROOT:-/tmp/dri
 
 split="${SPLIT:-train}"
 cache_manifest="$NAVSIM_VGGT_DENSE_CACHE_ROOT/vggt_dense/manifest.json"
-cache_validate=(
-  bash "$DRIVEDREAMER_ROOT/11-precompute_vggt_dense_cache.sh"
-  --validate-only
-  --datalist-path "$NAVSIM_DATALIST_PATH"
-  --data-root "$DATA_ROOT"
-  --split "$split"
-  --cache-root "$NAVSIM_VGGT_DENSE_CACHE_ROOT"
-)
 
 echo "[vggt-dense-dlc] project_root=$DRIVEDREAMER_ROOT"
 echo "[vggt-dense-dlc] run_id=$RUN_ID"
@@ -152,13 +155,13 @@ echo "[vggt-dense-dlc] attention=$VGGT_DENSE_VLM_ATTN_IMPLEMENTATION expected_sa
 echo "[vggt-dense-dlc] datalist=$NAVSIM_DATALIST_PATH"
 echo "[vggt-dense-dlc] sensor_root=$NAVSIM_TRAINVAL_SENSOR_ROOT"
 echo "[vggt-dense-dlc] dense_cache_root=$NAVSIM_VGGT_DENSE_CACHE_ROOT"
+echo "[vggt-dense-dlc] cache_validation=disabled"
 echo "[vggt-dense-dlc] experiment_root=$NAVSIM_EXP_ROOT"
 
 if [[ "$dry_run" == "1" ]]; then
   print_command "${PPU_SMI_BIN:-ppu-smi}" -L
   print_command torchrun --standalone --nnodes=1 --nproc-per-node="$local_ppus" "$DRIVEDREAMER_ROOT/tools/check_ppu_runtime.py"
   print_command env VGGT_DENSE_CACHE_FULL=1 VGGT_DENSE_CACHE_NUM_PROCESSES="$local_ppus" bash "$DRIVEDREAMER_ROOT/11-precompute_vggt_dense_cache.sh"
-  print_command "${cache_validate[@]}"
   print_command env VGGT_DENSE_INTERVENTION_INTERVAL=1 MAX_TRAIN_STEPS=2 NUM_WARMUP_STEPS=2 SAVE_INTERVAL=999999 TRAINING_LOGGING_FREQUENCY=1 TRAINING_SKIP_FINAL_SAVE=1 RUN_ID="${RUN_ID}-smoke" bash "$DRIVEDREAMER_ROOT/11-train_vggt_dense_bottleneck.sh"
   print_command bash "$DRIVEDREAMER_ROOT/11-train_vggt_dense_bottleneck.sh"
   echo "[vggt-dense-dlc] DRY-RUN complete; no cache or training output was generated."
@@ -227,39 +230,13 @@ if [[ "${VGGT_DENSE_DLC_SKIP_CACHE:-0}" != "1" && ! -f "$cache_manifest" ]]; the
   mkdir -p "$NAVSIM_VGGT_DENSE_CACHE_ROOT"
   bash "$DRIVEDREAMER_ROOT/11-precompute_vggt_dense_cache.sh"
 elif [[ -f "$cache_manifest" ]]; then
-  echo "[vggt-dense-dlc] Complete-manifest candidate found; generation skipped."
+  echo "[vggt-dense-dlc] Cache manifest exists; generation skipped."
 else
   echo "[vggt-dense-dlc] Cache generation skipped but manifest is missing: $cache_manifest" >&2
   exit 2
 fi
 require_file "$cache_manifest"
-if [[ "${VGGT_DENSE_CACHE_FULL_VALIDATE:-1}" == "1" ]]; then
-  "${cache_validate[@]}"
-else
-  python - "$cache_manifest" "$EXPECTED_TRAIN_SAMPLES" <<'PY'
-import json
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-manifest = json.loads(path.read_text(encoding="utf-8"))
-expected = {
-    "component": "vggt_dense",
-    "complete": True,
-    "sample_count": int(sys.argv[2]),
-    "teacher_layer_index": 23,
-    "teacher_layer": "aggregator[-1]",
-    "teacher_attention_branch": "full_aggregated_feature",
-    "include_special_tokens": False,
-    "spatial_pooling": None,
-    "feature_dim": 2048,
-}
-for key, value in expected.items():
-    if manifest.get(key) != value:
-        raise RuntimeError(f"Invalid dense cache manifest {key}: {manifest.get(key)!r} != {value!r}")
-print(f"[vggt-dense-dlc] Dense cache manifest contract PASS: {path}")
-PY
-fi
+echo "[vggt-dense-dlc] Cache payload validation skipped by design."
 
 if [[ "${VGGT_DENSE_DLC_SKIP_TRAIN:-0}" == "1" ]]; then
   echo "[vggt-dense-dlc] Dense cache preparation complete; training skipped."

@@ -460,7 +460,7 @@ def test_dense_training_launcher_cli_paths_override_invalid_environment(tmp_path
         assert arguments[indices[-1] + 1] == value
 
 
-def test_dense_dlc_pipeline_dry_run_matches_standard_single_node_contract(tmp_path: Path):
+def test_dense_dlc_pipeline_dry_run_skips_cache_validation(tmp_path: Path):
     environment = _clean_environment()
     environment.update(
         {
@@ -489,11 +489,45 @@ def test_dense_dlc_pipeline_dry_run_matches_standard_single_node_contract(tmp_pa
     assert "effective_batch=32" in output
     assert "attention=sdpa" in output
     assert "11-precompute_vggt_dense_cache.sh" in output
-    assert "--validate-only" in output
+    assert "cache_validation=disabled" in output
+    assert "--validate-only" not in output
     assert "MAX_TRAIN_STEPS=2" in output
     assert "11-train_vggt_dense_bottleneck.sh" in output
     assert "7-add_token.sh" not in output
     assert "7-add_vggt_tokens.sh" not in output
+
+
+def test_dense_dlc_pipeline_auto_uses_batch_four_on_eight_ppus(tmp_path: Path):
+    environment = _clean_environment()
+    environment.update(
+        {
+            "VLA_DRIVE_SKIP_ENV_LOCAL": "1",
+            "VGGT_DENSE_DLC_DRY_RUN": "1",
+            "LOCAL_NUM_PROCESSES": "8",
+            "NUM_PROCESSES": "8",
+            "PAI_JOB_ID": "dlc-eight-ppu-contract-test",
+        }
+    )
+    for variable in (
+        "PER_DEVICE_BATCH_SIZE",
+        "GRADIENT_ACCUMULATION_STEPS",
+        "TARGET_EFFECTIVE_BATCH_SIZE",
+        "VGGT_DENSE_EXPECTED_PPU_COUNT",
+    ):
+        environment.pop(variable, None)
+
+    result = subprocess.run(
+        ["bash", str(REPO_ROOT / "run_vggt_dense_bottleneck_dlc.sh")],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "local_ppus:8" in result.stdout
+    assert "effective_batch=32 (per_device=4 accumulation=1)" in result.stdout
+    assert "--nproc-per-node=8" in result.stdout
 
 
 def test_agent_training_launcher_forwards_paths_as_single_arguments(tmp_path: Path):

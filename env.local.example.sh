@@ -83,9 +83,9 @@
 # export VGGT_DENSE_LEARNING_RATE="${VGGT_DENSE_LEARNING_RATE:-5e-5}"
 # export VGGT_DENSE_VLM_ATTN_IMPLEMENTATION="${VGGT_DENSE_VLM_ATTN_IMPLEMENTATION:-sdpa}"
 # export VGGT_DENSE_INTERVENTION_INTERVAL="${VGGT_DENSE_INTERVENTION_INTERVAL:-500}"
-# One-command dense-cache + bottleneck training on one 16-PPU PAI-DLC node.
-# export VGGT_DENSE_EXPECTED_PPU_COUNT="${VGGT_DENSE_EXPECTED_PPU_COUNT:-16}"
-# export VGGT_DENSE_CACHE_FULL_VALIDATE="${VGGT_DENSE_CACHE_FULL_VALIDATE:-1}"
+# One-command dense-cache + bottleneck training auto-selects batch 2 on 16 PPU
+# and batch 4 on 8 PPU. Set this only when an exact device-count gate is wanted.
+# export VGGT_DENSE_EXPECTED_PPU_COUNT="${VGGT_DENSE_EXPECTED_PPU_COUNT:-8}"
 # export VGGT_DENSE_RUN_SMOKE_BEFORE_FORMAL="${VGGT_DENSE_RUN_SMOKE_BEFORE_FORMAL:-1}"
 # Direct launcher normally detects all visible devices; set only to use fewer.
 # export LOCAL_NUM_PROCESSES="${LOCAL_NUM_PROCESSES:-8}"
