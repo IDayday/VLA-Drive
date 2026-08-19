@@ -148,7 +148,7 @@ class _QWen3_VL_Interface(nn.Module):
         messages,
         tokenize=True,
         padding=True,
-        add_generation_prompt=True,
+        add_generation_prompt=(solutions is None),
         return_dict=True,
         return_tensors="pt"
         )
@@ -299,7 +299,7 @@ class _QWen3_Vision(nn.Module):
         messages,
         tokenize=True,
         padding=True,
-        add_generation_prompt=True,
+        add_generation_prompt=(solutions is None),
         return_dict=True,
         return_tensors="pt"
         )

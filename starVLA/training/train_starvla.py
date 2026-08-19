@@ -603,6 +603,7 @@ class VLATrainer(TrainerUtils):
                 vggt_loss_raw = output_dict.get('vggt_loss_raw', torch.tensor(0.0, device=action_loss.device))
                 vggt_action_grad_norm = output_dict.get('vggt_action_grad_norm', torch.tensor(0.0, device=action_loss.device))
                 vggt_align_grad_norm = output_dict.get('vggt_align_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_action_align_grad_cosine = output_dict.get('vggt_action_align_grad_cosine', torch.tensor(0.0, device=action_loss.device))
                 vggt_cosine_loss = output_dict.get('vggt_cosine_loss', torch.tensor(0.0, device=action_loss.device))
                 vggt_smooth_l1_loss = output_dict.get('vggt_smooth_l1_loss', torch.tensor(0.0, device=action_loss.device))
                 vggt_relational_loss = output_dict.get('vggt_relational_loss', torch.tensor(0.0, device=action_loss.device))
@@ -652,6 +653,7 @@ class VLATrainer(TrainerUtils):
             "vggt_loss_raw": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_loss_raw.detach(),
             "vggt_action_grad_norm": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_action_grad_norm.detach(),
             "vggt_align_grad_norm": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_align_grad_norm.detach(),
+            "vggt_action_align_grad_cosine": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_action_align_grad_cosine.detach(),
             "vggt_cosine_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_cosine_loss.detach(),
             "vggt_smooth_l1_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_smooth_l1_loss.detach(),
             "vggt_relational_loss": 0 if not bool(getattr(getattr(self.config.framework, "vggt", {}), "enabled", False)) else vggt_relational_loss.detach(),

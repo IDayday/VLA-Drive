@@ -478,6 +478,19 @@ class Qwenvl_OFT(baseframework):
         matches = input_ids.unsqueeze(-1).eq(ids.view(1, 1, -1))
         return matches.to(torch.int8).argmax(dim=1)
 
+    def _is_vggt_autoregressive(self) -> bool:
+        return self.vggt_enabled and self.vggt_mode in {"autoregressive", "ar", "latent_cot"}
+
+    def _build_vggt_ar_prompt_suffix(self) -> str:
+        return f" {self.robot_history_token}"
+
+    def _build_vggt_ar_solution(self) -> str:
+        vggt_str = "".join(self.vggt_query_tokens)
+        act_str = "".join(self.act_query_tokens)
+        latent_span = f"{self.vggt_latent_start_token}{vggt_str}{self.vggt_latent_end_token}"
+        action_span = f"{self.action_start_token}{act_str}{self.action_end_token}"
+        return f"{latent_span}{action_span}"
+
     def _build_action_prompt_suffix(self) -> str:
         """Build the instruction suffix used by action-only prompting."""
         hist_str = self.robot_history_token
@@ -533,22 +546,45 @@ class Qwenvl_OFT(baseframework):
             return torch.cat([enhanced, vggt_queries], dim=1)
         return enhanced
 
-    def _compute_vggt_query_grad_norm(self, loss, vggt_queries):
-        if not self.vggt_log_grad_norms or vggt_queries is None or not torch.is_tensor(loss):
+    def _compute_vggt_query_grad_stats(self, action_loss, align_loss, vggt_queries):
+        if not self.vggt_log_grad_norms or vggt_queries is None:
             device = vggt_queries.device if vggt_queries is not None else next(self.parameters()).device
-            return torch.tensor(0.0, device=device)
-        if not loss.requires_grad:
-            return torch.tensor(0.0, device=vggt_queries.device)
-        grad = torch.autograd.grad(
-            loss,
-            vggt_queries,
-            retain_graph=True,
-            create_graph=False,
-            allow_unused=True,
-        )[0]
-        if grad is None:
-            return torch.tensor(0.0, device=vggt_queries.device)
-        return grad.detach().float().norm()
+            zero = torch.tensor(0.0, device=device)
+            return zero, zero, zero
+
+        def _grad(loss):
+            if not torch.is_tensor(loss) or not loss.requires_grad:
+                return None
+            return torch.autograd.grad(
+                loss,
+                vggt_queries,
+                retain_graph=True,
+                create_graph=False,
+                allow_unused=True,
+            )[0]
+
+        zero = torch.tensor(0.0, device=vggt_queries.device)
+        action_grad = _grad(action_loss)
+        align_grad = _grad(align_loss)
+        if action_grad is None:
+            action_norm = zero
+        else:
+            action_norm = action_grad.detach().float().norm()
+        if align_grad is None:
+            align_norm = zero
+        else:
+            align_norm = align_grad.detach().float().norm()
+
+        if action_grad is None or align_grad is None or action_norm <= 0 or align_norm <= 0:
+            grad_cosine = zero
+        else:
+            grad_cosine = F.cosine_similarity(
+                action_grad.detach().float().reshape(-1),
+                align_grad.detach().float().reshape(-1),
+                dim=0,
+                eps=1e-12,
+            )
+        return action_norm, align_norm, grad_cosine
 
     def _compute_vggt_alignment_loss(self, vggt_queries, examples):
         payloads = [example.get("vggt_feature_cache") for example in examples]
@@ -607,9 +643,11 @@ class Qwenvl_OFT(baseframework):
             return torch.stack(masks, dim=0)
         return torch.ones(vggt_queries.shape[:2], device=vggt_queries.device, dtype=torch.bool)
 
-    def _build_qwen_batch(self, examples, instructions):
+    def _build_qwen_batch(self, examples, instructions, solutions=None):
         """Build either cached or ordinary Qwen inputs for one training batch."""
         cached = [example.get("qwen_feature_cache") for example in examples]
+        if solutions is not None:
+            cached = [None for _ in examples]
         if any(payload is not None for payload in cached) and not all(payload is not None for payload in cached):
             raise RuntimeError("A batch cannot mix cached and uncached Qwen samples")
 
@@ -668,6 +706,7 @@ class Qwenvl_OFT(baseframework):
         qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(
             images=batch_images,
             instructions=instructions,
+            solutions=solutions,
         )
         input_ids = qwen_inputs["input_ids"]
         attention_mask = qwen_inputs["attention_mask"]
@@ -747,9 +786,15 @@ class Qwenvl_OFT(baseframework):
         if self.w_depth:
             depth_data = [example['depth_data'] for example in examples]
 
-        
-        suffix = self._build_action_prompt_suffix()
-        instructions = [instruction + suffix for instruction in instructions]
+
+        solutions = None
+        if self._is_vggt_autoregressive():
+            prompt_suffix = self._build_vggt_ar_prompt_suffix()
+            instructions = [instruction + prompt_suffix for instruction in instructions]
+            solutions = [self._build_vggt_ar_solution() for _ in instructions]
+        else:
+            suffix = self._build_action_prompt_suffix()
+            instructions = [instruction + suffix for instruction in instructions]
         (
             input_ids,
             attention_mask,
@@ -757,7 +802,7 @@ class Qwenvl_OFT(baseframework):
             token_positions,
             image_embeds,
             deepstack_embeds,
-        ) = self._build_qwen_batch(examples, instructions)
+        ) = self._build_qwen_batch(examples, instructions, solutions=solutions)
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
             text_embeds = self.qwen_vl_interface.model.get_input_embeddings()(input_ids)  # [B, L, H]
@@ -815,6 +860,7 @@ class Qwenvl_OFT(baseframework):
         vggt_loss_raw = torch.tensor(0.).to(text_embeds.device)
         vggt_action_grad_norm = torch.tensor(0.).to(text_embeds.device)
         vggt_align_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_action_align_grad_cosine = torch.tensor(0.).to(text_embeds.device)
         vggt_cosine_loss = torch.tensor(0.).to(text_embeds.device)
         vggt_smooth_l1_loss = torch.tensor(0.).to(text_embeds.device)
         vggt_relational_loss = torch.tensor(0.).to(text_embeds.device)
@@ -1092,8 +1138,11 @@ class Qwenvl_OFT(baseframework):
             action_loss = torch.tensor(0.).cuda()
 
         if self.vggt_enabled and vggt_queries is not None:
-            vggt_action_grad_norm = self._compute_vggt_query_grad_norm(action_loss, vggt_queries)
-            vggt_align_grad_norm = self._compute_vggt_query_grad_norm(vggt_loss, vggt_queries)
+            vggt_action_grad_norm, vggt_align_grad_norm, vggt_action_align_grad_cosine = self._compute_vggt_query_grad_stats(
+                action_loss,
+                vggt_loss,
+                vggt_queries,
+            )
 
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
 
@@ -1169,11 +1218,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_action_align_grad_cosine": vggt_action_align_grad_cosine, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_action_align_grad_cosine": vggt_action_align_grad_cosine, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
 
     @torch.inference_mode()
     def predict_action(
@@ -1218,11 +1267,21 @@ class Qwenvl_OFT(baseframework):
         except:
             state = None
 
-        suffix = self._build_action_prompt_suffix()
-        instructions = [instruction + suffix for instruction in instructions]
+        solutions = None
+        if self._is_vggt_autoregressive():
+            prompt_suffix = self._build_vggt_ar_prompt_suffix()
+            instructions = [instruction + prompt_suffix for instruction in instructions]
+            solutions = [self._build_vggt_ar_solution() for _ in instructions]
+        else:
+            suffix = self._build_action_prompt_suffix()
+            instructions = [instruction + suffix for instruction in instructions]
 
         # Step 1: QWenVL input format
-        qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)
+        qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(
+            images=batch_images,
+            instructions=instructions,
+            solutions=solutions,
+        )
 
         # —— 覆盖 <robot_history_action_0> 的 embedding ——
         tok   = self.qwen_vl_interface.processor.tokenizer
@@ -1505,11 +1564,21 @@ class Qwenvl_OFT(baseframework):
             pass
             # depth_feats = [example['depth_feat'] for example in examples]
 
-        suffix = self._build_action_prompt_suffix()
-        instructions = [instruction + suffix for instruction in instructions]
+        solutions = None
+        if self._is_vggt_autoregressive():
+            prompt_suffix = self._build_vggt_ar_prompt_suffix()
+            instructions = [instruction + prompt_suffix for instruction in instructions]
+            solutions = [self._build_vggt_ar_solution() for _ in instructions]
+        else:
+            suffix = self._build_action_prompt_suffix()
+            instructions = [instruction + suffix for instruction in instructions]
 
         # Step 1: QWenVL input format
-        qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)
+        qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(
+            images=batch_images,
+            instructions=instructions,
+            solutions=solutions,
+        )
 
         # —— 覆盖 <robot_history_action_0> 的 embedding ——
         tok   = self.qwen_vl_interface.processor.tokenizer

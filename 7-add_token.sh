@@ -29,6 +29,7 @@ TARGET_VLM="${TARGET_VLM:-${BASE_VLM}}"
 WORLD_TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/world_tokens_all_64.txt"
 MINE_AGENT_TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/mine_agent_tokens_32.txt"
 VGGT_TOKEN_LIST="starVLA/model/modules/vlm/tools/add_qwen_special_tokens/vggt_tokens_195.txt"
+INCLUDE_VGGT_TOKENS="${INCLUDE_VGGT_TOKENS:-1}"
 COMBINED_TOKEN_LIST="$(mktemp /tmp/qwen_special_tokens.XXXXXX)"
 trap 'rm -f "${COMBINED_TOKEN_LIST}"' EXIT
 
@@ -36,8 +37,10 @@ trap 'rm -f "${COMBINED_TOKEN_LIST}"' EXIT
 cat "${WORLD_TOKEN_LIST}" >> "${COMBINED_TOKEN_LIST}"
 printf "\n" >> "${COMBINED_TOKEN_LIST}"
 cat "${MINE_AGENT_TOKEN_LIST}" >> "${COMBINED_TOKEN_LIST}"
-printf "\n" >> "${COMBINED_TOKEN_LIST}"
-cat "${VGGT_TOKEN_LIST}" >> "${COMBINED_TOKEN_LIST}"
+if [[ "${INCLUDE_VGGT_TOKENS}" == "1" ]]; then
+  printf "\n" >> "${COMBINED_TOKEN_LIST}"
+  cat "${VGGT_TOKEN_LIST}" >> "${COMBINED_TOKEN_LIST}"
+fi
 
 set -x
 
