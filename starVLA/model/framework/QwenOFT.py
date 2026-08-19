@@ -550,7 +550,7 @@ class Qwenvl_OFT(baseframework):
         if not self.vggt_log_grad_norms or vggt_queries is None:
             device = vggt_queries.device if vggt_queries is not None else next(self.parameters()).device
             zero = torch.tensor(0.0, device=device)
-            return zero, zero, zero
+            return zero, zero, zero, zero
 
         def _grad(loss):
             if not torch.is_tensor(loss) or not loss.requires_grad:
@@ -577,14 +577,18 @@ class Qwenvl_OFT(baseframework):
 
         if action_grad is None or align_grad is None or action_norm <= 0 or align_norm <= 0:
             grad_cosine = zero
+            align_proj_on_action = zero
         else:
+            action_flat = action_grad.detach().float().reshape(-1)
+            align_flat = align_grad.detach().float().reshape(-1)
             grad_cosine = F.cosine_similarity(
-                action_grad.detach().float().reshape(-1),
-                align_grad.detach().float().reshape(-1),
+                action_flat,
+                align_flat,
                 dim=0,
                 eps=1e-12,
             )
-        return action_norm, align_norm, grad_cosine
+            align_proj_on_action = torch.dot(align_flat, action_flat) / action_norm.clamp_min(1e-12)
+        return action_norm, align_norm, grad_cosine, align_proj_on_action
 
     def _compute_vggt_alignment_loss(self, vggt_queries, examples):
         payloads = [example.get("vggt_feature_cache") for example in examples]
@@ -861,6 +865,7 @@ class Qwenvl_OFT(baseframework):
         vggt_action_grad_norm = torch.tensor(0.).to(text_embeds.device)
         vggt_align_grad_norm = torch.tensor(0.).to(text_embeds.device)
         vggt_action_align_grad_cosine = torch.tensor(0.).to(text_embeds.device)
+        vggt_align_grad_proj_on_action = torch.tensor(0.).to(text_embeds.device)
         vggt_cosine_loss = torch.tensor(0.).to(text_embeds.device)
         vggt_smooth_l1_loss = torch.tensor(0.).to(text_embeds.device)
         vggt_relational_loss = torch.tensor(0.).to(text_embeds.device)
@@ -1138,7 +1143,12 @@ class Qwenvl_OFT(baseframework):
             action_loss = torch.tensor(0.).cuda()
 
         if self.vggt_enabled and vggt_queries is not None:
-            vggt_action_grad_norm, vggt_align_grad_norm, vggt_action_align_grad_cosine = self._compute_vggt_query_grad_stats(
+            (
+                vggt_action_grad_norm,
+                vggt_align_grad_norm,
+                vggt_action_align_grad_cosine,
+                vggt_align_grad_proj_on_action,
+            ) = self._compute_vggt_query_grad_stats(
                 action_loss,
                 vggt_loss,
                 vggt_queries,
@@ -1218,11 +1228,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_action_align_grad_cosine": vggt_action_align_grad_cosine, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_action_align_grad_cosine": vggt_action_align_grad_cosine, "vggt_align_grad_proj_on_action": vggt_align_grad_proj_on_action, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_action_align_grad_cosine": vggt_action_align_grad_cosine, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_loss": vggt_loss, "vggt_loss_raw": vggt_loss_raw, "vggt_action_grad_norm": vggt_action_grad_norm, "vggt_align_grad_norm": vggt_align_grad_norm, "vggt_action_align_grad_cosine": vggt_action_align_grad_cosine, "vggt_align_grad_proj_on_action": vggt_align_grad_proj_on_action, "vggt_cosine_loss": vggt_cosine_loss, "vggt_smooth_l1_loss": vggt_smooth_l1_loss, "vggt_relational_loss": vggt_relational_loss}
 
     @torch.inference_mode()
     def predict_action(
