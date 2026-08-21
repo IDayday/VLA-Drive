@@ -67,6 +67,8 @@ ROOT_ENTRYPOINTS = (
     "8-train_vggt_action.sh",
     "11-precompute_vggt_dense_cache.sh",
     "11-train_vggt_dense_bottleneck.sh",
+    "14-train_sq_3d_mix.sh",
+    "run_sq3dmix_gated_dlc.sh",
     "run_vggt_dense_bottleneck_dlc.sh",
     "run_vggt_pipeline.sh",
     "debug.sh",

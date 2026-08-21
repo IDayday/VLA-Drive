@@ -1,0 +1,43 @@
+framework:
+  name: QwenOFT_SQ3DMix
+  action_prompt_mode: minimal
+
+  sq_3d_mix:
+    fusion_mode: gated
+
+    scene_compressor:
+      num_queries: 16
+      hidden_dim: 256
+      num_layers: 4
+      num_heads: 8
+      mlp_ratio: 4.0
+      dropout: 0.0
+      query_init_std: 1.0e-6
+      exclude_action_tokens: true
+
+    vggt:
+      feature_dim: 2048
+      view_count: 3
+      view_order: [cam_f0, cam_l0, cam_r0]
+      pooled_rows: 6
+      pooled_cols: 10
+
+    cache:
+      enabled: true
+      root: ""
+      strict: true
+      component: vggt_dense
+
+    intervention:
+      mode: real
+      seed: 20260821
+
+trainer:
+  named_loss_warmup_steps: 0
+
+  loss_weights:
+    action: 1.0
+
+  learning_rate:
+    scene_query_compressor: 3.0e-05
+    gated_fusion: 1.0e-04

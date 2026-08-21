@@ -371,17 +371,65 @@ class NavSimDataset(Dataset):
                 f"loading NAVSIM VGGT query cache {vggt_cache_root} "
                 f"strict={int(vggt_cache_strict)}"
             )
-        dense_cache_enabled = bool(
+        bottleneck_cache_enabled = bool(
             OmegaConf.select(
                 all_cfg,
                 "framework.vggt_bottleneck.cache.enabled",
                 default=False,
             )
         ) if all_cfg is not None else False
+        sq3dmix_selected = bool(
+            all_cfg is not None
+            and str(OmegaConf.select(all_cfg, "framework.name", default=""))
+            == "QwenOFT_SQ3DMix"
+        )
+        sq3dmix_fusion_mode = str(
+            OmegaConf.select(
+                all_cfg,
+                "framework.sq_3d_mix.fusion_mode",
+                default="gated",
+            )
+            if all_cfg is not None
+            else "gated"
+        ).strip().lower()
+        sq3dmix_cache_enabled = bool(
+            OmegaConf.select(
+                all_cfg,
+                "framework.sq_3d_mix.cache.enabled",
+                default=False,
+            )
+        ) if all_cfg is not None else False
+        if bottleneck_cache_enabled and sq3dmix_cache_enabled:
+            raise ValueError(
+                "VGGT dense bottleneck and SQ-3D-Mix caches cannot be enabled together"
+            )
+        if sq3dmix_selected and bottleneck_cache_enabled:
+            raise ValueError(
+                "QwenOFT_SQ3DMix cannot enable the legacy dense bottleneck cache"
+            )
+        if sq3dmix_selected:
+            if sq3dmix_fusion_mode not in {
+                "scene_only",
+                "projected_concat",
+                "gated",
+            }:
+                raise ValueError(f"Unknown SQ-3D-Mix fusion mode: {sq3dmix_fusion_mode}")
+            if sq3dmix_fusion_mode == "scene_only" and sq3dmix_cache_enabled:
+                raise ValueError("SQ-3D-Mix scene_only requires cache.enabled=false")
+            if sq3dmix_fusion_mode != "scene_only" and not sq3dmix_cache_enabled:
+                raise ValueError(
+                    f"SQ-3D-Mix {sq3dmix_fusion_mode} requires cache.enabled=true"
+                )
+        dense_cache_enabled = bottleneck_cache_enabled or sq3dmix_cache_enabled
+        dense_config_prefix = (
+            "framework.sq_3d_mix"
+            if sq3dmix_cache_enabled
+            else "framework.vggt_bottleneck"
+        )
         configured_dense_root = (
             OmegaConf.select(
                 all_cfg,
-                "framework.vggt_bottleneck.cache.root",
+                f"{dense_config_prefix}.cache.root",
                 default="",
             )
             if all_cfg is not None
@@ -394,27 +442,30 @@ class NavSimDataset(Dataset):
         dense_cache_strict = bool(
             OmegaConf.select(
                 all_cfg,
-                "framework.vggt_bottleneck.cache.strict",
+                f"{dense_config_prefix}.cache.strict",
                 default=True,
             )
         ) if all_cfg is not None else True
         dense_component = str(
             OmegaConf.select(
                 all_cfg,
-                "framework.vggt_bottleneck.cache.component",
+                f"{dense_config_prefix}.cache.component",
                 default="vggt_dense",
             )
         ) if all_cfg is not None else "vggt_dense"
-        if dense_component != "vggt_dense":
+        if dense_cache_enabled and dense_component != "vggt_dense":
             raise ValueError(
-                "Planning-conditioned dense VGGT requires cache component 'vggt_dense'"
+                "Dense VGGT capabilities require cache component 'vggt_dense'"
             )
         if dense_cache_enabled and not dense_cache_root:
             raise ValueError(
                 "Dense VGGT cache is enabled but no path was configured. Set "
-                "framework.vggt_bottleneck.cache.root or "
+                f"{dense_config_prefix}.cache.root or "
                 "NAVSIM_VGGT_DENSE_CACHE_ROOT."
             )
+        self._sq3dmix_dense_cache_required = bool(
+            sq3dmix_selected and sq3dmix_fusion_mode != "scene_only"
+        )
         self.vggt_dense_cache = (
             NavsimFeatureCacheReader(
                 cache_root=dense_cache_root,
@@ -424,6 +475,14 @@ class NavSimDataset(Dataset):
             if dense_cache_enabled
             else None
         )
+        if self.vggt_dense_cache is not None:
+            if (
+                self._sq3dmix_dense_cache_required
+                and not self.vggt_dense_cache.has_component(dense_component)
+            ):
+                raise RuntimeError(
+                    f"Dense VGGT cache component {dense_component!r} is unavailable"
+                )
         if (
             self.vggt_dense_cache is not None
             and self.vggt_dense_cache.has_component(dense_component)
@@ -431,48 +490,67 @@ class NavSimDataset(Dataset):
             manifest = self.vggt_dense_cache.manifests[dense_component]
             with open(datalist_path, "rb") as datalist_stream:
                 datalist_sha256 = hashlib.sha256(datalist_stream.read()).hexdigest()
-            expected_manifest = {
-                "component": "vggt_dense",
-                "datalist_sha256": datalist_sha256,
-                "sample_count": len(self.raw_list),
-                "view_order": ["cam_f0", "cam_l0", "cam_r0"],
-                "frame_index": 3,
-                "teacher_layer_index": int(
+            if sq3dmix_cache_enabled:
+                expected_teacher_layer = 23
+                expected_feature_dim = int(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.sq_3d_mix.vggt.feature_dim",
+                        default=2048,
+                    )
+                )
+                configured_views = list(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.sq_3d_mix.vggt.view_order",
+                        default=["cam_f0", "cam_l0", "cam_r0"],
+                    )
+                )
+                expected_frame_index = 3
+            else:
+                expected_teacher_layer = int(
                     OmegaConf.select(
                         all_cfg,
                         "framework.vggt_bottleneck.teacher.layer_index",
                         default=23,
                     )
-                ),
+                )
+                expected_feature_dim = int(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt_bottleneck.teacher.feature_dim",
+                        default=2048,
+                    )
+                )
+                configured_views = list(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt_bottleneck.source.view_order",
+                        default=["cam_f0", "cam_l0", "cam_r0"],
+                    )
+                )
+                expected_frame_index = int(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.vggt_bottleneck.teacher.frame_index",
+                        default=3,
+                    )
+                )
+            expected_manifest = {
+                "component": "vggt_dense",
+                "datalist_sha256": datalist_sha256,
+                "sample_count": len(self.raw_list),
+                "view_order": configured_views,
+                "frame_index": expected_frame_index,
+                "teacher_layer_index": expected_teacher_layer,
                 "teacher_layer": "aggregator[-1]",
                 "teacher_attention_branch": "full_aggregated_feature",
                 "include_special_tokens": False,
                 "patch_start_idx": 5,
                 "spatial_pooling": None,
                 "flatten_order": "view-major,row-major,col-major",
-                "feature_dim": int(
-                    OmegaConf.select(
-                        all_cfg,
-                        "framework.vggt_bottleneck.teacher.feature_dim",
-                        default=2048,
-                    )
-                ),
+                "feature_dim": expected_feature_dim,
             }
-            configured_views = list(
-                OmegaConf.select(
-                    all_cfg,
-                    "framework.vggt_bottleneck.source.view_order",
-                    default=["cam_f0", "cam_l0", "cam_r0"],
-                )
-            )
-            expected_manifest["view_order"] = configured_views
-            expected_manifest["frame_index"] = int(
-                OmegaConf.select(
-                    all_cfg,
-                    "framework.vggt_bottleneck.teacher.frame_index",
-                    default=3,
-                )
-            )
             for key, expected in expected_manifest.items():
                 if manifest.get(key) != expected:
                     raise RuntimeError(
@@ -489,13 +567,17 @@ class NavSimDataset(Dataset):
                 raise RuntimeError(
                     "Dense VGGT cache must use aspect-preserving mode='crop'"
                 )
-            if manifest.get("ray_frame") != "navsim_current_ego_planning_frame":
+            if (
+                bottleneck_cache_enabled
+                and manifest.get("ray_frame")
+                != "navsim_current_ego_planning_frame"
+            ):
                 raise RuntimeError(
                     "Dense VGGT cache rays are not in the current planning ego frame"
                 )
             print(
                 f"loading NAVSIM dense VGGT cache {dense_cache_root} "
-                f"strict={int(dense_cache_strict)}"
+                f"capability={dense_config_prefix} strict={int(dense_cache_strict)}"
             )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
@@ -707,6 +789,10 @@ class NavSimDataset(Dataset):
             payload = self.vggt_dense_cache.get("vggt_dense", idx, raw)
             if payload is not None:
                 cached_features["vggt_dense"] = payload
+            elif self._sq3dmix_dense_cache_required:
+                raise RuntimeError(
+                    f"SQ-3D-Mix dense cache miss for sample index={idx} token={raw}"
+                )
 
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')

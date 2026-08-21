@@ -557,6 +557,7 @@ class Qwenvl_OFT(baseframework):
         examples,
         *,
         input_ids=None,
+        attention_mask=None,
         image_grid_thw=None,
     ):
         """Extension hook; the legacy framework has no auxiliary query source."""
@@ -577,6 +578,7 @@ class Qwenvl_OFT(baseframework):
         input_ids,
         action_queries,
         *,
+        attention_mask=None,
         image_grid_thw=None,
         examples=None,
     ):
@@ -685,6 +687,7 @@ class Qwenvl_OFT(baseframework):
             token_positions,
             examples,
             input_ids=input_ids,
+            attention_mask=attention_mask,
             image_grid_thw=image_grid_thw,
         )
         planner_metrics = {}
@@ -1081,6 +1084,7 @@ class Qwenvl_OFT(baseframework):
                 last_hidden,
                 input_ids,
                 action_queries,
+                attention_mask=attention_mask,
                 image_grid_thw=qwen_inputs["image_grid_thw"],
                 examples=examples,
             )
@@ -1401,6 +1405,7 @@ class Qwenvl_OFT(baseframework):
             last_hidden,
             input_ids,
             action_queries,
+            attention_mask=attention_mask,
             image_grid_thw=qwen_inputs["image_grid_thw"],
             examples=examples,
         )

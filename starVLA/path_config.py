@@ -23,6 +23,10 @@ ENVIRONMENT_PATH_BINDINGS: tuple[tuple[str, str], ...] = (
         "NAVSIM_VGGT_DENSE_CACHE_ROOT",
         "framework.vggt_bottleneck.cache.root",
     ),
+    (
+        "NAVSIM_VGGT_DENSE_CACHE_ROOT",
+        "framework.sq_3d_mix.cache.root",
+    ),
 )
 
 

@@ -304,6 +304,7 @@ class Qwenvl_OFT_VGGT_Bottleneck(Qwenvl_OFT):
         examples,
         *,
         input_ids=None,
+        attention_mask=None,
         image_grid_thw=None,
     ):
         if not self.vggt_bottleneck_enabled:
@@ -312,6 +313,7 @@ class Qwenvl_OFT_VGGT_Bottleneck(Qwenvl_OFT):
                 token_positions,
                 examples,
                 input_ids=input_ids,
+                attention_mask=attention_mask,
                 image_grid_thw=image_grid_thw,
             )
         dense_geometry = self._dense_batch_from_examples(
@@ -373,10 +375,11 @@ class Qwenvl_OFT_VGGT_Bottleneck(Qwenvl_OFT):
         input_ids,
         action_queries,
         *,
+        attention_mask=None,
         image_grid_thw=None,
         examples=None,
     ):
-        del last_hidden, input_ids, image_grid_thw
+        del last_hidden, input_ids, attention_mask, image_grid_thw
         if not self.vggt_bottleneck_enabled:
             return action_queries, None, {}
         dense_geometry = self._dense_batch_from_examples(

@@ -370,6 +370,7 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         examples,
         *,
         input_ids=None,
+        attention_mask=None,
         image_grid_thw=None,
     ):
         if not self.vggt_enabled:
@@ -378,6 +379,7 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
                 token_positions,
                 examples,
                 input_ids=input_ids,
+                attention_mask=attention_mask,
                 image_grid_thw=image_grid_thw,
             )
         self._last_planning_context_grad_norm = None
@@ -558,10 +560,11 @@ class Qwenvl_OFT_VGGT(Qwenvl_OFT):
         input_ids,
         action_queries,
         *,
+        attention_mask=None,
         image_grid_thw=None,
         examples=None,
     ):
-        del examples
+        del attention_mask, examples
         if not self.vggt_enabled or not self.vggt_access_enabled:
             return action_queries, None, {}
         token_ids = self._special_token_ids["vggt"]
