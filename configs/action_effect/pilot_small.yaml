@@ -1,8 +1,10 @@
 experiment:
   name: pilot_small
-  max_scenes: 4096
+  # Build a small reserve so the Phase-6 splitter can require accepted factual
+  # anchors while still publishing exactly 4200/500/500 disjoint scenes.
+  max_scenes: 5300
   dataset_version: navsim_trainval_processed_v1225
-  cache_version: action_effect_candidates_v1
+  cache_version: action_effect_candidates_phase6_v1
   scene_sampling: seeded_random
 
 candidate_generation:

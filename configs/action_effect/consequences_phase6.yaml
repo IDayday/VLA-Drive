@@ -1,0 +1,22 @@
+cache_version: action_effect_consequences_phase6_v1
+dataset_version: navsim_trainval_processed_v1225
+
+proposal_sampling:
+  num_poses: 40
+  interval_length: 0.1
+
+candidate_interval_length: 0.5
+clearance_cap_m: 20.0
+occupancy_radius_m: 10.0
+no_event_time_s: 5.0
+
+# A deterministic 128-scene subset is large enough for stratified transfer
+# diagnostics without treating IDM as a ground-truth counterfactual.
+reactive_model:
+  enabled: true
+  max_scenes: 128
+  selection_seed: 20260821
+
+filter:
+  require_kinematic_valid: true
+  require_route_proxy_valid: true

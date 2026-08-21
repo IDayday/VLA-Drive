@@ -1,0 +1,42 @@
+experiment:
+  name: gate2_5_pilot_tiny
+  cache_version: action_effect_gate2_5_v1
+  split_seed: 20260821
+  seeds: [20260821, 20260822, 20260823]
+  bootstrap_samples: 1000
+  bootstrap_confidence: 0.95
+
+data:
+  candidate_cache: candidates/pilot_tiny/expert
+  consequence_cache: consequences/pilot_tiny/expert
+  scene_feature_cache: scene_features/pilot_tiny/qwen_dit_100k
+  factual_probe_dir: factual_only/pilot_tiny
+  target_assumption: log_replay
+
+probe:
+  scene_input_dim: 2048
+  trajectory_input_dim: 4
+  latent_dim: 192
+  trajectory_token_dim: 96
+
+synthetic:
+  interval_s: 0.5
+  epochs: 180
+  batch_size: 256
+  learning_rate: 0.002
+  maximum_normalized_mse: 0.08
+  minimum_shuffle_error_ratio: 3.0
+
+candidate_overfit:
+  scene_count: 24
+  epochs: 900
+  batch_size: 512
+  learning_rate: 0.002
+  maximum_mean_control_error_ratio: 0.35
+  minimum_shuffle_error_ratio: 1.5
+
+risk:
+  low_ttc_seconds: 1.5
+
+runtime:
+  device: cuda

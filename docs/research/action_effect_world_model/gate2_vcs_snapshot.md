@@ -61,3 +61,15 @@ The unrelated action-only/VGGT files above predate this research branch work.
 They are intentionally excluded from the Gate 2 snapshot. The
 `env.local.example.sh` snapshot includes only the action-effect path stanza;
 the pre-existing best-of-N stanza remains unstaged.
+
+## Published Gate 2 snapshot
+
+```text
+commit: a41f081077d457bc5fd2d6c0550cba8c3c8dc880
+message: research: add action-effect Gate1 and Gate2 pilot
+tag: action-effect-gate2-v0 (lightweight)
+```
+
+No `git add -A`, reset, checkout-overwrite, stash, or checkpoint conversion was
+used. Later frozen-feature extraction uses a detached worktree at this exact
+tag so the unrelated dirty inference files cannot affect Phase 6.

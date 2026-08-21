@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Literal
 
 import torch
@@ -9,6 +10,16 @@ from torch import nn
 
 
 ProbeInputMode = Literal["scene_action", "scene_only", "trajectory_only", "zero_action"]
+
+
+@dataclass(frozen=True)
+class ProbeForwardComponents:
+    """Intermediate tensors exposed only for wiring and representation audits."""
+
+    scene_embedding: torch.Tensor
+    action_embedding: torch.Tensor
+    fusion_input: torch.Tensor
+    effect_latent: torch.Tensor
 
 
 class _TokenPool(nn.Module):
@@ -131,6 +142,75 @@ class ActionEffectWorldProbe(nn.Module):
             else None
         )
 
+    def encode_scene(
+        self,
+        scene_tokens: torch.Tensor,
+        action_hidden: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        """Encode current-observation tokens without accessing future targets."""
+
+        if scene_tokens.ndim != 3:
+            raise ValueError("scene tokens must be a rank-3 tensor")
+        scene = self.scene_encoder(scene_tokens)
+        if action_hidden is not None:
+            if self.action_hidden_encoder is None:
+                raise ValueError("action_hidden was passed but no action-hidden encoder was configured")
+            scene = scene + self.action_hidden_encoder(action_hidden)
+        return scene
+
+    def encode_trajectory(self, candidate_trajectory: torch.Tensor) -> torch.Tensor:
+        """Encode a normalized candidate trajectory with the production probe path."""
+
+        if candidate_trajectory.ndim != 3:
+            raise ValueError("candidate trajectory must be a rank-3 tensor")
+        trajectory_tokens = self.trajectory_project(candidate_trajectory)
+        encoded = self.trajectory_encoder(trajectory_tokens).mean(dim=1)
+        return self.trajectory_pool(encoded)
+
+    def fuse_embeddings(
+        self,
+        scene_embedding: torch.Tensor,
+        action_embedding: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Fuse scene/action embeddings and return both fusion input and latent."""
+
+        if scene_embedding.shape != action_embedding.shape:
+            raise ValueError("scene and action embeddings must have identical shapes")
+        fusion_input = torch.cat(
+            (
+                scene_embedding,
+                action_embedding,
+                scene_embedding * action_embedding,
+                torch.abs(scene_embedding - action_embedding),
+            ),
+            dim=-1,
+        )
+        return fusion_input, self.fusion(fusion_input)
+
+    def forward_components(
+        self,
+        scene_tokens: torch.Tensor,
+        candidate_trajectory: torch.Tensor,
+        action_hidden: torch.Tensor | None = None,
+    ) -> ProbeForwardComponents:
+        """Return auditable intermediate values while respecting ``input_mode``."""
+
+        scene = self.encode_scene(scene_tokens, action_hidden)
+        trajectory = self.encode_trajectory(candidate_trajectory)
+        if self.input_mode == "scene_only":
+            trajectory = torch.zeros_like(trajectory)
+        elif self.input_mode == "trajectory_only":
+            scene = torch.zeros_like(scene)
+        elif self.input_mode == "zero_action":
+            trajectory = trajectory * 0.0
+        fusion_input, effect_latent = self.fuse_embeddings(scene, trajectory)
+        return ProbeForwardComponents(
+            scene_embedding=scene,
+            action_embedding=trajectory,
+            fusion_input=fusion_input,
+            effect_latent=effect_latent,
+        )
+
     def forward(
         self,
         scene_tokens: torch.Tensor,
@@ -139,27 +219,8 @@ class ActionEffectWorldProbe(nn.Module):
     ) -> dict[str, torch.Tensor | None]:
         """Predict candidate effects from current-scene tokens and trajectory."""
 
-        if scene_tokens.ndim != 3 or candidate_trajectory.ndim != 3:
-            raise ValueError("scene tokens and candidate trajectory must be rank-3 tensors")
-        scene = self.scene_encoder(scene_tokens)
-        if action_hidden is not None:
-            if self.action_hidden_encoder is None:
-                raise ValueError("action_hidden was passed but no action-hidden encoder was configured")
-            scene = scene + self.action_hidden_encoder(action_hidden)
-        trajectory_tokens = self.trajectory_project(candidate_trajectory)
-        trajectory = self.trajectory_pool(self.trajectory_encoder(trajectory_tokens).mean(dim=1))
-
-        if self.input_mode == "scene_only":
-            trajectory = torch.zeros_like(trajectory)
-        elif self.input_mode == "trajectory_only":
-            scene = torch.zeros_like(scene)
-        elif self.input_mode == "zero_action":
-            # The complete trajectory branch remains instantiated/trainable,
-            # giving an exact same-parameter no-action control.
-            trajectory = trajectory * 0.0
-
-        fused = torch.cat((scene, trajectory, scene * trajectory, torch.abs(scene - trajectory)), dim=-1)
-        effect_latent = self.fusion(fused)
+        components = self.forward_components(scene_tokens, candidate_trajectory, action_hidden)
+        effect_latent = components.effect_latent
         consequence = self.consequence_head(effect_latent)
         structured: torch.Tensor | None = None
         if self.structured_future_head is not None:

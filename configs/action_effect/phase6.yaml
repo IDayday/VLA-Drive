@@ -1,0 +1,81 @@
+experiment:
+  name: phase6_pilot_small
+  cache_version: action_effect_phase6_probe_v1
+  seeds: [20260821, 20260822, 20260823]
+  bootstrap_samples: 1000
+  # Pooled pair AUROC/Spearman require sorting tens of thousands of pairs per
+  # resample. Keep their run-level interval affordable; all Gate-3 paired
+  # deltas and calibrated risk intervals still use 1,000 scene resamples.
+  representation_bootstrap_samples: 200
+  bootstrap_confidence: 0.95
+
+data:
+  candidate_cache: candidates/pilot_small/expert_phase6_v1
+  consequence_cache: consequences/pilot_small/expert_phase6_v1
+  pair_cache: pairs/pilot_small/expert_phase6_v2
+  # Extracted from the clean Gate-2 snapshot worktree so unrelated dirty
+  # inference changes in the developer checkout cannot enter the probe input.
+  scene_feature_cache: scene_features/pilot_small/qwen_dit_100k_gate2_v1
+  effect_tube_cache: effect_tube/pilot_small/expert_log_replay_32_phase6_v1
+  split_cache: splits/pilot_small/phase6
+  target_assumption: log_replay
+
+probe:
+  scene_input_dim: 2048
+  trajectory_input_dim: 4
+  trajectory_token_dim: 96
+  latent_dim: 192
+  dropout: 0.1
+  structured_future_shape: [3, 9, 32, 32]
+
+methods:
+  - factual_only
+  - multi_candidate_absolute
+  - global_separation
+  - aee
+  - confidence_aee
+  - scene_only_control
+
+confidence_aee:
+  enabled: true
+  reason: pilot_small_critical_lr_idm_disagreement_support_passed
+  pair_confidence_weights:
+    high: 1.0
+    medium: 0.5
+    low: 0.1
+    unassessed: 1.0
+
+training:
+  steps: 1200
+  batch_scene_count: 16
+  candidates_per_scene: 4
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  gradient_clip_norm: 5.0
+  log_interval: 50
+  validation_interval: 200
+  evaluation_batch_size: 64
+  binary_positive_weight_cap: 50.0
+  device: cuda
+
+loss:
+  lambda_effect: 1.0
+  lambda_consequence: 1.0
+  lambda_pair: 0.2
+  global_margin: 0.5
+  aee_base_margin: 0.35
+  aee_margin_scale: 0.20
+  aee_maximum_margin: 1.5
+  effect_weights:
+    occupancy: 1.0
+    sdf: 1.0
+    velocity: 1.0
+    clearance: 1.0
+    collision: 1.0
+    footprint: 1.0
+
+risk:
+  low_ttc_seconds: 1.5
+
+latent_audit:
+  covariance_rank_relative_tolerance: 0.001

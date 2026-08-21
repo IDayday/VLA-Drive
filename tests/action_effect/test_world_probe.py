@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import torch
 
-from research.action_effect.losses import ConsequencePredictionLoss
+from research.action_effect.losses import (
+    ConsequencePredictionLoss,
+    equal_scene_mean,
+    normalized_pair_loss,
+)
 from research.action_effect.world_probe import ActionEffectWorldProbe, count_parameters
 
 
@@ -41,6 +45,30 @@ def test_consequence_loss_splits_hard_and_soft() -> None:
     output = loss(torch.zeros(4, 5), torch.zeros(4, 5), soft_mask=torch.tensor([True, False]))
     assert set(output) == {"total", "hard", "soft"}
     assert output["total"].ndim == 0
+    per_sample = loss(
+        torch.zeros(4, 5),
+        torch.zeros(4, 5),
+        soft_mask=torch.tensor([True, False]),
+        reduction="none",
+    )
+    assert per_sample["total"].shape == (4,)
+
+
+def test_normalized_pair_loss_and_equal_scene_weighting() -> None:
+    left = torch.tensor([[10.0, 0.0], [1.0, 0.0], [1.0, 0.0]])
+    right = torch.tensor([[9.0, 0.0], [-1.0, 0.0], [0.0, 1.0]])
+    result = normalized_pair_loss(
+        left,
+        right,
+        equivalent=torch.tensor([True, False, False]),
+        divergent=torch.tensor([False, True, True]),
+        consequence_distance=torch.ones(3),
+    )
+    assert result["distance"][0] == 0.0
+    assert torch.all(result["left_norm"] > 0)
+    # Two values in scene zero must not give it twice the weight of scene one.
+    mean = equal_scene_mean(torch.tensor([1.0, 3.0, 10.0]), torch.tensor([0, 0, 1]), scene_count=2)
+    assert mean == 6.0
 
 
 def test_structured_future_decoder_shape() -> None:

@@ -1,0 +1,28 @@
+cache_version: action_effect_effect_tube_v1
+dataset_version: navsim_trainval_processed_v1225
+provenance: log_replay
+
+horizons_s: [1.0, 2.0, 4.0]
+proposal_interval_s: 0.1
+resolution: 32
+longitudinal_extent_m: [-8.0, 24.0]
+lateral_extent_m: [-16.0, 16.0]
+maximum_relative_speed_mps: 20.0
+distance_cap_m: 12.0
+clearance_cap_m: 20.0
+collision_radius_m: 2.8
+
+channels:
+  - candidate_relative_dynamic_occupancy
+  - drivable_area_sdf
+  - lane_sdf
+  - route_sdf
+  - relative_longitudinal_velocity
+  - relative_lateral_velocity
+  - dynamic_clearance
+  - dynamic_collision_field
+  - ego_swept_footprint
+
+audit:
+  minimum_action_variance_ratio: 0.005
+  minimum_target_action_gap: 0.002

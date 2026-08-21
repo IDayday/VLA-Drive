@@ -48,6 +48,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--candidate-cache", type=Path)
     parser.add_argument("--consequence-cache", type=Path)
     parser.add_argument("--cache-dir", type=Path)
+    parser.add_argument(
+        "--statistics-scene-file",
+        type=Path,
+        help="JSON split whose `train` scenes exclusively fit scales and pair thresholds.",
+    )
     return parser.parse_args()
 
 
@@ -72,8 +77,28 @@ def main() -> None:
     if candidate_manifest is None or consequence_manifest is None:
         raise FileNotFoundError("candidate and consequence caches require manifests")
     code_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPOSITORY_ROOT, text=True).strip()
-    source = REPOSITORY_ROOT / "research/action_effect/pair_builder.py"
-    code_revision = f"{code_commit}+tree.{file_sha256(source)[:12]}"
+    code_sources = (Path(__file__), REPOSITORY_ROOT / "research/action_effect/pair_builder.py")
+    code_revision = f"{code_commit}+tree.{content_hash({str(path.relative_to(REPOSITORY_ROOT)): file_sha256(path) for path in code_sources})[:12]}"
+    statistics_scenes: set[str] | None = None
+    statistics_excluded_perturbation: str | None = None
+    statistics_identity = "all_source_scenes"
+    if args.statistics_scene_file is not None:
+        statistics_path = args.statistics_scene_file.resolve()
+        with statistics_path.open("r", encoding="utf-8") as stream:
+            split_payload = json.load(stream)
+        if not isinstance(split_payload, dict) or not isinstance(split_payload.get("train"), list):
+            raise TypeError("statistics scene file must contain a `train` list")
+        statistics_scenes = {str(value) for value in split_payload["train"]}
+        if not statistics_scenes:
+            raise ValueError("statistics train scene list is empty")
+        excluded = split_payload.get("held_out_perturbation_family")
+        statistics_excluded_perturbation = str(excluded) if excluded is not None else None
+        statistics_identity = content_hash(
+            {
+                "scenes": sorted(statistics_scenes),
+                "excluded_perturbation": statistics_excluded_perturbation,
+            }
+        )
     manifest = CacheManifest(
         cache_kind="action_effect_equivalence",
         cache_version=str(config["cache_version"]),
@@ -86,6 +111,7 @@ def main() -> None:
         inputs={
             "candidate_manifest": candidate_manifest.compatibility_identity(),
             "consequence_manifest": consequence_manifest.compatibility_identity(),
+            "statistics_scenes_sha256": statistics_identity,
         },
     )
     required = ("pairs.jsonl", "robust_scales.json", "thresholds.json", "summary.json")
@@ -94,10 +120,28 @@ def main() -> None:
         return
 
     consequence_rows = list(iter_jsonl(consequence_cache / "consequences.jsonl"))
+    statistics_rows = (
+        consequence_rows
+        if statistics_scenes is None
+        else [
+            row
+            for row in consequence_rows
+            if str(row["scene_id"]) in statistics_scenes
+            and (
+                statistics_excluded_perturbation is None
+                or str(row.get("perturbation_type")) != statistics_excluded_perturbation
+            )
+        ]
+    )
+    if statistics_scenes is not None:
+        observed = {str(row["scene_id"]) for row in statistics_rows}
+        missing = sorted(statistics_scenes - observed)
+        if missing:
+            raise KeyError(f"statistics scenes are absent from consequence cache: {missing[:3]}")
     fields = [str(field) for field in config["soft_consequence_fields"]]
     normalization = config["normalization"]
     scales = fit_robust_scales(
-        consequence_rows,
+        statistics_rows,
         fields,
         minimum_coverage=float(normalization["minimum_coverage"]),
         minimum_scale=float(normalization["minimum_scale"]),
@@ -111,8 +155,16 @@ def main() -> None:
     rows_by_scene: dict[str, list[dict[str, Any]]] = {}
     for row in consequence_rows:
         rows_by_scene.setdefault(row["scene_id"], []).append(row)
-    for rows in rows_by_scene.values():
+    for scene_id, rows in rows_by_scene.items():
+        if statistics_scenes is not None and scene_id not in statistics_scenes:
+            continue
         accepted = [row for row in rows if row.get("candidate_accepted") and row["log_replay"].get("available")]
+        if statistics_excluded_perturbation is not None:
+            accepted = [
+                row
+                for row in accepted
+                if str(row.get("perturbation_type")) != statistics_excluded_perturbation
+            ]
         vectors = {
             row["candidate_id"]: normalized_soft_vector(
                 row,
@@ -170,7 +222,11 @@ def main() -> None:
         "safety_boundary_pair_count": safety_boundaries,
         "safety_boundary_pair_rate": safety_boundaries / max(len(pairs), 1),
         "threshold_fit_pair_count": len(preliminary_distances),
-        "statistics_split": consequence_manifest.split,
+        "statistics_split": "train" if statistics_scenes is not None else consequence_manifest.split,
+        "statistics_scene_count": (
+            len(statistics_scenes) if statistics_scenes is not None else len(rows_by_scene)
+        ),
+        "statistics_excluded_perturbation": statistics_excluded_perturbation,
     }
     write_json(output_root / "summary.json", summary)
     finalize_manifest(output_root, manifest)

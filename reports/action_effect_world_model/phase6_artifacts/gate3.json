@@ -1,0 +1,479 @@
+{
+  "aee_vs_absolute": {
+    "effect_alignment_improves_each_seed": false,
+    "effect_alignment_scene_ci_excludes_zero": false,
+    "false_safe_reduction": false,
+    "heldout_family_improvement": false,
+    "pair_or_safety_auprc_improvement": true
+  },
+  "aee_vs_global": {
+    "action_gap_retention": 0.9688224593349287,
+    "action_gap_retention_at_least_90_percent": true,
+    "equivalence_leakage_reduction": 0.1226549641920196,
+    "leakage_reduction_at_least_20_percent": false,
+    "separation_ratio_significant_improvement": true,
+    "structured_target_not_significantly_degraded": true
+  },
+  "confidence_aee_broad_empirical_benefit": false,
+  "confidence_aee_primary": true,
+  "confidence_aee_significant_alignment_benefit": false,
+  "confidence_aee_significant_false_safe_benefit": true,
+  "confidence_aee_significant_safety_auprc_benefit": false,
+  "confidence_paired_deltas": {
+    "confidence_vs_absolute_alignment": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.003336191614186878,
+      "ci_low": -0.010119339720923489,
+      "confidence": 0.95,
+      "point": -0.003405849443736025
+    },
+    "confidence_vs_absolute_false_safe": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.005746584792920988,
+      "ci_low": -0.0748918422733078,
+      "confidence": 0.95,
+      "point": -0.034196542601715015
+    },
+    "confidence_vs_absolute_heldout_alignment": {
+      "bootstrap_samples": 1000,
+      "ci_high": -0.00613398367436974,
+      "ci_low": -0.03396232595573549,
+      "confidence": 0.95,
+      "point": -0.02074324387043028
+    },
+    "confidence_vs_absolute_safety_auprc": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.045847193448702805,
+      "ci_low": 0.018993328251394586,
+      "confidence": 0.95,
+      "point": 0.03260103914039243
+    },
+    "confidence_vs_aee_alignment": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.005987034875098925,
+      "ci_low": -0.0002767672051222762,
+      "confidence": 0.95,
+      "point": 0.0028020213626433195
+    },
+    "confidence_vs_aee_false_safe": {
+      "bootstrap_samples": 1000,
+      "ci_high": -0.0981112593504835,
+      "ci_low": -0.17505963783981024,
+      "confidence": 0.95,
+      "point": -0.13765280058383508
+    },
+    "confidence_vs_aee_heldout_alignment": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.010897951260020222,
+      "ci_low": -0.00356293530144105,
+      "confidence": 0.95,
+      "point": 0.003949008895285755
+    },
+    "confidence_vs_aee_pair_auprc": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.0035163136717491854,
+      "ci_low": -0.0011018131220623375,
+      "confidence": 0.95,
+      "point": 0.001177918199217357
+    },
+    "confidence_vs_aee_safety_auprc": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.007910711277486632,
+      "ci_low": -0.006280135369625496,
+      "confidence": 0.95,
+      "point": 0.0008050333685513978
+    }
+  },
+  "decision": "FAIL",
+  "epdms": null,
+  "paired_deltas": {
+    "aee_vs_absolute_alignment": {
+      "bootstrap_samples": 1000,
+      "ci_high": 3.710395309396567e-05,
+      "ci_low": -0.012633053518207182,
+      "confidence": 0.95,
+      "point": -0.006207870806379343
+    },
+    "aee_vs_absolute_false_safe": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.14537296455938697,
+      "ci_low": 0.06270035121328225,
+      "confidence": 0.95,
+      "point": 0.10345625798212003
+    },
+    "aee_vs_absolute_heldout_alignment": {
+      "bootstrap_samples": 1000,
+      "ci_high": -0.0126371403430374,
+      "ci_low": -0.036533268395337354,
+      "confidence": 0.95,
+      "point": -0.024692252765716034
+    },
+    "aee_vs_absolute_pair_auprc": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.007318875023209236,
+      "ci_low": -0.0013134358645986298,
+      "confidence": 0.95,
+      "point": 0.0030214006967914835
+    },
+    "aee_vs_absolute_safety_auprc": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.04446083140145347,
+      "ci_low": 0.01897802810367307,
+      "confidence": 0.95,
+      "point": 0.03179600577184104
+    },
+    "aee_vs_global_separation_ratio": {
+      "bootstrap_samples": 1000,
+      "ci_high": 0.6233231496965271,
+      "ci_low": 0.25582164859022893,
+      "confidence": 0.95,
+      "point": 0.43631745881861944
+    },
+    "aee_vs_global_structured_error": {
+      "bootstrap_samples": 1000,
+      "ci_high": -0.0018204214551796516,
+      "ci_low": -0.003112136159340541,
+      "confidence": 0.95,
+      "point": -0.002487114076813062
+    }
+  },
+  "pdms": null,
+  "planning_training": "NOT RUN",
+  "qwen_dit_world_loss": "NOT IMPLEMENTED",
+  "structured_channel_checks": [
+    {
+      "beats_all_controls": false,
+      "channel": "candidate_relative_dynamic_occupancy",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -1.565339269112994,
+          "ci_low": -1.8999614123426647,
+          "confidence": 0.95,
+          "point": -1.7413547145423796
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.004263066211171963,
+          "ci_low": -0.005288507515204107,
+          "confidence": 0.95,
+          "point": -0.0006496370147038051
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -10.642491741333679,
+          "ci_low": -12.47521563146402,
+          "confidence": 0.95,
+          "point": -11.60218092474025
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "balanced_bce",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 0.0029464676090511554,
+        "ci_low": 0.0018828131929784773,
+        "confidence": 0.95,
+        "point": 0.0023979331699370264
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": true,
+      "channel": "drivable_area_sdf",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.040456322357803574,
+          "ci_low": -0.054487150158360594,
+          "confidence": 0.95,
+          "point": -0.0472949228733778
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.001246042135109504,
+          "ci_low": -0.0039056555690864716,
+          "confidence": 0.95,
+          "point": -0.0024967517455418906
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.13256141159286103,
+          "ci_low": -0.150436642614007,
+          "confidence": 0.95,
+          "point": -0.1411152517348528
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "normalized_l1",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 0.00012626122559110327,
+        "ci_low": 7.220238621036212e-05,
+        "confidence": 0.95,
+        "point": 9.792543947696687e-05
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": true,
+      "channel": "lane_sdf",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.04051395252657433,
+          "ci_low": -0.05391948083216945,
+          "confidence": 0.95,
+          "point": -0.046991878132025405
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.0008651327710598707,
+          "ci_low": -0.003599913716440398,
+          "confidence": 0.95,
+          "point": -0.0021953186889489495
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.1263195639404158,
+          "ci_low": -0.14441808481402693,
+          "confidence": 0.95,
+          "point": -0.13505375815431275
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "normalized_l1",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 0.00012683871053159238,
+        "ci_low": 7.141146486004194e-05,
+        "confidence": 0.95,
+        "point": 9.837612509727478e-05
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": false,
+      "channel": "route_sdf",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.06149556817474465,
+          "ci_low": -0.07882409649441639,
+          "confidence": 0.95,
+          "point": -0.07010749013225237
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.0028070120301097626,
+          "ci_low": -0.0007188015758991241,
+          "confidence": 0.95,
+          "point": 0.0010142937948306402
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.21109066869989038,
+          "ci_low": -0.23235502082494397,
+          "confidence": 0.95,
+          "point": -0.22202624622980754
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "normalized_l1",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 0.00011815284751355648,
+        "ci_low": 5.296446904540062e-05,
+        "confidence": 0.95,
+        "point": 8.451044062773386e-05
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": false,
+      "channel": "relative_longitudinal_velocity",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.013712563387307452,
+          "ci_low": -0.0032853064816137883,
+          "confidence": 0.95,
+          "point": 0.005037501198562999
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.0011106012229316147,
+          "ci_low": -0.004359258355462871,
+          "confidence": 0.95,
+          "point": -0.002677345422044811
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.013106367311524484,
+          "ci_low": -0.004395927375670807,
+          "confidence": 0.95,
+          "point": 0.004134611054137672
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "masked_l1",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 5.382675768083167e-05,
+        "ci_low": 8.319084299728278e-06,
+        "confidence": 0.95,
+        "point": 3.0478123678929272e-05
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": false,
+      "channel": "relative_lateral_velocity",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.01660942827640611,
+          "ci_low": 0.011285807906925684,
+          "confidence": 0.95,
+          "point": 0.014031519263032049
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.0008982944692252202,
+          "ci_low": -0.0008880219391236699,
+          "confidence": 0.95,
+          "point": 4.385546263721389e-06
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.01657549951376495,
+          "ci_low": 0.011235179481350822,
+          "confidence": 0.95,
+          "point": 0.013992376360693014
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "masked_l1",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 2.2918160151069354e-05,
+        "ci_low": -1.6930413484159395e-06,
+        "confidence": 0.95,
+        "point": 1.0903935051626629e-05
+      },
+      "shuffle_significantly_hurts": false
+    },
+    {
+      "beats_all_controls": false,
+      "channel": "dynamic_clearance",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.04127077928930521,
+          "ci_low": -0.0614008554259936,
+          "confidence": 0.95,
+          "point": -0.051439682846268014
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.004619168397039175,
+          "ci_low": 0.0014040335954477398,
+          "confidence": 0.95,
+          "point": 0.003057600811123848
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.18657143576542537,
+          "ci_low": -0.22326173807357746,
+          "confidence": 0.95,
+          "point": -0.2044999603529771
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "normalized_l1",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 6.149246444304784e-05,
+        "ci_low": 3.697717674076557e-05,
+        "confidence": 0.95,
+        "point": 4.8414751887321475e-05
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": false,
+      "channel": "dynamic_collision_field",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -0.3314194863162257,
+          "ci_low": -0.41899442809666276,
+          "confidence": 0.95,
+          "point": -0.3759088590546128
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.00447459655271043,
+          "ci_low": -0.003211575447958408,
+          "confidence": 0.95,
+          "point": 0.0005617780081753426
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": -8.669775354923013,
+          "ci_low": -9.943432155947805,
+          "confidence": 0.95,
+          "point": -9.350581128149962
+        }
+      },
+      "higher_better": false,
+      "primary_metric": "balanced_bce",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 0.00034014485353329527,
+        "ci_low": 0.00020650196516424846,
+        "confidence": 0.95,
+        "point": 0.0002695977130874111
+      },
+      "shuffle_significantly_hurts": true
+    },
+    {
+      "beats_all_controls": false,
+      "channel": "ego_swept_footprint",
+      "comparisons": {
+        "mean_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.09350828447739284,
+          "ci_low": 0.0861216468791167,
+          "confidence": 0.95,
+          "point": 0.08973463062445323
+        },
+        "scene_only_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.0002113206744194029,
+          "ci_low": -0.0016431080510218934,
+          "confidence": 0.95,
+          "point": -0.0007028253078460695
+        },
+        "zero_control": {
+          "bootstrap_samples": 1000,
+          "ci_high": 0.9199968616874112,
+          "ci_low": 0.911510153134012,
+          "confidence": 0.95,
+          "point": 0.9157135017911594
+        }
+      },
+      "higher_better": true,
+      "primary_metric": "dice",
+      "shuffle_gap": {
+        "bootstrap_samples": 1000,
+        "ci_high": 0.0006061569382747014,
+        "ci_low": 0.0003813892116149267,
+        "confidence": 0.95,
+        "point": 0.0004854804277420044
+      },
+      "shuffle_significantly_hurts": true
+    }
+  ],
+  "structured_effect_success": true
+}

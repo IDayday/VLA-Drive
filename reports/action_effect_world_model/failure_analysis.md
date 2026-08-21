@@ -1,65 +1,47 @@
-# Failure analysis at Gate 2
+# Gate-3 failure and case analysis
 
-This report includes negative and conflicting cases from the completed phases.
-Phase-6/7 failure modes are explicitly marked unavailable rather than inferred
-from models that were not trained.
+Cases are selected deterministically from the full fixed test/IDM subsets, including unfavorable deltas; they are diagnostics rather than causal counterfactuals.
 
-## Factual prediction is accurate while candidate risk is ignored
+## Factual prediction with weak action sensitivity
 
-On 1,497 accepted candidates in 102 held-out scenes, the representative
-scene-action consequence probe has 96 candidates meeting the configured unsafe
-definition and predicts all 96 as safe. Its factual-anchor error is low
-(three-seed mean 0.166), but its action shuffle gap is only 0.0003.
+| Scene | Candidate pair | Pair type | Safety boundary | Geometry | Consequence | Selection delta |
+|---|---|---|---:|---:|---:|---:|
+| `205eaba8a7f95a1a` | `654f39e835bf840c` / `ab8307cddc6438d7` | effect_divergent | False | 2.5550 | 1.7907 | 162097.6808 |
+| `c2b4f95be2855a57` | `908a38a8b807d99a` / `ddff14c9048da9d7` | effect_divergent | False | 2.4748 | 1.9316 | 88982.8112 |
+| `cb3d52c845ec589e` | `7b597e5516e55928` / `a48b1ebb58b2a541` | effect_divergent | False | 2.0504 | 1.8184 | 87761.6884 |
+| `590a88cf27a85e4c` | `10202114fafdfc58` / `227476a832caee9f` | effect_divergent | False | 2.0715 | 1.5925 | 79329.2309 |
+| `3af9c4278e835280` | `4bc94acc9c4e3f0d` / `71997c2286b305bd` | effect_divergent | False | 2.7636 | 2.3728 | 66150.6889 |
 
-Highest-error false-safe examples include:
+## Global separation over-separates equivalent actions
 
-| Scene | Candidate | Failure label | Relevant true outcome |
-|---|---|---|---|
-| `16e446eab82b5d45` | `b7eaaff488a34762` | false-safe | DAC=0, NC=0.5, TTC event time=2.0 s |
-| `16e446eab82b5d45` | `f2819e03f83d9de8` | false-safe | DAC=0, TTC event time=2.2 s |
-| `191f94dc85fd5899` | `d26a2defff6d4435` | false-safe | dynamic collision, NC=0 |
-| `c6e502d2e3845682` | `668ccbafd871394b` | false-safe | dynamic collision, NC=0 |
-| `dcc3937e2e45545b` | `7d550514b786b8bd` | false-safe | DAC=0 |
+| Scene | Candidate pair | Pair type | Safety boundary | Geometry | Consequence | Selection delta |
+|---|---|---|---:|---:|---:|---:|
+| `3cac5230a7e45054` | `02a0c7e85322d681` / `723957b0ee1f9efb` | effect_equivalent | False | 0.9843 | 0.0820 | 0.3460 |
+| `3cac5230a7e45054` | `02a0c7e85322d681` / `bfd195b951803d87` | effect_equivalent | False | 0.7382 | 0.0392 | 0.3274 |
+| `3cac5230a7e45054` | `02a0c7e85322d681` / `a74c9b37bc1d8c93` | effect_equivalent | False | 0.7081 | 0.0398 | 0.3234 |
+| `cd1c3b256dbb58a1` | `0103210ac90f17e0` / `abda296437c249fc` | effect_equivalent | False | 0.9843 | 0.0410 | 0.3095 |
+| `d600098375e45a90` | `b8db1f197457829c` / `d92d37e274dea569` | effect_equivalent | False | 0.7429 | 0.0870 | 0.3082 |
 
-The complete deterministic top-50 list is in
-`action_collapse_artifacts/false_safe_examples.jsonl`.
+## AEE safety-boundary diagnostics
 
-## Structured future learns scene priors but not useful action dependence
+| Scene | Candidate pair | Pair type | Safety boundary | Geometry | Consequence | Selection delta |
+|---|---|---|---:|---:|---:|---:|
+| `a0ab4777d8245e01` | `639887284383f1ae` / `f71215ca121df8dc` | effect_divergent | True | 0.5054 | 2.0950 | 0.6942 |
+| `a0ab4777d8245e01` | `52572f1e15fc00b0` / `f71215ca121df8dc` | effect_divergent | True | 0.4974 | 2.0933 | 0.6808 |
+| `a0ab4777d8245e01` | `f678a1033e9454b9` / `f71215ca121df8dc` | effect_divergent | True | 0.5646 | 2.1029 | 0.6623 |
+| `a0ab4777d8245e01` | `06e7e74fce73ee7f` / `f71215ca121df8dc` | effect_divergent | True | 0.7139 | 2.0752 | 0.5872 |
+| `a0ab4777d8245e01` | `6efd6ade41cfde52` / `f71215ca121df8dc` | effect_divergent | True | 0.7461 | 2.0985 | 0.5829 |
 
-The scene-action future tube improves the class-balanced factual objective over
-the fit-only mean prior (0.708 versus 1.265), yet scene-only is slightly better
-(0.699). Action shuffling changes map error by only -0.000046, and Effect
-Alignment is 0.107. Moreover, unweighted map MAE is worse than the per-cell mean
-prior (0.235 versus 0.196). This is a deliberately retained negative result:
-sparse-risk weighting makes the target learnable under its training objective,
-but it does not make the factual model action-grounded.
+## Log-replay / reactive-model conflicts
 
-## Log-replay / IDM conflicts
+| Scene | Candidate pair | Pair type | Safety boundary | Geometry | Consequence | Selection delta |
+|---|---|---|---:|---:|---:|---:|
+| `9b56207d416a5f74` | `516d0c1a89d87a28` / `f6a7a25ec5e55bce` | ambiguous | True | 0.0091 | 2.0752 | nan |
+| `2295480487565083` | `28c4ef1673abf1a0` / `e3c53746222ca3f2` | ambiguous | True | 0.0136 | 2.0567 | nan |
+| `b649db17afea5a36` | `294acddde33d7b12` / `587e2e56dc9e2e00` | ambiguous | False | 0.0184 | 0.1779 | nan |
+| `7a46488aa2d05c51` | `7681d864807ffa91` / `b92225d3cd6dc3ce` | ambiguous | True | 0.0202 | 2.1849 | nan |
+| `7a46488aa2d05c51` | `7681d864807ffa91` / `ba26f52775dde751` | ambiguous | True | 0.0205 | 2.1942 | nan |
 
-Most evaluated pairs agree, but 75 pairs are low-confidence and are changed to
-`ambiguous`. Several are precisely the safety-boundary cases that should not
-receive strong AEE supervision:
+## World metric improved but planning did not
 
-| Scene | Candidate pair | Geometry distance | LR order | IDM order | Conflict |
-|---|---|---:|---:|---:|---|
-| `a5e8ec7df7c253e4` | `5660029b1b2f1c51` / `787d6f43a0986301` | 0.012 | 1 | 0 | hard relation disagrees |
-| `2b5b074e74e350fb` | `8a4af7a495e9b25f` / `f98748666d1eb110` | 0.033 | 1 | 0 | hard relation disagrees |
-| `014725c44c265d3e` | `03f9087234d7f877` / `dc446051c508fd84` | 0.058 | -1 | 0 | hard relation disagrees |
-| `c4b99ac30f3d56e6` | `4c53ce7dca029af0` / `8c0c78a1c1d1659e` | 0.096 | -1 | 0 | hard relation disagrees |
-
-These examples explain why identifiability confidence is retained even though
-aggregate agreement is high. They are pseudo-counterfactual traffic-assumption
-conflicts, not observations of the true response to an unexecuted action.
-
-## Global separation and AEE cases
-
-Not available: global separation and AEE are Phase 6 and were not implemented
-or trained before the Gate-2 stopping point. Therefore this delivery cannot
-show either global over-separation or an AEE success case. The 2,095 cached
-safety-boundary pairs are the fixed evaluation set for that next comparison.
-
-## Better world metric but worse planning
-
-Not available: no world loss was connected to Qwen+DiT and no planning pilot was
-run. The baseline action path and official evaluators remain untouched, so no
-planning transfer or world/action gradient-conflict claim is made.
+Not evaluated by instruction: no world loss was connected to Qwen+DiT, no planning training was run, and no PDMS/EPDMS value is populated. Therefore this delivery makes no world-to-planning transfer or gradient-conflict claim.

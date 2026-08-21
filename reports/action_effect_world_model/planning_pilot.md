@@ -1,15 +1,20 @@
 # Qwen+DiT planning pilot status
 
-Status: **not implemented and not run in this Gate-2 delivery**.
+Status: **intentionally not implemented and not run at the Gate-3 stopping
+point**.
 
-Qwen and DiT were frozen for all completed Phase-5 experiments. The original
-action-only inference path, flow-matching loss, checkpoint format, and NAVSIM
-evaluators were not modified. Consequently this delivery makes no PDMS/EPDMS
-improvement claim and reports planning metrics as unavailable rather than
-copying unrelated baseline numbers into an action-effect comparison.
+Qwen was used only once as a frozen, current-observation feature extractor from
+the clean `action-effect-gate2-v0` snapshot. The cache records that no expert
+action was passed into Qwen. DiT was not trained or modified, no world loss was
+attached to shared layers, and the original action-only inference path,
+flow-matching loss, checkpoint format, and NAVSIM evaluator semantics remain
+unchanged.
 
-Phase 7/8 should begin only after the Phase-6 absolute/global/AEE probe matrix
-demonstrates that AEE improves Effect Alignment without increasing Equivalence
-Leakage or structured-future error. At that point the required P0--P7 planning
-matrix, gradient cosine diagnostics, latency, memory, and parameter accounting
-must be run against the unchanged baseline evaluator.
+The stop is evidence-driven: unweighted AEE failed the predeclared Gate-3
+comparisons against multi-candidate absolute supervision and global separation.
+Accordingly, this delivery does not create a Phase-7 launcher, does not run
+planning continuation, does not claim world-to-planning transfer or gradient
+conflict, and leaves PDMS/EPDMS and their components as N/A.
+
+Any later planning experiment requires a new authorization and a new probe gate;
+the current AEE objective must not be attached to Qwen+DiT as-is.

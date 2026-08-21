@@ -238,10 +238,11 @@ def load_probe_arrays(
         scene_features = np.asarray(payload["scene_tokens"], dtype=np.float32)
         action_hidden = np.asarray(payload["action_hidden"], dtype=np.float32)
 
+    fit_scene_set = set(str(scene_id) for scene_id in fit_scene_ids)
     factual_fit = [
         row
         for row in rows
-        if row["scene_id"] in set(fit_scene_ids)
+        if str(row["scene_id"]) in fit_scene_set
         and row.get("candidate_accepted")
         and row.get("perturbation_type") == "anchor"
         and row[assumption].get("available")
@@ -314,8 +315,11 @@ def load_structured_targets(
     target: np.ndarray | None = None
     valid = np.zeros(len(arrays.scene_ids), dtype=bool)
     assigned = np.zeros(len(arrays.scene_ids), dtype=bool)
+    indices_by_scene: dict[str, list[int]] = {}
+    for index, scene_id in enumerate(arrays.scene_ids):
+        indices_by_scene.setdefault(str(scene_id), []).append(index)
     for scene_id, entry in scene_index.items():
-        indices = np.flatnonzero(arrays.scene_ids == scene_id)
+        indices = np.asarray(indices_by_scene.get(str(scene_id), ()), dtype=np.int64)
         with np.load(cache_dir / entry["file"]) as payload:
             scene_target = np.asarray(payload["target"], dtype=np.float16)
             scene_valid = np.asarray(payload["valid"], dtype=bool)

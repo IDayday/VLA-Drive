@@ -242,7 +242,9 @@ def _identifiability(
         ranking_tolerance,
     )
     rank_agreement = replay_order == reactive_order
-    if hard_agreement:
+    if not pairwise_hard_relation_agreement or not rank_agreement:
+        confidence = "low"
+    elif hard_agreement:
         confidence = "high"
     elif pairwise_hard_relation_agreement and rank_agreement:
         confidence = "medium"
@@ -324,6 +326,8 @@ def build_scene_pairs(
         else:
             pair_type = "ambiguous"
             reason = "between_thresholds"
+        replay_pair_type = pair_type
+        replay_pair_reason = reason
         if (
             identifiability["pair_confidence"] == "low"
             and bool(ident_cfg["low_confidence_pairs_become_ambiguous"])
@@ -343,6 +347,8 @@ def build_scene_pairs(
                 "candidate_j_index": int(right["candidate_index"]),
                 "pair_type": pair_type,
                 "pair_reason": reason,
+                "replay_pair_type": replay_pair_type,
+                "replay_pair_reason": replay_pair_reason,
                 "pair_confidence": identifiability["pair_confidence"],
                 "hard_difference_count": hard_diff_count,
                 "hard_difference_fields": [
@@ -353,6 +359,7 @@ def build_scene_pairs(
                 "consequence_distance": hard_diff_count
                 + float(distance_cfg["lambda_soft"]) * soft,
                 "geometric_distance": geometry,
+                "geometric_duplicate": duplicate,
                 "safety_boundary": safety_boundary,
                 **{key: value for key, value in identifiability.items() if key != "pair_confidence"},
             }

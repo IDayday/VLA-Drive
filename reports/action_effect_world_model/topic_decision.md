@@ -1,41 +1,54 @@
-# Topic decision at the Gate-2 stopping point
+# Topic decision at Gate 3
 
 ## Decision
 
-**Proceed next with Direction A: AEE-WM probe ablations.** This is a concrete
-decision for the next research stage, not a claim that the final paper direction
-has already been validated by planning metrics.
+**Stop the current AEE-WM formulation and select Direction B as the next
+probe-only research direction: Partially Identified World Supervision from
+Single-Future Driving Logs.** This is a concrete next-study choice, not a claim
+that Direction B has already passed a planning benchmark.
 
-The evidence supporting this decision is:
+## Evidence
 
-- Gate 1 passes: 89.8% of pilot scenes contain both equivalent and divergent
-  pairs, 2,095 safety-boundary pairs exist, and geometric/consequence distance
-  correlation is only 0.375.
-- The 64-scene NAVSIM-v2 traffic-assumption subset is sufficiently stable for a
-  first AEE test: candidate hard agreement is 99.48% and pairwise ranking
-  agreement is 98.45%. This does not establish true causal counterfactuals.
-- The three-seed factual consequence probe is learnable but exhibits the target
-  collapse signature: near-zero action shuffle gap, low Effect Alignment, and
-  high false-safe rate on unseen local candidates.
-- The structured future objective is also learnable versus its fit-only mean
-  prior, but scene-only slightly beats scene-action and candidate Effect
-  Alignment is only 0.107. Unweighted map MAE does not improve, so Phase 6 must
-  retain both the balanced objective and raw map error rather than optimizing a
-  favorable metric alone.
-- A trajectory-only probe is more action-sensitive but has worse factual error,
-  indicating that factual supervision rewards scene priors while failing to
-  bind candidate geometry to scene-dependent consequences.
+- Gate 1 passes and rules out a data-starvation explanation: 5,300 scenes yield
+  84,800 fixed-count candidates, 78,688 valid replay-grounded targets, 558,423
+  pairs, and 18,947 safety-boundary pairs. Pair thresholds use only 4,200 train
+  scenes and exclude the held-out perturbation family.
+- Gate 2.5 rules out action-branch engineering failure. The production action
+  encoder/fusion rapidly fits a synthetic trajectory target, candidate
+  consequences can be overfit, and gradients/Jacobians/embedding variance are
+  non-zero.
+- Factual-only collapse is a statistical shortcut. Multi-candidate absolute
+  supervision raises Effect Alignment by 0.0595 and lowers false-safe rate by
+  0.3121 relative to factual-only, showing that candidate supervision has real
+  value.
+- AEE-specific evidence fails. Relative to absolute supervision, AEE alignment
+  changes by -0.00621 with 95% scene-bootstrap CI [-0.01263, 0.00004],
+  false-safe rate worsens by +0.10346 [0.06270, 0.14537], and held-out-family
+  alignment worsens by -0.02469 [-0.03653, -0.01264]. AEE lowers global
+  separation's Equivalence Leakage by only 12.3%, short of the 20% gate.
+- Structured action effects are learnable: drivable-area and lane SDF pass the
+  mean, zero, scene-only, and within-scene shuffle controls. The failure cannot
+  be attributed to an action-invariant target.
+- LR/IDM disagreement is concentrated rather than dominant: 218 / 10,879
+  critical pairs (2.00%) conflict. Confidence weighting significantly reduces
+  false-safe errors versus unweighted AEE, but does not significantly improve
+  alignment or safety AUPRC. All 128 reactive-label scenes fall in the training
+  partition, so LR-to-IDM test transfer remains unidentifiable in this run.
 
-## What would change the direction
+## Why this direction
 
-- Choose Direction B if the larger IDM coverage or Phase-6 confidence weighting
-  reveals materially more LR/IDM conflict than this hashed 64-scene subset.
-- Choose Direction C only if Phase-6 world metrics improve but the later
-  Qwen+DiT auxiliary loss produces persistent negative FM/world gradient cosine
-  and no planning gain.
-- Choose Direction D if multi-candidate absolute supervision cannot improve
-  structured action sensitivity without relying on invalid/OOD candidates.
+Direction A is rejected at Gate 3. Direction C cannot be diagnosed because the
+authorized scope deliberately stops before shared-backbone training and thus has
+no FM/world gradient cosine. Direction D is too strong because fixed logs do
+support useful multi-candidate absolute supervision and action-dependent
+structured channels.
 
-The final Direction-A publication criteria remain untested: AEE must beat
-absolute-only/global separation and then yield a stable safety/dynamic planning
-gain with the world probe removed at runtime.
+Direction B is therefore the most defensible next hypothesis, but it must be
+tested with reactive labels that are scene-disjoint across train/validation/test
+and with set-valued or interval consequences. The next experiment should focus
+on disagreement calibration and selective supervision, keep multi-candidate
+absolute as the primary baseline, and require held-out-family improvement before
+any Qwen+DiT integration.
+
+Development stops at Gate 3: no Qwen+DiT world loss, planning training, PDMS, or
+EPDMS result is included.
