@@ -1,0 +1,20 @@
+cache_version: action_effect_structured_future_v1
+dataset_version: navsim_trainval_processed_v1225
+provenance: log_replay
+
+horizons_s: [1.0, 2.0, 4.0]
+proposal_interval_s: 0.1
+resolution: 32
+longitudinal_extent_m: [-8.0, 24.0]
+lateral_extent_m: [-16.0, 16.0]
+maximum_relative_speed_mps: 20.0
+clearance_cap_m: 20.0
+
+channels:
+  - drivable_area
+  - lane_or_connector
+  - route
+  - dynamic_occupancy
+  - relative_longitudinal_velocity
+  - relative_lateral_velocity
+  - dynamic_clearance

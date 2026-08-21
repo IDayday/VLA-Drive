@@ -1,0 +1,23 @@
+cache_version: action_effect_consequences_v1
+dataset_version: navsim_trainval_processed_v1225
+
+proposal_sampling:
+  num_poses: 40
+  interval_length: 0.1
+
+candidate_interval_length: 0.5
+clearance_cap_m: 20.0
+occupancy_radius_m: 10.0
+no_event_time_s: 5.0
+
+# IDM is intentionally a deterministic subset in pilot_tiny: it costs roughly
+# 1.8 seconds per candidate on the current host.  Coverage is reported, never
+# silently imputed into exact or log-replay fields.
+reactive_model:
+  enabled: true
+  max_scenes: 64
+  selection_seed: 20260821
+
+filter:
+  require_kinematic_valid: true
+  require_route_proxy_valid: true

@@ -80,6 +80,14 @@ export NAVSIM_DATALIST_PATH="${NAVSIM_DATALIST_PATH:-$DRIVEDREAMER_ROOT/train_me
 export NAVSIM_VIDEO_ROOT="${NAVSIM_VIDEO_ROOT:-$DATA_ROOT/navsim_video}"
 export NAVSIM_V1_METRIC_CACHE_PATH="${NAVSIM_V1_METRIC_CACHE_PATH:-$DRIVEDREAMER_ROOT/navsim_exp/metric_cache_v1.1}"
 export NAVSIM_V2_METRIC_CACHE_ROOT="${NAVSIM_V2_METRIC_CACHE_ROOT:-$DRIVEDREAMER_ROOT/navsim_exp}"
+# Action-effect research artifacts are capability-scoped and never required by
+# baseline training/inference. Personal shared mounts belong in env.local.sh.
+export ACTION_EFFECT_CACHE_ROOT="${ACTION_EFFECT_CACHE_ROOT:-$DRIVEDREAMER_SHARED_ROOT/action_effect_cache}"
+export ACTION_EFFECT_OUTPUT_ROOT="${ACTION_EFFECT_OUTPUT_ROOT:-$NAVSIM_EXP_ROOT/action_effect_world_model}"
+# Frozen baseline used only by the opt-in action-effect feature-cache tool.
+# The CLI can override both values without changing shared configuration.
+export ACTION_EFFECT_BASELINE_RUN="${ACTION_EFFECT_BASELINE_RUN:-$NAVSIM_EXP_ROOT/qwen-visual-action-only-20260814_001706}"
+export ACTION_EFFECT_BASELINE_STEP="${ACTION_EFFECT_BASELINE_STEP:-100000}"
 export PYTHONPATH="$DRIVEDREAMER_ROOT:$DRIVEDREAMER_ROOT/navsim_data_process:$NAVSIM_DEVKIT_ROOT:${PYTHONPATH:-}"
 
 # ── Base VLM checkpoint ───────────────────────────────────────────────────────

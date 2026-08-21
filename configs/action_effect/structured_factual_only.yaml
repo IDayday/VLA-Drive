@@ -1,0 +1,45 @@
+experiment:
+  name: structured_factual_only_pilot_tiny
+  cache_version: action_effect_structured_probe_v1
+  seed: 20260821
+  bootstrap_samples: 1000
+  bootstrap_confidence: 0.95
+
+data:
+  candidate_cache: candidates/pilot_tiny/expert
+  consequence_cache: consequences/pilot_tiny/expert
+  pair_cache: pairs/pilot_tiny/expert
+  scene_feature_cache: scene_features/pilot_tiny/qwen_dit_100k
+  structured_future_cache: structured_future/pilot_tiny/expert_log_replay_32
+  factual_probe_dir: factual_only/pilot_tiny
+
+probe:
+  scene_input_dim: 2048
+  trajectory_input_dim: 4
+  latent_dim: 192
+  trajectory_token_dim: 96
+  dropout: 0.1
+  structured_future_shape: [3, 7, 32, 32]
+
+training:
+  seeds: [20260821]
+  epochs: 120
+  patience: 20
+  batch_size: 16
+  evaluation_batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  gradient_clip_norm: 5.0
+  dynamic_occupancy_positive_weight_cap: 50.0
+  device: cuda
+
+controls:
+  - scene_only_probe
+  - trajectory_only_probe
+  - scene_action_probe
+  - shuffled_action_probe
+  - same_parameter_no_action
+
+risk:
+  hard_safe_threshold: 0.5
+  minimum_clearance_normalized: 0.1

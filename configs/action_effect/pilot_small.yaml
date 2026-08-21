@@ -1,0 +1,28 @@
+experiment:
+  name: pilot_small
+  max_scenes: 4096
+  dataset_version: navsim_trainval_processed_v1225
+  cache_version: action_effect_candidates_v1
+  scene_sampling: seeded_random
+
+candidate_generation:
+  interval_length: 0.5
+  lateral_offsets_m: [-0.6, -0.3, 0.3, 0.6]
+  speed_scales: [0.8, 0.9, 1.1]
+  brake_onset_shifts_s: [-0.5, 0.5]
+  brake_nominal_onset_s: 2.0
+  brake_terminal_speed_scale: 0.45
+  terminal_progress_shifts_m: [-1.0, 1.0]
+  curvature_scales: [0.9, 1.1]
+  turn_offsets_m: [-0.3, 0.3]
+  limits:
+    max_speed_mps: 25.0
+    max_acceleration_mps2: 5.0
+    max_deceleration_mps2: 8.0
+    max_jerk_mps3: 12.0
+    max_curvature_inv_m: 0.35
+    max_yaw_step_rad: 0.55
+    max_step_distance_m: 12.5
+    route_corridor_m: 1.5
+    route_terminal_extension_m: 5.0
+    min_terminal_forward_m: -0.25

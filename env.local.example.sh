@@ -37,6 +37,11 @@
 # export NAVSIM_EVAL_ROOT="${NAVSIM_EVAL_ROOT:-$NAVSIM_EXP_ROOT}"
 # export NAVSIM_V1_METRIC_CACHE_PATH="${NAVSIM_V1_METRIC_CACHE_PATH:-/absolute/path/to/v1-metric-cache}"
 # export NAVSIM_V2_METRIC_CACHE_ROOT="${NAVSIM_V2_METRIC_CACHE_ROOT:-/absolute/path/to/v2-metric-caches}"
+# Action-effect candidate/consequence caches and generated research reports.
+# export ACTION_EFFECT_CACHE_ROOT="${ACTION_EFFECT_CACHE_ROOT:-/absolute/path/to/action-effect-cache}"
+# export ACTION_EFFECT_OUTPUT_ROOT="${ACTION_EFFECT_OUTPUT_ROOT:-/absolute/path/to/action-effect-outputs}"
+# export ACTION_EFFECT_BASELINE_RUN="${ACTION_EFFECT_BASELINE_RUN:-/absolute/path/to/frozen-qwen-dit-run}"
+# export ACTION_EFFECT_BASELINE_STEP="${ACTION_EFFECT_BASELINE_STEP:-100000}"
 # Frozen/trainable visual action-only checkpoint comparison. The frozen run
 # may live in a collaborator-specific shared mount; keep it out of shared YAML.
 # export FROZEN_ACTION_ONLY_RUN_DIR="${FROZEN_ACTION_ONLY_RUN_DIR:-$NAVSIM_EXP_ROOT/frozen-action-only-run}"

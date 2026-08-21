@@ -1,0 +1,36 @@
+cache_version: action_effect_pairs_v1
+
+soft_consequence_fields:
+  - ttc_infraction_time_s
+  - centerline_progress_m
+  - lane_keeping
+  - history_comfort
+  - extended_comfort
+  - minimum_dynamic_clearance_m
+  - route_deviation_max_m
+  - max_acceleration_mps2
+  - max_deceleration_mps2
+  - max_abs_jerk_mps3
+  - max_abs_curvature_inv_m
+
+normalization:
+  minimum_coverage: 0.95
+  minimum_scale: 1.0e-3
+  clip_normalized: 4.0
+
+distance:
+  lambda_soft: 0.25
+  minimum_nonduplicate_geometry_m: 0.05
+  safety_boundary_geometry_max_m: 0.75
+  heading_weight_m_per_rad: 0.25
+  terminal_weight: 0.25
+
+thresholds:
+  equivalent_quantile: 0.20
+  divergent_quantile: 0.80
+  equivalent_floor: 0.05
+  divergent_floor: 0.50
+
+identifiability:
+  ranking_tolerance: 1.0e-4
+  low_confidence_pairs_become_ambiguous: true

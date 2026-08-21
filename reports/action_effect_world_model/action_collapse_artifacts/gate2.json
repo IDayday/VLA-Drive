@@ -1,0 +1,35 @@
+{
+  "decision": "PASS",
+  "evidence": {
+    "action_shuffle_gap_small": true,
+    "collapse_indicator_count": 3,
+    "divergent_outputs_compressed": false,
+    "effect_alignment_low": true,
+    "factual_probe_learnable": true,
+    "false_safe_rate_high": true
+  },
+  "exploratory_thresholds": {
+    "action_gap_to_leakage_ratio_upper": 1.25,
+    "effect_alignment_upper": 0.25,
+    "false_safe_rate_lower": 0.2,
+    "learnability_relative_improvement": 0.05,
+    "required_collapse_indicators": 3,
+    "shuffle_gap_absolute_floor": 0.005,
+    "shuffle_gap_max_fraction_of_factual_error": 0.02
+  },
+  "note": "Thresholds are pilot diagnostics, not official NAVSIM acceptance criteria.",
+  "structured_confirmation": {
+    "balanced_factual_objective": {
+      "constant_mean_control": 1.2652572393417358,
+      "scene_action_probe": 0.7077457904815674,
+      "scene_only_probe": 0.698704183101654
+    },
+    "effect_alignment": 0.10663570837697803,
+    "factual_target_learnable": true,
+    "false_safe_rate": 0.5056179775280899,
+    "small_action_shuffle_gap": true,
+    "supports_structured_action_collapse": true,
+    "unweighted_map_mae_improves": false
+  },
+  "supports_action_collapse": true
+}
