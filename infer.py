@@ -19,8 +19,9 @@ from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
 
 from starVLA.dataloader.navsim_dataset import NavSimDataset, collate_fn
-from starVLA.model.framework.QwenOFT import Qwenvl_OFT
-from starVLA.model.framework.QwenOFT_s2 import Qwenvl_OFT_s2
+from starVLA.model.modules.action_model.multi_trajectory.config import (
+    multi_trajectory_enabled,
+)
 import copy
 
 
@@ -48,6 +49,17 @@ def tensor_to_py(x: Any) -> Any:
     if isinstance(x, (list, tuple)):
         return [tensor_to_py(v) for v in x]
     return x
+
+
+def apply_ddp_drs_path_overrides(
+    config: Any, path_overrides: Optional[Dict[str, str]]
+) -> Any:
+    """Apply resolved CLI/environment artifact paths over a saved YAML."""
+
+    for config_key, override in (path_overrides or {}).items():
+        if override:
+            OmegaConf.update(config, config_key, override, force_add=True)
+    return config
 
 
 def wrap_to_pi(a: np.ndarray) -> np.ndarray:
@@ -200,6 +212,7 @@ class VLAAgent:
         model_iter: Optional[int] = None,
         device: str = "cuda",
         qwen_forward_mode: str = "auto",
+        ddp_drs_path_overrides: Optional[Dict[str, str]] = None,
     ):
         self.device = torch.device(device if torch.cuda.is_available() else "cpu")
 
@@ -229,6 +242,9 @@ class VLAAgent:
             "framework.qwenvl.attn_implementation",
             os.environ.get("VLM_ATTN_IMPLEMENTATION", "sdpa"),
             force_add=True,
+        )
+        apply_ddp_drs_path_overrides(
+            self.model_config, ddp_drs_path_overrides
         )
 
         # Disable optional data loading heads during inference
@@ -317,33 +333,55 @@ class VLAAgent:
         print(f"[Agent] weights: {self.model_path}")
 
         # ── Build model ────────────────────────────────────────────────────
-        if "s2" in self.model_path:
+        self.uses_ddp_drs = multi_trajectory_enabled(self.model_config)
+        if self.uses_ddp_drs:
+            from starVLA.model.framework.QwenPI import Qwen_PI
+
+            print("[Agent] Loading opt-in DDP-DRS Qwen+Layerwise-DiT model")
+            self.model = Qwen_PI(self.model_config)
+        elif "s2" in self.model_path:
+            from starVLA.model.framework.QwenOFT_s2 import Qwenvl_OFT_s2
+
             print("[Agent] Loading s2 model")
             self.model = Qwenvl_OFT_s2(self.model_config)
         else:
+            from starVLA.model.framework.QwenOFT import Qwenvl_OFT
+
             self.model = Qwenvl_OFT(self.model_config, infer_not_load_wan=1)
-        self.model._inference_qwen_forward_mode = self.qwen_forward_mode
+        if not self.uses_ddp_drs:
+            self.model._inference_qwen_forward_mode = self.qwen_forward_mode
         print(f"[Agent] Qwen forward mode: {self.qwen_forward_mode}")
 
         state = torch.load(self.model_path, map_location="cpu", weights_only=True)
-        missing, unexpected = self.model.load_state_dict(state, strict=False)
-        unexpected_runtime_only = [
-            key for key in unexpected if not key.startswith("rgb_model.")
-        ]
-        print(f"[Agent] missing keys: {len(missing)}", missing[:20])
-        print(
-            f"[Agent] unused rgb_model keys (Wan intentionally disabled): "
-            f"{len(unexpected) - len(unexpected_runtime_only)}"
-        )
-        print(
-            f"[Agent] other unexpected keys: {len(unexpected_runtime_only)}",
-            unexpected_runtime_only[:20],
-        )
+        if self.uses_ddp_drs:
+            from starVLA.model.modules.action_model.multi_trajectory.checkpointing import (
+                load_base_checkpoint_strict,
+            )
+
+            load_base_checkpoint_strict(self.model, state)
+        else:
+            # Preserve the existing QwenOFT runtime-only Wan compatibility
+            # exactly; it is unrelated to the opt-in DDP-DRS checkpoint path.
+            missing, unexpected = self.model.load_state_dict(state, strict=False)
+            unexpected_runtime_only = [
+                key for key in unexpected if not key.startswith("rgb_model.")
+            ]
+            print(f"[Agent] missing keys: {len(missing)}", missing[:20])
+            print(
+                f"[Agent] unused rgb_model keys (Wan intentionally disabled): "
+                f"{len(unexpected) - len(unexpected_runtime_only)}"
+            )
+            print(
+                f"[Agent] other unexpected keys: {len(unexpected_runtime_only)}",
+                unexpected_runtime_only[:20],
+            )
 
         self.model.to(self.device).eval()
 
     @torch.no_grad()
     def predict(self, batch: Any) -> Dict[str, Any]:
+        if self.uses_ddp_drs:
+            return self.model.predict_action(examples=batch)
         return self.model.predict_action_infer_1d(batch)
 
 
@@ -385,6 +423,12 @@ def infer_and_save(
         model_iter=model_iter,
         device=device,
         qwen_forward_mode=args.qwen_forward_mode,
+        ddp_drs_path_overrides={
+            "multi_trajectory.scene_compressor.checkpoint_path": args.scene_compressor_checkpoint_path,
+            "multi_trajectory.drivor.checkpoint_path": args.drivor_checkpoint_path,
+            "multi_trajectory.suprim.checkpoint_path": args.suprim_checkpoint_path,
+            "multi_trajectory.suprim.vocab_path": args.suprim_vocab_path,
+        },
     )
     manifest_path = os.path.join(out_dir, f"inference_manifest.rank{args.rank}.json")
     manifest_tmp = manifest_path + f".tmp-{os.getpid()}"
@@ -462,6 +506,20 @@ def infer_and_save(
     for batch in tqdm(loader, desc="Infer"):
         batch_on_device = to_device(batch, agent.device)
         pred = agent.predict(batch_on_device)
+        tokens = [sample["token"] for sample in batch]
+
+        diagnostics = pred.get("multi_trajectory_diagnostics")
+        if diagnostics is not None:
+            print(
+                "[DDP-DRS diagnostics] "
+                + json.dumps(
+                    {
+                        "tokens": tokens,
+                        **tensor_to_py(vars(diagnostics)),
+                    },
+                    sort_keys=True,
+                )
+            )
 
         action = pred["normalized_actions"]
 
@@ -474,7 +532,6 @@ def infer_and_save(
         else:
             final_xy = deal_action(action)
 
-        tokens = [b["token"] for b in batch]
         for i, tok in enumerate(tokens):
             output_path = os.path.join(out_dir, tok + ".npy")
             temporary_path = output_path + f".tmp-{os.getpid()}"
@@ -514,6 +571,26 @@ def parse_args():
     p.add_argument("--world_size",    type=int, default=1)
     p.add_argument("--data_root",     type=str, default=None,
                    help="Root of processed navsim_dataset/. Overrides OPENSCENE_DATA_ROOT.")
+    p.add_argument(
+        "--scene_compressor_checkpoint_path",
+        type=str,
+        default=os.environ.get("DDP_DRS_SCENE_COMPRESSOR_CHECKPOINT"),
+    )
+    p.add_argument(
+        "--drivor_checkpoint_path",
+        type=str,
+        default=os.environ.get("DDP_DRS_DRIVOR_CHECKPOINT"),
+    )
+    p.add_argument(
+        "--suprim_checkpoint_path",
+        type=str,
+        default=os.environ.get("DDP_DRS_SUPRIM_CHECKPOINT"),
+    )
+    p.add_argument(
+        "--suprim_vocab_path",
+        type=str,
+        default=os.environ.get("DDP_DRS_SUPRIM_VOCAB"),
+    )
     return p.parse_args()
 
 

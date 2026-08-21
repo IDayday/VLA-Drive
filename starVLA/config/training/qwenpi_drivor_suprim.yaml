@@ -1,0 +1,237 @@
+run_id: qwenpi_drivor_suprim_joint
+run_root_dir: ${oc.env:VLA_OUTPUT_ROOT,results/Checkpoints}
+seed: 42
+trackers: [jsonl, wandb]
+wandb_entity: ${oc.env:WANDB_ENTITY,local}
+wandb_project: ${oc.env:WANDB_PROJECT,vla-drive}
+is_debug: false
+
+# The new framework uses the existing NAVSIM absolute-pose 4D Flow contract.
+ver_1225: 1
+act_tok: 8
+pretrain_model_2d: null
+enable_image_aug: 0
+w_depth: 0
+doing_s2: 0
+w_video_latent: 0
+vit_pre: 0
+rgb_query_loss: 0
+gs_query_loss: 0
+
+# Kept explicitly disabled so legacy QwenPI instantiation/state dict behavior
+# remains unchanged.  This YAML selects the independent joint framework below.
+multi_trajectory:
+  enabled: false
+
+framework:
+  name: QwenPI-DrivoRSuprim
+
+  qwenvl:
+    base_vlm: ${oc.env:QWEN_VLM_PATH}
+    attn_implementation: flash_attention_2
+    vl_hidden_dim: 2048
+    freeze: true
+
+  scene_encoder:
+    type: global_qformer
+    input_dim: 2048
+    hidden_dim: 2048
+    output_dim: 2048
+    num_queries: 16
+    num_layers: 4
+    num_heads: 32
+    ffn_dim: 8192
+    dropout: 0.0
+    query_init_std: 0.02
+    use_gradient_checkpointing: true
+    debug_validate_finite: false
+
+  action_model:
+    action_model_type: DiT-B
+    hidden_size: 1024
+    qwen_input_dim: 2048
+    use_global_scene_tokens: true
+    scene_dim: 2048
+    add_pos_embed: true
+    max_seq_len: 1024
+    action_dim: 4
+    state_dim: 4
+    future_action_window_size: 8
+    action_horizon: 8
+    past_action_window_size: 0
+    noise_beta_alpha: 1.5
+    noise_beta_beta: 1.0
+    noise_s: 0.999
+    num_timestep_buckets: 1000
+    num_inference_timesteps: 10
+    num_target_vision_tokens: 32
+    diffusion_model_cfg:
+      cross_attention_dim: 1024
+      dropout: 0.2
+      final_dropout: true
+      interleave_self_attention: true
+      norm_type: ada_norm
+      num_layers: 16
+      output_dim: 1024
+      positional_embeddings: null
+    mlp_head: 0
+
+  hierarchical_scorer:
+    enabled: true
+    detach_scene_for_scorer: false
+    scorer_guides_dit: false
+    debug_validate_finite: false
+    diversity_loss_weight: 0.0
+    rl_loss_weight: 0.0
+    scorer_guided_generator_weight: 0.0
+
+    dynamic:
+      num_candidates: 64
+      candidate_chunk_size: 8
+      num_poses: 8
+      model_dim: 256
+      ffn_dim: 1024
+      num_layers: 4
+      num_heads: 8
+      dropout: 0.0
+      final_topm: 32
+      noc: 1.0
+      dac: 1.0
+      ddc: 0.0
+      ttc: 5.0
+      ep: 5.0
+      comfort: 2.0
+
+    joint:
+      vocab_path: ${oc.env:SUPRIM_VOCAB_PATH}
+      vocab_size: 8192
+      vocab_num_poses: 40
+      model_dim: 256
+      ffn_dim: 1024
+      num_heads: 8
+      coarse_layers: 3
+      coarse_topk: 256
+      dropout: 0.0
+      normalize_vocab_pos: false
+      sigma: 0.5
+
+    refinement:
+      num_stages: 1
+      num_layers: 3
+      memory_source: dense_qwen_memory
+      dropout: 0.0
+      use_mid_output: true
+      separate_heads: true
+      use_imitation: true
+
+  static_score_store:
+    # Training-only labels. Learned-only inference may leave this unset.
+    cache_root: ${oc.env:SUPRIM_STATIC_SCORE_CACHE,null}
+    split: train
+    cache_size: 64
+    mmap: true
+
+  dynamic_metric_supervisor:
+    # Online training labels only; inference never constructs this supervisor.
+    metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT,null}
+    backend: thread
+    workers_per_rank: ${oc.env:NAVSIM_METRIC_WORKERS,1}
+    score_interval: 1
+
+  # Disabled legacy components remain present because the shared dataset/trainer
+  # reads their flags, but none is constructed by QwenPI-DrivoRSuprim.
+  video_model:
+    model_name: null
+    config_path: null
+    random_hw_adapt: false
+    training_with_video_token_length: false
+    enable_bucket: false
+    weighting_scheme: none
+    uniform_sampling: true
+    train_sampling_steps: 1000
+    train_mode: inpaint
+    trainable_modules: .
+    ckpt_1d: null
+  gs_model:
+    enable_perceptual_loss: false
+    perceptual_loss_start_iter: 0
+  reward_model: {}
+
+datasets:
+  vlm_data:
+    per_device_batch_size: 1
+  vla_data:
+    load_act_data: 1
+    dataset_py: navsim_dataset
+    # Processed per-token metadata consumed by NavSimDataset. Raw NAVSIM logs
+    # remain separately configured through OPENSCENE_DATA_ROOT for metric cache.
+    data_root: ${oc.env:DATA_ROOT}
+    datalist_path: ${oc.env:NAVSIM_DATALIST_PATH}
+    split: train
+    per_device_batch_size: ${oc.env:VLA_BATCH_SIZE,8}
+    load_all_data_for_training: true
+    w_neg_traj: null
+    act_norm: 1
+  video_data:
+    load_2d_data: 0
+    rgb_meta_dir: ${oc.env:NAVSIM_VIDEO_ROOT,null}
+    sample_n_frames: 9
+    sample_size: [144, 256]
+    text_input: 0
+  gs_data:
+    load_3d_data: 0
+    debug: 0
+    gs_meta_dir: ${oc.env:NAVSIM_GS_ROOT,null}
+  reward_data:
+    load_reward_data: 0
+    reward_meta_dir: ${oc.env:NAVSIM_REWARD_ROOT,null}
+
+trainer:
+  epochs: 100
+  max_train_steps: ${oc.env:VLA_MAX_TRAIN_STEPS,100000}
+  num_warmup_steps: ${oc.env:VLA_WARMUP_STEPS,5000}
+  save_interval: ${oc.env:VLA_SAVE_INTERVAL,5000}
+  eval_interval: ${oc.env:VLA_EVAL_INTERVAL,200000}
+  logging_frequency: ${oc.env:VLA_LOG_INTERVAL,20}
+  gradient_accumulation_steps: ${oc.env:VLA_GRAD_ACCUM_STEPS,1}
+  gradient_clipping: 1.0
+  max_grad_norm: 1.0
+  repeated_diffusion_steps: ${oc.env:VLA_FLOW_REPEATS,1}
+  find_unused_parameters: true
+
+  pretrained_checkpoint: null
+  freeze_modules: qwen_vl_interface
+  is_resume: false
+  resume_ckpt: ${oc.env:VLA_RESUME_CKPT,none}
+  resume_epoch: null
+  resume_step: null
+  enable_gradient_checkpointing: true
+  enable_mixed_precision_training: true
+
+  hierarchical_loss:
+    lambda_flow: 1.0
+    lambda_drivor: 1.0
+    lambda_suprim_coarse: 1.0
+    lambda_suprim_fine: 1.0
+  curriculum:
+    static_only_end: 0.10
+    dynamic_ramp_end: 0.20
+    dynamic_topm_start: 64
+    dynamic_topm_end: 32
+
+  learning_rate:
+    base: 1.0e-4
+    scene_encoder: 1.0e-4
+    action_model: 1.0e-5
+    hierarchical_scorer: 1.0e-4
+  lr_scheduler_type: cosine_with_min_lr
+  scheduler_specific_kwargs:
+    min_lr: 5.0e-7
+  optimizer:
+    name: AdamW
+    betas: [0.9, 0.95]
+    eps: 1.0e-8
+    weight_decay: 1.0e-8
+  loss_scale:
+    vla: 1.0
+    vlm: 0.0

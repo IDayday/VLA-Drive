@@ -96,7 +96,14 @@ class baseframework(PreTrainedModel):
         model_keys = set(FrameworkModel.state_dict().keys())
         checkpoint_keys = set(model_state_dict.keys())
         try:
-            FrameworkModel.load_state_dict(model_state_dict, strict=True)
+            if hasattr(FrameworkModel, "multi_trajectory_planner"):
+                from starVLA.model.modules.action_model.multi_trajectory.checkpointing import (
+                    load_base_checkpoint_strict,
+                )
+
+                load_base_checkpoint_strict(FrameworkModel, model_state_dict)
+            else:
+                FrameworkModel.load_state_dict(model_state_dict, strict=True)
         except RuntimeError as e:
             # must keep all keys matched
             common_keys = model_keys.intersection(checkpoint_keys)

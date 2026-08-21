@@ -18,6 +18,22 @@ import numpy as np
 from func_timeout import FunctionTimedOut, func_timeout
 import torchvision.transforms as transforms
 
+from starVLA.model.modules.action_model.multi_trajectory.cache_schema import (
+    COMPLETION_FILE,
+    load_training_record,
+    read_manifest,
+)
+from starVLA.model.modules.action_model.multi_trajectory.config import (
+    MultiTrajectoryConfig,
+    multi_trajectory_enabled,
+)
+from starVLA.model.modules.planning.trajectory_codec import (
+    FLOW_X_MEAN as x_mean,
+    FLOW_X_STD as x_std,
+    FLOW_Y_MEAN as y_mean,
+    FLOW_Y_STD as y_std,
+)
+
 from nuplan.common.actor_state.state_representation import StateSE2
 from typing import List
 
@@ -143,12 +159,6 @@ q99 = np.array([
         0.24262804072441968,
         0.1804889553518122
       ], dtype=np.float64)
-
-x_mean = 10.172484
-x_std = 8.805105
-
-y_mean = 0.360762
-y_std = 2.277741
 
 import cv2, numpy as np
 
@@ -317,6 +327,48 @@ class NavSimDataset(Dataset):
         self.act_norm = dataset_cfg.act_norm
 
         self.all_cfg = all_cfg
+        self.ddp_drs_cache_root = None
+        self.ddp_drs_cache_manifest = None
+        self.ddp_drs_training_stage = None
+        self.ddp_drs_cache_config = None
+        if all_cfg is not None and multi_trajectory_enabled(all_cfg):
+            multi_config = MultiTrajectoryConfig.from_full_config(all_cfg)
+            stage = multi_config.training_stage
+            if stage not in {"cache_candidates", "inference"}:
+                cache = multi_config.cache
+                if cache.root_path is None:
+                    raise FileNotFoundError(
+                        f"DDP-DRS {stage} requires multi_trajectory.cache.root_path"
+                    )
+                cache_root_path = Path(cache.root_path)
+                manifest = read_manifest(cache_root_path)
+                if manifest.split != self.split:
+                    raise ValueError(
+                        f"DDP-DRS cache split {manifest.split!r} does not match "
+                        f"dataset split {self.split!r}"
+                    )
+                if (
+                    cache.expected_ddp_checkpoint_sha is not None
+                    and manifest.ddp_checkpoint_sha
+                    != cache.expected_ddp_checkpoint_sha
+                ):
+                    raise ValueError("DDP-DRS cache DDP checkpoint hash mismatch")
+                if (
+                    cache.expected_generator_config_hash is not None
+                    and manifest.generator_config_hash
+                    != cache.expected_generator_config_hash
+                ):
+                    raise ValueError("DDP-DRS cache generator config hash mismatch")
+                if cache.require_complete and not (
+                    cache_root_path / COMPLETION_FILE
+                ).is_file():
+                    raise RuntimeError(
+                        f"DDP-DRS training cache is incomplete: {cache_root_path}"
+                    )
+                self.ddp_drs_cache_root = cache_root_path
+                self.ddp_drs_cache_manifest = manifest
+                self.ddp_drs_training_stage = stage
+                self.ddp_drs_cache_config = cache
         try:
             self.enable_image_aug = all_cfg.enable_image_aug
         except:
@@ -446,6 +498,33 @@ class NavSimDataset(Dataset):
             self_pred,
             cached_features=cached_features,
         )
+        if self.ddp_drs_cache_root is not None:
+            cache_record = load_training_record(
+                self.ddp_drs_cache_root,
+                raw,
+                expected_split=self.split,
+                expected_ddp_checkpoint_sha=(
+                    self.ddp_drs_cache_config.expected_ddp_checkpoint_sha
+                ),
+                expected_generator_config_hash=(
+                    self.ddp_drs_cache_config.expected_generator_config_hash
+                ),
+                require_complete=self.ddp_drs_cache_config.require_complete,
+                manifest=self.ddp_drs_cache_manifest,
+            )
+            sample["multi_trajectory_targets"] = cache_record.training_targets(
+                self.ddp_drs_training_stage
+            )
+            if self.ddp_drs_training_stage in {
+                "train_drivor",
+                "train_suprim_joint",
+                "joint_finetune",
+            }:
+                sample["multi_trajectory_candidates"] = (
+                    cache_record.proposal.trajectory_8.astype(
+                        np.float32, copy=False
+                    )
+                )
         if self.vit_pre:
             sample['bev'] = bev_rgb_to_occ(bev_data)    # np array unit8  hwc
         if self.w_depth and "ppd" in cached_features:
@@ -607,7 +686,6 @@ class NavSimDataset(Dataset):
             normalized = 2 * (action - q01) / (q99 - q01 + 1e-8) - 1
             normalized = np.clip(normalized, -1, 1)
             action = normalized[3:]
-            print(action)
 
         # cur_state = np.array(ego_pose[3] - ego_pose[2]).reshape(1, -1)
         if self.ver_1225==1:

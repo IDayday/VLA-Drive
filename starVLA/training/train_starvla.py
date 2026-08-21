@@ -13,10 +13,11 @@ Conventions:
 
 # Standard Library
 import argparse
+import atexit
 import json
 import os
 from pathlib import Path
-from typing import Tuple
+from typing import Mapping, Tuple
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import time
@@ -38,7 +39,7 @@ import wandb
 import yaml
 from accelerate import Accelerator, DeepSpeedPlugin
 from accelerate.logging import get_logger
-from accelerate.utils import set_seed
+from accelerate.utils import DistributedDataParallelKwargs, set_seed
 from omegaconf import OmegaConf
 from tqdm import tqdm
 from transformers import AutoProcessor, get_scheduler
@@ -48,6 +49,7 @@ from starVLA.training.trainer_utils.trainer_tools import normalize_dotlist_args
 from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
+from starVLA.training.hierarchical_schedule import build_hierarchical_schedule
 
 # Sane Defaults
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -57,6 +59,86 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from accelerate.logging import get_logger
 
 logger = get_logger(__name__)
+
+
+def _combine_hierarchical_losses(
+    losses: Mapping[str, torch.Tensor], schedule
+) -> torch.Tensor:
+    """Combine active curriculum losses without creating zero gradients.
+
+    Omitting zero-weight terms keeps their parameter gradients at ``None`` so
+    AdamW does not apply weight decay to a curriculum-inactive module.
+    """
+
+    weighted_losses = (
+        (float(schedule.lambda_flow), losses["flow"]),
+        (float(schedule.lambda_drivor), losses["drivor"]),
+        (float(schedule.lambda_suprim_coarse), losses["suprim_coarse"]),
+        (float(schedule.lambda_suprim_fine), losses["suprim_fine"]),
+    )
+    active = [weight * loss for weight, loss in weighted_losses if weight != 0.0]
+    if not active:
+        raise ValueError("hierarchical curriculum has no active loss")
+    return sum(active[1:], active[0])
+
+
+def _save_ddp_drs_component_checkpoints(cfg, state_dict, output_root: Path) -> None:
+    """Export strict, dimension-tagged artifacts for the next training stage."""
+
+    if not bool(OmegaConf.select(cfg, "multi_trajectory.enabled", default=False)):
+        return
+    stage = str(OmegaConf.select(cfg, "multi_trajectory.training_stage"))
+    stage_components = {
+        "train_drivor": ("scene_compressor", "dynamic_scorer"),
+        "train_suprim_static": ("suprim_selector",),
+        "train_suprim_joint": ("suprim_selector",),
+        "joint_finetune": (
+            "scene_compressor",
+            "dynamic_scorer",
+            "suprim_selector",
+        ),
+    }
+    components = stage_components.get(stage, ())
+    if not components:
+        return
+    scene_dim = int(OmegaConf.select(cfg, "multi_trajectory.scene_compressor.scene_dim"))
+    planning_dim = int(OmegaConf.select(cfg, "multi_trajectory.planning.planning_dim"))
+    output_root.mkdir(parents=True, exist_ok=True)
+    readiness = {
+        "scene_compressor": stage in {"train_drivor", "joint_finetune"},
+        "dynamic_scorer": stage in {"train_drivor", "joint_finetune"},
+        "suprim_selector": stage in {"train_suprim_joint", "joint_finetune"},
+    }
+    for component in components:
+        prefix = f"multi_trajectory_planner.{component}."
+        component_state = {
+            key[len(prefix) :]: value.detach().cpu()
+            for key, value in state_dict.items()
+            if key.startswith(prefix)
+        }
+        if not component_state:
+            raise RuntimeError(
+                f"DDP-DRS checkpoint export found no keys for {component!r}"
+            )
+        inference_ready = readiness[component]
+        payload = {
+            "state_dict": component_state,
+            "ddp_drs_checkpoint": {
+                "component": component,
+                "scene_dim": scene_dim,
+                "planning_dim": planning_dim,
+                "inference_ready": inference_ready,
+                "requires_training": (
+                    [] if inference_ready else ["train_suprim_joint"]
+                ),
+                "source_training_stage": stage,
+            },
+        }
+        path = output_root / f"{component}.pt"
+        temporary = output_root / f".{component}.tmp-{os.getpid()}.pt"
+        torch.save(payload, temporary)
+        os.replace(temporary, path)
+        print(f"DDP-DRS component checkpoint saved: {path}")
 
 
 
@@ -105,6 +187,8 @@ def prepare_data(cfg, accelerator, output_dir) -> DataLoader:
 
 def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler._LRScheduler]:
     """set optimizer and scheduler"""
+    if hasattr(model, "assert_qwen_frozen"):
+        model.assert_qwen_frozen()
     # initialize optimizer
     param_groups = build_param_lr_groups(model=model, cfg=cfg)
     optimizer = torch.optim.AdamW(
@@ -116,9 +200,16 @@ def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, to
     )
 
     # print optimizer group info
-    if dist.is_initialized() and dist.get_rank() == 0:
+    if (not dist.is_initialized()) or dist.get_rank() == 0:
         for i, group in enumerate(optimizer.param_groups):
-            logger.info(f"LR Group {group['name']}: lr={group['lr']}, num_params={len(group['params'])}")
+            parameter_count = sum(parameter.numel() for parameter in group["params"])
+            logger.info(
+                "LR Group %s: lr=%s tensors=%d parameters=%d",
+                group["name"],
+                group["lr"],
+                len(group["params"]),
+                parameter_count,
+            )
 
     # initialize learning rate scheduler
     lr_scheduler = get_scheduler(
@@ -150,6 +241,29 @@ class VLATrainer(TrainerUtils):
         self._gm_handles = []
         self._gm_names = []
         self._gm_mask = None
+        self.is_hierarchical_planner = (
+            str(self.config.framework.name) == "QwenPI-DrivoRSuprim"
+        )
+        self.dynamic_metric_supervisor = None
+        if self.is_hierarchical_planner:
+            from starVLA.training.navsim_metric_supervisor import (
+                DynamicMetricSupervisor,
+            )
+
+            rank = dist.get_rank() if dist.is_initialized() else 0
+            world_size = dist.get_world_size() if dist.is_initialized() else 1
+            self.dynamic_metric_supervisor = DynamicMetricSupervisor(
+                self.config.framework.dynamic_metric_supervisor,
+                rank=rank,
+                world_size=world_size,
+            )
+            atexit.register(self._close_metric_supervisor)
+
+    def _close_metric_supervisor(self):
+        supervisor = getattr(self, "dynamic_metric_supervisor", None)
+        if supervisor is not None:
+            supervisor.close()
+            self.dynamic_metric_supervisor = None
 
     # ====== NEW: 参数梯度监控（DeepSpeed/ZeRO 兼容） ======
     def _setup_grad_monitor(self):
@@ -235,7 +349,10 @@ class VLATrainer(TrainerUtils):
         )
         self.model = self.freeze_backbones(self.model, freeze_modules=freeze_modules)
 
-        if self.config.trainer.resume_ckpt != 'none':
+        if (
+            self.config.trainer.resume_ckpt != 'none'
+            and not self.is_hierarchical_planner
+        ):
             state = torch.load(self.config.trainer.resume_ckpt, map_location="cpu", weights_only=True)
             missing, unexpected = self.model.load_state_dict(state, strict=False)
             print("missing:", missing, "unexpected:", unexpected)
@@ -249,13 +366,27 @@ class VLATrainer(TrainerUtils):
         self.print_trainable_parameters(self.model)
 
         # initialize distributed training components
-        self.model, self.optimizer, self.vla_train_dataloader = self.setup_distributed_training(
-            self.accelerator,  # must be the first param
-            self.model,
-            self.optimizer,
-            self.vla_train_dataloader,
-            # self.vlm_train_dataloader
-        )
+        if self.is_hierarchical_planner:
+            (
+                self.model,
+                self.optimizer,
+                self.vla_train_dataloader,
+                self.lr_scheduler,
+            ) = self.setup_distributed_training(
+                self.accelerator,
+                self.model,
+                self.optimizer,
+                self.vla_train_dataloader,
+                self.lr_scheduler,
+            )
+        else:
+            self.model, self.optimizer, self.vla_train_dataloader = self.setup_distributed_training(
+                self.accelerator,  # must be the first param
+                self.model,
+                self.optimizer,
+                self.vla_train_dataloader,
+                # self.vlm_train_dataloader
+            )
         # self._setup_grad_monitor()
 
         self._init_wandb()
@@ -285,6 +416,24 @@ class VLATrainer(TrainerUtils):
         self.checkpoint_dir = os.path.join(self.config.output_dir, "checkpoints")
         os.makedirs(self.checkpoint_dir, exist_ok=True)
 
+        if self.is_hierarchical_planner:
+            resume_path = str(self.config.trainer.get("resume_ckpt", "none"))
+            if resume_path != "none":
+                if not os.path.isdir(resume_path):
+                    raise FileNotFoundError(
+                        "joint resume_ckpt must be an Accelerator state directory: "
+                        f"{resume_path}"
+                    )
+                self._load_checkpoint(resume_path)
+                state_path = os.path.join(resume_path, "trainer_state.json")
+                if not os.path.isfile(state_path):
+                    raise FileNotFoundError(
+                        f"joint checkpoint is missing trainer state: {state_path}"
+                    )
+                with open(state_path, "r", encoding="utf-8") as stream:
+                    self.completed_steps = int(json.load(stream)["completed_steps"])
+            return
+
         pretrained_checkpoint = getattr(self.config.trainer, "pretrained_checkpoint", None)
         is_resume = getattr(self.config.trainer, "is_resume", False)
 
@@ -300,12 +449,36 @@ class VLATrainer(TrainerUtils):
     def _save_checkpoint(self):
         """save current training state"""
 
+        checkpoint_path = os.path.join(
+            self.checkpoint_dir, f"steps_{self.completed_steps}"
+        )
+        if self.is_hierarchical_planner:
+            # All ranks participate so DeepSpeed/Accelerate can save the one
+            # model, optimizer, scheduler, scaler and RNG state atomically.
+            self.accelerator.save_state(checkpoint_path, safe_serialization=False)
+            if self.accelerator.is_main_process:
+                with open(
+                    os.path.join(checkpoint_path, "trainer_state.json"),
+                    "w",
+                    encoding="utf-8",
+                ) as stream:
+                    json.dump({"completed_steps": self.completed_steps}, stream)
+                self.accelerator.print(
+                    f"✅ Joint checkpoint saved at {checkpoint_path}"
+                )
+            self.accelerator.wait_for_everyone()
+            return
+
         if self.accelerator.is_main_process:
 
-            checkpoint_path = os.path.join(self.checkpoint_dir, f"steps_{self.completed_steps}")
             # save model state
             state_dict = self.accelerator.get_state_dict(self.model)
             torch.save(state_dict, checkpoint_path + "_pytorch_model.pt")
+            _save_ddp_drs_component_checkpoints(
+                self.config,
+                state_dict,
+                Path(checkpoint_path + "_components"),
+            )
 
             # save training metadata
             summary_data = {
@@ -582,9 +755,54 @@ class VLATrainer(TrainerUtils):
         with self.accelerator.accumulate(self.model):
             # VLA task forward propagation
             with torch.autocast("cuda", dtype=torch.bfloat16):
-                output_dict = self.model.forward(batch_vla)
+                schedule = None
+                if self.is_hierarchical_planner:
+                    curriculum = self.config.trainer.curriculum
+                    loss_cfg = self.config.trainer.hierarchical_loss
+                    dynamic_cfg = self.config.framework.hierarchical_scorer.dynamic
+                    schedule = build_hierarchical_schedule(
+                        completed_steps=self.completed_steps,
+                        max_train_steps=int(self.config.trainer.max_train_steps),
+                        static_only_end=float(curriculum.get("static_only_end", 0.10)),
+                        dynamic_ramp_end=float(curriculum.get("dynamic_ramp_end", 0.20)),
+                        num_dynamic_candidates=int(dynamic_cfg.get("num_candidates", 64)),
+                        dynamic_topm_start=int(curriculum.get("dynamic_topm_start", 64)),
+                        dynamic_topm_end=int(curriculum.get("dynamic_topm_end", 32)),
+                        lambda_flow=float(loss_cfg.get("lambda_flow", 1.0)),
+                        lambda_drivor=float(loss_cfg.get("lambda_drivor", 1.0)),
+                        lambda_suprim_coarse=float(
+                            loss_cfg.get("lambda_suprim_coarse", 1.0)
+                        ),
+                        lambda_suprim_fine=float(
+                            loss_cfg.get("lambda_suprim_fine", 1.0)
+                        ),
+                    )
+                    output_dict = self.model.forward(
+                        batch_vla,
+                        training_schedule=schedule,
+                        metric_supervisor=self.dynamic_metric_supervisor,
+                    )
+                else:
+                    output_dict = self.model.forward(batch_vla)
 
-                action_loss = output_dict["action_loss"]
+                if "losses" in output_dict:
+                    losses = output_dict["losses"]
+                    required_losses = {
+                        "flow",
+                        "drivor",
+                        "suprim_coarse",
+                        "suprim_fine",
+                    }
+                    missing_losses = required_losses.difference(losses)
+                    if missing_losses:
+                        raise KeyError(
+                            f"hierarchical model is missing losses {sorted(missing_losses)}"
+                        )
+                    total_loss = _combine_hierarchical_losses(losses, schedule)
+                    action_loss = losses["flow"]
+                else:
+                    action_loss = output_dict["action_loss"]
+
                 # total_loss = action_loss
 
                 if self.config.datasets.video_data.load_2d_data == 1:
@@ -597,15 +815,16 @@ class VLATrainer(TrainerUtils):
                     reward_loss = output_dict['reward_loss']
                 
 
-                total_loss = 0
-                if self.config.datasets.video_data.load_2d_data == 1:
-                    total_loss += rgb_loss
-                if self.config.datasets.gs_data.load_3d_data == 1 or self.config.w_depth:
-                    total_loss += gs_loss
-                if self.config.datasets.reward_data.load_reward_data == 1:
-                    total_loss += reward_loss
-                if self.config.datasets.vla_data.load_act_data == 1:
-                    total_loss += action_loss
+                if "losses" not in output_dict:
+                    total_loss = 0
+                    if self.config.datasets.video_data.load_2d_data == 1:
+                        total_loss += rgb_loss
+                    if self.config.datasets.gs_data.load_3d_data == 1 or self.config.w_depth:
+                        total_loss += gs_loss
+                    if self.config.datasets.reward_data.load_reward_data == 1:
+                        total_loss += reward_loss
+                    if self.config.datasets.vla_data.load_act_data == 1:
+                        total_loss += action_loss
 
 
             # VLA backward propagation
@@ -623,6 +842,36 @@ class VLATrainer(TrainerUtils):
                 self.lr_scheduler.step()
                 self.optimizer.zero_grad()
 
+        if "losses" in output_dict:
+            logged = {
+                "loss/total": total_loss.detach(),
+                "loss/flow": losses["flow"].detach(),
+                "loss/drivor": losses["drivor"].detach(),
+                "loss/suprim_coarse": losses["suprim_coarse"].detach(),
+                "loss/suprim_fine": losses["suprim_fine"].detach(),
+                "curriculum/progress": schedule.progress,
+                "curriculum/dynamic_enabled": float(schedule.dynamic_enabled),
+                "curriculum/dynamic_topm": schedule.dynamic_topm,
+            }
+            metric_names = {
+                "drivor_no_at_fault_collisions": "loss/drivor_nc",
+                "drivor_drivable_area_compliance": "loss/drivor_dac",
+                "drivor_time_to_collision_within_bound": "loss/drivor_ttc",
+                "drivor_ego_progress": "loss/drivor_ep",
+                "drivor_driving_direction_compliance": "loss/drivor_ddc",
+                "drivor_comfort": "loss/drivor_comfort",
+                "drivor_score_mean": "candidate/drivor_score_mean",
+                "drivor_score_std": "candidate/drivor_score_std",
+                "coarse_topk_dynamic_ratio": "candidate/coarse_topk_dynamic_ratio",
+                "final_selected_dynamic_ratio": "candidate/final_selected_dynamic_ratio",
+                "dynamic_oracle_score": "candidate/dynamic_oracle_score",
+                "dynamic_selected_score": "candidate/dynamic_selected_score",
+            }
+            for source_name, log_name in metric_names.items():
+                if source_name in output_dict.get("metrics", {}):
+                    logged[log_name] = output_dict["metrics"][source_name].detach()
+            return logged
+
         return {
             "action_dit_loss": action_loss.detach(),
             "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.detach(),
@@ -634,11 +883,35 @@ class VLATrainer(TrainerUtils):
         """training end processing"""
         # save final model
         skip_final_save = os.environ.get("TRAINING_SKIP_FINAL_SAVE", "0") == "1"
+        if self.is_hierarchical_planner and not skip_final_save:
+            final_checkpoint = os.path.join(self.config.output_dir, "final_model")
+            self.accelerator.save_state(final_checkpoint, safe_serialization=False)
+            if self.accelerator.is_main_process:
+                with open(
+                    os.path.join(final_checkpoint, "trainer_state.json"),
+                    "w",
+                    encoding="utf-8",
+                ) as stream:
+                    json.dump({"completed_steps": self.completed_steps}, stream)
+                logger.info(
+                    "Joint training complete. Final state saved at %s",
+                    final_checkpoint,
+                )
+            self._close_metric_supervisor()
+            if self.accelerator.is_main_process:
+                wandb.finish()
+            self.accelerator.wait_for_everyone()
+            return
         if self.accelerator.is_main_process and not skip_final_save:
             final_checkpoint = os.path.join(self.config.output_dir, "final_model")
             os.makedirs(final_checkpoint, exist_ok=True)
             state_dict = self.accelerator.get_state_dict(self.model)
             torch.save(state_dict, os.path.join(final_checkpoint, "pytorch_model.pt"))
+            _save_ddp_drs_component_checkpoints(
+                self.config,
+                state_dict,
+                Path(final_checkpoint) / "ddp_drs_components",
+            )
             logger.info(f"Training complete. Final model saved at {final_checkpoint}")
         elif self.accelerator.is_main_process:
             logger.info("TRAINING_SKIP_FINAL_SAVE=1; skipped final checkpoint (smoke test only)")
@@ -647,16 +920,23 @@ class VLATrainer(TrainerUtils):
         if self.accelerator.is_main_process:
             wandb.finish()
 
+        self._close_metric_supervisor()
         self.accelerator.wait_for_everyone()
 
 
 def main(cfg) -> None:
     deepspeed_plugin = DeepSpeedPlugin()
+    ddp_kwargs = DistributedDataParallelKwargs(
+        find_unused_parameters=bool(
+            cfg.trainer.get("find_unused_parameters", False)
+        )
+    )
     accelerator = Accelerator(
         gradient_accumulation_steps=int(
             cfg.trainer.gradient_accumulation_steps
         ),
         deepspeed_plugin=deepspeed_plugin,
+        kwargs_handlers=[ddp_kwargs],
     )
     accelerator.print(accelerator.state)
     logger.info("VLA Training :: Warming Up")
@@ -673,10 +953,29 @@ def main(cfg) -> None:
     # tree concurrently needlessly hammers shared storage at job startup.
     if accelerator.is_main_process:
         os.makedirs(code_dir, exist_ok=True)
-        for fname in ('debug.sh', '8-train.sh', 'training.sh', 'pre_cache.sh'):
+        for fname in (
+            'debug.sh',
+            '8-train.sh',
+            'training.sh',
+            'pre_cache.sh',
+            'train_ddp_drs_2048_dlc.sh',
+            'train_qwenpi_drivor_suprim_dlc.sh',
+        ):
             src = os.path.join(project_root, fname)
             if os.path.exists(src):
                 shutil.copy2(src, code_dir)
+        cache_tool = os.path.join(
+            project_root, 'tools', 'generate_ddp_drs_training_cache.py'
+        )
+        if os.path.exists(cache_tool):
+            os.makedirs(os.path.join(code_dir, 'tools'), exist_ok=True)
+            shutil.copy2(cache_tool, os.path.join(code_dir, 'tools'))
+        static_cache_tool = os.path.join(
+            project_root, 'tools', 'split_drivesuprim_static_scores.py'
+        )
+        if os.path.exists(static_cache_tool):
+            os.makedirs(os.path.join(code_dir, 'tools'), exist_ok=True)
+            shutil.copy2(static_cache_tool, os.path.join(code_dir, 'tools'))
         shutil.copytree(
             os.path.join(project_root, 'starVLA'),
             os.path.join(code_dir, 'starVLA'),
@@ -701,6 +1000,31 @@ def main(cfg) -> None:
             total_parameters / 1e9,
             trainable_parameters / 1e9,
         )
+        for module_name in (
+            "scene_encoder",
+            "action_model",
+            "hierarchical_scorer.dynamic_prescorer",
+            "hierarchical_scorer.joint_coarse_scorer",
+            "hierarchical_scorer.joint_fine_refiner",
+        ):
+            module = vla
+            try:
+                for attribute in module_name.split("."):
+                    module = getattr(module, attribute)
+            except AttributeError:
+                continue
+            module_total = sum(parameter.numel() for parameter in module.parameters())
+            module_trainable = sum(
+                parameter.numel()
+                for parameter in module.parameters()
+                if parameter.requires_grad
+            )
+            logger.info(
+                "Module parameters: %s total=%d trainable=%d",
+                module_name,
+                module_total,
+                module_trainable,
+            )
     # prepare data
     vla_train_dataloader = prepare_data(cfg=cfg, accelerator=accelerator, output_dir=output_dir)
 

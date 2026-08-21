@@ -112,6 +112,17 @@ def build_param_lr_groups(model, cfg):
     if other_params:
         param_groups.append({"params": other_params, "lr": base_lr, "name": "base"})
 
+    assigned = [id(parameter) for group in param_groups for parameter in group["params"]]
+    if len(assigned) != len(set(assigned)):
+        raise RuntimeError("a trainable parameter appears in more than one optimizer group")
+    if hasattr(model, "qwen_vl_interface"):
+        qwen_parameters = {id(parameter) for parameter in model.qwen_vl_interface.parameters()}
+        leaked = qwen_parameters.intersection(assigned)
+        if leaked:
+            raise RuntimeError(
+                f"optimizer unexpectedly contains {len(leaked)} frozen Qwen parameters"
+            )
+
     return param_groups
 
 
@@ -258,7 +269,14 @@ class TrainerUtils:
                     print(f"❌ cannot find module path: {path}")
         else:  # full load
             try:
-                model.load_state_dict(checkpoint, strict=True)
+                if hasattr(model, "multi_trajectory_planner"):
+                    from starVLA.model.modules.action_model.multi_trajectory.checkpointing import (
+                        load_base_checkpoint_strict,
+                    )
+
+                    load_base_checkpoint_strict(model, checkpoint)
+                else:
+                    model.load_state_dict(checkpoint, strict=True)
                 if dist.get_rank() == 0:
                     print("✅ loaded <full_model> model parameters")
                 loaded_modules = ["<full_model>"]

@@ -59,6 +59,16 @@ def build_framework(cfg, accelerator=None):
         from starVLA.model.framework.QWenVision import Qwenvl_Vision
         return Qwenvl_Vision(cfg)
 
+    elif cfg.framework.name == "QwenPI-DrivoRSuprim":
+        # Import explicitly so this framework remains buildable even when an
+        # unrelated optional framework fails during the best-effort package
+        # auto-import above.
+        from starVLA.model.framework.QwenPI_DrivoRSuprim import (
+            QwenPIDrivoRSuprim,
+        )
+
+        return QwenPIDrivoRSuprim(cfg)
+
     
     # auto detect from registry
     framework_id = cfg.framework.name

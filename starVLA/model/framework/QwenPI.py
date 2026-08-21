@@ -6,7 +6,7 @@ Qwen-GROOT Framework
 A lightweight implementation that Qwen2.5-vl + Flow-matching head to directly predict continuous actions
 Flow-matching header is copyright from GR00T N1.5, but a sample MoE inspired by PI_0
 """
-from typing import List
+import time
 from tqdm import tqdm
 from typing import List, Optional, Tuple
 import torch
@@ -27,9 +27,30 @@ IGNORE_INDEX = -100
 from starVLA.model.framework.base_framework import baseframework
 from starVLA.model.modules.vlm import get_vlm_model
 from starVLA.model.modules.action_model.LayerwiseFM_ActionHeader import get_action_model, LayerwiseFlowmatchingActionHead
+from starVLA.model.modules.action_model.multi_trajectory.config import (
+    MultiTrajectoryConfig,
+    multi_trajectory_enabled,
+)
 from starVLA.training.trainer_utils.trainer_tools import resize_images
 from starVLA.model.tools import FRAMEWORK_REGISTRY
 
+
+def _collate_multi_trajectory_targets(values, device, dtype):
+    """Stack explicit offline DDP-DRS labels; never called by inference."""
+    first = values[0]
+    if isinstance(first, dict):
+        expected_keys = set(first)
+        if any(set(value) != expected_keys for value in values):
+            raise ValueError("DDP-DRS target dictionaries have inconsistent keys")
+        return {
+            key: _collate_multi_trajectory_targets(
+                [value[key] for value in values], device, dtype
+            )
+            for key in first
+        }
+    return torch.as_tensor(np.asarray(values), device=device, dtype=dtype)
+
+@FRAMEWORK_REGISTRY.register("QwenFM")
 @FRAMEWORK_REGISTRY.register("QwenPI")
 class Qwen_PI(baseframework):
     """
@@ -74,10 +95,40 @@ class Qwen_PI(baseframework):
         self.config.framework.action_model.DiTConfig = DiTConfig
         self.action_model: LayerwiseFlowmatchingActionHead = get_action_model(config=self.config)  # 修复后续引用
 
+        # Keep the original model graph and state_dict byte-for-byte compatible
+        # unless the new baseline is explicitly enabled.  Imports requiring
+        # DrivoR/DriveSuprim assets and all new parameter construction happen
+        # only inside this branch.
+        if multi_trajectory_enabled(self.config):
+            from starVLA.model.modules.action_model.multi_trajectory.planner import (
+                DDPDrivoRSuprimPlanner,
+            )
+
+            self.multi_trajectory_config = MultiTrajectoryConfig.from_full_config(
+                self.config
+            )
+            self.multi_trajectory_planner = DDPDrivoRSuprimPlanner(
+                action_head=self.action_model,
+                config=self.multi_trajectory_config,
+                qwen_hidden_dim=llm_hidden_size,
+            )
+            for parameter in self.qwen_vl_interface.parameters():
+                parameter.requires_grad = False
+            self.qwen_vl_interface.eval()
+            self.action_model.eval()
+
         self.future_action_window_size = config.framework.action_model.future_action_window_size
         self.past_action_window_size = config.framework.action_model.past_action_window_size
         self.chunk_len = self.past_action_window_size + 1 + self.future_action_window_size
-        
+
+    def train(self, mode: bool = True) -> "Qwen_PI":
+        """Keep the frozen Qwen+DDP proposal generator deterministic when enabled."""
+
+        super().train(mode)
+        if hasattr(self, "multi_trajectory_planner"):
+            self.qwen_vl_interface.eval()
+            self.action_model.eval()
+        return self
 
     def forward(
         self,
@@ -125,6 +176,75 @@ class Qwen_PI(baseframework):
             vl_embs_list = list(all_hidden[-expected_layers:])
             base_hidden = vl_embs_list[-1]
 
+        if hasattr(self, "multi_trajectory_planner"):
+            stage = self.multi_trajectory_config.training_stage
+            full_last_hidden_state = all_hidden[
+                self.multi_trajectory_config.scene_compressor.source_layer
+            ]
+            attention_mask = qwen_inputs.get("attention_mask")
+            if attention_mask is None:
+                raise KeyError(
+                    "DDP-DRS scene compressor requires the Qwen attention_mask"
+                )
+            state_tensor = (
+                torch.as_tensor(
+                    np.asarray(state),
+                    device=base_hidden.device,
+                    dtype=base_hidden.dtype,
+                )
+                if state is not None
+                else None
+            )
+            if stage == "cache_candidates":
+                candidates = self.multi_trajectory_planner.sample_physical_candidates(
+                    vl_embs_list, state_tensor
+                )
+                return {"candidate_trajectories": candidates}
+            raw_targets = [
+                example.get("multi_trajectory_targets") for example in examples
+            ]
+            if any(target is None for target in raw_targets):
+                raise KeyError(
+                    "DDP-DRS training requires validated multi_trajectory_targets"
+                )
+            targets = _collate_multi_trajectory_targets(
+                raw_targets, base_hidden.device, base_hidden.dtype
+            )
+            cached_dynamic_trajectories = None
+            if stage in {
+                "train_drivor",
+                "train_suprim_joint",
+                "joint_finetune",
+            }:
+                raw_candidates = [
+                    example.get("multi_trajectory_candidates")
+                    for example in examples
+                ]
+                if any(candidate is None for candidate in raw_candidates):
+                    raise KeyError(
+                        f"DDP-DRS {stage} requires validated cached candidates"
+                    )
+                cached_dynamic_trajectories = _collate_multi_trajectory_targets(
+                    raw_candidates, base_hidden.device, base_hidden.dtype
+                )
+            with torch.autocast(
+                device_type=base_hidden.device.type,
+                dtype=torch.bfloat16,
+                enabled=base_hidden.device.type == "cuda",
+            ):
+                training_output = self.multi_trajectory_planner.compute_training_loss(
+                    vl_embs_list=vl_embs_list,
+                    state=state_tensor,
+                    full_hidden_state=full_last_hidden_state,
+                    attention_mask=attention_mask,
+                    targets=targets,
+                    cached_dynamic_trajectories=cached_dynamic_trajectories,
+                )
+            return {
+                "action_loss": training_output["loss"],
+                "multi_trajectory_loss": training_output["loss"],
+                "multi_trajectory_loss_details": training_output,
+            }
         # Step 4: Action Expert Forward and Loss
         with torch.autocast("cuda", dtype=torch.float32):
             # 标签对齐：取最后 chunk_len 段
@@ -157,10 +277,11 @@ class Qwen_PI(baseframework):
     @torch.inference_mode()
     def predict_action(
         self,
-        batch_images: List[List[Image.Image]],  # Batch of PIL Image list as [view1, view2]
-        instructions: List[str],
+        batch_images: Optional[List[List[Image.Image]]] = None,
+        instructions: Optional[List[str]] = None,
         state: Optional[np.ndarray] = None,
-        **kwargs: str,
+        examples: Optional[List[dict]] = None,
+        **kwargs,
     ) -> np.ndarray:
         """
         推理：单次前向直接回归未来动作（无扩散采样）。
@@ -182,9 +303,40 @@ class Qwen_PI(baseframework):
             dict:
                 normalized_actions (np.ndarray): Shape [B, T, action_dim], diffusion-sampled normalized actions.
         """
+        # The native trainer/inference entry points pass sample dictionaries,
+        # while older direct callers pass the three arrays separately.  Both
+        # routes feed the exact same Qwen/action-head implementation.
+        if examples is None and batch_images and isinstance(batch_images[0], dict):
+            examples = batch_images
+            batch_images = None
+        if examples is not None:
+            if batch_images is not None or instructions is not None or state is not None:
+                raise ValueError(
+                    "pass either examples or batch_images/instructions/state, not both"
+                )
+            if not examples:
+                raise ValueError("predict_action examples cannot be empty")
+            batch_images = [example["image"] for example in examples]
+            instructions = [example["lang"] for example in examples]
+            state_values = [example.get("state") for example in examples]
+            state = None if all(value is None for value in state_values) else state_values
+            if any(value is None for value in state_values) and state is not None:
+                raise ValueError("state must be present for every sample or none")
+        if batch_images is None or instructions is None:
+            raise ValueError("predict_action requires images and instructions")
+
         train_obs_image_size = getattr(self.config.datasets.vla_data, "image_size", None)
         if train_obs_image_size:
             batch_images = resize_images(batch_images, target_size=train_obs_image_size)
+
+        use_multi_trajectory = hasattr(self, "multi_trajectory_planner")
+        profile_multi_trajectory = (
+            use_multi_trajectory
+            and self.multi_trajectory_config.diagnostics_enabled
+        )
+        if profile_multi_trajectory and torch.cuda.is_available():
+            torch.cuda.synchronize()
+        qwen_start = time.perf_counter() if use_multi_trajectory else None
     
         # Step 1: QWenVL input format
         qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)
@@ -199,14 +351,65 @@ class Qwen_PI(baseframework):
             expected_layers = len(self.action_model.model.transformer_blocks)
             vl_embs_list = list(all_hidden[-expected_layers:])
             base_hidden = vl_embs_list[-1]
+            if use_multi_trajectory:
+                full_last_hidden_state = all_hidden[
+                    self.multi_trajectory_config.scene_compressor.source_layer
+                ]
+                attention_mask = qwen_inputs.get("attention_mask")
+                if attention_mask is None:
+                    raise KeyError(
+                        "DDP-DRS scene compressor requires the Qwen attention_mask"
+                    )
+        if profile_multi_trajectory and torch.cuda.is_available():
+            torch.cuda.synchronize()
+        qwen_latency = (
+            time.perf_counter() - qwen_start if use_multi_trajectory else None
+        )
 
         state = torch.from_numpy(np.array(state)).to(base_hidden.device, dtype=base_hidden.dtype) if state is not None else None
         # Step 4: Action Expert Forward and Loss
-        with torch.autocast("cuda", dtype=torch.float32):
-            pred_actions = self.action_model.predict_action(vl_embs_list, state)  # (B, chunk_len, action_dim)
+        if use_multi_trajectory:
+            with torch.autocast(
+                device_type=base_hidden.device.type,
+                dtype=torch.bfloat16,
+                enabled=base_hidden.device.type == "cuda",
+            ):
+                selected_trajectory = self.multi_trajectory_planner(
+                    vl_embs_list=vl_embs_list,
+                    state=state,
+                    full_hidden_state=full_last_hidden_state,
+                    attention_mask=attention_mask,
+                )
+                # The DDP-DRS planner returns the selected metric SE(2)
+                # trajectory.  Convert at the framework boundary so the
+                # unchanged evaluator still receives normalized action deltas.
+                from starVLA.model.modules.action_model.multi_trajectory.trajectory_codec import (
+                    poses_to_normalized_deltas,
+                )
 
-        normalized_actions = pred_actions.detach().cpu().numpy()
-        return {"normalized_actions": normalized_actions}
+                pred_actions = poses_to_normalized_deltas(selected_trajectory)
+        else:
+            # Preserve the original single-DDP autocast context exactly.
+            with torch.autocast("cuda", dtype=torch.float32):
+                pred_actions = self.action_model.predict_action(vl_embs_list, state)  # (B, chunk_len, action_dim)
+
+        if use_multi_trajectory:
+            # NumPy has no bfloat16 dtype.  Keep the planner in AMP/bfloat16
+            # and convert only the existing public API payload to float32.
+            normalized_actions = (
+                pred_actions.detach().to(dtype=torch.float32).cpu().numpy()
+            )
+        else:
+            normalized_actions = pred_actions.detach().cpu().numpy()
+        output = {"normalized_actions": normalized_actions}
+        if use_multi_trajectory and self.multi_trajectory_config.diagnostics_enabled:
+            diagnostics = self.multi_trajectory_planner.last_diagnostics
+            if diagnostics is not None:
+                diagnostics.latency_qwen = qwen_latency
+                if diagnostics.latency_total_inference is not None:
+                    diagnostics.latency_total_inference += qwen_latency
+                output["multi_trajectory_diagnostics"] = diagnostics
+        return output
 
 
 

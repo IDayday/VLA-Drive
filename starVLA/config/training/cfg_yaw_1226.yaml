@@ -6,6 +6,79 @@ wandb_entity: your_wandb_entity
 wandb_project: llavavla
 is_debug: false
 
+# DDP-DRS is strictly opt-in.  With enabled=false the Qwen+DiT graph,
+# checkpoint keys, optimizer discovery, outputs, and RNG consumption are the
+# original single-trajectory baseline.
+multi_trajectory:
+  enabled: false
+  num_dynamic_candidates: 64
+  deterministic_seed: null
+
+  scene_compressor:
+    type: drivevla_global_qformer
+    source_layer: -1
+    source_token_policy: all_valid_tokens
+    num_queries: 16
+    scene_dim: 2048
+    num_layers: 4
+    num_heads: 32
+    ffn_dim: 8192
+    dropout: 0.0
+    query_init_std: 1.0e-6
+    use_padding_mask: true
+    detach_qwen_memory: true
+    return_dense_memory: true
+    checkpoint_path: null
+
+  planning:
+    planning_dim: 256
+    num_heads: 8
+    ffn_dim: 1024
+    dropout: 0.0
+
+  drivor:
+    scorer_layers: 4
+    dynamic_topk: 16
+    noc_weight: 1.0
+    dac_weight: 1.0
+    ddc_weight: 0.0
+    ttc_weight: 5.0
+    ep_weight: 5.0
+    comfort_weight: 2.0
+    checkpoint_path: null
+
+  suprim:
+    vocab_path: null
+    vocab_size: 8192
+    num_trajectory_points: 40
+    coarse_topk: 256
+    coarse_memory_source: global_scene_tokens
+    fine_memory_source: dense_qwen_memory
+    coarse_layers: 3
+    num_refinement_stages: 1
+    refinement_layers: 3
+    use_mid_output: true
+    use_separate_heads: true
+    use_imitation_head: true
+    checkpoint_path: null
+
+  loss:
+    diversity_weight: 0.0
+    ranking_weight: 0.0
+    generator_score_weight: 0.0
+
+  # Offline-only supervision. Inference never opens this cache.
+  cache:
+    root_path: null
+    expected_ddp_checkpoint_sha: null
+    expected_generator_config_hash: null
+    require_complete: true
+
+  training_stage: inference
+  strict_inference: true
+  smoke_test_fallback_to_single_ddp: false
+  diagnostics_enabled: false
+
 ver_1225: 2
 
 framework:
