@@ -49,6 +49,12 @@ export NAVSIM_DATALIST_PATH="${NAVSIM_DATALIST_PATH:-$project_root/train_meta.js
 export QDS_SPLIT="${QDS_SPLIT:-train}"
 export QDS_NAVSIM_LOG_PATH="${QDS_NAVSIM_LOG_PATH:-$OPENSCENE_DATA_ROOT/navsim_logs/trainval}"
 export QDS_NAVSIM_SENSOR_PATH="${QDS_NAVSIM_SENSOR_PATH:-${NAVSIM_TRAINVAL_SENSOR_ROOT:-$OPENSCENE_DATA_ROOT/sensor_blobs/trainval}}"
+# The processed metadata contains preprocessing-machine image paths.  The
+# dataset relocator reads NAVSIM_TRAINVAL_SENSOR_ROOT, so bind the
+# capability-specific launcher path to that runtime contract before spawning
+# any rank.  Without this assignment a worker can exit with FileNotFoundError
+# and the remaining ranks only show a misleading PCCL/NCCL service warning.
+export NAVSIM_TRAINVAL_SENSOR_ROOT="$QDS_NAVSIM_SENSOR_PATH"
 export NUPLAN_MAPS_ROOT="${NUPLAN_MAPS_ROOT:-$OPENSCENE_DATA_ROOT/maps}"
 export NAVSIM_METRIC_CACHE_ROOT="${NAVSIM_METRIC_CACHE_ROOT:-${NAVSIM_EXP_ROOT:-$project_root/navsim_exp}/qds_metric_cache_navtrain}"
 export QDS_BUILD_METRIC_CACHE="${QDS_BUILD_METRIC_CACHE:-auto}"
@@ -90,9 +96,49 @@ for name in QWEN_VLM_PATH DATA_ROOT OPENSCENE_DATA_ROOT NAVSIM_DATALIST_PATH \
 done
 for path in "$QDS_CONFIG_YAML" "$QWEN_VLM_PATH/config.json" \
   "$QWEN_VLM_PATH/model.safetensors" "$DATA_ROOT/meta/$QDS_SPLIT" \
-  "$NAVSIM_DATALIST_PATH" "$SUPRIM_VOCAB_PATH" "$QDS_DEEPSPEED_CONFIG"; do
+  "$NAVSIM_DATALIST_PATH" "$SUPRIM_VOCAB_PATH" "$QDS_DEEPSPEED_CONFIG" \
+  "$NAVSIM_TRAINVAL_SENSOR_ROOT"; do
   required_path "$path"
 done
+
+# Validate the exact image-path contract before allocating eight copies of the
+# model.  This loads one lightweight metadata record and uses the same resolver
+# as NavSimDataset; it does not read image pixels or optional model assets.
+python - "$NAVSIM_DATALIST_PATH" "$DATA_ROOT/meta/$QDS_SPLIT" <<'PY'
+import json
+import pickle
+import sys
+from pathlib import Path
+
+from starVLA.dataloader.navsim_dataset import resolve_navsim_data_path
+
+datalist_path = Path(sys.argv[1])
+metadata_root = Path(sys.argv[2])
+tokens = json.loads(datalist_path.read_text(encoding="utf-8"))
+if not tokens:
+    raise RuntimeError(f"NAVSIM datalist is empty: {datalist_path}")
+token = tokens[0]
+if not isinstance(token, str):
+    raise TypeError(
+        f"NAVSIM datalist entries must be token strings, got {type(token).__name__}"
+    )
+metadata_path = metadata_root / f"{token}.pkl"
+if not metadata_path.is_file():
+    raise FileNotFoundError(f"NAVSIM metadata is missing: {metadata_path}")
+with metadata_path.open("rb") as handle:
+    record = pickle.load(handle)
+for view in ("cam_f0", "cam_l0", "cam_r0"):
+    embedded = record["glo_images"][view]["image_paths"][3]
+    resolved = Path(resolve_navsim_data_path(embedded))
+    if not resolved.is_file():
+        raise FileNotFoundError(
+            "NAVSIM image relocation failed before distributed launch: "
+            f"view={view} embedded={embedded!r} resolved={str(resolved)!r}. "
+            "Set QDS_NAVSIM_SENSOR_PATH to the directory containing the "
+            "per-log CAM_* folders."
+        )
+print(f"[qds] image-path preflight passed for token={token}")
+PY
 
 actual_devices="$(python -c 'import torch; print(torch.cuda.device_count())')"
 if ! [[ "$actual_devices" =~ ^[1-9][0-9]*$ ]]; then

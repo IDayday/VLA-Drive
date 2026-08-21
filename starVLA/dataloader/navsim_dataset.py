@@ -173,13 +173,22 @@ def resolve_navsim_data_path(file_name):
     marker = f"{os.sep}navsim_dataset_raw{os.sep}"
     if runtime_root and marker in file_path:
         relative_path = file_path.split(marker, 1)[1]
-        trainval_prefix = os.path.join("sensor_blobs", "trainval") + os.sep
         trainval_sensor_root = os.environ.get("NAVSIM_TRAINVAL_SENSOR_ROOT", "")
-        if trainval_sensor_root and relative_path.startswith(trainval_prefix):
-            return os.path.join(
-                trainval_sensor_root,
-                relative_path[len(trainval_prefix):],
+        sensor_prefixes = (
+            os.path.join("sensor_blobs", "trainval") + os.sep,
+            os.path.join(
+                "trainval_all", "trainval_sensor_blobs", "trainval"
             )
+            + os.sep,
+            os.path.join("trainval_full_sensor_blobs", "trainval") + os.sep,
+        )
+        if trainval_sensor_root:
+            for trainval_prefix in sensor_prefixes:
+                if relative_path.startswith(trainval_prefix):
+                    return os.path.join(
+                        trainval_sensor_root,
+                        relative_path[len(trainval_prefix):],
+                    )
         return os.path.join(runtime_root, relative_path)
     return file_path
 
