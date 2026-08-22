@@ -205,3 +205,23 @@ def test_dlc_launcher_runs_dense_cache_before_gated_training():
     assert cache_call in launcher
     assert training_call in launcher
     assert launcher.index(cache_call) < launcher.index(training_call)
+
+
+def test_navtest_inference_routes_sq3dmix_and_rebinds_dense_cache():
+    source = (REPO_ROOT / "infer.py").read_text(encoding="utf-8")
+
+    assert 'elif framework_name == "QwenOFT_SQ3DMix":' in source
+    assert "Qwenvl_OFT_SQ3DMix" in source
+    assert '"framework.sq_3d_mix.cache.root"' in source
+    assert 'os.environ["NAVSIM_VGGT_DENSE_CACHE_ROOT"]' in source
+
+
+def test_sq3dmix_eval_launcher_is_portable_and_keeps_prior_scores():
+    launcher = (
+        REPO_ROOT / "17-eval_sq3dmix_gated_all_ckpts_dlc.sh"
+    ).read_text(encoding="utf-8")
+
+    assert 'source "$project_root/load_env.sh"' in launcher
+    assert 'NAVSIM_VGGT_DENSE_CACHE_ROOT="$dense_test_cache"' in launcher
+    assert 'find "$score_root" -mindepth 1 -maxdepth 1' in launcher
+    assert "sort -n -u" in launcher

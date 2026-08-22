@@ -247,6 +247,19 @@ class VLAAgent:
         if os.environ.get(base_vlm_environment):
             OmegaConf.update(self.model_config, "framework.qwenvl.base_vlm",
                              os.environ[base_vlm_environment], force_add=True)
+        # SQ-3D-Mix checkpoints record the train-split dense VGGT cache in
+        # config.yaml. Navtest inference must bind the split-specific cache
+        # supplied by the launcher instead of reopening the training cache.
+        if (
+            framework_name == "QwenOFT_SQ3DMix"
+            and os.environ.get("NAVSIM_VGGT_DENSE_CACHE_ROOT")
+        ):
+            OmegaConf.update(
+                self.model_config,
+                "framework.sq_3d_mix.cache.root",
+                os.environ["NAVSIM_VGGT_DENSE_CACHE_ROOT"],
+                force_add=True,
+            )
         # The PPU-adapted PyTorch build provides native SDPA.  The released
         # config records the authors' NVIDIA flash-attention setting, which is
         # not installed or needed in this environment.
@@ -402,6 +415,15 @@ class VLAAgent:
                 self.model = Qwenvl_OFT_VGGT(
                     self.model_config, infer_not_load_wan=1
                 )
+        elif framework_name == "QwenOFT_SQ3DMix":
+            from starVLA.model.framework.QwenOFT_SQ3DMix import (
+                Qwenvl_OFT_SQ3DMix,
+            )
+
+            print("[Agent] SQ-3D-Mix route")
+            self.model = Qwenvl_OFT_SQ3DMix(
+                self.model_config, infer_not_load_wan=1
+            )
         else:
             self.model = Qwenvl_OFT(self.model_config, infer_not_load_wan=1)
         self.model._inference_qwen_forward_mode = self.qwen_forward_mode

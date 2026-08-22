@@ -72,6 +72,13 @@
 # export NAVSIM_VGGT_V3_CACHE_ROOT="${NAVSIM_VGGT_V3_CACHE_ROOT:-/absolute/path/to/vggt-query-v3-layer11-global-codec-m195-cache}"
 # Final-layer, unpooled VGGT patch cache used by QwenOFT_VGGT_Bottleneck.
 # export NAVSIM_VGGT_DENSE_CACHE_ROOT="/path/to/vggt_dense_cache"
+# Split-specific SQ-3D-Mix navtest cache and evaluation outputs. The PDMS and
+# EPDMS overrides are optional when the shared NAVSIM metric-cache defaults
+# already point at complete navtest caches.
+# export NAVSIM_VGGT_DENSE_TEST_CACHE_ROOT="/path/to/vggt_dense_navtest_cache"
+# export SQ3DMIX_EVAL_OUT_ROOT="/path/to/sq3dmix_navtest_results"
+# export PDMS_METRIC_CACHE_PATH="/path/to/navsim_v1_1_navtest_metric_cache"
+# export EPDMS_METRIC_CACHE_PATH="/path/to/navsim_v2_navtest_metric_cache"
 # Dense-cache generation. Leave VGGT_DENSE_CACHE_MAX_SAMPLES unset for the
 # complete datalist. map_size is a per-rank upper bound, not eager allocation.
 # export VGGT_DENSE_CACHE_NUM_PROCESSES="${VGGT_DENSE_CACHE_NUM_PROCESSES:-16}"
