@@ -763,6 +763,7 @@ class Qwen3VLTextModel(Qwen3VLPreTrainedModel, Qwen3Model):
         # args for deepstack
         visual_pos_masks: Optional[torch.Tensor] = None,
         deepstack_visual_embeds: Optional[list[torch.Tensor]] = None,
+        output_hidden_states: Optional[bool] = None,
         **kwargs: Unpack[FlashAttentionKwargs],
     ) -> Union[tuple, BaseModelOutputWithPast]:
         r"""
@@ -811,6 +812,9 @@ class Qwen3VLTextModel(Qwen3VLPreTrainedModel, Qwen3Model):
         )
 
         hidden_states = inputs_embeds
+        all_hidden_states = () if output_hidden_states else None
+        if output_hidden_states:
+            all_hidden_states += (hidden_states,)
 
         # create position embeddings to be shared across the decoder layers
         position_embeddings = self.rotary_emb(hidden_states, position_ids)
@@ -835,12 +839,17 @@ class Qwen3VLTextModel(Qwen3VLPreTrainedModel, Qwen3Model):
                     visual_pos_masks,
                     deepstack_visual_embeds[layer_idx],
                 )
+            if output_hidden_states:
+                all_hidden_states += (hidden_states,)
 
         hidden_states = self.norm(hidden_states)
+        if output_hidden_states:
+            all_hidden_states = all_hidden_states[:-1] + (hidden_states,)
 
         return BaseModelOutputWithPast(
             last_hidden_state=hidden_states,
             past_key_values=past_key_values,
+            hidden_states=all_hidden_states,
         )
 
 

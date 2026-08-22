@@ -704,6 +704,8 @@ class NavSimDataset(Dataset):
             sample['qwen_feature_cache'] = cached_features["qwen"]
         if "agent_dino" in cached_features:
             sample['agent_dino_feature_cache'] = cached_features["agent_dino"]
+        if "vggt_dense" in cached_features:
+            sample['vggt_dense_feature_cache'] = cached_features["vggt_dense"]
 
         # if self.video_data_cfg.load_2d_data:
         #     sample['2d_gen_data'] = {}

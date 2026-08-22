@@ -32,6 +32,16 @@ framework:
   dino:
     dino_backbone: dinov2_vits14
 
+  vggt_dense_align:
+    enabled: false
+    log_grad_stats: false
+    loss_weight: 0.1
+    vlm_layer_index: 24
+    teacher_dim: 2048
+    use_vlm_norm: false
+    use_vggt_pe: true
+    vggt_pe_ratio: 0.1
+
   action_model:
     action_model_type: DiT-B
     hidden_size: 1024     # 和 DiT 最后的 projection 对应，用于 ActionDecoder

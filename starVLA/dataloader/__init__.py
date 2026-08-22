@@ -92,6 +92,7 @@ def build_dataloader(cfg, dataset_py="lerobot_datasets_oxe"): # TODO now here on
             ver_1225 = ver_1225,
             dataset_cfg = navsim_dataset_cfg,
             all_cfg = cfg,
+            max_samples=OmegaConf.select(navsim_dataset_cfg, "max_samples", default=None),
         )
         
         navsim_num_workers = int(os.environ.get("NAVSIM_NUM_WORKERS", "7"))

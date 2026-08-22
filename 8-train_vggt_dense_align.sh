@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# Step 8 (train): Action-only training with DeepSpeed ZeRO-2.
+# Step 8 (train): Action-only + Spatial-Forcing VGGT dense alignment.
 # This script loads env.sh automatically so it can run on its own.
 # Prerequisites:
 #   1. Prepare data (steps 0-3) and generate the meta-list JSON.
-# Run: bash 8-train_action-only.sh
+# Run: bash 8-train_agent_action.sh
 
 set -euo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$project_root/load_env.sh"
 
-# Action-only training does not rely on the shared feature cache.
-unset NAVSIM_FEATURE_CACHE_ROOT
-export NAVSIM_USE_FEATURE_CACHE=0
+# Dense VGGT alignment reads only the dedicated vggt_dense cache.
+export NAVSIM_FEATURE_CACHE_ROOT="${NAVSIM_VGGT_DENSE_CACHE_ROOT:-$DRIVEDREAMER_ROOT/navsim_feature_cache/vggt_dense_train_layer-1}"
+export NAVSIM_CACHE_COMPONENTS="${NAVSIM_VGGT_DENSE_CACHE_COMPONENTS:-vggt_dense}"
+export NAVSIM_CACHE_STRICT="${NAVSIM_CACHE_STRICT:-1}"
+export NAVSIM_USE_FEATURE_CACHE=1
+export NAVSIM_AGENT_DINO_CACHE_ROOT=""
 
 # -- Experiment ID ------------------------------------------------------------
 debug=false
@@ -36,9 +39,9 @@ fm_repeat=8
 max_train_steps="${MAX_TRAIN_STEPS:-100000}"
 
 split=train
-datalist="${NAVSIM_DATALIST_PATH:-${DRIVEDREAMER_ROOT}/${split}_meta.json}"
+datalist="${DATALIST:-${NAVSIM_DATALIST_PATH:-${DRIVEDREAMER_ROOT}/${split}_meta.json}}"
 
-run_id="${RUN_ID:-${timestamp}-action-only-lr1e5-16g-bz_${bz}-ga_${gradient_accumulation_steps}-${split}}"
+run_id="${RUN_ID:-${timestamp}-action-vggt-dense-lr1e5-16g-bz_${bz}-ga_${gradient_accumulation_steps}-${split}}"
 
 Framework_name=QwenOFT
 vl_hidden_dim=2048
@@ -63,6 +66,9 @@ training_extra_args=()
 if [ -n "${TRAINING_LOGGING_FREQUENCY:-}" ]; then
   training_extra_args+=(--trainer.logging_frequency "${TRAINING_LOGGING_FREQUENCY}")
 fi
+if [ -n "${TRAINING_MAX_SAMPLES:-}" ]; then
+  training_extra_args+=(--datasets.vla_data.max_samples "${TRAINING_MAX_SAMPLES}")
+fi
 if (( num_machines > 1 )); then
   launch_args+=(
     --main_process_ip "${main_process_ip}"
@@ -83,6 +89,14 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --framework.qwenvl.attn_implementation "${VLM_ATTN_IMPLEMENTATION:-flash_attention_2}" \
   --framework.qwenvl.vl_hidden_dim ${vl_hidden_dim} \
   --framework.action_prompt_mode minimal \
+  --framework.vggt_dense_align.enabled true \
+  --framework.vggt_dense_align.log_grad_stats "${VGGT_DENSE_LOG_GRAD_STATS:-false}" \
+  --framework.vggt_dense_align.loss_weight "${VGGT_DENSE_LOSS_WEIGHT:-0.1}" \
+  --framework.vggt_dense_align.vlm_layer_index "${VGGT_DENSE_VLM_LAYER_INDEX:-24}" \
+  --framework.vggt_dense_align.teacher_dim "${VGGT_DENSE_TEACHER_DIM:-2048}" \
+  --framework.vggt_dense_align.use_vlm_norm "${VGGT_DENSE_USE_VLM_NORM:-false}" \
+  --framework.vggt_dense_align.use_vggt_pe "${VGGT_DENSE_USE_VGGT_PE:-true}" \
+  --framework.vggt_dense_align.vggt_pe_ratio "${VGGT_DENSE_PE_RATIO:-0.1}" \
   --run_root_dir ${NAVSIM_EXP_ROOT} \
   --run_id ${run_id} \
   --wandb_project ${WANDB_PROJECT} \
@@ -98,7 +112,6 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --w_depth 0 \
   --rgb_query_loss 0 \
   --gs_query_loss 0 \
-  --trainer.freeze_modules "qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head" \
   --trainer.gradient_accumulation_steps ${gradient_accumulation_steps} \
   --framework.action_model.repeated_diffusion_steps ${fm_repeat} \
   --framework.action_model.hidden_size ${act_fm_size} \

@@ -106,6 +106,80 @@ class TinyDepthAdapter(nn.Module):
         x = self.proj(x)                                    # [B,64,2048]
         return x
 
+def _sf_make_sincos_pos_embed(embed_dim: int, pos: torch.Tensor, omega_0: float = 100) -> torch.Tensor:
+    if embed_dim % 2 != 0:
+        raise ValueError(f"Sin-cos positional embedding dim must be even, got {embed_dim}")
+    omega = torch.arange(embed_dim // 2, dtype=torch.float32, device=pos.device)
+    omega = omega / (embed_dim / 2.0)
+    omega = 1.0 / (omega_0 ** omega)
+    out = torch.einsum("m,d->md", pos.reshape(-1), omega)
+    return torch.cat([torch.sin(out), torch.cos(out)], dim=1)
+
+
+def _sf_position_grid_to_embed(pos_grid: torch.Tensor, embed_dim: int, omega_0: float = 100) -> torch.Tensor:
+    height, width, grid_dim = pos_grid.shape
+    if grid_dim != 2:
+        raise ValueError(f"Expected UV grid last dim=2, got {grid_dim}")
+    if embed_dim % 4 != 0:
+        raise ValueError(f"2D positional embedding dim must be divisible by 4, got {embed_dim}")
+    pos_flat = pos_grid.reshape(-1, grid_dim)
+    emb_x = _sf_make_sincos_pos_embed(embed_dim // 2, pos_flat[:, 0], omega_0=omega_0)
+    emb_y = _sf_make_sincos_pos_embed(embed_dim // 2, pos_flat[:, 1], omega_0=omega_0)
+    return torch.cat([emb_x, emb_y], dim=-1).view(height, width, embed_dim)
+
+
+def _sf_create_uv_grid(width: int, height: int, aspect_ratio: float | None, dtype: torch.dtype, device: torch.device) -> torch.Tensor:
+    if aspect_ratio is None:
+        aspect_ratio = float(width) / float(height)
+    diag_factor = (aspect_ratio ** 2 + 1.0) ** 0.5
+    span_x = aspect_ratio / diag_factor
+    span_y = 1.0 / diag_factor
+    left_x = -span_x * (width - 1) / width
+    right_x = span_x * (width - 1) / width
+    top_y = -span_y * (height - 1) / height
+    bottom_y = span_y * (height - 1) / height
+    x_coords = torch.linspace(left_x, right_x, steps=width, dtype=dtype, device=device)
+    y_coords = torch.linspace(top_y, bottom_y, steps=height, dtype=dtype, device=device)
+    uu, vv = torch.meshgrid(x_coords, y_coords, indexing="xy")
+    return torch.stack((uu, vv), dim=-1)
+
+
+def _sf_apply_pos_embed(x: torch.Tensor, image_width: int, image_height: int, ratio: float = 0.1) -> torch.Tensor:
+    patch_h, patch_w = x.shape[-2:]
+    pos_embed = _sf_create_uv_grid(
+        patch_w,
+        patch_h,
+        aspect_ratio=float(image_width) / float(max(image_height, 1)),
+        dtype=x.dtype,
+        device=x.device,
+    )
+    pos_embed = _sf_position_grid_to_embed(pos_embed, x.shape[1]) * float(ratio)
+    pos_embed = pos_embed.permute(2, 0, 1).unsqueeze(0).expand(x.shape[0], -1, -1, -1)
+    return x + pos_embed
+
+
+class SpatialForcingAlignProjector(nn.Module):
+    def __init__(self, vlm_dim: int, teacher_dim: int, use_vlm_norm: bool = True) -> None:
+        super().__init__()
+        self.vlm_norm = nn.LayerNorm(vlm_dim) if use_vlm_norm else None
+        self.fc1 = nn.Linear(vlm_dim, teacher_dim)
+        self.act = nn.GELU()
+        self.fc2 = nn.Linear(teacher_dim, teacher_dim)
+        self.apply(self._init_weights)
+
+    @staticmethod
+    def _init_weights(module):
+        if isinstance(module, nn.Linear):
+            nn.init.xavier_uniform_(module.weight)
+            if module.bias is not None:
+                nn.init.zeros_(module.bias)
+
+    def forward(self, hidden: torch.Tensor) -> torch.Tensor:
+        if self.vlm_norm is not None:
+            hidden = self.vlm_norm(hidden)
+        return self.fc2(self.act(self.fc1(hidden)))
+
+
 class RGBLatentAdapter(nn.Module):
     def __init__(self, in_c=16, hidden=1024, grid=(1,4,8), n_view=3):
         super().__init__()
@@ -259,6 +333,20 @@ class Qwenvl_OFT(baseframework):
             nn.Linear(hidden_size // 2, self.agent_view_count),
         )
 
+        self.vggt_dense_align_enabled = bool(OmegaConf.select(self.config, "framework.vggt_dense_align.enabled", default=False))
+        self.vggt_dense_loss_weight = float(OmegaConf.select(self.config, "framework.vggt_dense_align.loss_weight", default=0.1))
+        self.vggt_dense_layer_index = int(OmegaConf.select(self.config, "framework.vggt_dense_align.vlm_layer_index", default=-1))
+        self.vggt_dense_teacher_dim = int(OmegaConf.select(self.config, "framework.vggt_dense_align.teacher_dim", default=2048))
+        self.vggt_dense_use_vlm_norm = bool(OmegaConf.select(self.config, "framework.vggt_dense_align.use_vlm_norm", default=False))
+        self.vggt_dense_use_vggt_pe = bool(OmegaConf.select(self.config, "framework.vggt_dense_align.use_vggt_pe", default=True))
+        self.vggt_dense_pe_ratio = float(OmegaConf.select(self.config, "framework.vggt_dense_align.vggt_pe_ratio", default=0.1))
+        if self.vggt_dense_align_enabled:
+            self.vggt_dense_align_projector = SpatialForcingAlignProjector(
+                hidden_size,
+                self.vggt_dense_teacher_dim,
+                use_vlm_norm=self.vggt_dense_use_vlm_norm,
+            )
+
         llm_layers, llm_hidden_size = self.config.framework.action_model.diffusion_model_cfg.num_layers, self.qwen_vl_interface.model.config.hidden_size
 
         DiTConfig = {
@@ -398,6 +486,198 @@ class Qwenvl_OFT(baseframework):
         matches = input_ids.unsqueeze(-1).eq(ids.view(1, 1, -1))
         return matches.to(torch.int8).argmax(dim=1)
 
+    def _select_vggt_dense_hidden(self, hidden_states):
+        if hidden_states is None:
+            raise RuntimeError("framework.vggt_dense_align.enabled requires Qwen hidden_states")
+        index = self.vggt_dense_layer_index
+        if index < 0:
+            index = len(hidden_states) + index
+        if index < 0 or index >= len(hidden_states):
+            raise IndexError(
+                f"framework.vggt_dense_align.vlm_layer_index={self.vggt_dense_layer_index} "
+                f"is out of range for {len(hidden_states)} hidden states"
+            )
+        return hidden_states[index]
+
+    def _gather_visual_hidden(self, hidden_state, input_ids):
+        image_mask = input_ids.eq(self.qwen_vl_interface.model.config.image_token_id)
+        counts = image_mask.sum(dim=1)
+        if not torch.all(counts == counts[0]):
+            raise RuntimeError(f"Inconsistent image token counts in batch: {counts.detach().cpu().tolist()}")
+        count = int(counts[0].item())
+        if count <= 0:
+            raise RuntimeError("No image tokens found for VGGT dense alignment")
+        return hidden_state[image_mask].view(hidden_state.shape[0], count, hidden_state.shape[-1])
+
+    def _pool_vggt_dense_teacher(self, payload, target_grid_thw, target_count, device):
+        features = payload["features"].to(device=device, dtype=torch.float32)
+        if features.ndim == 2:
+            features = features.unsqueeze(0)
+        if features.ndim != 3:
+            raise RuntimeError(f"Unexpected vggt_dense features shape: {tuple(features.shape)}")
+        valid_mask = payload.get("valid_mask")
+        if valid_mask is None:
+            valid = torch.ones(features.shape[:2], device=device, dtype=torch.bool)
+        else:
+            valid = valid_mask.to(device=device, dtype=torch.bool)
+            if valid.ndim == 1:
+                valid = valid.unsqueeze(0)
+        image_hw = payload.get("image_hw")
+        if image_hw is None:
+            image_h = image_w = 0
+        else:
+            image_h, image_w = [int(v) for v in image_hw.reshape(-1).tolist()[:2]]
+        patch_hw = payload.get("patch_hw")
+        if patch_hw is None:
+            patch_count = int(features.shape[1])
+            patch_h = int(round(patch_count ** 0.5))
+            patch_w = patch_count // max(patch_h, 1)
+        else:
+            patch_h, patch_w = [int(v) for v in patch_hw.reshape(-1).tolist()[:2]]
+
+        merge = int(self.qwen_vl_interface.model.config.vision_config.spatial_merge_size)
+        pooled_features = []
+        pooled_valid = []
+        view_count = min(features.shape[0], int(target_grid_thw.shape[0]))
+        for view_index in range(view_count):
+            _, grid_h, grid_w = [int(v) for v in target_grid_thw[view_index].detach().cpu().tolist()]
+            target_h = max(1, grid_h // merge)
+            target_w = max(1, grid_w // merge)
+            view_feat = features[view_index].transpose(0, 1).reshape(1, features.shape[-1], patch_h, patch_w)
+            if self.vggt_dense_use_vggt_pe:
+                pe_h = image_h if image_h > 0 else patch_h
+                pe_w = image_w if image_w > 0 else patch_w
+                view_feat = _sf_apply_pos_embed(view_feat, pe_w, pe_h, ratio=self.vggt_dense_pe_ratio)
+            view_valid = valid[view_index].float().reshape(1, 1, patch_h, patch_w)
+            pooled = F.adaptive_avg_pool2d(view_feat, (target_h, target_w)).flatten(2).squeeze(0).transpose(0, 1)
+            pooled_mask = F.adaptive_max_pool2d(view_valid, (target_h, target_w)).flatten().bool()
+            pooled_features.append(pooled)
+            pooled_valid.append(pooled_mask)
+        features = torch.cat(pooled_features, dim=0)
+        valid = torch.cat(pooled_valid, dim=0)
+        if features.shape[0] != target_count:
+            features_1d = features.transpose(0, 1).unsqueeze(0)
+            features = F.interpolate(features_1d, size=target_count, mode="linear", align_corners=True).squeeze(0).transpose(0, 1)
+            valid = F.interpolate(valid.float().view(1, 1, -1), size=target_count, mode="nearest").view(-1).bool()
+        return features, valid
+
+    def _compute_vggt_dense_grad_stats(self, action_loss, align_loss, align_hidden, visual_hidden, input_ids, probe_loss=None):
+        device = align_hidden.device if align_hidden is not None else next(self.parameters()).device
+        zero = torch.tensor(0.0, device=device)
+        stats = {
+            "action_norm": zero,
+            "align_norm": zero,
+            "cosine": zero,
+            "align_hidden_norm": zero,
+            "align_projector_norm": zero,
+            "align_grad_is_none": zero,
+            "align_hidden_grad_is_none": zero,
+            "align_projector_grad_is_none": zero,
+            "align_projector_param_requires_grad": zero,
+            "probe_visual_norm": zero,
+            "probe_projector_norm": zero,
+            "probe_loss_requires_grad": zero,
+            "align_loss_requires_grad": zero,
+            "visual_hidden_requires_grad": zero,
+            "align_hidden_requires_grad": zero,
+        }
+        if align_hidden is None or visual_hidden is None:
+            return stats
+
+        stats["align_loss_requires_grad"] = torch.tensor(
+            float(torch.is_tensor(align_loss) and align_loss.requires_grad), device=device
+        )
+        stats["probe_loss_requires_grad"] = torch.tensor(
+            float(torch.is_tensor(probe_loss) and probe_loss.requires_grad), device=device
+        )
+        stats["visual_hidden_requires_grad"] = torch.tensor(float(visual_hidden.requires_grad), device=device)
+        stats["align_hidden_requires_grad"] = torch.tensor(float(align_hidden.requires_grad), device=device)
+        image_mask = input_ids.eq(self.qwen_vl_interface.model.config.image_token_id)
+
+        def _grad(loss, target):
+            if not torch.is_tensor(loss) or not loss.requires_grad:
+                return None
+            return torch.autograd.grad(
+                loss,
+                target,
+                retain_graph=True,
+                create_graph=False,
+                allow_unused=True,
+            )[0]
+
+        action_grad_full = _grad(action_loss, align_hidden)
+        if action_grad_full is not None:
+            action_grad = action_grad_full[image_mask].view(align_hidden.shape[0], -1, align_hidden.shape[-1])
+            stats["action_norm"] = action_grad.detach().float().norm()
+        else:
+            action_grad = None
+
+        align_grad = _grad(align_loss, visual_hidden)
+        stats["align_grad_is_none"] = torch.tensor(float(align_grad is None), device=device)
+        if align_grad is not None:
+            stats["align_norm"] = align_grad.detach().float().norm()
+
+        align_hidden_grad_full = _grad(align_loss, align_hidden)
+        stats["align_hidden_grad_is_none"] = torch.tensor(float(align_hidden_grad_full is None), device=device)
+        if align_hidden_grad_full is not None:
+            align_hidden_grad = align_hidden_grad_full[image_mask].view(align_hidden.shape[0], -1, align_hidden.shape[-1])
+            stats["align_hidden_norm"] = align_hidden_grad.detach().float().norm()
+
+        projector_param = next(self.vggt_dense_align_projector.parameters())
+        stats["align_projector_param_requires_grad"] = torch.tensor(float(projector_param.requires_grad), device=device)
+        align_projector_grad = _grad(align_loss, projector_param)
+        stats["align_projector_grad_is_none"] = torch.tensor(float(align_projector_grad is None), device=device)
+        if align_projector_grad is not None:
+            stats["align_projector_norm"] = align_projector_grad.detach().float().norm()
+
+        probe_visual_grad = _grad(probe_loss, visual_hidden)
+        if probe_visual_grad is not None:
+            stats["probe_visual_norm"] = probe_visual_grad.detach().float().norm()
+        probe_projector_grad = _grad(probe_loss, projector_param)
+        if probe_projector_grad is not None:
+            stats["probe_projector_norm"] = probe_projector_grad.detach().float().norm()
+
+        if action_grad is not None and align_grad is not None and stats["action_norm"] > 0 and stats["align_norm"] > 0:
+            stats["cosine"] = F.cosine_similarity(
+                action_grad.detach().float().reshape(-1),
+                align_grad.detach().float().reshape(-1),
+                dim=0,
+                eps=1e-12,
+            )
+        return stats
+
+    def _compute_vggt_dense_alignment_loss(self, visual_hidden, examples, image_grid_thw):
+        payloads = [example.get("vggt_dense_feature_cache") for example in examples]
+        if not all(payload is not None for payload in payloads):
+            raise RuntimeError("framework.vggt_dense_align.enabled requires vggt_dense_feature_cache for every sample")
+        if next(self.vggt_dense_align_projector.parameters()).device != visual_hidden.device:
+            self.vggt_dense_align_projector = self.vggt_dense_align_projector.to(visual_hidden.device)
+        pred = self.vggt_dense_align_projector(visual_hidden.float()).float()
+        losses = []
+        valid_counts = []
+        device_type = "cuda" if pred.is_cuda else "cpu"
+        with torch.autocast(device_type, enabled=False):
+            for batch_index, payload in enumerate(payloads):
+                target, valid = self._pool_vggt_dense_teacher(payload, image_grid_thw[batch_index], pred.shape[1], pred.device)
+                valid_count = int(valid.sum().item())
+                if valid_count <= 0:
+                    continue
+                pred_norm = F.normalize(pred[batch_index, valid].float(), dim=-1)
+                target_norm = F.normalize(target[valid].float(), dim=-1)
+                losses.append(1.0 - (pred_norm * target_norm).sum(dim=-1).mean())
+                valid_counts.append(valid_count)
+        if not losses:
+            zero = pred.sum() * 0.0
+            return {"loss": zero, "raw": zero.detach(), "valid_tokens": torch.tensor(0.0, device=pred.device), "probe_loss": zero}
+        raw = torch.stack(losses).mean()
+        loss = raw * self.vggt_dense_loss_weight
+        return {
+            "loss": loss,
+            "raw": raw.detach(),
+            "valid_tokens": torch.tensor(float(sum(valid_counts)) / len(valid_counts), device=pred.device),
+            "probe_loss": pred.mean() * self.vggt_dense_loss_weight,
+        }
+
     def _build_action_prompt_suffix(self) -> str:
         """Build the instruction suffix used by action-only prompting."""
         hist_str = self.robot_history_token
@@ -468,6 +748,7 @@ class Qwenvl_OFT(baseframework):
                 attention_mask,
                 position_ids,
                 {name: torch.stack(values) for name, values in positions.items()},
+                torch.stack([payload["image_grid_thw"] for payload in cached]).to(device, non_blocking=True),
                 image_embeds.to(device, non_blocking=True),
                 [value.to(device, non_blocking=True) for value in deepstack_embeds],
             )
@@ -500,6 +781,7 @@ class Qwenvl_OFT(baseframework):
             attention_mask,
             position_ids,
             positions,
+            qwen_inputs["image_grid_thw"].view(len(examples), -1, 3),
             image_embeds,
             deepstack_embeds,
         )
@@ -512,6 +794,7 @@ class Qwenvl_OFT(baseframework):
         position_ids,
         image_embeds,
         deepstack_embeds,
+        output_hidden_states=False,
     ):
         """Run only the trainable Qwen backbone, skipping the unused LM head."""
         image_mask = input_ids.eq(self.qwen_vl_interface.model.config.image_token_id)
@@ -532,7 +815,10 @@ class Qwenvl_OFT(baseframework):
                 for value in deepstack_embeds
             ],
             use_cache=False,
+            output_hidden_states=output_hidden_states,
         )
+        if output_hidden_states:
+            return outputs.last_hidden_state, outputs.hidden_states
         return outputs.last_hidden_state
 
     def forward(
@@ -563,6 +849,7 @@ class Qwenvl_OFT(baseframework):
             attention_mask,
             position_ids,
             token_positions,
+            image_grid_thw,
             image_embeds,
             deepstack_embeds,
         ) = self._build_qwen_batch(examples, instructions)
@@ -606,19 +893,81 @@ class Qwenvl_OFT(baseframework):
             ] = self.gs_query.unsqueeze(0).to(text_embeds.dtype)
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
-            last_hidden = self._qwen_language_forward(
+            qwen_outputs = self._qwen_language_forward(
                 input_ids=input_ids,
                 inputs_embeds=text_embeds,
                 attention_mask=attention_mask,
                 position_ids=position_ids,
                 image_embeds=image_embeds,
                 deepstack_embeds=deepstack_embeds,
+                output_hidden_states=self.vggt_dense_align_enabled,
             )
+        if self.vggt_dense_align_enabled:
+            last_hidden, qwen_hidden_states = qwen_outputs
+        else:
+            last_hidden = qwen_outputs
+            qwen_hidden_states = None
 
         agent_dino_loss = torch.tensor(0.).to(text_embeds.device)
         agent_bbox_loss = torch.tensor(0.).to(text_embeds.device)
         agent_vis_loss = torch.tensor(0.).to(text_embeds.device)
         agent_match_count = torch.tensor(0., device=text_embeds.device)
+        vggt_dense_loss = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_loss_raw = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_valid_tokens = torch.tensor(0., device=text_embeds.device)
+        vggt_dense_action_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_action_align_grad_cosine = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_hidden_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_projector_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_loss_requires_grad = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_visual_hidden_requires_grad = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_hidden_requires_grad = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_grad_is_none = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_hidden_grad_is_none = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_projector_grad_is_none = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_align_projector_param_requires_grad = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_probe_visual_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_probe_projector_grad_norm = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_probe_loss_requires_grad = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_probe_loss = torch.tensor(0.).to(text_embeds.device)
+        vggt_dense_grad_tensors = None
+        visual_hidden = None
+        if self.vggt_dense_align_enabled:
+            align_hidden = self._select_vggt_dense_hidden(qwen_hidden_states)
+            visual_hidden = self._gather_visual_hidden(align_hidden, input_ids).clone()
+            if os.environ.get("VGGT_DENSE_DEBUG_BACKWARD_HOOK", "0") == "1":
+                self._vggt_dense_backward_debug = {}
+
+                def _record_visual_grad(grad):
+                    self._vggt_dense_backward_debug["visual_hidden_total_grad_norm"] = grad.detach().float().norm()
+
+                def _record_projector_grad(grad):
+                    self._vggt_dense_backward_debug["projector_total_grad_norm"] = grad.detach().float().norm()
+
+                visual_hidden.register_hook(_record_visual_grad)
+                next(self.vggt_dense_align_projector.parameters()).register_hook(_record_projector_grad)
+            vggt_dense_loss_dict = self._compute_vggt_dense_alignment_loss(visual_hidden, examples, image_grid_thw)
+            vggt_dense_loss = vggt_dense_loss_dict["loss"]
+            vggt_dense_loss_raw = vggt_dense_loss_dict["raw"]
+            vggt_dense_valid_tokens = vggt_dense_loss_dict["valid_tokens"]
+            vggt_dense_probe_loss = vggt_dense_loss_dict["probe_loss"]
+            if bool(OmegaConf.select(self.config, "framework.vggt_dense_align.log_grad_stats", default=False)):
+                vggt_dense_grad_tensors = {
+                    "align_hidden": align_hidden,
+                    "visual_hidden": visual_hidden,
+                    "input_ids": input_ids,
+                    "probe_loss": vggt_dense_probe_loss,
+                }
+            if os.environ.get("VGGT_DENSE_DEBUG_SAVE_TENSORS", "0") == "1":
+                self._vggt_dense_debug_tensors = {
+                    "align_loss": vggt_dense_loss,
+                    "probe_loss": vggt_dense_probe_loss,
+                    "visual_hidden": visual_hidden,
+                    "align_hidden": align_hidden,
+                    "projector_param": next(self.vggt_dense_align_projector.parameters()),
+                    "input_ids": input_ids,
+                }
         if self.action_prompt_mode == "minimal_agent":
             mine_agent_g_idx = token_positions["mine_agent"].unsqueeze(-1).expand(-1, -1, H)
             mine_agent_queries = last_hidden.gather(dim=1, index=mine_agent_g_idx)  # [B, 4, H]
@@ -946,11 +1295,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count}
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_dense_loss": vggt_dense_loss, "vggt_dense_loss_raw": vggt_dense_loss_raw, "vggt_dense_valid_tokens": vggt_dense_valid_tokens, "vggt_dense_action_grad_norm": vggt_dense_action_grad_norm, "vggt_dense_align_grad_norm": vggt_dense_align_grad_norm, "vggt_dense_action_align_grad_cosine": vggt_dense_action_align_grad_cosine, "vggt_dense_align_hidden_grad_norm": vggt_dense_align_hidden_grad_norm, "vggt_dense_align_projector_grad_norm": vggt_dense_align_projector_grad_norm, "vggt_dense_align_loss_requires_grad": vggt_dense_align_loss_requires_grad, "vggt_dense_visual_hidden_requires_grad": vggt_dense_visual_hidden_requires_grad, "vggt_dense_align_hidden_requires_grad": vggt_dense_align_hidden_requires_grad, "vggt_dense_align_grad_is_none": vggt_dense_align_grad_is_none, "vggt_dense_align_hidden_grad_is_none": vggt_dense_align_hidden_grad_is_none, "vggt_dense_align_projector_grad_is_none": vggt_dense_align_projector_grad_is_none, "vggt_dense_align_projector_param_requires_grad": vggt_dense_align_projector_param_requires_grad, "vggt_dense_probe_visual_grad_norm": vggt_dense_probe_visual_grad_norm, "vggt_dense_probe_projector_grad_norm": vggt_dense_probe_projector_grad_norm, "vggt_dense_probe_loss_requires_grad": vggt_dense_probe_loss_requires_grad, "_vggt_dense_grad_tensors": vggt_dense_grad_tensors}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count}
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss, "agent_bbox_loss": agent_bbox_loss, "agent_vis_loss": agent_vis_loss, "agent_match_count": agent_match_count, "vggt_dense_loss": vggt_dense_loss, "vggt_dense_loss_raw": vggt_dense_loss_raw, "vggt_dense_valid_tokens": vggt_dense_valid_tokens, "vggt_dense_action_grad_norm": vggt_dense_action_grad_norm, "vggt_dense_align_grad_norm": vggt_dense_align_grad_norm, "vggt_dense_action_align_grad_cosine": vggt_dense_action_align_grad_cosine, "vggt_dense_align_hidden_grad_norm": vggt_dense_align_hidden_grad_norm, "vggt_dense_align_projector_grad_norm": vggt_dense_align_projector_grad_norm, "vggt_dense_align_loss_requires_grad": vggt_dense_align_loss_requires_grad, "vggt_dense_visual_hidden_requires_grad": vggt_dense_visual_hidden_requires_grad, "vggt_dense_align_hidden_requires_grad": vggt_dense_align_hidden_requires_grad, "vggt_dense_align_grad_is_none": vggt_dense_align_grad_is_none, "vggt_dense_align_hidden_grad_is_none": vggt_dense_align_hidden_grad_is_none, "vggt_dense_align_projector_grad_is_none": vggt_dense_align_projector_grad_is_none, "vggt_dense_align_projector_param_requires_grad": vggt_dense_align_projector_param_requires_grad, "vggt_dense_probe_visual_grad_norm": vggt_dense_probe_visual_grad_norm, "vggt_dense_probe_projector_grad_norm": vggt_dense_probe_projector_grad_norm, "vggt_dense_probe_loss_requires_grad": vggt_dense_probe_loss_requires_grad, "_vggt_dense_grad_tensors": vggt_dense_grad_tensors}
 
     @torch.inference_mode()
     def predict_action(

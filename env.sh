@@ -82,6 +82,7 @@ export VIDEO_MODEL="${VIDEO_MODEL:-$SHARED_WEIGHT_ROOT/alibaba-pai/Wan2.1-Fun-V1
 export PPD_MODEL="${PPD_MODEL:-$SHARED_WEIGHT_ROOT/gangweix/Pixel-Perfect-Depth/ppd.pth}"
 export DEPTH_ANYTHING_MODEL="${DEPTH_ANYTHING_MODEL:-$SHARED_WEIGHT_ROOT/depth-anything/Depth-Anything-V2-Large/depth_anything_v2_vitl.pth}"
 export DA3_MODEL="${DA3_MODEL:-$SHARED_WEIGHT_ROOT/depth-anything/da3metric-large}"
+export VGGT_MODEL="${VGGT_MODEL:-$SHARED_WEIGHT_ROOT/facebook/VGGT-1B}"
 export RELEASE_MODEL="${RELEASE_MODEL:-$DRIVEDREAMER_ROOT/navsim_exp/agent-action-visible32-objectslot-debug/final_model/pytorch_model.pt}"
 
 # ── Weights & Biases (optional) ───────────────────────────────────────────────

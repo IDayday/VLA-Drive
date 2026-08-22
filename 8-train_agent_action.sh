@@ -111,6 +111,7 @@ CUDA_VISIBLE_DEVICES="${visible_devices}" accelerate launch \
   --w_depth 0 \
   --rgb_query_loss 0 \
   --gs_query_loss 0 \
+  --trainer.freeze_modules "qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head" \
   --trainer.gradient_accumulation_steps ${gradient_accumulation_steps} \
   --framework.action_model.repeated_diffusion_steps ${fm_repeat} \
   --framework.action_model.hidden_size ${act_fm_size} \

@@ -18,12 +18,13 @@ import torch
 
 
 CACHE_SCHEMA_VERSION = 1
-CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino")
+CACHE_COMPONENTS = ("qwen", "wan", "ppd", "agent_dino", "vggt_dense")
 CACHE_SCHEMA_VERSIONS = {
     "qwen": (1,),
     "wan": (1,),
     "ppd": (1,),
     "agent_dino": (1, 2, 3),
+    "vggt_dense": (1,),
 }
 
 ROBOT_HISTORY_TOKEN = "<robot_history_action_0>"

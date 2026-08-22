@@ -599,6 +599,26 @@ class VLATrainer(TrainerUtils):
                 agent_bbox_loss = output_dict.get('agent_bbox_loss', torch.tensor(0.0, device=action_loss.device))
                 agent_vis_loss = output_dict.get('agent_vis_loss', torch.tensor(0.0, device=action_loss.device))
                 agent_match_count = output_dict.get('agent_match_count', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_loss = output_dict.get('vggt_dense_loss', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_loss_raw = output_dict.get('vggt_dense_loss_raw', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_valid_tokens = output_dict.get('vggt_dense_valid_tokens', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_action_grad_norm = output_dict.get('vggt_dense_action_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_grad_norm = output_dict.get('vggt_dense_align_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_action_align_grad_cosine = output_dict.get('vggt_dense_action_align_grad_cosine', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_hidden_grad_norm = output_dict.get('vggt_dense_align_hidden_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_projector_grad_norm = output_dict.get('vggt_dense_align_projector_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_loss_requires_grad = output_dict.get('vggt_dense_align_loss_requires_grad', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_visual_hidden_requires_grad = output_dict.get('vggt_dense_visual_hidden_requires_grad', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_hidden_requires_grad = output_dict.get('vggt_dense_align_hidden_requires_grad', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_grad_is_none = output_dict.get('vggt_dense_align_grad_is_none', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_hidden_grad_is_none = output_dict.get('vggt_dense_align_hidden_grad_is_none', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_projector_grad_is_none = output_dict.get('vggt_dense_align_projector_grad_is_none', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_align_projector_param_requires_grad = output_dict.get('vggt_dense_align_projector_param_requires_grad', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_probe_visual_grad_norm = output_dict.get('vggt_dense_probe_visual_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_probe_projector_grad_norm = output_dict.get('vggt_dense_probe_projector_grad_norm', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_probe_loss_requires_grad = output_dict.get('vggt_dense_probe_loss_requires_grad', torch.tensor(0.0, device=action_loss.device))
+                vggt_dense_backward_visual_grad_norm = torch.tensor(0.0, device=action_loss.device)
+                vggt_dense_backward_projector_grad_norm = torch.tensor(0.0, device=action_loss.device)
 
                 total_loss = 0
                 if self.config.datasets.video_data.load_2d_data == 1:
@@ -613,10 +633,57 @@ class VLATrainer(TrainerUtils):
                     total_loss += agent_dino_loss
                     total_loss += agent_bbox_loss
                     total_loss += agent_vis_loss
+                if bool(OmegaConf.select(self.config, "framework.vggt_dense_align.enabled", default=False)):
+                    total_loss += vggt_dense_loss
 
+
+            vggt_dense_enabled = bool(OmegaConf.select(self.config, "framework.vggt_dense_align.enabled", default=False))
+            vggt_dense_log_grad_stats = bool(OmegaConf.select(self.config, "framework.vggt_dense_align.log_grad_stats", default=False))
+            if vggt_dense_enabled and vggt_dense_log_grad_stats:
+                grad_tensors = output_dict.get("_vggt_dense_grad_tensors") or {}
+                if grad_tensors:
+                    try:
+                        raw_model = self.accelerator.unwrap_model(self.model)
+                    except Exception:
+                        raw_model = self.model
+                    vggt_dense_grad_stats = raw_model._compute_vggt_dense_grad_stats(
+                        action_loss,
+                        vggt_dense_loss,
+                        grad_tensors.get("align_hidden"),
+                        grad_tensors.get("visual_hidden"),
+                        grad_tensors.get("input_ids"),
+                        grad_tensors.get("probe_loss"),
+                    )
+                    vggt_dense_action_grad_norm = vggt_dense_grad_stats["action_norm"]
+                    vggt_dense_align_grad_norm = vggt_dense_grad_stats["align_norm"]
+                    vggt_dense_action_align_grad_cosine = vggt_dense_grad_stats["cosine"]
+                    vggt_dense_align_hidden_grad_norm = vggt_dense_grad_stats["align_hidden_norm"]
+                    vggt_dense_align_projector_grad_norm = vggt_dense_grad_stats["align_projector_norm"]
+                    vggt_dense_align_loss_requires_grad = vggt_dense_grad_stats["align_loss_requires_grad"]
+                    vggt_dense_visual_hidden_requires_grad = vggt_dense_grad_stats["visual_hidden_requires_grad"]
+                    vggt_dense_align_hidden_requires_grad = vggt_dense_grad_stats["align_hidden_requires_grad"]
+                    vggt_dense_align_grad_is_none = vggt_dense_grad_stats["align_grad_is_none"]
+                    vggt_dense_align_hidden_grad_is_none = vggt_dense_grad_stats["align_hidden_grad_is_none"]
+                    vggt_dense_align_projector_grad_is_none = vggt_dense_grad_stats["align_projector_grad_is_none"]
+                    vggt_dense_align_projector_param_requires_grad = vggt_dense_grad_stats["align_projector_param_requires_grad"]
+                    vggt_dense_probe_visual_grad_norm = vggt_dense_grad_stats["probe_visual_norm"]
+                    vggt_dense_probe_projector_grad_norm = vggt_dense_grad_stats["probe_projector_norm"]
+                    vggt_dense_probe_loss_requires_grad = vggt_dense_grad_stats["probe_loss_requires_grad"]
 
             # VLA backward propagation
             self.accelerator.backward(total_loss)
+            if vggt_dense_enabled and vggt_dense_log_grad_stats:
+                try:
+                    raw_model = self.accelerator.unwrap_model(self.model)
+                except Exception:
+                    raw_model = self.model
+                backward_debug = getattr(raw_model, "_vggt_dense_backward_debug", {})
+                vggt_dense_backward_visual_grad_norm = backward_debug.get(
+                    "visual_hidden_total_grad_norm", vggt_dense_backward_visual_grad_norm
+                )
+                vggt_dense_backward_projector_grad_norm = backward_debug.get(
+                    "projector_total_grad_norm", vggt_dense_backward_projector_grad_norm
+                )
             # for debug
             # self._report_unused_after_backward()
 
@@ -630,16 +697,46 @@ class VLATrainer(TrainerUtils):
                 self.lr_scheduler.step()
                 self.optimizer.zero_grad()
 
-        return {
+        metrics = {
             "action_dit_loss": action_loss.detach(),
             "rgb_gen_loss": 0 if self.config.datasets.video_data.load_2d_data == 0 else rgb_loss.detach(),
             "gs_loss": 0 if self.config.datasets.gs_data.load_3d_data == 0 and self.config.w_depth==0 else gs_loss.detach(),
             "reward_loss": 0 if self.config.datasets.reward_data.load_reward_data == 0 else reward_loss.detach(),
-            "agent_dino_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_dino_loss.detach(),
-            "agent_bbox_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_bbox_loss.detach(),
-            "agent_vis_loss": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_vis_loss.detach(),
-            "agent_match_count": 0 if getattr(self.config.framework, "action_prompt_mode", "full") != "minimal_agent" else agent_match_count.detach(),
         }
+        if getattr(self.config.framework, "action_prompt_mode", "full") == "minimal_agent":
+            metrics.update({
+                "agent_dino_loss": agent_dino_loss.detach(),
+                "agent_bbox_loss": agent_bbox_loss.detach(),
+                "agent_vis_loss": agent_vis_loss.detach(),
+                "agent_match_count": agent_match_count.detach(),
+            })
+        if vggt_dense_enabled:
+            metrics.update({
+                "vggt_dense_loss": vggt_dense_loss.detach(),
+                "vggt_dense_loss_raw": vggt_dense_loss_raw.detach(),
+                "vggt_dense_valid_tokens": vggt_dense_valid_tokens.detach(),
+            })
+        if vggt_dense_enabled and vggt_dense_log_grad_stats:
+            metrics.update({
+                "vggt_dense_action_grad_norm": vggt_dense_action_grad_norm.detach(),
+                "vggt_dense_align_grad_norm": vggt_dense_align_grad_norm.detach(),
+                "vggt_dense_action_align_grad_cosine": vggt_dense_action_align_grad_cosine.detach(),
+                "vggt_dense_align_hidden_grad_norm": vggt_dense_align_hidden_grad_norm.detach(),
+                "vggt_dense_align_projector_grad_norm": vggt_dense_align_projector_grad_norm.detach(),
+                "vggt_dense_align_loss_requires_grad": vggt_dense_align_loss_requires_grad.detach(),
+                "vggt_dense_visual_hidden_requires_grad": vggt_dense_visual_hidden_requires_grad.detach(),
+                "vggt_dense_align_hidden_requires_grad": vggt_dense_align_hidden_requires_grad.detach(),
+                "vggt_dense_align_grad_is_none": vggt_dense_align_grad_is_none.detach(),
+                "vggt_dense_align_hidden_grad_is_none": vggt_dense_align_hidden_grad_is_none.detach(),
+                "vggt_dense_align_projector_grad_is_none": vggt_dense_align_projector_grad_is_none.detach(),
+                "vggt_dense_align_projector_param_requires_grad": vggt_dense_align_projector_param_requires_grad.detach(),
+                "vggt_dense_probe_visual_grad_norm": vggt_dense_probe_visual_grad_norm.detach(),
+                "vggt_dense_probe_projector_grad_norm": vggt_dense_probe_projector_grad_norm.detach(),
+                "vggt_dense_probe_loss_requires_grad": vggt_dense_probe_loss_requires_grad.detach(),
+                "vggt_dense_backward_visual_grad_norm": vggt_dense_backward_visual_grad_norm.detach(),
+                "vggt_dense_backward_projector_grad_norm": vggt_dense_backward_projector_grad_norm.detach(),
+            })
+        return metrics
 
     def _finalize_training(self):
         """training end processing"""
