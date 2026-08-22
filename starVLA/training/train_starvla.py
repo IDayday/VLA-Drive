@@ -39,17 +39,25 @@ import wandb
 import yaml
 from accelerate import Accelerator, DeepSpeedPlugin
 from accelerate.logging import get_logger
-from accelerate.utils import DistributedDataParallelKwargs, set_seed
+from accelerate.utils import (
+    DistributedDataParallelKwargs,
+    GradientAccumulationPlugin,
+    set_seed,
+)
 from omegaconf import OmegaConf
 from tqdm import tqdm
 from transformers import AutoProcessor, get_scheduler
 
 # Local Modules
 from starVLA.training.trainer_utils.trainer_tools import normalize_dotlist_args
+from starVLA.training.config_loader import load_training_config
 from starVLA.model.framework import build_framework
 from starVLA.training.trainer_utils.trainer_tools import TrainerUtils
 from starVLA.training.trainer_utils.trainer_tools import build_param_lr_groups
-from starVLA.training.hierarchical_schedule import build_hierarchical_schedule
+from starVLA.training.hierarchical_schedule import (
+    HierarchicalTrainingSchedule,
+    build_hierarchical_schedule,
+)
 
 # Sane Defaults
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -187,7 +195,9 @@ def prepare_data(cfg, accelerator, output_dir) -> DataLoader:
 
 def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler._LRScheduler]:
     """set optimizer and scheduler"""
-    if hasattr(model, "assert_qwen_frozen"):
+    if hasattr(model, "assert_qwen_trainability"):
+        model.assert_qwen_trainability()
+    elif hasattr(model, "assert_qwen_frozen"):
         model.assert_qwen_frozen()
     # initialize optimizer
     param_groups = build_param_lr_groups(model=model, cfg=cfg)
@@ -197,6 +207,8 @@ def setup_optimizer_and_scheduler(model, cfg) -> Tuple[torch.optim.Optimizer, to
         betas=tuple(cfg.trainer.optimizer.betas),
         weight_decay=cfg.trainer.optimizer.weight_decay,
         eps=cfg.trainer.optimizer.eps,
+        fused=bool(cfg.trainer.optimizer.get("fused", False))
+        and torch.cuda.is_available(),
     )
 
     # print optimizer group info
@@ -244,19 +256,37 @@ class VLATrainer(TrainerUtils):
         self.is_hierarchical_planner = (
             str(self.config.framework.name) == "QwenPI-DrivoRSuprim"
         )
+        self.dynamic_training_enabled = bool(
+            getattr(self.model, "supports_dynamic_training", False)
+        )
+        self.joint_training_enabled = bool(
+            getattr(self.model, "supports_joint_training", False)
+        )
         self.dynamic_metric_supervisor = None
-        if self.is_hierarchical_planner:
-            from starVLA.training.navsim_metric_supervisor import (
-                DynamicMetricSupervisor,
-            )
-
+        if self.is_hierarchical_planner and self.dynamic_training_enabled:
             rank = dist.get_rank() if dist.is_initialized() else 0
             world_size = dist.get_world_size() if dist.is_initialized() else 1
-            self.dynamic_metric_supervisor = DynamicMetricSupervisor(
-                self.config.framework.dynamic_metric_supervisor,
-                rank=rank,
-                world_size=world_size,
-            )
+            metric_cfg = self.config.framework.dynamic_metric_supervisor
+            if str(metric_cfg.get("backend", "thread")) == "stub":
+                if not bool(self.config.trainer.get("capacity_probe", False)):
+                    raise ValueError(
+                        "stub dynamic metrics are restricted to trainer.capacity_probe=true"
+                    )
+                from starVLA.training.navsim_metric_supervisor import (
+                    StubDynamicMetricSupervisor,
+                )
+
+                self.dynamic_metric_supervisor = StubDynamicMetricSupervisor()
+            else:
+                from starVLA.training.navsim_metric_supervisor import (
+                    DynamicMetricSupervisor,
+                )
+
+                self.dynamic_metric_supervisor = DynamicMetricSupervisor(
+                    metric_cfg,
+                    rank=rank,
+                    world_size=world_size,
+                )
             atexit.register(self._close_metric_supervisor)
 
     def _close_metric_supervisor(self):
@@ -586,6 +616,8 @@ class VLATrainer(TrainerUtils):
         optimizer_step_start = time.perf_counter()
         optimizer_data_time = 0.0
         optimizer_model_time = 0.0
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
         while self.completed_steps < self.config.trainer.max_train_steps:
             # get data batch
             t_start_data = time.perf_counter()
@@ -604,6 +636,29 @@ class VLATrainer(TrainerUtils):
                 progress_bar.update(1)
                 self.completed_steps += 1
 
+                optimizer_step_end = time.perf_counter()
+                wall_time = optimizer_step_end - optimizer_step_start
+                overhead_time = max(
+                    0.0,
+                    wall_time - optimizer_data_time - optimizer_model_time,
+                )
+                step_metrics["data_time"] = optimizer_data_time
+                step_metrics["model_time"] = optimizer_model_time
+                step_metrics["wall_time"] = wall_time
+                step_metrics["samples_per_second"] = (
+                    self.total_batch_size / max(wall_time, 1e-12)
+                )
+                if torch.cuda.is_available():
+                    step_metrics["peak_allocated_gib"] = (
+                        torch.cuda.max_memory_allocated() / 1024**3
+                    )
+                    step_metrics["peak_reserved_gib"] = (
+                        torch.cuda.max_memory_reserved() / 1024**3
+                    )
+                self._timing_window.append(
+                    (optimizer_data_time, optimizer_model_time, overhead_time, wall_time)
+                )
+
                 # Evaluation, logging, and checkpointing are optimizer-step
                 # operations. Running them on unsynchronized accumulation
                 # microsteps repeatedly evaluates "step 0" and breaks the
@@ -611,22 +666,10 @@ class VLATrainer(TrainerUtils):
                 if self.completed_steps % self.config.trainer.eval_interval == 0:
                     step_metrics = self.eval_action_model(step_metrics)
 
-                step_metrics["data_time"] = optimizer_data_time
-                step_metrics["model_time"] = optimizer_model_time
                 self._log_metrics(step_metrics)
 
                 if self.completed_steps % self.config.trainer.save_interval == 0:
                     self._save_checkpoint()
-
-                optimizer_step_end = time.perf_counter()
-                wall_time = optimizer_step_end - optimizer_step_start
-                overhead_time = max(
-                    0.0,
-                    wall_time - optimizer_data_time - optimizer_model_time,
-                )
-                self._timing_window.append(
-                    (optimizer_data_time, optimizer_model_time, overhead_time, wall_time)
-                )
 
                 if self.completed_steps % self.config.trainer.logging_frequency == 0:
                     if self.accelerator.is_local_main_process:
@@ -639,6 +682,7 @@ class VLATrainer(TrainerUtils):
                                 "data_p95": f"{p95[0]:.3f}",
                                 "model_avg": f"{means[1]:.3f}",
                                 "wall_avg": f"{means[3]:.3f}",
+                                "samples/s": f"{step_metrics['samples_per_second']:.2f}",
                             },
                             refresh=False,
                         )
@@ -659,6 +703,8 @@ class VLATrainer(TrainerUtils):
                 optimizer_step_start = time.perf_counter()
                 optimizer_data_time = 0.0
                 optimizer_model_time = 0.0
+                if torch.cuda.is_available():
+                    torch.cuda.reset_peak_memory_stats()
 
                 if self.completed_steps >= self.config.trainer.max_train_steps:
                     break
@@ -757,26 +803,84 @@ class VLATrainer(TrainerUtils):
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 schedule = None
                 if self.is_hierarchical_planner:
-                    curriculum = self.config.trainer.curriculum
                     loss_cfg = self.config.trainer.hierarchical_loss
                     dynamic_cfg = self.config.framework.hierarchical_scorer.dynamic
-                    schedule = build_hierarchical_schedule(
-                        completed_steps=self.completed_steps,
-                        max_train_steps=int(self.config.trainer.max_train_steps),
-                        static_only_end=float(curriculum.get("static_only_end", 0.10)),
-                        dynamic_ramp_end=float(curriculum.get("dynamic_ramp_end", 0.20)),
-                        num_dynamic_candidates=int(dynamic_cfg.get("num_candidates", 64)),
-                        dynamic_topm_start=int(curriculum.get("dynamic_topm_start", 64)),
-                        dynamic_topm_end=int(curriculum.get("dynamic_topm_end", 32)),
-                        lambda_flow=float(loss_cfg.get("lambda_flow", 1.0)),
-                        lambda_drivor=float(loss_cfg.get("lambda_drivor", 1.0)),
-                        lambda_suprim_coarse=float(
-                            loss_cfg.get("lambda_suprim_coarse", 1.0)
-                        ),
-                        lambda_suprim_fine=float(
-                            loss_cfg.get("lambda_suprim_fine", 1.0)
-                        ),
-                    )
+                    if not self.dynamic_training_enabled:
+                        # B1/B2: action-only training keeps the unified loss
+                        # contract, but only the baseline Flow term is active.
+                        schedule = HierarchicalTrainingSchedule(
+                            progress=min(
+                                self.completed_steps
+                                / max(int(self.config.trainer.max_train_steps), 1),
+                                1.0,
+                            ),
+                            dynamic_enabled=False,
+                            num_dynamic_candidates=0,
+                            dynamic_topm=0,
+                            lambda_flow=float(loss_cfg.get("lambda_flow", 1.0)),
+                            lambda_drivor=0.0,
+                            lambda_suprim_coarse=0.0,
+                            lambda_suprim_fine=0.0,
+                        )
+                    elif not self.joint_training_enabled:
+                        # B3 has no static scorer, so DrivoR is active from the
+                        # start and selects its own Top-1 at inference.
+                        schedule = HierarchicalTrainingSchedule(
+                            progress=min(
+                                self.completed_steps
+                                / max(int(self.config.trainer.max_train_steps), 1),
+                                1.0,
+                            ),
+                            dynamic_enabled=True,
+                            num_dynamic_candidates=int(
+                                dynamic_cfg.get("num_candidates", 64)
+                            ),
+                            dynamic_topm=int(
+                                dynamic_cfg.get(
+                                    "dynamic_topm",
+                                    dynamic_cfg.get("final_topm", 32),
+                                )
+                            ),
+                            lambda_flow=float(loss_cfg.get("lambda_flow", 1.0)),
+                            lambda_drivor=float(
+                                loss_cfg.get("lambda_drivor", 1.0)
+                            ),
+                            lambda_suprim_coarse=0.0,
+                            lambda_suprim_fine=0.0,
+                        )
+                    else:
+                        # Preserve the existing B4 curriculum; this task does
+                        # not add another loss-weight schedule.
+                        curriculum = self.config.trainer.curriculum
+                        schedule = build_hierarchical_schedule(
+                            completed_steps=self.completed_steps,
+                            max_train_steps=int(self.config.trainer.max_train_steps),
+                            static_only_end=float(
+                                curriculum.get("static_only_end", 0.10)
+                            ),
+                            dynamic_ramp_end=float(
+                                curriculum.get("dynamic_ramp_end", 0.20)
+                            ),
+                            num_dynamic_candidates=int(
+                                dynamic_cfg.get("num_candidates", 64)
+                            ),
+                            dynamic_topm_start=int(
+                                curriculum.get("dynamic_topm_start", 64)
+                            ),
+                            dynamic_topm_end=int(
+                                curriculum.get("dynamic_topm_end", 32)
+                            ),
+                            lambda_flow=float(loss_cfg.get("lambda_flow", 1.0)),
+                            lambda_drivor=float(
+                                loss_cfg.get("lambda_drivor", 1.0)
+                            ),
+                            lambda_suprim_coarse=float(
+                                loss_cfg.get("lambda_suprim_coarse", 1.0)
+                            ),
+                            lambda_suprim_fine=float(
+                                loss_cfg.get("lambda_suprim_fine", 1.0)
+                            ),
+                        )
                     output_dict = self.model.forward(
                         batch_vla,
                         training_schedule=schedule,
@@ -925,6 +1029,14 @@ class VLATrainer(TrainerUtils):
 
 
 def main(cfg) -> None:
+    allow_tf32 = bool(cfg.trainer.get("allow_tf32", False))
+    cudnn_benchmark = bool(cfg.trainer.get("cudnn_benchmark", False))
+    torch.backends.cuda.matmul.allow_tf32 = allow_tf32
+    torch.backends.cudnn.allow_tf32 = allow_tf32
+    torch.backends.cudnn.benchmark = cudnn_benchmark
+    torch.set_float32_matmul_precision("high" if allow_tf32 else "highest")
+
+    configured_accumulation = int(cfg.trainer.gradient_accumulation_steps)
     deepspeed_plugin = DeepSpeedPlugin()
     ddp_kwargs = DistributedDataParallelKwargs(
         find_unused_parameters=bool(
@@ -932,13 +1044,26 @@ def main(cfg) -> None:
         )
     )
     accelerator = Accelerator(
-        gradient_accumulation_steps=int(
-            cfg.trainer.gradient_accumulation_steps
+        gradient_accumulation_plugin=GradientAccumulationPlugin(
+            num_steps=configured_accumulation,
+            # DeepSpeed owns the actual gradient synchronization boundary.
+            sync_each_batch=True,
         ),
         deepspeed_plugin=deepspeed_plugin,
         kwargs_handlers=[ddp_kwargs],
     )
     accelerator.print(accelerator.state)
+    accelerator.print(
+        "Performance switches: "
+        f"allow_tf32={torch.backends.cuda.matmul.allow_tf32}, "
+        f"cudnn_benchmark={torch.backends.cudnn.benchmark}, "
+        f"fused_adamw={bool(cfg.trainer.optimizer.get('fused', False))}"
+    )
+    if accelerator.gradient_accumulation_steps != configured_accumulation:
+        raise RuntimeError(
+            "Accelerate gradient accumulation differs from trainer config: "
+            f"{accelerator.gradient_accumulation_steps} != {configured_accumulation}"
+        )
     logger.info("VLA Training :: Warming Up")
 
     # create output directory and save config
@@ -990,6 +1115,8 @@ def main(cfg) -> None:
     # build model
     vla = build_framework(cfg, accelerator)
     if accelerator.is_main_process:
+        if hasattr(vla, "log_architecture_summary"):
+            vla.log_architecture_summary(logger)
         total_parameters = sum(parameter.numel() for parameter in vla.parameters())
         trainable_parameters = sum(
             parameter.numel() for parameter in vla.parameters() if parameter.requires_grad
@@ -1012,6 +1139,8 @@ def main(cfg) -> None:
                 for attribute in module_name.split("."):
                     module = getattr(module, attribute)
             except AttributeError:
+                continue
+            if not isinstance(module, torch.nn.Module):
                 continue
             module_total = sum(parameter.numel() for parameter in module.parameters())
             module_trainable = sum(
@@ -1059,7 +1188,7 @@ if __name__ == "__main__":
     args, clipargs = parser.parse_known_args()
 
     # Load YAML config & Convert CLI overrides to dotlist config
-    cfg = OmegaConf.load(args.config_yaml)
+    cfg = load_training_config(args.config_yaml)
     dotlist = normalize_dotlist_args(clipargs)  # Normalize CLI args to dotlist format
     cli_cfg = OmegaConf.from_dotlist(dotlist)
     cfg = OmegaConf.merge(cfg, cli_cfg)

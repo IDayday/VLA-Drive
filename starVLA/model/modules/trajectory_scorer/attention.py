@@ -5,10 +5,10 @@
 # William-Yao-2000/DriveSuprim commit
 # 80fe792d7654a596d92e20d030d1650f6f605c02, decoder blocks in
 # navsim/agents/drivesuprim/drivesuprim_model.py.
-# Project adaptations: pre-LN residual blocks with 256-dimensional candidate
-# queries reading independently projected 2048-dimensional scene memories.
+# Project adaptations: production uses pre-LN 256-D query/scene blocks. The
+# asymmetric class remains only as an unreferenced compatibility experiment.
 
-"""Asymmetric candidate-to-scene transformer decoder blocks."""
+"""Candidate-to-scene transformer decoder blocks."""
 
 from __future__ import annotations
 
@@ -130,6 +130,129 @@ class AsymmetricDecoder(nn.Module):
             for _ in range(num_layers)
         )
         self.return_intermediate = return_intermediate
+
+    def forward(
+        self,
+        query: Tensor,
+        memory: Tensor,
+        *,
+        memory_key_padding_mask: Optional[Tensor] = None,
+    ) -> Union[Tensor, List[Tensor]]:
+        outputs: List[Tensor] = []
+        for layer in self.layers:
+            query = layer(
+                query,
+                memory,
+                memory_key_padding_mask=memory_key_padding_mask,
+            )
+            if self.return_intermediate:
+                outputs.append(query)
+        return outputs if self.return_intermediate else query
+
+
+class TransformerDecoderLayer(nn.Module):
+    """Ordinary same-width 256-D proposal/scene decoder layer."""
+
+    def __init__(
+        self,
+        model_dim: int = 256,
+        num_heads: int = 8,
+        ffn_dim: int = 1024,
+        dropout: float = 0.0,
+    ) -> None:
+        super().__init__()
+        if model_dim <= 0 or ffn_dim <= 0:
+            raise ValueError("decoder dimensions must be positive")
+        if num_heads <= 0 or model_dim % num_heads:
+            raise ValueError("model_dim must be divisible by num_heads")
+        self.model_dim = int(model_dim)
+        self.memory_dim = int(model_dim)
+        self.self_norm = nn.LayerNorm(model_dim)
+        self.self_attn = nn.MultiheadAttention(
+            model_dim, num_heads, dropout=dropout, batch_first=True
+        )
+        self.self_dropout = nn.Dropout(dropout)
+        self.cross_norm = nn.LayerNorm(model_dim)
+        self.cross_attn = nn.MultiheadAttention(
+            model_dim, num_heads, dropout=dropout, batch_first=True
+        )
+        self.cross_dropout = nn.Dropout(dropout)
+        self.ffn_norm = nn.LayerNorm(model_dim)
+        self.ffn = nn.Sequential(
+            nn.Linear(model_dim, ffn_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(ffn_dim, model_dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(
+        self,
+        query: Tensor,
+        memory: Tensor,
+        *,
+        memory_key_padding_mask: Optional[Tensor] = None,
+    ) -> Tensor:
+        if query.ndim != 3 or query.shape[-1] != self.model_dim:
+            raise ValueError(
+                f"query must have shape [B,N,{self.model_dim}], got {tuple(query.shape)}"
+            )
+        if memory.ndim != 3 or memory.shape[-1] != self.model_dim:
+            raise ValueError(
+                f"memory must have shape [B,S,{self.model_dim}], got {tuple(memory.shape)}"
+            )
+        if query.shape[0] != memory.shape[0] or query.device != memory.device:
+            raise ValueError("query and memory must share batch size and device")
+        if memory_key_padding_mask is not None:
+            if tuple(memory_key_padding_mask.shape) != tuple(memory.shape[:2]):
+                raise ValueError("memory_key_padding_mask must have shape [B,S]")
+            if memory_key_padding_mask.dtype is not torch.bool:
+                raise TypeError("memory_key_padding_mask must have dtype torch.bool")
+            if memory_key_padding_mask.device != memory.device:
+                raise ValueError("memory mask and memory must share a device")
+
+        normalized = self.self_norm(query)
+        delta, _ = self.self_attn(
+            normalized, normalized, normalized, need_weights=False
+        )
+        query = query + self.self_dropout(delta)
+        normalized = self.cross_norm(query)
+        delta, _ = self.cross_attn(
+            normalized,
+            memory,
+            memory,
+            key_padding_mask=memory_key_padding_mask,
+            need_weights=False,
+        )
+        query = query + self.cross_dropout(delta)
+        return query + self.ffn(self.ffn_norm(query))
+
+
+class TransformerDecoder(nn.Module):
+    """Stack same-width decoder layers, optionally returning every layer."""
+
+    def __init__(
+        self,
+        num_layers: int,
+        model_dim: int = 256,
+        num_heads: int = 8,
+        ffn_dim: int = 1024,
+        dropout: float = 0.0,
+        return_intermediate: bool = False,
+    ) -> None:
+        super().__init__()
+        if num_layers <= 0:
+            raise ValueError("num_layers must be positive")
+        self.layers = nn.ModuleList(
+            TransformerDecoderLayer(
+                model_dim=model_dim,
+                num_heads=num_heads,
+                ffn_dim=ffn_dim,
+                dropout=dropout,
+            )
+            for _ in range(num_layers)
+        )
+        self.return_intermediate = bool(return_intermediate)
 
     def forward(
         self,

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # One-task, non-interactive DLC training for QwenPI-DrivoRSuprim.
 #
-# Frozen pretrained Qwen -> trainable Q-Former + Flow-DiT -> online DrivoR
-# labels -> unified DriveSuprim static/dynamic scoring.  All trainable modules
-# use one optimizer, scheduler, backward pass, and joint Accelerator checkpoint.
-# Production topology: 8 accelerators x micro-batch 8 x accumulation 1 = 64.
+# Baseline-frozen Qwen visual tower and tied LM-head/input embedding, with the
+# Qwen language decoder trainable -> Q-Former + Flow-DiT -> DrivoR -> DriveSuprim.
+# DriveSuprim static/dynamic scoring.
+# Fixed production topology: 8 GPUs x micro-batch 4 x accumulation 1 = 32.
 
 set -Eeuo pipefail
 
@@ -42,6 +42,7 @@ export QDS_STATIC_SCORE_AGGREGATE="${QDS_STATIC_SCORE_AGGREGATE:-$QDS_ASSET_ROOT
 export QDS_STATIC_SCORE_SHARDS="${QDS_STATIC_SCORE_SHARDS:-$QDS_ASSET_ROOT/drivesuprim/static_scores_navtrain_sharded}"
 export QDS_SPLIT_STATIC_SCORE_CACHE="${QDS_SPLIT_STATIC_SCORE_CACHE:-1}"
 export QDS_DOWNLOAD_STATIC_SCORE="${QDS_DOWNLOAD_STATIC_SCORE:-1}"
+export QDS_DOWNLOAD_VOCAB="${QDS_DOWNLOAD_VOCAB:-1}"
 
 export DATA_ROOT="${DATA_ROOT:-$project_root/navsim_dataset}"
 export OPENSCENE_DATA_ROOT="${OPENSCENE_DATA_ROOT:-$project_root/navsim_dataset_raw}"
@@ -66,13 +67,16 @@ export VLA_WARMUP_STEPS="${VLA_WARMUP_STEPS:-5000}"
 export VLA_SAVE_INTERVAL="${VLA_SAVE_INTERVAL:-5000}"
 export VLA_EVAL_INTERVAL="${VLA_EVAL_INTERVAL:-200000}"
 export VLA_LOG_INTERVAL="${VLA_LOG_INTERVAL:-20}"
-export VLA_BATCH_SIZE="${VLA_BATCH_SIZE:-8}"
-export QDS_TARGET_EFFECTIVE_BATCH="${QDS_TARGET_EFFECTIVE_BATCH:-64}"
+export VLA_BATCH_SIZE="${VLA_BATCH_SIZE:-4}"
+export QDS_TARGET_EFFECTIVE_BATCH="${QDS_TARGET_EFFECTIVE_BATCH:-32}"
 export VLA_RESUME_CKPT="${VLA_RESUME_CKPT:-none}"
 export NAVSIM_METRIC_WORKERS="${NAVSIM_METRIC_WORKERS:-1}"
 export QDS_METRIC_CACHE_WORKERS="${QDS_METRIC_CACHE_WORKERS:-16}"
-export QDS_DEEPSPEED_CONFIG="${QDS_DEEPSPEED_CONFIG:-$project_root/starVLA/config/deepseeds/deepspeed_zero2.yaml}"
+export QDS_DEEPSPEED_CONFIG="${QDS_DEEPSPEED_CONFIG:-$project_root/starVLA/config/deepseeds/deepspeed_zero1.yaml}"
 export QDS_MAIN_PROCESS_PORT="${QDS_MAIN_PROCESS_PORT:-29691}"
+export QDS_CAPACITY_PROBE="${QDS_CAPACITY_PROBE:-0}"
+export QDS_CURRICULUM_STATIC_ONLY_END="${QDS_CURRICULUM_STATIC_ONLY_END:-0.10}"
+export QDS_CURRICULUM_DYNAMIC_RAMP_END="${QDS_CURRICULUM_DYNAMIC_RAMP_END:-0.20}"
 
 export WANDB_MODE="${WANDB_MODE:-offline}"
 export WANDB_PROJECT="${WANDB_PROJECT:-qwenpi-drivor-suprim}"
@@ -80,7 +84,7 @@ export WANDB_ENTITY="${WANDB_ENTITY:-local}"
 export NAVSIM_USE_FEATURE_CACHE=0
 export NAVSIM_FEATURE_CACHE_ROOT=""
 export NAVSIM_VIDEO_SOURCE="${NAVSIM_VIDEO_SOURCE:-images}"
-export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-4}"
+export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-3}"
 export NAVSIM_PREFETCH_FACTOR="${NAVSIM_PREFETCH_FACTOR:-2}"
 export NAVSIM_PIN_MEMORY="${NAVSIM_PIN_MEMORY:-1}"
 export NAVSIM_WORKER_THREADS="${NAVSIM_WORKER_THREADS:-1}"
@@ -88,12 +92,38 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 export TOKENIZERS_PARALLELISM=false
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 export PYTHONPATH="$project_root:$project_root/navsim:${PYTHONPATH:-}"
 
 for name in QWEN_VLM_PATH DATA_ROOT OPENSCENE_DATA_ROOT NAVSIM_DATALIST_PATH \
   SUPRIM_VOCAB_PATH NAVSIM_METRIC_CACHE_ROOT VLA_OUTPUT_ROOT; do
   required_value "$name"
 done
+mkdir -p "$QDS_ASSET_ROOT/drivesuprim/official_cache" "$VLA_OUTPUT_ROOT/launcher_logs"
+if [[ ! -f "$SUPRIM_VOCAB_PATH" ]]; then
+  if [[ "$QDS_DOWNLOAD_VOCAB" != "1" ]]; then
+    echo "[qds] DriveSuprim vocabulary is missing: $SUPRIM_VOCAB_PATH" >&2
+    exit 2
+  fi
+  echo "[qds] downloading the official 8192-trajectory vocabulary"
+  python - <<'PY'
+import os
+import shutil
+from pathlib import Path
+from huggingface_hub import hf_hub_download
+
+source = Path(hf_hub_download(
+    repo_id="OpenDriveLab/WorldEngine",
+    repo_type="dataset",
+    filename="data/alg_engine/test_8192_kmeans.npy",
+))
+destination = Path(os.environ["SUPRIM_VOCAB_PATH"])
+destination.parent.mkdir(parents=True, exist_ok=True)
+if source.resolve() != destination.resolve():
+    shutil.copy2(source, destination)
+print(f"[qds] downloaded vocabulary: {destination}")
+PY
+fi
 for path in "$QDS_CONFIG_YAML" "$QWEN_VLM_PATH/config.json" \
   "$QWEN_VLM_PATH/model.safetensors" "$DATA_ROOT/meta/$QDS_SPLIT" \
   "$NAVSIM_DATALIST_PATH" "$SUPRIM_VOCAB_PATH" "$QDS_DEEPSPEED_CONFIG" \
@@ -168,7 +198,6 @@ if [[ -z "${CUDA_VISIBLE_DEVICES:-}" ]]; then
   export CUDA_VISIBLE_DEVICES="$(seq -s, 0 $((QDS_LOCAL_PROCESSES - 1)))"
 fi
 
-mkdir -p "$QDS_ASSET_ROOT/drivesuprim/official_cache" "$VLA_OUTPUT_ROOT/launcher_logs"
 if [[ -n "${SUPRIM_STATIC_SCORE_CACHE:-}" ]]; then
   required_path "$SUPRIM_STATIC_SCORE_CACHE"
 else
@@ -240,6 +269,7 @@ exec > >(tee -a "$launcher_log") 2>&1
 echo "[qds] project_root=$project_root"
 echo "[qds] run_id=$QDS_RUN_ID devices=$CUDA_VISIBLE_DEVICES processes=$QDS_LOCAL_PROCESSES"
 echo "[qds] batch=micro:$VLA_BATCH_SIZE accumulation:$VLA_GRAD_ACCUM_STEPS effective:$QDS_TARGET_EFFECTIVE_BATCH"
+echo "[qds] action_horizon=8 flow_train_repeats=8 num_dynamic_candidates=64 candidate_chunk_size=8"
 echo "[qds] vocab=$SUPRIM_VOCAB_PATH static_scores=$SUPRIM_STATIC_SCORE_CACHE"
 echo "[qds] metric_cache=$NAVSIM_METRIC_CACHE_ROOT output=$VLA_OUTPUT_ROOT"
 echo "[qds] resume=$VLA_RESUME_CKPT log=$launcher_log"
@@ -266,7 +296,15 @@ launch=(
   --trainer.eval_interval "$VLA_EVAL_INTERVAL"
   --trainer.logging_frequency "$VLA_LOG_INTERVAL"
   --trainer.resume_ckpt "$VLA_RESUME_CKPT"
+  --trainer.curriculum.static_only_end "$QDS_CURRICULUM_STATIC_ONLY_END"
+  --trainer.curriculum.dynamic_ramp_end "$QDS_CURRICULUM_DYNAMIC_RAMP_END"
 )
+if [[ "$QDS_CAPACITY_PROBE" == "1" ]]; then
+  launch+=(
+    --trainer.capacity_probe true
+    --framework.dynamic_metric_supervisor.backend stub
+  )
+fi
 "${launch[@]}"
 
 echo "[qds] joint training complete: $VLA_OUTPUT_ROOT/$QDS_RUN_ID"

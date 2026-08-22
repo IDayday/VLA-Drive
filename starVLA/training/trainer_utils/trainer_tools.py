@@ -116,11 +116,23 @@ def build_param_lr_groups(model, cfg):
     if len(assigned) != len(set(assigned)):
         raise RuntimeError("a trainable parameter appears in more than one optimizer group")
     if hasattr(model, "qwen_vl_interface"):
-        qwen_parameters = {id(parameter) for parameter in model.qwen_vl_interface.parameters()}
-        leaked = qwen_parameters.intersection(assigned)
-        if leaked:
+        qwen_parameters = {
+            id(parameter): parameter
+            for parameter in model.qwen_vl_interface.parameters()
+        }
+        expected_qwen = {
+            parameter_id
+            for parameter_id, parameter in qwen_parameters.items()
+            if parameter.requires_grad and parameter_id not in frozen_params
+        }
+        assigned_qwen = set(assigned).intersection(qwen_parameters)
+        missing_qwen = expected_qwen.difference(assigned_qwen)
+        frozen_qwen = assigned_qwen.intersection(frozen_params)
+        if missing_qwen or frozen_qwen:
             raise RuntimeError(
-                f"optimizer unexpectedly contains {len(leaked)} frozen Qwen parameters"
+                "invalid Qwen optimizer assignment: "
+                f"missing_trainable={len(missing_qwen)} "
+                f"included_frozen={len(frozen_qwen)}"
             )
 
     return param_groups

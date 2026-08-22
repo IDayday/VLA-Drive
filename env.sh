@@ -21,7 +21,13 @@ export DRIVEDREAMER_SHARED_ROOT="${DRIVEDREAMER_SHARED_ROOT:-$DRIVEDREAMER_ROOT}
 # The local PPU SDK exposes a CUDA-compatible PyTorch device/runtime.
 # Keep the preinstalled PPU torch/triton builds; do not replace them with
 # upstream NVIDIA wheels.
-export CUDA_HOME="${CUDA_HOME:-/usr/local/cuda-12.4}"
+if [[ -z "${CUDA_HOME:-}" ]]; then
+  if [[ -x /usr/local/cuda/bin/nvcc ]]; then
+    export CUDA_HOME=/usr/local/cuda
+  else
+    export CUDA_HOME=/usr/local/cuda-12.4
+  fi
+fi
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH:-}"
 

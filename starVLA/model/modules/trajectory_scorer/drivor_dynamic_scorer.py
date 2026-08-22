@@ -4,7 +4,7 @@
 # navsim/agents/drivoR/transformer_decoder.py,
 # navsim/agents/drivoR/score_module/scorer.py, and drivor_model.py.
 # Project adaptations: accept Flow-DiT proposals, detach proposal geometry at
-# the scorer boundary, and use asymmetric 256-query/scene-memory attention.
+# the scorer boundary, and use a shared 256-dimensional planning space.
 
 """DrivoR dynamic-proposal pre-scorer without its trajectory generator."""
 
@@ -16,7 +16,7 @@ from typing import Dict
 import torch
 from torch import Tensor, nn
 
-from .attention import AsymmetricDecoder
+from .attention import TransformerDecoder
 from .losses import DRIVOR_METRICS, aggregate_drivor_score
 
 
@@ -45,7 +45,7 @@ class DrivoRDynamicScorer(nn.Module):
     def __init__(
         self,
         *,
-        scene_dim: int = 2048,
+        scene_dim: int = 256,
         ego_state_dim: int = 4,
         model_dim: int = 256,
         ffn_dim: int = 1024,
@@ -77,10 +77,11 @@ class DrivoRDynamicScorer(nn.Module):
         }
         self.trajectory_embedding = _mlp(8 * 3, ffn_dim, model_dim)
         self.ego_encoder = _mlp(ego_state_dim, ffn_dim, model_dim)
-        self.scorer_decoder = AsymmetricDecoder(
+        if scene_dim != model_dim:
+            raise ValueError("DrivoR query and scene memory must share model_dim")
+        self.scorer_decoder = TransformerDecoder(
             num_layers=num_layers,
-            query_dim=model_dim,
-            memory_dim=scene_dim,
+            model_dim=model_dim,
             num_heads=num_heads,
             ffn_dim=ffn_dim,
             dropout=dropout,

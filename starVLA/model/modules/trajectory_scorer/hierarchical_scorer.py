@@ -64,9 +64,9 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
 
     def __init__(
         self,
-        dynamic_prescorer: DrivoRDynamicScorer,
-        joint_coarse_scorer: DriveSuprimCoarseScorer,
-        joint_fine_refiner: DriveSuprimFineRefiner,
+        dynamic_prescorer: Optional[DrivoRDynamicScorer],
+        joint_coarse_scorer: Optional[DriveSuprimCoarseScorer],
+        joint_fine_refiner: Optional[DriveSuprimFineRefiner],
         *,
         detach_scene_for_scorer: bool = False,
         sigma: float = 0.5,
@@ -79,9 +79,11 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         self.joint_fine_refiner = joint_fine_refiner
         self.detach_scene_for_scorer = bool(detach_scene_for_scorer)
         self.use_refinement_imitation = bool(use_refinement_imitation)
+        if fine_memory_source == "dense_scene_memory":
+            fine_memory_source = "dense_qwen_memory"
         if fine_memory_source not in {"dense_qwen_memory", "global_scene_tokens"}:
             raise ValueError(
-                "fine_memory_source must be 'dense_qwen_memory' or "
+                "fine_memory_source must be 'dense_scene_memory' or "
                 "'global_scene_tokens'"
             )
         self.fine_memory_source = fine_memory_source
@@ -104,6 +106,8 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         joint_targets: Mapping[str, Tensor],
         gt_trajectory_8: Tensor,
     ) -> tuple[DriveSuprimFineOutput, Tensor, Tensor, Dict[str, Tensor]]:
+        if self.joint_fine_refiner is None:
+            raise RuntimeError("DriveSuprim fine refinement is disabled")
         coarse_loss, coarse_details = self.suprim_loss_fn.one_layer(
             coarse.metric_logits,
             joint_targets,
@@ -159,6 +163,95 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
             )[rows, ids]
         return selected
 
+    def forward_dynamic_only(
+        self,
+        *,
+        dynamic_proposals_8: Tensor,
+        dynamic_targets: Mapping[str, Tensor],
+        global_scene_tokens: Tensor,
+        ego_state: Tensor,
+        dynamic_topm: int = 32,
+    ) -> Dict[str, Any]:
+        """Train/evaluate the B3 DrivoR-only hierarchy and select its Top-1."""
+
+        if self.dynamic_prescorer is None:
+            raise RuntimeError("DrivoR dynamic scorer is disabled")
+        scene_tokens = (
+            global_scene_tokens.detach()
+            if self.detach_scene_for_scorer
+            else global_scene_tokens
+        )
+        targets = _require_targets(dynamic_targets, DRIVOR_METRICS, "dynamic")
+        dynamic = self.dynamic_prescorer(
+            dynamic_proposals_8,
+            scene_tokens,
+            ego_state,
+            topm=dynamic_topm,
+        )
+        drivor_loss, details = self.drivor_loss_fn(dynamic.metric_logits, targets)
+        selected_8 = dynamic.topm_trajectories_8[:, 0]
+        selected_id = dynamic.topm_indices[:, 0]
+        zero = drivor_loss.new_zeros(())
+        return {
+            "losses": {
+                "drivor": drivor_loss,
+                "suprim_coarse": zero,
+                "suprim_fine": zero,
+            },
+            "outputs": {
+                "selected_trajectory_8": selected_8,
+                "selected_trajectory_40": self.codec.upsample_8_to_40(
+                    selected_8[:, None]
+                )[:, 0],
+                "selected_absolute_index": selected_id,
+                "selected_source": torch.ones_like(selected_id),
+                "dynamic_topm_indices": dynamic.topm_indices,
+                "coarse_topk_indices": None,
+            },
+            "metrics": {
+                **{f"drivor_{name}": value for name, value in details.items()},
+                "drivor_score_mean": dynamic.aggregate_score.mean(),
+                "drivor_score_std": dynamic.aggregate_score.std(unbiased=False),
+            },
+        }
+
+    def predict_dynamic_only(
+        self,
+        *,
+        dynamic_proposals_8: Tensor,
+        global_scene_tokens: Tensor,
+        ego_state: Tensor,
+        dynamic_topm: int = 32,
+    ) -> Dict[str, Tensor]:
+        """B3 inference: DrivoR ranks all dynamics and its Top-1 is final."""
+
+        if self.dynamic_prescorer is None:
+            raise RuntimeError("DrivoR dynamic scorer is disabled")
+        scene_tokens = (
+            global_scene_tokens.detach()
+            if self.detach_scene_for_scorer
+            else global_scene_tokens
+        )
+        dynamic = self.dynamic_prescorer(
+            dynamic_proposals_8,
+            scene_tokens,
+            ego_state,
+            topm=dynamic_topm,
+        )
+        selected_8 = dynamic.topm_trajectories_8[:, 0]
+        selected_id = dynamic.topm_indices[:, 0]
+        return {
+            "selected_trajectory_8": selected_8,
+            "selected_trajectory_40": self.codec.upsample_8_to_40(
+                selected_8[:, None]
+            )[:, 0],
+            "selected_absolute_index": selected_id,
+            "selected_source": torch.ones_like(selected_id),
+            "dynamic_topm_indices": dynamic.topm_indices,
+            "coarse_topk_indices": None,
+            "drivor_aggregate_score": dynamic.aggregate_score,
+        }
+
     def forward_static_only(
         self,
         *,
@@ -170,6 +263,9 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         static_targets: Mapping[str, Tensor],
     ) -> Dict[str, Any]:
         """Train DriveSuprim using only the static vocabulary curriculum phase."""
+
+        if self.joint_coarse_scorer is None or self.joint_fine_refiner is None:
+            raise RuntimeError("DriveSuprim joint scorer is disabled")
 
         global_scene_tokens, dense_scene_memory = self._scene(
             global_scene_tokens, dense_scene_memory
@@ -230,6 +326,13 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         dynamic_topm: int = 32,
     ) -> Dict[str, Any]:
         """Train the full 64 -> Top-M -> unified Top-K hierarchy."""
+
+        if (
+            self.dynamic_prescorer is None
+            or self.joint_coarse_scorer is None
+            or self.joint_fine_refiner is None
+        ):
+            raise RuntimeError("full hierarchy requires DrivoR and DriveSuprim")
 
         global_scene_tokens, dense_scene_memory = self._scene(
             global_scene_tokens, dense_scene_memory
@@ -319,6 +422,13 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         dynamic_topm: int = 32,
     ) -> Dict[str, Tensor]:
         """Learned-only inference; no metric evaluator or target cache is read."""
+
+        if (
+            self.dynamic_prescorer is None
+            or self.joint_coarse_scorer is None
+            or self.joint_fine_refiner is None
+        ):
+            raise RuntimeError("full hierarchy requires DrivoR and DriveSuprim")
 
         global_scene_tokens, dense_scene_memory = self._scene(
             global_scene_tokens, dense_scene_memory

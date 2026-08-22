@@ -25,9 +25,9 @@ def test_asymmetric_attention_dimensions_and_independent_kv_parameters():
     assert first.cross_attn.v_proj_weight is not second.cross_attn.v_proj_weight
 
 
-def test_scorers_have_no_shared_scene_to_planning_projection():
+def test_no_2048_scene_memory_in_scorers():
     dynamic = DrivoRDynamicScorer(
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         ego_state_dim=4,
@@ -37,7 +37,7 @@ def test_scorers_have_no_shared_scene_to_planning_projection():
     coarse = DriveSuprimCoarseScorer(
         static_vocab=torch.randn(16, 40, 3),
         vocab_size=16,
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         ego_state_dim=4,
@@ -46,7 +46,7 @@ def test_scorers_have_no_shared_scene_to_planning_projection():
         coarse_topk=4,
     )
     fine = DriveSuprimFineRefiner(
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         num_layers=2,
@@ -64,13 +64,14 @@ def test_scorers_have_no_shared_scene_to_planning_projection():
             if hasattr(child, "cross_attn") and hasattr(child, "memory_dim")
         ]
         assert decoder_layers
-        assert all(layer.cross_attn.kdim == 64 for layer in decoder_layers)
-        assert all(layer.cross_attn.vdim == 64 for layer in decoder_layers)
+        assert all(layer.memory_dim == 32 for layer in decoder_layers)
+        assert all(layer.cross_attn.kdim == 32 for layer in decoder_layers)
+        assert all(layer.cross_attn.vdim == 32 for layer in decoder_layers)
 
 
 def test_fine_padding_mask_reaches_every_layer(monkeypatch):
     fine = DriveSuprimFineRefiner(
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         num_layers=3,
@@ -91,7 +92,7 @@ def test_fine_padding_mask_reaches_every_layer(monkeypatch):
     coarse_model = DriveSuprimCoarseScorer(
         static_vocab=torch.randn(16, 40, 3),
         vocab_size=16,
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         ego_state_dim=4,
@@ -99,12 +100,12 @@ def test_fine_padding_mask_reaches_every_layer(monkeypatch):
         num_heads=4,
         coarse_topk=4,
     )
-    coarse = coarse_model(torch.randn(2, 4, 64), torch.randn(2, 1, 4))
+    coarse = coarse_model(torch.randn(2, 4, 32), torch.randn(2, 1, 4))
     mask = torch.tensor(
         [[False, False, False, True], [False, False, True, True]],
         dtype=torch.bool,
     )
-    output = fine(coarse, torch.randn(2, 4, 64), mask)
+    output = fine(coarse, torch.randn(2, 4, 32), mask)
     assert len(output.layer_metric_logits) == 3
     assert len(seen) == 3
     assert all(value is mask for value in seen)

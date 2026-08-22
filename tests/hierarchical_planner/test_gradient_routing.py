@@ -14,15 +14,15 @@ from starVLA.model.modules.trajectory_scorer.losses import SUPRIM_METRICS
 def _modules(detach_scene=False):
     scene = GlobalSceneQFormer(
         input_dim=12,
-        hidden_dim=64,
-        output_dim=64,
+        hidden_dim=32,
+        output_dim=32,
         num_queries=4,
         num_layers=1,
         num_heads=4,
         ffn_dim=128,
     )
     dynamic = DrivoRDynamicScorer(
-        scene_dim=64,
+        scene_dim=32,
         ego_state_dim=4,
         model_dim=32,
         ffn_dim=64,
@@ -32,7 +32,7 @@ def _modules(detach_scene=False):
     coarse = DriveSuprimCoarseScorer(
         static_vocab=torch.randn(16, 40, 3),
         vocab_size=16,
-        scene_dim=64,
+        scene_dim=32,
         ego_state_dim=4,
         model_dim=32,
         ffn_dim=64,
@@ -41,7 +41,7 @@ def _modules(detach_scene=False):
         coarse_topk=4,
     )
     fine = DriveSuprimFineRefiner(
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         num_heads=4,
@@ -86,7 +86,11 @@ def test_full_hierarchy_detaches_proposals_and_routes_scene_gradients():
     assert scene_encoder.input_proj.weight.grad is not None
     assert hierarchy.dynamic_prescorer.trajectory_embedding[0].weight.grad is not None
     assert hierarchy.joint_coarse_scorer.candidate_embedding[0].weight.grad is not None
-    assert hierarchy.joint_fine_refiner.fine_decoder.layers[0].cross_attn.k_proj_weight.grad is not None
+    assert (
+        hierarchy.joint_fine_refiner.fine_decoder.layers[0]
+        .cross_attn.in_proj_weight.grad
+        is not None
+    )
 
 
 def test_detach_scene_for_scorer_blocks_only_scene_path():

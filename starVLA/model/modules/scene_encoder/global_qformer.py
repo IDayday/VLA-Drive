@@ -2,11 +2,11 @@
 # Adapted from ZebinX/DriveVLA-M0 commit
 # 7fabe160fc9bb41f9278845b36d457bf871f697a, file
 # navsim/agents/EpisodeDrive/layers/q_former/q_former.py.
-# Project adaptations: consume the complete frozen-Qwen sequence, preserve its
+# Project adaptations: consume the complete Qwen sequence, preserve its
 # dense memory, implement PyTorch padding-mask semantics, expose configurable
 # dimensions, and optionally checkpoint the four trainable Q-Former blocks.
 
-"""Global query scene encoder over one complete frozen-Qwen hidden sequence."""
+"""Global query scene encoder over one complete Qwen hidden sequence."""
 
 from __future__ import annotations
 
@@ -133,23 +133,20 @@ class GlobalSceneQFormerBlock(nn.Module):
 
 
 class GlobalSceneQFormer(nn.Module):
-    """Encode a detached full Qwen sequence into global and dense memories.
-
-    The Qwen input is detached at this module boundary.  The input LayerNorm,
-    projection, learned queries and Q-Former blocks remain fully trainable.
-    """
+    """Encode a full Qwen sequence into 16 global and dense 256-D memories."""
 
     def __init__(
         self,
         input_dim: int = 2048,
-        hidden_dim: int = 2048,
-        output_dim: int = 2048,
+        hidden_dim: int = 256,
+        output_dim: int = 256,
         num_queries: int = 16,
         num_layers: int = 4,
-        num_heads: int = 32,
-        ffn_dim: int = 8192,
+        num_heads: int = 8,
+        ffn_dim: int = 1024,
         dropout: float = 0.0,
         query_init_std: float = 0.02,
+        detach_qwen_input: bool = True,
         use_gradient_checkpointing: bool = False,
         debug_validate_finite: bool = False,
     ) -> None:
@@ -164,6 +161,7 @@ class GlobalSceneQFormer(nn.Module):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
         self.num_queries = num_queries
+        self.detach_qwen_input = bool(detach_qwen_input)
         self.use_gradient_checkpointing = use_gradient_checkpointing
         self.debug_validate_finite = debug_validate_finite
 
@@ -182,8 +180,18 @@ class GlobalSceneQFormer(nn.Module):
             nn.Identity() if output_dim == hidden_dim else nn.Linear(hidden_dim, output_dim)
         )
 
+    @property
+    def qwen_to_scene_proj(self) -> nn.Linear:
+        """Named view of the single Qwen-to-scene projection used per forward."""
+
+        return self.input_proj
+
+    @property
+    def parameter_count(self) -> int:
+        return sum(parameter.numel() for parameter in self.parameters())
+
     def forward(self, last_hidden: Tensor, attention_mask: Tensor) -> SceneContext:
-        """Return scene memories without allowing gradients into Qwen.
+        """Return scene memories with configurable scene-branch Qwen detachment.
 
         Args:
             last_hidden: Full final hidden sequence ``[B,L,input_dim]``.
@@ -202,8 +210,10 @@ class GlobalSceneQFormer(nn.Module):
         if attention_mask.device != last_hidden.device:
             raise ValueError("last_hidden and attention_mask must share a device")
 
-        detached_hidden = last_hidden.detach()
-        hidden_memory = self.input_proj(self.input_norm(detached_hidden))
+        scene_input = last_hidden.detach() if self.detach_qwen_input else last_hidden
+        # qwen_to_scene_proj is evaluated once.  Its result is reused as both
+        # Q-Former cross-attention memory and the source of dense scene memory.
+        hidden_memory = self.qwen_to_scene_proj(self.input_norm(scene_input))
         memory_key_padding_mask = ~attention_mask.bool()
         queries = self.scene_queries.to(dtype=hidden_memory.dtype).expand(
             hidden_memory.shape[0], -1, -1

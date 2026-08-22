@@ -1,0 +1,18 @@
+# B3: Q-Former + 64 Flow proposals + DrivoR; DrivoR Top-1 is final.
+base_config: qwenpi_drivor_suprim.yaml
+run_id: qwenpi_matched_b3_drivor
+
+framework:
+  scene_encoder:
+    enabled: true
+  action_model:
+    use_global_scene_tokens: true
+  hierarchical_scorer:
+    enabled: true
+    dynamic:
+      enabled: true
+      num_candidates: 64
+      candidate_chunk_size: 8
+      dynamic_topm: 32
+    joint:
+      enabled: false

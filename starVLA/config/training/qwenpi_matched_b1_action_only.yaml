@@ -1,0 +1,18 @@
+# B1: matched action-only baseline. Loaded through training.config_loader.
+base_config: qwenpi_drivor_suprim.yaml
+run_id: qwenpi_matched_b1_action_only
+
+framework:
+  scene_encoder:
+    enabled: false
+  action_model:
+    use_global_scene_tokens: false
+  hierarchical_scorer:
+    enabled: false
+    dynamic:
+      enabled: false
+      num_candidates: 1
+      candidate_chunk_size: 1
+      dynamic_topm: 1
+    joint:
+      enabled: false

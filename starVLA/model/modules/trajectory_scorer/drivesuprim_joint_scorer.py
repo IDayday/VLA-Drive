@@ -3,8 +3,8 @@
 # 80fe792d7654a596d92e20d030d1650f6f605c02, files
 # navsim/agents/drivesuprim/drivesuprim_model.py and drivesuprim_config.py.
 # Project adaptations: one shared scorer handles a fixed static vocabulary and
-# detached Flow-DiT candidates; donor same-width/spatial attention is replaced
-# by layer-local asymmetric candidate-to-Qwen-scene attention.  The official
+# detached Flow-DiT candidates in one shared 256-dimensional planning space.
+# The official
 # heads, aggregate formula, global Top-K, and one-stage refinement are retained.
 
 """DriveSuprim unified static/dynamic coarse scorer and fine refiner."""
@@ -21,7 +21,7 @@ from torch import Tensor, nn
 
 from starVLA.model.modules.planning.types import CandidateMetadata
 
-from .attention import AsymmetricDecoder
+from .attention import TransformerDecoder
 from .losses import SUPRIM_METRICS, aggregate_drivesuprim_score
 
 
@@ -111,7 +111,7 @@ class DriveSuprimCoarseScorer(nn.Module):
         static_vocab: Optional[Tensor] = None,
         vocab_size: int = 8192,
         num_poses: int = 40,
-        scene_dim: int = 2048,
+        scene_dim: int = 256,
         ego_state_dim: int = 4,
         model_dim: int = 256,
         ffn_dim: int = 1024,
@@ -157,10 +157,13 @@ class DriveSuprimCoarseScorer(nn.Module):
             if normalize_vocab_pos
             else None
         )
-        self.coarse_decoder = AsymmetricDecoder(
+        if scene_dim != model_dim:
+            raise ValueError(
+                "DriveSuprim coarse query and scene memory must share model_dim"
+            )
+        self.coarse_decoder = TransformerDecoder(
             num_layers=num_layers,
-            query_dim=model_dim,
-            memory_dim=scene_dim,
+            model_dim=model_dim,
             num_heads=num_heads,
             ffn_dim=ffn_dim,
             dropout=dropout,
@@ -338,7 +341,7 @@ class DriveSuprimFineRefiner(nn.Module):
     def __init__(
         self,
         *,
-        scene_dim: int = 2048,
+        scene_dim: int = 256,
         model_dim: int = 256,
         ffn_dim: int = 1024,
         num_heads: int = 8,
@@ -357,10 +360,13 @@ class DriveSuprimFineRefiner(nn.Module):
         self.model_dim = int(model_dim)
         self.use_imitation = bool(use_imitation)
         self.debug_validate_finite = bool(debug_validate_finite)
-        self.fine_decoder = AsymmetricDecoder(
+        if scene_dim != model_dim:
+            raise ValueError(
+                "DriveSuprim fine query and scene memory must share model_dim"
+            )
+        self.fine_decoder = TransformerDecoder(
             num_layers=num_layers,
-            query_dim=model_dim,
-            memory_dim=scene_dim,
+            model_dim=model_dim,
             num_heads=num_heads,
             ffn_dim=ffn_dim,
             dropout=dropout,

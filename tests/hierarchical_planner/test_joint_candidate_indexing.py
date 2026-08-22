@@ -11,7 +11,7 @@ def _coarse():
     return DriveSuprimCoarseScorer(
         static_vocab=torch.randn(16, 40, 3),
         vocab_size=16,
-        scene_dim=64,
+        scene_dim=32,
         ego_state_dim=4,
         model_dim=32,
         ffn_dim=64,
@@ -27,7 +27,7 @@ def test_unified_pool_and_metadata_alignment():
     dynamic_40 = TrajectoryCodec().upsample_8_to_40(dynamic_8)
     ids = torch.tensor([[7, 2, 6, 1], [0, 3, 5, 4]])
     candidates, metadata = coarse.build_joint_pool(
-        2, torch.randn(2, 4, 64), dynamic_40, ids
+        2, torch.randn(2, 4, 32), dynamic_40, ids
     )
     assert candidates.shape == (2, 20, 40, 3)
     assert torch.equal(metadata.source[:, :16], torch.zeros(2, 16, dtype=torch.long))
@@ -43,7 +43,7 @@ def test_global_topk_and_three_fine_layers_keep_original_candidates():
     dynamic_8 = torch.randn(2, 4, 8, 3)
     dynamic_40 = TrajectoryCodec().upsample_8_to_40(dynamic_8)
     output = coarse(
-        torch.randn(2, 4, 64),
+        torch.randn(2, 4, 32),
         torch.randn(2, 1, 4),
         dynamic_trajectories_40=dynamic_40,
         dynamic_candidate_ids=torch.arange(4)[None].expand(2, -1),
@@ -51,7 +51,7 @@ def test_global_topk_and_three_fine_layers_keep_original_candidates():
     assert output.aggregate_score.shape == (2, 20)
     assert output.topk_indices.shape == (2, 4)
     fine = DriveSuprimFineRefiner(
-        scene_dim=64,
+        scene_dim=32,
         model_dim=32,
         ffn_dim=64,
         num_heads=4,
@@ -59,7 +59,7 @@ def test_global_topk_and_three_fine_layers_keep_original_candidates():
     ).eval()
     fine_output = fine(
         output,
-        torch.randn(2, 7, 64),
+        torch.randn(2, 7, 32),
         torch.tensor(
             [[False] * 6 + [True], [False] * 5 + [True, True]]
         ),

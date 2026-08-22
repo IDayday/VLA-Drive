@@ -244,6 +244,21 @@ class FlowmatchingActionHead(nn.Module):
             hidden_dim = self.hidden_size,
             output_dim = self.hidden_size
         )
+        self.use_global_scene_tokens = bool(
+            config.get("use_global_scene_tokens", False)
+        )
+        self.scene_dim = int(config.get("scene_dim", 256))
+        # This module exists only for the baseline-matched scene variants.  It
+        # is absent for the legacy QwenOFT configuration, preserving that
+        # model's state dict and numerical path.
+        self.scene_to_dit = (
+            nn.Sequential(
+                nn.Linear(self.scene_dim, self.hidden_size),
+                nn.LayerNorm(self.hidden_size),
+            )
+            if self.use_global_scene_tokens
+            else None
+        )
 
         self.action_encoder = ActionEncoder(
             action_dim=config.action_dim,
@@ -272,8 +287,56 @@ class FlowmatchingActionHead(nn.Module):
     def prepare_input(self, batch: dict) -> BatchFeature:
         return BatchFeature(data=batch)
 
+    def _project_condition(
+        self,
+        vl_embs: torch.Tensor,
+        global_scene_tokens: torch.Tensor = None,
+        video_token: torch.Tensor = None,
+    ) -> torch.Tensor:
+        """Project the baseline action queries and append one shared scene memory."""
 
-    def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None):
+        if vl_embs.ndim != 3:
+            raise ValueError("vl_embs must have shape [B,T,H]")
+        condition = self.qwen_proj(vl_embs)
+        if video_token is not None:
+            if video_token.ndim != 3 or video_token.shape[0] != condition.shape[0]:
+                raise ValueError("video_token must have shape [B,S,hidden_size]")
+            condition = torch.cat((condition, video_token), dim=1)
+        if self.use_global_scene_tokens:
+            if global_scene_tokens is None:
+                raise ValueError(
+                    "use_global_scene_tokens=true requires global_scene_tokens"
+                )
+            if (
+                global_scene_tokens.ndim != 3
+                or global_scene_tokens.shape[0] != condition.shape[0]
+                or global_scene_tokens.shape[-1] != self.scene_dim
+            ):
+                raise ValueError(
+                    "global_scene_tokens must have shape "
+                    f"[B,Q,{self.scene_dim}]"
+                )
+            if self.scene_to_dit is None:
+                raise RuntimeError("scene_to_dit is not initialized")
+            # Calculate once per Flow forward/Euler trajectory and reuse in all
+            # 24 unchanged DiT blocks through encoder_hidden_states.
+            scene_condition = self.scene_to_dit(global_scene_tokens)
+            condition = torch.cat((condition, scene_condition), dim=1)
+        elif global_scene_tokens is not None:
+            raise ValueError(
+                "global_scene_tokens were provided while scene injection is disabled"
+            )
+        return condition
+
+
+    def forward(
+        self,
+        vl_embs: torch.Tensor,
+        actions: torch.Tensor,
+        video_token=None,
+        state: torch.Tensor = None,
+        global_scene_tokens: torch.Tensor = None,
+    ):
         """
         vl_embs: shape (B, seq_length, feature_dim)
         actions: shape (B, future_action_window_size, D_action)
@@ -293,14 +356,11 @@ class FlowmatchingActionHead(nn.Module):
         action_features = self.action_encoder(noisy_trajectory, t_discretized)
 
 
-        # embed state
-        state_features = self.state_encoder(state) if state is not None else None
-
-
-        vl_embs = self.qwen_proj(vl_embs)
-
-        if video_token is not None:
-            vl_embs = torch.cat((vl_embs, video_token), dim =1)
+        vl_embs = self._project_condition(
+            vl_embs,
+            global_scene_tokens=global_scene_tokens,
+            video_token=video_token,
+        )
 
 
         # Maybe add position embedding.
@@ -331,60 +391,123 @@ class FlowmatchingActionHead(nn.Module):
         loss = ((pred_actions - velocity) ** 2).mean()
         return loss
 
-    @torch.no_grad()
-    def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None) -> torch.Tensor:
-        # Set initial actions as the sampled noise.
-        batch_size = vl_embs.shape[0]
-        device = vl_embs.device
-        actions = torch.randn(
-            size=(batch_size, self.config.action_horizon, self.config.action_dim),
-            dtype=vl_embs.dtype,
-            device=device,
-        )
+    def _euler_sample(
+        self,
+        actions: torch.Tensor,
+        projected_condition: torch.Tensor,
+    ) -> torch.Tensor:
+        """Run the baseline Euler integrator from an explicit noise tensor."""
 
-        num_steps = self.num_inference_timesteps
-        dt = 1.0 / num_steps
-        
-        state_features = self.state_encoder(state) if state is not None else None
-
-        vl_embs = self.qwen_proj(vl_embs)
-
-        # Run denoising steps.
-        for t in range(num_steps):
-            t_cont = t / float(num_steps)  # e.g. goes 0, 1/N, 2/N, ...
+        batch_size = actions.shape[0]
+        device = actions.device
+        dt = 1.0 / self.num_inference_timesteps
+        for step in range(self.num_inference_timesteps):
+            t_cont = step / float(self.num_inference_timesteps)
             t_discretized = int(t_cont * self.num_timestep_buckets)
-
-            # Embed noised action trajectory.
             timesteps_tensor = torch.full(
-                size=(batch_size,), fill_value=t_discretized, device=device
+                (batch_size,),
+                fill_value=t_discretized,
+                device=device,
+                dtype=torch.long,
             )
             action_features = self.action_encoder(actions, timesteps_tensor)
-            # Maybe add position embedding.
             if self.config.add_pos_embed:
-                pos_ids = torch.arange(action_features.shape[1], dtype=torch.long, device=device)
-                pos_embs = self.position_embedding(pos_ids).unsqueeze(0)
-                action_features = action_features + pos_embs
-
-            # Join vision, language, state and action embedding along sequence dimension.
-            # future_tokens = self.future_tokens.weight.unsqueeze(0).expand(vl_embs.shape[0], -1, -1)
-            # sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1) \
-            #     if state_features is not None else torch.cat((future_tokens, action_features), dim=1)
-
-            sa_embs = action_features
-
-            # Run model forward.
+                pos_ids = torch.arange(
+                    action_features.shape[1], dtype=torch.long, device=device
+                )
+                action_features = action_features + self.position_embedding(
+                    pos_ids
+                ).unsqueeze(0)
             model_output = self.model(
-                hidden_states=sa_embs,
-                encoder_hidden_states=vl_embs,
+                hidden_states=action_features,
+                encoder_hidden_states=projected_condition,
                 timestep=timesteps_tensor,
             )
-            pred = self.action_decoder(model_output)
-
-            pred_velocity = pred
-
-            # Update actions using euler integration.
-            actions = actions + dt * pred_velocity
+            actions = actions + dt * self.action_decoder(model_output)
         return actions
+
+    @torch.no_grad()
+    def predict_multi_action(
+        self,
+        vl_embs: torch.Tensor,
+        state: torch.Tensor = None,
+        global_scene_tokens: torch.Tensor = None,
+        num_candidates: int = 64,
+        candidate_chunk_size: int = 8,
+        initial_noise: torch.Tensor = None,
+    ) -> torch.Tensor:
+        """Generate ``K`` full trajectories without changing results by chunking."""
+
+        if state is not None:
+            # Ego state already enters the local baseline through the Qwen
+            # history token.  It is accepted only for call-site compatibility.
+            if state.shape[0] != vl_embs.shape[0]:
+                raise ValueError("state and Qwen condition batch sizes differ")
+        if num_candidates <= 0 or candidate_chunk_size <= 0:
+            raise ValueError("candidate counts and chunk size must be positive")
+        batch_size = vl_embs.shape[0]
+        if initial_noise is None:
+            initial_noise = torch.randn(
+                batch_size,
+                num_candidates,
+                self.action_horizon,
+                self.action_dim,
+                dtype=vl_embs.dtype,
+                device=vl_embs.device,
+            )
+        expected = (
+            batch_size,
+            num_candidates,
+            self.action_horizon,
+            self.action_dim,
+        )
+        if tuple(initial_noise.shape) != expected:
+            raise ValueError(
+                f"initial_noise has shape {tuple(initial_noise.shape)}, expected {expected}"
+            )
+        projected = self._project_condition(
+            vl_embs, global_scene_tokens=global_scene_tokens
+        )
+        outputs = []
+        for start in range(0, num_candidates, candidate_chunk_size):
+            stop = min(start + candidate_chunk_size, num_candidates)
+            chunk_count = stop - start
+            chunk_condition = projected[:, None].expand(
+                -1, chunk_count, -1, -1
+            ).reshape(
+                batch_size * chunk_count,
+                projected.shape[1],
+                projected.shape[2],
+            )
+            chunk_noise = initial_noise[:, start:stop].reshape(
+                batch_size * chunk_count,
+                self.action_horizon,
+                self.action_dim,
+            )
+            outputs.append(
+                self._euler_sample(chunk_noise, chunk_condition).reshape(
+                    batch_size,
+                    chunk_count,
+                    self.action_horizon,
+                    self.action_dim,
+                )
+            )
+        return torch.cat(outputs, dim=1)
+
+    @torch.no_grad()
+    def predict_action(
+        self,
+        vl_embs: torch.Tensor,
+        state: torch.Tensor = None,
+        global_scene_tokens: torch.Tensor = None,
+    ) -> torch.Tensor:
+        return self.predict_multi_action(
+            vl_embs,
+            state=state,
+            global_scene_tokens=global_scene_tokens,
+            num_candidates=1,
+            candidate_chunk_size=1,
+        )[:, 0]
 
     def predict_action_onestep(self, vl_embs: torch.Tensor, actions, timesteps_tensor) -> torch.Tensor:
         # Set initial actions as the sampled noise.

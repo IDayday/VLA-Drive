@@ -1,11 +1,17 @@
 """Two-rank executable smoke for the curriculum's unused DrivoR parameters."""
 
 import os
+from pathlib import Path
+import sys
 
 import torch
 import torch.distributed as dist
 from torch import nn
 from torch.nn.parallel import DistributedDataParallel
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from starVLA.model.modules.scene_encoder import GlobalSceneQFormer
 from starVLA.model.modules.trajectory_scorer import (
@@ -32,8 +38,8 @@ class StaticCurriculumModel(nn.Module):
         dynamic = DrivoRDynamicScorer(
             scene_dim=32,
             ego_state_dim=4,
-            model_dim=16,
-            ffn_dim=32,
+            model_dim=32,
+            ffn_dim=64,
             num_layers=1,
             num_heads=4,
         )
@@ -42,16 +48,16 @@ class StaticCurriculumModel(nn.Module):
             vocab_size=16,
             scene_dim=32,
             ego_state_dim=4,
-            model_dim=16,
-            ffn_dim=32,
+            model_dim=32,
+            ffn_dim=64,
             num_heads=4,
             num_layers=1,
             coarse_topk=4,
         )
         fine = DriveSuprimFineRefiner(
             scene_dim=32,
-            model_dim=16,
-            ffn_dim=32,
+            model_dim=32,
+            ffn_dim=64,
             num_heads=4,
             num_layers=1,
         )

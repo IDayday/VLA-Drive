@@ -1,0 +1,18 @@
+# B2: B1 plus the 16x256 scene Q-Former injected into the same Flow DiT.
+base_config: qwenpi_drivor_suprim.yaml
+run_id: qwenpi_matched_b2_qformer_single
+
+framework:
+  scene_encoder:
+    enabled: true
+  action_model:
+    use_global_scene_tokens: true
+  hierarchical_scorer:
+    enabled: false
+    dynamic:
+      enabled: false
+      num_candidates: 1
+      candidate_chunk_size: 1
+      dynamic_topm: 1
+    joint:
+      enabled: false
