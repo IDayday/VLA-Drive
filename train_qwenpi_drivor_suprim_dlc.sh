@@ -2,21 +2,101 @@
 # One-task, non-interactive DLC training for QwenPI-DrivoRSuprim.
 #
 # Baseline-frozen Qwen visual tower and tied LM-head/input embedding, with the
-# Qwen language decoder trainable -> Q-Former + Flow-DiT -> DrivoR -> DriveSuprim.
-# DriveSuprim static/dynamic scoring.
-# Fixed production topology: 8 GPUs x micro-batch 4 x accumulation 1 = 32.
+# Qwen language decoder trainable -> Q-Former + Flow-DiT -> DrivoR. DriveSuprim
+# joint coarse/fine reranking is selected by the resolved training config.
+# Default production topology: 8 GPUs x micro-batch 4 x accumulation 1 = 32.
 
 set -Eeuo pipefail
 
-script_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-project_root="${VLA_PROJECT_ROOT:-$script_root}"
-if [[ ! -f "$project_root/starVLA/model/framework/QwenPI_DrivoRSuprim.py" ]]; then
-  echo "[qds] QwenPI-DrivoRSuprim is absent under VLA_PROJECT_ROOT=$project_root" >&2
-  echo "[qds] Point VLA_PROJECT_ROOT at the checkout containing this implementation." >&2
+qds_phase=bootstrap
+on_qds_error() {
+  local status="$?"
+  if (( BASH_SUBSHELL > 0 )); then
+    return "$status"
+  fi
+  echo "[qds] failed phase=$qds_phase line=${BASH_LINENO[0]} status=$status" >&2
+  exit "$status"
+}
+trap on_qds_error ERR
+
+project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# Preserve explicit wrapper/one-shot values across env.local.sh. The local
+# environment is required to use fallback assignments, but the launcher keeps
+# this precedence mechanically true for the two fixed experiment selectors.
+qds_config_was_set="${QDS_CONFIG_YAML+x}"
+qds_config_one_shot="${QDS_CONFIG_YAML-}"
+qds_expected_was_set="${QDS_EXPECT_DRIVESUPRIM+x}"
+qds_expected_one_shot="${QDS_EXPECT_DRIVESUPRIM-}"
+source "$project_root/load_env.sh"
+if [[ "$qds_config_was_set" == "x" ]]; then
+  export QDS_CONFIG_YAML="$qds_config_one_shot"
+fi
+if [[ "$qds_expected_was_set" == "x" ]]; then
+  export QDS_EXPECT_DRIVESUPRIM="$qds_expected_one_shot"
+fi
+export DRIVEDREAMER_ROOT="$project_root"
+cd "$project_root"
+
+# Persist bootstrap/source-contract failures as well as distributed-training
+# output. This matters for non-interactive DLC tasks, where stdout may otherwise
+# disappear before the late training logger is installed.
+export VLA_OUTPUT_ROOT="${VLA_OUTPUT_ROOT:-${NAVSIM_EXP_ROOT:-$project_root/navsim_exp}/qwenpi_drivor_suprim}"
+export QDS_RUN_ID="${QDS_RUN_ID:-qwenpi-drivor-suprim-$(date +'%Y%m%d_%H%M%S')}"
+if ! [[ "$QDS_RUN_ID" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "[qds] QDS_RUN_ID may contain only letters, digits, dot, underscore, and dash" >&2
   exit 2
 fi
-source "$project_root/load_env.sh"
-cd "$project_root"
+mkdir -p "$VLA_OUTPUT_ROOT/launcher_logs"
+launcher_log="$VLA_OUTPUT_ROOT/launcher_logs/${QDS_RUN_ID}.log"
+exec > >(tee -a "$launcher_log") 2>&1
+qds_phase=source-contract
+echo "[qds] launcher_log=$launcher_log phase=$qds_phase"
+
+if [[ ! -f "$project_root/starVLA/model/framework/QwenPI_DrivoRSuprim.py" ]]; then
+  echo "[qds] QwenPI-DrivoRSuprim is absent under project_root=$project_root" >&2
+  exit 2
+fi
+
+export QDS_EXPECTED_BRANCH="${QDS_EXPECTED_BRANCH:-feature/ddp-drs-scene-2048}"
+qds_git_metadata=direct
+qds_git=(git -C "$project_root")
+if ! git -C "$project_root" rev-parse --git-dir >/dev/null 2>&1; then
+  if [[ ! -f "$project_root/.git" ]]; then
+    echo "[qds] source checkout has no usable Git metadata: $project_root" >&2
+    exit 2
+  fi
+  declared_git_dir="$(sed -n 's/^gitdir: //p' "$project_root/.git")"
+  if [[ -z "$declared_git_dir" ]]; then
+    echo "[qds] linked-worktree .git file has no gitdir entry" >&2
+    exit 2
+  fi
+  linked_admin_name="$(basename -- "$declared_git_dir")"
+  declared_common_checkout="${declared_git_dir%/.git/worktrees/*}"
+  common_checkout_name="$(basename -- "$declared_common_checkout")"
+  fallback_git_dir="$(dirname -- "$project_root")/$common_checkout_name/.git/worktrees/$linked_admin_name"
+  if [[ ! -d "$fallback_git_dir" ]]; then
+    echo "[qds] linked-worktree Git metadata is unavailable" >&2
+    echo "[qds] declared=$declared_git_dir fallback=$fallback_git_dir" >&2
+    exit 2
+  fi
+  qds_git=(
+    env -u GIT_DIR -u GIT_WORK_TREE
+    git --git-dir="$fallback_git_dir" --work-tree="$project_root"
+  )
+  if ! "${qds_git[@]}" rev-parse --git-dir >/dev/null 2>&1; then
+    echo "[qds] linked-worktree fallback is not a valid Git directory: $fallback_git_dir" >&2
+    exit 2
+  fi
+  qds_git_metadata=linked-worktree-fallback
+fi
+actual_branch="$("${qds_git[@]}" branch --show-current)"
+source_commit="$("${qds_git[@]}" rev-parse HEAD)"
+unset GIT_DIR GIT_WORK_TREE
+if [[ "$actual_branch" != "$QDS_EXPECTED_BRANCH" ]]; then
+  echo "[qds] wrong source worktree: $project_root" >&2
+  echo "[qds] expected branch: $QDS_EXPECTED_BRANCH; actual branch: ${actual_branch:-DETACHED}" >&2
+  exit 2
+fi
 
 required_value() {
   local name="$1"
@@ -60,8 +140,6 @@ export NUPLAN_MAPS_ROOT="${NUPLAN_MAPS_ROOT:-$OPENSCENE_DATA_ROOT/maps}"
 export NAVSIM_METRIC_CACHE_ROOT="${NAVSIM_METRIC_CACHE_ROOT:-${NAVSIM_EXP_ROOT:-$project_root/navsim_exp}/qds_metric_cache_navtrain}"
 export QDS_BUILD_METRIC_CACHE="${QDS_BUILD_METRIC_CACHE:-auto}"
 
-export VLA_OUTPUT_ROOT="${VLA_OUTPUT_ROOT:-${NAVSIM_EXP_ROOT:-$project_root/navsim_exp}/qwenpi_drivor_suprim}"
-export QDS_RUN_ID="${QDS_RUN_ID:-qwenpi-drivor-suprim-$(date +'%Y%m%d_%H%M%S')}"
 export VLA_MAX_TRAIN_STEPS="${VLA_MAX_TRAIN_STEPS:-100000}"
 export VLA_WARMUP_STEPS="${VLA_WARMUP_STEPS:-5000}"
 export VLA_SAVE_INTERVAL="${VLA_SAVE_INTERVAL:-5000}"
@@ -69,12 +147,15 @@ export VLA_EVAL_INTERVAL="${VLA_EVAL_INTERVAL:-200000}"
 export VLA_LOG_INTERVAL="${VLA_LOG_INTERVAL:-20}"
 export VLA_BATCH_SIZE="${VLA_BATCH_SIZE:-4}"
 export QDS_TARGET_EFFECTIVE_BATCH="${QDS_TARGET_EFFECTIVE_BATCH:-32}"
+export QDS_LOCAL_PROCESSES="${QDS_LOCAL_PROCESSES:-8}"
 export VLA_RESUME_CKPT="${VLA_RESUME_CKPT:-none}"
 export NAVSIM_METRIC_WORKERS="${NAVSIM_METRIC_WORKERS:-1}"
 export QDS_METRIC_CACHE_WORKERS="${QDS_METRIC_CACHE_WORKERS:-16}"
 export QDS_DEEPSPEED_CONFIG="${QDS_DEEPSPEED_CONFIG:-$project_root/starVLA/config/deepseeds/deepspeed_zero1.yaml}"
 export QDS_MAIN_PROCESS_PORT="${QDS_MAIN_PROCESS_PORT:-29691}"
 export QDS_CAPACITY_PROBE="${QDS_CAPACITY_PROBE:-0}"
+export QDS_LAUNCHER_VALIDATE_ONLY="${QDS_LAUNCHER_VALIDATE_ONLY:-0}"
+export QDS_LAUNCHER_PREFLIGHT_ONLY="${QDS_LAUNCHER_PREFLIGHT_ONLY:-0}"
 export QDS_CURRICULUM_STATIC_ONLY_END="${QDS_CURRICULUM_STATIC_ONLY_END:-0.10}"
 export QDS_CURRICULUM_DYNAMIC_RAMP_END="${QDS_CURRICULUM_DYNAMIC_RAMP_END:-0.20}"
 
@@ -95,12 +176,119 @@ export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 export PYTHONPATH="$project_root:$project_root/navsim:${PYTHONPATH:-}"
 
-for name in QWEN_VLM_PATH DATA_ROOT OPENSCENE_DATA_ROOT NAVSIM_DATALIST_PATH \
-  SUPRIM_VOCAB_PATH NAVSIM_METRIC_CACHE_ROOT VLA_OUTPUT_ROOT; do
+qds_phase=config-contract
+required_path "$QDS_CONFIG_YAML"
+QDS_CONFIG_YAML="$(python -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).expanduser().resolve())' "$QDS_CONFIG_YAML")"
+export QDS_CONFIG_YAML
+QDS_DRIVESUPRIM_ENABLED="$(python - "$QDS_CONFIG_YAML" <<'PY'
+import sys
+
+from omegaconf import OmegaConf
+
+from starVLA.training.config_loader import load_training_config
+
+config = load_training_config(sys.argv[1])
+enabled = OmegaConf.select(
+    config, "framework.hierarchical_scorer.joint.enabled", default=False
+)
+if not isinstance(enabled, bool):
+    raise TypeError(
+        "framework.hierarchical_scorer.joint.enabled must be a YAML boolean"
+    )
+print("1" if enabled else "0")
+PY
+)"
+export QDS_DRIVESUPRIM_ENABLED
+case "${QDS_EXPECT_DRIVESUPRIM:-}" in
+  "") ;;
+  0|1)
+    if [[ "$QDS_EXPECT_DRIVESUPRIM" != "$QDS_DRIVESUPRIM_ENABLED" ]]; then
+      echo "[qds] config/launcher DriveSuprim switch mismatch" >&2
+      echo "[qds] expected=$QDS_EXPECT_DRIVESUPRIM resolved=$QDS_DRIVESUPRIM_ENABLED config=$QDS_CONFIG_YAML" >&2
+      exit 2
+    fi
+    ;;
+  *)
+    echo "[qds] QDS_EXPECT_DRIVESUPRIM must be 0 or 1" >&2
+    exit 2
+    ;;
+esac
+for argument in "$@"; do
+  case "$argument" in
+    --config_yaml|--config_yaml=*|--framework.hierarchical_scorer.joint.enabled|--framework.hierarchical_scorer.joint.enabled=*)
+      echo "[qds] the paired launcher fixes config_yaml and the DriveSuprim intervention" >&2
+      exit 2
+      ;;
+  esac
+done
+
+for name in QDS_LOCAL_PROCESSES VLA_BATCH_SIZE QDS_TARGET_EFFECTIVE_BATCH \
+  VLA_MAX_TRAIN_STEPS VLA_WARMUP_STEPS VLA_SAVE_INTERVAL VLA_EVAL_INTERVAL \
+  VLA_LOG_INTERVAL NAVSIM_METRIC_WORKERS QDS_METRIC_CACHE_WORKERS; do
+  if ! [[ "${!name}" =~ ^[0-9]+$ ]]; then
+    echo "[qds] $name must be a non-negative integer, got ${!name}" >&2
+    exit 2
+  fi
+done
+if (( QDS_LOCAL_PROCESSES < 1 || VLA_BATCH_SIZE < 1 || QDS_TARGET_EFFECTIVE_BATCH < 1 )); then
+  echo "[qds] processes, micro batch, and effective batch must be positive" >&2
+  exit 2
+fi
+micro_global=$((QDS_LOCAL_PROCESSES * VLA_BATCH_SIZE))
+if (( QDS_TARGET_EFFECTIVE_BATCH % micro_global != 0 )); then
+  echo "[qds] effective batch must be divisible by processes x micro batch" >&2
+  exit 2
+fi
+export VLA_GRAD_ACCUM_STEPS=$((QDS_TARGET_EFFECTIVE_BATCH / micro_global))
+
+if [[ "$QDS_LAUNCHER_VALIDATE_ONLY" == "1" ]]; then
+  echo "[qds] project_root=$project_root"
+  echo "[qds] source_ref=$actual_branch@$source_commit"
+  echo "[qds] git_metadata=$qds_git_metadata"
+  echo "[qds] config=$QDS_CONFIG_YAML"
+  if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+    echo "[qds] drivesuprim_rerank=on drivesuprim_assets=required"
+  else
+    echo "[qds] drivesuprim_rerank=off drivesuprim_assets=skipped"
+  fi
+  echo "[qds] batch=micro:$VLA_BATCH_SIZE accumulation:$VLA_GRAD_ACCUM_STEPS effective:$QDS_TARGET_EFFECTIVE_BATCH"
+  echo "[qds] formal_training=NOT_RUN"
+  exit 0
+elif [[ "$QDS_LAUNCHER_VALIDATE_ONLY" != "0" ]]; then
+  echo "[qds] QDS_LAUNCHER_VALIDATE_ONLY must be 0 or 1" >&2
+  exit 2
+fi
+if [[ "$QDS_LAUNCHER_PREFLIGHT_ONLY" != "0" && "$QDS_LAUNCHER_PREFLIGHT_ONLY" != "1" ]]; then
+  echo "[qds] QDS_LAUNCHER_PREFLIGHT_ONLY must be 0 or 1" >&2
+  exit 2
+fi
+
+required_names=(
+  QWEN_VLM_PATH
+  DATA_ROOT
+  OPENSCENE_DATA_ROOT
+  NAVSIM_DATALIST_PATH
+  NAVSIM_METRIC_CACHE_ROOT
+  VLA_OUTPUT_ROOT
+)
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+  required_names+=(SUPRIM_VOCAB_PATH)
+fi
+for name in "${required_names[@]}"; do
   required_value "$name"
 done
-mkdir -p "$QDS_ASSET_ROOT/drivesuprim/official_cache" "$VLA_OUTPUT_ROOT/launcher_logs"
-if [[ ! -f "$SUPRIM_VOCAB_PATH" ]]; then
+run_dir="$VLA_OUTPUT_ROOT/$QDS_RUN_ID"
+if [[ -e "$run_dir" && "$VLA_RESUME_CKPT" == "none" ]]; then
+  echo "[qds] refusing to overwrite existing non-resume run: $run_dir" >&2
+  echo "[qds] choose a new QDS_RUN_ID or set an explicit VLA_RESUME_CKPT" >&2
+  exit 2
+fi
+
+qds_phase=asset-preflight
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+  mkdir -p "$QDS_ASSET_ROOT/drivesuprim/official_cache"
+fi
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" && ! -f "$SUPRIM_VOCAB_PATH" ]]; then
   if [[ "$QDS_DOWNLOAD_VOCAB" != "1" ]]; then
     echo "[qds] DriveSuprim vocabulary is missing: $SUPRIM_VOCAB_PATH" >&2
     exit 2
@@ -124,10 +312,19 @@ if source.resolve() != destination.resolve():
 print(f"[qds] downloaded vocabulary: {destination}")
 PY
 fi
-for path in "$QDS_CONFIG_YAML" "$QWEN_VLM_PATH/config.json" \
-  "$QWEN_VLM_PATH/model.safetensors" "$DATA_ROOT/meta/$QDS_SPLIT" \
-  "$NAVSIM_DATALIST_PATH" "$SUPRIM_VOCAB_PATH" "$QDS_DEEPSPEED_CONFIG" \
-  "$NAVSIM_TRAINVAL_SENSOR_ROOT"; do
+required_paths=(
+  "$QDS_CONFIG_YAML"
+  "$QWEN_VLM_PATH/config.json"
+  "$QWEN_VLM_PATH/model.safetensors"
+  "$DATA_ROOT/meta/$QDS_SPLIT"
+  "$NAVSIM_DATALIST_PATH"
+  "$QDS_DEEPSPEED_CONFIG"
+  "$NAVSIM_TRAINVAL_SENSOR_ROOT"
+)
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+  required_paths+=("$SUPRIM_VOCAB_PATH")
+fi
+for path in "${required_paths[@]}"; do
   required_path "$path"
 done
 
@@ -172,43 +369,30 @@ PY
 
 actual_devices="$(python -c 'import torch; print(torch.cuda.device_count())')"
 if ! [[ "$actual_devices" =~ ^[1-9][0-9]*$ ]]; then
-  echo "[qds] joint training requires at least one visible accelerator" >&2
+  echo "[qds] training requires at least one visible accelerator" >&2
   exit 2
 fi
-export QDS_LOCAL_PROCESSES="${QDS_LOCAL_PROCESSES:-8}"
-for name in QDS_LOCAL_PROCESSES VLA_BATCH_SIZE QDS_TARGET_EFFECTIVE_BATCH \
-  VLA_MAX_TRAIN_STEPS VLA_WARMUP_STEPS VLA_SAVE_INTERVAL VLA_EVAL_INTERVAL \
-  VLA_LOG_INTERVAL NAVSIM_METRIC_WORKERS QDS_METRIC_CACHE_WORKERS; do
-  if ! [[ "${!name}" =~ ^[0-9]+$ ]]; then
-    echo "[qds] $name must be a non-negative integer, got ${!name}" >&2
-    exit 2
-  fi
-done
-if (( QDS_LOCAL_PROCESSES < 1 || QDS_LOCAL_PROCESSES > actual_devices )); then
+if (( QDS_LOCAL_PROCESSES > actual_devices )); then
   echo "[qds] requested $QDS_LOCAL_PROCESSES devices; $actual_devices are visible" >&2
   exit 2
 fi
-micro_global=$((QDS_LOCAL_PROCESSES * VLA_BATCH_SIZE))
-if (( micro_global < 1 || QDS_TARGET_EFFECTIVE_BATCH % micro_global != 0 )); then
-  echo "[qds] effective batch must be divisible by processes x micro batch" >&2
-  exit 2
-fi
-export VLA_GRAD_ACCUM_STEPS=$((QDS_TARGET_EFFECTIVE_BATCH / micro_global))
 if [[ -z "${CUDA_VISIBLE_DEVICES:-}" ]]; then
   export CUDA_VISIBLE_DEVICES="$(seq -s, 0 $((QDS_LOCAL_PROCESSES - 1)))"
 fi
 
-if [[ -n "${SUPRIM_STATIC_SCORE_CACHE:-}" ]]; then
-  required_path "$SUPRIM_STATIC_SCORE_CACHE"
-else
-  if [[ ! -f "$QDS_STATIC_SCORE_AGGREGATE" ]]; then
-    if [[ "$QDS_DOWNLOAD_STATIC_SCORE" != "1" ]]; then
-      echo "[qds] official static score cache is missing: $QDS_STATIC_SCORE_AGGREGATE" >&2
-      exit 2
-    fi
-    echo "[qds] downloading the official DriveSuprim navtrain static-score cache"
-    export QDS_HF_LOCAL_DIR="$QDS_ASSET_ROOT/drivesuprim/official_cache"
-    python - <<'PY'
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+  qds_phase=drivesuprim-assets
+  if [[ -n "${SUPRIM_STATIC_SCORE_CACHE:-}" ]]; then
+    required_path "$SUPRIM_STATIC_SCORE_CACHE"
+  else
+    if [[ ! -f "$QDS_STATIC_SCORE_AGGREGATE" ]]; then
+      if [[ "$QDS_DOWNLOAD_STATIC_SCORE" != "1" ]]; then
+        echo "[qds] official static score cache is missing: $QDS_STATIC_SCORE_AGGREGATE" >&2
+        exit 2
+      fi
+      echo "[qds] downloading the official DriveSuprim navtrain static-score cache"
+      export QDS_HF_LOCAL_DIR="$QDS_ASSET_ROOT/drivesuprim/official_cache"
+      python - <<'PY'
 import os
 from huggingface_hub import hf_hub_download
 
@@ -219,23 +403,27 @@ path = hf_hub_download(
 )
 print(f"[qds] downloaded static score cache: {path}")
 PY
-  fi
-  required_path "$QDS_STATIC_SCORE_AGGREGATE"
-
-  if [[ "$QDS_SPLIT_STATIC_SCORE_CACHE" == "1" ]]; then
-    if [[ ! -f "$QDS_STATIC_SCORE_SHARDS/_SUCCESS.json" ]]; then
-      python "$project_root/tools/split_drivesuprim_static_scores.py" \
-        --input "$QDS_STATIC_SCORE_AGGREGATE" \
-        --output-root "$QDS_STATIC_SCORE_SHARDS" \
-        --split "$QDS_SPLIT" \
-        --vocab-size 8192
     fi
-    export SUPRIM_STATIC_SCORE_CACHE="$QDS_STATIC_SCORE_SHARDS"
-  else
-    export SUPRIM_STATIC_SCORE_CACHE="$QDS_STATIC_SCORE_AGGREGATE"
+    required_path "$QDS_STATIC_SCORE_AGGREGATE"
+
+    if [[ "$QDS_SPLIT_STATIC_SCORE_CACHE" == "1" ]]; then
+      if [[ ! -f "$QDS_STATIC_SCORE_SHARDS/_SUCCESS.json" ]]; then
+        python "$project_root/tools/split_drivesuprim_static_scores.py" \
+          --input "$QDS_STATIC_SCORE_AGGREGATE" \
+          --output-root "$QDS_STATIC_SCORE_SHARDS" \
+          --split "$QDS_SPLIT" \
+          --vocab-size 8192
+      fi
+      export SUPRIM_STATIC_SCORE_CACHE="$QDS_STATIC_SCORE_SHARDS"
+    else
+      export SUPRIM_STATIC_SCORE_CACHE="$QDS_STATIC_SCORE_AGGREGATE"
+    fi
   fi
+else
+  unset SUPRIM_STATIC_SCORE_CACHE
 fi
 
+qds_phase=navsim-metric-cache
 metric_metadata_count=0
 if [[ -d "$NAVSIM_METRIC_CACHE_ROOT/metadata" ]]; then
   metric_metadata_count="$(find "$NAVSIM_METRIC_CACHE_ROOT/metadata" -maxdepth 1 -type f -name '*.csv' | wc -l)"
@@ -260,18 +448,29 @@ if (( metric_metadata_count == 0 )); then
     gpu=false
 fi
 
+if [[ "$QDS_LAUNCHER_PREFLIGHT_ONLY" == "1" ]]; then
+  echo "[qds] full preflight passed; formal_training=NOT_RUN"
+  exit 0
+fi
+
 export TRITON_CACHE_DIR="${TRITON_LOCAL_CACHE_ROOT:-/tmp/qds-triton}/$QDS_RUN_ID"
 export TORCH_EXTENSIONS_DIR="${TORCH_EXTENSIONS_LOCAL_ROOT:-/tmp/qds-extensions}/$QDS_RUN_ID"
 mkdir -p "$TRITON_CACHE_DIR" "$TORCH_EXTENSIONS_DIR"
 
-launcher_log="$VLA_OUTPUT_ROOT/launcher_logs/${QDS_RUN_ID}.log"
-exec > >(tee -a "$launcher_log") 2>&1
 echo "[qds] project_root=$project_root"
+echo "[qds] source_ref=$actual_branch@$source_commit config=$QDS_CONFIG_YAML"
+echo "[qds] git_metadata=$qds_git_metadata"
 echo "[qds] run_id=$QDS_RUN_ID devices=$CUDA_VISIBLE_DEVICES processes=$QDS_LOCAL_PROCESSES"
 echo "[qds] batch=micro:$VLA_BATCH_SIZE accumulation:$VLA_GRAD_ACCUM_STEPS effective:$QDS_TARGET_EFFECTIVE_BATCH"
 echo "[qds] action_horizon=8 flow_train_repeats=8 num_dynamic_candidates=64 candidate_chunk_size=8"
-echo "[qds] vocab=$SUPRIM_VOCAB_PATH static_scores=$SUPRIM_STATIC_SCORE_CACHE"
-echo "[qds] metric_cache=$NAVSIM_METRIC_CACHE_ROOT output=$VLA_OUTPUT_ROOT"
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+  echo "[qds] drivesuprim_rerank=on vocab=$SUPRIM_VOCAB_PATH static_scores=$SUPRIM_STATIC_SCORE_CACHE"
+else
+  echo "[qds] drivesuprim_rerank=off drivesuprim_assets=skipped"
+fi
+echo "[qds] qwen=$QWEN_VLM_PATH data=$DATA_ROOT datalist=$NAVSIM_DATALIST_PATH"
+echo "[qds] metric_cache=$NAVSIM_METRIC_CACHE_ROOT output=$run_dir"
+echo "[qds] steps=max:$VLA_MAX_TRAIN_STEPS warmup:$VLA_WARMUP_STEPS save:$VLA_SAVE_INTERVAL eval:$VLA_EVAL_INTERVAL log:$VLA_LOG_INTERVAL"
 echo "[qds] resume=$VLA_RESUME_CKPT log=$launcher_log"
 
 launch=(
@@ -288,7 +487,6 @@ launch=(
   --datasets.vla_data.data_root "$DATA_ROOT"
   --datasets.vla_data.split "$QDS_SPLIT"
   --datasets.vla_data.per_device_batch_size "$VLA_BATCH_SIZE"
-  --framework.static_score_store.split "$QDS_SPLIT"
   --trainer.gradient_accumulation_steps "$VLA_GRAD_ACCUM_STEPS"
   --trainer.max_train_steps "$VLA_MAX_TRAIN_STEPS"
   --trainer.num_warmup_steps "$VLA_WARMUP_STEPS"
@@ -299,12 +497,17 @@ launch=(
   --trainer.curriculum.static_only_end "$QDS_CURRICULUM_STATIC_ONLY_END"
   --trainer.curriculum.dynamic_ramp_end "$QDS_CURRICULUM_DYNAMIC_RAMP_END"
 )
+if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
+  launch+=(--framework.static_score_store.split "$QDS_SPLIT")
+fi
 if [[ "$QDS_CAPACITY_PROBE" == "1" ]]; then
   launch+=(
     --trainer.capacity_probe true
     --framework.dynamic_metric_supervisor.backend stub
   )
 fi
+launch+=("$@")
+qds_phase=distributed-training
 "${launch[@]}"
 
-echo "[qds] joint training complete: $VLA_OUTPUT_ROOT/$QDS_RUN_ID"
+echo "[qds] training complete: $VLA_OUTPUT_ROOT/$QDS_RUN_ID"
