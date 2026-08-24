@@ -32,9 +32,21 @@ from .losses import (
 )
 
 
+def _resolve_targets(values: Any, label: str) -> Mapping[str, Tensor]:
+    """Resolve an asynchronous metric batch at its first true dependency."""
+
+    resolver = getattr(values, "result", None)
+    if callable(resolver):
+        values = resolver()
+    if not isinstance(values, Mapping):
+        raise TypeError(f"{label} targets must be a metric mapping")
+    return values
+
+
 def _require_targets(
-    values: Mapping[str, Tensor], names: tuple[str, ...], label: str
+    values: Any, names: tuple[str, ...], label: str
 ) -> Dict[str, Tensor]:
+    values = _resolve_targets(values, label)
     missing = set(names).difference(values)
     if missing:
         raise KeyError(f"{label} targets are missing {sorted(missing)}")
@@ -167,7 +179,7 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         self,
         *,
         dynamic_proposals_8: Tensor,
-        dynamic_targets: Mapping[str, Tensor],
+        dynamic_targets: Any,
         global_scene_tokens: Tensor,
         ego_state: Tensor,
         dynamic_topm: int = 32,
@@ -181,13 +193,13 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
             if self.detach_scene_for_scorer
             else global_scene_tokens
         )
-        targets = _require_targets(dynamic_targets, DRIVOR_METRICS, "dynamic")
         dynamic = self.dynamic_prescorer(
             dynamic_proposals_8,
             scene_tokens,
             ego_state,
             topm=dynamic_topm,
         )
+        targets = _require_targets(dynamic_targets, DRIVOR_METRICS, "dynamic")
         drivor_loss, details = self.drivor_loss_fn(dynamic.metric_logits, targets)
         selected_8 = dynamic.topm_trajectories_8[:, 0]
         selected_id = dynamic.topm_indices[:, 0]
@@ -316,7 +328,7 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         self,
         *,
         dynamic_proposals_8: Tensor,
-        dynamic_targets: Mapping[str, Tensor],
+        dynamic_targets: Any,
         global_scene_tokens: Tensor,
         dense_scene_memory: Tensor,
         memory_key_padding_mask: Optional[Tensor],
@@ -337,22 +349,11 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
         global_scene_tokens, dense_scene_memory = self._scene(
             global_scene_tokens, dense_scene_memory
         )
-        drivor_targets = _require_targets(dynamic_targets, DRIVOR_METRICS, "dynamic")
-        suprim_dynamic_targets = _require_targets(
-            dynamic_targets, SUPRIM_METRICS, "dynamic"
-        )
-        static_targets = _require_targets(static_targets, SUPRIM_METRICS, "static")
         dynamic: DynamicScorerOutput = self.dynamic_prescorer(
             dynamic_proposals_8,
             global_scene_tokens,
             ego_state,
             topm=dynamic_topm,
-        )
-        drivor_loss, drivor_details = self.drivor_loss_fn(
-            dynamic.metric_logits, drivor_targets
-        )
-        topm_dynamic_targets = gather_metric_targets(
-            suprim_dynamic_targets, dynamic.topm_indices
         )
         dynamic_40 = self.codec.upsample_8_to_40(dynamic.topm_trajectories_8)
         coarse = self.joint_coarse_scorer(
@@ -360,6 +361,24 @@ class HierarchicalDrivoRSuprimScorer(nn.Module):
             ego_state,
             dynamic_trajectories_40=dynamic_40,
             dynamic_candidate_ids=dynamic.topm_indices,
+        )
+
+        # NAVSIM labels are first needed here.  Candidate generation, Flow
+        # training, DrivoR preselection, and coarse scoring can all overlap the
+        # CPU metric futures submitted by the framework.
+        dynamic_targets = _resolve_targets(dynamic_targets, "dynamic")
+        drivor_targets = _require_targets(
+            dynamic_targets, DRIVOR_METRICS, "dynamic"
+        )
+        suprim_dynamic_targets = _require_targets(
+            dynamic_targets, SUPRIM_METRICS, "dynamic"
+        )
+        static_targets = _require_targets(static_targets, SUPRIM_METRICS, "static")
+        drivor_loss, drivor_details = self.drivor_loss_fn(
+            dynamic.metric_logits, drivor_targets
+        )
+        topm_dynamic_targets = gather_metric_targets(
+            suprim_dynamic_targets, dynamic.topm_indices
         )
         joint_targets = _concat_targets(static_targets, topm_dynamic_targets)
         fine_memory, fine_mask = self._fine_memory(

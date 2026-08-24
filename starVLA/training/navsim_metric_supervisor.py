@@ -5,16 +5,18 @@
 # William-Yao-2000/DriveSuprim commit
 # 80fe792d7654a596d92e20d030d1650f6f605c02,
 # navsim/evaluate/pdm_score.py.  Project adaptations: per-rank local batches,
-# named metrics, detached CPU inputs, lazy imports, and optional thread workers.
+# named metrics, detached CPU inputs, vectorized pose conversion, lazy imports,
+# and asynchronous per-rank worker pools.
 
 """Online NAVSIM metric labels for detached dynamic Flow proposals."""
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
+from multiprocessing import get_context
 from pathlib import Path
 from threading import local
-from typing import Dict, Mapping, Sequence
+from typing import Dict, Mapping, Optional, Sequence, Union
 
 import numpy as np
 import torch
@@ -36,6 +38,183 @@ _OUTPUT_METRICS = (
     "aggregate_score",
 )
 
+_PROCESS_EVALUATOR = None
+
+
+def _new_navsim_evaluator(metric_cache_root: Path):
+    """Construct one mutable NAVSIM evaluator for a thread or process worker."""
+
+    try:
+        from nuplan.planning.simulation.trajectory.trajectory_sampling import (
+            TrajectorySampling,
+        )
+        from navsim.common.dataloader import MetricCacheLoader
+        from navsim.planning.simulation.planner.pdm_planner.scoring.pdm_scorer import (
+            PDMScorer,
+        )
+        from navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator import (
+            PDMSimulator,
+        )
+        from navsim.traffic_agents_policies.log_replay_traffic_agents import (
+            LogReplayTrafficAgents,
+        )
+    except ImportError as exc:
+        raise ImportError(
+            "DynamicMetricSupervisor requires the NAVSIM/nuPlan training "
+            "environment; install it only for QwenPI-DrivoRSuprim training"
+        ) from exc
+    sampling = TrajectorySampling(num_poses=40, interval_length=0.1)
+    return (
+        MetricCacheLoader(metric_cache_root),
+        sampling,
+        PDMSimulator(sampling),
+        PDMScorer(sampling),
+        LogReplayTrafficAgents(sampling),
+    )
+
+
+def _score_with_evaluator(
+    evaluator,
+    metric_cache_root: Path,
+    token: str,
+    trajectories_40: np.ndarray,
+):
+    loader, sampling, simulator, scorer, traffic_policy = evaluator
+    if token not in loader.metric_cache_paths:
+        raise FileNotFoundError(
+            f"NAVSIM metric cache {metric_cache_root} has no token {token!r}"
+        )
+    metric_cache = loader.get_from_token(token)
+    return _score_trajectory_pool(
+        metric_cache,
+        trajectories_40,
+        sampling,
+        simulator,
+        scorer,
+        traffic_policy,
+    )
+
+
+def _initialize_process_evaluator(metric_cache_root: str) -> None:
+    """Initialize persistent worker-local NAVSIM state under ``spawn``."""
+
+    global _PROCESS_EVALUATOR
+    _PROCESS_EVALUATOR = _new_navsim_evaluator(Path(metric_cache_root))
+
+
+def _score_one_in_process(
+    metric_cache_root: str, token: str, trajectories_40: np.ndarray
+):
+    if _PROCESS_EVALUATOR is None:
+        raise RuntimeError("NAVSIM process worker was not initialized")
+    return _score_with_evaluator(
+        _PROCESS_EVALUATOR,
+        Path(metric_cache_root),
+        token,
+        trajectories_40,
+    )
+
+
+def _batch_relative_trajectories_to_state_array(
+    trajectories: np.ndarray,
+    initial_ego_state,
+    reference_states: np.ndarray,
+) -> np.ndarray:
+    """Build PDM ``[reference + K, 41, state]`` inputs without Python poses.
+
+    NAVSIM's object pipeline constructs 40 ``StateSE2`` and ``EgoState``
+    objects for every candidate even though the generated future states only
+    contain x/y/heading (future velocity and acceleration are intentionally
+    zero).  The homogeneous transform below is the vectorized equivalent of
+    ``relative_to_absolute_poses`` used by ``transform_trajectory``.
+    """
+
+    from nuplan.common.geometry.convert import matrix_from_pose
+    from navsim.planning.simulation.planner.pdm_planner.utils.pdm_array_representation import (
+        ego_state_to_state_array,
+    )
+    from navsim.planning.simulation.planner.pdm_planner.utils.pdm_enums import (
+        StateIndex,
+    )
+
+    trajectories = np.asarray(trajectories, dtype=np.float64)
+    reference_states = np.asarray(reference_states, dtype=np.float64)
+    if trajectories.ndim != 3 or tuple(trajectories.shape[1:]) != (40, 3):
+        raise ValueError("NAVSIM proposal evaluator expects [K,40,3]")
+    expected_reference_shape = (41, StateIndex.size())
+    if tuple(reference_states.shape) != expected_reference_shape:
+        raise ValueError(
+            "NAVSIM reference trajectory has shape "
+            f"{reference_states.shape}, expected {expected_reference_shape}"
+        )
+    if not np.isfinite(trajectories).all():
+        raise ValueError("NAVSIM proposal trajectories contain NaN or Inf")
+
+    candidate_count = trajectories.shape[0]
+    states = np.zeros(
+        (candidate_count + 1, 41, StateIndex.size()), dtype=np.float64
+    )
+    states[0] = reference_states
+    states[1:, 0] = ego_state_to_state_array(initial_ego_state)
+
+    headings = trajectories[..., 2]
+    cosine = np.cos(headings)
+    sine = np.sin(headings)
+    relative_transforms = np.zeros(
+        (candidate_count, 40, 3, 3), dtype=np.float64
+    )
+    relative_transforms[..., 0, 0] = cosine
+    relative_transforms[..., 0, 1] = -sine
+    relative_transforms[..., 0, 2] = trajectories[..., 0]
+    relative_transforms[..., 1, 0] = sine
+    relative_transforms[..., 1, 1] = cosine
+    relative_transforms[..., 1, 2] = trajectories[..., 1]
+    relative_transforms[..., 2, 2] = 1.0
+
+    absolute_transforms = (
+        matrix_from_pose(initial_ego_state.rear_axle) @ relative_transforms
+    )
+    states[1:, 1:, StateIndex.X] = absolute_transforms[..., 0, 2]
+    states[1:, 1:, StateIndex.Y] = absolute_transforms[..., 1, 2]
+    states[1:, 1:, StateIndex.HEADING] = np.arctan2(
+        absolute_transforms[..., 1, 0], absolute_transforms[..., 0, 0]
+    )
+    return states
+
+
+class _DynamicMetricBatch:
+    """A lazy, order-preserving collection of per-scene metric results."""
+
+    def __init__(
+        self,
+        items: Sequence[Union[Mapping[str, np.ndarray], Future]],
+        *,
+        result_device: torch.device,
+        result_dtype: torch.dtype,
+    ) -> None:
+        self._items = tuple(items)
+        self._result_device = result_device
+        self._result_dtype = result_dtype
+        self._result: Optional[Dict[str, Tensor]] = None
+
+    def result(self) -> Dict[str, Tensor]:
+        """Wait only when labels are consumed and materialize the ``[B,K]`` tensors."""
+
+        if self._result is None:
+            rows = [
+                item.result() if isinstance(item, Future) else item
+                for item in self._items
+            ]
+            self._result = {
+                name: torch.as_tensor(
+                    np.stack([row[name] for row in rows], axis=0),
+                    device=self._result_device,
+                    dtype=self._result_dtype,
+                )
+                for name in _OUTPUT_METRICS
+            }
+        return self._result
+
 
 def _score_trajectory_pool(
     metric_cache,
@@ -47,7 +226,6 @@ def _score_trajectory_pool(
 ) -> Dict[str, np.ndarray]:
     """Evaluate one token's physical ``[K,40,3]`` proposal pool."""
 
-    from navsim.common.dataclasses import Trajectory
     from navsim.common.enums import SceneFrameType
     from navsim.evaluate.pdm_score import get_trajectory_as_array, transform_trajectory
     from navsim.planning.simulation.planner.pdm_planner.scoring.pdm_comfort_metrics import (
@@ -61,22 +239,12 @@ def _score_trajectory_pool(
     if trajectories.ndim != 3 or tuple(trajectories.shape[1:]) != (40, 3):
         raise ValueError("NAVSIM proposal evaluator expects [K,40,3]")
     initial_ego_state = metric_cache.ego_state
-    all_states = [
-        get_trajectory_as_array(
-            metric_cache.trajectory, sampling, initial_ego_state.time_point
-        )
-    ]
-    trajectory_sampling = type(sampling)(time_horizon=4.0, interval_length=0.1)
-    for poses in trajectories:
-        transformed = transform_trajectory(
-            Trajectory(poses, trajectory_sampling), initial_ego_state
-        )
-        all_states.append(
-            get_trajectory_as_array(
-                transformed, sampling, initial_ego_state.time_point
-            )
-        )
-    states = np.stack(all_states, axis=0)
+    reference_states = get_trajectory_as_array(
+        metric_cache.trajectory, sampling, initial_ego_state.time_point
+    )
+    states = _batch_relative_trajectories_to_state_array(
+        trajectories, initial_ego_state, reference_states
+    )
     simulated_states = simulator.simulate_proposals(states, initial_ego_state)
     traffic_tracks = traffic_policy.simulate_environment(
         simulated_states[1], metric_cache
@@ -195,51 +363,37 @@ class DynamicMetricSupervisor:
             raise ValueError(
                 "online generated proposals require dynamic score_interval=1"
             )
-        if self.backend not in {"local", "thread"}:
-            raise ValueError("dynamic metric backend must be 'local' or 'thread'")
+        if self.backend not in {"local", "thread", "process"}:
+            raise ValueError(
+                "dynamic metric backend must be 'local', 'thread', or 'process'"
+            )
         self.codec = TrajectoryCodec()
         self._thread_state = local()
-        self._executor = (
-            ThreadPoolExecutor(
+        if self.backend == "thread":
+            self._executor = ThreadPoolExecutor(
                 max_workers=self.workers_per_rank,
                 thread_name_prefix=f"navsim-rank{self.rank}",
             )
-            if self.backend == "thread" and self.workers_per_rank > 1
-            else None
-        )
+        elif self.backend == "process":
+            # Never fork a rank after PPU/CUDA initialization. Spawned workers
+            # import only CPU scoring code and retain one evaluator each.
+            self._executor = ProcessPoolExecutor(
+                max_workers=self.workers_per_rank,
+                mp_context=get_context("spawn"),
+                initializer=_initialize_process_evaluator,
+                initargs=(str(self.metric_cache_root),),
+            )
+        else:
+            self._executor = None
         # Fail at startup with the precise optional dependency if NAVSIM is
-        # absent, and retain the evaluator on the constructing thread instead
-        # of loading the usually large metric-cache index twice.
-        self._thread_state.evaluator = self._new_evaluator()
+        # absent. Local/thread backends retain this evaluator; process workers
+        # construct isolated persistent evaluators under the safe spawn mode.
+        initial_evaluator = self._new_evaluator()
+        if self.backend != "process":
+            self._thread_state.evaluator = initial_evaluator
 
     def _new_evaluator(self):
-        try:
-            from nuplan.planning.simulation.trajectory.trajectory_sampling import (
-                TrajectorySampling,
-            )
-            from navsim.common.dataloader import MetricCacheLoader
-            from navsim.planning.simulation.planner.pdm_planner.scoring.pdm_scorer import (
-                PDMScorer,
-            )
-            from navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator import (
-                PDMSimulator,
-            )
-            from navsim.traffic_agents_policies.log_replay_traffic_agents import (
-                LogReplayTrafficAgents,
-            )
-        except ImportError as exc:
-            raise ImportError(
-                "DynamicMetricSupervisor requires the NAVSIM/nuPlan training "
-                "environment; install it only for QwenPI-DrivoRSuprim training"
-            ) from exc
-        sampling = TrajectorySampling(num_poses=40, interval_length=0.1)
-        return (
-            MetricCacheLoader(self.metric_cache_root),
-            sampling,
-            PDMSimulator(sampling),
-            PDMScorer(sampling),
-            LogReplayTrafficAgents(sampling),
-        )
+        return _new_navsim_evaluator(self.metric_cache_root)
 
     def _evaluator(self):
         if not hasattr(self._thread_state, "evaluator"):
@@ -247,26 +401,18 @@ class DynamicMetricSupervisor:
         return self._thread_state.evaluator
 
     def _score_one(self, token: str, trajectories_40: np.ndarray):
-        loader, sampling, simulator, scorer, traffic_policy = self._evaluator()
-        if token not in loader.metric_cache_paths:
-            raise FileNotFoundError(
-                f"NAVSIM metric cache {self.metric_cache_root} has no token {token!r}"
-            )
-        metric_cache = loader.get_from_token(token)
-        return _score_trajectory_pool(
-            metric_cache,
+        return _score_with_evaluator(
+            self._evaluator(),
+            self.metric_cache_root,
+            token,
             trajectories_40,
-            sampling,
-            simulator,
-            scorer,
-            traffic_policy,
         )
 
     @torch.no_grad()
-    def score(
+    def score_async(
         self, tokens: Sequence[str], proposals_navsim: Tensor
-    ) -> Dict[str, Tensor]:
-        """Return named ``[B,K]`` labels for detached physical 8-pose inputs."""
+    ) -> _DynamicMetricBatch:
+        """Submit detached proposals and return before CPU PDM scoring completes."""
 
         if proposals_navsim.ndim != 4 or tuple(proposals_navsim.shape[-2:]) != (8, 3):
             raise ValueError("dynamic proposals must have shape [B,K,8,3]")
@@ -277,20 +423,37 @@ class DynamicMetricSupervisor:
         proposals_40 = self.codec.upsample_8_to_40(
             proposals_navsim.detach().to(device="cpu", dtype=torch.float32)
         ).numpy()
-        tasks = [(str(token), proposals_40[index]) for index, token in enumerate(tokens)]
+        tasks = [
+            (str(token), proposals_40[index])
+            for index, token in enumerate(tokens)
+        ]
         if self._executor is None:
-            rows = [self._score_one(*task) for task in tasks]
+            items = [self._score_one(*task) for task in tasks]
+        elif self.backend == "process":
+            items = [
+                self._executor.submit(
+                    _score_one_in_process,
+                    str(self.metric_cache_root),
+                    token,
+                    trajectories,
+                )
+                for token, trajectories in tasks
+            ]
         else:
-            futures = [self._executor.submit(self._score_one, *task) for task in tasks]
-            rows = [future.result() for future in futures]
-        return {
-            name: torch.as_tensor(
-                np.stack([row[name] for row in rows], axis=0),
-                device=result_device,
-                dtype=result_dtype,
-            )
-            for name in _OUTPUT_METRICS
-        }
+            items = [self._executor.submit(self._score_one, *task) for task in tasks]
+        return _DynamicMetricBatch(
+            items,
+            result_device=result_device,
+            result_dtype=result_dtype,
+        )
+
+    @torch.no_grad()
+    def score(
+        self, tokens: Sequence[str], proposals_navsim: Tensor
+    ) -> Dict[str, Tensor]:
+        """Compatibility wrapper returning named synchronous ``[B,K]`` labels."""
+
+        return self.score_async(tokens, proposals_navsim).result()
 
     def close(self) -> None:
         if self._executor is not None:
@@ -304,6 +467,24 @@ class StubDynamicMetricSupervisor:
     def __init__(self, scorer=None) -> None:
         self.scorer = scorer
         self.calls = 0
+
+    @torch.no_grad()
+    def score_async(
+        self, tokens: Sequence[str], proposals_navsim: Tensor
+    ) -> _DynamicMetricBatch:
+        values = self.score(tokens, proposals_navsim)
+        rows = [
+            {
+                name: values[name][index].detach().to("cpu").numpy()
+                for name in _OUTPUT_METRICS
+            }
+            for index in range(proposals_navsim.shape[0])
+        ]
+        return _DynamicMetricBatch(
+            rows,
+            result_device=proposals_navsim.device,
+            result_dtype=proposals_navsim.dtype,
+        )
 
     @torch.no_grad()
     def score(

@@ -4,7 +4,8 @@
 # Baseline-frozen Qwen visual tower and tied LM-head/input embedding, with the
 # Qwen language decoder trainable -> Q-Former + Flow-DiT -> DrivoR. DriveSuprim
 # joint coarse/fine reranking is selected by the resolved training config.
-# Default production topology: 8 GPUs x micro-batch 4 x accumulation 1 = 32.
+# The paired production wrappers use 16 GPUs x micro-batch 4 x accumulation 1
+# = 64. The common entrypoint remains topology-overridable for local preflight.
 
 set -Eeuo pipefail
 
@@ -172,6 +173,8 @@ export NAVSIM_WORKER_THREADS="${NAVSIM_WORKER_THREADS:-1}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
+export NUMEXPR_NUM_THREADS="${NUMEXPR_NUM_THREADS:-1}"
+export BLIS_NUM_THREADS="${BLIS_NUM_THREADS:-1}"
 export TOKENIZERS_PARALLELISM=false
 export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 export PYTHONPATH="$project_root:$project_root/navsim:${PYTHONPATH:-}"
@@ -180,7 +183,7 @@ qds_phase=config-contract
 required_path "$QDS_CONFIG_YAML"
 QDS_CONFIG_YAML="$(python -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).expanduser().resolve())' "$QDS_CONFIG_YAML")"
 export QDS_CONFIG_YAML
-QDS_DRIVESUPRIM_ENABLED="$(python - "$QDS_CONFIG_YAML" <<'PY'
+mapfile -t qds_config_contract < <(python - "$QDS_CONFIG_YAML" <<'PY'
 import sys
 
 from omegaconf import OmegaConf
@@ -191,14 +194,64 @@ config = load_training_config(sys.argv[1])
 enabled = OmegaConf.select(
     config, "framework.hierarchical_scorer.joint.enabled", default=False
 )
+num_candidates = OmegaConf.select(
+    config, "framework.hierarchical_scorer.dynamic.num_candidates"
+)
+candidate_chunk_size = OmegaConf.select(
+    config, "framework.hierarchical_scorer.dynamic.candidate_chunk_size"
+)
+num_inference_timesteps = OmegaConf.select(
+    config, "framework.action_model.num_inference_timesteps"
+)
+scene_gradient_checkpointing = OmegaConf.select(
+    config, "framework.scene_encoder.use_gradient_checkpointing", default=False
+)
+metric_backend = str(
+    OmegaConf.select(
+        config, "framework.dynamic_metric_supervisor.backend", default="thread"
+    )
+)
 if not isinstance(enabled, bool):
     raise TypeError(
         "framework.hierarchical_scorer.joint.enabled must be a YAML boolean"
     )
+if not isinstance(scene_gradient_checkpointing, bool):
+    raise TypeError(
+        "framework.scene_encoder.use_gradient_checkpointing must be a YAML boolean"
+    )
+for name, value in (
+    ("num_candidates", num_candidates),
+    ("candidate_chunk_size", candidate_chunk_size),
+    ("num_inference_timesteps", num_inference_timesteps),
+):
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise ValueError(f"{name} must be a positive integer, got {value!r}")
+if candidate_chunk_size > num_candidates:
+    raise ValueError("candidate_chunk_size must not exceed num_candidates")
+if metric_backend not in {"local", "thread", "process"}:
+    raise ValueError(f"unsupported NAVSIM metric backend: {metric_backend!r}")
 print("1" if enabled else "0")
+print(num_candidates)
+print(candidate_chunk_size)
+print(num_inference_timesteps)
+print("1" if scene_gradient_checkpointing else "0")
+print(metric_backend)
 PY
-)"
-export QDS_DRIVESUPRIM_ENABLED
+)
+if (( ${#qds_config_contract[@]} != 6 )); then
+  echo "[qds] failed to resolve the training performance contract" >&2
+  exit 2
+fi
+export QDS_DRIVESUPRIM_ENABLED="${qds_config_contract[0]}"
+export QDS_DYNAMIC_CANDIDATES="${qds_config_contract[1]}"
+export QDS_CANDIDATE_CHUNK_SIZE="${qds_config_contract[2]}"
+export QDS_INFERENCE_TIMESTEPS="${qds_config_contract[3]}"
+export QDS_SCENE_GRADIENT_CHECKPOINTING="${qds_config_contract[4]}"
+export QDS_METRIC_BACKEND="${qds_config_contract[5]}"
+qds_chunks_per_sample=$((
+  (QDS_DYNAMIC_CANDIDATES + QDS_CANDIDATE_CHUNK_SIZE - 1)
+  / QDS_CANDIDATE_CHUNK_SIZE
+))
 case "${QDS_EXPECT_DRIVESUPRIM:-}" in
   "") ;;
   0|1)
@@ -224,7 +277,8 @@ done
 
 for name in QDS_LOCAL_PROCESSES VLA_BATCH_SIZE QDS_TARGET_EFFECTIVE_BATCH \
   VLA_MAX_TRAIN_STEPS VLA_WARMUP_STEPS VLA_SAVE_INTERVAL VLA_EVAL_INTERVAL \
-  VLA_LOG_INTERVAL NAVSIM_METRIC_WORKERS QDS_METRIC_CACHE_WORKERS; do
+  VLA_LOG_INTERVAL NAVSIM_NUM_WORKERS NAVSIM_PREFETCH_FACTOR \
+  NAVSIM_METRIC_WORKERS QDS_METRIC_CACHE_WORKERS; do
   if ! [[ "${!name}" =~ ^[0-9]+$ ]]; then
     echo "[qds] $name must be a non-negative integer, got ${!name}" >&2
     exit 2
@@ -234,12 +288,21 @@ if (( QDS_LOCAL_PROCESSES < 1 || VLA_BATCH_SIZE < 1 || QDS_TARGET_EFFECTIVE_BATC
   echo "[qds] processes, micro batch, and effective batch must be positive" >&2
   exit 2
 fi
+if (( NAVSIM_PREFETCH_FACTOR < 1 || NAVSIM_METRIC_WORKERS < 1 )); then
+  echo "[qds] prefetch factor and metric workers must be positive" >&2
+  exit 2
+fi
 micro_global=$((QDS_LOCAL_PROCESSES * VLA_BATCH_SIZE))
 if (( QDS_TARGET_EFFECTIVE_BATCH % micro_global != 0 )); then
   echo "[qds] effective batch must be divisible by processes x micro batch" >&2
   exit 2
 fi
 export VLA_GRAD_ACCUM_STEPS=$((QDS_TARGET_EFFECTIVE_BATCH / micro_global))
+qds_dataloader_workers=$((QDS_LOCAL_PROCESSES * NAVSIM_NUM_WORKERS))
+qds_metric_workers=$((QDS_LOCAL_PROCESSES * NAVSIM_METRIC_WORKERS))
+qds_nominal_cpu_slots=$((
+  QDS_LOCAL_PROCESSES + qds_dataloader_workers + qds_metric_workers
+))
 
 if [[ "$QDS_LAUNCHER_VALIDATE_ONLY" == "1" ]]; then
   echo "[qds] project_root=$project_root"
@@ -251,7 +314,16 @@ if [[ "$QDS_LAUNCHER_VALIDATE_ONLY" == "1" ]]; then
   else
     echo "[qds] drivesuprim_rerank=off drivesuprim_assets=skipped"
   fi
+  echo "[qds] topology=processes:$QDS_LOCAL_PROCESSES"
   echo "[qds] batch=micro:$VLA_BATCH_SIZE accumulation:$VLA_GRAD_ACCUM_STEPS effective:$QDS_TARGET_EFFECTIVE_BATCH"
+  echo "[qds] dynamic_sampler=candidates:$QDS_DYNAMIC_CANDIDATES chunk:$QDS_CANDIDATE_CHUNK_SIZE euler_steps:$QDS_INFERENCE_TIMESTEPS chunks_per_sample:$qds_chunks_per_sample"
+  if [[ "$QDS_SCENE_GRADIENT_CHECKPOINTING" == "1" ]]; then
+    echo "[qds] scene_gradient_checkpointing=on"
+  else
+    echo "[qds] scene_gradient_checkpointing=off"
+  fi
+  echo "[qds] cpu_parallelism=ranks:$QDS_LOCAL_PROCESSES dataloader_workers:$qds_dataloader_workers metric_workers:$qds_metric_workers nominal_slots:$qds_nominal_cpu_slots"
+  echo "[qds] navsim_scoring=vectorized_pool async_overlap=flow+drivor+coarse backend:$QDS_METRIC_BACKEND workers_per_rank:$NAVSIM_METRIC_WORKERS"
   echo "[qds] formal_training=NOT_RUN"
   exit 0
 elif [[ "$QDS_LAUNCHER_VALIDATE_ONLY" != "0" ]]; then
@@ -328,8 +400,8 @@ for path in "${required_paths[@]}"; do
   required_path "$path"
 done
 
-# Validate the exact image-path contract before allocating eight copies of the
-# model.  This loads one lightweight metadata record and uses the same resolver
+# Validate the exact image-path contract before allocating distributed copies
+# of the model. This loads one lightweight record and uses the same resolver
 # as NavSimDataset; it does not read image pixels or optional model assets.
 python - "$NAVSIM_DATALIST_PATH" "$DATA_ROOT/meta/$QDS_SPLIT" <<'PY'
 import json
@@ -462,7 +534,14 @@ echo "[qds] source_ref=$actual_branch@$source_commit config=$QDS_CONFIG_YAML"
 echo "[qds] git_metadata=$qds_git_metadata"
 echo "[qds] run_id=$QDS_RUN_ID devices=$CUDA_VISIBLE_DEVICES processes=$QDS_LOCAL_PROCESSES"
 echo "[qds] batch=micro:$VLA_BATCH_SIZE accumulation:$VLA_GRAD_ACCUM_STEPS effective:$QDS_TARGET_EFFECTIVE_BATCH"
-echo "[qds] action_horizon=8 flow_train_repeats=8 num_dynamic_candidates=64 candidate_chunk_size=8"
+echo "[qds] cpu_parallelism=ranks:$QDS_LOCAL_PROCESSES dataloader_workers:$qds_dataloader_workers metric_workers:$qds_metric_workers nominal_slots:$qds_nominal_cpu_slots prefetch_factor:$NAVSIM_PREFETCH_FACTOR"
+echo "[qds] navsim_scoring=vectorized_pool async_overlap=flow+drivor+coarse backend:$QDS_METRIC_BACKEND workers_per_rank:$NAVSIM_METRIC_WORKERS"
+echo "[qds] action_horizon=8 flow_train_repeats=8 num_dynamic_candidates=$QDS_DYNAMIC_CANDIDATES candidate_chunk_size=$QDS_CANDIDATE_CHUNK_SIZE euler_steps=$QDS_INFERENCE_TIMESTEPS chunks_per_sample=$qds_chunks_per_sample"
+if [[ "$QDS_SCENE_GRADIENT_CHECKPOINTING" == "1" ]]; then
+  echo "[qds] scene_gradient_checkpointing=on"
+else
+  echo "[qds] scene_gradient_checkpointing=off"
+fi
 if [[ "$QDS_DRIVESUPRIM_ENABLED" == "1" ]]; then
   echo "[qds] drivesuprim_rerank=on vocab=$SUPRIM_VOCAB_PATH static_scores=$SUPRIM_STATIC_SCORE_CACHE"
 else

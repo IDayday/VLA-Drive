@@ -3,6 +3,14 @@ base_config: qwenpi_matched_b3_drivor.yaml
 run_id: qwenpi_multitraj_score_suprim_on
 
 framework:
+  # Identical throughput settings to the OFF arm.
+  scene_encoder:
+    use_gradient_checkpointing: false
   hierarchical_scorer:
+    dynamic:
+      candidate_chunk_size: 32
     joint:
       enabled: true
+  dynamic_metric_supervisor:
+    # Identical CPU scoring backend to the OFF arm.
+    backend: process

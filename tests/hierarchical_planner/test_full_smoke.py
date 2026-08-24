@@ -565,3 +565,70 @@ def test_small_model_gate_forward_backward_step_and_inference():
     prediction = model.predict_action(examples=_examples(batch=1))
     assert prediction["normalized_actions"].shape == (1, 8, 4)
     assert prediction["trajectory_navsim_8"].shape == (1, 8, 3)
+
+
+def test_dynamic_metric_scoring_overlaps_flow_forward(monkeypatch):
+    model = _model().train()
+    events = []
+    original_flow_loss = model._flow_loss
+    original_dynamic_forward = model.hierarchical_scorer.dynamic_prescorer.forward
+    original_coarse_forward = model.hierarchical_scorer.joint_coarse_scorer.forward
+
+    def tracked_flow_loss(*args, **kwargs):
+        events.append("flow_forward")
+        return original_flow_loss(*args, **kwargs)
+
+    monkeypatch.setattr(model, "_flow_loss", tracked_flow_loss)
+
+    def tracked_dynamic_forward(*args, **kwargs):
+        events.append("dynamic_prescorer")
+        return original_dynamic_forward(*args, **kwargs)
+
+    def tracked_coarse_forward(*args, **kwargs):
+        events.append("coarse_scorer")
+        return original_coarse_forward(*args, **kwargs)
+
+    monkeypatch.setattr(
+        model.hierarchical_scorer.dynamic_prescorer,
+        "forward",
+        tracked_dynamic_forward,
+    )
+    monkeypatch.setattr(
+        model.hierarchical_scorer.joint_coarse_scorer,
+        "forward",
+        tracked_coarse_forward,
+    )
+
+    class PendingTargets:
+        def __init__(self, tokens, proposals):
+            self.tokens = tokens
+            self.proposals = proposals
+
+        def result(self):
+            events.append("metric_wait")
+            assert "flow_forward" in events
+            assert "dynamic_prescorer" in events
+            assert "coarse_scorer" in events
+            return StubDynamicMetricSupervisor().score(
+                self.tokens, self.proposals
+            )
+
+    class AsyncSupervisor:
+        def score(self, *_args, **_kwargs):
+            raise AssertionError("the synchronous scoring path must not run")
+
+        def score_async(self, tokens, proposals):
+            events.append("metric_submit")
+            return PendingTargets(tokens, proposals)
+
+    output = model(
+        _examples(),
+        training_schedule=_schedule(),
+        metric_supervisor=AsyncSupervisor(),
+    )
+
+    assert torch.isfinite(output["losses"]["flow"])
+    assert events.index("metric_submit") < events.index("flow_forward")
+    assert events.index("flow_forward") < events.index("dynamic_prescorer")
+    assert events.index("dynamic_prescorer") < events.index("coarse_scorer")
+    assert events.index("coarse_scorer") < events.index("metric_wait")

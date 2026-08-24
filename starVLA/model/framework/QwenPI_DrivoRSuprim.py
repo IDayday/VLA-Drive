@@ -638,10 +638,33 @@ class QwenPIDrivoRSuprim(baseframework):
             raise ValueError(
                 f"Flow target must end with [8,4], got {tuple(actions.shape)}"
             )
-        flow_loss = self._flow_loss(action_conditions, actions, scene)
-        zero = flow_loss.new_zeros(())
         schedule = training_schedule or self._default_schedule()
 
+        if self.scorer_enabled and (
+            self.hierarchical_scorer is None or scene is None
+        ):
+            raise RuntimeError("enabled scorer is not initialized")
+        dynamic_proposals = dynamic_targets = None
+        if self.scorer_enabled and schedule.dynamic_enabled:
+            if not self.dynamic_enabled:
+                raise ValueError("schedule enabled dynamics for a non-dynamic model")
+            if metric_supervisor is None:
+                raise RuntimeError("dynamic training requires a metric supervisor")
+            dynamic_proposals = self._sample_dynamic(
+                action_conditions,
+                scene,
+                state,
+                schedule.num_dynamic_candidates,
+            )
+            # Submit CPU-bound NAVSIM work before the trainable Flow forward.
+            # The scorer resolves this handle only after its independent GPU
+            # preselection work, retaining one combined loss/backward below.
+            dynamic_targets = metric_supervisor.score_async(
+                tokens, dynamic_proposals
+            )
+
+        flow_loss = self._flow_loss(action_conditions, actions, scene)
+        zero = flow_loss.new_zeros(())
         if not self.scorer_enabled:
             return {
                 "losses": {
@@ -653,23 +676,6 @@ class QwenPIDrivoRSuprim(baseframework):
                 "metrics": {},
                 "predictions": {},
             }
-        if self.hierarchical_scorer is None or scene is None:
-            raise RuntimeError("enabled scorer is not initialized")
-
-        dynamic_proposals = dynamic_targets = None
-        if schedule.dynamic_enabled:
-            if not self.dynamic_enabled:
-                raise ValueError("schedule enabled dynamics for a non-dynamic model")
-            if metric_supervisor is None:
-                raise RuntimeError("dynamic training requires a metric supervisor")
-            dynamic_proposals = self._sample_dynamic(
-                action_conditions,
-                scene,
-                state,
-                schedule.num_dynamic_candidates,
-            )
-            dynamic_targets = metric_supervisor.score(tokens, dynamic_proposals)
-
         if self.dynamic_enabled and not self.joint_enabled:
             if not schedule.dynamic_enabled:
                 raise ValueError("B3 DrivoR training requires dynamic sampling")

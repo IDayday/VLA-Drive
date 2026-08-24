@@ -39,11 +39,15 @@ def test_both_arms_keep_multitrajectory_and_drivor_contract():
         assert scorer.enabled is True
         assert scorer.dynamic.enabled is True
         assert scorer.dynamic.num_candidates == 64
-        assert scorer.dynamic.candidate_chunk_size == 8
+        assert scorer.dynamic.candidate_chunk_size == 32
         assert scorer.dynamic.dynamic_topm == 32
+        assert config.framework.scene_encoder.use_gradient_checkpointing is False
+        assert config.framework.dynamic_metric_supervisor.backend == "process"
 
 
-def _validate_launcher(launcher: Path, cwd: Path) -> str:
+def _validate_launcher(
+    launcher: Path, cwd: Path, *, topology_override: bool = True
+) -> str:
     environment = os.environ.copy()
     environment.update(
         {
@@ -53,11 +57,22 @@ def _validate_launcher(launcher: Path, cwd: Path) -> str:
             "GIT_DIR": "/tmp/stale-linked-worktree-git-dir",
             "GIT_WORK_TREE": "/tmp/stale-linked-worktree",
             "QDS_LAUNCHER_VALIDATE_ONLY": "1",
-            "QDS_LOCAL_PROCESSES": "8",
-            "VLA_BATCH_SIZE": "4",
-            "QDS_TARGET_EFFECTIVE_BATCH": "32",
         }
     )
+    for name in (
+        "QDS_LOCAL_PROCESSES",
+        "VLA_BATCH_SIZE",
+        "QDS_TARGET_EFFECTIVE_BATCH",
+    ):
+        environment.pop(name, None)
+    if topology_override:
+        environment.update(
+            {
+                "QDS_LOCAL_PROCESSES": "8",
+                "VLA_BATCH_SIZE": "4",
+                "QDS_TARGET_EFFECTIVE_BATCH": "32",
+            }
+        )
     completed = subprocess.run(
         ["bash", str(launcher)],
         cwd=cwd,
@@ -68,6 +83,27 @@ def _validate_launcher(launcher: Path, cwd: Path) -> str:
     )
     assert completed.returncode == 0, completed.stdout + completed.stderr
     return completed.stdout + completed.stderr
+
+
+def test_paired_dlc_launchers_default_to_full_16_gpu_matched_topology(tmp_path):
+    for launcher in (OFF_LAUNCHER, ON_LAUNCHER):
+        output = _validate_launcher(launcher, tmp_path, topology_override=False)
+        assert "topology=processes:16" in output
+        assert "batch=micro:4 accumulation:1 effective:64" in output
+        assert (
+            "dynamic_sampler=candidates:64 chunk:32 "
+            "euler_steps:10 chunks_per_sample:2" in output
+        )
+        assert "scene_gradient_checkpointing=off" in output
+        assert (
+            "cpu_parallelism=ranks:16 dataloader_workers:48 "
+            "metric_workers:64 nominal_slots:128" in output
+        )
+        assert (
+            "navsim_scoring=vectorized_pool "
+            "async_overlap=flow+drivor+coarse backend:process "
+            "workers_per_rank:4" in output
+        )
 
 
 def test_launchers_resolve_own_worktree_and_validate_without_training(tmp_path):

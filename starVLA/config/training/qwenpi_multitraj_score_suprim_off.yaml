@@ -2,3 +2,20 @@
 # DriveSuprim joint coarse/fine reranking is the only disabled model switch.
 base_config: qwenpi_matched_b3_drivor.yaml
 run_id: qwenpi_multitraj_score_suprim_off
+
+framework:
+  # With 16 x micro-batch 4 the four small Q-Former blocks fit without
+  # activation recomputation. This also avoids the PPU checkpoint warning on
+  # every rank and step.
+  scene_encoder:
+    use_gradient_checkpointing: false
+  hierarchical_scorer:
+    dynamic:
+      # Keep K=64 unchanged, but process two 32-candidate chunks instead of
+      # eight 8-candidate chunks. A same-hardware PPU probe at micro-batch 4
+      # verified the 128-item inference batch with negligible extra memory.
+      candidate_chunk_size: 32
+  dynamic_metric_supervisor:
+    # PDM scoring is Python-heavy. Spawned persistent workers avoid both the
+    # GIL and unsafe accelerator-state inheritance from fork.
+    backend: process
