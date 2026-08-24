@@ -3,11 +3,11 @@
 ## Outcome
 
 The run completed all 100,000 optimizer steps and produced every scheduled
-checkpoint plus the final model. NAVSIM navtest evaluation completed all
-12,146 scenarios for every checkpoint from 10k through 90k, with zero failed
-scenarios. The missing 100k evaluation is running locally in the background;
-this 2026-08-22 snapshot intentionally does not wait for it and does not use a
-partial result.
+checkpoint plus the final model. The NAVSIM navtest sweep is now complete for
+all ten checkpoints from 10k through 100k. Every PDMS and EPDMS job covers all
+12,146 scenarios with zero failed scenarios. The previously missing 100k
+supplement finished on 2026-08-23 with PDMS `0.886634` and EPDMS
+`0.881808`.
 
 The experiment is operationally valid but does **not** establish useful 3D
 conditioning. The learned mixture collapses to the semantic branch: by step
@@ -17,16 +17,20 @@ Because the implementation is
 is zero. The 16 learned scene queries also have pairwise cosine similarity
 `1.0`, indicating query collapse.
 
-The best available matched-checkpoint comparison and the complete historical
-100k references are:
+The primary matched-checkpoint comparison and complete 100k references are:
 
 | Model | Step | PDMS | EPDMS | Role |
 |---|---:|---:|---:|---|
 | Qwen + Action DiT, minimal prompt, frozen visual | 90k | 0.888925 | n/a | Closest matched control; archived legacy-unseeded inference |
-| SQ-3D-Mix gated | 90k | 0.886605 | 0.881324 | Best completed SQ-3D-Mix checkpoint in this snapshot |
+| SQ-3D-Mix gated | 90k | 0.886605 | 0.881324 | Primary matched-step comparison |
 | Historical Qwen + Action DiT | 100k | 0.891572 | 0.886315 | Complete 100k cross-check; older prompt contract |
+| SQ-3D-Mix gated | 100k | 0.886634 | 0.881808 | Completed supplement; 2-process inference |
 | Qwen + Action DiT, trainable visual | 100k | 0.896037 | n/a | Auxiliary reference, not a matched control |
-| SQ-3D-Mix gated | 100k | running | running | Background supplement, excluded from this snapshot |
+
+Numerically, 100k is the best SQ-3D-Mix checkpoint, but it improves over 90k
+by only `0.000029` PDMS and `0.000484` EPDMS. Because the supplement used a
+different inference world size, these checkpoints should be treated as tied,
+not as evidence that the final 10k steps improved the planner.
 
 The machine-readable source for every reported score is
 [`results/sq3dmix_gated_20260821_navtest.csv`](results/sq3dmix_gated_20260821_navtest.csv).
@@ -53,6 +57,7 @@ script.
 | Evaluation split | NAVSIM navtest, 12,146 scenarios |
 | Metrics | NAVSIM v1.1 PDMS and NAVSIM v2 EPDMS |
 | Inference seed | SQ-3D-Mix: 42; archived matched-baseline 90k: legacy unseeded |
+| SQ-3D-Mix inference topology | 10k–90k: world size 16; 100k supplement: world size 2 |
 
 The closest baseline is the 100k `QwenOFT + Action DiT` training run that
 starts from the base VLM, uses the `minimal` prompt, keeps Qwen visual frozen,
@@ -74,6 +79,11 @@ For context only, the trainable-Qwen-visual action-only run
 `qwen-visual-action-only-20260814_001706` reaches PDMS `0.896037` at 100k.
 It is not the primary control because its visual encoder is trainable and no
 EPDMS result is available.
+
+The 100k supplement used the same base inference seed `42`, checkpoint,
+dataset and metric versions as the earlier sweep. It used world size 2 rather
+than 16; because each rank uses an effective rank-offset seed, the 90k-to-100k
+delta is descriptive rather than a strict paired checkpoint comparison.
 
 All persistent paths are resolved through `env.local.sh`. The logical output
 locations are:
@@ -117,12 +127,12 @@ The complete 10k-spaced diagnostics are in
 | 70k | 0.858822 | 0.850066 |
 | 80k | 0.884315 | 0.878284 |
 | 90k | 0.886605 | 0.881324 |
-| 100k | running; not in snapshot | running; not in snapshot |
+| 100k | 0.886634 | 0.881808 |
 
-From 10k to 90k, PDMS increases by `0.079303` and EPDMS by `0.097590`, but
-the trajectory is not monotonic. The action imitation loss continues falling
-after navigation quality largely saturates, so training loss is not a reliable
-checkpoint selector for this run.
+From 10k to 100k, PDMS increases by `0.079332` and EPDMS by `0.098074`,
+but the trajectory is not monotonic. Navigation quality is effectively flat
+between 90k and 100k while the action imitation loss continues falling, so
+training loss is not a reliable checkpoint selector for this run.
 
 At the matched 90k checkpoint, SQ-3D-Mix PDMS is `0.886605` versus baseline
 `0.888925`, a difference of `-0.002320`. A paired scene bootstrap with 5,000
@@ -137,40 +147,137 @@ so this checkpoint comparison is diagnostic. Against the older historical
 95% interval `[-0.009786, -0.003702]`; that comparison is less controlled
 because the historical config predates the explicit minimal-prompt contract.
 
-An exact seeded 100k-to-100k comparison remains pending. At snapshot time only
-the SQ-3D-Mix 100k supplement is running; the incomplete archived baseline
-100k output is not treated as a result. A later strict comparison should
-regenerate the baseline prediction set under the same inference seed and
-software revision.
+Against the older complete historical 100k reference, SQ-3D-Mix is lower by
+`0.004937` PDMS and `0.004506` EPDMS. This is a cross-check rather than a
+controlled delta because the historical run predates the explicit minimal
+prompt contract. An exact seeded 100k-to-100k comparison remains unavailable:
+the archived matched baseline 100k output contains only 8,367 scenarios and is
+not treated as a result. A strict comparison must regenerate that baseline
+under the same inference seed, world size and software revision.
 
 Detailed paired statistics are stored in
 [`results/sq3dmix_gated_20260821_paired.csv`](results/sq3dmix_gated_20260821_paired.csv).
 
-## Interpretation
+## Failure analysis
 
-1. **The training and completed evaluation pipelines are healthy.** All ten
-   training checkpoints are present. For evaluated steps 10k–90k, predictions
-   and score files have the expected cardinality and every metric job reports
-   zero failed scenarios. The 100k supplement is still running and is not part
-   of this claim.
-2. **The intended 3D pathway is not used.** Gate saturation means the measured
-   NAVSIM score is effectively the semantic planner score; it cannot be
-   attributed to VGGT geometry.
-3. **Scale imbalance is a likely collapse driver.** At 100k the reported
-   geometry branch norm is `1161.613`, versus semantic branch norm `54.682`.
-   Suppressing geometry is therefore an easy way for the optimizer to keep the
-   fused context in the semantic scale. This is an inference from diagnostics,
-   not a proven causal mechanism.
-4. **The scene-query bottleneck also collapses.** Pairwise cosine `1.0` means
-   the nominal 16 scene queries do not provide 16 distinct summaries.
-5. **This is a single-seed negative result.** The paired bootstrap is useful
-   for navtest scene variability but does not replace multiple training seeds
-   or a same-commit baseline rerun.
+### What is directly established
 
-Before claiming 3D benefit, the minimum follow-up is real/zero/shuffled
-geometry evaluation on the same checkpoint. The architecture should also
-normalize semantic and geometry branches before gating, monitor the effective
-`1-gate` weight, and prevent scene-query collapse before another full run.
+1. **The intended VGGT path is dead.** The implemented mixture is
+   `gate * semantic + (1 - gate) * geometry`. Its mean semantic gate reaches
+   `0.999300` at 20k and `1.0` at 100k, so the final mean geometry weight is
+   exactly zero. The final NAVSIM score therefore does not demonstrate useful
+   VGGT conditioning.
+2. **The 16 scene queries collapse as well.** Their pairwise cosine similarity
+   is `1.0`, so they behave as copies rather than distinct scene summaries.
+   The configured query initialization standard deviation is only `1e-6`,
+   and there is no diversity or assignment objective to break this symmetry.
+3. **The optimizer is given a strong semantic shortcut.** The 16 query tokens
+   are averaged to one semantic vector, expanded to all 180 geometry
+   positions, and mixed position-wise. At gate 1, the action model receives 16
+   collapsed scene tokens plus 180 copies of the semantic summary. This is not
+   the original action-only context, so a dead geometry branch can still
+   perturb the baseline without adding 3D information.
+4. **Training contains no geometry-utility objective.** This route returns an
+   empty auxiliary-loss dictionary and the saved config gives only action loss
+   weight `1.0`. Ignoring a difficult new input is therefore a valid
+   action-loss shortcut.
+5. **Explicit spatial metadata is discarded by this route.** The dense cache
+   contains view IDs, normalized UV coordinates and ego-frame camera rays, but
+   the SQ-3D-Mix pooler consumes only features, valid mask and patch-grid shape.
+   The model mixes opaque VGGT features without explicit calibrated view or
+   ego-frame geometry.
+
+### Most likely collapse mechanism
+
+At 100k the projected VGGT norm is `401.272` and the post-projection geometry
+branch norm is `1161.613`, versus semantic branch norm `54.682`. Neither
+branch is normalized before the sigmoid mixture. The fusion module also uses
+learning rate `1e-4`, ten times the base/action rate and over three times the
+scene-query rate. The easiest way to keep the fused context on the familiar
+semantic scale is therefore to saturate the sigmoid toward semantic; once
+saturated, the geometry branch receives almost no useful recovery gradient.
+This mechanism is strongly supported by the diagnostics, although a
+real/zero/shuffled intervention is still required for a causal confirmation.
+
+The frozen Qwen visual encoder and base-VLM initialization add comparison
+confounds: the run does not warm-start from a strong matched action-only
+planner, and it cannot adapt visual features jointly. They do not explain the
+exact gate value, but they make a performance gain less likely.
+
+### Why “forcing VGGT on” is not enough
+
+This result does not show that VGGT contains no planning signal; it shows that
+this injection route learns not to use it. A separate local V3 gate study
+found that shuffled teacher knowledge changes flow loss by `+28.80%` and
+student knowledge by `+37.60%`, so the geometry representation can affect
+planning. However, correct teacher conditioning worsened normalized action
+ADE from `0.038413` to `0.043629` and flow loss from `0.004675` to
+`0.005433`. Thus the deeper requirement is **planning utility**, not merely
+nonzero geometry sensitivity. See
+[`../vggt_v3_gate_report_20260813.md`](../vggt_v3_gate_report_20260813.md).
+
+## Recommended repair
+
+### 1. Confirm the current failure cheaply
+
+Before another full run, evaluate the existing 100k checkpoint with
+`real`, `zero` and `shuffled` VGGT under the same seed, world size and
+diffusion noise. The expected near-equality would directly verify that the
+saturated route ignores geometry.
+
+### 2. Replace the convex mixture with one centered residual path
+
+Use normalized, geometry-aware memory and modify only the action queries:
+
+```text
+G = LN(Project([VGGT feature, view embedding, UV, ego ray]))
+R = CrossAttention(action_queries, G)
+alpha = 0.05 + 0.45 * sigmoid(scale_logit)  # initialize near 0.10
+A_new = action_queries + alpha * (R - R_slot_mean)
+DiT(A_new, extra_context=None)
+```
+
+This removes the 180 duplicated semantic tokens and the dual context route,
+keeps initialization near the action-only planner, bounds the residual, and
+prevents a gate from turning geometry completely off. It also uses the spatial
+metadata already present in the cache. The centered V3 formulation and its
+artifact gates are detailed in
+[`../vggt_v3_design_and_dlc.md`](../vggt_v3_design_and_dlc.md).
+
+Normalize both input and readout magnitudes, lower the reader/fusion learning
+rate from `1e-4` to approximately `3e-5`, and give any scale/gate parameter
+its own smaller learning rate. If scene queries remain, initialize them around
+`0.02` with distinct query identities and add a diversity constraint; if
+only their mean is used, replace all 16 with one explicit global token.
+
+### 3. Make geometry useful before joint long training
+
+Warm-start from a matched, fully evaluated action-only checkpoint. First train
+only the geometry adapter/reader with the planner frozen; then unfreeze the
+Action DiT and selected upper visual/VLM blocks at a lower learning rate.
+Combine action flow matching with:
+
+- a native VGGT/task-preservation or physical geometry probe;
+- an auxiliary trajectory objective tied to the geometry readout;
+- a same-noise hard-shuffle ranking loss
+  `max(0, margin + L_real - L_shuffled)`;
+- a baseline-fidelity constraint requiring correct geometry not to degrade the
+  clean action-only loss.
+
+Static single-frame geometry may still be insufficient for the collision/TTC
+benefit being targeted. Add temporal agent motion, occupancy or depth cues only
+after the static reader passes the causal utility gates.
+
+### 4. Go/no-go gates before another 100k run
+
+1. On at least a 2k-sample held-out local study, require teacher utility,
+   teacher real-vs-shuffled causality and student inheritance simultaneously.
+2. Run a same-commit 10k–20k A/B pilot against the warm-started action-only
+   control, with identical data order, seed, inference world size and metrics.
+3. Require real geometry to beat zero/shuffled, nonzero geometry gradients,
+   bounded residual/branch norms and non-collapsed queries before scaling.
+4. Only then run 100k and repeat enough training seeds to distinguish a model
+   gain from seed variance.
 
 ## Reproduction
 
@@ -196,3 +303,5 @@ Relevant implementation files:
 - [`17-eval_sq3dmix_gated_all_ckpts_dlc.sh`](../../17-eval_sq3dmix_gated_all_ckpts_dlc.sh)
 - [`infer.py`](../../infer.py)
 - [`sq_3d_mix.py`](../../starVLA/model/modules/vggt_query/sq_3d_mix.py)
+- [`vggt_v3_gate_report_20260813.md`](../vggt_v3_gate_report_20260813.md)
+- [`vggt_v3_design_and_dlc.md`](../vggt_v3_design_and_dlc.md)
