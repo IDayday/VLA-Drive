@@ -105,6 +105,12 @@ class CenteredActionGeometryReader(nn.Module):
                 dim=-1,
             ).mean(),
             "gp_sq3dmix/reader_attention_entropy": entropy,
+            # Private framework payloads; they are consumed immediately and
+            # never attached to the public metric dictionary.
+            "_centered_readout": centered.detach(),
+            "_residual_action_ratio_per_horizon": (
+                residual_norm / action_norm.clamp_min(1e-12)
+            ),
         }
         for horizon in range(action_queries.shape[1]):
             diagnostics[f"gp_sq3dmix/residual_norm_h{horizon}"] = residual_norm[

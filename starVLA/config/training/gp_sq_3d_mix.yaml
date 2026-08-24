@@ -25,6 +25,13 @@ framework:
       source_cache_manifest: ""
       strict: true
 
+    negative_map:
+      path: ""
+      manifest: ""
+      strict: true
+      source_datalist: ""
+      source_cache_root: ""
+
     gate:
       minimum_retention: 0.05
       maximum_retention: 0.50
@@ -37,18 +44,24 @@ framework:
 
     intervention:
       mode: real
+      seed: 20260824
 
     training:
       stage: stage_a
       rank_margin_ratio: 0.05
+      spatial_margin_ratio: 0.02
       fidelity_tolerance: 0.02
+
+    evaluation:
+      scene_shuffle_diagnostic: false
 
 trainer:
   named_loss_warmup_steps: 0
 
   loss_weights:
     action: 1.0
-    geometry_rank: 0.10
+    geometry_rank_hard: 0.05
+    geometry_rank_spatial: 0.05
     baseline_fidelity: 0.10
 
   learning_rate:

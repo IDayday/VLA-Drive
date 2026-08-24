@@ -64,5 +64,8 @@ class SceneConditionedGeometryGate(nn.Module):
             ).float().mean(),
             "gp_sq3dmix/gated_geometry_norm": gated.detach().float().norm(dim=-1).mean(),
             "gp_sq3dmix/ungated_geometry_norm": geometry_memory.detach().float().norm(dim=-1).mean(),
+            # Private evaluator payload.  The framework removes this before
+            # exposing scalar metrics, retaining only per-sample summaries.
+            "_retention": detached,
         }
         return gated, diagnostics

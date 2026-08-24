@@ -317,6 +317,31 @@ class VLAAgent:
                     os.environ["GP_SQ3DMIX_SOURCE_CACHE_MANIFEST"],
                     force_add=True,
                 )
+            for environment_name, config_path in (
+                (
+                    "GP_SQ3DMIX_NEGATIVE_MAP",
+                    "framework.gp_sq_3d_mix.negative_map.path",
+                ),
+                (
+                    "GP_SQ3DMIX_NEGATIVE_MAP_MANIFEST",
+                    "framework.gp_sq_3d_mix.negative_map.manifest",
+                ),
+                (
+                    "GP_SQ3DMIX_SOURCE_DATALIST",
+                    "framework.gp_sq_3d_mix.negative_map.source_datalist",
+                ),
+                (
+                    "GP_SQ3DMIX_SOURCE_CACHE_ROOT",
+                    "framework.gp_sq_3d_mix.negative_map.source_cache_root",
+                ),
+            ):
+                if os.environ.get(environment_name):
+                    OmegaConf.update(
+                        self.model_config,
+                        config_path,
+                        os.environ[environment_name],
+                        force_add=True,
+                    )
             OmegaConf.update(
                 self.model_config,
                 "framework.gp_sq_3d_mix.training.stage",
@@ -676,6 +701,41 @@ def infer_and_save(
                 )
         batch_on_device = to_device(batch, agent.device)
         pred = agent.predict(batch_on_device)
+
+        if hasattr(agent.model, "_last_gp_inference_samples"):
+            gp_samples = agent.model._last_gp_inference_samples
+            ratios = gp_samples[
+                "residual_action_ratio_per_horizon"
+            ].detach().float().cpu()
+            if ratios.shape != (len(batch), 8):
+                raise RuntimeError("GP inference residual diagnostics must be [B,8]")
+            retention = gp_samples.get("retention")
+            diagnostic_root = os.path.join(out_dir, "gp_diagnostics")
+            os.makedirs(diagnostic_root, exist_ok=True)
+            for batch_index, example in enumerate(batch):
+                record = {
+                    "token": str(example["token"]),
+                    "residual_action_ratio": float(ratios[batch_index].mean()),
+                    "residual_action_ratio_per_horizon": ratios[
+                        batch_index
+                    ].tolist(),
+                    "alpha": float(gp_samples["alpha"].float().cpu()),
+                }
+                if retention is not None:
+                    record["retention"] = {
+                        key: float(value[batch_index].detach().float().cpu())
+                        for key, value in retention.items()
+                        if not key.startswith("_")
+                    }
+                diagnostic_path = os.path.join(
+                    diagnostic_root, str(example["token"]) + ".json"
+                )
+                diagnostic_tmp = diagnostic_path + f".tmp-{os.getpid()}"
+                with open(diagnostic_tmp, "w", encoding="utf-8") as stream:
+                    json.dump(record, stream, sort_keys=True)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(diagnostic_tmp, diagnostic_path)
 
         action = pred["normalized_actions"]
 

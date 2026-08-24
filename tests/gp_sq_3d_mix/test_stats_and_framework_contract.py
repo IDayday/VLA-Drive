@@ -88,12 +88,13 @@ class _FakeActionModel:
         )
 
 
-def test_stage_a_losses_finite_and_shuffled_reuses_flow_noise():
+def test_stage_a_v2_losses_finite_and_interventions_reuse_flow_noise():
     model = QwenOFT_GPSQ3DMix.__new__(QwenOFT_GPSQ3DMix)
     nn.Module.__init__(model)
     model.gp_mode = "gated_residual"
     model.training_stage = "stage_a"
     model.rank_margin_ratio = 0.05
+    model.spatial_margin_ratio = 0.02
     model.fidelity_tolerance = 0.02
     model.config = OmegaConf.create({"framework": {"action_model": {"repeated_diffusion_steps": 1}}})
     model.action_model = _FakeActionModel()
@@ -101,7 +102,8 @@ def test_stage_a_losses_finite_and_shuffled_reuses_flow_noise():
     extension = {
         "baseline_action_queries": torch.randn(2, 8, 16),
         "real_action_queries": torch.randn(2, 8, 16, requires_grad=True),
-        "shuffled_action_queries": torch.randn(2, 8, 16, requires_grad=True),
+        "hard_shuffled_action_queries": torch.randn(2, 8, 16, requires_grad=True),
+        "spatial_shuffled_action_queries": torch.randn(2, 8, 16, requires_grad=True),
         "losses": {},
         "metrics": {},
     }
@@ -111,7 +113,12 @@ def test_stage_a_losses_finite_and_shuffled_reuses_flow_noise():
     torch.manual_seed(123)
     action = model._compute_action_loss(extension["real_action_queries"], actions, None, None, extension)
     losses = {"action": action, **extension["losses"]}
-    assert set(losses) == {"action", "geometry_rank", "baseline_fidelity"}
+    assert set(losses) == {
+        "action",
+        "geometry_rank_hard",
+        "geometry_rank_spatial",
+        "baseline_fidelity",
+    }
     assert all(value.ndim == 0 and torch.isfinite(value) for value in losses.values())
     assert len({state for state, _ in model.action_model.states}) == 1
     assert all(context is None for _, context in model.action_model.states)

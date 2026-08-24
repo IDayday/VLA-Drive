@@ -8,6 +8,7 @@ import pickle
 import json
 import hashlib
 import os
+from pathlib import Path
 from PIL import Image
 import torch
 from omegaconf import OmegaConf
@@ -15,6 +16,10 @@ from omegaconf import OmegaConf
 from starVLA.cache.navsim_feature_cache import (
     NavsimFeatureCacheReader,
     parse_components,
+)
+from starVLA.gp_sq3dmix_v2 import (
+    hard_negative_contract_sha256,
+    sha256_file,
 )
 import numpy as np
 from func_timeout import FunctionTimedOut, func_timeout
@@ -493,7 +498,7 @@ class NavSimDataset(Dataset):
             else "real"
         ).strip().lower()
         self._topology_independent_dense_shuffle = bool(
-            dense_mix_selected
+            sq3dmix_selected
             and configured_intervention == "shuffled"
             and os.environ.get("VLA_TOPOLOGY_INDEPENDENT_SHUFFLE", "0") == "1"
         )
@@ -630,6 +635,155 @@ class NavSimDataset(Dataset):
             print(
                 f"loading NAVSIM dense VGGT cache {dense_cache_root} "
                 f"capability={dense_config_prefix} strict={int(dense_cache_strict)}"
+            )
+
+        # GP-SQ3D-Mix-v2 uses one immutable donor per token.  It never derives
+        # donors from the current batch/rank and never replaces the primary
+        # real payload.  Legacy SQ-3D-Mix topology-independent shuffling above
+        # remains intact for historical checkpoint reproduction.
+        self._gp_hard_negative_rows = None
+        self._gp_hard_negative_source_tokens = None
+        self._gp_hard_negative_cache = None
+        if gp_sq3dmix_selected and sq3dmix_fusion_mode != "disabled":
+            negative_path = Path(
+                str(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.gp_sq_3d_mix.negative_map.path",
+                        default="",
+                    )
+                )
+            ).expanduser()
+            negative_manifest_path = Path(
+                str(
+                    OmegaConf.select(
+                        all_cfg,
+                        "framework.gp_sq_3d_mix.negative_map.manifest",
+                        default="",
+                    )
+                )
+            ).expanduser()
+            negative_strict = bool(
+                OmegaConf.select(
+                    all_cfg,
+                    "framework.gp_sq_3d_mix.negative_map.strict",
+                    default=True,
+                )
+            )
+            if not negative_strict:
+                raise ValueError("GP Stage-A-v2 negative_map.strict must be true")
+            if not negative_path.is_file() or not negative_manifest_path.is_file():
+                raise FileNotFoundError(
+                    "Non-disabled GP Stage-A-v2 requires fixed negative-map path "
+                    "and manifest"
+                )
+            negative_manifest = json.loads(
+                negative_manifest_path.read_text(encoding="utf-8")
+            )
+            if negative_manifest.get("complete") is not True:
+                raise RuntimeError("GP hard-negative map manifest is incomplete")
+            if negative_manifest.get("map_file_sha256") != sha256_file(negative_path):
+                raise RuntimeError("GP hard-negative map SHA256 mismatch")
+            if (
+                negative_manifest.get("hard_negative_contract_sha256")
+                != hard_negative_contract_sha256()
+            ):
+                raise RuntimeError("GP hard-negative map code contract mismatch")
+            if negative_manifest.get("target_split_sha256") != datalist_sha256:
+                raise RuntimeError("GP hard-negative map target split mismatch")
+            if int(negative_manifest.get("target_sample_count", -1)) != len(
+                self.raw_list
+            ):
+                raise RuntimeError("GP hard-negative map target count mismatch")
+            active_cache_manifest_path = (
+                Path(dense_cache_root) / "vggt_dense" / "manifest.json"
+            )
+            if (
+                negative_manifest.get("dense_cache_manifest_sha256")
+                != sha256_file(active_cache_manifest_path)
+            ):
+                raise RuntimeError("GP hard-negative target cache manifest mismatch")
+
+            source_datalist_value = OmegaConf.select(
+                all_cfg,
+                "framework.gp_sq_3d_mix.negative_map.source_datalist",
+                default="",
+            ) or OmegaConf.select(
+                all_cfg,
+                "framework.gp_sq_3d_mix.stats.source_datalist",
+                default="",
+            )
+            source_datalist_path = Path(str(source_datalist_value)).expanduser()
+            if not source_datalist_path.is_file():
+                raise FileNotFoundError(
+                    "GP hard-negative source datalist is missing: "
+                    f"{source_datalist_path}"
+                )
+            if (
+                negative_manifest.get("source_datalist_sha256")
+                != sha256_file(source_datalist_path)
+            ):
+                raise RuntimeError("GP hard-negative source datalist mismatch")
+            source_tokens = json.loads(
+                source_datalist_path.read_text(encoding="utf-8")
+            )
+            if len(source_tokens) != len(set(source_tokens)):
+                raise RuntimeError("GP hard-negative source datalist has duplicates")
+
+            source_cache_value = OmegaConf.select(
+                all_cfg,
+                "framework.gp_sq_3d_mix.negative_map.source_cache_root",
+                default="",
+            ) or dense_cache_root
+            source_cache_root = Path(str(source_cache_value)).expanduser()
+            source_cache_manifest_path = (
+                source_cache_root / "vggt_dense" / "manifest.json"
+            )
+            if not source_cache_manifest_path.is_file():
+                raise FileNotFoundError(source_cache_manifest_path)
+            if (
+                negative_manifest.get("source_dense_cache_manifest_sha256")
+                != sha256_file(source_cache_manifest_path)
+            ):
+                raise RuntimeError("GP hard-negative source cache manifest mismatch")
+            rows = json.loads(negative_path.read_text(encoding="utf-8"))
+            if not isinstance(rows, list) or len(rows) != len(self.raw_list):
+                raise RuntimeError("GP hard-negative map row count mismatch")
+            indexed_rows = {}
+            for expected_index, row in enumerate(rows):
+                if (
+                    row.get("target_index") != expected_index
+                    or row.get("target_token") != self.raw_list[expected_index]
+                ):
+                    raise RuntimeError("GP hard-negative map target order mismatch")
+                donor_index = int(row.get("donor_index", -1))
+                if not 0 <= donor_index < len(source_tokens):
+                    raise RuntimeError("GP hard-negative donor index is out of range")
+                if source_tokens[donor_index] != row.get("donor_token"):
+                    raise RuntimeError("GP hard-negative donor token/index mismatch")
+                if row.get("target_token") == row.get("donor_token"):
+                    raise RuntimeError("GP hard-negative map contains a self donor")
+                if row.get("same_log") is not False:
+                    raise RuntimeError("GP hard-negative map contains a same-log donor")
+                if int(row.get("fallback_level", -1)) not in (0, 1, 2):
+                    raise RuntimeError("GP hard-negative fallback level is invalid")
+                indexed_rows[row["target_token"]] = row
+            if len(indexed_rows) != len(rows):
+                raise RuntimeError("GP hard-negative map contains duplicate targets")
+            if source_cache_root.resolve() == Path(dense_cache_root).resolve():
+                donor_reader = self.vggt_dense_cache
+            else:
+                donor_reader = NavsimFeatureCacheReader(
+                    cache_root=source_cache_root,
+                    components=("vggt_dense",),
+                    strict=True,
+                )
+            self._gp_hard_negative_rows = indexed_rows
+            self._gp_hard_negative_source_tokens = source_tokens
+            self._gp_hard_negative_cache = donor_reader
+            print(
+                "loading fixed GP hard-negative map "
+                f"{negative_path} samples={len(rows)}"
             )
         _cfg_data_root = getattr(dataset_cfg, "data_root", None) if dataset_cfg is not None else None
         _data_root = data_root or _cfg_data_root or os.environ.get("OPENSCENE_DATA_ROOT", "")
@@ -931,6 +1085,24 @@ class NavSimDataset(Dataset):
                 raise RuntimeError(
                     f"SQ-3D-Mix dense cache miss for sample index={idx} token={raw}"
                 )
+        hard_negative_payload = None
+        hard_negative_metadata = None
+        if self._gp_hard_negative_rows is not None:
+            hard_negative_metadata = copy.deepcopy(
+                self._gp_hard_negative_rows.get(raw)
+            )
+            if hard_negative_metadata is None:
+                raise RuntimeError(f"GP hard-negative map miss for target token={raw}")
+            donor_index = int(hard_negative_metadata["donor_index"])
+            donor_token = hard_negative_metadata["donor_token"]
+            hard_negative_payload = self._gp_hard_negative_cache.get(
+                "vggt_dense", donor_index, donor_token
+            )
+            if hard_negative_payload is None:
+                raise RuntimeError(
+                    "GP hard-negative dense cache miss for "
+                    f"donor index={donor_index} token={donor_token}"
+                )
 
         if self.vit_pre:
             bev_path = os.path.join(self.base_dir, raw+'-bev.pkl')
@@ -952,6 +1124,9 @@ class NavSimDataset(Dataset):
             sample["vggt_dense_pre_shuffled"] = bool(
                 locals().get("dense_payload_pre_shuffled", False)
             )
+        if self._gp_hard_negative_rows is not None:
+            sample["vggt_dense_hard_negative_cache"] = hard_negative_payload
+            sample["gp_hard_negative_metadata"] = hard_negative_metadata
         if self.vit_pre:
             sample['bev'] = bev_rgb_to_occ(bev_data)    # np array unit8  hwc
         if self.w_depth and "ppd" in cached_features:

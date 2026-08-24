@@ -87,6 +87,18 @@
 # export VGGT_DENSE_CACHE_FULL="${VGGT_DENSE_CACHE_FULL:-1}"  # ignores a stale smoke max-samples setting
 # Full bottleneck training may initialize from an action-only model checkpoint.
 # export ACTION_ONLY_CHECKPOINT="/path/to/action_only/pytorch_model.pt"
+# GP-SQ3D-Mix Stage-A-v2 uses a new immutable asset/run namespace.  Keep these
+# separate from the legacy gp_sq3dmix_slot_stats and historical experiment dirs.
+# export GP_SQ3DMIX_TRAIN_CACHE_ROOT="${GP_SQ3DMIX_TRAIN_CACHE_ROOT:-$NAVSIM_VGGT_DENSE_CACHE_ROOT}"
+# export GP_SQ3DMIX_TEST_CACHE_ROOT="${GP_SQ3DMIX_TEST_CACHE_ROOT:-$NAVSIM_VGGT_DENSE_TEST_CACHE_ROOT}"
+# export GP_SQ3DMIX_TRAIN_DATALIST="${GP_SQ3DMIX_TRAIN_DATALIST:-$NAVSIM_DATALIST_PATH}"
+# export GP_SQ3DMIX_V2_STATS_ROOT="${GP_SQ3DMIX_V2_STATS_ROOT:-$DRIVEDREAMER_SHARED_ROOT/navsim_feature_cache/gp_sq3dmix_stage_a_v2_slot_stats}"
+# export GP_SQ3DMIX_V2_NEGATIVE_MAP_ROOT="${GP_SQ3DMIX_V2_NEGATIVE_MAP_ROOT:-$DRIVEDREAMER_SHARED_ROOT/navsim_feature_cache/gp_sq3dmix_stage_a_v2_negative_maps}"
+# export GP_SQ3DMIX_V2_RUN_ROOT="${GP_SQ3DMIX_V2_RUN_ROOT:-$NAVSIM_EXP_ROOT/gp_sq3dmix_stage_a_v2}"
+# export GP_SQ3DMIX_V2_EVAL_ROOT="${GP_SQ3DMIX_V2_EVAL_ROOT:-$NAVSIM_EVAL_ROOT/gp_sq3dmix_stage_a_v2_eval}"
+# export GP_SQ3DMIX_STATS_WORKERS="${GP_SQ3DMIX_STATS_WORKERS:-8}"
+# export GP_SQ3DMIX_STATS_SHARDS="${GP_SQ3DMIX_STATS_SHARDS:-16}"
+# export GP_SQ3DMIX_NEGATIVE_MAP_WORKERS="${GP_SQ3DMIX_NEGATIVE_MAP_WORKERS:-16}"
 # export VGGT_DENSE_LEARNING_RATE="${VGGT_DENSE_LEARNING_RATE:-5e-5}"
 # export VGGT_DENSE_VLM_ATTN_IMPLEMENTATION="${VGGT_DENSE_VLM_ATTN_IMPLEMENTATION:-sdpa}"
 # export VGGT_DENSE_INTERVENTION_INTERVAL="${VGGT_DENSE_INTERVENTION_INTERVAL:-500}"

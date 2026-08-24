@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from omegaconf import OmegaConf
 from torch import Tensor
 
+from starVLA.gp_sq3dmix_v2 import spatial_shuffle_pooled_geometry
 from starVLA.model.framework.QwenOFT import Qwenvl_OFT
 from starVLA.model.modules.vggt_query.centered_action_geometry_reader import (
     CenteredActionGeometryReader,
@@ -30,7 +31,13 @@ from starVLA.model.tools import FRAMEWORK_REGISTRY
 
 
 FUSION_MODES = {"disabled", "projected_residual", "gated_residual"}
-INTERVENTION_MODES = {"real", "zero", "shuffled", "slot_mean"}
+INTERVENTION_MODES = {
+    "real",
+    "zero",
+    "slot_mean",
+    "hard_shuffled",
+    "spatial_shuffled",
+}
 
 
 def _required_file_sha(path: str | Path | None, name: str) -> str:
@@ -84,8 +91,19 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
         self.rank_margin_ratio = float(
             OmegaConf.select(gp_cfg, "training.rank_margin_ratio", default=0.05)
         )
+        self.spatial_margin_ratio = float(
+            OmegaConf.select(gp_cfg, "training.spatial_margin_ratio", default=0.02)
+        )
         self.fidelity_tolerance = float(
             OmegaConf.select(gp_cfg, "training.fidelity_tolerance", default=0.02)
+        )
+        self.spatial_shuffle_seed = int(
+            OmegaConf.select(gp_cfg, "intervention.seed", default=20260824)
+        )
+        self.scene_shuffle_diagnostic = bool(
+            OmegaConf.select(
+                gp_cfg, "evaluation.scene_shuffle_diagnostic", default=False
+            )
         )
         hidden_dim = int(self.qwen_vl_interface.model.config.hidden_size)
         if hidden_dim != 2048:
@@ -203,13 +221,16 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
     @staticmethod
     def _payloads_from_examples(
         examples: Sequence[Mapping[str, object]] | None,
+        key: str = "vggt_dense_feature_cache",
     ) -> list[Mapping[str, Tensor]]:
         if examples is None:
             raise RuntimeError("GP-SQ3D-Mix requires cache-backed examples")
-        payloads = [example.get("vggt_dense_feature_cache") for example in examples]
+        payloads = [example.get(key) for example in examples]
         if not all(payload is not None for payload in payloads):
             missing = [index for index, value in enumerate(payloads) if value is None]
-            raise RuntimeError(f"Missing dense VGGT payloads at batch indices {missing}")
+            raise RuntimeError(
+                f"Missing dense VGGT payload {key!r} at batch indices {missing}"
+            )
         return payloads
 
     def set_gp_intervention(self, mode: str) -> None:
@@ -218,48 +239,74 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             raise ValueError(f"Unknown GP intervention: {mode}")
         self.gp_intervention = normalized
 
-    @staticmethod
-    def _nearest_target_shuffle(examples, device: torch.device) -> Tensor | None:
-        if len(examples) < 2:
-            return None
-        targets = torch.stack(
-            [torch.as_tensor(example["action"], dtype=torch.float32) for example in examples]
-        ).to(device=device)
-        flat = targets.flatten(1)
-        distances = torch.cdist(flat, flat, p=2)
-        distances.fill_diagonal_(float("inf"))
-        return distances.argmin(dim=1)
-
-    def _apply_intervention(self, pooled, examples, mode: str):
+    def _apply_intervention(self, extension, mode: str):
+        pooled = extension["pooled_geometry"]
         selected = {key: value for key, value in pooled.items()}
-        metrics = {}
+        device = pooled["features"].device
+        diagnostics: dict[str, Tensor] = {}
         if mode == "real":
-            return selected, metrics
+            return selected, diagnostics
         if mode == "zero":
             selected["features"] = torch.zeros_like(pooled["features"])
-            return selected, metrics
+            return selected, diagnostics
         if mode == "slot_mean":
             selected["features"] = self.pooled_feature_slot_mean.to(
-                device=pooled["features"].device, dtype=pooled["features"].dtype
+                device=device, dtype=pooled["features"].dtype
             ).unsqueeze(0).expand(pooled["features"].shape[0], -1, -1)
-            return selected, metrics
-        if examples and all(
-            example.get("vggt_dense_pre_shuffled", False) for example in examples
-        ):
-            metrics["gp_sq3dmix/topology_independent_shuffle"] = torch.ones(
-                (), device=pooled["features"].device
+            return selected, diagnostics
+        if mode == "hard_shuffled":
+            donor = extension.get("pooled_hard_geometry")
+            if donor is None:
+                raise RuntimeError(
+                    "hard_shuffled requires vggt_dense_hard_negative_cache"
+                )
+            metadata = [
+                example.get("gp_hard_negative_metadata")
+                for example in extension["examples"]
+            ]
+            if not all(isinstance(value, Mapping) for value in metadata):
+                raise RuntimeError("hard_shuffled requires fixed donor metadata")
+            for name, key in (
+                ("hard_donor_action_distance", "action_distance"),
+                ("hard_donor_geometry_distance", "geometry_cosine_distance"),
+                ("hard_donor_fallback_level", "fallback_level"),
+            ):
+                diagnostics[f"gp_sq3dmix/{name}"] = torch.tensor(
+                    [float(value[key]) for value in metadata],
+                    device=device,
+                    dtype=torch.float32,
+                ).mean()
+            return {key: value for key, value in donor.items()}, diagnostics
+        if mode == "spatial_shuffled":
+            selected, fixed_points = spatial_shuffle_pooled_geometry(
+                pooled, extension["tokens"], self.spatial_shuffle_seed
             )
-            return selected, metrics
-        indices = self._nearest_target_shuffle(examples, pooled["features"].device)
-        if indices is None:
-            metrics["gp_sq3dmix/intervention_skipped"] = torch.ones(
-                (), device=pooled["features"].device
-            )
-            return selected, metrics
-        return {key: value.index_select(0, indices) for key, value in pooled.items()}, metrics
+            diagnostics[
+                "gp_sq3dmix/spatial_permutation_fixed_point_count"
+            ] = fixed_points.float()
+            return selected, diagnostics
+        raise ValueError(f"Unknown GP intervention mode: {mode}")
 
-    def _memory_pair(self, pooled, examples, scene, mode: str):
-        selected, diagnostics = self._apply_intervention(pooled, examples, mode)
+    @staticmethod
+    def _retention_sample_statistics(retention: Tensor, lower: float, upper: float):
+        span = upper - lower
+        tolerance = 0.01 * span
+        flat = retention.float().flatten(1)
+        return {
+            "mean": flat.mean(dim=1),
+            "std": flat.std(dim=1, unbiased=False),
+            "min": flat.min(dim=1).values,
+            "max": flat.max(dim=1).values,
+            "near_lower_fraction": (flat <= lower + tolerance).float().mean(dim=1),
+            "near_upper_fraction": (flat >= upper - tolerance).float().mean(dim=1),
+            "_tensor": retention,
+        }
+
+    def _memory_pair(self, extension, mode: str, scene_override: Tensor | None = None):
+        selected, diagnostics = self._apply_intervention(extension, mode)
+        scene = (
+            extension["scene_summary"] if scene_override is None else scene_override
+        )
         reference_features = self.pooled_feature_slot_mean.to(
             device=selected["features"].device,
             dtype=selected["features"].dtype,
@@ -283,6 +330,8 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             reference_memory, reference_gate = self.scene_conditioned_geometry_gate(
                 scene, reference_memory
             )
+            real_retention = real_gate.pop("_retention")
+            reference_gate.pop("_retention")
             diagnostics.update(real_gate)
             diagnostics.update(
                 {
@@ -290,20 +339,44 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
                     for key, value in reference_gate.items()
                 }
             )
-        return real_memory, reference_memory, diagnostics
+            retention_samples = self._retention_sample_statistics(
+                real_retention,
+                self.scene_conditioned_geometry_gate.minimum_retention,
+                self.scene_conditioned_geometry_gate.maximum_retention,
+            )
+        else:
+            retention_samples = None
+        return real_memory, reference_memory, diagnostics, retention_samples
 
-    def _enhance(self, action_queries, extension, mode: str):
-        real_memory, reference_memory, diagnostics = self._memory_pair(
-            extension["pooled_geometry"],
-            extension["examples"],
-            extension["scene_summary"],
-            mode,
+    def _enhance(
+        self,
+        action_queries,
+        extension,
+        mode: str,
+        *,
+        scene_override: Tensor | None = None,
+    ):
+        (
+            real_memory,
+            reference_memory,
+            diagnostics,
+            retention_samples,
+        ) = self._memory_pair(
+            extension, mode, scene_override=scene_override
         )
         enhanced, reader_metrics = self.centered_geometry_reader(
             action_queries, real_memory, reference_memory
         )
+        centered_readout = reader_metrics.pop("_centered_readout")
+        residual_ratios = reader_metrics.pop(
+            "_residual_action_ratio_per_horizon"
+        )
         diagnostics.update(reader_metrics)
-        return enhanced, diagnostics
+        return enhanced, diagnostics, {
+            "centered_readout": centered_readout,
+            "residual_action_ratio_per_horizon": residual_ratios,
+            "retention": retention_samples,
+        }
 
     def _compute_query_extension(
         self,
@@ -326,39 +399,192 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             device=last_hidden.device,
             dtype=last_hidden.dtype,
         )
+        pooled_hard = pool_dense_vggt_geometry_per_view(
+            self._payloads_from_examples(
+                examples, "vggt_dense_hard_negative_cache"
+            ),
+            device=last_hidden.device,
+            dtype=last_hidden.dtype,
+        )
         return {
             "action_context": None,
             "losses": {},
             "metrics": diagnostics,
             "scene_summary": scene,
             "pooled_geometry": pooled,
+            "pooled_hard_geometry": pooled_hard,
             "examples": examples,
+            "tokens": [str(example["token"]) for example in examples],
         }
 
     def _condition_action_queries(self, action_queries, extension):
         if self.gp_mode == "disabled":
             return action_queries, None, {}
         extension["baseline_action_queries"] = action_queries
-        real_queries, real_metrics = self._enhance(action_queries, extension, "real")
-        shuffled_queries, shuffled_metrics = self._enhance(
-            action_queries, extension, "shuffled"
+        real_queries, real_metrics, real_samples = self._enhance(
+            action_queries, extension, "real"
+        )
+        hard_queries, hard_metrics, hard_samples = self._enhance(
+            action_queries, extension, "hard_shuffled"
+        )
+        spatial_queries, spatial_metrics, spatial_samples = self._enhance(
+            action_queries, extension, "spatial_shuffled"
         )
         extension["real_action_queries"] = real_queries
-        extension["shuffled_action_queries"] = shuffled_queries
-        slot_mean_queries, _ = self._enhance(action_queries, extension, "slot_mean")
+        extension["hard_shuffled_action_queries"] = hard_queries
+        extension["spatial_shuffled_action_queries"] = spatial_queries
+        slot_mean_queries, _, _ = self._enhance(
+            action_queries, extension, "slot_mean"
+        )
         extension["metrics"]["gp_sq3dmix/slot_mean_identity_max_abs"] = (
             slot_mean_queries.detach() - action_queries.detach()
         ).abs().max()
+        real_residual = real_queries.detach().float() - action_queries.detach().float()
+        hard_residual = hard_queries.detach().float() - action_queries.detach().float()
+        spatial_residual = (
+            spatial_queries.detach().float() - action_queries.detach().float()
+        )
+        extension["metrics"].update(
+            {
+                "gp_sq3dmix/hard_residual_norm": hard_residual.norm(dim=-1).mean(),
+                "gp_sq3dmix/spatial_residual_norm": spatial_residual.norm(dim=-1).mean(),
+                "gp_sq3dmix/hard_real_readout_cosine": F.cosine_similarity(
+                    hard_samples["centered_readout"].float(),
+                    real_samples["centered_readout"].float(),
+                    dim=-1,
+                ).mean(),
+                "gp_sq3dmix/spatial_real_readout_cosine": F.cosine_similarity(
+                    spatial_samples["centered_readout"].float(),
+                    real_samples["centered_readout"].float(),
+                    dim=-1,
+                ).mean(),
+            }
+        )
+        extension["metrics"].update(hard_metrics)
+        extension["metrics"].update(spatial_metrics)
+        scene_vectors = F.normalize(
+            extension["scene_summary"].detach().float().squeeze(1),
+            dim=-1,
+            eps=1e-12,
+        )
+        if scene_vectors.shape[0] > 1:
+            cosine = scene_vectors @ scene_vectors.transpose(0, 1)
+            off_diagonal = ~torch.eye(
+                scene_vectors.shape[0],
+                device=scene_vectors.device,
+                dtype=torch.bool,
+            )
+            extension["metrics"][
+                "gp_sq3dmix/scene_summary_cross_scene_pairwise_cosine"
+            ] = cosine[off_diagonal].mean()
+        self._last_gp_query_samples = {
+            "real_residual_action_ratio_per_horizon": real_samples[
+                "residual_action_ratio_per_horizon"
+            ],
+            "hard_residual_action_ratio_per_horizon": hard_samples[
+                "residual_action_ratio_per_horizon"
+            ],
+            "spatial_residual_action_ratio_per_horizon": spatial_samples[
+                "residual_action_ratio_per_horizon"
+            ],
+            "real_retention": real_samples["retention"],
+            "scene_summary": extension["scene_summary"].detach(),
+            "real_residual": real_residual,
+            "hard_residual": hard_residual,
+            "spatial_residual": spatial_residual,
+        }
+        if self.scene_shuffle_diagnostic and self.gp_mode == "gated_residual":
+            batch_size = action_queries.shape[0]
+            if batch_size > 1:
+                ordered = sorted(
+                    range(batch_size), key=lambda index: extension["tokens"][index]
+                )
+                permutation = torch.empty(
+                    batch_size, device=action_queries.device, dtype=torch.long
+                )
+                for offset, target_index in enumerate(ordered):
+                    permutation[target_index] = ordered[(offset + 1) % batch_size]
+                (
+                    scene_shuffled_queries,
+                    _,
+                    scene_shuffled_samples,
+                ) = self.evaluate_scene_shuffled_queries(
+                    action_queries, extension, permutation
+                )
+                extension["scene_shuffled_action_queries"] = scene_shuffled_queries
+                scene_residual = (
+                    scene_shuffled_queries.detach().float()
+                    - action_queries.detach().float()
+                )
+                real_retention = real_samples["retention"]["_tensor"].float()
+                shuffled_retention = scene_shuffled_samples["retention"][
+                    "_tensor"
+                ].float()
+                extension["metrics"].update(
+                    {
+                        "gp_sq3dmix/scene_shuffled_retention_l2": (
+                            shuffled_retention - real_retention
+                        ).flatten(1).norm(dim=1).mean(),
+                        "gp_sq3dmix/scene_shuffled_residual_l2": (
+                            scene_residual - real_residual
+                        ).flatten(1).norm(dim=1).mean(),
+                        "gp_sq3dmix/scene_shuffle_fixed_point_count": (
+                            permutation
+                            == torch.arange(batch_size, device=permutation.device)
+                        ).float().sum(),
+                    }
+                )
+                self._last_gp_query_samples.update(
+                    {
+                        "scene_shuffled_residual": scene_residual,
+                        "scene_shuffled_retention": {
+                            key: value
+                            for key, value in scene_shuffled_samples[
+                                "retention"
+                            ].items()
+                            if not key.startswith("_")
+                        },
+                    }
+                )
+            else:
+                extension["metrics"][
+                    "gp_sq3dmix/scene_shuffle_skipped_batch_size_one"
+                ] = torch.ones((), device=action_queries.device)
         selected = real_queries
         metrics = real_metrics
-        if self.gp_intervention not in {"real", "shuffled"}:
-            selected, metrics = self._enhance(
+        if self.gp_intervention == "hard_shuffled":
+            selected, metrics = hard_queries, hard_metrics
+        elif self.gp_intervention == "spatial_shuffled":
+            selected, metrics = spatial_queries, spatial_metrics
+        elif self.gp_intervention != "real":
+            selected, metrics, _ = self._enhance(
                 action_queries, extension, self.gp_intervention
             )
-        elif self.gp_intervention == "shuffled":
-            selected, metrics = shuffled_queries, shuffled_metrics
         extension["metrics"].update(metrics)
         return selected, None, metrics
+
+    def evaluate_scene_shuffled_queries(self, action_queries, extension, permutation):
+        """Evaluator-only scene-conditioning intervention for gated variants."""
+
+        if self.gp_mode != "gated_residual":
+            raise RuntimeError("scene_shuffled is defined only for gated_residual")
+        permutation = torch.as_tensor(
+            permutation,
+            device=extension["scene_summary"].device,
+            dtype=torch.long,
+        )
+        if permutation.shape != (action_queries.shape[0],):
+            raise ValueError("scene-shuffle permutation must be [B]")
+        if action_queries.shape[0] > 1 and torch.any(
+            permutation == torch.arange(action_queries.shape[0], device=permutation.device)
+        ):
+            raise ValueError("scene-shuffle permutation must have no fixed point")
+        return self._enhance(
+            action_queries,
+            extension,
+            "real",
+            scene_override=extension["scene_summary"].index_select(0, permutation),
+        )
 
     def _condition_inference_action_queries(
         self,
@@ -382,9 +608,16 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             examples,
             attention_mask=attention_mask,
         )
-        enhanced, diagnostics = self._enhance(
+        enhanced, diagnostics, samples = self._enhance(
             action_queries, extension, self.gp_intervention
         )
+        self._last_gp_inference_samples = {
+            "residual_action_ratio_per_horizon": samples[
+                "residual_action_ratio_per_horizon"
+            ],
+            "retention": samples["retention"],
+            "alpha": self.centered_geometry_reader.alpha.detach(),
+        }
         return enhanced, None, diagnostics
 
     def _compute_action_loss(
@@ -407,7 +640,15 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
         repeat_actions = actions.repeat(repeats, 1, 1)
         baseline = extension["baseline_action_queries"].repeat(repeats, 1, 1)
         real = extension["real_action_queries"].repeat(repeats, 1, 1)
-        shuffled = extension["shuffled_action_queries"].repeat(repeats, 1, 1)
+        hard = extension["hard_shuffled_action_queries"].repeat(repeats, 1, 1)
+        spatial = extension["spatial_shuffled_action_queries"].repeat(
+            repeats, 1, 1
+        )
+        scene_shuffled = (
+            extension["scene_shuffled_action_queries"].repeat(repeats, 1, 1)
+            if "scene_shuffled_action_queries" in extension
+            else None
+        )
         flow_state = self.action_model.sample_flow_state(repeat_actions)
         rng_devices = (
             [repeat_actions.device.index]
@@ -422,7 +663,7 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
         # Let the baseline call advance the global stream exactly once, as the
         # matched action-only control does.  Replays start from its entry state
         # inside fork_rng and restore the post-baseline stream on exit.  Thus
-        # all three conditions share a dropout mask without shifting the next
+        # all four conditions share a dropout mask without shifting the next
         # training step's FlowMatchingState relative to the control run.
         base_loss = self.action_model.loss_from_flow_state(
             baseline,
@@ -446,11 +687,23 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
                 )
 
         real_loss = replay_matched_loss(real)
-        shuffled_loss = replay_matched_loss(shuffled)
-        margin = self.rank_margin_ratio * base_loss.detach().clamp_min(1e-4)
-        rank_loss = F.relu(margin + real_loss - shuffled_loss).mean()
+        hard_loss = replay_matched_loss(hard)
+        spatial_loss = replay_matched_loss(spatial)
+        scene_shuffled_loss = (
+            replay_matched_loss(scene_shuffled)
+            if scene_shuffled is not None
+            else None
+        )
+        detached_base = base_loss.detach().clamp_min(1e-4)
+        hard_margin = self.rank_margin_ratio * detached_base
+        spatial_margin = self.spatial_margin_ratio * detached_base
+        rank_hard_loss = F.relu(hard_margin + real_loss - hard_loss).mean()
+        rank_spatial_loss = F.relu(
+            spatial_margin + real_loss - spatial_loss
+        ).mean()
         action_loss = real_loss.mean()
-        extension["losses"]["geometry_rank"] = rank_loss
+        extension["losses"]["geometry_rank_hard"] = rank_hard_loss
+        extension["losses"]["geometry_rank_spatial"] = rank_spatial_loss
         if self.training_stage == "stage_a":
             fidelity_loss = F.relu(
                 real_loss - (1.0 + self.fidelity_tolerance) * base_loss.detach()
@@ -458,11 +711,25 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             extension["losses"]["baseline_fidelity"] = fidelity_loss
         extension["metrics"].update(
             {
+                # Runtime smoke records these sentinels in addition to the
+                # monkeypatched regression test that verifies object identity
+                # and identical RNG draws for every condition.
+                "gp_sq3dmix/shared_flow_state_condition_count": torch.tensor(
+                    4.0, device=real_loss.device
+                ),
+                "gp_sq3dmix/shared_dropout_stream_condition_count": torch.tensor(
+                    4.0, device=real_loss.device
+                ),
                 "gp_sq3dmix/base_flow_loss": base_loss.detach().mean(),
                 "gp_sq3dmix/real_flow_loss": real_loss.detach().mean(),
-                "gp_sq3dmix/shuffled_flow_loss": shuffled_loss.detach().mean(),
-                "gp_sq3dmix/relative_shuffled_real_gap": (
-                    (shuffled_loss.detach() - real_loss.detach()).mean()
+                "gp_sq3dmix/hard_flow_loss": hard_loss.detach().mean(),
+                "gp_sq3dmix/spatial_flow_loss": spatial_loss.detach().mean(),
+                "gp_sq3dmix/relative_hard_real_gap": (
+                    (hard_loss.detach() - real_loss.detach()).mean()
+                    / real_loss.detach().mean().clamp_min(1e-8)
+                ),
+                "gp_sq3dmix/relative_spatial_real_gap": (
+                    (spatial_loss.detach() - real_loss.detach()).mean()
                     / real_loss.detach().mean().clamp_min(1e-8)
                 ),
             }
@@ -470,8 +737,17 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
         self._last_gp_gate_samples = {
             "base_loss": base_loss.detach(),
             "real_loss": real_loss.detach(),
-            "shuffled_loss": shuffled_loss.detach(),
+            "hard_loss": hard_loss.detach(),
+            "spatial_loss": spatial_loss.detach(),
+            "flow_state_id": id(flow_state),
         }
+        if scene_shuffled_loss is not None:
+            extension["metrics"][
+                "gp_sq3dmix/scene_shuffled_flow_loss"
+            ] = scene_shuffled_loss.detach().mean()
+            self._last_gp_gate_samples[
+                "scene_shuffled_loss"
+            ] = scene_shuffled_loss.detach()
         return action_loss
 
     def get_planning_usage_metrics(self) -> dict[str, Tensor]:

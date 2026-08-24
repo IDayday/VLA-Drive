@@ -51,6 +51,34 @@ def load_gp_slot_stats(
         raise RuntimeError("GP slot-stats sample_count must be positive")
     if manifest.get("stats_file_sha256") != sha256_file(stats_path):
         raise RuntimeError("GP slot-stats file SHA256 mismatch")
+    if int(manifest.get("schema_version", 1)) >= 2:
+        descriptor_path = root / "pooled_scene_descriptors.pt"
+        required_v2 = {
+            "descriptor_dimension": 128,
+            "descriptor_projection_seed": 20260824,
+            "descriptor_projection_shape": [2048, 128],
+        }
+        for key, value in required_v2.items():
+            if manifest.get(key) != value:
+                raise RuntimeError(
+                    f"GP slot-stats manifest {key} mismatch: "
+                    f"expected {value!r}, found {manifest.get(key)!r}"
+                )
+        if not descriptor_path.is_file():
+            raise FileNotFoundError(descriptor_path)
+        if manifest.get("descriptor_file_sha256") != sha256_file(descriptor_path):
+            raise RuntimeError("GP descriptor file SHA256 mismatch")
+        shard_count = int(manifest.get("shard_count", 0))
+        if shard_count <= 0 or manifest.get("completed_shards") != list(
+            range(shard_count)
+        ):
+            raise RuntimeError("GP slot-stat shards are incomplete")
+        projection_sha = manifest.get("descriptor_projection_sha256")
+        if not isinstance(projection_sha, str) or len(projection_sha) != 64:
+            raise RuntimeError("GP descriptor projection SHA256 is missing")
+        token_sha = manifest.get("token_order_sha256")
+        if not isinstance(token_sha, str) or len(token_sha) != 64:
+            raise RuntimeError("GP descriptor token-order SHA256 is missing")
     for name, expected_value in (
         ("source_cache_manifest_sha256", expected_source_cache_manifest_sha256),
         ("datalist_sha256", expected_datalist_sha256),
