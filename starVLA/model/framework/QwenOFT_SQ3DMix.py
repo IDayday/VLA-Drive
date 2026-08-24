@@ -311,11 +311,20 @@ class Qwenvl_OFT_SQ3DMix(Qwenvl_OFT):
                 f"pooled VGGT shape must be [B,180,{self.vggt_feature_dim}], "
                 f"found {tuple(vggt_tokens.shape)}"
             )
+        pre_shuffled = bool(
+            self._sq3dmix_intervention_mode == "shuffled"
+            and examples
+            and all(example.get("vggt_dense_pre_shuffled", False) for example in examples)
+        )
         vggt_tokens, intervention_metrics = apply_sq3dmix_intervention(
             vggt_tokens,
-            self._sq3dmix_intervention_mode,
+            "real" if pre_shuffled else self._sq3dmix_intervention_mode,
             self._sq3dmix_intervention_seed,
         )
+        if pre_shuffled:
+            intervention_metrics["sq3dmix/topology_independent_shuffle"] = torch.ones(
+                (), device=vggt_tokens.device
+            )
         metrics.update(intervention_metrics)
         if self.fusion_mode == "projected_concat":
             geometry_context = self.gated_fusion.project_geometry(vggt_tokens)
@@ -432,3 +441,7 @@ class Qwenvl_OFT_SQ3DMix(Qwenvl_OFT):
                 f"missing={invalid_missing[:20]} unexpected={unexpected[:20]}"
             )
         return incompatible
+
+
+# Public spelling retained for checkpoints/configs and external tooling.
+QwenOFT_SQ3DMix = Qwenvl_OFT_SQ3DMix

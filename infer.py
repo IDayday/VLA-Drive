@@ -22,6 +22,7 @@ from tqdm import tqdm
 from starVLA.dataloader.navsim_dataset import NavSimDataset, collate_fn
 from starVLA.model.framework.QwenOFT import Qwenvl_OFT
 from starVLA.model.framework.QwenOFT_s2 import Qwenvl_OFT_s2
+from starVLA.inference_noise import NOISE_MODES, diffusion_initial_noise
 import copy
 
 
@@ -51,7 +52,11 @@ def tensor_to_py(x: Any) -> Any:
     return x
 
 
-def configure_inference_seed(seed: Optional[int], rank: int = 0) -> Optional[int]:
+def configure_inference_seed(
+    seed: Optional[int],
+    rank: int = 0,
+    noise_mode: str = "legacy_rank_stream",
+) -> Optional[int]:
     """Seed stochastic inference for a rank, returning the effective seed."""
     if seed is None:
         return None
@@ -60,7 +65,13 @@ def configure_inference_seed(seed: Optional[int], rank: int = 0) -> Optional[int
     if rank < 0:
         raise ValueError("inference rank must be non-negative")
 
-    effective_seed = int(seed) + int(rank)
+    if noise_mode not in NOISE_MODES:
+        raise ValueError(f"noise_mode must be one of {NOISE_MODES}")
+    effective_seed = (
+        int(seed) + int(rank)
+        if noise_mode == "legacy_rank_stream"
+        else int(seed)
+    )
     random.seed(effective_seed)
     np.random.seed(effective_seed)
     torch.manual_seed(effective_seed)
@@ -250,14 +261,66 @@ class VLAAgent:
         # SQ-3D-Mix checkpoints record the train-split dense VGGT cache in
         # config.yaml. Navtest inference must bind the split-specific cache
         # supplied by the launcher instead of reopening the training cache.
-        if (
-            framework_name == "QwenOFT_SQ3DMix"
-            and os.environ.get("NAVSIM_VGGT_DENSE_CACHE_ROOT")
+        if framework_name == "QwenOFT_SQ3DMix" and os.environ.get(
+            "NAVSIM_VGGT_DENSE_CACHE_ROOT"
         ):
             OmegaConf.update(
                 self.model_config,
                 "framework.sq_3d_mix.cache.root",
                 os.environ["NAVSIM_VGGT_DENSE_CACHE_ROOT"],
+                force_add=True,
+            )
+        elif framework_name == "QwenOFT_GPSQ3DMix" and os.environ.get(
+            "NAVSIM_VGGT_DENSE_CACHE_ROOT"
+        ):
+            OmegaConf.update(
+                self.model_config,
+                "framework.gp_sq_3d_mix.cache.root",
+                os.environ["NAVSIM_VGGT_DENSE_CACHE_ROOT"],
+                force_add=True,
+            )
+        if framework_name == "QwenOFT_SQ3DMix" and os.environ.get(
+            "SQ3DMIX_INTERVENTION"
+        ):
+            OmegaConf.update(
+                self.model_config,
+                "framework.sq_3d_mix.intervention.mode",
+                os.environ["SQ3DMIX_INTERVENTION"],
+                force_add=True,
+            )
+        if framework_name == "QwenOFT_GPSQ3DMix":
+            if os.environ.get("GP_SQ3DMIX_INTERVENTION"):
+                OmegaConf.update(
+                    self.model_config,
+                    "framework.gp_sq_3d_mix.intervention.mode",
+                    os.environ["GP_SQ3DMIX_INTERVENTION"],
+                    force_add=True,
+                )
+            if os.environ.get("GP_SQ3DMIX_STATS_ROOT"):
+                OmegaConf.update(
+                    self.model_config,
+                    "framework.gp_sq_3d_mix.stats.root",
+                    os.environ["GP_SQ3DMIX_STATS_ROOT"],
+                    force_add=True,
+                )
+            if os.environ.get("GP_SQ3DMIX_SOURCE_DATALIST"):
+                OmegaConf.update(
+                    self.model_config,
+                    "framework.gp_sq_3d_mix.stats.source_datalist",
+                    os.environ["GP_SQ3DMIX_SOURCE_DATALIST"],
+                    force_add=True,
+                )
+            if os.environ.get("GP_SQ3DMIX_SOURCE_CACHE_MANIFEST"):
+                OmegaConf.update(
+                    self.model_config,
+                    "framework.gp_sq_3d_mix.stats.source_cache_manifest",
+                    os.environ["GP_SQ3DMIX_SOURCE_CACHE_MANIFEST"],
+                    force_add=True,
+                )
+            OmegaConf.update(
+                self.model_config,
+                "framework.gp_sq_3d_mix.training.stage",
+                "inference",
                 force_add=True,
             )
         # The PPU-adapted PyTorch build provides native SDPA.  The released
@@ -424,6 +487,15 @@ class VLAAgent:
             self.model = Qwenvl_OFT_SQ3DMix(
                 self.model_config, infer_not_load_wan=1
             )
+        elif framework_name == "QwenOFT_GPSQ3DMix":
+            from starVLA.model.framework.QwenOFT_GPSQ3DMix import (
+                QwenOFT_GPSQ3DMix,
+            )
+
+            print("[Agent] GP-SQ3D-Mix route")
+            self.model = QwenOFT_GPSQ3DMix(
+                self.model_config, infer_not_load_wan=1
+            )
         else:
             self.model = Qwenvl_OFT(self.model_config, infer_not_load_wan=1)
         self.model._inference_qwen_forward_mode = self.qwen_forward_mode
@@ -443,6 +515,13 @@ class VLAAgent:
             f"[Agent] other unexpected keys: {len(unexpected_runtime_only)}",
             unexpected_runtime_only[:20],
         )
+        if framework_name == "QwenOFT_GPSQ3DMix" and (
+            missing or unexpected_runtime_only
+        ):
+            raise RuntimeError(
+                "GP-SQ3D-Mix inference requires a complete strict checkpoint: "
+                f"missing={missing[:20]} unexpected={unexpected_runtime_only[:20]}"
+            )
 
         self.model.to(self.device).eval()
 
@@ -493,7 +572,9 @@ def infer_and_save(
     # Model construction can consume random numbers for runtime-only modules.
     # Reset immediately afterwards so flow noise is identical for paired
     # checkpoints evaluated with the same seed and shard topology.
-    effective_seed = configure_inference_seed(args.seed, args.rank)
+    effective_seed = configure_inference_seed(
+        args.seed, args.rank, noise_mode=args.noise_mode
+    )
     manifest_path = os.path.join(out_dir, f"inference_manifest.rank{args.rank}.json")
     manifest_tmp = manifest_path + f".tmp-{os.getpid()}"
     with open(manifest_tmp, "w", encoding="utf-8") as manifest_file:
@@ -505,6 +586,8 @@ def infer_and_save(
                 "qwen_forward_mode": agent.qwen_forward_mode,
                 "seed": args.seed,
                 "effective_seed": effective_seed,
+                "noise_mode": args.noise_mode,
+                "sample_index": args.sample_index,
                 "split": split,
                 "rank": args.rank,
                 "world_size": args.world_size,
@@ -575,6 +658,22 @@ def infer_and_save(
     )
 
     for batch in tqdm(loader, desc="Infer"):
+        if args.noise_mode == "per_token":
+            horizon = int(agent.model.action_model.config.action_horizon)
+            action_dim = int(agent.model.action_model.config.action_dim)
+            if (horizon, action_dim) != (8, 4):
+                raise RuntimeError(
+                    "per_token noise contract requires action shape [8,4], "
+                    f"found [{horizon},{action_dim}]"
+                )
+            for example in batch:
+                example["diffusion_initial_noise"] = diffusion_initial_noise(
+                    args.seed,
+                    str(example["token"]),
+                    args.sample_index,
+                    action_horizon=horizon,
+                    action_dim=action_dim,
+                )
         batch_on_device = to_device(batch, agent.device)
         pred = agent.predict(batch_on_device)
 
@@ -617,8 +716,23 @@ def parse_args():
     p.add_argument(
         "--seed",
         type=int,
-        default=None,
-        help="Optional reproducible inference seed; rank is added per shard.",
+        default=42,
+        help="Base inference seed (default: 42).",
+    )
+    p.add_argument(
+        "--noise_mode",
+        choices=NOISE_MODES,
+        default="per_token",
+        help=(
+            "per_token is topology-independent; legacy_rank_stream preserves "
+            "the historical seed+rank RNG stream."
+        ),
+    )
+    p.add_argument(
+        "--sample_index",
+        type=int,
+        default=0,
+        help="Independent sample index included in the per-token SHA256 seed.",
     )
     p.add_argument(
         "--qwen_forward_mode",

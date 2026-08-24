@@ -237,6 +237,17 @@ DiTConfig = {
     "DiT-L": {"input_embedding_dim": 1536, "attention_head_dim": 48, "num_attention_heads": 32},
 }
 
+
+@dataclass(frozen=True)
+class FlowMatchingState:
+    """All stochastic state required by one flow-matching training target."""
+
+    noise: torch.Tensor
+    continuous_t: torch.Tensor
+    discretized_t: torch.Tensor
+    noisy_trajectory: torch.Tensor
+    target_velocity: torch.Tensor
+
 class FlowmatchingActionHead(nn.Module):
     def __init__(
         self,
@@ -296,6 +307,99 @@ class FlowmatchingActionHead(nn.Module):
     def prepare_input(self, batch: dict) -> BatchFeature:
         return BatchFeature(data=batch)
 
+    def sample_flow_state(
+        self,
+        actions: torch.Tensor,
+        generator: torch.Generator | None = None,
+    ) -> FlowMatchingState:
+        """Sample a reusable flow target.
+
+        The ``generator=None`` sequence is deliberately identical to the
+        historical ``forward`` implementation: normal noise is sampled first,
+        followed by the Beta-distributed time.
+        """
+
+        noise = torch.randn(
+            actions.shape,
+            device=actions.device,
+            dtype=actions.dtype,
+            generator=generator,
+        )
+        if generator is None:
+            continuous_t = self.sample_time(
+                actions.shape[0], device=actions.device, dtype=actions.dtype
+            )
+        else:
+            alpha = torch.full(
+                (actions.shape[0],),
+                float(self.config.noise_beta_alpha),
+                device=actions.device,
+                dtype=actions.dtype,
+            )
+            beta = torch.full_like(alpha, float(self.config.noise_beta_beta))
+            gamma_a = torch._standard_gamma(alpha, generator=generator)
+            gamma_b = torch._standard_gamma(beta, generator=generator)
+            sample = gamma_a / (gamma_a + gamma_b).clamp_min(
+                torch.finfo(actions.dtype).tiny
+            )
+            continuous_t = (self.config.noise_s - sample) / self.config.noise_s
+        continuous_t = continuous_t[:, None, None]
+        noisy_trajectory = (1 - continuous_t) * noise + continuous_t * actions
+        target_velocity = actions - noise
+        discretized_t = (
+            continuous_t[:, 0, 0] * self.num_timestep_buckets
+        ).long()
+        return FlowMatchingState(
+            noise=noise,
+            continuous_t=continuous_t,
+            discretized_t=discretized_t,
+            noisy_trajectory=noisy_trajectory,
+            target_velocity=target_velocity,
+        )
+
+    def loss_from_flow_state(
+        self,
+        vl_embs: torch.Tensor,
+        actions: torch.Tensor,
+        flow_state: FlowMatchingState,
+        extra_context: torch.Tensor | None = None,
+        reduction: str = "mean",
+        *,
+        video_token=None,
+        state: torch.Tensor = None,
+    ) -> torch.Tensor:
+        """Evaluate conditioning against an already sampled flow target."""
+
+        if reduction not in {"mean", "none"}:
+            raise ValueError("reduction must be 'mean' or 'none'")
+        if flow_state.noise.shape != actions.shape:
+            raise ValueError("flow_state and actions must have identical shapes")
+        device = vl_embs.device
+        action_features = self.action_encoder(
+            flow_state.noisy_trajectory, flow_state.discretized_t
+        )
+        state_features = self.state_encoder(state) if state is not None else None
+        del state_features
+        vl_embs = self.qwen_proj(merge_action_context(vl_embs, extra_context))
+        if video_token is not None:
+            vl_embs = torch.cat((vl_embs, video_token), dim=1)
+        if self.config.add_pos_embed:
+            pos_ids = torch.arange(
+                action_features.shape[1], dtype=torch.long, device=device
+            )
+            action_features = action_features + self.position_embedding(pos_ids).unsqueeze(0)
+        model_output = self.model(
+            hidden_states=action_features,
+            encoder_hidden_states=vl_embs,
+            timestep=flow_state.discretized_t,
+            return_all_hidden_states=False,
+        )
+        pred_actions = self.action_decoder(model_output)
+        elementwise = (pred_actions - flow_state.target_velocity) ** 2
+        if reduction == "none":
+            return elementwise.flatten(1).mean(dim=1)
+        return elementwise.mean()
+
 
     def forward(
         self,
@@ -309,58 +413,15 @@ class FlowmatchingActionHead(nn.Module):
         vl_embs: shape (B, seq_length, feature_dim)
         actions: shape (B, future_action_window_size, D_action)
         """
-        device = vl_embs.device
-
-        # Embed noised action trajectory.
-        noise = torch.randn(actions.shape, device=actions.device, dtype=actions.dtype)
-        t = self.sample_time(actions.shape[0], device=actions.device, dtype=actions.dtype)
-        t = t[:, None, None]  # shape (B,1,1) for broadcast
-
-        noisy_trajectory = (1 - t) * noise + t * actions
-        velocity = actions - noise
-
-        # Convert (continuous) t -> discrete if needed
-        t_discretized = (t[:, 0, 0] * self.num_timestep_buckets).long()
-        action_features = self.action_encoder(noisy_trajectory, t_discretized)
-
-
-        # embed state
-        state_features = self.state_encoder(state) if state is not None else None
-
-
-        vl_embs = self.qwen_proj(merge_action_context(vl_embs, extra_context))
-
-        if video_token is not None:
-            vl_embs = torch.cat((vl_embs, video_token), dim =1)
-
-
-        # Maybe add position embedding.
-        if self.config.add_pos_embed:
-            pos_ids = torch.arange(action_features.shape[1], dtype=torch.long, device=device)
-            pos_embs = self.position_embedding(pos_ids).unsqueeze(0)
-            action_features = action_features + pos_embs
-
-        # state and action embedding along sequence dimension.
-        # future_tokens = self.future_tokens.weight.unsqueeze(0).expand(vl_embs.shape[0], -1, -1)
-        # sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1) \
-        #     if state_features is not None else torch.cat((future_tokens, action_features), dim=1)
-
-        sa_embs = action_features
-
-        # Join VLM features with state and action embedding along sequence dimension.
-        model_output = self.model(
-            hidden_states=sa_embs,
-            encoder_hidden_states=vl_embs,
-            timestep=t_discretized,
-            return_all_hidden_states=False,  # NOTE (YL): not using flare now
+        flow_state = self.sample_flow_state(actions)
+        return self.loss_from_flow_state(
+            vl_embs,
+            actions,
+            flow_state,
+            extra_context=extra_context,
+            video_token=video_token,
+            state=state,
         )
-        pred = self.action_decoder(model_output)
-
-        pred_actions = pred
-
-        # Slice out only the action portion of pred and target.
-        loss = ((pred_actions - velocity) ** 2).mean()
-        return loss
 
     @torch.no_grad()
     def predict_action(
@@ -368,15 +429,25 @@ class FlowmatchingActionHead(nn.Module):
         vl_embs: torch.Tensor,
         state: torch.Tensor = None,
         extra_context: torch.Tensor | None = None,
+        initial_noise: torch.Tensor | None = None,
     ) -> torch.Tensor:
         # Set initial actions as the sampled noise.
         batch_size = vl_embs.shape[0]
         device = vl_embs.device
-        actions = torch.randn(
-            size=(batch_size, self.config.action_horizon, self.config.action_dim),
-            dtype=vl_embs.dtype,
-            device=device,
-        )
+        expected_shape = (batch_size, self.config.action_horizon, self.config.action_dim)
+        if initial_noise is None:
+            actions = torch.randn(
+                size=expected_shape,
+                dtype=vl_embs.dtype,
+                device=device,
+            )
+        else:
+            if tuple(initial_noise.shape) != expected_shape:
+                raise ValueError(
+                    f"initial_noise must have shape {expected_shape}, "
+                    f"found {tuple(initial_noise.shape)}"
+                )
+            actions = initial_noise.to(device=device, dtype=vl_embs.dtype)
 
         num_steps = self.num_inference_timesteps
         dt = 1.0 / num_steps

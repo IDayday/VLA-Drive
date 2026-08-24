@@ -378,16 +378,26 @@ class NavSimDataset(Dataset):
                 default=False,
             )
         ) if all_cfg is not None else False
-        sq3dmix_selected = bool(
-            all_cfg is not None
-            and str(OmegaConf.select(all_cfg, "framework.name", default=""))
-            == "QwenOFT_SQ3DMix"
+        framework_name = str(
+            OmegaConf.select(all_cfg, "framework.name", default="")
+        ) if all_cfg is not None else ""
+        sq3dmix_selected = framework_name == "QwenOFT_SQ3DMix"
+        gp_sq3dmix_selected = framework_name == "QwenOFT_GPSQ3DMix"
+        dense_mix_selected = sq3dmix_selected or gp_sq3dmix_selected
+        mix_config_prefix = (
+            "framework.gp_sq_3d_mix"
+            if gp_sq3dmix_selected
+            else "framework.sq_3d_mix"
         )
         sq3dmix_fusion_mode = str(
             OmegaConf.select(
                 all_cfg,
-                "framework.sq_3d_mix.fusion_mode",
-                default="gated",
+                (
+                    "framework.gp_sq_3d_mix.mode"
+                    if gp_sq3dmix_selected
+                    else "framework.sq_3d_mix.fusion_mode"
+                ),
+                default="gated_residual" if gp_sq3dmix_selected else "gated",
             )
             if all_cfg is not None
             else "gated"
@@ -395,7 +405,7 @@ class NavSimDataset(Dataset):
         sq3dmix_cache_enabled = bool(
             OmegaConf.select(
                 all_cfg,
-                "framework.sq_3d_mix.cache.enabled",
+                f"{mix_config_prefix}.cache.enabled",
                 default=False,
             )
         ) if all_cfg is not None else False
@@ -403,26 +413,28 @@ class NavSimDataset(Dataset):
             raise ValueError(
                 "VGGT dense bottleneck and SQ-3D-Mix caches cannot be enabled together"
             )
-        if sq3dmix_selected and bottleneck_cache_enabled:
+        if dense_mix_selected and bottleneck_cache_enabled:
             raise ValueError(
                 "QwenOFT_SQ3DMix cannot enable the legacy dense bottleneck cache"
             )
-        if sq3dmix_selected:
-            if sq3dmix_fusion_mode not in {
-                "scene_only",
-                "projected_concat",
-                "gated",
-            }:
+        if dense_mix_selected:
+            allowed_mix_modes = (
+                {"disabled", "projected_residual", "gated_residual"}
+                if gp_sq3dmix_selected
+                else {"scene_only", "projected_concat", "gated"}
+            )
+            no_cache_mode = "disabled" if gp_sq3dmix_selected else "scene_only"
+            if sq3dmix_fusion_mode not in allowed_mix_modes:
                 raise ValueError(f"Unknown SQ-3D-Mix fusion mode: {sq3dmix_fusion_mode}")
-            if sq3dmix_fusion_mode == "scene_only" and sq3dmix_cache_enabled:
-                raise ValueError("SQ-3D-Mix scene_only requires cache.enabled=false")
-            if sq3dmix_fusion_mode != "scene_only" and not sq3dmix_cache_enabled:
+            if sq3dmix_fusion_mode == no_cache_mode and sq3dmix_cache_enabled:
+                raise ValueError(f"SQ-3D-Mix {no_cache_mode} requires cache.enabled=false")
+            if sq3dmix_fusion_mode != no_cache_mode and not sq3dmix_cache_enabled:
                 raise ValueError(
                     f"SQ-3D-Mix {sq3dmix_fusion_mode} requires cache.enabled=true"
                 )
         dense_cache_enabled = bottleneck_cache_enabled or sq3dmix_cache_enabled
         dense_config_prefix = (
-            "framework.sq_3d_mix"
+            mix_config_prefix
             if sq3dmix_cache_enabled
             else "framework.vggt_bottleneck"
         )
@@ -464,7 +476,26 @@ class NavSimDataset(Dataset):
                 "NAVSIM_VGGT_DENSE_CACHE_ROOT."
             )
         self._sq3dmix_dense_cache_required = bool(
-            sq3dmix_selected and sq3dmix_fusion_mode != "scene_only"
+            dense_mix_selected
+            and sq3dmix_fusion_mode not in {"scene_only", "disabled"}
+        )
+        configured_intervention = str(
+            OmegaConf.select(
+                all_cfg,
+                (
+                    "framework.gp_sq_3d_mix.intervention.mode"
+                    if gp_sq3dmix_selected
+                    else "framework.sq_3d_mix.intervention.mode"
+                ),
+                default="real",
+            )
+            if dense_mix_selected
+            else "real"
+        ).strip().lower()
+        self._topology_independent_dense_shuffle = bool(
+            dense_mix_selected
+            and configured_intervention == "shuffled"
+            and os.environ.get("VLA_TOPOLOGY_INDEPENDENT_SHUFFLE", "0") == "1"
         )
         self.vggt_dense_cache = (
             NavsimFeatureCacheReader(
@@ -495,14 +526,14 @@ class NavSimDataset(Dataset):
                 expected_feature_dim = int(
                     OmegaConf.select(
                         all_cfg,
-                        "framework.sq_3d_mix.vggt.feature_dim",
+                        f"{mix_config_prefix}.vggt.feature_dim",
                         default=2048,
                     )
                 )
                 configured_views = list(
                     OmegaConf.select(
                         all_cfg,
-                        "framework.sq_3d_mix.vggt.view_order",
+                        f"{mix_config_prefix}.vggt.view_order",
                         default=["cam_f0", "cam_l0", "cam_r0"],
                     )
                 )
@@ -536,10 +567,19 @@ class NavSimDataset(Dataset):
                         default=3,
                     )
                 )
+            allow_dense_subset = bool(
+                (
+                    gp_sq3dmix_selected
+                    and OmegaConf.select(
+                        all_cfg,
+                        "framework.gp_sq_3d_mix.cache.allow_datalist_subset",
+                        default=False,
+                    )
+                )
+                or os.environ.get("VLA_DENSE_CACHE_ALLOW_SUBSET", "0") == "1"
+            )
             expected_manifest = {
                 "component": "vggt_dense",
-                "datalist_sha256": datalist_sha256,
-                "sample_count": len(self.raw_list),
                 "view_order": configured_views,
                 "frame_index": expected_frame_index,
                 "teacher_layer_index": expected_teacher_layer,
@@ -551,6 +591,18 @@ class NavSimDataset(Dataset):
                 "flatten_order": "view-major,row-major,col-major",
                 "feature_dim": expected_feature_dim,
             }
+            if allow_dense_subset:
+                if int(manifest.get("sample_count", -1)) < len(self.raw_list):
+                    raise RuntimeError(
+                        "Dense VGGT cache is smaller than the configured subset"
+                    )
+            else:
+                expected_manifest.update(
+                    {
+                        "datalist_sha256": datalist_sha256,
+                        "sample_count": len(self.raw_list),
+                    }
+                )
             for key, expected in expected_manifest.items():
                 if manifest.get(key) != expected:
                     raise RuntimeError(
@@ -568,7 +620,7 @@ class NavSimDataset(Dataset):
                     "Dense VGGT cache must use aspect-preserving mode='crop'"
                 )
             if (
-                bottleneck_cache_enabled
+                (bottleneck_cache_enabled or gp_sq3dmix_selected)
                 and manifest.get("ray_frame")
                 != "navsim_current_ego_planning_frame"
             ):
@@ -708,6 +760,84 @@ class NavSimDataset(Dataset):
             with open(rew_path, 'rb') as f:
                 self.rew_dict = json.load(f)
 
+        self._dense_shuffle_partner_indices = None
+        if self._topology_independent_dense_shuffle:
+            self._dense_shuffle_partner_indices = (
+                self._build_topology_independent_dense_shuffle()
+            )
+
+    def _build_topology_independent_dense_shuffle(self):
+        """Choose the nearest different-scene action target for every token.
+
+        This mapping is built over the complete configured datalist, before
+        rank sharding or batching.  Consequently a shuffled intervention is
+        identical for every world size, rank assignment, batch size and
+        dataloader worker count.
+        """
+
+        if len(self.raw_list) < 2:
+            print(
+                "topology-independent dense shuffle skipped: split has one sample"
+            )
+            return None
+        if self.split not in {"train", "mini", "mini_test", "test"}:
+            raise RuntimeError(
+                "Topology-independent dense shuffle requires NAVSIM action targets"
+            )
+        targets = []
+        for token in self.raw_list:
+            raw_path = os.path.join(self.base_dir, token + ".pkl")
+            with open(raw_path, "rb") as stream:
+                raw_data = pickle.load(stream)
+            # A sentinel Qwen cache entry suppresses policy-image IO.  Only the
+            # deterministic action target produced by _get_sample is consumed.
+            sample = self._get_sample(
+                raw_data,
+                token,
+                cached_features={"qwen": object()},
+            )
+            targets.append(np.asarray(sample["action"], dtype=np.float32).reshape(-1))
+        targets = np.stack(targets, axis=0)
+        if not np.isfinite(targets).all():
+            raise RuntimeError("Cannot build shuffled intervention from non-finite actions")
+
+        from scipy.spatial import cKDTree
+
+        tree = cKDTree(targets.astype(np.float64, copy=False))
+        neighbor_count = min(8, len(targets))
+        distances, indices = tree.query(targets, k=neighbor_count, workers=-1)
+        if neighbor_count == 1:
+            indices = indices[:, None]
+            distances = distances[:, None]
+        partners = []
+        for sample_index, (candidate_indices, candidate_distances) in enumerate(
+            zip(indices, distances)
+        ):
+            candidates = [
+                (float(distance), str(self.raw_list[int(index)]), int(index))
+                for distance, index in zip(candidate_distances, candidate_indices)
+                if int(index) != sample_index
+            ]
+            if not candidates:
+                # This can only occur when more than seven records have an
+                # exactly duplicated target.  Any different duplicate is a
+                # valid nearest target, so resolve it deterministically.
+                candidates = [
+                    (
+                        float(np.linalg.norm(targets[sample_index] - target)),
+                        str(self.raw_list[index]),
+                        index,
+                    )
+                    for index, target in enumerate(targets)
+                    if index != sample_index
+                ]
+            partners.append(min(candidates)[2])
+        print(
+            "built topology-independent nearest-action dense shuffle for "
+            f"{len(partners)} samples"
+        )
+        return tuple(partners)
+
 
 
     def __len__(self) -> int:
@@ -787,6 +917,14 @@ class NavSimDataset(Dataset):
                 cached_features["vggt_query"] = payload
         if self.vggt_dense_cache is not None:
             payload = self.vggt_dense_cache.get("vggt_dense", idx, raw)
+            dense_payload_pre_shuffled = False
+            if self._dense_shuffle_partner_indices is not None:
+                partner_index = self._dense_shuffle_partner_indices[int(idx)]
+                partner_token = self.raw_list[partner_index]
+                payload = self.vggt_dense_cache.get(
+                    "vggt_dense", partner_index, partner_token
+                )
+                dense_payload_pre_shuffled = payload is not None
             if payload is not None:
                 cached_features["vggt_dense"] = payload
             elif self._sq3dmix_dense_cache_required:
@@ -810,6 +948,10 @@ class NavSimDataset(Dataset):
             self_pred,
             cached_features=cached_features,
         )
+        if self.vggt_dense_cache is not None:
+            sample["vggt_dense_pre_shuffled"] = bool(
+                locals().get("dense_payload_pre_shuffled", False)
+            )
         if self.vit_pre:
             sample['bev'] = bev_rgb_to_occ(bev_data)    # np array unit8  hwc
         if self.w_depth and "ppd" in cached_features:

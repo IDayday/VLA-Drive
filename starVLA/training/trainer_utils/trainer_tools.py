@@ -124,7 +124,11 @@ def build_param_lr_groups(model, cfg):
         try:
             for attr in module_name.split("."):
                 module = getattr(module, attr)
-            module_params = list(module.parameters())
+            module_params = (
+                [module]
+                if isinstance(module, torch.nn.Parameter)
+                else list(module.parameters())
+            )
             configured_modules.append((len(module_params), module_name, lr, module_params))
         except AttributeError:
             print(f"⚠️ learning-rate module path does not exist: {module_name}")
@@ -364,7 +368,10 @@ class TrainerUtils:
                     print(f"❌ cannot find module path: {path}")
         else:  # full load
             try:
-                model.load_state_dict(checkpoint, strict=True)
+                if hasattr(model, "load_action_only_state_dict"):
+                    model.load_action_only_state_dict(checkpoint)
+                else:
+                    model.load_state_dict(checkpoint, strict=True)
                 if dist.get_rank() == 0:
                     print("✅ loaded <full_model> model parameters")
                 loaded_modules = ["<full_model>"]

@@ -586,6 +586,58 @@ class Qwenvl_OFT(baseframework):
         del examples
         return action_queries, None, {}
 
+    @staticmethod
+    def _diffusion_initial_noise_from_examples(examples, action_queries):
+        """Collect optional per-scene noise while preserving the legacy None path."""
+
+        values = [example.get("diffusion_initial_noise") for example in examples]
+        if all(value is None for value in values):
+            return None
+        if any(value is None for value in values):
+            raise RuntimeError(
+                "A batch cannot mix per-token and legacy diffusion initial noise"
+            )
+        noise = torch.stack(
+            [torch.as_tensor(value, dtype=torch.float32) for value in values], dim=0
+        )
+        return noise.to(device=action_queries.device, dtype=action_queries.dtype)
+
+    def _compute_action_loss(
+        self,
+        action_queries,
+        actions,
+        video_token,
+        action_context,
+        extension,
+    ):
+        """Backward-compatible action-loss hook for framework extensions."""
+
+        del extension
+        repeated_diffusion_steps = (
+            self.config.framework.action_model.get("repeated_diffusion_steps", 1)
+            if self.config
+            else 1
+        )
+        repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
+        repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
+        repeat_action_context = (
+            action_context.repeat(repeated_diffusion_steps, 1, 1)
+            if action_context is not None
+            else None
+        )
+        if self.mlp_head == 0:
+            return self.action_model(
+                repeat_action_queries,
+                repeat_actions,
+                video_token,
+                extra_context=repeat_action_context,
+            )
+        b, length, hidden = action_queries.shape
+        pred_action = self.action_model(
+            action_queries.reshape(b, length * hidden)
+        ).reshape(b, length, -1)
+        return nn.SmoothL1Loss()(pred_action, actions)
+
     def _attach_framework_outputs(self, result, action_loss, extension, planner_metrics):
         """Attach opt-in named losses/metrics without changing legacy outputs."""
         if not self._use_named_loss_contract:
@@ -765,36 +817,19 @@ class Qwenvl_OFT(baseframework):
                     actions = torch.tensor(
                         np.array(actions), device=action_queries.device, dtype=torch.float32
                     )  # [B, T_full, action_dim]
-                ####### repeat  ###
-                repeated_diffusion_steps = (
-                    self.config.framework.action_model.get("repeated_diffusion_steps", 1) if self.config else 1
-                )
-                repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
-                # 对每层特征做 repeat
-                repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
-                repeat_action_context = (
-                    action_context.repeat(repeated_diffusion_steps, 1, 1)
-                    if action_context is not None
-                    else None
-                )
-
                 if self.w_video_latent:
                     video_token = self.rgb_latent_adapter(video_latent)
                     video_token = video_token + self.rgb_latent_type.to(video_token.dtype)
                 else:
                     video_token = None
 
-                if self.mlp_head == 0:
-                    action_loss = self.action_model(
-                        repeat_action_queries,
-                        repeat_actions,
-                        video_token,
-                        extra_context=repeat_action_context,
-                    )  # scalar flow-matching loss
-                else:
-                    b, l, h = action_queries.shape
-                    pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
-                    action_loss = nn.SmoothL1Loss()(pred_action, actions)
+                action_loss = self._compute_action_loss(
+                    action_queries,
+                    actions,
+                    video_token,
+                    action_context,
+                    query_extension,
+                )
         else:
             action_loss = torch.tensor(0.).cuda()
 
@@ -1094,8 +1129,13 @@ class Qwenvl_OFT(baseframework):
                 # input_ids = qwen_inputs.get("input_ids", None)
                 # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
                 if self.mlp_head == 0:
+                    initial_noise = self._diffusion_initial_noise_from_examples(
+                        examples, action_queries
+                    )
                     pred_actions = self.action_model.predict_action(
-                        action_queries, extra_context=action_context
+                        action_queries,
+                        extra_context=action_context,
+                        initial_noise=initial_noise,
                     )  # (B, chunk_len, action_dim)
                 else:
                     pred_actions = self.action_model(action_queries)
@@ -1415,8 +1455,13 @@ class Qwenvl_OFT(baseframework):
             # input_ids = qwen_inputs.get("input_ids", None)
             # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
             if self.mlp_head == 0:
+                initial_noise = self._diffusion_initial_noise_from_examples(
+                    examples, action_queries
+                )
                 pred_actions = self.action_model.predict_action(
-                    action_queries, extra_context=action_context
+                    action_queries,
+                    extra_context=action_context,
+                    initial_noise=initial_noise,
                 )  # (B, chunk_len, action_dim)
             else:
                 pred_actions = self.action_model(action_queries)

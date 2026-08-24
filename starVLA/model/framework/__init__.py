@@ -51,6 +51,11 @@ def build_framework(cfg, accelerator=None):
             Qwenvl_OFT_SQ3DMix,
         )
         return Qwenvl_OFT_SQ3DMix(cfg, accelerator)
+    elif cfg.framework.name == "QwenOFT_GPSQ3DMix":
+        from starVLA.model.framework.QwenOFT_GPSQ3DMix import (
+            QwenOFT_GPSQ3DMix,
+        )
+        return QwenOFT_GPSQ3DMix(cfg, accelerator)
     elif cfg.framework.name == "QwenFast":
         from starVLA.model.framework.QwenFast import Qwenvl_Fast
         return Qwenvl_Fast(cfg)

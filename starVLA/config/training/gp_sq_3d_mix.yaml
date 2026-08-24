@@ -1,0 +1,60 @@
+framework:
+  name: QwenOFT_GPSQ3DMix
+  action_prompt_mode: minimal
+
+  gp_sq_3d_mix:
+    mode: gated_residual
+
+    vggt:
+      feature_dim: 2048
+      view_count: 3
+      view_order: [cam_f0, cam_l0, cam_r0]
+      pooled_rows: 6
+      pooled_cols: 10
+
+    cache:
+      enabled: true
+      root: ""
+      strict: true
+      component: vggt_dense
+      allow_datalist_subset: true
+
+    stats:
+      root: ""
+      source_datalist: ""
+      source_cache_manifest: ""
+      strict: true
+
+    gate:
+      minimum_retention: 0.05
+      maximum_retention: 0.50
+      initial_retention: 0.10
+
+    reader:
+      alpha_min: 0.05
+      alpha_max: 0.30
+      alpha_initial: 0.10
+
+    intervention:
+      mode: real
+
+    training:
+      stage: stage_a
+      rank_margin_ratio: 0.05
+      fidelity_tolerance: 0.02
+
+trainer:
+  named_loss_warmup_steps: 0
+
+  loss_weights:
+    action: 1.0
+    geometry_rank: 0.10
+    baseline_fidelity: 0.10
+
+  learning_rate:
+    geometry_memory_adapter: 3.0e-05
+    scene_conditioned_geometry_gate.scene_projection: 3.0e-05
+    scene_conditioned_geometry_gate.gate_projection: 1.0e-05
+    centered_geometry_reader: 3.0e-05
+    centered_geometry_reader.scale_logit: 1.0e-06
+    action_model: 1.0e-06

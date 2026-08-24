@@ -252,6 +252,26 @@ class VLATrainer(TrainerUtils):
             )
             self.model = self.load_pretrained_backbones(self.model, pretrained_checkpoint, reload_modules=reload_modules)
 
+        gp_stage_a_checkpoint = str(
+            OmegaConf.select(
+                self.config, "trainer.gp_stage_a_checkpoint", default=""
+            )
+            or ""
+        ).strip()
+        if gp_stage_a_checkpoint:
+            if not os.path.isfile(gp_stage_a_checkpoint):
+                raise FileNotFoundError(
+                    f"Stage-A GP checkpoint is missing: {gp_stage_a_checkpoint}"
+                )
+            if not hasattr(self.model, "load_gp_modules_state_dict"):
+                raise RuntimeError(
+                    "trainer.gp_stage_a_checkpoint requires QwenOFT_GPSQ3DMix"
+                )
+            gp_state = torch.load(
+                gp_stage_a_checkpoint, map_location="cpu", weights_only=True
+            )
+            self.model.load_gp_modules_state_dict(gp_state)
+
 
 
         # freeze parameters
@@ -428,6 +448,7 @@ class VLATrainer(TrainerUtils):
                 if str(getattr(self.config.framework, "name", "")) in (
                     "QwenOFT_VGGT",
                     "QwenOFT_VGGT_Bottleneck",
+                    "QwenOFT_GPSQ3DMix",
                 ):
                     diagnostic_record = {
                         "step": self.completed_steps,
@@ -435,6 +456,7 @@ class VLATrainer(TrainerUtils):
                             key: value
                             for key, value in metrics.items()
                             if key.startswith("vggt")
+                            or key.startswith("gp_sq3dmix")
                             or key
                             in {
                                 "source_token_count_mean",
@@ -450,7 +472,13 @@ class VLATrainer(TrainerUtils):
                         },
                     }
                     with open(
-                        os.path.join(self.config.output_dir, "vggt_diagnostics.jsonl"),
+                        os.path.join(
+                            self.config.output_dir,
+                            "gp_sq3dmix_diagnostics.jsonl"
+                            if str(getattr(self.config.framework, "name", ""))
+                            == "QwenOFT_GPSQ3DMix"
+                            else "vggt_diagnostics.jsonl",
+                        ),
                         "a",
                         encoding="utf-8",
                     ) as diagnostic_stream:
