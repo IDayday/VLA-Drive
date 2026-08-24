@@ -135,6 +135,35 @@ def test_stage_a_v2_has_no_batch_local_nearest_shuffle():
     assert "nearest" not in source
 
 
+def test_gradient_probe_survives_public_grad_release():
+    model = QwenOFT_GPSQ3DMix.__new__(QwenOFT_GPSQ3DMix)
+    nn.Module.__init__(model)
+    model.geometry_memory_adapter = nn.Module()
+    model.geometry_memory_adapter.feature_projection = nn.Linear(3, 2, bias=False)
+    model.scene_conditioned_geometry_gate = nn.Module()
+    model.scene_conditioned_geometry_gate.gate_projection = nn.Linear(2, 2)
+    model.centered_geometry_reader = nn.Module()
+    model.centered_geometry_reader.up_projection = nn.Linear(2, 3)
+    model._install_gradient_probes()
+
+    loss = (
+        model.geometry_memory_adapter.feature_projection.weight.sum()
+        + model.scene_conditioned_geometry_gate.gate_projection.weight.sum()
+        + model.centered_geometry_reader.up_projection.weight.sum()
+    )
+    loss.backward()
+    for parameter in model.parameters():
+        parameter.grad = None
+
+    metrics = model.get_planning_usage_metrics()
+    assert set(metrics) == {
+        "gp_sq3dmix/adapter_grad_norm",
+        "gp_sq3dmix/gate_grad_norm",
+        "gp_sq3dmix/reader_grad_norm",
+    }
+    assert all(value.item() > 0.0 for value in metrics.values())
+
+
 def test_gated_scene_shuffle_diagnostic_uses_requested_derangement():
     model = QwenOFT_GPSQ3DMix.__new__(QwenOFT_GPSQ3DMix)
     nn.Module.__init__(model)

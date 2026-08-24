@@ -165,6 +165,7 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             self._gp_stats_manifest = None
         self._use_named_loss_contract = True
         self._configure_stage_trainability()
+        self._install_gradient_probes()
 
     def _validate_action_only_contract(self, config) -> None:
         if self.action_prompt_mode != "minimal" or self.mlp_head != 0:
@@ -217,6 +218,40 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
         super().train(mode)
         self._enforce_frozen_module_modes()
         return self
+
+    def _install_gradient_probes(self) -> None:
+        """Capture route gradients before ZeRO can release ``Parameter.grad``.
+
+        DeepSpeed ZeRO-2 may partition or clear a parameter's public ``grad``
+        immediately after its autograd hook has run. Reading ``parameter.grad``
+        after ``accelerator.backward`` can consequently miss active routes.
+        Hooks retain detached scalar norms only and never modify the gradient.
+        """
+
+        self._gp_gradient_norms: dict[str, Tensor] = {}
+        self._gp_gradient_hook_handles = []
+        parameters = {
+            "gp_sq3dmix/adapter_grad_norm": (
+                self.geometry_memory_adapter.feature_projection.weight
+            ),
+            "gp_sq3dmix/gate_grad_norm": (
+                self.scene_conditioned_geometry_gate.gate_projection.weight
+            ),
+            "gp_sq3dmix/reader_grad_norm": (
+                self.centered_geometry_reader.up_projection.weight
+            ),
+        }
+        for name, parameter in parameters.items():
+            if not parameter.requires_grad:
+                continue
+
+            def capture(gradient: Tensor, metric_name: str = name) -> Tensor:
+                self._gp_gradient_norms[metric_name] = (
+                    gradient.detach().float().norm()
+                )
+                return gradient
+
+            self._gp_gradient_hook_handles.append(parameter.register_hook(capture))
 
     @staticmethod
     def _payloads_from_examples(
@@ -756,11 +791,15 @@ class QwenOFT_GPSQ3DMix(Qwenvl_OFT):
             "gp_sq3dmix/gate_grad_norm": self.scene_conditioned_geometry_gate.gate_projection.weight,
             "gp_sq3dmix/reader_grad_norm": self.centered_geometry_reader.up_projection.weight,
         }
-        return {
-            name: parameter.grad.detach().float().norm()
-            for name, parameter in parameters.items()
-            if parameter.grad is not None
-        }
+        metrics = dict(getattr(self, "_gp_gradient_norms", {}))
+        metrics.update(
+            {
+                name: parameter.grad.detach().float().norm()
+                for name, parameter in parameters.items()
+                if parameter.grad is not None
+            }
+        )
+        return metrics
 
     def load_gp_modules_state_dict(self, state_dict: Mapping[str, Tensor]) -> None:
         """Load only Stage-A GP parameters into a fresh action-only base."""
