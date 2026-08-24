@@ -16,6 +16,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from accelerate import PartialState
 from omegaconf import OmegaConf
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -82,6 +83,10 @@ def mean_or_none(values: list[float]) -> float | None:
 
 def main() -> None:
     args = parse_args()
+    # ``build_dataloader`` uses Accelerate's multi-process-aware logger. The
+    # evaluator is launched with plain Python, so initialize its singleton
+    # before the first dataloader log call.
+    PartialState()
     if args.batch_size < 1 or args.num_workers < 0 or args.bootstrap_draws < 1:
         raise ValueError("batch/workers/bootstrap arguments are invalid")
     run_dir = Path(args.run_dir).resolve()

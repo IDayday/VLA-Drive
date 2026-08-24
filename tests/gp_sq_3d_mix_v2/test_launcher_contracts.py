@@ -71,3 +71,9 @@ def test_all_new_launchers_bind_per_token_noise_and_decisions():
         source = (ROOT / name).read_text()
         assert "INFER_NOISE_MODE=per_token" in source
         assert "hard_negative_map.json" in source
+
+
+def test_plain_python_stage_a_evaluator_initializes_accelerate_logging():
+    source = (ROOT / "tools/evaluate_gp_sq3dmix_stage_a.py").read_text()
+    assert "from accelerate import PartialState" in source
+    assert source.index("PartialState()") < source.index("build_dataloader(")
