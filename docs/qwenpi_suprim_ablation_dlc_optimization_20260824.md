@@ -29,8 +29,9 @@ logs. They are per optimizer step with global batch 64.
 | OFF, dynamic K=64 from step 0 | about 11.3 s | about 0.000 s | about 5.53 samples/s | 57.40 GiB |
 | ON, static-only curriculum (<10k) | about 3.4 s | about 0.000 s | about 18.84 samples/s | 61.03 GiB |
 
-The OFF rate projects to roughly 313 accelerator-node hours for 100k steps if
-it stays unchanged. The ON progress-bar ETA is not a whole-run estimate: its
+The OFF rate projects to roughly 313 wall-clock hours on one allocated
+16-accelerator node (about 5,008 allocated accelerator-hours) for 100k steps
+if it stays unchanged. The ON progress-bar ETA is not a whole-run estimate: its
 first 10% is static-only. At step 10k it begins dynamic K=64 sampling and at
 step 20k it reaches the full joint path, so most of the run will be much closer
 to the expensive dynamic regime.
@@ -139,6 +140,103 @@ The two fully resolved YAMLs are automatically checked to differ only in
 `run_id` and `framework.hierarchical_scorer.joint.enabled`; all performance
 settings are identical between arms.
 
+## Delivered code inventory
+
+The complete execution-only optimization is revision
+`d72517ac65e88c29bb79f0e0bcc4f9ce2be042f1` (`perf: parallelize QwenPI DLC
+scoring`). Its production changes are:
+
+- `run_qwenpi_multitraj_score_suprim_{off,on}_dlc.sh`: use all 16 accelerators,
+  micro-batch four, three loader workers, and four metric processes per rank.
+- `train_qwenpi_drivor_suprim_dlc.sh`: enforce the global-batch and CPU-slot
+  contracts, expose the resolved performance settings, and provide
+  non-interactive DLC preflight diagnostics.
+- `qwenpi_multitraj_score_suprim_{off,on}.yaml`: use candidate chunks of 32,
+  the process metric backend, and disable unnecessary scene activation
+  checkpointing.
+- `QwenPI_DrivoRSuprim.py` and `hierarchical_scorer.py`: overlap detached CPU
+  labels with independent Flow/DrivoR/DriveSuprim GPU work and keep one
+  combined loss/backward.
+- `navsim_metric_supervisor.py`: batch K=64 pose conversion, score the intact
+  proposal pool, and run four persistent spawned NAVSIM processes per rank.
+- `tools/benchmark_navsim_metric_parallelism.py` and the corresponding tests:
+  reproduce the process-backend speedup and verify metric equivalence.
+
+No candidate, denoising, training-repeat, batch, optimizer-step, checkpoint,
+or evaluation count was reduced by this revision.
+
+## Post-deployment timing measurements
+
+The replacement jobs both resolved revision `d72517a`, 16 ranks, micro-batch
+four, effective batch 64, K=64, chunk 32, Euler 10, and the 64-process NAVSIM
+pool. Measurements were captured on 2026-08-24 after warm-up from 20-step
+windows in the shared launcher logs.
+
+| DLC job | Arm and active phase | Model / wall time | Throughput | Peak allocated per rank |
+|---|---|---:|---:|---:|
+| `dlc162hp1mlpo6lj` | OFF, dynamic K=64 from step 0 | about 3.50 / 3.50 s | about 17.8 samples/s | 32.91 GiB |
+| `dlcwwv3eyjglo10w` | ON, static-only before step 10k | about 2.13 / 2.13 s | about 30.6 samples/s | 34.27 GiB |
+
+The last six observed windows were stable: OFF model-time averages were
+3.468--3.567 seconds (median about 3.50), while ON static-only averages were
+2.089--2.161 seconds (median about 2.13). Data wait was approximately zero in
+both jobs, and step overhead was approximately 0.001 seconds, so the remaining
+cost is inside model/proposal/metric execution rather than the DataLoader.
+
+Compared with the original jobs on the same allocation:
+
+| Arm and phase | Before | After | Wall-time speedup | Throughput before -> after |
+|---|---:|---:|---:|---:|
+| OFF, dynamic K=64 | about 11.3 s/step | about 3.50 s/step | about 3.23x | 5.53 -> 17.8 samples/s |
+| ON, static-only | about 3.4 s/step | about 2.13 s/step | about 1.60x | 18.84 -> 30.6 samples/s |
+
+At the observed steady rate, OFF projects to about 97.2 wall-clock hours for
+100k steps on one 16-accelerator node, or about 1,555 allocated
+accelerator-hours. The original OFF rate projected to about 313.9 hours, so
+the replacement saves roughly 216.7 wall-clock hours for the same experiment.
+The ON static prefix projects to about 5.9 hours for its first 10k steps; this
+must not be extrapolated to 100k because its dynamic path starts at step 10k
+and reaches the full joint path at step 20k.
+
+## Why OFF is currently slower than ON
+
+This is a curriculum-phase difference, not an inverted DriveSuprim kernel
+cost. At step 920 the logs recorded:
+
+- OFF: `dynamic_enabled=1`, DrivoR loss active, 3.58-second wall time for that
+  step, and all 64 generated proposals receiving online NAVSIM labels.
+- ON: `dynamic_enabled=0`, static DriveSuprim coarse/fine losses active,
+  2.09-second wall time, and no dynamic proposals or NAVSIM labels.
+
+The B3/OFF branch has no static scorer, so the trainer deliberately activates
+DrivoR and K=64 sampling from step zero. The B4/ON branch uses its cached static
+vocabulary for the first 10% of training, then ramps dynamic supervision from
+10% to 20%. Disabling DriveSuprim removes only about 14 million trainable
+parameters, while immediately enabling 64-proposal, ten-Euler-step generation
+and physical scoring. That much larger operation explains the apparent
+inversion. ON is expected to slow materially after step 10k and may be as slow
+as or slower than OFF once the complete joint path is active.
+
+The YAML ablation is matched at the explicit configuration level, but
+`joint.enabled` selects different B3/B4 curricula in the trainer. Therefore
+the present experiment is a recipe-level DrivoR-versus-DriveSuprim comparison,
+not a compute-matched isolation of only the additional refinement heads. A
+strict head-only ablation should activate the same dynamic schedule from step
+zero in both arms and add DriveSuprim only in ON.
+
+## Remaining cost after optimization
+
+The optimized dynamic path still performs K=64 proposal generation with ten
+Euler steps in two serial chunks per rank, followed by physical scoring of all
+64 proposals for each of four local scenes and the trainable Flow/DrivoR
+backward. The process pool reduced a real B=4, K=64 NAVSIM batch from 2.487 to
+0.744 seconds and overlaps it with GPU work, but it cannot remove proposal
+generation or the physical-label objective. Material reductions beyond the
+observed 3.23x therefore require changing experiment semantics (for example
+K, Euler steps, scoring frequency, or staged/offline labels) or adding more
+accelerators; execution-only changes such as moving chunk 32 to 64 have only
+small remaining headroom.
+
 ## Restart acceptance checks
 
 Before treating a replacement job as valid, its first launcher block must
@@ -159,6 +257,3 @@ and below 2.5 s/step for the ON static-only path. These are operational targets,
 not guaranteed benchmark results; the replacement logs are the source of
 truth. When ON reaches step 10k, re-check its dynamic-path timing rather than
 extrapolating from the static-only prefix.
-
-No candidate count, denoising-step count, training repeat, optimizer-step
-count, checkpoint interval, or evaluation protocol was reduced for speed.
