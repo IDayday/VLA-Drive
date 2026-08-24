@@ -1,4 +1,5 @@
 import json
+import inspect
 from pathlib import Path
 
 import torch
@@ -13,6 +14,7 @@ from tools.compute_gp_sq3dmix_slot_stats import (
     _contract_sha,
     _merge,
 )
+import tools.compute_gp_sq3dmix_slot_stats as slot_stats_tool
 
 
 def _partial(root: Path, contract: dict, shard_id: int, tokens, indices, mean_value):
@@ -101,3 +103,8 @@ def test_descriptor_projection_and_descriptor_are_deterministic():
         rtol=0,
         atol=0,
     )
+
+
+def test_parallel_slot_stats_use_spawn_not_fork():
+    source = inspect.getsource(slot_stats_tool.main)
+    assert 'multiprocessing.get_context("spawn")' in source

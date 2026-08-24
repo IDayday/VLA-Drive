@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -430,7 +431,16 @@ def main() -> None:
                     flush=True,
                 )
         else:
-            with ProcessPoolExecutor(max_workers=min(args.num_workers, len(shard_ids))) as pool:
+            # PyTorch initializes native thread pools while building the fixed
+            # descriptor projection above.  Forking that state can leave every
+            # child blocked on an inherited futex before its first pooling op.
+            # Spawn gives each CPU worker a clean runtime and is also portable
+            # to DLC images whose accelerator build initializes threads at
+            # import time.
+            with ProcessPoolExecutor(
+                max_workers=min(args.num_workers, len(shard_ids)),
+                mp_context=multiprocessing.get_context("spawn"),
+            ) as pool:
                 futures = {
                     pool.submit(
                         _compute_shard,
