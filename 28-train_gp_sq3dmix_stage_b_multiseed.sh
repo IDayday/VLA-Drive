@@ -22,13 +22,18 @@ while (( $# )); do
   esac
 done
 [[ -f "$decision" ]] || { echo "Missing Stage-A-v2 decision: $decision" >&2; exit 2; }
-readarray -t selected < <(python - "$decision" <<'PY'
+selected_payload="$(python - "$decision" <<'PY'
 import json,sys
 d=json.load(open(sys.argv[1]))
 if d.get('all_passed') is not True: raise SystemExit('Stage A did not pass; Stage B forbidden')
 print(d['selected_variant']); print(d['selected_checkpoint'])
 PY
-)
+)" || exit $?
+readarray -t selected <<< "$selected_payload"
+[[ "${#selected[@]}" -eq 2 && -n "${selected[0]}" && -n "${selected[1]}" ]] || {
+  echo "Invalid passing Stage-A-v2 decision payload: $decision" >&2
+  exit 2
+}
 selected_variant="${selected[0]}"
 stage_a_checkpoint="${selected[1]}"
 [[ -f "$stage_a_checkpoint" ]] || { echo "Selected Stage-A checkpoint is missing" >&2; exit 2; }

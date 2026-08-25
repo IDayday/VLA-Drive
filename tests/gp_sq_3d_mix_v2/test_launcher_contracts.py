@@ -20,6 +20,27 @@ def test_stage_b_binds_both_required_seeds_and_matched_control():
     assert 'for variant in "$selected_variant" control' in source
 
 
+def test_stage_b_launcher_stops_cleanly_on_stage_a_no_go(tmp_path):
+    decision = tmp_path / "stage_a_no_go.json"
+    decision.write_text(json.dumps({"all_passed": False}))
+    result = subprocess.run(
+        [
+            "bash",
+            str(ROOT / "28-train_gp_sq3dmix_stage_b_multiseed.sh"),
+            "--decision-report",
+            str(decision),
+            "--dry-run",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "Stage A did not pass; Stage B forbidden" in result.stderr
+    assert "unbound variable" not in result.stderr
+
+
 def test_formal_launchers_enforce_permission_flags():
     formal = (ROOT / "31-train_gp_sq3dmix_formal_30k.sh").read_text()
     extension = (ROOT / "33-continue_gp_sq3dmix_to_100k.sh").read_text()
