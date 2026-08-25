@@ -1,0 +1,10 @@
+# R64-D-SH integrated inference.
+base_config: register64_inference.yaml
+run_id: register64_drivor_suprim_hybrid_evaluation
+framework:
+  suprim:
+    static_vocab_path: ${oc.env:SUPRIM_VOCAB_PATH}
+  inference:
+    selector_type: drivor_suprim_hybrid
+    suprim_checkpoint: ${oc.env:REGISTER64_SUPRIM_HYBRID_CHECKPOINT}
+    fine_memory_source: global_scene_tokens

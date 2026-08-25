@@ -1,0 +1,59 @@
+# R64-D / Stage S: bank-only donor-fidelity DrivoR scorer training.
+run_id: register64_drivor_scorer
+run_root_dir: ${oc.env:VLA_OUTPUT_ROOT,/mnt/zhangt_workspace/results/Checkpoints}
+seed: 42
+precision: bf16
+training_profile:
+  name: drivor_offline_bank_v1
+  independent_from_stage_g: true
+  donor:
+    paper: "DrivoR: Driving on Registers"
+    repository: "https://github.com/valeoai/DrivoR"
+    revision: f02665403df799c1b4ddd8b0d34e073f0555c13a
+    reference_recipe:
+      optimizer: AdamW
+      learning_rate: 2.0e-4
+      global_batch_size: 64
+      warmup_ratio: 0.10
+      navsim_v2_epochs: 10
+  adaptation:
+    scope: frozen_register64_candidate_bank_scorer_only
+    reason: "No image backbone or generator is optimized; use the required larger bank batch and select by validation regret."
+candidate_bank:
+  train_root: ${oc.env:REGISTER64_BANK_ROOT,/mnt/zhangt_workspace/register64_candidate_bank}/train
+  val_root: ${oc.env:REGISTER64_BANK_ROOT,/mnt/zhangt_workspace/register64_candidate_bank}/val
+model:
+  scene_dim: 256
+  ego_state_dim: 4
+  model_dim: 256
+  ffn_dim: 1024
+  num_layers: 4
+  num_heads: 1
+  decoder_style: donor_register
+  proj_drop: 0.1
+  drop_path: 0.2
+  layer_scale_init: 0.0
+  dropout: 0.0
+  dynamic_topm: 32
+optimizer:
+  name: AdamW
+  lr: 2.0e-4
+  betas: [0.9, 0.95]
+  weight_decay: 1.0e-3
+  eps: 1.0e-8
+  fused: true
+scheduler:
+  type: cosine
+  warmup_ratio: 0.05
+trainer:
+  epochs: 5
+  max_epochs: 10
+  global_batch_size: 256
+  gradient_accumulation_steps: 1
+  gradient_clip: 1.0
+  num_workers: 8
+  early_stopping:
+    enabled: true
+    patience: 2
+    monitor: regret
+    mode: min

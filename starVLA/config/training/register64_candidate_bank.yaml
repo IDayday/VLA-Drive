@@ -1,0 +1,29 @@
+# R64-O / Stage B: immutable proposals, scene tokens, GT, and NAVSIM labels.
+base_config: qwen_register64_generator.yaml
+run_id: register64_candidate_bank
+framework:
+  register_generator:
+    proposal_num: 64
+datasets:
+  vla_data:
+    shuffle: false
+    # 4 loader + 4 metric processes per rank = 128 workers on a 16-rank DLC job.
+    num_workers: 4
+candidate_bank:
+  generator_checkpoint: ${oc.env:REGISTER64_GENERATOR_CHECKPOINT}
+  output_root: ${oc.env:REGISTER64_BANK_ROOT,/mnt/zhangt_workspace/register64_candidate_bank}
+  include_dense_memory: false
+  storage_dtype: float16
+  map_size_bytes: 1099511627776
+  commit_interval: 16
+  max_inflight_batches: 2
+  splits:
+    train:
+      datalist_path: ${oc.env:NAVSIM_DATALIST_PATH}
+    val:
+      datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH}
+  metric_supervisor:
+    metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT}
+    backend: process
+    workers_per_rank: ${oc.env:NAVSIM_METRIC_WORKERS,4}
+    score_interval: 1

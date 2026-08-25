@@ -37,6 +37,7 @@ class StaticVocabScoreStore:
         vocab_size: int = 8192,
         cache_size: int = 64,
         mmap: bool = True,
+        include_aggregate_score: bool = False,
     ) -> None:
         if not cache_root:
             raise FileNotFoundError("static_score_store.cache_root is required")
@@ -49,6 +50,7 @@ class StaticVocabScoreStore:
         self.vocab_size = int(vocab_size)
         self.cache_size = int(cache_size)
         self.mmap = bool(mmap)
+        self.include_aggregate_score = bool(include_aggregate_score)
         self._cache: OrderedDict[str, Dict[str, Tensor]] = OrderedDict()
         self._aggregate: Mapping[str, object] | None = None
 
@@ -113,6 +115,24 @@ class StaticVocabScoreStore:
             if not torch.isfinite(value).all():
                 raise ValueError(f"static score {token}/{name} contains NaN or Inf")
             result[name] = value.contiguous()
+        aggregate_key = (
+            next(
+                (name for name in ("aggregate_score", "pdm_score") if name in raw),
+                None,
+            )
+            if self.include_aggregate_score
+            else None
+        )
+        if aggregate_key is not None:
+            value = torch.as_tensor(np.asarray(raw[aggregate_key])).detach().float().squeeze()
+            if tuple(value.shape) != (self.vocab_size,):
+                raise ValueError(
+                    f"static score {token}/{aggregate_key} has shape {tuple(value.shape)}, "
+                    f"expected ({self.vocab_size},)"
+                )
+            if not torch.isfinite(value).all():
+                raise ValueError(f"static score {token}/{aggregate_key} contains NaN or Inf")
+            result["aggregate_score"] = value.contiguous()
         return result
 
     def _get_cpu(self, token: str) -> Dict[str, Tensor]:
@@ -157,9 +177,15 @@ class StaticVocabScoreStore:
         if not tokens:
             raise ValueError("static score lookup requires at least one token")
         rows = [self._get_cpu(str(token)) for token in tokens]
+        names = list(SUPRIM_METRICS)
+        aggregate_presence = ["aggregate_score" in row for row in rows]
+        if any(aggregate_presence) and not all(aggregate_presence):
+            raise ValueError("static score batch mixes rows with and without aggregate_score")
+        if all(aggregate_presence):
+            names.append("aggregate_score")
         return {
             name: torch.stack([row[name] for row in rows], dim=0).to(
                 device=device, dtype=dtype, non_blocking=True
             )
-            for name in SUPRIM_METRICS
+            for name in names
         }

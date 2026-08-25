@@ -8,7 +8,7 @@
 # named metrics, detached CPU inputs, vectorized pose conversion, lazy imports,
 # and asynchronous per-rank worker pools.
 
-"""Online NAVSIM metric labels for detached dynamic Flow proposals."""
+"""NAVSIM metric labels for detached dynamic proposal pools."""
 
 from __future__ import annotations
 
@@ -61,7 +61,8 @@ def _new_navsim_evaluator(metric_cache_root: Path):
     except ImportError as exc:
         raise ImportError(
             "DynamicMetricSupervisor requires the NAVSIM/nuPlan training "
-            "environment; install it only for QwenPI-DrivoRSuprim training"
+            "environment; it is needed for online Flow scoring and Stage-B "
+            "Register candidate-bank construction"
         ) from exc
     sampling = TrajectorySampling(num_poses=40, interval_length=0.1)
     return (
@@ -409,20 +410,18 @@ class DynamicMetricSupervisor:
         )
 
     @torch.no_grad()
-    def score_async(
-        self, tokens: Sequence[str], proposals_navsim: Tensor
+    def _submit_40(
+        self,
+        tokens: Sequence[str],
+        proposals_40: np.ndarray,
+        *,
+        result_device: torch.device,
+        result_dtype: torch.dtype,
     ) -> _DynamicMetricBatch:
-        """Submit detached proposals and return before CPU PDM scoring completes."""
-
-        if proposals_navsim.ndim != 4 or tuple(proposals_navsim.shape[-2:]) != (8, 3):
-            raise ValueError("dynamic proposals must have shape [B,K,8,3]")
-        if len(tokens) != proposals_navsim.shape[0]:
+        if proposals_40.ndim != 4 or tuple(proposals_40.shape[-2:]) != (40, 3):
+            raise ValueError("NAVSIM proposal pools must have shape [B,K,40,3]")
+        if len(tokens) != proposals_40.shape[0]:
             raise ValueError("token count does not match dynamic proposal batch")
-        result_device = proposals_navsim.device
-        result_dtype = proposals_navsim.dtype
-        proposals_40 = self.codec.upsample_8_to_40(
-            proposals_navsim.detach().to(device="cpu", dtype=torch.float32)
-        ).numpy()
         tasks = [
             (str(token), proposals_40[index])
             for index, token in enumerate(tokens)
@@ -448,12 +447,59 @@ class DynamicMetricSupervisor:
         )
 
     @torch.no_grad()
+    def score_async(
+        self, tokens: Sequence[str], proposals_navsim: Tensor
+    ) -> _DynamicMetricBatch:
+        """Submit detached 8-pose proposals and return before CPU scoring completes."""
+
+        if proposals_navsim.ndim != 4 or tuple(proposals_navsim.shape[-2:]) != (8, 3):
+            raise ValueError("dynamic proposals must have shape [B,K,8,3]")
+        proposals_40 = self.codec.upsample_8_to_40(
+            proposals_navsim.detach().to(device="cpu", dtype=torch.float32)
+        ).numpy()
+        return self._submit_40(
+            tokens,
+            proposals_40,
+            result_device=proposals_navsim.device,
+            result_dtype=proposals_navsim.dtype,
+        )
+
+    @torch.no_grad()
+    def score_40_async(
+        self, tokens: Sequence[str], proposals_navsim_40: Tensor
+    ) -> _DynamicMetricBatch:
+        """Score exact native 40-pose pools without an 8-pose resampling round trip."""
+
+        if (
+            proposals_navsim_40.ndim != 4
+            or tuple(proposals_navsim_40.shape[-2:]) != (40, 3)
+        ):
+            raise ValueError("native NAVSIM proposals must have shape [B,K,40,3]")
+        values = proposals_navsim_40.detach().to(
+            device="cpu", dtype=torch.float32
+        ).numpy()
+        return self._submit_40(
+            tokens,
+            values,
+            result_device=proposals_navsim_40.device,
+            result_dtype=proposals_navsim_40.dtype,
+        )
+
+    @torch.no_grad()
     def score(
         self, tokens: Sequence[str], proposals_navsim: Tensor
     ) -> Dict[str, Tensor]:
         """Compatibility wrapper returning named synchronous ``[B,K]`` labels."""
 
         return self.score_async(tokens, proposals_navsim).result()
+
+    @torch.no_grad()
+    def score_40(
+        self, tokens: Sequence[str], proposals_navsim_40: Tensor
+    ) -> Dict[str, Tensor]:
+        """Synchronous exact-40-pose compatibility wrapper."""
+
+        return self.score_40_async(tokens, proposals_navsim_40).result()
 
     def close(self) -> None:
         if self._executor is not None:
@@ -487,6 +533,29 @@ class StubDynamicMetricSupervisor:
         )
 
     @torch.no_grad()
+    def score_40_async(
+        self, tokens: Sequence[str], proposals_navsim_40: Tensor
+    ) -> _DynamicMetricBatch:
+        if (
+            proposals_navsim_40.ndim != 4
+            or tuple(proposals_navsim_40.shape[-2:]) != (40, 3)
+        ):
+            raise ValueError("native NAVSIM proposals must have shape [B,K,40,3]")
+        values = self.score(tokens, proposals_navsim_40)
+        rows = [
+            {
+                name: values[name][index].detach().to("cpu").numpy()
+                for name in _OUTPUT_METRICS
+            }
+            for index in range(proposals_navsim_40.shape[0])
+        ]
+        return _DynamicMetricBatch(
+            rows,
+            result_device=proposals_navsim_40.device,
+            result_dtype=proposals_navsim_40.dtype,
+        )
+
+    @torch.no_grad()
     def score(
         self, tokens: Sequence[str], proposals_navsim: Tensor
     ) -> Dict[str, Tensor]:
@@ -499,6 +568,12 @@ class StubDynamicMetricSupervisor:
             return result
         base = torch.sigmoid(proposals_navsim.detach()[..., 0].mean(dim=-1))
         return {name: base.clone() for name in _OUTPUT_METRICS}
+
+    @torch.no_grad()
+    def score_40(
+        self, tokens: Sequence[str], proposals_navsim_40: Tensor
+    ) -> Dict[str, Tensor]:
+        return self.score_40_async(tokens, proposals_navsim_40).result()
 
     def close(self) -> None:
         return None

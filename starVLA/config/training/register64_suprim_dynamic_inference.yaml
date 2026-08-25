@@ -1,0 +1,8 @@
+# R64-D-SD integrated inference.
+base_config: register64_inference.yaml
+run_id: register64_drivor_suprim_dynamic_evaluation
+framework:
+  inference:
+    selector_type: drivor_suprim_dynamic
+    suprim_checkpoint: ${oc.env:REGISTER64_SUPRIM_DYNAMIC_CHECKPOINT}
+    fine_memory_source: global_scene_tokens

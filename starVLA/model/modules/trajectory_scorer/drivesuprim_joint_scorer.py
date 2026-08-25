@@ -3,7 +3,7 @@
 # 80fe792d7654a596d92e20d030d1650f6f605c02, files
 # navsim/agents/drivesuprim/drivesuprim_model.py and drivesuprim_config.py.
 # Project adaptations: one shared scorer handles a fixed static vocabulary and
-# detached Flow-DiT candidates in one shared 256-dimensional planning space.
+# detached dynamic candidates in one shared 256-dimensional planning space.
 # The official
 # heads, aggregate formula, global Top-K, and one-stage refinement are retained.
 

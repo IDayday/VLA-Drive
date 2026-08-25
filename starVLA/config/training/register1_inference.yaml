@@ -1,0 +1,21 @@
+# R1 integrated inference: one learned register and no selector.
+base_config: qwen_register1_generator.yaml
+run_id: register1_evaluation
+framework:
+  name: QwenRegisterPlanner
+  inference:
+    selector_type: none
+    generator_checkpoint: ${oc.env:REGISTER1_GENERATOR_CHECKPOINT}
+    dynamic_topm: 1
+    return_all_proposals: true
+datasets:
+  vla_data:
+    split: val
+    datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH}
+evaluation:
+  metric_supervisor:
+    enabled: false
+    metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT,null}
+    backend: process
+    workers_per_rank: 4
+    score_interval: 1

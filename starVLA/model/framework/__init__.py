@@ -69,6 +69,18 @@ def build_framework(cfg, accelerator=None):
 
         return QwenPIDrivoRSuprim(cfg)
 
+    elif cfg.framework.name == "QwenRegisterGenerator":
+        from starVLA.model.framework.QwenRegisterGenerator import (
+            QwenRegisterGenerator,
+        )
+
+        return QwenRegisterGenerator(cfg)
+
+    elif cfg.framework.name == "QwenRegisterPlanner":
+        from starVLA.model.framework.QwenRegisterPlanner import QwenRegisterPlanner
+
+        return QwenRegisterPlanner(cfg)
+
     
     # auto detect from registry
     framework_id = cfg.framework.name

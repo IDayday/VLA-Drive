@@ -94,9 +94,14 @@ def build_dataloader(cfg, dataset_py="lerobot_datasets_oxe"): # TODO now here on
             all_cfg = cfg,
         )
         
-        navsim_num_workers = int(os.environ.get("NAVSIM_NUM_WORKERS", "7"))
+        navsim_num_workers = int(
+            os.environ.get(
+                "NAVSIM_NUM_WORKERS", str(navsim_dataset_cfg.get("num_workers", 7))
+            )
+        )
         navsim_prefetch_factor = int(os.environ.get("NAVSIM_PREFETCH_FACTOR", "2"))
         navsim_pin_memory = os.environ.get("NAVSIM_PIN_MEMORY", "1") == "1"
+        navsim_shuffle = bool(navsim_dataset_cfg.get("shuffle", False))
         if navsim_num_workers < 0:
             raise ValueError("NAVSIM_NUM_WORKERS must be non-negative")
         if navsim_prefetch_factor < 1:
@@ -113,19 +118,20 @@ def build_dataloader(cfg, dataset_py="lerobot_datasets_oxe"): # TODO now here on
             logger.info(
                 "NAVSIM DataLoader: workers_per_rank=%d prefetch_factor=%d "
                 "prefetched_batches_per_rank=%d prefetched_samples_per_rank=%d "
-                "pin_memory=%s",
+                "pin_memory=%s shuffle=%s",
                 navsim_num_workers,
                 navsim_prefetch_factor,
                 navsim_num_workers * navsim_prefetch_factor,
                 navsim_num_workers * navsim_prefetch_factor * batch_size,
                 navsim_pin_memory,
+                navsim_shuffle,
             )
         navsim_train_dataloader = DataLoader(
             navsim_dataset,
             batch_size=cfg.datasets.vla_data.per_device_batch_size,
             collate_fn=collate_fn,
             num_workers=navsim_num_workers,
-            # shuffle=True,
+            shuffle=navsim_shuffle,
             drop_last=False,
             pin_memory=navsim_pin_memory,
             **dataloader_kwargs,

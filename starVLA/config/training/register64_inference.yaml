@@ -1,0 +1,53 @@
+# R64-D integrated inference and evaluation.
+base_config: qwen_register64_generator.yaml
+run_id: register64_drivor_evaluation
+framework:
+  name: QwenRegisterPlanner
+  drivor_scorer:
+    scene_dim: 256
+    ego_state_dim: 4
+    model_dim: 256
+    ffn_dim: 1024
+    num_layers: 4
+    num_heads: 1
+    decoder_style: donor_register
+    proj_drop: 0.1
+    drop_path: 0.2
+    layer_scale_init: 0.0
+  suprim:
+    static_vocab_path: ${oc.env:SUPRIM_VOCAB_PATH,null}
+    coarse:
+      static_vocab_size: 8192
+      coarse_topk: 256
+      coarse_layers: 3
+      scene_dim: 256
+      model_dim: 256
+      ffn_dim: 1024
+      num_heads: 8
+    fine:
+      scene_dim: 256
+      model_dim: 256
+      ffn_dim: 1024
+      num_heads: 8
+      refinement_layers: 3
+      use_mid_output: true
+      use_imitation: true
+  inference:
+    selector_type: drivor
+    generator_checkpoint: ${oc.env:REGISTER64_GENERATOR_CHECKPOINT}
+    drivor_checkpoint: ${oc.env:REGISTER64_DRIVOR_CHECKPOINT}
+    suprim_checkpoint: null
+    dynamic_topm: 32
+    fine_memory_source: global_scene_tokens
+    return_all_proposals: true
+datasets:
+  vla_data:
+    split: val
+    datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH}
+evaluation:
+  metric_supervisor:
+    enabled: false
+    metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT,null}
+    backend: process
+    workers_per_rank: 4
+    score_interval: 1

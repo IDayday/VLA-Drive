@@ -1,0 +1,125 @@
+# R64 Stage G: Qwen + 16-query Q-Former + 64 deterministic trajectory registers.
+run_id: qwen_register64_generator
+run_root_dir: ${oc.env:VLA_OUTPUT_ROOT,/mnt/zhangt_workspace/results/Checkpoints}
+seed: 42
+precision: bf16
+act_tok: 8
+ver_1225: 1
+vit_pre: 0
+pretrain_model_2d: null
+enable_image_aug: 0
+w_depth: 0
+doing_s2: 0
+w_video_latent: 0
+rgb_query_loss: 0
+gs_query_loss: 0
+
+framework:
+  name: QwenRegisterGenerator
+  qwenvl:
+    base_vlm: ${oc.env:QWEN_VLM_PATH}
+    attn_implementation: flash_attention_2
+    vl_hidden_dim: 2048
+  scene_encoder:
+    input_dim: 2048
+    hidden_dim: 256
+    output_dim: 256
+    num_queries: 16
+    num_layers: 4
+    num_heads: 8
+    ffn_dim: 1024
+    dropout: 0.0
+    query_init_std: 0.02
+    detach_qwen_input: false
+    use_gradient_checkpointing: false
+    debug_validate_finite: false
+  register_generator:
+    proposal_num: 64
+    num_poses: 8
+    state_dim: 3
+    model_dim: 256
+    ffn_dim: 1024
+    num_layers: 4
+    num_heads: 1
+    one_token_per_trajectory: true
+    proj_drop: 0.1
+    drop_path: 0.2
+    layer_scale_init: 0.0
+    ego_state_dim: 4
+  generator_loss:
+    stage_loss_mode: final_only
+    stage_loss_weights: [0.1, 0.2, 0.3, 0.5, 1.0]
+    diversity_weight: 0.0
+
+datasets:
+  vlm_data:
+    per_device_batch_size: 1
+  vla_data:
+    load_act_data: 1
+    dataset_py: navsim_dataset
+    data_root: ${oc.env:DATA_ROOT}
+    datalist_path: ${oc.env:NAVSIM_DATALIST_PATH}
+    split: train
+    shuffle: true
+    per_device_batch_size: 4
+    num_workers: 7
+    load_all_data_for_training: true
+    w_neg_traj: null
+    act_norm: 1
+  video_data:
+    load_2d_data: 0
+    rgb_meta_dir: ${oc.env:NAVSIM_VIDEO_ROOT,null}
+    sample_n_frames: 9
+    sample_size: [144, 256]
+    text_input: 0
+  gs_data:
+    load_3d_data: 0
+    debug: 0
+    gs_meta_dir: ${oc.env:NAVSIM_GS_ROOT,null}
+  reward_data:
+    load_reward_data: 0
+    reward_meta_dir: ${oc.env:NAVSIM_REWARD_ROOT,null}
+
+trainer:
+  max_epochs: 25
+  global_batch_size: 64
+  gradient_accumulation_steps: 1
+  gradient_clip: 1.0
+  freeze_modules: qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head
+  save_epochs: [5, 10, 15, 20, 25]
+  resume_from: null
+  early_stopping:
+    enabled: true
+    patience: 5
+    monitor: min_ade_64
+    mode: min
+
+optimizer:
+  name: AdamW
+  learning_rates:
+    qwen_vl_interface: 1.0e-5
+    scene_encoder: 2.0e-4
+    register_generator: 2.0e-4
+    action_input_model: 2.0e-4
+  betas: [0.9, 0.95]
+  weight_decay: 1.0e-3
+  eps: 1.0e-8
+  fused: true
+
+scheduler:
+  type: cosine
+  warmup_ratio: 0.05
+
+validation:
+  split: val
+  datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH,null}
+  num_scenes: 1024
+  num_workers: 4
+  pdm_oracle:
+    enabled: false
+    interval_epochs: 5
+    metric_supervisor:
+      metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT,null}
+      backend: process
+      workers_per_rank: 2
+      score_interval: 1

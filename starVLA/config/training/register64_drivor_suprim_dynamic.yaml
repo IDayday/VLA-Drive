@@ -1,0 +1,75 @@
+# R64-D-SD / Stage SD: frozen DrivoR Top-32, train only fine refinement.
+run_id: register64_drivor_suprim_dynamic
+run_root_dir: ${oc.env:VLA_OUTPUT_ROOT,/mnt/zhangt_workspace/results/Checkpoints}
+seed: 42
+precision: bf16
+stage_mode: dynamic
+training_profile:
+  name: drivesuprim_dynamic_bank_v1
+  independent_from_stage_g: true
+  donor:
+    paper: "DriveSuprim: Towards Precise Trajectory Selection for End-to-End Planning"
+    repository: "https://github.com/William-Yao-2000/DriveSuprim"
+    revision: 80fe792d7654a596d92e20d030d1650f6f605c02
+    reference_recipe:
+      optimizer: Adam
+      learning_rate: 7.5e-5
+      global_batch_size: 64
+      epochs_vit: 6
+      epochs_cnn: 10
+      refinement_layers: 3
+      coarse_topk: 256
+  adaptation:
+    scope: frozen_drivor_top32_fine_refiner_only
+    reason: "Dynamic Top-32 is a smaller bank-only ablation, so it uses 3-5 epochs and no static vocabulary."
+candidate_bank:
+  train_root: ${oc.env:REGISTER64_BANK_ROOT,/mnt/zhangt_workspace/register64_candidate_bank}/train
+  val_root: ${oc.env:REGISTER64_BANK_ROOT,/mnt/zhangt_workspace/register64_candidate_bank}/val
+drivor_checkpoint: ${oc.env:REGISTER64_DRIVOR_CHECKPOINT}
+drivor_model:
+  scene_dim: 256
+  ego_state_dim: 4
+  model_dim: 256
+  ffn_dim: 1024
+  num_layers: 4
+  num_heads: 1
+  decoder_style: donor_register
+  proj_drop: 0.1
+  drop_path: 0.2
+  layer_scale_init: 0.0
+model:
+  dynamic_topm: 32
+  fine_memory_source: global_scene_tokens
+  fine:
+    scene_dim: 256
+    model_dim: 256
+    ffn_dim: 1024
+    num_heads: 8
+    refinement_layers: 3
+    dropout: 0.0
+    use_mid_output: true
+    use_imitation: true
+loss:
+  coarse_weight: 0.0
+  fine_weight: 1.0
+optimizer:
+  name: AdamW
+  lr: 7.5e-5
+  betas: [0.9, 0.95]
+  weight_decay: 1.0e-3
+  fused: true
+scheduler:
+  type: cosine
+  warmup_ratio: 0.05
+trainer:
+  epochs: 3
+  max_epochs: 5
+  global_batch_size: 256
+  gradient_accumulation_steps: 1
+  gradient_clip: 1.0
+  num_workers: 8
+  early_stopping:
+    enabled: true
+    patience: 2
+    monitor: regret
+    mode: min

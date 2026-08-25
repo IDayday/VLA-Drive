@@ -1,0 +1,61 @@
+# R64-D-SH / Stage SH: frozen DrivoR Top-32 + 8192 static + shared DriveSuprim.
+base_config: register64_drivor_suprim_dynamic.yaml
+run_id: register64_drivor_suprim_hybrid
+stage_mode: hybrid
+training_profile:
+  name: drivesuprim_hybrid_bank_v1
+  independent_from_stage_g: true
+  donor:
+    paper: "DriveSuprim: Towards Precise Trajectory Selection for End-to-End Planning"
+    repository: "https://github.com/William-Yao-2000/DriveSuprim"
+    revision: 80fe792d7654a596d92e20d030d1650f6f605c02
+    reference_recipe:
+      optimizer: Adam
+      learning_rate: 7.5e-5
+      global_batch_size: 64
+      epochs_vit: 6
+      epochs_cnn: 10
+      refinement_layers: 3
+      coarse_topk: 256
+  adaptation:
+    scope: frozen_drivor_static8192_dynamic32_selector_only
+    reason: "Retain the donor 8192-to-256, 3-layer, 6-10 epoch scale while training from immutable bank labels."
+model:
+  dynamic_topm: 32
+  static_vocab_path: ${oc.env:SUPRIM_VOCAB_PATH}
+  fine_memory_source: global_scene_tokens
+  coarse:
+    static_vocab_size: 8192
+    joint_candidate_count: 8224
+    coarse_topk: 256
+    coarse_layers: 3
+    scene_dim: 256
+    model_dim: 256
+    ffn_dim: 1024
+    num_heads: 8
+    dropout: 0.0
+static_score_store:
+  cache_root: ${oc.env:SUPRIM_STATIC_SCORE_CACHE}
+  cache_size: 64
+  mmap: true
+parity_gate:
+  report_path: ${oc.env:SUPRIM_PARITY_REPORT}
+  static_score_cache_vocabulary_sha256: ${oc.env:SUPRIM_SCORE_CACHE_VOCAB_SHA256}
+  num_scenes: 100
+  candidates_per_scene: 128
+  seed: 42
+  batch_size: 4
+  metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT}
+  backend: process
+  workers_per_rank: ${oc.env:NAVSIM_METRIC_WORKERS,8}
+  discrete_agreement_min: 0.99
+  continuous_metric_mae_max: 1.0e-3
+  aggregate_score_mae_max: 1.0e-3
+  spearman_min: 0.99
+loss:
+  coarse_weight: 1.0
+  fine_weight: 1.0
+trainer:
+  epochs: 6
+  max_epochs: 10
+  global_batch_size: 64

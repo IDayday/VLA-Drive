@@ -3,8 +3,8 @@
 # f02665403df799c1b4ddd8b0d34e073f0555c13a, files
 # navsim/agents/drivoR/transformer_decoder.py,
 # navsim/agents/drivoR/score_module/scorer.py, and drivor_model.py.
-# Project adaptations: accept Flow-DiT proposals, detach proposal geometry at
-# the scorer boundary, and use a shared 256-dimensional planning space.
+# Project adaptations: accept external proposal pools, detach proposal geometry
+# at the scorer boundary, and use a shared 256-dimensional planning space.
 
 """DrivoR dynamic-proposal pre-scorer without its trajectory generator."""
 
@@ -40,7 +40,7 @@ class DynamicScorerOutput:
 
 
 class DrivoRDynamicScorer(nn.Module):
-    """Score detached physical ``[B,K,8,3]`` Flow proposals."""
+    """Score detached physical ``[B,K,8,3]`` proposal pools."""
 
     def __init__(
         self,
@@ -52,6 +52,10 @@ class DrivoRDynamicScorer(nn.Module):
         num_layers: int = 4,
         num_heads: int = 8,
         dropout: float = 0.0,
+        decoder_style: str = "legacy",
+        proj_drop: float = 0.1,
+        drop_path: float = 0.2,
+        layer_scale_init: float = 0.0,
         noc: float = 1.0,
         dac: float = 1.0,
         ddc: float = 0.0,
@@ -79,14 +83,36 @@ class DrivoRDynamicScorer(nn.Module):
         self.ego_encoder = _mlp(ego_state_dim, ffn_dim, model_dim)
         if scene_dim != model_dim:
             raise ValueError("DrivoR query and scene memory must share model_dim")
-        self.scorer_decoder = TransformerDecoder(
-            num_layers=num_layers,
-            model_dim=model_dim,
-            num_heads=num_heads,
-            ffn_dim=ffn_dim,
-            dropout=dropout,
-            return_intermediate=False,
-        )
+        if decoder_style == "legacy":
+            # Preserve the existing Flow-DiT experiment and its checkpoints.
+            self.scorer_decoder = TransformerDecoder(
+                num_layers=num_layers,
+                model_dim=model_dim,
+                num_heads=num_heads,
+                ffn_dim=ffn_dim,
+                dropout=dropout,
+                return_intermediate=False,
+            )
+        elif decoder_style == "donor_register":
+            from starVLA.model.modules.register_planner.decoder import (
+                RegisterTrajectoryDecoder,
+            )
+
+            self.scorer_decoder = RegisterTrajectoryDecoder(
+                num_layers=num_layers,
+                model_dim=model_dim,
+                num_heads=num_heads,
+                ffn_dim=ffn_dim,
+                proj_drop=proj_drop,
+                drop_path=drop_path,
+                layer_scale_init=layer_scale_init,
+                return_intermediate=False,
+            )
+        else:
+            raise ValueError(
+                "decoder_style must be 'legacy' or 'donor_register'"
+            )
+        self.decoder_style = decoder_style
         self.metric_heads = nn.ModuleDict(
             {name: _mlp(model_dim, ffn_dim, 1) for name in DRIVOR_METRICS}
         )
