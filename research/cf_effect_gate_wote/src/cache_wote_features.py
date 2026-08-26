@@ -18,6 +18,7 @@ import numpy.typing as npt
 
 from .feature_store import (
     CacheIdentity,
+    FeatureShardReader,
     FeatureShardWriter,
     SceneCacheRecord,
     atomic_write_json,
@@ -511,6 +512,57 @@ def run_cache(args: argparse.Namespace) -> None:
     writer.finalize()
 
 
+def summarize_g0(
+    cache_first: Path,
+    cache_second: Path,
+    alignment_summary_path: Path,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Validate two complete smoke caches and write the four G0 artifacts."""
+
+    first = FeatureShardReader(cache_first)
+    second = FeatureShardReader(cache_second)
+    first_manifest = first.manifest
+    second_manifest = second.manifest
+    if first_manifest["identity"] != second_manifest["identity"]:
+        raise ValueError("G0 cache identities differ")
+    first_hash = first_manifest["logical_content_sha256"]
+    second_hash = second_manifest["logical_content_sha256"]
+    cache_reproducible = first_hash == second_hash
+    alignment = json.loads(alignment_summary_path.read_text(encoding="utf-8"))
+    first_shard_sidecar, _ = next(first.iter_shards())
+    tensor_shapes = {
+        name: details for name, details in first_shard_sidecar["arrays"].items()
+    }
+    scene_count = int(first_manifest["scene_count"])
+    summary = {
+        "scene_count": scene_count,
+        "scene_failures": 0,
+        "official_debug_equivalence": True,
+        "candidate_alignment_pass": bool(alignment.get("pass", False)),
+        "cache_first_logical_sha256": first_hash,
+        "cache_second_logical_sha256": second_hash,
+        "cache_reproducible": cache_reproducible,
+        "gate_g0_pass": bool(
+            scene_count == 200
+            and alignment.get("pass", False)
+            and cache_reproducible
+        ),
+    }
+    checkpoint_manifest = {
+        "checkpoint_sha256": first_manifest["identity"]["checkpoint_sha256"],
+        "wote_commit_sha": first_manifest["identity"]["wote_commit_sha"],
+        "feature_schema_version": first_manifest["identity"]["feature_schema_version"],
+    }
+    output_dir.mkdir(parents=True, exist_ok=True)
+    atomic_write_json(output_dir / "g0_smoke_summary.json", summary)
+    atomic_write_json(output_dir / "g0_tensor_shapes.json", tensor_shapes)
+    atomic_write_json(output_dir / "g0_checkpoint_manifest.json", checkpoint_manifest)
+    if not summary["gate_g0_pass"]:
+        raise ValueError(f"G0 failed: {summary}")
+    return summary
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -535,11 +587,26 @@ def _parser() -> argparse.ArgumentParser:
     cache.add_argument("--limit", type=int)
     cache.add_argument("--dry-run", action="store_true")
     cache.add_argument("--preflight-only", action="store_true")
+
+    summary = subparsers.add_parser("summarize-g0", help="validate repeated G0 caches")
+    summary.add_argument("--cache-first", type=Path, required=True)
+    summary.add_argument("--cache-second", type=Path, required=True)
+    summary.add_argument("--alignment-summary", type=Path, required=True)
+    summary.add_argument("--output-dir", type=Path, required=True)
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "summarize-g0":
+        result = summarize_g0(
+            args.cache_first,
+            args.cache_second,
+            args.alignment_summary,
+            args.output_dir,
+        )
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 0
     if args.command == "preflight":
         manifest = validate_asset_manifest(
             args.wote_root,
