@@ -193,13 +193,23 @@ def _validate_effect_scene(
         "actor_effect": (candidates, 8, 16, len(ACTOR_EFFECT_NAMES)),
         "actor_mask": (candidates, 8, 16),
         "interaction_mask": (candidates, 8, 16),
-        "shared_logged_future": (8, 16, 8),
-        "shared_actor_mask": (8, 16),
     }
     for key, shape in required_shapes.items():
         if key not in scene or np.asarray(scene[key]).shape != shape:
             actual = None if key not in scene else np.asarray(scene[key]).shape
             raise ProbeDataError(f"{token}: {key} expected {shape}, got {actual}")
+    shared_present = {
+        key in scene for key in ("shared_logged_future", "shared_actor_mask")
+    }
+    if len(shared_present) != 1:
+        raise ProbeDataError(
+            f"{token}: shared logged-future value and mask must appear together"
+        )
+    if "shared_logged_future" in scene:
+        if np.asarray(scene["shared_logged_future"]).shape != (8, 16, 8):
+            raise ProbeDataError(f"{token}: invalid shared_logged_future shape")
+        if np.asarray(scene["shared_actor_mask"]).shape != (8, 16):
+            raise ProbeDataError(f"{token}: invalid shared_actor_mask shape")
     for key, value in scene.items():
         array = np.asarray(value)
         if np.issubdtype(array.dtype, np.floating) and not np.isfinite(array).all():

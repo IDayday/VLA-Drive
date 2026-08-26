@@ -46,6 +46,24 @@ probe:
   batch_scenes: 4
   train_candidates_per_scene: 32
   parameter_tolerance_fraction: 0.05
+effect_predictor:
+  hidden_dim: 64
+  decoder_layers: 2
+  attention_heads: 8
+  actor_slots: 16
+  max_parameters: 10000000
+  learning_rates: [0.0003]
+  max_epochs: 1
+  patience: 1
+  batch_scenes: 1
+  candidate_chunk: 16
+  train_candidates_per_scene: 16
+  ego_weight: 1.0
+  map_weight: 1.0
+  actor_weight: 1.0
+  actor_presence_weight: 0.25
+  interaction_weight: 0.5
+  temporal_consistency_weight: 0.1
 bootstrap:
   samples: 200
   confidence: 0.95

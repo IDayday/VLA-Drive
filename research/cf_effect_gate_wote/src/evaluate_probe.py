@@ -69,7 +69,7 @@ def _iter_evaluation_batches(
         permutation = _effect_permutation(scene.token, seed) if swap_effects else None
         raw = raw_scene_inputs(
             scene,
-            "oracle_replay_effect" if swap_effects else model_type,
+            model_type,
             effect_permutation=permutation,
         )
         pending.append((scene.token, raw))
@@ -130,7 +130,13 @@ def evaluate_checkpoint(
     if not tokens or len(tokens) != len(set(tokens)):
         raise ValueError("evaluation produced empty or duplicate scene tokens")
     return EvaluationResult(
-        model_type="effect_swap" if swap_effects else model_type,
+        model_type=(
+            "effect_swap"
+            if swap_effects and model_type == "oracle_replay_effect"
+            else f"{model_type}_swap"
+            if swap_effects
+            else model_type
+        ),
         seed=seed,
         tokens=tuple(tokens),
         predicted_factors=np.concatenate(predicted_factors, axis=0),
@@ -230,6 +236,7 @@ def aggregate_metrics(result: EvaluationResult, outcomes: pd.DataFrame) -> dict[
             "predicted_replay_effect": "predicted replay effect",
             "wote_full_future": "WoTE reward feature",
             "wote_environment_only": "masked environment-only rollout",
+            "predicted_replay_effect_swap": "swapped predicted replay effect",
         }[result.model_type],
         "candidate_specific": result.model_type
         in {

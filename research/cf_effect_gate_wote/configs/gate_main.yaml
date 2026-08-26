@@ -60,6 +60,17 @@ effect_predictor:
   attention_heads: 8
   actor_slots: 16
   max_parameters: 10000000
+  learning_rates: [0.0001, 0.0003]
+  max_epochs: 30
+  patience: 5
+  batch_scenes: 1
+  candidate_chunk: 32
+  train_candidates_per_scene: 64
+  ego_weight: 1.0
+  map_weight: 1.0
+  actor_weight: 1.0
+  actor_presence_weight: 0.25
+  interaction_weight: 0.5
   temporal_consistency_weight: 0.1
 inverse:
   retrieval_candidates: 16
