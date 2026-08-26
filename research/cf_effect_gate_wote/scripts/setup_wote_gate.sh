@@ -115,7 +115,14 @@ if ((dry_run)); then
   exit 0
 fi
 
-if ((download_release)) && [[ ! -e "$release_root" ]]; then
+release_missing=0
+for required_asset in "$checkpoint_path" "$resnet_path" "$anchor_path" "$score_path"; do
+  if [[ ! -s "$required_asset" ]]; then
+    release_missing=1
+  fi
+done
+
+if ((download_release && release_missing)); then
   command -v gdown >/dev/null 2>&1 || {
     printf '[cf-effect-gate] gdown is required for --download-release\n' >&2
     exit 3
