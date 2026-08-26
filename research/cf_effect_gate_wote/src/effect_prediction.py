@@ -682,11 +682,22 @@ def train_g3_scorers(args: argparse.Namespace) -> None:
     reused = [
         trial
         for trial in g2_manifest["selected_trials"]
-        if trial["model_type"] in {"direct_current", "oracle_replay_effect"}
+        if trial["model_type"]
+        in {
+            "direct_current",
+            "oracle_replay_effect",
+            "wote_full_future",
+            "wote_environment_only",
+        }
     ]
     expected_reused = {
         (model, seed)
-        for model in ("direct_current", "oracle_replay_effect")
+        for model in (
+            "direct_current",
+            "oracle_replay_effect",
+            "wote_full_future",
+            "wote_environment_only",
+        )
         for seed in seeds
     }
     actual_reused = {(trial["model_type"], int(trial["seed"])) for trial in reused}
@@ -698,20 +709,9 @@ def train_g3_scorers(args: argparse.Namespace) -> None:
     args.output.mkdir(parents=True, exist_ok=False)
     all_trials: list[dict[str, Any]] = []
     selected: list[dict[str, Any]] = list(reused)
-    for model_type, seed in itertools.product(
-        ("predicted_replay_effect", "wote_full_future", "wote_environment_only"),
-        seeds,
-    ):
-        train_effects = (
-            args.predicted_effect_root / f"seed-{seed}" / "train"
-            if model_type == "predicted_replay_effect"
-            else args.train_effects
-        )
-        val_effects = (
-            args.predicted_effect_root / f"seed-{seed}" / "val"
-            if model_type == "predicted_replay_effect"
-            else args.val_effects
-        )
+    for model_type, seed in itertools.product(("predicted_replay_effect",), seeds):
+        train_effects = args.predicted_effect_root / f"seed-{seed}" / "train"
+        val_effects = args.predicted_effect_root / f"seed-{seed}" / "val"
         model_trials: list[dict[str, Any]] = []
         for learning_rate, pairwise_weight in itertools.product(
             learning_rates, pairwise_weights

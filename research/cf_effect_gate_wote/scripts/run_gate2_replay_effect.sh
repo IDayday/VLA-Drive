@@ -113,7 +113,8 @@ train_command=(
   --config "$config" --train-cache "$train_cache" --val-cache "$val_cache"
   --train-effects "$train_effects" --val-effects "$val_effects"
   --output "$training_root" --device "$device"
-  --models trajectory_only direct_current shared_logged_future oracle_replay_effect
+  --models trajectory_only direct_current shared_logged_future oracle_replay_effect \
+    wote_full_future wote_environment_only
 )
 evaluate_command=(
   -m research.cf_effect_gate_wote.src.evaluate_probe
@@ -173,11 +174,15 @@ cf_gate_run_python "${evaluate_command[@]}"
 
 mkdir -p "$report_dir"
 for report_name in probe_metrics.csv scene_level_g2.parquet; do
-  if [[ -e "$report_dir/$report_name" ]]; then
-    printf '[gate2] refusing existing report: %s\n' "$report_dir/$report_name" >&2
+  staged_name="$report_name"
+  if [[ "$report_name" == "probe_metrics.csv" ]]; then
+    staged_name="probe_metrics_g2.csv"
+  fi
+  if [[ -e "$report_dir/$staged_name" ]]; then
+    printf '[gate2] refusing existing report: %s\n' "$report_dir/$staged_name" >&2
     exit 3
   fi
-  cp "$evaluation_root/$report_name" "$report_dir/$report_name"
+  cp "$evaluation_root/$report_name" "$report_dir/$staged_name"
 done
 
 gate_pass="$(cf_gate_run_python -c \

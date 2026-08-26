@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import random
 import subprocess
 import sys
 import uuid
@@ -82,7 +83,11 @@ def _git_head(repo: Path) -> str:
 
 
 def _asset_entry(
-    name: str, expected_name: str, path: Path, compute_hash: bool
+    name: str,
+    expected_name: str,
+    path: Path,
+    compute_hash: bool,
+    manifest_path: str,
 ) -> AssetEntry:
     exists = path.is_file() and path.stat().st_size > 0
     size = path.stat().st_size if exists else None
@@ -91,7 +96,7 @@ def _asset_entry(
     return AssetEntry(
         name=name,
         expected_name=expected_name,
-        path=str(path),
+        path=manifest_path,
         exists=exists,
         size_bytes=size,
         sha256=digest,
@@ -114,7 +119,13 @@ def validate_asset_manifest(
         )
 
     entries = [
-        _asset_entry(name, relative.name, release_root / relative, compute_hashes)
+        _asset_entry(
+            name,
+            relative.name,
+            release_root / relative,
+            compute_hashes,
+            f"$WOTE_RELEASE_ROOT/{relative.as_posix()}",
+        )
         for name, relative in RELEASE_RELATIVE_PATHS.items()
     ]
     dataset_entries: list[AssetEntry] = []
@@ -130,7 +141,7 @@ def validate_asset_manifest(
                 AssetEntry(
                     name=name,
                     expected_name=str(relative),
-                    path=str(path),
+                    path=f"$NAVSIM_DATA_ROOT/{relative.as_posix()}",
                     exists=exists,
                     size_bytes=None,
                     sha256=None,
@@ -141,8 +152,8 @@ def validate_asset_manifest(
     manifest = {
         "schema_version": "cf_effect_gate_assets.v1",
         "wote_commit_sha": actual_commit,
-        "release_root": str(release_root),
-        "data_root": str(data_root) if data_root is not None else None,
+        "release_root": "$WOTE_RELEASE_ROOT",
+        "data_root": "$NAVSIM_DATA_ROOT" if data_root is not None else None,
         "assets": [asdict(entry) for entry in entries + dataset_entries],
         "all_required_present": all(entry.exists for entry in entries + dataset_entries),
     }
@@ -370,12 +381,21 @@ def run_cache(args: argparse.Namespace) -> None:
     if args.limit is not None:
         token_lines = token_lines[: args.limit]
 
+    seed = 20260827
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    random.seed(seed)
+    np.random.seed(seed)
     sys.path.insert(0, str(args.wote_root))
     import torch
     from navsim.agents.WoTE.WoTE_agent import WoTEAgent
     from navsim.agents.WoTE.configs.default import WoTEConfig
     from navsim.common.dataloader import SceneLoader
     from navsim.common.dataclasses import SceneFilter
+
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True, warn_only=False)
 
     config = WoTEConfig()
     config.resnet34_path = str(args.release_root / RELEASE_RELATIVE_PATHS["resnet34"])
