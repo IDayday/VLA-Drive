@@ -10,10 +10,26 @@ from pathlib import Path
 from typing import Sequence
 
 
-def _tokens(path: Path, limit: int | None) -> list[str]:
-    values = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    if not values or len(values) != len(set(values)):
-        raise ValueError(f"token file must be non-empty and unique: {path}")
+def _tokens(paths: Sequence[Path], limit: int | None) -> list[str]:
+    """Read one or more non-overlapping fixed split files in argument order."""
+    values: list[str] = []
+    seen: set[str] = set()
+    for path in paths:
+        file_values = [
+            line.strip()
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        if not file_values or len(file_values) != len(set(file_values)):
+            raise ValueError(f"token file must be non-empty and unique: {path}")
+        overlap = seen.intersection(file_values)
+        if overlap:
+            example = sorted(overlap)[0]
+            raise ValueError(
+                f"token files must be mutually disjoint; duplicate {example} in {path}"
+            )
+        values.extend(file_values)
+        seen.update(file_values)
     return values if limit is None else values[:limit]
 
 
@@ -84,7 +100,13 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--wote-root", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--map-root", type=Path, required=True)
-    parser.add_argument("--tokens", type=Path, required=True)
+    parser.add_argument(
+        "--tokens",
+        type=Path,
+        nargs="+",
+        required=True,
+        help="One or more mutually disjoint fixed split token files.",
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--dry-run", action="store_true")
@@ -99,7 +121,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "wote_root": str(args.wote_root),
         "data_root": str(args.data_root),
         "map_root": str(args.map_root),
-        "tokens": str(args.tokens),
+        "tokens": [str(path) for path in args.tokens],
         "output": str(args.output),
         "limit": args.limit,
     }
