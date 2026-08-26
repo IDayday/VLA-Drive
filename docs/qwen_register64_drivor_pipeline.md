@@ -117,10 +117,11 @@ scene. The complete 64-proposal tensor is submitted to
 PDM sub-pools. CPU scoring is asynchronous, allowing the next Qwen/Register
 forward to overlap with the previous NAVSIM scoring job.
 
-The 16-rank production bank profile uses four dataloader workers and four
-metric-scoring processes per rank: 128 CPU workers in total on the 128-core DLC
-container. `NAVSIM_NUM_WORKERS` and `NAVSIM_METRIC_WORKERS` remain explicit
-overrides for a different topology.
+The 16-rank production bank profile uses three dataloader workers and four
+metric-scoring processes per rank. Including the 16 host rank processes, this
+maps `16 * (1 + 3 + 4) = 128` CPU slots onto the 128-core DLC container.
+`NAVSIM_NUM_WORKERS` and `NAVSIM_METRIC_WORKERS` remain explicit overrides for
+a different topology.
 
 Each distributed rank owns one resumable LMDB. The bank manifest binds every
 record to the exact generator checkpoint SHA256, generator config hash,
@@ -203,7 +204,7 @@ silently launch.
 
 | Stage | Official donor anchor | Register64 bank-only recipe | Why it differs |
 |---|---|---|---|
-| S / DrivoR | NAVSIM-v2: AdamW, LR `2e-4`, global batch 64, 10 epochs; 4 decoder layers, one head | AdamW, LR `2e-4`, global batch 256, 5 epochs (cap 10), cosine/5% warmup | Qwen, image backbone, and generator are absent; the larger bank batch improves scorer throughput, while regret-based early stopping bounds overfit |
+| S / DrivoR | NAVSIM-v2: AdamW, LR `2e-4`, global batch 64, 10 epochs; 4 decoder layers, one head; selector weights NOC/DAC/DDC/TTC/EP/C=`10/13/6/14/15/2` | AdamW, LR `2e-4`, global batch 256, standalone default 5 epochs (cap 10), cosine/5% warmup; complete DLC job requests 10 | Qwen, image backbone, and generator are absent; the larger bank batch improves scorer throughput, while regret-based early stopping bounds overfit |
 | SD / dynamic DriveSuprim | DriveSuprim: LR `7.5e-5`, 3-layer refinement; the published route trains the full static-vocabulary model | AdamW, LR `7.5e-5`, global batch 256, 3 epochs (cap 5), cosine/5% warmup | Top-32 fine-only is a new, smaller ablation with frozen DrivoR and no 8192-way coarse stage |
 | SH / hybrid DriveSuprim | 8 GPUs x batch 8, LR `7.5e-5`, 6 epochs for ViT or 10 for CNN, one 3-layer 8192-to-256 stage | AdamW, LR `7.5e-5`, global batch 64, 6 epochs (cap 10), cosine/5% warmup | Candidate labels and scene tokens are immutable bank inputs; the project optimizer/scheduler contract replaces full-backbone Adam training |
 
@@ -234,7 +235,9 @@ head mode and count, preventing a legacy five-head component from being loaded
 into the final-only topology. Full Accelerate checkpoints separately contain
 optimizer, scheduler, RNG, epoch, step, and best sparse-Oracle state for
 resume. Every downstream checkpoint validates its upstream SHA/hash and
-dimensions before loading.
+dimensions before loading. Each train stage also emits a hashed
+`training_complete.json`; orchestration never mistakes an intermediate best
+checkpoint from an interrupted job for a completed stage.
 
 ## Experiments
 
@@ -249,13 +252,95 @@ dimensions before loading.
 
 ## Environment and commands
 
+### Complete paired DLC jobs
+
+The production wrappers execute the entire dependency graph and return trained
+components plus strict official-score artifacts:
+
+```text
+deterministic navtrain train/val holdout
+  -> build/resume NAVSIM-v2 navtrain metric cache
+  -> Stage G Register64 (best sparse Oracle checkpoint)
+  -> Stage B train and val candidate banks
+  -> Stage S DrivoR
+  -> optional Stage SD DriveSuprim dynamic Top-32
+  -> one full navtest prediction export
+  -> NAVSIM v1.1 official PDMS (summary row: average)
+  -> NAVSIM-v2-devkit one-stage navtest EPDMS (summary: average_all_frames)
+  -> summary/summary.json, summary/summary.csv, and summary/summary.md
+```
+
+The ON arm is the clean DriveSuprim ablation: it uses the same 64 dynamic
+proposals and adds only the dynamic Top-32 fine selector. It intentionally does
+not introduce the 8192 static vocabulary, because that would change both the
+candidate set and the module switch at once.
+
+From a non-interactive 16-device DLC container whose checkout is under
+`/mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS`:
+
+```bash
+cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
+
+# OFF: Register64 + DrivoR
+bash ./run_register64_drivor_off_dlc.sh
+
+# ON: Register64 + DrivoR + DriveSuprim dynamic Top-32
+bash ./run_register64_drivor_suprim_on_dlc.sh
+```
+
+Use a stable run id and `--resume` after a container restart:
+
+```bash
+REGISTER64_RUN_ID=register64-drivor-off-formal \
+  bash ./run_register64_drivor_off_dlc.sh --resume
+
+REGISTER64_RUN_ID=register64-drivor-suprim-on-formal \
+  bash ./run_register64_drivor_suprim_on_dlc.sh --resume
+```
+
+`--dry-run` prints every stage without importing Python or writing files;
+`--preflight-only` checks the branch, configs, Qwen/data paths, image-path
+relocation, device count, and a BF16 accelerator operation without training.
+Missing navtrain-v2, navtest-v1.1, and navtest-v2 metric caches are built with
+96 CPU workers by default. Set the corresponding paths from
+`env.local.example.sh` to reuse strictly versioned immutable caches, or set
+`REGISTER64_BUILD_CACHES=0` to require that all three already exist. A training
+feature cache is used only when `REGISTER64_TRAIN_FEATURE_CACHE_ROOT` is
+explicit; navtest never aliases that cache. The production pipeline requests
+the full 10-epoch DrivoR v2 schedule by default; set
+`REGISTER64_DRIVOR_EPOCHS=5` only for the shorter bank ablation.
+
+The requested second score is specifically the complete **navtest one-stage**
+EPDMS produced by the repository's NAVSIM-v2 devkit. It is not the separate
+two-stage `navhard_two_stage` challenge protocol, which requires synthetic
+follow-up scenes not present in a navtest-only run.
+
+### Why there is one scorer, not separate PDMS/EPDMS scorers
+
+The default candidate bank and selector labels are generated once with the
+NAVSIM-v2 metric schema. DrivoR predicts its six interpretable safety,
+compliance, progress, and comfort terms; DriveSuprim predicts the expanded v2
+terms. PDMS and EPDMS are then two frozen-model evaluation protocols, not two
+heads trained on the navtest set. Both official evaluations therefore consume
+the exact same exported `[8,3]` trajectory files and checkpoint.
+
+Training separate scorers is meaningful only as an explicit label-domain
+ablation: construct one candidate bank with the v1.1 cache and a second bank
+with the v2 cache, train independent checkpoints, and never compare them as a
+pure DriveSuprim ON/OFF switch. The official DrivoR project likewise publishes
+separately trained NAVSIM-v1 and NAVSIM-v2 model recipes rather than selecting
+a scorer on both test protocols. The present main baseline is v2-trained and
+reports both generalization scores.
+
+### Manual stage commands
+
 All DLC paths use `/mnt/zhangt_workspace`. Set the data/model artifacts first:
 
 ```bash
 export QWEN_VLM_PATH=/path/to/Qwen3-VL
 export DATA_ROOT=/path/to/processed/navsim
-export NAVSIM_DATALIST_PATH=/path/to/train.pkl
-export NAVSIM_VAL_DATALIST_PATH=/path/to/val.pkl
+export NAVSIM_DATALIST_PATH=/path/to/train.json
+export NAVSIM_VAL_DATALIST_PATH=/path/to/val.json
 export NAVSIM_METRIC_CACHE_ROOT=/path/to/navsim/metric_cache
 export VLA_OUTPUT_ROOT=/mnt/zhangt_workspace/results/Checkpoints
 export REGISTER64_BANK_ROOT=/mnt/zhangt_workspace/register64_candidate_bank

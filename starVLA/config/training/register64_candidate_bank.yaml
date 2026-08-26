@@ -7,8 +7,8 @@ framework:
 datasets:
   vla_data:
     shuffle: false
-    # 4 loader + 4 metric processes per rank = 128 workers on a 16-rank DLC job.
-    num_workers: 4
+    # 16 x (1 rank + 3 loader + 4 metric processes) = 128 CPU slots.
+    num_workers: ${oc.env:NAVSIM_NUM_WORKERS,3}
 candidate_bank:
   generator_checkpoint: ${oc.env:REGISTER64_GENERATOR_CHECKPOINT}
   output_root: ${oc.env:REGISTER64_BANK_ROOT,/mnt/zhangt_workspace/register64_candidate_bank}
@@ -20,8 +20,10 @@ candidate_bank:
   splits:
     train:
       datalist_path: ${oc.env:NAVSIM_DATALIST_PATH}
+      dataset_split: train
     val:
       datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH}
+      dataset_split: train
   metric_supervisor:
     metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT}
     backend: process

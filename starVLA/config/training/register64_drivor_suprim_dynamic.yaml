@@ -37,6 +37,12 @@ drivor_model:
   proj_drop: 0.1
   drop_path: 0.2
   layer_scale_init: 0.0
+  noc: 10.0
+  dac: 13.0
+  ddc: 6.0
+  ttc: 14.0
+  ep: 15.0
+  comfort: 2.0
 model:
   dynamic_topm: 32
   fine_memory_source: global_scene_tokens
@@ -67,7 +73,7 @@ trainer:
   global_batch_size: 256
   gradient_accumulation_steps: 1
   gradient_clip: 1.0
-  num_workers: 8
+  num_workers: ${oc.env:REGISTER64_BANK_LOADER_WORKERS,7}
   early_stopping:
     enabled: true
     patience: 2

@@ -57,6 +57,12 @@ def _build_drivor(config) -> DrivoRDynamicScorer:
         proj_drop=float(config.get("proj_drop", 0.1)),
         drop_path=float(config.get("drop_path", 0.2)),
         layer_scale_init=float(config.get("layer_scale_init", 0.0)),
+        noc=float(config.get("noc", 1.0)),
+        dac=float(config.get("dac", 1.0)),
+        ddc=float(config.get("ddc", 0.0)),
+        ttc=float(config.get("ttc", 5.0)),
+        ep=float(config.get("ep", 5.0)),
+        comfort=float(config.get("comfort", 2.0)),
     )
 
 
@@ -168,6 +174,11 @@ class QwenRegisterPlanner(QwenRegisterGenerator):
                         "decoder_heads": int(
                             config.framework.drivor_scorer.num_heads
                         ),
+                        "aggregate_weights": {
+                            name: float(value)
+                            for name, value in self.drivor_scorer.aggregate_weights.items()
+                        },
+                        "label_protocol": "navsim_v2_epdms",
                         "metric_schema": list(_REGISTER_METRIC_SCHEMA),
                         "training_profile": "drivor_offline_bank_v1",
                     },

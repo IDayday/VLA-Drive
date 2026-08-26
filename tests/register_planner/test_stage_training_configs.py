@@ -77,12 +77,26 @@ def test_drivor_uses_independent_donor_anchored_profile():
     assert "framework" not in config
     assert config.optimizer.name == "AdamW"
     assert config.optimizer.lr == 2.0e-4
-    assert config.trainer.epochs == 5
+    assert int(config.trainer.epochs) == 5
     assert config.trainer.max_epochs == 10
     assert config.trainer.global_batch_size == 256
     assert config.model.num_layers == 4
     assert config.model.num_heads == 1
     assert config.training_profile.donor.reference_recipe.navsim_v2_epochs == 10
+    expected_weights = {
+        "noc": 10.0,
+        "dac": 13.0,
+        "ddc": 6.0,
+        "ttc": 14.0,
+        "ep": 15.0,
+        "comfort": 2.0,
+    }
+    assert {
+        name: float(config.model[name]) for name in expected_weights
+    } == expected_weights
+    assert dict(
+        config.training_profile.donor.reference_recipe.navsim_v2_aggregate_weights
+    ) == expected_weights
 
 
 def test_dynamic_suprim_has_its_own_short_bank_profile():

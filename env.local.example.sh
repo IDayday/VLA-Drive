@@ -30,3 +30,18 @@
 # export OPENSCENE_DATA_ROOT="${OPENSCENE_DATA_ROOT:-/absolute/path/to/raw-navsim}"
 # export NAVSIM_METRIC_CACHE_ROOT="${NAVSIM_METRIC_CACHE_ROOT:-/absolute/path/to/navsim-metric-cache}"
 # export VLA_OUTPUT_ROOT="${VLA_OUTPUT_ROOT:-/absolute/path/to/training-runs}"
+
+# Register64 complete Stage G/B/S/(SD) + official navtest evaluation pipeline.
+# The three metric caches may point at immutable shared caches; otherwise each
+# run builds isolated copies below REGISTER64_OUTPUT_ROOT.
+# export REGISTER64_SOURCE_DATALIST="${REGISTER64_SOURCE_DATALIST:-/absolute/path/to/train_meta.json}"
+# export REGISTER64_NAVTEST_DATALIST="${REGISTER64_NAVTEST_DATALIST:-/absolute/path/to/test_meta.json}"
+# export REGISTER64_OUTPUT_ROOT="${REGISTER64_OUTPUT_ROOT:-/absolute/path/to/register64-runs}"
+# export REGISTER64_TRAIN_METRIC_CACHE_ROOT="${REGISTER64_TRAIN_METRIC_CACHE_ROOT:-/absolute/path/to/navtrain-v2-metric-cache}"
+# export REGISTER64_PDMS_METRIC_CACHE_ROOT="${REGISTER64_PDMS_METRIC_CACHE_ROOT:-/absolute/path/to/navtest-v1.1-metric-cache}"
+# export REGISTER64_EPDMS_METRIC_CACHE_ROOT="${REGISTER64_EPDMS_METRIC_CACHE_ROOT:-/absolute/path/to/navtest-v2-metric-cache}"
+# export REGISTER64_TRAIN_FEATURE_CACHE_ROOT="${REGISTER64_TRAIN_FEATURE_CACHE_ROOT:-/absolute/path/to/navtrain-feature-cache}"
+# export REGISTER64_NAVTRAIN_LOG_ROOT="${REGISTER64_NAVTRAIN_LOG_ROOT:-/absolute/path/to/navsim_logs/trainval}"
+# export REGISTER64_NAVTRAIN_SENSOR_ROOT="${REGISTER64_NAVTRAIN_SENSOR_ROOT:-/absolute/path/to/sensor_blobs/trainval}"
+# export REGISTER64_NAVTEST_LOG_ROOT="${REGISTER64_NAVTEST_LOG_ROOT:-/absolute/path/to/navsim_logs/test}"
+# export REGISTER64_NAVTEST_SENSOR_ROOT="${REGISTER64_NAVTEST_SENSOR_ROOT:-/absolute/path/to/sensor_blobs/test}"

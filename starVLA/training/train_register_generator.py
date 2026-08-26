@@ -25,12 +25,14 @@ from starVLA.dataloader import build_dataloader
 from starVLA.model.framework import build_framework
 from starVLA.model.modules.register_planner.checkpoint import (
     save_register_generator_checkpoint,
+    sha256_file,
     stable_config_hash,
 )
 from starVLA.training.config_loader import load_training_config
 from starVLA.training.register_stage_utils import (
     EarlyStopping,
     TrainingProgress,
+    atomic_json,
     cosine_schedule,
     optimizer_steps_per_epoch,
 )
@@ -226,7 +228,7 @@ def _fixed_validation_loader(config, batch_size: int) -> DataLoader:
     )
     validation = validation_config.validation
     validation_config.datasets.vla_data.split = str(
-        validation.get("split", "val")
+        validation.get("dataset_split", validation.get("split", "val"))
     )
     if validation.get("datalist_path"):
         validation_config.datasets.vla_data.datalist_path = validation.datalist_path
@@ -437,11 +439,17 @@ def main() -> None:
         accelerator.load_state(str(resume_from))
         early.best = progress.early_best
         early.bad_epochs = progress.early_bad_epochs
+    elif accelerator.is_main_process:
+        (output_dir / "metrics.jsonl").write_text("", encoding="utf-8")
+    accelerator.wait_for_everyone()
     start_epoch = progress.epoch + 1
     save_epochs = {int(value) for value in trainer.get("save_epochs", [5, 10, 15, 20, 25])}
     completed_steps = progress.completed_steps
+    last_epoch = progress.epoch
+    should_stop = False
     optimizer.zero_grad(set_to_none=True)
     for epoch in range(start_epoch, epochs + 1):
+        last_epoch = epoch
         model.train()
         epoch_start = time.perf_counter()
         samples = 0
@@ -582,6 +590,27 @@ def main() -> None:
         stop_tensor = accelerator.reduce(stop_tensor, reduction="max")
         if bool(stop_tensor.item()):
             break
+    accelerator.wait_for_everyone()
+    if accelerator.is_main_process:
+        selected_checkpoint = output_dir / "best_oracle_generator.pt"
+        if not selected_checkpoint.is_file():
+            raise RuntimeError(
+                "Stage G completed without best_oracle_generator.pt; sparse "
+                "Oracle validation must run before handoff"
+            )
+        atomic_json(
+            output_dir / "training_complete.json",
+            {
+                "schema_version": 1,
+                "status": "complete",
+                "stage": "register_generator",
+                "completed_epochs": int(last_epoch),
+                "completed_steps": int(completed_steps),
+                "early_stopped": bool(should_stop),
+                "selected_checkpoint": selected_checkpoint.name,
+                "selected_checkpoint_sha256": sha256_file(selected_checkpoint),
+            },
+        )
 
 
 if __name__ == "__main__":

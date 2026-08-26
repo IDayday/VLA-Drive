@@ -50,6 +50,7 @@ from starVLA.model.modules.trajectory_scorer.static_score_store import (
 from starVLA.training.config_loader import load_training_config
 from starVLA.training.register_stage_utils import (
     EarlyStopping,
+    atomic_json,
     cosine_schedule,
     freeze_module,
     move_bank_batch,
@@ -278,6 +279,11 @@ def build_suprim_stage(config, dataset: CandidateBankDataset) -> RegisterSuprimS
             "model_dim": int(config.drivor_model.get("model_dim", 256)),
             "decoder_layers": int(config.drivor_model.get("num_layers", 4)),
             "decoder_heads": int(config.drivor_model.get("num_heads", 1)),
+            "aggregate_weights": {
+                name: float(value)
+                for name, value in drivor.aggregate_weights.items()
+            },
+            "label_protocol": "navsim_v2_epdms",
             "training_profile": "drivor_offline_bank_v1",
         },
     )
@@ -492,6 +498,7 @@ def main() -> None:
     if accelerator.is_main_process:
         output_dir.mkdir(parents=True, exist_ok=True)
         OmegaConf.save(config, output_dir / "config.yaml")
+        (output_dir / "metrics.jsonl").write_text("", encoding="utf-8")
         print(
             f"Stage S{mode[0].upper()}: global_batch={global_batch} "
             f"steps/epoch={steps_per_epoch} total_steps={steps_per_epoch * epochs}"
@@ -502,8 +509,11 @@ def main() -> None:
     )
     early_enabled = bool(early_cfg.get("enabled", True))
     completed_steps = 0
+    last_epoch = 0
+    should_stop = False
     optimizer.zero_grad(set_to_none=True)
     for epoch in range(1, epochs + 1):
+        last_epoch = epoch
         stage.train()
         start = time.perf_counter()
         for raw_batch in train_loader:
@@ -593,6 +603,26 @@ def main() -> None:
         )
         if bool(stop.item()):
             break
+    accelerator.wait_for_everyone()
+    if accelerator.is_main_process:
+        selected_checkpoint = output_dir / "best_regret.pt"
+        if not selected_checkpoint.is_file():
+            raise RuntimeError(
+                f"Stage S{mode[0].upper()} completed without best_regret.pt"
+            )
+        atomic_json(
+            output_dir / "training_complete.json",
+            {
+                "schema_version": 1,
+                "status": "complete",
+                "stage": f"suprim_{mode}",
+                "completed_epochs": int(last_epoch),
+                "completed_steps": int(completed_steps),
+                "early_stopped": bool(should_stop),
+                "selected_checkpoint": selected_checkpoint.name,
+                "selected_checkpoint_sha256": sha256_file(selected_checkpoint),
+            },
+        )
     train_dataset.close()
     val_dataset.close()
 

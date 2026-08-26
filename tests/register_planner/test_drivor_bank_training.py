@@ -7,7 +7,10 @@ from starVLA.model.modules.trajectory_scorer.drivor_dynamic_scorer import (
 )
 from starVLA.training import train_register_drivor
 from starVLA.training.register_stage_utils import selector_statistics
-from starVLA.training.train_register_drivor import drivor_training_step
+from starVLA.training.train_register_drivor import (
+    build_drivor_scorer,
+    drivor_training_step,
+)
 
 
 def _scorer():
@@ -85,3 +88,30 @@ def test_drivor_bank_forward_backward():
     loss.backward()
     assert torch.isfinite(loss)
     assert "regret" in statistics
+
+
+def test_navsim_v2_aggregate_weights_reach_scorer():
+    weights = {
+        "noc": 10.0,
+        "dac": 13.0,
+        "ddc": 6.0,
+        "ttc": 14.0,
+        "ep": 15.0,
+        "comfort": 2.0,
+    }
+    scorer = build_drivor_scorer(
+        {
+            "model": {
+                "scene_dim": 32,
+                "model_dim": 32,
+                "ffn_dim": 64,
+                "num_layers": 2,
+                "num_heads": 1,
+                "decoder_style": "donor_register",
+                "proj_drop": 0.0,
+                "drop_path": 0.0,
+                **weights,
+            }
+        }
+    )
+    assert scorer.aggregate_weights == weights

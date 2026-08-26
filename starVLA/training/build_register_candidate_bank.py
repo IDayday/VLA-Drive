@@ -352,8 +352,10 @@ def main() -> None:
     include_dense = bool(bank_config.get("include_dense_memory", False)) or bool(
         args.include_dense_memory
     )
-    config.datasets.vla_data.split = args.split
     split_config = bank_config.get("splits", {}).get(args.split, {})
+    config.datasets.vla_data.split = str(
+        split_config.get("dataset_split", args.split)
+    )
     if split_config.get("datalist_path"):
         config.datasets.vla_data.datalist_path = split_config.datalist_path
     # Bank ownership and resume identity require a stable sample order.

@@ -16,6 +16,13 @@ training_profile:
       global_batch_size: 64
       warmup_ratio: 0.10
       navsim_v2_epochs: 10
+      navsim_v2_aggregate_weights:
+        noc: 10.0
+        dac: 13.0
+        ddc: 6.0
+        ttc: 14.0
+        ep: 15.0
+        comfort: 2.0
   adaptation:
     scope: frozen_register64_candidate_bank_scorer_only
     reason: "No image backbone or generator is optimized; use the required larger bank batch and select by validation regret."
@@ -35,6 +42,15 @@ model:
   layer_scale_init: 0.0
   dropout: 0.0
   dynamic_topm: 32
+  # Released DrivoR NAVSIM-v2 selector aggregation. These weights are part of
+  # the checkpoint/inference contract and must not fall back to the v1 PDMS
+  # recipe (1/1/0/5/5/2).
+  noc: 10.0
+  dac: 13.0
+  ddc: 6.0
+  ttc: 14.0
+  ep: 15.0
+  comfort: 2.0
 optimizer:
   name: AdamW
   lr: 2.0e-4
@@ -46,12 +62,15 @@ scheduler:
   type: cosine
   warmup_ratio: 0.05
 trainer:
-  epochs: 5
+  # Standalone default remains the requested 5-epoch bank ablation. The
+  # complete DLC pipeline sets this to 10, matching the released v2 duration.
+  epochs: ${oc.env:REGISTER64_DRIVOR_EPOCHS,5}
   max_epochs: 10
   global_batch_size: 256
   gradient_accumulation_steps: 1
   gradient_clip: 1.0
-  num_workers: 8
+  # 16 ranks x (1 rank process + 7 workers) = all 128 DLC CPU slots.
+  num_workers: ${oc.env:REGISTER64_BANK_LOADER_WORKERS,7}
   early_stopping:
     enabled: true
     patience: 2

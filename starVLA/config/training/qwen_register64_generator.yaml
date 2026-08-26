@@ -18,7 +18,7 @@ framework:
   name: QwenRegisterGenerator
   qwenvl:
     base_vlm: ${oc.env:QWEN_VLM_PATH}
-    attn_implementation: flash_attention_2
+    attn_implementation: ${oc.env:VLM_ATTN_IMPLEMENTATION,flash_attention_2}
     vl_hidden_dim: 2048
   scene_encoder:
     input_dim: 2048
@@ -62,7 +62,7 @@ datasets:
     split: train
     shuffle: true
     per_device_batch_size: 4
-    num_workers: 7
+    num_workers: ${oc.env:NAVSIM_NUM_WORKERS,3}
     load_all_data_for_training: true
     w_neg_traj: null
     act_norm: 1
@@ -89,7 +89,7 @@ trainer:
     enabled: true
   freeze_modules: qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head
   save_epochs: [5, 10, 15, 20, 25]
-  resume_from: null
+  resume_from: ${oc.env:REGISTER64_GENERATOR_RESUME,null}
   early_stopping:
     enabled: true
     patience: 5
@@ -114,6 +114,9 @@ scheduler:
 
 validation:
   split: val
+  # ``val`` is a logical holdout carved from navtrain. Its records still live
+  # under DATA_ROOT/meta/train; NavSimDataset has no physical ``meta/val``.
+  dataset_split: train
   datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH,null}
   num_scenes: 1024
   num_workers: 4

@@ -246,6 +246,14 @@ _BANK_ONLY_DONOR_RECIPES = {
         "global_batch_size": 64,
         "warmup_ratio": 0.10,
         "navsim_v2_epochs": 10,
+        "navsim_v2_aggregate_weights": {
+            "noc": 10.0,
+            "dac": 13.0,
+            "ddc": 6.0,
+            "ttc": 14.0,
+            "ep": 15.0,
+            "comfort": 2.0,
+        },
     },
     "drivesuprim_dynamic_bank_v1": {
         "optimizer": "Adam",

@@ -27,6 +27,7 @@ from starVLA.candidate_bank.schema import CANDIDATE_METRICS, manifest_hash
 from starVLA.model.modules.register_planner.checkpoint import (
     load_stage_component_checkpoint,
     save_stage_component_checkpoint,
+    sha256_file,
 )
 from starVLA.model.modules.trajectory_scorer.drivor_dynamic_scorer import (
     DrivoRDynamicScorer,
@@ -35,6 +36,7 @@ from starVLA.model.modules.trajectory_scorer.losses import DrivoRMetricLoss
 from starVLA.training.config_loader import load_training_config
 from starVLA.training.register_stage_utils import (
     EarlyStopping,
+    atomic_json,
     cosine_schedule,
     move_bank_batch,
     optimizer_steps_per_epoch,
@@ -57,6 +59,12 @@ def build_drivor_scorer(config: Mapping[str, Any]) -> DrivoRDynamicScorer:
         proj_drop=float(model.get("proj_drop", 0.1)),
         drop_path=float(model.get("drop_path", 0.2)),
         layer_scale_init=float(model.get("layer_scale_init", 0.0)),
+        noc=float(model.get("noc", 1.0)),
+        dac=float(model.get("dac", 1.0)),
+        ddc=float(model.get("ddc", 0.0)),
+        ttc=float(model.get("ttc", 5.0)),
+        ep=float(model.get("ep", 5.0)),
+        comfort=float(model.get("comfort", 2.0)),
         debug_validate_finite=bool(model.get("debug_validate_finite", False)),
     )
 
@@ -146,6 +154,12 @@ def _checkpoint_metadata(config, dataset: CandidateBankDataset) -> dict[str, Any
         "model_dim": int(model.model_dim),
         "decoder_layers": int(model.num_layers),
         "decoder_heads": int(model.num_heads),
+        "aggregate_weights": {
+            name: float(value)
+            for name, value in config.model.items()
+            if name in {"noc", "dac", "ddc", "ttc", "ep", "comfort"}
+        },
+        "label_protocol": "navsim_v2_epdms",
         "metric_schema": list(CANDIDATE_METRICS),
         "training_profile": str(config.training_profile.name),
     }
@@ -250,6 +264,7 @@ def main() -> None:
     if accelerator.is_main_process:
         output_dir.mkdir(parents=True, exist_ok=True)
         OmegaConf.save(config, output_dir / "config.yaml")
+        (output_dir / "metrics.jsonl").write_text("", encoding="utf-8")
         print(
             f"Stage S: scenes={len(train_dataset)} global_batch={global_batch} "
             f"steps/epoch={steps_per_epoch} total_steps={total_steps}"
@@ -265,7 +280,10 @@ def main() -> None:
     best_selected = -math.inf
     optimizer.zero_grad(set_to_none=True)
     completed_steps = 0
+    last_epoch = 0
+    should_stop = False
     for epoch in range(1, epochs + 1):
+        last_epoch = epoch
         scorer.train()
         start = time.perf_counter()
         for raw_batch in train_loader:
@@ -353,6 +371,24 @@ def main() -> None:
         stop_tensor = accelerator.reduce(stop_tensor, reduction="max")
         if bool(stop_tensor.item()):
             break
+    accelerator.wait_for_everyone()
+    if accelerator.is_main_process:
+        selected_checkpoint = output_dir / "best_regret.pt"
+        if not selected_checkpoint.is_file():
+            raise RuntimeError("Stage S completed without best_regret.pt")
+        atomic_json(
+            output_dir / "training_complete.json",
+            {
+                "schema_version": 1,
+                "status": "complete",
+                "stage": "drivor_scorer",
+                "completed_epochs": int(last_epoch),
+                "completed_steps": int(completed_steps),
+                "early_stopped": bool(should_stop),
+                "selected_checkpoint": selected_checkpoint.name,
+                "selected_checkpoint_sha256": sha256_file(selected_checkpoint),
+            },
+        )
     train_dataset.close()
     val_dataset.close()
 
