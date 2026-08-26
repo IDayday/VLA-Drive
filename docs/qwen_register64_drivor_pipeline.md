@@ -74,7 +74,7 @@ The Qwen visual tower and tied LM head/input embedding follow the existing
 baseline freeze policy. The Q-Former input is not detached, so winner-take-all
 trajectory loss reaches the permitted Qwen language layers. Stage G never
 constructs Flow DiT, DrivoR, DriveSuprim, a static score store, or NAVSIM metric
-evaluation during an optimizer step.
+evaluation. It has no `NAVSIM_METRIC_CACHE_ROOT` dependency.
 
 The objective is final-stage winner-take-all three-dimensional L1:
 
@@ -90,21 +90,21 @@ gradient-hook gate fails the run if any trainable parameter was absent from
 the loss graph on any rank. Hooks are used because DeepSpeed ZeRO may clear or
 partition `.grad` before the trainer can inspect it directly.
 
-Every epoch runs the low-cost geometric validation. Every fifth epoch, the
-production config additionally scores the fixed 1,024-scene validation subset
-with NAVSIM and records Oracle PDMS over the complete proposal pool. Stage G
-saves independent `best_minade_generator.pt` and
-`best_oracle_generator.pt` artifacts; full-bank construction uses the latter.
+Every epoch runs only the low-cost geometric validation on the fixed
+1,024-scene subset. Stage G selects and exports
+`best_minade_generator.pt`; NAVSIM cache loading and PDM scoring start only
+after that checkpoint has been frozen for Stage B.
 
 Before a full 25-epoch run, use two explicit gates:
 
 1. **G0 small overfit:** train on 64--256 scenes for a few hundred optimizer
    steps and confirm the loss falls and the runtime gradient gate passes.
 2. **G1 matched five-epoch pilot:** compare R1 and R64 with identical data and
-   optimization. Continue only after inspecting Oracle@64 versus R1 together
-   with pairwise ADE/FDE, active-register ratio, normalized usage entropy, and
-   the winner histogram. These are decision gates for register collapse, not
-   extra loss terms.
+   optimization. Inspect minADE/minFDE together with pairwise ADE/FDE,
+   active-register ratio, normalized usage entropy, and the winner histogram.
+   PDM Oracle is computed after freezing the pilot checkpoint, never inside
+   Stage G. These are decision gates for register collapse, not extra loss
+   terms.
 
 No hard collapse threshold or diversity regularizer is assumed before this
 pilot supplies an empirical scale.
@@ -259,8 +259,8 @@ components plus strict official-score artifacts:
 
 ```text
 deterministic navtrain train/val holdout
+  -> Stage G Register64 (best minADE@64 checkpoint; no metric cache)
   -> build/resume NAVSIM-v2 navtrain metric cache
-  -> Stage G Register64 (best sparse Oracle checkpoint)
   -> Stage B train and val candidate banks
   -> Stage S DrivoR
   -> optional Stage SD DriveSuprim dynamic Top-32
@@ -302,8 +302,10 @@ REGISTER64_RUN_ID=register64-drivor-suprim-on-formal \
 `--preflight-only` checks the branch, configs, Qwen/data paths, image-path
 relocation, device count, and a BF16 accelerator operation without training.
 Missing navtrain-v2, navtest-v1.1, and navtest-v2 metric caches are built with
-96 CPU workers by default. Set the corresponding paths from
-`env.local.example.sh` to reuse strictly versioned immutable caches, or set
+96 CPU workers by default. The navtrain-v2 cache phase begins only after Stage
+G has completed, so cache preparation cannot delay the first training log or
+occupy the 16-device training allocation before the generator. Set the paths
+from `env.local.example.sh` to reuse strictly versioned immutable caches, or set
 `REGISTER64_BUILD_CACHES=0` to require that all three already exist. A training
 feature cache is used only when `REGISTER64_TRAIN_FEATURE_CACHE_ROOT` is
 explicit; navtest never aliases that cache. The production pipeline requests
@@ -341,7 +343,6 @@ export QWEN_VLM_PATH=/path/to/Qwen3-VL
 export DATA_ROOT=/path/to/processed/navsim
 export NAVSIM_DATALIST_PATH=/path/to/train.json
 export NAVSIM_VAL_DATALIST_PATH=/path/to/val.json
-export NAVSIM_METRIC_CACHE_ROOT=/path/to/navsim/metric_cache
 export VLA_OUTPUT_ROOT=/mnt/zhangt_workspace/results/Checkpoints
 export REGISTER64_BANK_ROOT=/mnt/zhangt_workspace/register64_candidate_bank
 ```
@@ -368,11 +369,12 @@ python starVLA/training/train_register_generator.py \
   --config starVLA/config/training/qwen_register1_generator.yaml
 ```
 
-After sparse Oracle selection (do not use the minADE-only checkpoint for the
-full bank):
+After geometry-based generator selection, bind the Stage-B metric cache and
+checkpoint:
 
 ```bash
-export REGISTER64_GENERATOR_CHECKPOINT=/mnt/zhangt_workspace/results/Checkpoints/qwen_register64_generator/best_oracle_generator.pt
+export NAVSIM_METRIC_CACHE_ROOT=/path/to/navsim/metric_cache
+export REGISTER64_GENERATOR_CHECKPOINT=/mnt/zhangt_workspace/results/Checkpoints/qwen_register64_generator/best_minade_generator.pt
 
 python starVLA/training/build_register_candidate_bank.py \
   --config starVLA/config/training/register64_candidate_bank.yaml \
@@ -444,12 +446,11 @@ score cache. Hybrid inference reads only the fixed static trajectory vocabulary.
 
 Stage G logs minADE/minFDE at 1 and 64, pairwise ADE/FDE, active-register ratio,
 usage entropy, throughput, seconds per step, epoch time, samples, and peak
-memory. Its sparse fifth-epoch validation also logs Oracle PDMS and selects the
-bank-building checkpoint independently from minADE. Stage B reports Oracle@64
-PDMS, proposal-0 PDMS, oracle gain, feasible rate, register usage, diversity,
-finite-label rates, storage size, and wall time. Stage S/SD/SH report true
-selected score, oracle, regret, pairwise ranking accuracy, Recall@1/5/10/32,
-and refinement gain where applicable.
+memory. It does not load or validate a NAVSIM metric cache. Stage B reports
+Oracle@64 PDMS, proposal-0 PDMS, oracle gain, feasible rate, register usage,
+diversity, finite-label rates, storage size, and wall time. Stage S/SD/SH
+report true selected score, oracle, regret, pairwise ranking accuracy,
+Recall@1/5/10/32, and refinement gain where applicable.
 
 Run the hardware comparison with:
 

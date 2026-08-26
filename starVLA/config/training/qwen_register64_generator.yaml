@@ -120,11 +120,5 @@ validation:
   datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH,null}
   num_scenes: 1024
   num_workers: 4
-  pdm_oracle:
-    enabled: true
-    interval_epochs: 5
-    metric_supervisor:
-      metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT,null}
-      backend: process
-      workers_per_rank: 2
-      score_interval: 1
+  # Stage G intentionally performs geometry-only validation. NAVSIM metric
+  # cache scoring starts after generator training, while building Stage B.

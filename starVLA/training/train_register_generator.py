@@ -178,48 +178,15 @@ def generator_component_checkpoint_names(
     save_epochs: set[int],
     should_stop: bool,
     improved_minade: bool,
-    improved_oracle: bool,
 ) -> list[str]:
-    """Return independent periodic, minADE, and Oracle-PDMS artifacts."""
+    """Return independent periodic and geometry-selected artifacts."""
 
     names: list[str] = []
     if epoch in save_epochs or epoch == final_epoch or should_stop:
         names.append(f"generator_epoch_{epoch:02d}.pt")
     if improved_minade:
         names.append("best_minade_generator.pt")
-    if improved_oracle:
-        names.append("best_oracle_generator.pt")
     return names
-
-
-def validate_sparse_oracle_config(validation_config) -> None:
-    """Fail before Stage G when enabled sparse-PDMS validation cannot run."""
-
-    pdm_config = validation_config.get("pdm_oracle", {})
-    if not bool(pdm_config.get("enabled", False)):
-        return
-    interval = int(pdm_config.get("interval_epochs", 0))
-    if interval <= 0:
-        raise ValueError(
-            "enabled Stage-G PDM Oracle validation requires interval_epochs > 0"
-        )
-    supervisor_config = pdm_config.get("metric_supervisor")
-    if supervisor_config is None:
-        raise ValueError(
-            "enabled Stage-G PDM Oracle validation requires metric_supervisor"
-        )
-    metric_cache_root = supervisor_config.get("metric_cache_root")
-    if metric_cache_root is None or not str(metric_cache_root).strip():
-        raise ValueError(
-            "enabled Stage-G PDM Oracle validation requires "
-            "NAVSIM_METRIC_CACHE_ROOT"
-        )
-    metric_cache_path = Path(str(metric_cache_root)).expanduser()
-    if not metric_cache_path.is_dir():
-        raise FileNotFoundError(
-            "Stage-G PDM Oracle metric cache does not exist: "
-            f"{metric_cache_path}"
-        )
 
 
 def _fixed_validation_loader(config, batch_size: int) -> DataLoader:
@@ -306,34 +273,6 @@ def evaluate_generator(model, dataloader, accelerator: Accelerator) -> dict[str,
     return metrics
 
 
-@torch.no_grad()
-def evaluate_oracle_pdms(model, dataloader, accelerator, supervisor_config) -> float:
-    """Optional sparse validation; never called by a generator training step."""
-
-    from starVLA.training.navsim_metric_supervisor import DynamicMetricSupervisor
-
-    supervisor = DynamicMetricSupervisor(
-        supervisor_config,
-        rank=accelerator.process_index,
-        world_size=accelerator.num_processes,
-    )
-    total = torch.zeros(2, device=accelerator.device)
-    model.eval()
-    try:
-        for examples in dataloader:
-            generated_batch = model(examples, generate_only=True)
-            generated = generated_batch["generator_output"]
-            tokens = [str(example["token"]) for example in examples]
-            metrics = supervisor.score(tokens, generated.proposals.float())
-            total[0] += metrics["aggregate_score"].max(dim=1).values.sum()
-            total[1] += len(tokens)
-    finally:
-        supervisor.close()
-        model.train()
-    total = accelerator.reduce(total, reduction="sum")
-    return float(total[0] / total[1].clamp_min(1))
-
-
 def _component_metadata(model, config) -> dict[str, Any]:
     unwrapped = model
     return {
@@ -369,7 +308,6 @@ def main() -> None:
     args = _parse_args()
     config = load_training_config(args.config)
     trainer = config.trainer
-    validate_sparse_oracle_config(config.validation)
     epochs = int(trainer.get("max_epochs", 25))
     if not 1 <= epochs <= 25:
         raise ValueError("Stage G max_epochs must be in [1,25]")
@@ -482,43 +420,16 @@ def main() -> None:
             if accelerator.sync_gradients:
                 completed_steps += 1
         validation = evaluate_generator(model, val_loader, accelerator)
-        pdm_cfg = config.validation.get("pdm_oracle", {})
-        interval = int(pdm_cfg.get("interval_epochs", 0))
-        proposal_num = int(
-            accelerator.unwrap_model(model).register_generator.proposal_num
-        )
-        oracle_metric_name = f"oracle_at_{proposal_num}_pdms"
-        oracle_evaluated = (
-            bool(pdm_cfg.get("enabled", False))
-            and interval > 0
-            and epoch % interval == 0
-        )
-        if oracle_evaluated:
-            validation[oracle_metric_name] = evaluate_oracle_pdms(
-                model, val_loader, accelerator, pdm_cfg.metric_supervisor
-            )
         epoch_seconds = time.perf_counter() - epoch_start
         peak_memory = (
             int(torch.cuda.max_memory_allocated(accelerator.device))
             if torch.cuda.is_available()
             else 0
         )
-        improved_minade, patience_exhausted = early.update(
-            validation["min_ade_64"]
-        )
-        improved_oracle = False
-        if oracle_evaluated:
-            oracle_value = float(validation[oracle_metric_name])
-            if not math.isfinite(oracle_value):
-                raise RuntimeError(
-                    f"Stage-G {oracle_metric_name} is not finite: {oracle_value}"
-                )
-            improved_oracle = (
-                progress.best_oracle_pdms is None
-                or oracle_value > progress.best_oracle_pdms
-            )
-            if improved_oracle:
-                progress.best_oracle_pdms = oracle_value
+        minade_value = float(validation["min_ade_64"])
+        if not math.isfinite(minade_value):
+            raise RuntimeError(f"Stage-G min_ade_64 is not finite: {minade_value}")
+        improved_minade, patience_exhausted = early.update(minade_value)
         should_stop = early_enabled and patience_exhausted
         progress.epoch = epoch
         progress.completed_steps = completed_steps
@@ -527,7 +438,6 @@ def main() -> None:
         save_this_epoch = (
             epoch in save_epochs
             or improved_minade
-            or improved_oracle
             or epoch == epochs
             or should_stop
         )
@@ -554,7 +464,6 @@ def main() -> None:
                     save_epochs=save_epochs,
                     should_stop=should_stop,
                     improved_minade=improved_minade,
-                    improved_oracle=improved_oracle,
                 )
                 for component_name in component_names:
                     save_register_generator_checkpoint(
@@ -592,11 +501,11 @@ def main() -> None:
             break
     accelerator.wait_for_everyone()
     if accelerator.is_main_process:
-        selected_checkpoint = output_dir / "best_oracle_generator.pt"
+        selected_checkpoint = output_dir / "best_minade_generator.pt"
         if not selected_checkpoint.is_file():
             raise RuntimeError(
-                "Stage G completed without best_oracle_generator.pt; sparse "
-                "Oracle validation must run before handoff"
+                "Stage G completed without best_minade_generator.pt; "
+                "geometry validation must run before handoff"
             )
         atomic_json(
             output_dir / "training_complete.json",
@@ -607,6 +516,8 @@ def main() -> None:
                 "completed_epochs": int(last_epoch),
                 "completed_steps": int(completed_steps),
                 "early_stopped": bool(should_stop),
+                "selection_metric": "min_ade_64",
+                "selection_metric_value": float(early.best),
                 "selected_checkpoint": selected_checkpoint.name,
                 "selected_checkpoint_sha256": sha256_file(selected_checkpoint),
             },

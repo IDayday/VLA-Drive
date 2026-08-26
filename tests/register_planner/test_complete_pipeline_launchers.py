@@ -74,7 +74,7 @@ def test_common_pipeline_contains_training_bank_and_both_official_protocols():
         "navsim_v1.1/navsim/navsim/planning/script/run_pdm_score.py",
         "navsim/navsim/planning/script/run_pdm_score_one_stage.py",
         "average_all_frames",
-        "best_oracle_generator.pt",
+        "best_minade_generator.pt",
         "best_regret.pt",
         "training_complete.json",
         "check_ppu_runtime.py",
@@ -84,6 +84,10 @@ def test_common_pipeline_contains_training_bank_and_both_official_protocols():
         "summary.csv",
     ):
         assert required in source
+    assert "best_oracle_generator.pt" not in source
+    assert source.index("register64_phase=stage-g\n") < source.index(
+        "register64_phase=cache-navtrain-v2\n"
+    )
     assert source.index(
         "full preflight passed; formal_training=NOT_RUN"
     ) < source.index("run_distributed()")

@@ -109,7 +109,7 @@ suprim_config="$project_root/starVLA/config/training/register64_drivor_suprim_dy
 off_inference_config="$project_root/starVLA/config/training/register64_inference.yaml"
 on_inference_config="$project_root/starVLA/config/training/register64_suprim_dynamic_inference.yaml"
 deepspeed_config="${REGISTER64_DEEPSPEED_CONFIG:-$project_root/starVLA/config/deepseeds/deepspeed_zero1.yaml}"
-generator_checkpoint="$stages_root/qwen_register64_generator/best_oracle_generator.pt"
+generator_checkpoint="$stages_root/qwen_register64_generator/best_minade_generator.pt"
 drivor_checkpoint="$stages_root/register64_drivor_scorer/best_regret.pt"
 suprim_checkpoint="$stages_root/register64_drivor_suprim_dynamic/best_regret.pt"
 train_datalist="$split_root/train.json"
@@ -127,10 +127,10 @@ if (( dry_run )); then
   echo "[register64] arm=$REGISTER64_ARM drivesuprim=$REGISTER64_ENABLE_SUPRIM run_root=$run_root"
   echo "[register64] topology=num_machines:$NUM_MACHINES machine_rank:$MACHINE_RANK local:$LOCAL_NUM_PROCESSES total:$NUM_PROCESSES"
   echo "[register64] schedule=generator:max25epochs drivor:${REGISTER64_DRIVOR_EPOCHS}epochs suprim:3epochs"
-  echo "[register64] stages=split,cache-navtrain-v2,G,B-train,B-val,S$([[ "$REGISTER64_ENABLE_SUPRIM" == 1 ]] && printf ',SD'),predict,cache-navtest-v1.1,cache-navtest-v2,PDMS,EPDMS,summary"
+  echo "[register64] stages=split,G,cache-navtrain-v2,B-train,B-val,S$([[ "$REGISTER64_ENABLE_SUPRIM" == 1 ]] && printf ',SD'),predict,cache-navtest-v1.1,cache-navtest-v2,PDMS,EPDMS,summary"
   print_command python "$project_root/tools/prepare_register64_train_val_split.py" --source "$REGISTER64_SOURCE_DATALIST" --output-dir "$split_root" --validation-size "$REGISTER64_VALIDATION_SIZE" --seed 42
-  print_command python "$project_root/navsim/navsim/planning/script/run_metric_caching.py" train_test_split=navtrain "metric_cache_path=$train_metric_cache" "worker.threads_per_node=$REGISTER64_CACHE_WORKERS"
   print_command accelerate launch --config_file "$deepspeed_config" --num_machines 1 --num_processes "$NUM_PROCESSES" --main_process_port "$REGISTER64_MAIN_PROCESS_PORT" "$project_root/starVLA/training/train_register_generator.py" --config "$generator_config"
+  print_command python "$project_root/navsim/navsim/planning/script/run_metric_caching.py" train_test_split=navtrain "metric_cache_path=$train_metric_cache" "worker.threads_per_node=$REGISTER64_CACHE_WORKERS"
   print_command accelerate launch --multi_gpu --num_machines 1 --num_processes "$NUM_PROCESSES" "$project_root/starVLA/training/build_register_candidate_bank.py" --config "$bank_config" --split train
   print_command accelerate launch --multi_gpu --num_machines 1 --num_processes "$NUM_PROCESSES" "$project_root/starVLA/training/build_register_candidate_bank.py" --config "$bank_config" --split val
   print_command accelerate launch --multi_gpu --num_machines 1 --num_processes "$NUM_PROCESSES" "$project_root/starVLA/training/train_register_drivor.py" --config "$drivor_config"
@@ -322,6 +322,7 @@ assert generator.framework.register_generator.proposal_num == 64
 assert generator.framework.register_generator.num_layers == 4
 assert generator.framework.register_generator.num_heads == 1
 assert generator.validation.dataset_split == "train"
+assert "pdm_oracle" not in generator.validation
 assert bank.candidate_bank.splits.val.dataset_split == "train"
 assert drivor.training_profile.name == "drivor_offline_bank_v1"
 assert int(drivor.trainer.epochs) == int(__import__("os").environ["REGISTER64_DRIVOR_EPOCHS"])
@@ -452,10 +453,7 @@ python "$project_root/tools/prepare_register64_train_val_split.py" \
   --validation-size "$REGISTER64_VALIDATION_SIZE" --seed 42
 export NAVSIM_DATALIST_PATH="$train_datalist"
 export NAVSIM_VAL_DATALIST_PATH="$val_datalist"
-
-register64_phase=cache-navtrain-v2
-ensure_metric_cache v2 navtrain "$train_metric_cache" "$REGISTER64_SOURCE_DATALIST"
-export NAVSIM_METRIC_CACHE_ROOT="$train_metric_cache"
+unset NAVSIM_METRIC_CACHE_ROOT
 
 if [[ -n "${REGISTER64_TRAIN_FEATURE_CACHE_ROOT:-}" ]]; then
   required_path "$REGISTER64_TRAIN_FEATURE_CACHE_ROOT"
@@ -486,6 +484,12 @@ if ! stage_complete "$generator_complete" "$generator_checkpoint" register_gener
   exit 2
 fi
 export REGISTER64_GENERATOR_CHECKPOINT="$generator_checkpoint"
+
+# Stage G is deliberately independent of NAVSIM metric caches. Only after the
+# geometry-selected generator is frozen do we prepare labels for Stage B.
+register64_phase=cache-navtrain-v2
+ensure_metric_cache v2 navtrain "$train_metric_cache" "$REGISTER64_SOURCE_DATALIST"
+export NAVSIM_METRIC_CACHE_ROOT="$train_metric_cache"
 
 build_bank_split() {
   local logical_split="$1" port="$2" split_dir="$bank_root/$logical_split"
