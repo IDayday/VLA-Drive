@@ -1,0 +1,73 @@
+schema_version: cf_effect_gate_wote.v1
+run:
+  run_id: gate_main
+  seeds: [0, 1, 2]
+  deterministic: true
+  overwrite: false
+  device: cuda
+data:
+  split_source: navtrain
+  split_dir: research/cf_effect_gate_wote/configs/splits
+  requested_split_sizes:
+    train: 8192
+    val: 1024
+    test: 2048
+  fallback_split_fractions:
+    train: 0.70
+    val: 0.10
+    test: 0.20
+  smoke_test_scenes: 200
+  expected_candidates: 256
+  expected_horizon: 8
+candidate_alignment:
+  audit_scenes: 20
+  candidates_per_scene: 10
+  absolute_tolerance: 1.0e-6
+  require_recomputation: true
+  use_base_anchors: true
+  disable_offsets: true
+effects:
+  actor_slots: 16
+  interval_seconds: 0.5
+  ego_length_m: 4.87
+  ego_width_m: 2.27
+  interaction:
+    clearance_m: 6.0
+    tca_seconds: 3.0
+    tca_distance_m: 10.0
+    conflict_zone_clearance_m: 1.0
+  sensitivity_clearance_m: [4.0, 6.0, 8.0]
+features:
+  dtype: float16
+  shard_scenes: 64
+  schema_version: wote_debug.v1
+  projection_seed: 20260827
+  environment_projection_dim: 64
+probe:
+  factor_names: [NC, DAC, EP, TTC, Comfort]
+  hidden_dim: 256
+  common_input_dim: 1024
+  pairwise_weight: 0.5
+  learning_rates: [0.0001, 0.0003, 0.001]
+  max_epochs: 50
+  patience: 7
+  batch_scenes: 8
+  train_candidates_per_scene: 64
+  parameter_tolerance_fraction: 0.05
+effect_predictor:
+  hidden_dim: 256
+  decoder_layers: 2
+  attention_heads: 8
+  actor_slots: 16
+  max_parameters: 10000000
+  temporal_consistency_weight: 0.1
+inverse:
+  retrieval_candidates: 16
+  embedding_dim: 128
+  temperature: 0.07
+  lambda_grid: [0.0, 0.05, 0.1, 0.2, 0.5, 1.0]
+  reject_bottom_percent_grid: [0, 5, 10, 20]
+bootstrap:
+  samples: 10000
+  confidence: 0.95
+  seed: 20260827

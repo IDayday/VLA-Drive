@@ -1,0 +1,116 @@
+diff --git a/navsim/agents/WoTE/WoTE_model.py b/navsim/agents/WoTE/WoTE_model.py
+index 93afd80..a7ed19f 100644
+--- a/navsim/agents/WoTE/WoTE_model.py
++++ b/navsim/agents/WoTE/WoTE_model.py
+@@ -44,0 +45,11 @@ class WoTEModel(nn.Module):
++        self.return_debug_features = bool(
++            getattr(config, "return_debug_features", False)
++        )
++        self.debug_force_base_anchors = bool(
++            getattr(config, "debug_force_base_anchors", False)
++        )
++        if self.debug_force_base_anchors and not self.return_debug_features:
++            raise ValueError(
++                "debug_force_base_anchors requires return_debug_features=True"
++            )
++
+@@ -250 +261,7 @@ class WoTEModel(nn.Module):
+-        ego_feat_fixed_anchor_WoTE, num_traj = self.encode_traj_into_ego_feat(ego_status_feat, init_trajectory_anchor, batch_size)
++        trajectory_anchor_feature, num_traj = self._get_trajectory_anchors_feat(
++            init_trajectory_anchor, batch_size
++        )
++        ego_feat_fixed_anchor_WoTE = self._concatenate_ego_and_traj_features(
++            ego_status_feat, trajectory_anchor_feature
++        )
++        trajectory_anchor_raw = init_trajectory_anchor
+@@ -264 +281 @@ class WoTEModel(nn.Module):
+-        if self.is_eval:
++        if self.is_eval and not self.debug_force_base_anchors:
+@@ -268 +285,7 @@ class WoTEModel(nn.Module):
+-            ego_feat_for_reward_network, _ = self.encode_traj_into_ego_feat(ego_status_feat, offseted_trajectory_anchors, batch_size)
++            trajectory_anchor_feature, _ = self._get_trajectory_anchors_feat(
++                offseted_trajectory_anchors, batch_size
++            )
++            ego_feat_for_reward_network = self._concatenate_ego_and_traj_features(
++                ego_status_feat, trajectory_anchor_feature
++            )
++            trajectory_anchor_raw = offseted_trajectory_anchors
+@@ -272,0 +296,12 @@ class WoTEModel(nn.Module):
++        if self.return_debug_features:
++            results.update(
++                {
++                    "current_bev_tokens": flatten_bev_feature,
++                    "current_bev_pool": flatten_bev_feature.mean(dim=1),
++                    "ego_status_feature": status_feature,
++                    "trajectory_anchor_raw": trajectory_anchor_raw,
++                    "trajectory_anchor_feature": trajectory_anchor_feature,
++                    "candidate_current_feature": ego_feat_for_reward_network.squeeze(-2),
++                }
++            )
++
+@@ -340,0 +376,25 @@ class WoTEModel(nn.Module):
++        if self.return_debug_features:
++            future_ego_features_by_step = torch.stack(
++                [
++                    feature.reshape(batch_size, num_traj, 1, -1).squeeze(2)
++                    for feature in ego_feat_list[1:]
++                ],
++                dim=2,
++            )
++            future_bev_tokens_by_step = torch.stack(
++                [
++                    feature.reshape(
++                        batch_size, num_traj, self.num_plan_queries, -1
++                    )
++                    for feature in bev_feat_list[1:]
++                ],
++                dim=2,
++            )
++            results.update(
++                {
++                    "future_ego_features_by_step": future_ego_features_by_step,
++                    "future_bev_tokens_by_step": future_bev_tokens_by_step,
++                    "future_bev_pool_by_step": future_bev_tokens_by_step.mean(dim=3),
++                }
++            )
++
+@@ -676 +736,4 @@ class WoTEModel(nn.Module):
+-        trajectory_anchors = self.trajectory_anchors + offset
++        if self.debug_force_base_anchors:
++            trajectory_anchors = self.trajectory_anchors
++        else:
++            trajectory_anchors = self.trajectory_anchors + offset
+@@ -684,0 +748,23 @@ class WoTEModel(nn.Module):
++        if self.return_debug_features:
++            debug_keys = (
++                "current_bev_tokens",
++                "current_bev_pool",
++                "ego_status_feature",
++                "trajectory_anchor_raw",
++                "trajectory_anchor_feature",
++                "candidate_current_feature",
++                "future_ego_features_by_step",
++                "future_bev_tokens_by_step",
++                "future_bev_pool_by_step",
++                "reward_feature",
++            )
++            for key in debug_keys:
++                results[key] = encoder_results[key]
++            results.update(
++                {
++                    "base_trajectory_anchors": self.trajectory_anchors,
++                    "trajectory_offsets": encoder_results["trajectory_offset"],
++                    "sim_rewards": torch.cat(sim_rewards, dim=-1),
++                    "selected_index": torch.argmax(final_rewards, dim=-1),
++                }
++            )
+diff --git a/navsim/agents/WoTE/configs/default.py b/navsim/agents/WoTE/configs/default.py
+index 1d8bdf3..05ddaa9 100644
+--- a/navsim/agents/WoTE/configs/default.py
++++ b/navsim/agents/WoTE/configs/default.py
+@@ -11,0 +12,5 @@ class WoTEConfig:
++    # Counterfactual-effect gate instrumentation. Both switches are opt-in so
++    # the released checkpoint path and outputs remain unchanged by default.
++    return_debug_features: bool = False
++    debug_force_base_anchors: bool = False
++

@@ -1,0 +1,52 @@
+schema_version: cf_effect_gate_wote.v1
+run:
+  run_id: gate_smoke
+  seeds: [0]
+  deterministic: true
+  overwrite: false
+  device: cuda
+data:
+  split_source: navtrain
+  split_dir: research/cf_effect_gate_wote/configs/splits
+  smoke_test_scenes: 200
+  expected_candidates: 256
+  expected_horizon: 8
+candidate_alignment:
+  audit_scenes: 20
+  candidates_per_scene: 10
+  absolute_tolerance: 1.0e-6
+  require_recomputation: true
+  use_base_anchors: true
+  disable_offsets: true
+effects:
+  actor_slots: 16
+  interval_seconds: 0.5
+  ego_length_m: 4.87
+  ego_width_m: 2.27
+  interaction:
+    clearance_m: 6.0
+    tca_seconds: 3.0
+    tca_distance_m: 10.0
+    conflict_zone_clearance_m: 1.0
+  sensitivity_clearance_m: [4.0, 6.0, 8.0]
+features:
+  dtype: float16
+  shard_scenes: 16
+  schema_version: wote_debug.v1
+  projection_seed: 20260827
+  environment_projection_dim: 64
+probe:
+  factor_names: [NC, DAC, EP, TTC, Comfort]
+  hidden_dim: 256
+  common_input_dim: 1024
+  pairwise_weight: 0.5
+  learning_rates: [0.0003, 0.001]
+  max_epochs: 2
+  patience: 1
+  batch_scenes: 4
+  train_candidates_per_scene: 32
+  parameter_tolerance_fraction: 0.05
+bootstrap:
+  samples: 200
+  confidence: 0.95
+  seed: 20260827
