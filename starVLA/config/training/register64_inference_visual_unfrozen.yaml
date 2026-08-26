@@ -1,0 +1,16 @@
+# R64-D inference contract for the visual-unfrozen generator checkpoint.
+base_config: register64_inference.yaml
+run_id: register64_drivor_visual_unfrozen_evaluation
+
+framework:
+  qwenvl:
+    freeze_visual: false
+    visual_gradient_checkpointing: true
+
+trainer:
+  global_batch_size: 32
+  freeze_modules: qwen_vl_interface.model.lm_head
+
+optimizer:
+  learning_rates:
+    qwen_visual: 2.0e-6

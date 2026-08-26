@@ -41,6 +41,7 @@ from transformers.utils import TransformersKwargs, auto_docstring, is_torchdynam
 from transformers.utils.deprecation import deprecate_kwarg
 from transformers.utils.generic import check_model_inputs
 from .configuration_qwen3_vl import Qwen3VLConfig, Qwen3VLTextConfig, Qwen3VLVisionConfig
+from starVLA.model.modules.vlm.visual_training import run_visual_block
 
 
 class Qwen3VLVisionMLP(nn.Module):
@@ -736,8 +737,12 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
 
         deepstack_feature_lists = []
         for layer_num, blk in enumerate(self.blocks):
-            hidden_states = blk(
+            hidden_states = run_visual_block(
+                blk,
                 hidden_states,
+                checkpoint_enabled=bool(
+                    self.gradient_checkpointing and self.training
+                ),
                 cu_seqlens=cu_seqlens,
                 position_embeddings=position_embeddings,
                 **kwargs,

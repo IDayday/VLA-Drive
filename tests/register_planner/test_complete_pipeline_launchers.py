@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CONFIG_ROOT = ROOT / "starVLA/config/training"
 OFF = ROOT / "run_register64_drivor_off_dlc.sh"
 ON = ROOT / "run_register64_drivor_suprim_on_dlc.sh"
+VISUAL_OFF = ROOT / "run_register64_drivor_off_visual_unfrozen_dlc.sh"
 COMMON = ROOT / "train_register64_drivor_pipeline_dlc.sh"
 
 
@@ -63,6 +64,24 @@ def test_complete_wrappers_are_fixed_portable_16_device_arms(tmp_path):
         )
 
 
+def test_visual_unfrozen_off_wrapper_is_fixed_and_cache_safe(tmp_path):
+    output = _dry_run(VISUAL_OFF, tmp_path)
+    assert "arm=off drivesuprim=0 generator_variant=visual_unfrozen" in output
+    assert "batch=stage_g:32(per_device:2) scorer:256" in output
+    assert "qwen_register64_generator_visual_unfrozen.yaml" in output
+    assert (
+        "qwen_visual=trainable lr=2e-6 gradient_checkpointing=1 "
+        "feature_cache=disabled"
+    ) in output
+    assert "train_register_suprim.py" not in output
+    source = VISUAL_OFF.read_text(encoding="utf-8")
+    assert "REGISTER64_GENERATOR_VARIANT=visual_unfrozen" in source
+    assert "unset REGISTER64_TRAIN_FEATURE_CACHE_ROOT" in source
+    assert "NAVSIM_USE_FEATURE_CACHE=0" in source
+    assert "LOCAL_NUM_PROCESSES=16" in source
+    assert "/mnt/" not in source
+
+
 def test_common_pipeline_contains_training_bank_and_both_official_protocols():
     source = COMMON.read_text(encoding="utf-8")
     for required in (
@@ -82,6 +101,7 @@ def test_common_pipeline_contains_training_bank_and_both_official_protocols():
         "EPDMS_METRIC_CACHE_PATH",
         "QDS_NAVSIM_SENSOR_PATH",
         "summary.csv",
+        '"$stages_root/$generator_stage_id/checkpoints"',
     ):
         assert required in source
     assert "best_oracle_generator.pt" not in source

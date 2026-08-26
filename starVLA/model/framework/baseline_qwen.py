@@ -15,6 +15,8 @@ from typing import Dict, Mapping, Sequence
 import torch
 from torch import Tensor, nn
 
+from starVLA.model.modules.vlm.visual_training import encode_qwen_images
+
 
 @dataclass(frozen=True)
 class BaselineQwenTrainability:
@@ -129,7 +131,16 @@ def build_baseline_qwen_batch(
         raise RuntimeError("A batch cannot mix cached and uncached Qwen samples")
 
     device = qwen_vl_interface.model.device
+    visual = qwen_vl_interface.model.visual
+    freeze_visual = not any(
+        parameter.requires_grad for parameter in visual.parameters()
+    )
     if all(payload is not None for payload in cached):
+        if not freeze_visual:
+            raise RuntimeError(
+                "Qwen visual fine-tuning requires raw images; cached Qwen visual "
+                "features would block visual gradients"
+            )
         lengths = [int(payload["input_ids"].numel()) for payload in cached]
         max_length = max(lengths)
         batch_size = len(cached)
@@ -200,13 +211,12 @@ def build_baseline_qwen_batch(
             video_grid_thw=qwen_inputs.get("video_grid_thw", None),
             attention_mask=attention_mask,
         )
-        image_parts, deepstack_embeds = (
-            qwen_vl_interface.model.model.get_image_features(
-                qwen_inputs["pixel_values"],
-                qwen_inputs["image_grid_thw"],
-            )
-        )
-        image_embeds = torch.cat(image_parts, dim=0)
+    image_embeds, deepstack_embeds = encode_qwen_images(
+        qwen_vl_interface.model.model,
+        pixel_values=qwen_inputs["pixel_values"],
+        image_grid_thw=qwen_inputs["image_grid_thw"],
+        freeze_visual=freeze_visual,
+    )
     positions = {
         name: find_token_positions(input_ids, token_ids)
         for name, token_ids in special_token_ids.items()

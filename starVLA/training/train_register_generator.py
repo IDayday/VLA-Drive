@@ -49,14 +49,19 @@ def _repository_commit() -> str:
 
 
 def build_generator_optimizer(model, config) -> torch.optim.AdamW:
-    """Create the four explicit Stage-G learning-rate groups."""
+    """Create explicit, non-overlapping Stage-G learning-rate groups."""
 
     learning_rates = config.optimizer.learning_rates
-    modules = (
-        ("qwen_vl_interface", model.qwen_vl_interface),
-        ("scene_encoder", model.scene_encoder),
-        ("register_generator", model.register_generator),
-        ("action_input_model", model.action_input_model),
+    modules = []
+    if "qwen_visual" in learning_rates:
+        modules.append(("qwen_visual", model.qwen_visual))
+    modules.extend(
+        (
+            ("qwen_vl_interface", model.qwen_vl_interface),
+            ("scene_encoder", model.scene_encoder),
+            ("register_generator", model.register_generator),
+            ("action_input_model", model.action_input_model),
+        )
     )
     groups = []
     seen: set[int] = set()

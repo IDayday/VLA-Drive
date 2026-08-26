@@ -1,0 +1,23 @@
+# R64 Stage G visual-unfrozen ablation. The language model, visual tower,
+# Q-Former, and Register64 generator train together; the unused lm_head stays
+# frozen. A smaller global batch matches the established 16-PPU visual recipe.
+base_config: qwen_register64_generator.yaml
+run_id: qwen_register64_generator_visual_unfrozen
+
+framework:
+  qwenvl:
+    freeze_visual: false
+    visual_gradient_checkpointing: true
+
+datasets:
+  vla_data:
+    per_device_batch_size: 2
+
+trainer:
+  global_batch_size: 32
+  gradient_accumulation_steps: 1
+  freeze_modules: qwen_vl_interface.model.lm_head
+
+optimizer:
+  learning_rates:
+    qwen_visual: 2.0e-6

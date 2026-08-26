@@ -25,17 +25,19 @@ export DRY_RUN="$dry_run"
 export PREFLIGHT_ONLY="$preflight_only"
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-fixed_arm="${REGISTER64_ARM:?Use one of the two fixed Register64 arm wrappers}"
-fixed_suprim="${REGISTER64_ENABLE_SUPRIM:?Use one of the two fixed Register64 arm wrappers}"
+fixed_arm="${REGISTER64_ARM:?Use a fixed Register64 arm wrapper}"
+fixed_suprim="${REGISTER64_ENABLE_SUPRIM:?Use a fixed Register64 arm wrapper}"
+fixed_generator_variant="${REGISTER64_GENERATOR_VARIANT:?Use a fixed Register64 arm wrapper}"
 source "$project_root/load_env.sh"
 export DRIVEDREAMER_ROOT="$project_root"
 export REGISTER64_ARM="$fixed_arm"
 export REGISTER64_ENABLE_SUPRIM="$fixed_suprim"
+export REGISTER64_GENERATOR_VARIANT="$fixed_generator_variant"
 cd "$project_root"
 
-case "$REGISTER64_ARM:$REGISTER64_ENABLE_SUPRIM" in
-  off:0|on:1) ;;
-  *) echo "[register64] invalid fixed arm contract: $REGISTER64_ARM/$REGISTER64_ENABLE_SUPRIM" >&2; exit 2 ;;
+case "$REGISTER64_ARM:$REGISTER64_ENABLE_SUPRIM:$REGISTER64_GENERATOR_VARIANT" in
+  off:0:frozen|on:1:frozen|off:0:visual_unfrozen) ;;
+  *) echo "[register64] invalid fixed arm contract: $REGISTER64_ARM/$REGISTER64_ENABLE_SUPRIM/$REGISTER64_GENERATOR_VARIANT" >&2; exit 2 ;;
 esac
 case "$resume:$dry_run:$preflight_only" in
   [01]:[01]:[01]) ;;
@@ -62,9 +64,19 @@ export REGISTER64_RUN_ID="${REGISTER64_RUN_ID:-register64-${REGISTER64_ARM}-$(da
 export REGISTER64_OUTPUT_ROOT="${REGISTER64_OUTPUT_ROOT:-${NAVSIM_EXP_ROOT:-$project_root/navsim_exp}/register64_complete_pipeline}"
 export REGISTER64_DRIVOR_EPOCHS="${REGISTER64_DRIVOR_EPOCHS:-10}"
 
-# Canonical Stage-G training identity. Later bank-only stages intentionally use
-# their own global batch (256) and epoch schedules from their dedicated YAMLs.
-export TARGET_EFFECTIVE_BATCH_SIZE=64
+# Stage-G identity. Bank-only stages retain their independent global batch 256.
+if [[ "$REGISTER64_GENERATOR_VARIANT" == visual_unfrozen ]]; then
+  export TARGET_EFFECTIVE_BATCH_SIZE=32
+  generator_stage_id=qwen_register64_generator_visual_unfrozen
+  unset REGISTER64_TRAIN_FEATURE_CACHE_ROOT
+  unset NAVSIM_FEATURE_CACHE_ROOT
+  unset NAVSIM_AGENT_DINO_CACHE_ROOT
+  unset NAVSIM_VGGT_CACHE_ROOT
+  export NAVSIM_USE_FEATURE_CACHE=0
+else
+  export TARGET_EFFECTIVE_BATCH_SIZE=64
+  generator_stage_id=qwen_register64_generator
+fi
 export GRADIENT_ACCUMULATION_STEPS=1
 export MAX_TRAIN_STEPS=0  # epoch-bounded: at most 25 Stage-G epochs
 export SAVE_INTERVAL=5    # component checkpoint interval in epochs
@@ -109,7 +121,16 @@ suprim_config="$project_root/starVLA/config/training/register64_drivor_suprim_dy
 off_inference_config="$project_root/starVLA/config/training/register64_inference.yaml"
 on_inference_config="$project_root/starVLA/config/training/register64_suprim_dynamic_inference.yaml"
 deepspeed_config="${REGISTER64_DEEPSPEED_CONFIG:-$project_root/starVLA/config/deepseeds/deepspeed_zero1.yaml}"
-generator_checkpoint="$stages_root/qwen_register64_generator/best_minade_generator.pt"
+if [[ "$REGISTER64_GENERATOR_VARIANT" == visual_unfrozen ]]; then
+  generator_config="$project_root/starVLA/config/training/qwen_register64_generator_visual_unfrozen.yaml"
+  bank_config="$project_root/starVLA/config/training/register64_candidate_bank_visual_unfrozen.yaml"
+  off_inference_config="$project_root/starVLA/config/training/register64_inference_visual_unfrozen.yaml"
+fi
+selected_inference_config="$off_inference_config"
+if [[ "$REGISTER64_ENABLE_SUPRIM" == 1 ]]; then
+  selected_inference_config="$on_inference_config"
+fi
+generator_checkpoint="$stages_root/$generator_stage_id/best_minade_generator.pt"
 drivor_checkpoint="$stages_root/register64_drivor_scorer/best_regret.pt"
 suprim_checkpoint="$stages_root/register64_drivor_suprim_dynamic/best_regret.pt"
 train_datalist="$split_root/train.json"
@@ -124,9 +145,16 @@ print_command() {
 if (( dry_run )); then
   echo "[register64] dry_run=1 writes=0 imports=0"
   echo "[register64] project_root=$project_root"
-  echo "[register64] arm=$REGISTER64_ARM drivesuprim=$REGISTER64_ENABLE_SUPRIM run_root=$run_root"
+  echo "[register64] arm=$REGISTER64_ARM drivesuprim=$REGISTER64_ENABLE_SUPRIM generator_variant=$REGISTER64_GENERATOR_VARIANT run_root=$run_root"
   echo "[register64] topology=num_machines:$NUM_MACHINES machine_rank:$MACHINE_RANK local:$LOCAL_NUM_PROCESSES total:$NUM_PROCESSES"
   echo "[register64] schedule=generator:max25epochs drivor:${REGISTER64_DRIVOR_EPOCHS}epochs suprim:3epochs"
+  echo "[register64] batch=stage_g:$TARGET_EFFECTIVE_BATCH_SIZE(per_device:$((TARGET_EFFECTIVE_BATCH_SIZE / NUM_PROCESSES))) scorer:256"
+  echo "[register64] generator_config=$generator_config"
+  if [[ "$REGISTER64_GENERATOR_VARIANT" == visual_unfrozen ]]; then
+    echo "[register64] qwen_visual=trainable lr=2e-6 gradient_checkpointing=1 feature_cache=disabled"
+  else
+    echo "[register64] qwen_visual=frozen feature_cache=optional"
+  fi
   echo "[register64] stages=split,G,cache-navtrain-v2,B-train,B-val,S$([[ "$REGISTER64_ENABLE_SUPRIM" == 1 ]] && printf ',SD'),predict,cache-navtest-v1.1,cache-navtest-v2,PDMS,EPDMS,summary"
   print_command python "$project_root/tools/prepare_register64_train_val_split.py" --source "$REGISTER64_SOURCE_DATALIST" --output-dir "$split_root" --validation-size "$REGISTER64_VALIDATION_SIZE" --seed 42
   print_command accelerate launch --config_file "$deepspeed_config" --num_machines 1 --num_processes "$NUM_PROCESSES" --main_process_port "$REGISTER64_MAIN_PROCESS_PORT" "$project_root/starVLA/training/train_register_generator.py" --config "$generator_config"
@@ -137,7 +165,7 @@ if (( dry_run )); then
   if [[ "$REGISTER64_ENABLE_SUPRIM" == 1 ]]; then
     print_command accelerate launch --multi_gpu --num_machines 1 --num_processes "$NUM_PROCESSES" "$project_root/starVLA/training/train_register_suprim.py" --config "$suprim_config"
   fi
-  print_command accelerate launch --multi_gpu --num_machines 1 --num_processes "$NUM_PROCESSES" "$project_root/starVLA/training/export_register_navtest_predictions.py" --config "$([[ "$REGISTER64_ENABLE_SUPRIM" == 1 ]] && printf '%s' "$on_inference_config" || printf '%s' "$off_inference_config")" --datalist "$REGISTER64_NAVTEST_DATALIST" --data-root "$DATA_ROOT" --output-dir "$prediction_dir" --split test
+  print_command accelerate launch --multi_gpu --num_machines 1 --num_processes "$NUM_PROCESSES" "$project_root/starVLA/training/export_register_navtest_predictions.py" --config "$selected_inference_config" --datalist "$REGISTER64_NAVTEST_DATALIST" --data-root "$DATA_ROOT" --output-dir "$prediction_dir" --split test
   print_command python "$project_root/navsim_v1.1/navsim/navsim/planning/script/run_metric_caching.py" train_test_split=navtest "cache.cache_path=$PDMS_METRIC_CACHE_PATH" "worker.threads_per_node=$REGISTER64_CACHE_WORKERS"
   print_command python "$project_root/navsim/navsim/planning/script/run_metric_caching.py" train_test_split=navtest "metric_cache_path=$EPDMS_METRIC_CACHE_PATH" "worker.threads_per_node=$REGISTER64_CACHE_WORKERS"
   print_command python "$project_root/navsim_v1.1/navsim/navsim/planning/script/run_pdm_score.py" train_test_split=navtest "metric_cache_path=$PDMS_METRIC_CACHE_PATH" agent=human_agent "pred_dir=$prediction_root" split=test
@@ -220,8 +248,8 @@ if (( NUM_PROCESSES != LOCAL_NUM_PROCESSES || NUM_PROCESSES < 1 )); then
   echo "[register64] NUM_PROCESSES must equal LOCAL_NUM_PROCESSES on the single DLC node" >&2
   exit 2
 fi
-if (( 64 % NUM_PROCESSES != 0 || 256 % NUM_PROCESSES != 0 )); then
-  echo "[register64] world size must divide Stage-G batch 64 and bank-stage batch 256" >&2
+if (( TARGET_EFFECTIVE_BATCH_SIZE % NUM_PROCESSES != 0 || 256 % NUM_PROCESSES != 0 )); then
+  echo "[register64] world size must divide Stage-G batch $TARGET_EFFECTIVE_BATCH_SIZE and bank-stage batch 256" >&2
   exit 2
 fi
 export PER_DEVICE_BATCH_SIZE=$((TARGET_EFFECTIVE_BATCH_SIZE / NUM_PROCESSES))
@@ -260,7 +288,7 @@ for name in QWEN_VLM_PATH DATA_ROOT OPENSCENE_DATA_ROOT REGISTER64_SOURCE_DATALI
   required_value "$name"
 done
 for path in "$generator_config" "$bank_config" "$drivor_config" "$suprim_config" \
-  "$off_inference_config" "$on_inference_config" "$deepspeed_config" \
+  "$selected_inference_config" "$deepspeed_config" \
   "$QWEN_VLM_PATH/config.json" "$DATA_ROOT/meta/train" "$DATA_ROOT/meta/test" \
   "$REGISTER64_SOURCE_DATALIST" "$REGISTER64_NAVTEST_DATALIST" "$NUPLAN_MAPS_ROOT" \
   "$REGISTER64_NAVTRAIN_LOG_ROOT" "$REGISTER64_NAVTRAIN_SENSOR_ROOT" \
@@ -312,11 +340,13 @@ for datalist_name, physical_split in ((sys.argv[1], "train"), (sys.argv[2], "tes
     print(f"[register64] {physical_split} input preflight token={tokens[0]} count={len(tokens)}")
 PY
 
-python - "$generator_config" "$bank_config" "$drivor_config" "$suprim_config" <<'PY'
+python - "$generator_config" "$bank_config" "$drivor_config" "$suprim_config" \
+  "$selected_inference_config" "$REGISTER64_GENERATOR_VARIANT" <<'PY'
 import sys
 from starVLA.training.config_loader import load_training_config
 
-generator, bank, drivor, suprim = map(load_training_config, sys.argv[1:])
+generator, bank, drivor, suprim, inference = map(load_training_config, sys.argv[1:6])
+variant = sys.argv[6]
 assert generator.framework.name == "QwenRegisterGenerator"
 assert generator.framework.register_generator.proposal_num == 64
 assert generator.framework.register_generator.num_layers == 4
@@ -329,6 +359,24 @@ assert int(drivor.trainer.epochs) == int(__import__("os").environ["REGISTER64_DR
 assert drivor.trainer.max_epochs == 10
 assert suprim.training_profile.name == "drivesuprim_dynamic_bank_v1"
 assert suprim.trainer.epochs == 3 and suprim.trainer.max_epochs == 5
+freeze_sets = []
+for config in (generator, bank, inference):
+    freeze_sets.append({
+        value.strip()
+        for value in str(config.trainer.freeze_modules).split(",")
+        if value.strip()
+    })
+if variant == "visual_unfrozen":
+    for config, frozen in zip((generator, bank, inference), freeze_sets):
+        assert config.framework.qwenvl.freeze_visual is False
+        assert config.framework.qwenvl.visual_gradient_checkpointing is True
+        assert "qwen_vl_interface.model.visual" not in frozen
+        assert "qwen_vl_interface.model.lm_head" in frozen
+        assert float(config.optimizer.learning_rates.qwen_visual) == 2.0e-6
+    assert int(generator.trainer.global_batch_size) == 32
+else:
+    assert all("qwen_vl_interface.model.visual" in frozen for frozen in freeze_sets)
+    assert int(generator.trainer.global_batch_size) == 64
 print("[register64] config contract passed")
 PY
 
@@ -352,7 +400,7 @@ if (( available_cpus < nominal_cpu_slots )); then
 fi
 
 echo "[register64] source=$actual_branch@$source_commit"
-echo "[register64] arm=$REGISTER64_ARM drivesuprim=$REGISTER64_ENABLE_SUPRIM"
+echo "[register64] arm=$REGISTER64_ARM drivesuprim=$REGISTER64_ENABLE_SUPRIM generator_variant=$REGISTER64_GENERATOR_VARIANT"
 echo "[register64] topology=machines:$NUM_MACHINES machine_rank:$MACHINE_RANK local_processes:$LOCAL_NUM_PROCESSES total_processes:$NUM_PROCESSES"
 echo "[register64] batch=stage_g:$effective_batch(per_device:$PER_DEVICE_BATCH_SIZE) scorer:256(per_device:$((256 / NUM_PROCESSES))) suprim:256(per_device:$((256 / NUM_PROCESSES)))"
 echo "[register64] cpu=available:$available_cpus stage_g_workers:$((NUM_PROCESSES * NAVSIM_NUM_WORKERS)) bank_loader_workers:$((NUM_PROCESSES * REGISTER64_BANK_LOADER_WORKERS)) bank_metric_workers:$((NUM_PROCESSES * NAVSIM_METRIC_WORKERS))"
@@ -467,13 +515,13 @@ else
 fi
 
 register64_phase=stage-g
-generator_complete="$stages_root/qwen_register64_generator/training_complete.json"
+generator_complete="$stages_root/$generator_stage_id/training_complete.json"
 if stage_complete "$generator_complete" "$generator_checkpoint" register_generator; then
   echo "[register64] Stage G already complete: $generator_checkpoint"
 else
   unset REGISTER64_GENERATOR_RESUME
-  if (( resume )) && [[ -d "$stages_root/qwen_register64_generator/checkpoints" ]]; then
-    latest_resume="$(find "$stages_root/qwen_register64_generator/checkpoints" -mindepth 1 -maxdepth 1 -type d -name 'epoch_*' -print | sort | tail -n 1)"
+  if (( resume )) && [[ -d "$stages_root/$generator_stage_id/checkpoints" ]]; then
+    latest_resume="$(find "$stages_root/$generator_stage_id/checkpoints" -mindepth 1 -maxdepth 1 -type d -name 'epoch_*' -print | sort | tail -n 1)"
     if [[ -n "$latest_resume" ]]; then export REGISTER64_GENERATOR_RESUME="$latest_resume"; fi
   fi
   run_distributed deepspeed "$REGISTER64_MAIN_PROCESS_PORT" \
@@ -624,6 +672,8 @@ python "$project_root/tools/validate_navsim_score_csv.py" \
 register64_phase=summary
 summary_args=(
   --run-root "$run_root" --arm "$REGISTER64_ARM"
+  --generator-variant "$REGISTER64_GENERATOR_VARIANT"
+  --generator-stage-id "$generator_stage_id"
   --generator-checkpoint "$generator_checkpoint" --drivor-checkpoint "$drivor_checkpoint"
   --bank-root "$bank_root" --prediction-dir "$prediction_dir"
   --pdms-results-dir "$pdms_results"

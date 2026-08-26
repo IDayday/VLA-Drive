@@ -24,6 +24,14 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-root", required=True)
     parser.add_argument("--arm", choices=("off", "on"), required=True)
+    parser.add_argument(
+        "--generator-variant",
+        choices=("frozen", "visual_unfrozen"),
+        default="frozen",
+    )
+    parser.add_argument(
+        "--generator-stage-id", default="qwen_register64_generator"
+    )
     parser.add_argument("--generator-checkpoint", required=True)
     parser.add_argument("--drivor-checkpoint", required=True)
     parser.add_argument("--suprim-checkpoint")
@@ -147,7 +155,7 @@ def main() -> None:
     stages_root = run_root / "stages"
     training = {
         "generator": _jsonl_summary(
-            stages_root / "qwen_register64_generator" / "metrics.jsonl"
+            stages_root / args.generator_stage_id / "metrics.jsonl"
         ),
         "drivor": _jsonl_summary(
             stages_root / "register64_drivor_scorer" / "metrics.jsonl"
@@ -163,6 +171,7 @@ def main() -> None:
     result = {
         "schema_version": 1,
         "arm": args.arm,
+        "generator_variant": args.generator_variant,
         "repository_commit": commit,
         "run_root": str(run_root),
         "architecture": (
@@ -192,6 +201,7 @@ def main() -> None:
         csv_buffer,
         fieldnames=(
             "arm",
+            "generator_variant",
             "protocol",
             "score",
             "score_percent",
@@ -205,6 +215,7 @@ def main() -> None:
         writer.writerow(
             {
                 "arm": args.arm,
+                "generator_variant": args.generator_variant,
                 "protocol": protocol,
                 "score": values["score"],
                 "score_percent": values["score_percent"],
@@ -218,6 +229,7 @@ def main() -> None:
         f"# Register64 {args.arm.upper()} complete-pipeline result",
         "",
         f"- Commit: `{commit}`",
+        f"- Generator variant: `{args.generator_variant}`",
         f"- Architecture: {result['architecture']}",
         f"- Official navtest PDMS (v1.1): **{pdms['score_percent']:.3f}**",
         f"- Official navtest EPDMS (v2): **{epdms['score_percent']:.3f}**",

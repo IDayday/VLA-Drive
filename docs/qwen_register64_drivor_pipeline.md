@@ -106,6 +106,17 @@ Before a full 25-epoch run, use two explicit gates:
    Stage G. These are decision gates for register collapse, not extra loss
    terms.
 
+The independent visual-unfrozen OFF ablation keeps the same prompt, Qwen
+language layers, Q-Former, Register64 generator, candidate-bank builder, and
+DrivoR recipe. Its only model-boundary change is that the Qwen visual tower is
+trainable while the unused tied LM head/input embedding remains frozen. Visual
+parameters use LR `2e-6`; the remaining Qwen parameters keep LR `1e-5`; the
+new scene/generator modules keep LR `2e-4`. Vision-block gradient checkpointing
+is enabled and Stage-G global batch is reduced from 64 to 32 (16 devices x 2)
+to match the established visual-tuning memory profile. Raw images are
+mandatory: the launcher forcibly disables Qwen feature caches, and the model
+fails fast if a cached visual payload reaches a trainable visual tower.
+
 No hard collapse threshold or diversity regularizer is assumed before this
 pilot supplies an empirical scale.
 
@@ -286,6 +297,9 @@ bash ./run_register64_drivor_off_dlc.sh
 
 # ON: Register64 + DrivoR + DriveSuprim dynamic Top-32
 bash ./run_register64_drivor_suprim_on_dlc.sh
+
+# OFF visual-unfrozen ablation: Register64 + DrivoR
+bash ./run_register64_drivor_off_visual_unfrozen_dlc.sh
 ```
 
 Use a stable run id and `--resume` after a container restart:
@@ -296,6 +310,20 @@ REGISTER64_RUN_ID=register64-drivor-off-formal \
 
 REGISTER64_RUN_ID=register64-drivor-suprim-on-formal \
   bash ./run_register64_drivor_suprim_on_dlc.sh --resume
+
+REGISTER64_RUN_ID=register64-drivor-off-visual-unfrozen-formal \
+  bash ./run_register64_drivor_off_visual_unfrozen_dlc.sh --resume
+```
+
+For the visual-unfrozen job, run the non-mutating contract check and hardware
+preflight before formal training:
+
+```bash
+REGISTER64_RUN_ID=register64-drivor-off-visual-unfrozen-formal \
+  bash ./run_register64_drivor_off_visual_unfrozen_dlc.sh --dry-run
+
+REGISTER64_RUN_ID=register64-drivor-off-visual-unfrozen-formal \
+  bash ./run_register64_drivor_off_visual_unfrozen_dlc.sh --preflight-only
 ```
 
 `--dry-run` prints every stage without importing Python or writing files;

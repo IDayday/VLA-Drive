@@ -7,6 +7,7 @@ project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$project_root/load_env.sh"
 export REGISTER64_ENABLE_SUPRIM=1
 export REGISTER64_ARM=on
+export REGISTER64_GENERATOR_VARIANT=frozen
 export LOCAL_NUM_PROCESSES="${LOCAL_NUM_PROCESSES:-16}"
 export NUM_MACHINES="${NUM_MACHINES:-1}"
 export MACHINE_RANK="${MACHINE_RANK:-0}"

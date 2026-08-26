@@ -29,6 +29,27 @@ def test_generator_and_candidate_bank_shuffle_contract():
     assert bank.datasets.vla_data.shuffle is False
 
 
+def test_register64_qwen_freeze_boundary_matches_flow_ddp_baseline():
+    register = _load("qwen_register64_generator.yaml")
+    flow_ddp = _load("qwenpi_drivor_suprim.yaml")
+    register_frozen = {
+        value.strip()
+        for value in str(register.trainer.freeze_modules).split(",")
+        if value.strip()
+    }
+    flow_frozen = {
+        value.strip()
+        for value in str(flow_ddp.trainer.freeze_modules).split(",")
+        if value.strip()
+    }
+    expected = {
+        "qwen_vl_interface.model.visual",
+        "qwen_vl_interface.model.lm_head",
+    }
+    assert register_frozen == expected
+    assert flow_frozen == expected
+
+
 def test_generator_production_gradient_and_geometry_validation_gates():
     generator = _load("qwen_register64_generator.yaml")
     assert generator.framework.generator_loss.stage_loss_mode == "final_only"

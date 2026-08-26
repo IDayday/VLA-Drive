@@ -23,6 +23,9 @@ from starVLA.model.modules.register_planner import (
 )
 from starVLA.model.modules.scene_encoder import GlobalSceneQFormer, SceneContext
 from starVLA.model.modules.vlm import get_vlm_model
+from starVLA.model.modules.vlm.visual_training import (
+    configure_qwen_visual_backbone,
+)
 from starVLA.model.tools import FRAMEWORK_REGISTRY
 
 
@@ -80,6 +83,29 @@ class QwenRegisterGenerator(baseframework):
         self.baseline_qwen_trainability = apply_baseline_qwen_trainability(
             self.qwen_vl_interface, config
         )
+        visual = self.qwen_visual
+        self.qwen_visual_frozen = not any(
+            parameter.requires_grad for parameter in visual.parameters()
+        )
+        qwenvl_config = config.framework.qwenvl
+        has_visual_policy = (
+            "freeze_visual" in qwenvl_config
+            or "visual_gradient_checkpointing" in qwenvl_config
+        )
+        if has_visual_policy:
+            configured_frozen = bool(qwenvl_config.get("freeze_visual", True))
+            if configured_frozen != self.qwen_visual_frozen:
+                raise ValueError(
+                    "framework.qwenvl.freeze_visual disagrees with "
+                    "trainer.freeze_modules"
+                )
+            configure_qwen_visual_backbone(
+                visual,
+                freeze_visual=configured_frozen,
+                gradient_checkpointing=bool(
+                    qwenvl_config.get("visual_gradient_checkpointing", False)
+                ),
+            )
         self._qwen_hidden_extractor = qwen_hidden_extractor
 
         configured_qwen_dim = int(config.framework.qwenvl.get("vl_hidden_dim", 2048))
@@ -184,6 +210,15 @@ class QwenRegisterGenerator(baseframework):
                     tokenizer.convert_tokens_to_ids(list(REWARD_QUERY_TOKENS))
                 ),
             }
+
+    @property
+    def qwen_visual(self) -> nn.Module:
+        visual = getattr(
+            getattr(self.qwen_vl_interface, "model", None), "visual", None
+        )
+        if not isinstance(visual, nn.Module):
+            raise TypeError("Qwen interface does not expose model.visual")
+        return visual
 
     @property
     def baseline_qwen_trainable_names(self) -> set[str]:
@@ -342,10 +377,16 @@ class QwenRegisterGenerator(baseframework):
             for parameter in self.qwen_vl_interface.parameters()
             if parameter.requires_grad
         )
+        trainable_visual = sum(
+            parameter.numel()
+            for parameter in self.qwen_visual.parameters()
+            if parameter.requires_grad
+        )
         logger.info(
             "Register generator: proposals=%d decoder=%dx%d heads=%d "
             "proposal_head_mode=%s proposal_heads=%d "
-            "qwen_trainable=%d scene_params=%d generator_params=%d",
+            "qwen_trainable=%d visual_trainable=%d visual_checkpointing=%s "
+            "scene_params=%d generator_params=%d",
             self.register_generator.proposal_num,
             self.register_generator.num_layers,
             self.register_generator.model_dim,
@@ -353,6 +394,8 @@ class QwenRegisterGenerator(baseframework):
             self.register_generator.stage_loss_mode,
             self.register_generator.proposal_head_count,
             trainable_qwen,
+            trainable_visual,
+            bool(getattr(self.qwen_visual, "gradient_checkpointing", False)),
             sum(parameter.numel() for parameter in self.scene_encoder.parameters()),
             sum(parameter.numel() for parameter in self.register_generator.parameters()),
         )
