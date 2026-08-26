@@ -37,7 +37,29 @@ explicit CLI > one-shot environment > task-local defaults
 Set paths through the launcher CLI or `CF_GATE_*` environment variables.
 Runtime outputs go to `experiments/cf_effect_gate_wote/<run_id>/`; final small
 reports go to `reports/cf_effect_gate_wote/`. Writers refuse existing outputs
-unless a verified resume contract is explicitly requested.
+instead of silently resuming or overwriting a partial run.
+
+After setup validates the external release, construct the immutable split from
+the published score-table keys:
+
+```bash
+python -m research.cf_effect_gate_wote.src.candidate_alignment build-splits \
+  --score-path "$WOTE_RELEASE_ROOT/extra_data/planning_vb/formatted_pdm_score_256.npy" \
+  --output-dir research/cf_effect_gate_wote/configs/splits
+```
+
+If no navtrain metric cache exists, create only the fixed G0 subset; this does
+not generate a full navtest cache:
+
+```bash
+python -m research.cf_effect_gate_wote.src.cache_metric_subset \
+  --wote-root "$WOTE_ROOT" \
+  --data-root "$NAVSIM_DATA_ROOT" \
+  --map-root "$NUPLAN_MAPS_ROOT" \
+  --tokens research/cf_effect_gate_wote/configs/splits/test_tokens.txt \
+  --output experiments/cf_effect_gate_wote/navtrain-metric-cache-test200 \
+  --limit 200
+```
 
 ## Entry points
 
