@@ -103,6 +103,7 @@ alignment_command=(
   --tokens "$test_tokens"
   --output-csv "$run_root/g0_candidate_alignment.csv"
   --output-summary "$run_root/g0_candidate_alignment_summary.json"
+  --proposal-num-poses 40
 )
 
 printf '[gate0] project_root=%s\n' "$cf_gate_project_root"
@@ -144,12 +145,27 @@ cf_gate_run_python -m research.cf_effect_gate_wote.src.candidate_alignment sourc
   --wote-root "$wote_root" --output "$run_root/g0_source_alignment.json"
 cf_gate_run_python "${cache_base[@]}" --output "$cache_first"
 cf_gate_run_python "${cache_base[@]}" --output "$cache_second"
-cf_gate_run_python "${alignment_command[@]}"
-cf_gate_run_python -m research.cf_effect_gate_wote.src.cache_wote_features summarize-g0 \
+alignment_status=0
+if cf_gate_run_python "${alignment_command[@]}"; then
+  alignment_status=0
+else
+  alignment_status=$?
+  if [[ "$alignment_status" -ne 4 ]]; then
+    exit "$alignment_status"
+  fi
+fi
+
+summary_status=0
+if cf_gate_run_python -m research.cf_effect_gate_wote.src.cache_wote_features summarize-g0 \
   --cache-first "$cache_first" \
   --cache-second "$cache_second" \
   --alignment-summary "$run_root/g0_candidate_alignment_summary.json" \
-  --output-dir "$run_root"
+  --output-dir "$run_root"; then
+  summary_status=0
+else
+  summary_status=$?
+  cf_gate_require_file "$run_root/g0_smoke_summary.json" 'G0 failure summary' || exit "$summary_status"
+fi
 
 if [[ -e "$report_dir/candidate_alignment.csv" ]]; then
   printf '[gate0] refusing existing report: %s\n' "$report_dir/candidate_alignment.csv" >&2
@@ -157,4 +173,8 @@ if [[ -e "$report_dir/candidate_alignment.csv" ]]; then
 fi
 mkdir -p "$report_dir"
 cp "$run_root/g0_candidate_alignment.csv" "$report_dir/candidate_alignment.csv"
+if [[ "$alignment_status" -eq 4 || "$summary_status" -ne 0 ]]; then
+  printf '[gate0] FAIL: candidate-label alignment unresolved; dependent Gates are NOT_RUN\n' >&2
+  exit 4
+fi
 printf '[gate0] PASS\n'

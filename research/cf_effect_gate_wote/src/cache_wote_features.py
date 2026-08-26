@@ -560,6 +560,40 @@ def summarize_g0(
         "scene_failures": 0,
         "official_debug_equivalence": True,
         "candidate_alignment_pass": bool(alignment.get("pass", False)),
+        "alignment_domain": alignment.get("alignment_domain"),
+        "alignment_audited_scenes": int(alignment.get("audited_scenes", 0)),
+        "alignment_audited_candidates_per_scene": int(
+            alignment.get("audited_candidates_per_scene", 0)
+        ),
+        "alignment_audited_factor_values": int(
+            alignment.get("audited_factor_values", 0)
+        ),
+        "alignment_maximum_absolute_error": float(
+            alignment.get("maximum_absolute_error", float("nan"))
+        ),
+        "alignment_mean_absolute_error": float(
+            alignment.get("mean_absolute_error", float("nan"))
+        ),
+        "alignment_mismatched_candidate_fraction": float(
+            alignment.get("mismatched_candidate_fraction", float("nan"))
+        ),
+        "alignment_tolerance": float(alignment.get("tolerance", float("nan"))),
+        "alignment_recompute_proposal_num_poses": alignment.get(
+            "recompute_proposal_num_poses"
+        ),
+        "alignment_published_score_generator_proposal_num_poses": alignment.get(
+            "published_score_generator_proposal_num_poses"
+        ),
+        "alignment_default_metric_cache_proposal_num_poses": alignment.get(
+            "default_metric_cache_proposal_num_poses"
+        ),
+        "alignment_default_metric_cache_future_num_poses": alignment.get(
+            "default_metric_cache_future_num_poses"
+        ),
+        "alignment_published_generator_default_cache_conflict": bool(
+            alignment.get("published_generator_default_cache_conflict", False)
+        ),
+        "alignment_upstream_horizon_issue": alignment.get("upstream_horizon_issue"),
         "cache_first_logical_sha256": first_hash,
         "cache_second_logical_sha256": second_hash,
         "cache_reproducible": cache_reproducible,
@@ -578,8 +612,6 @@ def summarize_g0(
     atomic_write_json(output_dir / "g0_smoke_summary.json", summary)
     atomic_write_json(output_dir / "g0_tensor_shapes.json", tensor_shapes)
     atomic_write_json(output_dir / "g0_checkpoint_manifest.json", checkpoint_manifest)
-    if not summary["gate_g0_pass"]:
-        raise ValueError(f"G0 failed: {summary}")
     return summary
 
 
@@ -626,7 +658,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.output_dir,
         )
         print(json.dumps(result, indent=2, sort_keys=True))
-        return 0
+        return 0 if result["gate_g0_pass"] else 4
     if args.command == "preflight":
         manifest = validate_asset_manifest(
             args.wote_root,

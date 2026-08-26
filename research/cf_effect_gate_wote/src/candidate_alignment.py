@@ -29,6 +29,9 @@ SCORE_FACTOR_KEYS = (
     "time_to_collision_within_bound",
     "comfort",
 )
+PUBLISHED_SCORE_PROPOSAL_NUM_POSES = 80
+DEFAULT_METRIC_CACHE_PROPOSAL_NUM_POSES = 40
+DEFAULT_METRIC_CACHE_FUTURE_NUM_POSES = 50
 
 
 class CandidateAlignmentError(RuntimeError):
@@ -122,6 +125,20 @@ def source_alignment_audit(wote_root: Path) -> dict[str, Any]:
     targets = targets_path.read_text(encoding="utf-8")
     model = model_path.read_text(encoding="utf-8")
     loss = loss_path.read_text(encoding="utf-8")
+    generator_path = wote_root / "scripts/miscs/gen_multi_trajs_pdm_score.py"
+    cache_processor_path = (
+        wote_root / "navsim/planning/metric_caching/metric_cache_processor.py"
+    )
+    generator = (
+        generator_path.read_text(encoding="utf-8")
+        if generator_path.is_file()
+        else ""
+    )
+    cache_processor = (
+        cache_processor_path.read_text(encoding="utf-8")
+        if cache_processor_path.is_file()
+        else ""
+    )
     evidence = {
         "target_reads_candidate_index_directly": bool(
             re.search(r"sim_reward_dict\[token\]\['trajectory_scores'\]\[0\]", targets)
@@ -149,6 +166,29 @@ def source_alignment_audit(wote_root: Path) -> dict[str, Any]:
         "offset_label_mismatch_risk": bool(base_alignment and evidence["test_outputs_offsets"]),
         "gate_requires_base_anchors": bool(base_alignment),
         "evidence": evidence,
+        "score_generation_horizon_audit": {
+            "published_generator_source_present": generator_path.is_file(),
+            "published_generator_sets_eight_second_horizon": all(
+                snippet in generator
+                for snippet in (
+                    "num_horizons = 8",
+                    "proposal_sampling.num_poses = int(num_horizons * 10)",
+                )
+            ),
+            "published_generator_proposal_num_poses": PUBLISHED_SCORE_PROPOSAL_NUM_POSES,
+            "default_cache_source_present": cache_processor_path.is_file(),
+            "default_cache_proposal_num_poses": DEFAULT_METRIC_CACHE_PROPOSAL_NUM_POSES,
+            "default_cache_future_num_poses": DEFAULT_METRIC_CACHE_FUTURE_NUM_POSES,
+            "published_generator_default_cache_conflict": all(
+                snippet in generator or snippet in cache_processor
+                for snippet in (
+                    "num_horizons = 8",
+                    "proposal_traj_num_poses: int = 40",
+                    "future_traj_num_poses: int = 50",
+                )
+            ),
+            "upstream_issue": "https://github.com/liyingyanUCAS/WoTE/issues/16",
+        },
         "pass": bool(base_alignment and evidence["test_outputs_offsets"]),
     }
     if not result["pass"]:
@@ -283,8 +323,12 @@ def audit_alignment(
 
 
 def official_recompute_factory(
-    wote_root: Path, metric_cache_root: Path
+    wote_root: Path,
+    metric_cache_root: Path,
+    proposal_num_poses: int = DEFAULT_METRIC_CACHE_PROPOSAL_NUM_POSES,
 ) -> Callable[[str, npt.NDArray[np.float32]], CandidateLabels]:
+    if proposal_num_poses <= 0:
+        raise ValueError("proposal_num_poses must be positive")
     sys.path.insert(0, str(wote_root))
     from navsim.common.dataloader import MetricCacheLoader
     from navsim.evaluate.pdm_score import pdm_score_multi_trajs
@@ -293,7 +337,7 @@ def official_recompute_factory(
     from nuplan.planning.simulation.trajectory.trajectory_sampling import TrajectorySampling
 
     cache_loader = MetricCacheLoader(metric_cache_root)
-    sampling = TrajectorySampling(num_poses=80, interval_length=0.1)
+    sampling = TrajectorySampling(num_poses=proposal_num_poses, interval_length=0.1)
     simulator = PDMSimulator(sampling)
     scorer = PDMScorer(sampling)
 
@@ -459,6 +503,12 @@ def _parser() -> argparse.ArgumentParser:
     alignment.add_argument("--output-csv", type=Path, required=True)
     alignment.add_argument("--output-summary", type=Path, required=True)
     alignment.add_argument("--tolerance", type=float, default=1e-6)
+    alignment.add_argument(
+        "--proposal-num-poses",
+        type=int,
+        default=DEFAULT_METRIC_CACHE_PROPOSAL_NUM_POSES,
+        help="Explicit evaluator horizon at 10 Hz; no automatic horizon fallback.",
+    )
 
     selected = commands.add_parser("selected-from-cache")
     selected.add_argument("--cache-root", type=Path, required=True)
@@ -488,17 +538,43 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps({name: len(tokens) for name, tokens in splits.items()}, sort_keys=True))
         return 0
     if args.command == "audit":
+        source_audit = source_alignment_audit(args.wote_root)
+        horizon_audit = source_audit["score_generation_horizon_audit"]
         anchors = load_anchors(args.anchor_path)
         table = CandidateScoreTable(args.score_path)
         tokens = _read_tokens(args.tokens)
-        recompute = official_recompute_factory(args.wote_root, args.metric_cache_root)
+        recompute = official_recompute_factory(
+            args.wote_root,
+            args.metric_cache_root,
+            proposal_num_poses=args.proposal_num_poses,
+        )
         rows, summary = audit_alignment(
             anchors, table, tokens, recompute, tolerance=args.tolerance
+        )
+        summary.update(
+            {
+                "recompute_proposal_num_poses": args.proposal_num_poses,
+                "recompute_interval_seconds": 0.1,
+                "published_score_generator_proposal_num_poses": horizon_audit[
+                    "published_generator_proposal_num_poses"
+                ],
+                "default_metric_cache_proposal_num_poses": horizon_audit[
+                    "default_cache_proposal_num_poses"
+                ],
+                "default_metric_cache_future_num_poses": horizon_audit[
+                    "default_cache_future_num_poses"
+                ],
+                "published_generator_default_cache_conflict": horizon_audit[
+                    "published_generator_default_cache_conflict"
+                ],
+                "upstream_horizon_issue": horizon_audit["upstream_issue"],
+            }
         )
         _write_alignment_csv(args.output_csv, rows)
         atomic_write_json(args.output_summary, summary)
         if not summary["pass"]:
-            raise CandidateAlignmentError("candidate-label alignment failed")
+            print(json.dumps(summary, indent=2, sort_keys=True))
+            return 4
         return 0
     if args.command == "selected-from-cache":
         atomic_write_json(args.output, extract_selected_indices(args.cache_root))

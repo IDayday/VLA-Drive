@@ -90,6 +90,7 @@ def test_source_audit_identifies_base_anchor_offset_risk(tmp_path: Path) -> None
     assert audit["pass"] is True
     assert audit["score_alignment_domain"] == "base_anchors"
     assert audit["offset_label_mismatch_risk"] is True
+    assert audit["score_generation_horizon_audit"]["published_generator_source_present"] is False
 
 
 def test_dynamic_alignment_detects_candidate_reindexing(tmp_path: Path) -> None:
