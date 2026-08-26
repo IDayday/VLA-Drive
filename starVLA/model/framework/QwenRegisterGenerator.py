@@ -125,6 +125,8 @@ class QwenRegisterGenerator(baseframework):
             raise AssertionError("Stage-G Q-Former must preserve Qwen gradients")
 
         generator_cfg = config.framework.register_generator
+        loss_cfg = config.framework.get("generator_loss", {})
+        stage_loss_mode = str(loss_cfg.get("stage_loss_mode", "final_only"))
         if int(generator_cfg.get("model_dim", 256)) != self.scene_dim:
             raise ValueError("Register generator and scene encoder dimensions differ")
         self.register_generator = register_generator or RegisterTrajectoryGenerator(
@@ -142,8 +144,12 @@ class QwenRegisterGenerator(baseframework):
             drop_path=float(generator_cfg.get("drop_path", 0.2)),
             layer_scale_init=float(generator_cfg.get("layer_scale_init", 0.0)),
             ego_state_dim=int(generator_cfg.get("ego_state_dim", 4)),
+            stage_loss_mode=stage_loss_mode,
         )
-        loss_cfg = config.framework.get("generator_loss", {})
+        if self.register_generator.stage_loss_mode != stage_loss_mode:
+            raise ValueError(
+                "Register generator topology and generator loss mode differ"
+            )
         self.generator_loss = generator_loss or RegisterTrajectoryLoss(
             stage_loss_mode=str(loss_cfg.get("stage_loss_mode", "final_only")),
             stage_loss_weights=loss_cfg.get(
@@ -151,6 +157,10 @@ class QwenRegisterGenerator(baseframework):
             ),
             diversity_weight=float(loss_cfg.get("diversity_weight", 0.0)),
         )
+        if self.generator_loss.stage_loss_mode != stage_loss_mode:
+            raise ValueError(
+                "Register generator topology and generator loss instance differ"
+            )
         self.trajectory_codec = TrajectoryCodec()
         self._special_token_ids: Dict[str, tuple[int, ...]] = {}
         if self._qwen_hidden_extractor is None:
@@ -334,11 +344,14 @@ class QwenRegisterGenerator(baseframework):
         )
         logger.info(
             "Register generator: proposals=%d decoder=%dx%d heads=%d "
+            "proposal_head_mode=%s proposal_heads=%d "
             "qwen_trainable=%d scene_params=%d generator_params=%d",
             self.register_generator.proposal_num,
             self.register_generator.num_layers,
             self.register_generator.model_dim,
             self.register_generator.num_heads,
+            self.register_generator.stage_loss_mode,
+            self.register_generator.proposal_head_count,
             trainable_qwen,
             sum(parameter.numel() for parameter in self.scene_encoder.parameters()),
             sum(parameter.numel() for parameter in self.register_generator.parameters()),

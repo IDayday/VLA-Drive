@@ -35,22 +35,25 @@ Qwen language model (baseline trainability contract)
        register self-attention (1 head)
        register-to-scene cross-attention (1 head)
        256 -> 1024 -> 256 FFN
-  -> one donor MLP per stage (256 -> 1024 -> 1024 -> 24, with LayerNorm)
-     applied to every register
+  -> one final donor MLP (256 -> 1024 -> 1024 -> 24, with LayerNorm)
+     applied once to every final-layer register
   -> 64 trajectories [B,64,8,3]
 ```
 
-One register represents one complete trajectory, not one pose. The initial
-register state and all four decoder layers have separate stage heads (five
-heads total); each stage head is shared across registers and maps each register
-token to its own complete 24-D trajectory. A forward therefore returns five
-proposal stages. Production training uses only the final stage
-(`stage_loss_mode: final_only`, equivalent to donor `prev_weight=0.0`). The
-same implementation supports `proposal_num: 1` for R1.
+One register represents one complete trajectory, not one pose. In the
+production `stage_loss_mode: final_only` topology (equivalent to donor
+`prev_weight=0.0`), the four decoder layers still return intermediate tokens
+for diagnostics, but only the final-layer tokens are decoded. Consequently
+there is exactly one proposal head and one proposal tensor in `proposal_list`;
+there are no disconnected trainable heads. The `all_layers` ablation alone
+instantiates the initial-register head plus four decoder-layer heads and
+returns five proposal stages. The same implementation supports
+`proposal_num: 1` for R1.
 
-At the production dimensions, `RegisterTrajectoryGenerator` has 11,207,032
-parameters. The 16-query Q-Former has 4,747,008 and the history-state input MLP
-has 4,206,592, for 20,160,632 non-Qwen Stage-G parameters in total.
+At the production dimensions, the final-only `RegisterTrajectoryGenerator`
+has 5,841,176 parameters. The optional all-layers topology has 11,207,032. The
+16-query Q-Former has 4,747,008 and the history-state input MLP has 4,206,592,
+for 14,794,776 non-Qwen Stage-G parameters in the production topology.
 
 There is no random proposal noise, Flow time, Euler integration,
 `num_inference_timesteps`, candidate chunking, source embedding, or scorer
@@ -82,7 +85,29 @@ loss = mean_b min_k candidate_error[b,k]
 
 Diversity statistics are monitoring-only. The production diversity weight is
 zero. Training is epoch based, up to 25 epochs, with a global batch of 64 and
-early stopping on validation minADE@64.
+early stopping on validation minADE@64. Before the first optimizer update, a
+gradient-hook gate fails the run if any trainable parameter was absent from
+the loss graph on any rank. Hooks are used because DeepSpeed ZeRO may clear or
+partition `.grad` before the trainer can inspect it directly.
+
+Every epoch runs the low-cost geometric validation. Every fifth epoch, the
+production config additionally scores the fixed 1,024-scene validation subset
+with NAVSIM and records Oracle PDMS over the complete proposal pool. Stage G
+saves independent `best_minade_generator.pt` and
+`best_oracle_generator.pt` artifacts; full-bank construction uses the latter.
+
+Before a full 25-epoch run, use two explicit gates:
+
+1. **G0 small overfit:** train on 64--256 scenes for a few hundred optimizer
+   steps and confirm the loss falls and the runtime gradient gate passes.
+2. **G1 matched five-epoch pilot:** compare R1 and R64 with identical data and
+   optimization. Continue only after inspecting Oracle@64 versus R1 together
+   with pairwise ADE/FDE, active-register ratio, normalized usage entropy, and
+   the winner histogram. These are decision gates for register collapse, not
+   extra loss terms.
+
+No hard collapse threshold or diversity regularizer is assumed before this
+pilot supplies an empirical scale.
 
 ### Stage B: candidate bank
 
@@ -204,10 +229,12 @@ Qwen base
 ```
 
 The Stage-G component contains only trainable Qwen weights, the history-state
-MLP, Q-Former, and Register generator. Full Accelerate checkpoints separately
-contain optimizer, scheduler, RNG, epoch, and step state for resume. Every
-downstream checkpoint validates its upstream SHA/hash and dimensions before
-loading.
+MLP, Q-Former, and Register generator. Its metadata also binds the proposal
+head mode and count, preventing a legacy five-head component from being loaded
+into the final-only topology. Full Accelerate checkpoints separately contain
+optimizer, scheduler, RNG, epoch, step, and best sparse-Oracle state for
+resume. Every downstream checkpoint validates its upstream SHA/hash and
+dimensions before loading.
 
 ## Experiments
 
@@ -256,10 +283,11 @@ python starVLA/training/train_register_generator.py \
   --config starVLA/config/training/qwen_register1_generator.yaml
 ```
 
-After selecting the component checkpoint:
+After sparse Oracle selection (do not use the minADE-only checkpoint for the
+full bank):
 
 ```bash
-export REGISTER64_GENERATOR_CHECKPOINT=/mnt/zhangt_workspace/results/Checkpoints/qwen_register64_generator/best_generator.pt
+export REGISTER64_GENERATOR_CHECKPOINT=/mnt/zhangt_workspace/results/Checkpoints/qwen_register64_generator/best_oracle_generator.pt
 
 python starVLA/training/build_register_candidate_bank.py \
   --config starVLA/config/training/register64_candidate_bank.yaml \
@@ -331,10 +359,12 @@ score cache. Hybrid inference reads only the fixed static trajectory vocabulary.
 
 Stage G logs minADE/minFDE at 1 and 64, pairwise ADE/FDE, active-register ratio,
 usage entropy, throughput, seconds per step, epoch time, samples, and peak
-memory. Stage B reports Oracle@64 PDMS, proposal-0 PDMS, oracle gain, feasible
-rate, register usage, diversity, finite-label rates, storage size, and wall
-time. Stage S/SD/SH report true selected score, oracle, regret, pairwise ranking
-accuracy, Recall@1/5/10/32, and refinement gain where applicable.
+memory. Its sparse fifth-epoch validation also logs Oracle PDMS and selects the
+bank-building checkpoint independently from minADE. Stage B reports Oracle@64
+PDMS, proposal-0 PDMS, oracle gain, feasible rate, register usage, diversity,
+finite-label rates, storage size, and wall time. Stage S/SD/SH report true
+selected score, oracle, regret, pairwise ranking accuracy, Recall@1/5/10/32,
+and refinement gain where applicable.
 
 Run the hardware comparison with:
 
@@ -353,26 +383,27 @@ latency, Stage-G backward time, projected 25-epoch time, and Stage-S backward
 time. No speedup value should be quoted until this command has run on the
 target hardware.
 
-### Local structural benchmark (rerun 2026-08-25)
+### Local structural benchmark (rerun 2026-08-26)
 
 The required production-dimension benchmark was run on one local PPU-ZW810E
 (96 GiB), BF16, batch 1, candidate chunk 32, with two warmups and ten measured
-inference iterations. Both proposal heads used initialized weights; the result
-therefore measures architecture/runtime cost, not model quality. Common Qwen
-backbone execution is excluded.
+inference iterations. Both proposal generators used initialized weights; the
+result therefore measures architecture/runtime cost, not model quality. Common
+Qwen backbone execution is excluded. Register64 used the production
+`final_only` topology with one proposal head and 5,841,176 parameters.
 
 | Measurement | Flow K64/NFE10 | Register64 | Ratio |
 |---|---:|---:|---:|
-| Generator forward | 223.32 ms | 2.69 ms | 83.16x faster |
-| Post-Qwen hidden + Q-Former + generator | 221.96 ms | 4.99 ms | 44.51x faster |
-| Proposals/s | 286.58 | 23,831.13 | 83.16x |
-| Incremental peak allocation | 39.37 MB | 1.49 MB | 26.47x lower |
+| Generator forward | 245.32 ms | 2.18 ms | 112.72x faster |
+| Post-Qwen hidden + Q-Former + generator | 240.25 ms | 4.68 ms | 51.37x faster |
+| Proposals/s | 260.88 | 29,406.55 | 112.72x |
+| Incremental peak allocation | 39.37 MB | 1.48 MB | 26.69x lower |
 
 Total peak allocated memory (with both models resident in the benchmark
-process) was 1.702 GB for the Flow call and 1.673 GB for Register64; incremental
+process) was 1.691 GB for the Flow call and 1.662 GB for Register64; incremental
 allocation is the more informative generator comparison. A five-iteration
-backward probe measured 11.85 ms/step for the standalone Register generator and
-12.95 ms/step for standalone DrivoR at batch 1. Epoch projections in the raw
+backward probe measured 11.37 ms/step for the standalone Register generator and
+11.61 ms/step for standalone DrivoR at batch 1. Epoch projections in the raw
 artifact use the benchmark's synthetic 1,000 steps/epoch and are not a dataset
 runtime forecast. The existing artifact path was retained when rerunning after
 the donor proposal-head correction; raw values are in

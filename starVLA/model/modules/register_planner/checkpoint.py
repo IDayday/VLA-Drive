@@ -26,6 +26,8 @@ GENERATOR_METADATA_FIELDS = (
     "decoder_layers",
     "decoder_heads",
     "proposal_head_style",
+    "stage_loss_mode",
+    "proposal_head_count",
     "commit",
     "config_hash",
 )
@@ -117,6 +119,8 @@ def save_register_generator_checkpoint(
         "decoder_layers": int(register_generator.num_layers),
         "decoder_heads": int(register_generator.num_heads),
         "proposal_head_style": str(register_generator.proposal_head_style),
+        "stage_loss_mode": str(register_generator.stage_loss_mode),
+        "proposal_head_count": int(register_generator.proposal_head_count),
     }
     for name, value in actual_architecture.items():
         if metadata[name] != value:
@@ -246,6 +250,8 @@ def load_register_generator_checkpoint(
         "decoder_layers": int(register_generator.num_layers),
         "decoder_heads": int(register_generator.num_heads),
         "proposal_head_style": str(register_generator.proposal_head_style),
+        "stage_loss_mode": str(register_generator.stage_loss_mode),
+        "proposal_head_count": int(register_generator.proposal_head_count),
     }
     for name, value in actual_architecture.items():
         if metadata[name] != value:

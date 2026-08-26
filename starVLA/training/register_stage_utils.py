@@ -162,6 +162,7 @@ class TrainingProgress:
     completed_steps: int = 0
     early_best: float | None = None
     early_bad_epochs: int = 0
+    best_oracle_pdms: float | None = None
 
     def state_dict(self) -> dict[str, Any]:
         return {
@@ -169,6 +170,7 @@ class TrainingProgress:
             "completed_steps": int(self.completed_steps),
             "early_best": self.early_best,
             "early_bad_epochs": int(self.early_bad_epochs),
+            "best_oracle_pdms": self.best_oracle_pdms,
         }
 
     def load_state_dict(self, state_dict: Mapping[str, Any]) -> None:
@@ -177,6 +179,10 @@ class TrainingProgress:
         value = state_dict.get("early_best")
         self.early_best = None if value is None else float(value)
         self.early_bad_epochs = int(state_dict.get("early_bad_epochs", 0))
+        oracle_value = state_dict.get("best_oracle_pdms")
+        self.best_oracle_pdms = (
+            None if oracle_value is None else float(oracle_value)
+        )
 
 
 def optimizer_steps_per_epoch(

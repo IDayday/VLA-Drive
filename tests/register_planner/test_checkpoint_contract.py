@@ -63,6 +63,8 @@ def _metadata(qwen):
         "decoder_layers": 1,
         "decoder_heads": 1,
         "proposal_head_style": "donor_mlp_v1",
+        "stage_loss_mode": "final_only",
+        "proposal_head_count": 1,
         "commit": "abc",
         "config_hash": "def",
     }
@@ -118,6 +120,37 @@ def test_generator_checkpoint_rejects_shape_contract(tmp_path):
         )
 
 
+def test_generator_checkpoint_rejects_proposal_head_topology(tmp_path):
+    qwen, action, scene, generator = _components()
+    path = tmp_path / "generator.pt"
+    save_register_generator_checkpoint(
+        path,
+        qwen_vl_interface=qwen,
+        action_input_model=action,
+        scene_encoder=scene,
+        register_generator=generator,
+        metadata=_metadata(qwen),
+    )
+    all_layers_generator = RegisterTrajectoryGenerator(
+        proposal_num=4,
+        model_dim=8,
+        ffn_dim=16,
+        num_layers=1,
+        num_heads=1,
+        proj_drop=0.0,
+        drop_path=0.0,
+        stage_loss_mode="all_layers",
+    )
+    with pytest.raises(RuntimeError, match="loaded modules"):
+        load_register_generator_checkpoint(
+            path,
+            qwen_vl_interface=qwen,
+            action_input_model=action,
+            scene_encoder=scene,
+            register_generator=all_layers_generator,
+        )
+
+
 def test_stage_checkpoint_rejects_bank_mismatch(tmp_path):
     module = nn.Linear(2, 2)
     path = tmp_path / "scorer.pt"
@@ -142,6 +175,7 @@ def test_training_progress_resume_contract():
         completed_steps=123,
         early_best=0.42,
         early_bad_epochs=2,
+        best_oracle_pdms=0.91,
     )
     restored = TrainingProgress()
     restored.load_state_dict(source.state_dict())

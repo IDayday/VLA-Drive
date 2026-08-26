@@ -390,6 +390,10 @@ def main() -> None:
             "decoder_layers": 4,
             "decoder_heads": 1,
             "proposal_head_style": "donor_mlp_v1",
+            "stage_loss_mode": str(model.register_generator.stage_loss_mode),
+            "proposal_head_count": int(
+                model.register_generator.proposal_head_count
+            ),
         },
     )
     # Bank ranks may receive different final batch counts. Avoid DDP wrapping

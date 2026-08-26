@@ -28,10 +28,10 @@ def tiny_hidden_extractor(framework, examples):
     parameter = framework.qwen_vl_interface.model.language.weight
     batch = len(examples)
     length = 12
-    values = torch.stack(
+    states = torch.stack(
         [torch.as_tensor(example["state"], dtype=parameter.dtype) for example in examples]
     ).to(parameter.device)
-    seed = values.mean(dim=-1, keepdim=True).unsqueeze(-1).expand(
+    seed = framework.action_input_model(states)[:, None].expand(
         batch, length, parameter.shape[1]
     )
     hidden = framework.qwen_vl_interface.model.language(seed)

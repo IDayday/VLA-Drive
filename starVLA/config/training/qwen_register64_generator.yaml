@@ -85,6 +85,8 @@ trainer:
   global_batch_size: 64
   gradient_accumulation_steps: 1
   gradient_clip: 1.0
+  gradient_gate:
+    enabled: true
   freeze_modules: qwen_vl_interface.model.visual,qwen_vl_interface.model.lm_head
   save_epochs: [5, 10, 15, 20, 25]
   resume_from: null
@@ -116,7 +118,7 @@ validation:
   num_scenes: 1024
   num_workers: 4
   pdm_oracle:
-    enabled: false
+    enabled: true
     interval_epochs: 5
     metric_supervisor:
       metric_cache_root: ${oc.env:NAVSIM_METRIC_CACHE_ROOT,null}

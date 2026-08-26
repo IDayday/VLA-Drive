@@ -56,10 +56,15 @@ class RegisterTrajectoryGenerator(nn.Module):
         drop_path: float = 0.2,
         layer_scale_init: float = 0.0,
         ego_state_dim: int = 4,
+        stage_loss_mode: str = "final_only",
     ) -> None:
         super().__init__()
         if not one_token_per_trajectory:
             raise ValueError("Register generator requires one token per trajectory")
+        if stage_loss_mode not in {"final_only", "all_layers"}:
+            raise ValueError(
+                "stage_loss_mode must be 'final_only' or 'all_layers'"
+            )
         for name, value in (
             ("proposal_num", proposal_num),
             ("num_poses", num_poses),
@@ -82,6 +87,7 @@ class RegisterTrajectoryGenerator(nn.Module):
         self.ego_state_dim = int(ego_state_dim)
         self.one_token_per_trajectory = True
         self.proposal_head_style = "donor_mlp_v1"
+        self.stage_loss_mode = str(stage_loss_mode)
 
         self.trajectory_registers = nn.Embedding(self.proposal_num, self.model_dim)
         self.ego_encoder = nn.Sequential(
@@ -100,12 +106,23 @@ class RegisterTrajectoryGenerator(nn.Module):
             return_intermediate=True,
         )
         output_dim = self.num_poses * self.state_dim
-        self.proposal_heads = nn.ModuleList(
-            [
-                ProposalHead(self.model_dim, self.ffn_dim, output_dim)
-                for _ in range(self.num_layers + 1)
-            ]
-        )
+        if self.stage_loss_mode == "final_only":
+            self.final_proposal_head = ProposalHead(
+                self.model_dim, self.ffn_dim, output_dim
+            )
+            self.proposal_heads = None
+        else:
+            self.final_proposal_head = None
+            self.proposal_heads = nn.ModuleList(
+                [
+                    ProposalHead(self.model_dim, self.ffn_dim, output_dim)
+                    for _ in range(self.num_layers + 1)
+                ]
+            )
+
+    @property
+    def proposal_head_count(self) -> int:
+        return 1 if self.stage_loss_mode == "final_only" else self.num_layers + 1
 
     def _validate_inputs(self, scene_tokens: Tensor, ego_state: Tensor) -> Tensor:
         if scene_tokens.ndim != 3 or scene_tokens.shape[-1] != self.model_dim:
@@ -140,16 +157,27 @@ class RegisterTrajectoryGenerator(nn.Module):
             batch_size, -1, -1
         ) + ego_token
 
-        proposal_list: List[Tensor] = [
-            self._decode_head(self.proposal_heads[0], register_tokens)
-        ]
         token_outputs = self.trajectory_decoder(register_tokens, scene_tokens)
         if not isinstance(token_outputs, list) or len(token_outputs) != self.num_layers:
             raise RuntimeError("Register decoder violated its intermediate-output contract")
-        for layer_index, layer_tokens in enumerate(token_outputs):
-            proposal_list.append(
-                self._decode_head(self.proposal_heads[layer_index + 1], layer_tokens)
-            )
+        if self.stage_loss_mode == "final_only":
+            if self.final_proposal_head is None or self.proposal_heads is not None:
+                raise RuntimeError("final-only proposal-head topology is inconsistent")
+            proposal_list: List[Tensor] = [
+                self._decode_head(self.final_proposal_head, token_outputs[-1])
+            ]
+        else:
+            if self.proposal_heads is None or self.final_proposal_head is not None:
+                raise RuntimeError("all-layers proposal-head topology is inconsistent")
+            proposal_list = [
+                self._decode_head(self.proposal_heads[0], register_tokens)
+            ]
+            for layer_index, layer_tokens in enumerate(token_outputs):
+                proposal_list.append(
+                    self._decode_head(
+                        self.proposal_heads[layer_index + 1], layer_tokens
+                    )
+                )
         return RegisterGeneratorOutput(
             proposals=proposal_list[-1],
             proposal_list=proposal_list,
@@ -168,4 +196,6 @@ class RegisterTrajectoryGenerator(nn.Module):
             "decoder_heads": self.num_heads,
             "one_token_per_trajectory": self.one_token_per_trajectory,
             "proposal_head_style": self.proposal_head_style,
+            "stage_loss_mode": self.stage_loss_mode,
+            "proposal_head_count": self.proposal_head_count,
         }

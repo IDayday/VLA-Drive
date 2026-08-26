@@ -88,6 +88,138 @@ def build_generator_optimizer(model, config) -> torch.optim.AdamW:
     )
 
 
+def trainable_parameters_without_grad(model) -> list[str]:
+    """Return trainable parameters disconnected from the current loss graph."""
+
+    return [
+        name
+        for name, parameter in model.named_parameters()
+        if parameter.requires_grad and parameter.grad is None
+    ]
+
+
+def assert_all_trainable_parameters_have_grad(model) -> None:
+    """Fail before the first optimizer step if Stage G has unused parameters."""
+
+    unused = trainable_parameters_without_grad(model)
+    if unused:
+        preview = ", ".join(unused[:20])
+        suffix = "" if len(unused) <= 20 else f" ... (+{len(unused) - 20})"
+        raise RuntimeError(
+            "Stage-G gradient gate found trainable parameters with grad=None: "
+            f"{preview}{suffix}"
+        )
+
+
+class FirstBackwardGradientGate:
+    """Track autograd use before DDP/ZeRO can partition or clear gradients."""
+
+    def __init__(self, model) -> None:
+        self._parameter_names: list[str] = []
+        self._seen: set[str] = set()
+        self._handles = []
+        for name, parameter in model.named_parameters():
+            if not parameter.requires_grad:
+                continue
+            self._parameter_names.append(name)
+            self._handles.append(
+                parameter.register_hook(
+                    lambda gradient, parameter_name=name: self._record(
+                        parameter_name, gradient
+                    )
+                )
+            )
+
+    def _record(self, name: str, gradient: torch.Tensor) -> torch.Tensor:
+        self._seen.add(name)
+        return gradient
+
+    def missing_local(self) -> list[str]:
+        return [name for name in self._parameter_names if name not in self._seen]
+
+    def close(self) -> None:
+        for handle in self._handles:
+            handle.remove()
+        self._handles.clear()
+
+    def assert_complete(self, accelerator: Accelerator) -> None:
+        local_seen = torch.tensor(
+            [int(name in self._seen) for name in self._parameter_names],
+            device=accelerator.device,
+            dtype=torch.int32,
+        )
+        seen_per_parameter = accelerator.reduce(local_seen, reduction="sum")
+        missing = [
+            (name, int(seen_count))
+            for name, seen_count in zip(
+                self._parameter_names, seen_per_parameter.tolist()
+            )
+            if int(seen_count) != accelerator.num_processes
+        ]
+        self.close()
+        if missing:
+            preview = ", ".join(
+                f"{name} ({seen}/{accelerator.num_processes} ranks)"
+                for name, seen in missing[:20]
+            )
+            suffix = "" if len(missing) <= 20 else f" ... (+{len(missing) - 20})"
+            raise RuntimeError(
+                "Stage-G gradient gate found trainable parameters absent from "
+                f"the first backward: {preview}{suffix}"
+            )
+
+
+def generator_component_checkpoint_names(
+    *,
+    epoch: int,
+    final_epoch: int,
+    save_epochs: set[int],
+    should_stop: bool,
+    improved_minade: bool,
+    improved_oracle: bool,
+) -> list[str]:
+    """Return independent periodic, minADE, and Oracle-PDMS artifacts."""
+
+    names: list[str] = []
+    if epoch in save_epochs or epoch == final_epoch or should_stop:
+        names.append(f"generator_epoch_{epoch:02d}.pt")
+    if improved_minade:
+        names.append("best_minade_generator.pt")
+    if improved_oracle:
+        names.append("best_oracle_generator.pt")
+    return names
+
+
+def validate_sparse_oracle_config(validation_config) -> None:
+    """Fail before Stage G when enabled sparse-PDMS validation cannot run."""
+
+    pdm_config = validation_config.get("pdm_oracle", {})
+    if not bool(pdm_config.get("enabled", False)):
+        return
+    interval = int(pdm_config.get("interval_epochs", 0))
+    if interval <= 0:
+        raise ValueError(
+            "enabled Stage-G PDM Oracle validation requires interval_epochs > 0"
+        )
+    supervisor_config = pdm_config.get("metric_supervisor")
+    if supervisor_config is None:
+        raise ValueError(
+            "enabled Stage-G PDM Oracle validation requires metric_supervisor"
+        )
+    metric_cache_root = supervisor_config.get("metric_cache_root")
+    if metric_cache_root is None or not str(metric_cache_root).strip():
+        raise ValueError(
+            "enabled Stage-G PDM Oracle validation requires "
+            "NAVSIM_METRIC_CACHE_ROOT"
+        )
+    metric_cache_path = Path(str(metric_cache_root)).expanduser()
+    if not metric_cache_path.is_dir():
+        raise FileNotFoundError(
+            "Stage-G PDM Oracle metric cache does not exist: "
+            f"{metric_cache_path}"
+        )
+
+
 def _fixed_validation_loader(config, batch_size: int) -> DataLoader:
     validation_config = OmegaConf.create(
         OmegaConf.to_container(config, resolve=False)
@@ -116,8 +248,26 @@ def _fixed_validation_loader(config, batch_size: int) -> DataLoader:
     )
 
 
+def summarize_register_usage(usage: torch.Tensor) -> dict[str, Any]:
+    """Turn the globally reduced winner counts into collapse diagnostics."""
+
+    if usage.ndim != 1 or usage.numel() == 0:
+        raise ValueError("register usage must be a non-empty vector")
+    probabilities = usage / usage.sum().clamp_min(1)
+    nonzero = probabilities > 0
+    entropy = -(probabilities[nonzero] * probabilities[nonzero].log()).sum()
+    if usage.numel() > 1:
+        entropy = entropy / math.log(usage.numel())
+    return {
+        "register_usage_entropy": float(entropy),
+        "active_register_ratio": float(nonzero.float().mean()),
+        "top1_register_fraction": float(probabilities.max()),
+        "register_usage_histogram": [int(value) for value in usage.tolist()],
+    }
+
+
 @torch.no_grad()
-def evaluate_generator(model, dataloader, accelerator: Accelerator) -> dict[str, float]:
+def evaluate_generator(model, dataloader, accelerator: Accelerator) -> dict[str, Any]:
     model.eval()
     scalar_names = (
         "min_ade_1",
@@ -126,8 +276,8 @@ def evaluate_generator(model, dataloader, accelerator: Accelerator) -> dict[str,
         "min_fde_64",
         "pairwise_ade",
         "pairwise_fde",
-        "active_register_ratio",
-        "register_usage_entropy",
+        "endpoint_std",
+        "endpoint_covariance",
     )
     totals = torch.zeros(len(scalar_names) + 1, device=accelerator.device)
     usage = torch.zeros(
@@ -149,13 +299,7 @@ def evaluate_generator(model, dataloader, accelerator: Accelerator) -> dict[str,
         name: float(totals[index] / count)
         for index, name in enumerate(scalar_names)
     }
-    probabilities = usage / usage.sum().clamp_min(1)
-    nonzero = probabilities > 0
-    entropy = -(probabilities[nonzero] * probabilities[nonzero].log()).sum()
-    if usage.numel() > 1:
-        entropy = entropy / math.log(usage.numel())
-    metrics["register_usage_entropy"] = float(entropy)
-    metrics["active_register_ratio"] = float(nonzero.float().mean())
+    metrics.update(summarize_register_usage(usage))
     model.train()
     return metrics
 
@@ -204,6 +348,10 @@ def _component_metadata(model, config) -> dict[str, Any]:
         "proposal_head_style": str(
             unwrapped.register_generator.proposal_head_style
         ),
+        "stage_loss_mode": str(unwrapped.register_generator.stage_loss_mode),
+        "proposal_head_count": int(
+            unwrapped.register_generator.proposal_head_count
+        ),
         "commit": _repository_commit(),
         "config_hash": stable_config_hash(config),
     }
@@ -219,6 +367,7 @@ def main() -> None:
     args = _parse_args()
     config = load_training_config(args.config)
     trainer = config.trainer
+    validate_sparse_oracle_config(config.validation)
     epochs = int(trainer.get("max_epochs", 25))
     if not 1 <= epochs <= 25:
         raise ValueError("Stage G max_epochs must be in [1,25]")
@@ -249,6 +398,12 @@ def main() -> None:
     optimizer = build_generator_optimizer(model, config)
     model, optimizer, train_loader, val_loader = accelerator.prepare(
         model, optimizer, train_loader, val_loader
+    )
+    gradient_gate_config = trainer.get("gradient_gate", {})
+    gradient_gate = (
+        FirstBackwardGradientGate(model)
+        if bool(gradient_gate_config.get("enabled", True))
+        else None
     )
     steps_per_epoch = optimizer_steps_per_epoch(len(train_loader), accumulation)
     total_steps = steps_per_epoch * epochs
@@ -299,6 +454,14 @@ def main() -> None:
                     loss = output["loss"]
                 accelerator.backward(loss)
                 if accelerator.sync_gradients:
+                    if gradient_gate is not None:
+                        gradient_gate.assert_complete(accelerator)
+                        gradient_gate = None
+                        if accelerator.is_main_process:
+                            print(
+                                "Stage G gradient gate: every trainable parameter "
+                                "received a gradient"
+                            )
                     accelerator.clip_grad_norm_(
                         model.parameters(),
                         float(trainer.get("gradient_clip", 1.0)),
@@ -313,8 +476,17 @@ def main() -> None:
         validation = evaluate_generator(model, val_loader, accelerator)
         pdm_cfg = config.validation.get("pdm_oracle", {})
         interval = int(pdm_cfg.get("interval_epochs", 0))
-        if bool(pdm_cfg.get("enabled", False)) and interval and epoch % interval == 0:
-            validation["oracle_at_64_pdms"] = evaluate_oracle_pdms(
+        proposal_num = int(
+            accelerator.unwrap_model(model).register_generator.proposal_num
+        )
+        oracle_metric_name = f"oracle_at_{proposal_num}_pdms"
+        oracle_evaluated = (
+            bool(pdm_cfg.get("enabled", False))
+            and interval > 0
+            and epoch % interval == 0
+        )
+        if oracle_evaluated:
+            validation[oracle_metric_name] = evaluate_oracle_pdms(
                 model, val_loader, accelerator, pdm_cfg.metric_supervisor
             )
         epoch_seconds = time.perf_counter() - epoch_start
@@ -323,14 +495,33 @@ def main() -> None:
             if torch.cuda.is_available()
             else 0
         )
-        improved, patience_exhausted = early.update(validation["min_ade_64"])
+        improved_minade, patience_exhausted = early.update(
+            validation["min_ade_64"]
+        )
+        improved_oracle = False
+        if oracle_evaluated:
+            oracle_value = float(validation[oracle_metric_name])
+            if not math.isfinite(oracle_value):
+                raise RuntimeError(
+                    f"Stage-G {oracle_metric_name} is not finite: {oracle_value}"
+                )
+            improved_oracle = (
+                progress.best_oracle_pdms is None
+                or oracle_value > progress.best_oracle_pdms
+            )
+            if improved_oracle:
+                progress.best_oracle_pdms = oracle_value
         should_stop = early_enabled and patience_exhausted
         progress.epoch = epoch
         progress.completed_steps = completed_steps
         progress.early_best = early.best
         progress.early_bad_epochs = early.bad_epochs
         save_this_epoch = (
-            epoch in save_epochs or improved or epoch == epochs or should_stop
+            epoch in save_epochs
+            or improved_minade
+            or improved_oracle
+            or epoch == epochs
+            or should_stop
         )
         accelerator.wait_for_everyone()
         if save_this_epoch:
@@ -344,12 +535,19 @@ def main() -> None:
             unwrapped = accelerator.unwrap_model(model)
             if save_this_epoch:
                 metadata = _component_metadata(unwrapped, config)
-                metadata.update(epoch=epoch, completed_steps=completed_steps)
-                component_names = []
-                if epoch in save_epochs or epoch == epochs or should_stop:
-                    component_names.append(f"generator_epoch_{epoch:02d}.pt")
-                if improved:
-                    component_names.append("best_generator.pt")
+                metadata.update(
+                    epoch=epoch,
+                    completed_steps=completed_steps,
+                    validation=validation,
+                )
+                component_names = generator_component_checkpoint_names(
+                    epoch=epoch,
+                    final_epoch=epochs,
+                    save_epochs=save_epochs,
+                    should_stop=should_stop,
+                    improved_minade=improved_minade,
+                    improved_oracle=improved_oracle,
+                )
                 for component_name in component_names:
                     save_register_generator_checkpoint(
                         output_dir / component_name,

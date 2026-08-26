@@ -64,7 +64,13 @@ def _build_flow(path: str, device, dtype) -> FlowmatchingActionHead:
 
 
 def _build_register(path: str, device, dtype) -> RegisterTrajectoryGenerator:
-    config = load_training_config(path).framework.register_generator
+    full_config = load_training_config(path)
+    config = full_config.framework.register_generator
+    stage_loss_mode = str(
+        full_config.framework.get("generator_loss", {}).get(
+            "stage_loss_mode", "final_only"
+        )
+    )
     return RegisterTrajectoryGenerator(
         proposal_num=64,
         num_poses=8,
@@ -77,6 +83,7 @@ def _build_register(path: str, device, dtype) -> RegisterTrajectoryGenerator:
         drop_path=float(config.drop_path),
         layer_scale_init=float(config.layer_scale_init),
         ego_state_dim=4,
+        stage_loss_mode=stage_loss_mode,
     ).to(device=device, dtype=dtype).eval()
 
 
@@ -276,6 +283,8 @@ def main() -> None:
         "register64": {
             "decoder_layers": 4,
             "proposal_head_style": register.proposal_head_style,
+            "stage_loss_mode": register.stage_loss_mode,
+            "proposal_head_count": register.proposal_head_count,
             "parameter_count": sum(
                 parameter.numel() for parameter in register.parameters()
             ),

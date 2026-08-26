@@ -129,6 +129,12 @@ class QwenRegisterPlanner(QwenRegisterGenerator):
                     "decoder_layers": self.register_generator.num_layers,
                     "decoder_heads": self.register_generator.num_heads,
                     "proposal_head_style": "donor_mlp_v1",
+                    "stage_loss_mode": str(
+                        self.register_generator.stage_loss_mode
+                    ),
+                    "proposal_head_count": int(
+                        self.register_generator.proposal_head_count
+                    ),
                 },
             )
 

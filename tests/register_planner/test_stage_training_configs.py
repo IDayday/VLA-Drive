@@ -1,10 +1,16 @@
 from pathlib import Path
 
 import pytest
+import torch
 
 from starVLA.training.config_loader import load_training_config
 from starVLA.training.register_stage_utils import (
     validate_bank_only_training_profile,
+)
+from starVLA.training.train_register_generator import (
+    generator_component_checkpoint_names,
+    summarize_register_usage,
+    validate_sparse_oracle_config,
 )
 
 
@@ -22,6 +28,45 @@ def test_generator_and_candidate_bank_shuffle_contract():
     bank = _load("register64_candidate_bank.yaml")
     assert generator.datasets.vla_data.shuffle is True
     assert bank.datasets.vla_data.shuffle is False
+
+
+def test_generator_production_gradient_and_oracle_gates():
+    generator = _load("qwen_register64_generator.yaml")
+    assert generator.framework.generator_loss.stage_loss_mode == "final_only"
+    assert generator.trainer.gradient_gate.enabled is True
+    assert generator.trainer.early_stopping.monitor == "min_ade_64"
+    assert generator.validation.num_scenes == 1024
+    assert generator.validation.pdm_oracle.enabled is True
+    assert generator.validation.pdm_oracle.interval_epochs == 5
+
+
+def test_sparse_oracle_config_fails_fast_without_metric_cache():
+    generator = _load("qwen_register64_generator.yaml")
+    generator.validation.pdm_oracle.metric_supervisor.metric_cache_root = None
+    with pytest.raises(ValueError, match="NAVSIM_METRIC_CACHE_ROOT"):
+        validate_sparse_oracle_config(generator.validation)
+
+
+def test_generator_checkpoint_selection_is_independent():
+    names = generator_component_checkpoint_names(
+        epoch=5,
+        final_epoch=25,
+        save_epochs={5, 10, 15, 20, 25},
+        should_stop=False,
+        improved_minade=False,
+        improved_oracle=True,
+    )
+    assert names == ["generator_epoch_05.pt", "best_oracle_generator.pt"]
+    assert "best_minade_generator.pt" not in names
+    assert "best_generator.pt" not in names
+
+
+def test_register_collapse_gate_reports_global_winner_distribution():
+    metrics = summarize_register_usage(torch.tensor([3.0, 1.0, 0.0, 0.0]))
+    assert metrics["register_usage_histogram"] == [3, 1, 0, 0]
+    assert metrics["active_register_ratio"] == pytest.approx(0.5)
+    assert metrics["top1_register_fraction"] == pytest.approx(0.75)
+    assert 0.0 < metrics["register_usage_entropy"] < 1.0
 
 
 def test_drivor_uses_independent_donor_anchored_profile():
