@@ -18,6 +18,10 @@ from research.cf_effect_gate_wote.src.feature_store import (
     SceneCacheRecord,
     stable_array_hash,
 )
+from research.cf_effect_gate_wote.src.inverse_experiments import (
+    _train_inverse_trial,
+    evaluate_inverse_checkpoint,
+)
 from research.cf_effect_gate_wote.src.train_probe import _train_trial
 
 
@@ -182,3 +186,55 @@ def test_forward_effect_train_cache_contract(tmp_path: Path) -> None:
     assert trial["trainable_parameters"] < 10_000_000
     assert metrics["scene_count"] == 1
     assert np.isfinite(metrics["ego_effect_mae"])
+
+
+def test_inverse_train_eval_contract(tmp_path: Path) -> None:
+    train = tmp_path / "inverse-train"
+    val = tmp_path / "inverse-val"
+    test = tmp_path / "inverse-test"
+    _write_frozen_cache(train, "train", "inverse-train-token")
+    _write_frozen_cache(val, "val", "inverse-val-token")
+    _write_frozen_cache(test, "test", "inverse-test-token")
+    train_effects = tmp_path / "inverse-train-effects"
+    val_effects = tmp_path / "inverse-val-effects"
+    test_effects = tmp_path / "inverse-test-effects"
+    _write_effect_cache(train_effects, train)
+    _write_effect_cache(val_effects, val)
+    _write_effect_cache(test_effects, test)
+    checkpoint = tmp_path / "inverse.pt"
+    config = {
+        "embedding_dim": 32,
+        "retrieval_candidates": 16,
+        "batch_scenes": 1,
+        "temperature": 0.07,
+        "delta_weight": 1.0,
+        "max_epochs": 1,
+        "patience": 1,
+    }
+    trial = _train_inverse_trial(
+        train_cache=train,
+        val_cache=val,
+        train_effects=train_effects,
+        val_effects=val_effects,
+        mode="environment_only",
+        seed=0,
+        learning_rate=3.0e-4,
+        config=config,
+        device=torch.device("cpu"),
+        output=checkpoint,
+    )
+    metric, scenes = evaluate_inverse_checkpoint(
+        checkpoint,
+        test,
+        test_effects,
+        torch.device("cpu"),
+        batch_scenes=1,
+    )
+    assert trial["effect_input_schema"] == [
+        "map_relative",
+        "logged_actor_relative",
+        "masks",
+    ]
+    assert len(scenes) == 1
+    assert 0.0 <= metric["top1_retrieval"] <= 1.0
+    assert np.isfinite(metric["delta_normalized_mae"])

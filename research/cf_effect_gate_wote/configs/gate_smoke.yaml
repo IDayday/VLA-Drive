@@ -64,6 +64,17 @@ effect_predictor:
   actor_presence_weight: 0.25
   interaction_weight: 0.5
   temporal_consistency_weight: 0.1
+inverse:
+  retrieval_candidates: 16
+  embedding_dim: 32
+  temperature: 0.07
+  learning_rates: [0.0003]
+  max_epochs: 1
+  patience: 1
+  batch_scenes: 2
+  delta_weight: 1.0
+  lambda_grid: [0.0, 0.1]
+  reject_bottom_percent_grid: [0, 10]
 bootstrap:
   samples: 200
   confidence: 0.95

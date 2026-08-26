@@ -10,6 +10,10 @@ from research.cf_effect_gate_wote.src.models.effect_predictor import (
     count_trainable_parameters,
     effect_prediction_loss,
 )
+from research.cf_effect_gate_wote.src.models.inverse_probe import (
+    farthest_point_candidates,
+    pack_inverse_effect,
+)
 import pytest
 import torch
 
@@ -75,3 +79,32 @@ def test_effect_loss_rejects_planning_labels() -> None:
     }
     with pytest.raises(ValueError, match="forbidden/unknown"):
         effect_prediction_loss(prediction, target)
+
+
+def test_inverse_environment_and_ego_inputs_exclude_absolute_ego_pose() -> None:
+    rng = __import__("numpy").random.default_rng(9)
+    effects = {
+        "ego_effect": rng.normal(size=(4, 8, 16)).astype("float32"),
+        "map_effect": rng.normal(size=(4, 8, 8)).astype("float32"),
+        "actor_effect": rng.normal(size=(4, 8, 16, 13)).astype("float32"),
+        "actor_mask": rng.random((4, 8, 16)) > 0.1,
+        "interaction_mask": rng.random((4, 8, 16)) > 0.8,
+    }
+    ordinary_ego = pack_inverse_effect(effects, "ego_only")
+    ordinary_environment = pack_inverse_effect(effects, "environment_only")
+    modified = {key: value.copy() for key, value in effects.items()}
+    modified["ego_effect"][..., [0, 1, 2, 8, 9, 10, 11, 12, 13, 14, 15]] += 10_000
+    __import__("numpy").testing.assert_array_equal(
+        ordinary_ego, pack_inverse_effect(modified, "ego_only")
+    )
+    __import__("numpy").testing.assert_array_equal(
+        ordinary_environment, pack_inverse_effect(modified, "environment_only")
+    )
+
+
+def test_inverse_fps_uses_only_trajectory_geometry() -> None:
+    trajectory = __import__("numpy").random.default_rng(3).normal(size=(256, 8, 3))
+    first = farthest_point_candidates(trajectory, 16)
+    second = farthest_point_candidates(trajectory.copy(), 16)
+    __import__("numpy").testing.assert_array_equal(first, second)
+    assert len(set(first.tolist())) == 16
