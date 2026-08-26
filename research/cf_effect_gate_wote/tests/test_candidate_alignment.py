@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from research.cf_effect_gate_wote.src.candidate_alignment import (
+    AlignmentRow,
     CandidateAlignmentError,
     CandidateLabels,
     CandidateScoreTable,
@@ -15,6 +16,7 @@ from research.cf_effect_gate_wote.src.candidate_alignment import (
     load_anchors,
     sha1_sorted_tokens,
     source_alignment_audit,
+    _write_alignment_csv,
 )
 
 
@@ -91,6 +93,27 @@ def test_source_audit_identifies_base_anchor_offset_risk(tmp_path: Path) -> None
     assert audit["score_alignment_domain"] == "base_anchors"
     assert audit["offset_label_mismatch_risk"] is True
     assert audit["score_generation_horizon_audit"]["published_generator_source_present"] is False
+
+
+def test_alignment_csv_uses_portable_lf_line_endings(tmp_path: Path) -> None:
+    output = tmp_path / "alignment.csv"
+    _write_alignment_csv(
+        output,
+        [
+            AlignmentRow(
+                scene_token="scene",
+                candidate_index=0,
+                factor="NC",
+                precomputed=1.0,
+                recomputed=1.0,
+                absolute_error=0.0,
+                trajectory_hash="abc",
+            )
+        ],
+    )
+    payload = output.read_bytes()
+    assert b"\r" not in payload
+    assert payload.count(b"\n") == 2
 
 
 def test_dynamic_alignment_detects_candidate_reindexing(tmp_path: Path) -> None:

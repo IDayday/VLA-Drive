@@ -477,7 +477,11 @@ def _write_alignment_csv(path: Path, rows: Sequence[AlignmentRow]) -> None:
         raise FileExistsError(f"refusing to overwrite alignment CSV: {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(asdict(rows[0]).keys()))
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=list(asdict(rows[0]).keys()),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(asdict(row) for row in rows)
 
