@@ -20,6 +20,12 @@ from research.cf_effect_gate_wote.src.feature_store import (
     fixed_random_projection,
     stable_array_hash,
 )
+from research.cf_effect_gate_wote.src.models.probe_heads import (
+    MatchedCapacityFactorProbe,
+    MatchedInputComposer,
+    audit_parameters,
+)
+from research.cf_effect_gate_wote.src.train_probe import ProbeScene, raw_scene_inputs
 
 
 def _debug_output(batch: int = 2) -> dict[str, torch.Tensor]:
@@ -130,3 +136,53 @@ def test_feature_store_refuses_overwrite(tmp_path: Path) -> None:
     FeatureShardWriter(tmp_path / "cache", identity)
     with pytest.raises(RuntimeError, match="existing cache root"):
         FeatureShardWriter(tmp_path / "cache", identity)
+
+
+def test_matched_probe_has_fixed_capacity_and_shapes() -> None:
+    composer = MatchedInputComposer()
+    probe = MatchedCapacityFactorProbe(hidden_dim=256)
+    audit = audit_parameters(composer, probe)
+    common = composer(
+        torch.zeros(2, 16, 64),
+        torch.zeros(2, 16, 256),
+        torch.zeros(2, 16, 768),
+    )
+    output = probe(common)
+    assert audit.trainable_parameters == 332_037
+    assert common.shape == (2, 16, 1024)
+    assert output["factors"].shape == (2, 16, 5)
+    assert output["score"].shape == (2, 16)
+
+
+def test_effect_swap_changes_only_auxiliary_slot() -> None:
+    candidates = 256
+    frozen = {
+        "trajectory": np.arange(candidates * 8 * 3, dtype=np.float32).reshape(
+            candidates, 8, 3
+        ),
+        "factor_labels": np.zeros((candidates, 5), dtype=np.float32),
+        "ego_status_feature": np.zeros(8, dtype=np.float32),
+        "current_bev_pool": np.arange(256, dtype=np.float32),
+        "selected_index": np.asarray(0, dtype=np.int64),
+    }
+    effects = {
+        "ego_effect": np.arange(candidates * 8 * 16, dtype=np.float32).reshape(
+            candidates, 8, 16
+        ),
+        "map_effect": np.zeros((candidates, 8, 8), dtype=np.float32),
+        "actor_effect": np.zeros((candidates, 8, 16, 13), dtype=np.float32),
+        "actor_mask": np.ones((candidates, 8, 16), dtype=bool),
+        "interaction_mask": np.zeros((candidates, 8, 16), dtype=bool),
+        "shared_logged_future": np.zeros((8, 16, 8), dtype=np.float32),
+        "shared_actor_mask": np.zeros((8, 16), dtype=bool),
+    }
+    scene = ProbeScene("swap", frozen, effects)
+    ordinary = raw_scene_inputs(scene, "oracle_replay_effect")
+    permutation = np.roll(np.arange(candidates), 1)
+    swapped = raw_scene_inputs(
+        scene, "oracle_replay_effect", effect_permutation=permutation
+    )
+    np.testing.assert_array_equal(ordinary[0], swapped[0])
+    np.testing.assert_array_equal(ordinary[1], swapped[1])
+    np.testing.assert_array_equal(ordinary[3], swapped[3])
+    assert not np.array_equal(ordinary[2], swapped[2])
