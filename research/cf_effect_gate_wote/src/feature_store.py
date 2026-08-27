@@ -17,6 +17,7 @@ import numpy.typing as npt
 
 
 FEATURE_SCHEMA_VERSION = "wote_debug.v1"
+BASE_ANCHOR_FEATURE_SCHEMA_VERSION = "wote_debug_base_anchor.v2"
 
 
 class FeatureStoreError(RuntimeError):
@@ -120,7 +121,8 @@ class SceneCacheRecord:
     scene_token: str
     candidate_indices: tuple[int, ...]
     trajectory_hash: str
-    label_hash: str
+    label_hash: str | None = None
+    candidate_bank_hash: str | None = None
 
     def validate(self, expected_candidates: int) -> None:
         if not self.scene_token:
@@ -131,14 +133,30 @@ class SceneCacheRecord:
                 f"candidate index mismatch for {self.scene_token}: "
                 f"expected 0..{expected_candidates - 1}"
             )
-        for label, value in (
-            ("trajectory_hash", self.trajectory_hash),
-            ("label_hash", self.label_hash),
-        ):
+        hashes = [("trajectory_hash", self.trajectory_hash)]
+        if self.label_hash is not None:
+            hashes.append(("label_hash", self.label_hash))
+        if self.candidate_bank_hash is not None:
+            hashes.append(("candidate_bank_hash", self.candidate_bank_hash))
+        for label, value in hashes:
             if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
                 raise FeatureStoreError(
                     f"{label} for {self.scene_token} is not a SHA256"
                 )
+
+    def to_sidecar(self) -> dict[str, Any]:
+        """Serialize without inventing a sentinel hash for absent labels."""
+
+        payload: dict[str, Any] = {
+            "scene_token": self.scene_token,
+            "candidate_indices": list(self.candidate_indices),
+            "trajectory_hash": self.trajectory_hash,
+        }
+        if self.candidate_bank_hash is not None:
+            payload["candidate_bank_hash"] = self.candidate_bank_hash
+        if self.label_hash is not None:
+            payload["label_hash"] = self.label_hash
+        return payload
 
 
 @dataclass(frozen=True)
@@ -150,11 +168,13 @@ class CacheIdentity:
     feature_schema_version: str = FEATURE_SCHEMA_VERSION
     candidate_count: int = 256
     horizon: int = 8
+    label_source: str = "published"
+    candidate_bank_hash: str | None = None
 
     def validate(self) -> None:
         if not self.run_id or "/" in self.run_id or ".." in self.run_id:
             raise FeatureStoreError(f"unsafe run_id: {self.run_id!r}")
-        if self.split not in {"train", "val", "test", "smoke"}:
+        if self.split not in {"train", "val", "test", "smoke", "headroom"}:
             raise FeatureStoreError(f"unsupported split: {self.split}")
         if self.candidate_count <= 0 or self.horizon <= 0:
             raise FeatureStoreError("candidate_count and horizon must be positive")
@@ -164,6 +184,17 @@ class CacheIdentity:
         ):
             if len(value) != 40 and len(value) != 64:
                 raise FeatureStoreError(f"invalid {label}: {value!r}")
+        if self.label_source not in {"published", "none"}:
+            raise FeatureStoreError(f"unsupported label source: {self.label_source!r}")
+        if self.candidate_bank_hash is not None and (
+            len(self.candidate_bank_hash) != 64
+            or any(char not in "0123456789abcdef" for char in self.candidate_bank_hash)
+        ):
+            raise FeatureStoreError("candidate_bank_hash is not a SHA256")
+        if self.label_source == "none" and self.candidate_bank_hash is None:
+            raise FeatureStoreError(
+                "label-free caches require an explicit candidate_bank_hash"
+            )
 
 
 class FeatureShardWriter:
@@ -195,6 +226,15 @@ class FeatureShardWriter:
         scene_count = len(records)
         for record in records:
             record.validate(self.identity.candidate_count)
+            if self.identity.label_source == "none":
+                if record.label_hash is not None:
+                    raise FeatureStoreError(
+                        f"label-free cache record unexpectedly has label_hash: {record.scene_token}"
+                    )
+                if record.candidate_bank_hash != self.identity.candidate_bank_hash:
+                    raise FeatureStoreError(
+                        f"candidate bank mismatch for label-free record: {record.scene_token}"
+                    )
             if record.scene_token in self._tokens:
                 raise FeatureStoreError(f"duplicate scene token: {record.scene_token}")
 
@@ -225,7 +265,7 @@ class FeatureShardWriter:
                 key: {"shape": list(value.shape), "dtype": str(value.dtype)}
                 for key, value in sorted(normalized.items())
             },
-            "records": [asdict(record) for record in records],
+            "records": [record.to_sidecar() for record in records],
             "checkpoint_sha256": self.identity.checkpoint_sha256,
             "wote_commit_sha": self.identity.wote_commit_sha,
         }

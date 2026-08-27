@@ -18,6 +18,7 @@ import numpy as np
 import numpy.typing as npt
 
 from .feature_store import (
+    BASE_ANCHOR_FEATURE_SCHEMA_VERSION,
     CacheIdentity,
     FeatureShardReader,
     FeatureShardWriter,
@@ -109,7 +110,10 @@ def validate_asset_manifest(
     release_root: Path,
     data_root: Path | None,
     compute_hashes: bool,
+    label_source: str = "published",
 ) -> dict[str, Any]:
+    if label_source not in {"published", "none"}:
+        raise ValueError(f"unsupported label source: {label_source!r}")
     if not (wote_root / ".git").exists():
         raise AssetPreflightError(f"WoTE checkout is not a Git repository: {wote_root}")
     actual_commit = _git_head(wote_root)
@@ -118,6 +122,11 @@ def validate_asset_manifest(
             f"WoTE commit mismatch: expected {WOTE_COMMIT}, got {actual_commit}"
         )
 
+    release_assets = [
+        (name, relative)
+        for name, relative in RELEASE_RELATIVE_PATHS.items()
+        if label_source == "published" or name != "candidate_scores"
+    ]
     entries = [
         _asset_entry(
             name,
@@ -126,7 +135,7 @@ def validate_asset_manifest(
             compute_hashes,
             f"$WOTE_RELEASE_ROOT/{relative.as_posix()}",
         )
-        for name, relative in RELEASE_RELATIVE_PATHS.items()
+        for name, relative in release_assets
     ]
     dataset_entries: list[AssetEntry] = []
     if data_root is not None:
@@ -154,6 +163,7 @@ def validate_asset_manifest(
         "wote_commit_sha": actual_commit,
         "release_root": "$WOTE_RELEASE_ROOT",
         "data_root": "$NAVSIM_DATA_ROOT" if data_root is not None else None,
+        "label_source": label_source,
         "assets": [asdict(entry) for entry in entries + dataset_entries],
         "all_required_present": all(entry.exists for entry in entries + dataset_entries),
     }
@@ -358,6 +368,43 @@ def _load_score_factors(
     return factors
 
 
+def _score_dictionary_for_label_source(
+    release_root: Path, label_source: str
+) -> Mapping[str, Any] | None:
+    """Load published labels only when explicitly selected."""
+
+    if label_source == "none":
+        return None
+    if label_source != "published":
+        raise ValueError(f"unsupported label source: {label_source!r}")
+    return _load_score_dictionary(
+        release_root / RELEASE_RELATIVE_PATHS["candidate_scores"]
+    )
+
+
+def assert_base_anchor_contract(
+    output: Mapping[str, npt.NDArray[Any]],
+    released_anchors: npt.NDArray[np.float32],
+) -> None:
+    """Require every candidate tensor to equal the released base bank bit-for-bit."""
+
+    anchors = np.asarray(released_anchors, dtype=np.float32)
+    if anchors.shape != (256, 8, 3):
+        raise ValueError(f"released base anchors expected [256,8,3], got {anchors.shape}")
+    base = np.asarray(output["base_trajectory_anchors"], dtype=np.float32)
+    raw = np.asarray(output["trajectory_anchor_raw"], dtype=np.float32)
+    all_trajectory = np.asarray(output["all_trajectory"], dtype=np.float32)
+    if base.shape != anchors.shape or not np.array_equal(base, anchors):
+        raise ValueError("model base_trajectory_anchors differ from released anchor bank")
+    expected = anchors[None]
+    if raw.shape != expected.shape or not np.array_equal(raw, expected):
+        raise ValueError("trajectory_anchor_raw is not exactly the base anchor bank")
+    if all_trajectory.shape != expected.shape or not np.array_equal(
+        all_trajectory, expected
+    ):
+        raise ValueError("all_trajectory is not exactly the base anchor bank")
+
+
 def _tensor_to_numpy(value: Any) -> npt.NDArray[Any]:
     return value.detach().cpu().numpy()
 
@@ -366,7 +413,11 @@ def run_cache(args: argparse.Namespace) -> None:
     if args.output.exists():
         raise FileExistsError(f"refusing existing cache output: {args.output}")
     manifest = validate_asset_manifest(
-        args.wote_root, args.release_root, args.data_root, compute_hashes=True
+        args.wote_root,
+        args.release_root,
+        args.data_root,
+        compute_hashes=True,
+        label_source=args.label_source,
     )
     if not manifest["all_required_present"]:
         raise AssetPreflightError("required assets are missing")
@@ -402,8 +453,10 @@ def run_cache(args: argparse.Namespace) -> None:
     config.cluster_file_path = str(
         args.release_root / RELEASE_RELATIVE_PATHS["trajectory_anchors"]
     )
-    config.sim_reward_dict_path = str(
-        args.release_root / RELEASE_RELATIVE_PATHS["candidate_scores"]
+    config.sim_reward_dict_path = (
+        str(args.release_root / RELEASE_RELATIVE_PATHS["candidate_scores"])
+        if args.label_source == "published"
+        else None
     )
     config.return_debug_features = False
     config.debug_force_base_anchors = False
@@ -442,16 +495,33 @@ def run_cache(args: argparse.Namespace) -> None:
     checkpoint_sha = next(
         entry["sha256"] for entry in manifest["assets"] if entry["name"] == "checkpoint"
     )
+    released_anchors = np.asarray(
+        np.load(
+            args.release_root / RELEASE_RELATIVE_PATHS["trajectory_anchors"],
+            allow_pickle=False,
+        ),
+        dtype=np.float32,
+    )
+    candidate_bank_hash = stable_array_hash(released_anchors)
     identity = CacheIdentity(
         run_id=args.run_id,
         split=args.split,
         checkpoint_sha256=checkpoint_sha,
         wote_commit_sha=WOTE_COMMIT,
+        feature_schema_version=(
+            BASE_ANCHOR_FEATURE_SCHEMA_VERSION
+            if args.label_source == "none"
+            else "wote_debug.v1"
+        ),
+        label_source=args.label_source,
+        candidate_bank_hash=(
+            candidate_bank_hash if args.label_source == "none" else None
+        ),
     )
     writer = FeatureShardWriter(args.output, identity)
     projection = fixed_random_projection(256, 64, seed=20260827)
-    score_dictionary = _load_score_dictionary(
-        args.release_root / RELEASE_RELATIVE_PATHS["candidate_scores"]
+    score_dictionary = _score_dictionary_for_label_source(
+        args.release_root, args.label_source
     )
     pending_arrays: dict[str, list[npt.NDArray[Any]]] = {}
     pending_records: list[SceneCacheRecord] = []
@@ -487,10 +557,10 @@ def run_cache(args: argparse.Namespace) -> None:
             validate_debug_shapes(gate_output)
 
         output = {key: _tensor_to_numpy(value) for key, value in gate_output.items()}
+        assert_base_anchor_contract(output, released_anchors)
         base_anchors = np.broadcast_to(
             output["base_trajectory_anchors"][None], (1, 256, 8, 3)
         ).copy()
-        factors = _load_score_factors(score_dictionary, token)
         env_future = environment_only_future(
             output["current_bev_tokens"],
             output["future_bev_tokens_by_step"],
@@ -513,15 +583,20 @@ def run_cache(args: argparse.Namespace) -> None:
             "sim_rewards": output["sim_rewards"][0],
             "final_rewards": output["final_rewards"][0],
             "selected_index": np.asarray(output["selected_index"][0], dtype=np.int64),
-            "factor_labels": factors,
         }
+        factors = None
+        if score_dictionary is not None:
+            factors = _load_score_factors(score_dictionary, token)
+            scene_arrays["factor_labels"] = factors
         trajectory_hash = stable_array_hash(base_anchors[0])
-        label_hash = stable_array_hash(factors)
         record = SceneCacheRecord(
             scene_token=token,
             candidate_indices=tuple(range(256)),
             trajectory_hash=trajectory_hash,
-            label_hash=label_hash,
+            label_hash=(stable_array_hash(factors) if factors is not None else None),
+            candidate_bank_hash=(
+                candidate_bank_hash if args.label_source == "none" else None
+            ),
         )
         for key, value in scene_arrays.items():
             pending_arrays.setdefault(key, []).append(value)
@@ -625,6 +700,9 @@ def _parser() -> argparse.ArgumentParser:
     preflight.add_argument("--data-root", type=Path)
     preflight.add_argument("--report-dir", type=Path)
     preflight.add_argument("--write-reports", action="store_true")
+    preflight.add_argument(
+        "--label-source", choices=("published", "none"), default="published"
+    )
 
     cache = subparsers.add_parser("cache", help="cache frozen WoTE features")
     cache.add_argument("--wote-root", type=Path, required=True)
@@ -639,6 +717,9 @@ def _parser() -> argparse.ArgumentParser:
     cache.add_argument("--limit", type=int)
     cache.add_argument("--dry-run", action="store_true")
     cache.add_argument("--preflight-only", action="store_true")
+    cache.add_argument(
+        "--label-source", choices=("published", "none"), default="published"
+    )
 
     summary = subparsers.add_parser("summarize-g0", help="validate repeated G0 caches")
     summary.add_argument("--cache-first", type=Path, required=True)
@@ -665,6 +746,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.release_root,
             args.data_root,
             compute_hashes=args.write_reports,
+            label_source=args.label_source,
         )
         print(json.dumps(manifest, indent=2, sort_keys=True))
         if args.write_reports:
@@ -688,12 +770,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         "device": args.device,
         "shard_scenes": args.shard_scenes,
         "limit": args.limit,
+        "label_source": args.label_source,
     }
     print(json.dumps(resolved, indent=2, sort_keys=True))
     if args.dry_run:
         return 0
     manifest = validate_asset_manifest(
-        args.wote_root, args.release_root, args.data_root, compute_hashes=False
+        args.wote_root,
+        args.release_root,
+        args.data_root,
+        compute_hashes=False,
+        label_source=args.label_source,
     )
     if not manifest["all_required_present"]:
         raise AssetPreflightError("one or more required assets are missing")
