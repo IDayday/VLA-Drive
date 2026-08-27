@@ -31,6 +31,13 @@ project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$project_root/load_env.sh"
 cd "$project_root"
 
+pseudo_default="$project_root/navsim_exp/assets/clover_stage1_pseudo_experts/CLOVER/dataset_decoupled_v2_clean.pkl"
+case "${CLOVER_PSEUDO_EXPERT_PKL:-}" in
+  ""|/absolute/path/to/pseudo_experts.pkl|/absolute/path/to/official/pseudo_experts.pkl|/absolute/path/to/official-clover-pseudo-experts.pkl|/PATH/TO/pseudo_expert.pkl)
+    export CLOVER_PSEUDO_EXPERT_PKL="$pseudo_default"
+    ;;
+esac
+
 export CLOVER_EXPECTED_BRANCH="${CLOVER_EXPECTED_BRANCH:-feature/ddp-drs-scene-2048}"
 export NUM_MACHINES="${NUM_MACHINES:-1}"
 export MACHINE_RANK="${MACHINE_RANK:-0}"
@@ -119,6 +126,12 @@ if (( dry_run )); then
   echo "[clover-pdms] effective batch=$TARGET_EFFECTIVE_BATCH_SIZE per_device=$PER_DEVICE_BATCH_SIZE accumulation=$GRADIENT_ACCUMULATION_STEPS"
   echo "[clover-pdms] recipe=stage1:25epochs cycles:$CLOVER_NUM_CYCLES*(critic1+generator1) closing_critic:1"
   echo "[clover-pdms] labels=NAVSIM-v1.1-PDMS pseudo_experts=${CLOVER_PSEUDO_EXPERT_PKL:-REQUIRED}"
+  if [[ -f "$CLOVER_PSEUDO_EXPERT_PKL" ]]; then
+    echo "[clover-pdms] pseudo_asset_state=COMPLETE_OR_INVALID bytes=$(stat -c '%s' "$CLOVER_PSEUDO_EXPERT_PKL")"
+  else
+    echo "[clover-pdms] pseudo_asset_state=MISSING"
+    print_command bash "$project_root/prepare_clover_pseudo_experts.sh"
+  fi
   print_command python tools/prepare_register64_train_val_split.py --source "$CLOVER_SOURCE_DATALIST" --output-dir "$split_root" --validation-size "$CLOVER_VALIDATION_SIZE" --selection-size "$CLOVER_SELECTION_SIZE" --metadata-root "$DATA_ROOT/meta/train" --metadata-workers "$CLOVER_SPLIT_WORKERS" --require-log-disjoint --seed 2
   print_command python navsim_v1.1/navsim/navsim/planning/script/run_metric_caching.py train_test_split=navtrain "cache.cache_path=$CLOVER_PDMS_TRAIN_METRIC_CACHE" "worker.threads_per_node=$CLOVER_CACHE_WORKERS"
   if (( profile_steps )); then
@@ -246,6 +259,20 @@ if (( ! CLOVER_ALLOW_DIRTY )) && [[ -n "$(env -u GIT_DIR -u GIT_WORK_TREE git -C
 fi
 require_value QWEN_VLM_PATH
 require_value CLOVER_PSEUDO_EXPERT_PKL
+if [[ ! -f "$CLOVER_PSEUDO_EXPERT_PKL" ]]; then
+  echo "[clover-pdms] missing official CLOVER pseudo-expert package: $CLOVER_PSEUDO_EXPERT_PKL" >&2
+  echo "[clover-pdms] prepare it once on the shared mount before allocating 16 PPU:" >&2
+  echo "  bash $project_root/prepare_clover_pseudo_experts.sh" >&2
+  exit 2
+fi
+if [[ "$CLOVER_PSEUDO_EXPERT_PKL" == "$pseudo_default" ]]; then
+  pseudo_size="$(stat -c '%s' "$CLOVER_PSEUDO_EXPERT_PKL")"
+  if [[ "$pseudo_size" != 3964573635 ]]; then
+    echo "[clover-pdms] incomplete/corrupt official pseudo package bytes=$pseudo_size expected=3964573635" >&2
+    echo "[clover-pdms] rerun: bash $project_root/prepare_clover_pseudo_experts.sh" >&2
+    exit 2
+  fi
+fi
 for path in "$QWEN_VLM_PATH" "$CLOVER_PSEUDO_EXPERT_PKL" "$DATA_ROOT" \
   "$OPENSCENE_DATA_ROOT" "$NUPLAN_MAPS_ROOT" "$CLOVER_NAVTRAIN_LOG_ROOT" \
   "$CLOVER_NAVTEST_LOG_ROOT" "$CLOVER_SOURCE_DATALIST" \

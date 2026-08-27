@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import inspect
+import os
 import pickle
+import subprocess
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
@@ -444,3 +447,63 @@ def test_enrichment_reports_scene_level_high_pdms_support():
     )
     assert report["topk_enrichment"].shape == (2,)
     assert torch.all(report["topk_high_score_enrichment"] > 0)
+
+
+def test_clover_launcher_rejects_documentation_placeholder_as_asset_path(tmp_path):
+    repository = Path(__file__).resolve().parents[2]
+    environment = os.environ.copy()
+    environment.update(
+        CLOVER_PSEUDO_EXPERT_PKL="/absolute/path/to/pseudo_experts.pkl",
+        CLOVER_RUN_ID="asset-placeholder-contract",
+    )
+    result = subprocess.run(
+        ["bash", str(repository / "run_register64_clover_pdms_dlc.sh"), "--dry-run"],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    expected = repository / "navsim_exp/assets/clover_stage1_pseudo_experts/CLOVER/dataset_decoupled_v2_clean.pkl"
+    assert f"pseudo_experts={expected}" in result.stdout
+    assert "pseudo_asset_state=MISSING" in result.stdout
+    assert "/absolute/path/to/pseudo_experts.pkl" not in result.stdout
+
+
+def test_clover_asset_preparation_dry_run_is_no_write(tmp_path):
+    repository = Path(__file__).resolve().parents[2]
+    destination = tmp_path / "path with spaces" / "pseudo.pkl"
+    result = subprocess.run(
+        [
+            "bash",
+            str(repository / "prepare_clover_pseudo_experts.sh"),
+            "--output",
+            str(destination),
+            "--dry-run",
+        ],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "dry_run=1 writes=0 imports=0" in result.stdout
+    assert "state=MISSING" in result.stdout
+    assert str(destination) in result.stdout
+    assert not destination.parent.exists()
+
+
+def test_clover_asset_preparation_normalizes_documentation_placeholder(tmp_path):
+    repository = Path(__file__).resolve().parents[2]
+    environment = os.environ.copy()
+    environment["CLOVER_PSEUDO_EXPERT_PKL"] = "/absolute/path/to/pseudo_experts.pkl"
+    result = subprocess.run(
+        ["bash", str(repository / "prepare_clover_pseudo_experts.sh"), "--dry-run"],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    expected = repository / "navsim_exp/assets/clover_stage1_pseudo_experts/CLOVER/dataset_decoupled_v2_clean.pkl"
+    assert f"output={expected}" in result.stdout
+    assert "/absolute/path/to/pseudo_experts.pkl" not in result.stdout

@@ -52,9 +52,10 @@
 # export REGISTER64_ORACLE_OUTPUT_ROOT="${REGISTER64_ORACLE_OUTPUT_ROOT:-/absolute/path/to/register64-oracle-evaluations}"
 # export REGISTER64_ORACLE_PDMS_CACHE_ROOT="${REGISTER64_ORACLE_PDMS_CACHE_ROOT:-/absolute/path/to/navtest-v1.1-metric-cache}"
 
-# Register64 PDMS-first closed-loop training. The pseudo-expert PKL must be
-# the official evaluator-filtered CLOVER package; random perturbations are not
-# an equivalent replacement.
-# export CLOVER_PSEUDO_EXPERT_PKL="${CLOVER_PSEUDO_EXPERT_PKL:-/absolute/path/to/official-clover-pseudo-experts.pkl}"
+# Register64 PDMS-first closed-loop training. The launcher defaults to the
+# repository-relative ignored asset produced by prepare_clover_pseudo_experts.sh.
+# Override this only for a separately verified copy of the official package;
+# random perturbations are not an equivalent replacement.
+# export CLOVER_PSEUDO_EXPERT_PKL="${CLOVER_PSEUDO_EXPERT_PKL:-${DRIVEDREAMER_ROOT}/navsim_exp/assets/clover_stage1_pseudo_experts/CLOVER/dataset_decoupled_v2_clean.pkl}"
 # export CLOVER_SHARED_CACHE_ROOT="${CLOVER_SHARED_CACHE_ROOT:-/absolute/path/to/shared-navsim-v1.1-metric-cache}"
 # export CLOVER_OUTPUT_ROOT="${CLOVER_OUTPUT_ROOT:-/absolute/path/to/register64-pdms-first-runs}"

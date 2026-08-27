@@ -276,28 +276,34 @@ than being partially approximated inside the promoted model.
 
 ## 7. One-command DLC run
 
-Required environment:
+Prepare the released evaluator-filtered package once on the shared mount. The
+command is resumable and validates the official 3,964,573,635-byte asset before
+writing its SHA-256 manifest:
 
 ```bash
-export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
+cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
+bash ./prepare_clover_pseudo_experts.sh --dry-run
+bash ./prepare_clover_pseudo_experts.sh
 ```
 
-The official package is linked from the CLOVER repository README. Other data,
-map and model paths are loaded from `env.local.sh`.
+The default destination is ignored by Git at
+`navsim_exp/assets/clover_stage1_pseudo_experts/CLOVER/dataset_decoupled_v2_clean.pkl`.
+An explicit `CLOVER_PSEUDO_EXPERT_PKL` may select another verified copy. Known
+documentation placeholders are never accepted as literal training paths. Other
+data, map and model paths are loaded from `env.local.sh`.
 
 Dry run:
 
 ```bash
-cd /path/to/VLA-Drive
+cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
 bash ./run_register64_clover_pdms_dlc.sh --dry-run
 ```
 
 Production-shape performance gate (recommended before the multi-day run):
 
 ```bash
-cd /path/to/VLA-Drive
+cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
 export CLOVER_RUN_ID=register64-clover-profile-$(date +%Y%m%d_%H%M%S)
-export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
 bash ./run_register64_clover_pdms_dlc.sh --profile-steps 200
 ```
 
@@ -308,17 +314,15 @@ per-rank memory, then exits without a formal-training completion marker.
 Formal non-interactive 16-PPU run:
 
 ```bash
-cd /path/to/VLA-Drive
-export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
+cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
 bash ./run_register64_clover_pdms_dlc.sh
 ```
 
 Resume the same run identity:
 
 ```bash
-cd /path/to/VLA-Drive
+cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
 export CLOVER_RUN_ID=<existing-run-id>
-export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
 bash ./run_register64_clover_pdms_dlc.sh --resume
 ```
 

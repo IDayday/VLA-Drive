@@ -5,6 +5,12 @@ set -Eeuo pipefail
 
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$project_root/load_env.sh"
+pseudo_default="$project_root/navsim_exp/assets/clover_stage1_pseudo_experts/CLOVER/dataset_decoupled_v2_clean.pkl"
+case "${CLOVER_PSEUDO_EXPERT_PKL:-}" in
+  ""|/absolute/path/to/pseudo_experts.pkl|/absolute/path/to/official/pseudo_experts.pkl|/absolute/path/to/official-clover-pseudo-experts.pkl|/PATH/TO/pseudo_expert.pkl)
+    export CLOVER_PSEUDO_EXPERT_PKL="$pseudo_default"
+    ;;
+esac
 export LOCAL_NUM_PROCESSES="${LOCAL_NUM_PROCESSES:-16}"
 export NUM_PROCESSES="${NUM_PROCESSES:-$LOCAL_NUM_PROCESSES}"
 export NUM_MACHINES="${NUM_MACHINES:-1}"
