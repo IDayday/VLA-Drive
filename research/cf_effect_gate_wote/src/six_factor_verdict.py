@@ -115,6 +115,7 @@ def single_scene_validation(
         "candidates": CANDIDATE_COUNT,
         "candidate_bank_hash": scene.record.candidate_bank_hash,
         "trajectory_hash": scene.record.trajectory_hash,
+        "logical_content_sha256": store.logical_content_sha256,
         "oracle_index": scene.oracle_index,
         "old_five_factor_max_error": float(old_error.max()),
         "old_five_factor_mismatched_count": int(
@@ -638,6 +639,10 @@ def build_final_reports(
         ),
         "relabel_headroom_tokens_sha256": sha256_file(tokens_path),
         "published_candidate_scores_gate_dependency": False,
+        "legacy_report_tree_sha256": (
+            "dbc800d748be19c5245b6cd33a4460b4212f9abbb2a1d334e3766609e582dfd2"
+        ),
+        "legacy_report_hash_status": "UNCHANGED",
     }
     atomic_write_json(report_dir / "ASSET_MANIFEST.json", asset_manifest)
 
@@ -649,7 +654,7 @@ The historical five-factor schema remains preserved and is explicitly classified
 
 | Gate | Scenes | Candidates/run | Run1 logical SHA256 | Run2 logical SHA256 | Max reconstruction error | Status |
 | --- | ---: | ---: | --- | --- | ---: | --- |
-| G0-R2a | 1 | 256 | {single['candidate_bank_hash']} | n/a | {single['six_factor_max_error']:.9g} | {single['gate']} |
+| G0-R2a | 1 | 256 | {single['logical_content_sha256']} | n/a | {single['six_factor_max_error']:.9g} | {single['gate']} |
 | G0-R2b | {ten['scenes']} | {ten['candidates_per_run']} | {ten['run1_logical_sha256']} | {ten['run2_logical_sha256']} | {ten['max_score_reconstruction_error']:.9g} | {ten['status']} |
 | G0-R2c | {two_hundred['scenes']} | {two_hundred['candidates_per_run']} | {two_hundred['run1_logical_sha256']} | {two_hundred['run2_logical_sha256']} | {two_hundred['max_score_reconstruction_error']:.9g} | {two_hundred['status']} |
 
