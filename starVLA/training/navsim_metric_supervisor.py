@@ -41,7 +41,7 @@ _OUTPUT_METRICS = (
 _PROCESS_EVALUATOR = None
 
 
-def _new_navsim_evaluator(metric_cache_root: Path):
+def _new_navsim_evaluator(metric_cache_root: Path, protocol: str):
     """Construct one mutable NAVSIM evaluator for a thread or process worker."""
 
     try:
@@ -55,9 +55,6 @@ def _new_navsim_evaluator(metric_cache_root: Path):
         from navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator import (
             PDMSimulator,
         )
-        from navsim.traffic_agents_policies.log_replay_traffic_agents import (
-            LogReplayTrafficAgents,
-        )
     except ImportError as exc:
         raise ImportError(
             "DynamicMetricSupervisor requires the NAVSIM/nuPlan training "
@@ -65,12 +62,30 @@ def _new_navsim_evaluator(metric_cache_root: Path):
             "Register candidate-bank construction"
         ) from exc
     sampling = TrajectorySampling(num_poses=40, interval_length=0.1)
+    if protocol not in {
+        "navsim_v1_pdms",
+        "navsim_v1_1_pdms_two_way",
+        "navsim_v2_epdms",
+    }:
+        raise ValueError(f"unsupported NAVSIM metric protocol {protocol!r}")
+    traffic_policy = None
+    if protocol == "navsim_v2_epdms":
+        try:
+            from navsim.traffic_agents_policies.log_replay_traffic_agents import (
+                LogReplayTrafficAgents,
+            )
+        except ImportError as exc:
+            raise ImportError(
+                "navsim_v2_epdms requires the NAVSIM-v2 traffic-agent policy"
+            ) from exc
+        traffic_policy = LogReplayTrafficAgents(sampling)
     return (
+        protocol,
         MetricCacheLoader(metric_cache_root),
         sampling,
         PDMSimulator(sampling),
         PDMScorer(sampling),
-        LogReplayTrafficAgents(sampling),
+        traffic_policy,
     )
 
 
@@ -80,13 +95,18 @@ def _score_with_evaluator(
     token: str,
     trajectories_40: np.ndarray,
 ):
-    loader, sampling, simulator, scorer, traffic_policy = evaluator
+    protocol, loader, sampling, simulator, scorer, traffic_policy = evaluator
     if token not in loader.metric_cache_paths:
         raise FileNotFoundError(
             f"NAVSIM metric cache {metric_cache_root} has no token {token!r}"
         )
     metric_cache = loader.get_from_token(token)
-    return _score_trajectory_pool(
+    score_function = (
+        _score_trajectory_pool_v1
+        if protocol in {"navsim_v1_pdms", "navsim_v1_1_pdms_two_way"}
+        else _score_trajectory_pool
+    )
+    return score_function(
         metric_cache,
         trajectories_40,
         sampling,
@@ -96,11 +116,11 @@ def _score_with_evaluator(
     )
 
 
-def _initialize_process_evaluator(metric_cache_root: str) -> None:
+def _initialize_process_evaluator(metric_cache_root: str, protocol: str) -> None:
     """Initialize persistent worker-local NAVSIM state under ``spawn``."""
 
     global _PROCESS_EVALUATOR
-    _PROCESS_EVALUATOR = _new_navsim_evaluator(Path(metric_cache_root))
+    _PROCESS_EVALUATOR = _new_navsim_evaluator(Path(metric_cache_root), protocol)
 
 
 def _score_one_in_process(
@@ -215,6 +235,138 @@ class _DynamicMetricBatch:
                 for name in _OUTPUT_METRICS
             }
         return self._result
+
+
+def _v1_two_way_progress_and_score(scorer) -> tuple[np.ndarray, np.ndarray]:
+    """Reconstruct exact per-candidate v1.1 EP/PDMS after one pooled score call."""
+
+    multi_metrics = np.asarray(scorer._multi_metrics, dtype=np.float64)
+    weighted_metrics = np.asarray(scorer._weighted_metrics, dtype=np.float64).copy()
+    raw_progress = np.asarray(scorer._progress_raw, dtype=np.float64)
+    if multi_metrics.ndim != 2 or multi_metrics.shape[1] < 2:
+        raise RuntimeError("NAVSIM-v1 scorer must contain expert plus candidates")
+    if weighted_metrics.ndim != 2 or weighted_metrics.shape[1] != multi_metrics.shape[1]:
+        raise RuntimeError("NAVSIM-v1 weighted/multiplicative proposal counts differ")
+    if raw_progress.shape != (multi_metrics.shape[1],):
+        raise RuntimeError("NAVSIM-v1 raw progress has an invalid proposal count")
+
+    multiplicative = multi_metrics.prod(axis=0)
+    masked_raw_progress = raw_progress * multiplicative
+    candidate_normalizer = np.maximum(
+        masked_raw_progress[0], masked_raw_progress[1:]
+    )
+    progress_threshold = float(scorer._config.progress_distance_threshold)
+    candidate_progress = np.where(
+        candidate_normalizer > progress_threshold,
+        np.divide(
+            masked_raw_progress[1:],
+            candidate_normalizer,
+            out=np.zeros_like(candidate_normalizer),
+            where=candidate_normalizer > 0,
+        ),
+        (multiplicative[1:] != 0.0).astype(np.float64),
+    )
+    # NAVSIM-v1.1's fixed WeightedMetricIndex.PROGRESS value is zero. Keeping
+    # this algebra helper free of NAVSIM imports also makes it easy to parity
+    # test without a devkit installation.
+    progress_index = 0
+    weighted_metrics[progress_index, 1:] = candidate_progress
+    metric_weights = np.asarray(
+        scorer._config.weighted_metrics_array, dtype=np.float64
+    )
+    weight_sum = float(metric_weights.sum())
+    if metric_weights.shape != (weighted_metrics.shape[0],) or weight_sum <= 0:
+        raise RuntimeError("NAVSIM-v1 PDM weighted-metric configuration is invalid")
+    aggregate_score = multiplicative[1:] * (
+        weighted_metrics[:, 1:] * metric_weights[:, None]
+    ).sum(axis=0) / weight_sum
+    return candidate_progress, aggregate_score
+
+
+def _score_trajectory_pool_v1(
+    metric_cache,
+    trajectories: np.ndarray,
+    sampling,
+    simulator,
+    scorer,
+    traffic_policy,
+) -> Dict[str, np.ndarray]:
+    """Evaluate K proposals with exact NAVSIM-v1.1 two-way PDMS semantics.
+
+    Official NAVSIM-v1.1 evaluates each prediction together with the PDM expert.
+    The progress sub-score is therefore normalized by ``max(expert, candidate)``
+    independently for every candidate.  Calling ``PDMScorer`` once on
+    ``[expert, candidate_0, ..., candidate_K]`` and consuming its returned score
+    is *not* equivalent: it normalizes every candidate by the best member of the
+    whole K-set.  We still simulate and compute all physical metrics in one
+    vectorized pool, then reconstruct the exact two-way progress and aggregate
+    score from the scorer's raw progress.  This retains batching without
+    changing the label used by formal PDMS evaluation.
+    """
+
+    del traffic_policy
+    from navsim.evaluate.pdm_score import get_trajectory_as_array
+    from navsim.planning.simulation.planner.pdm_planner.utils.pdm_enums import (
+        MultiMetricIndex,
+        WeightedMetricIndex,
+    )
+
+    if trajectories.ndim != 3 or tuple(trajectories.shape[1:]) != (40, 3):
+        raise ValueError("NAVSIM-v1 proposal evaluator expects [K,40,3]")
+    initial_ego_state = metric_cache.ego_state
+    reference_states = get_trajectory_as_array(
+        metric_cache.trajectory, sampling, initial_ego_state.time_point
+    )
+    states = _batch_relative_trajectories_to_state_array(
+        trajectories, initial_ego_state, reference_states
+    )
+    simulated_states = simulator.simulate_proposals(states, initial_ego_state)
+    scorer.score_proposals(
+        simulated_states,
+        metric_cache.observation,
+        metric_cache.centerline,
+        metric_cache.route_lane_ids,
+        metric_cache.drivable_area_map,
+    )
+    if np.asarray(scorer._multi_metrics).shape[1] != trajectories.shape[0] + 1:
+        raise RuntimeError("NAVSIM-v1 scorer did not preserve the complete proposal pool")
+    candidate_progress, aggregate_score = _v1_two_way_progress_and_score(scorer)
+    weighted_metrics = np.asarray(scorer._weighted_metrics, dtype=np.float64)
+    comfort = weighted_metrics[WeightedMetricIndex.COMFORTABLE][1:]
+    values = {
+        "no_at_fault_collisions": scorer._multi_metrics[
+            MultiMetricIndex.NO_COLLISION
+        ][1:],
+        "drivable_area_compliance": scorer._multi_metrics[
+            MultiMetricIndex.DRIVABLE_AREA
+        ][1:],
+        "time_to_collision_within_bound": scorer._weighted_metrics[
+            WeightedMetricIndex.TTC
+        ][1:],
+        "ego_progress": candidate_progress,
+        "driving_direction_compliance": weighted_metrics[
+            WeightedMetricIndex.DRIVING_DIRECTION
+        ][1:],
+        "comfort": comfort,
+        # These NAVSIM-v2-only fields remain explicit neutral placeholders so
+        # the bank keeps one backward-compatible tensor schema.  The v1 scorer
+        # loss consumes only the six DRIVOR_METRICS plus aggregate_score.
+        "lane_keeping": np.ones_like(comfort),
+        "traffic_light_compliance": np.ones_like(comfort),
+        "history_comfort": np.ones_like(comfort),
+        "aggregate_score": aggregate_score,
+    }
+    expected = trajectories.shape[0]
+    for name in _OUTPUT_METRICS:
+        value = np.asarray(values[name])
+        if value.shape != (expected,):
+            raise RuntimeError(
+                f"NAVSIM-v1 metric {name} has shape {value.shape}, expected ({expected},)"
+            )
+        if not np.isfinite(value).all():
+            raise ValueError(f"NAVSIM-v1 metric {name} contains NaN or Inf")
+        values[name] = value.astype(np.float32, copy=False)
+    return values
 
 
 def _score_trajectory_pool(
@@ -347,6 +499,13 @@ class DynamicMetricSupervisor:
         self.world_size = int(world_size)
         self.backend = str(config.get("backend", "thread"))
         self.workers_per_rank = int(config.get("workers_per_rank", 1))
+        self.protocol = str(config.get("protocol", "navsim_v2_epdms"))
+        if self.protocol not in {
+            "navsim_v1_pdms",
+            "navsim_v1_1_pdms_two_way",
+            "navsim_v2_epdms",
+        }:
+            raise ValueError(f"unsupported NAVSIM metric protocol {self.protocol!r}")
         cache_root = config.get("metric_cache_root")
         if cache_root is None or str(cache_root).strip().lower() in {"", "null", "none"}:
             raise FileNotFoundError(
@@ -382,7 +541,7 @@ class DynamicMetricSupervisor:
                 max_workers=self.workers_per_rank,
                 mp_context=get_context("spawn"),
                 initializer=_initialize_process_evaluator,
-                initargs=(str(self.metric_cache_root),),
+                initargs=(str(self.metric_cache_root), self.protocol),
             )
         else:
             self._executor = None
@@ -394,7 +553,7 @@ class DynamicMetricSupervisor:
             self._thread_state.evaluator = initial_evaluator
 
     def _new_evaluator(self):
-        return _new_navsim_evaluator(self.metric_cache_root)
+        return _new_navsim_evaluator(self.metric_cache_root, self.protocol)
 
     def _evaluator(self):
         if not hasattr(self._thread_state, "evaluator"):
@@ -461,7 +620,10 @@ class DynamicMetricSupervisor:
             tokens,
             proposals_40,
             result_device=proposals_navsim.device,
-            result_dtype=proposals_navsim.dtype,
+            # Metric labels are continuous supervision targets.  Keeping them
+            # in float32 avoids quantizing PDMS/EP before BCE and ranking loss
+            # when the generator itself runs under bfloat16 autocast.
+            result_dtype=torch.float32,
         )
 
     @torch.no_grad()
@@ -482,7 +644,7 @@ class DynamicMetricSupervisor:
             tokens,
             values,
             result_device=proposals_navsim_40.device,
-            result_dtype=proposals_navsim_40.dtype,
+            result_dtype=torch.float32,
         )
 
     @torch.no_grad()
@@ -529,7 +691,7 @@ class StubDynamicMetricSupervisor:
         return _DynamicMetricBatch(
             rows,
             result_device=proposals_navsim.device,
-            result_dtype=proposals_navsim.dtype,
+            result_dtype=torch.float32,
         )
 
     @torch.no_grad()
@@ -552,7 +714,7 @@ class StubDynamicMetricSupervisor:
         return _DynamicMetricBatch(
             rows,
             result_device=proposals_navsim_40.device,
-            result_dtype=proposals_navsim_40.dtype,
+            result_dtype=torch.float32,
         )
 
     @torch.no_grad()

@@ -41,6 +41,15 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--drivor-checkpoint")
     parser.add_argument("--suprim-checkpoint")
     parser.add_argument(
+        "--export-candidates",
+        action="store_true",
+        help=(
+            "Also persist every Register proposal plus the selector index under "
+            "OUTPUT_DIR/candidates. The ordinary official trajectory export is "
+            "kept unchanged."
+        ),
+    )
+    parser.add_argument(
         "--feature-cache-root",
         help="Optional split-specific test cache. Training caches are never reused implicitly.",
     )
@@ -87,10 +96,40 @@ def _valid_prediction(path: Path) -> bool:
     return value.shape == (8, 3) and np.isfinite(value).all()
 
 
+def _valid_candidate(path: Path, proposal_num: int) -> bool:
+    try:
+        with np.load(path, allow_pickle=False) as payload:
+            proposals = payload["proposals"]
+            selected_index = payload["selected_index"]
+    except Exception:
+        return False
+    return (
+        proposals.shape == (proposal_num, 8, 3)
+        and np.isfinite(proposals).all()
+        and selected_index.shape == ()
+        and 0 <= int(selected_index) < proposal_num
+    )
+
+
 def _atomic_numpy(path: Path, value: np.ndarray) -> None:
     temporary = path.with_name(f".{path.name}.tmp-{os.getpid()}")
     with temporary.open("wb") as stream:
         np.save(stream, value, allow_pickle=False)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def _atomic_candidate(
+    path: Path, proposals: np.ndarray, selected_index: int
+) -> None:
+    temporary = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    with temporary.open("wb") as stream:
+        np.savez(
+            stream,
+            proposals=proposals,
+            selected_index=np.asarray(selected_index, dtype=np.int64),
+        )
         stream.flush()
         os.fsync(stream.fileno())
     os.replace(temporary, path)
@@ -105,7 +144,7 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     config.datasets.vla_data.num_workers = int(args.num_workers)
     config.datasets.reward_data.load_reward_data = 0
     config.datasets.vla_data.w_neg_traj = None
-    config.framework.inference.return_all_proposals = False
+    config.framework.inference.return_all_proposals = bool(args.export_candidates)
     if args.generator_checkpoint:
         config.framework.inference.generator_checkpoint = str(
             Path(args.generator_checkpoint).resolve()
@@ -152,7 +191,7 @@ def _prediction_identity(
     tokens: list[str],
     checkpoints: dict[str, Path],
 ) -> dict[str, Any]:
-    return {
+    identity = {
         "schema_version": 1,
         "stage": "register_navtest_prediction",
         "repository_commit": _repository_commit(project_root),
@@ -175,6 +214,15 @@ def _prediction_identity(
             for name, path in checkpoints.items()
         },
     }
+    if args.export_candidates:
+        proposal_num = int(config.framework.register_generator.proposal_num)
+        identity["candidate_export"] = {
+            "relative_directory": "candidates",
+            "proposal_shape": [proposal_num, 8, 3],
+            "selected_index_shape": [],
+            "archive_fields": ["proposals", "selected_index"],
+        }
+    return identity
 
 
 def _read_identity(path: Path) -> dict[str, Any]:
@@ -281,6 +329,10 @@ def main() -> None:
     )
     config = load_training_config(args.config)
     _apply_overrides(config, args)
+    proposal_num = int(config.framework.register_generator.proposal_num)
+    if args.export_candidates and proposal_num <= 1:
+        raise ValueError("candidate export requires proposal_num > 1")
+    candidate_dir = output_dir / "candidates"
     config.output_dir = str(output_dir)
     checkpoints = _checkpoint_paths(config)
     identity_box = [
@@ -313,6 +365,15 @@ def main() -> None:
                 path.unlink()
             for path in output_dir.glob("inference_manifest.rank*.json"):
                 path.unlink()
+            if args.export_candidates and candidate_dir.is_dir():
+                for path in candidate_dir.glob("*.npz"):
+                    path.unlink()
+                try:
+                    candidate_dir.rmdir()
+                except OSError:
+                    # Unknown files are intentionally preserved and make the
+                    # overwrite contract fail closed below.
+                    pass
             for path in (
                 identity_path,
                 output_dir / "prediction_manifest.json",
@@ -336,14 +397,28 @@ def main() -> None:
                     "Refusing to mix prediction artifacts from a different "
                     "checkpoint/config/datalist identity"
                 )
+        if args.export_candidates:
+            candidate_dir.mkdir(parents=True, exist_ok=True)
         atomic_json(identity_path, identity)
     accelerator.wait_for_everyone()
 
     already_complete = torch.zeros((), device=accelerator.device, dtype=torch.int32)
     if accelerator.is_main_process and args.resume:
         actual = {path.stem for path in output_dir.glob("*.npy")}
-        if actual == token_set and all(
-            _valid_prediction(output_dir / f"{token}.npy") for token in token_set
+        candidates_complete = (not args.export_candidates) or (
+            {path.stem for path in candidate_dir.glob("*.npz")} == token_set
+            and all(
+                _valid_candidate(candidate_dir / f"{token}.npz", proposal_num)
+                for token in token_set
+            )
+        )
+        if (
+            actual == token_set
+            and all(
+                _valid_prediction(output_dir / f"{token}.npy")
+                for token in token_set
+            )
+            and candidates_complete
         ):
             already_complete.fill_(1)
     already_complete = accelerator.reduce(already_complete, reduction="max")
@@ -388,7 +463,12 @@ def main() -> None:
             pending = []
             for example in examples:
                 path = output_dir / f"{example['token']}.npy"
-                if args.resume and _valid_prediction(path):
+                candidate_path = candidate_dir / f"{example['token']}.npz"
+                artifacts_valid = _valid_prediction(path) and (
+                    not args.export_candidates
+                    or _valid_candidate(candidate_path, proposal_num)
+                )
+                if args.resume and artifacts_valid:
                     local_skipped += 1
                 else:
                     pending.append(example)
@@ -402,8 +482,53 @@ def main() -> None:
                 )
             if not np.isfinite(trajectories).all():
                 raise FloatingPointError("integrated planner produced NaN or Inf")
-            for example, trajectory in zip(pending, trajectories):
+            proposals = None
+            selected_indices = None
+            if args.export_candidates:
+                all_proposals = output.get("all_proposals")
+                if all_proposals is None:
+                    raise RuntimeError(
+                        "candidate export requested but planner returned no proposals"
+                    )
+                proposals = all_proposals.detach().float().cpu().numpy()
+                selected_indices = (
+                    output["selected_index"].detach().to(torch.int64).cpu().numpy()
+                )
+                expected = (len(pending), proposal_num, 8, 3)
+                if proposals.shape != expected:
+                    raise RuntimeError(
+                        f"integrated planner returned proposals {proposals.shape}, "
+                        f"expected {expected}"
+                    )
+                if selected_indices.shape != (len(pending),):
+                    raise RuntimeError(
+                        "integrated planner returned invalid selected_index shape: "
+                        f"{selected_indices.shape}"
+                    )
+                if not np.isfinite(proposals).all():
+                    raise FloatingPointError("integrated planner proposals contain NaN or Inf")
+                if (
+                    (selected_indices < 0).any()
+                    or (selected_indices >= proposal_num).any()
+                ):
+                    raise IndexError("integrated planner selected_index is out of range")
+                rows = np.arange(len(pending), dtype=np.int64)
+                selected_proposals = proposals[rows, selected_indices]
+                if not np.allclose(
+                    selected_proposals, trajectories, rtol=1.0e-5, atol=1.0e-5
+                ):
+                    raise RuntimeError(
+                        "selected trajectory does not match proposals[selected_index]"
+                    )
+            for index, (example, trajectory) in enumerate(zip(pending, trajectories)):
                 _atomic_numpy(output_dir / f"{example['token']}.npy", trajectory)
+                if args.export_candidates:
+                    assert proposals is not None and selected_indices is not None
+                    _atomic_candidate(
+                        candidate_dir / f"{example['token']}.npz",
+                        proposals[index],
+                        int(selected_indices[index]),
+                    )
                 local_written += 1
 
     counts = torch.tensor(
@@ -431,10 +556,34 @@ def main() -> None:
             for token in token_set & actual
             if not _valid_prediction(output_dir / f"{token}.npy")
         )
-        if missing or extra or invalid:
+        candidate_missing: list[str] = []
+        candidate_extra: list[str] = []
+        candidate_invalid: list[str] = []
+        if args.export_candidates:
+            candidate_actual = {path.stem for path in candidate_dir.glob("*.npz")}
+            candidate_missing = sorted(token_set - candidate_actual)
+            candidate_extra = sorted(candidate_actual - token_set)
+            candidate_invalid = sorted(
+                token
+                for token in token_set & candidate_actual
+                if not _valid_candidate(
+                    candidate_dir / f"{token}.npz", proposal_num
+                )
+            )
+        if (
+            missing
+            or extra
+            or invalid
+            or candidate_missing
+            or candidate_extra
+            or candidate_invalid
+        ):
             raise RuntimeError(
                 "prediction set validation failed: "
-                f"missing={len(missing)} extra={len(extra)} invalid={len(invalid)}"
+                f"missing={len(missing)} extra={len(extra)} invalid={len(invalid)} "
+                f"candidate_missing={len(candidate_missing)} "
+                f"candidate_extra={len(candidate_extra)} "
+                f"candidate_invalid={len(candidate_invalid)}"
             )
         manifest = _finalize_manifest(
             output_dir,

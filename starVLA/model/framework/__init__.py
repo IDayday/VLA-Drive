@@ -81,6 +81,11 @@ def build_framework(cfg, accelerator=None):
 
         return QwenRegisterPlanner(cfg)
 
+    elif cfg.framework.name == "QwenRegisterClover":
+        from starVLA.model.framework.QwenRegisterClover import QwenRegisterClover
+
+        return QwenRegisterClover(cfg)
+
     
     # auto detect from registry
     framework_id = cfg.framework.name

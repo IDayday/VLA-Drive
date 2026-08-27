@@ -45,3 +45,16 @@
 # export REGISTER64_NAVTRAIN_SENSOR_ROOT="${REGISTER64_NAVTRAIN_SENSOR_ROOT:-/absolute/path/to/sensor_blobs/trainval}"
 # export REGISTER64_NAVTEST_LOG_ROOT="${REGISTER64_NAVTEST_LOG_ROOT:-/absolute/path/to/navsim_logs/test}"
 # export REGISTER64_NAVTEST_SENSOR_ROOT="${REGISTER64_NAVTEST_SENSOR_ROOT:-/absolute/path/to/sensor_blobs/test}"
+
+# Register64 navtest Oracle@64 PDMS diagnostic. Outputs must remain separate
+# from the immutable complete-pipeline source run.
+# export REGISTER64_ORACLE_SOURCE_RUN_ROOT="${REGISTER64_ORACLE_SOURCE_RUN_ROOT:-/absolute/path/to/completed-register64-off-run}"
+# export REGISTER64_ORACLE_OUTPUT_ROOT="${REGISTER64_ORACLE_OUTPUT_ROOT:-/absolute/path/to/register64-oracle-evaluations}"
+# export REGISTER64_ORACLE_PDMS_CACHE_ROOT="${REGISTER64_ORACLE_PDMS_CACHE_ROOT:-/absolute/path/to/navtest-v1.1-metric-cache}"
+
+# Register64 PDMS-first closed-loop training. The pseudo-expert PKL must be
+# the official evaluator-filtered CLOVER package; random perturbations are not
+# an equivalent replacement.
+# export CLOVER_PSEUDO_EXPERT_PKL="${CLOVER_PSEUDO_EXPERT_PKL:-/absolute/path/to/official-clover-pseudo-experts.pkl}"
+# export CLOVER_SHARED_CACHE_ROOT="${CLOVER_SHARED_CACHE_ROOT:-/absolute/path/to/shared-navsim-v1.1-metric-cache}"
+# export CLOVER_OUTPUT_ROOT="${CLOVER_OUTPUT_ROOT:-/absolute/path/to/register64-pdms-first-runs}"

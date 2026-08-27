@@ -1,0 +1,27 @@
+# A cycle-local immutable bank carrying exact NAVSIM-v1.1 PDMS labels.
+base_config: qwen_register64_clover_pdms_stage1.yaml
+run_id: register64_clover_pdms_bank
+framework:
+  name: QwenRegisterGenerator
+candidate_bank:
+  generator_checkpoint: ${oc.env:REGISTER64_GENERATOR_CHECKPOINT}
+  output_root: ${oc.env:REGISTER64_BANK_ROOT}
+  label_protocol: navsim_v1_1_pdms_two_way
+  include_dense_memory: false
+  storage_dtype: float16
+  map_size_bytes: 1099511627776
+  commit_interval: 16
+  max_inflight_batches: 2
+  splits:
+    train:
+      datalist_path: ${oc.env:NAVSIM_DATALIST_PATH}
+      dataset_split: train
+    val:
+      datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH}
+      dataset_split: train
+  metric_supervisor:
+    protocol: navsim_v1_1_pdms_two_way
+    metric_cache_root: ${oc.env:CLOVER_PDMS_TRAIN_METRIC_CACHE}
+    backend: process
+    workers_per_rank: ${oc.env:NAVSIM_METRIC_WORKERS,4}
+    score_interval: 1

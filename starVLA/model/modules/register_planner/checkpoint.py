@@ -62,19 +62,46 @@ def sha256_file(path: os.PathLike[str] | str) -> str:
     return digest.hexdigest()
 
 
-def qwen_trainable_state(module: nn.Module) -> dict[str, Tensor]:
+def qwen_trainable_state(
+    module: nn.Module, names: Optional[set[str]] = None
+) -> dict[str, Tensor]:
+    selected = (
+        {name for name, parameter in module.named_parameters() if parameter.requires_grad}
+        if names is None
+        else set(names)
+    )
+    available = dict(module.named_parameters())
+    missing = selected.difference(available)
+    if missing:
+        raise KeyError(f"unknown Qwen checkpoint parameters: {sorted(missing)}")
     return {
         name: parameter.detach().cpu()
         for name, parameter in module.named_parameters()
-        if parameter.requires_grad
+        if name in selected
     }
 
 
 def trainable_manifest_hash(module: nn.Module) -> str:
+    return parameter_manifest_hash(
+        module,
+        {
+            name
+            for name, parameter in module.named_parameters()
+            if parameter.requires_grad
+        },
+    )
+
+
+def parameter_manifest_hash(module: nn.Module, names: set[str]) -> str:
+    names = set(names)
+    available = dict(module.named_parameters())
+    missing = names.difference(available)
+    if missing:
+        raise KeyError(f"parameter manifest contains unknown names: {sorted(missing)}")
     manifest = [
         (name, tuple(parameter.shape), str(parameter.dtype))
         for name, parameter in module.named_parameters()
-        if parameter.requires_grad
+        if name in names
     ]
     return stable_config_hash(manifest)
 
@@ -95,11 +122,16 @@ def save_register_generator_checkpoint(
     register_generator: nn.Module,
     metadata: Mapping[str, Any],
     full_model_state_dict: Optional[Mapping[str, Tensor]] = None,
+    qwen_state_names: Optional[set[str]] = None,
 ) -> Path:
     metadata = dict(metadata)
     metadata.setdefault("schema_version", REGISTER_CHECKPOINT_SCHEMA_VERSION)
     metadata.setdefault("stage", "register_generator")
-    actual_qwen_manifest = trainable_manifest_hash(qwen_vl_interface)
+    actual_qwen_manifest = (
+        trainable_manifest_hash(qwen_vl_interface)
+        if qwen_state_names is None
+        else parameter_manifest_hash(qwen_vl_interface, qwen_state_names)
+    )
     metadata.setdefault("qwen_trainable_manifest_hash", actual_qwen_manifest)
     missing = set(GENERATOR_METADATA_FIELDS).difference(metadata)
     if missing:
@@ -129,7 +161,7 @@ def save_register_generator_checkpoint(
                 f"does not match module value {value!r}"
             )
     if full_model_state_dict is None:
-        qwen_state = qwen_trainable_state(qwen_vl_interface)
+        qwen_state = qwen_trainable_state(qwen_vl_interface, qwen_state_names)
         action_state = {
             key: value.detach().cpu()
             for key, value in action_input_model.state_dict().items()
@@ -158,11 +190,15 @@ def save_register_generator_checkpoint(
                 )
             return result
 
-        trainable_names = {
-            name
-            for name, parameter in qwen_vl_interface.named_parameters()
-            if parameter.requires_grad
-        }
+        trainable_names = (
+            {
+                name
+                for name, parameter in qwen_vl_interface.named_parameters()
+                if parameter.requires_grad
+            }
+            if qwen_state_names is None
+            else set(qwen_state_names)
+        )
         qwen_state = component("qwen_vl_interface.", trainable_names)
         action_state = component(
             "action_input_model.", action_input_model.state_dict().keys()

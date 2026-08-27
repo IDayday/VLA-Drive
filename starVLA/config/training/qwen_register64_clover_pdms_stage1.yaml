@@ -1,0 +1,96 @@
+# PDMS-first Stage 1: Qwen + Q-Former + Register64 + detached DrivoR critic.
+# The proposal topology and pseudo-expert recipe follow CLOVER; the Qwen/visual
+# trainability policy follows this repository's established visual-unfrozen VLA recipe.
+base_config: qwen_register64_generator_visual_unfrozen.yaml
+run_id: ${oc.env:CLOVER_STAGE1_RUN_ID,qwen_register64_clover_pdms_stage1}
+seed: 2
+
+framework:
+  name: QwenRegisterClover
+  # Donor keeps one independent trajectory head before decoding and after each
+  # of four decoder layers. Only the final head receives Stage-1 trajectory loss.
+  generator_loss:
+    stage_loss_mode: all_layers
+    stage_loss_weights: [0.0, 0.0, 0.0, 0.0, 1.0]
+    diversity_weight: 0.0
+  drivor_scorer:
+    scene_dim: 256
+    ego_state_dim: 4
+    model_dim: 256
+    ffn_dim: 1024
+    num_layers: 4
+    num_heads: 1
+    decoder_style: donor_register
+    proj_drop: 0.1
+    drop_path: 0.2
+    layer_scale_init: 0.0
+    dropout: 0.0
+    aggregate_head: true
+    # Validation-calibrated fusion of DriveVLA-M0 direct value and the
+    # structured DrivoR safety/utility formula. alpha=0 is direct-only.
+    selection_mode: calibrated_hybrid
+    aggregate_temperature: 1.0
+    selection_alpha: 0.0
+    # Exact NAVSIM-v1 DrivoR/CLOVER composition, retained as structured heads.
+    noc: 1.0
+    dac: 1.0
+    ddc: 0.0
+    ttc: 5.0
+    ep: 5.0
+    comfort: 2.0
+  clover_loss:
+    gt_weight: 1.0
+    pseudo_expert_weight: 0.5
+    scorer_weight: 1.0
+    submetric_weight: 1.0
+    aggregate_weight: 1.0
+    listwise_weight: 1.0
+    pairwise_weight: 0.5
+    listwise_temperature: 0.1
+    pairwise_temperature: 0.1
+    pairwise_margin: 0.05
+
+pseudo_experts:
+  # Use the official evaluator-filtered package. Simple random perturbations
+  # are intentionally rejected because they omit privileged feasibility tests.
+  path: ${oc.env:CLOVER_PSEUDO_EXPERT_PKL}
+  top_k: 8
+  score_threshold: 0.8
+  fps_min_distance: 0.05
+  gt_coverage_distance: 0.5
+  # The official package intentionally excludes invalid scenes. As in the
+  # donor target builder, missing scenes fall back to the logged expert.
+  require_all_tokens: false
+
+metric_supervisor:
+  protocol: navsim_v1_1_pdms_two_way
+  metric_cache_root: ${oc.env:CLOVER_PDMS_TRAIN_METRIC_CACHE}
+  backend: process
+  workers_per_rank: ${oc.env:NAVSIM_METRIC_WORKERS,4}
+  score_interval: 1
+
+trainer:
+  max_epochs: 25
+  global_batch_size: 32
+  gradient_accumulation_steps: 1
+  log_every_steps: 20
+  save_epochs: [5, 10, 15, 20, 25]
+  resume_from: ${oc.env:CLOVER_STAGE1_RESUME,null}
+  early_stopping:
+    enabled: false
+    patience: 5
+    monitor: selected_true_pdms
+    mode: max
+
+optimizer:
+  learning_rates:
+    qwen_visual: 2.0e-6
+    qwen_vl_interface: 1.0e-5
+    scene_encoder: 2.0e-4
+    register_generator: 2.0e-4
+    action_input_model: 2.0e-4
+    drivor_scorer: 2.0e-4
+
+validation:
+  num_scenes: ${oc.env:CLOVER_VALIDATION_SCENES,1024}
+  num_workers: 3

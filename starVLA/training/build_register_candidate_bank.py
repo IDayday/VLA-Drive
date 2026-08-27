@@ -352,6 +352,9 @@ def main() -> None:
     include_dense = bool(bank_config.get("include_dense_memory", False)) or bool(
         args.include_dense_memory
     )
+    label_protocol = str(
+        bank_config.get("label_protocol", "navsim_v2_epdms")
+    )
     split_config = bank_config.get("splits", {}).get(args.split, {})
     config.datasets.vla_data.split = str(
         split_config.get("dataset_split", args.split)
@@ -407,6 +410,14 @@ def main() -> None:
     supervisor_config = OmegaConf.create(
         OmegaConf.to_container(bank_config.metric_supervisor, resolve=True)
     )
+    configured_supervisor_protocol = str(
+        supervisor_config.get("protocol", label_protocol)
+    )
+    if configured_supervisor_protocol != label_protocol:
+        raise ValueError(
+            "candidate-bank label_protocol differs from metric supervisor protocol"
+        )
+    supervisor_config.protocol = label_protocol
     if args.workers_per_rank is not None:
         supervisor_config.workers_per_rank = args.workers_per_rank
     if args.backend is not None:
@@ -432,6 +443,7 @@ def main() -> None:
         scene_queries=16,
         include_dense_memory=include_dense,
         storage_dtype=storage_dtype_name,
+        label_protocol=label_protocol,
     )
     expected_identity_hash = build_identity_hash(build_identity)
     if accelerator.is_main_process:
@@ -588,6 +600,7 @@ def main() -> None:
                 "scene_dim": 256,
                 "scene_queries": 16,
                 "include_dense_memory": include_dense,
+                "label_protocol": label_protocol,
             },
             world_size=accelerator.num_processes,
             expected_build_identity_hash=expected_identity_hash,

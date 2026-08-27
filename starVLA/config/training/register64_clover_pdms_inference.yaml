@@ -1,0 +1,47 @@
+# Final PDMS selector. Candidate banks and evaluator labels are never read here.
+base_config: qwen_register64_clover_pdms_stage1.yaml
+run_id: register64_clover_pdms_inference
+framework:
+  name: QwenRegisterPlanner
+  drivor_scorer:
+    scene_dim: 256
+    ego_state_dim: 4
+    model_dim: 256
+    ffn_dim: 1024
+    num_layers: 4
+    num_heads: 1
+    decoder_style: donor_register
+    proj_drop: 0.1
+    drop_path: 0.2
+    layer_scale_init: 0.0
+    dropout: 0.0
+    noc: 1.0
+    dac: 1.0
+    ddc: 0.0
+    ttc: 5.0
+    ep: 5.0
+    comfort: 2.0
+    aggregate_head: true
+    selection_mode: calibrated_hybrid
+    aggregate_temperature: 1.0
+    # Restored from the persistent scorer-checkpoint buffer.
+    selection_alpha: 0.0
+    label_protocol: navsim_v1_1_pdms_two_way
+    training_profile: clover_pdms_value_bank_v1
+    loss_type: pdms_value
+  inference:
+    selector_type: drivor
+    generator_checkpoint: ${oc.env:REGISTER64_GENERATOR_CHECKPOINT}
+    drivor_checkpoint: ${oc.env:REGISTER64_DRIVOR_CHECKPOINT}
+    suprim_checkpoint: null
+    dynamic_topm: 32
+    fine_memory_source: global_scene_tokens
+    return_all_proposals: true
+datasets:
+  vla_data:
+    split: navtest
+    shuffle: false
+    datalist_path: ${oc.env:NAVSIM_TEST_DATALIST_PATH}
+evaluation:
+  metric_supervisor:
+    enabled: false

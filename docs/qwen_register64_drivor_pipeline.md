@@ -1,5 +1,11 @@
 # Qwen Register64 + DrivoR staged planning pipeline
 
+> The PDMS-maximization route that combines exact v1.1 labels, pseudo-expert
+> coverage, alternating refinement and calibrated structured/direct selection
+> is documented in [register64_pdms_first_closed_loop.md](register64_pdms_first_closed_loop.md).
+> This document remains the contract for the original independent G/B/S/SD/SH
+> baseline and ablations.
+
 ## Scope and relation to the historical baseline
 
 The historical `QwenPI_DrivoRSuprim` path remains intact and is still the

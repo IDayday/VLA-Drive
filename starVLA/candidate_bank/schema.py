@@ -12,6 +12,13 @@ from torch import Tensor
 
 
 CANDIDATE_BANK_SCHEMA_VERSION = 1
+LABEL_PROTOCOLS = (
+    # Deprecated preview name retained only so an old manifest can be opened
+    # and diagnosed. New PDMS training must use the explicit two-way protocol.
+    "navsim_v1_pdms",
+    "navsim_v1_1_pdms_two_way",
+    "navsim_v2_epdms",
+)
 CANDIDATE_METRICS = (
     "no_at_fault_collisions",
     "drivable_area_compliance",
@@ -48,6 +55,7 @@ class CandidateBankBuildIdentity:
     scene_queries: int = 16
     include_dense_memory: bool = False
     storage_dtype: str = "float16"
+    label_protocol: str = "navsim_v2_epdms"
     schema_version: int = CANDIDATE_BANK_SCHEMA_VERSION
 
     def validate(self) -> None:
@@ -61,6 +69,8 @@ class CandidateBankBuildIdentity:
             raise ValueError("candidate-bank build dimensions must be positive")
         if self.storage_dtype not in {"float16", "bfloat16", "float32"}:
             raise ValueError("unsupported candidate-bank storage dtype")
+        if self.label_protocol not in LABEL_PROTOCOLS:
+            raise ValueError("unsupported candidate-bank label protocol")
         for name, value in (
             ("generator_checkpoint_sha256", self.generator_checkpoint_sha256),
             ("generator_config_hash", self.generator_config_hash),
@@ -96,6 +106,7 @@ class CandidateBankManifest:
     scene_dim: int = 256
     scene_queries: int = 16
     include_dense_memory: bool = False
+    label_protocol: str = "navsim_v2_epdms"
     metric_schema: Sequence[str] = CANDIDATE_METRICS
     trajectory_coordinate_system: str = "ego_relative_x_y_heading"
     trajectory_horizon: float = 4.0
@@ -124,6 +135,8 @@ class CandidateBankManifest:
             raise ValueError("candidate-bank record rank lies outside world_size")
         if tuple(self.metric_schema) != CANDIDATE_METRICS:
             raise ValueError("candidate-bank metric schema differs from v1")
+        if self.label_protocol not in LABEL_PROTOCOLS:
+            raise ValueError("unsupported candidate-bank label protocol")
         if self.trajectory_coordinate_system != "ego_relative_x_y_heading":
             raise ValueError("unsupported candidate trajectory coordinate system")
         if self.trajectory_horizon != 4.0 or self.trajectory_interval != 0.5:

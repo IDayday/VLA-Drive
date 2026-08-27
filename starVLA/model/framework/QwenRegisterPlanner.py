@@ -63,6 +63,10 @@ def _build_drivor(config) -> DrivoRDynamicScorer:
         ttc=float(config.get("ttc", 5.0)),
         ep=float(config.get("ep", 5.0)),
         comfort=float(config.get("comfort", 2.0)),
+        aggregate_head=bool(config.get("aggregate_head", False)),
+        selection_mode=str(config.get("selection_mode", "formula")),
+        aggregate_temperature=float(config.get("aggregate_temperature", 1.0)),
+        selection_alpha=float(config.get("selection_alpha", 0.0)),
     )
 
 
@@ -157,31 +161,46 @@ class QwenRegisterPlanner(QwenRegisterGenerator):
             if load_checkpoints:
                 if not drivor_checkpoint:
                     raise FileNotFoundError("selected inference requires drivor_checkpoint")
+                scorer_config = config.framework.drivor_scorer
+                expected_metadata = {
+                    "generator_checkpoint_sha256": sha256_file(
+                        str(generator_checkpoint)
+                    ),
+                    "proposal_num": self.register_generator.proposal_num,
+                    "scene_dim": self.scene_encoder.output_dim,
+                    "model_dim": int(scorer_config.model_dim),
+                    "decoder_layers": int(scorer_config.num_layers),
+                    "decoder_heads": int(scorer_config.num_heads),
+                    "aggregate_weights": {
+                        name: float(value)
+                        for name, value in self.drivor_scorer.aggregate_weights.items()
+                    },
+                    "label_protocol": str(
+                        scorer_config.get("label_protocol", "navsim_v2_epdms")
+                    ),
+                    "metric_schema": list(_REGISTER_METRIC_SCHEMA),
+                    "training_profile": str(
+                        scorer_config.get(
+                            "training_profile", "drivor_offline_bank_v1"
+                        )
+                    ),
+                }
+                # Historical formula-only DrivoR checkpoints predate the
+                # learned-aggregate contract. New PDMS configs explicitly
+                # declare these keys, so their checkpoint check stays strict.
+                for key in (
+                    "selection_mode",
+                    "aggregate_head",
+                    "aggregate_temperature",
+                    "loss_type",
+                ):
+                    if key in scorer_config:
+                        expected_metadata[key] = scorer_config[key]
                 load_stage_component_checkpoint(
                     str(drivor_checkpoint),
                     stage="drivor_scorer",
                     module=self.drivor_scorer,
-                    expected_metadata={
-                        "generator_checkpoint_sha256": sha256_file(
-                            str(generator_checkpoint)
-                        ),
-                        "proposal_num": self.register_generator.proposal_num,
-                        "scene_dim": self.scene_encoder.output_dim,
-                        "model_dim": int(config.framework.drivor_scorer.model_dim),
-                        "decoder_layers": int(
-                            config.framework.drivor_scorer.num_layers
-                        ),
-                        "decoder_heads": int(
-                            config.framework.drivor_scorer.num_heads
-                        ),
-                        "aggregate_weights": {
-                            name: float(value)
-                            for name, value in self.drivor_scorer.aggregate_weights.items()
-                        },
-                        "label_protocol": "navsim_v2_epdms",
-                        "metric_schema": list(_REGISTER_METRIC_SCHEMA),
-                        "training_profile": "drivor_offline_bank_v1",
-                    },
+                    expected_metadata=expected_metadata,
                 )
             if self.selector_type == "drivor_suprim_dynamic":
                 self.suprim_selector = suprim_selector or DynamicDriveSuprimSelector(

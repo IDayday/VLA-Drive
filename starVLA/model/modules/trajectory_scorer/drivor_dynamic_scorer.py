@@ -37,6 +37,11 @@ class DynamicScorerOutput:
     topm_indices: Tensor
     topm_trajectories_8: Tensor
     topm_candidate_states: Tensor
+    # Optional PDMS-direct value head used by the CLOVER/DriveVLA-M0 route.
+    # Legacy checkpoints leave these fields disabled and continue selecting
+    # with the donor composed sub-score formula.
+    aggregate_logit: Tensor | None = None
+    formula_score: Tensor | None = None
 
 
 class DrivoRDynamicScorer(nn.Module):
@@ -62,6 +67,10 @@ class DrivoRDynamicScorer(nn.Module):
         ttc: float = 5.0,
         ep: float = 5.0,
         comfort: float = 2.0,
+        aggregate_head: bool = False,
+        selection_mode: str = "formula",
+        aggregate_temperature: float = 1.0,
+        selection_alpha: float = 0.0,
         debug_validate_finite: bool = False,
     ) -> None:
         super().__init__()
@@ -71,6 +80,32 @@ class DrivoRDynamicScorer(nn.Module):
         self.ego_state_dim = ego_state_dim
         self.model_dim = model_dim
         self.debug_validate_finite = debug_validate_finite
+        if selection_mode not in {
+            "formula",
+            "learned_aggregate",
+            "calibrated_hybrid",
+        }:
+            raise ValueError(
+                "selection_mode must be formula, learned_aggregate, or "
+                "calibrated_hybrid"
+            )
+        if selection_mode in {"learned_aggregate", "calibrated_hybrid"} and not aggregate_head:
+            raise ValueError(f"{selection_mode} selection requires aggregate_head=true")
+        if aggregate_temperature <= 0:
+            raise ValueError("aggregate_temperature must be positive")
+        if not 0.0 <= selection_alpha <= 1.0:
+            raise ValueError("selection_alpha must lie in [0,1]")
+        self.aggregate_head_enabled = bool(aggregate_head)
+        self.selection_mode = str(selection_mode)
+        self.aggregate_temperature = float(aggregate_temperature)
+        self.register_buffer(
+            "selection_alpha",
+            torch.tensor(float(selection_alpha), dtype=torch.float32),
+            # Legacy formula/direct checkpoints must retain their exact state
+            # dict. The calibrated route persists alpha as part of its scorer
+            # contract and therefore restores it automatically at inference.
+            persistent=selection_mode == "calibrated_hybrid",
+        )
         self.aggregate_weights = {
             "noc": noc,
             "dac": dac,
@@ -116,6 +151,46 @@ class DrivoRDynamicScorer(nn.Module):
         self.metric_heads = nn.ModuleDict(
             {name: _mlp(model_dim, ffn_dim, 1) for name in DRIVOR_METRICS}
         )
+        self.aggregate_head = (
+            _mlp(model_dim, ffn_dim, 1) if self.aggregate_head_enabled else None
+        )
+
+    @staticmethod
+    def _scene_standardize(score: Tensor) -> Tensor:
+        score = score.float()
+        centered = score - score.mean(dim=1, keepdim=True)
+        scale = centered.square().mean(dim=1, keepdim=True).sqrt().clamp_min(1e-6)
+        return centered / scale
+
+    def calibrated_hybrid_score(
+        self,
+        aggregate_logit: Tensor,
+        formula_score: Tensor,
+        *,
+        alpha: float | Tensor | None = None,
+    ) -> Tensor:
+        """Fuse direct-PDMS and structured DrivoR ranks on a common scale."""
+
+        if alpha is None:
+            alpha = self.selection_alpha
+        alpha_tensor = torch.as_tensor(
+            alpha, device=aggregate_logit.device, dtype=torch.float32
+        )
+        if bool(((alpha_tensor < 0) | (alpha_tensor > 1)).any()):
+            raise ValueError("calibrated selector alpha must lie in [0,1]")
+        direct = self._scene_standardize(
+            aggregate_logit.float() / self.aggregate_temperature
+        )
+        structured = self._scene_standardize(formula_score)
+        return (1.0 - alpha_tensor) * direct + alpha_tensor * structured
+
+    @torch.no_grad()
+    def set_selection_alpha(self, alpha: float) -> None:
+        if self.selection_mode != "calibrated_hybrid":
+            raise RuntimeError("selection alpha is only valid for calibrated_hybrid")
+        if not 0.0 <= float(alpha) <= 1.0:
+            raise ValueError("selection alpha must lie in [0,1]")
+        self.selection_alpha.fill_(float(alpha))
 
     def _encode_ego(self, ego_state: Tensor, batch_size: int, reference: Tensor) -> Tensor:
         if ego_state is None:
@@ -177,9 +252,24 @@ class DrivoRDynamicScorer(nn.Module):
             name: head(candidate_states).squeeze(-1)
             for name, head in self.metric_heads.items()
         }
-        aggregate_score = aggregate_drivor_score(
+        formula_score = aggregate_drivor_score(
             metric_logits, **self.aggregate_weights
         )
+        aggregate_logit = (
+            self.aggregate_head(candidate_states).squeeze(-1)
+            if self.aggregate_head is not None
+            else None
+        )
+        if self.selection_mode == "learned_aggregate":
+            aggregate_score = torch.sigmoid(
+                aggregate_logit.float() / self.aggregate_temperature
+            )
+        elif self.selection_mode == "calibrated_hybrid":
+            aggregate_score = self.calibrated_hybrid_score(
+                aggregate_logit, formula_score
+            )
+        else:
+            aggregate_score = formula_score
         if self.debug_validate_finite and (
             not torch.isfinite(candidate_states).all()
             or not torch.isfinite(aggregate_score).all()
@@ -198,4 +288,6 @@ class DrivoRDynamicScorer(nn.Module):
             topm_candidate_states=torch.gather(
                 candidate_states, 1, state_index
             ),
+            aggregate_logit=aggregate_logit,
+            formula_score=formula_score,
         )

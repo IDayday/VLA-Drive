@@ -137,7 +137,7 @@ class DrivoRMetricLoss(nn.Module):
         losses: Dict[str, Tensor] = {}
         for name in DRIVOR_METRICS:
             target = metric_targets[name].to(
-                device=reference.device, dtype=reference.dtype
+                device=reference.device, dtype=torch.float32
             )
             if target.shape != metric_logits[name].shape:
                 raise ValueError(
@@ -149,13 +149,130 @@ class DrivoRMetricLoss(nn.Module):
             if name == "time_to_collision_within_bound":
                 valid = target != 2.0
                 elementwise = F.binary_cross_entropy_with_logits(
-                    metric_logits[name], target, reduction="none"
+                    metric_logits[name].float(), target, reduction="none"
                 )
                 loss = (elementwise * valid.to(elementwise.dtype)).sum() / valid.sum().clamp_min(1)
             else:
-                loss = F.binary_cross_entropy_with_logits(metric_logits[name], target)
+                loss = F.binary_cross_entropy_with_logits(
+                    metric_logits[name].float(), target
+                )
             losses[name] = loss
         return torch.stack(tuple(losses.values())).sum(), losses
+
+
+class PDMSValueLoss(nn.Module):
+    """PDMS-direct value learning plus DrivoR sub-score supervision.
+
+    The aggregate BCE follows DriveVLA-M0's score head.  Listwise soft-target
+    distillation and hard-pair ordering make the optimization match the actual
+    argmax/regret objective instead of relying on six independently calibrated
+    BCE heads alone.  Sub-score BCE remains active to preserve the structured
+    DrivoR/CLOVER value representation and Pareto targets.
+    """
+
+    def __init__(
+        self,
+        *,
+        submetric_weight: float = 1.0,
+        aggregate_weight: float = 1.0,
+        listwise_weight: float = 1.0,
+        pairwise_weight: float = 0.5,
+        listwise_temperature: float = 0.1,
+        pairwise_temperature: float = 0.1,
+        pairwise_margin: float = 0.05,
+    ) -> None:
+        super().__init__()
+        weights = (
+            submetric_weight,
+            aggregate_weight,
+            listwise_weight,
+            pairwise_weight,
+        )
+        if any(weight < 0 for weight in weights):
+            raise ValueError("PDMS value-loss weights must be non-negative")
+        if listwise_temperature <= 0 or pairwise_temperature <= 0:
+            raise ValueError("ranking temperatures must be positive")
+        if pairwise_margin < 0:
+            raise ValueError("pairwise_margin must be non-negative")
+        self.submetric_weight = float(submetric_weight)
+        self.aggregate_weight = float(aggregate_weight)
+        self.listwise_weight = float(listwise_weight)
+        self.pairwise_weight = float(pairwise_weight)
+        self.listwise_temperature = float(listwise_temperature)
+        self.pairwise_temperature = float(pairwise_temperature)
+        self.pairwise_margin = float(pairwise_margin)
+        self.submetric_loss = DrivoRMetricLoss()
+
+    def _pairwise(self, prediction: Tensor, target: Tensor) -> Tensor:
+        candidate_count = prediction.shape[1]
+        if candidate_count < 2:
+            return prediction.new_zeros(())
+        rows, cols = torch.triu_indices(
+            candidate_count,
+            candidate_count,
+            offset=1,
+            device=prediction.device,
+        )
+        target_delta = target[:, rows] - target[:, cols]
+        prediction_delta = prediction[:, rows] - prediction[:, cols]
+        valid = target_delta.abs() >= self.pairwise_margin
+        signed = target_delta.sign()
+        elementwise = F.softplus(
+            -signed * prediction_delta / self.pairwise_temperature
+        )
+        return (elementwise * valid.to(elementwise.dtype)).sum() / valid.sum().clamp_min(1)
+
+    def forward(
+        self,
+        metric_logits: Mapping[str, Tensor],
+        aggregate_logit: Tensor | None,
+        metric_targets: Mapping[str, Tensor],
+    ) -> Tuple[Tensor, Dict[str, Tensor]]:
+        if aggregate_logit is None:
+            raise ValueError("PDMSValueLoss requires the scalar aggregate head")
+        if "aggregate_score" not in metric_targets:
+            raise KeyError("PDMS value targets require aggregate_score")
+        true_score = metric_targets["aggregate_score"].to(
+            device=aggregate_logit.device, dtype=torch.float32
+        )
+        if true_score.shape != aggregate_logit.shape:
+            raise ValueError("aggregate target and logit shapes differ")
+        if ((true_score < 0) | (true_score > 1)).any():
+            raise ValueError("PDMS aggregate targets must lie in [0,1]")
+
+        submetric, submetric_components = self.submetric_loss(
+            metric_logits, metric_targets
+        )
+        aggregate = F.binary_cross_entropy_with_logits(
+            aggregate_logit.float(), true_score
+        )
+        target_distribution = F.softmax(
+            true_score.float() / self.listwise_temperature, dim=1
+        )
+        listwise = -(
+            target_distribution
+            * F.log_softmax(
+                aggregate_logit.float() / self.listwise_temperature, dim=1
+            )
+        ).sum(dim=1).mean()
+        pairwise = self._pairwise(aggregate_logit.float(), true_score.float())
+        total = (
+            self.submetric_weight * submetric
+            + self.aggregate_weight * aggregate
+            + self.listwise_weight * listwise
+            + self.pairwise_weight * pairwise
+        )
+        details = {
+            "submetric": submetric,
+            "aggregate": aggregate,
+            "listwise": listwise,
+            "pairwise": pairwise,
+            **{
+                f"submetric_{name}": value
+                for name, value in submetric_components.items()
+            },
+        }
+        return total, details
 
 
 def imitation_distribution_loss(

@@ -221,6 +221,11 @@ _BANK_ONLY_DONOR_IDENTITIES = {
         "repository": "https://github.com/valeoai/DrivoR",
         "revision": "f02665403df799c1b4ddd8b0d34e073f0555c13a",
     },
+    "clover_pdms_value_bank_v1": {
+        "paper": "CLOVER: Closed-Loop Value Estimation and Ranking",
+        "repository": "https://github.com/WilliamXuanYu/CLOVER",
+        "revision": "6aba8b7b08a6b2cdba1ecee9325e51a544dd64c3",
+    },
     "drivesuprim_dynamic_bank_v1": {
         "paper": (
             "DriveSuprim: Towards Precise Trajectory Selection for End-to-End "
@@ -254,6 +259,15 @@ _BANK_ONLY_DONOR_RECIPES = {
             "ep": 15.0,
             "comfort": 2.0,
         },
+    },
+    "clover_pdms_value_bank_v1": {
+        "optimizer": "AdamW",
+        "learning_rate": 3.0e-5,
+        "global_batch_size": 32,
+        "cycles": 30,
+        "critic_epochs_per_cycle": 1,
+        "generator_epochs_per_cycle": 1,
+        "starting_phase": "scorer_fitting",
     },
     "drivesuprim_dynamic_bank_v1": {
         "optimizer": "Adam",

@@ -32,7 +32,10 @@ from starVLA.model.modules.register_planner.checkpoint import (
 from starVLA.model.modules.trajectory_scorer.drivor_dynamic_scorer import (
     DrivoRDynamicScorer,
 )
-from starVLA.model.modules.trajectory_scorer.losses import DrivoRMetricLoss
+from starVLA.model.modules.trajectory_scorer.losses import (
+    DrivoRMetricLoss,
+    PDMSValueLoss,
+)
 from starVLA.training.config_loader import load_training_config
 from starVLA.training.register_stage_utils import (
     EarlyStopping,
@@ -65,8 +68,30 @@ def build_drivor_scorer(config: Mapping[str, Any]) -> DrivoRDynamicScorer:
         ttc=float(model.get("ttc", 5.0)),
         ep=float(model.get("ep", 5.0)),
         comfort=float(model.get("comfort", 2.0)),
+        aggregate_head=bool(model.get("aggregate_head", False)),
+        selection_mode=str(model.get("selection_mode", "formula")),
+        aggregate_temperature=float(model.get("aggregate_temperature", 1.0)),
+        selection_alpha=float(model.get("selection_alpha", 0.0)),
         debug_validate_finite=bool(model.get("debug_validate_finite", False)),
     )
+
+
+def build_drivor_loss(config: Mapping[str, Any]):
+    loss = config.get("loss", {})
+    loss_type = str(loss.get("type", "drivor_submetrics"))
+    if loss_type == "drivor_submetrics":
+        return DrivoRMetricLoss()
+    if loss_type == "pdms_value":
+        return PDMSValueLoss(
+            submetric_weight=float(loss.get("submetric_weight", 1.0)),
+            aggregate_weight=float(loss.get("aggregate_weight", 1.0)),
+            listwise_weight=float(loss.get("listwise_weight", 1.0)),
+            pairwise_weight=float(loss.get("pairwise_weight", 0.5)),
+            listwise_temperature=float(loss.get("listwise_temperature", 0.1)),
+            pairwise_temperature=float(loss.get("pairwise_temperature", 0.1)),
+            pairwise_margin=float(loss.get("pairwise_margin", 0.05)),
+        )
+    raise ValueError(f"unsupported DrivoR loss type {loss_type!r}")
 
 
 def drivor_training_step(
@@ -74,7 +99,7 @@ def drivor_training_step(
     batch: Mapping[str, Any],
     *,
     topm: int = 32,
-    loss_module: DrivoRMetricLoss | None = None,
+    loss_module: DrivoRMetricLoss | PDMSValueLoss | None = None,
     compute_statistics: bool = True,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
     """One bank-only step; this function has no raw-data or evaluator path."""
@@ -86,7 +111,12 @@ def drivor_training_step(
         batch["ego_state"],
         topm=min(int(topm), int(batch["proposals"].shape[1])),
     )
-    loss, components = loss_module(output.metric_logits, batch["metrics"])
+    if isinstance(loss_module, PDMSValueLoss):
+        loss, components = loss_module(
+            output.metric_logits, output.aggregate_logit, batch["metrics"]
+        )
+    else:
+        loss, components = loss_module(output.metric_logits, batch["metrics"])
     statistics = (
         selector_statistics(
             output.aggregate_score, batch["metrics"]["aggregate_score"]
@@ -144,6 +174,74 @@ def evaluate_drivor(
     return {name: float(totals[index] / count) for index, name in enumerate(names)}
 
 
+@torch.no_grad()
+def calibrate_hybrid_selector(
+    scorer: DrivoRDynamicScorer,
+    dataloader,
+    accelerator: Accelerator,
+    *,
+    grid_size: int = 21,
+) -> dict[str, float]:
+    """Choose direct/structured fusion on true validation PDMS.
+
+    The grid contains both endpoints, so validation selection cannot be worse
+    than using the DriveVLA-M0 direct head alone (alpha=0) or the structured
+    DrivoR formula alone (alpha=1).  Only one scorer forward is needed per
+    validation batch.
+    """
+
+    module = accelerator.unwrap_model(scorer)
+    if module.selection_mode != "calibrated_hybrid":
+        return {}
+    if grid_size < 2:
+        raise ValueError("hybrid selector calibration grid_size must be >= 2")
+    scorer.eval()
+    alphas = torch.linspace(0.0, 1.0, grid_size, device=accelerator.device)
+    totals = torch.zeros(grid_size + 1, device=accelerator.device)
+    for raw_batch in dataloader:
+        batch = move_bank_batch(raw_batch, accelerator.device)
+        with accelerator.autocast():
+            output = scorer(
+                batch["proposals"],
+                batch["scene_global_tokens"],
+                batch["ego_state"],
+                topm=batch["proposals"].shape[1],
+            )
+        if output.aggregate_logit is None or output.formula_score is None:
+            raise RuntimeError("calibrated selector requires both scorer branches")
+        direct = module._scene_standardize(
+            output.aggregate_logit.float() / module.aggregate_temperature
+        )
+        structured = module._scene_standardize(output.formula_score.float())
+        blended = (
+            (1.0 - alphas[:, None, None]) * direct[None]
+            + alphas[:, None, None] * structured[None]
+        )
+        selected = blended.argmax(dim=-1)
+        true_score = batch["metrics"]["aggregate_score"].float()
+        selected_true = torch.gather(
+            true_score[None].expand(grid_size, -1, -1),
+            2,
+            selected[..., None],
+        ).squeeze(-1)
+        totals[:-1] += selected_true.sum(dim=1)
+        totals[-1] += true_score.shape[0]
+    totals = accelerator.reduce(totals, reduction="sum")
+    count = totals[-1].clamp_min(1.0)
+    means = totals[:-1] / count
+    best_index = int(means.argmax().item())
+    best_alpha = float(alphas[best_index].item())
+    module.set_selection_alpha(best_alpha)
+    scorer.train()
+    return {
+        "selector_alpha": best_alpha,
+        "selector_calibrated_pdms": float(means[best_index]),
+        "selector_direct_pdms": float(means[0]),
+        "selector_structured_pdms": float(means[-1]),
+        "selector_calibration_scenes": float(count),
+    }
+
+
 def _checkpoint_metadata(config, dataset: CandidateBankDataset) -> dict[str, Any]:
     model = config.model
     return {
@@ -159,9 +257,13 @@ def _checkpoint_metadata(config, dataset: CandidateBankDataset) -> dict[str, Any
             for name, value in config.model.items()
             if name in {"noc", "dac", "ddc", "ttc", "ep", "comfort"}
         },
-        "label_protocol": "navsim_v2_epdms",
+        "label_protocol": str(dataset.manifest.label_protocol),
         "metric_schema": list(CANDIDATE_METRICS),
         "training_profile": str(config.training_profile.name),
+        "selection_mode": str(model.get("selection_mode", "formula")),
+        "aggregate_head": bool(model.get("aggregate_head", False)),
+        "aggregate_temperature": float(model.get("aggregate_temperature", 1.0)),
+        "loss_type": str(config.get("loss", {}).get("type", "drivor_submetrics")),
     }
 
 
@@ -174,9 +276,13 @@ def _parse_args() -> argparse.Namespace:
 def main() -> None:
     args = _parse_args()
     config = load_training_config(args.config)
-    validate_bank_only_training_profile(
-        config, expected_name="drivor_offline_bank_v1"
-    )
+    expected_profile = str(config.training_profile.name)
+    if expected_profile not in {
+        "drivor_offline_bank_v1",
+        "clover_pdms_value_bank_v1",
+    }:
+        raise ValueError(f"unsupported DrivoR training profile {expected_profile!r}")
+    validate_bank_only_training_profile(config, expected_name=expected_profile)
     trainer = config.trainer
     epochs = int(trainer.get("epochs", 5))
     max_epochs = int(trainer.get("max_epochs", 10))
@@ -211,6 +317,15 @@ def main() -> None:
         or val_dataset.manifest.scene_dim != int(config.model.scene_dim)
     ):
         raise RuntimeError("candidate-bank scene dimension differs from DrivoR config")
+    expected_protocol = str(
+        config.candidate_bank.get("label_protocol", "navsim_v2_epdms")
+    )
+    for name, dataset in (("train", train_dataset), ("val", val_dataset)):
+        if str(dataset.manifest.label_protocol) != expected_protocol:
+            raise RuntimeError(
+                f"{name} candidate bank label protocol "
+                f"{dataset.manifest.label_protocol!r} != {expected_protocol!r}"
+            )
     global_batch = int(trainer.get("global_batch_size", 256))
     denominator = accelerator.num_processes * accumulation
     if global_batch % denominator:
@@ -235,11 +350,34 @@ def main() -> None:
     metadata = _checkpoint_metadata(config, train_dataset)
     initialize_from = config.get("initialize_from")
     if initialize_from:
+        initialize_mode = str(config.get("initialize_mode", "strict"))
+        initialize_stage = str(config.get("initialize_stage", "drivor_scorer"))
+        if initialize_mode == "strict":
+            expected_initialize_metadata = metadata
+        elif initialize_mode == "weights_only":
+            expected_initialize_metadata = {
+                key: metadata[key]
+                for key in (
+                    "proposal_num",
+                    "scene_dim",
+                    "model_dim",
+                    "decoder_layers",
+                    "decoder_heads",
+                    "aggregate_weights",
+                    "label_protocol",
+                    "selection_mode",
+                    "aggregate_head",
+                    "aggregate_temperature",
+                    "loss_type",
+                )
+            }
+        else:
+            raise ValueError("initialize_mode must be strict or weights_only")
         load_stage_component_checkpoint(
             str(initialize_from),
-            stage="drivor_scorer",
+            stage=initialize_stage,
             module=scorer,
-            expected_metadata=metadata,
+            expected_metadata=expected_initialize_metadata,
         )
     optimizer_cfg = config.optimizer
     optimizer = torch.optim.AdamW(
@@ -275,7 +413,7 @@ def main() -> None:
         mode=str(early_cfg.get("mode", "min")),
     )
     early_enabled = bool(early_cfg.get("enabled", True))
-    loss_module = DrivoRMetricLoss()
+    loss_module = build_drivor_loss(config)
     topm = int(config.model.get("dynamic_topm", 32))
     best_selected = -math.inf
     optimizer.zero_grad(set_to_none=True)
@@ -309,9 +447,16 @@ def main() -> None:
                 optimizer.zero_grad(set_to_none=True)
             if accelerator.sync_gradients:
                 completed_steps += 1
+        calibration = calibrate_hybrid_selector(
+            scorer,
+            val_loader,
+            accelerator,
+            grid_size=int(config.get("selector_calibration", {}).get("grid_size", 21)),
+        )
         validation = evaluate_drivor(
             scorer, val_loader, accelerator, topm=topm
         )
+        validation.update(calibration)
         epoch_seconds = time.perf_counter() - start
         improved_regret, patience_exhausted = early.update(validation["regret"])
         should_stop = early_enabled and patience_exhausted
@@ -325,6 +470,7 @@ def main() -> None:
                 **metadata,
                 "epoch": epoch,
                 "completed_steps": completed_steps,
+                "selection_alpha": float(unwrapped.selection_alpha.item()),
                 "validation": validation,
             }
             save_stage_component_checkpoint(

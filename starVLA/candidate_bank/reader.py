@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -42,8 +43,22 @@ class CandidateBankReader:
     ) -> None:
         self.root = Path(root)
         self.manifest = read_candidate_bank_manifest(root)
+        identity_path = self.root / "build_identity.json"
+        raw_identity = json.loads(identity_path.read_text(encoding="utf-8"))
         identity = read_candidate_bank_build_identity(root)
-        if build_identity_hash(identity) != self.manifest.build_identity_hash:
+        canonical_hash = build_identity_hash(identity)
+        # label_protocol was appended to schema-v1 with a v2 default. Preserve
+        # read compatibility with banks produced before that field existed;
+        # newly built banks always hash the complete canonical identity.
+        legacy_hash = hashlib.sha256(
+            json.dumps(
+                raw_identity,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode("utf-8")
+        ).hexdigest()
+        if self.manifest.build_identity_hash not in {canonical_hash, legacy_hash}:
             raise RuntimeError(
                 "candidate-bank manifest does not match its immutable build identity"
             )
