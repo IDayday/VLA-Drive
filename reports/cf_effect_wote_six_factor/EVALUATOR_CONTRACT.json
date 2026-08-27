@@ -1,0 +1,38 @@
+{
+  "candidate_bank_logical_sha256": "7da054b8c89568598c515840d0fde301b985fb9079c32899679a3e9f1caa217f",
+  "candidate_bank_sha256": "44f64a763473c3a80482aaa3f78669445f56af40a1c00741a351c6c0650e758b",
+  "candidate_count": 256,
+  "candidate_domain": "wote_base_anchors",
+  "candidate_horizon_seconds": 4.0,
+  "candidate_interval_seconds": 0.5,
+  "candidate_set_dependent_ep": true,
+  "candidate_waypoints": 8,
+  "checkpoint_sha256": "f5e73261cc55220d681bdfe2ce306a2f8e8cd555b10be51034e9b20e2967e53b",
+  "evaluator_source_hashes": {
+    "metric_cache_processor.py": "d9eddc3c75c57495fa031f793b23cc7cf47c468100448e4650fb4d287ecf1e7a",
+    "pdm_score.py": "27ef6731fce636091ca4ec34ed75e05bd903f3c564565e32e07e0f1dc1a24117",
+    "pdm_scorer.py": "a709f76b7471ac22558bbac89311bd7cc17802a5d286e7564420b0efc74c3068",
+    "pdm_simulator.py": "1a164d4516dddafeb515449d8d9576361fe4d987648aaa63a162a1f27fe51533"
+  },
+  "factor_order": [
+    "NC",
+    "DAC",
+    "DDC",
+    "EP",
+    "TTC",
+    "Comfort"
+  ],
+  "label_schema_version": "independent_wote_labels_4s_six_factor.v2",
+  "label_source": "independent_navsim_recompute",
+  "metric_cache_future_num_poses": 50,
+  "navsim_commit_or_tree_hash": "298957c128a91d41a1c6075bd0bb6e7e845e093f",
+  "progress_normalization_scope": "all_256_candidates_within_scene",
+  "proposal_interval_seconds": 0.1,
+  "proposal_num_poses": 40,
+  "raw_progress_in_score_formula": false,
+  "raw_progress_saved": true,
+  "score_formula": "NC*DAC*DDC*(5*EP+5*TTC+2*Comfort)/12",
+  "score_reconstruction_tolerance": 1e-06,
+  "trajectory_offsets": false,
+  "wote_commit": "298957c128a91d41a1c6075bd0bb6e7e845e093f"
+}
