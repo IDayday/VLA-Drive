@@ -82,3 +82,31 @@ pytest research/cf_effect_gate_wote/tests -q
 The formal scripts expose a no-write `--dry-run` and a read-only
 `--preflight-only` path. Missing assets fail closed; there is no silent fallback
 to training WoTE or changing the candidate set.
+
+## Independent 4-second relabel Gate
+
+The follow-up Gate is isolated under
+`experiments/cf_effect_wote_relabel/` and
+`reports/cf_effect_wote_relabel/`. It never uses the released
+`formatted_pdm_score_256.npy` as a training or Gate label. Frozen features are
+cached with `--label-source none` under schema
+`wote_debug_base_anchor.v2`, then joined to independent labels by scene token,
+candidate index, candidate-bank hash, and trajectory hash.
+
+The only evaluator contract is 256 released base anchors at 8×0.5 s,
+interpolated and scored with 40×0.1 s proposals against metric caches built
+with 50×0.1 s future sampling. Its source and asset hashes are recorded in
+`reports/cf_effect_wote_relabel/EVALUATOR_CONTRACT.json`.
+
+Entry points are:
+
+```bash
+bash research/cf_effect_gate_wote/scripts/run_gate0r_independent_relabel.sh --dry-run --metric-cache-root PATH
+bash research/cf_effect_gate_wote/scripts/run_gate1r_candidate_headroom.sh --dry-run
+bash research/cf_effect_gate_wote/scripts/run_gate2o_oracle_effect.sh --dry-run
+bash research/cf_effect_gate_wote/scripts/build_relabel_report.sh
+```
+
+Each dependent launcher checks the preceding Gate and stops with `NOT_RUN`
+semantics when a prerequisite did not pass. This follow-up does not train a
+forward effect model or inverse dynamics model.
