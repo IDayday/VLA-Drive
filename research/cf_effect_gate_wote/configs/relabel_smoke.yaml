@@ -1,0 +1,29 @@
+schema_version: cf_effect_wote_relabel.v1
+run:
+  run_id: g0r-independent-relabel-200
+  overwrite: false
+data:
+  token_file: research/cf_effect_gate_wote/configs/splits/relabel_headroom_tokens.txt
+  scenes: 200
+candidate:
+  domain: wote_base_anchors
+  count: 256
+  waypoints: 8
+  interval_seconds: 0.5
+  horizon_seconds: 4.0
+  trajectory_offsets: false
+evaluator:
+  proposal_num_poses: 40
+  proposal_interval_seconds: 0.1
+  metric_cache_future_num_poses: 50
+  fallback: false
+labels:
+  source: independent_navsim_recompute
+  factor_order: [NC, DAC, EP, TTC, Comfort]
+  schema_version: independent_wote_labels_4s.v1
+  reconstruction_tolerance: 1.0e-6
+  shard_scenes: 16
+determinism:
+  exact_arrays: true
+  logical_sha256: true
+

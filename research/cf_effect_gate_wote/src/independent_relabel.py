@@ -1,0 +1,395 @@
+"""Independently recompute fixed-bank NAVSIM labels under one 4-second contract.
+
+This module deliberately has no dependency on WoTE's published candidate-score
+table.  The only candidate labels it can emit are fresh outputs from the pinned
+NAVSIM evaluator.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import lzma
+import pickle
+import subprocess
+import sys
+from dataclasses import asdict
+from pathlib import Path
+from typing import Any, Mapping, Sequence
+
+import numpy as np
+import numpy.typing as npt
+
+from .feature_store import atomic_write_json, sha256_file, stable_array_hash
+from .independent_label_store import (
+    CANDIDATE_COUNT,
+    IndependentCandidateLabelWriter,
+    IndependentLabelRecord,
+    IndependentLabelScene,
+    IndependentLabelStoreError,
+    ScoreReconstructionError,
+)
+
+
+WOTE_COMMIT = "298957c128a91d41a1c6075bd0bb6e7e845e093f"
+CHECKPOINT_SHA256 = "f5e73261cc55220d681bdfe2ce306a2f8e8cd555b10be51034e9b20e2967e53b"
+PROPOSAL_NUM_POSES = 40
+PROPOSAL_INTERVAL_SECONDS = 0.1
+METRIC_CACHE_FUTURE_NUM_POSES = 50
+CANDIDATE_WAYPOINTS = 8
+CANDIDATE_INTERVAL_SECONDS = 0.5
+EVALUATOR_FILES = {
+    "pdm_score.py": Path("navsim/evaluate/pdm_score.py"),
+    "pdm_scorer.py": Path(
+        "navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py"
+    ),
+    "pdm_simulator.py": Path(
+        "navsim/planning/simulation/planner/pdm_planner/simulation/pdm_simulator.py"
+    ),
+    "metric_cache_processor.py": Path(
+        "navsim/planning/metric_caching/metric_cache_processor.py"
+    ),
+}
+
+
+class RelabelContractError(RuntimeError):
+    """The fixed evaluator, asset, token, or candidate contract was violated."""
+
+
+def read_fixed_tokens(path: Path, expected_count: int | None = None) -> list[str]:
+    if not path.is_file():
+        raise FileNotFoundError(f"fixed token file does not exist: {path}")
+    tokens = [line.strip() for line in path.read_text(encoding="utf-8").splitlines()]
+    if not tokens or any(not token for token in tokens):
+        raise RelabelContractError(f"fixed token file is empty or has blank rows: {path}")
+    if len(tokens) != len(set(tokens)):
+        raise RelabelContractError(f"fixed token file contains duplicates: {path}")
+    if expected_count is not None and len(tokens) != expected_count:
+        raise RelabelContractError(
+            f"fixed token count mismatch: expected {expected_count}, got {len(tokens)}"
+        )
+    return tokens
+
+
+def load_base_anchor_bank(path: Path) -> npt.NDArray[np.float32]:
+    if not path.is_file():
+        raise FileNotFoundError(f"base anchor bank does not exist: {path}")
+    anchors = np.asarray(np.load(path, allow_pickle=False), dtype=np.float32)
+    expected = (CANDIDATE_COUNT, CANDIDATE_WAYPOINTS, 3)
+    if anchors.shape != expected:
+        raise RelabelContractError(f"base anchor bank expected {expected}, got {anchors.shape}")
+    if not np.isfinite(anchors).all():
+        raise RelabelContractError("base anchor bank contains NaN/Inf")
+    return np.ascontiguousarray(anchors)
+
+
+def _git_revision(root: Path) -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
+def build_evaluator_contract(
+    wote_root: Path,
+    checkpoint_path: Path,
+    anchor_path: Path,
+) -> dict[str, Any]:
+    """Build the immutable, path-portable evaluator identity."""
+
+    actual_wote_commit = _git_revision(wote_root)
+    if actual_wote_commit != WOTE_COMMIT:
+        raise RelabelContractError(
+            f"WoTE commit mismatch: expected {WOTE_COMMIT}, got {actual_wote_commit}"
+        )
+    actual_checkpoint = sha256_file(checkpoint_path)
+    if actual_checkpoint != CHECKPOINT_SHA256:
+        raise RelabelContractError(
+            "checkpoint SHA256 mismatch: "
+            f"expected {CHECKPOINT_SHA256}, got {actual_checkpoint}"
+        )
+    anchors = load_base_anchor_bank(anchor_path)
+    source_hashes: dict[str, str] = {}
+    for name, relative_path in EVALUATOR_FILES.items():
+        source_path = wote_root / relative_path
+        if not source_path.is_file():
+            raise RelabelContractError(f"missing evaluator source: {relative_path}")
+        source_hashes[name] = sha256_file(source_path)
+    return {
+        "candidate_domain": "wote_base_anchors",
+        "candidate_count": CANDIDATE_COUNT,
+        "candidate_waypoints": CANDIDATE_WAYPOINTS,
+        "candidate_interval_seconds": CANDIDATE_INTERVAL_SECONDS,
+        "candidate_horizon_seconds": 4.0,
+        "proposal_num_poses": PROPOSAL_NUM_POSES,
+        "proposal_interval_seconds": PROPOSAL_INTERVAL_SECONDS,
+        "metric_cache_future_num_poses": METRIC_CACHE_FUTURE_NUM_POSES,
+        "trajectory_offsets": False,
+        "label_source": "independent_navsim_recompute",
+        "wote_commit": actual_wote_commit,
+        "checkpoint_sha256": actual_checkpoint,
+        "candidate_bank_sha256": sha256_file(anchor_path),
+        "candidate_bank_logical_sha256": stable_array_hash(anchors),
+        "navsim_commit_or_tree_hash": actual_wote_commit,
+        "evaluator_source_hashes": source_hashes,
+    }
+
+
+def write_evaluator_contract(
+    output: Path,
+    wote_root: Path,
+    checkpoint_path: Path,
+    anchor_path: Path,
+) -> Path:
+    contract = build_evaluator_contract(wote_root, checkpoint_path, anchor_path)
+    atomic_write_json(output, contract)
+    return output
+
+
+def _result_arrays(result: Any) -> tuple[npt.NDArray[np.float32], npt.NDArray[np.float32]]:
+    factors = np.stack(
+        [
+            result.no_at_fault_collisions,
+            result.drivable_area_compliance,
+            result.ego_progress,
+            result.time_to_collision_within_bound,
+            result.comfort,
+        ],
+        axis=-1,
+    ).astype(np.float32)
+    score = np.asarray(result.score, dtype=np.float32)
+    return factors, score
+
+
+def _failure_payload(
+    token: str,
+    error: Exception,
+    result: Any | None,
+    metric_cache_path: Path | None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "status": "FAIL",
+        "gate": "G0-R",
+        "final_verdict": "RELABEL_CONTRACT_FAILED",
+        "scene_token": token,
+        "error_type": type(error).__name__,
+        "error": str(error),
+        "completed_scenes": 0,
+        "attempted_scenes": 1 if token != "<not-started>" else 0,
+        "candidates_evaluated": (
+            CANDIDATE_COUNT if result is not None else 0
+        ),
+    }
+    if metric_cache_path is not None and metric_cache_path.is_file():
+        payload["metric_cache_sha256"] = sha256_file(metric_cache_path)
+    if isinstance(error, ScoreReconstructionError):
+        bad = error.mismatched_indices
+        payload.update(
+            {
+                "reason": "required_five_factor_score_reconstruction_exceeds_tolerance",
+                "reconstruction_tolerance": 1e-6,
+                "max_absolute_error": error.max_absolute_error,
+                "mean_absolute_error": error.mean_absolute_error,
+                "mismatched_candidate_count": int(len(bad)),
+                "mismatched_candidate_indices": bad.tolist(),
+                "candidate_differences": [
+                    {
+                        "candidate_index": int(index),
+                        "evaluator_score": float(error.evaluator_score[index]),
+                        "reassembled_score": float(error.reassembled_score[index]),
+                        "absolute_error": float(
+                            abs(
+                                error.reassembled_score[index]
+                                - error.evaluator_score[index]
+                            )
+                        ),
+                        "driving_direction_compliance": (
+                            float(result.driving_direction_compliance[index])
+                            if result is not None
+                            else None
+                        ),
+                    }
+                    for index in bad
+                ],
+            }
+        )
+    return payload
+
+
+def run_independent_relabel(
+    *,
+    wote_root: Path,
+    metric_cache_root: Path,
+    token_path: Path,
+    anchor_path: Path,
+    evaluator_contract_path: Path,
+    output: Path,
+    expected_scenes: int | None,
+    shard_scenes: int,
+) -> Path:
+    """Evaluate every scene exactly once and finalize a deterministic label store."""
+
+    if output.exists():
+        raise FileExistsError(f"refusing existing relabel output: {output}")
+    contract = json.loads(evaluator_contract_path.read_text(encoding="utf-8"))
+    if contract.get("proposal_num_poses") != PROPOSAL_NUM_POSES or contract.get(
+        "proposal_interval_seconds"
+    ) != PROPOSAL_INTERVAL_SECONDS:
+        raise RelabelContractError("evaluator contract is not fixed at 40 poses x 0.1 s")
+    if contract.get("metric_cache_future_num_poses") != METRIC_CACHE_FUTURE_NUM_POSES:
+        raise RelabelContractError("metric-cache future contract is not 50 poses")
+    if contract.get("trajectory_offsets") is not False:
+        raise RelabelContractError("trajectory offsets must be disabled")
+
+    tokens = read_fixed_tokens(token_path, expected_count=expected_scenes)
+    anchors = load_base_anchor_bank(anchor_path)
+    candidate_bank_hash = stable_array_hash(anchors)
+    if contract.get("candidate_bank_logical_sha256") != candidate_bank_hash:
+        raise RelabelContractError("candidate bank differs from evaluator contract")
+    contract_sha = sha256_file(evaluator_contract_path)
+
+    sys.path.insert(0, str(wote_root))
+    from navsim.common.dataloader import MetricCacheLoader
+    from navsim.evaluate.pdm_score import pdm_score_multi_trajs
+    from navsim.planning.simulation.planner.pdm_planner.scoring.pdm_scorer import (
+        PDMScorer,
+    )
+    from navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator import (
+        PDMSimulator,
+    )
+    from nuplan.planning.simulation.trajectory.trajectory_sampling import (
+        TrajectorySampling,
+    )
+
+    cache_loader = MetricCacheLoader(metric_cache_root)
+    missing = [token for token in tokens if token not in cache_loader.metric_cache_paths]
+    if missing:
+        raise RelabelContractError(
+            f"metric cache is missing {len(missing)} fixed tokens; first={missing[0]}"
+        )
+    sampling = TrajectorySampling(
+        num_poses=PROPOSAL_NUM_POSES,
+        interval_length=PROPOSAL_INTERVAL_SECONDS,
+    )
+    simulator = PDMSimulator(sampling)
+    scorer = PDMScorer(sampling)
+    if simulator.proposal_sampling != scorer.proposal_sampling:
+        raise RelabelContractError("simulator/scorer sampling mismatch")
+
+    scenes: list[IndependentLabelScene] = []
+    current_token = "<not-started>"
+    current_result: Any | None = None
+    current_cache_path: Path | None = None
+    try:
+        for scene_number, token in enumerate(tokens, start=1):
+            current_token = token
+            current_result = None
+            current_cache_path = Path(cache_loader.metric_cache_paths[token])
+            if not current_cache_path.is_file():
+                raise RelabelContractError(
+                    f"metric-cache metadata points to a missing file: {current_cache_path}"
+                )
+            with lzma.open(current_cache_path, "rb") as stream:
+                metric_cache = pickle.load(stream)
+            current_result = pdm_score_multi_trajs(
+                metric_cache=metric_cache,
+                model_trajectory_list=anchors,
+                future_sampling=sampling,
+                simulator=simulator,
+                scorer=scorer,
+            )
+            factors, score = _result_arrays(current_result)
+            scene = IndependentLabelScene(
+                record=IndependentLabelRecord(
+                    scene_token=token,
+                    candidate_bank_hash=candidate_bank_hash,
+                    trajectory_hash=stable_array_hash(anchors),
+                    metric_cache_sha256=sha256_file(current_cache_path),
+                ),
+                factors=factors,
+                score=score,
+                oracle_index=int(np.argmax(score)),
+                candidate_indices=np.arange(CANDIDATE_COUNT, dtype=np.int64),
+            )
+            scene.validate(reconstruction_tolerance=1e-6)
+            scenes.append(scene)
+            print(
+                f"[independent-relabel] {scene_number}/{len(tokens)} {token}",
+                flush=True,
+            )
+    except Exception as error:
+        output.mkdir(parents=True, exist_ok=False)
+        payload = _failure_payload(
+            current_token, error, current_result, current_cache_path
+        )
+        payload["completed_scenes"] = len(scenes)
+        atomic_write_json(output / "failure.json", payload)
+        raise
+
+    writer = IndependentCandidateLabelWriter(
+        output,
+        candidate_bank_hash=candidate_bank_hash,
+        evaluator_contract_sha256=contract_sha,
+        shard_scenes=shard_scenes,
+    )
+    return writer.write(scenes)
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    contract = commands.add_parser("write-contract")
+    contract.add_argument("--wote-root", type=Path, required=True)
+    contract.add_argument("--checkpoint", type=Path, required=True)
+    contract.add_argument("--anchors", type=Path, required=True)
+    contract.add_argument("--output", type=Path, required=True)
+
+    run = commands.add_parser("run")
+    run.add_argument("--wote-root", type=Path, required=True)
+    run.add_argument("--metric-cache-root", type=Path, required=True)
+    run.add_argument("--tokens", type=Path, required=True)
+    run.add_argument("--anchors", type=Path, required=True)
+    run.add_argument("--evaluator-contract", type=Path, required=True)
+    run.add_argument("--output", type=Path, required=True)
+    run.add_argument("--expected-scenes", type=int)
+    run.add_argument("--shard-scenes", type=int, default=16)
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parser().parse_args(argv)
+    if args.command == "write-contract":
+        path = write_evaluator_contract(
+            args.output, args.wote_root, args.checkpoint, args.anchors
+        )
+        print(json.dumps(json.loads(path.read_text(encoding="utf-8")), indent=2))
+        return 0
+    if args.expected_scenes is not None and args.expected_scenes <= 0:
+        raise ValueError("--expected-scenes must be positive")
+    if args.shard_scenes <= 0:
+        raise ValueError("--shard-scenes must be positive")
+    try:
+        manifest = run_independent_relabel(
+            wote_root=args.wote_root,
+            metric_cache_root=args.metric_cache_root,
+            token_path=args.tokens,
+            anchor_path=args.anchors,
+            evaluator_contract_path=args.evaluator_contract,
+            output=args.output,
+            expected_scenes=args.expected_scenes,
+            shard_scenes=args.shard_scenes,
+        )
+    except (IndependentLabelStoreError, RelabelContractError) as error:
+        print(f"G0-R relabel failed: {error}", file=sys.stderr)
+        return 4
+    print(json.dumps(json.loads(manifest.read_text(encoding="utf-8")), indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
