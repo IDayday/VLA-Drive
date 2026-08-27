@@ -1,0 +1,50 @@
+schema_version: cf_effect_wote_oracle_effect.v1
+run:
+  run_id: g2o-oracle-effect-v1
+  seeds: [0, 1, 2]
+  overwrite: false
+data:
+  train_scenes: 1024
+  val_scenes: 256
+  test_scenes: 512
+  candidates: 256
+  train_candidates_per_scene: 64
+  label_source: independent_navsim_recompute
+features:
+  label_source: none
+  schema_version: wote_debug_base_anchor.v2
+  debug_force_base_anchors: true
+  return_debug_features: true
+effects:
+  primitive_schema: primitive_effect.v1
+  engineered_schema: engineered_effect.v1
+  actor_slots: 16
+  groups:
+    - ego_effect
+    - static_effect
+    - dynamic_effect
+    - full_primitive_effect
+    - full_engineered_effect
+    - shared_logged_future
+probe:
+  models:
+    - trajectory_only
+    - direct_current
+    - shared_logged_future
+    - static_effect
+    - dynamic_replay_effect
+    - full_primitive_action_effect
+    - full_engineered_action_effect
+    - wote_full_future
+    - wote_environment_only
+  factor_order: [NC, DAC, EP, TTC, Comfort]
+  learning_rates: [0.0001, 0.0003, 0.001]
+  pairwise_weights: [0.25, 0.5, 1.0]
+  max_epochs: 30
+  patience: 5
+  batch_scenes: 4
+  parameter_tolerance_fraction: 0.05
+bootstrap:
+  samples: 2000
+  seed: 20260827
+  confidence: 0.95

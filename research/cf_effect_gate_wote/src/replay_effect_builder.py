@@ -60,6 +60,44 @@ ACTOR_EFFECT_NAMES = (
     "relative_speed",
 )
 
+# The v1 tensors above stay intact for cache compatibility.  The independent
+# relabel Gate makes the leakage-safe core/diagnostic boundary explicit through
+# these projected schemas.
+PRIMITIVE_EGO_EFFECT_NAMES = EGO_EFFECT_NAMES
+PRIMITIVE_MAP_EFFECT_NAMES = (
+    "signed_route_center_offset",
+    "route_longitudinal_coordinate",
+    "heading_error_to_route",
+    "left_boundary_signed_clearance",
+    "right_boundary_signed_clearance",
+    "distance_to_static_obstacle",
+    "distance_to_map_boundary",
+)
+PRIMITIVE_ACTOR_EFFECT_NAMES = (
+    "relative_x",
+    "relative_y",
+    "relative_velocity_x",
+    "relative_velocity_y",
+    "relative_heading",
+    "oriented_box_clearance",
+    "center_distance",
+    "longitudinal_relation",
+    "lateral_relation",
+    "relative_speed",
+)
+ENGINEERED_EFFECT_NAMES = (
+    "footprint_outside_drivable_ratio",
+    "time_to_closest_approach",
+    "distance_at_closest_approach",
+    "swept_box_distance",
+)
+PRIMITIVE_MAP_INDICES = (0, 1, 2, 3, 4, 6, 7)
+PRIMITIVE_ACTOR_INDICES = (0, 1, 2, 3, 4, 5, 6, 7, 8, 12)
+ENGINEERED_MAP_INDICES = (5,)
+ENGINEERED_ACTOR_INDICES = (9, 10, 11)
+PRIMITIVE_EFFECT_SCHEMA_VERSION = "primitive_effect.v1"
+ENGINEERED_EFFECT_SCHEMA_VERSION = "engineered_effect.v1"
+
 
 class EffectConstructionError(RuntimeError):
     """The replay inputs violate the fixed, leakage-free schema."""
@@ -397,6 +435,50 @@ class ReplayEffectTensors:
             "interaction_mask": self.interaction_mask,
         }
 
+    def as_primitive_dict(self) -> dict[str, npt.NDArray[Any]]:
+        """Return only core primitives; evaluator-like proxies stay excluded."""
+
+        return {
+            "ego_effect": self.ego_effect,
+            "map_effect": self.map_effect[..., PRIMITIVE_MAP_INDICES],
+            "actor_effect": self.actor_effect[..., PRIMITIVE_ACTOR_INDICES],
+            "actor_mask": self.actor_mask,
+            "interaction_mask": self.interaction_mask,
+        }
+
+    def as_engineered_dict(self) -> dict[str, npt.NDArray[Any]]:
+        """Return quarantined engineered diagnostics under their own schema."""
+
+        return {
+            "map_engineered_effect": self.map_effect[..., ENGINEERED_MAP_INDICES],
+            "actor_engineered_effect": self.actor_effect[
+                ..., ENGINEERED_ACTOR_INDICES
+            ],
+        }
+
+    def flattened_primitive_groups(self) -> dict[str, npt.NDArray[np.float32]]:
+        """Produce mutually controlled candidate inputs for matched probes."""
+
+        primitive = self.as_primitive_dict()
+        candidate_count = self.ego_effect.shape[0]
+
+        def flatten(value: npt.ArrayLike) -> npt.NDArray[np.float32]:
+            return np.asarray(value, dtype=np.float32).reshape(candidate_count, -1)
+
+        ego = flatten(primitive["ego_effect"])
+        map_effect = flatten(primitive["map_effect"])
+        actor_effect = flatten(primitive["actor_effect"])
+        actor_mask = flatten(primitive["actor_mask"])
+        interaction = flatten(primitive["interaction_mask"])
+        static = np.concatenate([ego, map_effect], axis=-1)
+        dynamic = np.concatenate([actor_effect, actor_mask, interaction], axis=-1)
+        return {
+            "ego_effect": ego,
+            "static_effect": static,
+            "dynamic_effect": dynamic,
+            "full_primitive_effect": np.concatenate([static, dynamic], axis=-1),
+        }
+
 
 def _logged_actor_hashes(actors: LoggedActorFutures) -> dict[str, str]:
     return {
@@ -575,7 +657,7 @@ class ReplayGroundedEffectBuilder:
                 )
                 map_effect[candidate_index, time_index] = np.array(
                     [
-                        abs(signed_route_distance),
+                        signed_route_distance,
                         route_progress - route_origin_progress,
                         float(wrap_angle(heading - route_heading)),
                         left_clearance,

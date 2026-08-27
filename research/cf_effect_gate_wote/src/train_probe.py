@@ -27,6 +27,7 @@ from .feature_store import (
     SceneCacheRecord,
     atomic_write_json,
 )
+from .independent_label_store import IndependentCandidateLabelStore
 from .models.probe_heads import (
     AUXILIARY_RAW_DIM,
     BASE_RAW_DIM,
@@ -39,6 +40,8 @@ from .models.probe_heads import (
 )
 from .replay_effect_builder import (
     ACTOR_EFFECT_NAMES,
+    PRIMITIVE_ACTOR_INDICES,
+    PRIMITIVE_MAP_INDICES,
     EffectBuilderConfig,
     InteractionThresholds,
     ReplayEffectTensors,
@@ -51,12 +54,17 @@ G2_MODEL_TYPES = (
     "trajectory_only",
     "direct_current",
     "shared_logged_future",
-    "oracle_replay_effect",
-)
-ALL_SCORER_TYPES = G2_MODEL_TYPES + (
-    "predicted_replay_effect",
+    "static_effect",
+    "dynamic_replay_effect",
+    "full_primitive_action_effect",
+    "full_engineered_action_effect",
     "wote_full_future",
     "wote_environment_only",
+)
+ALL_SCORER_TYPES = G2_MODEL_TYPES + (
+    # Backward-compatible names retained for the original Gate artifacts.
+    "oracle_replay_effect",
+    "predicted_replay_effect",
 )
 
 
@@ -104,17 +112,39 @@ def _seed_everything(seed: int) -> None:
 
 
 def _records_match(first: Mapping[str, Any], second: Mapping[str, Any]) -> bool:
-    keys = ("scene_token", "candidate_indices", "trajectory_hash", "label_hash")
+    keys = (
+        "scene_token",
+        "candidate_indices",
+        "candidate_bank_hash",
+        "trajectory_hash",
+        "label_hash",
+    )
     return all(first.get(key) == second.get(key) for key in keys)
 
 
 def iter_probe_scenes(
     frozen_root: Path,
     effect_root: Path | None,
+    independent_label_root: Path | None = None,
 ) -> Iterator[ProbeScene]:
     """Join two strict sharded stores without loading an all-scenes index."""
 
     frozen_reader = FeatureShardReader(frozen_root)
+    frozen_identity = frozen_reader.manifest.get("identity", {})
+    label_source = str(frozen_identity.get("label_source", "published"))
+    label_store = (
+        IndependentCandidateLabelStore(independent_label_root)
+        if independent_label_root is not None
+        else None
+    )
+    if label_source == "none" and label_store is None:
+        raise ProbeDataError(
+            "label-free frozen cache requires --independent-labels for an explicit join"
+        )
+    if label_source != "none" and label_store is not None:
+        raise ProbeDataError(
+            "independent labels may only be joined to a label_source=none cache"
+        )
     effect_reader = FeatureShardReader(effect_root) if effect_root is not None else None
     effect_iterator = effect_reader.iter_shards() if effect_reader is not None else None
     scene_count = 0
@@ -136,7 +166,27 @@ def iter_probe_scenes(
                     raise ProbeDataError(
                         f"frozen/effect record mismatch at {frozen_record['scene_token']}"
                     )
-            frozen_scene = {key: value[scene_index] for key, value in frozen_arrays.items()}
+            frozen_scene = {
+                key: value[scene_index] for key, value in frozen_arrays.items()
+            }
+            if label_store is not None:
+                candidate_bank_hash = frozen_record.get("candidate_bank_hash")
+                if not isinstance(candidate_bank_hash, str):
+                    raise ProbeDataError(
+                        f"{frozen_record['scene_token']}: label-free cache lacks candidate bank hash"
+                    )
+                labels = label_store.join_scene(
+                    str(frozen_record["scene_token"]),
+                    candidate_bank_hash,
+                    str(frozen_record["trajectory_hash"]),
+                )
+                if tuple(labels.candidate_indices.tolist()) != tuple(
+                    frozen_record["candidate_indices"]
+                ):
+                    raise ProbeDataError(
+                        f"{frozen_record['scene_token']}: independent candidate indices differ"
+                    )
+                frozen_scene["factor_labels"] = labels.factors
             effect_scene = (
                 {key: value[scene_index] for key, value in effect_arrays.items()}
                 if effect_arrays is not None
@@ -318,7 +368,13 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
         split=str(frozen_identity["split"]),
         checkpoint_sha256=str(frozen_identity["checkpoint_sha256"]),
         wote_commit_sha=str(frozen_identity["wote_commit_sha"]),
-        feature_schema_version="replay_effect.v1",
+        feature_schema_version=(
+            "replay_effect_primitive.v1"
+            if frozen_identity.get("label_source") == "none"
+            else "replay_effect.v1"
+        ),
+        label_source=str(frozen_identity.get("label_source", "published")),
+        candidate_bank_hash=frozen_identity.get("candidate_bank_hash"),
     )
     writer = FeatureShardWriter(args.output, identity)
     for shard_index, (sidecar, arrays) in enumerate(frozen_reader.iter_shards()):
@@ -332,6 +388,18 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
             effect = builder.build(trajectories, context)
             shared, shared_mask = _shared_logged_future(context, effect, args.actor_slots)
             values = effect.as_tensor_dict()
+            primitive = effect.as_primitive_dict()
+            engineered = effect.as_engineered_dict()
+            values.update(
+                {
+                    "primitive_ego_effect": primitive["ego_effect"],
+                    "primitive_map_effect": primitive["map_effect"],
+                    "primitive_actor_effect": primitive["actor_effect"],
+                    "primitive_actor_mask": primitive["actor_mask"],
+                    "primitive_interaction_mask": primitive["interaction_mask"],
+                    **engineered,
+                }
+            )
             values["shared_logged_future"] = shared
             values["shared_actor_mask"] = shared_mask
             for sensitivity in args.sensitivity_clearance_m:
@@ -351,7 +419,8 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
                     scene_token=token,
                     candidate_indices=tuple(record["candidate_indices"]),
                     trajectory_hash=str(record["trajectory_hash"]),
-                    label_hash=str(record["label_hash"]),
+                    label_hash=record.get("label_hash"),
+                    candidate_bank_hash=record.get("candidate_bank_hash"),
                 )
             )
         writer.write_shard(
@@ -380,25 +449,80 @@ def _masked_actor_summary(
     return np.concatenate([mean, minimum, maximum], axis=-1).reshape(len(actor), -1)
 
 
-def summarize_replay_effect(effects: Mapping[str, npt.NDArray[Any]]) -> npt.NDArray[np.float32]:
-    ego = np.asarray(effects["ego_effect"], dtype=np.float32)
-    map_effect = np.asarray(effects["map_effect"], dtype=np.float32)
-    actor_mask = np.asarray(effects["actor_mask"], dtype=bool)
-    interaction = np.asarray(effects["interaction_mask"], dtype=bool)
-    actor = _masked_actor_summary(effects["actor_effect"], actor_mask)
+def summarize_replay_effect(
+    effects: Mapping[str, npt.NDArray[Any]],
+    group: str = "full_engineered",
+) -> npt.NDArray[np.float32]:
+    """Summarize one controlled effect group into the fixed auxiliary budget."""
+
+    if group not in {"static", "dynamic", "full_primitive", "full_engineered"}:
+        raise ValueError(f"unsupported effect group: {group}")
+    ego = np.asarray(
+        effects.get("primitive_ego_effect", effects["ego_effect"]), dtype=np.float32
+    )
+    if "primitive_map_effect" in effects:
+        map_effect = np.asarray(effects["primitive_map_effect"], dtype=np.float32)
+    else:
+        map_effect = np.asarray(effects["map_effect"], dtype=np.float32)[
+            ..., PRIMITIVE_MAP_INDICES
+        ]
+    actor_mask = np.asarray(
+        effects.get("primitive_actor_mask", effects["actor_mask"]), dtype=bool
+    )
+    interaction = np.asarray(
+        effects.get("primitive_interaction_mask", effects["interaction_mask"]),
+        dtype=bool,
+    )
+    if "primitive_actor_effect" in effects:
+        actor_values = effects["primitive_actor_effect"]
+    else:
+        actor_values = np.asarray(effects["actor_effect"])[
+            ..., PRIMITIVE_ACTOR_INDICES
+        ]
+    actor = _masked_actor_summary(actor_values, actor_mask)
     valid_counts = np.maximum(actor_mask.sum(axis=2), 1)
     valid_fraction = actor_mask.mean(axis=2)
     interaction_fraction = (interaction & actor_mask).sum(axis=2) / valid_counts
-    summary = np.concatenate(
-        [
+    if group == "static":
+        pieces = [ego.reshape(len(ego), -1), map_effect.reshape(len(map_effect), -1)]
+    elif group == "dynamic":
+        pieces = [actor, valid_fraction, interaction_fraction]
+    elif group == "full_primitive":
+        pieces = [
             ego.reshape(len(ego), -1),
             map_effect.reshape(len(map_effect), -1),
             actor,
             valid_fraction,
             interaction_fraction,
-        ],
-        axis=-1,
-    ).astype(np.float32)
+        ]
+    else:
+        engineered_map = np.asarray(
+            effects.get(
+                "map_engineered_effect",
+                np.asarray(effects["map_effect"])[..., (5,)],
+            ),
+            dtype=np.float32,
+        )
+        engineered_actor_values = np.asarray(
+            effects.get(
+                "actor_engineered_effect",
+                np.asarray(effects["actor_effect"])[..., (9, 10, 11)],
+            ),
+            dtype=np.float32,
+        )
+        engineered_actor = _masked_actor_summary(
+            engineered_actor_values, actor_mask
+        )
+        pieces = [
+            ego.reshape(len(ego), -1),
+            map_effect.reshape(len(map_effect), -1),
+            actor,
+            valid_fraction,
+            interaction_fraction,
+            engineered_map.reshape(len(engineered_map), -1),
+            engineered_actor,
+        ]
+    summary = np.concatenate(pieces, axis=-1).astype(np.float32)
     if summary.shape[1] > AUXILIARY_RAW_DIM or not np.isfinite(summary).all():
         raise ProbeDataError(f"replay effect summary has invalid shape/data {summary.shape}")
     return summary
@@ -464,10 +588,18 @@ def raw_scene_inputs(
 
     auxiliary = np.zeros((len(indices), AUXILIARY_RAW_DIM), dtype=np.float32)
     effects = effect_override if effect_override is not None else scene.effects
-    if model_type in {"oracle_replay_effect", "predicted_replay_effect"}:
+    effect_groups = {
+        "static_effect": "static",
+        "dynamic_replay_effect": "dynamic",
+        "full_primitive_action_effect": "full_primitive",
+        "full_engineered_action_effect": "full_engineered",
+        "oracle_replay_effect": "full_engineered",
+        "predicted_replay_effect": "full_engineered",
+    }
+    if model_type in effect_groups:
         if effects is None:
             raise ProbeDataError(f"{scene.token}: {model_type} requires replay effects")
-        effect_summary = summarize_replay_effect(effects)
+        effect_summary = summarize_replay_effect(effects, effect_groups[model_type])
         if effect_permutation is not None:
             permutation = np.asarray(effect_permutation, dtype=np.int64)
             if sorted(permutation.tolist()) != list(range(candidates)):
@@ -497,13 +629,34 @@ def raw_scene_inputs(
     return base, current, auxiliary, labels, selected
 
 
-def _candidate_subset(token: str, candidates: int, count: int, seed: int, epoch: int) -> npt.NDArray[np.int64]:
+def _candidate_subset(
+    token: str,
+    candidates: int,
+    count: int,
+    seed: int,
+    epoch: int,
+    selected_index: int | None = None,
+) -> npt.NDArray[np.int64]:
     if count >= candidates:
         return np.arange(candidates, dtype=np.int64)
+    if count <= 0:
+        raise ValueError("candidate sample count must be positive")
+    if selected_index is not None and not 0 <= selected_index < candidates:
+        raise ProbeDataError(f"invalid forced WoTE selected candidate: {selected_index}")
     digest = hashlib.sha256(f"{token}:{seed}:{epoch}".encode("utf-8")).digest()
     scene_seed = int.from_bytes(digest[:8], "little")
     rng = np.random.default_rng(scene_seed)
-    return np.sort(rng.choice(candidates, size=count, replace=False)).astype(np.int64)
+    if selected_index is None:
+        values = rng.choice(candidates, size=count, replace=False)
+    else:
+        pool = np.delete(np.arange(candidates, dtype=np.int64), selected_index)
+        values = np.concatenate(
+            [
+                np.asarray([selected_index], dtype=np.int64),
+                rng.choice(pool, size=count - 1, replace=False),
+            ]
+        )
+    return np.sort(values).astype(np.int64)
 
 
 def iter_raw_batches(
@@ -515,12 +668,25 @@ def iter_raw_batches(
     seed: int,
     epoch: int,
     full_candidates: bool,
+    independent_label_root: Path | None = None,
 ) -> Iterator[RawProbeBatch]:
     pending: list[tuple[str, tuple[npt.NDArray[Any], ...]]] = []
-    for scene in iter_probe_scenes(frozen_root, effect_root):
+    for scene in iter_probe_scenes(
+        frozen_root, effect_root, independent_label_root
+    ):
         subset = None
         if not full_candidates:
-            subset = _candidate_subset(scene.token, 256, candidate_count, seed, epoch)
+            selected_index = int(
+                np.asarray(scene.frozen["selected_index"]).reshape(-1)[0]
+            )
+            subset = _candidate_subset(
+                scene.token,
+                256,
+                candidate_count,
+                seed,
+                epoch,
+                selected_index=selected_index,
+            )
         raw = raw_scene_inputs(scene, model_type, subset)
         pending.append((scene.token, raw))
         if len(pending) < batch_scenes:
@@ -561,6 +727,7 @@ def validation_objective(
     model_type: str,
     batch_scenes: int,
     device: torch.device,
+    independent_label_root: Path | None = None,
 ) -> tuple[float, float]:
     composer.eval()
     probe.eval()
@@ -576,6 +743,7 @@ def validation_objective(
         seed=0,
         epoch=0,
         full_candidates=True,
+        independent_label_root=independent_label_root,
     ):
         common = composer(
             batch.base.to(device),
@@ -602,6 +770,8 @@ def _train_trial(
     val_cache: Path,
     train_effects: Path | None,
     val_effects: Path | None,
+    train_labels: Path | None = None,
+    val_labels: Path | None = None,
     model_type: str,
     seed: int,
     learning_rate: float,
@@ -645,6 +815,7 @@ def _train_trial(
             seed,
             epoch,
             full_candidates=False,
+            independent_label_root=train_labels,
         ):
             base = batch.base.to(device)
             current = batch.current.to(device)
@@ -675,6 +846,7 @@ def _train_trial(
             model_type,
             batch_scenes,
             device,
+            independent_label_root=val_labels,
         )
         history.append(
             {
@@ -779,6 +951,8 @@ def train_suite(args: argparse.Namespace) -> None:
                 val_cache=args.val_cache,
                 train_effects=args.train_effects,
                 val_effects=args.val_effects,
+                train_labels=args.train_labels,
+                val_labels=args.val_labels,
                 model_type=model_type,
                 seed=seed,
                 learning_rate=learning_rate,
@@ -857,6 +1031,8 @@ def _parser() -> argparse.ArgumentParser:
     train.add_argument("--val-cache", type=Path, required=True)
     train.add_argument("--train-effects", type=Path, required=True)
     train.add_argument("--val-effects", type=Path, required=True)
+    train.add_argument("--train-labels", type=Path)
+    train.add_argument("--val-labels", type=Path)
     train.add_argument("--output", type=Path, required=True)
     train.add_argument("--device", default="cuda")
     train.add_argument("--models", nargs="+", choices=ALL_SCORER_TYPES, default=G2_MODEL_TYPES)
