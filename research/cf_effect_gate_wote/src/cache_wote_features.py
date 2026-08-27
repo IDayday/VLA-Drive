@@ -399,8 +399,8 @@ def assert_base_anchor_contract(
     expected = anchors[None]
     if raw.shape != expected.shape or not np.array_equal(raw, expected):
         raise ValueError("trajectory_anchor_raw is not exactly the base anchor bank")
-    if all_trajectory.shape != expected.shape or not np.array_equal(
-        all_trajectory, expected
+    if all_trajectory.shape != anchors.shape or not np.array_equal(
+        all_trajectory, anchors
     ):
         raise ValueError("all_trajectory is not exactly the base anchor bank")
 

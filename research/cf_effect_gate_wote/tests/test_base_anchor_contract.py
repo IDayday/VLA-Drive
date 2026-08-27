@@ -17,11 +17,11 @@ def test_base_anchor_tensors_are_bitwise_equal() -> None:
     output = {
         "base_trajectory_anchors": anchors.copy(),
         "trajectory_anchor_raw": anchors[None].copy(),
-        "all_trajectory": anchors[None].copy(),
+        "all_trajectory": anchors.copy(),
     }
     assert_base_anchor_contract(output, anchors)
-    original = output["all_trajectory"][0, 3, 4, 1]
-    output["all_trajectory"][0, 3, 4, 1] = np.nextafter(
+    original = output["all_trajectory"][3, 4, 1]
+    output["all_trajectory"][3, 4, 1] = np.nextafter(
         original, np.float32(np.inf), dtype=np.float32
     )
     with pytest.raises(ValueError, match="all_trajectory"):
