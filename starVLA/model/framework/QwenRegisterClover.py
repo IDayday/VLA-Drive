@@ -141,6 +141,7 @@ class QwenRegisterClover(QwenRegisterGenerator):
                 "selected_true_pdms": selected_true.mean(),
                 "oracle_pdms_64": oracle_true.mean(),
                 "scorer_regret": (oracle_true - selected_true).mean(),
+                **(generated.sanitization_metrics or {}),
             },
         }
         if not compute_loss:

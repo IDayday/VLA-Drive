@@ -163,6 +163,55 @@ def test_deterministic_train_val_split_roundtrip(tmp_path):
     assert len(train) == 23 and len(val) == 7 and not train & val
 
 
+def test_clover_split_is_log_disjoint_with_untouched_selection_holdout(tmp_path):
+    tokens = [f"log-{log}-token-{index}" for log in range(6) for index in range(3)]
+    source = tmp_path / "source.json"
+    source.write_text(json.dumps(tokens), encoding="utf-8")
+    token_logs = {
+        token: token.rsplit("-token-", 1)[0]
+        for token in tokens
+    }
+    mapping = tmp_path / "token_logs.json"
+    mapping.write_text(json.dumps(token_logs), encoding="utf-8")
+    output = tmp_path / "split"
+    command = [
+        "python",
+        str(ROOT / "tools/prepare_register64_train_val_split.py"),
+        "--source",
+        str(source),
+        "--output-dir",
+        str(output),
+        "--validation-size",
+        "6",
+        "--selection-size",
+        "6",
+        "--token-log-map",
+        str(mapping),
+        "--require-log-disjoint",
+        "--seed",
+        "2",
+    ]
+    subprocess.run(command, check=True, capture_output=True, text=True)
+    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    train = set(json.loads((output / "train.json").read_text(encoding="utf-8")))
+    val = set(json.loads((output / "val.json").read_text(encoding="utf-8")))
+    selection = set(
+        json.loads((output / "selection.json").read_text(encoding="utf-8"))
+    )
+    assert manifest["grouping"] == "log_name"
+    assert not train & val and not train & selection and not val & selection
+    assert train | val | selection == set(tokens)
+    train_logs = {token_logs[token] for token in train}
+    val_logs = {token_logs[token] for token in val}
+    selection_logs = {token_logs[token] for token in selection}
+    assert not train_logs & val_logs
+    assert not train_logs & selection_logs
+    assert not val_logs & selection_logs
+    subprocess.run(
+        command + ["--validate-only"], check=True, capture_output=True, text=True
+    )
+
+
 def _write_score_csv(
     root: Path, summary_token: str, scenarios: int, score: float = 0.75
 ):

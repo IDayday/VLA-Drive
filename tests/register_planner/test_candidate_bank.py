@@ -85,6 +85,12 @@ def _finalize(root, identity_hash, proposal_num=4, dense=False):
     )
 
 
+def test_candidate_bank_identity_accepts_untouched_selection_role():
+    identity = replace(_identity(), split="selection", datalist_path="selection.json")
+    identity.validate()
+    assert identity.split == "selection"
+
+
 def test_bank_roundtrip(tmp_path):
     tmp_path = tmp_path / "train"
     _, identity_hash = _prepare(tmp_path)

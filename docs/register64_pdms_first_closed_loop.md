@@ -36,7 +36,7 @@ Qwen VLA (same prompt/history/navigation contract)
   -> four-layer cross-candidate DrivoR value decoder
        |- six structured safety/utility heads
        |- direct aggregate PDMS head
-       `- validation-calibrated hybrid selector
+       `- calibration-holdout hybrid selector
   -> one [8, 3] trajectory
 ```
 
@@ -54,7 +54,7 @@ The final selector combines two complementary estimates:
    PDMS.
 
 Both scores are standardized inside each 64-candidate scene. A 21-point
-validation grid chooses the fusion coefficient `alpha` and stores it as a
+calibration-holdout grid chooses the fusion coefficient `alpha` and stores it as a
 persistent scorer-checkpoint buffer. The grid includes direct-only (`alpha=0`)
 and structured-only (`alpha=1`), so calibration can retain either endpoint.
 
@@ -93,6 +93,11 @@ Random/Gaussian perturbations are explicitly not substituted for pseudo
 experts because they omit the privileged route, drivable-area, future-occupancy
 and evaluator filtering used by the method.
 
+Stage 1 instantiates only the final proposal MLP. Intermediate proposal heads
+are not part of the production graph because they have neither an auxiliary
+loss nor an inference consumer; keeping them trainable would violate the first-
+backward gradient gate.
+
 Stage 2 follows the paper's conservative update, not the incomplete preview
 loss:
 
@@ -117,7 +122,8 @@ inference never pairs the last generator with a stale scorer.
 Every critic is paired permanently with the exact generator and bank on which
 it was fitted. Formal evaluation does not assume that the final alternating
 cycle is best: it selects the distribution-matched pair with the highest true
-validation PDMS across all cycles plus the closing critic. Generator and bank
+selection-holdout PDMS lower confidence bound across all cycles plus the closing
+critic. Generator and bank
 SHA256 identities are checked before selection, so a late refinement regression
 cannot silently replace a stronger earlier pair or combine incompatible
 components.
@@ -170,7 +176,12 @@ or refinement stage starts, preventing silent PDMS/EPDMS or stale-bank reuse.
 - full K=64 v1.1 evaluator labels once per scene/batch;
 - direct, structured, listwise and pairwise scorer supervision;
 - validation chooses and persists hybrid selector alpha;
-- paired best generator/scorer checkpoint selected by true validation PDMS.
+- paired best generator/scorer checkpoint selected on a separate log-disjoint
+  holdout by the lower 95% confidence bound of true PDMS.
+
+All Register outputs pass through one shared sanitization boundary before any
+loss, evaluator, candidate bank, or inference consumer: non-finite values are
+replaced, XY is clamped to +/-100 m, and heading is wrapped to [-pi, pi].
 
 The DrivoR/CLOVER papers use DINOv2 LoRA rank 32. This Qwen route does not claim
 that full visual unfreezing is an equivalent LoRA migration: it deliberately
@@ -181,11 +192,13 @@ LoRA conversion should be evaluated as a separate controlled ablation.
 
 For every cycle:
 
-1. run the current Qwen/Q-Former/Register64 once and build train/val banks;
+1. run the current Qwen/Q-Former/Register64 once and build train/calibration/
+   selection banks from mutually disjoint NAVSIM logs;
 2. score every scene with exact v1.1 labels;
 3. train only the scorer for one epoch (global batch 32, AdamW 3e-5);
-4. calibrate structured/direct fusion on validation scenes;
-5. require positive Top-8 and Pareto selected-set enrichment;
+4. calibrate structured/direct fusion on calibration scenes;
+5. require the lower 95% confidence bounds of Top-8 and Pareto enrichment to
+   be non-negative, and report high-PDMS support enrichment;
 6. freeze Qwen/action adapter and scorer;
 7. update Q-Former/Register64 for one epoch with Top-k, Pareto and stability.
 
@@ -195,7 +208,12 @@ condition behind conservative refinement rather than trusting an inaccurate
 critic unconditionally.
 
 After the closing critic, model selection compares only matched
-`(generator, scorer, train-bank)` records using validation selected true PDMS.
+`(generator, scorer, train-bank, selection-bank)` records. The selection bank
+is never used for scorer fitting, alpha calibration, or the refinement gate.
+Each chronological candidate replaces the incumbent only when the 95% lower
+confidence bound of its paired, per-scene PDMS improvement is positive. This
+uses the identical selection scenes for every matched pair instead of choosing
+the highest noisy point estimate.
 The chosen identities and every alternative are written to
 `model_selection.json`; navtest export and the final report consume that chosen
 pair.
@@ -270,14 +288,27 @@ map and model paths are loaded from `env.local.sh`.
 Dry run:
 
 ```bash
-cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
+cd /path/to/VLA-Drive
 bash ./run_register64_clover_pdms_dlc.sh --dry-run
 ```
+
+Production-shape performance gate (recommended before the multi-day run):
+
+```bash
+cd /path/to/VLA-Drive
+export CLOVER_RUN_ID=register64-clover-profile-$(date +%Y%m%d_%H%M%S)
+export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
+bash ./run_register64_clover_pdms_dlc.sh --profile-steps 200
+```
+
+This executes the real 16-PPU Stage-1 forward, exact evaluator, backward and
+optimizer path, writes `stage1/profile_complete.json` with throughput and peak
+per-rank memory, then exits without a formal-training completion marker.
 
 Formal non-interactive 16-PPU run:
 
 ```bash
-cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
+cd /path/to/VLA-Drive
 export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
 bash ./run_register64_clover_pdms_dlc.sh
 ```
@@ -285,7 +316,7 @@ bash ./run_register64_clover_pdms_dlc.sh
 Resume the same run identity:
 
 ```bash
-cd /mnt/zhangt_workspace/project/VLA-Drive-DDP-DRS
+cd /path/to/VLA-Drive
 export CLOVER_RUN_ID=<existing-run-id>
 export CLOVER_PSEUDO_EXPERT_PKL=/absolute/path/to/official/pseudo_experts.pkl
 bash ./run_register64_clover_pdms_dlc.sh --resume

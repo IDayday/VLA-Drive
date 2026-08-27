@@ -28,6 +28,7 @@ from starVLA.model.modules.register_planner import (
     CloverStage2GeneratorLoss,
     build_teacher_target_sets,
     selected_set_enrichment,
+    selected_set_enrichment_per_scene,
 )
 from starVLA.model.modules.register_planner.checkpoint import (
     load_register_generator_checkpoint,
@@ -133,9 +134,17 @@ def _enrichment_gate(config, scorer, accelerator: Accelerator) -> dict[str, floa
         "pareto_enrichment",
         "topk_enriched_scene_ratio",
         "pareto_enriched_scene_ratio",
+        "pool_high_score_rate",
+        "topk_high_score_rate",
+        "pareto_high_score_rate",
+        "topk_high_score_enrichment",
+        "pareto_high_score_enrichment",
     )
-    totals = torch.zeros(len(names) + 1, device=accelerator.device)
+    totals = torch.zeros(2 * len(names) + 1, device=accelerator.device)
     target_config = config.teacher_targets
+    high_score_threshold = float(
+        config.enrichment_gate.get("high_score_threshold", 0.9)
+    )
     for raw_batch in loader:
         batch = move_bank_batch(raw_batch, accelerator.device)
         with accelerator.autocast():
@@ -154,11 +163,15 @@ def _enrichment_gate(config, scorer, accelerator: Accelerator) -> dict[str, floa
             pareto_min_size=int(target_config.get("pareto_min_size", 2)),
             reward_threshold=float(target_config.get("reward_threshold", 0.4)),
         )
-        values = selected_set_enrichment(
-            targets, batch["metrics"]["aggregate_score"]
+        values = selected_set_enrichment_per_scene(
+            targets,
+            batch["metrics"]["aggregate_score"],
+            high_score_threshold=high_score_threshold,
         )
         count = float(batch["proposals"].shape[0])
-        totals[:-1] += torch.stack([values[name].float() for name in names]) * count
+        stacked = torch.stack([values[name].float() for name in names])
+        totals[: len(names)] += stacked.sum(dim=1)
+        totals[len(names) : 2 * len(names)] += stacked.square().sum(dim=1)
         totals[-1] += count
     validation.close()
     totals = accelerator.reduce(totals, reduction="sum")
@@ -167,12 +180,29 @@ def _enrichment_gate(config, scorer, accelerator: Accelerator) -> dict[str, floa
         name: float(totals[index] / denominator)
         for index, name in enumerate(names)
     }
+    confidence_z = float(config.enrichment_gate.get("confidence_z", 1.96))
+    if confidence_z < 0:
+        raise ValueError("enrichment confidence_z must be non-negative")
+    for index, name in enumerate(names):
+        mean = totals[index] / denominator
+        if float(denominator) > 1:
+            variance = (
+                totals[len(names) + index] - denominator * mean.square()
+            ).clamp_min(0.0) / (denominator - 1.0)
+            stderr = (variance / denominator).sqrt()
+        else:
+            stderr = mean.new_tensor(float("inf"))
+        report[f"{name}_stderr"] = float(stderr)
+        report[f"{name}_lcb95"] = float(mean - confidence_z * stderr)
+    report["high_score_threshold"] = high_score_threshold
+    report["confidence_z"] = confidence_z
+    report["num_scenes"] = float(denominator)
     thresholds = {
-        "topk_enrichment": float(
-            config.enrichment_gate.get("min_topk_enrichment", 0.0)
+        "topk_enrichment_lcb95": float(
+            config.enrichment_gate.get("min_topk_enrichment_lcb", 0.0)
         ),
-        "pareto_enrichment": float(
-            config.enrichment_gate.get("min_pareto_enrichment", 0.0)
+        "pareto_enrichment_lcb95": float(
+            config.enrichment_gate.get("min_pareto_enrichment_lcb", 0.0)
         ),
         "topk_enriched_scene_ratio": float(
             config.enrichment_gate.get("min_topk_scene_ratio", 0.5)

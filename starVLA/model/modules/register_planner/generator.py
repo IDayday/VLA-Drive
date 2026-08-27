@@ -13,6 +13,7 @@ from torch import Tensor, nn
 
 from .decoder import RegisterTrajectoryDecoder
 from .outputs import RegisterGeneratorOutput
+from .sanitization import sanitize_register_trajectories
 
 
 class ProposalHead(nn.Module):
@@ -178,11 +179,20 @@ class RegisterTrajectoryGenerator(nn.Module):
                         self.proposal_heads[layer_index + 1], layer_tokens
                     )
                 )
+        sanitized_list: List[Tensor] = []
+        final_stats = None
+        for proposal in proposal_list:
+            sanitized, stats = sanitize_register_trajectories(proposal)
+            sanitized_list.append(sanitized)
+            final_stats = stats
+        if final_stats is None:
+            raise RuntimeError("Register generator produced no proposal stage")
         return RegisterGeneratorOutput(
-            proposals=proposal_list[-1],
-            proposal_list=proposal_list,
+            proposals=sanitized_list[-1],
+            proposal_list=sanitized_list,
             final_tokens=token_outputs[-1],
             token_list=token_outputs,
+            sanitization_metrics=final_stats.rates(),
         )
 
     def architecture_metadata(self) -> dict:

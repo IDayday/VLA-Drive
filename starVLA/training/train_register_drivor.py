@@ -13,8 +13,9 @@ from typing import Any, Mapping
 
 import torch
 from accelerate import Accelerator
-from accelerate.utils import set_seed
+from accelerate.utils import gather_object, set_seed
 from omegaconf import OmegaConf
+from torch.utils.data import Subset
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -139,8 +140,10 @@ def evaluate_drivor(
     accelerator: Accelerator,
     *,
     topm: int,
-) -> dict[str, float]:
-    scorer.eval()
+    collect_scene_scores: bool = False,
+) -> dict[str, Any]:
+    module = accelerator.unwrap_model(scorer)
+    module.eval()
     names = (
         "selected_true_score",
         "oracle_true_score",
@@ -151,11 +154,14 @@ def evaluate_drivor(
         "recall_at_10",
         "recall_at_32",
     )
-    totals = torch.zeros(len(names) + 1, device=accelerator.device)
+    # The extra accumulator is the selected-score sum of squares, used for a
+    # conservative cross-cycle confidence bound on the untouched holdout.
+    totals = torch.zeros(len(names) + 2, device=accelerator.device)
+    local_scene_scores: list[dict[str, Any]] = []
     for raw_batch in dataloader:
         batch = move_bank_batch(raw_batch, accelerator.device)
         with accelerator.autocast():
-            output = scorer(
+            output = module(
                 batch["proposals"],
                 batch["scene_global_tokens"],
                 batch["ego_state"],
@@ -166,12 +172,60 @@ def evaluate_drivor(
             batch["metrics"]["aggregate_score"].float(),
         )
         count = float(batch["proposals"].shape[0])
-        totals[:-1] += torch.stack([values[name] for name in names]) * count
+        totals[: len(names)] += (
+            torch.stack([values[name] for name in names]) * count
+        )
+        rows = torch.arange(output.aggregate_score.shape[0], device=accelerator.device)
+        selected_indices = output.aggregate_score.float().argmax(dim=1)
+        selected_scores = batch["metrics"]["aggregate_score"].float()[
+            rows, selected_indices
+        ]
+        if collect_scene_scores:
+            local_scene_scores.extend(
+                {
+                    "token": str(token),
+                    "selected_true_score": float(score),
+                }
+                for token, score in zip(
+                    batch["token"], selected_scores.detach().cpu().tolist()
+                )
+            )
+        totals[len(names)] += selected_scores.square().sum()
         totals[-1] += count
     totals = accelerator.reduce(totals, reduction="sum")
     count = totals[-1].clamp_min(1.0)
-    scorer.train()
-    return {name: float(totals[index] / count) for index, name in enumerate(names)}
+    result = {
+        name: float(totals[index] / count) for index, name in enumerate(names)
+    }
+    sample_count = float(count)
+    selected_mean = totals[0] / count
+    if sample_count > 1:
+        variance = (
+            totals[len(names)] - count * selected_mean.square()
+        ).clamp_min(0.0) / (count - 1.0)
+        stderr = (variance / count).sqrt()
+    else:
+        stderr = selected_mean.new_tensor(float("inf"))
+    result.update(
+        num_scenes=sample_count,
+        selected_true_score_stderr=float(stderr),
+        selected_true_score_lcb95=float(
+            (selected_mean - 1.96 * stderr).clamp(min=0.0, max=1.0)
+        ),
+    )
+    if collect_scene_scores:
+        scene_scores = gather_object(local_scene_scores)
+        if len(scene_scores) != int(sample_count):
+            raise RuntimeError(
+                "selection score gather count differs from exact holdout size"
+            )
+        if len({item["token"] for item in scene_scores}) != len(scene_scores):
+            raise RuntimeError("selection score gather contains duplicate tokens")
+        result["scene_scores"] = sorted(
+            scene_scores, key=lambda item: item["token"]
+        )
+    module.train()
+    return result
 
 
 @torch.no_grad()
@@ -195,13 +249,13 @@ def calibrate_hybrid_selector(
         return {}
     if grid_size < 2:
         raise ValueError("hybrid selector calibration grid_size must be >= 2")
-    scorer.eval()
+    module.eval()
     alphas = torch.linspace(0.0, 1.0, grid_size, device=accelerator.device)
     totals = torch.zeros(grid_size + 1, device=accelerator.device)
     for raw_batch in dataloader:
         batch = move_bank_batch(raw_batch, accelerator.device)
         with accelerator.autocast():
-            output = scorer(
+            output = module(
                 batch["proposals"],
                 batch["scene_global_tokens"],
                 batch["ego_state"],
@@ -209,9 +263,7 @@ def calibrate_hybrid_selector(
             )
         if output.aggregate_logit is None or output.formula_score is None:
             raise RuntimeError("calibrated selector requires both scorer branches")
-        direct = module._scene_standardize(
-            output.aggregate_logit.float() / module.aggregate_temperature
-        )
+        direct = module._scene_standardize(output.aggregate_logit.float())
         structured = module._scene_standardize(output.formula_score.float())
         blended = (
             (1.0 - alphas[:, None, None]) * direct[None]
@@ -232,7 +284,7 @@ def calibrate_hybrid_selector(
     best_index = int(means.argmax().item())
     best_alpha = float(alphas[best_index].item())
     module.set_selection_alpha(best_alpha)
-    scorer.train()
+    module.train()
     return {
         "selector_alpha": best_alpha,
         "selector_calibrated_pdms": float(means[best_index]),
@@ -307,20 +359,53 @@ def main() -> None:
         ),
         strict=True,
     )
+    selection_root = config.candidate_bank.get("selection_root")
+    selection_dataset = (
+        CandidateBankDataset(
+            str(selection_root),
+            expected_generator_checkpoint_sha256=(
+                train_dataset.manifest.generator_checkpoint_sha256
+            ),
+            expected_generator_config_hash=(
+                train_dataset.manifest.generator_config_hash
+            ),
+            strict=True,
+        )
+        if selection_root
+        else None
+    )
+    if expected_profile == "clover_pdms_value_bank_v1" and selection_dataset is None:
+        raise RuntimeError("CLOVER critic requires a log-disjoint selection bank")
     if (
         train_dataset.manifest.proposal_num != 64
         or val_dataset.manifest.proposal_num != 64
+        or (
+            selection_dataset is not None
+            and selection_dataset.manifest.proposal_num != 64
+        )
     ):
         raise RuntimeError("production DrivoR stage requires Register64 banks")
     if (
         train_dataset.manifest.scene_dim != int(config.model.scene_dim)
         or val_dataset.manifest.scene_dim != int(config.model.scene_dim)
+        or (
+            selection_dataset is not None
+            and selection_dataset.manifest.scene_dim != int(config.model.scene_dim)
+        )
     ):
         raise RuntimeError("candidate-bank scene dimension differs from DrivoR config")
     expected_protocol = str(
         config.candidate_bank.get("label_protocol", "navsim_v2_epdms")
     )
-    for name, dataset in (("train", train_dataset), ("val", val_dataset)):
+    datasets_to_validate = [("train", train_dataset), ("val", val_dataset)]
+    if selection_dataset is not None:
+        datasets_to_validate.append(("selection", selection_dataset))
+    for name, dataset in datasets_to_validate:
+        if dataset.manifest.split != name:
+            raise RuntimeError(
+                f"candidate-bank role mismatch: expected {name}, "
+                f"found {dataset.manifest.split}"
+            )
         if str(dataset.manifest.label_protocol) != expected_protocol:
             raise RuntimeError(
                 f"{name} candidate bank label protocol "
@@ -334,17 +419,42 @@ def main() -> None:
         )
     per_device_batch = global_batch // denominator
     workers = int(trainer.get("num_workers", 8))
+    evaluation_workers = int(trainer.get("evaluation_num_workers", 0))
+    if evaluation_workers < 0:
+        raise ValueError("evaluation_num_workers must be non-negative")
     train_loader = build_candidate_bank_dataloader(
         train_dataset,
         batch_size=per_device_batch,
         shuffle=True,
         num_workers=workers,
     )
+    val_indices = range(
+        accelerator.process_index, len(val_dataset), accelerator.num_processes
+    )
     val_loader = build_candidate_bank_dataloader(
-        val_dataset,
+        Subset(val_dataset, list(val_indices)),
         batch_size=per_device_batch,
         shuffle=False,
-        num_workers=workers,
+        num_workers=evaluation_workers,
+    )
+    selection_loader = (
+        build_candidate_bank_dataloader(
+            Subset(
+                selection_dataset,
+                list(
+                    range(
+                        accelerator.process_index,
+                        len(selection_dataset),
+                        accelerator.num_processes,
+                    )
+                ),
+            ),
+            batch_size=per_device_batch,
+            shuffle=False,
+            num_workers=evaluation_workers,
+        )
+        if selection_dataset is not None
+        else None
     )
     scorer = build_drivor_scorer(config)
     metadata = _checkpoint_metadata(config, train_dataset)
@@ -388,8 +498,11 @@ def main() -> None:
         eps=float(optimizer_cfg.get("eps", 1.0e-8)),
         fused=bool(optimizer_cfg.get("fused", True)) and torch.cuda.is_available(),
     )
-    scorer, optimizer, train_loader, val_loader = accelerator.prepare(
-        scorer, optimizer, train_loader, val_loader
+    # Validation/selection loaders are already partitioned into exact,
+    # non-overlapping rank subsets. Do not pass them through Accelerate, whose
+    # default even-batch behavior may pad them with duplicate scenes.
+    scorer, optimizer, train_loader = accelerator.prepare(
+        scorer, optimizer, train_loader
     )
     steps_per_epoch = optimizer_steps_per_epoch(len(train_loader), accumulation)
     total_steps = steps_per_epoch * epochs
@@ -457,6 +570,17 @@ def main() -> None:
             scorer, val_loader, accelerator, topm=topm
         )
         validation.update(calibration)
+        selection_validation = (
+            evaluate_drivor(
+                scorer,
+                selection_loader,
+                accelerator,
+                topm=topm,
+                collect_scene_scores=True,
+            )
+            if selection_loader is not None
+            else None
+        )
         epoch_seconds = time.perf_counter() - start
         improved_regret, patience_exhausted = early.update(validation["regret"])
         should_stop = early_enabled and patience_exhausted
@@ -472,6 +596,12 @@ def main() -> None:
                 "completed_steps": completed_steps,
                 "selection_alpha": float(unwrapped.selection_alpha.item()),
                 "validation": validation,
+                "selection_validation": selection_validation,
+                "selection_bank_manifest_hash": (
+                    manifest_hash(selection_dataset.manifest)
+                    if selection_dataset is not None
+                    else None
+                ),
             }
             save_stage_component_checkpoint(
                 output_dir / "last.pt",
@@ -505,6 +635,15 @@ def main() -> None:
                             "epoch_seconds": epoch_seconds,
                             "sec_per_step": epoch_seconds / max(steps_per_epoch, 1),
                             **validation,
+                            **(
+                                {
+                                    f"selection_{name}": value
+                                    for name, value in selection_validation.items()
+                                    if name != "scene_scores"
+                                }
+                                if selection_validation is not None
+                                else {}
+                            ),
                         },
                         sort_keys=True,
                     )
@@ -537,6 +676,8 @@ def main() -> None:
         )
     train_dataset.close()
     val_dataset.close()
+    if selection_dataset is not None:
+        selection_dataset.close()
 
 
 if __name__ == "__main__":

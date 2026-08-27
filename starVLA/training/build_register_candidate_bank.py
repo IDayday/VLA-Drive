@@ -326,7 +326,9 @@ def _validate_bank(root: Path) -> None:
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
-    parser.add_argument("--split", choices=("train", "val"), required=True)
+    parser.add_argument(
+        "--split", choices=("train", "val", "selection"), required=True
+    )
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--include-dense-memory", action="store_true")

@@ -7,13 +7,19 @@ set -Eeuo pipefail
 dry_run="${DRY_RUN:-0}"
 preflight_only="${PREFLIGHT_ONLY:-0}"
 resume="${CLOVER_RESUME:-0}"
+profile_steps="${CLOVER_PROFILE_STEPS:-0}"
 while (( $# )); do
   case "$1" in
     --dry-run) dry_run=1 ;;
     --preflight-only) preflight_only=1 ;;
     --resume) resume=1 ;;
+    --profile-steps)
+      shift
+      if (( ! $# )); then echo "[clover-pdms] --profile-steps requires a value" >&2; exit 2; fi
+      profile_steps="$1"
+      ;;
     --help|-h)
-      echo "Usage: $0 [--dry-run] [--preflight-only] [--resume]"
+      echo "Usage: $0 [--dry-run] [--preflight-only] [--resume] [--profile-steps N]"
       exit 0
       ;;
     *) echo "[clover-pdms] unsupported argument: $1" >&2; exit 2 ;;
@@ -40,10 +46,12 @@ export TARGET_EFFECTIVE_BATCH_SIZE="${TARGET_EFFECTIVE_BATCH_SIZE:-32}"
 export MAX_TRAIN_STEPS="${MAX_TRAIN_STEPS:-epoch_driven_25_plus_${CLOVER_NUM_CYCLES}_cycles}"
 export SAVE_INTERVAL="${SAVE_INTERVAL:-stage1_5epochs_then_each_cycle}"
 export CLOVER_CACHE_WORKERS="${CLOVER_CACHE_WORKERS:-96}"
+export CLOVER_SPLIT_WORKERS="${CLOVER_SPLIT_WORKERS:-32}"
 export NAVSIM_NUM_WORKERS="${NAVSIM_NUM_WORKERS:-3}"
 export NAVSIM_METRIC_WORKERS="${NAVSIM_METRIC_WORKERS:-4}"
 export REGISTER64_BANK_LOADER_WORKERS="${REGISTER64_BANK_LOADER_WORKERS:-7}"
-export CLOVER_VALIDATION_SIZE="${CLOVER_VALIDATION_SIZE:-4096}"
+export CLOVER_VALIDATION_SIZE="${CLOVER_VALIDATION_SIZE:-2048}"
+export CLOVER_SELECTION_SIZE="${CLOVER_SELECTION_SIZE:-2048}"
 export CLOVER_VALIDATION_SCENES="${CLOVER_VALIDATION_SCENES:-1024}"
 export CLOVER_INFER_BATCH_SIZE="${CLOVER_INFER_BATCH_SIZE:-4}"
 export CLOVER_INFER_WORKERS="${CLOVER_INFER_WORKERS:-3}"
@@ -58,6 +66,7 @@ export CLOVER_RUN_ID="${CLOVER_RUN_ID:-register64-clover-pdms-$(date +'%Y%m%d_%H
 export CLOVER_OUTPUT_ROOT="${CLOVER_OUTPUT_ROOT:-${NAVSIM_EXP_ROOT:-$project_root/navsim_exp}/register64_clover_pdms}"
 export DRY_RUN="$dry_run"
 export PREFLIGHT_ONLY="$preflight_only"
+export CLOVER_PROFILE_STEPS="$profile_steps"
 
 export QWEN_VLM_PATH="${QWEN_VLM_PATH:-${BASE_VLM:-}}"
 export VLM_ATTN_IMPLEMENTATION="${VLM_ATTN_IMPLEMENTATION:-sdpa}"
@@ -87,6 +96,7 @@ export CLOVER_PDMS_TRAIN_METRIC_CACHE="${CLOVER_PDMS_TRAIN_METRIC_CACHE:-$shared
 export CLOVER_PDMS_NAVTEST_METRIC_CACHE="${CLOVER_PDMS_NAVTEST_METRIC_CACHE:-$shared_cache_root/navtest}"
 train_datalist="$split_root/train.json"
 val_datalist="$split_root/val.json"
+selection_datalist="$split_root/selection.json"
 
 stage1_config="$project_root/starVLA/config/training/qwen_register64_clover_pdms_stage1.yaml"
 bank_config="$project_root/starVLA/config/training/register64_clover_pdms_bank.yaml"
@@ -109,16 +119,23 @@ if (( dry_run )); then
   echo "[clover-pdms] effective batch=$TARGET_EFFECTIVE_BATCH_SIZE per_device=$PER_DEVICE_BATCH_SIZE accumulation=$GRADIENT_ACCUMULATION_STEPS"
   echo "[clover-pdms] recipe=stage1:25epochs cycles:$CLOVER_NUM_CYCLES*(critic1+generator1) closing_critic:1"
   echo "[clover-pdms] labels=NAVSIM-v1.1-PDMS pseudo_experts=${CLOVER_PSEUDO_EXPERT_PKL:-REQUIRED}"
-  print_command python tools/prepare_register64_train_val_split.py --source "$CLOVER_SOURCE_DATALIST" --output-dir "$split_root" --validation-size "$CLOVER_VALIDATION_SIZE" --seed 2
+  print_command python tools/prepare_register64_train_val_split.py --source "$CLOVER_SOURCE_DATALIST" --output-dir "$split_root" --validation-size "$CLOVER_VALIDATION_SIZE" --selection-size "$CLOVER_SELECTION_SIZE" --metadata-root "$DATA_ROOT/meta/train" --metadata-workers "$CLOVER_SPLIT_WORKERS" --require-log-disjoint --seed 2
   print_command python navsim_v1.1/navsim/navsim/planning/script/run_metric_caching.py train_test_split=navtrain "cache.cache_path=$CLOVER_PDMS_TRAIN_METRIC_CACHE" "worker.threads_per_node=$CLOVER_CACHE_WORKERS"
-  print_command accelerate launch --config_file "$deepspeed_config" --num_processes "$NUM_PROCESSES" starVLA/training/train_register_clover_stage1.py --config "$stage1_config"
+  if (( profile_steps )); then
+    print_command accelerate launch --config_file "$deepspeed_config" --num_processes "$NUM_PROCESSES" starVLA/training/train_register_clover_stage1.py --config "$stage1_config" --profile-steps "$profile_steps"
+    echo "[clover-pdms] profile_only=1 formal_training=NOT_RUN"
+    exit 0
+  else
+    print_command accelerate launch --config_file "$deepspeed_config" --num_processes "$NUM_PROCESSES" starVLA/training/train_register_clover_stage1.py --config "$stage1_config"
+  fi
   echo "[clover-pdms] repeat cycles 01..$CLOVER_NUM_CYCLES in critic-first order:"
   print_command accelerate launch --multi_gpu --num_processes "$NUM_PROCESSES" starVLA/training/build_register_candidate_bank.py --config "$bank_config" --split train
   print_command accelerate launch --multi_gpu --num_processes "$NUM_PROCESSES" starVLA/training/build_register_candidate_bank.py --config "$bank_config" --split val
+  print_command accelerate launch --multi_gpu --num_processes "$NUM_PROCESSES" starVLA/training/build_register_candidate_bank.py --config "$bank_config" --split selection
   print_command accelerate launch --multi_gpu --num_processes "$NUM_PROCESSES" starVLA/training/train_register_drivor.py --config "$scorer_config"
   print_command accelerate launch --multi_gpu --num_processes "$NUM_PROCESSES" starVLA/training/train_register_clover_refinement.py --config "$refinement_config"
   echo "[clover-pdms] after cycle $CLOVER_NUM_CYCLES: refresh bank and fit one closing critic"
-  print_command python tools/select_register64_clover_checkpoint_pair.py --candidate cycle_01 GENERATOR SCORER TRAIN_BANK --output MODEL_SELECTION_JSON
+  print_command python tools/select_register64_clover_checkpoint_pair.py --candidate cycle_01 GENERATOR SCORER TRAIN_BANK SELECTION_BANK --output MODEL_SELECTION_JSON
   print_command accelerate launch --multi_gpu --num_processes "$NUM_PROCESSES" starVLA/training/export_register_navtest_predictions.py --config "$inference_config" --output-dir "$prediction_dir"
   print_command python navsim_v1.1/navsim/navsim/planning/script/run_pdm_score.py train_test_split=navtest "metric_cache_path=$CLOVER_PDMS_NAVTEST_METRIC_CACHE" "pred_dir=$prediction_root" split=test
   echo "[clover-pdms] formal_training=NOT_RUN"
@@ -170,12 +187,12 @@ require_path() {
 
 clover_phase=source-contract
 for name in NUM_MACHINES MACHINE_RANK LOCAL_NUM_PROCESSES NUM_PROCESSES \
-  CLOVER_MAIN_PROCESS_PORT CLOVER_NUM_CYCLES CLOVER_CACHE_WORKERS \
+  CLOVER_MAIN_PROCESS_PORT CLOVER_NUM_CYCLES CLOVER_CACHE_WORKERS CLOVER_SPLIT_WORKERS \
   NAVSIM_NUM_WORKERS NAVSIM_METRIC_WORKERS REGISTER64_BANK_LOADER_WORKERS \
-  CLOVER_VALIDATION_SIZE CLOVER_VALIDATION_SCENES CLOVER_INFER_BATCH_SIZE \
+  CLOVER_VALIDATION_SIZE CLOVER_SELECTION_SIZE CLOVER_VALIDATION_SCENES CLOVER_INFER_BATCH_SIZE \
   CLOVER_INFER_WORKERS CLOVER_ALLOW_DIRTY PER_DEVICE_BATCH_SIZE \
   GRADIENT_ACCUMULATION_STEPS TARGET_EFFECTIVE_BATCH_SIZE DRY_RUN \
-  PREFLIGHT_ONLY; do
+  PREFLIGHT_ONLY CLOVER_PROFILE_STEPS; do
   require_uint "$name"
 done
 if (( NUM_MACHINES != 1 || MACHINE_RANK != 0 || NUM_PROCESSES != LOCAL_NUM_PROCESSES )); then
@@ -203,7 +220,15 @@ if (( CLOVER_VALIDATION_SIZE < CLOVER_VALIDATION_SCENES )); then
   echo "[clover-pdms] holdout must cover the fixed validation subset" >&2
   exit 2
 fi
+if (( CLOVER_SELECTION_SIZE < 1024 )); then
+  echo "[clover-pdms] selection holdout must contain at least 1024 target scenes" >&2
+  exit 2
+fi
 case "$CLOVER_BUILD_CACHES" in auto|0|1) ;; *) echo "[clover-pdms] CLOVER_BUILD_CACHES must be auto, 0, or 1" >&2; exit 2 ;; esac
+if (( profile_steps && (preflight_only || resume) )); then
+  echo "[clover-pdms] profiling is mutually exclusive with preflight-only/resume" >&2
+  exit 2
+fi
 if ! [[ "$CLOVER_RUN_ID" =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "[clover-pdms] CLOVER_RUN_ID contains unsupported characters" >&2
   exit 2
@@ -224,6 +249,7 @@ require_value CLOVER_PSEUDO_EXPERT_PKL
 for path in "$QWEN_VLM_PATH" "$CLOVER_PSEUDO_EXPERT_PKL" "$DATA_ROOT" \
   "$OPENSCENE_DATA_ROOT" "$NUPLAN_MAPS_ROOT" "$CLOVER_NAVTRAIN_LOG_ROOT" \
   "$CLOVER_NAVTEST_LOG_ROOT" "$CLOVER_SOURCE_DATALIST" \
+  "$DATA_ROOT/meta/train" \
   "$CLOVER_NAVTEST_DATALIST" "$project_root/navsim_v1.1/navsim" \
   "$stage1_config" "$bank_config" "$scorer_config" "$refinement_config" \
   "$inference_config" "$deepspeed_config"; do
@@ -240,12 +266,14 @@ from starVLA.training.register_stage_utils import validate_bank_only_training_pr
 stage1, bank, scorer, refinement, inference = map(load_training_config, sys.argv[1:])
 assert stage1.framework.name == "QwenRegisterClover"
 assert stage1.metric_supervisor.protocol == "navsim_v1_1_pdms_two_way"
-assert stage1.framework.generator_loss.stage_loss_mode == "all_layers"
+assert stage1.framework.generator_loss.stage_loss_mode == "final_only"
 assert stage1.framework.register_generator.proposal_num == 64
 assert stage1.trainer.max_epochs == 25 and stage1.trainer.global_batch_size == 32
 assert stage1.framework.qwenvl.freeze_visual is False
 assert bank.candidate_bank.label_protocol == "navsim_v1_1_pdms_two_way"
+assert bank.candidate_bank.splits.selection.dataset_split == "train"
 assert scorer.candidate_bank.label_protocol == "navsim_v1_1_pdms_two_way"
+assert "selection_root" in scorer.candidate_bank
 assert scorer.model.aggregate_head is True
 assert scorer.model.selection_mode == "calibrated_hybrid"
 assert scorer.trainer.epochs == 1 and scorer.trainer.global_batch_size == 32
@@ -395,7 +423,7 @@ build_bank() {
   local root="$1" generator="$2" port="$3"
   export REGISTER64_BANK_ROOT="$root"
   export REGISTER64_GENERATOR_CHECKPOINT="$generator"
-  for split in train val; do
+  for split in train val selection; do
     local split_root_path="$root/$split"
     if bank_complete "$split_root_path" "$generator"; then
       echo "[clover-pdms] bank already complete split=$split root=$split_root_path"
@@ -412,9 +440,13 @@ build_bank() {
 clover_phase=prepare-splits
 python "$project_root/tools/prepare_register64_train_val_split.py" \
   --source "$CLOVER_SOURCE_DATALIST" --output-dir "$split_root" \
-  --validation-size "$CLOVER_VALIDATION_SIZE" --seed 2
+  --validation-size "$CLOVER_VALIDATION_SIZE" \
+  --selection-size "$CLOVER_SELECTION_SIZE" \
+  --metadata-root "$DATA_ROOT/meta/train" \
+  --metadata-workers "$CLOVER_SPLIT_WORKERS" --require-log-disjoint --seed 2
 export NAVSIM_DATALIST_PATH="$train_datalist"
 export NAVSIM_VAL_DATALIST_PATH="$val_datalist"
+export NAVSIM_SELECTION_DATALIST_PATH="$selection_datalist"
 
 clover_phase=cache-navtrain-v1-1
 ensure_v1_cache navtrain "$CLOVER_PDMS_TRAIN_METRIC_CACHE" \
@@ -426,7 +458,17 @@ export CLOVER_STAGE1_RUN_ID=stage1
 stage1_generator="$stage1_dir/best_pdms_generator.pt"
 stage1_scorer="$stage1_dir/best_pdms_scorer.pt"
 stage1_marker="$stage1_dir/training_complete.json"
-if stage1_complete "$stage1_marker" "$stage1_generator" "$stage1_scorer"; then
+if (( profile_steps )); then
+  stage1_args=(
+    "$project_root/starVLA/training/train_register_clover_stage1.py"
+    --config "$stage1_config" --profile-steps "$profile_steps"
+  )
+  run_distributed deepspeed "$CLOVER_MAIN_PROCESS_PORT" \
+    "${stage1_args[@]}"
+  require_path "$stage1_dir/profile_complete.json"
+  echo "[clover-pdms] production profile complete; formal_training=NOT_RUN"
+  exit 0
+elif stage1_complete "$stage1_marker" "$stage1_generator" "$stage1_scorer"; then
   echo "[clover-pdms] Stage 1 already complete"
 else
   unset CLOVER_STAGE1_RESUME
@@ -435,7 +477,8 @@ else
     if [[ -n "$latest" ]]; then export CLOVER_STAGE1_RESUME="$latest"; fi
   fi
   run_distributed deepspeed "$CLOVER_MAIN_PROCESS_PORT" \
-    "$project_root/starVLA/training/train_register_clover_stage1.py" --config "$stage1_config"
+    "$project_root/starVLA/training/train_register_clover_stage1.py" \
+    --config "$stage1_config"
 fi
 stage1_complete "$stage1_marker" "$stage1_generator" "$stage1_scorer"
 
@@ -471,7 +514,8 @@ for cycle in $(seq 1 "$CLOVER_NUM_CYCLES"); do
   fi
   component_complete "$cycle_scorer_marker" "$cycle_scorer" drivor_scorer
   selection_args+=(
-    --candidate "$stem" "$current_generator" "$cycle_scorer" "$cycle_bank/train"
+    --candidate "$stem" "$current_generator" "$cycle_scorer" \
+    "$cycle_bank/train" "$cycle_bank/selection"
   )
 
   clover_phase="$stem-generator"
@@ -517,7 +561,8 @@ else
 fi
 component_complete "$final_scorer_marker" "$final_scorer" drivor_scorer
 selection_args+=(
-  --candidate closing_critic "$current_generator" "$final_scorer" "$closing_bank/train"
+  --candidate closing_critic "$current_generator" "$final_scorer" \
+  "$closing_bank/train" "$closing_bank/selection"
 )
 
 # A conservative update can still regress despite the pre-update enrichment

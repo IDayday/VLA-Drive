@@ -93,6 +93,11 @@ class DrivoRDynamicScorer(nn.Module):
             raise ValueError(f"{selection_mode} selection requires aggregate_head=true")
         if aggregate_temperature <= 0:
             raise ValueError("aggregate_temperature must be positive")
+        if selection_mode == "calibrated_hybrid" and aggregate_temperature != 1.0:
+            raise ValueError(
+                "calibrated_hybrid standardizes each scene, so aggregate_temperature "
+                "must remain the non-tunable compatibility value 1.0"
+            )
         if not 0.0 <= selection_alpha <= 1.0:
             raise ValueError("selection_alpha must lie in [0,1]")
         self.aggregate_head_enabled = bool(aggregate_head)
@@ -178,9 +183,7 @@ class DrivoRDynamicScorer(nn.Module):
         )
         if bool(((alpha_tensor < 0) | (alpha_tensor > 1)).any()):
             raise ValueError("calibrated selector alpha must lie in [0,1]")
-        direct = self._scene_standardize(
-            aggregate_logit.float() / self.aggregate_temperature
-        )
+        direct = self._scene_standardize(aggregate_logit.float())
         structured = self._scene_standardize(formula_score)
         return (1.0 - alpha_tensor) * direct + alpha_tensor * structured
 

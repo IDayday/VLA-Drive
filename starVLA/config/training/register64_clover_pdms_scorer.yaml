@@ -24,6 +24,9 @@ training_profile:
 candidate_bank:
   train_root: ${oc.env:REGISTER64_BANK_ROOT}/train
   val_root: ${oc.env:REGISTER64_BANK_ROOT}/val
+  # This bank is log-disjoint from train/val and is never used to fit weights
+  # or calibrate alpha. It is reserved for cross-cycle checkpoint selection.
+  selection_root: ${oc.env:REGISTER64_BANK_ROOT}/selection
   label_protocol: navsim_v1_1_pdms_two_way
 model:
   scene_dim: 256
@@ -46,7 +49,6 @@ model:
   comfort: 2.0
   aggregate_head: true
   selection_mode: calibrated_hybrid
-  aggregate_temperature: 1.0
   selection_alpha: 0.0
 loss:
   type: pdms_value
@@ -79,6 +81,9 @@ trainer:
   gradient_accumulation_steps: 1
   gradient_clip: 1.0
   num_workers: ${oc.env:REGISTER64_BANK_LOADER_WORKERS,7}
+  # Exact rank-partitioned calibration/selection reads are sequential LMDB
+  # scans; extra persistent workers would exceed the 128-CPU launcher budget.
+  evaluation_num_workers: 0
   early_stopping:
     enabled: false
     patience: 2

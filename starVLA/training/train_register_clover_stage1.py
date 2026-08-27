@@ -46,6 +46,12 @@ from starVLA.training.train_register_generator import (
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
+    parser.add_argument(
+        "--profile-steps",
+        type=int,
+        default=0,
+        help="Run exactly this many optimizer steps, report performance, and exit.",
+    )
     return parser.parse_args()
 
 
@@ -95,6 +101,40 @@ def _optimizer(model, config) -> torch.optim.AdamW:
         eps=float(config.optimizer.get("eps", 1.0e-8)),
         fused=bool(config.optimizer.get("fused", True)) and torch.cuda.is_available(),
     )
+
+
+def _optimizer_group_grad_norms(optimizer) -> dict[str, torch.Tensor]:
+    """Compute un-clipped L2 gradient norms for named optimizer groups."""
+
+    result: dict[str, torch.Tensor] = {}
+    for index, group in enumerate(optimizer.param_groups):
+        name = str(group.get("name", f"group_{index}"))
+        total = None
+        for parameter in group["params"]:
+            if parameter.grad is None:
+                continue
+            value = parameter.grad.detach().float().square().sum()
+            total = value if total is None else total + value
+        if total is None:
+            reference = group["params"][0]
+            total = torch.zeros((), device=reference.device, dtype=torch.float32)
+        result[name] = total.sqrt()
+    return result
+
+
+def _assert_proposal_sanitization(metrics: dict[str, torch.Tensor]) -> None:
+    """Stop numerical collapse while allowing rare bounded XY clipping."""
+
+    nonfinite = float(metrics.get("proposal_nonfinite_rate", torch.tensor(0.0)))
+    xy_clamped = float(metrics.get("proposal_xy_clamped_rate", torch.tensor(0.0)))
+    if nonfinite > 1.0e-6:
+        raise RuntimeError(
+            f"Register proposal non-finite rate is too high: {nonfinite:.8f}"
+        )
+    if xy_clamped > 0.05:
+        raise RuntimeError(
+            f"Register proposal XY clamp rate is too high: {xy_clamped:.8f}"
+        )
 
 
 def _ground_truth(examples, device: torch.device) -> torch.Tensor:
@@ -148,7 +188,6 @@ def _evaluate(model, loader, supervisor, accelerator: Accelerator) -> dict[str, 
                 raise RuntimeError("CLOVER hybrid calibration lacks scorer branches")
             direct = scorer._scene_standardize(
                 scorer_output.aggregate_logit.float()
-                / scorer.aggregate_temperature
             )
             structured = scorer._scene_standardize(
                 scorer_output.formula_score.float()
@@ -279,6 +318,8 @@ def _save_components(
 
 def main() -> None:
     args = _parse_args()
+    if args.profile_steps < 0:
+        raise ValueError("profile steps must be non-negative")
     config = load_training_config(args.config)
     if str(config.framework.name) != "QwenRegisterClover":
         raise ValueError("CLOVER Stage-1 requires framework=QwenRegisterClover")
@@ -345,6 +386,8 @@ def main() -> None:
     accelerator.register_for_checkpointing(scheduler)
     accelerator.register_for_checkpointing(progress)
     resume_from = trainer.get("resume_from")
+    if args.profile_steps and resume_from:
+        raise ValueError("Stage-1 profiling cannot resume a training checkpoint")
     if accelerator.is_main_process:
         output_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / "checkpoints").mkdir(exist_ok=True)
@@ -373,16 +416,39 @@ def main() -> None:
     }
     completed_steps = progress.completed_steps
     log_every_steps = max(1, int(trainer.get("log_every_steps", 20)))
+    diagnostics_steps = max(0, int(trainer.get("gradient_diagnostics_steps", 200)))
+    running_names = (
+        "loss",
+        "trajectory_gt",
+        "pseudo_expert_coverage",
+        "scorer",
+        "scorer_submetric",
+        "scorer_aggregate",
+        "scorer_listwise",
+        "scorer_pairwise",
+        "selected_true_pdms",
+        "oracle_pdms_64",
+        "scorer_regret",
+        "proposal_nonfinite_rate",
+        "proposal_xy_clamped_rate",
+        "proposal_heading_wrapped_rate",
+    )
     should_stop = False
     last_epoch = progress.epoch
     optimizer.zero_grad(set_to_none=True)
+    profile_reached = False
+    profile_samples = 0
+    profile_start = time.perf_counter()
+    if args.profile_steps and torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
     try:
         for epoch in range(progress.epoch + 1, epochs + 1):
             last_epoch = epoch
             model.train()
             start = time.perf_counter()
             samples = 0
-            running = torch.zeros(5, device=accelerator.device)
+            running = torch.zeros(len(running_names) + 1, device=accelerator.device)
+            latest_grad_norms: dict[str, torch.Tensor] = {}
             for examples in train_loader:
                 gt = _ground_truth(examples, accelerator.device)
                 pseudo, pseudo_mask = pseudo_store.batch(
@@ -403,11 +469,18 @@ def main() -> None:
                             pseudo_expert_mask=pseudo_mask,
                         )
                         loss = output["loss"]
+                        _assert_proposal_sanitization(output["metrics"])
                     accelerator.backward(loss)
                     if accelerator.sync_gradients:
                         if gradient_gate is not None:
                             gradient_gate.assert_complete(accelerator)
                             gradient_gate = None
+                        next_step = completed_steps + 1
+                        if (
+                            next_step <= diagnostics_steps
+                            and next_step % log_every_steps == 0
+                        ):
+                            latest_grad_norms = _optimizer_group_grad_norms(optimizer)
                         accelerator.clip_grad_norm_(
                             model.parameters(),
                             float(trainer.get("gradient_clip", 1.0)),
@@ -417,34 +490,85 @@ def main() -> None:
                         scheduler.step()
                     optimizer.zero_grad(set_to_none=True)
                 samples += len(examples) * accelerator.num_processes
+                profile_samples += len(examples) * accelerator.num_processes
                 if accelerator.sync_gradients:
                     completed_steps += 1
                     batch_count = float(len(examples))
-                    running[:4] += torch.stack(
-                        (
-                            loss.detach().float(),
-                            output["metrics"]["selected_true_pdms"].detach().float(),
-                            output["metrics"]["oracle_pdms_64"].detach().float(),
-                            output["metrics"]["scorer_regret"].detach().float(),
-                        )
+                    scalar_values = {
+                        "loss": loss,
+                        **output["losses"],
+                        **output["metrics"],
+                    }
+                    running[: len(running_names)] += torch.stack(
+                        [scalar_values[name].detach().float() for name in running_names]
                     ) * batch_count
-                    running[4] += batch_count
+                    running[-1] += batch_count
                     if completed_steps % log_every_steps == 0:
                         reduced = accelerator.reduce(running, reduction="sum")
-                        count = reduced[4].clamp_min(1.0)
+                        count = reduced[-1].clamp_min(1.0)
+                        means = {
+                            name: float(reduced[index] / count)
+                            for index, name in enumerate(running_names)
+                        }
+                        grad_names = tuple(latest_grad_norms)
+                        if grad_names:
+                            grad_values = accelerator.reduce(
+                                torch.stack(
+                                    [latest_grad_norms[name] for name in grad_names]
+                                ),
+                                reduction="mean",
+                            )
+                            grad_norms = {
+                                name: float(grad_values[index])
+                                for index, name in enumerate(grad_names)
+                            }
+                        else:
+                            grad_norms = {}
                         if accelerator.is_main_process:
                             elapsed = time.perf_counter() - start
                             print(
                                 "CLOVER Stage-1 progress "
                                 f"epoch={epoch}/{epochs} step={completed_steps} "
-                                f"loss={float(reduced[0] / count):.5f} "
-                                f"selected_pdms={float(reduced[1] / count):.5f} "
-                                f"oracle64={float(reduced[2] / count):.5f} "
-                                f"regret={float(reduced[3] / count):.5f} "
+                                f"loss={means['loss']:.5f} "
+                                f"gt={means['trajectory_gt']:.5f} "
+                                f"pseudo={means['pseudo_expert_coverage']:.5f} "
+                                f"scorer={means['scorer']:.5f} "
+                                f"direct={means['scorer_aggregate']:.5f} "
+                                f"listwise={means['scorer_listwise']:.5f} "
+                                f"pairwise={means['scorer_pairwise']:.5f} "
+                                f"selected_pdms={means['selected_true_pdms']:.5f} "
+                                f"oracle64={means['oracle_pdms_64']:.5f} "
+                                f"regret={means['scorer_regret']:.5f} "
+                                f"clamp={means['proposal_xy_clamped_rate']:.7f} "
+                                f"grad_norms={json.dumps(grad_norms, sort_keys=True)} "
                                 f"samples_per_second={samples / max(elapsed, 1e-9):.3f}",
                                 flush=True,
                             )
+                            with (output_dir / "metrics.jsonl").open(
+                                "a", encoding="utf-8"
+                            ) as stream:
+                                stream.write(
+                                    json.dumps(
+                                        {
+                                            "type": "optimizer_step",
+                                            "epoch": epoch,
+                                            "optimizer_step": completed_steps,
+                                            **means,
+                                            "gradient_norms": grad_norms,
+                                        },
+                                        sort_keys=True,
+                                    )
+                                    + "\n"
+                                )
                         running.zero_()
+                        latest_grad_norms = {}
+                    if args.profile_steps and completed_steps >= args.profile_steps:
+                        profile_reached = True
+                        break
+            if args.profile_steps:
+                if profile_reached:
+                    break
+                continue
             validation = _evaluate(model, val_loader, supervisor, accelerator)
             epoch_seconds = time.perf_counter() - start
             selected = float(validation["selected_true_pdms"])
@@ -518,6 +642,42 @@ def main() -> None:
     finally:
         supervisor.close()
     accelerator.wait_for_everyone()
+    if args.profile_steps:
+        if not profile_reached:
+            raise RuntimeError(
+                "profile step target exceeds the configured Stage-1 epoch budget"
+            )
+        wall_time = time.perf_counter() - profile_start
+        peak_memory = (
+            torch.cuda.max_memory_allocated(accelerator.device)
+            if torch.cuda.is_available()
+            else 0
+        )
+        profile_values = accelerator.reduce(
+            torch.tensor(
+                [wall_time, float(peak_memory)],
+                device=accelerator.device,
+                dtype=torch.float32,
+            ),
+            reduction="max",
+        )
+        if accelerator.is_main_process:
+            report = {
+                "schema_version": 1,
+                "status": "profile_complete",
+                "optimizer_steps": int(completed_steps),
+                "global_samples": int(profile_samples),
+                "wall_time_seconds": float(profile_values[0]),
+                "seconds_per_step": float(profile_values[0])
+                / max(completed_steps, 1),
+                "samples_per_second": float(profile_samples)
+                / max(float(profile_values[0]), 1.0e-9),
+                "peak_memory_bytes_per_rank": int(profile_values[1]),
+                "formal_training_complete": False,
+            }
+            atomic_json(output_dir / "profile_complete.json", report)
+            print(f"CLOVER Stage-1 production profile complete: {report}")
+        return
     if accelerator.is_main_process:
         generator = output_dir / "best_pdms_generator.pt"
         scorer = output_dir / "best_pdms_scorer.pt"

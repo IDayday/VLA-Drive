@@ -19,6 +19,9 @@ candidate_bank:
     val:
       datalist_path: ${oc.env:NAVSIM_VAL_DATALIST_PATH}
       dataset_split: train
+    selection:
+      datalist_path: ${oc.env:NAVSIM_SELECTION_DATALIST_PATH}
+      dataset_split: train
   metric_supervisor:
     protocol: navsim_v1_1_pdms_two_way
     metric_cache_root: ${oc.env:CLOVER_PDMS_TRAIN_METRIC_CACHE}

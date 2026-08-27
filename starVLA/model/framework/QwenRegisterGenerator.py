@@ -361,10 +361,12 @@ class QwenRegisterGenerator(baseframework):
         loss_output = self.generator_loss(
             generator_output.proposal_list, gt_trajectory_8
         )
+        metrics = dict(loss_output.metrics)
+        metrics.update(generator_output.sanitization_metrics or {})
         return {
             "loss": loss_output.loss,
             "losses": {"trajectory": loss_output.loss},
-            "metrics": loss_output.metrics,
+            "metrics": metrics,
             "predictions": {
                 "proposals": generator_output.proposals.detach(),
                 "winner_index": loss_output.winner_index.detach(),

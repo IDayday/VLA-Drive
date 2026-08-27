@@ -7,11 +7,11 @@ seed: 2
 
 framework:
   name: QwenRegisterClover
-  # Donor keeps one independent trajectory head before decoding and after each
-  # of four decoder layers. Only the final head receives Stage-1 trajectory loss.
+  # Only the final proposal head is instantiated. Independent intermediate
+  # heads would be trainable-but-unused because Stage 1 supervises final output.
   generator_loss:
-    stage_loss_mode: all_layers
-    stage_loss_weights: [0.0, 0.0, 0.0, 0.0, 1.0]
+    stage_loss_mode: final_only
+    stage_loss_weights: [1.0]
     diversity_weight: 0.0
   drivor_scorer:
     scene_dim: 256
@@ -29,7 +29,6 @@ framework:
     # Validation-calibrated fusion of DriveVLA-M0 direct value and the
     # structured DrivoR safety/utility formula. alpha=0 is direct-only.
     selection_mode: calibrated_hybrid
-    aggregate_temperature: 1.0
     selection_alpha: 0.0
     # Exact NAVSIM-v1 DrivoR/CLOVER composition, retained as structured heads.
     noc: 1.0
@@ -74,6 +73,7 @@ trainer:
   global_batch_size: 32
   gradient_accumulation_steps: 1
   log_every_steps: 20
+  gradient_diagnostics_steps: 200
   save_epochs: [5, 10, 15, 20, 25]
   resume_from: ${oc.env:CLOVER_STAGE1_RESUME,null}
   early_stopping:

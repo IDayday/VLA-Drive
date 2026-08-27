@@ -5,6 +5,7 @@ import pickle
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 import torch
 
 from starVLA.model.modules.register_planner import (
@@ -13,9 +14,10 @@ from starVLA.model.modules.register_planner import (
     TeacherTargetSets,
     build_teacher_target_sets,
     clover_inter_trajectory_loss,
+    selected_set_enrichment_per_scene,
     set_coverage_l1,
 )
-from starVLA.model.framework import QwenRegisterClover
+from starVLA.model.framework.QwenRegisterClover import QwenRegisterClover
 from starVLA.model.modules.trajectory_scorer.drivor_dynamic_scorer import (
     DrivoRDynamicScorer,
 )
@@ -36,6 +38,7 @@ from starVLA.training.navsim_metric_supervisor import (
 from starVLA.training.register_stage_utils import (
     validate_bank_only_training_profile,
 )
+from starVLA.training.train_register_generator import FirstBackwardGradientGate
 from tools.select_register64_clover_checkpoint_pair import select_best_pair
 
 
@@ -71,6 +74,64 @@ def test_clover_stage1_keeps_gt_and_pseudo_expert_terms_separate():
     torch.testing.assert_close(output.loss, torch.tensor(6.0))
     output.loss.backward()
     assert proposals.grad is not None
+
+
+class _ImmediateMetricFuture:
+    def __init__(self, value):
+        self._value = value
+
+    def result(self):
+        return self._value
+
+
+class _TinyMetricSupervisor:
+    def score_async(self, tokens, proposals):
+        batch, candidates = proposals.shape[:2]
+        target = torch.full(
+            (batch, candidates),
+            0.75,
+            device=proposals.device,
+            dtype=torch.float32,
+        )
+        return _ImmediateMetricFuture(
+            {
+                **{name: target.clone() for name in DRIVOR_METRICS},
+                "aggregate_score": target,
+            }
+        )
+
+
+def test_real_clover_stage1_backward_reaches_every_trainable_parameter(tiny_factory):
+    config = tiny_factory.config(4)
+    config.framework.name = "QwenRegisterClover"
+    config.framework.drivor_scorer.aggregate_head = True
+    config.framework.drivor_scorer.selection_mode = "learned_aggregate"
+    config.framework.clover_loss = {
+        "gt_weight": 1.0,
+        "pseudo_expert_weight": 0.5,
+        "scorer_weight": 1.0,
+        "submetric_weight": 1.0,
+        "aggregate_weight": 1.0,
+        "listwise_weight": 1.0,
+        "pairwise_weight": 0.5,
+    }
+    model = QwenRegisterClover(
+        config,
+        qwen_vl_interface=tiny_factory.qwen(),
+        qwen_hidden_extractor=tiny_factory.extractor,
+    )
+    gate = FirstBackwardGradientGate(model)
+    examples = tiny_factory.examples()
+    pseudo = torch.zeros(len(examples), 1, 8, 3)
+    output = model(
+        examples,
+        clover_supervisor=_TinyMetricSupervisor(),
+        pseudo_experts=pseudo,
+        pseudo_expert_mask=torch.ones(len(examples), 1, dtype=torch.bool),
+    )
+    output["loss"].backward()
+    assert gate.missing_local() == []
+    gate.close()
 
 
 def test_clover_teacher_targets_include_scalar_topk_and_vector_pareto():
@@ -183,6 +244,21 @@ def test_calibrated_selector_retains_direct_and_structured_endpoints():
     assert torch.isclose(scorer.state_dict()["selection_alpha"], torch.tensor(0.35))
 
 
+def test_calibrated_selector_rejects_noop_aggregate_temperature():
+    with pytest.raises(ValueError, match="non-tunable compatibility value"):
+        DrivoRDynamicScorer(
+            scene_dim=8,
+            model_dim=8,
+            ffn_dim=16,
+            num_layers=1,
+            num_heads=1,
+            decoder_style="donor_register",
+            aggregate_head=True,
+            selection_mode="calibrated_hybrid",
+            aggregate_temperature=0.5,
+        )
+
+
 def test_official_pseudo_expert_selection_is_not_random_perturbation(tmp_path):
     trajectories = [np.full((8, 3), value, np.float32) for value in (0.0, 1.0, 2.0)]
     payload = [
@@ -275,9 +351,11 @@ def test_clover_configs_pin_v1_labels_and_donor_recipe():
         "starVLA/config/training/register64_clover_pdms_scorer.yaml"
     )
     assert stage1.metric_supervisor.protocol == "navsim_v1_1_pdms_two_way"
-    assert stage1.framework.generator_loss.stage_loss_mode == "all_layers"
+    assert stage1.framework.generator_loss.stage_loss_mode == "final_only"
     assert bank.candidate_bank.label_protocol == "navsim_v1_1_pdms_two_way"
+    assert bank.candidate_bank.splits.selection.dataset_split == "train"
     assert scorer.model.selection_mode == "calibrated_hybrid"
+    assert "selection_root" in scorer.candidate_bank
     validate_bank_only_training_profile(
         scorer, expected_name="clover_pdms_value_bank_v1"
     )
@@ -301,3 +379,68 @@ def test_checkpoint_pair_selection_can_keep_a_better_earlier_cycle():
         {"label": "closing_critic", "selected_true_pdms": 0.83},
     ]
     assert select_best_pair(candidates)["label"] == "cycle_02"
+
+
+def test_checkpoint_pair_selection_uses_conservative_holdout_bound():
+    candidates = [
+        {
+            "label": "noisy_high_mean",
+            "selected_true_pdms": 0.87,
+            "selected_true_pdms_lcb95": 0.80,
+        },
+        {
+            "label": "stable",
+            "selected_true_pdms": 0.85,
+            "selected_true_pdms_lcb95": 0.83,
+        },
+    ]
+    assert select_best_pair(candidates)["label"] == "stable"
+
+
+def test_checkpoint_pair_selection_requires_paired_positive_improvement():
+    candidates = [
+        {
+            "label": "incumbent",
+            "selected_true_pdms": 0.80,
+            "_scene_scores": {f"t{i}": 0.80 for i in range(8)},
+        },
+        {
+            "label": "noisy",
+            "selected_true_pdms": 0.825,
+            "_scene_scores": {
+                f"t{i}": value
+                for i, value in enumerate(
+                    [1.0, 1.0, 1.0, 1.0, 0.65, 0.65, 0.65, 0.65]
+                )
+            },
+        },
+        {
+            "label": "stable_gain",
+            "selected_true_pdms": 0.85,
+            "_scene_scores": {f"t{i}": 0.85 for i in range(8)},
+        },
+    ]
+    selected = select_best_pair(candidates)
+    assert selected["label"] == "stable_gain"
+    assert candidates[1]["paired_selection"]["accepted"] is False
+    assert candidates[2]["paired_selection"]["improvement_lcb95"] > 0
+
+
+def test_enrichment_reports_scene_level_high_pdms_support():
+    proposals = torch.zeros(2, 4, 8, 3)
+    predicted = torch.tensor([[0.9, 0.8, 0.2, 0.1], [0.8, 0.7, 0.2, 0.1]])
+    targets = build_teacher_target_sets(
+        proposals,
+        _metric_logits(predicted),
+        predicted,
+        topk=2,
+        pareto_max_size=2,
+        pareto_min_size=1,
+        reward_threshold=0.0,
+    )
+    true_score = torch.tensor([[1.0, 0.9, 0.0, 0.0], [0.95, 0.8, 0.0, 0.0]])
+    report = selected_set_enrichment_per_scene(
+        targets, true_score, high_score_threshold=0.9
+    )
+    assert report["topk_enrichment"].shape == (2,)
+    assert torch.all(report["topk_high_score_enrichment"] > 0)

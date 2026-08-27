@@ -61,8 +61,10 @@ class CandidateBankBuildIdentity:
     def validate(self) -> None:
         if self.schema_version != CANDIDATE_BANK_SCHEMA_VERSION:
             raise RuntimeError("candidate-bank build schema version mismatch")
-        if self.split not in {"train", "val"}:
-            raise ValueError("candidate-bank build split must be train or val")
+        if self.split not in {"train", "val", "selection"}:
+            raise ValueError(
+                "candidate-bank build split must be train, val, or selection"
+            )
         if self.world_size <= 0:
             raise ValueError("candidate-bank build world_size must be positive")
         if self.proposal_num <= 0 or self.scene_dim <= 0 or self.scene_queries <= 0:

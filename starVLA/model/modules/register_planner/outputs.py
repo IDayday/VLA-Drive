@@ -16,6 +16,7 @@ class RegisterGeneratorOutput:
     proposal_list: List[Tensor]
     final_tokens: Tensor
     token_list: List[Tensor]
+    sanitization_metrics: Optional[Dict[str, Tensor]] = None
 
 
 @dataclass

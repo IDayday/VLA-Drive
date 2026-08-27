@@ -5,6 +5,9 @@ from starVLA.model.framework.QwenRegisterGenerator import QwenRegisterGenerator
 from starVLA.model.modules.register_planner.generator import (
     RegisterTrajectoryGenerator,
 )
+from starVLA.model.modules.register_planner.sanitization import (
+    sanitize_register_trajectories,
+)
 from starVLA.training.train_register_generator import (
     FirstBackwardGradientGate,
     assert_all_trainable_parameters_have_grad,
@@ -42,6 +45,19 @@ def test_generator_is_deterministic_in_eval():
     first = generator(scene, ego).proposals
     second = generator(scene, ego).proposals
     assert torch.equal(first, second)
+
+
+def test_register_proposal_sanitization_is_shared_and_bounded():
+    trajectories = torch.zeros(1, 2, 8, 3)
+    trajectories[0, 0, 0] = torch.tensor([float("nan"), float("inf"), 4 * torch.pi])
+    trajectories[0, 1, 0] = torch.tensor([-150.0, 125.0, -4 * torch.pi])
+    sanitized, stats = sanitize_register_trajectories(trajectories)
+    assert torch.isfinite(sanitized).all()
+    assert sanitized[..., :2].abs().max() <= 100.0
+    assert sanitized[..., 2].abs().max() <= torch.pi
+    assert int(stats.nonfinite_count) == 2
+    assert int(stats.xy_clamped_count) == 2
+    assert int(stats.heading_wrapped_count) == 2
 
 
 def test_generator_has_no_flow_modules():

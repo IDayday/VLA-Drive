@@ -140,6 +140,12 @@ def main() -> None:
                 "bank_val_report": _json(
                     cycle_root / "candidate_bank" / "val" / "candidate_bank_report.json"
                 ),
+                "bank_selection_report": _json(
+                    cycle_root
+                    / "candidate_bank"
+                    / "selection"
+                    / "candidate_bank_report.json"
+                ),
                 "scorer": scorer_complete,
                 "scorer_validation": scorer_metrics[-1] if scorer_metrics else None,
                 "generator": generator_complete,
@@ -152,6 +158,12 @@ def main() -> None:
         ),
         "bank_val_report": _json(
             closing_root / "candidate_bank" / "val" / "candidate_bank_report.json"
+        ),
+        "bank_selection_report": _json(
+            closing_root
+            / "candidate_bank"
+            / "selection"
+            / "candidate_bank_report.json"
         ),
         "scorer": _json(closing_root / "scorer" / "training_complete.json"),
         "scorer_validation": _jsonl(closing_root / "scorer" / "metrics.jsonl")[-1],
@@ -232,8 +244,10 @@ def main() -> None:
         f"- Evaluated scenes: {pdms['num_scenarios']}",
         f"- Stage-1 best selected validation PDMS: `{best_stage1}`",
         f"- Selected cycle/pair: `{final_val.get('label')}`",
-        f"- Selected-pair validation PDMS: `{final_val.get('selected_true_pdms')}`",
-        f"- Selected-pair validation regret: `{final_val.get('regret')}`",
+        f"- Selected-pair untouched-holdout PDMS: `{final_val.get('selected_true_pdms')}`",
+        f"- Selected-pair PDMS 95% LCB: `{final_val.get('selected_true_pdms_lcb95')}`",
+        f"- Paired selection decision: `{final_val.get('paired_selection')}`",
+        f"- Selected-pair untouched-holdout regret: `{final_val.get('regret')}`",
         f"- Calibrated selector alpha: `{final_val.get('selector_alpha')}`",
         f"- Final generator: `{generator}`",
         f"- Final PDMS scorer: `{drivor}`",

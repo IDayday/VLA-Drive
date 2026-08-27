@@ -334,14 +334,18 @@ class CloverStage2GeneratorLoss(nn.Module):
         )
 
 
-def selected_set_enrichment(
+def selected_set_enrichment_per_scene(
     target_sets: TeacherTargetSets,
     true_aggregate: Tensor,
+    *,
+    high_score_threshold: float = 0.9,
 ) -> dict[str, Tensor]:
-    """Measure the condition required by CLOVER's conservative-update proof."""
+    """Return scene-level enrichment and high-PDMS support diagnostics."""
 
     if true_aggregate.shape != target_sets.predicted_aggregate.shape:
         raise ValueError("true aggregate scores must match teacher candidates")
+    if not 0.0 <= high_score_threshold <= 1.0:
+        raise ValueError("high_score_threshold must lie in [0,1]")
     topk_true = torch.gather(true_aggregate, 1, target_sets.topk_indices)
     pareto_true = torch.gather(true_aggregate, 1, target_sets.pareto_indices)
     pareto_valid = target_sets.pareto_mask.to(pareto_true.dtype)
@@ -349,14 +353,42 @@ def selected_set_enrichment(
         dim=1
     ).clamp_min(1.0)
     pool_mean = true_aggregate.mean(dim=1)
+    topk_mean = topk_true.mean(dim=1)
+    pool_high_rate = (true_aggregate >= high_score_threshold).float().mean(dim=1)
+    topk_high_rate = (topk_true >= high_score_threshold).float().mean(dim=1)
+    pareto_high_rate = (
+        ((pareto_true >= high_score_threshold).float() * pareto_valid).sum(dim=1)
+        / pareto_valid.sum(dim=1).clamp_min(1.0)
+    )
     return {
-        "pool_true_mean": pool_mean.mean(),
-        "topk_true_mean": topk_true.mean(),
-        "pareto_true_mean": pareto_mean.mean(),
-        "topk_enrichment": (topk_true.mean(dim=1) - pool_mean).mean(),
-        "pareto_enrichment": (pareto_mean - pool_mean).mean(),
-        "topk_enriched_scene_ratio": (
-            topk_true.mean(dim=1) > pool_mean
-        ).float().mean(),
-        "pareto_enriched_scene_ratio": (pareto_mean > pool_mean).float().mean(),
+        "pool_true_mean": pool_mean,
+        "topk_true_mean": topk_mean,
+        "pareto_true_mean": pareto_mean,
+        "topk_enrichment": topk_mean - pool_mean,
+        "pareto_enrichment": pareto_mean - pool_mean,
+        "topk_enriched_scene_ratio": (topk_mean > pool_mean).float(),
+        "pareto_enriched_scene_ratio": (pareto_mean > pool_mean).float(),
+        "pool_high_score_rate": pool_high_rate,
+        "topk_high_score_rate": topk_high_rate,
+        "pareto_high_score_rate": pareto_high_rate,
+        "topk_high_score_enrichment": topk_high_rate - pool_high_rate,
+        "pareto_high_score_enrichment": pareto_high_rate - pool_high_rate,
+    }
+
+
+def selected_set_enrichment(
+    target_sets: TeacherTargetSets,
+    true_aggregate: Tensor,
+    *,
+    high_score_threshold: float = 0.9,
+) -> dict[str, Tensor]:
+    """Measure the condition required by CLOVER's conservative-update proof."""
+
+    return {
+        name: value.mean()
+        for name, value in selected_set_enrichment_per_scene(
+            target_sets,
+            true_aggregate,
+            high_score_threshold=high_score_threshold,
+        ).items()
     }
