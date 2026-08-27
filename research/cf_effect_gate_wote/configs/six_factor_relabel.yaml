@@ -1,0 +1,41 @@
+schema_version: cf_effect_wote_six_factor_relabel.v2
+run:
+  overwrite: false
+  output_namespace: experiments/cf_effect_wote_six_factor
+  report_namespace: reports/cf_effect_wote_six_factor
+candidate:
+  domain: wote_base_anchors
+  count: 256
+  waypoints: 8
+  interval_seconds: 0.5
+  horizon_seconds: 4.0
+  trajectory_offsets: false
+evaluator:
+  proposal_num_poses: 40
+  proposal_interval_seconds: 0.1
+  metric_cache_future_num_poses: 50
+  fallback: false
+labels:
+  source: independent_navsim_recompute
+  factor_order: [NC, DAC, DDC, EP, TTC, Comfort]
+  schema_version: independent_wote_labels_4s_six_factor.v2
+  score_formula: NC*DAC*DDC*(5*EP+5*TTC+2*Comfort)/12
+  reconstruction_tolerance: 1.0e-6
+  raw_progress_saved: true
+  raw_progress_in_score_formula: false
+  progress_normalization_scope: all_256_candidates_within_scene
+  candidate_set_dependent_ep: true
+  shard_scenes: 16
+determinism:
+  exact_factors: true
+  exact_scores: true
+  exact_raw_progress: true
+  exact_oracle_indices: true
+  logical_sha256: true
+bootstrap:
+  samples: 2000
+  seed: 20260827
+  unit: scene
+stopping_scope:
+  stop_after: G1-R2
+  forbidden_training: [oracle_effect_probe, effect_predictor, inverse]

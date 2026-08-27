@@ -558,6 +558,13 @@ def run_cache(args: argparse.Namespace) -> None:
 
         output = {key: _tensor_to_numpy(value) for key, value in gate_output.items()}
         assert_base_anchor_contract(output, released_anchors)
+        selected_from_output = int(np.asarray(output["selected_index"]).reshape(-1)[0])
+        selected_from_rewards = int(np.argmax(output["final_rewards"][0]))
+        if selected_from_output != selected_from_rewards:
+            raise ValueError(
+                f"{token}: selected_index {selected_from_output} is not "
+                f"argmax(final_rewards) {selected_from_rewards}"
+            )
         base_anchors = np.broadcast_to(
             output["base_trajectory_anchors"][None], (1, 256, 8, 3)
         ).copy()
@@ -711,7 +718,11 @@ def _parser() -> argparse.ArgumentParser:
     cache.add_argument("--tokens", type=Path, required=True)
     cache.add_argument("--output", type=Path, required=True)
     cache.add_argument("--run-id", required=True)
-    cache.add_argument("--split", choices=("train", "val", "test", "smoke"), required=True)
+    cache.add_argument(
+        "--split",
+        choices=("train", "val", "test", "smoke", "headroom"),
+        required=True,
+    )
     cache.add_argument("--device", default="cuda")
     cache.add_argument("--shard-scenes", type=int, default=16)
     cache.add_argument("--limit", type=int)
