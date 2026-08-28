@@ -39,6 +39,18 @@ DriveVLA-M0 augments a VLA-based autonomous driving planner with failure-aware l
 * **Retrieve Model deployment.** The Retrieve Model decouples static road structure and dynamic agent interaction cues for map/agent retrieval visualization.
 * **Checkpoint-compatible naming.** Public documentation uses DriveVLA-M0. The current NAVSIM Python target keeps `EpisodeDriveAgent` as a compatibility entry point so that verified checkpoints load without changing the module state-dict layout.
 
+## Local PPU-safe Base development
+
+For the paper's no-memory 91.0-PDMS development baseline (InternVL3, 64
+trajectory proposals, and learned scorer), see
+[the local Base deployment guide](docs/local_base_deployment.md). Its setup
+inherits the vendor PPU runtime and installs this repository with `--no-deps`;
+it does not replace PyTorch, Triton, or FlashAttention.
+
+For one-pass full-`navtest` inference followed by official NAVSIM v1.1 PDMS
+and NAVSIM v2 EPDMS in one PAI-DLC job, see
+[the dual-metric DLC guide](docs/dlc_navtest_dual_metrics.md).
+
 ## Method Overview
 
 DriveVLA-M0 contains two major stages:

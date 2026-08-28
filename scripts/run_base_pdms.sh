@@ -1,33 +1,51 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export OPENBLAS_CORETYPE="${OPENBLAS_CORETYPE:-Haswell}"
-export HYDRA_FULL_ERROR="${HYDRA_FULL_ERROR:-1}"
-export NUPLAN_MAP_VERSION="${NUPLAN_MAP_VERSION:-nuplan-maps-v1.0}"
-export NUPLAN_MAPS_ROOT="${NUPLAN_MAPS_ROOT:-/GPU_JDTest_fs01/home/zdhs0164/navsim_data/maps}"
-export OPENSCENE_DATA_ROOT="${OPENSCENE_DATA_ROOT:-/GPU_JDTest_fs01/home/zdhs0164/navsim_data/openscene/openscene-v1.1}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# shellcheck source=../load_env.sh
+source "${REPO_ROOT}/load_env.sh"
 
-export NAVSIM_EXP_ROOT="${NAVSIM_EXP_ROOT:-/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/outputs/episode_drive_navsim1_1}"
-export SUBSCORE_PATH="${SUBSCORE_PATH:-${NAVSIM_EXP_ROOT}}"
-export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH:-}"
+required_variables=(
+  NUPLAN_MAPS_ROOT
+  OPENSCENE_DATA_ROOT
+  DRIVEVLA_BASE_CHECKPOINT
+  DRIVEVLA_VLM_CONFIG
+  DRIVEVLA_DINO_WEIGHTS
+  METRIC_CACHE_PATH
+)
+for variable in "${required_variables[@]}"; do
+  if [[ -z "${!variable:-}" ]]; then
+    echo "Required environment variable is unset: ${variable}" >&2
+    echo "Copy env.local.example.sh to env.local.sh and configure local paths." >&2
+    exit 2
+  fi
+done
 
-PYTHON_BIN="${PYTHON_BIN:-/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/envs/navsim_internvl/bin/python}"
 NAVSIM_ROOT="${NAVSIM_ROOT:-${REPO_ROOT}}"
-CHECKPOINT_PATH="${DRIVEVLA_BASE_CHECKPOINT:-/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/base_model/DriveVLA_M0/checkpoints/best-epoch_26-step_174312.server_merged.ckpt}"
-METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-/GPU_JDTest_fs01/home/zdhs0164/navsim_workspace/exp/metric_cache}"
+CHECKPOINT_PATH="${DRIVEVLA_BASE_CHECKPOINT}"
 AGENT_CONFIG="${AGENT_CONFIG:-episode_drive}"
 NUM_GPUS="${NUM_GPUS:-1}"
 PL_STRATEGY="${PL_STRATEGY:-auto}"
+NUM_WORKERS="${NUM_WORKERS:-4}"
+
+if [[ "${RUN_PREFLIGHT:-1}" == "1" ]]; then
+  "${SCRIPT_DIR}/preflight_base.sh"
+fi
+
+extra_args=()
+if [[ -n "${MAX_SCENES:-}" ]]; then
+  extra_args+=("train_test_split.scene_filter.max_scenes=${MAX_SCENES}")
+fi
 
 "${PYTHON_BIN}" "${NAVSIM_ROOT}/navsim/planning/script/run_pdm_score_multi_gpu.py" \
   train_test_split="${TRAIN_TEST_SPLIT:-navtest}" \
   agent="${AGENT_CONFIG}" \
   agent.checkpoint_path="${CHECKPOINT_PATH}" \
-  experiment_name="${EXPERIMENT_NAME:-drivevla_base_navtest_pdms}" \
+  experiment_name="${EXPERIMENT_NAME:-drivevla_base_no_memory_navtest_pdms}" \
   load_image_path=true \
-  dataloader.params.batch_size="${BATCH_SIZE:-2}" \
+  dataloader.params.batch_size="${BATCH_SIZE:-1}" \
+  dataloader.params.num_workers="${NUM_WORKERS}" \
   +trainer.params.devices="${NUM_GPUS}" \
   trainer.params.strategy="${PL_STRATEGY}" \
   agent.action_head_config.proposal_num=64 \
@@ -40,6 +58,7 @@ PL_STRATEGY="${PL_STRATEGY:-auto}"
   agent.action_head_config.area_pred=false \
   agent.action_head_config.agent_pred=false \
   agent.action_head_config.ref_num=4 \
+  agent.action_head_config.scorer_ref_num=4 \
   agent.action_head_config.noc=1 \
   agent.action_head_config.dac=1 \
   agent.action_head_config.ddc=0.0 \
@@ -51,7 +70,7 @@ PL_STRATEGY="${PL_STRATEGY:-auto}"
   agent.vlm_config.cache_mode=false \
   agent.vlm_config.freeze_backbone=true \
   agent.vlm_config.vlm_type=internvl \
-  agent.vlm_config.vlm_path="${DRIVEVLA_VLM_CONFIG:-/GPU_JDTest_fs01/home/zdhs0164/DriveVLAMemory/models/base_model/InternVL3-2B}" \
+  agent.vlm_config.vlm_path="${DRIVEVLA_VLM_CONFIG}" \
   agent.vlm_config.initialize_from_config=true \
   agent.vlm_config.use_flash_attn=false \
   agent.vlm_config.extra_token_count=8 \
@@ -59,4 +78,5 @@ PL_STRATEGY="${PL_STRATEGY:-auto}"
   agent.lora_config.use_lora=true \
   agent.lora_config.lora_target_modules="[attn.qkv,attn.proj,q_proj,v_proj,k_proj,o_proj]" \
   metric_cache_path="${METRIC_CACHE_PATH}" \
+  "${extra_args[@]}" \
   "$@"
