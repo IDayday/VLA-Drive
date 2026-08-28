@@ -1,0 +1,164 @@
+{
+  "audit_scope": "training/public validation only",
+  "available_splits": {
+    "mini": {
+      "exists": true,
+      "log_pickles": 64,
+      "path": "/mnt/navsim/mini_navsim_logs/mini"
+    },
+    "trainval": {
+      "exists": true,
+      "log_pickles": 1310,
+      "path": "/mnt/navsim/trainval_navsim_logs/trainval"
+    }
+  },
+  "cuda": {
+    "available": true,
+    "device_count": 8,
+    "devices": [
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB"
+    ],
+    "torch_cuda_version": "12.4"
+  },
+  "existing_candidate_or_score_artifacts": [],
+  "git": {
+    "branch": "feature/navsim-candidate-relative-feasibility-audit",
+    "commit": "d84bf2b39696050f715fe41c5f005d0d1115c0c1",
+    "describe": "d84bf2b",
+    "status_short": "?? reports/\n?? tests/test_navsim_candidate_relative_audit.py\n?? tools/navsim_candidate_relative_audit/"
+  },
+  "metric_cache_metadata_files": [
+    "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv"
+  ],
+  "metric_cache_metadata_rows": 103288,
+  "navsim_installations": [
+    "/mnt/navsim/__init__.py",
+    "/mnt/project/DriveDreamer-Policy/navsim/navsim/__init__.py",
+    "/mnt/project/DriveVLA-M0/navsim/__init__.py"
+  ],
+  "nvidia_smi": "0, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n1, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n2, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n3, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n4, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n5, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n6, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05\n7, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+  "packages": {
+    "matplotlib": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/matplotlib/__init__.py",
+      "version": "3.9.4"
+    },
+    "navsim": {
+      "available": true,
+      "import_path": "/mnt/project/DriveVLA-M0/navsim/__init__.py",
+      "version": "1.1.0"
+    },
+    "numpy": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/numpy/__init__.py",
+      "version": "1.26.4"
+    },
+    "nuplan": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/nuplan/__init__.py",
+      "version": null
+    },
+    "pandas": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/pandas/__init__.py",
+      "version": "2.3.3"
+    },
+    "pyarrow": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/pyarrow/__init__.py",
+      "version": "21.0.0"
+    },
+    "scipy": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/scipy/__init__.py",
+      "version": "1.13.1"
+    },
+    "shapely": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/shapely/__init__.py",
+      "version": "2.0.7"
+    },
+    "sklearn": {
+      "available": false,
+      "error": "ModuleNotFoundError: No module named 'sklearn'"
+    },
+    "torch": {
+      "available": true,
+      "import_path": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/torch/__init__.py",
+      "version": "2.5.1+cu124"
+    }
+  },
+  "path_inventory": {
+    "log_path": {
+      "bytes": 14251630592,
+      "exists": true,
+      "method": "du_-sB1"
+    },
+    "map_path": {
+      "bytes": 1426632704,
+      "exists": true,
+      "method": "du_-sB1"
+    },
+    "metric_cache_path": {
+      "bytes": null,
+      "entries": 1193,
+      "exists": true,
+      "method": "timeout_top_level_only"
+    },
+    "navsim_exp_root": {
+      "bytes": null,
+      "exists": false,
+      "method": "missing"
+    },
+    "sensor_blobs_path": {
+      "bytes": null,
+      "entries": 1311,
+      "exists": true,
+      "method": "timeout_top_level_only"
+    },
+    "synthetic_scene_path": {
+      "bytes": 27336704,
+      "exists": true,
+      "method": "du_-sB1"
+    },
+    "synthetic_sensor_path": {
+      "bytes": 1163554816,
+      "exists": true,
+      "method": "du_-sB1"
+    },
+    "v2_devkit_root": {
+      "bytes": 39178240,
+      "exists": true,
+      "method": "du_-sB1"
+    }
+  },
+  "paths": {
+    "devkit_root": "/mnt/project/DriveVLA-M0",
+    "log_path": "/mnt/navsim/trainval_navsim_logs/trainval",
+    "map_path": "/mnt/navsim/maps",
+    "metric_cache_path": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full",
+    "navsim_exp_root": "/mnt/project/DriveVLA-M0/outputs",
+    "repo_root": "/mnt/project/DriveVLA-M0",
+    "sensor_blobs_path": "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+    "split": "trainval",
+    "synthetic_scene_path": "/mnt/navsim/warmup_two_stage/synthetic_scene_pickles",
+    "synthetic_sensor_path": "/mnt/navsim/warmup_two_stage/sensor_blobs",
+    "v2_devkit_root": "/mnt/project/DriveDreamer-Policy/navsim"
+  },
+  "privacy_note": "Only allowlisted path/configuration variables were recorded; credentials and tokens were not enumerated.",
+  "project_path": "/mnt/project/DriveVLA-M0",
+  "python": {
+    "executable": "/root/miniconda3/envs/navsim/bin/python",
+    "platform": "Linux-5.10.0-136.12.0.88.4.ctl3.x86_64-x86_64-with-glibc2.35",
+    "version": "3.9.25 (main, Nov  3 2025, 22:33:05) \n[GCC 11.2.0]"
+  },
+  "runtime_navsim_import": "/mnt/project/DriveVLA-M0/navsim/__init__.py",
+  "v2_git_commit": "9fe1459b8f6ab69a15274450ec301d541209bedd"
+}

@@ -1,0 +1,242 @@
+{
+  "candidate_count": 6000,
+  "feature_leakage_audit": {
+    "A": {
+      "banned_name_hits": [],
+      "feature_count": 28,
+      "passed": true
+    },
+    "B": {
+      "banned_name_hits": [],
+      "feature_count": 34,
+      "passed": true
+    },
+    "C": {
+      "banned_name_hits": [],
+      "feature_count": 258,
+      "passed": true
+    }
+  },
+  "interaction_only_inverse_probe": {
+    "candidate_id": {
+      "accuracy": 0.25047348484848486,
+      "classes": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "majority_baseline": 0.08333333333333333
+    },
+    "candidate_id_accuracy_margin_over_majority": 0.16714015151515155,
+    "delta_trajectory_r2": -0.7287735003651508,
+    "excluded_inputs": [
+      "candidate x/y/heading",
+      "candidate speed",
+      "candidate curvature",
+      "all trajectory-derived fields",
+      "candidate type"
+    ],
+    "interpretation": "\u5f53\u524d\u6570\u636e\u53ef\u652f\u6301\u5019\u9009\u76f8\u5bf9\u98ce\u9669\u91cd\u6807\u6ce8\uff0c\u4f46\u4e0d\u8db3\u4ee5\u652f\u6301\u5f3a interaction inverse dynamics\u3002",
+    "near_random": false,
+    "semantic_accuracy_margin_over_majority": 0.05445075757575757,
+    "semantic_action": {
+      "accuracy": 0.3877840909090909,
+      "classes": [
+        "factual_or_other",
+        "fast",
+        "left",
+        "right",
+        "slow"
+      ],
+      "majority_baseline": 0.3333333333333333
+    },
+    "strong_inverse_supported": false
+  },
+  "probe_definitions": {
+    "A": "trajectory-only",
+    "B": "current structured scene + trajectory",
+    "C": "Probe B + C_environment_only + masked actor relation summaries"
+  },
+  "probes": {
+    "A": {
+      "aggregate_score": {
+        "mae": 0.3446360845457548,
+        "ndcg": 0.9046601767176701,
+        "pairwise_ranking_accuracy": 0.48010210001160225,
+        "ranked_pair_count": 8619,
+        "spearman": -0.04066522438467726,
+        "top1_accuracy": 0.1875,
+        "top1_score_regret": 0.20591204128294052
+      },
+      "factors": {
+        "collision": {
+          "auroc": 0.4817348552063668,
+          "brier": 0.2602987149401649,
+          "ece_10bin": 0.3328869958205133,
+          "f1": 0.2532258064516129,
+          "positive_rate": 0.16003787878787878
+        },
+        "comfort_violation": {
+          "auroc": 0.7700878104050609,
+          "brier": 0.21769969303124093,
+          "ece_10bin": 0.35940053173636066,
+          "f1": 0.14657210401891255,
+          "positive_rate": 0.04214015151515151
+        },
+        "dac_violation": {
+          "auroc": 0.6318990773168104,
+          "brier": 0.21550901909266518,
+          "ece_10bin": 0.32184204995911897,
+          "f1": 0.25995807127882603,
+          "positive_rate": 0.12121212121212122
+        },
+        "ddc_violation": {
+          "auroc": 0.48511540849150664,
+          "brier": 0.20163283774715307,
+          "ece_10bin": 0.36448578909883494,
+          "f1": 0.03618421052631579,
+          "positive_rate": 0.050189393939393936
+        },
+        "progress": {
+          "mae": 0.3496806709668528,
+          "spearman": 0.008390198302276627
+        },
+        "ttc_violation": {
+          "auroc": 0.5263183758018364,
+          "brier": 0.25297450601305566,
+          "ece_10bin": 0.27664959717273196,
+          "f1": 0.34729626808834724,
+          "positive_rate": 0.2315340909090909
+        }
+      }
+    },
+    "B": {
+      "aggregate_score": {
+        "mae": 0.31513229983334184,
+        "ndcg": 0.8894049201499854,
+        "pairwise_ranking_accuracy": 0.4720965309200603,
+        "ranked_pair_count": 8619,
+        "spearman": -0.02612220590921883,
+        "top1_accuracy": 0.1875,
+        "top1_score_regret": 0.2861917315523248
+      },
+      "factors": {
+        "collision": {
+          "auroc": 0.4382750845546787,
+          "brier": 0.3919652514713488,
+          "ece_10bin": 0.46502298238854667,
+          "f1": 0.23529411764705882,
+          "positive_rate": 0.16003787878787878
+        },
+        "comfort_violation": {
+          "auroc": 0.8001743989069521,
+          "brier": 0.15986820441496813,
+          "ece_10bin": 0.29857181596077825,
+          "f1": 0.16838995568685378,
+          "positive_rate": 0.04214015151515151
+        },
+        "dac_violation": {
+          "auroc": 0.555670376481681,
+          "brier": 0.12454332783624969,
+          "ece_10bin": 0.10003754670402436,
+          "f1": 0.07051282051282051,
+          "positive_rate": 0.12121212121212122
+        },
+        "ddc_violation": {
+          "auroc": 0.37632856148535526,
+          "brier": 0.19316319147288424,
+          "ece_10bin": 0.3308806005842947,
+          "f1": 0.029962546816479394,
+          "positive_rate": 0.050189393939393936
+        },
+        "progress": {
+          "mae": 0.315776355795666,
+          "spearman": 0.04830118625064941
+        },
+        "ttc_violation": {
+          "auroc": 0.47111625193568424,
+          "brier": 0.3555400609544907,
+          "ece_10bin": 0.38025105962747385,
+          "f1": 0.321,
+          "positive_rate": 0.2315340909090909
+        }
+      }
+    },
+    "C": {
+      "aggregate_score": {
+        "mae": 0.15009532380035973,
+        "ndcg": 0.9806943127341725,
+        "pairwise_ranking_accuracy": 0.7642417913911127,
+        "ranked_pair_count": 8619,
+        "spearman": 0.639580677804134,
+        "top1_accuracy": 0.4602272727272727,
+        "top1_score_regret": 0.05323358299557546
+      },
+      "factors": {
+        "collision": {
+          "auroc": 0.9506247373301402,
+          "brier": 0.11180432717342238,
+          "ece_10bin": 0.18561248090549856,
+          "f1": 0.6773847802786709,
+          "positive_rate": 0.16003787878787878
+        },
+        "comfort_violation": {
+          "auroc": 0.832604819852594,
+          "brier": 0.15727671301527538,
+          "ece_10bin": 0.2751458690912893,
+          "f1": 0.19639934533551553,
+          "positive_rate": 0.04214015151515151
+        },
+        "dac_violation": {
+          "auroc": 0.9985372609105604,
+          "brier": 0.009092669463860045,
+          "ece_10bin": 0.03773228053897517,
+          "f1": 0.9614604462474645,
+          "positive_rate": 0.12121212121212122
+        },
+        "ddc_violation": {
+          "auroc": 0.984499332192103,
+          "brier": 0.0720839107064497,
+          "ece_10bin": 0.14562985691681912,
+          "f1": 0.5148514851485149,
+          "positive_rate": 0.050189393939393936
+        },
+        "progress": {
+          "mae": 0.1591374855268242,
+          "spearman": 0.6723655826551007
+        },
+        "ttc_violation": {
+          "auroc": 0.902223532628486,
+          "brier": 0.12897530847945324,
+          "ece_10bin": 0.12970144610260823,
+          "f1": 0.6920473773265652,
+          "positive_rate": 0.2315340909090909
+        }
+      }
+    }
+  },
+  "scene_count": 500,
+  "status": "COMPLETE",
+  "train_logs": [
+    "2021.06.14.16.48.02_veh-12_02412_02506",
+    "2021.09.14.18.43.41_veh-45_00965_01195",
+    "2021.10.01.13.28.54_veh-28_01767_01883",
+    "2021.10.11.05.34.05_veh-50_01718_02261"
+  ],
+  "train_scene_count": 324,
+  "unavailable_target": "EPDMS/TLC/lane-keeping/extended-comfort are not exposed by the deployed v1 training cache/scorer and were not fabricated.",
+  "validation_logs": [
+    "2021.06.09.17.23.18_veh-38_03425_04047",
+    "2021.06.09.18.23.43_veh-35_02086_02333"
+  ],
+  "validation_scene_count": 176
+}
