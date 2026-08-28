@@ -30,6 +30,28 @@ def get_sub_score( metric_cache,poses,test):
     with lzma.open(metric_cache, "rb") as f:
         metric_cache = pickle.load(f)
 
+    return get_sub_score_from_metric_cache(
+        metric_cache, poses, test, simulator_instance=simulator, scorer_instance=scorer
+    )
+
+
+def get_sub_score_from_metric_cache(
+    metric_cache,
+    poses,
+    test,
+    simulator_instance=None,
+    scorer_instance=None,
+):
+    """Score proposals against an already-loaded, read-only metric cache.
+
+    Callers that execute concurrently leave the instances unspecified and get
+    independent scorer state while sharing the expensive immutable scene cache.
+    """
+    if simulator_instance is None:
+        simulator_instance = PDMSimulator(proposal_sampling)
+    if scorer_instance is None:
+        scorer_instance = PDMScorer(proposal_sampling, config)
+
     initial_ego_state = metric_cache.ego_state
 
     trajectory_states = []
@@ -37,16 +59,16 @@ def get_sub_score( metric_cache,poses,test):
     for model_trajectory in poses:
         pred_trajectory = transform_trajectory(Trajectory(model_trajectory), initial_ego_state)
 
-        pred_states = get_trajectory_as_array(pred_trajectory, simulator.proposal_sampling,
+        pred_states = get_trajectory_as_array(pred_trajectory, simulator_instance.proposal_sampling,
                                               initial_ego_state.time_point)
 
         trajectory_states.append(pred_states)
 
     trajectory_states = np.stack(trajectory_states, axis=0)
 
-    simulated_states = simulator.simulate_proposals(trajectory_states, initial_ego_state)#32,41,11
+    simulated_states = simulator_instance.simulate_proposals(trajectory_states, initial_ego_state)#32,41,11
 
-    final_scores=scorer.score_proposals(
+    final_scores=scorer_instance.score_proposals(
         simulated_states,
         metric_cache.observation,
         metric_cache.centerline,
@@ -57,17 +79,17 @@ def get_sub_score( metric_cache,poses,test):
 
     num_col=2
 
-    key_agent_corners = np.zeros([len(final_scores), scorer.proposal_sampling.num_poses ,num_col, 4, 2])
-    key_agent_labels = np.zeros([len(final_scores), scorer.proposal_sampling.num_poses ,num_col],dtype=bool)
-    ego_areas = scorer._ego_areas[:,1:,1:]
+    key_agent_corners = np.zeros([len(final_scores), scorer_instance.proposal_sampling.num_poses ,num_col, 4, 2])
+    key_agent_labels = np.zeros([len(final_scores), scorer_instance.proposal_sampling.num_poses ,num_col],dtype=bool)
+    ego_areas = scorer_instance._ego_areas[:,1:,1:]
 
-    no_at_fault_collisions = scorer._multi_metrics[MultiMetricIndex.NO_COLLISION, :]
-    drivable_area_compliance = scorer._multi_metrics[MultiMetricIndex.DRIVABLE_AREA, :]
-    driving_direction_compliance = scorer._weighted_metrics[WeightedMetricIndex.DRIVING_DIRECTION, :  ]
+    no_at_fault_collisions = scorer_instance._multi_metrics[MultiMetricIndex.NO_COLLISION, :]
+    drivable_area_compliance = scorer_instance._multi_metrics[MultiMetricIndex.DRIVABLE_AREA, :]
+    driving_direction_compliance = scorer_instance._weighted_metrics[WeightedMetricIndex.DRIVING_DIRECTION, :  ]
 
-    ego_progress = scorer._weighted_metrics[WeightedMetricIndex.PROGRESS, :]
-    time_to_collision_within_bound = scorer._weighted_metrics[WeightedMetricIndex.TTC, :]
-    comfort = scorer._weighted_metrics[WeightedMetricIndex.COMFORTABLE, :]
+    ego_progress = scorer_instance._weighted_metrics[WeightedMetricIndex.PROGRESS, :]
+    time_to_collision_within_bound = scorer_instance._weighted_metrics[WeightedMetricIndex.TTC, :]
+    comfort = scorer_instance._weighted_metrics[WeightedMetricIndex.COMFORTABLE, :]
 
 
     scores=np.stack([no_at_fault_collisions,drivable_area_compliance,
@@ -77,28 +99,28 @@ def get_sub_score( metric_cache,poses,test):
     if not test:
         for i in range(len(scores)):
             # proposal_collided_track_ids=scorer.proposal_collided_track_ids[i]
-            proposal_fault_collided_track_ids = scorer.proposal_fault_collided_track_ids[i]
+            proposal_fault_collided_track_ids = scorer_instance.proposal_fault_collided_track_ids[i]
             # temp_collided_track_ids=scorer.temp_collided_track_ids[i]
 
             if len(proposal_fault_collided_track_ids):
                 col_token=proposal_fault_collided_track_ids[0]
-                collision_time_idcs = int(scorer._collision_time_idcs[i])+1
+                collision_time_idcs = int(scorer_instance._collision_time_idcs[i])+1
 
                 for time_idx in range(1,collision_time_idcs):
-                    if  col_token in scorer._observation[time_idx].tokens:
+                    if  col_token in scorer_instance._observation[time_idx].tokens:
                         key_agent_labels[i][time_idx-1,0] = True
-                        key_agent_corners[i][time_idx-1,0]=np.array(scorer._observation[time_idx][col_token].boundary.xy).T[:4]
+                        key_agent_corners[i][time_idx-1,0]=np.array(scorer_instance._observation[time_idx][col_token].boundary.xy).T[:4]
 
-            ttc_collided_track_ids = scorer.ttc_collided_track_ids[i]
+            ttc_collided_track_ids = scorer_instance.ttc_collided_track_ids[i]
 
             if len(ttc_collided_track_ids):
                 ttc_token=ttc_collided_track_ids[0]
-                ttc_time_idcs = int(scorer._ttc_time_idcs[i])+1
+                ttc_time_idcs = int(scorer_instance._ttc_time_idcs[i])+1
 
                 for time_idx in range(1,ttc_time_idcs):
-                    if  ttc_token in scorer._observation[time_idx].tokens:
+                    if  ttc_token in scorer_instance._observation[time_idx].tokens:
                         key_agent_labels[i][time_idx-1,1] = True
-                        key_agent_corners[i][time_idx-1,1]=np.array(scorer._observation[time_idx][ttc_token].boundary.xy).T[:4]
+                        key_agent_corners[i][time_idx-1,1]=np.array(scorer_instance._observation[time_idx][ttc_token].boundary.xy).T[:4]
 
         theta = initial_ego_state.rear_axle.heading
         origin_x = initial_ego_state.rear_axle.x

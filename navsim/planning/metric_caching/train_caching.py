@@ -58,7 +58,7 @@ def cache_scenarios(args: List[Dict[str, Union[List[str], DictConfig]]]) -> List
         node_id = int(os.environ.get("NODE_RANK", 0))
         thread_id = str(uuid.uuid4())
 
-        log_names = [a["log_file"] for a in args]
+        log_names = sorted({a["log_file"] for a in args})
         tokens = [t for a in args for t in a["tokens"]]
         cfg: DictConfig = args[0]["cfg"]
 
@@ -129,14 +129,22 @@ def cache_data(cfg: DictConfig, worker: WorkerPool) -> None:
         sensor_config=SensorConfig.build_no_sensors(),
     )
 
-    data_points = [
-        {
-            "cfg": cfg,
-            "log_file": log_file,
-            "tokens": tokens_list,
-        }
-        for log_file, tokens_list in scene_loader.get_tokens_list_per_log().items()
-    ]
+    # ``worker_map`` balances the number of input objects, while logs contain
+    # very different numbers of scenes.  Split large logs into bounded token
+    # chunks first so each worker receives a similar scenario count.
+    tokens_per_task = int(os.getenv("NAVSIM_CACHE_TOKENS_PER_TASK", "128"))
+    if tokens_per_task <= 0:
+        raise ValueError("NAVSIM_CACHE_TOKENS_PER_TASK must be positive")
+    data_points = []
+    for log_file, tokens_list in scene_loader.get_tokens_list_per_log().items():
+        for start in range(0, len(tokens_list), tokens_per_task):
+            data_points.append(
+                {
+                    "cfg": cfg,
+                    "log_file": log_file,
+                    "tokens": tokens_list[start : start + tokens_per_task],
+                }
+            )
     logger.info("Starting metric caching of %s files...", str(len(data_points)))
 
     cache_results =worker_map(worker, cache_scenarios, data_points)

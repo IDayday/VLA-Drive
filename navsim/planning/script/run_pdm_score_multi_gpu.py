@@ -21,7 +21,7 @@ import uuid
 from dataclasses import fields
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 from dataclasses import asdict
 
 import hydra

@@ -5,6 +5,7 @@ from transformers import AutoConfig, AutoModel, AutoTokenizer
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
 from .utils.conversation import get_conv_template
+from .utils.internvl_tokenize import build_internvl_model_inputs
 
 IMG_CONTEXT_TOKEN = '<IMG_CONTEXT>'
 IMG_START_TOKEN = '<img>'
@@ -34,7 +35,9 @@ class DriveVLABackbone(nn.Module):
                  extra_token_count: int = 0,
                  target_vocab_size: Optional[int] = None,
                  use_flash_attn: bool = True,
-                 initialize_from_config: bool = False):
+                 initialize_from_config: bool = False,
+                 skip_lm_head: bool = False,
+                 gradient_checkpointing: bool = False):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -49,6 +52,7 @@ class DriveVLABackbone(nn.Module):
         self.tokenizer = None  
         self.model_type = model_type.lower()
         self.device = device
+        self.skip_lm_head = skip_lm_head
 
         print(f"Initializing DriveVLA-M0 backbone of type: '{self.model_type}' from path: '{checkpoint_path}'")
 
@@ -104,6 +108,8 @@ class DriveVLABackbone(nn.Module):
                 )
             # Load model-specific configuration
             self._configure_internvl()
+            if gradient_checkpointing:
+                self._enable_internvl_gradient_checkpointing()
             self.num_image_token = 256
 
         elif self.model_type == 'qwen':
@@ -130,31 +136,104 @@ class DriveVLABackbone(nn.Module):
         self.img_context_token_id = self.tokenizer.convert_tokens_to_ids(IMG_CONTEXT_TOKEN)
         self.model.img_context_token_id = self.img_context_token_id
         print("InternVL model configured.")
+
+    def _enable_internvl_gradient_checkpointing(self) -> None:
+        """Enable activation checkpointing for full VLM fine-tuning."""
+        vision_model = self.model.vision_model
+        if hasattr(vision_model, "gradient_checkpointing"):
+            vision_model.gradient_checkpointing = True
+        if hasattr(vision_model, "encoder") and hasattr(
+            vision_model.encoder, "gradient_checkpointing"
+        ):
+            vision_model.encoder.gradient_checkpointing = True
+
+        language_model = self.model.language_model
+        if hasattr(language_model, "gradient_checkpointing_enable"):
+            language_model.gradient_checkpointing_enable()
+        elif hasattr(language_model, "_set_gradient_checkpointing"):
+            language_model._set_gradient_checkpointing()
+        language_model.config.use_cache = False
+        print("Enabled InternVL vision and language gradient checkpointing.")
+
+    def _forward_internvl_without_lm_head(
+        self,
+        pixel_values: torch.Tensor,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        position_ids: torch.Tensor,
+        image_flags: torch.Tensor,
+    ):
+        """Return decoder hidden states without materializing vocabulary logits.
+
+        DriveVLA consumes only the final hidden state. Calling the causal-LM
+        wrapper would still execute its 151k-way ``lm_head`` even though the
+        logits are discarded, wasting both compute and activation memory.
+        """
+        internvl_model = self.model
+        image_flags = image_flags.squeeze(-1)
+        input_embeds = internvl_model.language_model.get_input_embeddings()(
+            input_ids
+        ).clone()
+
+        vit_embeds = internvl_model.extract_feature(pixel_values)
+        vit_embeds = vit_embeds[image_flags == 1]
+        batch_size, sequence_length, hidden_size = input_embeds.shape
+        flat_input_embeds = input_embeds.reshape(-1, hidden_size)
+        flat_input_ids = input_ids.reshape(-1)
+        selected = flat_input_ids == internvl_model.img_context_token_id
+        flat_vit_embeds = vit_embeds.reshape(-1, hidden_size).to(
+            flat_input_embeds.device
+        )
+        if int(selected.sum()) != flat_vit_embeds.shape[0]:
+            raise RuntimeError(
+                "InternVL image-token mismatch while bypassing lm_head: "
+                f"prompt has {int(selected.sum())} image tokens but vision "
+                f"encoder produced {flat_vit_embeds.shape[0]} tokens"
+            )
+        flat_input_embeds[selected] = (
+            flat_input_embeds[selected] * 0.0 + flat_vit_embeds
+        )
+        input_embeds = flat_input_embeds.reshape(
+            batch_size, sequence_length, hidden_size
+        )
+
+        decoder = getattr(internvl_model.language_model, "model", None)
+        if decoder is None:
+            raise RuntimeError(
+                "skip_lm_head requires a causal language model exposing its "
+                "decoder as `.model`"
+            )
+        return decoder(
+            inputs_embeds=input_embeds,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            use_cache=False,
+            output_hidden_states=True,
+            return_dict=True,
+        )
     
-    def forward(self, pixel_values: torch.Tensor, questions: List[str], num_patches_list: List[int],return_vision=False):
+    def forward(
+        self,
+        pixel_values: torch.Tensor,
+        questions: List[str],
+        num_patches_list: List[int],
+        return_vision=False,
+        model_inputs=None,
+    ):
         if not self.model:
             raise RuntimeError("Backbone model has not been initialized. Call initialize() on the agent first.")
             
-        queries = []
-        for idx, num_patches in enumerate(num_patches_list):
-            question = questions[idx]
-            if pixel_values is not None and '<image>' not in question:
-                question = '<image>\n' + question
-            
-            template = get_conv_template("internvl2_5")
-            template.system_message = system_message
-            template.append_message(template.roles[0], question)
-            template.append_message(template.roles[1], None)
-            query = template.get_prompt()
-
-            image_tokens = IMG_START_TOKEN + IMG_CONTEXT_TOKEN * self.num_image_token * num_patches + IMG_END_TOKEN
-            query = query.replace('<image>', image_tokens, 1)
-            queries.append(query)
-        self.tokenizer.padding_side = 'left'
-        model_inputs = self.tokenizer(queries, return_tensors='pt', padding='max_length', max_length=2800)
-        device = torch.device('cuda')
-        input_ids = model_inputs['input_ids'].to(device)
-        attention_mask = model_inputs['attention_mask'].to(device)
+        if model_inputs is None:
+            model_inputs = build_internvl_model_inputs(
+                self.tokenizer,
+                questions,
+                num_patches_list,
+                system_message,
+                self.num_image_token,
+            )
+        device = pixel_values.device
+        input_ids = model_inputs['input_ids'].to(device, non_blocking=True)
+        attention_mask = model_inputs['attention_mask'].to(device, non_blocking=True)
 
         position_ids = attention_mask.long().cumsum(-1) - 1
         position_ids.masked_fill_(attention_mask == 0, 1)
@@ -169,6 +248,14 @@ class DriveVLABackbone(nn.Module):
                 return_dict=True,
             )
         else:
+            if self.skip_lm_head:
+                return self._forward_internvl_without_lm_head(
+                    pixel_values=pixel_values.bfloat16(),
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    image_flags=image_flags,
+                )
             return self.model(
                     pixel_values=pixel_values.bfloat16(),
                     input_ids=input_ids,
