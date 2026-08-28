@@ -1,0 +1,58 @@
+experiment: shared_future_candidate_consequence_gate_c
+stage: oracle_decomposition
+split: trainval
+seed: 20260828
+
+dataset:
+  selection: all_available_logs_cap_50_scenes_per_log
+  log_level_folds: 5
+  num_candidates: 16
+  actor_slots: 16
+  horizons_s: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+  current_conditioning:
+    scene_summary: true
+    actor_state: true
+    coordinate_frame: current_ego
+    structured_oracle_only: true
+  traffic_policy: non_reactive
+
+groups:
+  - O0
+  - O1
+  - O2
+  - O3
+  - O4
+  - O5
+  - O6
+  - O7
+  - O8
+  - O9
+  - O10
+  - O11
+  - O12
+  - O13
+
+models: [linear, mlp]
+training:
+  objective: same_scene_pairwise_ranking
+  epochs: 15
+  batch_scenes: 512
+  mlp_target_parameters: 120000
+  factor_auxiliary_weight: 0.15
+  progress_auxiliary_weight: 0.05
+
+gate_c1:
+  minimum_pairwise_gain: 0.03
+  bootstrap_ci_lower_above_zero: true
+  minimum_top1_regret_reduction: 0.20
+  minimum_state_recomputed_risk_retention: 0.40
+  require_collision_or_ttc_gain: true
+  require_shuffle_and_noise_controls: true
+  require_positive_heldout_candidate_family_gain: true
+
+inference_forbidden:
+  - official_score
+  - official_factor
+  - future_image
+  - future_annotation
+  - future_gt_trajectory

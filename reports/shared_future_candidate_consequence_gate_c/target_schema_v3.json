@@ -1,0 +1,218 @@
+{
+  "actual_scene_count": 45377,
+  "actual_scene_success_rate": 0.9999779628895059,
+  "expected_scene_count": 45378,
+  "explicit_exclusions": [
+    "candidate future x/y/heading copies from consequence groups",
+    "candidate index/type/family",
+    "official PDM aggregate score",
+    "official PDM factor columns",
+    "GT future image for non-GT candidates"
+  ],
+  "groups": {
+    "D_risk": {
+      "available_as_ground_truth_at_inference": false,
+      "candidate_direct": false,
+      "depends_on_logged_future": true,
+      "depends_on_static_map": false,
+      "fields": [
+        "any_actor_collision",
+        "instantaneous_min_ttc_s",
+        "soft_collision_probability",
+        "min_dynamic_clearance_m",
+        "risk_onset_time_s"
+      ],
+      "inference_available": "predicted/recomputed only",
+      "note": "physical geometry/TTC labels; no official aggregate or factor score",
+      "official_metric_proxy": true,
+      "shape": [
+        "K",
+        8,
+        5
+      ],
+      "training_only_target": true
+    },
+    "D_signal": {
+      "available_as_ground_truth_at_inference": false,
+      "candidate_direct": false,
+      "depends_on_logged_future": true,
+      "depends_on_static_map": true,
+      "fields": [
+        "red_light_polygon_clearance_m",
+        "red_light_polygon_intersection",
+        "future_signal_valid_mask"
+      ],
+      "inference_available": "predicted only",
+      "official_metric_proxy": true,
+      "shape": [
+        "K",
+        8,
+        3
+      ],
+      "training_only_target": true
+    },
+    "D_state": {
+      "actor_fields": [
+        "object_type_id",
+        "relative_x_m",
+        "relative_y_m",
+        "relative_vx_mps",
+        "relative_vy_mps",
+        "relative_heading_rad",
+        "length_m",
+        "width_m",
+        "polygon_clearance_m",
+        "in_candidate_corridor"
+      ],
+      "actor_shape": [
+        "K",
+        8,
+        16,
+        10
+      ],
+      "available_as_ground_truth_at_inference": false,
+      "candidate_direct": false,
+      "depends_on_logged_future": true,
+      "depends_on_static_map": false,
+      "inference_available": "predicted only",
+      "official_metric_proxy": false,
+      "summary_fields": [
+        "min_actor_polygon_clearance_m",
+        "min_actor_center_distance_m",
+        "candidate_corridor_actor_count",
+        "nearest_actor_relative_x_m",
+        "nearest_actor_relative_y_m"
+      ],
+      "summary_shape": [
+        "K",
+        8,
+        5
+      ],
+      "training_only_target": true
+    },
+    "K_exact": {
+      "candidate_direct": true,
+      "depends_on_logged_future": false,
+      "depends_on_static_map": false,
+      "fields": [
+        "speed_mps",
+        "acceleration_mps2",
+        "yaw_rate_radps",
+        "curvature_1pm",
+        "jerk_mps3",
+        "terminal_displacement_m"
+      ],
+      "inference_available": true,
+      "official_metric_proxy": false,
+      "shape": [
+        "K",
+        8,
+        6
+      ],
+      "training_only": false
+    },
+    "S_static": {
+      "candidate_direct": false,
+      "depends_on_logged_future": false,
+      "depends_on_static_map": true,
+      "fields": [
+        "drivable_area_valid",
+        "oncoming_lane",
+        "intersection",
+        "centerline_lateral_offset_m",
+        "centerline_heading_error_rad",
+        "route_progress_m"
+      ],
+      "inference_available": false,
+      "official_metric_proxy": true,
+      "oracle_only_reason": "EpisodeDrive baseline does not consume HD map geometry",
+      "shape": [
+        "K",
+        8,
+        6
+      ],
+      "training_only": true
+    },
+    "current_actor_state": {
+      "candidate_direct": false,
+      "coordinate_frame": "current ego frame",
+      "depends_on_logged_future": false,
+      "depends_on_static_map": false,
+      "fields": [
+        "object_type_id",
+        "current_ego_x_m",
+        "current_ego_y_m",
+        "current_ego_vx_mps",
+        "current_ego_vy_mps",
+        "current_ego_heading_rad",
+        "length_m",
+        "width_m"
+      ],
+      "inference_available": false,
+      "official_metric_proxy": false,
+      "oracle_only_reason": "structured current annotations are not direct EpisodeDrive inputs; the deployable model must infer equivalent information from current images",
+      "shape": [
+        16,
+        8
+      ],
+      "training_only": false,
+      "valid_mask": "current_actor_mask"
+    },
+    "shared_actor_future": {
+      "available_as_ground_truth_at_inference": false,
+      "candidate_direct": false,
+      "coordinate_frame": "current ego frame",
+      "depends_on_logged_future": true,
+      "depends_on_static_map": false,
+      "fields": [
+        "object_type_id",
+        "current_ego_x_m",
+        "current_ego_y_m",
+        "current_ego_vx_mps",
+        "current_ego_vy_mps",
+        "current_ego_heading_rad",
+        "length_m",
+        "width_m"
+      ],
+      "inference_available": "predicted once only",
+      "new_actor_representation": "shared_new_actor_count residual",
+      "official_metric_proxy": false,
+      "shape": [
+        8,
+        16,
+        8
+      ],
+      "slot_assignment": "current-time actor distance then stable token hash",
+      "training_only_target": true
+    }
+  },
+  "horizons_s": [
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    3.5,
+    4.0
+  ],
+  "inference_input_contract": {
+    "allowed": [
+      "current images/history used by EpisodeDrive",
+      "current ego state",
+      "navigation command",
+      "candidate trajectory"
+    ],
+    "forbidden": [
+      "future image",
+      "future annotation",
+      "logged future",
+      "future GT trajectory",
+      "official score/factors"
+    ]
+  },
+  "schema_version": "3.0.0",
+  "storage_layout": "one subdirectory per log; one compressed NPZ per scene",
+  "target_cache_dir": "/mnt/project/DriveVLA-M0-gate-c/outputs/shared_future_candidate_consequence_gate_c/all/targets_v3",
+  "traffic_policy": "non_reactive logged future"
+}

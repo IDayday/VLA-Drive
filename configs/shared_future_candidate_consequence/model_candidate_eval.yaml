@@ -1,0 +1,33 @@
+experiment: shared_future_candidate_consequence_gate_c
+stage: frozen_episode_drive_candidate_eval
+split: trainval
+seed: 20260828
+
+checkpoint:
+  expected_sha256: 7f7ce61b9492936d9af15c7bb68dc57d53c6629fccd23ac5ae530058286a807d
+  frozen: true
+
+sampling:
+  logs: all_available
+  scenes_per_log: 2
+  raw_proposals: 64
+  retained_candidates: 16
+  force_insert_gt: false
+  deterministic_shuffle: true
+  retain:
+    baseline_high: 5
+    geometry_farthest_until: 11
+    close_geometry_different_offline_outcome_until: 15
+    fill: baseline_then_farthest
+
+cached_current_inputs:
+  scene_features: [16, 256]
+  ego_token: [1, 256]
+  proposals: [64, 8, 3]
+  dtype: float16
+
+offline_only:
+  - official_pdm_score
+  - official_pdm_factors
+  - future_actor_target
+  - candidate_relative_consequence

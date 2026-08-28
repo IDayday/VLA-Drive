@@ -1,0 +1,86 @@
+{
+  "cuda": {
+    "available": true,
+    "device_count": 8,
+    "devices": [
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB",
+      "NVIDIA A800-SXM4-80GB"
+    ]
+  },
+  "git": {
+    "base_commit_required": "6e96cf7321b134c42c2cf0fbbc315cd61c925b11",
+    "base_is_ancestor": true,
+    "branch": "feature/shared-future-candidate-consequence-gate-c",
+    "head": "6e96cf7321b134c42c2cf0fbbc315cd61c925b11",
+    "remotes": "origin\tgit@github.com:IDayday/VLA-Drive.git (fetch)\norigin\tgit@github.com:IDayday/VLA-Drive.git (push)\nupstream\thttps://github.com/ZebinX/DriveVLA-M0.git (fetch)\nupstream\tDISABLED (push)",
+    "status_short": "?? reports/shared_future_candidate_consequence_gate_c/\n?? tools/shared_future_candidate_consequence/"
+  },
+  "host": "training-vla-zt2-worker-0",
+  "compute_hosts": [
+    {
+      "role": "EpisodeDrive feature/proposal export and target post-processing",
+      "host": "training-vla-zt2-worker-0",
+      "python": "3.10.20",
+      "gpu_type": "NVIDIA A800-SXM4-80GB"
+    },
+    {
+      "role": "all-log candidate scoring and four-GPU oracle probes",
+      "host": "training-rl-zt3-worker-0",
+      "python": "3.9.25",
+      "torch": "2.5.1+cu124",
+      "numpy": "1.26.4",
+      "allocated_gpu_indices": [3, 5, 6, 7],
+      "gpu_type": "NVIDIA A800-SXM4-80GB"
+    }
+  ],
+  "packages": {
+    "navsim": {
+      "path": "/mnt/project/DriveVLA-M0-gate-c/navsim/__init__.py",
+      "version": null
+    },
+    "numpy": {
+      "path": "/root/miniconda3/envs/navsim/lib/python3.10/site-packages/numpy/__init__.py",
+      "version": "1.26.4"
+    },
+    "nuplan": {
+      "path": "/root/miniconda3/envs/navsim/lib/python3.10/site-packages/nuplan/__init__.py",
+      "version": null
+    },
+    "pandas": {
+      "path": "/root/miniconda3/envs/navsim/lib/python3.10/site-packages/pandas/__init__.py",
+      "version": "2.3.3"
+    },
+    "torch": {
+      "path": "/root/miniconda3/envs/navsim/lib/python3.10/site-packages/torch/__init__.py",
+      "version": "2.5.1+cu124"
+    }
+  },
+  "paths": {
+    "devkit_root": "/mnt/project/DriveVLA-M0-gate-c",
+    "log_path": "/mnt/navsim/trainval_navsim_logs/trainval",
+    "map_path": "/mnt/navsim/maps",
+    "metric_cache_path": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full",
+    "navsim_exp_root": "/mnt/project/DriveVLA-M0-gate-c/outputs",
+    "repo_root": "/mnt/project/DriveVLA-M0-gate-c",
+    "sensor_blobs_path": "/mnt/navsim/trainval_all/trainval_sensor_blobs/trainval",
+    "split": "trainval",
+    "synthetic_scene_path": "/mnt/navsim/warmup_two_stage/synthetic_scene_pickles",
+    "synthetic_sensor_path": "/mnt/navsim/warmup_two_stage/sensor_blobs",
+    "v2_devkit_root": "/mnt/project/DriveDreamer-Policy/navsim"
+  },
+  "privacy_note": "Only allowlisted environment metadata is recorded; credentials are not inspected.",
+  "project_path": "/mnt/project/DriveVLA-M0-gate-c",
+  "python": {
+    "executable": "/root/miniconda3/envs/navsim/bin/python",
+    "platform": "Linux-5.10.0-136.12.0.88.4.ctl3.x86_64-x86_64-with-glibc2.35",
+    "version": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]"
+  },
+  "split": "trainval",
+  "timestamp_utc": "2026-08-28T17:46:43Z"
+}
