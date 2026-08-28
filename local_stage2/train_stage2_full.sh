@@ -21,11 +21,34 @@ export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 export NUMEXPR_NUM_THREADS="${NUMEXPR_NUM_THREADS:-1}"
 
+stress_guard_pid=""
+
+cleanup() {
+  status=$?
+  if [[ -n "${stress_guard_pid}" ]]; then
+    kill "${stress_guard_pid}" 2>/dev/null || true
+  fi
+  printf 'TRAIN_LAUNCH_EXIT timestamp=%s status=%d\n' \
+    "$(date -u +%FT%TZ)" "${status}"
+}
+
+handle_signal() {
+  signal_name="$1"
+  exit_status="$2"
+  printf 'TRAIN_LAUNCH_SIGNAL timestamp=%s signal=%s\n' \
+    "$(date -u +%FT%TZ)" "${signal_name}" >&2
+  exit "${exit_status}"
+}
+
+trap cleanup EXIT
+trap 'handle_signal HUP 129' HUP
+trap 'handle_signal INT 130' INT
+trap 'handle_signal TERM 143' TERM
+
 # The machine's synthetic GPU pressure job can be relaunched while Lightning
 # spends time constructing all DDP ranks.  The user explicitly authorized
 # stopping only this script.  Keep a narrowly matched guard alive for the
 # lifetime of training so it cannot race a rank onto an otherwise free GPU.
-stress_guard_pid=""
 if [[ "${DRIVEVLA_KILL_GPU_STRESS:-1}" == "1" ]]; then
   guard_gpu_stress() {
     while true; do
@@ -56,7 +79,6 @@ if [[ "${DRIVEVLA_KILL_GPU_STRESS:-1}" == "1" ]]; then
   }
   guard_gpu_stress &
   stress_guard_pid=$!
-  trap 'kill "${stress_guard_pid}" 2>/dev/null || true' EXIT
 fi
 
 STAGE2_EXPERIMENT="${STAGE2_EXPERIMENT:-stage2_full_seed0}"

@@ -15,7 +15,7 @@ eval_experiment="$4"
 poll_seconds="${DRIVEVLA_WATCH_POLL_SECONDS:-60}"
 expected_steps="${DRIVEVLA_EXPECTED_FINAL_STEP:-174312}"
 expected_epoch="${DRIVEVLA_EXPECTED_FINAL_EPOCH:-26}"
-training_dir="${DRIVEVLA_STAGE2_RUN_ROOT}/training/${train_experiment}"
+training_dir="${DRIVEVLA_TRAINING_DIR:-${DRIVEVLA_STAGE2_RUN_ROOT}/training/${train_experiment}}"
 watch_log="${training_dir}/train_then_evaluate.log"
 
 mkdir -p "${training_dir}"

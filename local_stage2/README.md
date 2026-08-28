@@ -71,9 +71,16 @@ Run in order:
 ```bash
 ./local_stage2/cache_full_navtrain.sh
 ./local_stage2/smoke_stage2.sh
-./local_stage2/train_stage2_full.sh
+./local_stage2/launch_stage2_full.sh
 ./local_stage2/evaluate_checkpoint.sh CHECKPOINT stage2_full_seed0_navtest
 ```
+
+`launch_stage2_full.sh` is the production entrypoint. It starts both training
+and the completion/evaluation watcher under independent `setsid` + `nohup`
+sessions, records their PIDs in `launcher_state.env`, and refuses to reuse a
+nonempty run directory or GPUs owned by unrelated processes. Directly invoking
+`train_stage2_full.sh` remains useful for foreground debugging, but a foreground
+tool or terminal session must not own a multi-day run.
 
 If metric caching already completed and only feature caching was interrupted,
 resume directly with `./local_stage2/cache_navtrain_features.sh`.
@@ -132,8 +139,11 @@ processes and retaining eight partitions per scene measured 0.700, 0.704,
 (approximately 0.719 seconds per step on average). This is about 1.72x training
 throughput without changing the global batch or training schedule.
 
-The active 27-epoch reproduction is stored under
-`/mnt/project/DriveVLA-M0-stage2/runs/training/stage2_full_seed0_pipeline_v7`.
+The prior `stage2_full_seed0_pipeline_v7` run was attached to a foreground tool
+session and was terminated when that session closed at epoch 0, step 3,649. It
+did not fail from OOM, NCCL, GPU, or training-code errors and produced no
+checkpoint. The detached restart is stored under
+`/mnt/project/DriveVLA-M0-stage2/runs/training/stage2_full_seed0_pipeline_v8_restart`.
 After the automatic full Navtest evaluation, `evaluate_checkpoint.sh` validates
 all 12,146 rows, checks that the candidate and public Base token sets are
 identical, hashes the evaluated checkpoint and CSV, and writes a machine-readable
