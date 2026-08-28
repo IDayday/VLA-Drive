@@ -1,0 +1,52 @@
+{
+  "batch_note": "The deployed pdm_score API evaluates a candidate plus the fixed PDM reference. Candidates remain individually scored because proposal-set progress normalization makes all-K scorer batching a different protocol; the simulator itself is batch-capable.",
+  "candidate_count": 768,
+  "criteria": {
+    "candidate_factor_difference_exists": true,
+    "candidate_order_preserved": true,
+    "deterministic_repeat": true,
+    "gt_coordinate_alignment": true,
+    "legal_candidate_success_rate_gt_98pct": true,
+    "state_horizon_alignment": true
+  },
+  "factor_diverse_scene_count": 55,
+  "failures": [],
+  "gate_b": "PASS",
+  "gt_score_statistics": {
+    "25%": 0.9088457096399137,
+    "50%": 0.9575336576449167,
+    "75%": 1.0,
+    "count": 64.0,
+    "max": 1.0,
+    "mean": 0.9427005500950112,
+    "min": 0.699443492623794,
+    "std": 0.06682208590222179
+  },
+  "normalization_note": "Each cached candidate was scored with the same PDM-closed reference proposal. No across-scene max-progress normalization is used as a training label. Official ego_progress remains an official within-call normalized factor.",
+  "repeat_verification": {
+    "cached_metric_abs_errors": {
+      "minimum_dynamic_clearance_m": 0.0,
+      "no_at_fault_collision": 0.0,
+      "pdm_score": 0.0,
+      "time_to_collision_within_bound": 0.0,
+      "traffic_light_compliance": 0.0
+    },
+    "cached_state_float32_max_abs_error": 0.0,
+    "cached_state_max_abs_error": 0.12127027381211519,
+    "deterministic": true,
+    "performed": true,
+    "repeat_count": 2,
+    "repeat_metric_max_abs_error": 0.0,
+    "repeat_state_max_abs_error": 0.0
+  },
+  "runtime": {
+    "import_path": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit/navsim/navsim/__init__.py",
+    "is_v1": false,
+    "requested_root": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit/navsim",
+    "setup_version": "2.0.0"
+  },
+  "scene_count": 64,
+  "success_count": 768,
+  "success_rate": 1.0,
+  "traffic_policy": "non_reactive"
+}

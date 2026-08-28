@@ -1,0 +1,1957 @@
+{
+  "audited_scene_count": 500,
+  "errors": [],
+  "evidence_scene_tokens": [
+    "ca431d66e6fb5f40",
+    "38f54eed7c345401",
+    "d455f37505485c0a",
+    "fc5dab3765cc5dbd",
+    "c363c3c93d6f5507",
+    "712d6e7fc2f95399",
+    "ee63445cc4e05693",
+    "8e7c5acbb11c580b",
+    "b72fbc4a60525083",
+    "4f1a1471060c5aad",
+    "088bb69d29df5e94",
+    "4cc63d64d58a56eb",
+    "6962608815c85c20",
+    "bb75f7a9180258d8",
+    "7e09f3f3008d5315",
+    "6b562e7917de5bfb"
+  ],
+  "failure_count": 0,
+  "field_coverage": {
+    "annotations_available": 1.0,
+    "camera_extrinsics_available": 1.0,
+    "camera_intrinsics_available": 1.0,
+    "centerline_available": 1.0,
+    "current_ego_dynamic_state_available": 1.0,
+    "current_ego_pose_available": 1.0,
+    "drivable_area_available": 1.0,
+    "future_actor_frames_available": 1.0,
+    "future_actor_track_token_coverage": 1.0,
+    "future_actor_velocity_coverage": 1.0,
+    "future_cam_f0_coverage": 1.0,
+    "future_lidar_coverage": 1.0,
+    "gt_future_4s_available": 1.0,
+    "map_available": 1.0,
+    "metric_cache_loaded": 1.0,
+    "metric_track_transition_continuity": 0.9917783497438117,
+    "raw_track_transition_continuity": 0.9392960154631158,
+    "route_available": 1.0,
+    "scene_object_attempt_coverage": 0.016,
+    "scene_object_attempted": 0.016,
+    "scene_object_loaded_given_attempted": 1.0,
+    "traffic_light_field_available": 1.0,
+    "traffic_light_nonempty": 0.502
+  },
+  "inventory_samples": {
+    "MetricCache": {
+      "attributes": {
+        "centerline": {
+          "python_type": "navsim.planning.simulation.planner.pdm_planner.utils.pdm_path.PDMPath"
+        },
+        "current_tracked_objects": {
+          "length": 1,
+          "python_type": "builtins.list"
+        },
+        "drivable_area_map": {
+          "python_type": "navsim.planning.simulation.planner.pdm_planner.observation.pdm_occupancy_map.PDMDrivableMap"
+        },
+        "ego_state": {
+          "python_type": "nuplan.common.actor_state.ego_state.EgoState"
+        },
+        "file_path": {
+          "python_type": "pathlib.PosixPath"
+        },
+        "future_tracked_objects": {
+          "length": 40,
+          "python_type": "builtins.list"
+        },
+        "human_trajectory": {
+          "python_type": "navsim.common.dataclasses.Trajectory"
+        },
+        "log_name": {
+          "python_type": "builtins.str"
+        },
+        "map_parameters": {
+          "python_type": "navsim.planning.metric_caching.metric_cache.MapParameters"
+        },
+        "observation": {
+          "python_type": "navsim.planning.simulation.planner.pdm_planner.observation.pdm_observation.PDMObservation"
+        },
+        "past_detections_tracks": {
+          "length": 3,
+          "python_type": "builtins.list"
+        },
+        "past_human_trajectory": {
+          "python_type": "nuplan.planning.simulation.trajectory.interpolated_trajectory.InterpolatedTrajectory"
+        },
+        "route_lane_ids": {
+          "length": 96,
+          "python_type": "builtins.list"
+        },
+        "scene_type": {
+          "python_type": "navsim.common.enums.SceneFrameType"
+        },
+        "timepoint": {
+          "python_type": "nuplan.common.actor_state.state_representation.TimePoint"
+        },
+        "trajectory": {
+          "python_type": "nuplan.planning.simulation.trajectory.interpolated_trajectory.InterpolatedTrajectory"
+        }
+      },
+      "class": "navsim.planning.metric_caching.metric_cache.MetricCache",
+      "future_track_count": 40,
+      "observation_track_count": 41,
+      "observation_traffic_light_evidence": {
+        "_detections_tracks": {
+          "length": 41,
+          "python_type": "builtins.list"
+        },
+        "_red_light_token": {
+          "python_type": "builtins.str"
+        }
+      },
+      "sample_current_object": {
+        "box_lwh_m": [
+          4.664567470550537,
+          1.9373369216918945,
+          2.091590642929077
+        ],
+        "center_global": [
+          664458.0803030892,
+          3997781.5519086407,
+          1.5972288557934884
+        ],
+        "class": "nuplan.common.actor_state.agent.Agent",
+        "instance_token": "None",
+        "object_type": "TrackedObjectType.VEHICLE",
+        "track_token": "913a5f4d380d57b1",
+        "velocity_global": [
+          -0.21614832817319338,
+          7.371912822902722
+        ]
+      }
+    },
+    "Scene": {
+      "annotations": {
+        "boxes": {
+          "dtype": "float64",
+          "python_type": "numpy.ndarray",
+          "shape": [
+            120,
+            7
+          ]
+        },
+        "instance_tokens": {
+          "length": 120,
+          "python_type": "builtins.list"
+        },
+        "names": {
+          "dtype": "<U14",
+          "python_type": "numpy.ndarray",
+          "shape": [
+            120
+          ]
+        },
+        "track_tokens": {
+          "length": 120,
+          "python_type": "builtins.list"
+        },
+        "velocity_3d": {
+          "dtype": "float64",
+          "python_type": "numpy.ndarray",
+          "shape": [
+            120,
+            3
+          ]
+        }
+      },
+      "class": "navsim.common.dataclasses.Scene",
+      "frame": {
+        "annotations": {
+          "python_type": "navsim.common.dataclasses.Annotations"
+        },
+        "cameras": {
+          "python_type": "navsim.common.dataclasses.Cameras"
+        },
+        "ego_status": {
+          "python_type": "navsim.common.dataclasses.EgoStatus"
+        },
+        "lidar": {
+          "python_type": "navsim.common.dataclasses.Lidar"
+        },
+        "roadblock_ids": {
+          "length": 20,
+          "python_type": "builtins.list"
+        },
+        "timestamp": {
+          "python_type": "builtins.int"
+        },
+        "token": {
+          "python_type": "builtins.str"
+        },
+        "traffic_lights": {
+          "length": 12,
+          "python_type": "builtins.list"
+        }
+      },
+      "scene_metadata": {
+        "corresponding_original_initial_token": {
+          "is_none": true,
+          "python_type": "builtins.NoneType"
+        },
+        "corresponding_original_scene": {
+          "is_none": true,
+          "python_type": "builtins.NoneType"
+        },
+        "initial_token": {
+          "python_type": "builtins.str"
+        },
+        "log_name": {
+          "python_type": "builtins.str"
+        },
+        "map_name": {
+          "python_type": "builtins.str"
+        },
+        "num_future_frames": {
+          "python_type": "builtins.int"
+        },
+        "num_history_frames": {
+          "python_type": "builtins.int"
+        },
+        "scene_token": {
+          "python_type": "builtins.str"
+        }
+      },
+      "sensor_config": "navsim.common.dataclasses.SensorConfig"
+    }
+  },
+  "object_type_counts": {
+    "barrier": 4972,
+    "bicycle": 814,
+    "czone_sign": 609,
+    "generic_object": 147174,
+    "pedestrian": 75159,
+    "traffic_cone": 22648,
+    "vehicle": 88559
+  },
+  "paths": {
+    "action_effect_root": "/mnt/workspace/project/DriveDreamer-Policy/action_effect_cache",
+    "candidate_cache": "/mnt/workspace/project/DriveDreamer-Policy/action_effect_cache/candidates/pilot_small/expert_phase6_v1",
+    "consequence_cache": "/mnt/workspace/project/DriveDreamer-Policy/action_effect_cache/consequences/pilot_small/expert_phase6_v1",
+    "datalist": "/mnt/workspace/project/DriveDreamer-Policy/train_meta.json",
+    "effect_tube_cache": "/mnt/workspace/project/DriveDreamer-Policy/action_effect_cache/effect_tube/pilot_small/expert_log_replay_32_phase6_v1",
+    "experiment_root": "/mnt/workspace/project/DriveDreamer-Policy/navsim_exp",
+    "logs_root": "/mnt/data_and_weight/Public_Space/navsim/trainval_navsim_logs/trainval",
+    "maps_root": "/mnt/data_and_weight/Public_Space/navsim/maps",
+    "metric_cache": "/mnt/workspace/project/DriveDreamer-Policy/action_effect_cache/metric_cache/pilot_small/train_phase6_v1",
+    "navsim_devkit": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit/navsim",
+    "navsim_v1_devkit": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit/navsim_v1.1/navsim",
+    "primary_checkout": "/mnt/workspace/project/DriveDreamer-Policy",
+    "processed_root": "/mnt/workspace/project/DriveDreamer-Policy/navsim_dataset",
+    "public_root": "/mnt/workspace/project/DriveDreamer-Policy/navsim_dataset_raw",
+    "repository": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit",
+    "sensors_root": "/mnt/data_and_weight/Public_Space/navsim/trainval_all/trainval_sensor_blobs/trainval",
+    "synthetic_scenes": "/mnt/data_and_weight/Public_Space/navsim/navhard_two_stage/synthetic_scene_pickles",
+    "synthetic_sensors": "/mnt/data_and_weight/Public_Space/navsim/navhard_two_stage/sensor_blobs"
+  },
+  "requested_scene_count": 500,
+  "runtime": {
+    "import_path": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit/navsim/navsim/__init__.py",
+    "is_v1": false,
+    "requested_root": "/mnt/workspace/project/DriveDreamer-Policy-navsim-candidate-relative-audit/navsim",
+    "setup_version": "2.0.0"
+  },
+  "sensor_evidence": [
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00215_00405/CAM_F0/aea51c3b17f55616.jpg",
+          "timestamp": 1620848501900609
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00215_00405/CAM_F0/f07822b706fc5524.jpg",
+          "timestamp": 1620848502400429
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00215_00405/CAM_F0/0518d48779b75ec0.jpg",
+          "timestamp": 1620848502900446
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00215_00405/CAM_F0/d52d6f2b5de057bc.jpg",
+          "timestamp": 1620848503900716
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00215_00405/CAM_F0/9b226d1558f4554b.jpg",
+          "timestamp": 1620848505901445
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "ca431d66e6fb5f40",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/e8e72fe16e4e501f.jpg",
+          "timestamp": 1620848708401030
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/2e8f45a55ee15c1a.jpg",
+          "timestamp": 1620848708901201
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/53487152360b5234.jpg",
+          "timestamp": 1620848709401406
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/dbaac23be0665d4f.jpg",
+          "timestamp": 1620848710401769
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/3b7cd56cd97d5936.jpg",
+          "timestamp": 1620848712400271
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "38f54eed7c345401",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/74d2a823491052ca.jpg",
+          "timestamp": 1620848707400526
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/f58a6f55a16f5b50.jpg",
+          "timestamp": 1620848707900856
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/e8e72fe16e4e501f.jpg",
+          "timestamp": 1620848708401030
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/53487152360b5234.jpg",
+          "timestamp": 1620848709401406
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00416_00557/CAM_F0/e4dbda0d0b6d5404.jpg",
+          "timestamp": 1620848711401014
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "d455f37505485c0a",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/ae51b067a9155bd9.jpg",
+          "timestamp": 1620848896901110
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/7fd6fcd38f855e0c.jpg",
+          "timestamp": 1620848897401294
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/c0f387386ef5578f.jpg",
+          "timestamp": 1620848897901501
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/eb25962d23995508.jpg",
+          "timestamp": 1620848898901268
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/d9e5c3a59fe15cc9.jpg",
+          "timestamp": 1620848900900649
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "fc5dab3765cc5dbd",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/a2b9710c7e76520d.jpg",
+          "timestamp": 1620848896400944
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/ae51b067a9155bd9.jpg",
+          "timestamp": 1620848896901110
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/7fd6fcd38f855e0c.jpg",
+          "timestamp": 1620848897401294
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/95f68e8c17ee54a7.jpg",
+          "timestamp": 1620848898401633
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/4e38a9d9718e513b.jpg",
+          "timestamp": 1620848900400550
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "c363c3c93d6f5507",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/92bc20fbf6a057f8.jpg",
+          "timestamp": 1620848854901324
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/731107d452475eac.jpg",
+          "timestamp": 1620848855400897
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/49ad6bc521ee5352.jpg",
+          "timestamp": 1620848855900666
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/2e28b4c32df95ba6.jpg",
+          "timestamp": 1620848856900530
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/75e9b80cd9455997.jpg",
+          "timestamp": 1620848858901234
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "712d6e7fc2f95399",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/7ca98a4ccf0553d6.jpg",
+          "timestamp": 1620849270401021
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/426988f75e795997.jpg",
+          "timestamp": 1620849270901156
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/72140d8386b65bb7.jpg",
+          "timestamp": 1620849271401376
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/44cf811d1f245c18.jpg",
+          "timestamp": 1620849272401705
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/92c9be73b1ce514a.jpg",
+          "timestamp": 1620849274400197
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "ee63445cc4e05693",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/064030f2a5285098.jpg",
+          "timestamp": 1620848875401184
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/98ca963f7dbe59a3.jpg",
+          "timestamp": 1620848875901260
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/2d9ad10cef515ba1.jpg",
+          "timestamp": 1620848876401371
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/a11de849ab695186.jpg",
+          "timestamp": 1620848877401069
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_00568_01168/CAM_F0/ac172e5bfd265ce1.jpg",
+          "timestamp": 1620848879401519
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "8e7c5acbb11c580b",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_02079_02176/CAM_F0/27b1d31187de533a.jpg",
+          "timestamp": 1620850369901567
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_02079_02176/CAM_F0/b65e4371baa75a37.jpg",
+          "timestamp": 1620850370401648
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_02079_02176/CAM_F0/cf08c62de34752bd.jpg",
+          "timestamp": 1620850370901374
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_02079_02176/CAM_F0/fbceb01e6fba5506.jpg",
+          "timestamp": 1620850371900569
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.19.36.12_veh-35_02079_02176/CAM_F0/10630a677e4c582c.jpg",
+          "timestamp": 1620850373900359
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "b72fbc4a60525083",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/3f4dd3431bc955a6.jpg",
+          "timestamp": 1620857834200003
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/1f1fdd1498365ce1.jpg",
+          "timestamp": 1620857834700238
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/21c4b7ce3c9152cc.jpg",
+          "timestamp": 1620857835200435
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/cbaec2718a2c5f76.jpg",
+          "timestamp": 1620857836200644
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/891e808b64e35034.jpg",
+          "timestamp": 1620857838200944
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "4f1a1471060c5aad",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/8522ffc607395952.jpg",
+          "timestamp": 1620857407201185
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/c05f6bfcaa9f5ad0.jpg",
+          "timestamp": 1620857407701138
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/ba34efc9d409511f.jpg",
+          "timestamp": 1620857408200738
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/319f277aae435b0f.jpg",
+          "timestamp": 1620857409199823
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/1ccd1f53f3d85a13.jpg",
+          "timestamp": 1620857411200000
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "088bb69d29df5e94",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    },
+    {
+      "camera_coverage": 1.0,
+      "camera_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "image_details": [
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 3,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/f7f12979b24c5ba0.jpg",
+          "timestamp": 1620857307701486
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 4,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/5f1f43e71e2b5ede.jpg",
+          "timestamp": 1620857308201023
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 5,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/9c41e7da56b351a4.jpg",
+          "timestamp": 1620857308700503
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 7,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/a869f8beb37156e5.jpg",
+          "timestamp": 1620857309699848
+        },
+        {
+          "exists": true,
+          "extrinsics_rotation_shape": [
+            3,
+            3
+          ],
+          "extrinsics_translation_shape": [
+            3
+          ],
+          "frame_index": 11,
+          "image_mode": "RGB",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "intrinsics_shape": [
+            3,
+            3
+          ],
+          "relative_camera_path": "2021.05.12.22.00.38_veh-35_00215_00995/CAM_F0/be3bdb585b7e532c.jpg",
+          "timestamp": 1620857311700642
+        }
+      ],
+      "lidar_coverage": 1.0,
+      "lidar_exists": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "scene_token": "4cc63d64d58a56eb",
+      "target_window_indices": [
+        3,
+        4,
+        5,
+        7,
+        11
+      ]
+    }
+  ],
+  "statistics": {
+    "future_actor_count": {
+      "50%": 65.5625,
+      "95%": 222.43124999999995,
+      "99%": 341.1325,
+      "count": 500.0,
+      "max": 531.25,
+      "mean": 84.98375,
+      "min": 0.0,
+      "std": 75.3685314687703
+    },
+    "raw_track_continuity": {
+      "50%": 0.9530083173740231,
+      "95%": 0.9825093915147399,
+      "99%": 1.0,
+      "count": 498.0,
+      "max": 1.0,
+      "mean": 0.9392960154631158,
+      "min": 0.3333333333333333,
+      "std": 0.05474617153481509
+    },
+    "timestamp_delta_s": {
+      "50%": 0.4999914090909091,
+      "95%": 0.5000890090909091,
+      "99%": 0.5001530681818183,
+      "count": 500.0,
+      "max": 0.5455436363636363,
+      "mean": 0.5002562458181818,
+      "min": 0.49853681818181816,
+      "std": 0.0035148999521133527
+    }
+  }
+}
