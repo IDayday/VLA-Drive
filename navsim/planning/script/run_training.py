@@ -101,6 +101,10 @@ def main(cfg: DictConfig) -> None:
 
     logger.info("Building Agent")
     agent: AbstractAgent = instantiate(cfg.agent)
+    # Evaluation already initializes agents explicitly, but the released
+    # training entry point did not.  Stage-2 reproduction requires a strict
+    # VLM-only warm start before Lightning constructs the optimizer.
+    agent.initialize()
 
     logger.info("Building Lightning Module")
     lightning_module = AgentLightningModule(
@@ -151,7 +155,7 @@ def main(cfg: DictConfig) -> None:
         return latest_file
 
 
-    if cfg.train_ckpt_path is None:
+    if cfg.train_ckpt_path is None and bool(cfg.get("auto_resume", True)):
         # Pattern to match all .ckpt files in the base_path recursively
         search_pattern = "/".join(str(cfg.output_dir).split("/")[:-1]) + "/*/lightning_logs/version_*/checkpoints/" + '*.ckpt'
         print("/".join(str(cfg.output_dir).split("/")[:-1]))

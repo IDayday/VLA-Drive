@@ -1,4 +1,5 @@
 from time import sleep
+import os
 
 import numpy as np
 import pytorch_lightning as pl
@@ -53,8 +54,28 @@ class AgentLightningModule(pl.LightningModule):
             loss_dict=self.agent.compute_adapter_loss(targets,prediction)
 
         if type(loss_dict) is dict:
-            for key,value in loss_dict.items():
-                self.log(f"{logging_prefix}/"+key, value, on_step=True, on_epoch=False, prog_bar=True, sync_dist=True)
+            sync_metrics = logging_prefix != "train" or os.getenv(
+                "DRIVEVLA_SYNC_TRAIN_METRICS", "0"
+            ).lower() in {"1", "true", "yes", "on"}
+            train_log_interval = int(
+                os.getenv("DRIVEVLA_TRAIN_LOG_INTERVAL", "1")
+            )
+            if train_log_interval <= 0:
+                raise ValueError("DRIVEVLA_TRAIN_LOG_INTERVAL must be positive")
+            should_log = (
+                logging_prefix != "train"
+                or self.global_step % train_log_interval == 0
+            )
+            if should_log:
+                for key,value in loss_dict.items():
+                    self.log(
+                        f"{logging_prefix}/" + key,
+                        value,
+                        on_step=True,
+                        on_epoch=False,
+                        prog_bar=True,
+                        sync_dist=sync_metrics,
+                    )
             return loss_dict["loss"]
         else:
             return loss_dict
@@ -82,8 +103,29 @@ class AgentLightningModule(pl.LightningModule):
             predictions = self.agent.forward(features)
             all_chosen_trajectories = predictions["trajectory"][:,None]
             all_proposed_trajectories = predictions["proposals"]
-            final_score, fake_best_score, proposal_scores, l2, trajectoy_scores = self.agent.compute_score(targets, all_chosen_trajectories)
-            _, best_score, all_proposal_scores, _, _ = self.agent.compute_score(targets, all_proposed_trajectories)
+            if os.getenv("DRIVEVLA_FUSE_VALIDATION_SCORING", "0").lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }:
+                combined_trajectories = torch.cat(
+                    [all_chosen_trajectories, all_proposed_trajectories], dim=1
+                )
+                _, _, combined_scores, l2, trajectoy_scores = self.agent.compute_score(
+                    targets, combined_trajectories
+                )
+                proposal_scores = combined_scores[:, :1]
+                all_proposal_scores = combined_scores[:, 1:]
+                final_score = proposal_scores.mean()
+                best_score = all_proposal_scores.amax(dim=-1).mean()
+            else:
+                final_score, _, proposal_scores, l2, trajectoy_scores = self.agent.compute_score(
+                    targets, all_chosen_trajectories
+                )
+                _, best_score, all_proposal_scores, _, _ = self.agent.compute_score(
+                    targets, all_proposed_trajectories
+                )
             mean_score=proposal_scores.mean()
 
             logging_prefix="val"
@@ -107,7 +149,10 @@ class AgentLightningModule(pl.LightningModule):
                 top_5_score_hit_rate = _rowwise_isin(best_pred_score_index, top_5_indices_real).mean(dtype=torch.float32)
                 self.log(f"{logging_prefix}/top_5_score_hit_rate", top_5_score_hit_rate, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
             
-            self.log(f"{logging_prefix}/score", final_score, on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
+            # Checkpoint selection only consumes the global epoch score.  Give
+            # it the same key directly instead of also reducing and rendering
+            # an unused per-batch ``score_step`` value.
+            self.log(f"{logging_prefix}/score_epoch", final_score, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
             self.log(f"{logging_prefix}/best_score", best_score, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
             self.log(f"{logging_prefix}/mean_score", mean_score, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
             self.log(f"{logging_prefix}/l2", l2, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)

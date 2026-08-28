@@ -4,14 +4,48 @@ import logging
 import pickle
 import gzip
 import os
+import threading
 
 import torch
 from tqdm import tqdm
+from torch.utils.data._utils.collate import default_collate
 
 from navsim.common.dataloader import SceneLoader
 from navsim.planning.training.abstract_feature_target_builder import AbstractFeatureBuilder, AbstractTargetBuilder
 
 logger = logging.getLogger(__name__)
+
+
+def _decode_image_path(path_tensor: torch.Tensor) -> str:
+    """Decode the path representation emitted by DriveVLAFeatureBuilder."""
+    if path_tensor.ndim > 1:
+        path_tensor = path_tensor.squeeze(0)
+    return "".join(chr(code) for code in path_tensor.tolist() if code != 0)
+
+
+def drivevla_cached_collate(batch):
+    """Collate worker-preprocessed images without requiring equal patch counts."""
+    features = [dict(sample[0]) for sample in batch]
+    pixel_values = [feature.pop("pixel_values") for feature in features]
+    collated_features = default_collate(features)
+
+    # NAVSIM front-camera images normally all produce nine patches.  Stack that
+    # common case into one pinned allocation and retain a list fallback for any
+    # future dataset containing mixed aspect ratios.
+    first_shape = pixel_values[0].shape
+    if all(value.shape == first_shape for value in pixel_values):
+        collated_features["pixel_values"] = torch.stack(pixel_values, dim=0)
+    else:
+        collated_features["pixel_values"] = pixel_values
+
+    collated_targets = default_collate([sample[1] for sample in batch])
+    if len(batch[0]) == 2:
+        return collated_features, collated_targets
+    if len(batch[0]) == 3:
+        return collated_features, collated_targets, default_collate(
+            [sample[2] for sample in batch]
+        )
+    raise ValueError(f"Unsupported cached sample width: {len(batch[0])}")
 
 
 def load_feature_target_from_pickle(path: Path) -> Dict[str, torch.Tensor]:
@@ -24,8 +58,17 @@ def load_feature_target_from_pickle(path: Path) -> Dict[str, torch.Tensor]:
 def dump_feature_target_to_pickle(path: Path, data_dict: Dict[str, torch.Tensor]) -> None:
     """Helper function to save feature/target to pickle."""
     # Use compresslevel = 1 to compress the size but also has fast write and read.
-    with gzip.open(path, "wb", compresslevel=1) as f:
-        pickle.dump(data_dict, f)
+    # Publish atomically so an interrupted distributed worker cannot leave a
+    # truncated ``.gz`` file that a resumed job mistakes for a valid cache.
+    temporary_path = path.with_name(
+        f".{path.name}.tmp-{os.getpid()}-{threading.get_ident()}"
+    )
+    try:
+        with gzip.open(temporary_path, "wb", compresslevel=1) as f:
+            pickle.dump(data_dict, f)
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 class CacheOnlyDataset(torch.utils.data.Dataset):
@@ -38,6 +81,10 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
         target_builders: List[AbstractTargetBuilder],
         log_names: Optional[List[str]] = None,
         append_token_to_batch=False,
+        preprocess_images: bool = False,
+        preprocess_image_dtype: str = "bfloat16",
+        pretokenize_inputs: bool = False,
+        tokenizer=None,
     ):
         """
         Initializes the dataset module.
@@ -65,6 +112,17 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
         )
         self.tokens = list(self._valid_cache_paths.keys())
         self.append_token_to_batch = append_token_to_batch
+        self.preprocess_images = preprocess_images
+        self.pretokenize_inputs = pretokenize_inputs
+        self.tokenizer = tokenizer
+        if self.pretokenize_inputs and self.tokenizer is None:
+            raise ValueError("pretokenize_inputs requires an initialized tokenizer")
+        try:
+            self.preprocess_image_dtype = getattr(torch, preprocess_image_dtype)
+        except AttributeError as error:
+            raise ValueError(
+                f"Unsupported preprocess image dtype: {preprocess_image_dtype}"
+            ) from error
 
     def __len__(self) -> int:
         """
@@ -128,6 +186,37 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
                 data_dict[key]=value.detach()
             features.update(data_dict)
 
+        if self.preprocess_images:
+            from navsim.agents.EpisodeDrive.utils.internvl_preprocess import load_image
+            from navsim.agents.EpisodeDrive.utils.utils import build_drivevla_questions
+
+            image_path_tensor = features.pop("image_path_tensor")
+            image_path = _decode_image_path(image_path_tensor)
+            # The backbone immediately casts the released FP32 preprocessing
+            # result to BF16 on CUDA.  Casting here is bit-identical on this
+            # platform and halves both pinned-memory footprint and H2D traffic.
+            features["pixel_values"] = load_image(image_path).to(
+                dtype=self.preprocess_image_dtype
+            )
+            features["questions"] = build_drivevla_questions(
+                features["history_trajectory"], features["high_command_one_hot"]
+            )[0]
+            if self.pretokenize_inputs:
+                from navsim.agents.EpisodeDrive.drivevla_backbone import system_message
+                from navsim.agents.EpisodeDrive.utils.internvl_tokenize import (
+                    build_internvl_model_inputs,
+                )
+
+                model_inputs = build_internvl_model_inputs(
+                    self.tokenizer,
+                    [features["questions"]],
+                    [features["pixel_values"].shape[0]],
+                    system_message,
+                )
+                features["input_ids"] = model_inputs["input_ids"].squeeze(0)
+                features["attention_mask"] = model_inputs["attention_mask"].squeeze(0)
+                del features["questions"]
+
         targets: Dict[str, torch.Tensor] = {}
         for builder in self._target_builders:
             data_dict_path = token_path / (os.getenv('TARGET_NAME',builder.get_unique_name()) + ".gz")
@@ -160,7 +249,7 @@ class Dataset(torch.utils.data.Dataset):
         self._cache_path: Optional[Path] = Path(cache_path) if cache_path else None
         self._force_cache_computation = force_cache_computation
         self._valid_cache_paths: Dict[str, Path] = self._load_valid_caches(
-            self._cache_path, feature_builders, target_builders
+            self._cache_path, feature_builders, target_builders, self._scene_loader
         )
         self.append_token_to_batch = append_token_to_batch
         if self._cache_path is not None:
@@ -171,6 +260,7 @@ class Dataset(torch.utils.data.Dataset):
         cache_path: Optional[Path],
         feature_builders: List[AbstractFeatureBuilder],
         target_builders: List[AbstractTargetBuilder],
+        scene_loader: SceneLoader,
     ) -> Dict[str, Path]:
         """
         Helper method to load valid cache paths.
@@ -183,14 +273,18 @@ class Dataset(torch.utils.data.Dataset):
         valid_cache_paths: Dict[str, Path] = {}
 
         if (cache_path is not None) and cache_path.is_dir():
-            for log_path in cache_path.iterdir():
-                for token_path in log_path.iterdir():
-                    found_caches: List[bool] = []
-                    for builder in feature_builders + target_builders:
-                        data_dict_path = token_path / (builder.get_unique_name() + ".gz")
-                        found_caches.append(data_dict_path.is_file())
+            # A cache worker only needs to inspect its own tokens. Scanning the
+            # complete shared cache in every worker makes resume
+            # O(workers * dataset_size) and creates heavy metadata contention.
+            for log_name, tokens in scene_loader.get_tokens_list_per_log().items():
+                for token in tokens:
+                    token_path = cache_path / log_name / token
+                    found_caches = [
+                        (token_path / (builder.get_unique_name() + ".gz")).is_file()
+                        for builder in feature_builders + target_builders
+                    ]
                     if all(found_caches):
-                        valid_cache_paths[token_path.name] = token_path
+                        valid_cache_paths[token] = token_path
 
         return valid_cache_paths
 

@@ -1,4 +1,6 @@
 from typing import Any, List, Dict, Optional, Union
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing as mp
 import os
 import torch
 from torch.optim import Optimizer
@@ -9,12 +11,13 @@ from transformers.feature_extraction_utils import BatchFeature
 import math
 import sys
 import pickle
+import time
 from pathlib import Path
 import numpy as np
 import torch.nn.functional as F
 import torch.nn as nn
 from navsim.planning.training.dataset import load_feature_target_from_pickle
-from pytorch_lightning.callbacks import ModelCheckpoint, ProgressBar, LearningRateMonitor
+from pytorch_lightning.callbacks import Callback, ModelCheckpoint, ProgressBar, LearningRateMonitor
 from navsim.common.dataloader import MetricCacheLoader
 
 from navsim.agents.abstract_agent import AbstractAgent
@@ -25,7 +28,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, ProgressBar, LearningRa
 
 from .utils.internvl_preprocess import load_image
 from .utils.lr_scheduler import WarmupCosLR
-from .utils.utils import format_number, build_from_configs
+from .utils.utils import build_drivevla_questions, build_from_configs
 from .drivevla_features import DriveVLAFeatureBuilder ,TrajectoryTargetBuilder
 from .drivevla_backbone import DriveVLABackbone
 from .action_decoder import ActionDecoder
@@ -73,6 +76,105 @@ class LitProgressBar(ProgressBar):
             print(f"{k},{v:.3f}")
         print(f"###########\n")
 
+
+class TrainingThroughputCallback(Callback):
+    """Report end-to-end DDP throughput over stable multi-step windows."""
+
+    def __init__(self, interval: int, warmup: int = 5):
+        super().__init__()
+        self.interval = interval
+        self.warmup = warmup
+        self._start_step = None
+        self._start_time = None
+
+    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+        completed = batch_idx + 1
+        if completed == self.warmup:
+            self._start_step = completed
+            self._start_time = time.perf_counter()
+            return
+        if (
+            self._start_time is not None
+            and completed - self._start_step >= self.interval
+        ):
+            now = time.perf_counter()
+            steps = completed - self._start_step
+            if trainer.is_global_zero:
+                print(
+                    "TRAIN_THROUGHPUT "
+                    f"epoch={trainer.current_epoch} step={trainer.global_step} "
+                    f"seconds_per_step={(now - self._start_time) / steps:.6f} "
+                    f"steps_per_second={steps / (now - self._start_time):.6f}",
+                    flush=True,
+                )
+            self._start_step = completed
+            self._start_time = now
+
+
+class EfficientBestAndLastCheckpoint(ModelCheckpoint):
+    """Keep exact best/latest states while writing only once per epoch.
+
+    Lightning's ``save_last="link"`` links to the most recently *saved* top-k
+    checkpoint.  When an epoch is not a new best, that target is stale and is
+    therefore not a valid latest resume point.  A new best is written once and
+    linked as ``last.ckpt``; otherwise ``last.ckpt`` is overwritten once while
+    the prior best remains untouched.
+    """
+
+    def _save_topk_checkpoint(self, trainer, monitor_candidates) -> None:
+        super()._save_topk_checkpoint(trainer, monitor_candidates)
+        # Always refresh latest. ModelCheckpoint does not restore its private
+        # _last_checkpoint_saved field when resuming a run.
+        if self.save_last:
+            self._save_last_checkpoint(trainer, monitor_candidates)
+
+    def _save_last_checkpoint(self, trainer, monitor_candidates) -> None:
+        filepath = self.format_checkpoint_name(
+            monitor_candidates, self.CHECKPOINT_NAME_LAST
+        )
+        if self._enable_version_counter:
+            version_cnt = self.STARTING_VERSION
+            while self.file_exists(filepath, trainer) and filepath != self.last_model_path:
+                filepath = self.format_checkpoint_name(
+                    monitor_candidates,
+                    self.CHECKPOINT_NAME_LAST,
+                    ver=version_cnt,
+                )
+                version_cnt += 1
+
+        # The base on_validation_end hook invokes _save_last_checkpoint again
+        # after _save_topk_checkpoint.  A non-best epoch was already written
+        # directly to this path by our first invocation.
+        if (
+            self._last_global_step_saved == trainer.global_step
+            and self._last_checkpoint_saved
+            and os.path.abspath(self._last_checkpoint_saved)
+            == os.path.abspath(filepath)
+        ):
+            return
+
+        previous, self.last_model_path = self.last_model_path, filepath
+        current_epoch_was_saved_as_best = (
+            self._last_global_step_saved == trainer.global_step
+            and bool(self._last_checkpoint_saved)
+            and os.path.abspath(self._last_checkpoint_saved)
+            != os.path.abspath(filepath)
+        )
+        if current_epoch_was_saved_as_best:
+            self._link_checkpoint(trainer, self._last_checkpoint_saved, filepath)
+        else:
+            # Do not follow a prior symlink and overwrite the retained best.
+            if trainer.is_global_zero and os.path.islink(filepath):
+                os.remove(filepath)
+            trainer.strategy.barrier()
+            self._save_checkpoint(trainer, filepath)
+
+        if previous and self._should_remove_checkpoint(
+            trainer, previous, filepath
+        ):
+            self._remove_checkpoint(trainer, previous)
+
+
 class DriveVLABaseAgent(AbstractAgent):
     def __init__(
         self,
@@ -87,6 +189,8 @@ class DriveVLABaseAgent(AbstractAgent):
         num_gpus: int=1,
         trajectory_sampling=None,
         checkpoint_path:str = None,
+        stage1_checkpoint_path: str = None,
+        cache_data: bool = False,
     ):
         super().__init__()
         self.action_head_config=action_head_config
@@ -99,16 +203,50 @@ class DriveVLABaseAgent(AbstractAgent):
         self.batch_size=batch_size
         self.num_gpus=num_gpus
         self.checkpoint_path=checkpoint_path
+        self.stage1_checkpoint_path = stage1_checkpoint_path
+        self.cache_data = cache_data
+        self._initialized = False
 
-        cache_data = False
+        if self.checkpoint_path and self.stage1_checkpoint_path:
+            raise ValueError(
+                "checkpoint_path (full-agent restore) and stage1_checkpoint_path "
+                "(VLM-only warm start) are mutually exclusive."
+            )
 
-        if not cache_data:
+        if not self.cache_data:
             self.action_head=ActionDecoder(action_head_config)
 
-        if not cache_data and self.action_head_config.checkpoint_path=="":
+        if not self.cache_data and self.action_head_config.checkpoint_path=="":
             self.bce_logit_loss=nn.BCEWithLogitsLoss
 
-            self.ray=True
+            # Training-time oracle scoring can use Ray, but starting a local Ray
+            # cluster in every Lightning DDP inference rank is unnecessary and
+            # can make the released multi-GPU evaluator fail.  Keep the public
+            # behavior by default and allow deployment jobs to opt out.
+            self.ray = os.getenv("DRIVEVLA_SCORE_RAY", "1").lower() not in {
+                "0",
+                "false",
+                "no",
+                "off",
+            }
+            self.score_process_count = int(os.getenv("DRIVEVLA_SCORE_PROCESSES", "0"))
+            self.score_partition_count = int(os.getenv("DRIVEVLA_SCORE_PARTITIONS", "1"))
+            self.score_start_method = os.getenv(
+                "DRIVEVLA_SCORE_START_METHOD", "spawn"
+            )
+            if self.score_process_count < 0:
+                raise ValueError("DRIVEVLA_SCORE_PROCESSES must be non-negative")
+            if self.score_partition_count < 1:
+                raise ValueError("DRIVEVLA_SCORE_PARTITIONS must be positive")
+            if self.score_start_method not in {"spawn", "forkserver"}:
+                raise ValueError(
+                    "DRIVEVLA_SCORE_START_METHOD must be spawn or forkserver"
+                )
+            if self.ray and self.score_process_count:
+                raise ValueError(
+                    "DRIVEVLA_SCORE_RAY and DRIVEVLA_SCORE_PROCESSES cannot both be enabled"
+                )
+            self._score_process_pool = None
 
             if self.ray:
                 from navsim.planning.utils.multithreading.worker_ray_no_torch import RayDistributedNoTorch
@@ -116,7 +254,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 self.worker = RayDistributedNoTorch(threads_per_node=8)
                 self.worker_map=worker_map
 
-            from .score_module.compute_navsim_score import get_scores
+            from .score_module.compute_navsim_score import get_scores, get_sub_score
 
             self.score_metric_cache_path = Path(
                 os.getenv(
@@ -138,6 +276,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 )
 
             self.get_scores = get_scores
+            self.get_sub_score = get_sub_score
 
             self.loss = loss
 
@@ -147,7 +286,11 @@ class DriveVLABaseAgent(AbstractAgent):
         local_rank = int(os.getenv("LOCAL_RANK", "0"))
         device = f"cuda:{local_rank}"
         self.device = device
-        if not self.vlm_config.cache_hidden_state and not self.vlm_config.cache_mode:
+        if (
+            not self.cache_data
+            and not self.vlm_config.cache_hidden_state
+            and not self.vlm_config.cache_mode
+        ):
             print("Agent running in 'no-cache' mode. Initializing internal backbone.")
             if not self.vlm_config.vlm_path or not self.vlm_config.vlm_type:
                 raise ValueError("In 'no-cache' mode, vlm_path and vlm_type are required.")
@@ -166,6 +309,12 @@ class DriveVLABaseAgent(AbstractAgent):
                 ),
                 initialize_from_config=bool(
                     getattr(self.vlm_config, "initialize_from_config", False)
+                ),
+                skip_lm_head=bool(
+                    getattr(self.vlm_config, "skip_lm_head", False)
+                ),
+                gradient_checkpointing=bool(
+                    getattr(self.vlm_config, "gradient_checkpointing", False)
                 ),
             )
             
@@ -240,6 +389,65 @@ class DriveVLABaseAgent(AbstractAgent):
         # 可选：打印冻结信息
         frozen_params = sum(p.numel() for p in self.backbone.parameters())
         print(f"✅ Backbone冻结完成：{frozen_params:,} 个参数已冻结")
+
+    def _freeze_lm_head(self) -> None:
+        """Freeze the language decoder head while keeping the VLM trainable."""
+        if self.backbone is None:
+            return
+        output_embeddings = self.backbone.model.language_model.get_output_embeddings()
+        if output_embeddings is None:
+            raise RuntimeError("VLM has no output embeddings to freeze as lm_head")
+        for parameter in output_embeddings.parameters():
+            parameter.requires_grad = False
+
+        frozen = sum(parameter.numel() for parameter in output_embeddings.parameters())
+        leaked = [
+            name
+            for name, parameter in self.backbone.named_parameters()
+            if "lm_head" in name and parameter.requires_grad
+        ]
+        if leaked:
+            raise RuntimeError(f"lm_head parameters remain trainable: {leaked[:5]}")
+        print(f"✅ Frozen VLM lm_head: {frozen:,} parameters")
+
+    def _report_backbone_trainability(self) -> None:
+        if self.backbone is None:
+            return
+        totals = {
+            "vision": [0, 0],
+            "projector": [0, 0],
+            "language": [0, 0],
+            "lm_head": [0, 0],
+            "other": [0, 0],
+        }
+        for name, parameter in self.backbone.named_parameters():
+            if "lm_head" in name:
+                group = "lm_head"
+            elif "vision_model" in name:
+                group = "vision"
+            elif ".mlp1." in name:
+                group = "projector"
+            elif "language_model" in name:
+                group = "language"
+            else:
+                group = "other"
+            totals[group][0] += parameter.numel()
+            if parameter.requires_grad:
+                totals[group][1] += parameter.numel()
+        print("VLM parameter trainability:")
+        for group, (total, trainable) in totals.items():
+            if total:
+                print(f"  {group}: {trainable:,} / {total:,} trainable")
+
+    def train(self, mode: bool = True):
+        """Keep a paper-style frozen Stage-1 VLM in inference mode."""
+        super().train(mode)
+        if (
+            self.backbone is not None
+            and bool(getattr(self.vlm_config, "freeze_backbone", False))
+        ):
+            self.backbone.eval()
+        return self
         
     def _freeze_backbone_selective(self):
         """选择性冻结backbone参数"""
@@ -262,7 +470,69 @@ class DriveVLABaseAgent(AbstractAgent):
         trainable_params = sum(p.numel() for p in self.backbone.parameters() if p.requires_grad)
         print(f"📊 Backbone参数统计: {trainable_params:,}/{total_params:,} 可训练")
 
+    def _load_stage1_backbone(self, checkpoint_path: str) -> None:
+        """Strictly restore only the VQA-pretrained VLM from a merged checkpoint.
+
+        The Compress/Q-Former, trajectory decoder, and scorer all live under
+        ``action_head`` and are intentionally left at their seeded random
+        initialization for Stage 2.
+        """
+        if self.backbone is None:
+            raise RuntimeError("Cannot warm-start Stage 1 because no backbone is initialized.")
+
+        payload = torch.load(checkpoint_path, map_location="cpu")
+        source_state = payload.get("state_dict", payload)
+        target_state = self.backbone.state_dict()
+        backbone_state = {}
+        shape_errors = []
+
+        for key, value in source_state.items():
+            if key.startswith("agent.backbone."):
+                normalized_key = key[len("agent.backbone."):]
+            elif key.startswith("backbone."):
+                normalized_key = key[len("backbone."):]
+            else:
+                normalized_key = key
+
+            if normalized_key not in target_state:
+                continue
+            if value.shape != target_state[normalized_key].shape:
+                shape_errors.append(
+                    f"{normalized_key}: checkpoint={tuple(value.shape)}, "
+                    f"model={tuple(target_state[normalized_key].shape)}"
+                )
+                continue
+            backbone_state[normalized_key] = value
+
+        missing = sorted(set(target_state) - set(backbone_state))
+        if shape_errors or missing:
+            details = []
+            if shape_errors:
+                details.append("shape mismatches: " + "; ".join(shape_errors[:10]))
+            if missing:
+                details.append(
+                    f"missing {len(missing)} backbone tensors: " + ", ".join(missing[:10])
+                )
+            raise RuntimeError("Invalid Stage-1 VLM checkpoint; " + " | ".join(details))
+
+        self.backbone.load_state_dict(backbone_state, strict=True)
+        parameter_count = sum(
+            target_state[key].numel() for key in backbone_state
+        )
+        print(
+            "✅ Stage-1 VLM-only warm start loaded "
+            f"{len(backbone_state):,} tensors / {parameter_count:,} values from: "
+            f"{checkpoint_path}"
+        )
+        print(
+            "✅ Stage-2 action_head was not restored; Compress/Q-Former, "
+            "trajectory head, and scorer retain seeded random initialization."
+        )
+
     def initialize(self) -> None:
+        if self._initialized:
+            return
+
         if self.checkpoint_path:
             ckpt = torch.load(self.checkpoint_path, map_location="cpu")["state_dict"]
             model_dict = self.state_dict()
@@ -273,9 +543,20 @@ class DriveVLABaseAgent(AbstractAgent):
                     filtered_ckpt[k2] = v
             self.load_state_dict(filtered_ckpt, strict=True)
             print(f"✅ Agent loaded from checkpoint: {self.checkpoint_path}")
+        elif self.stage1_checkpoint_path:
+            self._load_stage1_backbone(self.stage1_checkpoint_path)
             
         if self.vlm_config.freeze_backbone:
             self._freeze_backbone()
+        elif bool(getattr(self.vlm_config, "freeze_lm_head", False)):
+            self._freeze_lm_head()
+            # ``from_pretrained`` initializes InternVL in eval mode. Full
+            # fine-tuning must restore training mode before Lightning inspects
+            # module state (the frozen linear lm_head has no mode-dependent
+            # behavior).
+            self.backbone.train()
+        self._report_backbone_trainability()
+        self._initialized = True
 
     def get_sensor_config(self) -> SensorConfig:
         def _history(name: str) -> List[int]:
@@ -326,102 +607,102 @@ class DriveVLABaseAgent(AbstractAgent):
         return [feature_builders]
 
     def forward(self, features: Dict[str, torch.Tensor], targets=None, tokens_list=None) -> Dict[str, torch.Tensor]:
+        # These payloads are consumed only by the frozen VLM.  Pop them before
+        # the generic feature transfer so paths and prompt construction never
+        # force repeated CUDA-to-host synchronization.
+        pixel_values_batch = features.pop("pixel_values", None)
+        questions = features.pop("questions", None)
+        image_path_tensor = features.pop("image_path_tensor", None)
+        input_ids = features.pop("input_ids", None)
+        attention_mask = features.pop("attention_mask", None)
+        pretokenized_inputs = None
+        if input_ids is not None or attention_mask is not None:
+            if input_ids is None or attention_mask is None:
+                raise ValueError("input_ids and attention_mask must be provided together")
+            pretokenized_inputs = {
+                "input_ids": input_ids,
+                "attention_mask": attention_mask,
+            }
+
+        if (
+            questions is None
+            and pretokenized_inputs is None
+            and not self.vlm_config.cache_hidden_state
+        ):
+            prompt_history = features["history_trajectory"]
+            prompt_command = features["high_command_one_hot"]
+            if prompt_history.is_cuda:
+                prompt_history = prompt_history.detach().cpu()
+            if prompt_command.is_cuda:
+                prompt_command = prompt_command.detach().cpu()
+            questions = build_drivevla_questions(prompt_history, prompt_command)
+        elif isinstance(questions, str):
+            questions = [questions]
+
         for key, tensor in features.items():
             if isinstance(tensor, torch.Tensor):
-                features[key] = tensor.cuda()
+                features[key] = tensor.cuda(non_blocking=True)
 
-        model_dtype = next(self.action_head.parameters()).dtype
-
-        history_trajectory = features["history_trajectory"].cuda()
-        high_command_one_hot = features["high_command_one_hot"].cuda()
+        history_trajectory = features["history_trajectory"]
+        high_command_one_hot = features["high_command_one_hot"]
         
         
         if history_trajectory.ndim == 2: history_trajectory = history_trajectory.unsqueeze(0)
         if high_command_one_hot.ndim == 1: high_command_one_hot = high_command_one_hot.unsqueeze(0)
 
         if self.vlm_config.cache_hidden_state:
-            last_hidden_state = features["last_hidden_state"].cuda()
+            last_hidden_state = features["last_hidden_state"]
         else:
             if self.backbone is None:
                 raise RuntimeError("Agent is in 'no-cache' mode, but backbone is not initialized.")
-            image_path_tensor = features["image_path_tensor"]
-            if image_path_tensor.ndim == 1: image_path_tensor = image_path_tensor.unsqueeze(0)
-            image_paths = self._decode_paths_from_tensor(image_path_tensor)
+            image_paths = None
+            if image_path_tensor is not None:
+                if image_path_tensor.is_cuda:
+                    image_path_tensor = image_path_tensor.detach().cpu()
+                if image_path_tensor.ndim == 1:
+                    image_path_tensor = image_path_tensor.unsqueeze(0)
+                image_paths = self._decode_paths_from_tensor(image_path_tensor)
             
             if self.vlm_config.vlm_type == "internvl":
-                pixel_values_list = [load_image(path) for path in image_paths]
-            
-                num_patches_list = [p.shape[0] for p in pixel_values_list]
-                pixel_values_cat = torch.cat(pixel_values_list, dim=0).cuda()
-                
-
-                navigation_commands = ['turn left', 'go straight', 'turn right', 'unknown']
-                command_indices = torch.argmax(high_command_one_hot, dim=-1)
-                command_str_list = [navigation_commands[idx.item()] for idx in command_indices]
-
-                questions = []
-                batch_size = high_command_one_hot.shape[0]
-                for i in range(batch_size):
-                    history_trajectory_sample = history_trajectory[i]
-                    command_str_sample = command_str_list[i]
-
-                    history_str = ' '.join([
-                        f'   - t-{3-j}: ({format_number(history_trajectory_sample[j, 0].item())}, '
-                        f'{format_number(history_trajectory_sample[j, 1].item())}, '
-                        f'{format_number(history_trajectory_sample[j, 2].item())})'
-                        for j in range(history_trajectory_sample.shape[0])
-                    ])
-                    
-                    prompt = (
-                        "<image>\nAs an autonomous driving system, predict the vehicle's trajectory based on:\n"
-                        "1. Visual perception from front camera view\n"
-                        f"2. Historical motion context (last 4 timesteps):{history_str}\n"
-                        f"3. Active navigation command: [{command_str_sample.upper()}]"
+                if pixel_values_batch is None:
+                    if image_paths is None:
+                        raise RuntimeError("InternVL requires image paths or pixel_values")
+                    pixel_values_list = [load_image(path) for path in image_paths]
+                    num_patches_list = [value.shape[0] for value in pixel_values_list]
+                    pixel_values_cat = torch.cat(pixel_values_list, dim=0).cuda(
+                        non_blocking=True
                     )
-                    output_requirements = (
-                        "\nOutput requirements:\n- Predict 8 future trajectory points\n"
-                        "- Each point format: (x:float, y:float, heading:float)\n"
-                        "- Use [PT, ...] to encapsulate the trajectory\n"
-                        "- Maintain numerical precision to 2 decimal places"
-                    )
-                    questions.append(f"{prompt}{output_requirements}")
+                elif isinstance(pixel_values_batch, torch.Tensor):
+                    pixel_values_batch = pixel_values_batch.cuda(non_blocking=True)
+                    if pixel_values_batch.ndim == 5:
+                        num_patches_list = [pixel_values_batch.shape[1]] * pixel_values_batch.shape[0]
+                        pixel_values_cat = pixel_values_batch.flatten(0, 1)
+                    elif pixel_values_batch.ndim == 4:
+                        num_patches_list = [pixel_values_batch.shape[0]]
+                        pixel_values_cat = pixel_values_batch
+                    else:
+                        raise ValueError(
+                            f"Unexpected pixel_values shape: {pixel_values_batch.shape}"
+                        )
+                else:
+                    pixel_values_list = [
+                        value.cuda(non_blocking=True) for value in pixel_values_batch
+                    ]
+                    num_patches_list = [value.shape[0] for value in pixel_values_list]
+                    pixel_values_cat = torch.cat(pixel_values_list, dim=0)
 
-                outputs = self.backbone(pixel_values_cat, questions, num_patches_list=num_patches_list)
+                outputs = self.backbone(
+                    pixel_values_cat,
+                    questions,
+                    num_patches_list=num_patches_list,
+                    model_inputs=pretokenized_inputs,
+                )
                 last_hidden_state = outputs.hidden_states[-1]
             
             elif self.vlm_config.vlm_type == "qwen3vl":
+                if image_paths is None:
+                    raise RuntimeError("Qwen3VL requires image paths")
                 pixel_values_list = image_paths
-                
-                navigation_commands = ['turn left', 'go straight', 'turn right', 'unknown']
-                command_indices = torch.argmax(high_command_one_hot, dim=-1)
-                command_str_list = [navigation_commands[idx.item()] for idx in command_indices]
-
-                questions = []
-                batch_size = high_command_one_hot.shape[0]
-                for i in range(batch_size):
-                    history_trajectory_sample = history_trajectory[i]
-                    command_str_sample = command_str_list[i]
-
-                    history_str = ' '.join([
-                        f'   - t-{3-j}: ({format_number(history_trajectory_sample[j, 0].item())}, '
-                        f'{format_number(history_trajectory_sample[j, 1].item())}, '
-                        f'{format_number(history_trajectory_sample[j, 2].item())})'
-                        for j in range(history_trajectory_sample.shape[0])
-                    ])
-                    
-                    prompt = (
-                        "<image>\nAs an autonomous driving system, predict the vehicle's trajectory based on:\n"
-                        "1. Visual perception from front camera view\n"
-                        f"2. Historical motion context (last 4 timesteps):{history_str}\n"
-                        f"3. Active navigation command: [{command_str_sample.upper()}]"
-                    )
-                    output_requirements = (
-                        "\nOutput requirements:\n- Predict 8 future trajectory points\n"
-                        "- Each point format: (x:float, y:float, heading:float)\n"
-                        "- Use [PT, ...] to encapsulate the trajectory\n"
-                        "- Maintain numerical precision to 2 decimal places"
-                    )
-                    questions.append(f"{prompt}{output_requirements}")
 
                 outputs, visual_feature_idx = self.backbone(pixel_values_list, questions)
                 last_hidden_state = outputs.hidden_states[-1]
@@ -431,7 +712,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 end_index = visual_feature_idx[-1]
                 alignment_feature = outputs.hidden_states[-7][:, start_index:end_index+1, :]  # align the 3/4 layer (21/28) with the geometry feature
 
-        status_feature = features["status_feature"].cuda()
+        status_feature = features["status_feature"]
         if status_feature.ndim == 1: status_feature = status_feature.unsqueeze(0)
         if last_hidden_state.ndim == 2: last_hidden_state = last_hidden_state.unsqueeze(0)
 
@@ -543,6 +824,60 @@ class DriveVLABaseAgent(AbstractAgent):
 
         if self.ray:
             all_res = self.worker_map(self.worker, self.get_scores, data_points)
+        elif self.score_process_count and (
+            len(data_points) > 1
+            or any(len(point["poses"]) > 1 for point in data_points)
+        ):
+            if self._score_process_pool is None:
+                # CUDA is already initialized in each DDP rank at this point.
+                # Spawn gives the CPU-only scorer workers fresh interpreters and
+                # avoids inheriting an unsafe CUDA context through fork.
+                if self.score_start_method == "forkserver":
+                    # The forkserver itself is spawned after CUDA init, so it
+                    # has a clean CPU-only address space.  Preloading the scorer
+                    # there lets its children share imports safely and avoids
+                    # importing torch/navsim eight times per rank.
+                    mp.set_forkserver_preload(
+                        [
+                            "navsim.agents.EpisodeDrive.score_module.compute_navsim_score"
+                        ]
+                    )
+                self._score_process_pool = ProcessPoolExecutor(
+                    max_workers=self.score_process_count,
+                    mp_context=mp.get_context(self.score_start_method),
+                )
+
+            task_tokens = []
+            task_poses = []
+            task_tests = []
+            scene_task_ranges = []
+            for point in data_points:
+                partition_count = min(self.score_partition_count, len(point["poses"]))
+                start = len(task_poses)
+                for poses_partition in np.array_split(
+                    point["poses"], partition_count, axis=0
+                ):
+                    task_tokens.append(point["token"])
+                    task_poses.append(poses_partition)
+                    task_tests.append(point["test"])
+                scene_task_ranges.append((start, len(task_poses)))
+
+            task_results = list(
+                self._score_process_pool.map(
+                    self.get_sub_score,
+                    task_tokens,
+                    task_poses,
+                    task_tests,
+                    chunksize=1,
+                )
+            )
+            all_res = [
+                tuple(
+                    np.concatenate(component_parts, axis=0)
+                    for component_parts in zip(*task_results[start:end])
+                )
+                for start, end in scene_task_ranges
+            ]
         else:
             all_res = self.get_scores(data_points)
 
@@ -570,94 +905,217 @@ class DriveVLABaseAgent(AbstractAgent):
         """
         pack all trainable parameters into optimizer
         """
-        action_head_params = []
-        backbone_params = []
-        lora_params = []
-
         global_batchsize = self.batch_size * self.num_gpus
-        if self._lr_args["name"] == "Adam":
-            lr = self._lr_args["base_lr"] * math.sqrt(global_batchsize / self._lr_args["base_batch_size"])
-        elif self._lr_args["name"] == "AdamW":
-            lr = self._lr_args["base_lr"] * math.sqrt(global_batchsize / self._lr_args["base_batch_size"])
-        else:
+        if self._lr_args["name"] not in {"Adam", "AdamW"}:
             raise NotImplementedError
-        
+
+        batch_scale = math.sqrt(
+            global_batchsize / self._lr_args["base_batch_size"]
+        )
+        if not bool(self._lr_args.get("scale_with_batch_size", True)):
+            batch_scale = 1.0
+        base_lr = float(self._lr_args["base_lr"]) * batch_scale
+
+        learning_rates = {
+            "action_head": float(
+                self._lr_args.get("action_head_lr", base_lr)
+            ) * batch_scale,
+            "vlm_vision": float(
+                self._lr_args.get("vlm_vision_lr", base_lr * 0.1)
+            ) * batch_scale,
+            "vlm_projector": float(
+                self._lr_args.get("vlm_projector_lr", base_lr * 0.1)
+            ) * batch_scale,
+            "vlm_language": float(
+                self._lr_args.get("vlm_language_lr", base_lr * 0.1)
+            ) * batch_scale,
+            "vlm_lora": float(
+                self._lr_args.get("vlm_lora_lr", base_lr)
+            ) * batch_scale,
+            "vlm_other": float(
+                self._lr_args.get("vlm_other_lr", base_lr * 0.1)
+            ) * batch_scale,
+            "other": float(self._lr_args.get("other_lr", base_lr)) * batch_scale,
+        }
+        # ``base_lr`` above is already scaled when no explicit module LR was
+        # supplied. Avoid applying the factor twice to those fallback values.
+        for group_name, config_key in {
+            "action_head": "action_head_lr",
+            "vlm_vision": "vlm_vision_lr",
+            "vlm_projector": "vlm_projector_lr",
+            "vlm_language": "vlm_language_lr",
+            "vlm_lora": "vlm_lora_lr",
+            "vlm_other": "vlm_other_lr",
+            "other": "other_lr",
+        }.items():
+            if config_key not in self._lr_args:
+                if group_name in {"vlm_vision", "vlm_projector", "vlm_language", "vlm_other"}:
+                    learning_rates[group_name] = base_lr * 0.1
+                else:
+                    learning_rates[group_name] = base_lr
+
+        default_weight_decay = float(self._lr_args.get("weight_decay", 1e-4))
+        weight_decays = {
+            "action_head": float(
+                self._lr_args.get("action_head_weight_decay", default_weight_decay)
+            ),
+            "vlm": float(
+                self._lr_args.get("vlm_weight_decay", default_weight_decay)
+            ),
+            "other": default_weight_decay,
+        }
+
+        grouped_parameters = {name: [] for name in learning_rates}
         for name, param in self.named_parameters():
-            if param.requires_grad:
-                if "lora" in name.lower():
-                    lora_params.append(param)
-                elif "backbone" in name:
-                    backbone_params.append(param)
-                elif "action_head" in name:
-                    action_head_params.append(param)
-        
-        # 构建参数组（不同学习率）
+            if not param.requires_grad:
+                continue
+            if "action_head" in name:
+                group = "action_head"
+            elif "backbone" in name:
+                lower_name = name.lower()
+                if "lm_head" in lower_name:
+                    raise RuntimeError(
+                        f"Trainable lm_head parameter entered optimizer: {name}"
+                    )
+                if "lora" in lower_name:
+                    group = "vlm_lora"
+                elif "vision_model" in name:
+                    group = "vlm_vision"
+                elif ".mlp1." in name:
+                    group = "vlm_projector"
+                elif "language_model" in name:
+                    group = "vlm_language"
+                else:
+                    group = "vlm_other"
+            else:
+                group = "other"
+            grouped_parameters[group].append((name, param))
+
         param_groups = []
-        
-        # ====== 新增：LoRA参数组（使用较高学习率） ======
-        if lora_params:
-            param_groups.append({
-                'params': lora_params,
-                'lr_scale': 1.0,  # LoRA通常使用较高学习率
-                'weight_decay': 1e-4,
-            })
-            print(f"✅ LoRA 参数组: {len(lora_params)} 个参数，学习率={lr:.2e}")
-        
-        # Backbone 参数组（非LoRA部分，通常冻结）
-        if backbone_params:
-            param_groups.append({
-                'params': backbone_params,
-                'lr_scale': 0.1,
-                'weight_decay': 1e-4,
-            })
-            print(f"✅ Backbone 参数组: {len(backbone_params)} 个参数，学习率={lr * 0.1:.2e}")
-        
-        # Action Head 参数组（使用基础学习率）
-        if action_head_params:
-            param_groups.append({
-                'params': action_head_params,
-                'lr_scale': 1.0,
-                'weight_decay': 1e-4,
-            })
-            print(f"✅ Action Head 参数组: {len(action_head_params)} 个参数，学习率={lr:.2e}")
-        
-        # 如果没有可训练参数，则抛出异常（理论上不会发生）
+        for group_name, named_parameters in grouped_parameters.items():
+            if not named_parameters:
+                continue
+            decay_parameters = []
+            no_decay_parameters = []
+            for parameter_name, parameter in named_parameters:
+                if parameter.ndim < 2 or parameter_name.endswith(".bias"):
+                    no_decay_parameters.append(parameter)
+                else:
+                    decay_parameters.append(parameter)
+
+            group_weight_decay = (
+                weight_decays["action_head"]
+                if group_name == "action_head"
+                else weight_decays["vlm"]
+                if group_name.startswith("vlm_")
+                else weight_decays["other"]
+            )
+            for decay_name, parameters, weight_decay in (
+                ("decay", decay_parameters, group_weight_decay),
+                ("no_decay", no_decay_parameters, 0.0),
+            ):
+                if not parameters:
+                    continue
+                param_groups.append(
+                    {
+                        "params": parameters,
+                        "lr": learning_rates[group_name],
+                        "weight_decay": weight_decay,
+                        "name": f"{group_name}_{decay_name}",
+                    }
+                )
+            parameter_count = sum(
+                parameter.numel() for _, parameter in named_parameters
+            )
+            print(
+                f"✅ Optimizer group {group_name}: "
+                f"{len(named_parameters)} tensors / {parameter_count:,} values, "
+                f"lr={learning_rates[group_name]:.2e}, "
+                f"weight_decay={group_weight_decay:.2e}"
+            )
+
         if not param_groups:
             raise RuntimeError("No trainable parameters found.")
-        
-        # 创建优化器
-        optimizer = torch.optim.AdamW(
-            param_groups,
-            betas=(0.9, 0.95),
-            lr=lr
+
+        optimizer_class = (
+            torch.optim.AdamW
+            if self._lr_args["name"] == "AdamW"
+            else torch.optim.Adam
         )
-        
+        optimizer = optimizer_class(
+            param_groups,
+            betas=tuple(self._lr_args.get("betas", (0.9, 0.95))),
+            eps=float(self._lr_args.get("eps", 1e-8)),
+            lr=base_lr,
+        )
+
         if self.scheduler_args is not None:
-
-            T_max = int(math.ceil(self.scheduler_args.dataset_size / global_batchsize) *  self.scheduler_args.num_epochs)
-
-            # classic cosine
-            # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            #     optimizer,
-            #     T_max=T_max, 
-            #     eta_min=0.0, last_epoch=-1
-            # )
-
-            # Ramp + cosine
-            T_max_ramp = int(T_max * 0.1)
-            scheduler_ramp = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1e-6, total_iters=T_max_ramp)
-            T_max_cosine = T_max - T_max_ramp
-            scheduler_cosine = torch.optim.lr_scheduler.CosineAnnealingLR(
-                optimizer,
-                T_max=T_max_cosine, 
-                eta_min=0.0, last_epoch=-1
+            total_steps = int(
+                math.ceil(self.scheduler_args.dataset_size / global_batchsize)
+                * self.scheduler_args.num_epochs
             )
-            scheduler = torch.optim.lr_scheduler.SequentialLR(
-                optimizer,
-                schedulers=[scheduler_ramp, scheduler_cosine],
-                milestones=[T_max_ramp],
-            )           
-            
+            warmup_ratio = float(self.scheduler_args.get("warmup_ratio", 0.03))
+            min_lr_ratio = float(self.scheduler_args.get("min_lr_ratio", 0.0))
+            action_head_min_lr_ratio = float(
+                self.scheduler_args.get(
+                    "action_head_min_lr_ratio", min_lr_ratio
+                )
+            )
+            vlm_min_lr_ratio = float(
+                self.scheduler_args.get("vlm_min_lr_ratio", min_lr_ratio)
+            )
+            start_lr_ratio = float(
+                self.scheduler_args.get("start_lr_ratio", 1e-3)
+            )
+            if not 0.0 <= warmup_ratio < 1.0:
+                raise ValueError("scheduler warmup_ratio must be in [0, 1)")
+            if not 0.0 <= min_lr_ratio <= 1.0:
+                raise ValueError("scheduler min_lr_ratio must be in [0, 1]")
+            if not 0.0 <= action_head_min_lr_ratio <= 1.0:
+                raise ValueError(
+                    "scheduler action_head_min_lr_ratio must be in [0, 1]"
+                )
+            if not 0.0 <= vlm_min_lr_ratio <= 1.0:
+                raise ValueError(
+                    "scheduler vlm_min_lr_ratio must be in [0, 1]"
+                )
+            warmup_steps = max(1, int(total_steps * warmup_ratio))
+
+            def make_lr_multiplier(group_min_lr_ratio: float):
+                def lr_multiplier(step: int) -> float:
+                    if step < warmup_steps:
+                        progress = step / warmup_steps
+                        return start_lr_ratio + (1.0 - start_lr_ratio) * progress
+                    decay_steps = max(1, total_steps - warmup_steps)
+                    progress = min(1.0, (step - warmup_steps) / decay_steps)
+                    cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+                    return group_min_lr_ratio + (
+                        1.0 - group_min_lr_ratio
+                    ) * cosine
+
+                return lr_multiplier
+
+            lr_lambdas = []
+            for group in optimizer.param_groups:
+                group_name = str(group.get("name", ""))
+                if group_name.startswith("action_head_"):
+                    group_min_lr_ratio = action_head_min_lr_ratio
+                elif group_name.startswith("vlm_"):
+                    group_min_lr_ratio = vlm_min_lr_ratio
+                else:
+                    group_min_lr_ratio = min_lr_ratio
+                lr_lambdas.append(make_lr_multiplier(group_min_lr_ratio))
+
+            scheduler = torch.optim.lr_scheduler.LambdaLR(
+                optimizer, lr_lambda=lr_lambdas
+            )
+            print(
+                "✅ LR scheduler: linear warmup + cosine decay, "
+                f"total_steps={total_steps:,}, warmup_steps={warmup_steps:,}, "
+                f"action_min={action_head_min_lr_ratio:.3f}, "
+                f"vlm_min={vlm_min_lr_ratio:.3f}, "
+                f"other_min={min_lr_ratio:.3f}"
+            )
             return [optimizer], [{"scheduler": scheduler, "interval": "step"}]
         
         else:
@@ -665,23 +1123,30 @@ class DriveVLABaseAgent(AbstractAgent):
 
     def get_training_callbacks(self):
 
-        checkpoint_cb_best = ModelCheckpoint(save_top_k=1,
+        checkpoint_cb_best = EfficientBestAndLastCheckpoint(save_top_k=1,
                                         monitor='val/score_epoch',
                                         filename='best-{epoch}-{step}',
-                                        mode="max"
+                                        mode="max",
+                                        # The optimized subclass retains a
+                                        # real latest state with one write.
+                                        save_last="link",
                                         )
-        
-        checkpoint_cb = ModelCheckpoint(save_last=True)
 
         lr_monitor = LearningRateMonitor(logging_interval="step", 
                                             log_momentum=False,
                                             log_weight_decay=False)
+        timing_interval = int(os.getenv("DRIVEVLA_TIMING_INTERVAL", "0"))
+        timing_callbacks = (
+            [TrainingThroughputCallback(timing_interval)]
+            if timing_interval > 0
+            else []
+        )
         
         if self.progress_bar:
-            return [checkpoint_cb_best, checkpoint_cb, lr_monitor]
+            return [checkpoint_cb_best, lr_monitor, *timing_callbacks]
         else:
             progress_bar = LitProgressBar()
-            return [checkpoint_cb_best, checkpoint_cb, progress_bar, lr_monitor]
+            return [checkpoint_cb_best, progress_bar, lr_monitor, *timing_callbacks]
 
     def verify_lora_activation(self):
         """

@@ -1,8 +1,25 @@
+# Python build and interpreter artifacts
 .venv/
 .cache/
 env.local.sh
-outputs/
-lightning_logs/
-*.egg-info/
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Training and evaluation artifacts
+lightning_logs/
+outputs/
+wandb/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# Local logs and editor metadata
+*.log
+.DS_Store
+.idea/
+.vscode/

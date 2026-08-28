@@ -18,6 +18,10 @@ split: trainval
 cache_path: ${oc.env:NAVSIM_EXP_ROOT}/navsim_cache_nommcv
 use_cache_without_dataset: true # load the training samples from the cache. scene-filter will be ignored
 force_cache_computation: false
+pad_datasets_to_global_batch: false # avoids dropping samples when per-rank dataset length is not batch-aligned
+preprocess_images_in_workers: false # decode/resize cached image paths in DataLoader workers
+preprocess_image_dtype: bfloat16
+pretokenize_inputs_in_workers: false
 experiment_name: navsim_nommcv
 seed: 0 
 validation_run: false
@@ -28,6 +32,8 @@ dataloader:
     num_workers: 16  # number of workers for data loading
     pin_memory: true  # pin memory for faster GPU transfer
     prefetch_factor: 4  # number of samples loaded in advance by each worker
+    persistent_workers: false
+    multiprocessing_context: null
 
 trainer:
   params:
@@ -54,4 +60,5 @@ trainer:
     default_root_dir: ${output_dir}
 
 train_ckpt_path: null
+auto_resume: true
 load_image_path: False
