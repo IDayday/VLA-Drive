@@ -408,7 +408,17 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
                 }
             )
             shared, shared_mask = _shared_logged_future(context, effect, args.actor_slots)
-            values = effect.as_tensor_dict()
+            # Gate2O v2 consumes the registered primitive split plus the
+            # quarantined engineered diagnostics.  The legacy raw tensors are
+            # exactly the concatenation of those arrays, so storing both would
+            # duplicate every candidate/actor value and roughly double cache
+            # I/O without adding information.  Keep raw fields only for the
+            # older published-label cache contract.
+            values = (
+                {}
+                if frozen_identity.get("label_source") == "none"
+                else effect.as_tensor_dict()
+            )
             primitive = effect.as_primitive_dict()
             engineered = effect.as_engineered_dict()
             values.update(
