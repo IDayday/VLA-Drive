@@ -301,8 +301,15 @@ class FeatureShardWriter:
 class FeatureShardReader:
     """Validate and iterate a finalized cache without pickle."""
 
-    def __init__(self, root: Path, expected_identity: CacheIdentity | None = None):
+    def __init__(
+        self,
+        root: Path,
+        expected_identity: CacheIdentity | None = None,
+        *,
+        verify_shard_hashes: bool = True,
+    ):
         self.root = root
+        self.verify_shard_hashes = bool(verify_shard_hashes)
         manifest_path = root / "manifest.json"
         if not manifest_path.is_file():
             raise FeatureStoreError(f"missing finalized manifest: {manifest_path}")
@@ -316,17 +323,32 @@ class FeatureShardReader:
         if claimed != stable_json_hash(logical):
             raise FeatureStoreError("manifest logical hash mismatch")
 
-    def iter_shards(self) -> Iterator[tuple[dict[str, Any], Mapping[str, Any]]]:
+    def iter_shards(
+        self, array_keys: Sequence[str] | None = None
+    ) -> Iterator[tuple[dict[str, Any], Mapping[str, Any]]]:
+        """Iterate validated shards, optionally decoding only selected arrays.
+
+        Selective decoding is important for Gate2O because the required frozen
+        future spatial tokens are deliberately cached but are only consumed by
+        the WoTE latent controls, not by every A--J baseline epoch.
+        """
+
         for shard in self.manifest["shards"]:
             path = self.root / shard["path"]
             sidecar_path = self.root / shard["sidecar"]
-            if sha256_file(path) != shard["sha256"]:
+            if self.verify_shard_hashes and sha256_file(path) != shard["sha256"]:
                 raise FeatureStoreError(f"shard hash mismatch: {path}")
-            if sha256_file(sidecar_path) != shard["sidecar_sha256"]:
+            if self.verify_shard_hashes and sha256_file(sidecar_path) != shard["sidecar_sha256"]:
                 raise FeatureStoreError(f"sidecar hash mismatch: {sidecar_path}")
             sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
             with np.load(path, allow_pickle=False) as archive:
-                yield sidecar, {key: archive[key] for key in archive.files}
+                requested = tuple(archive.files) if array_keys is None else tuple(array_keys)
+                missing = sorted(set(requested) - set(archive.files))
+                if missing:
+                    raise FeatureStoreError(
+                        f"requested arrays missing from {path}: {missing}"
+                    )
+                yield sidecar, {key: archive[key] for key in requested}
 
 
 def fixed_random_projection(

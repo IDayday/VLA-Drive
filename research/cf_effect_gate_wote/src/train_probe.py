@@ -26,6 +26,7 @@ from .feature_store import (
     FeatureShardWriter,
     SceneCacheRecord,
     atomic_write_json,
+    stable_json_hash,
 )
 from .independent_label_store import IndependentCandidateLabelStore
 from .models.probe_heads import (
@@ -377,7 +378,14 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
         candidate_bank_hash=frozen_identity.get("candidate_bank_hash"),
     )
     writer = FeatureShardWriter(args.output, identity)
-    for shard_index, (sidecar, arrays) in enumerate(frozen_reader.iter_shards()):
+    actor_selection_audit: list[dict[str, Any]] = []
+    # The replay builder is deliberately blind to WoTE rewards, selected
+    # indices, factor labels, and every frozen future latent.  Its only frozen
+    # cache input is the immutable 256-anchor trajectory tensor; map and actor
+    # state come from Scene/MetricCache below.
+    for shard_index, (sidecar, arrays) in enumerate(
+        frozen_reader.iter_shards(("trajectory",))
+    ):
         shard_values: dict[str, list[npt.NDArray[Any]]] = {}
         records: list[SceneCacheRecord] = []
         for scene_index, record in enumerate(sidecar["records"]):
@@ -386,6 +394,19 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
             context = context_from_navsim_scene(scene, metric_loader.get_from_token(token))
             trajectories = np.asarray(arrays["trajectory"][scene_index], dtype=np.float32)
             effect = builder.build(trajectories, context)
+            actor_token_hashes = [
+                hashlib.sha256(value.encode("utf-8")).hexdigest()
+                for value in effect.selected_actor_tokens
+            ]
+            actor_selection_audit.append(
+                {
+                    "scene_token": token,
+                    "selection_rule": "first_valid_distance_then_track_token",
+                    "selected_actor_count": len(actor_token_hashes),
+                    "selected_actor_token_hashes": actor_token_hashes,
+                    "logical_sha256": stable_json_hash(actor_token_hashes),
+                }
+            )
             shared, shared_mask = _shared_logged_future(context, effect, args.actor_slots)
             values = effect.as_tensor_dict()
             primitive = effect.as_primitive_dict()
@@ -429,6 +450,17 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
             records,
         )
     writer.finalize()
+    atomic_write_json(
+        args.output / "actor_selection_audit.json",
+        {
+            "schema_version": "actor_selection_sidecar.v1",
+            "candidate_independent": True,
+            "score_independent": True,
+            "oracle_index_dependency": False,
+            "records": actor_selection_audit,
+            "logical_content_sha256": stable_json_hash(actor_selection_audit),
+        },
+    )
 
 
 def _masked_actor_summary(

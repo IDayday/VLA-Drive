@@ -1,0 +1,85 @@
+schema_version: cf_effect_wote_oracle_effect.v2
+run:
+  run_id: gate2o-six-factor-oracle-effect-v2
+  seeds: [0, 1, 2]
+  overwrite: false
+data:
+  train_scenes: 1024
+  val_scenes: 256
+  test_scenes: 512
+  candidates: 256
+  train_candidates_per_scene: 64
+  pair_count_per_scene: 256
+  label_schema: independent_wote_labels_4s_six_factor.v2
+  label_source: independent_navsim_recompute
+features:
+  label_source: none
+  debug_force_base_anchors: true
+  return_debug_features: true
+  trajectory_offsets: false
+effects:
+  primitive_schema: primitive_effect.v1
+  engineered_schema: engineered_effect.v1
+  actor_slots: 16
+  actor_selection: first_valid_distance_then_track_token
+  reactive_response: false
+probe:
+  checkpoint_schema: structured_six_factor_probe.v2
+  factor_order: [NC, DAC, DDC, EP, TTC, Comfort]
+  d_model: 128
+  num_heads: 4
+  trajectory_layers: 2
+  cross_attention_layers: 2
+  auxiliary_layers: 2
+  dropout: 0.0
+  auxiliary_shape: [32, 64]
+  parameter_tolerance: 0
+  models:
+    - trajectory_only
+    - direct_current
+    - ego_kinematic_effect
+    - static_primitive_effect
+    - shared_logged_future
+    - dynamic_replay_effect
+    - full_primitive_action_effect
+    - full_primitive_no_interaction_mask
+    - interaction_mask_only
+    - full_engineered_action_effect
+    - wote_full_future
+    - wote_environment_only
+pilot:
+  train_scenes: 256
+  val_scenes: 64
+  seed: 0
+  learning_rates: [0.0001, 0.0003]
+  pairwise_weights: [0.25, 0.5]
+  max_epochs: 15
+  patience: 3
+training:
+  optimizer: AdamW
+  weight_decay: 0.0001
+  batch_scenes: 4
+  train_candidates_per_scene: 64
+  max_epochs: 25
+  patience: 5
+  early_stopping_metric: validation_top1_regret
+interventions:
+  permutation_seed: 20260827
+  modes:
+    - full_effect_swap
+    - actor_only_swap
+    - static_only_swap
+    - scene_mean_effect
+bootstrap:
+  samples: 5000
+  confidence: 0.95
+  seed: 20260827
+  unit: scene
+stopping_scope:
+  stop_after: ORACLE_EFFECT_GATE
+  forbidden:
+    - forward_effect
+    - effect_predictor
+    - inverse
+    - trajectory_refinement
+    - policy_distillation

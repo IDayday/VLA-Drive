@@ -582,6 +582,10 @@ def run_cache(args: argparse.Namespace) -> None:
             "candidate_current_feature": output["candidate_current_feature"][0],
             "reward_feature": output["reward_feature"][0],
             "future_ego_features_by_step": output["future_ego_features_by_step"][0],
+            # Gate2O v2 requires the frozen candidate-specific future spatial
+            # tokens themselves.  They remain label-free WoTE activations and
+            # are never copied into the replay-grounded effect cache.
+            "future_bev_tokens_by_step": output["future_bev_tokens_by_step"][0],
             "environment_only_future": env_future[0],
             "shared_environment_future": np.broadcast_to(
                 env_future[0].mean(axis=0, keepdims=True), env_future[0].shape

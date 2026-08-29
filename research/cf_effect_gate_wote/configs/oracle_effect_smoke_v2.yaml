@@ -1,0 +1,28 @@
+schema_version: cf_effect_wote_oracle_effect_smoke.v2
+run:
+  run_id: gate2o-six-factor-oracle-effect-smoke-v2
+  seeds: [0]
+data:
+  train_scenes: 2
+  val_scenes: 2
+  candidates: 256
+  label_schema: independent_wote_labels_4s_six_factor.v2
+features:
+  label_source: none
+  debug_force_base_anchors: true
+  trajectory_offsets: false
+effects:
+  primitive_schema: primitive_effect.v1
+  actor_slots: 16
+probe:
+  checkpoint_schema: structured_six_factor_probe.v2
+  factor_order: [NC, DAC, DDC, EP, TTC, Comfort]
+  models: [direct_current, full_primitive_action_effect]
+  output_shape: [2, 256, 6]
+training:
+  steps: 30
+  learning_rate: 0.0003
+  pairwise_weight: 0.5
+  weight_decay: 0.0001
+stopping_scope:
+  stop_after: TWO_SCENE_OVERFIT
