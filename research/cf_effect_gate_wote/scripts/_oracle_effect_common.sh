@@ -70,6 +70,9 @@ gate2o_require_common() {
   # time.  Validating --map-root is therefore insufficient: every Python
   # subprocess that imports Scene must inherit the resolved path.
   export NUPLAN_MAPS_ROOT="$gate2o_map_root"
+  # Structured probe training enables torch deterministic algorithms.  CuBLAS
+  # requires this environment contract to be present before the process starts.
+  export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 }
 
 gate2o_run() {

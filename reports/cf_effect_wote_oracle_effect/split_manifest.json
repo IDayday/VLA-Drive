@@ -1,0 +1,33 @@
+{
+  "determinism": {
+    "count": 16,
+    "path": "research/cf_effect_gate_wote/configs/splits/oracle_effect_v2_determinism16_tokens.txt",
+    "sha256": "1d807657a19a0c7040c1276b8ce4913e89cf865fbfb20af2fea6ad03eb98334b"
+  },
+  "determinism_selection": "train[:8] + val[:4] + test[:4]",
+  "g1_overlap": 0,
+  "logical_content_sha256": "ec827fb0b2079df146bde290281d2960986d4847b2dd5a072b46e011b741be83",
+  "schema_version": "oracle_effect_split.v2",
+  "selection": {
+    "test": "original_test[200:712]",
+    "train": "original_train[:1024]",
+    "val": "original_val[:256]"
+  },
+  "splits": {
+    "test": {
+      "count": 512,
+      "path": "research/cf_effect_gate_wote/configs/splits/oracle_effect_v2_test_tokens.txt",
+      "sha256": "54f36c0033b9292b18ae99722ebeee5502ee76a83274defbc5c4fe7378dc82fc"
+    },
+    "train": {
+      "count": 1024,
+      "path": "research/cf_effect_gate_wote/configs/splits/oracle_effect_v2_train_tokens.txt",
+      "sha256": "e8f9a0f5a14bcc54f2565bac2f14d46bb5e35e214598c4d9ab01b26d28651d0a"
+    },
+    "val": {
+      "count": 256,
+      "path": "research/cf_effect_gate_wote/configs/splits/oracle_effect_v2_val_tokens.txt",
+      "sha256": "63dc0f43926917649adc27e891b8a5c3c58f70ee022c3001af3032f7db2be7e7"
+    }
+  }
+}

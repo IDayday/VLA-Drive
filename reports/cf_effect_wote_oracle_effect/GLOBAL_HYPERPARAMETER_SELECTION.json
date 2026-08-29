@@ -1,0 +1,168 @@
+{
+  "grid": [
+    {
+      "direct_validation_regret": 0.40171473706141114,
+      "full_validation_regret": 0.38604240491986275,
+      "learning_rate": 0.0001,
+      "mean_validation_regret": 0.39387857099063694,
+      "pairwise_weight": 0.25
+    },
+    {
+      "direct_validation_regret": 0.38152136700227857,
+      "full_validation_regret": 0.4235299527645111,
+      "learning_rate": 0.0001,
+      "mean_validation_regret": 0.40252565988339484,
+      "pairwise_weight": 0.5
+    },
+    {
+      "direct_validation_regret": 0.37875257013365626,
+      "full_validation_regret": 0.3777620503678918,
+      "learning_rate": 0.0003,
+      "mean_validation_regret": 0.378257310250774,
+      "pairwise_weight": 0.25
+    },
+    {
+      "direct_validation_regret": 0.38770863926038146,
+      "full_validation_regret": 0.4051832160912454,
+      "learning_rate": 0.0003,
+      "mean_validation_regret": 0.39644592767581344,
+      "pairwise_weight": 0.5
+    }
+  ],
+  "models": [
+    "direct_current",
+    "full_primitive_action_effect"
+  ],
+  "schema_version": "oracle_effect_global_hyperparameters.v2",
+  "selected": {
+    "direct_validation_regret": 0.37875257013365626,
+    "full_validation_regret": 0.3777620503678918,
+    "learning_rate": 0.0003,
+    "mean_validation_regret": 0.378257310250774,
+    "pairwise_weight": 0.25
+  },
+  "selection_data": {
+    "seed": 0,
+    "train_scenes": 256,
+    "val_scenes": 64
+  },
+  "test_metrics_used": false,
+  "tie_break": [
+    "lower_learning_rate",
+    "lower_pairwise_weight"
+  ],
+  "trials": [
+    {
+      "best_epoch": 10,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0001-pair-0.25.pt",
+      "learning_rate": 0.0001,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 896,
+      "validation_regret": 0.40171473706141114,
+      "validation_selected_score": 0.47309196821879596
+    },
+    {
+      "best_epoch": 13,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0001-pair-0.25.pt",
+      "learning_rate": 0.0001,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 960,
+      "validation_regret": 0.38604240491986275,
+      "validation_selected_score": 0.4887642986141145
+    },
+    {
+      "best_epoch": 14,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0001-pair-0.5.pt",
+      "learning_rate": 0.0001,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 960,
+      "validation_regret": 0.38152136700227857,
+      "validation_selected_score": 0.4932853323407471
+    },
+    {
+      "best_epoch": 13,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0001-pair-0.5.pt",
+      "learning_rate": 0.0001,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 960,
+      "validation_regret": 0.4235299527645111,
+      "validation_selected_score": 0.4512767414562404
+    },
+    {
+      "best_epoch": 9,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0003-pair-0.25.pt",
+      "learning_rate": 0.0003,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 832,
+      "validation_regret": 0.37875257013365626,
+      "validation_selected_score": 0.49605413479730487
+    },
+    {
+      "best_epoch": 12,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0003-pair-0.25.pt",
+      "learning_rate": 0.0003,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 960,
+      "validation_regret": 0.3777620503678918,
+      "validation_selected_score": 0.49704464757815003
+    },
+    {
+      "best_epoch": 5,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0003-pair-0.5.pt",
+      "learning_rate": 0.0003,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 576,
+      "validation_regret": 0.38770863926038146,
+      "validation_selected_score": 0.48709806287661195
+    },
+    {
+      "best_epoch": 8,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-oracle/experiments/cf_effect_wote_oracle_effect/oracle-effect-v2-20260829/audit/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0003-pair-0.5.pt",
+      "learning_rate": 0.0003,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 421812224,
+      "schema_version": "structured_six_factor_probe.v2",
+      "seed": 0,
+      "trainable_parameter_count": 1332998,
+      "training_steps": 768,
+      "validation_regret": 0.4051832160912454,
+      "validation_selected_score": 0.46962349000386894
+    }
+  ]
+}
