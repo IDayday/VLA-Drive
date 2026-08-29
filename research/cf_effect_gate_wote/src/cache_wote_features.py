@@ -546,17 +546,30 @@ def run_cache(args: argparse.Namespace) -> None:
             for key, value in agent.get_feature_builders()[0].compute_features(agent_input).items()
         }
         with torch.inference_mode():
-            agent.WoTE_model.return_debug_features = False
-            agent.WoTE_model.debug_force_base_anchors = False
-            official = agent(features)
-            agent.WoTE_model.return_debug_features = True
-            agent.WoTE_model.debug_force_base_anchors = False
-            debug_official = agent(features)
-            assert_official_equivalence(official, debug_official)
-            validate_debug_shapes(debug_official)
-            agent.WoTE_model.debug_force_base_anchors = True
-            gate_output = agent(features)
-            validate_debug_shapes(gate_output)
+            if args.label_source == "none":
+                # Gate2O consumes only the frozen, forced base-anchor debug
+                # output.  G0-R2a/R2b already established that enabling debug
+                # instrumentation preserves the official output, so repeating
+                # two additional full WoTE forwards for every one of the 1792
+                # scenes would add no new contract evidence.  Candidate
+                # identity remains checked exactly below for every scene.
+                agent.WoTE_model.return_debug_features = True
+                agent.WoTE_model.debug_force_base_anchors = True
+                gate_output = agent(features)
+                validate_debug_shapes(gate_output)
+            else:
+                # Preserve the legacy published-label reproduction path.
+                agent.WoTE_model.return_debug_features = False
+                agent.WoTE_model.debug_force_base_anchors = False
+                official = agent(features)
+                agent.WoTE_model.return_debug_features = True
+                agent.WoTE_model.debug_force_base_anchors = False
+                debug_official = agent(features)
+                assert_official_equivalence(official, debug_official)
+                validate_debug_shapes(debug_official)
+                agent.WoTE_model.debug_force_base_anchors = True
+                gate_output = agent(features)
+                validate_debug_shapes(gate_output)
 
         output = {key: _tensor_to_numpy(value) for key, value in gate_output.items()}
         assert_base_anchor_contract(output, released_anchors)
