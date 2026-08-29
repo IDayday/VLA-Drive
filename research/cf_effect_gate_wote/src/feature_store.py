@@ -200,10 +200,17 @@ class CacheIdentity:
 class FeatureShardWriter:
     """Write a cache once, shard by shard, then atomically finalize it."""
 
-    def __init__(self, root: Path, identity: CacheIdentity):
+    def __init__(
+        self,
+        root: Path,
+        identity: CacheIdentity,
+        *,
+        float32_keys: Sequence[str] = (),
+    ):
         identity.validate()
         self.root = root
         self.identity = identity
+        self.float32_keys = frozenset(float32_keys)
         if root.exists():
             raise FeatureStoreError(f"refusing existing cache root: {root}")
         root.mkdir(parents=True, exist_ok=False)
@@ -251,7 +258,10 @@ class FeatureShardWriter:
             if np.issubdtype(array.dtype, np.floating):
                 if not np.isfinite(array).all():
                     raise FeatureStoreError(f"NaN/Inf detected in {key}")
-                array = array.astype(np.float16, copy=False)
+                array = array.astype(
+                    np.float32 if key in self.float32_keys else np.float16,
+                    copy=False,
+                )
             normalized[key] = np.ascontiguousarray(array)
 
         shard_name = f"shard-{shard_index:05d}.npz"

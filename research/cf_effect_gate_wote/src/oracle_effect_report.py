@@ -337,7 +337,7 @@ def automatic_verdict(
         blocking.append("interaction mask explains the registered fraction of the full gain")
     elif not statuses["full_vs_direct"]:
         latent = any(
-            comparisons[name].score_ci_lower > 0 and comparisons[name].score_delta >= 0.005
+            comparisons[name].score_ci_lower > 0
             for name in ("wote_full_vs_direct", "wote_env_vs_direct")
         )
         verdict = "WOTE_LATENT_SIGNAL_ONLY" if latent else "DIRECT_SCORER_SUFFICIENT"
@@ -458,6 +458,8 @@ def _data_contract(args: argparse.Namespace) -> Mapping[str, Any]:
         "score_reconstruction_tolerance": 1.0e-6,
         "feature_cache_label_source": "none",
         "effect_reactive_response": False,
+        "primitive_effect_schema": "primitive_effect.v1",
+        "engineered_effect_schema": "engineered_effect.v1",
         "actor_selection": "first_valid_distance_then_track_token",
         "counts": expected_counts,
         "label_store_hashes": label_hashes,

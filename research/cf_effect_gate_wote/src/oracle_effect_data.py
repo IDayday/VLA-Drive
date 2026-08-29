@@ -359,6 +359,30 @@ def _feature_keys_for_model(model_type: str) -> tuple[str, ...]:
     return tuple(sorted(keys))
 
 
+def _effect_keys_for_model(model_type: str) -> tuple[str, ...]:
+    """Decode no score-adjacent or unused effect arrays during probe epochs."""
+
+    if model_type in {
+        "trajectory_only",
+        "direct_current",
+        "wote_full_future",
+        "wote_environment_only",
+    }:
+        return ()
+    if model_type == "shared_logged_future":
+        return ("shared_actor_mask", "shared_logged_future")
+    keys = {
+        "primitive_actor_effect",
+        "primitive_actor_mask",
+        "primitive_ego_effect",
+        "primitive_interaction_mask",
+        "primitive_map_effect",
+    }
+    if model_type == "full_engineered_action_effect":
+        keys.update({"actor_engineered_effect", "map_engineered_effect"})
+    return tuple(sorted(keys))
+
+
 def validate_label_free_feature_cache(root: Path) -> Mapping[str, Any]:
     reader = FeatureShardReader(root)
     identity = reader.manifest.get("identity", {})
@@ -468,7 +492,7 @@ def iter_oracle_scenes(
         raise OracleEffectDataError("label store is not independent six-factor v2")
     if int(frozen_reader.manifest["scene_count"]) != len(label_index):
         raise OracleEffectDataError("feature/label scene counts differ")
-    effect_iter = effect_reader.iter_shards()
+    effect_iter = effect_reader.iter_shards(_effect_keys_for_model(model_type))
     count = 0
     for frozen_sidecar, frozen_arrays in frozen_reader.iter_shards(
         _feature_keys_for_model(model_type)
@@ -494,6 +518,12 @@ def iter_oracle_scenes(
             frozen = {key: value[index] for key, value in frozen_arrays.items()}
             effects = {key: value[index] for key, value in effect_arrays.items()}
             _validate_frozen_scene(token, frozen)
+            if stable_array_hash(
+                np.asarray(frozen["trajectory"], dtype=np.float32)
+            ) != frozen_record.get("trajectory_hash"):
+                raise OracleEffectDataError(
+                    f"{token}: stored trajectory no longer equals the fixed base anchors"
+                )
             factors = np.asarray(label.factors, dtype=np.float32)
             scores = np.asarray(label.score, dtype=np.float32)
             if factors.shape != (256, 6) or scores.shape != (256,):

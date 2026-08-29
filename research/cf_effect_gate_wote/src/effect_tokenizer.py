@@ -293,10 +293,8 @@ class EffectTokenPacker:
             return PackedVariant(_pack_wote_feature(frozen, environment_only=True), True)
         if effects is None:
             raise EffectTokenError(f"{model_type} requires replay effect tensors")
-
-        ego, map_effect, actor, validity, interaction = _primitive_effects(effects)
-        output = np.zeros((candidates, 32, 64), dtype=np.float32)
         if model_type == "shared_logged_future":
+            output = np.zeros((candidates, 32, 64), dtype=np.float32)
             shared_actor, shared_mask = _shared_actor_summary(effects, candidates)
             _put_group(output, "actor", shared_actor)
             _put_group(
@@ -306,6 +304,8 @@ class EffectTokenPacker:
             )
             return PackedVariant(output, True)
 
+        ego, map_effect, actor, validity, interaction = _primitive_effects(effects)
+        output = np.zeros((candidates, 32, 64), dtype=np.float32)
         include_ego = model_type in {
             "ego_kinematic_effect",
             "static_primitive_effect",
@@ -425,4 +425,3 @@ def intervene_effects(
         else:
             output[name] = value[permutation].copy()
     return output
-

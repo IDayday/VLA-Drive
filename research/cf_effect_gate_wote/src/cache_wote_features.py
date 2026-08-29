@@ -518,7 +518,9 @@ def run_cache(args: argparse.Namespace) -> None:
             candidate_bank_hash if args.label_source == "none" else None
         ),
     )
-    writer = FeatureShardWriter(args.output, identity)
+    # Candidate identity is contractual for Gate2O joins.  Preserve anchors in
+    # float32 while continuing to compress the much larger frozen activations.
+    writer = FeatureShardWriter(args.output, identity, float32_keys=("trajectory",))
     projection = fixed_random_projection(256, 64, seed=20260827)
     score_dictionary = _score_dictionary_for_label_source(
         args.release_root, args.label_source
