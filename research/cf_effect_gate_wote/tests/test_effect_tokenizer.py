@@ -9,6 +9,9 @@ def make_frozen() -> dict[str, np.ndarray]:
     return {
         "trajectory": np.zeros((256, 8, 3), dtype=np.float32),
         "environment_only_future": np.ones((256, 1, 64), dtype=np.float32),
+        "reward_feature": np.ones((256, 256), dtype=np.float32),
+        "future_ego_features_by_step": np.ones((256, 1, 256), dtype=np.float32),
+        "future_bev_pool_by_step": np.ones((256, 1, 256), dtype=np.float32),
     }
 
 
@@ -48,6 +51,7 @@ def test_all_structured_variants_have_fixed_shape() -> None:
         "full_primitive_no_interaction_mask",
         "interaction_mask_only",
         "full_engineered_action_effect",
+        "wote_full_future",
         "wote_environment_only",
     ):
         packed = packer.pack(model, effects, frozen)
@@ -71,4 +75,3 @@ def test_interaction_mask_only_excludes_actor_and_map_geometry() -> None:
     ).auxiliary_tokens
     assert np.count_nonzero(packed[:, :24]) == 0
     assert np.count_nonzero(packed[:, 24:]) > 0
-

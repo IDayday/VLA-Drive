@@ -63,6 +63,8 @@ def test_verdict_priority_and_positive_terminal() -> None:
         comparisons=comparisons(),  # type: ignore[arg-type]
     )
     assert result["final_verdict"] == "DIRECT_BASELINE_UNDERFIT"
+    assert result["full_vs_direct"] == "NOT_RUN"
+    assert result["candidate_specificity"] == "NOT_RUN"
 
 
 def test_hard_false_safe_and_direction_include_ddc() -> None:

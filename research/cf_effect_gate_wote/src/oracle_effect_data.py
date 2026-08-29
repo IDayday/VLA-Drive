@@ -50,6 +50,7 @@ REQUIRED_FEATURE_KEYS = {
     "candidate_current_feature",
     "reward_feature",
     "future_ego_features_by_step",
+    "future_bev_pool_by_step",
     "future_bev_tokens_by_step",
     "environment_only_future",
     "shared_environment_future",
@@ -351,7 +352,7 @@ def _feature_keys_for_model(model_type: str) -> tuple[str, ...]:
             {
                 "reward_feature",
                 "future_ego_features_by_step",
-                "future_bev_tokens_by_step",
+                "future_bev_pool_by_step",
             }
         )
     elif model_type == "wote_environment_only":
@@ -668,12 +669,32 @@ def compare_deterministic_stores(first: Path, second: Path, kind: str) -> Mappin
                 mismatches.append(token)
         logical_equal = first_store.logical_content_sha256 == second_store.logical_content_sha256
     elif kind == "effects":
-        a = FeatureShardReader(first).manifest
-        b = FeatureShardReader(second).manifest
-        logical_equal = a["logical_content_sha256"] == b["logical_content_sha256"]
+        first_reader = FeatureShardReader(first)
+        second_reader = FeatureShardReader(second)
+        logical_equal = (
+            first_reader.manifest["logical_content_sha256"]
+            == second_reader.manifest["logical_content_sha256"]
+        )
+        mismatches = []
+        first_shards = list(first_reader.iter_shards())
+        second_shards = list(second_reader.iter_shards())
+        if len(first_shards) != len(second_shards):
+            mismatches.append("shard_count")
+        for shard_index, ((first_sidecar, first_arrays), (second_sidecar, second_arrays)) in enumerate(
+            zip(first_shards, second_shards)
+        ):
+            if first_sidecar["records"] != second_sidecar["records"]:
+                mismatches.append(f"shard-{shard_index}:records")
+            if set(first_arrays) != set(second_arrays):
+                mismatches.append(f"shard-{shard_index}:array_keys")
+                continue
+            for name in first_arrays:
+                if not np.array_equal(first_arrays[name], second_arrays[name]):
+                    mismatches.append(f"shard-{shard_index}:{name}")
         first_actor = json.loads((first / "actor_selection_audit.json").read_text(encoding="utf-8"))
         second_actor = json.loads((second / "actor_selection_audit.json").read_text(encoding="utf-8"))
-        mismatches = [] if first_actor == second_actor else ["actor_selection_audit"]
+        if first_actor != second_actor:
+            mismatches.append("actor_selection_audit")
     else:
         raise ValueError("kind must be labels or effects")
     return {

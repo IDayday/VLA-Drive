@@ -382,16 +382,31 @@ def automatic_verdict(
         hypothesis = "PARTIAL"
     else:
         hypothesis = "NEGATIVE"
+    science_gates_runnable = (
+        data_contract_pass
+        and probe_contract_pass
+        and bool(statuses.get("direct_baseline_quality"))
+    )
+
+    def gate_value(name: str) -> str:
+        if not science_gates_runnable:
+            return "NOT_RUN"
+        return "PASS" if statuses.get(name) else "FAIL"
+
     return {
         "data_contract": "PASS" if data_contract_pass else "FAIL",
         "six_factor_probe_contract": "PASS" if probe_contract_pass else "FAIL",
         "direct_baseline_quality": "PASS" if statuses.get("direct_baseline_quality") else "FAIL",
-        "full_vs_direct": "PASS" if statuses.get("full_vs_direct") else "FAIL",
-        "full_vs_static": "PASS" if statuses.get("full_vs_static") else "FAIL",
-        "full_vs_shared_future": "PASS" if statuses.get("full_vs_shared_future") else "FAIL",
-        "candidate_specificity": "PASS" if statuses.get("candidate_specificity") else "FAIL",
-        "primitive_requirement": "PASS" if statuses.get("primitive_requirement") else "FAIL",
-        "interaction_subset_status": statuses.get("interaction_subset_status", "NOT_APPLICABLE"),
+        "full_vs_direct": gate_value("full_vs_direct"),
+        "full_vs_static": gate_value("full_vs_static"),
+        "full_vs_shared_future": gate_value("full_vs_shared_future"),
+        "candidate_specificity": gate_value("candidate_specificity"),
+        "primitive_requirement": gate_value("primitive_requirement"),
+        "interaction_subset_status": (
+            statuses.get("interaction_subset_status", "NOT_APPLICABLE")
+            if science_gates_runnable
+            else "NOT_APPLICABLE"
+        ),
         "final_verdict": verdict,
         "scientific_hypothesis_status": hypothesis,
         "positive_evidence": positive,
@@ -630,20 +645,21 @@ def _markdown_report(
             "",
             "## 核心比较",
             "",
-            "| Comparison | Score delta | Regret reduction | 95% CI |",
-            "| --- | ---: | ---: | --- |",
+            "| Comparison | Score delta | Regret reduction | 95% CI | Status |",
+            "| --- | ---: | ---: | --- | --- |",
         ]
     )
-    for key, label in (
-        ("full_vs_direct", "Full vs Direct"),
-        ("full_vs_static", "Full vs Static"),
-        ("full_vs_shared", "Full vs Shared"),
-        ("full_vs_swap", "Full vs Swap"),
+    for key, label, verdict_key in (
+        ("full_vs_direct", "Full vs Direct", "full_vs_direct"),
+        ("full_vs_static", "Full vs Static", "full_vs_static"),
+        ("full_vs_shared", "Full vs Shared", "full_vs_shared_future"),
+        ("full_vs_swap", "Full vs Swap", "candidate_specificity"),
     ):
         value = comparisons[key]
         lines.append(
             f"| {label} | {_format(value.score_delta)} | {_format(value.regret_reduction)} | "
-            f"[{_format(value.score_ci_lower)}, {_format(value.score_ci_upper)}] |"
+            f"[{_format(value.score_ci_lower)}, {_format(value.score_ci_upper)}] | "
+            f"{verdict[verdict_key]} |"
         )
     lines.extend(
         [
@@ -686,17 +702,33 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
     data_contract = _data_contract(args)
     architecture = _architecture_contract()
     legacy = audit_legacy_reports(args.repo_root)
-    if legacy["status"] != "UNCHANGED":
-        data_contract = dict(data_contract)
+    relabel_audit = json.loads(args.relabel_audit.read_text(encoding="utf-8"))
+    effect_audit = json.loads(args.effect_audit.read_text(encoding="utf-8"))
+    staged_assets = json.loads(args.asset_manifest.read_text(encoding="utf-8"))
+    split_manifest = json.loads(args.split_manifest.read_text(encoding="utf-8"))
+    data_contract = dict(data_contract)
+    data_contract.update(
+        {
+            "legacy_report_hash_status": legacy["status"],
+            "relabel_determinism": relabel_audit.get("status"),
+            "effect_cache_determinism": effect_audit.get("status"),
+            "asset_preflight": staged_assets.get("status"),
+            "split_manifest_schema": split_manifest.get("schema_version"),
+        }
+    )
+    if not (
+        data_contract["status"] == "PASS"
+        and legacy["status"] == "UNCHANGED"
+        and relabel_audit.get("status") == "PASS"
+        and effect_audit.get("status") == "PASS"
+        and staged_assets.get("status") == "PASS"
+        and split_manifest.get("schema_version") == "oracle_effect_split.v2"
+    ):
         data_contract["status"] = "FAIL"
-        data_contract["legacy_report_hash_status"] = "CHANGED"
-    else:
-        data_contract = dict(data_contract)
-        data_contract["legacy_report_hash_status"] = "UNCHANGED"
     atomic_write_json(args.output / "DATA_CONTRACT.json", data_contract)
     atomic_write_json(args.output / "PROBE_ARCHITECTURE.json", architecture)
 
-    asset_manifest = json.loads(args.asset_manifest.read_text(encoding="utf-8"))
+    asset_manifest = staged_assets
     asset_manifest["legacy_report_hash_audit"] = legacy
     atomic_write_json(args.output / "ASSET_MANIFEST.json", asset_manifest)
     for source, name in (

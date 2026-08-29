@@ -244,12 +244,17 @@ def _pack_wote_feature(
         future_ego = _as_finite(
             frozen["future_ego_features_by_step"], "WoTE future ego feature"
         ).reshape(candidates, -1)
-        future_bev = _as_finite(
-            frozen["future_bev_tokens_by_step"], "WoTE future BEV feature"
-        )
-        if future_bev.ndim != 4 or future_bev.shape[0] != candidates:
-            raise EffectTokenError(f"invalid future BEV shape: {future_bev.shape}")
-        future_bev_pool = future_bev.mean(axis=2).reshape(candidates, -1)
+        if "future_bev_pool_by_step" in frozen:
+            future_bev_pool = _as_finite(
+                frozen["future_bev_pool_by_step"], "WoTE future BEV pool"
+            ).reshape(candidates, -1)
+        else:
+            future_bev = _as_finite(
+                frozen["future_bev_tokens_by_step"], "WoTE future BEV feature"
+            )
+            if future_bev.ndim != 4 or future_bev.shape[0] != candidates:
+                raise EffectTokenError(f"invalid future BEV shape: {future_bev.shape}")
+            future_bev_pool = future_bev.mean(axis=2).reshape(candidates, -1)
         feature = np.concatenate([reward, future_ego, future_bev_pool], axis=-1)
     capacity = AUXILIARY_TOKEN_COUNT * AUXILIARY_TOKEN_WIDTH
     if feature.shape[1] > capacity:
