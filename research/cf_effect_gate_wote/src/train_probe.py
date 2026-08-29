@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import itertools
 import json
+import multiprocessing
 import os
 import random
 import sys
@@ -45,6 +47,7 @@ from .replay_effect_builder import (
     PRIMITIVE_MAP_INDICES,
     EffectBuilderConfig,
     InteractionThresholds,
+    ReplaySceneContext,
     ReplayEffectTensors,
     ReplayGroundedEffectBuilder,
     context_from_navsim_scene,
@@ -309,6 +312,59 @@ def _shared_logged_future(
     return output, mask
 
 
+@dataclass(frozen=True)
+class _ReplayEffectTask:
+    """One scene's immutable inputs for deterministic parallel construction."""
+
+    trajectories: npt.NDArray[np.float32]
+    context: ReplaySceneContext
+    config: EffectBuilderConfig
+    label_source: str
+    sensitivity_clearance_m: tuple[float, ...]
+
+
+def _build_replay_effect_task(
+    task: _ReplayEffectTask,
+) -> tuple[tuple[str, ...], dict[str, npt.NDArray[Any]]]:
+    """Run the unchanged builder in an isolated worker and return cache arrays."""
+
+    effect = ReplayGroundedEffectBuilder(task.config).build(
+        task.trajectories, task.context
+    )
+    shared, shared_mask = _shared_logged_future(
+        task.context, effect, task.config.actor_slots
+    )
+    # Gate2O v2 consumes the registered primitive split plus the quarantined
+    # engineered diagnostics.  Legacy published-label caches retain their raw
+    # tensors for backward compatibility.
+    values = {} if task.label_source == "none" else effect.as_tensor_dict()
+    primitive = effect.as_primitive_dict()
+    values.update(
+        {
+            "primitive_ego_effect": primitive["ego_effect"],
+            "primitive_map_effect": primitive["map_effect"],
+            "primitive_actor_effect": primitive["actor_effect"],
+            "primitive_actor_mask": primitive["actor_mask"],
+            "primitive_interaction_mask": primitive["interaction_mask"],
+            **effect.as_engineered_dict(),
+            "shared_logged_future": shared,
+            "shared_actor_mask": shared_mask,
+        }
+    )
+    for sensitivity in task.sensitivity_clearance_m:
+        base = task.config.interaction
+        thresholds = InteractionThresholds(
+            clearance_m=float(sensitivity),
+            tca_seconds=base.tca_seconds,
+            tca_distance_m=base.tca_distance_m,
+            conflict_zone_clearance_m=base.conflict_zone_clearance_m,
+        )
+        values[f"interaction_mask_clearance_{sensitivity:g}m"] = (
+            _interaction_mask_for_clearance(effect, thresholds)
+        )
+    return effect.selected_actor_tokens, values
+
+
 def cache_replay_effects(args: argparse.Namespace) -> None:
     if args.output.exists():
         raise FileExistsError(f"refusing existing effect cache: {args.output}")
@@ -350,20 +406,20 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
         raise ProbeDataError(
             f"metric cache missing {len(missing_metric)} scenes; first={missing_metric[:5]}"
         )
-    builder = ReplayGroundedEffectBuilder(
-        EffectBuilderConfig(
-            actor_slots=args.actor_slots,
-            interval_seconds=args.interval_seconds,
-            ego_length_m=args.ego_length_m,
-            ego_width_m=args.ego_width_m,
-            interaction=InteractionThresholds(
-                clearance_m=args.clearance_m,
-                tca_seconds=args.tca_seconds,
-                tca_distance_m=args.tca_distance_m,
-                conflict_zone_clearance_m=args.conflict_zone_clearance_m,
-            ),
-        )
+    builder_config = EffectBuilderConfig(
+        actor_slots=args.actor_slots,
+        interval_seconds=args.interval_seconds,
+        ego_length_m=args.ego_length_m,
+        ego_width_m=args.ego_width_m,
+        interaction=InteractionThresholds(
+            clearance_m=args.clearance_m,
+            tca_seconds=args.tca_seconds,
+            tca_distance_m=args.tca_distance_m,
+            conflict_zone_clearance_m=args.conflict_zone_clearance_m,
+        ),
     )
+    if args.workers <= 0:
+        raise ValueError("effect worker count must be positive")
     identity = CacheIdentity(
         run_id=f"{frozen_identity['run_id']}-effects",
         split=str(frozen_identity["split"]),
@@ -383,82 +439,77 @@ def cache_replay_effects(args: argparse.Namespace) -> None:
     # indices, factor labels, and every frozen future latent.  Its only frozen
     # cache input is the immutable 256-anchor trajectory tensor; map and actor
     # state come from Scene/MetricCache below.
-    for shard_index, (sidecar, arrays) in enumerate(
-        frozen_reader.iter_shards(("trajectory",))
-    ):
-        shard_values: dict[str, list[npt.NDArray[Any]]] = {}
-        records: list[SceneCacheRecord] = []
-        for scene_index, record in enumerate(sidecar["records"]):
-            token = str(record["scene_token"])
-            scene = scene_loader.get_scene_from_token(token)
-            context = context_from_navsim_scene(scene, metric_loader.get_from_token(token))
-            trajectories = np.asarray(arrays["trajectory"][scene_index], dtype=np.float32)
-            effect = builder.build(trajectories, context)
-            actor_token_hashes = [
-                hashlib.sha256(value.encode("utf-8")).hexdigest()
-                for value in effect.selected_actor_tokens
-            ]
-            actor_selection_audit.append(
-                {
-                    "scene_token": token,
-                    "selection_rule": "first_valid_distance_then_track_token",
-                    "selected_actor_count": len(actor_token_hashes),
-                    "selected_actor_token_hashes": actor_token_hashes,
-                    "logical_sha256": stable_json_hash(actor_token_hashes),
-                }
-            )
-            shared, shared_mask = _shared_logged_future(context, effect, args.actor_slots)
-            # Gate2O v2 consumes the registered primitive split plus the
-            # quarantined engineered diagnostics.  The legacy raw tensors are
-            # exactly the concatenation of those arrays, so storing both would
-            # duplicate every candidate/actor value and roughly double cache
-            # I/O without adding information.  Keep raw fields only for the
-            # older published-label cache contract.
-            values = (
-                {}
-                if frozen_identity.get("label_source") == "none"
-                else effect.as_tensor_dict()
-            )
-            primitive = effect.as_primitive_dict()
-            engineered = effect.as_engineered_dict()
-            values.update(
-                {
-                    "primitive_ego_effect": primitive["ego_effect"],
-                    "primitive_map_effect": primitive["map_effect"],
-                    "primitive_actor_effect": primitive["actor_effect"],
-                    "primitive_actor_mask": primitive["actor_mask"],
-                    "primitive_interaction_mask": primitive["interaction_mask"],
-                    **engineered,
-                }
-            )
-            values["shared_logged_future"] = shared
-            values["shared_actor_mask"] = shared_mask
-            for sensitivity in args.sensitivity_clearance_m:
-                sensitivity_thresholds = InteractionThresholds(
-                    clearance_m=float(sensitivity),
-                    tca_seconds=args.tca_seconds,
-                    tca_distance_m=args.tca_distance_m,
-                    conflict_zone_clearance_m=args.conflict_zone_clearance_m,
-                )
-                values[f"interaction_mask_clearance_{sensitivity:g}m"] = (
-                    _interaction_mask_for_clearance(effect, sensitivity_thresholds)
-                )
-            for key, value in values.items():
-                shard_values.setdefault(key, []).append(np.asarray(value))
-            records.append(
-                SceneCacheRecord(
-                    scene_token=token,
-                    candidate_indices=tuple(record["candidate_indices"]),
-                    trajectory_hash=str(record["trajectory_hash"]),
-                    label_hash=record.get("label_hash"),
-                    candidate_bank_hash=record.get("candidate_bank_hash"),
-                )
-            )
-        writer.write_shard(
-            shard_index,
-            {key: np.stack(value, axis=0) for key, value in shard_values.items()},
-            records,
+    executor = (
+        concurrent.futures.ProcessPoolExecutor(
+            max_workers=args.workers,
+            mp_context=multiprocessing.get_context("spawn"),
         )
+        if args.workers > 1
+        else None
+    )
+    try:
+        for shard_index, (sidecar, arrays) in enumerate(
+            frozen_reader.iter_shards(("trajectory",))
+        ):
+            shard_values: dict[str, list[npt.NDArray[Any]]] = {}
+            records: list[SceneCacheRecord] = []
+            tasks: list[_ReplayEffectTask] = []
+            for scene_index, record in enumerate(sidecar["records"]):
+                token = str(record["scene_token"])
+                scene = scene_loader.get_scene_from_token(token)
+                context = context_from_navsim_scene(
+                    scene, metric_loader.get_from_token(token)
+                )
+                tasks.append(
+                    _ReplayEffectTask(
+                        trajectories=np.asarray(
+                            arrays["trajectory"][scene_index], dtype=np.float32
+                        ),
+                        context=context,
+                        config=builder_config,
+                        label_source=str(frozen_identity.get("label_source", "published")),
+                        sensitivity_clearance_m=tuple(args.sensitivity_clearance_m),
+                    )
+                )
+                records.append(
+                    SceneCacheRecord(
+                        scene_token=token,
+                        candidate_indices=tuple(record["candidate_indices"]),
+                        trajectory_hash=str(record["trajectory_hash"]),
+                        label_hash=record.get("label_hash"),
+                        candidate_bank_hash=record.get("candidate_bank_hash"),
+                    )
+                )
+            results = (
+                executor.map(_build_replay_effect_task, tasks, chunksize=1)
+                if executor is not None
+                else map(_build_replay_effect_task, tasks)
+            )
+            for record, (selected_actor_tokens, values) in zip(records, results):
+                token = record.scene_token
+                actor_token_hashes = [
+                    hashlib.sha256(value.encode("utf-8")).hexdigest()
+                    for value in selected_actor_tokens
+                ]
+                actor_selection_audit.append(
+                    {
+                        "scene_token": token,
+                        "selection_rule": "first_valid_distance_then_track_token",
+                        "selected_actor_count": len(actor_token_hashes),
+                        "selected_actor_token_hashes": actor_token_hashes,
+                        "logical_sha256": stable_json_hash(actor_token_hashes),
+                    }
+                )
+                for key, value in values.items():
+                    shard_values.setdefault(key, []).append(np.asarray(value))
+            writer.write_shard(
+                shard_index,
+                {key: np.stack(value, axis=0) for key, value in shard_values.items()},
+                records,
+            )
+    finally:
+        if executor is not None:
+            executor.shutdown(wait=True, cancel_futures=True)
     writer.finalize()
     atomic_write_json(
         args.output / "actor_selection_audit.json",
@@ -1057,6 +1108,9 @@ def _add_effect_cache_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--tca-seconds", type=float, default=3.0)
     parser.add_argument("--tca-distance-m", type=float, default=10.0)
     parser.add_argument("--conflict-zone-clearance-m", type=float, default=1.0)
+    parser.add_argument(
+        "--workers", type=int, default=min(16, os.cpu_count() or 1)
+    )
     parser.add_argument(
         "--sensitivity-clearance-m", type=float, nargs="+", default=(4.0, 6.0, 8.0)
     )

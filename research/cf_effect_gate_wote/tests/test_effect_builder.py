@@ -112,6 +112,13 @@ def test_logged_actor_future_is_bitwise_unchanged() -> None:
     assert before == after
 
 
+def test_stable_array_hash_supports_empty_actor_axes() -> None:
+    first = np.zeros((8, 0, 2), dtype=np.float32)
+    second = np.zeros((8, 0, 2), dtype=np.float32)
+    assert stable_array_hash(first) == stable_array_hash(second)
+    assert stable_array_hash(first) != stable_array_hash(np.zeros((0,), dtype=np.float32))
+
+
 def test_effect_tensor_schema_has_no_metric_or_selection_labels() -> None:
     result = ReplayGroundedEffectBuilder().build(make_candidates(), make_context())
     assert set(result.as_tensor_dict()) == {

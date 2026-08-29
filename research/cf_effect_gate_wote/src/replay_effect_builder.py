@@ -172,28 +172,50 @@ def _point_segment_distance(
     return float(np.linalg.norm(point - (start + fraction * delta)))
 
 
+def _points_to_segments_distance(
+    points: npt.ArrayLike,
+    starts: npt.ArrayLike,
+    ends: npt.ArrayLike,
+) -> npt.NDArray[np.float32]:
+    """Return every point-to-segment distance without changing the geometry."""
+
+    point_values = np.asarray(points, dtype=np.float32).reshape(-1, 2)
+    start_values = np.asarray(starts, dtype=np.float32).reshape(-1, 2)
+    end_values = np.asarray(ends, dtype=np.float32).reshape(-1, 2)
+    delta = end_values - start_values
+    denominator = np.sum(delta * delta, axis=-1)
+    relative = point_values[:, None, :] - start_values[None, :, :]
+    numerator = np.sum(relative * delta[None, :, :], axis=-1)
+    safe_denominator = np.where(denominator > 1.0e-12, denominator, 1.0)
+    fraction = np.clip(numerator / safe_denominator[None, :], 0.0, 1.0)
+    projection = start_values[None, :, :] + fraction[..., None] * delta[None, :, :]
+    distance = np.linalg.norm(point_values[:, None, :] - projection, axis=-1)
+    degenerate = denominator <= 1.0e-12
+    if np.any(degenerate):
+        distance[:, degenerate] = np.linalg.norm(
+            point_values[:, None, :] - start_values[None, degenerate, :], axis=-1
+        )
+    return np.asarray(distance, dtype=np.float32)
+
+
 def point_in_polygon(point: npt.ArrayLike, polygon: npt.ArrayLike) -> bool:
     value = np.asarray(point, dtype=np.float32)
     vertices = np.asarray(polygon, dtype=np.float32)
     if vertices.ndim != 2 or vertices.shape[1] != 2 or len(vertices) < 3:
         raise ValueError(f"polygon must be [N>=3,2], got {vertices.shape}")
-    inside = False
-    previous = vertices[-1]
-    for current in vertices:
-        if _point_segment_distance(value, previous, current) <= 1e-6:
-            return True
-        crosses = (current[1] > value[1]) != (previous[1] > value[1])
-        if crosses:
-            x_intersection = (
-                (previous[0] - current[0])
-                * (value[1] - current[1])
-                / (previous[1] - current[1] + 1e-12)
-                + current[0]
-            )
-            if value[0] < x_intersection:
-                inside = not inside
-        previous = current
-    return inside
+    previous = np.roll(vertices, 1, axis=0)
+    if float(
+        _points_to_segments_distance(value[None], previous, vertices).min()
+    ) <= 1.0e-6:
+        return True
+    crosses = (vertices[:, 1] > value[1]) != (previous[:, 1] > value[1])
+    x_intersection = (
+        (previous[:, 0] - vertices[:, 0])
+        * (value[1] - vertices[:, 1])
+        / (previous[:, 1] - vertices[:, 1] + 1.0e-12)
+        + vertices[:, 0]
+    )
+    return bool(np.count_nonzero(crosses & (value[0] < x_intersection)) % 2)
 
 
 def _orientation(
@@ -230,15 +252,30 @@ def _segments_intersect(
 def polygons_intersect(first: npt.ArrayLike, second: npt.ArrayLike) -> bool:
     left = np.asarray(first, dtype=np.float32)
     right = np.asarray(second, dtype=np.float32)
-    for left_index in range(len(left)):
-        for right_index in range(len(right)):
-            if _segments_intersect(
-                left[left_index],
-                left[(left_index + 1) % len(left)],
-                right[right_index],
-                right[(right_index + 1) % len(right)],
-            ):
-                return True
+    left_end = np.roll(left, -1, axis=0)
+    right_end = np.roll(right, -1, axis=0)
+    left_delta = left_end - left
+    right_delta = right_end - right
+
+    def cross(first_value: npt.NDArray[np.float32], second_value: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
+        return first_value[..., 0] * second_value[..., 1] - first_value[..., 1] * second_value[..., 0]
+
+    o1 = cross(left_delta[:, None, :], right[None, :, :] - left[:, None, :])
+    o2 = cross(left_delta[:, None, :], right_end[None, :, :] - left[:, None, :])
+    o3 = cross(right_delta[None, :, :], left[:, None, :] - right[None, :, :])
+    o4 = cross(right_delta[None, :, :], left_end[:, None, :] - right[None, :, :])
+    if np.any((o1 * o2 < 0.0) & (o3 * o4 < 0.0)):
+        return True
+    near = np.minimum.reduce(
+        [
+            _points_to_segments_distance(right, left, left_end).T,
+            _points_to_segments_distance(right_end, left, left_end).T,
+            _points_to_segments_distance(left, right, right_end),
+            _points_to_segments_distance(left_end, right, right_end),
+        ]
+    )
+    if np.any(near <= 1.0e-6):
+        return True
     return point_in_polygon(left[0], right) or point_in_polygon(right[0], left)
 
 
@@ -247,39 +284,209 @@ def polygon_clearance(first: npt.ArrayLike, second: npt.ArrayLike) -> float:
     right = np.asarray(second, dtype=np.float32)
     if polygons_intersect(left, right):
         return 0.0
-    distances: list[float] = []
-    for point in left:
-        for index in range(len(right)):
-            distances.append(
-                _point_segment_distance(point, right[index], right[(index + 1) % len(right)])
-            )
-    for point in right:
-        for index in range(len(left)):
-            distances.append(
-                _point_segment_distance(point, left[index], left[(index + 1) % len(left)])
-            )
-    return min(distances)
+    left_end = np.roll(left, -1, axis=0)
+    right_end = np.roll(right, -1, axis=0)
+    return float(
+        min(
+            _points_to_segments_distance(left, right, right_end).min(),
+            _points_to_segments_distance(right, left, left_end).min(),
+        )
+    )
+
+
+def _points_to_segment_batches(
+    points: npt.NDArray[np.float32],
+    starts: npt.NDArray[np.float32],
+    ends: npt.NDArray[np.float32],
+) -> npt.NDArray[np.float32]:
+    """Distances from shared points [P,2] to polygon batches [N,Q,2]."""
+
+    delta = ends - starts
+    denominator = np.sum(delta * delta, axis=-1)
+    relative = points[None, :, None, :] - starts[:, None, :, :]
+    numerator = np.sum(relative * delta[:, None, :, :], axis=-1)
+    safe = np.where(denominator > 1.0e-12, denominator, 1.0)
+    fraction = np.clip(numerator / safe[:, None, :], 0.0, 1.0)
+    projection = starts[:, None, :, :] + fraction[..., None] * delta[:, None, :, :]
+    distance = np.linalg.norm(points[None, :, None, :] - projection, axis=-1)
+    degenerate = denominator <= 1.0e-12
+    if np.any(degenerate):
+        distance = np.where(
+            degenerate[:, None, :],
+            np.linalg.norm(relative, axis=-1),
+            distance,
+        )
+    return np.asarray(distance, dtype=np.float32)
+
+
+def _batch_ray_inside(
+    points: npt.NDArray[np.float32], polygons: npt.NDArray[np.float32]
+) -> npt.NDArray[np.bool_]:
+    previous = np.roll(polygons, 1, axis=1)
+    y = points[:, None, 1]
+    crosses = (polygons[:, :, 1] > y) != (previous[:, :, 1] > y)
+    x_intersection = (
+        (previous[:, :, 0] - polygons[:, :, 0])
+        * (y - polygons[:, :, 1])
+        / (previous[:, :, 1] - polygons[:, :, 1] + 1.0e-12)
+        + polygons[:, :, 0]
+    )
+    return np.asarray(
+        np.count_nonzero(crosses & (points[:, None, 0] < x_intersection), axis=1)
+        % 2
+        == 1,
+        dtype=bool,
+    )
+
+
+def _polygon_clearance_many(
+    first: npt.ArrayLike, seconds: npt.ArrayLike
+) -> npt.NDArray[np.float32]:
+    """Exact polygon clearance from one convex polygon to a polygon batch."""
+
+    left = np.asarray(first, dtype=np.float32)
+    right = np.asarray(seconds, dtype=np.float32)
+    if right.ndim != 3 or right.shape[-1] != 2:
+        raise ValueError(f"seconds must be [N,Q,2], got {right.shape}")
+    if len(right) == 0:
+        return np.zeros(0, dtype=np.float32)
+    left_end = np.roll(left, -1, axis=0)
+    right_end = np.roll(right, -1, axis=1)
+    left_delta = left_end - left
+    right_delta = right_end - right
+
+    def cross(
+        first_value: npt.NDArray[np.float32],
+        second_value: npt.NDArray[np.float32],
+    ) -> npt.NDArray[np.float32]:
+        return first_value[..., 0] * second_value[..., 1] - first_value[..., 1] * second_value[..., 0]
+
+    o1 = cross(
+        left_delta[None, :, None, :],
+        right[:, None, :, :] - left[None, :, None, :],
+    )
+    o2 = cross(
+        left_delta[None, :, None, :],
+        right_end[:, None, :, :] - left[None, :, None, :],
+    )
+    o3 = cross(
+        right_delta[:, None, :, :],
+        left[None, :, None, :] - right[:, None, :, :],
+    )
+    o4 = cross(
+        right_delta[:, None, :, :],
+        left_end[None, :, None, :] - right[:, None, :, :],
+    )
+    proper = (o1 * o2 < 0.0) & (o3 * o4 < 0.0)
+    left_to_right = _points_to_segment_batches(left, right, right_end)
+    left_end_to_right = _points_to_segment_batches(left_end, right, right_end)
+    right_to_left = _points_to_segment_batches(right.reshape(-1, 2), left[None], left_end[None])
+    right_to_left = right_to_left.reshape(len(right), right.shape[1], len(left))
+    right_end_to_left = _points_to_segment_batches(
+        right_end.reshape(-1, 2), left[None], left_end[None]
+    ).reshape(len(right), right.shape[1], len(left))
+    near = np.minimum.reduce(
+        [
+            left_to_right,
+            left_end_to_right,
+            np.swapaxes(right_to_left, 1, 2),
+            np.swapaxes(right_end_to_left, 1, 2),
+        ]
+    ) <= 1.0e-6
+    edge_intersection = np.any(proper | near, axis=(1, 2))
+    contains = _batch_ray_inside(
+        np.broadcast_to(left[0], (len(right), 2)), right
+    ) | _batch_ray_inside(right[:, 0], np.broadcast_to(left, (len(right), *left.shape)))
+    clearance = np.minimum(
+        left_to_right.min(axis=(1, 2)), right_to_left.min(axis=(1, 2))
+    )
+    clearance[edge_intersection | contains] = 0.0
+    return np.asarray(clearance, dtype=np.float32)
 
 
 def _distance_to_polygon_boundary(point: npt.ArrayLike, polygon: npt.ArrayLike) -> float:
     value = np.asarray(point, dtype=np.float32)
     vertices = np.asarray(polygon, dtype=np.float32)
-    return min(
-        _point_segment_distance(value, vertices[index], vertices[(index + 1) % len(vertices)])
-        for index in range(len(vertices))
+    return float(
+        _points_to_segments_distance(
+            value[None], vertices, np.roll(vertices, -1, axis=0)
+        ).min()
     )
 
 
-def _inside_any(point: npt.ArrayLike, polygons: Sequence[npt.NDArray[np.float32]]) -> bool:
-    return any(point_in_polygon(point, polygon) for polygon in polygons)
+def _polygon_bounds(
+    polygons: Sequence[npt.NDArray[np.float32]],
+) -> npt.NDArray[np.float32]:
+    return np.asarray(
+        [
+            [polygon[:, 0].min(), polygon[:, 1].min(), polygon[:, 0].max(), polygon[:, 1].max()]
+            for polygon in polygons
+        ],
+        dtype=np.float32,
+    )
+
+
+def _inside_any(
+    point: npt.ArrayLike,
+    polygons: Sequence[npt.NDArray[np.float32]],
+    bounds: npt.NDArray[np.float32] | None = None,
+) -> bool:
+    value = np.asarray(point, dtype=np.float32)
+    polygon_bounds = _polygon_bounds(polygons) if bounds is None else bounds
+    tolerance = 1.0e-6
+    eligible = np.flatnonzero(
+        (value[0] >= polygon_bounds[:, 0] - tolerance)
+        & (value[0] <= polygon_bounds[:, 2] + tolerance)
+        & (value[1] >= polygon_bounds[:, 1] - tolerance)
+        & (value[1] <= polygon_bounds[:, 3] + tolerance)
+    )
+    return any(point_in_polygon(value, polygons[index]) for index in eligible)
 
 
 def _boundary_distance_any(
-    point: npt.ArrayLike, polygons: Sequence[npt.NDArray[np.float32]]
+    point: npt.ArrayLike,
+    polygons: Sequence[npt.NDArray[np.float32]],
+    bounds: npt.NDArray[np.float32] | None = None,
 ) -> float:
     if not polygons:
         raise EffectConstructionError("at least one drivable polygon is required")
-    return min(_distance_to_polygon_boundary(point, polygon) for polygon in polygons)
+    value = np.asarray(point, dtype=np.float32)
+    polygon_bounds = _polygon_bounds(polygons) if bounds is None else bounds
+    dx = np.maximum(
+        np.maximum(polygon_bounds[:, 0] - value[0], value[0] - polygon_bounds[:, 2]),
+        0.0,
+    )
+    dy = np.maximum(
+        np.maximum(polygon_bounds[:, 1] - value[1], value[1] - polygon_bounds[:, 3]),
+        0.0,
+    )
+    lower_bound = np.hypot(dx, dy)
+    best = np.inf
+    for index in np.argsort(lower_bound, kind="stable"):
+        if lower_bound[index] > best:
+            break
+        best = min(best, _distance_to_polygon_boundary(value, polygons[index]))
+    return float(best)
+
+
+def _polygon_clearance_any(
+    polygon: npt.NDArray[np.float32],
+    others: Sequence[npt.NDArray[np.float32]],
+    bounds: npt.NDArray[np.float32],
+) -> float:
+    own_min = polygon.min(axis=0)
+    own_max = polygon.max(axis=0)
+    dx = np.maximum(np.maximum(bounds[:, 0] - own_max[0], own_min[0] - bounds[:, 2]), 0.0)
+    dy = np.maximum(np.maximum(bounds[:, 1] - own_max[1], own_min[1] - bounds[:, 3]), 0.0)
+    lower_bound = np.hypot(dx, dy)
+    best = np.inf
+    for index in np.argsort(lower_bound, kind="stable"):
+        if lower_bound[index] > best:
+            break
+        best = min(best, polygon_clearance(polygon, others[index]))
+        if best == 0.0:
+            break
+    return float(best)
 
 
 def _nearest_route(
@@ -288,25 +495,33 @@ def _nearest_route(
     segments = route[1:] - route[:-1]
     lengths = np.linalg.norm(segments, axis=1)
     cumulative = np.concatenate([[0.0], np.cumsum(lengths)])
-    best_distance = np.inf
-    best_progress = 0.0
-    best_heading = 0.0
-    best_signed = 0.0
-    for index, (start, delta, length) in enumerate(zip(route[:-1], segments, lengths)):
-        if length <= 1e-6:
-            continue
-        fraction = float(np.clip(((point - start) @ delta) / (length * length), 0.0, 1.0))
-        projection = start + fraction * delta
-        residual = point - projection
-        distance = float(np.linalg.norm(residual))
-        if distance < best_distance:
-            best_distance = distance
-            best_progress = float(cumulative[index] + fraction * length)
-            best_heading = float(np.arctan2(delta[1], delta[0]))
-            best_signed = float(np.sign(np.cross(delta, residual)) * distance)
-    if not np.isfinite(best_distance):
+    valid = lengths > 1.0e-6
+    if not np.any(valid):
         raise EffectConstructionError("route centerline has no non-degenerate segment")
-    return best_signed, best_progress, best_heading
+    valid_indices = np.flatnonzero(valid)
+    starts = route[:-1][valid]
+    deltas = segments[valid]
+    valid_lengths = lengths[valid]
+    fractions = np.clip(
+        np.sum((point[None] - starts) * deltas, axis=-1)
+        / (valid_lengths * valid_lengths),
+        0.0,
+        1.0,
+    )
+    projections = starts + fractions[:, None] * deltas
+    residuals = point[None] - projections
+    distances = np.linalg.norm(residuals, axis=-1)
+    local_index = int(np.argmin(distances))
+    index = int(valid_indices[local_index])
+    delta = deltas[local_index]
+    residual = residuals[local_index]
+    distance = float(distances[local_index])
+    signed_cross = float(delta[0] * residual[1] - delta[1] * residual[0])
+    return (
+        float(np.sign(signed_cross) * distance),
+        float(cumulative[index] + fractions[local_index] * valid_lengths[local_index]),
+        float(np.arctan2(delta[1], delta[0])),
+    )
 
 
 @dataclass(frozen=True)
@@ -540,6 +755,22 @@ class ReplayGroundedEffectBuilder:
 
         selected = self._select_actor_indices(context.logged_actors)
         selected_tokens = tuple(context.logged_actors.track_tokens[index] for index in selected)
+        selected_valid = context.logged_actors.valid[:, selected]
+        selected_actor_boxes = np.zeros(
+            (horizon, len(selected), 4, 2), dtype=np.float32
+        )
+        for time_index in range(horizon):
+            for slot_index, actor_index in enumerate(selected):
+                if selected_valid[time_index, slot_index]:
+                    actor_length, actor_width = context.logged_actors.sizes[
+                        time_index, actor_index
+                    ]
+                    selected_actor_boxes[time_index, slot_index] = oriented_box_corners(
+                        context.logged_actors.positions[time_index, actor_index],
+                        float(context.logged_actors.headings[time_index, actor_index]),
+                        float(actor_length),
+                        float(actor_width),
+                    )
         previous_positions = np.concatenate(
             [np.zeros((candidate_count, 1, 2), dtype=np.float32), trajectories[:, :-1, :2]],
             axis=1,
@@ -576,6 +807,12 @@ class ReplayGroundedEffectBuilder:
         static_polygons = tuple(
             oriented_box_corners(obstacle[:2], obstacle[2], obstacle[3], obstacle[4])
             for obstacle in context.static_obstacles
+        )
+        drivable_bounds = _polygon_bounds(context.drivable_polygons)
+        static_bounds = (
+            _polygon_bounds(static_polygons)
+            if static_polygons
+            else np.zeros((0, 4), dtype=np.float32)
         )
         _, route_origin_progress, _ = _nearest_route(
             np.zeros(2, dtype=np.float32), context.route_centerline
@@ -633,11 +870,15 @@ class ReplayGroundedEffectBuilder:
                 normal = np.array([-np.sin(heading), np.cos(heading)], dtype=np.float32)
                 left_point = position + normal * (self.config.ego_width_m / 2.0)
                 right_point = position - normal * (self.config.ego_width_m / 2.0)
-                left_clearance = _boundary_distance_any(left_point, context.drivable_polygons)
-                right_clearance = _boundary_distance_any(right_point, context.drivable_polygons)
-                if not _inside_any(left_point, context.drivable_polygons):
+                left_clearance = _boundary_distance_any(
+                    left_point, context.drivable_polygons, drivable_bounds
+                )
+                right_clearance = _boundary_distance_any(
+                    right_point, context.drivable_polygons, drivable_bounds
+                )
+                if not _inside_any(left_point, context.drivable_polygons, drivable_bounds):
                     left_clearance *= -1.0
-                if not _inside_any(right_point, context.drivable_polygons):
+                if not _inside_any(right_point, context.drivable_polygons, drivable_bounds):
                     right_clearance *= -1.0
                 footprint_points = np.concatenate(
                     [
@@ -648,10 +889,15 @@ class ReplayGroundedEffectBuilder:
                     axis=0,
                 )
                 outside_ratio = np.mean(
-                    [not _inside_any(point, context.drivable_polygons) for point in footprint_points]
+                    [
+                        not _inside_any(
+                            point, context.drivable_polygons, drivable_bounds
+                        )
+                        for point in footprint_points
+                    ]
                 )
                 static_clearance = (
-                    min(polygon_clearance(current_box, obstacle) for obstacle in static_polygons)
+                    _polygon_clearance_any(current_box, static_polygons, static_bounds)
                     if static_polygons
                     else 100.0
                 )
@@ -664,7 +910,9 @@ class ReplayGroundedEffectBuilder:
                         right_clearance,
                         outside_ratio,
                         static_clearance,
-                        _boundary_distance_any(position, context.drivable_polygons),
+                        _boundary_distance_any(
+                            position, context.drivable_polygons, drivable_bounds
+                        ),
                     ],
                     dtype=np.float32,
                 )
@@ -672,6 +920,17 @@ class ReplayGroundedEffectBuilder:
                 ego_velocity = speed[candidate_index, time_index] * np.array(
                     [np.cos(heading), np.sin(heading)], dtype=np.float32
                 )
+                valid_slots = np.flatnonzero(selected_valid[time_index])
+                clearance_by_slot = np.zeros(len(selected), dtype=np.float32)
+                swept_distance_by_slot = np.zeros(len(selected), dtype=np.float32)
+                if len(valid_slots):
+                    valid_actor_boxes = selected_actor_boxes[time_index, valid_slots]
+                    clearance_by_slot[valid_slots] = _polygon_clearance_many(
+                        current_box, valid_actor_boxes
+                    )
+                    swept_distance_by_slot[valid_slots] = _polygon_clearance_many(
+                        swept_polygon, valid_actor_boxes
+                    )
                 for slot_index, actor_index in enumerate(selected):
                     if not context.logged_actors.valid[time_index, actor_index]:
                         continue
@@ -684,10 +943,7 @@ class ReplayGroundedEffectBuilder:
                     ]
                     relative_position = _rotate(actor_position - position, -heading)
                     relative_velocity = _rotate(actor_velocity - ego_velocity, -heading)
-                    actor_box = oriented_box_corners(
-                        actor_position, actor_heading, float(actor_length), float(actor_width)
-                    )
-                    clearance = polygon_clearance(current_box, actor_box)
+                    clearance = float(clearance_by_slot[slot_index])
                     center_distance = float(np.linalg.norm(relative_position))
                     relative_speed_squared = float(relative_velocity @ relative_velocity)
                     if relative_speed_squared > 1e-8:
@@ -704,7 +960,7 @@ class ReplayGroundedEffectBuilder:
                     distance_at_tca = float(
                         np.linalg.norm(relative_position + tca * relative_velocity)
                     )
-                    swept_distance = polygon_clearance(swept_polygon, actor_box)
+                    swept_distance = float(swept_distance_by_slot[slot_index])
                     actor_effect[candidate_index, time_index, slot_index] = np.array(
                         [
                             relative_position[0],

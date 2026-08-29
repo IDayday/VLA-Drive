@@ -41,7 +41,10 @@ def stable_array_hash(array: npt.NDArray[Any]) -> str:
     digest = hashlib.sha256()
     digest.update(str(contiguous.dtype).encode("ascii"))
     digest.update(json.dumps(contiguous.shape).encode("ascii"))
-    digest.update(memoryview(contiguous).cast("B"))
+    # memoryview.cast rejects arrays with a zero-length dimension even though
+    # their canonical C-order byte payload is unambiguously empty.
+    if contiguous.size:
+        digest.update(memoryview(contiguous).cast("B"))
     return digest.hexdigest()
 
 

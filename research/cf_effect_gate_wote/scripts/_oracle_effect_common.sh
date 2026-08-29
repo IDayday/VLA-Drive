@@ -65,6 +65,11 @@ gate2o_require_common() {
   cf_gate_require_file "$gate2o_anchors" 'fixed 256-anchor bank'
   cf_gate_require_file "$gate2o_contract" 'independent six-factor evaluator contract'
   git -C "$cf_gate_project_root" merge-base --is-ancestor "$gate2o_base_commit" HEAD
+
+  # The deployed NAVSIM dataclasses capture NUPLAN_MAPS_ROOT at module-import
+  # time.  Validating --map-root is therefore insufficient: every Python
+  # subprocess that imports Scene must inherit the resolved path.
+  export NUPLAN_MAPS_ROOT="$gate2o_map_root"
 }
 
 gate2o_run() {
