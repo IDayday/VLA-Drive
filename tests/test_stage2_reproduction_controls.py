@@ -106,8 +106,8 @@ def test_checkpoint_audit_distinguishes_stripped_training_state():
     assert _value_opcode_after_key(operations, "lr_schedulers") == "EMPTY_LIST"
 
 
-def test_stage2_launcher_exposes_long_target_without_changing_default():
-    launcher = (REPO_ROOT / "local_stage2" / "train_stage2_full.sh").read_text()
+def test_generic_stage2_launcher_retains_compatibility_default():
+    launcher = (REPO_ROOT / "local_stage2/train_stage2_full.sh").read_text()
     assert (
         'STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES="${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:--1}"'
         in launcher
@@ -115,6 +115,36 @@ def test_stage2_launcher_exposes_long_target_without_changing_default():
     assert (
         '"agent.action_head_config.long_trajectory_additional_poses=${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES}"'
         in launcher
+    )
+
+
+def test_reproduction_entry_defaults_to_recovered_long2_recipe():
+    common = (REPO_ROOT / "local_stage2/common.sh").read_text()
+    reproduction = (
+        REPO_ROOT / "local_stage2/train_stage2_reproduction.sh"
+    ).read_text()
+    multinode = (
+        REPO_ROOT / "local_stage2/launch_stage2_multinode_reproduction.sh"
+    ).read_text()
+
+    assert "DRIVEVLA_NAVTRAIN_LONG2_FEATURE_CACHE" in common
+    assert (
+        'STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES="${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:-2}"'
+        in reproduction
+    )
+    assert 'STAGE2_SCHEDULER="${STAGE2_SCHEDULER:-source_cosine}"' in reproduction
+    assert (
+        'STAGE2_REQUIRE_LIGHTNING_VERSION="${STAGE2_REQUIRE_LIGHTNING_VERSION:-2.2.1}"'
+        in reproduction
+    )
+    assert (
+        'STAGE2_REQUIRE_TRANSFORMERS_VERSION="${STAGE2_REQUIRE_TRANSFORMERS_VERSION:-4.48.3}"'
+        in reproduction
+    )
+    assert '"STAGE2_SCHEDULER=${STAGE2_SCHEDULER:-source_cosine}"' in multinode
+    assert (
+        '"STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:-2}"'
+        in multinode
     )
 
 
@@ -138,6 +168,8 @@ def test_rl_zt3_priority_controls_are_bounded_matched_and_use_authorized_gpus():
         / "local_stage2/watch_rl_zt3_and_launch_tf437_control.sh"
     ).read_text()
     assert 'gpu_list="3,5,6,7"' in launcher
+    assert launcher.count("STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=-1") == 2
+    assert launcher.count("feature_cache_navtrain_full") == 2
     assert "STAGE2_NUM_GPUS=4" in launcher
     assert "STAGE2_BATCH_SIZE=1" in launcher
     assert "STAGE2_ACCUMULATE_GRAD_BATCHES=4" in launcher

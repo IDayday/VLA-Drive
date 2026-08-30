@@ -101,8 +101,10 @@ versions.
 
 Use `train_stage2_reproduction.sh` for the controlled reproduction path. It
 defaults to seed 2, eager attention, the released all-parameter AdamW decay
-behavior, and a reference sampler that shuffles the original 103,288 samples
-before appending eight samples. This still cannot be bitwise identical to an
+behavior, a reference sampler that shuffles the original 103,288 samples
+before appending eight samples, the recovered long-2 target cache, and the
+currently best-supported source warmup-cosine schedule. It fails closed unless
+Lightning 2.2.1 and Transformers 4.48.3 are active. This still cannot be bitwise identical to an
 inferred 16-rank x batch-1 job when run as 8 ranks x batch 2: the global batch
 members match, but action-head dropout masks and floating-point reduction order
 remain rank-layout dependent.
@@ -116,10 +118,19 @@ run directory, uses a shared rendezvous, records both node PIDs, and attaches
 the normal completion/Navtest watcher to global rank zero. A short multi-node
 smoke run must pass before a multi-day run is started.
 
-The multi-node launcher keeps a compatibility default, but the historical
-checkpoint directly locks the reproduction to Lightning 2.2.1. A pre-existing
-package overlay can be selected without modifying the packed Torch runtime.
-For the locked Lightning/Transformers runtime used by the corrected full run:
+The generic `train_stage2_full.sh` keeps its compatibility defaults for old
+experiments. The two reproduction entrypoints do not: on this audited server
+they now default to the long-2 cache, `long_trajectory_additional_poses=2`,
+Lightning 2.2.1, Transformers 4.48.3, and source warmup-cosine. The historical
+checkpoint directly proves the Lightning version and long-target branch; the
+scheduler remains the highest-priority private-launcher hypothesis and is still
+overridable. The corrected multi-node run can therefore be launched directly:
+
+```bash
+./local_stage2/launch_stage2_multinode_reproduction.sh
+```
+
+The equivalent fully explicit invocation is:
 
 ```bash
 DRIVEVLA_NAVTRAIN_FEATURE_CACHE=/mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_long2 \

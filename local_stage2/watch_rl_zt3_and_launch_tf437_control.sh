@@ -83,6 +83,7 @@ remote_command=(
   env
   "DRIVEVLA_REPO_ROOT=${repo_root}"
   "DRIVEVLA_PYTHON=${portable_python}"
+  "DRIVEVLA_NAVTRAIN_FEATURE_CACHE=/mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_full"
   "PYTHONPATH=${pythonpath}"
   "CUDA_VISIBLE_DEVICES=${gpu_list}"
   "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.48.3"
@@ -108,6 +109,7 @@ remote_command=(
   STAGE2_DECAY_NORM_AND_BIAS=true
   STAGE2_PREPAD_DATASET=false
   STAGE2_OFFICIAL_SAMPLER=true
+  STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=-1
   DRIVEVLA_SCORE_PROCESSES=8
   DRIVEVLA_SCORE_PARTITIONS=8
   DRIVEVLA_KILL_GPU_STRESS=1
@@ -231,6 +233,7 @@ launch_followup_control() {
     env
     "DRIVEVLA_REPO_ROOT=${repo_root}"
     "DRIVEVLA_PYTHON=${portable_python}"
+    "DRIVEVLA_NAVTRAIN_FEATURE_CACHE=/mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_full"
     "PYTHONPATH=${followup_pythonpath}"
     "CUDA_VISIBLE_DEVICES=${gpu_list}"
     "STAGE2_REQUIRE_TRANSFORMERS_VERSION=${transformers_version}"
@@ -256,6 +259,7 @@ launch_followup_control() {
     STAGE2_DECAY_NORM_AND_BIAS=true
     STAGE2_PREPAD_DATASET=false
     STAGE2_OFFICIAL_SAMPLER=true
+    STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=-1
     DRIVEVLA_SCORE_PROCESSES=8
     DRIVEVLA_SCORE_PARTITIONS=8
     DRIVEVLA_KILL_GPU_STRESS=1

@@ -128,6 +128,13 @@ bank 收缩；Flash Attention、8×2、seed 0、错误 Lightning 版本又进一
 路径。** 完整 27 epoch 仍需判断修正后能否闭合最终 Navtest，以及 warmup-cosine
 是否与私有 launcher 一致。sample 顺序已按用户要求移出主因验证队列。
 
+工程修复不再只存在于一次性的启动命令中：`train_stage2_reproduction.sh` 和
+`launch_stage2_multinode_reproduction.sh` 现在默认选择 long-2 cache、
+`long_trajectory_additional_poses=2`、Lightning 2.2.1、Transformers 4.48.3、eager
+attention 与当前优先验证的 source warmup-cosine；所有歧义仍可显式 override。
+通用的 `train_stage2_full.sh` 保持旧实验兼容默认值。短程 no-long 因果对照则在各自
+launcher 中显式固定普通 cache 和 `long=-1`，避免新的正确默认污染单变量实验。
+
 ## 官方 checkpoint 原始元数据修正（当前最高优先级）
 
 ModelScope 仓库历史仍保留四个已删除 checkpoint shard 的 LFS 对象。使用 HTTP
@@ -492,6 +499,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`56 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`57 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。

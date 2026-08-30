@@ -6,16 +6,21 @@
 
 set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+requested_feature_cache="${DRIVEVLA_NAVTRAIN_FEATURE_CACHE-}"
 source "${script_dir}/common.sh"
+if [[ -z "${requested_feature_cache}" ]]; then
+  DRIVEVLA_NAVTRAIN_FEATURE_CACHE="${DRIVEVLA_NAVTRAIN_LONG2_FEATURE_CACHE}"
+  export DRIVEVLA_NAVTRAIN_FEATURE_CACHE
+fi
 
 remote_host="${STAGE2_REMOTE_HOST:-training-vla-zt2}"
 portable_python="${STAGE2_PORTABLE_PYTHON:-/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python}"
 portable_extra_site="${STAGE2_PORTABLE_EXTRA_SITE:-/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages}"
-lightning_overlay="${STAGE2_LIGHTNING_OVERLAY:-}"
-transformers_overlay="${STAGE2_TRANSFORMERS_OVERLAY:-}"
-required_lightning="${STAGE2_REQUIRE_LIGHTNING_VERSION:-2.6.0}"
-required_transformers="${STAGE2_REQUIRE_TRANSFORMERS_VERSION:-}"
-experiment="${STAGE2_EXPERIMENT:-stage2_reproduction_seed2_eager_lr1e4_16x1}"
+lightning_overlay="${STAGE2_LIGHTNING_OVERLAY:-/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_2_1}"
+transformers_overlay="${STAGE2_TRANSFORMERS_OVERLAY:-/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3}"
+required_lightning="${STAGE2_REQUIRE_LIGHTNING_VERSION:-2.2.1}"
+required_transformers="${STAGE2_REQUIRE_TRANSFORMERS_VERSION:-4.48.3}"
+experiment="${STAGE2_EXPERIMENT:-stage2_reproduction_seed2_eager_long2_source_cosine_pl221_tf448_16x1}"
 output_dir="${STAGE2_OUTPUT_DIR:-${DRIVEVLA_STAGE2_RUN_ROOT}/training/${experiment}}"
 master_addr="${STAGE2_MASTER_ADDR:-$(hostname -i | awk '{print $1}')}"
 master_port="${STAGE2_MASTER_PORT:-29531}"
@@ -133,13 +138,13 @@ common_environment=(
   "STAGE2_MAX_EPOCHS=${STAGE2_MAX_EPOCHS:-27}"
   "STAGE2_BASE_LR=${STAGE2_BASE_LR:-1e-4}"
   "STAGE2_BASE_BATCH_SIZE=${STAGE2_BASE_BATCH_SIZE:-16}"
-  "STAGE2_SCHEDULER=${STAGE2_SCHEDULER:-none}"
+  "STAGE2_SCHEDULER=${STAGE2_SCHEDULER:-source_cosine}"
   "STAGE2_FLASH_ATTENTION=false"
   "STAGE2_FROZEN_BACKBONE_MODE=train"
   "STAGE2_DECAY_NORM_AND_BIAS=true"
   "STAGE2_PREPAD_DATASET=false"
   "STAGE2_OFFICIAL_SAMPLER=true"
-  "STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:--1}"
+  "STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:-2}"
   "DRIVEVLA_SCORE_PROCESSES=${DRIVEVLA_SCORE_PROCESSES:-16}"
   "DRIVEVLA_SCORE_PARTITIONS=${DRIVEVLA_SCORE_PARTITIONS:-8}"
   "DRIVEVLA_TRAIN_LOG_INTERVAL=${DRIVEVLA_TRAIN_LOG_INTERVAL:-10}"
