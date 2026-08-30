@@ -128,6 +128,7 @@ STAGE2_MAX_EPOCHS="${STAGE2_MAX_EPOCHS:-27}"
 STAGE2_TRAIN_CKPT="${STAGE2_TRAIN_CKPT:-}"
 STAGE2_NUM_GPUS="${STAGE2_NUM_GPUS:-8}"
 STAGE2_NUM_NODES="${STAGE2_NUM_NODES:-1}"
+STAGE2_WORLD_SIZE="${STAGE2_WORLD_SIZE:-$((STAGE2_NUM_GPUS * STAGE2_NUM_NODES))}"
 STAGE2_BATCH_SIZE="${STAGE2_BATCH_SIZE:-2}"
 STAGE2_ACCUMULATE_GRAD_BATCHES="${STAGE2_ACCUMULATE_GRAD_BATCHES:-1}"
 STAGE2_EFFECTIVE_GLOBAL_BATCH_SIZE="${STAGE2_EFFECTIVE_GLOBAL_BATCH_SIZE:-16}"
@@ -191,7 +192,7 @@ fi
   agent.vlm_config.target_vocab_size=151682 \
   agent.lora_config.use_lora=true \
   "agent.batch_size=${STAGE2_BATCH_SIZE}" \
-  "agent.num_gpus=${STAGE2_NUM_GPUS}" \
+  "agent.num_gpus=${STAGE2_WORLD_SIZE}" \
   agent.lr_args.name=AdamW \
   "agent.lr_args.base_lr=${STAGE2_BASE_LR}" \
   "agent.lr_args.base_batch_size=${STAGE2_BASE_BATCH_SIZE}" \

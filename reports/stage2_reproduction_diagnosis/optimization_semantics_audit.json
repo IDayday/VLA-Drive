@@ -1,0 +1,30 @@
+{
+  "audit_date_utc": "2026-08-30",
+  "active_experiment": "stage2_official_source_cosine_seed2_eager_tf448_pl251_16x1",
+  "trainer_world_size": 16,
+  "local_batch_size": 1,
+  "active_command_agent_num_gpus": 8,
+  "explicit_effective_global_batch_size": 16,
+  "optimizer_precedence": "effective_global_batch_size overrides batch_size * num_gpus when non-null",
+  "effective_optimizer_global_batch_size": 16,
+  "effective_scheduler_total_steps": 174312,
+  "performance_impact_of_agent_num_gpus_field": "none in the active run because the explicit effective global batch size is present",
+  "launcher_fix": {
+    "stage2_world_size": 16,
+    "agent_num_gpus_source": "STAGE2_WORLD_SIZE",
+    "changes_active_run": false
+  },
+  "early_to_final_update_direction": {
+    "public_final_vs_source_cosine_epoch0_cosine": 0.10523661300027172,
+    "public_final_vs_constant_1e4_epoch0_cosine": 0.11497677055970669,
+    "interpretation": "Non-discriminative: an epoch-0 update direction should not be expected to match a 27-epoch final update, and source cosine is not better on this diagnostic."
+  },
+  "source_cosine_epoch0": {
+    "global_step": 6456,
+    "learning_rate": 3.699736771523021e-05,
+    "selected_pdms": 0.7181258201599121,
+    "best_of_64_pdms": 0.9661104083061218,
+    "selection_regret": 0.2479846030473709,
+    "constant_1e4_best_of_64_pdms": 0.9668369293212891
+  }
+}

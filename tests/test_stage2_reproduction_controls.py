@@ -71,6 +71,8 @@ def test_multinode_launcher_locks_transformers_on_both_nodes():
     assert "Expected the locked Transformers" in launcher
     assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION" in trainer
     assert "import transformers" in trainer
+    assert '"STAGE2_WORLD_SIZE=16"' in launcher
+    assert '"agent.num_gpus=${STAGE2_WORLD_SIZE}"' in trainer
 
 
 def test_rl_zt3_priority_controls_are_bounded_matched_and_use_authorized_gpus():

@@ -181,6 +181,19 @@
    `0.000727`。该结果说明 warmup 第一轮没有提前损坏候选覆盖，但不能用来宣称
    已复现最终性能。主判据仍是 warmup 结束附近的 epoch 2--3，以及后续 ceiling
    是否避免旧实验从 epoch 2 到 epoch 26 的持续塌缩。
+9. **多节点命令中的 `agent.num_gpus=8` 是误导字段，但没有改变当前主跑的优化语义。**
+   活跃命令显式传入 `agent.lr_args.effective_global_batch_size=16`；优化器源码会优先
+   使用该值，仅在它为空时才回退到 `batch_size * num_gpus`。因此当前实际 LR、
+   `T_max=174312` 和 16×1 sampler 合约均未被这个字段改成 8 卡语义。为避免以后
+   审计时产生歧义，launcher 已新增 `STAGE2_WORLD_SIZE=16`，并把
+   `agent.num_gpus` 显式设为 world size；回归测试会检查两节点启动器和训练入口同时
+   保持这一约束。这个修正不修改正在运行的训练，也不应被计作性能修复。
+10. **epoch-0 到公开最终权重的更新方向不能用于选择 scheduler。** 从共同的 seed-2
+    初始化出发，source-cosine epoch-0 与公开最终权重的有效 action-head 更新 cosine
+    为 `0.105237`；恒定 `1e-4` epoch-0 的对应值为 `0.114977`。两者都很低，而且
+    早期更新与 27-epoch 最终更新本来就不是同一时间尺度。因此当前对 scheduler 的
+    排序只依据发布源码分支、作者训练谱系、累计更新幅度与完整 validation 曲线，
+    不再把 early-to-final update cosine 当作支持证据。
 
 ## 已排除或降级的因素
 
@@ -197,6 +210,7 @@
 | loss/head 权重 | 六个公开 score head 均被训练；公开/本地 head 位移模式相关 `0.9516`，归一化 RMSE `0.0551`；轨迹项与论文均为 min-over-64 L1 | 未发现大幅私有重加权；保留为低优先级未知量 |
 | Transformers 4.37.2/4.48.3/4.57.6 | 4.48.3/4.57.6 前向一致但 step-1000 更新 cosine `0.5333`；4.37.2/4.48.3 hidden RMSE `0.130629`、梯度 RMSE `0.005095`；但 4.37.2 元数据只锁定冻结基座血缘 | runtime 会改变路径；4.48.3 证据更直接，4.37.2 降为次级匹配控制 |
 | 梯度裁剪 | DriveVLA 发布值为 0；ReCogDrive/Stage-1 值为 1；固定批次未裁剪梯度范数约 `703.66`；首步 Adam 更新相对 RMS 差 `0.2763` | 有实际影响但证据冲突；排在 scheduler 后、4.37.2 前做匹配短对照 |
+| 多节点 `agent.num_gpus` 字段 | 活跃命令显示 8，但显式 `effective_global_batch_size=16` 在源码中优先级更高；实际 LR 与 scheduler horizon 均为 16 卡语义 | 排除为当前主跑根因；后续 launcher 已改为显式 world size 16 |
 | BF16/TF32 | 发布配置和 Stage-1 元数据均为 BF16、非 FP16；action-head FP32 参数在 BF16 autocast 下训练，当前 TF32 关闭 | BF16 已匹配；TF32 与 H20/A800 kernel 仅列为低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
@@ -305,6 +319,11 @@ LR: peak 1e-4, 10% linear warmup (17431 steps), then cosine decay to zero
 runtime: PyTorch 2.5.1+cu124, Lightning 2.5.1, Transformers 4.48.3（当前主跑）
 epochs/steps: 27 / 174312
 ```
+
+活跃进程是在 launcher 字段修正前启动的，所以命令行仍显示 `agent.num_gpus=8`；
+它同时显示 `effective_global_batch_size=16`，后者在 `get_optimizers()` 中优先决定
+batch scaling 和 scheduler horizon。换言之，不能仅凭进程命令中的前一个字段把
+这次主跑判为 8 卡优化语义，实际训练仍是 16 rank × 1。
 
 Stage-1 基座产物记录 Transformers 4.37.2，但血缘审计证明该字段不能锁定后来
 DriveVLA LoRA 的运行时；因此保持 4.48.3 主跑，同时用 rl-zt3 的授权 GPU 先做
