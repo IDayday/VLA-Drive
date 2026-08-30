@@ -201,6 +201,13 @@ proposal 只有 `3.91%` 是同一条。这与“双轨迹 min loss 保留两个 
 一致，也精确解释了旧本地训练中“4 秒 L2 继续改善、best-of-64 planning ceiling
 反而塌缩”的现象。
 
+数值完整性审计进一步覆盖全部 `1192` 条训练日志，每条日志按 cache 原生枚举顺序
+检查一个 target：`1192/1192` 个 long target 全部有限，没有航向原始单步跳变超过
+π，也没有 wrap 后单步变化超过 `0.5 rad`；最坏 long-target 单步为
+`0.465734 rad`。因此没有证据表明 cubic-spline 对 heading wrap 的处理在当前数据上
+制造异常监督。该检查记录在 `long_target_cache_integrity.json`，可提高
+`--samples-per-log` 做更密集审计。
+
 随后已对旧本地 no-long best checkpoint 在完全相同的 128 个 token 上导出全部候选。
 旧模型对普通 4 秒 target 的最小 L1 为 `0.255587`，略好于公开模型的 `0.262695`；
 但对 5 秒 long target 则为 `0.781929`，是公开模型 `0.363170` 的 `2.15x`，末点误差
@@ -499,6 +506,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`57 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`58 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。

@@ -15,6 +15,7 @@ from navsim.planning.training.stage2_reproduction_sampler import (
 )
 from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
 from local_stage2.audit_stage2_checkpoint_history import _value_opcode_after_key
+from local_stage2.audit_stage2_long_target_integrity import _heading_deltas
 from local_stage2.audit_stage2_lr_schedule_signature import _relative_lr
 from local_stage2.compare_stage2_proposal_artifacts import (
     _grouped_bootstrap_ci,
@@ -95,6 +96,14 @@ def test_long_target_interpolation_reaches_extra_logged_horizon():
     assert long_target.shape == (8, 3)
     assert long_target[-1, 0] == pytest.approx(10.0)
     assert np.all(np.diff(long_target[:, 0]) > 0)
+
+
+def test_long_target_integrity_audit_wraps_heading_deltas():
+    trajectory = np.zeros((8, 3), dtype=np.float64)
+    trajectory[:, 2] = [3.0, 3.1, -3.1, -3.0, -2.9, -2.8, -2.7, -2.6]
+    raw, wrapped = _heading_deltas(trajectory)
+    assert np.max(np.abs(raw)) > np.pi
+    assert np.max(np.abs(wrapped)) < 0.2
 
 
 def test_checkpoint_audit_distinguishes_stripped_training_state():

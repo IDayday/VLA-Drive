@@ -327,6 +327,8 @@ available as standalone commands:
 
 ```bash
 python local_stage2/audit_stage2_feature_cache_semantics.py --samples 128 --logs 64
+python local_stage2/audit_stage2_long_target_integrity.py \
+  --output reports/stage2_reproduction_diagnosis/long_target_cache_integrity.json
 python local_stage2/audit_stage2_score_loss_signature.py
 python local_stage2/audit_stage2_optimizer_signature.py
 python local_stage2/audit_stage2_lr_schedule_signature.py \
