@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Wait for the user-authorized rl-zt3 GPUs 3,5,6,7, then launch a bounded
-# 1,000-optimizer-step Transformers-4.37.2 control.  The four ranks accumulate
+# Wait for the user-authorized rl-zt3 GPUs 3,5,6,7, then launch bounded,
+# prioritized Stage-2 controls.  The four ranks accumulate
 # four microbatches so each optimizer step replays the reference global batch
 # of 16 used by the 16x1 run.
 
@@ -11,10 +11,11 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 remote_host="${STAGE2_RL_ZT3_HOST:-training-rl-zt3}"
 poll_seconds="${STAGE2_RL_ZT3_POLL_SECONDS:-30}"
 portable_python="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python"
-transformers_overlay="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_37_2"
+transformers_437="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_37_2"
+transformers_448="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3"
 lightning_overlay="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_5_1"
 extra_site="/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages"
-experiment="stage2_source_cosine_seed2_tf437_peft010_4x1_acc4_step1000_rlzt3"
+experiment="stage2_source_cosine_seed2_tf448_peft010_4x1_acc4_step1000_rlzt3"
 output_dir="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/ablations/${experiment}"
 launch_log="${output_dir}.launch-monitor.log"
 remote_log="${output_dir}/train.log"
@@ -65,10 +66,12 @@ REMOTE_CHECK
   break
 done
 
-pythonpath="${repo_root}:${repo_root}/nuplan-devkit:${transformers_overlay}:${lightning_overlay}:${extra_site}"
+# The 4.37 overlay supplies PEFT 0.10.0.  The preceding 4.48 overlay selects
+# Transformers 4.48.3/tokenizers 0.21.4 for the first, highest-priority run.
+pythonpath="${repo_root}:${repo_root}/nuplan-devkit:${transformers_448}:${transformers_437}:${lightning_overlay}:${extra_site}"
 runtime="$(ssh -o BatchMode=yes "${remote_host}" \
   "PYTHONPATH=$(printf '%q' "${pythonpath}") $(printf '%q' "${portable_python}") -c 'import json,peft,pytorch_lightning,torch,transformers; print(json.dumps({\"torch\":torch.__version__,\"transformers\":transformers.__version__,\"peft\":peft.__version__,\"lightning\":pytorch_lightning.__version__},sort_keys=True))'")"
-if [[ "${runtime}" != *'"transformers": "4.37.2"'* ]] \
+if [[ "${runtime}" != *'"transformers": "4.48.3"'* ]] \
   || [[ "${runtime}" != *'"peft": "0.10.0"'* ]] \
   || [[ "${runtime}" != *'"lightning": "2.5.1"'* ]]; then
   printf 'RUNTIME_MISMATCH %s\n' "${runtime}" >&2
@@ -82,7 +85,7 @@ remote_command=(
   "DRIVEVLA_PYTHON=${portable_python}"
   "PYTHONPATH=${pythonpath}"
   "CUDA_VISIBLE_DEVICES=${gpu_list}"
-  "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.37.2"
+  "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.48.3"
   "STAGE2_REQUIRE_LIGHTNING_VERSION=2.5.1"
   "STAGE2_EXPERIMENT=${experiment}"
   "STAGE2_OUTPUT_DIR=${output_dir}"
@@ -111,6 +114,7 @@ remote_command=(
   "${repo_root}/local_stage2/train_stage2_reproduction.sh"
   +trainer.params.enable_model_summary=false
   +trainer.params.log_every_n_steps=10
+  trainer.params.gradient_clip_val=0.0
   trainer.params.max_epochs=1
   trainer.params.limit_train_batches=4000
   trainer.params.limit_val_batches=128
@@ -127,13 +131,13 @@ printf 'LAUNCH_OK timestamp=%s pid=%s runtime=%s output=%s\n' \
   "$(date -u +%FT%TZ)" "${remote_pid}" "${runtime}" "${output_dir}"
 
 # A 4-rank x accumulation-4 run has the same global examples as 16x1, but it
-# does not have the same per-rank RNG/dropout stream.  Do not compare the 4.37
-# result directly with a 16x1 run.  Run a matched 4.48/PEFT-0.10 control on the
-# same four ranks after it, then a gradient-clipping control.  This keeps the
-# two causal questions independent:
+# does not have the same per-rank RNG/dropout stream.  Keep all causal
+# comparisons within this matched layout.  Test clipping first because 4.37
+# is metadata from the frozen ReCogDrive base artifact, not proof of the
+# runtime used to train DriveVLA's added LoRA adapter.
 #
-#   4.37 vs 4.48: Transformers implementation only;
 #   clip 0 vs clip 1: Lightning gradient clipping only.
+#   4.37 vs 4.48: Transformers implementation only.
 
 wait_for_remote_launcher() {
   local pid="$1"
@@ -184,13 +188,24 @@ REMOTE_CHECK
   done
 }
 
-launch_tf448_control() {
+launch_followup_control() {
   local followup_experiment="$1"
   local gradient_clip_val="$2"
-  local transformers_448="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3"
-  # The 4.37 overlay also supplies PEFT 0.10.0.  Putting the 4.48 overlay first
-  # selects Transformers 4.48.3/tokenizers 0.21.4 while retaining PEFT 0.10.0.
-  local followup_pythonpath="${repo_root}:${repo_root}/nuplan-devkit:${transformers_448}:${transformers_overlay}:${lightning_overlay}:${extra_site}"
+  local transformers_version="$3"
+  local followup_pythonpath
+  case "${transformers_version}" in
+    4.48.3)
+      followup_pythonpath="${repo_root}:${repo_root}/nuplan-devkit:${transformers_448}:${transformers_437}:${lightning_overlay}:${extra_site}"
+      ;;
+    4.37.2)
+      followup_pythonpath="${repo_root}:${repo_root}/nuplan-devkit:${transformers_437}:${lightning_overlay}:${extra_site}"
+      ;;
+    *)
+      printf 'Unsupported follow-up Transformers version: %s\n' \
+        "${transformers_version}" >&2
+      exit 6
+      ;;
+  esac
   local followup_output="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/ablations/${followup_experiment}"
   local followup_log="${followup_output}/train.log"
 
@@ -204,7 +219,7 @@ launch_tf448_control() {
   local followup_runtime
   followup_runtime="$(ssh -o BatchMode=yes "${remote_host}" \
     "PYTHONPATH=$(printf '%q' "${followup_pythonpath}") $(printf '%q' "${portable_python}") -c 'import json,peft,pytorch_lightning,torch,transformers; print(json.dumps({\"torch\":torch.__version__,\"transformers\":transformers.__version__,\"peft\":peft.__version__,\"lightning\":pytorch_lightning.__version__},sort_keys=True))'")"
-  if [[ "${followup_runtime}" != *'"transformers": "4.48.3"'* ]] \
+  if [[ "${followup_runtime}" != *"\"transformers\": \"${transformers_version}\""* ]] \
     || [[ "${followup_runtime}" != *'"peft": "0.10.0"'* ]] \
     || [[ "${followup_runtime}" != *'"lightning": "2.5.1"'* ]]; then
     printf 'FOLLOWUP_RUNTIME_MISMATCH %s\n' "${followup_runtime}" >&2
@@ -218,7 +233,7 @@ launch_tf448_control() {
     "DRIVEVLA_PYTHON=${portable_python}"
     "PYTHONPATH=${followup_pythonpath}"
     "CUDA_VISIBLE_DEVICES=${gpu_list}"
-    "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.48.3"
+    "STAGE2_REQUIRE_TRANSFORMERS_VERSION=${transformers_version}"
     "STAGE2_REQUIRE_LIGHTNING_VERSION=2.5.1"
     "STAGE2_EXPERIMENT=${followup_experiment}"
     "STAGE2_OUTPUT_DIR=${followup_output}"
@@ -271,11 +286,13 @@ launch_tf448_control() {
 
 wait_for_remote_launcher "${remote_pid}" "${remote_log}"
 wait_for_authorized_gpus
-launch_tf448_control \
-  stage2_source_cosine_seed2_tf448_peft010_4x1_acc4_step1000_rlzt3 0.0
+launch_followup_control \
+  stage2_source_cosine_seed2_tf448_peft010_clip1_4x1_acc4_step1000_rlzt3 \
+  1.0 4.48.3
 wait_for_remote_launcher "${LAST_FOLLOWUP_PID}" "${LAST_FOLLOWUP_LOG}"
 wait_for_authorized_gpus
-launch_tf448_control \
-  stage2_source_cosine_seed2_tf448_peft010_clip1_4x1_acc4_step1000_rlzt3 1.0
+launch_followup_control \
+  stage2_source_cosine_seed2_tf437_peft010_4x1_acc4_step1000_rlzt3 \
+  0.0 4.37.2
 printf 'PRIORITY_QUEUE_LAUNCHED timestamp=%s final_pid=%s\n' \
   "$(date -u +%FT%TZ)" "${LAST_FOLLOWUP_PID}"

@@ -78,7 +78,7 @@
    一致，不是本地加速补丁；2.5.1/2.6.0 应归类为未锁定的官方运行时语义。由于
    仓库 requirements 唯一留下的版本证据是 2.5.1，完整严格复现选用 2.5.1。
 
-9. **Transformers 运行时是高优先级锁定项，而且 4.37.2 不能再忽略。** 4.48.3
+9. **Transformers 运行时会改变训练路径，但 4.37.2 已降为次级对照。** 4.48.3
    与 4.57.6 的单样本 eager 前向逐位一致，但反向梯度和 1,000-step 参数路径并不
    一致；4.48.3 的 proposal ceiling 高 `0.006041`。更重要的是，实际 Stage-1
    ReCogDrive 产物的 `generation_config.json` 明确记录 Transformers `4.37.2`，
@@ -86,22 +86,29 @@
    同像素、同随机数下，4.37.2 相对 4.48.3 的 VLM hidden-state RMSE 为
    `0.130629`，单步 action-head 梯度 RMSE 为 `0.005095`，已经是不同的训练语义。
    PEFT `0.10.0` 与当前 PEFT 的前向则逐位一致、梯度 RMSE 仅 `0.000284`，说明
-   主要分叉来自 Qwen2 Transformers 实现而不是 PEFT 包装。原始 InternVL 配置记录
-   4.48.3，而 Stage-1 训练产物记录 4.37.2；两条证据冲突，因此正在运行的 4.48.3
-   全曲线不会被提前停掉，同时把 4.37.2 训练对照提升为 scheduler 之后的首要实验。
+   主要分叉来自 Qwen2 Transformers 实现而不是 PEFT 包装。随后做的 checkpoint
+   血缘审计纠正了版本证据的含义：公共 DriveVLA checkpoint 中 393 个非 LoRA
+   backbone tensor、132 个 base-layer bias，以及 160 个 LoRA target 的
+   `base_layer.weight` 都与 ReCogDrive 基座逐位一致；公共权重另外保存了非零
+   LoRA A/B。也就是说，`4.37.2` 元数据只锁定了冻结基座的序列化来源，不能证明
+   新增 LoRA 的 DriveVLA Stage-1/2 训练运行时。DriveVLA 所用 InternVL3 配置中的
+   `4.48.3` 是更直接的本项目证据，因此保持 4.48.3 全曲线，4.37.2 只保留为
+   scheduler 和梯度裁剪之后的匹配训练对照。
 10. **梯度裁剪是新识别出的高影响、但公开证据较弱的候选。** DriveVLA 发布配置明确
     设置 `gradient_clip_val=0.0`，而其上游 ReCogDrive 的 Stage-2 默认值和真实
     Stage-1 `training_args.bin` 都是 `1.0`。固定真实批次上，action-head 未裁剪
-    全局梯度范数约为 `703.66`，所以 clip=1 并非空操作。不过 AdamW 对统一梯度缩放
-    近似尺度不变，而且 DriveVLA 自身的显式配置优先级高于上游习惯；因此它排在
-    scheduler 和 Transformers 匹配对照之后，不会替代当前主跑。
+    全局梯度范数约为 `703.66`，所以 clip=1 并非空操作。虽然 AdamW 对统一梯度缩放
+    近似尺度不变，`eps` 和逐参数梯度分布仍会破坏这种等价性；模拟首步 Adam 梯度项
+    后，clip=1 与不裁剪的更新相对 RMS 差为 `0.2763`、cosine 为 `0.96197`。
+    DriveVLA 自身的显式配置仍是反对证据，因此不会直接覆盖主跑；但它现在排在
+    scheduler 之后、4.37.2 版本对照之前做严格 A/B。
 
 因此，现阶段最严格的表述是：**旧本地训练不是官方 Stage-2 的等价复现。
 它的最终分数损失主要来自 proposal bank 上界下降；Flash Attention 是已确认的
 有害语义改动；8×2 而非 16×1、seed 0 而非 seed 2 也是与公开 checkpoint
-证据不符的确定配置错误。剩余需用完整 27 epoch 收口的是实际 LR/scheduler、
-Transformers/Lightning 运行时及 H20/A800 数值路径。** sample 顺序已按用户要求
-移出主因验证队列。
+证据不符的确定配置错误。剩余需用完整 27 epoch 收口的是实际 LR/scheduler，
+其次是梯度裁剪、Transformers/Lightning 运行时及 H20/A800 数值路径。** sample
+顺序已按用户要求移出主因验证队列。
 
 ## 2026-08-30 高优先级复现更新
 
@@ -147,24 +154,33 @@ Transformers/Lightning 运行时及 H20/A800 数值路径。** sample 顺序已�
    权重的六个 head 位移分别按均值归一化，模式 Pearson 相关为 `0.9516`，归一化
    RMSE 为 `0.0551`。这不能从权重反推出逐样本 target，也不能严格证明私有 loss
    完全相同，但没有看到足以优先于 scheduler/runtime 的 head-weighting 异常。
-6. **Stage-1 的真实环境元数据把 4.37.2 提升为新的强候选。**
+6. **Stage-1 环境元数据支持 warmup-cosine，但不能锁定 DriveVLA 的 4.37.2。**
    `/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-VLM-2B/training_args.bin`
    记录 BF16、10% warmup、cosine、3 epoch、24 rank、batch 1 × accumulation 16；
    `trainer_state.json` 的学习率首尾也与该 schedule 一致。它不能直接证明私有
-   Stage-2 launcher 完全复用了 Stage-1 环境，但同时强化了 warmup-cosine 的作者
-   训练习惯和 Transformers 4.37.2 的版本线索。对公共 Stage-2 checkpoint 做了
+   Stage-2 launcher 完全复用了 Stage-1 环境，但强化了 warmup-cosine 的作者
+   训练习惯。checkpoint 血缘审计进一步证明，公共权重中的冻结 base tensors 与
+   该 ReCogDrive 基座逐位一致，而额外 LoRA adapter 是后来加入的；因此基座目录的
+   `4.37.2` 字段不能外推为 DriveVLA LoRA 的训练运行时。对公共 Stage-2 checkpoint 做了
    128-scene/128-log 成对推理：4.37.2 与 4.48.3 的 selected PDMS 分别为
    `0.962780`/`0.962948`，平均差 `+0.000168` 的 bootstrap 95% CI 为
    `[-0.000726, +0.001119]`；虽然有 `36/128` 个场景改变了选中 candidate、选中
    轨迹 RMSE 达 `0.387336`，平均 PDMS 没有显著优劣。因此不能拿公共权重推理结果
-   代替训练对照。已为用户授权的 rl-zt3 GPU 3/5/6/7 部署等待器；服务恢复后将以
-   4 rank × batch 1 × accumulation 4 重放相同 global batch 16，运行 1,000-step
-   4.37.2/PEFT 0.10.0 对照。
+   代替训练对照。4.37.2 因而保留为次级训练对照，不再优先于梯度裁剪。
 7. **rl-zt3 对照已改为严格匹配的顺序队列。** 4×1×acc4 虽重放相同全局样本，
    但每 rank 的 dropout/RNG 流与 16×1 不同，不能把单个 4.37 结果直接和主跑归因。
-   队列因此依次执行 `TF4.37/PEFT0.10/clip0`、
-   `TF4.48/PEFT0.10/clip0`、`TF4.48/PEFT0.10/clip1`，三次使用相同布局、seed、
-   cosine schedule 和验证子集。前两次只归因 Transformers，后两次只归因梯度裁剪。
+   队列因此依次执行 `TF4.48/PEFT0.10/clip0`、
+   `TF4.48/PEFT0.10/clip1`、`TF4.37/PEFT0.10/clip0`，三次使用相同布局、seed、
+   cosine schedule 和验证子集。前两次只归因梯度裁剪，第一和第三次只归因
+   Transformers；服务恢复后会自动在用户授权的 GPU 3/5/6/7 上顺序运行。
+8. **vla-zt2 主跑的完整 epoch-0 验证符合 warmup 预期。** 16×1 主跑在完整
+   18,179-scene navtrain validation 上得到 selected PDMS `0.718126`、
+   best-of-64 `0.966110`、regret `0.247985` 和 L2 `1.444121`。同期实际 LR 仅
+   `3.6997e-5`，所以 scorer 与 GT 拟合明显落后于恒定 `1e-4` 对照是预期现象；
+   更关键的是 proposal ceiling 与恒定-LR epoch-0 的 `0.966837` 只差
+   `0.000727`。该结果说明 warmup 第一轮没有提前损坏候选覆盖，但不能用来宣称
+   已复现最终性能。主判据仍是 warmup 结束附近的 epoch 2--3，以及后续 ceiling
+   是否避免旧实验从 epoch 2 到 epoch 26 的持续塌缩。
 
 ## 已排除或降级的因素
 
@@ -179,8 +195,8 @@ Transformers/Lightning 运行时及 H20/A800 数值路径。** sample 顺序已�
 | fused validation scoring | 与逐候选评分一致 | 排除 |
 | PDM 监督/cache 代码版本 | 103,288/103,288 cache 完整；`train_pdm_scorer.py`、MetricCache、PDMSimulator 核心源码与 `upstream/main` 相同，当前改动只做任务切分和只读实例复用 | 未发现本地语义漂移；作者私有 cache 本身不可直接比对 |
 | loss/head 权重 | 六个公开 score head 均被训练；公开/本地 head 位移模式相关 `0.9516`，归一化 RMSE `0.0551`；轨迹项与论文均为 min-over-64 L1 | 未发现大幅私有重加权；保留为低优先级未知量 |
-| Transformers 4.37.2/4.48.3/4.57.6 | 4.48.3/4.57.6 前向一致但 step-1000 更新 cosine `0.5333`；Stage-1 明确记录 4.37.2，且 4.37.2/4.48.3 hidden RMSE `0.130629`、梯度 RMSE `0.005095` | 高优先级 runtime 控制；4.37.2 短训练已排队 |
-| 梯度裁剪 | DriveVLA 发布值为 0；ReCogDrive/Stage-1 值为 1；固定批次未裁剪梯度范数约 `703.66` | 有实际影响但证据冲突；排在 scheduler/runtime 后做匹配短对照 |
+| Transformers 4.37.2/4.48.3/4.57.6 | 4.48.3/4.57.6 前向一致但 step-1000 更新 cosine `0.5333`；4.37.2/4.48.3 hidden RMSE `0.130629`、梯度 RMSE `0.005095`；但 4.37.2 元数据只锁定冻结基座血缘 | runtime 会改变路径；4.48.3 证据更直接，4.37.2 降为次级匹配控制 |
+| 梯度裁剪 | DriveVLA 发布值为 0；ReCogDrive/Stage-1 值为 1；固定批次未裁剪梯度范数约 `703.66`；首步 Adam 更新相对 RMS 差 `0.2763` | 有实际影响但证据冲突；排在 scheduler 后、4.37.2 前做匹配短对照 |
 | BF16/TF32 | 发布配置和 Stage-1 元数据均为 BF16、非 FP16；action-head FP32 参数在 BF16 autocast 下训练，当前 TF32 关闭 | BF16 已匹配；TF32 与 H20/A800 kernel 仅列为低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
@@ -290,9 +306,9 @@ runtime: PyTorch 2.5.1+cu124, Lightning 2.5.1, Transformers 4.48.3（当前主�
 epochs/steps: 27 / 174312
 ```
 
-当前主跑开始后才发现 Stage-1 产物中的 Transformers 4.37.2 强证据；它不等于
-证明 4.48.3 主跑无效，因此保持主跑并行推进，同时用 rl-zt3 的授权 GPU 做
-4.37/4.48 同布局短训练和 clip=0/1 匹配筛选。Lightning 2.6.0 和 2.5.1 的
+Stage-1 基座产物记录 Transformers 4.37.2，但血缘审计证明该字段不能锁定后来
+DriveVLA LoRA 的运行时；因此保持 4.48.3 主跑，同时用 rl-zt3 的授权 GPU 先做
+clip=0/1、再做 4.37/4.48 的同布局短训练筛选。Lightning 2.6.0 和 2.5.1 的
 1,000-step 对照均已在相同两台主机上完成。2.5.1
 的验证 PDMS 高 `0.004688`，但更重要的是 requirements 唯一留下的版本证据指向
 2.5.1；因此 27 epoch 全曲线锁定 2.5.1。该选择仍是“最有证据的复现假设”，不是
@@ -311,10 +327,11 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 - Lightning 2.5.1/2.6.0 需在同一 16×1 布局上比较；4×4 结果不用来代替该对照。
 - 若 cosine 闭合公开 checkpoint 的更新幅度和 PDMS，主因判为私有 launcher 很可能
   启用了发布源码中存在但 YAML 未启用的 schedule。
-- 若 4.37.2 短训练在 proposal ceiling 或公开 checkpoint 更新方向上显著优于
-  同布局 4.48.3，则先运行 4.37.2 source-cosine 全曲线；否则保留当前 4.48.3 主跑。
 - 若 clip=1 相对同布局 clip=0 明显改善 proposal ceiling，再升级为完整曲线；不能
   用上游 ReCogDrive 默认值直接覆盖 DriveVLA 发布配置。
+- 若 4.37.2 短训练在 proposal ceiling 或公开 checkpoint 更新方向上显著优于
+  同布局 4.48.3，则再决定是否运行 4.37.2 source-cosine 全曲线；否则保留当前
+  4.48.3 主跑。
 - 若版本对照与 cosine 完整曲线仍不能闭合公开权重，下一优先级才是同一运行时下的
   恒定 `5e-5` 完整对照，然后是 H20/A800 训练 kernel 的不可消除差异；不会回到
   sample 顺序作为主解释。
