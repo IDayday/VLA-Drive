@@ -614,6 +614,34 @@ def test_corrected_long2_epoch0_closes_public_proposal_ceiling_gap():
     assert recovery > 0.90
 
 
+def test_official_stage2_target_is_no_memory_base_not_retrieval_score():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/official_benchmark_disambiguation.json"
+        ).read_text()
+    )
+
+    paper = result["paper"]
+    base = paper["navsim_v1_table_3"][
+        "base_model_without_memory_pdms_percent"
+    ]
+    retrieval = paper["navsim_v1_table_3"][
+        "map_and_agent_retrieval_pdms_percent"
+    ]
+    scale = paper["navsim_v1_table_1"][
+        "drivevla_m0_scale_with_10k_synthetic_memory_pdms_percent"
+    ]
+    local_public = result["locally_evaluated_modelscope_checkpoint"]
+
+    assert base == 91.0
+    assert retrieval == 92.3
+    assert scale == 94.1
+    assert base < retrieval < scale
+    assert abs(local_public["navtest_pdms"] - base / 100.0) < 5e-4
+    assert "approximately 0.910" in result["conclusion"]
+
+
 def test_reproduction_scheduler_matches_released_schedule_numerically():
     result = json.loads(
         (

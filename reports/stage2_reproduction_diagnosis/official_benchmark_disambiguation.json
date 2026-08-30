@@ -1,0 +1,39 @@
+{
+  "paper": {
+    "url": "https://arxiv.org/abs/2608.10413",
+    "navsim_v1_table_3": {
+      "base_model_without_memory_pdms_percent": 91.0,
+      "language_retrieval_pdms_percent": 90.7,
+      "map_retrieval_pdms_percent": 91.7,
+      "map_and_agent_retrieval_pdms_percent": 92.3
+    },
+    "navsim_v1_table_1": {
+      "drivevla_m0_base_with_4k_memory_pdms_percent": 92.3,
+      "drivevla_m0_scale_with_10k_synthetic_memory_pdms_percent": 94.1
+    },
+    "knowledge_injection_table_4": {
+      "base_model_without_memory_pdms_percent": 91.0,
+      "offline_failure_case_training_10_epochs_pdms_percent": 91.2,
+      "full_action_decoder_ttt_pdms_percent": 92.4,
+      "decoupled_lora_ttt_pdms_percent": 92.3
+    }
+  },
+  "locally_evaluated_modelscope_checkpoint": {
+    "path": "/mnt/project/DriveVLA-M0-modelscope/best-epoch_26-step_174312.server_merged.ckpt",
+    "navtest_scene_count": 12146,
+    "navtest_pdms": 0.9095938788102461,
+    "paper_base_model_without_memory_pdms": 0.91,
+    "absolute_difference_from_paper_base": -0.0004061211897539163,
+    "percentage_point_difference_from_paper_base": -0.04061211897539163
+  },
+  "checkpoint_packaging": {
+    "modelscope_filename": "best-epoch_26-step_174312.server_merged.ckpt",
+    "modelscope_size_bytes": 4271779662,
+    "hugging_face_filename": "checkpoints/base_model/VLM_forzen_actionhead_10epoch_merged.pth",
+    "hugging_face_size_bytes": 4264911545,
+    "hugging_face_repository_revision": "9260a4f8fdfca86a64cdc16af5e79a404bf78d2b",
+    "hugging_face_access": "gated; tensor-level identity was not audited",
+    "interpretation": "The two public artifacts are not byte-identical packages. Different names and serialized sizes do not by themselves prove different model tensors. The ModelScope artifact is the checkpoint selected by the released agent config and its local Navtest score matches the paper's no-memory Base Model reference."
+  },
+  "conclusion": "The Stage-2 action-decoder reproduction target is approximately 0.910 Navtest PDMS. Scores 0.923 and 0.941 include memory retrieval and test-time training and cannot be used as targets for a frozen no-memory Stage-2 checkpoint."
+}

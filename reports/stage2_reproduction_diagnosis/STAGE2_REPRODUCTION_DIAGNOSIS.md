@@ -9,6 +9,23 @@
 本地已完成模型的 Navtest PDMS 为 `0.8998889219`，开源 Base 权重在完全相同的
 12,146 个场景和本地评测链路上为 `0.9095938788`，差值为 `-0.0097049569`。
 
+这里的正确复现目标是**无记忆的裸 Base Model，约 `0.910`**，不是论文 Table 1
+中的 `0.923/0.941`。论文 Table 3 明确把 `Base Model†`（without memory）列为
+`91.0` PDMS；`92.3` 来自 4K memory 下的 Map+Agent retrieval 与 TTT，`94.1`
+又使用 10K synthetic memory 的 Scale 配置。当前 ModelScope checkpoint 的
+`90.9594` 与论文裸 Base 只差 `0.0406` 个百分制点。因此本次 Stage-2 训练若达到
+约 `0.910` 即完成 base-action-decoder 复现，不能要求一个不运行 retrieval/TTT 的
+checkpoint 单独达到 `0.923` 或 `0.941`。完整取证见
+`official_benchmark_disambiguation.json`。
+
+发布侧另有一个尚不能做 tensor-level 对照的包装歧义：ModelScope 文件名为
+`best-epoch_26-step_174312.server_merged.ckpt`（4,271,779,662 bytes），Hugging Face
+列出的 Base 文件名则是 `VLM_forzen_actionhead_10epoch_merged.pth`
+（4,264,911,545 bytes）。HF 仓库需要登录接受 gated access，服务器当前没有 token；
+文件名和序列化大小不同只证明它们不是逐字节相同的包，不能据此断言模型 tensor
+不同。发布 agent config 指向 ModelScope 风格的 27-epoch 文件，而该文件的本地
+Navtest 已与论文无记忆 Base 基准吻合，所以当前训练继续以它作为可验证目标。
+
 目前已经找到一个量级足以解释 proposal-bank 差距、并经单变量训练确认的首要根因：
 旧训练 cache 只有普通 4 秒 GT target，官方权重的原始目录和行为指纹则指向发布源码
 中未写入部署 YAML 的 `long_trajectory_additional_poses=2` 分支。该分支额外用 5 秒
@@ -553,6 +570,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`62 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`63 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。
