@@ -19,10 +19,18 @@ logged future 重采样出的 8 点轨迹监督 proposal diversity。相同 128 
 这个早期时点尚未提升（`0.685810 -> 0.683447`），说明 scorer 尚未学会利用更宽的
 候选库，不能拿 1,000-step selected 分数否定该目标。
 
+完整 epoch-0、18,179-scene validation 现已进一步确认这个结论。在相同的 source
+warmup-cosine 曲线下，long-2 相对 no-long 把 selected PDMS 从 `0.718126` 提高到
+`0.767152`，best-of-64 从 `0.966110` 提高到 `0.987236`，regret 从 `0.247985`
+降到 `0.220083`，L2 从 `1.444121` 降到 `1.059989`。仅 proposal ceiling 一项就
+收回了 no-long 到公开最终权重差距的 `94.23%`，当前只剩 `0.001295`。这是全数据
+validation 尺度的结果，不是 sample 顺序或少量场景波动；最终 selected PDMS 和
+Navtest 是否完全闭合仍由正在运行的 27-epoch 曲线裁决。
+
 按重要性排序的当前判定是：
 
-1. **缺失 long-trajectory target：首要根因，已由 artifact、行为指纹和严格 A/B
-   三重确认；最终 Navtest 贡献等待完整曲线确认。**
+1. **缺失 long-trajectory target：首要根因，已由 artifact、行为指纹、严格 A/B
+   和完整 epoch-0 validation 四重确认；最终 Navtest 贡献等待完整曲线确认。**
 2. **Flash Attention：确定的有害训练语义改动，已修正为 eager。**
 3. **LR scheduler：最重要的剩余私有配置歧义。** 发布源码包含 10% warmup-cosine，
    公开权重位移更支持这条曲线而非恒定 `1e-4`，但只能由完整 27 epoch 最终确认。
@@ -312,7 +320,7 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
    `TF4.48/PEFT0.10/clip1`、`TF4.37/PEFT0.10/clip0`，三次使用相同布局、seed、
    cosine schedule 和验证子集。前两次只归因梯度裁剪，第一和第三次只归因
    Transformers；服务恢复后会自动在用户授权的 GPU 3/5/6/7 上顺序运行。
-8. **vla-zt2 主跑的完整 epoch-0 验证符合 warmup 预期。** 16×1 主跑在完整
+8. **此前 no-long source-cosine 的完整 epoch-0 验证符合 warmup 预期。** 16×1 对照在完整
    18,179-scene navtrain validation 上得到 selected PDMS `0.718126`、
    best-of-64 `0.966110`、regret `0.247985` 和 L2 `1.444121`。同期实际 LR 仅
    `3.6997e-5`，所以 scorer 与 GT 拟合明显落后于恒定 `1e-4` 对照是预期现象；
@@ -331,6 +339,21 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     早期更新与 27-epoch 最终更新本来就不是同一时间尺度。因此当前对 scheduler 的
     排序只依据发布源码分支、作者训练谱系、累计更新幅度与完整 validation 曲线，
     不再把 early-to-final update cosine 当作支持证据。
+11. **long-2 的完整 epoch-0 验证已经闭合 proposal ceiling。** 当前 Lightning
+    2.2.1 修正主跑在同一 18,179-scene validation 上得到 selected `0.767152`、
+    best-of-64 `0.987236`、regret `0.220083`、L2 `1.059989`。相对第 8 项 no-long
+    对照，selected 提高 `0.049026`，best-of-64 提高 `0.021125`，regret 相对下降
+    `11.25%`，L2 相对下降 `26.60%`。公开最终 best-of-64 为 `0.988530`，所以
+    long-2 已收回 no-long proposal-ceiling 缺口的 `94.23%`，只剩 `0.001295`。
+    no-long 对照使用 Lightning 2.5.1，但 2.2.1/2.5.1 的严格短对照中框架变化反而
+    让 best-of-64 下降，因此不能解释这里 `+0.021125` 的改善；128-log、同 runtime
+    的 long/no-long 配对 A/B 又独立得到 `+0.033601`。两条证据共同把 long target
+    从“高概率原因”提升为已确认的 proposal-bank 首要根因。
+12. **当前 scheduler 实现与发布源码数值等价。** 在锁定的 PyTorch 2.5.1 下，将
+    当前 LambdaLR 与原始 `LinearLR(start_factor=1e-6, 10%)` 加
+    `CosineAnnealingLR` 在全部 174,312 step 逐点比较，最大 LR 绝对差仅
+    `7.74e-18`。后续完整曲线检验的是私有 launcher 是否启用该 schedule，而不是
+    本地 schedule 实现是否错位。
 
 ## 已排除或降级的因素
 
@@ -506,6 +529,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`58 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`60 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。

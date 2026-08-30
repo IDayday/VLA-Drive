@@ -1,3 +1,4 @@
+import json
 import pickle
 import pickletools
 from pathlib import Path
@@ -532,3 +533,35 @@ def test_legacy_prepad_changes_the_complete_training_order():
     assert report["exact_same_global_batch_count"] == 0
     assert report["same_position_fraction"] < 0.001
     assert report["mean_batch_member_overlap_fraction"] < 0.001
+
+
+def test_corrected_long2_epoch0_closes_public_proposal_ceiling_gap():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/corrected_long2_epoch0_result.json"
+        ).read_text()
+    )
+    current = result["validation"]["best_of_64_pdms"]
+    no_long = result["matched_schedule_no_long_epoch0"]["best_of_64_pdms"]
+    public = result["public_final_reference"]["best_of_64_pdms"]
+    recovery = (current - no_long) / (public - no_long)
+    assert current > no_long
+    assert recovery == pytest.approx(
+        result["proposal_ceiling_gap_to_public"][
+            "fraction_of_no_long_gap_recovered"
+        ]
+    )
+    assert recovery > 0.90
+
+
+def test_reproduction_scheduler_matches_released_schedule_numerically():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/scheduler_implementation_equivalence.json"
+        ).read_text()
+    )
+    assert result["total_steps"] == 174_312
+    assert result["warmup_steps"] == 17_431
+    assert result["max_absolute_lr_difference"] < 1e-16

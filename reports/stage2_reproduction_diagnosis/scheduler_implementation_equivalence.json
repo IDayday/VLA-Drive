@@ -1,0 +1,30 @@
+{
+  "runtime": {
+    "pytorch": "2.5.1+cu124"
+  },
+  "base_lr": 0.0001,
+  "total_steps": 174312,
+  "warmup_steps": 17431,
+  "left": "released SequentialLR(LinearLR(start_factor=1e-6,total_iters=17431),CosineAnnealingLR(T_max=156881,eta_min=0))",
+  "right": "reproduction LambdaLR with the same piecewise linear-warmup/cosine formula",
+  "max_absolute_lr_difference": 7.738493006115288e-18,
+  "max_difference_step": 17378,
+  "boundary_samples": [
+    {
+      "step": 0,
+      "released_lr": 1e-10,
+      "reproduction_lr": 1e-10
+    },
+    {
+      "step": 17431,
+      "released_lr": 0.0001,
+      "reproduction_lr": 0.0001
+    },
+    {
+      "step": 174311,
+      "released_lr": 1.0025336116825811e-14,
+      "reproduction_lr": 1.0025336116825656e-14
+    }
+  ],
+  "conclusion": "The reproduction scheduler is numerically equivalent to the released source schedule. The remaining uncertainty is whether the private launcher enabled this released branch."
+}

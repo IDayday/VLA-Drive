@@ -1,0 +1,58 @@
+{
+  "experiment": "stage2_official_pl221_tf448_eager_seed2_long2_source_cosine_16x1",
+  "dataset": "navtrain",
+  "runtime": {
+    "pytorch_lightning": "2.2.1",
+    "transformers": "4.48.3",
+    "precision": "bf16-mixed",
+    "attention": "eager"
+  },
+  "world_size": 16,
+  "local_batch_size": 1,
+  "global_batch_size": 16,
+  "long_trajectory_additional_poses": 2,
+  "epoch": 0,
+  "global_step": 6456,
+  "last_logged_lr_before_validation": 3.699736771523021e-05,
+  "validation_scene_count": 18179,
+  "validation": {
+    "selected_pdms": 0.7671523094177246,
+    "best_of_64_pdms": 0.9872355461120605,
+    "selection_regret": 0.22008322179317474,
+    "l2": 1.0599889755249023,
+    "collision": 0.9865875244140625,
+    "dac": 0.8842348456382751,
+    "progress": 0.6456499099731445,
+    "ttc": 0.9556947946548462,
+    "comfort": 0.9998350739479065,
+    "top_1_hit_rate": 0.019569041207432747,
+    "top_5_hit_rate": 0.0710202306509018
+  },
+  "matched_schedule_no_long_epoch0": {
+    "experiment": "stage2_official_source_cosine_seed2_eager_tf448_pl251_16x1",
+    "pytorch_lightning": "2.5.1",
+    "selected_pdms": 0.7181258201599121,
+    "best_of_64_pdms": 0.9661104083061218,
+    "selection_regret": 0.2479846030473709,
+    "l2": 1.44412100315094
+  },
+  "public_final_reference": {
+    "selected_pdms": 0.95147377,
+    "best_of_64_pdms": 0.9885301,
+    "selection_regret": 0.03705623,
+    "l2": 0.565385
+  },
+  "long2_minus_no_long": {
+    "selected_pdms": 0.0490264892578125,
+    "best_of_64_pdms": 0.02112513780593872,
+    "selection_regret": -0.027901381254196167,
+    "l2": -0.3841320276260376,
+    "relative_regret_reduction": 0.11251255485755438,
+    "relative_l2_reduction": 0.2659971199005462
+  },
+  "proposal_ceiling_gap_to_public": {
+    "remaining_absolute_gap": 0.0012945538879394203,
+    "fraction_of_no_long_gap_recovered": 0.9422581761776453
+  },
+  "interpretation": "At the same epoch and source warmup-cosine schedule, enabling the logged-future long-2 target recovers 94.23% of the no-long proposal-ceiling gap to the public final checkpoint. This validates the primary proposal-bank root cause at full-validation scale; final selected PDMS and Navtest still require the 27-epoch run."
+}
