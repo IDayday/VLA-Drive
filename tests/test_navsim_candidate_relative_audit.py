@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+import torch
 
 from tools.navsim_candidate_relative_audit.build_soft_contrastive_labels import (
     consequence_distance_matrix,
@@ -23,6 +24,18 @@ from tools.navsim_candidate_relative_audit.common import (
     se2_global_to_local,
     se2_local_to_global,
     wrap_heading,
+)
+from tools.navsim_candidate_relative_audit.run_oracle_probe import (
+    candidate_current_actor_features,
+)
+from tools.navsim_candidate_relative_audit.run_predicted_consequence_probe import (
+    grouped_crossfit_splits,
+    inner_monitor_split,
+    nested_numeric_difference,
+    partition_environment_features,
+)
+from tools.navsim_candidate_relative_audit.mlp_effect_predictor import (
+    center_by_scene,
 )
 
 
@@ -197,3 +210,98 @@ def test_fixed_seed_candidate_result_is_deterministic() -> None:
     assert [item[0] for item in first] == [item[0] for item in second]
     for left, right in zip(first, second):
         assert np.array_equal(left[2], right[2])
+
+
+def test_candidate_current_actor_features_are_current_only_and_deterministic() -> None:
+    frame = {
+        "anns": {
+            "gt_boxes": np.asarray(
+                [[10.0, 1.0, 0.0, 4.5, 2.0, 1.5, 0.1]],
+                dtype=np.float64,
+            ),
+            "gt_velocity_3d": np.asarray([[1.0, 0.0, 0.0]]),
+            "gt_names": np.asarray(["vehicle"]),
+        },
+        # A future-looking decoy must not change the planning-instant features.
+        "future_frames": [{"anns": {"gt_boxes": [[999.0] * 7]}}],
+    }
+    trajectory = np.zeros((8, 3), dtype=np.float64)
+    trajectory[:, 0] = np.arange(1, 9)
+    first, names = candidate_current_actor_features(frame, trajectory)
+    second, second_names = candidate_current_actor_features(frame, trajectory)
+    frame["future_frames"][0]["anns"]["gt_boxes"] = [[-999.0] * 7]
+    third, _ = candidate_current_actor_features(frame, trajectory)
+    assert first.shape == (369,)
+    assert len(names) == len(first)
+    assert names == second_names
+    assert np.array_equal(first, second)
+    assert np.array_equal(first, third)
+    assert np.isfinite(first).all()
+
+
+def test_predicted_consequence_environment_partition() -> None:
+    names = [
+        "C_environment_only_h1s_candidate_relative_dynamic_occupancy_mean",
+        "C_environment_only_h1s_drivable_area_sdf_mean",
+        "C_environment_only_h1s_lane_sdf_mean",
+        "C_environment_only_h1s_route_sdf_mean",
+        "C_environment_only_h1s_relative_longitudinal_velocity_mean",
+        "C_environment_only_h1s_relative_lateral_velocity_mean",
+        "C_environment_only_h1s_dynamic_clearance_mean",
+        "C_environment_only_h1s_dynamic_collision_field_mean",
+    ]
+    exact, dynamic = partition_environment_features(names)
+    assert exact.tolist() == [1, 2, 3]
+    assert dynamic.tolist() == [0, 4, 5, 6, 7]
+    assert set(exact) | set(dynamic) == set(range(len(names)))
+
+
+def test_group_crossfit_has_no_log_overlap_and_covers_each_row_once() -> None:
+    groups = np.repeat(np.asarray(["a", "b", "c", "d", "e"]), 3)
+    validation_counts = np.zeros(len(groups), dtype=np.int64)
+    for train, validation in grouped_crossfit_splits(groups, 5):
+        assert not (set(groups[train]) & set(groups[validation]))
+        validation_counts[validation] += 1
+    assert np.array_equal(validation_counts, np.ones(len(groups), dtype=np.int64))
+
+
+def test_inner_convergence_monitor_is_log_disjoint_and_deterministic() -> None:
+    groups = np.repeat(
+        np.asarray([f"log_{index:02d}" for index in range(20)]), 4
+    )
+    indices = np.arange(len(groups), dtype=np.int64)
+    first_train, first_monitor = inner_monitor_split(
+        indices, groups, seed=20260828
+    )
+    second_train, second_monitor = inner_monitor_split(
+        indices, groups, seed=20260828
+    )
+    assert np.array_equal(first_train, second_train)
+    assert np.array_equal(first_monitor, second_monitor)
+    assert not (set(groups[first_train]) & set(groups[first_monitor]))
+    assert set(first_train) | set(first_monitor) == set(indices)
+
+
+def test_scene_centered_loss_input_has_zero_scene_mean() -> None:
+    values = torch.tensor(
+        [[1.0, 3.0], [3.0, 5.0], [10.0, 4.0], [14.0, 8.0]],
+        dtype=torch.float32,
+    )
+    inverse = torch.tensor([0, 0, 1, 1], dtype=torch.long)
+    centered = center_by_scene(values, inverse)
+    assert torch.allclose(centered[:2].mean(dim=0), torch.zeros(2))
+    assert torch.allclose(centered[2:].mean(dim=0), torch.zeros(2))
+
+
+def test_determinism_comparison_separates_structure_and_numeric_tolerance() -> None:
+    structure, difference = nested_numeric_difference(
+        {"metric": [1.0, 2.0], "label": "same"},
+        {"metric": [1.0 + 1e-8, 2.0], "label": "same"},
+    )
+    assert structure
+    assert difference == pytest.approx(1e-8)
+    structure, difference = nested_numeric_difference(
+        {"metric": 1.0}, {"different": 1.0}
+    )
+    assert not structure
+    assert np.isinf(difference)

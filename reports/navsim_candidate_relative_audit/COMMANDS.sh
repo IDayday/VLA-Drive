@@ -67,6 +67,49 @@ python -m tools.navsim_candidate_relative_audit.audit_future_visual_anchor \
 python -m tools.navsim_candidate_relative_audit.run_oracle_probe \
   --split train --max-scenes 500 --max-scenes-per-log 8 --num-candidates 12 \
   --output-dir reports/navsim_candidate_relative_audit
+
+# Predicted-consequence probe requested after the oracle audit. Model/strength
+# selection uses train OOF candidate fidelity; validation logs remain untouched.
+python -m tools.navsim_candidate_relative_audit.run_predicted_consequence_probe \
+  --split train --max-scenes 500 --num-candidates 12 --max-scenes-per-log 8 \
+  --output-dir reports/navsim_candidate_relative_audit \
+  --effect-models ridge,extra_trees,mlp_raw,mlp_delta,mlp_delta_strong \
+  --extra-trees-estimators 64 --extra-trees-max-depth 14 \
+  --extra-trees-min-samples-leaf 4 --extra-trees-max-features 0.7 --jobs 8 \
+  --mlp-hidden-dims 512,256,128 --mlp-learning-rate 0.001 \
+  --mlp-weight-decay 0.0001 --mlp-max-epochs 160 --mlp-patience 20 \
+  --mlp-delta-weight 1.0 --mlp-delta-weight-strong 4.0 \
+  --mlp-overfit-scenes 8 --mlp-overfit-epochs 400 \
+  --mlp-device cuda --bootstrap-samples 2000
+
+# Fixed-seed repeat used the same arguments, wrote to an isolated temporary
+# output, and compared against the formal result at 1e-6 schema precision.
+python -m tools.navsim_candidate_relative_audit.run_predicted_consequence_probe \
+  --split train --max-scenes 500 --num-candidates 12 --max-scenes-per-log 8 \
+  --output-dir /tmp/navsim_predicted_mlp_repeat \
+  --effect-models ridge,extra_trees,mlp_raw,mlp_delta,mlp_delta_strong \
+  --extra-trees-estimators 64 --extra-trees-max-depth 14 \
+  --extra-trees-min-samples-leaf 4 --extra-trees-max-features 0.7 --jobs 8 \
+  --mlp-hidden-dims 512,256,128 --mlp-learning-rate 0.001 \
+  --mlp-weight-decay 0.0001 --mlp-max-epochs 160 --mlp-patience 20 \
+  --mlp-delta-weight 1.0 --mlp-delta-weight-strong 4.0 \
+  --mlp-overfit-scenes 8 --mlp-overfit-epochs 400 \
+  --mlp-device cuda --bootstrap-samples 2000 \
+  --determinism-reference reports/navsim_candidate_relative_audit
+
+# Data-scale control: the validation decision remains log-disjoint, while the
+# training pool grows from 500 to 2,000 scenes.
+python -m tools.navsim_candidate_relative_audit.run_predicted_consequence_probe \
+  --split train --max-scenes 2000 --num-candidates 12 --max-scenes-per-log 8 \
+  --output-dir reports/navsim_candidate_relative_audit/predicted_consequence_runs/scale_2000 \
+  --effect-models extra_trees,mlp_delta,mlp_delta_strong \
+  --extra-trees-estimators 64 --extra-trees-max-depth 14 \
+  --extra-trees-min-samples-leaf 4 --extra-trees-max-features 0.7 --jobs 8 \
+  --mlp-hidden-dims 512,256,128 --mlp-learning-rate 0.001 \
+  --mlp-weight-decay 0.0001 --mlp-max-epochs 160 --mlp-patience 20 \
+  --mlp-delta-weight 1.0 --mlp-delta-weight-strong 4.0 \
+  --mlp-overfit-scenes 8 --mlp-overfit-epochs 400 \
+  --mlp-device cuda --bootstrap-samples 2000
 python -m tools.navsim_candidate_relative_audit.audit_v2_extensions \
   --split train --max-scenes 32 --synthetic-metadata-samples 512 \
   --output-dir reports/navsim_candidate_relative_audit

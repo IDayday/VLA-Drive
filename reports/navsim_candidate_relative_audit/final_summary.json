@@ -3,9 +3,17 @@
     "F1 candidate-relative structured consequence": "PASS",
     "F2 GT visual anchor": "PASS",
     "F3 soft contrastive supervision": "PASS",
-    "F4 inverse verifier supervision": "CONDITIONAL_PASS",
+    "F4 inverse verifier supervision": "INCONCLUSIVE",
     "F5 non-GT future image supervision": "FAIL"
   },
-  "primary_blocker": "非 GT 候选没有 observed future image；动态结构化标签依赖 non-reactive logged replay，reactive IDM 也只模拟车辆。",
-  "recommended_plan": "Plan A：完整候选相对世界模型（GT-only visual anchor + structured candidate targets）"
+  "predicted_consequence": {
+    "decision_run_scene_count": 2000,
+    "fidelity_pass": false,
+    "optimization_converged": true,
+    "overall_gate": "PREDICTOR_FIDELITY_NOT_MET",
+    "planning_gain_judgement": "CONDITIONAL_PASS",
+    "primary_predictor": "mlp_delta_strong"
+  },
+  "primary_blocker": "预测器优化与小样本容量检查均通过，扩大到 2,000 场景后 fidelity/规划点估计有所改善，但 held-out log 上候选方差仍严重塌缩且规划置信区间跨零；因此当前证据不足，不能归因于方法无效。",
+  "recommended_plan": "Plan B：结构化候选相对世界模型"
 }

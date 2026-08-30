@@ -41,6 +41,7 @@ from .common import (
     metric_log_name,
     raw_log_path,
     trajectory_kinematics,
+    wrap_heading,
     write_json,
     write_text,
 )
@@ -61,6 +62,8 @@ ENVIRONMENT_CHANNEL_INDICES = tuple(range(8))
 INTERACTION_CHANNEL_INDICES = (0, 4, 5, 6, 7)
 EFFECT_HORIZONS_S = (1.0, 2.0, 4.0)
 TUBE_STATISTICS = ("mean", "std", "min", "max", "q10", "q90", "nonzero_fraction")
+CURRENT_ACTOR_HORIZONS_S = EFFECT_HORIZONS_S
+CURRENT_ACTOR_SLOTS = 8
 
 TARGETS = {
     "aggregate_score": ("regression", "log_replay", "pdm_score"),
@@ -163,6 +166,179 @@ def current_scene_features(frame: dict[str, Any]) -> tuple[np.ndarray, list[str]
         dtype=np.float32,
     )
     return finite_array(values), names
+
+
+def candidate_current_actor_features(
+    frame: dict[str, Any],
+    trajectory: np.ndarray,
+    *,
+    max_actors: int = CURRENT_ACTOR_SLOTS,
+) -> tuple[np.ndarray, list[str]]:
+    """Candidate-conditioned features using only the planning-instant frame.
+
+    Current annotated actors are propagated with a constant-velocity prior and
+    expressed in each candidate pose. This is an online-available structured
+    input proxy, not a logged-future target. Fixed actor slots are sorted at
+    every horizon by candidate-relative center distance.
+    """
+
+    if max_actors <= 0:
+        raise ValueError("max_actors must be positive")
+    poses = np.asarray(trajectory, dtype=np.float64)
+    if poses.shape != (8, 3):
+        raise ValueError(f"expected trajectory [8,3], got {poses.shape}")
+    annotations = frame.get("anns", {})
+    boxes = np.asarray(
+        annotations.get("gt_boxes", np.zeros((0, 7))), dtype=np.float64
+    )
+    velocities = np.asarray(
+        annotations.get("gt_velocity_3d", np.zeros((len(boxes), 3))),
+        dtype=np.float64,
+    )
+    object_names = np.asarray(
+        annotations.get("gt_names", np.asarray([], dtype=str))
+    ).astype(str)
+    if boxes.ndim != 2 or (len(boxes) and boxes.shape[1] < 7):
+        raise ValueError(f"current gt_boxes must be [N,>=7], got {boxes.shape}")
+    if velocities.shape[0] != len(boxes) or object_names.shape[0] != len(boxes):
+        raise ValueError("current actor fields have inconsistent lengths")
+    if len(boxes):
+        actor_position = finite_array(boxes[:, :2]).astype(np.float64)
+        actor_velocity = finite_array(velocities[:, :2]).astype(np.float64)
+        actor_heading = finite_array(boxes[:, 6]).astype(np.float64)
+        actor_length = np.maximum(
+            finite_array(boxes[:, 3]).astype(np.float64), 0.0
+        )
+        actor_width = np.maximum(
+            finite_array(boxes[:, 4]).astype(np.float64), 0.0
+        )
+    else:
+        actor_position = np.zeros((0, 2), dtype=np.float64)
+        actor_velocity = np.zeros((0, 2), dtype=np.float64)
+        actor_heading = np.zeros(0, dtype=np.float64)
+        actor_length = np.zeros(0, dtype=np.float64)
+        actor_width = np.zeros(0, dtype=np.float64)
+
+    slot_fields = (
+        "valid",
+        "relative_x_m",
+        "relative_y_m",
+        "relative_vx_mps",
+        "relative_vy_mps",
+        "relative_heading_rad",
+        "length_m",
+        "width_m",
+        "center_distance_m",
+        "front_ttc_s",
+        "type_vehicle",
+        "type_pedestrian",
+        "type_bicycle",
+        "type_other",
+    )
+    aggregate_fields = (
+        "actor_count",
+        "within_10m_count",
+        "within_20m_count",
+        "within_40m_count",
+        "front_corridor_count",
+        "crossing_corridor_count",
+        "closing_front_count",
+        "minimum_center_distance_m",
+        "mean_nearest4_distance_m",
+        "minimum_front_ttc_s",
+        "mean_absolute_lateral_offset_m",
+    )
+    values: list[float] = []
+    names: list[str] = []
+    previous_xy = np.vstack(
+        [np.zeros((1, 2), dtype=np.float64), poses[:-1, :2]]
+    )
+    candidate_velocity = (poses[:, :2] - previous_xy) / 0.5
+
+    for horizon in CURRENT_ACTOR_HORIZONS_S:
+        pose_index = int(round(horizon / 0.5)) - 1
+        candidate_pose = poses[pose_index]
+        candidate_v = candidate_velocity[pose_index]
+        cosine = float(np.cos(candidate_pose[2]))
+        sine = float(np.sin(candidate_pose[2]))
+        forecast_position = actor_position + actor_velocity * horizon
+        delta = forecast_position - candidate_pose[:2]
+        relative_x = cosine * delta[:, 0] + sine * delta[:, 1]
+        relative_y = -sine * delta[:, 0] + cosine * delta[:, 1]
+        velocity_delta = actor_velocity - candidate_v
+        relative_vx = cosine * velocity_delta[:, 0] + sine * velocity_delta[:, 1]
+        relative_vy = -sine * velocity_delta[:, 0] + cosine * velocity_delta[:, 1]
+        relative_heading = np.asarray(
+            wrap_heading(actor_heading - candidate_pose[2]), dtype=np.float64
+        )
+        center_distance = np.hypot(relative_x, relative_y)
+        front_ttc = np.full(len(boxes), 20.0, dtype=np.float64)
+        closing = (relative_x > 0.0) & (relative_vx < -0.1)
+        front_ttc[closing] = np.minimum(
+            relative_x[closing] / np.maximum(-relative_vx[closing], 0.1),
+            20.0,
+        )
+        order = np.argsort(center_distance, kind="stable")
+        for slot in range(max_actors):
+            prefix = f"current_cv_h{horizon:g}s_actor{slot:02d}"
+            names.extend(f"{prefix}_{field}" for field in slot_fields)
+            if slot >= len(order):
+                values.extend([0.0] * len(slot_fields))
+                continue
+            index = int(order[slot])
+            object_name = object_names[index].lower()
+            is_vehicle = float(object_name == "vehicle")
+            is_pedestrian = float(object_name == "pedestrian")
+            is_bicycle = float(object_name in {"bicycle", "cyclist"})
+            is_other = float(not (is_vehicle or is_pedestrian or is_bicycle))
+            values.extend(
+                [
+                    1.0,
+                    relative_x[index],
+                    relative_y[index],
+                    relative_vx[index],
+                    relative_vy[index],
+                    relative_heading[index],
+                    actor_length[index],
+                    actor_width[index],
+                    center_distance[index],
+                    front_ttc[index],
+                    is_vehicle,
+                    is_pedestrian,
+                    is_bicycle,
+                    is_other,
+                ]
+            )
+        names.extend(
+            f"current_cv_h{horizon:g}s_{field}"
+            for field in aggregate_fields
+        )
+        nearest = np.sort(center_distance)[:4]
+        values.extend(
+            [
+                len(boxes),
+                np.sum(center_distance < 10.0),
+                np.sum(center_distance < 20.0),
+                np.sum(center_distance < 40.0),
+                np.sum((relative_x > 0.0) & (np.abs(relative_y) < 3.0)),
+                np.sum(
+                    (np.abs(relative_x) < 6.0)
+                    & (np.abs(relative_y) < 8.0)
+                ),
+                np.sum(closing & (np.abs(relative_y) < 3.0)),
+                float(np.min(center_distance))
+                if len(center_distance)
+                else 100.0,
+                float(np.mean(nearest)) if len(nearest) else 100.0,
+                float(np.min(front_ttc[closing]))
+                if np.any(closing)
+                else 20.0,
+                float(np.mean(np.abs(relative_y)))
+                if len(relative_y)
+                else 100.0,
+            ]
+        )
+    return finite_array(np.asarray(values)), names
 
 
 def tube_features(
@@ -280,6 +456,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     scene_tensors: list[np.ndarray] = []
     environment_tensors: list[np.ndarray] = []
     interaction_tensors: list[np.ndarray] = []
+    current_candidate_tensors: list[np.ndarray] = []
     targets: dict[str, list[float]] = {name: [] for name in TARGETS}
     scene_tokens: list[str] = []
     log_names: list[str] = []
@@ -289,6 +466,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
     current_names: list[str] | None = None
     environment_names: list[str] | None = None
     interaction_names: list[str] | None = None
+    current_candidate_names: list[str] | None = None
     eligible_tokens = [
         token
         for token in sorted(consequences)
@@ -367,10 +545,17 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                         INTERACTION_CHANNEL_INDICES,
                         "C_interaction_only",
                     )
+                    current_candidate, current_candidate_feature_names = (
+                        candidate_current_actor_features(
+                            frames_by_token[token],
+                            trajectories[int(row["candidate_index"])],
+                        )
+                    )
                     candidate_tensors.append(candidate)
                     scene_tensors.append(current)
                     environment_tensors.append(environment)
                     interaction_tensors.append(interaction)
+                    current_candidate_tensors.append(current_candidate)
                     for name in TARGETS:
                         targets[name].append(target_value(row, name))
                     scene_tokens.append(token)
@@ -383,6 +568,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
                     current_names = current_feature_names
                     environment_names = environment_feature_names
                     interaction_names = interaction_feature_names
+                    current_candidate_names = current_candidate_feature_names
             except Exception as error:  # retain a falsifiable failure inventory
                 failures.append(
                     {"scene_token": token, "error": f"{type(error).__name__}: {error}"}
@@ -396,6 +582,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
         "current": np.stack(scene_tensors),
         "environment": np.stack(environment_tensors),
         "interaction": np.stack(interaction_tensors),
+        "current_candidate": np.stack(current_candidate_tensors),
         "targets": {
             name: np.asarray(values, dtype=np.float32)
             for name, values in targets.items()
@@ -409,6 +596,7 @@ def build_dataset(args: argparse.Namespace) -> dict[str, Any]:
             "current": current_names or [],
             "environment": environment_names or [],
             "interaction": interaction_names or [],
+            "current_candidate": current_candidate_names or [],
         },
         "failures": failures,
         "selected_scene_count": selected_scene_count,
@@ -461,10 +649,18 @@ def ranking_metrics(
         top1_correct += int(abs(float(y[selected]) - best) <= 1e-8)
         regrets.append(best - float(y[selected]))
         ndcgs.append(float(ndcg_score(y[None], p[None])))
-        correlation = spearmanr(y, p).statistic
+        correlation = (
+            spearmanr(y, p).statistic
+            if np.std(y) >= 1e-12 and np.std(p) >= 1e-12
+            else float("nan")
+        )
         if np.isfinite(correlation):
             scene_spearman.append(float(correlation))
-    global_spearman = spearmanr(truth, prediction).statistic
+    global_spearman = (
+        spearmanr(truth, prediction).statistic
+        if np.std(truth) >= 1e-12 and np.std(prediction) >= 1e-12
+        else float("nan")
+    )
     return {
         "pairwise_ranking_accuracy": pair_correct / pair_count if pair_count else None,
         "pairwise_comparison_count": pair_count,
@@ -486,7 +682,11 @@ def ranking_metrics(
 def regression_target_metrics(
     truth: np.ndarray, prediction: np.ndarray
 ) -> dict[str, float | None]:
-    correlation = spearmanr(truth, prediction).statistic
+    correlation = (
+        spearmanr(truth, prediction).statistic
+        if np.std(truth) >= 1e-12 and np.std(prediction) >= 1e-12
+        else float("nan")
+    )
     return {
         "rmse": float(mean_squared_error(truth, prediction, squared=False)),
         "mae": float(mean_absolute_error(truth, prediction)),

@@ -40,7 +40,7 @@ The full evidence table is in `SUPPORT_MATRIX.md` / `SUPPORT_MATRIX.csv`: A_DIRE
 | Q17 | `E_UNAVAILABLE` | 唯一 logged future 只给 GT camera view；candidate-conditioned relabeling不能改变记录像素。 |
 | Q18 | `D_REACTIVE_OR_SYNTHETIC_ONLY` | 部署中有 follow-up metadata/camera/extended tracks，但只解析到 NAVHARD two-stage 路径，当前 train 审计不得用其标注；且不支持 same-current-state claim。 |
 | Q19 | `D_REACTIVE_OR_SYNTHETIC_ONLY` | 本地 NAVSIM v2 IDM 实现和 reactive consequence cache 均可用；只模拟 VEHICLE。 |
-| Q20 | `B_EXACT_DERIVATION` | 由按完整 log 划分的轻量 oracle probe 实测；结果取决于 Probe C 相对 A/B 的排名增益并通过 leakage audit。 |
+| Q20 | `B_EXACT_DERIVATION` | Oracle 与预测后果必须分开回答：oracle 结果混合；500→2000 场景的 log-safe OOF 预测显示候选差异 fidelity 和规划点估计改善，但候选方差仍严重塌缩且规划置信区间跨零，因此尚未证明稳健增益。 |
 
 ## 3. Data coverage
 
@@ -88,7 +88,9 @@ The schemas remain separate: `trajectory_derived` is recoverable from the candid
 
 The effective-positive counts and false-negative counts show that hard one-hot treats many prefix-compatible candidates as equally negative. Both GT-factual q and candidate-consequence K×K Q are non-degenerate.
 
-## 7. Oracle planning utility
+## 7. Oracle and predicted planning utility
+
+### 7.1 Oracle sufficiency check
 
 - Scope: **500 scenes / 6000 candidates**, split by complete `log_name`; overlap **0**.
 - Leakage audit: **PASS**.
@@ -108,6 +110,56 @@ The clearest factor gains over Probe B are DAC AUROC **0.8010414163262035 → 0.
 Interaction-only inverse accuracy is **0.2248263888888889** versus majority chance **0.16666666666666666**. 当前数据可支持候选相对风险重标注，但不足以支持强 interaction inverse dynamics。
 
 Probe C uses non-reactive effect-tube relations (dynamic occupancy, relative velocities, clearance/collision fields, map/lane/route SDF) and explicitly excludes official PDM aggregate/factors, candidate type/ID, waypoint copies, and the trajectory-derived ego-footprint tube channel.
+
+The oracle result answers only whether the target contains useful information. It does not establish that a model can predict that information from the current scene.
+
+### 7.2 Predicted-consequence convergence and fidelity
+
+- Scope: **500 scenes / 6000 candidates**; outer split **120 train logs / 35 validation logs**, with overlap **0**.
+- Dynamic consequence predictor selection used outer-train OOF fidelity only; selected **mlp_delta**. Outer validation was not used for model/strength selection: **True**.
+- Optimization convergence: **PASS**. Candidate-specific fidelity: **FAIL**. Overall gate: **`PREDICTOR_FIDELITY_NOT_MET`**.
+
+| Predictor | Optimization | Median held-out-log monitor improvement | Median best epoch | Parameters |
+|---|---|---:|---:|---:|
+| mlp_delta | PASS | 37.78% | 44.0 | 443241 |
+| mlp_delta_strong | PASS | 41.33% | 27.0 | 443241 |
+| mlp_raw | PASS | 33.25% | 46.0 | 443241 |
+
+For the selected predictor, train-OOF candidate-delta Spearman is **0.13293298038412757**. On unseen outer-validation logs it is **0.12723538190737874**, pairwise consequence-distance Spearman is **0.2970739017766492**, and candidate-variance recovery is only **0.02087384080803929**.
+
+The MLP therefore did optimize: inner-log monitor loss improved and early stopping selected nonzero epochs. But optimization convergence is not prediction success. The low candidate-centered correlations and severe variance collapse show weak cross-log generalization of candidate-specific effects, even though scene-shared/global reconstruction can look strong.
+
+Small-subset capacity sanity is **PASS** on **8 scenes / 96 candidates**: train loss reduction **99.96%**, candidate-delta Spearman **0.8770506302605902**, pairwise-distance Spearman **0.9958043287496663**, variance recovery **0.9876388754313509**. This deliberately in-sample check tests implementation/capacity only and is not generalization evidence.
+
+A 2,000-scene scale control tests whether the 500-scene result is merely data-starved:
+
+| Scenes | Selected predictor | Validation candidate-delta Spearman | Pairwise-distance Spearman | Variance recovery | Pairwise planning delta [95% CI] | Regret delta [95% CI] | Fidelity gate |
+|---:|---|---:|---:|---:|---|---|---|
+| 500 | mlp_delta | 0.12723538190737874 | 0.2970739017766492 | 0.02087384080803929 | -0.021838252939764824 [-0.052098810366812125, 0.0075049059707743785] | 0.0063845332091053315 [-0.0033585072339822864, 0.0217649265192449] | FAIL |
+| 2000 | mlp_delta_strong | 0.1880460424557925 | 0.5190308616711734 | 0.04215598494077408 | 0.0087582483503299 [-0.005785969276786476, 0.022862691786223504] | -0.0009058548949717228 [-0.009750799826946953, 0.006139304556983566] | FAIL |
+
+Scaling from 500 to 2,000 scenes improves candidate-delta correlation and reaches the pairwise-distance threshold; the planning point estimate also changes from negative/mixed to **+0.88%** pairwise with slightly lower regret. However both planning confidence intervals cross zero and candidate-variance recovery remains only **4.22%**, far below the 50% gate. This is a positive data-scaling trend, not yet a robust gain claim.
+
+### 7.3 Fair downstream planning comparison
+
+The direct planner and the consequence predictor receive exactly the same online inputs: candidate trajectory, planning-instant structured actors, constant-velocity interaction features, and exact map/route geometry. The predicted model receives no logged future at validation time.
+
+Logged-future consequences are used only as supervised training/evaluation labels. Outer-train planner features are OOF predictions, and outer-validation planner features are predictions from a model fit only on outer-train logs; no oracle future consequence is fed to the predicted planner.
+
+The detailed table below is the 500-scene run with a successful fixed-seed repeat. The 2,000-scene scale result is summarized in the preceding table and retained as a separate artifact.
+
+| Probe | Pairwise ranking | NDCG | Per-scene Spearman | Top-1 | Regret | Score RMSE |
+|---|---:|---:|---:|---:|---:|---:|
+| Fair direct, same online inputs | 0.5869930405567555 | 0.993309166046493 | 0.22868413295480644 | 0.5520833333333334 | 0.018180223802725475 | 0.18915950990984648 |
+| Predicted dynamic consequence (mlp_delta) | 0.5651547876169907 | 0.9903912254327706 | 0.1656339604095518 | 0.5833333333333334 | 0.024564757011830807 | 0.18849750712802602 |
+| Predicted dynamic consequence (ExtraTrees diagnostic) | 0.5929925605951524 | 0.992806542537164 | 0.24115526653236755 | 0.5833333333333334 | 0.018231218059857685 | 0.18495500778080642 |
+| Oracle dynamic ceiling, same downstream learner | 0.6033117350611951 | 0.9913270502456096 | 0.250433842041415 | 0.4895833333333333 | 0.03372189433624347 | 0.18479553966416032 |
+
+Formal primary predicted-vs-direct judgement: **INCONCLUSIVE**. Pairwise delta is **-0.021838252939764824**, with scene-bootstrap 95% CI **[-0.052098810366812125, 0.0075049059707743785]**; top-1 delta is **0.03125**, and regret delta is **0.0063845332091053315**.
+
+Current predicted consequences do not establish a robust planning gain. In the 500-scene run, the ExtraTrees diagnostic has small point improvements on pairwise/top-1/RMSE, but it was not selected by held-out validation planning performance and does not pass candidate-fidelity gates. At 2,000 scenes the train-OOF-selected MLP has favorable pairwise/regret point estimates, but uncertainty crosses zero and variance recovery still fails. Most importantly, because prediction fidelity failed, these downstream results are **inconclusive about the method**, not evidence that consequence modeling is ineffective.
+
+This minimal predictor uses planning-instant GT actor annotations, so it is a structured-perception upper bound rather than an end-to-end camera experiment. A subsequent model must first pass candidate-delta, pairwise-distance, and variance-recovery gates on unseen logs; only then should downstream ranking be used for a method-level decision.
 
 ## 8. GT future visual anchor
 
@@ -131,16 +183,20 @@ Synthetic follow-up scenes are not treated as same-current-state action alternat
 - **F1 candidate-relative structured consequence: PASS**
 - **F2 GT visual anchor: PASS**
 - **F3 soft contrastive supervision: PASS**
-- **F4 inverse verifier supervision: CONDITIONAL_PASS**
+- **F4 inverse verifier supervision: INCONCLUSIVE**
 - **F5 non-GT future image supervision: FAIL**
+
+F4 remains INCONCLUSIVE because the predicted-consequence fidelity gate failed. It is not downgraded to FAIL on the basis of downstream ranking while the predictor has not recovered candidate-specific variation.
 
 F5 fails because no non-GT observed future pixels exist, not because candidate-relative structured consequences fail.
 
 ## 11. Recommended next method version
 
-**Plan A：完整候选相对世界模型（GT-only visual anchor + structured candidate targets）**
+**Plan B：结构化候选相对世界模型**
 
-Primary blocker: 非 GT 候选没有 observed future image；动态结构化标签依赖 non-reactive logged replay，reactive IDM 也只模拟车辆。
+Primary blocker: 预测器优化与小样本容量检查均通过，扩大到 2,000 场景后 fidelity/规划点估计有所改善，但 held-out log 上候选方差仍严重塌缩且规划置信区间跨零；因此当前证据不足，不能归因于方法无效。
+
+Plan B is a gated next experiment, not a positive utility claim. First improve prediction fidelity with richer current BEV/actor-token features, direct masked actor-future supervision, candidate-centered losses, and more train logs. Do not advance to a planning conclusion until the unseen-log fidelity gate passes; if it passes and planning still shows no gain with the fair same-input baseline, only then is a negative method conclusion justified.
 
 Do not call the non-reactive targets true counterfactual futures. Preserve provenance per channel and train GT visual anchoring separately from candidate-relative structural prediction.
 

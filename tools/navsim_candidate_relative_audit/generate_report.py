@@ -61,6 +61,12 @@ def support_rows(artifacts: dict[str, Any]) -> list[dict[str, Any]]:
     reactive = v2.get("reactive", {})
     synthetic = v2.get("synthetic", {})
     oracle = artifacts["oracle"]
+    predicted = artifacts.get("predicted", {})
+    predicted_scale = artifacts.get("predicted_scale", {})
+    decision_predicted = max(
+        (predicted, predicted_scale),
+        key=lambda item: int(item.get("scene_count", 0)),
+    )
     visual = artifacts["visual"]
     synthetic_frame = artifacts["synthetic_frame"]
     synthetic_tokens = (
@@ -80,6 +86,19 @@ def support_rows(artifacts: dict[str, Any]) -> list[dict[str, Any]]:
     synthetic_evidence = evidence_tokens(synthetic_tokens)
     audited = int(field.get("audited_scene_count", 0))
     candidates = int(artifacts["scoring"].get("candidate_count", 0))
+    predicted_ran = int(decision_predicted.get("scene_count", 0)) > 0
+    if int(predicted_scale.get("scene_count", 0)) > 0:
+        q20_conclusion = (
+            "Oracle 与预测后果必须分开回答：oracle 结果混合；500→2000 场景的 log-safe OOF 预测显示候选差异 fidelity 和规划点估计改善，但候选方差仍严重塌缩且规划置信区间跨零，因此尚未证明稳健增益。"
+        )
+    elif predicted_ran:
+        q20_conclusion = (
+            "Oracle 与预测后果必须分开回答：oracle 结果混合；log-safe OOF 预测器优化收敛，但候选特定 fidelity 未过门槛，因此当前未证明预测后果优于同输入直接排序。"
+        )
+    else:
+        q20_conclusion = (
+            "Oracle 只能检查目标充分性；预测后果 probe 尚未运行，不能作在线规划增益结论。"
+        )
     accepted_total = 78688
     reactive_candidates = int(
         reactive.get("official_cache_reactive_candidate_count", 0)
@@ -367,14 +386,14 @@ def support_rows(artifacts: dict[str, Any]) -> list[dict[str, Any]]:
             "Q20",
             "候选相对后果是否比 trajectory-only 更能预测 PDM 排序",
             "B_EXACT_DERIVATION",
-            "由按完整 log 划分的轻量 oracle probe 实测；结果取决于 Probe C 相对 A/B 的排名增益并通过 leakage audit。",
-            "tools/navsim_candidate_relative_audit/run_oracle_probe.py",
-            "trajectory features; current frame; effect-tube C_environment_only proxy; PDM targets",
-            f"{oracle.get('scene_count', 0)} scenes / {oracle.get('candidate_count', 0)} candidates; leakage {'PASS' if oracle.get('leakage_audit', {}).get('pass') else 'FAIL'}",
+            q20_conclusion,
+            "tools/navsim_candidate_relative_audit/run_oracle_probe.py; tools/navsim_candidate_relative_audit/run_predicted_consequence_probe.py; tools/navsim_candidate_relative_audit/mlp_effect_predictor.py",
+            "trajectory/current actor/map inputs; predicted dynamic consequence; PDM ranking targets",
+            f"oracle {oracle.get('scene_count', 0)} scenes; largest predicted run {decision_predicted.get('scene_count', 0)} scenes / {decision_predicted.get('candidate_count', 0)} candidates; prediction gate {decision_predicted.get('overall_prediction_gate', 'NOT_RUN')}",
             evidence_tokens(candidate_tokens, field_tokens),
-            "这是 offline oracle sufficiency statistic，不是数据字段；未来信息在线不可直接获得。",
-            "yes for feasibility decision",
-            "no direct quantity; model prediction required",
+            "当前预测器用 planning-instant GT actor annotations，属于 structured-perception upper bound；fidelity 不足时不得把下游无增益归因于方法无效。",
+            "yes as supervised prediction target",
+            "conditionally, through a learned predictor; current gain not demonstrated",
         ),
     ]
 
@@ -411,15 +430,204 @@ def matrix_markdown(rows: list[dict[str, Any]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def predicted_scaling_rows(artifacts: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for run_name, result in (
+        ("formal_500", artifacts.get("predicted", {})),
+        ("scale_2000", artifacts.get("predicted_scale", {})),
+    ):
+        if not int(result.get("scene_count", 0)):
+            continue
+        primary = result.get("primary_effect_model", "NOT_RUN")
+        effect = result.get("effect_prediction", {}).get(primary, {})
+        delta = effect.get("validation_candidate_delta", {})
+        diversity = effect.get("validation_diversity_recovery", {})
+        comparison = result.get("primary_comparison", {})
+        convergence = result.get("convergence_audit", {}).get(primary, {})
+        rows.append(
+            {
+                "run": run_name,
+                "scene_count": int(result.get("scene_count", 0)),
+                "candidate_count": int(result.get("candidate_count", 0)),
+                "train_logs": int(result.get("split", {}).get("train_logs", 0)),
+                "validation_logs": int(
+                    result.get("split", {}).get("validation_logs", 0)
+                ),
+                "primary_predictor": primary,
+                "optimization_converged": bool(
+                    convergence.get("optimization_converged")
+                ),
+                "candidate_delta_spearman": delta.get(
+                    "flat_normalized_spearman"
+                ),
+                "pairwise_distance_spearman": diversity.get(
+                    "pairwise_distance_spearman_global"
+                ),
+                "candidate_variance_recovery": diversity.get(
+                    "candidate_variance_recovery_ratio"
+                ),
+                "pairwise_planning_delta": comparison.get(
+                    "pairwise_ranking_accuracy", {}
+                ).get("delta_candidate_minus_baseline"),
+                "pairwise_planning_ci95_low": (
+                    comparison.get("pairwise_ranking_accuracy", {}).get(
+                        "delta_ci95"
+                    )
+                    or [None, None]
+                )[0],
+                "pairwise_planning_ci95_high": (
+                    comparison.get("pairwise_ranking_accuracy", {}).get(
+                        "delta_ci95"
+                    )
+                    or [None, None]
+                )[1],
+                "regret_delta": comparison.get(
+                    "top1_score_regret_mean", {}
+                ).get("delta_candidate_minus_baseline"),
+                "regret_delta_ci95_low": (
+                    comparison.get("top1_score_regret_mean", {}).get(
+                        "delta_ci95"
+                    )
+                    or [None, None]
+                )[0],
+                "regret_delta_ci95_high": (
+                    comparison.get("top1_score_regret_mean", {}).get(
+                        "delta_ci95"
+                    )
+                    or [None, None]
+                )[1],
+                "fidelity_pass": bool(
+                    result.get("predictor_fidelity_gate", {}).get("pass")
+                ),
+                "planning_judgement": result.get(
+                    "predicted_planning_gain_judgement"
+                ),
+                "overall_gate": result.get("overall_prediction_gate"),
+                "fixed_seed_repeat_pass": result.get(
+                    "determinism_verification", {}
+                ).get("pass"),
+            }
+        )
+    return rows
+
+
+def predicted_scaling_markdown(rows: list[dict[str, Any]]) -> str:
+    lines = [
+        "# Predicted-Consequence Data-Scale Control",
+        "",
+        "All splits are by complete `log_name`; model strength is selected only from outer-train OOF candidate fidelity. Planning deltas compare against a direct planner with exactly the same online inputs.",
+        "",
+        "| Run | Scenes | Predictor | Delta Spearman | Pairwise consequence Spearman | Variance recovery | Planning pairwise delta [95% CI] | Regret delta [95% CI] | Fidelity |",
+        "|---|---:|---|---:|---:|---:|---|---|---|",
+    ]
+    for row in rows:
+        lines.append(
+            f"| {row['run']} | {row['scene_count']} | {row['primary_predictor']} | "
+            f"{row['candidate_delta_spearman']} | {row['pairwise_distance_spearman']} | "
+            f"{row['candidate_variance_recovery']} | {row['pairwise_planning_delta']} "
+            f"[{row['pairwise_planning_ci95_low']}, {row['pairwise_planning_ci95_high']}] | "
+            f"{row['regret_delta']} [{row['regret_delta_ci95_low']}, "
+            f"{row['regret_delta_ci95_high']}] | "
+            f"{'PASS' if row['fidelity_pass'] else 'FAIL'} |"
+        )
+    conclusion = (
+        "The 2,000-scene run improves candidate-specific fidelity and yields favorable pairwise/regret point estimates, but planning intervals cross zero and candidate variance remains far below the declared recovery gate. It is evidence of a positive scaling trend, not a robust utility claim and not a method failure."
+        if len(rows) >= 2
+        else "Only one data scale is available; no data-scaling conclusion is drawn."
+    )
+    lines += [
+        "",
+        conclusion,
+        "",
+        "Figure: `figures/predicted_consequence/data_scale_control.png`.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def write_predicted_scaling_figure(
+    rows: list[dict[str, Any]], output: Path
+) -> None:
+    if not rows:
+        return
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    labels = [str(row["scene_count"]) for row in rows]
+    x = np.arange(len(rows))
+    figure, axes = plt.subplots(1, 4, figsize=(15, 4.2))
+    panels = (
+        ("candidate_delta_spearman", "Candidate-delta Spearman", 0.30),
+        ("pairwise_distance_spearman", "Consequence-distance Spearman", 0.50),
+        ("candidate_variance_recovery", "Candidate-variance recovery", 0.50),
+    )
+    for axis, (key, title, threshold) in zip(axes[:3], panels):
+        values = [float(row[key]) for row in rows]
+        axis.bar(x, values, color=["tab:blue", "tab:orange"][: len(rows)])
+        axis.axhline(threshold, color="tab:red", linestyle="--", label="gate")
+        axis.set_title(title)
+        axis.set_xticks(x, labels)
+        axis.set_xlabel("audited scenes")
+        axis.legend()
+        axis.grid(axis="y", alpha=0.25)
+    planning = np.asarray(
+        [float(row["pairwise_planning_delta"]) for row in rows]
+    )
+    lower = np.asarray(
+        [float(row["pairwise_planning_ci95_low"]) for row in rows]
+    )
+    upper = np.asarray(
+        [float(row["pairwise_planning_ci95_high"]) for row in rows]
+    )
+    axes[3].errorbar(
+        x,
+        planning,
+        yerr=np.vstack([planning - lower, upper - planning]),
+        fmt="o",
+        capsize=5,
+        color="tab:purple",
+    )
+    axes[3].axhline(0.0, color="black", linewidth=1)
+    axes[3].set_title("Planning pairwise delta (95% CI)")
+    axes[3].set_xticks(x, labels)
+    axes[3].set_xlabel("audited scenes")
+    axes[3].set_ylabel("predicted minus fair direct")
+    axes[3].grid(axis="y", alpha=0.25)
+    figure.suptitle("Predicted consequence: data-scale control")
+    figure.tight_layout()
+    destination = output / "figures" / "predicted_consequence"
+    destination.mkdir(parents=True, exist_ok=True)
+    figure.savefig(destination / "data_scale_control.png", dpi=180)
+    plt.close(figure)
+
+
 def make_judgements(artifacts: dict[str, Any]) -> tuple[dict[str, str], str, str]:
     target = artifacts["target"]
     diversity = artifacts["diversity"]
     visual = artifacts["visual"]
     soft = artifacts["soft"].get("summary", {})
     oracle = artifacts["oracle"]
-    c_delta = oracle.get("probe_c_delta_vs_a", {})
-    ranking_gain = float(c_delta.get("pairwise_ranking_accuracy") or 0.0)
-    leakage = bool(oracle.get("leakage_audit", {}).get("pass"))
+    predicted = artifacts.get("predicted", {})
+    predicted_scale = artifacts.get("predicted_scale", {})
+    decision_predicted = max(
+        (predicted, predicted_scale),
+        key=lambda item: int(item.get("scene_count", 0)),
+    )
+    prediction_ran = int(decision_predicted.get("scene_count", 0)) > 0
+    prediction_leakage = bool(
+        decision_predicted.get("leakage_audit", {}).get("pass")
+    )
+    prediction_gate = decision_predicted.get("overall_prediction_gate")
+    prediction_converged = bool(
+        decision_predicted.get("convergence_audit", {})
+        .get(decision_predicted.get("primary_effect_model", ""), {})
+        .get("optimization_converged")
+    )
+    prediction_fidelity = bool(
+        decision_predicted.get("predictor_fidelity_gate", {}).get("pass")
+    )
     inverse = oracle.get("interaction_only_inverse_probe", {})
     inverse_gain = float(inverse.get("above_chance_accuracy") or 0.0)
     f1 = (
@@ -448,11 +656,20 @@ def make_judgements(artifacts: dict[str, Any]) -> tuple[dict[str, str], str, str
         )
         else "FAIL"
     )
-    if leakage and ranking_gain > 0.01 and inverse_gain >= 0.10:
+    if (
+        prediction_leakage
+        and prediction_gate == "PREDICTED_CONSEQUENCE_GAIN_SUPPORTED"
+        and inverse_gain >= 0.10
+    ):
         f4 = "PASS"
-    elif leakage and ranking_gain > 0.0:
+    elif (
+        prediction_leakage
+        and prediction_gate == "PREDICTED_CONSEQUENCE_GAIN_SUPPORTED"
+    ):
         f4 = "CONDITIONAL_PASS"
-    elif leakage and int(oracle.get("scene_count", 0)) > 0:
+    elif prediction_ran and prediction_leakage:
+        f4 = "INCONCLUSIVE"
+    elif not prediction_ran:
         f4 = "INCONCLUSIVE"
     else:
         f4 = "FAIL"
@@ -467,17 +684,40 @@ def make_judgements(artifacts: dict[str, Any]) -> tuple[dict[str, str], str, str
     if (
         f1 == "PASS"
         and f2 in {"PASS", "CONDITIONAL_PASS"}
-        and ranking_gain > 0.01
-        and leakage
+        and prediction_gate == "PREDICTED_CONSEQUENCE_GAIN_SUPPORTED"
+        and prediction_leakage
     ):
         plan = "Plan A：完整候选相对世界模型（GT-only visual anchor + structured candidate targets）"
-    elif f1 == "PASS" and ranking_gain > 0.0 and leakage:
+    elif (
+        f1 == "PASS"
+        and prediction_converged
+        and not prediction_fidelity
+        and prediction_leakage
+    ):
         plan = "Plan B：结构化候选相对世界模型"
+    elif (
+        f1 == "PASS"
+        and prediction_gate == "PREDICTED_CONSEQUENCE_GAIN_SUPPORTED"
+    ):
+        plan = "Plan B：结构化候选相对世界模型"
+    elif f1 == "PASS" and not prediction_ran:
+        plan = "Plan B：结构化候选相对世界模型（待运行预测 fidelity/utility gate）"
     elif artifacts["scoring"].get("gate_b") == "PASS" and f1 != "PASS":
         plan = "Plan C：未来评价器而非世界模型"
     else:
         plan = "Plan D：当前方案不值得继续"
-    blocker = "非 GT 候选没有 observed future image；动态结构化标签依赖 non-reactive logged replay，reactive IDM 也只模拟车辆。"
+    if prediction_ran and int(predicted_scale.get("scene_count", 0)) > 0:
+        blocker = (
+            "预测器优化与小样本容量检查均通过，扩大到 2,000 场景后 fidelity/规划点估计有所改善，"
+            "但 held-out log 上候选方差仍严重塌缩且规划置信区间跨零；因此当前证据不足，不能归因于方法无效。"
+        )
+    elif prediction_ran:
+        blocker = (
+            "预测器优化已收敛，但 held-out log 上候选特定后果 fidelity 未过门槛；"
+            "因此当前下游无增益不能归因于方法无效。"
+        )
+    else:
+        blocker = "预测后果训练尚未运行；oracle 结果不能替代预测 fidelity 与公平下游对照。"
     return judgements, plan, blocker
 
 
@@ -494,6 +734,12 @@ def report_markdown(
     diversity = artifacts["diversity"]
     soft = artifacts["soft"].get("summary", {})
     oracle = artifacts["oracle"]
+    predicted = artifacts.get("predicted", {})
+    predicted_scale = artifacts.get("predicted_scale", {})
+    decision_predicted = max(
+        (predicted, predicted_scale),
+        key=lambda item: int(item.get("scene_count", 0)),
+    )
     visual = artifacts["visual"]
     v2 = artifacts["v2"]
     judgements, plan, blocker = make_judgements(artifacts)
@@ -521,6 +767,85 @@ def report_markdown(
         oracle.get("probes", {})
         .get("Probe_C_candidate_relative_future", {})
         .get("factor_prediction", {})
+    )
+    primary_predictor = predicted.get("primary_effect_model", "NOT_RUN")
+    predicted_effect = predicted.get("effect_prediction", {}).get(
+        primary_predictor, {}
+    )
+    predicted_convergence = predicted.get("convergence_audit", {}).get(
+        primary_predictor, {}
+    )
+    capacity_sanity = predicted.get("overfit_capacity_sanity", {})
+    capacity_delta = capacity_sanity.get("candidate_delta_metrics", {})
+    capacity_diversity = capacity_sanity.get("diversity_recovery", {})
+    train_oof_delta = predicted_effect.get(
+        "outer_train_candidate_delta", {}
+    )
+    validation_delta = predicted_effect.get(
+        "validation_candidate_delta", {}
+    )
+    validation_diversity = predicted_effect.get(
+        "validation_diversity_recovery", {}
+    )
+    predicted_probes = predicted.get("probes", {})
+    fair_direct = predicted_probes.get(
+        "Probe_D_fair_online_direct", {}
+    ).get("aggregate_score_and_ranking", {})
+    predicted_primary = predicted_probes.get(
+        f"Probe_E_predicted_dynamic_{primary_predictor}", {}
+    ).get("aggregate_score_and_ranking", {})
+    predicted_extra_trees = predicted_probes.get(
+        "Probe_E_predicted_dynamic_extra_trees", {}
+    ).get("aggregate_score_and_ranking", {})
+    predicted_oracle_ceiling = predicted_probes.get(
+        "Probe_F_oracle_dynamic_ceiling", {}
+    ).get("aggregate_score_and_ranking", {})
+    predicted_comparison = predicted.get("primary_comparison", {})
+    scale_primary = predicted_scale.get("primary_effect_model", "NOT_RUN")
+    scale_effect = predicted_scale.get("effect_prediction", {}).get(
+        scale_primary, {}
+    )
+    scale_validation_delta = scale_effect.get(
+        "validation_candidate_delta", {}
+    )
+    scale_validation_diversity = scale_effect.get(
+        "validation_diversity_recovery", {}
+    )
+    scale_comparison = predicted_scale.get("primary_comparison", {})
+    convergence_rows = []
+    for model, audit in predicted.get("convergence_audit", {}).items():
+        convergence_rows.append(
+            f"| {model} | {'PASS' if audit.get('optimization_converged') else 'FAIL'} | "
+            f"{percent(audit.get('median_relative_monitor_improvement'))} | "
+            f"{audit.get('median_best_epoch')} | {audit.get('parameter_count')} |"
+        )
+    f4_explanation = (
+        "F4 remains INCONCLUSIVE because the predicted-consequence fidelity gate failed. It is not downgraded to FAIL on the basis of downstream ranking while the predictor has not recovered candidate-specific variation."
+        if int(decision_predicted.get("scene_count", 0)) > 0
+        else "F4 remains INCONCLUSIVE because the predicted-consequence training/fidelity probe has not run. Oracle targets alone cannot support an inverse-verifier conclusion."
+    )
+    scale_section: list[str] = []
+    if int(predicted_scale.get("scene_count", 0)) > 0:
+        scale_section = [
+            "A 2,000-scene scale control tests whether the 500-scene result is merely data-starved:",
+            "",
+            "| Scenes | Selected predictor | Validation candidate-delta Spearman | Pairwise-distance Spearman | Variance recovery | Pairwise planning delta [95% CI] | Regret delta [95% CI] | Fidelity gate |",
+            "|---:|---|---:|---:|---:|---|---|---|",
+            f"| {predicted.get('scene_count', 0)} | {primary_predictor} | {validation_delta.get('flat_normalized_spearman')} | {validation_diversity.get('pairwise_distance_spearman_global')} | {validation_diversity.get('candidate_variance_recovery_ratio')} | {predicted_comparison.get('pairwise_ranking_accuracy', {}).get('delta_candidate_minus_baseline')} {predicted_comparison.get('pairwise_ranking_accuracy', {}).get('delta_ci95')} | {predicted_comparison.get('top1_score_regret_mean', {}).get('delta_candidate_minus_baseline')} {predicted_comparison.get('top1_score_regret_mean', {}).get('delta_ci95')} | {'PASS' if predicted.get('predictor_fidelity_gate', {}).get('pass') else 'FAIL'} |",
+            f"| {predicted_scale.get('scene_count', 0)} | {scale_primary} | {scale_validation_delta.get('flat_normalized_spearman')} | {scale_validation_diversity.get('pairwise_distance_spearman_global')} | {scale_validation_diversity.get('candidate_variance_recovery_ratio')} | {scale_comparison.get('pairwise_ranking_accuracy', {}).get('delta_candidate_minus_baseline')} {scale_comparison.get('pairwise_ranking_accuracy', {}).get('delta_ci95')} | {scale_comparison.get('top1_score_regret_mean', {}).get('delta_candidate_minus_baseline')} {scale_comparison.get('top1_score_regret_mean', {}).get('delta_ci95')} | {'PASS' if predicted_scale.get('predictor_fidelity_gate', {}).get('pass') else 'FAIL'} |",
+            "",
+            f"Scaling from 500 to 2,000 scenes improves candidate-delta correlation and reaches the pairwise-distance threshold; the planning point estimate also changes from negative/mixed to **{float(scale_comparison.get('pairwise_ranking_accuracy', {}).get('delta_candidate_minus_baseline') or 0.0):+.2%}** pairwise with slightly lower regret. However both planning confidence intervals cross zero and candidate-variance recovery remains only **{percent(scale_validation_diversity.get('candidate_variance_recovery_ratio'))}**, far below the 50% gate. This is a positive data-scaling trend, not yet a robust gain claim.",
+            "",
+        ]
+    scale_detail_note = (
+        "The detailed table below is the 500-scene run with a successful fixed-seed repeat. The 2,000-scene scale result is summarized in the preceding table and retained as a separate artifact."
+        if int(predicted_scale.get("scene_count", 0)) > 0
+        else "The detailed table below is the available predicted-consequence run."
+    )
+    planning_interpretation = (
+        "Current predicted consequences do not establish a robust planning gain. In the 500-scene run, the ExtraTrees diagnostic has small point improvements on pairwise/top-1/RMSE, but it was not selected by held-out validation planning performance and does not pass candidate-fidelity gates. At 2,000 scenes the train-OOF-selected MLP has favorable pairwise/regret point estimates, but uncertainty crosses zero and variance recovery still fails. Most importantly, because prediction fidelity failed, these downstream results are **inconclusive about the method**, not evidence that consequence modeling is ineffective."
+        if int(predicted_scale.get("scene_count", 0)) > 0
+        else "The available predicted consequences do not establish a robust planning gain. Because candidate-specific prediction fidelity failed, the downstream result is **inconclusive about the method**, not evidence that consequence modeling is ineffective."
     )
     soft_rows = []
     for horizon in (0.5, 1.0, 2.0, 4.0):
@@ -607,7 +932,9 @@ def report_markdown(
             "",
             "The effective-positive counts and false-negative counts show that hard one-hot treats many prefix-compatible candidates as equally negative. Both GT-factual q and candidate-consequence K×K Q are non-degenerate.",
             "",
-            "## 7. Oracle planning utility",
+            "## 7. Oracle and predicted planning utility",
+            "",
+            "### 7.1 Oracle sufficiency check",
             "",
             f"- Scope: **{oracle.get('scene_count', 0)} scenes / {oracle.get('candidate_count', 0)} candidates**, split by complete `log_name`; overlap **{len(oracle.get('split', {}).get('log_overlap', []))}**.",
             f"- Leakage audit: **{'PASS' if oracle.get('leakage_audit', {}).get('pass') else 'FAIL'}**.",
@@ -627,6 +954,46 @@ def report_markdown(
             f"Interaction-only inverse accuracy is **{oracle.get('interaction_only_inverse_probe', {}).get('accuracy')}** versus majority chance **{oracle.get('interaction_only_inverse_probe', {}).get('majority_chance_accuracy')}**. {oracle.get('interaction_only_inverse_probe', {}).get('interpretation', '')}",
             "",
             "Probe C uses non-reactive effect-tube relations (dynamic occupancy, relative velocities, clearance/collision fields, map/lane/route SDF) and explicitly excludes official PDM aggregate/factors, candidate type/ID, waypoint copies, and the trajectory-derived ego-footprint tube channel.",
+            "",
+            "The oracle result answers only whether the target contains useful information. It does not establish that a model can predict that information from the current scene.",
+            "",
+            "### 7.2 Predicted-consequence convergence and fidelity",
+            "",
+            f"- Scope: **{predicted.get('scene_count', 0)} scenes / {predicted.get('candidate_count', 0)} candidates**; outer split **{predicted.get('split', {}).get('train_logs', 0)} train logs / {predicted.get('split', {}).get('validation_logs', 0)} validation logs**, with overlap **{len(predicted.get('split', {}).get('log_overlap', []))}**.",
+            f"- Dynamic consequence predictor selection used outer-train OOF fidelity only; selected **{primary_predictor}**. Outer validation was not used for model/strength selection: **{not predicted.get('primary_effect_model_selection', {}).get('outer_validation_used_for_selection', True)}**.",
+            f"- Optimization convergence: **{'PASS' if predicted_convergence.get('optimization_converged') else 'FAIL'}**. Candidate-specific fidelity: **{'PASS' if predicted.get('predictor_fidelity_gate', {}).get('pass') else 'FAIL'}**. Overall gate: **`{predicted.get('overall_prediction_gate', 'NOT_RUN')}`**.",
+            "",
+            "| Predictor | Optimization | Median held-out-log monitor improvement | Median best epoch | Parameters |",
+            "|---|---|---:|---:|---:|",
+            *convergence_rows,
+            "",
+            f"For the selected predictor, train-OOF candidate-delta Spearman is **{train_oof_delta.get('flat_normalized_spearman')}**. On unseen outer-validation logs it is **{validation_delta.get('flat_normalized_spearman')}**, pairwise consequence-distance Spearman is **{validation_diversity.get('pairwise_distance_spearman_global')}**, and candidate-variance recovery is only **{validation_diversity.get('candidate_variance_recovery_ratio')}**.",
+            "",
+            "The MLP therefore did optimize: inner-log monitor loss improved and early stopping selected nonzero epochs. But optimization convergence is not prediction success. The low candidate-centered correlations and severe variance collapse show weak cross-log generalization of candidate-specific effects, even though scene-shared/global reconstruction can look strong.",
+            "",
+            f"Small-subset capacity sanity is **{'PASS' if capacity_sanity.get('pass') else 'FAIL/NOT RUN'}** on **{capacity_sanity.get('scene_count', 0)} scenes / {capacity_sanity.get('candidate_count', 0)} candidates**: train loss reduction **{percent(capacity_sanity.get('relative_train_loss_reduction'))}**, candidate-delta Spearman **{capacity_delta.get('flat_normalized_spearman')}**, pairwise-distance Spearman **{capacity_diversity.get('pairwise_distance_spearman_global')}**, variance recovery **{capacity_diversity.get('candidate_variance_recovery_ratio')}**. This deliberately in-sample check tests implementation/capacity only and is not generalization evidence.",
+            "",
+            *scale_section,
+            "### 7.3 Fair downstream planning comparison",
+            "",
+            "The direct planner and the consequence predictor receive exactly the same online inputs: candidate trajectory, planning-instant structured actors, constant-velocity interaction features, and exact map/route geometry. The predicted model receives no logged future at validation time.",
+            "",
+            "Logged-future consequences are used only as supervised training/evaluation labels. Outer-train planner features are OOF predictions, and outer-validation planner features are predictions from a model fit only on outer-train logs; no oracle future consequence is fed to the predicted planner.",
+            "",
+            scale_detail_note,
+            "",
+            "| Probe | Pairwise ranking | NDCG | Per-scene Spearman | Top-1 | Regret | Score RMSE |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+            f"| Fair direct, same online inputs | {fair_direct.get('pairwise_ranking_accuracy')} | {fair_direct.get('ndcg_mean')} | {fair_direct.get('spearman_per_scene_mean')} | {fair_direct.get('top1_accuracy')} | {fair_direct.get('top1_score_regret_mean')} | {fair_direct.get('rmse')} |",
+            f"| Predicted dynamic consequence ({primary_predictor}) | {predicted_primary.get('pairwise_ranking_accuracy')} | {predicted_primary.get('ndcg_mean')} | {predicted_primary.get('spearman_per_scene_mean')} | {predicted_primary.get('top1_accuracy')} | {predicted_primary.get('top1_score_regret_mean')} | {predicted_primary.get('rmse')} |",
+            f"| Predicted dynamic consequence (ExtraTrees diagnostic) | {predicted_extra_trees.get('pairwise_ranking_accuracy')} | {predicted_extra_trees.get('ndcg_mean')} | {predicted_extra_trees.get('spearman_per_scene_mean')} | {predicted_extra_trees.get('top1_accuracy')} | {predicted_extra_trees.get('top1_score_regret_mean')} | {predicted_extra_trees.get('rmse')} |",
+            f"| Oracle dynamic ceiling, same downstream learner | {predicted_oracle_ceiling.get('pairwise_ranking_accuracy')} | {predicted_oracle_ceiling.get('ndcg_mean')} | {predicted_oracle_ceiling.get('spearman_per_scene_mean')} | {predicted_oracle_ceiling.get('top1_accuracy')} | {predicted_oracle_ceiling.get('top1_score_regret_mean')} | {predicted_oracle_ceiling.get('rmse')} |",
+            "",
+            f"Formal primary predicted-vs-direct judgement: **{predicted.get('predicted_planning_gain_judgement', 'NOT_RUN')}**. Pairwise delta is **{predicted_comparison.get('pairwise_ranking_accuracy', {}).get('delta_candidate_minus_baseline')}**, with scene-bootstrap 95% CI **{predicted_comparison.get('pairwise_ranking_accuracy', {}).get('delta_ci95')}**; top-1 delta is **{predicted_comparison.get('top1_accuracy', {}).get('delta_candidate_minus_baseline')}**, and regret delta is **{predicted_comparison.get('top1_score_regret_mean', {}).get('delta_candidate_minus_baseline')}**.",
+            "",
+            planning_interpretation,
+            "",
+            "This minimal predictor uses planning-instant GT actor annotations, so it is a structured-perception upper bound rather than an end-to-end camera experiment. A subsequent model must first pass candidate-delta, pairwise-distance, and variance-recovery gates on unseen logs; only then should downstream ranking be used for a method-level decision.",
             "",
             "## 8. GT future visual anchor",
             "",
@@ -649,6 +1016,8 @@ def report_markdown(
             "",
             *(f"- **{name}: {value}**" for name, value in judgements.items()),
             "",
+            f4_explanation,
+            "",
             "F5 fails because no non-GT observed future pixels exist, not because candidate-relative structured consequences fail.",
             "",
             "## 11. Recommended next method version",
@@ -656,6 +1025,8 @@ def report_markdown(
             f"**{plan}**",
             "",
             f"Primary blocker: {blocker}",
+            "",
+            "Plan B is a gated next experiment, not a positive utility claim. First improve prediction fidelity with richer current BEV/actor-token features, direct masked actor-future supervision, candidate-centered losses, and more train logs. Do not advance to a planning conclusion until the unseen-log fidelity gate passes; if it passes and planning still shows no gain with the fair same-input baseline, only then is a negative method conclusion justified.",
             "",
             "Do not call the non-reactive targets true counterfactual futures. Preserve provenance per channel and train GT visual anchoring separately from candidate-relative structural prediction.",
             "",
@@ -683,6 +1054,30 @@ def report_markdown(
         "judgements": judgements,
         "recommended_plan": plan,
         "primary_blocker": blocker,
+        "predicted_consequence": {
+            "decision_run_scene_count": int(
+                decision_predicted.get("scene_count", 0)
+            ),
+            "primary_predictor": decision_predicted.get(
+                "primary_effect_model", "NOT_RUN"
+            ),
+            "optimization_converged": bool(
+                decision_predicted.get("convergence_audit", {})
+                .get(decision_predicted.get("primary_effect_model", ""), {})
+                .get("optimization_converged")
+            ),
+            "fidelity_pass": bool(
+                decision_predicted.get("predictor_fidelity_gate", {}).get(
+                    "pass"
+                )
+            ),
+            "planning_gain_judgement": decision_predicted.get(
+                "predicted_planning_gain_judgement", "NOT_RUN"
+            ),
+            "overall_gate": decision_predicted.get(
+                "overall_prediction_gate", "NOT_RUN"
+            ),
+        },
     }
     return text, summary
 
@@ -709,6 +1104,15 @@ def load_artifacts(output: Path) -> dict[str, Any]:
         "diversity": load_json(output / "target_diversity_summary.json"),
         "soft": load_json(output / "soft_label_examples.json"),
         "oracle": load_json(output / "oracle_probe_results.json"),
+        "predicted": load_json(
+            output / "predicted_consequence_probe_results.json"
+        ),
+        "predicted_scale": load_json(
+            output
+            / "predicted_consequence_runs"
+            / "scale_2000"
+            / "predicted_consequence_probe_results.json"
+        ),
         "visual": load_json(output / "future_visual_anchor_summary.json"),
         "v2": load_json(output / "v2_extension_results.json"),
         "reactive_frame": optional_csv("reactive_actor_response.csv"),
@@ -725,6 +1129,17 @@ def main() -> None:
     matrix = pd.DataFrame(rows)
     write_dataframe(matrix, args.output_dir / "SUPPORT_MATRIX.csv")
     write_text(args.output_dir / "SUPPORT_MATRIX.md", matrix_markdown(rows))
+    scaling = predicted_scaling_rows(artifacts)
+    if scaling:
+        write_dataframe(
+            pd.DataFrame(scaling),
+            args.output_dir / "predicted_consequence_scaling.csv",
+        )
+        write_text(
+            args.output_dir / "PREDICTED_CONSEQUENCE_SCALING_REPORT.md",
+            predicted_scaling_markdown(scaling),
+        )
+        write_predicted_scaling_figure(scaling, args.output_dir)
     report, summary = report_markdown(rows, artifacts)
     write_text(args.output_dir / "FINAL_FEASIBILITY_REPORT.md", report)
     write_json(args.output_dir / "final_summary.json", summary)

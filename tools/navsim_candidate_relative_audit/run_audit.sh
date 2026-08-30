@@ -112,6 +112,16 @@ if [[ "${TRAFFIC_POLICY}" == "non_reactive" ]]; then
   python_module tools.navsim_candidate_relative_audit.run_oracle_probe \
     --split "${SPLIT}" --max-scenes "${ORACLE_SCENES}" --num-candidates "${NUM_CANDIDATES}" \
     --max-scenes-per-log 8 --output-dir "${OUTPUT_DIR}"
+  # A meaningful convergence/fidelity judgement requires more than the
+  # 8-scene smoke sample. Full mode uses log-disjoint nested early stopping,
+  # OOF train predictions, and a held-out-log planning comparison.
+  PREDICTED_SCENES=$((EFFECTIVE_SCENES < 2000 ? EFFECTIVE_SCENES : 2000))
+  if [[ "${MODE}" == "full" ]] && ((PREDICTED_SCENES >= 64)); then
+    python_module tools.navsim_candidate_relative_audit.run_predicted_consequence_probe \
+      --split "${SPLIT}" --max-scenes "${PREDICTED_SCENES}" \
+      --num-candidates "${NUM_CANDIDATES}" --max-scenes-per-log 8 \
+      --output-dir "${OUTPUT_DIR}"
+  fi
   VISUAL_SCENES=$((EFFECTIVE_SCENES < 12 ? EFFECTIVE_SCENES : 12))
   python_module tools.navsim_candidate_relative_audit.audit_future_visual_anchor \
     --split "${SPLIT}" --max-scenes "${VISUAL_SCENES}" --output-dir "${OUTPUT_DIR}"
@@ -168,6 +178,10 @@ F2 GT visual anchor: {final['judgements']['F2 GT visual anchor']}
 F3 soft contrastive supervision: {final['judgements']['F3 soft contrastive supervision']}
 F4 inverse verifier supervision: {final['judgements']['F4 inverse verifier supervision']}
 F5 non-GT future image supervision: {final['judgements']['F5 non-GT future image supervision']}
+
+Predicted-consequence optimization converged: {final.get('predicted_consequence', {}).get('optimization_converged', 'NOT_RUN')}
+Predicted-consequence fidelity: {final.get('predicted_consequence', {}).get('fidelity_pass', 'NOT_RUN')}
+Predicted-consequence planning gain: {final.get('predicted_consequence', {}).get('planning_gain_judgement', 'NOT_RUN')}
 
 Primary blocker: {final['primary_blocker']}
 Recommended next plan: {final['recommended_plan']}

@@ -21,7 +21,7 @@
 | Q17 | 每条非 GT 候选的真实未来相机图像 | `E_UNAVAILABLE` | 0% of non-GT candidates | no | no |
 | Q18 | NAVSIM v2 synthetic follow-up scene 作为弱多未来监督 | `D_REACTIVE_OR_SYNTHETIC_ONLY` | deployed files 5462; metadata sample 512; legal-train eligible 0 | no in current legal train deployment | no |
 | Q19 | reactive traffic policy 产生候选相关车辆响应 | `D_REACTIVE_OR_SYNTHETIC_ONLY` | 128 cached scenes / 1894 candidates; rerun failure 0.00% | yes, provenance-tagged | yes in simulator |
-| Q20 | 候选相对后果是否比 trajectory-only 更能预测 PDM 排序 | `B_EXACT_DERIVATION` | 500 scenes / 6000 candidates; leakage PASS | yes for feasibility decision | no direct quantity; model prediction required |
+| Q20 | 候选相对后果是否比 trajectory-only 更能预测 PDM 排序 | `B_EXACT_DERIVATION` | oracle 500 scenes; largest predicted run 2000 scenes / 24000 candidates; prediction gate PREDICTOR_FIDELITY_NOT_MET | yes as supervised prediction target | conditionally, through a learned predictor; current gain not demonstrated |
 
 ## Detailed evidence
 
@@ -217,13 +217,13 @@
 
 ### Q20 — 候选相对后果是否比 trajectory-only 更能预测 PDM 排序
 
-- Conclusion: 由按完整 log 划分的轻量 oracle probe 实测；结果取决于 Probe C 相对 A/B 的排名增益并通过 leakage audit。
-- Local code: `tools/navsim_candidate_relative_audit/run_oracle_probe.py`
-- Fields: `trajectory features; current frame; effect-tube C_environment_only proxy; PDM targets`
-- Coverage: 500 scenes / 6000 candidates; leakage PASS
+- Conclusion: Oracle 与预测后果必须分开回答：oracle 结果混合；500→2000 场景的 log-safe OOF 预测显示候选差异 fidelity 和规划点估计改善，但候选方差仍严重塌缩且规划置信区间跨零，因此尚未证明稳健增益。
+- Local code: `tools/navsim_candidate_relative_audit/run_oracle_probe.py; tools/navsim_candidate_relative_audit/run_predicted_consequence_probe.py; tools/navsim_candidate_relative_audit/mlp_effect_predictor.py`
+- Fields: `trajectory/current actor/map inputs; predicted dynamic consequence; PDM ranking targets`
+- Coverage: oracle 500 scenes; largest predicted run 2000 scenes / 24000 candidates; prediction gate PREDICTOR_FIDELITY_NOT_MET
 - Scene evidence: `67d5ee750ff158f3; eba65f8ed1595356; c5b05694c7315fe0; 6f58c37b561e51ae`
-- Key assumption: 这是 offline oracle sufficiency statistic，不是数据字段；未来信息在线不可直接获得。
-- Training: yes for feasibility decision; inference: no direct quantity; model prediction required
+- Key assumption: 当前预测器用 planning-instant GT actor annotations，属于 structured-perception upper bound；fidelity 不足时不得把下游无增益归因于方法无效。
+- Training: yes as supervised prediction target; inference: conditionally, through a learned predictor; current gain not demonstrated
 
 ## Class definitions
 
