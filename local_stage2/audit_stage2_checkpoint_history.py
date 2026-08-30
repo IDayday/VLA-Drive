@@ -101,6 +101,19 @@ def _storage_id_after_key(operations: list, key: str) -> str:
     raise KeyError(f"storage for {key}")
 
 
+def _value_opcode_after_key(operations: list, key: str) -> str:
+    """Return the first non-memo pickle opcode encoding a value after ``key``."""
+
+    index = next(
+        index for index, operation in enumerate(operations) if operation[1] == key
+    )
+    memo_opcodes = {"BINPUT", "LONG_BINPUT", "MEMOIZE"}
+    for operation in operations[index + 1 : index + 6]:
+        if operation[0].name not in memo_opcodes:
+            return operation[0].name
+    raise KeyError(f"value opcode for {key}")
+
+
 def _inspect_pickle(payload: bytes) -> tuple[dict[str, Any], list]:
     operations = list(pickletools.genops(payload))
     strings = [operation[1] for operation in operations if isinstance(operation[1], str)]
@@ -117,6 +130,15 @@ def _inspect_pickle(payload: bytes) -> tuple[dict[str, Any], list]:
             "checkpoint_paths": checkpoint_paths,
             "state_key_count": sum(value.startswith("agent.") for value in strings),
             "contains_identity_key": IDENTITY_KEY in strings,
+            "optimizer_states_value_opcode": _value_opcode_after_key(
+                operations, "optimizer_states"
+            ),
+            "lr_schedulers_value_opcode": _value_opcode_after_key(
+                operations, "lr_schedulers"
+            ),
+            "checkpoint_callback_descriptors": sorted(
+                value for value in strings if value.startswith("ModelCheckpoint{")
+            ),
         },
         operations,
     )
@@ -240,6 +262,20 @@ def main() -> None:
         "modelscope_revision": MODEL_REVISION,
         "bounded_range_reads_only": True,
         "shards": shard_reports,
+        "training_state_recoverability": {
+            "optimizer_states_stripped": all(
+                shard["optimizer_states_value_opcode"] == "EMPTY_LIST"
+                for shard in shard_reports
+            ),
+            "lr_schedulers_stripped": all(
+                shard["lr_schedulers_value_opcode"] == "EMPTY_LIST"
+                for shard in shard_reports
+            ),
+            "consequence": (
+                "The released historical shards cannot identify the private "
+                "Stage-2 optimizer or learning-rate schedule."
+            ),
+        },
         "merged_checkpoint": str(merged),
         "identity_check": {
             "state_key": IDENTITY_KEY,

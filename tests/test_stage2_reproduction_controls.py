@@ -1,3 +1,5 @@
+import pickle
+import pickletools
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -12,6 +14,7 @@ from navsim.planning.training.stage2_reproduction_sampler import (
     ReferenceGlobalBatchDistributedSampler,
 )
 from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
+from local_stage2.audit_stage2_checkpoint_history import _value_opcode_after_key
 from local_stage2.audit_stage2_lr_schedule_signature import _relative_lr
 from local_stage2.compare_stage2_proposal_artifacts import (
     _grouped_bootstrap_ci,
@@ -92,6 +95,15 @@ def test_long_target_interpolation_reaches_extra_logged_horizon():
     assert long_target.shape == (8, 3)
     assert long_target[-1, 0] == pytest.approx(10.0)
     assert np.all(np.diff(long_target[:, 0]) > 0)
+
+
+def test_checkpoint_audit_distinguishes_stripped_training_state():
+    payload = pickle.dumps(
+        {"optimizer_states": [], "lr_schedulers": []}, protocol=2
+    )
+    operations = list(pickletools.genops(payload))
+    assert _value_opcode_after_key(operations, "optimizer_states") == "EMPTY_LIST"
+    assert _value_opcode_after_key(operations, "lr_schedulers") == "EMPTY_LIST"
 
 
 def test_stage2_launcher_exposes_long_target_without_changing_default():

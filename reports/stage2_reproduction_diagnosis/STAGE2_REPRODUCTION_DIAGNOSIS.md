@@ -160,6 +160,11 @@ checkpoint/日志后停止。`2.2.1 vs 2.5.1` 的严格 16×1、1,000-step 单�
 selected 只差 `+0.003236` 且 proposal ceiling 反向变化，不能解释完整复现差距，
 因此从主因降为必须锁定的运行时条件。
 
+同一 pickle 元数据还证明四个历史 shard 中的 `optimizer_states` 与 `lr_schedulers`
+都被保存为真正的空列表，而不是审计脚本加载失败。因此发布产物无法直接恢复私有
+Stage-2 的 optimizer/scheduler 状态；warmup-cosine 仍是有源码和作者 Stage-1
+训练习惯支持、但必须由完整曲线实测裁决的第二优先级假设，不能写成已知官方事实。
+
 同一原始 metadata 还保存了真实 checkpoint 路径：
 
 ```text
@@ -481,6 +486,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`55 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`56 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。
