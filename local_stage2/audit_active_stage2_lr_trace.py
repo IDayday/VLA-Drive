@@ -73,6 +73,8 @@ def audit_samples(
         relative_errors.append(error / max(abs(expected), 1e-30))
 
     intervals = [right - left for left, right in zip(steps, steps[1:])]
+    before_boundary = [row for row in rows if row[0] < warmup_steps]
+    after_boundary = [row for row in rows if row[0] >= warmup_steps]
     return {
         "sample_count": len(rows),
         "first_step": steps[0],
@@ -97,6 +99,17 @@ def audit_samples(
             warmup_steps=warmup_steps,
             start_lr_ratio=start_lr_ratio,
             min_lr_ratio=min_lr_ratio,
+        ),
+        "covers_warmup_boundary": bool(before_boundary and after_boundary),
+        "last_sample_before_warmup_end": (
+            {"step": before_boundary[-1][0], "lr": before_boundary[-1][1]}
+            if before_boundary
+            else None
+        ),
+        "first_sample_after_warmup_end": (
+            {"step": after_boundary[0][0], "lr": after_boundary[0][1]}
+            if after_boundary
+            else None
         ),
     }
 

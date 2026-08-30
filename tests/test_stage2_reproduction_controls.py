@@ -807,6 +807,9 @@ def test_active_lr_trace_audit_detects_step_alignment():
     assert result["first_step"] == 9
     assert result["last_step"] == 100_009
     assert result["max_absolute_lr_error"] == 0.0
+    assert result["covers_warmup_boundary"]
+    assert result["last_sample_before_warmup_end"]["step"] == 17_429
+    assert result["first_sample_after_warmup_end"]["step"] == 17_431
 
 
 def test_live_training_lr_trace_matches_source_formula():
@@ -824,6 +827,7 @@ def test_live_training_lr_trace_matches_source_formula():
     assert comparison["last_step"] >= 12_912
     assert comparison["step_interval_values"] == [10]
     assert comparison["max_absolute_lr_error"] < 1e-10
+    assert comparison["covers_warmup_boundary"]
 
 
 def test_milestone_snapshot_preserves_retained_best_without_copy(tmp_path):

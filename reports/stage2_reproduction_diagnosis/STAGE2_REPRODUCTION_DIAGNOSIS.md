@@ -442,7 +442,8 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     `corrected_long2_early_curve.json`。
 15. **当前训练实际应用的 LR 逐点符合公式，而不只是配置看起来正确。** 对正在增长的
     TensorBoard 标量 `lr-AdamW/action_head_decay` 做快照审计，首个记录 step 9、
-    最新记录 step 16,729，共 1,673 个每 10 step 采样点；逐点与 peak `1e-4`、
+    最新记录 step 17,499，共 1,750 个每 10 step 采样点，已经覆盖 warmup/cosine
+    分段边界；逐点与 peak `1e-4`、
     17,431-step linear warmup、随后 cosine decay 的公式比较，最大绝对误差仅
     `3.63e-12`（TensorBoard float32 量化范围），所有采样间隔严格为 10。由此可排除
     当前已运行区间内 Lightning scheduler 调用顺序、漏 step、重复 step 和
