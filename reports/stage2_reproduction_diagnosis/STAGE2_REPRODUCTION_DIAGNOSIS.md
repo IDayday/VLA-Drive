@@ -125,6 +125,14 @@ Transformers/Lightning 运行时及 H20/A800 数值路径。**
    Transformers `4.48.3`、eager attention、BF16、seed 2、16 rank × batch 1，
    并启用发布源码中逐 step 等价的 10% linear warmup + cosine decay。完整 27 epoch
    和 Navtest 结果才是 scheduler 假设的最终判据。
+5. **未发现私有 loss 大幅重加权的 checkpoint 证据。** [论文附录](https://arxiv.org/html/2608.10413v1#A1)
+   将 score loss 简写为单一 PDM quality BCE，而发布实现对六个独立 factor head
+   分别计算 BCE。公开 checkpoint 的六个独立 head 全部离开初始化；尤其发布推理
+   聚合权重为 0 的 DDC head 相对初始化 RMS 位移仍有 `0.0272502`，排除了“只通过
+   发布聚合公式训练一个最终分数”。进一步把公开权重与旧本地发布-loss 全量训练
+   权重的六个 head 位移分别按均值归一化，模式 Pearson 相关为 `0.9516`，归一化
+   RMSE 为 `0.0551`。这不能从权重反推出逐样本 target，也不能严格证明私有 loss
+   完全相同，但没有看到足以优先于 scheduler/runtime 的 head-weighting 异常。
 
 ## 已排除或降级的因素
 
@@ -138,6 +146,7 @@ Transformers/Lightning 运行时及 H20/A800 数值路径。**
 | PDM process pool/partition | sequential、pool、partition 输出逐元素一致 | 排除 |
 | fused validation scoring | 与逐候选评分一致 | 排除 |
 | PDM 监督/cache 代码版本 | 103,288/103,288 cache 完整；`train_pdm_scorer.py`、MetricCache、PDMSimulator 核心源码与 `upstream/main` 相同，当前改动只做任务切分和只读实例复用 | 未发现本地语义漂移；作者私有 cache 本身不可直接比对 |
+| loss/head 权重 | 六个公开 score head 均被训练；公开/本地 head 位移模式相关 `0.9516`，归一化 RMSE `0.0551`；轨迹项与论文均为 min-over-64 L1 | 未发现大幅私有重加权；保留为低优先级未知量 |
 | Transformers 4.48.3/4.57.6 | 单样本 eager 前向精确一致，但反向梯度不同；严格 16×1 step-1000 更新 cosine `0.5333`，且 4.48.3 的 proposal ceiling 高 `0.006041` | 重新升为高优先级 runtime 控制 |
 | BF16 | 发布代码与论文训练硬件均支持 BF16，本地同为 BF16；仍受 H20/A800 kernel 版本影响 | 低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
