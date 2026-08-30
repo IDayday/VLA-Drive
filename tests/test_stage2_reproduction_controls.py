@@ -738,16 +738,17 @@ def test_official_stage2_target_is_no_memory_base_not_retrieval_score():
     assert "approximately 0.910" in result["conclusion"]
 
 
-def test_corrected_long2_epoch1_retains_proposal_ceiling_during_warmup():
+def test_corrected_long2_early_curve_records_post_warmup_regression():
     result = json.loads(
         (
             REPO_ROOT
             / "reports/stage2_reproduction_diagnosis/corrected_long2_early_curve.json"
         ).read_text()
     )
-    epoch0, epoch1 = result["curve"]
+    epoch0, epoch1, epoch2 = result["curve"]
     public = result["references"]["public_final"]
     old_epoch1 = result["references"]["old_failed_epoch1"]
+    old_epoch2 = result["references"]["old_failed_epoch2"]
 
     assert epoch1["global_step"] == 12_912
     assert epoch1["selected_pdms"] > epoch0["selected_pdms"]
@@ -756,6 +757,19 @@ def test_corrected_long2_epoch1_retains_proposal_ceiling_during_warmup():
     assert epoch1["best_of_64_pdms"] > old_epoch1["best_of_64_pdms"]
     assert epoch1["l2"] < public["l2"]
     assert epoch1["selected_pdms"] < public["selected_pdms"]
+    assert epoch2["global_step"] == 19_368
+    assert epoch2["selected_pdms"] > epoch1["selected_pdms"]
+    assert epoch2["regret"] < epoch1["regret"]
+    assert epoch2["best_of_64_pdms"] < epoch1["best_of_64_pdms"]
+    assert epoch2["selected_pdms"] < old_epoch2["selected_pdms"]
+    assert epoch2["best_of_64_pdms"] < old_epoch2["best_of_64_pdms"]
+    budget = result["update_budget_diagnostic"]["epochs"][2]
+    assert budget["expected_update_norm_ratio"] == pytest.approx(0.3461749147)
+    assert budget["observed_update_norm_ratio"] == pytest.approx(0.3752926523)
+    assert abs(
+        budget["observed_update_norm_ratio"]
+        - budget["expected_update_norm_ratio"]
+    ) < 0.04
 
 
 def test_reproduction_scheduler_matches_released_schedule_numerically():

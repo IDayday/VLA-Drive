@@ -449,6 +449,18 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     当前已运行区间内 Lightning scheduler 调用顺序、漏 step、重复 step 和
     off-by-one。可复跑脚本为 `local_stage2/audit_active_stage2_lr_trace.py`，证据快照
     为 `active_run_lr_trace.json`。
+16. **跨过 warmup 的 epoch 2 是不利但尚未终局的曲线证据。** 完整 validation 的
+    selected 从 epoch 1 的 `0.855873` 提高到 `0.864581`，regret 从 `0.129305`
+    降到 `0.114956`；但 best-of-64 从 `0.985178` 回退到 `0.979538`，L2 从
+    `0.549403` 变为 `0.709160`，且旧失败 run 的 epoch-2 selected/best-of-64
+    `0.899419/0.983240` 仍领先。因而 long target 已确认的因果收益不能再表述为“已足以
+    复现最终权重”，完整曲线、梯度裁剪和私有 scheduler 形状仍需检验。另一方面，
+    当前 19,368 step 只消耗 source schedule 全程 `11.98%` 的平方 LR 预算；随机游走
+    近似预期参数更新范数为公开最终权重的 `34.62%`，实测为 `37.53%`。更新幅度与
+    schedule 预算相符，因此该结果也不是 scheduler 漏步或 peak LR 明显缩小的证据。
+    预先设定的 epoch-9 checkpoint 仍作为中程裁决点；明细见
+    `corrected_long2_early_curve.json` 与
+    `corrected_long2_epoch2_vs_public_update.json`。
 
 ## 已排除或降级的因素
 

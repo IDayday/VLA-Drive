@@ -27,6 +27,19 @@
       "progress": 0.786401629447937,
       "ttc": 0.9554199576377869,
       "comfort": 0.9996151924133301
+    },
+    {
+      "epoch": 2,
+      "global_step": 19368,
+      "selected_pdms": 0.864581286907196,
+      "best_of_64_pdms": 0.9795377254486084,
+      "regret": 0.11495641618967056,
+      "l2": 0.7091601490974426,
+      "collision": 0.9959597587585449,
+      "dac": 0.9632805585861206,
+      "progress": 0.7492629885673523,
+      "ttc": 0.9779573678970337,
+      "comfort": 0.9998900890350342
     }
   ],
   "epoch1_minus_epoch0": {
@@ -41,6 +54,19 @@
     "comfort": -0.00021988153457641602
   },
   "epoch1_relative_regret_reduction": 0.4124735138919404,
+  "epoch2_minus_epoch1": {
+    "selected_pdms": 0.008708298206329346,
+    "best_of_64_pdms": -0.0056400299072265625,
+    "regret": -0.014348305761814117,
+    "l2": 0.15975725650787354,
+    "collision": 0.008053004741668701,
+    "dac": 0.02545076608657837,
+    "progress": -0.03713864088058472,
+    "ttc": 0.022537410259246826,
+    "comfort": 0.00027489662170410156
+  },
+  "epoch2_relative_regret_reduction_from_epoch1": 0.110965056382068,
+  "epoch2_relative_regret_reduction_from_epoch0": 0.4776684235488795,
   "epoch1_vs_public_final": {
     "selected_pdms": -0.09560078382492065,
     "best_of_64_pdms": -0.003352344036102295,
@@ -62,6 +88,56 @@
     "progress": -0.009050905704498291,
     "ttc": -0.018249809741973877,
     "comfort": -0.0003298521041870117
+  },
+  "epoch2_vs_public_final": {
+    "selected_pdms": -0.08689248561859131,
+    "best_of_64_pdms": -0.008992373943328857,
+    "regret": 0.07790018618106842,
+    "l2": 0.14377480745315552,
+    "collision": -0.0028309226036071777,
+    "dac": -0.02605539560317993,
+    "progress": -0.15830069780349731,
+    "ttc": -0.012917757034301758,
+    "comfort": 0.00016492605209350586
+  },
+  "epoch2_vs_old_failed_epoch2": {
+    "selected_pdms": -0.03483760356903076,
+    "best_of_64_pdms": -0.003702700138092041,
+    "regret": 0.031134888529777527,
+    "l2": 0.039633333683013916,
+    "collision": 0.0007695555686950684,
+    "dac": -0.014292001724243164,
+    "progress": -0.059819579124450684,
+    "ttc": -0.004562437534332275,
+    "comfort": -0.00010991096496582031
+  },
+  "update_budget_diagnostic": {
+    "method": "sqrt cumulative squared LR budget; diagnostic rather than an optimizer reconstruction",
+    "public_final_update_rms": 0.021935376291351002,
+    "epochs": [
+      {
+        "epoch": 0,
+        "global_step": 6456,
+        "cumulative_squared_lr_budget_fraction": 0.0045658358819879365,
+        "expected_update_norm_ratio": 0.06757096922486709,
+        "observed_update_norm_ratio": 0.12121151911063947
+      },
+      {
+        "epoch": 1,
+        "global_step": 12912,
+        "cumulative_squared_lr_budget_fraction": 0.03653078308986339,
+        "expected_update_norm_ratio": 0.19113027779465866,
+        "observed_update_norm_ratio": 0.23370508467682607
+      },
+      {
+        "epoch": 2,
+        "global_step": 19368,
+        "cumulative_squared_lr_budget_fraction": 0.11983707157444631,
+        "expected_update_norm_ratio": 0.3461749147099574,
+        "observed_update_norm_ratio": 0.3752926522916899
+      }
+    ],
+    "interpretation": "The observed update norm approaches the source-schedule random-walk budget prediction by epoch 2, so the current checkpoint magnitude does not indicate a missed scheduler step or an obviously underscaled peak LR."
   },
   "references": {
     "public_final": {
@@ -85,7 +161,18 @@
       "dac": 0.9687225222587585,
       "progress": 0.7954525351524353,
       "comfort": 0.9999450445175171
+    },
+    "old_failed_epoch2": {
+      "selected_pdms": 0.8994188904762268,
+      "best_of_64_pdms": 0.9832404255867004,
+      "regret": 0.08382152765989304,
+      "l2": 0.6695268154144287,
+      "collision": 0.9951902031898499,
+      "ttc": 0.982519805431366,
+      "dac": 0.9775725603103638,
+      "progress": 0.809082567691803,
+      "comfort": 1.0
     }
   },
-  "interpretation": "At epoch 1 the corrected run remains inside warmup. Its proposal ceiling remains above the old failed run while scorer regret falls substantially; epoch 2, which crosses the warmup boundary, is the first decisive optimizer-curve checkpoint."
+  "interpretation": "Epoch 2 is the first checkpoint after crossing the warmup boundary. Selection regret continues to fall, but best-of-64 and L2 regress relative to epoch 1 and the old failed epoch-2 checkpoint remains ahead. The update magnitude is nevertheless consistent with the source LR budget, so this is adverse early-curve evidence rather than proof of a scheduler implementation error. Continue to the predeclared epoch-9 milestone while prioritizing gradient clipping and private-scheduler-shape controls."
 }
