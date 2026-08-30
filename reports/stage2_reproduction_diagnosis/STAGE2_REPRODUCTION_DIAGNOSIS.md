@@ -9,7 +9,29 @@
 本地已完成模型的 Navtest PDMS 为 `0.8998889219`，开源 Base 权重在完全相同的
 12,146 个场景和本地评测链路上为 `0.9095938788`，差值为 `-0.0097049569`。
 
-差值不是由样本顺序或本地 evaluator 引起。现有证据按重要性给出下列结论：
+目前已经找到一个量级足以解释 proposal-bank 差距、并经单变量训练确认的首要根因：
+旧训练 cache 只有普通 4 秒 GT target，官方权重的原始目录和行为指纹则指向发布源码
+中未写入部署 YAML 的 `long_trajectory_additional_poses=2` 分支。该分支额外用 5 秒
+logged future 重采样出的 8 点轨迹监督 proposal diversity。相同 128 场景、相同
+初始化、相同 runtime 和前 1,000 step 下，仅启用这个 target 就把 best-of-64 PDMS
+从 `0.943566` 提升到 `0.977166`，成对增益 `+0.033601`，按 128 条独立日志 bootstrap
+的 95% CI 为 `[+0.006762,+0.065910]`。这是当前最大的因果效应；selected PDMS 在
+这个早期时点尚未提升（`0.685810 -> 0.683447`），说明 scorer 尚未学会利用更宽的
+候选库，不能拿 1,000-step selected 分数否定该目标。
+
+按重要性排序的当前判定是：
+
+1. **缺失 long-trajectory target：首要根因，已由 artifact、行为指纹和严格 A/B
+   三重确认；最终 Navtest 贡献等待完整曲线确认。**
+2. **Flash Attention：确定的有害训练语义改动，已修正为 eager。**
+3. **LR scheduler：最重要的剩余私有配置歧义。** 发布源码包含 10% warmup-cosine，
+   公开权重位移更支持这条曲线而非恒定 `1e-4`，但只能由完整 27 epoch 最终确认。
+4. **Lightning 2.2.1、seed 2、16×1、Transformers 4.48.3：必须锁定的复现条件，
+   但各自短程效应显著小于 long target，不再作为首要原因。**
+
+差值不是由样本顺序或本地 evaluator 引起。下面 1--10 项保留了发现过程；
+`官方 checkpoint 原始元数据修正`一节中的直接 artifact 证据覆盖其中早期的
+runtime/scheduler 优先级判断。
 
 1. **主差距来自 proposal bank，不是 scorer 排序。** 在完整 navtrain
    validation 上，公开权重与本地 best 的 selected PDMS 差为 `0.013444`，
@@ -67,16 +89,13 @@
    完整对照。这个排序是基于现有证据选择实验，并不把未公开 scheduler 当成官方事实。
 7. **冻结 VLM 的 train/eval mode 是次要因素。** 1,000-step A/B 中，eval-mode
    反而比 train-mode 高 `0.00141` PDMS；差异很小且方向不能解释旧本地结果偏低。
-8. **Lightning 版本不能被当作一个无关细节，但也不是单独主因。** requirements
-   中只留下了注释形式的 `pytorch-lightning==2.5.1`；本机默认是 `2.6.0`。严格
-   16×1、seed-2/eager/实际 LR `1e-4` 的 1,000-step 对照中，2.5.1 和 2.6.0
-   分别得到 `0.8124804` 和 `0.8077928`，差 `+0.0046877`。两者 action-head
-   更新 RMS 几乎相同（`0.003187`/`0.003214`），但更新向量 cosine 只有
-   `0.5681`；框架版本会改变优化路径，却不能用这次短跑证明其方向在完整训练中
-   恒定有利。此前单机 4×4 对照甚至呈相反方向，说明 1,000-step PDMS 的噪声和
-   路径依赖都很强。已确认当前 2.6 安装的关键文件与官方 PyPI 2.6 wheel 逐字节
-   一致，不是本地加速补丁；2.5.1/2.6.0 应归类为未锁定的官方运行时语义。由于
-   仓库 requirements 唯一留下的版本证据是 2.5.1，完整严格复现选用 2.5.1。
+8. **Lightning 版本必须锁定，但不是单独主因。** 官方历史 checkpoint 的四个
+   原始 shard 都直接记录 `pytorch-lightning_version=2.2.1`。严格 16×1、
+   seed-2/eager/实际 LR `1e-4` 的 1,000-step 单变量对照中，2.2.1 与 2.5.1 的
+   selected PDMS 为 `0.801635/0.798398`，best-of-64 为
+   `0.985965/0.991843`。selected 只差 `+0.003236` 且 proposal ceiling 反向变化，
+   量级远小于 long target 的 `+0.033601` best-of-64 增益。完整修正 run 因此锁定
+   直接有 artifact 依据的 2.2.1，而不把框架版本包装为主要解释。
 
 9. **Transformers 运行时会改变训练路径，但 4.37.2 已降为次级对照。** 4.48.3
    与 4.57.6 的单样本 eager 前向逐位一致，但反向梯度和 1,000-step 参数路径并不
@@ -103,12 +122,106 @@
     DriveVLA 自身的显式配置仍是反对证据，因此不会直接覆盖主跑；但它现在排在
     scheduler 之后、4.37.2 版本对照之前做严格 A/B。
 
-因此，现阶段最严格的表述是：**旧本地训练不是官方 Stage-2 的等价复现。
-它的最终分数损失主要来自 proposal bank 上界下降；Flash Attention 是已确认的
-有害语义改动；8×2 而非 16×1、seed 0 而非 seed 2 也是与公开 checkpoint
-证据不符的确定配置错误。剩余需用完整 27 epoch 收口的是实际 LR/scheduler，
-其次是梯度裁剪、Transformers/Lightning 运行时及 H20/A800 数值路径。** sample
-顺序已按用户要求移出主因验证队列。
+因此，现阶段最严格的表述是：**旧本地训练不是官方 Stage-2 的等价复现，首要代码/
+配置错误是没有构造和启用 5 秒 long-trajectory 辅助监督，导致训练后期 proposal
+bank 收缩；Flash Attention、8×2、seed 0、错误 Lightning 版本又进一步改变了训练
+路径。** 完整 27 epoch 仍需判断修正后能否闭合最终 Navtest，以及 warmup-cosine
+是否与私有 launcher 一致。sample 顺序已按用户要求移出主因验证队列。
+
+## 官方 checkpoint 原始元数据修正（当前最高优先级）
+
+ModelScope 仓库历史仍保留四个已删除 checkpoint shard 的 LFS 对象。使用 HTTP
+Range 只读取每个约 1 GB shard 的前 1 MiB ZIP pickle 元数据后，四份独立记录都给出：
+
+```text
+epoch = 26
+global_step = 174312
+pytorch-lightning_version = 2.2.1
+```
+
+四个 shard 各自包含 `319/320/339/345` 个不重叠 state key，总和 `1323`，正好等于
+当前 merged checkpoint 的 tensor 数。进一步从 shard 4 的 ZIP central directory
+只读取一个 4-byte action scorer tensor，并与 merged checkpoint 比较：
+
+```text
+key: agent.action_head.scorer.pred_score.no_at_fault_collisions.2.bias
+historical shard storage: 339
+merged storage: 1317
+historical bytes: d59b623d
+merged bytes:     d59b623d
+float32 value: 0.05532439425587654
+```
+
+因此 Lightning `2.2.1` 是生成当前公开权重的直接事实，不再是 requirements 的版本
+猜测。此前用 Lightning `2.5.1` 启动的 source-cosine 长跑已在保留 epoch-0
+checkpoint/日志后停止。`2.2.1 vs 2.5.1` 的严格 16×1、1,000-step 单变量对照已经
+完成：selected PDMS 分别为 `0.801635/0.798398`，best-of-64 为
+`0.985965/0.991843`，regret 为 `0.184330/0.193445`。框架版本确实改变路径，但
+selected 只差 `+0.003236` 且 proposal ceiling 反向变化，不能解释完整复现差距，
+因此从主因降为必须锁定的运行时条件。
+
+同一原始 metadata 还保存了真实 checkpoint 路径：
+
+```text
+training_episode_Nav1_traj_long_25epochs_visionlora/
+.../best-epoch=26-step=174312.ckpt
+```
+
+`traj_long` 与发布源码中唯一同名语义的分支高度吻合：模型输出 8 个 0.5 秒轨迹点，
+训练 Scene 却加载 10 个未来帧；`long_trajectory_additional_poses=2` 会将这 10 个
+logged-future pose 用发布代码的 cubic spline 精确重采样为 8 点、把末点从 4 秒移到
+5 秒，并把第二个 min-over-64 L1 无权重地加到 trajectory loss。发布 YAML 的 `-1`
+属于指向最终 checkpoint 的推理/部署配置，不能再当作私有训练未启用该目标的证据。
+
+已在完全不修改原 cache 的前提下，为 `103288/103288` 个训练样本生成独立 long-2
+target cache；普通 4 秒 target 与 raw log 重建的最大误差为 `0`，long target 末点
+相对普通 target 平均前移 `4.558734 m`、最大 `19.968922 m`。公开权重的 128-scene、
+128-log proposal 指纹进一步显示：普通与 long target 的末点平均相距 `5.497433 m`，
+但公开 64-candidate bank 对 long target 的最小 endpoint error 仅 `0.357977 m`，
+`96.09%` 的场景存在 official-L1 小于 1 的 long-target proposal；普通/long 最近
+proposal 只有 `3.91%` 是同一条。这与“双轨迹 min loss 保留两个 proposal mode”高度
+一致，也精确解释了旧本地训练中“4 秒 L2 继续改善、best-of-64 planning ceiling
+反而塌缩”的现象。
+
+随后已对旧本地 no-long best checkpoint 在完全相同的 128 个 token 上导出全部候选。
+旧模型对普通 4 秒 target 的最小 L1 为 `0.255587`，略好于公开模型的 `0.262695`；
+但对 5 秒 long target 则为 `0.781929`，是公开模型 `0.363170` 的 `2.15x`，末点误差
+为 `1.286898 m`，是公开模型 `0.357977 m` 的 `3.59x`。候选几何也发生明显收缩：
+公开/旧模型每场景最远候选半径为 `36.483/28.856 m`，候选终点两两平均距离为
+`4.956/2.666 m`。4.5 秒目标上的公开/旧 L1 仅为 `0.299/0.399`，而 5 秒差扩大到
+`0.363/0.782`，因此行为指纹具体指向额外 2 帧，而不是任意轻微延长。
+
+严格 1,000-step 单变量训练现已完成，并把这条证据从强相关提升为训练因果。为避免
+validation 子集不同造成混淆，两个 checkpoint 又在完全相同的 128 token/128 log
+上重新导出全部 proposal：普通 target 与 long-2 target 的 best-of-64 分别为
+`0.943566/0.977166`，成对差 `+0.033601`，日志 bootstrap 95% CI 不跨 0。long-2
+还把候选终点两两平均距离从 `4.444 m` 提至 `6.009 m`，终点纵向跨度从
+`15.427 m` 提至 `23.401 m`；对 5 秒 target 的最近候选末点误差从 `3.878 m`
+降到 `3.032 m`。这正是旧训练后期候选覆盖收缩的反向修复。早期 selected PDMS
+没有同步提升，符合 trajectory head 先扩展 proposal、score head 后续再学习排序的
+两阶段收敛过程。
+
+`visionlora` 只作为运行目录标签记录，不据此解冻 VLM；[论文附录](https://arxiv.org/html/2608.10413v1#A1)
+明确说明 Action Decoder 阶段冻结 VLM。`25epochs` 与实际 27 个 zero-based epoch 的
+step 记录也不一致，说明目录标签可以滞后，不能把所有片段都当成精确配置字段。
+
+可复现证据：
+
+```bash
+python local_stage2/audit_stage2_checkpoint_history.py \
+  --output reports/stage2_reproduction_diagnosis/public_checkpoint_history_audit.json
+
+python local_stage2/audit_stage2_long_target_signature.py \
+  --alternate-additional-poses 1 \
+  --output reports/stage2_reproduction_diagnosis/public_long_target_signature.json
+
+python local_stage2/compare_stage2_proposal_artifacts.py \
+  --left /path/to/standard_subset128.pt \
+  --right /path/to/long2_subset128.pt \
+  --left-name standard_4s_target \
+  --right-name long_5s_auxiliary_target \
+  --output reports/stage2_reproduction_diagnosis/pl221_standard_vs_long2_paired_subset128.json
+```
 
 ## 2026-08-30 高优先级复现更新
 
@@ -140,12 +253,13 @@
    在实际 2,800-token prompt 上产生相同 token/mask；严格加载公开 checkpoint 后的
    hidden-state SHA256 也一致。因此缓存加速和 VLM 目录选择不是当前约 1 PDMS
    差距的主因。
-4. **完整修正 run 已启动。** 当前实验
-   `stage2_official_source_cosine_seed2_eager_tf448_pl251_16x1` 使用本机与
-   `vla-zt2` 共 16 张 A800，锁定 PyTorch `2.5.1+cu124`、Lightning `2.5.1`、
-   Transformers `4.48.3`、eager attention、BF16、seed 2、16 rank × batch 1，
-   并启用发布源码中逐 step 等价的 10% linear warmup + cosine decay。完整 27 epoch
-   和 Navtest 结果才是 scheduler 假设的最终判据。
+4. **完整 long-2 修正 run 已启动。** 当前实验
+   `stage2_official_pl221_tf448_eager_seed2_long2_source_cosine_16x1` 使用本机与
+   `training-vla-zt2` 共 16 张 A800，锁定 PyTorch `2.5.1+cu124`、直接取证得到的
+   Lightning `2.2.1`、Transformers `4.48.3`、eager attention、BF16、seed 2、
+   16 rank × batch 1、`long_trajectory_additional_poses=2`，并启用发布源码中逐 step
+   等价的 10% linear warmup + cosine decay。完整 27 epoch 后自动运行 Navtest；
+   最终结果才决定 scheduler 假设是否成立以及总体性能是否真正复现。
 5. **未发现私有 loss 大幅重加权的 checkpoint 证据。** [论文附录](https://arxiv.org/html/2608.10413v1#A1)
    将 score loss 简写为单一 PDM quality BCE，而发布实现对六个独立 factor head
    分别计算 BCE。公开 checkpoint 的六个独立 head 全部离开初始化；尤其发布推理
@@ -167,7 +281,7 @@
    `[-0.000726, +0.001119]`；虽然有 `36/128` 个场景改变了选中 candidate、选中
    轨迹 RMSE 达 `0.387336`，平均 PDMS 没有显著优劣。因此不能拿公共权重推理结果
    代替训练对照。4.37.2 因而保留为次级训练对照，不再优先于梯度裁剪。
-7. **rl-zt3 对照已改为严格匹配的顺序队列。** 4×1×acc4 虽重放相同全局样本，
+7. **rl-zt3 对照已改为严格匹配的顺序队列，但服务当前不可达。** 4×1×acc4 虽重放相同全局样本，
    但每 rank 的 dropout/RNG 流与 16×1 不同，不能把单个 4.37 结果直接和主跑归因。
    队列因此依次执行 `TF4.48/PEFT0.10/clip0`、
    `TF4.48/PEFT0.10/clip1`、`TF4.37/PEFT0.10/clip0`，三次使用相同布局、seed、
@@ -181,13 +295,11 @@
    `0.000727`。该结果说明 warmup 第一轮没有提前损坏候选覆盖，但不能用来宣称
    已复现最终性能。主判据仍是 warmup 结束附近的 epoch 2--3，以及后续 ceiling
    是否避免旧实验从 epoch 2 到 epoch 26 的持续塌缩。
-9. **多节点命令中的 `agent.num_gpus=8` 是误导字段，但没有改变当前主跑的优化语义。**
-   活跃命令显式传入 `agent.lr_args.effective_global_batch_size=16`；优化器源码会优先
-   使用该值，仅在它为空时才回退到 `batch_size * num_gpus`。因此当前实际 LR、
-   `T_max=174312` 和 16×1 sampler 合约均未被这个字段改成 8 卡语义。为避免以后
-   审计时产生歧义，launcher 已新增 `STAGE2_WORLD_SIZE=16`，并把
-   `agent.num_gpus` 显式设为 world size；回归测试会检查两节点启动器和训练入口同时
-   保持这一约束。这个修正不修改正在运行的训练，也不应被计作性能修复。
+9. **多节点 world-size 字段已显式修正，但它不是性能根因。** 旧命令中的
+   `agent.num_gpus=8` 曾是误导字段；显式 `effective_global_batch_size=16` 已经优先
+   决定实际 LR 和 `T_max=174312`，所以它没有改变旧主跑优化语义。新 launcher 又把
+   `agent.num_gpus` 显式设为 `STAGE2_WORLD_SIZE=16`，当前 long-2 主跑的命令和运行时
+   都已验证为 16。该修正消除了审计歧义，不计作性能修复。
 10. **epoch-0 到公开最终权重的更新方向不能用于选择 scheduler。** 从共同的 seed-2
     初始化出发，source-cosine epoch-0 与公开最终权重的有效 action-head 更新 cosine
     为 `0.105237`；恒定 `1e-4` epoch-0 的对应值为 `0.114977`。两者都很低，而且
@@ -210,7 +322,7 @@
 | loss/head 权重 | 六个公开 score head 均被训练；公开/本地 head 位移模式相关 `0.9516`，归一化 RMSE `0.0551`；轨迹项与论文均为 min-over-64 L1 | 未发现大幅私有重加权；保留为低优先级未知量 |
 | Transformers 4.37.2/4.48.3/4.57.6 | 4.48.3/4.57.6 前向一致但 step-1000 更新 cosine `0.5333`；4.37.2/4.48.3 hidden RMSE `0.130629`、梯度 RMSE `0.005095`；但 4.37.2 元数据只锁定冻结基座血缘 | runtime 会改变路径；4.48.3 证据更直接，4.37.2 降为次级匹配控制 |
 | 梯度裁剪 | DriveVLA 发布值为 0；ReCogDrive/Stage-1 值为 1；固定批次未裁剪梯度范数约 `703.66`；首步 Adam 更新相对 RMS 差 `0.2763` | 有实际影响但证据冲突；排在 scheduler 后、4.37.2 前做匹配短对照 |
-| 多节点 `agent.num_gpus` 字段 | 活跃命令显示 8，但显式 `effective_global_batch_size=16` 在源码中优先级更高；实际 LR 与 scheduler horizon 均为 16 卡语义 | 排除为当前主跑根因；后续 launcher 已改为显式 world size 16 |
+| 多节点 `agent.num_gpus` 字段 | 旧命令虽显示 8，但显式 `effective_global_batch_size=16` 已决定优化语义；当前主跑两个字段均显式为 16 | 排除为根因；launcher 已消除歧义 |
 | BF16/TF32 | 发布配置和 Stage-1 元数据均为 BF16、非 FP16；action-head FP32 参数在 BF16 autocast 下训练，当前 TF32 关闭 | BF16 已匹配；TF32 与 H20/A800 kernel 仅列为低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
@@ -296,10 +408,17 @@ python local_stage2/audit_stage2_initialization_fingerprint.py \
 | eager, seed 2, LR `1e-4`, Lightning 2.6.0, 8×2 | 0.794061 | 0.980500 | 0.186438 | 0.947998 | 0.856934 | 0.719650 |
 | eager, seed 2, LR `1e-4`, Lightning 2.6.0, 16×1 | 0.807793 | 0.990962 | 0.183169 | 0.962891 | 0.895508 | 0.704854 |
 | eager, seed 2, LR `1e-4`, Lightning 2.5.1, 16×1 | 0.812480 | 0.985802 | 0.173321 | 0.957764 | 0.879395 | 0.707391 |
+| eager, seed 2, LR `1e-4`, Lightning 2.2.1, 16×1, 4 秒 target | 0.801635 | 0.985965 | 0.184330 | 0.938477 | 0.883789 | 0.708672 |
+| eager, seed 2, LR `1e-4`, Lightning 2.2.1, 16×1, long-2 target | 0.752680 | 0.988884 | 0.236204 | 0.903809 | 0.805664 | 0.690599 |
 
 `5e-5` 在 1,000 step 显著欠拟合；`2.5e-4` 也没有获得有意义的早期增益。因此短
 实验不支持只修改常数 LR。warmup/cosine 不是“更小常数 LR”：它先达到论文报告的
 peak LR，再逐步减小累计更新，必须用完整 27-epoch 曲线验证。
+
+上表最后两行使用短跑 validation 的整体均值；为得到逐场景可配对的置信区间，另在
+严格相同的 128 个场景上成对重评。该成对审计得到
+long-2 的 best-of-64 增益 `+0.033601`（95% CI `[+0.006762,+0.065910]`），是本文
+对 long target 因果判断的主要短程依据，而不是最后一行尚未收敛的 selected PDMS。
 
 ## 严格 16×1 复现路径
 
@@ -316,22 +435,19 @@ precision: bf16-mixed
 frozen VLM mode: train
 AdamW: betas=(0.9, 0.95), weight_decay=1e-4 on all action-head tensors
 LR: peak 1e-4, 10% linear warmup (17431 steps), then cosine decay to zero
-runtime: PyTorch 2.5.1+cu124, Lightning 2.5.1, Transformers 4.48.3（当前主跑）
+runtime: PyTorch 2.5.1+cu124, Lightning 2.2.1, Transformers 4.48.3（当前主跑）
+trajectory targets: 4 秒 GT + 5 秒 logged-future 重采样 auxiliary target
 epochs/steps: 27 / 174312
 ```
 
-活跃进程是在 launcher 字段修正前启动的，所以命令行仍显示 `agent.num_gpus=8`；
-它同时显示 `effective_global_batch_size=16`，后者在 `get_optimizers()` 中优先决定
-batch scaling 和 scheduler horizon。换言之，不能仅凭进程命令中的前一个字段把
-这次主跑判为 8 卡优化语义，实际训练仍是 16 rank × 1。
+当前活跃命令同时显式记录 `agent.num_gpus=16` 与
+`effective_global_batch_size=16`，并在两端启动前逐值校验 runtime，避免再出现
+world-size 字段歧义。实际训练是 16 rank × 1。
 
 Stage-1 基座产物记录 Transformers 4.37.2，但血缘审计证明该字段不能锁定后来
-DriveVLA LoRA 的运行时；因此保持 4.48.3 主跑，同时用 rl-zt3 的授权 GPU 先做
-clip=0/1、再做 4.37/4.48 的同布局短训练筛选。Lightning 2.6.0 和 2.5.1 的
-1,000-step 对照均已在相同两台主机上完成。2.5.1
-的验证 PDMS 高 `0.004688`，但更重要的是 requirements 唯一留下的版本证据指向
-2.5.1；因此 27 epoch 全曲线锁定 2.5.1。该选择仍是“最有证据的复现假设”，不是
-对未发布私有环境的事实声明。
+DriveVLA LoRA 的运行时；因此保持 4.48.3 主跑，同时把 4.37.2 降为次级对照。
+Lightning 2.2.1 和 2.5.1 的 1,000-step 对照均已在相同两台主机上完成；2.2.1
+是历史 checkpoint metadata 的直接事实，因此 27 epoch 全曲线锁定 2.2.1。
 
 两次短跑从完全相同的 seed-2 初始化开始。训练 1,000 step 后，全部有效
 action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数比
@@ -340,12 +456,13 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 
 ## 判定标准
 
-- 当前 source-cosine 完整曲线是主判据；只有 full navtrain validation 的 selected
+- 当前 long-2 + source-cosine 完整曲线是主判据；只有 full navtrain validation 的 selected
   PDMS、best-of-64、regret 与最终 12,146-scene Navtest 同时接近公开权重，才算复现。
 - `2.5e-4` 的短实验没有明显更优，暂不占用完整曲线资源。
-- Lightning 2.5.1/2.6.0 需在同一 16×1 布局上比较；4×4 结果不用来代替该对照。
-- 若 cosine 闭合公开 checkpoint 的更新幅度和 PDMS，主因判为私有 launcher 很可能
-  启用了发布源码中存在但 YAML 未启用的 schedule。
+- Lightning 已由原始 artifact 锁定为 2.2.1；2.2.1/2.5.1 的短对照只用于量化影响。
+- 若 long-2 主跑闭合 proposal ceiling 和 PDMS，则首要根因判为部署 YAML 隐藏了
+  私有训练启用的 long target；若同时闭合公开 checkpoint 更新幅度，则进一步支持
+  私有 launcher 启用了发布源码中存在但 YAML 未启用的 schedule。
 - 若 clip=1 相对同布局 clip=0 明显改善 proposal ceiling，再升级为完整曲线；不能
   用上游 ReCogDrive 默认值直接覆盖 DriveVLA 发布配置。
 - 若 4.37.2 短训练在 proposal ceiling 或公开 checkpoint 更新方向上显著优于
@@ -364,6 +481,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`51 passed, 16 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`55 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。

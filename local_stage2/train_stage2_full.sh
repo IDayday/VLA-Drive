@@ -144,6 +144,7 @@ STAGE2_FROZEN_BACKBONE_MODE="${STAGE2_FROZEN_BACKBONE_MODE:-eval}"
 STAGE2_DECAY_NORM_AND_BIAS="${STAGE2_DECAY_NORM_AND_BIAS:-false}"
 STAGE2_PREPAD_DATASET="${STAGE2_PREPAD_DATASET:-true}"
 STAGE2_OFFICIAL_SAMPLER="${STAGE2_OFFICIAL_SAMPLER:-false}"
+STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES="${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:--1}"
 
 scheduler_args=(agent.scheduler_args=null)
 case "${STAGE2_SCHEDULER}" in
@@ -191,6 +192,7 @@ fi
   agent.vlm_config.extra_token_count=8 \
   agent.vlm_config.target_vocab_size=151682 \
   agent.lora_config.use_lora=true \
+  "agent.action_head_config.long_trajectory_additional_poses=${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES}" \
   "agent.batch_size=${STAGE2_BATCH_SIZE}" \
   "agent.num_gpus=${STAGE2_WORLD_SIZE}" \
   agent.lr_args.name=AdamW \

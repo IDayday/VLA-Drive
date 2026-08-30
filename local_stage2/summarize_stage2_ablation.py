@@ -62,9 +62,21 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", action="append", type=_parse_run, required=True)
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--final-only",
+        action="store_true",
+        help="Keep only the final scalar for each tag in the exported report.",
+    )
     args = parser.parse_args()
 
     runs = {name: _load_run(path, DEFAULT_TAGS) for name, path in args.run}
+    if args.final_only:
+        for run in runs.values():
+            run["scalars"] = {
+                tag: values[-1:]
+                for tag, values in run["scalars"].items()
+                if values
+            }
     report = {"runs": runs}
     if len(runs) == 2:
         left_name, right_name = runs

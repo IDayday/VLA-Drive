@@ -1,6 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 import torch
 from omegaconf import OmegaConf
@@ -12,7 +13,13 @@ from navsim.planning.training.stage2_reproduction_sampler import (
 )
 from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
 from local_stage2.audit_stage2_lr_schedule_signature import _relative_lr
-from local_stage2.audit_stage2_public_runtime import _stratified_samples
+from local_stage2.compare_stage2_proposal_artifacts import (
+    _grouped_bootstrap_ci,
+)
+from local_stage2.audit_stage2_public_runtime import (
+    _compose_config,
+    _stratified_samples,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -73,6 +80,44 @@ def test_multinode_launcher_locks_transformers_on_both_nodes():
     assert "import transformers" in trainer
     assert '"STAGE2_WORLD_SIZE=16"' in launcher
     assert '"agent.num_gpus=${STAGE2_WORLD_SIZE}"' in trainer
+
+
+def test_long_target_interpolation_reaches_extra_logged_horizon():
+    from local_stage2.build_stage2_long_target_cache import build_long_trajectory
+
+    logged = np.zeros((10, 3), dtype=np.float64)
+    logged[:, 0] = np.arange(1, 11, dtype=np.float64)
+    long_target = build_long_trajectory(logged, num_poses=8, additional_poses=2)
+
+    assert long_target.shape == (8, 3)
+    assert long_target[-1, 0] == pytest.approx(10.0)
+    assert np.all(np.diff(long_target[:, 0]) > 0)
+
+
+def test_stage2_launcher_exposes_long_target_without_changing_default():
+    launcher = (REPO_ROOT / "local_stage2" / "train_stage2_full.sh").read_text()
+    assert (
+        'STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES="${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES:--1}"'
+        in launcher
+    )
+    assert (
+        '"agent.action_head_config.long_trajectory_additional_poses=${STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES}"'
+        in launcher
+    )
+
+
+def test_paired_artifact_bootstrap_is_log_grouped_and_deterministic():
+    differences = np.asarray([1.0, 1.0, -1.0, -1.0], dtype=np.float64)
+    logs = ["log_a", "log_a", "log_b", "log_b"]
+    first = _grouped_bootstrap_ci(
+        differences, logs, seed=7, samples=5_000
+    )
+    second = _grouped_bootstrap_ci(
+        differences, logs, seed=7, samples=5_000
+    )
+    assert first == second
+    assert first[0] == pytest.approx(-1.0)
+    assert first[1] == pytest.approx(1.0)
 
 
 def test_rl_zt3_priority_controls_are_bounded_matched_and_use_authorized_gpus():
@@ -139,6 +184,18 @@ def test_public_runtime_subset_round_robins_logs(tmp_path):
         ("log_a", "a1"),
         ("log_b", "b1"),
     ]
+
+
+def test_public_runtime_quotes_checkpoint_paths_for_hydra():
+    args = SimpleNamespace(
+        checkpoint=Path("/tmp/best-epoch=25-step=167856.ckpt"),
+        vlm_path=Path("/tmp/InternVL model"),
+        flash_attention=False,
+        batch_size=2,
+    )
+    config = _compose_config(args)
+    assert config.agent.checkpoint_path == str(args.checkpoint)
+    assert config.agent.vlm_config.vlm_path == str(args.vlm_path)
 
 
 @pytest.mark.parametrize(

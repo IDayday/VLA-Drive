@@ -36,6 +36,26 @@ global batch 16 yields 6,456 steps per epoch. Training through epoch index 26
 (27 completed epochs) therefore produces exactly 174,312 steps, matching
 `best-epoch_26-step_174312.server_merged.ckpt`.
 
+The deleted historical checkpoint shards also preserve two facts that the
+deployment YAML does not: every shard records PyTorch Lightning 2.2.1, and the
+original run directory is named
+`training_episode_Nav1_traj_long_25epochs_visionlora`. The `traj_long` label is
+supported by a released but disabled training branch:
+`long_trajectory_additional_poses=2` reads ten logged-future poses, cubic-spline
+resamples them to eight poses ending at five seconds, and adds a second
+min-over-64 L1 term beside the normal four-second GT target. It does not create
+a counterfactual future; it is a second supervised horizon from the same logged
+future.
+
+A read-only long-target cache was built for all 103,288 samples. In a strict
+Lightning-2.2.1/Transformers-4.48.3/eager/seed-2/16x1 1,000-step A/B, enabling
+only this extra target raised paired 128-log best-of-64 PDMS from 0.943566 to
+0.977166 (difference +0.033601, log-bootstrap 95% CI
+[+0.006762,+0.065910]). It also increased mean endpoint pairwise distance from
+4.444 m to 6.009 m. This is currently the primary diagnosed cause of the old
+proposal-bank collapse; selected PDMS is not expected to converge in only
+1,000 steps.
+
 The completed local run's validation deficit is localized to trajectory
 proposal generation, not proposal ranking. On the same full navtrain
 validation set, the public/local selected PDMS values are 0.951474/0.938030,
@@ -96,15 +116,21 @@ run directory, uses a shared rendezvous, records both node PIDs, and attaches
 the normal completion/Navtest watcher to global rank zero. A short multi-node
 smoke run must pass before a multi-day run is started.
 
-The multi-node launcher defaults to Lightning 2.6.0. A pre-existing package
-overlay can be selected without modifying the packed Torch runtime. For the
-locked Lightning/Transformers runtime used by this audit:
+The multi-node launcher keeps a compatibility default, but the historical
+checkpoint directly locks the reproduction to Lightning 2.2.1. A pre-existing
+package overlay can be selected without modifying the packed Torch runtime.
+For the locked Lightning/Transformers runtime used by the corrected full run:
 
 ```bash
-STAGE2_LIGHTNING_OVERLAY=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_5_1 \
-STAGE2_REQUIRE_LIGHTNING_VERSION=2.5.1 \
+DRIVEVLA_NAVTRAIN_FEATURE_CACHE=/mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_long2 \
+STAGE2_LONG_TRAJECTORY_ADDITIONAL_POSES=2 \
+STAGE2_LIGHTNING_OVERLAY=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_2_1 \
+STAGE2_REQUIRE_LIGHTNING_VERSION=2.2.1 \
 STAGE2_TRANSFORMERS_OVERLAY=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3 \
 STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.48.3 \
+STAGE2_SCHEDULER=source_cosine \
+STAGE2_BASE_LR=1e-4 \
+STAGE2_BASE_BATCH_SIZE=16 \
   ./local_stage2/launch_stage2_multinode_reproduction.sh
 ```
 
@@ -199,6 +225,10 @@ Run in order:
 
 ```bash
 ./local_stage2/cache_full_navtrain.sh
+python local_stage2/build_stage2_long_target_cache.py \
+  --source-cache /mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_full \
+  --output-cache /mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_long2 \
+  --additional-poses 2
 ./local_stage2/smoke_stage2.sh
 ./local_stage2/launch_stage2_reproduction.sh
 ./local_stage2/launch_stage2_multinode_reproduction.sh

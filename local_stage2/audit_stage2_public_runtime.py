@@ -102,12 +102,14 @@ def _stratified_samples(
 
 def _compose_config(args: argparse.Namespace):
     config_dir = REPO_ROOT / "navsim/planning/script/config/training"
+    checkpoint = json.dumps(str(args.checkpoint))
+    vlm_path = json.dumps(str(args.vlm_path))
     overrides = [
         "train_test_split=navtrain",
-        f"agent.checkpoint_path={args.checkpoint}",
+        f"agent.checkpoint_path={checkpoint}",
         "agent.stage1_checkpoint_path=null",
         "agent.cache_data=false",
-        f"agent.vlm_config.vlm_path={args.vlm_path}",
+        f"agent.vlm_config.vlm_path={vlm_path}",
         "agent.vlm_config.freeze_backbone=true",
         "agent.vlm_config.cache_hidden_state=false",
         "agent.vlm_config.cache_mode=false",
@@ -239,7 +241,7 @@ def main() -> None:
     best_score = records["best_pdm_score"].float()
     summary = {
         "name": args.name,
-        "torch_version": torch.__version__,
+        "torch_version": str(torch.__version__),
         "cudnn_version": torch.backends.cudnn.version(),
         "pytorch_lightning_version": pytorch_lightning.__version__,
         "transformers_version": transformers.__version__,
