@@ -244,8 +244,8 @@ def _compose_agent_config(args):
         "agent.vlm_config.initialize_from_config=true",
         f"agent.vlm_config.use_flash_attn={str(args.flash_attention).lower()}",
         f"agent.vlm_config.frozen_backbone_mode={args.frozen_backbone_mode}",
-        "agent.vlm_config.extra_token_count=8",
-        "agent.vlm_config.target_vocab_size=151682",
+        f"agent.vlm_config.extra_token_count={args.extra_token_count}",
+        f"agent.vlm_config.target_vocab_size={args.target_vocab_size}",
         "agent.lora_config.use_lora=true",
         "agent.batch_size=2",
         "agent.num_gpus=8",
@@ -271,6 +271,8 @@ def main() -> None:
         "--stage1-checkpoint", type=Path, default=DEFAULT_STAGE1
     )
     parser.add_argument("--vlm-path", type=Path, default=DEFAULT_VLM)
+    parser.add_argument("--extra-token-count", type=int, default=8)
+    parser.add_argument("--target-vocab-size", type=int, default=151682)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--forward-seed", type=int, default=20260830)
     parser.add_argument(
@@ -353,6 +355,9 @@ def main() -> None:
             "frozen_backbone_mode": args.frozen_backbone_mode,
             "decay_norm_and_bias": args.decay_norm_and_bias,
             "stage1_checkpoint": str(args.stage1_checkpoint),
+            "vlm_path": str(args.vlm_path),
+            "extra_token_count": args.extra_token_count,
+            "target_vocab_size": args.target_vocab_size,
             "metric_cache": str(args.metric_cache),
             "sample_dirs": [str(path) for path in sample_dirs],
         },

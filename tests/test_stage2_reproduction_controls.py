@@ -12,6 +12,7 @@ from navsim.planning.training.stage2_reproduction_sampler import (
 )
 from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
 from local_stage2.audit_stage2_lr_schedule_signature import _relative_lr
+from local_stage2.audit_stage2_public_runtime import _stratified_samples
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +71,45 @@ def test_multinode_launcher_locks_transformers_on_both_nodes():
     assert "Expected the locked Transformers" in launcher
     assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION" in trainer
     assert "import transformers" in trainer
+
+
+def test_rl_zt3_tf437_control_is_bounded_and_uses_authorized_gpus():
+    launcher = (
+        REPO_ROOT
+        / "local_stage2/watch_rl_zt3_and_launch_tf437_control.sh"
+    ).read_text()
+    assert 'gpu_list="3,5,6,7"' in launcher
+    assert "STAGE2_NUM_GPUS=4" in launcher
+    assert "STAGE2_BATCH_SIZE=1" in launcher
+    assert "STAGE2_ACCUMULATE_GRAD_BATCHES=4" in launcher
+    assert "STAGE2_EFFECTIVE_GLOBAL_BATCH_SIZE=16" in launcher
+    assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.37.2" in launcher
+    assert "trainer.params.limit_train_batches=4000" in launcher
+    assert "trainer.params.max_epochs=1" in launcher
+
+
+def test_public_runtime_subset_round_robins_logs(tmp_path):
+    for log_name, tokens in {
+        "log_a": ("a0", "a1", "a2"),
+        "log_b": ("b0", "b1"),
+        "log_c": ("c0",),
+    }.items():
+        for token in tokens:
+            sample_dir = tmp_path / log_name / token
+            sample_dir.mkdir(parents=True)
+            (sample_dir / "internvl_feature.gz").touch()
+            (sample_dir / "trajectory_target.gz").touch()
+
+    selected = _stratified_samples(
+        tmp_path, ("log_a", "log_b", "log_c"), count=5
+    )
+    assert [(path.parent.name, path.name) for path in selected] == [
+        ("log_a", "a0"),
+        ("log_b", "b0"),
+        ("log_c", "c0"),
+        ("log_a", "a1"),
+        ("log_b", "b1"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -292,6 +332,21 @@ def test_eight_by_one_accumulate_two_replays_sixteen_by_one_exactly():
             1,
             epoch,
             gradient_accumulation_steps=2,
+        )
+        assert [sorted(batch) for batch in reproduced] == [
+            sorted(batch) for batch in reference
+        ]
+
+
+def test_four_by_one_accumulate_four_replays_sixteen_by_one_exactly():
+    for epoch in (0, 1, 26):
+        reference = _global_batches(103_288, 16, 1, epoch)
+        reproduced = _global_batches(
+            103_288,
+            4,
+            1,
+            epoch,
+            gradient_accumulation_steps=4,
         )
         assert [sorted(batch) for batch in reproduced] == [
             sorted(batch) for batch in reference

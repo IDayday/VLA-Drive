@@ -1,0 +1,71 @@
+{
+  "audit_scope": "fixed-input runtime fingerprint and public-checkpoint paired validation subset",
+  "stage1_artifact": {
+    "path": "/mnt/project/VLA-AD/checkpoints/recogdrive/ReCogDrive-VLM-2B",
+    "generation_config_transformers": "4.37.2",
+    "source_tokenizers_pin": "0.15.1",
+    "training_args": {
+      "precision": "bf16",
+      "lr_scheduler": "cosine",
+      "warmup_ratio": 0.1,
+      "world_size": 24,
+      "per_device_batch": 1,
+      "gradient_accumulation": 16
+    }
+  },
+  "runtime_stacks": {
+    "candidate_old": {
+      "torch": "2.5.1+cu124",
+      "pytorch_lightning": "2.5.1",
+      "transformers": "4.37.2",
+      "tokenizers": "0.15.1",
+      "peft": "0.10.0"
+    },
+    "current_main": {
+      "torch": "2.5.1+cu124",
+      "pytorch_lightning": "2.5.1",
+      "transformers": "4.48.3"
+    }
+  },
+  "fixed_input_tf4372_vs_tf4483": {
+    "hidden_state_rmse": 0.1306292712688446,
+    "proposal_rmse": 0.0040072049014270306,
+    "predicted_pdm_rmse": 0.006534184794872999,
+    "action_head_gradient_rmse": 0.0050949701108038425,
+    "action_head_parameter_delta_rmse": 0.000040905251807998866
+  },
+  "peft010_vs_current_at_tf4483": {
+    "hidden_state_exact": true,
+    "proposal_exact": true,
+    "predicted_pdm_exact": true,
+    "action_head_gradient_rmse": 0.0002838513464666903,
+    "action_head_parameter_delta_rmse": 8.517544074493344e-7
+  },
+  "public_checkpoint_subset": {
+    "sample_count": 128,
+    "log_count": 128,
+    "tokens_identical": true,
+    "tf4372": {
+      "selected_pdm": 0.962780237197876,
+      "best64_pdm": 0.9885818362236023,
+      "selection_regret": 0.025801703333854675,
+      "l2_2s": 0.5187962055206299
+    },
+    "tf4483": {
+      "selected_pdm": 0.9629482626914978,
+      "best64_pdm": 0.9885767698287964,
+      "selection_regret": 0.025628481060266495,
+      "l2_2s": 0.5358562469482422
+    },
+    "tf4483_minus_tf4372_selected_pdm": 0.00016804737970232964,
+    "paired_bootstrap_95_ci": [
+      -0.0007261640741489828,
+      0.001118775317445396
+    ],
+    "selected_index_agreement": 0.71875,
+    "changed_selection_count": 36,
+    "selected_trajectory_rmse": 0.3873358964920044
+  },
+  "decision": "TRAINING_CONTROL_REQUIRED",
+  "interpretation": "4.37.2 materially changes the frozen-VLM representation and Stage-2 optimization path, but public-checkpoint inference has no significant mean-PDMS winner on the paired subset."
+}

@@ -113,6 +113,26 @@ launcher allocates GPUs. The two runtime JSON records must be byte-for-byte
 identical. This matters even when the Python executable path is shared because
 host-local package paths can otherwise resolve different dependencies.
 
+The ReCogDrive Stage-1 artifact records Transformers 4.37.2, while the raw
+InternVL3 model directory records 4.48.3. These are materially different Qwen2
+implementations, so both must be treated as runtime hypotheses. A fixed public
+checkpoint subset can be evaluated under either isolated stack with:
+
+```bash
+PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/nuplan-devkit:${TRANSFORMERS_OVERLAY}:${LIGHTNING_OVERLAY}:${EXTRA_SITE}" \
+  ${PORTABLE_PYTHON} local_stage2/audit_stage2_public_runtime.py \
+  --name RUNTIME_NAME --samples 128 --batch-size 2 \
+  --output /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/numerics/RUNTIME_NAME.pt
+```
+
+The tool round-robins across validation logs and saves every proposal,
+selection, offline factor, and token rather than comparing only aggregate
+PDMS. `watch_rl_zt3_and_launch_tf437_control.sh` waits for the explicitly
+authorized rl-zt3 GPUs 3,5,6,7 and then runs a bounded 4-rank x batch-1 x
+accumulation-4 control. It refuses GPUs used by non-stress jobs and locks
+Transformers 4.37.2, tokenizers 0.15.1, PEFT 0.10.0, and Lightning 2.5.1 before
+launching.
+
 The public repository describes itself as a deployment package and does not
 publish the private Stage-2 launcher. Its generic training YAML still points at
 the final Base checkpoint, contains single-device defaults that contradict the
