@@ -675,6 +675,24 @@ def test_reproduction_scheduler_matches_released_schedule_numerically():
     assert result["max_absolute_lr_difference"] < 1e-16
 
 
+def test_corrected_epoch1_scheduler_and_optimizer_steps_are_aligned():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/corrected_epoch1_optimizer_state.json"
+        ).read_text()
+    )
+    step = result["global_step"]
+
+    assert step == 12_912
+    assert result["scheduler_progress"]["total_completed"] == step
+    assert result["optimizer_step_progress"]["total_completed"] == step
+    assert result["scheduler"]["last_epoch"] == step
+    assert result["optimizer"]["state_step_unique"] == [step]
+    assert result["optimizer"]["state_entry_count"] == 318
+    assert all(result["invariants"].values())
+
+
 def test_milestone_snapshot_preserves_retained_best_without_copy(tmp_path):
     source = tmp_path / "best-epoch=9-step=64560.ckpt"
     source.write_bytes(b"checkpoint")

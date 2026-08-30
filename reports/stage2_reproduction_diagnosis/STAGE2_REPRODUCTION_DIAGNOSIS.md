@@ -386,8 +386,12 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
 12. **当前 scheduler 实现与发布源码数值等价。** 在锁定的 PyTorch 2.5.1 下，将
     当前 LambdaLR 与原始 `LinearLR(start_factor=1e-6, 10%)` 加
     `CosineAnnealingLR` 在全部 174,312 step 逐点比较，最大 LR 绝对差仅
-    `7.74e-18`。后续完整曲线检验的是私有 scheduler 是否就是该源码曲线及 peak LR，
-    而不是本地 schedule 实现是否错位。
+    `7.74e-18`。epoch 1 checkpoint 又直接记录 scheduler/optimizer/loop progress
+    均为 `12,912`，318 个 optimizer state 的 step 也全部为 `12,912`；scheduler
+    `last_epoch=12,912`、LR=`7.407494991e-5` 与公式一致。因此还可排除漏 step、
+    重复 step 和 off-by-one。后续完整曲线检验的是私有 scheduler 是否就是该源码
+    曲线及 peak LR，而不是本地 schedule 实现是否错位。状态快照见
+    `corrected_epoch1_optimizer_state.json`。
 13. **官方 scheduler presence 已由 loop state 直接取证。** 四个历史 checkpoint
     shard 都没有 `hyper_parameters`，且 `lr_schedulers=[]`，所以不能恢复类名；但
     每份都保留 scheduler total ready/completed `174312/174312`，与 optimizer
@@ -580,6 +584,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`66 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`67 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。
