@@ -55,6 +55,19 @@ min-over-64 L1 term beside the normal four-second GT target. It does not create
 a counterfactual future; it is a second supervised horizon from the same logged
 future.
 
+The `25epochs` fragment is less conclusive than `traj_long`. Raw Lightning loop
+state proves 174,312 updates arranged as 27 blocks of 6,456 and shows that the
+scheduler was stepped on every update, but the stripped checkpoint contains
+neither `max_epochs` nor the scheduler's configured horizon. If the released
+SequentialLR was configured for 25 epochs and then allowed to run for 27, its
+CosineAnnealingLR reaches zero at step 161,400 and rises again to a multiplier
+of 0.01937 by step 174,312; a 27-epoch horizon instead decays to zero at the
+last step. The 25-horizon trace has 7.31% less integrated LR and 3.77% less
+square-root LR-squared budget. See `audit_stage2_schedule_horizon.py` and
+`scheduler_horizon_counterfactual.json`. This is a real late-training control,
+but the directory label alone is not sufficient evidence to start another
+full run before the current epoch-9 milestone.
+
 A read-only long-target cache was built for all 103,288 samples. In a strict
 Lightning-2.2.1/Transformers-4.48.3/eager/seed-2/16x1 1,000-step A/B, enabling
 only this extra target raised paired 128-log best-of-64 PDMS from 0.943566 to

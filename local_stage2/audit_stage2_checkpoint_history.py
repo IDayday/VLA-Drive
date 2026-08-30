@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 import pickle
 import pickletools
+import re
 import struct
 from typing import Any
 import urllib.request
@@ -146,12 +147,22 @@ def _inspect_pickle(payload: bytes) -> tuple[dict[str, Any], list]:
     strings = [operation[1] for operation in operations if isinstance(operation[1], str)]
     decoded = _unpickle_metadata(payload)
     epoch_loop = decoded["loops"]["fit_loop"]
+    epoch_progress = epoch_loop["epoch_progress"]
+    batch_progress = epoch_loop["epoch_loop.batch_progress"]
     scheduler_progress = epoch_loop["epoch_loop.scheduler_progress"]
     optimizer_progress = epoch_loop[
         "epoch_loop.automatic_optimization.optim_progress"
     ]["optimizer"]["step"]
     checkpoint_paths = sorted(
         value for value in strings if "/checkpoints/" in value or value.endswith("/checkpoints")
+    )
+    directory_epoch_labels = sorted(
+        {
+            int(match.group(1))
+            for value in checkpoint_paths
+            for match in [re.search(r"_(\d+)epochs(?:_|/)", value)]
+            if match is not None
+        }
     )
     return (
         {
@@ -163,8 +174,11 @@ def _inspect_pickle(payload: bytes) -> tuple[dict[str, Any], list]:
             "checkpoint_paths": checkpoint_paths,
             "top_level_keys": sorted(decoded),
             "contains_hyper_parameters": "hyper_parameters" in decoded,
+            "epoch_progress": epoch_progress,
+            "batch_progress": batch_progress,
             "scheduler_progress": scheduler_progress,
             "optimizer_step_progress": optimizer_progress,
+            "run_directory_epoch_labels": directory_epoch_labels,
             "state_key_count": sum(value.startswith("agent.") for value in strings),
             "contains_identity_key": IDENTITY_KEY in strings,
             "optimizer_states_value_opcode": _value_opcode_after_key(
@@ -328,10 +342,31 @@ def main() -> None:
                 for shard in shard_reports
             ),
             "scheduler_type_recoverable": False,
+            "scheduler_horizon_recoverable": False,
+            "trainer_max_epochs_recoverable": False,
+            "epoch_progress_consensus": all(
+                shard["epoch_progress"] == shard_reports[0]["epoch_progress"]
+                for shard in shard_reports
+            ),
+            "run_directory_epoch_label_consensus": sorted(
+                {
+                    label
+                    for shard in shard_reports
+                    for label in shard["run_directory_epoch_labels"]
+                }
+            ),
+            "optimizer_epochs_from_step_ratio": (
+                shard_reports[0]["global_step"]
+                // shard_reports[0]["batch_progress"]["current"]["completed"]
+            ),
             "consequence": (
                 "Loop progress proves a scheduler executed at every optimizer "
-                "step. Stripped scheduler state prevents recovering its class "
-                "or exact LR curve from the checkpoint alone."
+                "step and that the saved run processed 27 optimizer-step epochs. "
+                "Stripped scheduler state and absent hyperparameters prevent "
+                "recovering its class, configured horizon, trainer max_epochs, "
+                "or exact LR curve from the checkpoint alone. The 25epochs run-"
+                "directory label is therefore evidence for a counterfactual "
+                "schedule horizon, not an authoritative training configuration."
             ),
         },
         "callback_best_model_score_consensus": {

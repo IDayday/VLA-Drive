@@ -31,6 +31,35 @@
         "state_dict"
       ],
       "contains_hyper_parameters": false,
+      "epoch_progress": {
+        "total": {
+          "ready": 27,
+          "completed": 25,
+          "started": 27,
+          "processed": 27
+        },
+        "current": {
+          "ready": 27,
+          "completed": 26,
+          "started": 27,
+          "processed": 27
+        }
+      },
+      "batch_progress": {
+        "total": {
+          "ready": 174312,
+          "completed": 174312,
+          "started": 174312,
+          "processed": 174312
+        },
+        "current": {
+          "ready": 6456,
+          "completed": 6456,
+          "started": 6456,
+          "processed": 6456
+        },
+        "is_last_batch": true
+      },
       "scheduler_progress": {
         "total": {
           "ready": 174312,
@@ -51,6 +80,9 @@
           "completed": 6456
         }
       },
+      "run_directory_epoch_labels": [
+        25
+      ],
       "state_key_count": 319,
       "contains_identity_key": false,
       "optimizer_states_value_opcode": "EMPTY_LIST",
@@ -89,6 +121,35 @@
         "state_dict"
       ],
       "contains_hyper_parameters": false,
+      "epoch_progress": {
+        "total": {
+          "ready": 27,
+          "completed": 25,
+          "started": 27,
+          "processed": 27
+        },
+        "current": {
+          "ready": 27,
+          "completed": 26,
+          "started": 27,
+          "processed": 27
+        }
+      },
+      "batch_progress": {
+        "total": {
+          "ready": 174312,
+          "completed": 174312,
+          "started": 174312,
+          "processed": 174312
+        },
+        "current": {
+          "ready": 6456,
+          "completed": 6456,
+          "started": 6456,
+          "processed": 6456
+        },
+        "is_last_batch": true
+      },
       "scheduler_progress": {
         "total": {
           "ready": 174312,
@@ -109,6 +170,9 @@
           "completed": 6456
         }
       },
+      "run_directory_epoch_labels": [
+        25
+      ],
       "state_key_count": 320,
       "contains_identity_key": false,
       "optimizer_states_value_opcode": "EMPTY_LIST",
@@ -147,6 +211,35 @@
         "state_dict"
       ],
       "contains_hyper_parameters": false,
+      "epoch_progress": {
+        "total": {
+          "ready": 27,
+          "completed": 25,
+          "started": 27,
+          "processed": 27
+        },
+        "current": {
+          "ready": 27,
+          "completed": 26,
+          "started": 27,
+          "processed": 27
+        }
+      },
+      "batch_progress": {
+        "total": {
+          "ready": 174312,
+          "completed": 174312,
+          "started": 174312,
+          "processed": 174312
+        },
+        "current": {
+          "ready": 6456,
+          "completed": 6456,
+          "started": 6456,
+          "processed": 6456
+        },
+        "is_last_batch": true
+      },
       "scheduler_progress": {
         "total": {
           "ready": 174312,
@@ -167,6 +260,9 @@
           "completed": 6456
         }
       },
+      "run_directory_epoch_labels": [
+        25
+      ],
       "state_key_count": 339,
       "contains_identity_key": false,
       "optimizer_states_value_opcode": "EMPTY_LIST",
@@ -205,6 +301,35 @@
         "state_dict"
       ],
       "contains_hyper_parameters": false,
+      "epoch_progress": {
+        "total": {
+          "ready": 27,
+          "completed": 25,
+          "started": 27,
+          "processed": 27
+        },
+        "current": {
+          "ready": 27,
+          "completed": 26,
+          "started": 27,
+          "processed": 27
+        }
+      },
+      "batch_progress": {
+        "total": {
+          "ready": 174312,
+          "completed": 174312,
+          "started": 174312,
+          "processed": 174312
+        },
+        "current": {
+          "ready": 6456,
+          "completed": 6456,
+          "started": 6456,
+          "processed": 6456
+        },
+        "is_last_batch": true
+      },
       "scheduler_progress": {
         "total": {
           "ready": 174312,
@@ -225,6 +350,9 @@
           "completed": 6456
         }
       },
+      "run_directory_epoch_labels": [
+        25
+      ],
       "state_key_count": 345,
       "contains_identity_key": true,
       "optimizer_states_value_opcode": "EMPTY_LIST",
@@ -240,7 +368,14 @@
     "lr_schedulers_stripped": true,
     "scheduler_executed_every_optimizer_step": true,
     "scheduler_type_recoverable": false,
-    "consequence": "Loop progress proves a scheduler executed at every optimizer step. Stripped scheduler state prevents recovering its class or exact LR curve from the checkpoint alone."
+    "scheduler_horizon_recoverable": false,
+    "trainer_max_epochs_recoverable": false,
+    "epoch_progress_consensus": true,
+    "run_directory_epoch_label_consensus": [
+      25
+    ],
+    "optimizer_epochs_from_step_ratio": 27,
+    "consequence": "Loop progress proves a scheduler executed at every optimizer step and that the saved run processed 27 optimizer-step epochs. Stripped scheduler state and absent hyperparameters prevent recovering its class, configured horizon, trainer max_epochs, or exact LR curve from the checkpoint alone. The 25epochs run-directory label is therefore evidence for a counterfactual schedule horizon, not an authoritative training configuration."
   },
   "callback_best_model_score_consensus": {
     "all_shards_equal": true,

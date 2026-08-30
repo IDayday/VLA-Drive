@@ -44,6 +44,7 @@ from local_stage2.audit_active_stage2_lr_trace import (
 )
 from local_stage2.audit_stage2_initialization_path import audit as audit_initialization_path
 from local_stage2.audit_stage2_batch_layout import audit_layout
+from local_stage2.audit_stage2_schedule_horizon import audit_horizons
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -125,6 +126,23 @@ def test_batch_layout_audit_keeps_inference_distinct_from_fact():
         "uses_all_paper_reported_gpus": True,
     }
     assert not result["preferred_layout_is_uniquely_proven"]
+
+
+def test_schedule_horizon_audit_keeps_directory_label_as_indirect_evidence():
+    result = audit_horizons(steps_per_epoch=20, training_epochs=27)
+    direct = result["direct_checkpoint_facts"]
+    clue = result["indirect_artifact_clue"]
+    comparison = result["comparison"]
+
+    assert direct["optimizer_step_epochs"] == 27
+    assert direct["scheduler_state_stripped"]
+    assert clue["encoded_epoch_count"] == 25
+    assert not clue["is_authoritative_config"]
+    assert comparison["horizon25_restarts_after_step"] == 500
+    assert comparison["horizon25_final_actual_lr_at_peak_1e-4"] > 0
+    assert comparison["horizon27_final_actual_lr_at_peak_1e-4"] == pytest.approx(
+        0.0, abs=1e-15
+    )
 
 
 def test_invalid_frozen_backbone_mode_fails_closed():
@@ -282,6 +300,23 @@ def test_checkpoint_audit_decodes_loop_progress_without_tensor_storage():
     decoded = _unpickle_metadata(pickle.dumps(checkpoint, protocol=2))
     progress = decoded["loops"]["fit_loop"]["epoch_loop.scheduler_progress"]
     assert progress["total"]["completed"] == 12
+
+
+def test_public_checkpoint_separates_27_step_epochs_from_25_path_label():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/public_checkpoint_history_audit.json"
+        ).read_text()
+    )
+    recovery = result["training_state_recoverability"]
+
+    assert recovery["optimizer_epochs_from_step_ratio"] == 27
+    assert recovery["run_directory_epoch_label_consensus"] == [25]
+    assert recovery["epoch_progress_consensus"]
+    assert not recovery["scheduler_horizon_recoverable"]
+    assert not recovery["trainer_max_epochs_recoverable"]
+    assert result["shards"][0]["epoch_progress"]["total"]["started"] == 27
 
 
 def test_scheduler_presence_audit_reads_lightning_loop_state(tmp_path):

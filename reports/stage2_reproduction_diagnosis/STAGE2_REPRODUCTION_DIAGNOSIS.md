@@ -143,7 +143,8 @@ runtime/scheduler 优先级判断。
    state 却逐一记录 scheduler `ready=completed=174312`，与 optimizer step 完全相等；
    本地无 scheduler 控制的同一字段严格为 0，有 source-cosine 时则等于全部 step。
    因而私有训练启用了逐 step scheduler 已是 artifact 事实。scheduler state 被剥离，
-   无法仅从 checkpoint 恢复精确类型；发布源码唯一实现是完整的 10% warmup + cosine。
+   无法仅从 checkpoint 恢复精确类型；发布源码唯一公开实现是完整的 10% warmup +
+   cosine，所以它是有源码依据的首选假设，而不是 checkpoint 已证明的曲线。
    开源权重相对
    seed-2 初始化的有效 action-head RMS 位移为 `0.0219354`，本地旧权重相对 seed-0
    初始化为 `0.0416902`，比例为 `0.5262`；逐模块比例也集中在 `0.48--0.66`。
@@ -153,6 +154,15 @@ runtime/scheduler 优先级判断。
    优先完整验证 peak `1e-4` 的源码 warmup-cosine，恒定 `5e-5` 保留为失败后的首个
    完整对照。当前完整主跑采用源码 schedule；最终曲线检验其类型和 peak LR 是否也匹配，
    而不再检验“官方是否用了 scheduler”。
+   新增的原始 loop 审计进一步把两个问题严格分开：`174312 / 6456 = 27` 直接证明
+   运行处理了 27 个 optimizer-step epoch，但 checkpoint 没有保存 `max_epochs` 或
+   scheduler 的配置 horizon。若目录名中的 `25epochs` 真代表 scheduler horizon，
+   发布的 `CosineAnnealingLR` 会在 step `161400` 先降到零，随后在额外两轮重新上升，
+   最终 multiplier 为 `0.019369`；当前 27-horizon 曲线则在 step `174312` 降到零。
+   25-horizon 的累计 LR 少 `7.31%`、平方 LR 预算开方少 `3.77%`。因此这是一个真实的
+   晚期曲线歧义，但目录标签不足以把它提升为第二条立即完整长跑；若 epoch-9/最终曲线
+   不闭合，它应优先于无源码线索的恒定 `5e-5` 做控制。量化见
+   `scheduler_horizon_counterfactual.json`。
 7. **冻结 VLM 的 train/eval mode 是次要因素。** 1,000-step A/B 中，eval-mode
    反而比 train-mode 高 `0.00141` PDMS；差异很小且方向不能解释旧本地结果偏低。
 8. **Lightning 版本必须锁定，但不是单独主因。** 官方历史 checkpoint 的四个
@@ -488,6 +498,17 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     当作“私有训练可能不同”的正证据。可复跑审计为
     `local_stage2/audit_stage2_initialization_path.py`，结果见
     `initialization_path_audit.json`。
+18. **`25epochs` 是 scheduler-horizon 线索，不是“只训练了 25 轮”的证据。** 四个
+    历史 shard 的 `epoch=26`、`global_step=174312`、每轮 current batch/optimizer
+    progress `6456`，以及 `epoch_progress.total.started=27` 完全一致；所以运行确实进入
+    epoch index 26（第 27 轮）。与此同时，checkpoint 的 `hyper_parameters` 缺失，
+    `lr_schedulers=[]`，无法恢复 `scheduler_args.num_epochs`。精确模拟发布
+    `SequentialLR` 后，25-horizon 在第 25 轮降到零、之后两轮反弹至实际 LR
+    `1.94e-6`；27-horizon 则单调在最终 step 降到零。两者最大 multiplier 差
+    `0.08207`，但平方 LR 总预算只差 `3.77%`，不太可能单独解释旧训练的全部差距，
+    却可能改变后期最优 checkpoint。当前不据目录名停止健康主跑；epoch-9 里程碑和
+    完整曲线失败时再以同起点控制验证。审计入口为
+    `local_stage2/audit_stage2_schedule_horizon.py`。
 
 ## 已排除或降级的因素
 
@@ -508,6 +529,8 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
 | BF16/TF32 | 发布配置和 Stage-1 元数据均为 BF16、非 FP16；action-head FP32 参数在 BF16 autocast 下训练，当前 TF32 关闭 | BF16 已匹配；TF32 与 H20/A800 kernel 仅列为低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
 | `initialize_from_config` | release/current YAML 和活跃进程均为 `true`；真分支 AST 相同；两版 action head 均先于 VLM 构造；公开权重指纹精确匹配 seed 2 | 排除为当前差距根因；私有 launcher 未公开仅保留为 provenance 限制 |
+| AdamW weight decay 默认值 | 优化器构造默认虽为 `0.01`，但发布源码每个 LoRA/backbone/action-head 参数组均显式覆盖为 `1e-4`；当前 action head 同为全参数 `1e-4` | 排除；不存在 100 倍 decay 差异 |
+| 从参数比例反推累计 LR | 40 个逐位不变 tensor 是无梯度的初始化指纹；最佳非标量候选仍有 `1.69%` 比例残差，按纯 decay 反推的累计 LR `814.8`，远离候选曲线的 `8.08--8.72` | 不能用于选择 25/27-horizon；见 `optimizer_signature.json` |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
 | 样本顺序 | 按用户要求不作为关键根因继续投入实验 | 不作为主线 |
 
@@ -654,8 +677,9 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 - 若 4.37.2 短训练在 proposal ceiling 或公开 checkpoint 更新方向上显著优于
   同布局 4.48.3，则再决定是否运行 4.37.2 source-cosine 全曲线；否则保留当前
   4.48.3 主跑。
-- 若版本对照与 cosine 完整曲线仍不能闭合公开权重，下一优先级才是同一运行时下的
-  恒定 `5e-5` 完整对照，然后是 H20/A800 训练 kernel 的不可消除差异；不会回到
+- 若版本对照与 27-horizon cosine 完整曲线仍不能闭合公开权重，先检验原始目录名提示的
+  25-horizon-overrun 曲线，再考虑同一运行时下的恒定 `5e-5` 完整对照，然后是
+  H20/A800 训练 kernel 的不可消除差异；不会回到
   sample 顺序作为主解释。
 
 轻量审计结果保存在：
@@ -667,6 +691,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`69 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`77 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。
