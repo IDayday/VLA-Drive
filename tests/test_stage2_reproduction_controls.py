@@ -38,6 +38,10 @@ from local_stage2.audit_long_target_candidate_specialization import (
     specialization_vectors,
 )
 from local_stage2.audit_active_stage2_semantics import parse_overrides
+from local_stage2.audit_active_stage2_lr_trace import (
+    audit_samples,
+    expected_lr,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -782,6 +786,44 @@ def test_corrected_epoch1_scheduler_and_optimizer_steps_are_aligned():
     assert result["optimizer"]["state_step_unique"] == [step]
     assert result["optimizer"]["state_entry_count"] == 318
     assert all(result["invariants"].values())
+
+
+def test_active_lr_trace_audit_detects_step_alignment():
+    settings = {
+        "peak_lr": 1e-4,
+        "total_steps": 174_312,
+        "warmup_steps": 17_431,
+        "start_lr_ratio": 1e-6,
+        "min_lr_ratio": 0.0,
+    }
+    steps = [9, 19, 17_429, 17_431, 17_439, 100_009]
+    samples = [
+        (step, expected_lr(step, **settings))
+        for step in steps
+    ]
+    result = audit_samples(samples, **settings)
+
+    assert result["sample_count"] == len(steps)
+    assert result["first_step"] == 9
+    assert result["last_step"] == 100_009
+    assert result["max_absolute_lr_error"] == 0.0
+
+
+def test_live_training_lr_trace_matches_source_formula():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/active_run_lr_trace.json"
+        ).read_text()
+    )
+    comparison = result["comparison"]
+
+    assert result["all_persisted_samples_match"]
+    assert comparison["sample_count"] >= 1_000
+    assert comparison["first_step"] == 9
+    assert comparison["last_step"] >= 12_912
+    assert comparison["step_interval_values"] == [10]
+    assert comparison["max_absolute_lr_error"] < 1e-10
 
 
 def test_milestone_snapshot_preserves_retained_best_without_copy(tmp_path):

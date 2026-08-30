@@ -217,6 +217,18 @@ scales the configured base LR by the square root of effective/base batch size.
 The launcher logs the actual optimizer-group LR; do not infer it from YAML
 names alone.
 
+For a running experiment, verify the values Lightning actually applied (not
+only the Hydra configuration or checkpoint counters) with:
+
+```bash
+python local_stage2/audit_active_stage2_lr_trace.py \
+  --event-dir /path/to/lightning_logs/version_0 \
+  --output reports/stage2_reproduction_diagnosis/active_run_lr_trace.json
+```
+
+The audit compares every persisted TensorBoard LR point to the source
+warmup/cosine formula and fails if the absolute error exceeds its tolerance.
+
 The shared path `/mnt/project/DriveVLA-M0-env/bin/python` is a symlink into a
 host-local conda environment. It can therefore resolve to different Python and
 Lightning versions on different servers even though the path text is the
