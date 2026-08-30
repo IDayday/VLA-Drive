@@ -37,6 +37,7 @@ from local_stage2.audit_long_target_candidate_specialization import (
     candidate_l1,
     specialization_vectors,
 )
+from local_stage2.audit_active_stage2_semantics import parse_overrides
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -177,6 +178,21 @@ def test_long_target_specialization_uses_two_candidate_modes():
     assert metrics["single_candidate_compromise_loss"].item() == 4.0
     assert metrics["specialization_advantage"].item() == 4.0
     assert metrics["mode_endpoint_distance_m"].item() == 4.0
+
+
+def test_live_semantic_audit_parses_hydra_overrides_without_value_coercion():
+    arguments = [
+        "run_training_full.py",
+        "seed=2",
+        "+trainer.params.log_every_n_steps=10",
+        "agent.scheduler_args={dataset_size:103288,warmup_ratio:0.1}",
+        "not-an-override",
+    ]
+    assert parse_overrides(arguments) == {
+        "seed": "2",
+        "trainer.params.log_every_n_steps": "10",
+        "agent.scheduler_args": "{dataset_size:103288,warmup_ratio:0.1}",
+    }
 
 
 def test_long_target_integrity_audit_wraps_heading_deltas():

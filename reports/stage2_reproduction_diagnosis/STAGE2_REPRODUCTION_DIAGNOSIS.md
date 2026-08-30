@@ -186,6 +186,16 @@ attention 与当前优先验证的 source warmup-cosine；所有歧义仍可显�
 通用的 `train_stage2_full.sh` 保持旧实验兼容默认值。短程 no-long 因果对照则在各自
 launcher 中显式固定普通 cache 和 `long=-1`，避免新的正确默认污染单变量实验。
 
+正在运行的 rank-0 进程还做了 `/proc` 级语义锁，而不是只核对预期 YAML：seed、
+16×1 布局、BF16、eager、long-2 cache、VLM 冻结、AdamW、实际 LR、scheduler 和
+27 epoch 共 25 项关键 override 全部匹配。更直接地，候选生成
+`action_decoder.py`、轨迹/评分 loss `episode_drive_loss.py` 和 target builder
+`drivevla_features.py` 三个文件与发布 commit `b9a4f27` **逐字节相同**。现存加速项
+只位于图像预处理、tokenization、离线 PDM 标签计算、validation 合并评分、训练日志
+collective 和 checkpoint I/O；已有固定批次审计分别证明其数值等价。因此此前的加速
+改动中真正改变训练语义的是已关闭的 Flash Attention，而不是仍启用的吞吐优化。
+机器可读证据见 `active_run_semantic_lock.json`。
+
 ## 官方 checkpoint 原始元数据修正（当前最高优先级）
 
 ModelScope 仓库历史仍保留四个已删除 checkpoint shard 的 LFS 对象。使用 HTTP
