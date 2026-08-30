@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 from pathlib import Path
+import pickle
 import pickletools
 import struct
 from typing import Any
@@ -32,6 +34,31 @@ DEFAULT_MERGED = Path(
     "best-epoch_26-step_174312.server_merged.ckpt"
 )
 IDENTITY_KEY = "agent.action_head.scorer.pred_score.no_at_fault_collisions.2.bias"
+
+
+def _ignore_tensor_rebuild(*_args: Any) -> None:
+    """Replace tensor rebuilds while decoding trusted checkpoint metadata."""
+
+    return None
+
+
+class _MetadataUnpickler(pickle.Unpickler):
+    """Decode the checkpoint structure without loading remote tensor storage."""
+
+    def persistent_load(self, persistent_id: Any) -> Any:
+        return ("persistent_storage", persistent_id)
+
+    def find_class(self, module: str, name: str) -> Any:
+        if module == "torch._utils" and name.startswith("_rebuild"):
+            return _ignore_tensor_rebuild
+        return super().find_class(module, name)
+
+
+def _unpickle_metadata(payload: bytes) -> dict[str, Any]:
+    metadata = _MetadataUnpickler(io.BytesIO(payload)).load()
+    if not isinstance(metadata, dict):
+        raise TypeError(f"checkpoint metadata must be a dict, got {type(metadata)}")
+    return metadata
 
 
 def _url(name: str) -> str:
@@ -117,6 +144,12 @@ def _value_opcode_after_key(operations: list, key: str) -> str:
 def _inspect_pickle(payload: bytes) -> tuple[dict[str, Any], list]:
     operations = list(pickletools.genops(payload))
     strings = [operation[1] for operation in operations if isinstance(operation[1], str)]
+    decoded = _unpickle_metadata(payload)
+    epoch_loop = decoded["loops"]["fit_loop"]
+    scheduler_progress = epoch_loop["epoch_loop.scheduler_progress"]
+    optimizer_progress = epoch_loop[
+        "epoch_loop.automatic_optimization.optim_progress"
+    ]["optimizer"]["step"]
     checkpoint_paths = sorted(
         value for value in strings if "/checkpoints/" in value or value.endswith("/checkpoints")
     )
@@ -128,6 +161,10 @@ def _inspect_pickle(payload: bytes) -> tuple[dict[str, Any], list]:
                 operations, "pytorch-lightning_version"
             ),
             "checkpoint_paths": checkpoint_paths,
+            "top_level_keys": sorted(decoded),
+            "contains_hyper_parameters": "hyper_parameters" in decoded,
+            "scheduler_progress": scheduler_progress,
+            "optimizer_step_progress": optimizer_progress,
             "state_key_count": sum(value.startswith("agent.") for value in strings),
             "contains_identity_key": IDENTITY_KEY in strings,
             "optimizer_states_value_opcode": _value_opcode_after_key(
@@ -284,9 +321,17 @@ def main() -> None:
                 shard["lr_schedulers_value_opcode"] == "EMPTY_LIST"
                 for shard in shard_reports
             ),
+            "scheduler_executed_every_optimizer_step": all(
+                shard["scheduler_progress"]["total"]["completed"]
+                == shard["global_step"]
+                == shard["optimizer_step_progress"]["total"]["completed"]
+                for shard in shard_reports
+            ),
+            "scheduler_type_recoverable": False,
             "consequence": (
-                "The released historical shards cannot identify the private "
-                "Stage-2 optimizer or learning-rate schedule."
+                "Loop progress proves a scheduler executed at every optimizer "
+                "step. Stripped scheduler state prevents recovering its class "
+                "or exact LR curve from the checkpoint alone."
             ),
         },
         "callback_best_model_score_consensus": {

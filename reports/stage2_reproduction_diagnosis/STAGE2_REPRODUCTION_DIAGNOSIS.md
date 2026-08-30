@@ -32,12 +32,13 @@ Navtest 是否完全闭合仍由正在运行的 27-epoch 曲线裁决。
 1. **缺失 long-trajectory target：首要根因，已由 artifact、行为指纹、严格 A/B
    和完整 epoch-0 validation 四重确认；最终 Navtest 贡献等待完整曲线确认。**
 2. **Flash Attention：确定的有害训练语义改动，已修正为 eager。**
-3. **LR scheduler：最重要的剩余私有配置歧义。** 发布源码包含 10% warmup-cosine，
-   公开权重位移更支持这条曲线而非恒定 `1e-4`，但只能由完整 27 epoch 最终确认。
+3. **逐 step LR scheduler：已由官方 checkpoint loop state 直接确认存在。** 四个
+   历史 shard 的 scheduler progress 均为 `174312/174312`；精确类型虽被剥离，
+   但发布源码唯一实现和作者训练谱系都指向 10% warmup-cosine，当前主跑已修正。
 4. **Lightning 2.2.1、seed 2、16×1、Transformers 4.48.3：必须锁定的复现条件，
    但各自短程效应显著小于 long target，不再作为首要原因。**
 
-差值不是由样本顺序或本地 evaluator 引起。下面 1--10 项保留了发现过程；
+差值不是由样本顺序或本地 evaluator 引起。下面 1--13 项保留了发现过程；
 `官方 checkpoint 原始元数据修正`一节中的直接 artifact 证据覆盖其中早期的
 runtime/scheduler 优先级判断。
 
@@ -77,7 +78,7 @@ runtime/scheduler 优先级判断。
    checkpoint 可反推的 27 epoch/global batch 16 不可能同时成立。因此“直接运行
    开源 YAML”不是官方 Stage-2 复现；私有 launcher 中的 LR 缩放、scheduler 和
    runtime 仍未公开。
-6. **实际学习率和 scheduler 是剩余最重要的配置歧义。** 论文附录明确报告 base model
+6. **实际 peak LR 细节仍有歧义，但 scheduler 是否存在已经锁定。** 论文附录明确报告 base model
    使用 AdamW、学习率 `1e-4` 和 16 张 H20；但发布代码会把 `base_lr` 再乘
    `sqrt(global_batch/base_batch)`。论文没有说明 `1e-4` 是缩放前的配置字段还是
    缩放后的 optimizer-group LR。global batch 为 16、`base_batch_size=64` 时，两种
@@ -85,16 +86,20 @@ runtime/scheduler 优先级判断。
    `2.5e-4`；其未随 launcher 改动的 `agent.batch_size=2,num_gpus=1` 则会得到
    `8.84e-5`。本机 PL 2.6 的 `2.5e-4` 在 1,000 step 得到 `0.8258788`，没有显示
    实质早期优势；`5e-5` 在 1,000 step 欠拟合，但这不能替代 27 epoch 的完整曲线。
-   scheduler 同样未锁定：发布 YAML 明确
-   `scheduler_args: null`，论文没有报告 warmup/cosine，因此不能把 scheduler 写成
-   官方事实；发布源码确实保留了完整的 10% warmup + cosine 分支。开源权重相对
+   发布 YAML 虽写着 `scheduler_args: null`，四个官方历史 shard 的 Lightning loop
+   state 却逐一记录 scheduler `ready=completed=174312`，与 optimizer step 完全相等；
+   本地无 scheduler 控制的同一字段严格为 0，有 source-cosine 时则等于全部 step。
+   因而私有训练启用了逐 step scheduler 已是 artifact 事实。scheduler state 被剥离，
+   无法仅从 checkpoint 恢复精确类型；发布源码唯一实现是完整的 10% warmup + cosine。
+   开源权重相对
    seed-2 初始化的有效 action-head RMS 位移为 `0.0219354`，本地旧权重相对 seed-0
    初始化为 `0.0416902`，比例为 `0.5262`；逐模块比例也集中在 `0.48--0.66`。
    常数 `5e-5` 与 peak `1e-4` 的 cosine 都约有常数 `1e-4` 一半的累计 LR，单凭
    checkpoint 位移无法区分两者。严格 16×1 的恒定 `1e-4` 已完成一整轮，其位移
    外推明显超过公开权重；结合 DriveVLA-M0/DrivoR/ReCogDrive 的源码沿袭关系，当前
    优先完整验证 peak `1e-4` 的源码 warmup-cosine，恒定 `5e-5` 保留为失败后的首个
-   完整对照。这个排序是基于现有证据选择实验，并不把未公开 scheduler 当成官方事实。
+   完整对照。当前完整主跑采用源码 schedule；最终曲线检验其类型和 peak LR 是否也匹配，
+   而不再检验“官方是否用了 scheduler”。
 7. **冻结 VLM 的 train/eval mode 是次要因素。** 1,000-step A/B 中，eval-mode
    反而比 train-mode 高 `0.00141` PDMS；差异很小且方向不能解释旧本地结果偏低。
 8. **Lightning 版本必须锁定，但不是单独主因。** 官方历史 checkpoint 的四个
@@ -176,9 +181,13 @@ selected 只差 `+0.003236` 且 proposal ceiling 反向变化，不能解释完�
 因此从主因降为必须锁定的运行时条件。
 
 同一 pickle 元数据还证明四个历史 shard 中的 `optimizer_states` 与 `lr_schedulers`
-都被保存为真正的空列表，而不是审计脚本加载失败。因此发布产物无法直接恢复私有
-Stage-2 的 optimizer/scheduler 状态；warmup-cosine 仍是有源码和作者 Stage-1
-训练习惯支持、但必须由完整曲线实测裁决的第二优先级假设，不能写成已知官方事实。
+都被保存为真正的空列表，而不是审计脚本加载失败；因此无法直接恢复 scheduler 类名
+和 LR 数值。关键的新证据保留在未剥离的 loop state：四个 shard 的
+`epoch_loop.scheduler_progress.total.completed` 都是 `174312`，与各自 optimizer
+completed step 完全相同。本地 Lightning 对照证明无 scheduler 时该计数为 0，
+source-cosine 时才逐 step 增长。因此官方逐 step scheduler 的存在已直接确认；
+结合发布源码唯一 scheduler 分支和作者 Stage-1 的 10% warmup-cosine 习惯，当前
+主跑选择该曲线不再只是按参数位移猜测，但精确类型仍需最终性能交叉验证。
 
 四个 shard 的 callback tensor 还分别保存了完全相同的
 `best_model_score=0.951407671`，monitor 名称为 `val/score_epoch`。当前本地 evaluator
@@ -360,8 +369,15 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
 12. **当前 scheduler 实现与发布源码数值等价。** 在锁定的 PyTorch 2.5.1 下，将
     当前 LambdaLR 与原始 `LinearLR(start_factor=1e-6, 10%)` 加
     `CosineAnnealingLR` 在全部 174,312 step 逐点比较，最大 LR 绝对差仅
-    `7.74e-18`。后续完整曲线检验的是私有 launcher 是否启用该 schedule，而不是
-    本地 schedule 实现是否错位。
+    `7.74e-18`。后续完整曲线检验的是私有 scheduler 是否就是该源码曲线及 peak LR，
+    而不是本地 schedule 实现是否错位。
+13. **官方 scheduler presence 已由 loop state 直接取证。** 四个历史 checkpoint
+    shard 都没有 `hyper_parameters`，且 `lr_schedulers=[]`，所以不能恢复类名；但
+    每份都保留 scheduler total ready/completed `174312/174312`，与 optimizer
+    `174312/174312` 一致。相同 Lightning 语义下，本地 constant-LR/no-scheduler
+    checkpoint 是 `0/0`，source-cosine 和当前修正 run 都是每 step 递增。因此
+    “旧训练遗漏官方逐 step scheduler”已确认，剩余问题只是在未公开 launcher 中
+    它是否就是发布源码的 10% warmup-cosine 以及 peak LR 的精确解释。
 
 ## 已排除或降级的因素
 
@@ -517,8 +533,8 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 - `2.5e-4` 的短实验没有明显更优，暂不占用完整曲线资源。
 - Lightning 已由原始 artifact 锁定为 2.2.1；2.2.1/2.5.1 的短对照只用于量化影响。
 - 若 long-2 主跑闭合 proposal ceiling 和 PDMS，则首要根因判为部署 YAML 隐藏了
-  私有训练启用的 long target；若同时闭合公开 checkpoint 更新幅度，则进一步支持
-  私有 launcher 启用了发布源码中存在但 YAML 未启用的 schedule。
+  私有训练启用的 long target。官方逐 step scheduler 已由 loop state 确认；完整
+  曲线与 checkpoint 更新幅度用于判断其是否就是源码 warmup-cosine 及 peak `1e-4`。
 - 若 clip=1 相对同布局 clip=0 明显改善 proposal ceiling，再升级为完整曲线；不能
   用上游 ReCogDrive 默认值直接覆盖 DriveVLA 发布配置。
 - 若 4.37.2 短训练在 proposal ceiling 或公开 checkpoint 更新方向上显著优于
@@ -537,6 +553,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`60 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`62 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。

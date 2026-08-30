@@ -15,9 +15,13 @@ from navsim.planning.training.stage2_reproduction_sampler import (
     ReferenceGlobalBatchDistributedSampler,
 )
 from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
-from local_stage2.audit_stage2_checkpoint_history import _value_opcode_after_key
+from local_stage2.audit_stage2_checkpoint_history import (
+    _unpickle_metadata,
+    _value_opcode_after_key,
+)
 from local_stage2.audit_stage2_long_target_integrity import _heading_deltas
 from local_stage2.audit_stage2_lr_schedule_signature import _relative_lr
+from local_stage2.audit_stage2_scheduler_presence import _loop_progress
 from local_stage2.compare_stage2_proposal_artifacts import (
     _grouped_bootstrap_ci,
 )
@@ -114,6 +118,61 @@ def test_checkpoint_audit_distinguishes_stripped_training_state():
     operations = list(pickletools.genops(payload))
     assert _value_opcode_after_key(operations, "optimizer_states") == "EMPTY_LIST"
     assert _value_opcode_after_key(operations, "lr_schedulers") == "EMPTY_LIST"
+
+
+def test_checkpoint_audit_decodes_loop_progress_without_tensor_storage():
+    checkpoint = {
+        "loops": {
+            "fit_loop": {
+                "epoch_loop.scheduler_progress": {
+                    "total": {"ready": 12, "completed": 12},
+                    "current": {"ready": 4, "completed": 4},
+                },
+                "epoch_loop.automatic_optimization.optim_progress": {
+                    "optimizer": {
+                        "step": {
+                            "total": {"ready": 12, "completed": 12},
+                            "current": {"ready": 4, "completed": 4},
+                        }
+                    }
+                },
+            }
+        }
+    }
+    decoded = _unpickle_metadata(pickle.dumps(checkpoint, protocol=2))
+    progress = decoded["loops"]["fit_loop"]["epoch_loop.scheduler_progress"]
+    assert progress["total"]["completed"] == 12
+
+
+def test_scheduler_presence_audit_reads_lightning_loop_state(tmp_path):
+    path = tmp_path / "checkpoint.ckpt"
+    torch.save(
+        {
+            "global_step": 12,
+            "lr_schedulers": [{"last_epoch": 12}],
+            "loops": {
+                "fit_loop": {
+                    "epoch_loop.scheduler_progress": {
+                        "total": {"ready": 12, "completed": 12},
+                        "current": {"ready": 4, "completed": 4},
+                    },
+                    "epoch_loop.automatic_optimization.optim_progress": {
+                        "optimizer": {
+                            "step": {
+                                "total": {"ready": 12, "completed": 12},
+                                "current": {"ready": 4, "completed": 4},
+                            }
+                        }
+                    },
+                }
+            },
+        },
+        path,
+    )
+    report = _loop_progress(path)
+    assert report["global_step"] == 12
+    assert report["scheduler_progress"]["total"]["completed"] == 12
+    assert report["saved_scheduler_state_count"] == 1
 
 
 def test_generic_stage2_launcher_retains_compatibility_default():
