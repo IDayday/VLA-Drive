@@ -10,6 +10,7 @@ fi
 
 checkpoint_path="$1"
 experiment_name="$2"
+hydra_checkpoint_path="${checkpoint_path//=/\\=}"
 evaluation_root="${DRIVEVLA_STAGE2_RUN_ROOT}/ke/${experiment_name}"
 evaluation_marker="${evaluation_root}/.evaluation_started"
 mkdir -p "${evaluation_root}"
@@ -18,6 +19,7 @@ touch "${evaluation_marker}"
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1,2,3,4,5,6,7}"
 export DRIVEVLA_SCORE_RAY=0
 export INTERNVL_VERBOSE_DYNAMIC_BATCH=0
+STAGE2_EVAL_FLASH_ATTENTION="${STAGE2_EVAL_FLASH_ATTENTION:-false}"
 
 # The synthetic pressure service may reclaim the GPUs between training exit
 # and evaluator initialization. The user authorized stopping this exact task;
@@ -59,7 +61,7 @@ fi
 "${DRIVEVLA_PYTHON}" "${DRIVEVLA_REPO_ROOT}/navsim/planning/script/run_pdm_score_multi_gpu.py" \
   train_test_split=navtest \
   agent=episode_drive \
-  "agent.checkpoint_path=${checkpoint_path}" \
+  "agent.checkpoint_path=${hydra_checkpoint_path}" \
   agent.stage1_checkpoint_path=null \
   "experiment_name=${experiment_name}" \
   load_image_path=true \
@@ -89,7 +91,7 @@ fi
   agent.vlm_config.vlm_type=internvl \
   "agent.vlm_config.vlm_path=${DRIVEVLA_VLM_DIR}" \
   agent.vlm_config.initialize_from_config=true \
-  agent.vlm_config.use_flash_attn=false \
+  "agent.vlm_config.use_flash_attn=${STAGE2_EVAL_FLASH_ATTENTION}" \
   agent.vlm_config.extra_token_count=8 \
   agent.vlm_config.target_vocab_size=151682 \
   agent.lora_config.use_lora=true \

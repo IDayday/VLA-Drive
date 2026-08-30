@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "validation_subset_scenes": 2048,
+  "common_16x1": {
+    "seed": 2,
+    "attention": "eager",
+    "precision": "bf16-mixed",
+    "optimizer_lr": 0.0001,
+    "world_size": 16,
+    "per_rank_batch_size": 1,
+    "train_steps": 1000,
+    "validation_batches": 128
+  },
+  "lightning_2_5_1_16x1": {
+    "selected_pdms": 0.8124804496765137,
+    "best_of_64_pdms": 0.9858019351959229,
+    "scorer_regret": 0.1733214557170868,
+    "collision": 0.957763671875,
+    "ttc": 0.87939453125,
+    "dac": 0.982421875,
+    "progress": 0.7073909640312195,
+    "comfort": 1.0,
+    "selected_l2": 2.3007586002349854
+  },
+  "lightning_2_6_0_16x1": {
+    "selected_pdms": 0.8077927827835083,
+    "best_of_64_pdms": 0.9909622669219971,
+    "scorer_regret": 0.18316948413848877,
+    "collision": 0.962890625,
+    "ttc": 0.8955078125,
+    "dac": 0.9609375,
+    "progress": 0.7048543691635132,
+    "comfort": 1.0,
+    "selected_l2": 1.8720035552978516
+  },
+  "lightning_2_5_1_minus_2_6_0_selected_pdms": 0.004687666893005371,
+  "update_direction_2_5_1_vs_2_6_0": {
+    "effective_action_head_elements": 16277534,
+    "lightning_2_5_1_update_rms": 0.0031865351920284247,
+    "lightning_2_6_0_update_rms": 0.00321391259818911,
+    "norm_ratio": 0.9914815959288653,
+    "cosine_similarity": 0.5681280652146026,
+    "same_sign_fraction": 0.6858290260012743
+  },
+  "interpretation": "Lightning changes the optimization trajectory but the short-run score delta is too small and layout-dependent to explain the completed reproduction gap alone."
+}

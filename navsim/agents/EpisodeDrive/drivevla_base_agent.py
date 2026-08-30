@@ -440,13 +440,31 @@ class DriveVLABaseAgent(AbstractAgent):
                 print(f"  {group}: {trainable:,} / {total:,} trainable")
 
     def train(self, mode: bool = True):
-        """Keep a paper-style frozen Stage-1 VLM in inference mode."""
+        """Apply the configured mode semantics to a frozen Stage-1 VLM.
+
+        Freezing parameters and selecting module train/eval mode are separate
+        operations.  The public deployment code does not override ``train``;
+        under Lightning that leaves dropout active.  Earlier local Stage-2
+        runs forced the frozen VLM into eval mode.  Make the choice explicit so
+        both paths can be audited without changing parameter trainability.
+        """
         super().train(mode)
         if (
             self.backbone is not None
             and bool(getattr(self.vlm_config, "freeze_backbone", False))
         ):
-            self.backbone.eval()
+            frozen_mode = str(
+                getattr(self.vlm_config, "frozen_backbone_mode", "eval")
+            ).lower()
+            if frozen_mode == "eval":
+                self.backbone.eval()
+            elif frozen_mode == "train":
+                self.backbone.train(mode)
+            else:
+                raise ValueError(
+                    "vlm_config.frozen_backbone_mode must be 'eval' or 'train', "
+                    f"got {frozen_mode!r}"
+                )
         return self
         
     def _freeze_backbone_selective(self):
@@ -905,7 +923,16 @@ class DriveVLABaseAgent(AbstractAgent):
         """
         pack all trainable parameters into optimizer
         """
-        global_batchsize = self.batch_size * self.num_gpus
+        configured_effective_batch = self._lr_args.get(
+            "effective_global_batch_size", None
+        )
+        global_batchsize = (
+            int(configured_effective_batch)
+            if configured_effective_batch is not None
+            else self.batch_size * self.num_gpus
+        )
+        if global_batchsize <= 0:
+            raise ValueError("effective global batch size must be positive")
         if self._lr_args["name"] not in {"Adam", "AdamW"}:
             raise NotImplementedError
 
@@ -991,6 +1018,9 @@ class DriveVLABaseAgent(AbstractAgent):
                 group = "other"
             grouped_parameters[group].append((name, param))
 
+        decay_norm_and_bias = bool(
+            self._lr_args.get("decay_norm_and_bias", False)
+        )
         param_groups = []
         for group_name, named_parameters in grouped_parameters.items():
             if not named_parameters:
@@ -998,7 +1028,10 @@ class DriveVLABaseAgent(AbstractAgent):
             decay_parameters = []
             no_decay_parameters = []
             for parameter_name, parameter in named_parameters:
-                if parameter.ndim < 2 or parameter_name.endswith(".bias"):
+                if (
+                    not decay_norm_and_bias
+                    and (parameter.ndim < 2 or parameter_name.endswith(".bias"))
+                ):
                     no_decay_parameters.append(parameter)
                 else:
                     decay_parameters.append(parameter)

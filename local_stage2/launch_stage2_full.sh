@@ -10,6 +10,12 @@ evaluation_experiment="${STAGE2_EVAL_EXPERIMENT:-${experiment}_navtest}"
 train_log="${output_dir}/train.log"
 launcher_state="${output_dir}/launcher_state.env"
 resume_checkpoint="${STAGE2_TRAIN_CKPT:-}"
+train_entrypoint="${STAGE2_TRAIN_ENTRYPOINT:-${script_dir}/train_stage2_full.sh}"
+evaluation_flash_attention="${STAGE2_EVAL_FLASH_ATTENTION:-${STAGE2_FLASH_ATTENTION:-true}}"
+if [[ ! -x "${train_entrypoint}" ]]; then
+  echo "Training entrypoint is not executable: ${train_entrypoint}" >&2
+  exit 1
+fi
 
 if [[ -d "${output_dir}" ]] \
   && [[ -n "$(find "${output_dir}" -mindepth 1 -print -quit 2>/dev/null)" ]] \
@@ -54,7 +60,7 @@ nohup setsid env \
   DRIVEVLA_SCORE_PARTITIONS="${DRIVEVLA_SCORE_PARTITIONS:-8}" \
   DRIVEVLA_TRAIN_LOG_INTERVAL="${DRIVEVLA_TRAIN_LOG_INTERVAL:-10}" \
   DRIVEVLA_TIMING_INTERVAL="${DRIVEVLA_TIMING_INTERVAL:-100}" \
-  "${script_dir}/train_stage2_full.sh" \
+  "${train_entrypoint}" \
   +trainer.params.enable_model_summary=false \
   +trainer.params.log_every_n_steps=10 \
   "$@" >> "${train_log}" 2>&1 < /dev/null &
@@ -97,6 +103,7 @@ nohup setsid env \
   DRIVEVLA_EXPECTED_FINAL_STEP="${DRIVEVLA_EXPECTED_FINAL_STEP:-174312}" \
   DRIVEVLA_EXPECTED_FINAL_EPOCH="${DRIVEVLA_EXPECTED_FINAL_EPOCH:-26}" \
   DRIVEVLA_WATCH_SKIP_EVALUATION="${DRIVEVLA_WATCH_SKIP_EVALUATION:-0}" \
+  STAGE2_EVAL_FLASH_ATTENTION="${evaluation_flash_attention}" \
   DRIVEVLA_TRAINING_DIR="${output_dir}" \
   "${script_dir}/watch_stage2_and_evaluate.sh" \
   "${rank_zero_pid}" "${launcher_pgid}" "${experiment}" \
@@ -116,6 +123,7 @@ fi
   printf 'launcher_sid=%q\n' "${launcher_sid}"
   printf 'rank_zero_pid=%q\n' "${rank_zero_pid}"
   printf 'watcher_pid=%q\n' "${watcher_pid}"
+  printf 'evaluation_flash_attention=%q\n' "${evaluation_flash_attention}"
   printf 'launched_at=%q\n' "$(date -u +%FT%TZ)"
 } > "${launcher_state}"
 

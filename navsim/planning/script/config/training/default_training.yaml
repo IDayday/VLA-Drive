@@ -19,6 +19,10 @@ cache_path: ${oc.env:NAVSIM_EXP_ROOT}/navsim_cache_nommcv
 use_cache_without_dataset: true # load the training samples from the cache. scene-filter will be ignored
 force_cache_computation: false
 pad_datasets_to_global_batch: false # avoids dropping samples when per-rank dataset length is not batch-aligned
+# Reproduce the inferred public 16-GPU x batch-1 shuffle/padding semantics on
+# an equivalent global-batch layout such as 8 GPUs x batch 2.
+official_stage2_sampler: false
+official_stage2_reference_global_batch_size: 16
 preprocess_images_in_workers: false # decode/resize cached image paths in DataLoader workers
 preprocess_image_dtype: bfloat16
 pretokenize_inputs_in_workers: false

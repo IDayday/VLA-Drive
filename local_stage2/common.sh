@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-DRIVEVLA_REPO_ROOT="${DRIVEVLA_REPO_ROOT:-/mnt/project/DriveVLA-M0}"
+script_repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DRIVEVLA_REPO_ROOT="${DRIVEVLA_REPO_ROOT:-${script_repo_root}}"
 DRIVEVLA_PYTHON="${DRIVEVLA_PYTHON:-/mnt/project/DriveVLA-M0-env/bin/python}"
 DRIVEVLA_VLM_DIR="${DRIVEVLA_VLM_DIR:-/mnt/project/DriveVLA-M0-models/InternVL3-2B-modelscope}"
 DRIVEVLA_DINO_FILE="${DRIVEVLA_DINO_FILE:-/mnt/project/external/DrivoR/weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors}"

@@ -36,28 +36,125 @@ global batch 16 yields 6,456 steps per epoch. Training through epoch index 26
 (27 completed epochs) therefore produces exactly 174,312 steps, matching
 `best-epoch_26-step_174312.server_merged.ckpt`.
 
+The completed local run's validation deficit is localized to trajectory
+proposal generation, not proposal ranking. On the same full navtrain
+validation set, the public/local selected PDMS values are 0.951474/0.938030,
+while their best-of-64 ceilings are 0.988530/0.974710. The scorer regrets are
+therefore nearly identical (0.037056/0.036681), and the entire selected-score
+gap is already present before scorer selection. The local checkpoint also has
+lower selected-trajectory L2 despite its worse planning score. Reproduction
+controls must consequently preserve proposal diversity and planning coverage;
+training loss or L2 alone is not a sufficient success criterion.
+
 The paper explicitly reports 16 H20 GPUs for Base Model training, AdamW, and a
 `1e-4` learning rate, but it does not report per-device batch size, global batch
-size, epoch count, precision, or wall-clock time. The public checkpoint name and
-released data path provide a strong reconstruction of the missing schedule:
+size, epoch count, precision, scheduler, warmup, or wall-clock time. The public
+checkpoint name and released data path provide a strong reconstruction of the
+missing run shape:
 
 - released run (inferred): global batch 16; with 16 H20 GPUs this is most likely
   batch 1 per GPU
 - local: 8 GPUs x batch 2
 - global batch: 16
-- optimizer: AdamW, learning rate `1e-4`
+- optimizer: AdamW; the paper reports `1e-4`, but does not say whether this is
+  the pre-scaling `base_lr` field or the actual optimizer-group LR
 - epochs: 27
 - proposals: 64
 
+The released checkpoint also carries an exact initialization fingerprint.
+Because `prev_weight=0` leaves trajectory heads 0--3 untrained, all 5,365,856
+of their values can be compared with fresh `ActionDecoder` initializations. The
+released checkpoint matches seed 2 bit-for-bit; the previous local full run
+matches seed 0 bit-for-bit. `train_stage2_reproduction.sh` therefore defaults to
+seed 2. This is a necessary configuration correction, but a 1,000-step A/B did
+not show a seed-2 quality advantage, so it is not treated as the sole cause.
+
 The repository's generic `default_training.yaml` values (`batch_size=64`,
 `max_epochs=20`, and `devices=1`) do not reproduce the released checkpoint's
-epoch/step pair and are not treated as the original run recipe. Local training
-uses BF16 DDP and FlashAttention 2 for the frozen VLM; the paper does not state
-its precision or attention kernel.
+epoch/step pair and are not treated as the original run recipe. The first local
+full run used BF16 DDP, FlashAttention 2, a permanently eval-mode frozen VLM,
+and dataset padding before distributed shuffling. Those choices reproduce the
+step count but not the released configuration or the standard PyTorch sampling
+semantics. In particular, the released config has `use_flash_attn: false`, while
+the paper does not state precision, frozen-module mode, scheduler, or software
+versions.
 
-The local launcher pads both train and validation datasets to a multiple of the
-global batch. In particular, 103,288 trainval samples become 103,296, preserving
-the paper run's 6,456 optimizer steps per epoch under the local 8 x 2 mapping.
+Use `train_stage2_reproduction.sh` for the controlled reproduction path. It
+defaults to seed 2, eager attention, the released all-parameter AdamW decay
+behavior, and a reference sampler that shuffles the original 103,288 samples
+before appending eight samples. This still cannot be bitwise identical to an
+inferred 16-rank x batch-1 job when run as 8 ranks x batch 2: the global batch
+members match, but action-head dropout masks and floating-point reduction order
+remain rank-layout dependent.
+
+When both the local host and `training-vla-zt2` are available, use
+`launch_stage2_multinode_reproduction.sh`. It locks both nodes to the same
+packed Python/Torch/Lightning environment and launches 16 ranks x batch 1 with
+global batch 16, matching the rank layout inferred from the checkpoint and
+paper. The launcher checks both runtimes and both GPU sets before mutating the
+run directory, uses a shared rendezvous, records both node PIDs, and attaches
+the normal completion/Navtest watcher to global rank zero. A short multi-node
+smoke run must pass before a multi-day run is started.
+
+The multi-node launcher defaults to Lightning 2.6.0. A pre-existing package
+overlay can be selected without modifying the packed Torch runtime. For the
+locked 2.5.1 control used by this audit:
+
+```bash
+STAGE2_LIGHTNING_OVERLAY=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_5_1 \
+STAGE2_REQUIRE_LIGHTNING_VERSION=2.5.1 \
+  ./local_stage2/launch_stage2_multinode_reproduction.sh
+```
+
+The public repository describes itself as a deployment package and does not
+publish the private Stage-2 launcher. Its generic training YAML still points at
+the final Base checkpoint, contains single-device defaults that contradict the
+paper's 16-H20 run, and the released training entrypoint auto-selects the newest
+checkpoint from sibling output directories. These files are valuable code and
+checkpoint compatibility evidence, but together they are not a self-contained
+from-scratch reproduction recipe.
+
+The paper reports `1e-4`, while the released YAML contains `base_lr=5e-4` and
+`base_batch_size=64`. The released optimizer scales those fields by
+`sqrt(effective_global_batch/base_batch)`. This leaves four materially
+different public interpretations: paper value as actual LR (`1e-4`), paper
+value as a pre-scaling field (`5e-5` at global batch 16), untouched YAML fields
+combined with the YAML's declared agent batch metadata (`8.84e-5`), or YAML
+fields combined with the inferred global batch (`2.5e-4`). The private launcher
+that would resolve this ambiguity was not released. The reproduction defaults
+to the conventional reading that the paper reports the actual optimizer LR,
+and every run records the optimizer-group LR rather than inferring it from a
+field name. Constant `5e-5` is a required full-run control, not merely a small
+learning-rate sensitivity test.
+
+The released YAML explicitly uses `scheduler_args: null`, and the paper does
+not mention a scheduler. Keep that directly published behavior with
+`STAGE2_SCHEDULER=none`. However, the released implementation contains a fully
+implemented 10% linear-warmup/cosine branch, and the released action-head
+checkpoint has only about 0.53 times the RMS displacement of the completed
+local constant-`1e-4` run (module-wise ratios are 0.48--0.66). Both constant
+`5e-5` and a peak-`1e-4` cosine schedule have approximately half the integrated
+LR of constant `1e-4`; checkpoint displacement alone cannot distinguish them.
+Because `scheduler_args: null` is direct evidence, the constant-`5e-5` control
+has priority over the undocumented scheduler, while the source-cosine path
+remains the next full-run diagnostic:
+
+```bash
+STAGE2_SCHEDULER=source_cosine \
+  ./local_stage2/launch_stage2_reproduction.sh
+```
+
+`STAGE2_BASE_LR` and `STAGE2_BASE_BATCH_SIZE` are explicit because the optimizer
+scales the configured base LR by the square root of effective/base batch size.
+The launcher logs the actual optimizer-group LR; do not infer it from YAML
+names alone.
+
+The shared path `/mnt/project/DriveVLA-M0-env/bin/python` is a symlink into a
+host-local conda environment. It can therefore resolve to different Python and
+Lightning versions on different servers even though the path text is the
+same. Every launch now prints a `STAGE2_RUNTIME` JSON line. Set
+`STAGE2_REQUIRE_LIGHTNING_VERSION`, for example `2.6.0`, to fail before GPU
+allocation when the runtime does not match the intended ablation.
 
 The log files come from `/mnt/project/DriveDreamer-Policy/navsim_raw`, while
 sensor images default to the complete duplicate at
@@ -71,11 +168,13 @@ Run in order:
 ```bash
 ./local_stage2/cache_full_navtrain.sh
 ./local_stage2/smoke_stage2.sh
-./local_stage2/launch_stage2_full.sh
+./local_stage2/launch_stage2_reproduction.sh
+./local_stage2/launch_stage2_multinode_reproduction.sh
 ./local_stage2/evaluate_checkpoint.sh CHECKPOINT stage2_full_seed0_navtest
 ```
 
-`launch_stage2_full.sh` is the production entrypoint. It starts both training
+`launch_stage2_reproduction.sh` is the controlled production entrypoint and
+delegates lifecycle management to `launch_stage2_full.sh`. It starts training
 and the completion/evaluation watcher under independent `setsid` + `nohup`
 sessions, records their PIDs in `launcher_state.env`, and refuses to reuse a
 nonempty run directory or GPUs owned by unrelated processes. Directly invoking
@@ -106,9 +205,8 @@ kept all 1,005 VLM tensors unchanged while updating the random action head.
 
 Set `STAGE2_TRAIN_CKPT=/absolute/path/to/last.ckpt` to resume an interrupted training run. The scripts intentionally disable heuristic auto-resume so an unrelated checkpoint cannot be loaded silently.
 
-The full launcher keeps the samples, prompts, optimizer steps, losses, and
-floating-point model path unchanged while moving input preparation off the
-critical path:
+The following execution optimizations have been checked independently and can
+remain enabled on the controlled reproduction path:
 
 - four persistent forkserver DataLoader workers per rank decode/resize the nine
   images, cast them to BF16, build the exact prompt, and tokenize ahead of time;
@@ -124,12 +222,41 @@ critical path:
   linked as `last.ckpt`, while a non-best epoch writes a real latest resume
   state and preserves the older best.
 
+Worker preprocessing and pretokenization produce identical hidden-state inputs,
+proposals, predicted scores, and loss on the audited real samples. Sequential,
+full-scene process-pool, and partitioned PDM scoring produce exactly equal
+arrays. Fused validation scoring is also proposal-independent in the local
+training scorer because progress is normalized against the cached PDM progress,
+not against the maximum of the submitted candidate set.
+
+The following earlier changes are not execution-only optimizations and must be
+treated as explicit ablations:
+
+- eager attention to FlashAttention 2 changes BF16 hidden states and gradients;
+- forcing the frozen VLM to stay in `eval()` disables InternViT stochastic depth
+  and LoRA dropout that standard recursive `module.train()` would activate;
+- padding the dataset before `DistributedSampler` shuffles a different index
+  space and changes essentially every optimizer batch; and
+- excluding norm and bias tensors from AdamW decay differs from the released
+  optimizer construction, which decays every trainable action-head tensor.
+
+`train_stage2_full.sh` retains the previous defaults for compatibility and makes
+each of these choices overridable. It should not be described as an exact
+official reproduction. The private Stage-2 launcher was not released, so the
+remaining ambiguous choices require A/B results and multi-seed validation.
+
+The measured diagnosis, including the Flash, seed, learning-rate, and
+checkpoint-displacement evidence, is maintained in
+`reports/stage2_reproduction_diagnosis/STAGE2_REPRODUCTION_DIAGNOSIS.md`.
+
 The repository's older `cache_hidden_state=true` path is intentionally not used
-for this exact reproduction. Besides constructing the feature-builder backbone
-from a different checkpoint path, it caches samples independently while online
-tokenization pads dynamically per batch. The action Q-Former receives the full
-hidden-state sequence without a padding mask, so re-batching independently
-cached states is not numerically equivalent to the released online path.
+for this controlled reproduction. Its feature builder constructs a backbone
+from the base VLM path and does not restore all 1,005 tensors of the post-VQA
+Stage-1 checkpoint, including the 160 LoRA A/B pairs. Both the released online
+path and the worker-tokenized path use a fixed 2,800-token left-padded sequence,
+so re-batching is not itself a dynamic-padding mismatch. A future hidden-state
+cache is acceptable only after its Stage-1 checkpoint loading and online/cache
+tensor equivalence are explicitly verified.
 
 On this machine, the original 8-GPU path took approximately 1.24 seconds per
 optimizer step. The first optimized pipeline measured 0.788--0.814 seconds per
@@ -137,7 +264,9 @@ step over full-run 100-step windows. Increasing the exact scorer pool to 16
 processes and retaining eight partitions per scene measured 0.700, 0.704,
 0.724, and 0.751 seconds per step over the final end-to-end probe windows
 (approximately 0.719 seconds per step on average). This is about 1.72x training
-throughput without changing the global batch or training schedule.
+throughput. The throughput result remains valid, but the completed run combined
+the safe execution changes with the semantic changes listed above and therefore
+does not by itself establish official Stage-2 reproducibility.
 
 The prior `stage2_full_seed0_pipeline_v7` run was attached to a foreground tool
 session and was terminated when that session closed at epoch 0, step 3,649. It

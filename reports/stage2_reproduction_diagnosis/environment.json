@@ -1,0 +1,101 @@
+{
+  "repo": {
+    "path": "/mnt/project/DriveVLA-M0-stage2-repro-fix",
+    "branch": "fix/stage2-official-reproduction",
+    "commit": "6e96cf7321b134c42c2cf0fbbc315cd61c925b11",
+    "status_short": "M local_stage2/README.md\n M local_stage2/common.sh\n M local_stage2/evaluate_checkpoint.sh\n M local_stage2/launch_stage2_full.sh\n M local_stage2/train_stage2_full.sh\n M navsim/agents/EpisodeDrive/drivevla_base_agent.py\n M navsim/planning/script/config/common/agent/episode_drive.yaml\n M navsim/planning/script/config/training/default_training.yaml\n M navsim/planning/script/run_training_full.py\n?? local_stage2/audit_stage2_environment.py\n?? local_stage2/audit_stage2_initialization_fingerprint.py\n?? local_stage2/audit_stage2_numerics.py\n?? local_stage2/audit_stage2_proposal_ceiling.py\n?? local_stage2/audit_stage2_sampler.py\n?? local_stage2/compare_stage2_numerics.py\n?? local_stage2/compare_stage2_update_directions.py\n?? local_stage2/launch_stage2_multinode_reproduction.sh\n?? local_stage2/launch_stage2_reproduction.sh\n?? local_stage2/summarize_stage2_ablation.py\n?? local_stage2/train_stage2_reproduction.sh\n?? navsim/planning/training/stage2_reproduction_sampler.py\n?? reports/stage2_reproduction_diagnosis/\n?? tests/test_stage2_reproduction_controls.py",
+    "remotes": "origin\tgit@github.com:IDayday/VLA-Drive.git (fetch)\norigin\tgit@github.com:IDayday/VLA-Drive.git (push)\nupstream\thttps://github.com/ZebinX/DriveVLA-M0.git (fetch)\nupstream\tDISABLED (push)"
+  },
+  "runtime": {
+    "python": "3.9.25 (main, Nov  3 2025, 22:33:05) \n[GCC 11.2.0]",
+    "executable": "/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python",
+    "executable_resolved": "/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python3.9",
+    "prefix": "/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact",
+    "base_prefix": "/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact",
+    "hostname": "training-vla-zt-worker-0",
+    "platform": "Linux-5.10.0-136.12.0.88.4.ctl3.x86_64-x86_64-with-glibc2.35",
+    "packages": {
+      "torch": "2.5.1+cu124",
+      "torchvision": "0.20.1+cu124",
+      "pytorch_lightning": "2.6.0",
+      "transformers": "4.57.6",
+      "tokenizers": "0.22.2",
+      "peft": "0.17.1",
+      "flash_attn": "2.8.3",
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7",
+      "torchmetrics": "1.8.2",
+      "hydra_core": "1.3.2",
+      "omegaconf": "2.3.0"
+    },
+    "cuda": {
+      "torch_cuda": "12.4",
+      "cudnn": 90100,
+      "available": true,
+      "device_count": 8,
+      "float32_matmul_precision": "highest",
+      "matmul_allow_tf32": false,
+      "cudnn_allow_tf32": true,
+      "nvidia_smi": "0, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n1, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n2, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n3, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n4, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n5, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n6, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB\n7, NVIDIA A800-SXM4-80GB, 595.71.05, 81920 MiB"
+    }
+  },
+  "model_config": {
+    "path": "/mnt/project/DriveVLA-M0-models/InternVL3-2B-modelscope/config.json",
+    "exists": true,
+    "torch_dtype": "bfloat16",
+    "vision_transformers_version": "4.48.3",
+    "language_transformers_version": "4.48.3",
+    "vision_drop_path_rate": 0.1,
+    "vision_dropout": 0.0,
+    "vision_attention_dropout": 0.0,
+    "language_attention_dropout": 0.0
+  },
+  "released_config": {
+    "agent_config": "/mnt/project/DriveVLA-M0-stage2-repro-fix/navsim/planning/script/config/common/agent/episode_drive.yaml",
+    "training_config": "/mnt/project/DriveVLA-M0-stage2-repro-fix/navsim/planning/script/config/training/default_training.yaml",
+    "use_flash_attn": false,
+    "lora_dropout": 0.1,
+    "optimizer": "AdamW",
+    "configured_base_lr": 0.0005,
+    "configured_base_batch_size": 64,
+    "declared_agent_batch_size": 2,
+    "declared_agent_gpu_count": 1,
+    "configured_scheduler": null,
+    "yaml_effective_lr_at_declared_agent_batch": 8.838834764831845e-05,
+    "yaml_effective_lr_at_global_batch_16": 0.00025,
+    "precision": "bf16-mixed"
+  },
+  "checkpoint": {
+    "path": "/mnt/project/DriveVLA-M0-modelscope/best-epoch_26-step_174312.server_merged.ckpt",
+    "exists": true,
+    "size_bytes": 4271779662
+  },
+  "reproduction_evidence": {
+    "checkpoint_epoch_index": 26,
+    "checkpoint_global_step": 174312,
+    "completed_epochs": 27,
+    "derived_steps_per_epoch": 6456,
+    "navtrain_scene_count": 103288,
+    "derived_global_batch_size": 16,
+    "paper_gpu_count": 16,
+    "inferred_per_gpu_batch_size": 1,
+    "paper_reported_base_model_lr": 0.0001,
+    "lr_semantics": {
+      "paper_value_as_actual_optimizer_lr": 0.0001,
+      "paper_value_as_base_lr_through_released_scaling": 5e-05,
+      "released_yaml_with_declared_agent_batch_fields": 8.838834764831845e-05,
+      "released_yaml_with_inferred_global_batch_16": 0.00025
+    },
+    "paper_reported_optimizer": "AdamW",
+    "paper_source": "https://arxiv.org/html/2608.10413v1#A2",
+    "inference_note": "Global/per-GPU batch sizes are inferred from the checkpoint name, scene count, epoch count, and paper GPU count; the private launcher was not released. The paper does not say whether its 1e-4 value is the optimizer-group LR after the released square-root batch scaling or the pre-scaling base_lr configuration value."
+  },
+  "environment_paths": {
+    "NAVSIM_DEVKIT_ROOT": null,
+    "NAVSIM_EXP_ROOT": null,
+    "NUPLAN_MAPS_ROOT": null,
+    "DRIVEVLA_VLM_CONFIG": null,
+    "DRIVEVLA_STAGE1_CHECKPOINT": null
+  }
+}

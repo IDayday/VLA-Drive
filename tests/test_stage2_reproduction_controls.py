@@ -1,0 +1,316 @@
+from types import SimpleNamespace
+
+import pytest
+import torch
+from omegaconf import OmegaConf
+from torch.utils.data import TensorDataset
+
+from navsim.agents.EpisodeDrive.drivevla_base_agent import DriveVLABaseAgent
+from navsim.planning.training.stage2_reproduction_sampler import (
+    ReferenceGlobalBatchDistributedSampler,
+)
+from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
+
+
+def _bare_agent(frozen_backbone_mode="eval"):
+    agent = DriveVLABaseAgent.__new__(DriveVLABaseAgent)
+    torch.nn.Module.__init__(agent)
+    agent.backbone = torch.nn.Sequential(torch.nn.Dropout(p=0.5))
+    agent.action_head = torch.nn.Sequential(
+        torch.nn.Linear(4, 4),
+        torch.nn.LayerNorm(4),
+    )
+    agent.vlm_config = SimpleNamespace(
+        freeze_backbone=True,
+        frozen_backbone_mode=frozen_backbone_mode,
+    )
+    agent.batch_size = 2
+    agent.num_gpus = 8
+    agent.scheduler_args = None
+    return agent
+
+
+def test_frozen_backbone_eval_mode_is_explicit():
+    agent = _bare_agent("eval")
+    agent.train(True)
+    assert agent.action_head.training
+    assert not agent.backbone.training
+    assert all(parameter.requires_grad for parameter in agent.action_head.parameters())
+
+
+def test_frozen_backbone_train_mode_reproduces_module_semantics():
+    agent = _bare_agent("train")
+    for parameter in agent.backbone.parameters():
+        parameter.requires_grad = False
+    agent.train(True)
+    assert agent.action_head.training
+    assert agent.backbone.training
+    assert not any(parameter.requires_grad for parameter in agent.backbone.parameters())
+
+
+def test_invalid_frozen_backbone_mode_fails_closed():
+    agent = _bare_agent("ambiguous")
+    with pytest.raises(ValueError, match="frozen_backbone_mode"):
+        agent.train(True)
+
+
+@pytest.mark.parametrize(
+    ("decay_norm_and_bias", "expected_groups", "expected_zero_decay_groups"),
+    [(False, 2, 1), (True, 1, 0)],
+)
+def test_optimizer_decay_semantics_are_selectable(
+    decay_norm_and_bias, expected_groups, expected_zero_decay_groups
+):
+    agent = _bare_agent()
+    for parameter in agent.backbone.parameters():
+        parameter.requires_grad = False
+    agent._lr_args = {
+        "name": "AdamW",
+        "base_lr": 1e-4,
+        "base_batch_size": 16,
+        "decay_norm_and_bias": decay_norm_and_bias,
+    }
+    optimizer = agent.get_optimizers()[0]
+    assert len(optimizer.param_groups) == expected_groups
+    assert sum(group["weight_decay"] == 0 for group in optimizer.param_groups) == (
+        expected_zero_decay_groups
+    )
+    optimized = {
+        id(parameter)
+        for group in optimizer.param_groups
+        for parameter in group["params"]
+    }
+    expected = {
+        id(parameter)
+        for parameter in agent.action_head.parameters()
+        if parameter.requires_grad
+    }
+    assert optimized == expected
+
+
+@pytest.mark.parametrize(
+    ("base_lr", "base_batch_size", "effective_batch_size", "expected_lr"),
+    [
+        (1e-4, 16, 16, 1e-4),
+        (1e-4, 64, 16, 5e-5),
+        (5e-4, 64, 16, 2.5e-4),
+        (5e-4, 64, 2, 5e-4 * (2 / 64) ** 0.5),
+    ],
+)
+def test_optimizer_effective_learning_rate_is_explicit(
+    base_lr, base_batch_size, effective_batch_size, expected_lr
+):
+    agent = _bare_agent()
+    for parameter in agent.backbone.parameters():
+        parameter.requires_grad = False
+    agent._lr_args = {
+        "name": "AdamW",
+        "base_lr": base_lr,
+        "base_batch_size": base_batch_size,
+        "effective_global_batch_size": effective_batch_size,
+        "decay_norm_and_bias": True,
+    }
+    optimizer = agent.get_optimizers()[0]
+    assert all(
+        group["lr"] == pytest.approx(expected_lr)
+        for group in optimizer.param_groups
+    )
+
+
+def test_source_cosine_schedule_reaches_peak_then_zero():
+    agent = _bare_agent()
+    for parameter in agent.backbone.parameters():
+        parameter.requires_grad = False
+    agent._lr_args = {
+        "name": "AdamW",
+        "base_lr": 1e-4,
+        "base_batch_size": 16,
+        "effective_global_batch_size": 16,
+        "decay_norm_and_bias": True,
+    }
+    agent.scheduler_args = OmegaConf.create(
+        {
+            "dataset_size": 160,
+            "num_epochs": 2,
+            "warmup_ratio": 0.1,
+            "min_lr_ratio": 0.0,
+            "action_head_min_lr_ratio": 0.0,
+            "vlm_min_lr_ratio": 0.0,
+            "start_lr_ratio": 1e-6,
+        }
+    )
+    optimizers, scheduler_configs = agent.get_optimizers()
+    optimizer = optimizers[0]
+    scheduler = scheduler_configs[0]["scheduler"]
+    assert scheduler.get_last_lr()[0] == pytest.approx(1e-10)
+    for _ in range(2):
+        optimizer.step()
+        scheduler.step()
+    assert scheduler.get_last_lr()[0] == pytest.approx(1e-4)
+    for _ in range(18):
+        optimizer.step()
+        scheduler.step()
+    assert scheduler.get_last_lr()[0] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_source_cosine_matches_released_sequential_lr_inside_horizon():
+    """The LambdaLR rewrite must preserve the released dormant branch."""
+    agent = _bare_agent()
+    for parameter in agent.backbone.parameters():
+        parameter.requires_grad = False
+    agent._lr_args = {
+        "name": "AdamW",
+        "base_lr": 1e-4,
+        "base_batch_size": 16,
+        "effective_global_batch_size": 16,
+        "decay_norm_and_bias": True,
+    }
+    agent.scheduler_args = OmegaConf.create(
+        {
+            "dataset_size": 160,
+            "num_epochs": 2,
+            "warmup_ratio": 0.1,
+            "min_lr_ratio": 0.0,
+            "action_head_min_lr_ratio": 0.0,
+            "vlm_min_lr_ratio": 0.0,
+            "start_lr_ratio": 1e-6,
+        }
+    )
+    optimizers, scheduler_configs = agent.get_optimizers()
+    optimizer = optimizers[0]
+    scheduler = scheduler_configs[0]["scheduler"]
+
+    released_parameter = torch.nn.Parameter(torch.ones(()))
+    released_optimizer = torch.optim.AdamW(
+        [released_parameter], lr=1e-4
+    )
+    released_warmup = torch.optim.lr_scheduler.LinearLR(
+        released_optimizer, start_factor=1e-6, total_iters=2
+    )
+    released_cosine = torch.optim.lr_scheduler.CosineAnnealingLR(
+        released_optimizer, T_max=18, eta_min=0.0, last_epoch=-1
+    )
+    released_scheduler = torch.optim.lr_scheduler.SequentialLR(
+        released_optimizer,
+        schedulers=[released_warmup, released_cosine],
+        milestones=[2],
+    )
+
+    assert scheduler.get_last_lr()[0] == pytest.approx(
+        released_scheduler.get_last_lr()[0]
+    )
+    for _ in range(20):
+        optimizer.step()
+        scheduler.step()
+        released_optimizer.step()
+        released_scheduler.step()
+        assert scheduler.get_last_lr()[0] == pytest.approx(
+            released_scheduler.get_last_lr()[0], abs=1e-12
+        )
+
+
+def _global_batches(
+    dataset_size,
+    world_size,
+    local_batch,
+    epoch,
+    shuffle=True,
+    gradient_accumulation_steps=1,
+):
+    dataset = TensorDataset(torch.arange(dataset_size))
+    rank_sequences = []
+    for rank in range(world_size):
+        sampler = ReferenceGlobalBatchDistributedSampler(
+            dataset,
+            num_replicas=world_size,
+            rank=rank,
+            per_rank_batch_size=local_batch,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            reference_global_batch_size=16,
+            shuffle=shuffle,
+            seed=0,
+        )
+        sampler.set_epoch(epoch)
+        sequence = list(sampler)
+        samples_per_optimizer_step = local_batch * gradient_accumulation_steps
+        rank_sequences.append([
+            sequence[offset : offset + samples_per_optimizer_step]
+            for offset in range(0, len(sequence), samples_per_optimizer_step)
+        ])
+    return [
+        [item for rank in rank_sequences for item in rank[step]]
+        for step in range(len(rank_sequences[0]))
+    ]
+
+
+@pytest.mark.parametrize(("world_size", "local_batch"), [(16, 1), (8, 2), (4, 4)])
+def test_reference_sampler_has_expected_shape(world_size, local_batch):
+    batches = _global_batches(103_288, world_size, local_batch, epoch=0)
+    assert len(batches) == 6_456
+    assert all(len(batch) == 16 for batch in batches)
+
+
+def test_eight_by_two_replays_sixteen_by_one_exactly():
+    for epoch in (0, 1, 26):
+        reference = _global_batches(103_288, 16, 1, epoch)
+        reproduced = _global_batches(103_288, 8, 2, epoch)
+        assert [sorted(batch) for batch in reproduced] == [
+            sorted(batch) for batch in reference
+        ]
+
+
+def test_eight_by_one_accumulate_two_replays_sixteen_by_one_exactly():
+    for epoch in (0, 1, 26):
+        reference = _global_batches(103_288, 16, 1, epoch)
+        reproduced = _global_batches(
+            103_288,
+            8,
+            1,
+            epoch,
+            gradient_accumulation_steps=2,
+        )
+        assert [sorted(batch) for batch in reproduced] == [
+            sorted(batch) for batch in reference
+        ]
+
+
+def test_reference_sampler_pads_after_shuffle():
+    batches = _global_batches(103_288, 16, 1, epoch=0)
+    flat = [item for batch in batches for item in batch]
+    generator = torch.Generator().manual_seed(0)
+    permutation = torch.randperm(103_288, generator=generator).tolist()
+    assert flat == permutation + permutation[:8]
+
+
+def test_reference_sampler_validation_order_is_stable():
+    batches = _global_batches(18_179, 8, 2, epoch=7, shuffle=False)
+    flat = [item for batch in batches for item in batch]
+    assert sorted(flat) == sorted(list(range(18_179)) + list(range(13)))
+    assert [sorted(batch) for batch in batches] == [
+        sorted(
+            list(range(offset, min(offset + 16, 18_179)))
+            + list(range(max(0, offset + 16 - 18_179)))
+        )
+        for offset in range(0, 18_192, 16)
+    ]
+
+
+def test_reference_sampler_rejects_global_batch_mismatch():
+    dataset = TensorDataset(torch.arange(32))
+    with pytest.raises(ValueError, match="Current effective global batch"):
+        ReferenceGlobalBatchDistributedSampler(
+            dataset,
+            num_replicas=8,
+            rank=0,
+            per_rank_batch_size=1,
+            reference_global_batch_size=16,
+        )
+
+
+def test_legacy_prepad_changes_the_complete_training_order():
+    report = audit_sampler_order(103_288, 16, 0)
+    assert report["padding_samples"] == 8
+    assert report["optimizer_steps"] == 6_456
+    assert report["exact_same_global_batch_count"] == 0
+    assert report["same_position_fraction"] < 0.001
+    assert report["mean_batch_member_overlap_fraction"] < 0.001

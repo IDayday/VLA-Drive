@@ -24,6 +24,9 @@ from navsim.planning.training.dataset import (
     drivevla_cached_collate,
 )
 from navsim.planning.training.agent_lightning_module import AgentLightningModule
+from navsim.planning.training.stage2_reproduction_sampler import (
+    ReferenceGlobalBatchDistributedSampler,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -157,6 +160,24 @@ def _configured_global_batch_size(cfg: DictConfig) -> int:
     num_nodes = int(cfg.trainer.params.get("num_nodes", 1))
     per_device_batch = int(cfg.dataloader.params.batch_size)
     return devices * num_nodes * per_device_batch
+
+
+def _configured_distributed_rank(cfg: DictConfig) -> Tuple[int, int]:
+    """Resolve rank layout before Lightning constructs its Trainer."""
+    devices = cfg.trainer.params.devices
+    if not isinstance(devices, int) or devices <= 0:
+        raise ValueError(
+            "official_stage2_sampler requires trainer.params.devices to be a "
+            "positive integer"
+        )
+    num_nodes = int(cfg.trainer.params.get("num_nodes", 1))
+    local_rank = int(os.getenv("LOCAL_RANK", "0"))
+    node_rank = int(os.getenv("NODE_RANK", "0"))
+    world_size = devices * num_nodes
+    rank = node_rank * devices + local_rank
+    if not 0 <= rank < world_size:
+        raise ValueError(f"Resolved rank {rank} outside world size {world_size}")
+    return rank, world_size
 
 def dist_ready():
     return dist.is_available() and dist.is_initialized()
@@ -306,6 +327,14 @@ def main(cfg: DictConfig) -> None:
         logger.info("Building SceneLoader")
         train_data, val_data = build_datasets(cfg, agent)
 
+    official_stage2_sampler = bool(cfg.get("official_stage2_sampler", False))
+    if official_stage2_sampler and bool(
+        cfg.get("pad_datasets_to_global_batch", False)
+    ):
+        raise ValueError(
+            "official_stage2_sampler pads the shuffled permutation itself; "
+            "pad_datasets_to_global_batch must be false"
+        )
     if bool(cfg.get("pad_datasets_to_global_batch", False)):
         global_batch_size = _configured_global_batch_size(cfg)
         train_data = _pad_dataset_to_multiple(train_data, global_batch_size, "train")
@@ -318,11 +347,55 @@ def main(cfg: DictConfig) -> None:
         and bool(cfg.get("preprocess_images_in_workers", False))
         else None
     )
+    train_sampler = None
+    val_sampler = None
+    if official_stage2_sampler:
+        rank, world_size = _configured_distributed_rank(cfg)
+        per_rank_batch_size = int(cfg.dataloader.params.batch_size)
+        gradient_accumulation_steps = int(
+            cfg.trainer.params.get("accumulate_grad_batches", 1)
+        )
+        reference_global_batch_size = int(
+            cfg.get("official_stage2_reference_global_batch_size", 16)
+        )
+        train_sampler = ReferenceGlobalBatchDistributedSampler(
+            train_data,
+            num_replicas=world_size,
+            rank=rank,
+            per_rank_batch_size=per_rank_batch_size,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            reference_global_batch_size=reference_global_batch_size,
+            shuffle=True,
+            seed=int(cfg.seed),
+        )
+        val_sampler = ReferenceGlobalBatchDistributedSampler(
+            val_data,
+            num_replicas=world_size,
+            rank=rank,
+            per_rank_batch_size=per_rank_batch_size,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            reference_global_batch_size=reference_global_batch_size,
+            shuffle=False,
+            seed=int(cfg.seed),
+        )
+        logger.info(
+            "Using reference Stage-2 sampler: rank=%d/%d, local_batch=%d, "
+            "gradient_accumulation=%d, reference_global_batch=%d, "
+            "train_global_steps=%d",
+            rank,
+            world_size,
+            per_rank_batch_size,
+            gradient_accumulation_steps,
+            reference_global_batch_size,
+            train_sampler.num_global_batches,
+        )
+
     train_dataloader = DataLoader(
         train_data,
         **cfg.dataloader.params,
-        shuffle=True,
-        drop_last=True,
+        shuffle=train_sampler is None,
+        sampler=train_sampler,
+        drop_last=train_sampler is None,
         collate_fn=collate_fn,
     )
     logger.info("Num training samples: %d", len(train_data))
@@ -330,7 +403,8 @@ def main(cfg: DictConfig) -> None:
         val_data,
         **cfg.dataloader.params,
         shuffle=False,
-        drop_last=True,
+        sampler=val_sampler,
+        drop_last=val_sampler is None,
         collate_fn=collate_fn,
     )
     logger.info("Num validation samples: %d", len(val_data))
@@ -358,7 +432,12 @@ def main(cfg: DictConfig) -> None:
         cfg.train_ckpt_path = find_latest_checkpoint(search_pattern)
         print("cfg.train_ckpt_path ", cfg.train_ckpt_path)
 
-    trainer = pl.Trainer(**cfg.trainer.params, callbacks=agent.get_training_callbacks())
+    trainer_params = dict(cfg.trainer.params)
+    if official_stage2_sampler:
+        # Lightning must not replace the sampler above with one based on the
+        # current (8x2) layout.
+        trainer_params["use_distributed_sampler"] = False
+    trainer = pl.Trainer(**trainer_params, callbacks=agent.get_training_callbacks())
 
     if cfg.validation_run:
         logger.info("Starting Validation")

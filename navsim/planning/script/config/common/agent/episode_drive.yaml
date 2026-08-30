@@ -12,6 +12,10 @@ vlm_config:
   cache_mode: false
   cache_hidden_state: false
   freeze_backbone: true
+  # ``eval`` keeps a frozen VLM deterministic. ``train`` reproduces the
+  # standard Lightning/module.train() semantics of the released implementation
+  # and therefore leaves dropout active even though parameters are frozen.
+  frozen_backbone_mode: eval
   trainable_layers: [language_model, merger]
   initialize_from_config: true
   use_flash_attn: false
@@ -104,6 +108,12 @@ lr_args:
   base_lr: 5e-4
   base_batch_size: 64
   scale_with_batch_size: true
+  # Optional override for gradient accumulation or multi-node launchers.
+  effective_global_batch_size: null
+  # The released optimizer applies weight decay to every action-head tensor.
+  # Keep the current fork's no-decay convention by default, but expose the
+  # released behavior for controlled reproduction experiments.
+  decay_norm_and_bias: false
 
 scheduler_args: null
 batch_size: 2
