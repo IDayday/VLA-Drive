@@ -643,6 +643,26 @@ def test_official_stage2_target_is_no_memory_base_not_retrieval_score():
     assert "approximately 0.910" in result["conclusion"]
 
 
+def test_corrected_long2_epoch1_retains_proposal_ceiling_during_warmup():
+    result = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/corrected_long2_early_curve.json"
+        ).read_text()
+    )
+    epoch0, epoch1 = result["curve"]
+    public = result["references"]["public_final"]
+    old_epoch1 = result["references"]["old_failed_epoch1"]
+
+    assert epoch1["global_step"] == 12_912
+    assert epoch1["selected_pdms"] > epoch0["selected_pdms"]
+    assert epoch1["regret"] < epoch0["regret"]
+    assert result["epoch1_relative_regret_reduction"] > 0.40
+    assert epoch1["best_of_64_pdms"] > old_epoch1["best_of_64_pdms"]
+    assert epoch1["l2"] < public["l2"]
+    assert epoch1["selected_pdms"] < public["selected_pdms"]
+
+
 def test_reproduction_scheduler_matches_released_schedule_numerically():
     result = json.loads(
         (

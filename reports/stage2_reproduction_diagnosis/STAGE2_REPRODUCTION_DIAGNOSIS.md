@@ -395,6 +395,16 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     checkpoint 是 `0/0`，source-cosine 和当前修正 run 都是每 step 递增。因此
     “旧训练遗漏官方逐 step scheduler”已确认，剩余问题只是在未公开 launcher 中
     它是否就是发布源码的 10% warmup-cosine 以及 peak LR 的精确解释。
+14. **修正版 epoch 1 仍维持高 proposal ceiling，scorer 正在 warmup 中收敛。**
+    在完整 18,179-scene validation 上，selected 从 epoch 0 的 `0.767152`
+    提高到 `0.855873`，regret 从 `0.220083` 降到 `0.129305`，相对下降
+    `41.25%`；L2 从 `1.059989` 降到 `0.549403`。best-of-64 从 `0.987236`
+    小幅变为 `0.985178`，仍比旧失败训练 epoch 1 的 `0.979800` 高
+    `0.005378`，也高于旧训练全程峰值 `0.983240`。这说明 long-2 的改善没有在
+    第二个 validation point 消失，但 selected 仍比公开最终值低 `0.095601`，不能
+    提前宣称复现。epoch 1 结束时 scheduler 仍未走完 17,431-step warmup；跨过
+    peak LR 的 epoch 2 才是第一个决定性优化曲线检查点。逐字段结果保存在
+    `corrected_long2_early_curve.json`。
 
 ## 已排除或降级的因素
 
@@ -570,6 +580,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`65 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`66 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。

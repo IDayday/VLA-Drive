@@ -1,0 +1,91 @@
+{
+  "experiment": "stage2_official_pl221_tf448_eager_seed2_long2_source_cosine_16x1",
+  "validation_scene_count": 18179,
+  "curve": [
+    {
+      "epoch": 0,
+      "global_step": 6456,
+      "selected_pdms": 0.7671523094177246,
+      "best_of_64_pdms": 0.9872355461120605,
+      "regret": 0.22008322179317474,
+      "l2": 1.0599889755249023,
+      "collision": 0.9865875244140625,
+      "dac": 0.8842348456382751,
+      "progress": 0.6456499099731445,
+      "ttc": 0.9556947946548462,
+      "comfort": 0.9998350739479065
+    },
+    {
+      "epoch": 1,
+      "global_step": 12912,
+      "selected_pdms": 0.8558729887008667,
+      "best_of_64_pdms": 0.985177755355835,
+      "regret": 0.12930472195148468,
+      "l2": 0.5494028925895691,
+      "collision": 0.9879067540168762,
+      "dac": 0.9378297924995422,
+      "progress": 0.786401629447937,
+      "ttc": 0.9554199576377869,
+      "comfort": 0.9996151924133301
+    }
+  ],
+  "epoch1_minus_epoch0": {
+    "selected_pdms": 0.08872067928314209,
+    "best_of_64_pdms": -0.002057790756225586,
+    "regret": -0.09077849984169006,
+    "l2": -0.5105860829353333,
+    "collision": 0.0013192296028137207,
+    "dac": 0.05359494686126709,
+    "progress": 0.14075171947479248,
+    "ttc": -0.00027483701705932617,
+    "comfort": -0.00021988153457641602
+  },
+  "epoch1_relative_regret_reduction": 0.4124735138919404,
+  "epoch1_vs_public_final": {
+    "selected_pdms": -0.09560078382492065,
+    "best_of_64_pdms": -0.003352344036102295,
+    "regret": 0.09224849194288254,
+    "l2": -0.015982449054718018,
+    "collision": -0.010883927345275879,
+    "dac": -0.0515061616897583,
+    "progress": -0.1211620569229126,
+    "ttc": -0.035455167293548584,
+    "comfort": -0.0001099705696105957
+  },
+  "epoch1_vs_old_failed_epoch1": {
+    "selected_pdms": -0.028949856758117676,
+    "best_of_64_pdms": 0.005377531051635742,
+    "regret": 0.034327149391174316,
+    "l2": -0.13505780696868896,
+    "collision": -0.004974722862243652,
+    "dac": -0.03089272975921631,
+    "progress": -0.009050905704498291,
+    "ttc": -0.018249809741973877,
+    "comfort": -0.0003298521041870117
+  },
+  "references": {
+    "public_final": {
+      "selected_pdms": 0.9514737725257874,
+      "best_of_64_pdms": 0.9885300993919373,
+      "regret": 0.03705623000860214,
+      "l2": 0.5653853416442871,
+      "collision": 0.9987906813621521,
+      "dac": 0.9893359541893005,
+      "progress": 0.9075636863708496,
+      "ttc": 0.9908751249313354,
+      "comfort": 0.9997251629829407
+    },
+    "old_failed_epoch1": {
+      "selected_pdms": 0.8848228454589844,
+      "best_of_64_pdms": 0.9798002243041992,
+      "regret": 0.09497757256031036,
+      "l2": 0.6844606995582581,
+      "collision": 0.9928814768791199,
+      "ttc": 0.9736697673797607,
+      "dac": 0.9687225222587585,
+      "progress": 0.7954525351524353,
+      "comfort": 0.9999450445175171
+    }
+  },
+  "interpretation": "At epoch 1 the corrected run remains inside warmup. Its proposal ceiling remains above the old failed run while scorer regret falls substantially; epoch 2, which crosses the warmup boundary, is the first decisive optimizer-curve checkpoint."
+}
