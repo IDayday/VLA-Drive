@@ -33,6 +33,10 @@ from local_stage2.audit_stage2_public_runtime import (
     _stratified_samples,
 )
 from local_stage2.snapshot_validation_milestone import _snapshot
+from local_stage2.audit_long_target_candidate_specialization import (
+    candidate_l1,
+    specialization_vectors,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -154,6 +158,25 @@ def test_long_target_loss_uses_an_independent_candidate_minimum():
     ]
 
     assert long_term_minima
+
+
+def test_long_target_specialization_uses_two_candidate_modes():
+    standard_target = torch.zeros(1, 2, 3)
+    long_target = torch.zeros(1, 2, 3)
+    long_target[..., 0] = 4.0
+    proposals = torch.zeros(1, 3, 2, 3)
+    proposals[:, 1, :, 0] = 4.0
+    proposals[:, 2, :, 0] = 2.0
+
+    distances = candidate_l1(proposals, standard_target)
+    assert distances.tolist() == [[0.0, 4.0, 2.0]]
+
+    metrics = specialization_vectors(proposals, standard_target, long_target)
+    assert metrics["distinct_argmin"].item() == 1.0
+    assert metrics["independent_two_min_loss"].item() == 0.0
+    assert metrics["single_candidate_compromise_loss"].item() == 4.0
+    assert metrics["specialization_advantage"].item() == 4.0
+    assert metrics["mode_endpoint_distance_m"].item() == 4.0
 
 
 def test_long_target_integrity_audit_wraps_heading_deltas():

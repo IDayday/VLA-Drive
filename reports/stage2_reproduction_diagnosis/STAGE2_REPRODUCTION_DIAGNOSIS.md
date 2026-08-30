@@ -56,6 +56,19 @@ Navtest 是否完全闭合仍由正在运行的 27-epoch 曲线裁决。
    轨迹同时拟合二者。模型推理仍输出 8 点/4 秒，PDM score target 也不变。该机制
    直接解释了为什么主要改善 best-of-64 proposal coverage，精确映射见
    `long_target_mechanism.json`。
+
+   同 token、同 runtime 的 step-1000 proposal A/B 进一步验证了这一机制确实出现在
+   模型输出中，而不只存在于源码解释里。128 个场景分别来自 128 条日志；4 秒 target
+   与 long target 的平均末点间隔为 `5.497 m`。相对 no-long，long-2 将最接近 long
+   target 的候选 L1 降低 `0.249`（日志级 bootstrap 95% CI
+   `[-0.449,-0.056]`），同时将“4 秒最近候选”和“long 最近候选”的末点距离增加
+   `0.718 m`（CI `[+0.333,+1.092]`），long 模式的末端行程增加 `1.151 m`
+   （CI `[+0.779,+1.512]`），而 4 秒 target 最优 L1 没有显著变化
+   （`+0.013`，CI `[-0.123,+0.139]`）。两组模型中两个 argmin 本来就常常不同
+   （`88.28%` 与 `87.50%`），因此关键证据不是“不同 argmin 比例”，而是两模式的
+   几何分离与 long-target 拟合同步增强。可复现明细见
+   `long_target_candidate_specialization.json` 和
+   `local_stage2/audit_long_target_candidate_specialization.py`。
 2. **Flash Attention：确定的有害训练语义改动，已修正为 eager。**
 3. **逐 step LR scheduler：已由官方 checkpoint loop state 直接确认存在。** 四个
    历史 shard 的 scheduler progress 均为 `174312/174312`；精确类型虽被剥离，
