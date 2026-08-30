@@ -73,7 +73,7 @@ def test_multinode_launcher_locks_transformers_on_both_nodes():
     assert "import transformers" in trainer
 
 
-def test_rl_zt3_tf437_control_is_bounded_and_uses_authorized_gpus():
+def test_rl_zt3_priority_controls_are_bounded_matched_and_use_authorized_gpus():
     launcher = (
         REPO_ROOT
         / "local_stage2/watch_rl_zt3_and_launch_tf437_control.sh"
@@ -84,6 +84,21 @@ def test_rl_zt3_tf437_control_is_bounded_and_uses_authorized_gpus():
     assert "STAGE2_ACCUMULATE_GRAD_BATCHES=4" in launcher
     assert "STAGE2_EFFECTIVE_GLOBAL_BATCH_SIZE=16" in launcher
     assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.37.2" in launcher
+    assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.48.3" in launcher
+    assert '"peft": "0.10.0"' in launcher
+    assert "stage2_source_cosine_seed2_tf448_peft010_4x1_acc4_step1000_rlzt3" in launcher
+    assert "stage2_source_cosine_seed2_tf448_peft010_clip1_4x1_acc4_step1000_rlzt3" in launcher
+    assert '"trainer.params.gradient_clip_val=${gradient_clip_val}"' in launcher
+    assert (
+        "launch_tf448_control \\\n"
+        "  stage2_source_cosine_seed2_tf448_peft010_4x1_acc4_step1000_rlzt3 0.0"
+        in launcher
+    )
+    assert (
+        "launch_tf448_control \\\n"
+        "  stage2_source_cosine_seed2_tf448_peft010_clip1_4x1_acc4_step1000_rlzt3 1.0"
+        in launcher
+    )
     assert "trainer.params.limit_train_batches=4000" in launcher
     assert "trainer.params.max_epochs=1" in launcher
 

@@ -6,6 +6,13 @@
     "source_tokenizers_pin": "0.15.1",
     "training_args": {
       "precision": "bf16",
+      "fp16": false,
+      "tf32": null,
+      "optimizer": "adamw_torch",
+      "adam_betas": [0.9, 0.999],
+      "adam_epsilon": 1e-08,
+      "weight_decay": 0.05,
+      "max_grad_norm": 1.0,
       "lr_scheduler": "cosine",
       "warmup_ratio": 0.1,
       "world_size": 24,
@@ -13,6 +20,17 @@
       "gradient_accumulation": 16
     }
   },
+  "gradient_clipping_evidence": {
+    "drivevla_released_gradient_clip_val": 0.0,
+    "recogdrive_released_gradient_clip_val": 1.0,
+    "fixed_real_batch_unclipped_action_head_global_norm": 703.660451673959,
+    "priority": "AFTER_SCHEDULER_AND_MATCHED_TRANSFORMERS_CONTROL"
+  },
+  "rl_zt3_control_queue": [
+    "transformers_4.37.2_peft_0.10.0_clip_0",
+    "transformers_4.48.3_peft_0.10.0_clip_0",
+    "transformers_4.48.3_peft_0.10.0_clip_1"
+  ],
   "runtime_stacks": {
     "candidate_old": {
       "torch": "2.5.1+cu124",

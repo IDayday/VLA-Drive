@@ -89,6 +89,12 @@
    主要分叉来自 Qwen2 Transformers 实现而不是 PEFT 包装。原始 InternVL 配置记录
    4.48.3，而 Stage-1 训练产物记录 4.37.2；两条证据冲突，因此正在运行的 4.48.3
    全曲线不会被提前停掉，同时把 4.37.2 训练对照提升为 scheduler 之后的首要实验。
+10. **梯度裁剪是新识别出的高影响、但公开证据较弱的候选。** DriveVLA 发布配置明确
+    设置 `gradient_clip_val=0.0`，而其上游 ReCogDrive 的 Stage-2 默认值和真实
+    Stage-1 `training_args.bin` 都是 `1.0`。固定真实批次上，action-head 未裁剪
+    全局梯度范数约为 `703.66`，所以 clip=1 并非空操作。不过 AdamW 对统一梯度缩放
+    近似尺度不变，而且 DriveVLA 自身的显式配置优先级高于上游习惯；因此它排在
+    scheduler 和 Transformers 匹配对照之后，不会替代当前主跑。
 
 因此，现阶段最严格的表述是：**旧本地训练不是官方 Stage-2 的等价复现。
 它的最终分数损失主要来自 proposal bank 上界下降；Flash Attention 是已确认的
@@ -154,6 +160,11 @@ Transformers/Lightning 运行时及 H20/A800 数值路径。** sample 顺序已�
    代替训练对照。已为用户授权的 rl-zt3 GPU 3/5/6/7 部署等待器；服务恢复后将以
    4 rank × batch 1 × accumulation 4 重放相同 global batch 16，运行 1,000-step
    4.37.2/PEFT 0.10.0 对照。
+7. **rl-zt3 对照已改为严格匹配的顺序队列。** 4×1×acc4 虽重放相同全局样本，
+   但每 rank 的 dropout/RNG 流与 16×1 不同，不能把单个 4.37 结果直接和主跑归因。
+   队列因此依次执行 `TF4.37/PEFT0.10/clip0`、
+   `TF4.48/PEFT0.10/clip0`、`TF4.48/PEFT0.10/clip1`，三次使用相同布局、seed、
+   cosine schedule 和验证子集。前两次只归因 Transformers，后两次只归因梯度裁剪。
 
 ## 已排除或降级的因素
 
@@ -169,7 +180,8 @@ Transformers/Lightning 运行时及 H20/A800 数值路径。** sample 顺序已�
 | PDM 监督/cache 代码版本 | 103,288/103,288 cache 完整；`train_pdm_scorer.py`、MetricCache、PDMSimulator 核心源码与 `upstream/main` 相同，当前改动只做任务切分和只读实例复用 | 未发现本地语义漂移；作者私有 cache 本身不可直接比对 |
 | loss/head 权重 | 六个公开 score head 均被训练；公开/本地 head 位移模式相关 `0.9516`，归一化 RMSE `0.0551`；轨迹项与论文均为 min-over-64 L1 | 未发现大幅私有重加权；保留为低优先级未知量 |
 | Transformers 4.37.2/4.48.3/4.57.6 | 4.48.3/4.57.6 前向一致但 step-1000 更新 cosine `0.5333`；Stage-1 明确记录 4.37.2，且 4.37.2/4.48.3 hidden RMSE `0.130629`、梯度 RMSE `0.005095` | 高优先级 runtime 控制；4.37.2 短训练已排队 |
-| BF16 | 发布代码与论文训练硬件均支持 BF16，本地同为 BF16；仍受 H20/A800 kernel 版本影响 | 低优先级残余 |
+| 梯度裁剪 | DriveVLA 发布值为 0；ReCogDrive/Stage-1 值为 1；固定批次未裁剪梯度范数约 `703.66` | 有实际影响但证据冲突；排在 scheduler/runtime 后做匹配短对照 |
+| BF16/TF32 | 发布配置和 Stage-1 元数据均为 BF16、非 FP16；action-head FP32 参数在 BF16 autocast 下训练，当前 TF32 关闭 | BF16 已匹配；TF32 与 H20/A800 kernel 仅列为低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
 | 样本顺序 | 按用户要求不作为关键根因继续投入实验 | 不作为主线 |
@@ -280,7 +292,8 @@ epochs/steps: 27 / 174312
 
 当前主跑开始后才发现 Stage-1 产物中的 Transformers 4.37.2 强证据；它不等于
 证明 4.48.3 主跑无效，因此保持主跑并行推进，同时用 rl-zt3 的授权 GPU 做
-4.37.2 短训练筛选。Lightning 2.6.0 和 2.5.1 的 1,000-step 对照均已在相同两台主机上完成。2.5.1
+4.37/4.48 同布局短训练和 clip=0/1 匹配筛选。Lightning 2.6.0 和 2.5.1 的
+1,000-step 对照均已在相同两台主机上完成。2.5.1
 的验证 PDMS 高 `0.004688`，但更重要的是 requirements 唯一留下的版本证据指向
 2.5.1；因此 27 epoch 全曲线锁定 2.5.1。该选择仍是“最有证据的复现假设”，不是
 对未发布私有环境的事实声明。
@@ -299,7 +312,9 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 - 若 cosine 闭合公开 checkpoint 的更新幅度和 PDMS，主因判为私有 launcher 很可能
   启用了发布源码中存在但 YAML 未启用的 schedule。
 - 若 4.37.2 短训练在 proposal ceiling 或公开 checkpoint 更新方向上显著优于
-  4.48.3，则先运行 4.37.2 source-cosine 全曲线；否则保留当前 4.48.3 主跑。
+  同布局 4.48.3，则先运行 4.37.2 source-cosine 全曲线；否则保留当前 4.48.3 主跑。
+- 若 clip=1 相对同布局 clip=0 明显改善 proposal ceiling，再升级为完整曲线；不能
+  用上游 ReCogDrive 默认值直接覆盖 DriveVLA 发布配置。
 - 若版本对照与 cosine 完整曲线仍不能闭合公开权重，下一优先级才是同一运行时下的
   恒定 `5e-5` 完整对照，然后是 H20/A800 训练 kernel 的不可消除差异；不会回到
   sample 顺序作为主解释。
