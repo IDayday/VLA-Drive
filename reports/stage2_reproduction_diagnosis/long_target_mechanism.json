@@ -1,0 +1,75 @@
+{
+  "source": {
+    "target_builder": "navsim/agents/EpisodeDrive/drivevla_features.py",
+    "loss": "navsim/agents/EpisodeDrive/layers/losses/episode_drive_loss.py",
+    "released_yaml_default": -1,
+    "corrected_training_value": 2
+  },
+  "output_contract": {
+    "model_output_pose_count": 8,
+    "model_output_nominal_horizon_seconds": 4.0,
+    "inference_shape_changes": false,
+    "pdm_score_target_changes": false
+  },
+  "long_target_construction": {
+    "logged_source_pose_count": 10,
+    "logged_source_horizon_seconds": 5.0,
+    "output_pose_count": 8,
+    "alpha": 0.05555555555555555,
+    "source_index_positions": [
+      0.05555555555555555,
+      1.1666666666666667,
+      2.3333333333333335,
+      3.5555555555555554,
+      4.833333333333333,
+      6.166666666666667,
+      7.555555555555555,
+      9.0
+    ],
+    "source_times_seconds": [
+      0.5277777777777778,
+      1.0833333333333335,
+      1.6666666666666667,
+      2.2777777777777777,
+      2.9166666666666665,
+      3.5833333333333335,
+      4.277777777777778,
+      5.0
+    ],
+    "nominal_output_times_seconds": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "time_offsets_seconds": [
+      0.02777777777777779,
+      0.08333333333333348,
+      0.16666666666666674,
+      0.2777777777777777,
+      0.4166666666666665,
+      0.5833333333333335,
+      0.7777777777777777,
+      1.0
+    ],
+    "interpolation": "independent cubic spline over x, y, and heading"
+  },
+  "loss_structure": {
+    "expression": "min_i L1(proposal_i, gt_4s) + min_j L1(proposal_j, warped_logged_5s)",
+    "candidate_minima_are_independent": true,
+    "applied_at_each_refinement_stage": true,
+    "interpretation": "Different candidates may specialize to the factual 4-second target and the farther-progress auxiliary target."
+  },
+  "measured_effect": {
+    "paired_128_log_best_of_64_delta": 0.033601,
+    "full_epoch0_best_of_64_delta": 0.021125,
+    "full_epoch0_selected_pdms_delta": 0.049026,
+    "full_epoch0_regret_relative_reduction": 0.1125,
+    "fraction_of_public_proposal_ceiling_gap_recovered": 0.9423
+  },
+  "conclusion": "Long-2 is auxiliary multimode proposal supervision, not a longer deployed trajectory. It broadens the candidate bank while preserving the eight-pose inference and scoring contract."
+}

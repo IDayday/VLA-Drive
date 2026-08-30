@@ -1,7 +1,10 @@
+import ast
+import inspect
 import json
 import pickle
 import pickletools
 from pathlib import Path
+import textwrap
 from types import SimpleNamespace
 
 import numpy as np
@@ -102,6 +105,55 @@ def test_long_target_interpolation_reaches_extra_logged_horizon():
     assert long_target.shape == (8, 3)
     assert long_target[-1, 0] == pytest.approx(10.0)
     assert np.all(np.diff(long_target[:, 0]) > 0)
+
+
+def test_long_target_uses_progressively_later_logged_times():
+    mechanism = json.loads(
+        (
+            REPO_ROOT
+            / "reports/stage2_reproduction_diagnosis/long_target_mechanism.json"
+        ).read_text()
+    )
+    construction = mechanism["long_target_construction"]
+    nominal = np.asarray(construction["nominal_output_times_seconds"])
+    source = np.asarray(construction["source_times_seconds"])
+
+    assert mechanism["output_contract"]["model_output_pose_count"] == 8
+    assert np.all(source > nominal)
+    assert np.all(np.diff(source - nominal) > 0)
+    assert source[-1] == pytest.approx(5.0)
+
+
+def test_long_target_loss_uses_an_independent_candidate_minimum():
+    from navsim.agents.EpisodeDrive.layers.losses.episode_drive_loss import (
+        EpisodeDriveLoss,
+    )
+
+    tree = ast.parse(textwrap.dedent(inspect.getsource(EpisodeDriveLoss.forward)))
+    min_loss_assignments = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "min_loss"
+            for target in node.targets
+        )
+    ]
+    additive_assignment = next(
+        node
+        for node in min_loss_assignments
+        if isinstance(node.value, ast.BinOp)
+        and isinstance(node.value.op, ast.Add)
+        and isinstance(node.value.left, ast.Name)
+        and node.value.left.id == "min_loss"
+    )
+    long_term_minima = [
+        node
+        for node in ast.walk(additive_assignment.value.right)
+        if isinstance(node, ast.Attribute) and node.attr == "amin"
+    ]
+
+    assert long_term_minima
 
 
 def test_long_target_integrity_audit_wraps_heading_deltas():

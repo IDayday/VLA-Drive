@@ -48,6 +48,14 @@ Navtest 是否完全闭合仍由正在运行的 27-epoch 曲线裁决。
 
 1. **缺失 long-trajectory target：首要根因，已由 artifact、行为指纹、严格 A/B
    和完整 epoch-0 validation 四重确认；最终 Navtest 贡献等待完整曲线确认。**
+   这里的 long-2 不是把部署输出改为 10 点/5 秒：target builder 从 10 个 logged
+   poses 构造仍为 8 点的渐进前移目标，其源时间为
+   `[0.528, 1.083, 1.667, 2.278, 2.917, 3.583, 4.278, 5.000]s`。loss 对普通
+   4 秒 GT 与 long target **分别**执行 `min-over-64` 后相加，所以候选 `i` 和
+   `j` 可以不同；这等价于给 proposal generator 两个正样本模式，而不是让同一条
+   轨迹同时拟合二者。模型推理仍输出 8 点/4 秒，PDM score target 也不变。该机制
+   直接解释了为什么主要改善 best-of-64 proposal coverage，精确映射见
+   `long_target_mechanism.json`。
 2. **Flash Attention：确定的有害训练语义改动，已修正为 eager。**
 3. **逐 step LR scheduler：已由官方 checkpoint loop state 直接确认存在。** 四个
    历史 shard 的 scheduler progress 均为 `174312/174312`；精确类型虽被剥离，
@@ -584,6 +592,6 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 大型 checkpoint 只保存在实验目录，不提交 Git。
 
 代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
-`67 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+`69 passed, 19 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
 测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
 用于训练进程。
