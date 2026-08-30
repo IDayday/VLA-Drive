@@ -217,6 +217,17 @@ def main() -> None:
         prefix = _fetch_range(url, 0, min(size, 1_048_576) - 1)
         pickle_payload = _pickle_from_zip_prefix(prefix)
         metadata, operations = _inspect_pickle(pickle_payload)
+        best_score_storage = _storage_id_after_key(
+            operations, "best_model_score"
+        )
+        best_score_bytes = _remote_zip_entry(
+            url, size, f"/data/{best_score_storage}"
+        )
+        if len(best_score_bytes) != 4:
+            raise ValueError(
+                f"unexpected callback-score size in {name}: "
+                f"{len(best_score_bytes)}"
+            )
         shard_operations[name] = operations
         shard_reports.append(
             {
@@ -225,6 +236,8 @@ def main() -> None:
                 "url_revision": MODEL_REVISION,
                 "fetched_prefix_bytes": len(prefix),
                 "prefix_sha256": hashlib.sha256(prefix).hexdigest(),
+                "best_model_score_storage_id": best_score_storage,
+                "best_model_score": struct.unpack("<f", best_score_bytes)[0],
                 **metadata,
             }
         )
@@ -275,6 +288,14 @@ def main() -> None:
                 "The released historical shards cannot identify the private "
                 "Stage-2 optimizer or learning-rate schedule."
             ),
+        },
+        "callback_best_model_score_consensus": {
+            "all_shards_equal": len(
+                {shard["best_model_score"] for shard in shard_reports}
+            )
+            == 1,
+            "value": shard_reports[0]["best_model_score"],
+            "monitor": "val/score_epoch",
         },
         "merged_checkpoint": str(merged),
         "identity_check": {

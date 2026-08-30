@@ -165,6 +165,12 @@ selected 只差 `+0.003236` 且 proposal ceiling 反向变化，不能解释完�
 Stage-2 的 optimizer/scheduler 状态；warmup-cosine 仍是有源码和作者 Stage-1
 训练习惯支持、但必须由完整曲线实测裁决的第二优先级假设，不能写成已知官方事实。
 
+四个 shard 的 callback tensor 还分别保存了完全相同的
+`best_model_score=0.951407671`，monitor 名称为 `val/score_epoch`。当前本地 evaluator
+对合并后的同一公开权重得到 `0.95147377`，绝对差仅 `0.00006610`。这把“本地验证
+PDMS 与官方训练 callback 不是同一口径”从推测性排除提升为 checkpoint 直接验证，
+并将修正训练的完整 validation 目标锁定在约 `0.9514`。
+
 同一原始 metadata 还保存了真实 checkpoint 路径：
 
 ```text
