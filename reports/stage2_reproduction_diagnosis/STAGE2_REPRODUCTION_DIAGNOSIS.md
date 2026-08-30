@@ -349,6 +349,14 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     让 best-of-64 下降，因此不能解释这里 `+0.021125` 的改善；128-log、同 runtime
     的 long/no-long 配对 A/B 又独立得到 `+0.033601`。两条证据共同把 long target
     从“高概率原因”提升为已确认的 proposal-bank 首要根因。
+
+    改善也不是由单一 PDM factor 偶然抬高：相对 no-long epoch 0，selected
+    collision、DAC、progress、TTC 分别提高 `0.014732`、`0.022318`、`0.063776`、
+    `0.021438`，comfort 只变化 `-0.000055`。共同 seed-2 初始化下的参数位移比较
+    显示 long-2/no-long 总体 update cosine 为 `0.7574`，trajectory head 为
+    `0.8779`、trajectory decoder 为 `0.6896`，而 scorer 更新 RMS 基本不变
+    (`0.003334/0.003363`)。因此 long target 改变的是 proposal 生成路径和场景编码，
+    不是通过放大 scorer 更新伪造提升。
 12. **当前 scheduler 实现与发布源码数值等价。** 在锁定的 PyTorch 2.5.1 下，将
     当前 LambdaLR 与原始 `LinearLR(start_factor=1e-6, 10%)` 加
     `CosineAnnealingLR` 在全部 174,312 step 逐点比较，最大 LR 绝对差仅
