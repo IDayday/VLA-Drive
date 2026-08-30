@@ -29,6 +29,7 @@ from local_stage2.audit_stage2_public_runtime import (
     _compose_config,
     _stratified_samples,
 )
+from local_stage2.snapshot_validation_milestone import _snapshot
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -652,3 +653,31 @@ def test_reproduction_scheduler_matches_released_schedule_numerically():
     assert result["total_steps"] == 174_312
     assert result["warmup_steps"] == 17_431
     assert result["max_absolute_lr_difference"] < 1e-16
+
+
+def test_milestone_snapshot_preserves_retained_best_without_copy(tmp_path):
+    source = tmp_path / "best-epoch=9-step=64560.ckpt"
+    source.write_bytes(b"checkpoint")
+    last = tmp_path / "last.ckpt"
+    last.symlink_to(source.name)
+    destination = tmp_path / "milestones" / "epoch9.ckpt"
+
+    resolved, method = _snapshot(last, destination)
+
+    assert resolved == source.resolve()
+    assert method == "hardlink_retained_best"
+    assert destination.read_bytes() == b"checkpoint"
+    assert destination.stat().st_ino == source.stat().st_ino
+
+
+def test_milestone_snapshot_copies_mutable_last(tmp_path):
+    last = tmp_path / "last.ckpt"
+    last.write_bytes(b"checkpoint")
+    destination = tmp_path / "milestones" / "epoch9.ckpt"
+
+    resolved, method = _snapshot(last, destination)
+
+    assert resolved == last.resolve()
+    assert method == "reflink_or_copy_mutable_last"
+    assert destination.read_bytes() == b"checkpoint"
+    assert destination.stat().st_ino != last.stat().st_ino
