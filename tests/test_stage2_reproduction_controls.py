@@ -42,6 +42,8 @@ from local_stage2.audit_active_stage2_lr_trace import (
     audit_samples,
     expected_lr,
 )
+from local_stage2.audit_stage2_initialization_path import audit as audit_initialization_path
+from local_stage2.audit_stage2_batch_layout import audit_layout
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -81,6 +83,48 @@ def test_frozen_backbone_train_mode_reproduces_module_semantics():
     assert agent.action_head.training
     assert agent.backbone.training
     assert not any(parameter.requires_grad for parameter in agent.backbone.parameters())
+
+
+def test_initialize_from_config_matches_release_and_follows_action_head():
+    result = audit_initialization_path(REPO_ROOT, "b9a4f27")
+
+    assert result["initialize_branch_ast_equal"]
+    assert result["variants"]["release"]["config_initialize_from_config"] == "true"
+    assert result["variants"]["current"]["config_initialize_from_config"] == "true"
+    assert result["variants"]["release"]["action_head_precedes_vlm"]
+    assert result["variants"]["current"]["action_head_precedes_vlm"]
+    assert result["excluded_as_reproduction_root_cause"]
+
+
+def test_batch_layout_audit_keeps_inference_distinct_from_fact():
+    result = audit_layout(103_288, 174_312, 27, 16)
+
+    assert result["direct_artifact_facts"]["steps_per_epoch"] == 6_456
+    assert not result["direct_artifact_facts"]["checkpoint_stores_global_batch"]
+    assert result["conditional_inference"][
+        "effective_batch_candidates_under_one_pass_ceiling"
+    ] == [16]
+    assert not result["conditional_inference"]["is_direct_fact"]
+    assert result["counterfactual_batch_32"]["one_pass_steps_per_epoch"] == 3_228
+    assert result["counterfactual_batch_32"][
+        "one_pass_total_optimizer_steps"
+    ] == 87_156
+    assert not result["counterfactual_batch_32"][
+        "matches_checkpoint_under_one_pass"
+    ]
+    assert result["counterfactual_batch_32"][
+        "matches_checkpoint_if_dataset_is_repeated_twice"
+    ]
+    assert result["preferred_layout_hypothesis"] == {
+        "world_size": 16,
+        "per_device_batch": 1,
+        "gradient_accumulation": 1,
+        "effective_batch": 16,
+        "standard_release_steps_per_epoch": 6_456,
+        "matches_checkpoint_steps": True,
+        "uses_all_paper_reported_gpus": True,
+    }
+    assert not result["preferred_layout_is_uniquely_proven"]
 
 
 def test_invalid_frozen_backbone_mode_fails_closed():

@@ -31,10 +31,18 @@ submission was also rescored locally against the same metric cache and all
 The released checkpoint name fixes the published checkpoint target, although
 the paper does not state the run's final stopping epoch. NAVSIM `navtrain`
 contains 85,109 train and 18,179 validation samples, or 103,288 after the
-repository's `run_training_full.py` concatenation. Distributed padding at
-global batch 16 yields 6,456 steps per epoch. Training through epoch index 26
-(27 completed epochs) therefore produces exactly 174,312 steps, matching
-`best-epoch_26-step_174312.server_merged.ckpt`.
+repository's `run_training_full.py` concatenation. Conditional on the private
+run using that same set once per epoch and standard Lightning/DDP step
+semantics, effective global batch 16 yields 6,456 steps per epoch. Training
+through epoch index 26 (27 completed epochs) therefore produces exactly
+174,312 steps, matching `best-epoch_26-step_174312.server_merged.ckpt`. The
+checkpoint does not directly store global batch, per-device batch, or gradient
+accumulation, so this is a strong reconstruction rather than a direct fact.
+For comparison, effective batch 32 gives only 87,156 optimizer steps over 27
+single-pass epochs; it matches 174,312 only if each reported epoch processes
+roughly twice the reconstructed dataset. See `audit_stage2_batch_layout.py`
+and `batch_layout_inference.json` for the explicit assumptions and alternative
+factorizations.
 
 The deleted historical checkpoint shards also preserve two facts that the
 deployment YAML does not: every shard records PyTorch Lightning 2.2.1, and the
@@ -72,8 +80,10 @@ size, epoch count, precision, scheduler, warmup, or wall-clock time. The public
 checkpoint name and released data path provide a strong reconstruction of the
 missing run shape:
 
-- released run (inferred): global batch 16; with 16 H20 GPUs this is most likely
-  batch 1 per GPU
+- released run (strong conditional inference): effective global batch 16
+- released rank layout (weaker inference): with 16 reported H20 GPUs, 16 ranks
+  x batch 1 x accumulation 1 is the most natural configuration, but alternatives
+  whose effective product is 16 cannot be excluded without the private launcher
 - local: 8 GPUs x batch 2
 - global batch: 16
 - optimizer: AdamW; the paper reports `1e-4`, but does not say whether this is
@@ -88,6 +98,13 @@ released checkpoint matches seed 2 bit-for-bit; the previous local full run
 matches seed 0 bit-for-bit. `train_stage2_reproduction.sh` therefore defaults to
 seed 2. This is a necessary configuration correction, but a 1,000-step A/B did
 not show a seed-2 quality advantage, so it is not treated as the sole cause.
+
+`initialize_from_config=true` is not a remaining mismatch.  Release `b9a4f27`,
+the current YAML, and the active reproduction all select it; the true branch's
+AST is unchanged.  Both release and current constructors instantiate
+`ActionDecoder` before the VLM, so the large config-only VLM initialization
+cannot perturb the action-head seed fingerprint.  Re-run
+`audit_stage2_initialization_path.py` for the source/order/live-process audit.
 
 The repository's generic `default_training.yaml` values (`batch_size=64`,
 `max_epochs=20`, and `devices=1`) do not reproduce the released checkpoint's
@@ -112,8 +129,9 @@ remain rank-layout dependent.
 When both the local host and `training-vla-zt2` are available, use
 `launch_stage2_multinode_reproduction.sh`. It locks both nodes to the same
 packed Python/Torch/Lightning environment and launches 16 ranks x batch 1 with
-global batch 16, matching the rank layout inferred from the checkpoint and
-paper. The launcher checks both runtimes and both GPU sets before mutating the
+global batch 16, testing the layout best supported by the conditional step-count
+reconstruction and paper hardware count. It does not claim the private layout is
+directly known. The launcher checks both runtimes and both GPU sets before mutating the
 run directory, uses a shared rendezvous, records both node PIDs, and attaches
 the normal completion/Navtest watcher to global rank zero. A short multi-node
 smoke run must pass before a multi-day run is started.

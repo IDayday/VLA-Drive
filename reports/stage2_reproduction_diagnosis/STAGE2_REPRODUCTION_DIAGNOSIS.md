@@ -73,8 +73,9 @@ Navtest 是否完全闭合仍由正在运行的 27-epoch 曲线裁决。
 3. **逐 step LR scheduler：已由官方 checkpoint loop state 直接确认存在。** 四个
    历史 shard 的 scheduler progress 均为 `174312/174312`；精确类型虽被剥离，
    但发布源码唯一实现和作者训练谱系都指向 10% warmup-cosine，当前主跑已修正。
-4. **Lightning 2.2.1、seed 2、16×1、Transformers 4.48.3：必须锁定的复现条件，
-   但各自短程效应显著小于 long target，不再作为首要原因。**
+4. **Lightning 2.2.1、seed 2、Transformers 4.48.3 是 artifact 支持的锁定条件；
+   16×1 是当前最贴近论文硬件描述的布局假设，不是直接事实。** 这些变量的短程
+   效应显著小于 long target，不再作为首要原因。
 
 差值不是由样本顺序或本地 evaluator 引起。下面 1--13 项保留了发现过程；
 `官方 checkpoint 原始元数据修正`一节中的直接 artifact 证据覆盖其中早期的
@@ -97,15 +98,27 @@ runtime/scheduler 优先级判断。
    审计中 Flash 相对 eager 的 hidden-state 相对 L2 差异为 `16.52%`，梯度为
    `9.89%`；经过 AdamW 后，参数更新向量相对 L2 差异达到 `60.28%`、cosine 仅
    `0.8258`。它不是可以忽略的最后几位浮点误差。
-3. **旧本地 8×2 不是公开权重的 16×1 训练布局。** 公开 checkpoint 的
-   `174312 / 27 = 6456` step/epoch，而 `ceil(103288 / 16) = 6456`，从 checkpoint
-   本身可以反推全局 batch 为 16。结合论文的 16 张 H20，实际布局应为
-   16 rank × 每 rank 1 样本，而不是发布 YAML 中的占位 batch 值。相同
+3. **旧本地 8×2 与当前首选的 16×1 布局假设不等价，但官方布局并未公开。**
+   公开 checkpoint 直接给出 `174312 / 27 = 6456` optimizer step/epoch；若官方
+   也使用本地可见的 103,288-scene 训练集合、每 epoch 单遍历、标准 Lightning
+   optimizer/global-step 语义且无私有重采样，则 `ceil(103288 / 16) = 6456` 唯一
+   指向有效 global batch 16。再结合论文报告的 16 张 H20，16 rank × 每 rank 1、
+   accumulation 1 是最自然的布局，**但 checkpoint 没有直接保存 global batch、
+   per-device batch 或 accumulation**。8×1×acc2、其他乘积为 16 的组合，或私有
+   sampler/padding 均不能只靠现有 artifact 排除。相同
    global batch/seed/LR 的 1,000-step 实测中，4×4、8×2、16×1 分别为
    `0.839999`、`0.794061`、`0.807793`。差异不呈单调，但已证明 rank×local-batch
-   是大变量。ActionDecoder 硬编码启用 0.1 dropout 和 0.2 stochastic depth，
+   会改变训练路径，不能证明 16×1 就是官方配置，也不能把 8×2 列为已确认根因。
+   ActionDecoder 硬编码启用 0.1 dropout 和 0.2 stochastic depth，
    各 rank 又使用同一 global seed，因此不同 rank 布局会改变随机 mask 与
    样本的绑定；这不是样本顺序解释。
+
+   batch 32 在标准单遍历下只有 `ceil(103288/32) × 27 = 87,156` 次更新，
+   与 checkpoint 的 174,312 相差整整两倍；它只有在每个报告 epoch 重复训练集
+   两次、私有数据量翻倍或存在其他未公开 step 机制时才同样成立。因此不能逻辑
+   排除 32，但目前需要比 batch 16 多引入一个无正证据的私有机制。直接事实、条件
+   假设和全部乘积为 16 的替代布局已单独写入 `batch_layout_inference.json`，由
+   `local_stage2/audit_stage2_batch_layout.py` 生成。
 4. **公开权重使用 seed 2 初始化，本地旧训练使用 seed 0。** 这是逐位精确的
    checkpoint 指纹，不是猜测。不过 seed 2 在 1,000 step 的验证 PDMS 为
    `0.8265270`，低于 seed 0 两次重复的 `0.8382344--0.8444353`，所以 seed 不足以
@@ -113,13 +126,15 @@ runtime/scheduler 优先级判断。
 5. **发布仓库没有包含生成公开权重的完整 launcher/config。** 发布 agent YAML
    指向最终公开 checkpoint，并保留 `batch_size=2`、`num_gpus=1`、`base_lr=5e-4`；
    generic trainer 又是 `batch_size=64`、`devices=1`、`max_epochs=20`。这些值与公开
-   checkpoint 可反推的 27 epoch/global batch 16 不可能同时成立。因此“直接运行
+   checkpoint 直接证明的 27 epoch、以及在标准单遍历前提下反推的 global batch 16
+   不可能同时成立。因此“直接运行
    开源 YAML”不是官方 Stage-2 复现；私有 launcher 中的 LR 缩放、scheduler 和
    runtime 仍未公开。
 6. **实际 peak LR 细节仍有歧义，但 scheduler 是否存在已经锁定。** 论文附录明确报告 base model
    使用 AdamW、学习率 `1e-4` 和 16 张 H20；但发布代码会把 `base_lr` 再乘
    `sqrt(global_batch/base_batch)`。论文没有说明 `1e-4` 是缩放前的配置字段还是
-   缩放后的 optimizer-group LR。global batch 为 16、`base_batch_size=64` 时，两种
+   缩放后的 optimizer-group LR。在当前高置信 global-batch-16 假设及
+   `base_batch_size=64` 下，两种
    解读分别得到实际 LR `5e-5` 和 `1e-4`。发布 YAML 自身的 `base_lr=5e-4` 又会得到
    `2.5e-4`；其未随 launcher 改动的 `agent.batch_size=2,num_gpus=1` 则会得到
    `8.84e-5`。本机 PL 2.6 的 `2.5e-4` 在 1,000 step 得到 `0.8258788`，没有显示
@@ -461,6 +476,18 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
     预先设定的 epoch-9 checkpoint 仍作为中程裁决点；明细见
     `corrected_long2_early_curve.json` 与
     `corrected_long2_epoch2_vs_public_update.json`。
+17. **`initialize_from_config=true` 已通过发布源码、活跃命令和 checkpoint 指纹排除。**
+    发布 `b9a4f27` 的 agent YAML 与当前 YAML 都显式设为 `true`，活跃 rank-0
+    `/proc/3205156/cmdline` 也为 `true`；两版 `AutoModel.from_config` 真分支的 AST
+    哈希完全相同。发布代码第 106 行先构造 `ActionDecoder`，第 154 行才构造 VLM；
+    当前代码同样是第 217/297 行，因此大 VLM 随机初始化所消耗的 RNG 不可能改变
+    action-head 的 seed-2 初值。公开 checkpoint 中 40 个未训练指纹 tensor、
+    5,365,856 个值又全部逐位匹配 seed 2。VLM 构造确实会推进之后的 dropout RNG，
+    但当前与 release 使用相同分支和锁定 runtime，所以这是共享行为，不是已发现的
+    reproduction mismatch。私有 launcher 未公开仍是 provenance 限制，不能反过来
+    当作“私有训练可能不同”的正证据。可复跑审计为
+    `local_stage2/audit_stage2_initialization_path.py`，结果见
+    `initialization_path_audit.json`。
 
 ## 已排除或降级的因素
 
@@ -480,6 +507,7 @@ python local_stage2/compare_stage2_proposal_artifacts.py \
 | 多节点 `agent.num_gpus` 字段 | 旧命令虽显示 8，但显式 `effective_global_batch_size=16` 已决定优化语义；当前主跑两个字段均显式为 16 | 排除为根因；launcher 已消除歧义 |
 | BF16/TF32 | 发布配置和 Stage-1 元数据均为 BF16、非 FP16；action-head FP32 参数在 BF16 autocast 下训练，当前 TF32 关闭 | BF16 已匹配；TF32 与 H20/A800 kernel 仅列为低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
+| `initialize_from_config` | release/current YAML 和活跃进程均为 `true`；真分支 AST 相同；两版 action head 均先于 VLM 构造；公开权重指纹精确匹配 seed 2 | 排除为当前差距根因；私有 launcher 未公开仅保留为 provenance 限制 |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
 | 样本顺序 | 按用户要求不作为关键根因继续投入实验 | 不作为主线 |
 
@@ -575,11 +603,13 @@ peak LR，再逐步减小累计更新，必须用完整 27-epoch 曲线验证。
 long-2 的 best-of-64 增益 `+0.033601`（95% CI `[+0.006762,+0.065910]`），是本文
 对 long target 因果判断的主要短程依据，而不是最后一行尚未收敛的 selected PDMS。
 
-## 严格 16×1 复现路径
+## 当前 16×1 布局假设的严格验证路径
 
-公开 checkpoint 的 step 数已经把全局 batch 锁定为 16；论文又报告 16 张 H20。
-因此使用本机和 vla-zt2 各 8 张 A800 运行 16 rank × batch 1，而不再把
-8×2 当作官方等价设置。当前锁定配置为：
+公开 checkpoint 直接锁定 27 epoch/174,312 optimizer step；结合本地 103,288
+scene 数和标准单遍历语义，高置信反推出有效 global batch 16。论文另报告 16 张
+H20，因此当前优先验证 16 rank × batch 1 × accumulation 1，但这仍是缺少私有
+launcher 时的首选假设，不是公开 artifact 直接保存的配置。实验使用本机和
+vla-zt2 各 8 张 A800；当前实际运行配置为：
 
 ```text
 GPUs: 16 x NVIDIA A800-SXM4-80GB (2 nodes)
@@ -597,7 +627,8 @@ epochs/steps: 27 / 174312
 
 当前活跃命令同时显式记录 `agent.num_gpus=16` 与
 `effective_global_batch_size=16`，并在两端启动前逐值校验 runtime，避免再出现
-world-size 字段歧义。实际训练是 16 rank × 1。
+world-size 字段歧义。这里的“实际训练是 16 rank × 1”只描述当前本地 run，
+不声称私有官方 run 已被直接证明为同一布局。
 
 Stage-1 基座产物记录 Transformers 4.37.2，但血缘审计证明该字段不能锁定后来
 DriveVLA LoRA 的运行时；因此保持 4.48.3 主跑，同时把 4.37.2 降为次级对照。

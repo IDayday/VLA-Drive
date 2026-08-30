@@ -1,0 +1,285 @@
+{
+  "audit": "stage2_batch_layout_evidence_levels",
+  "conditional_inference": {
+    "assumptions": [
+      "The private run used the same 103,288-scene concatenated set.",
+      "Each epoch traversed that set once without private resampling.",
+      "Checkpoint global_step counts ordinary optimizer updates."
+    ],
+    "effective_batch_candidates_under_one_pass_ceiling": [
+      16
+    ],
+    "inferred_effective_global_batch": 16,
+    "is_direct_fact": false
+  },
+  "counterfactual_batch_32": {
+    "double_dataset_size": 206576,
+    "double_pass_steps_per_epoch": 6456,
+    "matches_checkpoint_if_dataset_is_repeated_twice": true,
+    "matches_checkpoint_under_one_pass": false,
+    "one_pass_steps_per_epoch": 3228,
+    "one_pass_total_optimizer_steps": 87156,
+    "required_unpublished_mechanism": "A 32-sample effective batch needs approximately two traversals of the reconstructed dataset per reported epoch, a doubled private dataset, or another nonstandard step-count mechanism."
+  },
+  "direct_artifact_facts": {
+    "checkpoint_stores_global_batch": false,
+    "checkpoint_stores_gradient_accumulation": false,
+    "checkpoint_stores_per_device_batch": false,
+    "completed_epochs": 27,
+    "steps_per_epoch": 6456,
+    "total_optimizer_steps": 174312
+  },
+  "external_inputs": {
+    "local_reconstructed_training_scene_count": 103288,
+    "paper_reported_gpu_count": 16
+  },
+  "interpretation": "Effective global batch 16 is a strong conditional reconstruction. The 16x1x1 layout is preferred because it uses all 16 GPUs reported by the paper and matches released accumulation defaults, but neither batch value is stored directly in the public checkpoint.",
+  "preferred_layout_hypothesis": {
+    "effective_batch": 16,
+    "gradient_accumulation": 1,
+    "matches_checkpoint_steps": true,
+    "per_device_batch": 1,
+    "standard_release_steps_per_epoch": 6456,
+    "uses_all_paper_reported_gpus": true,
+    "world_size": 16
+  },
+  "preferred_layout_is_uniquely_proven": false,
+  "standard_release_layouts_matching_step_count": [
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 16,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 8,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 4,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 4,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 8,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 8,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 4,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 4,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 4,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 4
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 4
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 8
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 1,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": true,
+      "world_size": 16
+    }
+  ],
+  "standard_release_layouts_with_effective_batch": [
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 16,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 8,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 4,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 4,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 8,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 1,
+      "matches_checkpoint_steps": false,
+      "per_device_batch": 16,
+      "standard_release_steps_per_epoch": 6455,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 1
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 8,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 4,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 4,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 1,
+      "matches_checkpoint_steps": false,
+      "per_device_batch": 8,
+      "standard_release_steps_per_epoch": 6455,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 2
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 4,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 4
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 4
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 1,
+      "matches_checkpoint_steps": false,
+      "per_device_batch": 4,
+      "standard_release_steps_per_epoch": 6455,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 4
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 2,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 8
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 1,
+      "matches_checkpoint_steps": false,
+      "per_device_batch": 2,
+      "standard_release_steps_per_epoch": 6455,
+      "uses_all_paper_reported_gpus": false,
+      "world_size": 8
+    },
+    {
+      "effective_batch": 16,
+      "gradient_accumulation": 1,
+      "matches_checkpoint_steps": true,
+      "per_device_batch": 1,
+      "standard_release_steps_per_epoch": 6456,
+      "uses_all_paper_reported_gpus": true,
+      "world_size": 16
+    }
+  ]
+}

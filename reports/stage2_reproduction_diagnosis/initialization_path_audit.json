@@ -1,0 +1,53 @@
+{
+  "active_override": "true",
+  "active_pid": 3205156,
+  "audit": "stage2_initialize_from_config_semantics",
+  "checkpoint_fingerprint": {
+    "exact_seed2_match": true,
+    "fingerprint_element_count": 5365856,
+    "fingerprint_tensor_count": 40,
+    "matching_seeds": [
+      2
+    ],
+    "path": "/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/numerics/initialization_fingerprint.json"
+  },
+  "checks": {
+    "active_run_uses_initialize_from_config": true,
+    "current_action_head_precedes_vlm": true,
+    "current_config_uses_initialize_from_config": true,
+    "initialize_true_branch_ast_matches_release": true,
+    "public_action_head_fingerprint_is_exact_seed2": true,
+    "release_action_head_precedes_vlm": true,
+    "release_config_uses_initialize_from_config": true
+  },
+  "excluded_as_reproduction_root_cause": true,
+  "initialize_branch_ast_equal": true,
+  "interpretation": "The public release and active reproduction both construct the frozen VLM through AutoModel.from_config, and the action head is initialized first. Therefore VLM construction cannot alter the seed-2 action-head initialization. It can advance the later RNG stream, but the matching release branch and locked runtime make that shared behavior rather than a reproduction mismatch. The unavailable private launcher remains a provenance limitation, not positive evidence of a different path.",
+  "release_reference": "b9a4f27",
+  "variants": {
+    "current": {
+      "action_decoder_constructor_line": 217,
+      "action_head_precedes_vlm": true,
+      "config_initialize_from_config": "true",
+      "initialize_true_branch_sha256": "404508c68cd68091d4e85ed47d93586a7379f8e653b49f6e71e1dd2a780e80c7",
+      "source_sha256": {
+        "navsim/agents/EpisodeDrive/drivevla_backbone.py": "0caaa30bc276396339c7bd7bd93ac41c8a33ebcca1f6b995c240a25d4228b361",
+        "navsim/agents/EpisodeDrive/drivevla_base_agent.py": "2365ec4c84793c6f2c4c3c5b80efffc093e80989bf835e7afeea225330014702",
+        "navsim/planning/script/config/common/agent/episode_drive.yaml": "bc15a4f8daf743929d337fb3707a64ca474b7a598caa8d0a094e429a9bce810b"
+      },
+      "vlm_constructor_line": 297
+    },
+    "release": {
+      "action_decoder_constructor_line": 106,
+      "action_head_precedes_vlm": true,
+      "config_initialize_from_config": "true",
+      "initialize_true_branch_sha256": "404508c68cd68091d4e85ed47d93586a7379f8e653b49f6e71e1dd2a780e80c7",
+      "source_sha256": {
+        "navsim/agents/EpisodeDrive/drivevla_backbone.py": "f345a2c93cb6ac2949c19d704dfe311b78fb9a33285bae75c02abe65ccde4999",
+        "navsim/agents/EpisodeDrive/drivevla_base_agent.py": "0ecff5e016cea8011b640fcadab0f37cadcc05ae105fc23f210b603a76264a39",
+        "navsim/planning/script/config/common/agent/episode_drive.yaml": "a10918b39e5f84232c03c33a5d1d176138ba7f9bc4e9b54c26d0b95f7ff5cecf"
+      },
+      "vlm_constructor_line": 154
+    }
+  }
+}
