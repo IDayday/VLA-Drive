@@ -1,3 +1,4 @@
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -10,6 +11,10 @@ from navsim.planning.training.stage2_reproduction_sampler import (
     ReferenceGlobalBatchDistributedSampler,
 )
 from local_stage2.audit_stage2_sampler import audit as audit_sampler_order
+from local_stage2.audit_stage2_lr_schedule_signature import _relative_lr
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _bare_agent(frozen_backbone_mode="eval"):
@@ -52,6 +57,19 @@ def test_invalid_frozen_backbone_mode_fails_closed():
     agent = _bare_agent("ambiguous")
     with pytest.raises(ValueError, match="frozen_backbone_mode"):
         agent.train(True)
+
+
+def test_multinode_launcher_locks_transformers_on_both_nodes():
+    launcher = (
+        REPO_ROOT / "local_stage2/launch_stage2_multinode_reproduction.sh"
+    ).read_text()
+    trainer = (REPO_ROOT / "local_stage2/train_stage2_full.sh").read_text()
+    assert "STAGE2_TRANSFORMERS_OVERLAY" in launcher
+    assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION" in launcher
+    assert '"transformers":transformers.__version__' in launcher
+    assert "Expected the locked Transformers" in launcher
+    assert "STAGE2_REQUIRE_TRANSFORMERS_VERSION" in trainer
+    assert "import transformers" in trainer
 
 
 @pytest.mark.parametrize(
@@ -151,6 +169,12 @@ def test_source_cosine_schedule_reaches_peak_then_zero():
         optimizer.step()
         scheduler.step()
     assert scheduler.get_last_lr()[0] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_lr_signature_uses_the_released_warmup_cosine_shape():
+    assert _relative_lr(0, total_steps=20, warmup_steps=2) == pytest.approx(1e-6)
+    assert _relative_lr(2, total_steps=20, warmup_steps=2) == pytest.approx(1.0)
+    assert _relative_lr(20, total_steps=20, warmup_steps=2) == pytest.approx(0.0)
 
 
 def test_source_cosine_matches_released_sequential_lr_inside_horizon():

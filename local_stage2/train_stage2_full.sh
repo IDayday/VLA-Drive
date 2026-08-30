@@ -10,9 +10,11 @@ stage2_runtime="$("${DRIVEVLA_PYTHON}" - <<'PY'
 import json
 import pytorch_lightning
 import torch
+import transformers
 
 print(json.dumps({
     "pytorch_lightning": pytorch_lightning.__version__,
+    "transformers": transformers.__version__,
     "torch": torch.__version__,
     "torch_cuda": torch.version.cuda,
     "cudnn": torch.backends.cudnn.version(),
@@ -28,6 +30,16 @@ if [[ -n "${required_lightning}" ]]; then
   if [[ "${actual_lightning}" != "${required_lightning}" ]]; then
     echo "Required pytorch-lightning ${required_lightning}, found ${actual_lightning}" >&2
     exit 2
+  fi
+fi
+
+required_transformers="${STAGE2_REQUIRE_TRANSFORMERS_VERSION:-}"
+if [[ -n "${required_transformers}" ]]; then
+  actual_transformers="$("${DRIVEVLA_PYTHON}" -c \
+    'import transformers; print(transformers.__version__)')"
+  if [[ "${actual_transformers}" != "${required_transformers}" ]]; then
+    echo "Expected transformers ${required_transformers}, got ${actual_transformers}" >&2
+    exit 1
   fi
 fi
 

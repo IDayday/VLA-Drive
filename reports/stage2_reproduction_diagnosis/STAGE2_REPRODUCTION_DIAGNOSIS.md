@@ -61,8 +61,10 @@
    seed-2 初始化的有效 action-head RMS 位移为 `0.0219354`，本地旧权重相对 seed-0
    初始化为 `0.0416902`，比例为 `0.5262`；逐模块比例也集中在 `0.48--0.66`。
    常数 `5e-5` 与 peak `1e-4` 的 cosine 都约有常数 `1e-4` 一半的累计 LR，单凭
-   checkpoint 位移无法区分两者。完整实验按“常数 `1e-4` → 常数 `5e-5` → 源码
-   cosine”的证据强度排序。
+   checkpoint 位移无法区分两者。严格 16×1 的恒定 `1e-4` 已完成一整轮，其位移
+   外推明显超过公开权重；结合 DriveVLA-M0/DrivoR/ReCogDrive 的源码沿袭关系，当前
+   优先完整验证 peak `1e-4` 的源码 warmup-cosine，恒定 `5e-5` 保留为失败后的首个
+   完整对照。这个排序是基于现有证据选择实验，并不把未公开 scheduler 当成官方事实。
 7. **冻结 VLM 的 train/eval mode 是次要因素。** 1,000-step A/B 中，eval-mode
    反而比 train-mode 高 `0.00141` PDMS；差异很小且方向不能解释旧本地结果偏低。
 8. **Lightning 版本不能被当作一个无关细节，但也不是单独主因。** requirements
@@ -76,11 +78,53 @@
    一致，不是本地加速补丁；2.5.1/2.6.0 应归类为未锁定的官方运行时语义。由于
    仓库 requirements 唯一留下的版本证据是 2.5.1，完整严格复现选用 2.5.1。
 
+9. **Transformers 运行时也是高优先级锁定项。** 单样本 eager 前向在 4.48.3 与
+   4.57.6 下逐位一致，但反向梯度和 1,000-step 参数路径并不一致；4.48.3 的
+   proposal ceiling 高 `0.006041`。公开模型配置记录 4.48.3，因此完整复现锁定
+   4.48.3；该字段可能来自模型序列化而非私有 Stage-2 环境，最终仍需看全曲线。
+
 因此，现阶段最严格的表述是：**旧本地训练不是官方 Stage-2 的等价复现。
 它的最终分数损失主要来自 proposal bank 上界下降；Flash Attention 是已确认的
 有害语义改动；8×2 而非 16×1、seed 0 而非 seed 2 也是与公开 checkpoint
 证据不符的确定配置错误。剩余需用完整 27 epoch 收口的是实际 LR/scheduler、
-Lightning 2.5.1 及 H20/A800 数值路径。**
+Transformers/Lightning 运行时及 H20/A800 数值路径。**
+
+## 2026-08-30 高优先级复现更新
+
+在用户明确要求不再把 sample 顺序作为主因后，审计继续沿“候选生成分支为何在
+后期塌缩”推进，并新增了四组更强证据。
+
+1. **完整 epoch 的参数位移现在直接支持 warmup-cosine。** 严格
+   16×1、seed 2、eager、BF16、Lightning 2.5.1、恒定实际 LR `1e-4` 的完整
+   epoch 0 已跑完；validation selected/best-of-64 分别为 `0.842049` 和
+   `0.966837`。该 checkpoint 相对 seed-2 初始化的有效 action-head RMS 位移为
+   `0.00736329`，而公开 27-epoch 权重只有 `0.02193538`。把更新近似成噪声随机游走，
+   位移按累计平方 LR 的平方根缩放，三种候选配置的终值预测为：恒定 `1e-4`
+   `0.0382608`（比公开值高 74.4%）、恒定 `5e-5` `0.0191304`（低 12.8%）、
+   源码 10% warmup + cosine `0.0232993`（高 6.2%）。梯度统计会随训练变化，
+   因而这不是对私有配置的数学证明，但它与旧失败权重的实测位移 `0.0416902`
+   共同构成当前最强的 scheduler 根因证据。
+2. **Transformers 版本会改变训练路径，不能再按“前向一致”降级。** InternVL3
+   配置记录 `transformers_version=4.48.3`；旧本地和刚完成的恒定-LR 对照实际使用
+   `4.57.6`。受控样本的 hidden state、proposal、loss 虽逐位一致，但 Q-Former
+   反向梯度已经不同；严格 16×1 跑到 step 1000 后，两版本 action-head 更新向量
+   cosine 仅 `0.5333`。4.48.3 的 best-of-64 为 `0.991843`，比 4.57.6 的
+   `0.985802` 高 `0.006041`，方向上与当前需要修复的 proposal ceiling 一致；
+   selected 分数则更低，说明不能用短跑 selected PDMS 单独选 runtime。需要注意，
+   模型文件中的版本字段可能来自序列化 VLM，而不一定就是私有 Stage-2 环境，因此
+   这里的判定是“最接近公开证据的 runtime lock”，不是已证实的官方环境事实。
+3. **缓存、tokenizer 与 Stage-1 VLM 语义已进一步排除。** 从 64 条日志随机抽取
+   128 个场景，feature cache 与 raw Scene 重建得到的轨迹、历史、command、ego
+   status 全部逐值一致且图像路径均存在。InternVL 原始目录与 ReCogDrive VQA 目录
+   在实际 2,800-token prompt 上产生相同 token/mask；严格加载公开 checkpoint 后的
+   hidden-state SHA256 也一致。因此缓存加速和 VLM 目录选择不是当前约 1 PDMS
+   差距的主因。
+4. **完整修正 run 已启动。** 当前实验
+   `stage2_official_source_cosine_seed2_eager_tf448_pl251_16x1` 使用本机与
+   `vla-zt2` 共 16 张 A800，锁定 PyTorch `2.5.1+cu124`、Lightning `2.5.1`、
+   Transformers `4.48.3`、eager attention、BF16、seed 2、16 rank × batch 1，
+   并启用发布源码中逐 step 等价的 10% linear warmup + cosine decay。完整 27 epoch
+   和 Navtest 结果才是 scheduler 假设的最终判据。
 
 ## 已排除或降级的因素
 
@@ -94,7 +138,7 @@ Lightning 2.5.1 及 H20/A800 数值路径。**
 | PDM process pool/partition | sequential、pool、partition 输出逐元素一致 | 排除 |
 | fused validation scoring | 与逐候选评分一致 | 排除 |
 | PDM 监督/cache 代码版本 | 103,288/103,288 cache 完整；`train_pdm_scorer.py`、MetricCache、PDMSimulator 核心源码与 `upstream/main` 相同，当前改动只做任务切分和只读实例复用 | 未发现本地语义漂移；作者私有 cache 本身不可直接比对 |
-| Transformers 4.48.3/4.57.6 | audited eager forward 精确一致 | 降级 |
+| Transformers 4.48.3/4.57.6 | 单样本 eager 前向精确一致，但反向梯度不同；严格 16×1 step-1000 更新 cosine `0.5333`，且 4.48.3 的 proposal ceiling 高 `0.006041` | 重新升为高优先级 runtime 控制 |
 | BF16 | 发布代码与论文训练硬件均支持 BF16，本地同为 BF16；仍受 H20/A800 kernel 版本影响 | 低优先级残余 |
 | checkpoint 中 VLM dtype 分布 | 320 个 dtype 不同 tensor 全是冻结 LoRA；BF16 提升到 FP32 后 3,358,720 个值逐位相同，最大误差 0 | 仅存储格式，排除 |
 | norm/bias weight decay | 只影响约 0.47% action-head 参数，复现路径已恢复发布行为 | 次要 |
@@ -199,7 +243,8 @@ attention: eager
 precision: bf16-mixed
 frozen VLM mode: train
 AdamW: betas=(0.9, 0.95), weight_decay=1e-4 on all action-head tensors
-LR: constant 1e-4
+LR: peak 1e-4, 10% linear warmup (17431 steps), then cosine decay to zero
+runtime: PyTorch 2.5.1+cu124, Lightning 2.5.1, Transformers 4.48.3
 epochs/steps: 27 / 174312
 ```
 
@@ -215,14 +260,15 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 
 ## 判定标准
 
-- 若 eager + seed 2 + constant `1e-4` 恢复到约 `0.9096`，主因判为 Flash 与初始化
-  语义组合，scheduler 不是必要条件。
+- 当前 source-cosine 完整曲线是主判据；只有 full navtrain validation 的 selected
+  PDMS、best-of-64、regret 与最终 12,146-scene Navtest 同时接近公开权重，才算复现。
 - `2.5e-4` 的短实验没有明显更优，暂不占用完整曲线资源。
 - Lightning 2.5.1/2.6.0 需在同一 16×1 布局上比较；4×4 结果不用来代替该对照。
 - 若 cosine 闭合公开 checkpoint 的更新幅度和 PDMS，主因判为私有 launcher 很可能
   启用了发布源码中存在但 YAML 未启用的 schedule。
-- 若 16×1 完整曲线仍低于公开权重，下一优先级是实际 LR/scheduler，然后才是
-  H20/A800 训练时 SDPA kernel 的不可消除差异；不会回到样本顺序作为主解释。
+- 若 cosine 完整曲线仍低于公开权重，下一优先级是同一锁定运行时下的恒定 `5e-5`
+  完整对照，然后才是 H20/A800 训练时 SDPA kernel 的不可消除差异；不会回到样本
+  顺序作为主解释。
 
 轻量审计结果保存在：
 
@@ -231,3 +277,8 @@ action-head 参数的更新 RMS 分别为 `0.0031865` 和 `0.0032139`，范数�
 ```
 
 大型 checkpoint 只保存在实验目录，不提交 Git。
+
+代码交付验证使用与训练一致的锁定运行时完成：`pytest -q tests` 为
+`48 passed, 16 warnings`。默认交互 shell 的旧 `navsim` 环境缺少 `peft`，会在
+测试收集阶段报 `ModuleNotFoundError`；这是环境依赖缺口，不是本次测试失败，也未
+用于训练进程。

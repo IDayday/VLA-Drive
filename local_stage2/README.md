@@ -98,13 +98,20 @@ smoke run must pass before a multi-day run is started.
 
 The multi-node launcher defaults to Lightning 2.6.0. A pre-existing package
 overlay can be selected without modifying the packed Torch runtime. For the
-locked 2.5.1 control used by this audit:
+locked Lightning/Transformers runtime used by this audit:
 
 ```bash
 STAGE2_LIGHTNING_OVERLAY=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_5_1 \
 STAGE2_REQUIRE_LIGHTNING_VERSION=2.5.1 \
+STAGE2_TRANSFORMERS_OVERLAY=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3 \
+STAGE2_REQUIRE_TRANSFORMERS_VERSION=4.48.3 \
   ./local_stage2/launch_stage2_multinode_reproduction.sh
 ```
+
+Both version requirements are checked on node 0 and node 1 before either
+launcher allocates GPUs. The two runtime JSON records must be byte-for-byte
+identical. This matters even when the Python executable path is shared because
+host-local package paths can otherwise resolve different dependencies.
 
 The public repository describes itself as a deployment package and does not
 publish the private Stage-2 launcher. Its generic training YAML still points at
@@ -127,21 +134,25 @@ and every run records the optimizer-group LR rather than inferring it from a
 field name. Constant `5e-5` is a required full-run control, not merely a small
 learning-rate sensitivity test.
 
-The released YAML explicitly uses `scheduler_args: null`, and the paper does
-not mention a scheduler. Keep that directly published behavior with
-`STAGE2_SCHEDULER=none`. However, the released implementation contains a fully
-implemented 10% linear-warmup/cosine branch, and the released action-head
-checkpoint has only about 0.53 times the RMS displacement of the completed
-local constant-`1e-4` run (module-wise ratios are 0.48--0.66). Both constant
-`5e-5` and a peak-`1e-4` cosine schedule have approximately half the integrated
-LR of constant `1e-4`; checkpoint displacement alone cannot distinguish them.
-Because `scheduler_args: null` is direct evidence, the constant-`5e-5` control
-has priority over the undocumented scheduler, while the source-cosine path
-remains the next full-run diagnostic:
+The released YAML explicitly uses `scheduler_args: null`, but that same file
+also contains single-device and batch defaults that contradict the paper and
+checkpoint step count, so it is not the private training recipe. The released
+implementation contains a complete 10% linear-warmup/cosine branch. That
+branch is line-for-line inherited from DrivoR, whose training YAML enables it;
+ReCogDrive, the VLM source used by DriveVLA-M0, also uses warmup/cosine for its
+imitation stage. The released action-head checkpoint has only about 0.53 times
+the RMS displacement of the completed local constant-`1e-4` run (module-wise
+ratios are 0.48--0.66). Both constant `5e-5` and peak-`1e-4` cosine have
+approximately half the integrated LR of constant `1e-4`, so displacement alone
+cannot distinguish them. Source lineage plus the paper's reported `1e-4` make
+peak-`1e-4` source cosine the primary full-run hypothesis, with constant
+`5e-5` retained as the competing control:
 
 ```bash
 STAGE2_SCHEDULER=source_cosine \
-  ./local_stage2/launch_stage2_reproduction.sh
+STAGE2_BASE_LR=1e-4 \
+STAGE2_BASE_BATCH_SIZE=16 \
+  ./local_stage2/launch_stage2_multinode_reproduction.sh
 ```
 
 `STAGE2_BASE_LR` and `STAGE2_BASE_BATCH_SIZE` are explicit because the optimizer
@@ -152,9 +163,10 @@ names alone.
 The shared path `/mnt/project/DriveVLA-M0-env/bin/python` is a symlink into a
 host-local conda environment. It can therefore resolve to different Python and
 Lightning versions on different servers even though the path text is the
-same. Every launch now prints a `STAGE2_RUNTIME` JSON line. Set
-`STAGE2_REQUIRE_LIGHTNING_VERSION`, for example `2.6.0`, to fail before GPU
-allocation when the runtime does not match the intended ablation.
+same. Every launch now prints a `STAGE2_RUNTIME` JSON line. Set both
+`STAGE2_REQUIRE_LIGHTNING_VERSION` and
+`STAGE2_REQUIRE_TRANSFORMERS_VERSION` to fail before GPU allocation when the
+runtime does not match the intended experiment.
 
 The log files come from `/mnt/project/DriveDreamer-Policy/navsim_raw`, while
 sensor images default to the complete duplicate at
@@ -248,6 +260,22 @@ remaining ambiguous choices require A/B results and multi-seed validation.
 The measured diagnosis, including the Flash, seed, learning-rate, and
 checkpoint-displacement evidence, is maintained in
 `reports/stage2_reproduction_diagnosis/STAGE2_REPRODUCTION_DIAGNOSIS.md`.
+
+The additional read-only audits used to prioritize the corrected full run are
+available as standalone commands:
+
+```bash
+python local_stage2/audit_stage2_feature_cache_semantics.py --samples 128 --logs 64
+python local_stage2/audit_stage2_score_loss_signature.py
+python local_stage2/audit_stage2_optimizer_signature.py
+python local_stage2/audit_stage2_lr_schedule_signature.py \
+  /path/to/public_vs_constant_epoch0_update_direction.json
+python local_stage2/audit_stage2_vlm_runtime.py --help
+```
+
+The LR-signature audit is explicitly a squared-LR random-walk approximation;
+it prioritizes full-run controls and does not claim to reconstruct the private
+optimizer state from weights alone.
 
 The repository's older `cache_hidden_state=true` path is intentionally not used
 for this controlled reproduction. Its feature builder constructs a backbone

@@ -12,7 +12,9 @@ remote_host="${STAGE2_REMOTE_HOST:-training-vla-zt2}"
 portable_python="${STAGE2_PORTABLE_PYTHON:-/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python}"
 portable_extra_site="${STAGE2_PORTABLE_EXTRA_SITE:-/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages}"
 lightning_overlay="${STAGE2_LIGHTNING_OVERLAY:-}"
+transformers_overlay="${STAGE2_TRANSFORMERS_OVERLAY:-}"
 required_lightning="${STAGE2_REQUIRE_LIGHTNING_VERSION:-2.6.0}"
+required_transformers="${STAGE2_REQUIRE_TRANSFORMERS_VERSION:-}"
 experiment="${STAGE2_EXPERIMENT:-stage2_reproduction_seed2_eager_lr1e4_16x1}"
 output_dir="${STAGE2_OUTPUT_DIR:-${DRIVEVLA_STAGE2_RUN_ROOT}/training/${experiment}}"
 master_addr="${STAGE2_MASTER_ADDR:-$(hostname -i | awk '{print $1}')}"
@@ -34,6 +36,10 @@ if [[ -n "${lightning_overlay}" && ! -d "${lightning_overlay}" ]]; then
   echo "Lightning overlay does not exist: ${lightning_overlay}" >&2
   exit 1
 fi
+if [[ -n "${transformers_overlay}" && ! -d "${transformers_overlay}" ]]; then
+  echo "Transformers overlay does not exist: ${transformers_overlay}" >&2
+  exit 1
+fi
 if [[ -d "${output_dir}" ]] \
   && [[ -n "$(find "${output_dir}" -mindepth 1 -print -quit 2>/dev/null)" ]]; then
   echo "Refusing to overwrite nonempty run directory: ${output_dir}" >&2
@@ -48,6 +54,9 @@ probe_pythonpath="${DRIVEVLA_REPO_ROOT}:${DRIVEVLA_REPO_ROOT}/nuplan-devkit:${po
 if [[ -n "${lightning_overlay}" ]]; then
   probe_pythonpath="${lightning_overlay}:${probe_pythonpath}"
 fi
+if [[ -n "${transformers_overlay}" ]]; then
+  probe_pythonpath="${transformers_overlay}:${probe_pythonpath}"
+fi
 local_runtime="$(PYTHONPATH="${probe_pythonpath}" "${runtime_probe[@]}")"
 remote_runtime="$(ssh -o BatchMode=yes "${remote_host}" \
   "cd $(printf '%q' "${DRIVEVLA_REPO_ROOT}") && PYTHONPATH=$(printf '%q' "${probe_pythonpath}") $(printf '%q ' "${runtime_probe[@]}")")"
@@ -59,6 +68,11 @@ if [[ "${local_runtime}" != "${remote_runtime}" ]]; then
 fi
 if [[ "${local_runtime}" != *"\"lightning\": \"${required_lightning}\""* ]]; then
   echo "Expected the locked Lightning ${required_lightning} runtime, got: ${local_runtime}" >&2
+  exit 1
+fi
+if [[ -n "${required_transformers}" ]] \
+  && [[ "${local_runtime}" != *"\"transformers\": \"${required_transformers}\""* ]]; then
+  echo "Expected the locked Transformers ${required_transformers} runtime, got: ${local_runtime}" >&2
   exit 1
 fi
 
@@ -105,6 +119,7 @@ common_environment=(
   "DRIVEVLA_PYTHON=${portable_python}"
   "PYTHONPATH=${probe_pythonpath}"
   "STAGE2_REQUIRE_LIGHTNING_VERSION=${required_lightning}"
+  "STAGE2_REQUIRE_TRANSFORMERS_VERSION=${required_transformers}"
   "STAGE2_EXPERIMENT=${experiment}"
   "STAGE2_OUTPUT_DIR=${output_dir}"
   "STAGE2_NUM_GPUS=8"
