@@ -8,6 +8,7 @@ from local_stage2.export_public_base_scorer_cache import (
     _partition_tokens,
 )
 from local_stage2.score_public_base_scorer_cache import _belongs_to_worker
+from local_stage2.train_public_base_residual_scorer import binary_factor_loss
 from local_stage2.public_base_residual_scorer import (
     PublicBaseResidualRanker,
     ResidualScorerConfig,
@@ -202,3 +203,23 @@ def test_pdm_log_aggregate_matches_public_formula():
         ).log()
     )
     assert torch.allclose(pdm_log_aggregate(logits), expected, atol=1e-6)
+
+
+def test_binary_factor_loss_maps_partial_noc_and_ddc_to_failure():
+    logits = torch.zeros(1, 1, 6)
+    partial = torch.tensor([[[0.5, 1.0, 0.5, 1.0, 0.8, 1.0]]])
+    failure = torch.tensor([[[0.0, 1.0, 0.0, 1.0, 0.8, 1.0]]])
+    assert torch.equal(
+        binary_factor_loss(logits, partial, 10.0),
+        binary_factor_loss(logits, failure, 10.0),
+    )
+
+
+def test_binary_factor_loss_upweights_safety_violations():
+    logits = torch.full((1, 1, 6), 4.0)
+    safe = torch.ones(1, 1, 6)
+    unsafe = safe.clone()
+    unsafe[..., 0] = 0.0
+    unweighted = binary_factor_loss(logits, unsafe, 1.0)
+    weighted = binary_factor_loss(logits, unsafe, 20.0)
+    assert weighted > unweighted

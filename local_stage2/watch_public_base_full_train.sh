@@ -59,17 +59,22 @@ while ! cache_complete || ! incumbents_finished || ! gpus_are_free; do
 done
 
 names=(
-  full_local_residual_top8_seed2_v1
-  full_local_hybrid_top8_seed2_v1
-  full_local_residual_top16_seed2_v1
-  full_local_hybrid_top16_seed2_v1
+  full_local_residual_top8_safetyw1_seed2_v1
+  full_local_residual_top8_safetyw10_seed2_v1
+  full_local_hybrid_top8_safetyw1_seed2_v1
+  full_local_hybrid_top8_safetyw10_seed2_v1
+  full_local_residual_top16_safetyw10_seed2_v1
+  full_local_hybrid_top16_safetyw10_seed2_v1
 )
-modes=(local local local local)
-score_modes=(residual hybrid residual hybrid)
-top_ks=(8 8 16 16)
+modes=(local local local local local local)
+score_modes=(residual residual hybrid hybrid residual hybrid)
+top_ks=(8 8 8 8 16 16)
+safety_weights=(1 10 1 10 10 10)
 pids=()
 
 for index in "${!names[@]}"; do
+  gpu_index=$((index % ${#gpus[@]}))
+  gpu="${gpus[gpu_index]}"
   output_dir="${run_root}/${names[index]}"
   if [[ -e "${output_dir}" ]]; then
     echo "Refusing to reuse output directory: ${output_dir}" >&2
@@ -87,6 +92,7 @@ for index in "${!names[@]}"; do
     --mode "${modes[index]}"
     --score-mode "${score_modes[index]}"
     --top-k "${top_ks[index]}"
+    --safety-negative-weight "${safety_weights[index]}"
     --seed 2
     --epochs 20
     --batch-size 128
@@ -95,11 +101,11 @@ for index in "${!names[@]}"; do
   )
   printf '%q ' "${command[@]}" > "${output_dir}/COMMAND.sh"
   printf '\n' >> "${output_dir}/COMMAND.sh"
-  CUDA_VISIBLE_DEVICES="${gpus[index]}" nohup "${command[@]}" \
+  CUDA_VISIBLE_DEVICES="${gpu}" nohup "${command[@]}" \
     > "${output_dir}/train.log" 2>&1 &
   pids+=("$!")
   printf 'SCORER_FULL_LAUNCH name=%s gpu=%s pid=%s\n' \
-    "${names[index]}" "${gpus[index]}" "${pids[index]}"
+    "${names[index]}" "${gpu}" "${pids[index]}"
 done
 
 failed=0

@@ -237,6 +237,47 @@ def expected_regret_loss(
     return (target.max(dim=-1).values - expected).mean()
 
 
+def binary_factor_loss(
+    predicted_factors: torch.Tensor,
+    target_six: torch.Tensor,
+    safety_negative_weight: float,
+) -> torch.Tensor:
+    """EpisodeDrive-compatible binary targets with rare-safety weighting."""
+
+    if predicted_factors.shape != target_six.shape:
+        raise ValueError("predicted and target factor shapes must match")
+    if safety_negative_weight <= 0:
+        raise ValueError("safety_negative_weight must be positive")
+    binary_target = target_six.clone()
+    # Match EpisodeDriveLoss.three_to_two_classes: partial NOC/DDC credit is a
+    # failure for the corresponding binary compliance classifier.
+    binary_target[..., 0] = (binary_target[..., 0] == 1.0).to(
+        binary_target.dtype
+    )
+    binary_target[..., 2] = (binary_target[..., 2] == 1.0).to(
+        binary_target.dtype
+    )
+    binary_indices = torch.tensor(
+        [0, 1, 2, 3, 5], device=target_six.device
+    )
+    selected_target = binary_target.index_select(-1, binary_indices)
+    element = F.binary_cross_entropy_with_logits(
+        predicted_factors.index_select(-1, binary_indices),
+        selected_target,
+        reduction="none",
+    )
+    weight = torch.ones_like(element)
+    # In the selected binary order these are NOC, DAC and TTC. Violations are
+    # rare but determine whether a high-progress proposal is deployably safe.
+    for index in (0, 1, 3):
+        weight[..., index] = torch.where(
+            selected_target[..., index] < 0.5,
+            safety_negative_weight,
+            1.0,
+        )
+    return (element * weight).sum() / weight.sum()
+
+
 def compute_training_loss(
     model: PublicBaseResidualRanker,
     batch: Sequence[torch.Tensor],
@@ -251,6 +292,7 @@ def compute_training_loss(
     expected_regret_weight: float,
     top_set_tolerance: float,
     prediction_temperature: float,
+    safety_negative_weight: float,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
     (
         proposals,
@@ -290,10 +332,10 @@ def compute_training_loss(
     reorder = torch.tensor([0, 1, 5, 3, 2, 4], device=target_factors.device)
     target_six = target_factors.index_select(-1, reorder)
     predicted_factors = output["refined_factor_logits"]
-    binary_indices = torch.tensor([0, 1, 2, 3, 5], device=target_factors.device)
-    binary = F.binary_cross_entropy_with_logits(
-        predicted_factors.index_select(-1, binary_indices),
-        target_six.index_select(-1, binary_indices),
+    binary = binary_factor_loss(
+        predicted_factors,
+        target_six,
+        safety_negative_weight,
     )
     progress = F.smooth_l1_loss(predicted_factors[..., 4].sigmoid(), target_six[..., 4])
     factor = binary + 2.0 * progress
@@ -611,6 +653,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pairwise-weight", type=float, default=1.0)
     parser.add_argument("--listwise-weight", type=float, default=0.2)
     parser.add_argument("--factor-weight", type=float, default=0.5)
+    parser.add_argument("--safety-negative-weight", type=float, default=10.0)
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
     parser.add_argument("--top-set-weight", type=float, default=0.5)
     parser.add_argument("--expected-regret-weight", type=float, default=2.0)
@@ -632,6 +675,8 @@ def main() -> None:
         raise RuntimeError("Source cache is incomplete")
     if args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but unavailable")
+    if args.safety_negative_weight <= 0:
+        raise ValueError("safety-negative-weight must be positive")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -723,6 +768,7 @@ def main() -> None:
                 expected_regret_weight=args.expected_regret_weight,
                 top_set_tolerance=args.top_set_tolerance,
                 prediction_temperature=args.prediction_temperature,
+                safety_negative_weight=args.safety_negative_weight,
             )
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)

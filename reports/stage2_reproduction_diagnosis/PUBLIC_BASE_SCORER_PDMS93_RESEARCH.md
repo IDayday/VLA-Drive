@@ -104,6 +104,18 @@ mean change in collision, DAC and TTC; the gain came predominantly from better
 progress selection. This is far below the roughly `+0.0204` Navtest improvement
 needed to exceed 0.93, so no benchmark claim follows.
 
+An oracle decomposition on the same 2,000-scene snapshot identifies safety
+classification as the immediate bottleneck. Within the released-score top 16,
+using the true safe set but the released progress prediction reaches
+`+0.01419`; using the predicted safe set but true progress reaches only
+`+0.00688`. The top-16 best-of-K gain is `+0.02053`. The label audit explains
+why ordinary BCE is weak here: only about 2.4% of NOC labels (including partial
+credit), 8.9% of DAC labels and 7.4% of TTC labels are violations. The new
+controlled loss therefore (1) maps partial NOC/DDC credit to binary failure as
+the official loss does and (2) compares unweighted BCE against a 10x
+rare-safety-negative weight. This is training supervision only; inference still
+uses current-observation features and proposals.
+
 ## Acceptance sequence
 
 1. Train and choose hyperparameters only on complete-log-disjoint Navtrain
