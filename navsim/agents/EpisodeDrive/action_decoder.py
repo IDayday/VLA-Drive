@@ -212,6 +212,11 @@ class ActionDecoder(nn.Module):
 
         output["trajectory"] = trajectory
         output["pdm_score"] = pdm_score
+        # Scorer research can opt in to the exact trajectory-conditioned token
+        # consumed by the released factor heads.  The default remains disabled,
+        # so public-checkpoint inference and its state_dict are unchanged.
+        if bool(getattr(self._config, "return_scorer_features", False)):
+            output["scorer_candidate_features"] = tr_out
         if bool(getattr(self._config, "return_memory_fields", False)):
             output["language_feature"] = scene_features
             output["ego_feature"] = ego_token

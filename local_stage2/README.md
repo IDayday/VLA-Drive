@@ -426,3 +426,42 @@ Set `DRIVEVLA_SCORE_PROCESSES=0`, disable the worker preprocessing switches, or
 override the launcher environment variables to restore the corresponding
 serial paths. Ray scoring remains disabled for this single-node DDP launcher
 because starting a separate local Ray cluster in every rank is unsafe.
+
+## Public-Base residual scorer cache and fine ranking
+
+The scorer-only follow-up keeps the released proposal bank fixed and exports
+only inference-time tensors. Independent GPU workers can write resumable token
+shards:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash local_stage2/export_public_base_scorer_cache.sh \
+  --split all --shard-count 3 --shard-index 0 \
+  --batch-size 16 --chunk-size 128
+```
+
+Attach offline PDM training labels in a physically separate tree:
+
+```bash
+bash local_stage2/score_public_base_scorer_cache.sh \
+  --num-workers 24 --watch
+```
+
+Train the zero-initialized top-16 residual ranker on official complete-log
+train/validation partitions:
+
+```bash
+bash local_stage2/train_public_base_residual_scorer.sh \
+  --mode local --top-k 16 --epochs 20 --require-complete-cache
+```
+
+The primary modes are `local` and `scene_cross_attention`; `set_aware` and
+`scene_cross_attention_set` are candidate-set interaction controls.
+`--score-mode residual` learns a bounded utility delta, `factor_aggregate`
+calibrates the six interpretable factor logits and reuses the released
+PDMS-style formula, and `hybrid` combines both deltas. Final artifact selection
+sweeps conservative shrinkage, a switch penalty, and factor-based safety gates
+on held-out complete logs. Partial-cache runs are architecture pilots only.
+
+The exported model artifact contains only the small residual head plus the
+immutable public-checkpoint path and hash. Its deployable agent class is
+`local_stage2.public_base_residual_scorer.PublicBaseResidualScorerAgent`.
