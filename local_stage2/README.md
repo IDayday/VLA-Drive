@@ -464,7 +464,10 @@ on held-out complete logs. Partial-cache runs are architecture pilots only.
 `--safety-negative-weight` controls the explicit rare-violation weight for NOC,
 DAC and TTC; weight 1 and weight 10 are retained as a predeclared full-data
 ablation. NOC/DDC targets with partial credit 0.5 are mapped to binary failure,
-matching the released EpisodeDrive training loss.
+matching the released EpisodeDrive training loss. A separately supervised
+composite NOC-and-DAC-and-TTC head is also swept as a safety-gate control;
+`factor_all` remains the default unless held-out selection chooses the
+composite gate.
 
 The exported model artifact contains only the small residual head plus the
 immutable public-checkpoint path and hash. Its deployable agent class is

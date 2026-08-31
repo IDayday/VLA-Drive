@@ -59,18 +59,41 @@ while ! cache_complete || ! incumbents_finished || ! gpus_are_free; do
 done
 
 names=(
-  full_local_residual_top8_safetyw1_seed2_v1
-  full_local_residual_top8_safetyw10_seed2_v1
+  full_local_hybrid_top16_safetyw1_seed2_v1
+  full_local_residual_top16_safetyw1_seed2_v1
   full_local_hybrid_top8_safetyw1_seed2_v1
-  full_local_hybrid_top8_safetyw10_seed2_v1
-  full_local_residual_top16_safetyw10_seed2_v1
-  full_local_hybrid_top16_safetyw10_seed2_v1
+  full_local_residual_top8_safetyw1_seed2_v1
+  full_local_hybrid_top16_safetyw1_seed0_v1
+  full_local_residual_top16_safetyw1_seed0_v1
+  full_local_hybrid_top16_safetyw1_seed1_v1
+  full_local_residual_top16_safetyw1_seed1_v1
 )
-modes=(local local local local local local)
-score_modes=(residual residual hybrid hybrid residual hybrid)
-top_ks=(8 8 8 8 16 16)
-safety_weights=(1 10 1 10 10 10)
+modes=(local local local local local local local local)
+score_modes=(hybrid residual hybrid residual hybrid residual hybrid residual)
+top_ks=(16 16 8 8 16 16 16 16)
+safety_weights=(1 1 1 1 1 1 1 1)
+seeds=(2 2 2 2 0 0 1 1)
 pids=()
+pid_names=()
+
+wait_for_wave() {
+  local index status
+  for index in "${!pids[@]}"; do
+    if wait "${pids[index]}"; then
+      printf 'SCORER_FULL_DONE name=%s pid=%s\n' \
+        "${pid_names[index]}" "${pids[index]}"
+    else
+      status="$?"
+      printf 'SCORER_FULL_FAILED name=%s pid=%s status=%s\n' \
+        "${pid_names[index]}" "${pids[index]}" "${status}" >&2
+      failed=1
+    fi
+  done
+  pids=()
+  pid_names=()
+}
+
+failed=0
 
 for index in "${!names[@]}"; do
   gpu_index=$((index % ${#gpus[@]}))
@@ -93,7 +116,7 @@ for index in "${!names[@]}"; do
     --score-mode "${score_modes[index]}"
     --top-k "${top_ks[index]}"
     --safety-negative-weight "${safety_weights[index]}"
-    --seed 2
+    --seed "${seeds[index]}"
     --epochs 20
     --batch-size 128
     --eval-batch-size 256
@@ -103,20 +126,16 @@ for index in "${!names[@]}"; do
   printf '\n' >> "${output_dir}/COMMAND.sh"
   CUDA_VISIBLE_DEVICES="${gpu}" nohup "${command[@]}" \
     > "${output_dir}/train.log" 2>&1 &
-  pids+=("$!")
+  launched_pid="$!"
+  pids+=("${launched_pid}")
+  pid_names+=("${names[index]}")
   printf 'SCORER_FULL_LAUNCH name=%s gpu=%s pid=%s\n' \
-    "${names[index]}" "${gpu}" "${pids[index]}"
-done
-
-failed=0
-for index in "${!pids[@]}"; do
-  if wait "${pids[index]}"; then
-    printf 'SCORER_FULL_DONE name=%s pid=%s\n' "${names[index]}" "${pids[index]}"
-  else
-    status="$?"
-    printf 'SCORER_FULL_FAILED name=%s pid=%s status=%s\n' \
-      "${names[index]}" "${pids[index]}" "${status}" >&2
-    failed=1
+    "${names[index]}" "${gpu}" "${launched_pid}"
+  if [[ "${#pids[@]}" -eq "${#gpus[@]}" ]]; then
+    wait_for_wave
   fi
 done
+if [[ "${#pids[@]}" -gt 0 ]]; then
+  wait_for_wave
+fi
 exit "${failed}"

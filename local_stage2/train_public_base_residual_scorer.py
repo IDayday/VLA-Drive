@@ -293,6 +293,7 @@ def compute_training_loss(
     top_set_tolerance: float,
     prediction_temperature: float,
     safety_negative_weight: float,
+    composite_safety_weight: float,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
     (
         proposals,
@@ -337,6 +338,24 @@ def compute_training_loss(
         target_six,
         safety_negative_weight,
     )
+    composite_target = (
+        (target_six[..., 0] == 1.0)
+        & (target_six[..., 1] == 1.0)
+        & (target_six[..., 3] == 1.0)
+    ).to(predicted_factors.dtype)
+    composite_element = F.binary_cross_entropy_with_logits(
+        output["refined_composite_safety_logit"],
+        composite_target,
+        reduction="none",
+    )
+    composite_weight = torch.where(
+        composite_target < 0.5,
+        safety_negative_weight,
+        1.0,
+    )
+    composite_safety = (
+        composite_element * composite_weight
+    ).sum() / composite_weight.sum()
     progress = F.smooth_l1_loss(predicted_factors[..., 4].sigmoid(), target_six[..., 4])
     factor = binary + 2.0 * progress
     residual_l2 = output["residual"].square().mean()
@@ -347,6 +366,7 @@ def compute_training_loss(
         + residual_l2_weight * residual_l2
         + top_set_weight * top_set
         + expected_regret_weight * expected_regret
+        + composite_safety_weight * composite_safety
     )
     return total, {
         "loss": float(total.detach()),
@@ -356,6 +376,7 @@ def compute_training_loss(
         "residual_l2": float(residual_l2.detach()),
         "top_set_loss": float(top_set.detach()),
         "expected_regret_loss": float(expected_regret.detach()),
+        "composite_safety_loss": float(composite_safety.detach()),
     }
 
 
@@ -365,6 +386,8 @@ def _log_bootstrap_ci(
     seed: int,
     replicates: int = 1000,
 ) -> Tuple[float, float]:
+    if replicates <= 0:
+        return float("nan"), float("nan")
     grouped: Dict[str, List[float]] = {}
     for value, log_name in zip(values, log_names):
         grouped.setdefault(str(log_name), []).append(float(value))
@@ -391,6 +414,7 @@ class EvaluationOutputs:
     base_scores: torch.Tensor
     residual: torch.Tensor
     refined_factor_logits: torch.Tensor
+    refined_composite_safety_logits: torch.Tensor
     top_k_mask: torch.Tensor
     target_factors: torch.Tensor
 
@@ -406,6 +430,7 @@ def collect_evaluation_outputs(
     base_scores_output: List[torch.Tensor] = []
     residual_output: List[torch.Tensor] = []
     refined_factor_output: List[torch.Tensor] = []
+    refined_composite_output: List[torch.Tensor] = []
     top_k_output: List[torch.Tensor] = []
     target_output: List[torch.Tensor] = []
     dataset = TensorDataset(
@@ -441,12 +466,16 @@ def collect_evaluation_outputs(
         refined_factor_output.append(
             output["refined_factor_logits"].float().cpu()
         )
+        refined_composite_output.append(
+            output["refined_composite_safety_logit"].float().cpu()
+        )
         top_k_output.append(output["top_k_mask"].cpu())
         target_output.append(target_factors.float().cpu())
     return EvaluationOutputs(
         base_scores=torch.cat(base_scores_output),
         residual=torch.cat(residual_output),
         refined_factor_logits=torch.cat(refined_factor_output),
+        refined_composite_safety_logits=torch.cat(refined_composite_output),
         top_k_mask=torch.cat(top_k_output),
         target_factors=torch.cat(target_output),
     )
@@ -462,6 +491,8 @@ def evaluate_collected(
     safety_floor: float,
     safety_relative_tolerance: float,
     preserve_ddc: bool,
+    safety_gate_mode: str,
+    bootstrap_replicates: int = 1000,
 ) -> Dict[str, object]:
     base_scores = outputs.base_scores
     target_factors = outputs.target_factors
@@ -475,18 +506,28 @@ def evaluate_collected(
         (~base_selected_mask).to(refined_scores.dtype) * switch_penalty
     )
 
-    safety_indices = [0, 1, 3]
-    if preserve_ddc:
-        safety_indices.append(2)
-    probabilities = outputs.refined_factor_logits.sigmoid()[..., safety_indices]
-    base_probabilities = probabilities.gather(
-        1,
-        base_index[:, None, None].expand(-1, 1, len(safety_indices)),
-    )
-    safety_mask = (probabilities >= safety_floor).all(dim=-1)
-    safety_mask &= (
-        probabilities >= base_probabilities - safety_relative_tolerance
-    ).all(dim=-1)
+    if safety_gate_mode == "composite":
+        probabilities = outputs.refined_composite_safety_logits.sigmoid()
+        base_probabilities = probabilities.gather(1, base_index[:, None])
+        safety_mask = probabilities >= safety_floor
+        safety_mask &= (
+            probabilities >= base_probabilities - safety_relative_tolerance
+        )
+    elif safety_gate_mode == "factor_all":
+        safety_indices = [0, 1, 3]
+        if preserve_ddc:
+            safety_indices.append(2)
+        probabilities = outputs.refined_factor_logits.sigmoid()[..., safety_indices]
+        base_probabilities = probabilities.gather(
+            1,
+            base_index[:, None, None].expand(-1, 1, len(safety_indices)),
+        )
+        safety_mask = (probabilities >= safety_floor).all(dim=-1)
+        safety_mask &= (
+            probabilities >= base_probabilities - safety_relative_tolerance
+        ).all(dim=-1)
+    else:
+        raise ValueError("safety_gate_mode must be factor_all or composite")
     eligible = outputs.top_k_mask & safety_mask
     eligible |= base_selected_mask
     selection_scores = torch.where(eligible, refined_scores, base_scores - 100.0)
@@ -533,7 +574,12 @@ def evaluate_collected(
     oracle_factors = oracle_factors_tensor.numpy()
     switch_mask = (base_index != model_index).numpy()
     delta = model_values - base
-    ci = _log_bootstrap_ci(delta, log_names, seed)
+    ci = _log_bootstrap_ci(
+        delta,
+        log_names,
+        seed,
+        replicates=bootstrap_replicates,
+    )
     base_factor_means = {
         key: float(base_factors[:, index].mean())
         for index, key in enumerate(LABEL_FACTOR_KEYS)
@@ -569,6 +615,7 @@ def evaluate_collected(
         "safety_floor": float(safety_floor),
         "safety_relative_tolerance": float(safety_relative_tolerance),
         "preserve_ddc": bool(preserve_ddc),
+        "safety_gate_mode": safety_gate_mode,
         "selection_switch_rate": float(switch_mask.mean()),
         "improved_scene_count_delta_gt_0_01": int((delta > 0.01).sum()),
         "degraded_scene_count_delta_lt_minus_0_01": int((delta < -0.01).sum()),
@@ -593,6 +640,7 @@ def evaluate(
     safety_floor: Optional[float] = None,
     safety_relative_tolerance: Optional[float] = None,
     preserve_ddc: Optional[bool] = None,
+    safety_gate_mode: Optional[str] = None,
 ) -> Dict[str, object]:
     outputs = collect_evaluation_outputs(model, data, device, batch_size)
     return evaluate_collected(
@@ -615,6 +663,11 @@ def evaluate(
         ),
         preserve_ddc=(
             model.config.preserve_ddc if preserve_ddc is None else preserve_ddc
+        ),
+        safety_gate_mode=(
+            model.config.safety_gate_mode
+            if safety_gate_mode is None
+            else safety_gate_mode
         ),
     )
 
@@ -653,7 +706,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pairwise-weight", type=float, default=1.0)
     parser.add_argument("--listwise-weight", type=float, default=0.2)
     parser.add_argument("--factor-weight", type=float, default=0.5)
-    parser.add_argument("--safety-negative-weight", type=float, default=10.0)
+    parser.add_argument("--safety-negative-weight", type=float, default=1.0)
+    parser.add_argument("--composite-safety-weight", type=float, default=1.0)
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
     parser.add_argument("--top-set-weight", type=float, default=0.5)
     parser.add_argument("--expected-regret-weight", type=float, default=2.0)
@@ -677,6 +731,8 @@ def main() -> None:
         raise RuntimeError("CUDA requested but unavailable")
     if args.safety_negative_weight <= 0:
         raise ValueError("safety-negative-weight must be positive")
+    if args.composite_safety_weight < 0:
+        raise ValueError("composite-safety-weight must be non-negative")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -769,6 +825,7 @@ def main() -> None:
                 top_set_tolerance=args.top_set_tolerance,
                 prediction_temperature=args.prediction_temperature,
                 safety_negative_weight=args.safety_negative_weight,
+                composite_safety_weight=args.composite_safety_weight,
             )
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
@@ -801,18 +858,28 @@ def main() -> None:
         model, val_data, device, args.eval_batch_size
     )
     scale_sweep = []
-    safety_settings = (
-        (0.0, 1.0, False),
-        (0.95, 0.10, False),
-        (0.95, 0.02, False),
-        (0.95, 0.01, False),
-        (0.98, 0.10, False),
-        (0.95, 0.10, True),
-        (0.95, 0.02, True),
+    safety_settings = [
+        (0.0, 1.0, False, "factor_all"),
+        (0.95, 0.10, False, "factor_all"),
+        (0.95, 0.02, False, "factor_all"),
+        (0.95, 0.01, False, "factor_all"),
+        (0.98, 0.10, False, "factor_all"),
+        (0.95, 0.10, True, "factor_all"),
+        (0.95, 0.02, True, "factor_all"),
+    ]
+    safety_settings.extend(
+        (floor, tolerance, False, "composite")
+        for floor in (0.5, 0.7, 0.8, 0.9, 0.95, 0.98)
+        for tolerance in (0.02, 0.10, 1.0)
     )
     for scale in (0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0):
         for penalty in (0.0, 0.001, 0.002, 0.005, 0.01, 0.02):
-            for safety_floor, safety_tolerance, preserve_ddc in safety_settings:
+            for (
+                safety_floor,
+                safety_tolerance,
+                preserve_ddc,
+                safety_gate_mode,
+            ) in safety_settings:
                 metrics = evaluate_collected(
                     validation_outputs,
                     val_data.log_names,
@@ -822,6 +889,8 @@ def main() -> None:
                     safety_floor=safety_floor,
                     safety_relative_tolerance=safety_tolerance,
                     preserve_ddc=preserve_ddc,
+                    safety_gate_mode=safety_gate_mode,
+                    bootstrap_replicates=0,
                 )
                 scale_sweep.append(metrics)
     safety_tolerance = 5e-4
@@ -853,6 +922,7 @@ def main() -> None:
                 best_scale_metrics["safety_relative_tolerance"]
             ),
             preserve_ddc=bool(best_scale_metrics["preserve_ddc"]),
+            safety_gate_mode=str(best_scale_metrics["safety_gate_mode"]),
         )
     ).to(device)
     deployed_model.load_state_dict(model.state_dict(), strict=True)

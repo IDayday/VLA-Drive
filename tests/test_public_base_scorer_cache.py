@@ -104,13 +104,17 @@ def test_proposal_kinematics_are_finite_across_heading_wrap():
     assert features.abs().max() <= 1.1
 
 
-def test_safety_gate_keeps_base_candidate_and_filters_predicted_unsafe():
+@pytest.mark.parametrize("safety_gate_mode", ["factor_all", "composite"])
+def test_safety_gate_keeps_base_candidate_and_filters_predicted_unsafe(
+    safety_gate_mode: str,
+):
     model = PublicBaseResidualRanker(
         ResidualScorerConfig(
             dropout=0.0,
             top_k=4,
             safety_floor=0.95,
             safety_relative_tolerance=0.05,
+            safety_gate_mode=safety_gate_mode,
         )
     ).eval()
     proposals = torch.zeros(1, 4, 8, 3)
@@ -121,6 +125,10 @@ def test_safety_gate_keeps_base_candidate_and_filters_predicted_unsafe():
     output = model(features, proposals, logits, scores)
     assert output["eligible_mask"].tolist() == [[True, False, False, False]]
     assert output["selection_scores"].argmax(dim=1).item() == 0
+    assert torch.equal(
+        output["refined_composite_safety_logit"],
+        logits[..., [0, 1, 3]].amin(dim=-1),
+    )
 
 
 @pytest.mark.parametrize(

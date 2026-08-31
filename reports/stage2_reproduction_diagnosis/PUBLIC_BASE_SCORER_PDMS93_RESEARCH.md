@@ -116,6 +116,16 @@ the official loss does and (2) compares unweighted BCE against a 10x
 rare-safety-negative weight. This is training supervision only; inference still
 uses current-observation features and proposals.
 
+The controlled top-8 hybrid pilots further narrow the choice. The unweighted
+factor loss improved selected PDMS by `+0.00467`; 10x violation weighting was
+weaker at `+0.00404`. Adding a direct composite safety target for the
+NOC/DAC/TTC conjunction at weight 1 reproduced `+0.00467` to within `0.000002`,
+but held-out selection still chose the original per-factor gate. Composite
+weight 5 fell to `+0.00319`. Thus a simple extra conjunction classifier is not
+the missing improvement; it remains a negative control. The complete-cache
+queue prioritizes top-16 unweighted residual and hybrid models across three
+seeds, with top-8 runs retained as the candidate-headroom control.
+
 ## Acceptance sequence
 
 1. Train and choose hyperparameters only on complete-log-disjoint Navtrain

@@ -50,6 +50,7 @@ class ResidualScorerConfig:
     safety_floor: float = 0.0
     safety_relative_tolerance: float = 1.0
     preserve_ddc: bool = False
+    safety_gate_mode: str = "factor_all"
 
     def __post_init__(self) -> None:
         if self.mode not in {
@@ -84,6 +85,8 @@ class ResidualScorerConfig:
             raise ValueError("safety_floor must be in [0, 1]")
         if self.safety_relative_tolerance < 0:
             raise ValueError("safety_relative_tolerance must be non-negative")
+        if self.safety_gate_mode not in {"factor_all", "composite"}:
+            raise ValueError("safety_gate_mode must be factor_all or composite")
 
 
 def _wrap_angle(value: torch.Tensor) -> torch.Tensor:
@@ -270,8 +273,15 @@ class PublicBaseResidualRanker(nn.Module):
             nn.GELU(),
             nn.Linear(config.hidden_dim, len(FACTOR_KEYS)),
         )
+        self.safety_delta_head = nn.Sequential(
+            nn.LayerNorm(config.hidden_dim),
+            nn.Linear(config.hidden_dim, config.hidden_dim),
+            nn.GELU(),
+            nn.Linear(config.hidden_dim, 1),
+        )
         _zero_last(self.utility_head)
         _zero_last(self.factor_delta_head)
+        _zero_last(self.safety_delta_head)
 
     def forward(
         self,
@@ -328,6 +338,13 @@ class PublicBaseResidualRanker(nn.Module):
             self.utility_head(hidden).squeeze(-1)
         )
         refined_factor_logits = base_factor_logits + self.factor_delta_head(hidden)
+        base_composite_safety_logit = base_factor_logits[..., [0, 1, 3]].amin(
+            dim=-1
+        )
+        refined_composite_safety_logit = (
+            base_composite_safety_logit
+            + self.safety_delta_head(hidden).squeeze(-1)
+        )
         raw_factor_delta = pdm_log_aggregate(
             refined_factor_logits
         ) - pdm_log_aggregate(base_factor_logits)
@@ -349,19 +366,28 @@ class PublicBaseResidualRanker(nn.Module):
         base_selected = torch.zeros_like(base_scores, dtype=torch.bool)
         base_indices = base_scores.argmax(dim=1, keepdim=True)
         base_selected.scatter_(1, base_indices, True)
-        safety_indices = [0, 1, 3]
-        if self.config.preserve_ddc:
-            safety_indices.append(2)
-        safety_probabilities = refined_factor_logits.sigmoid()[..., safety_indices]
-        base_safety = safety_probabilities.gather(
-            1,
-            base_indices[..., None].expand(-1, 1, len(safety_indices)),
-        )
-        safe = (safety_probabilities >= self.config.safety_floor).all(dim=-1)
-        safe &= (
-            safety_probabilities
-            >= base_safety - self.config.safety_relative_tolerance
-        ).all(dim=-1)
+        if self.config.safety_gate_mode == "composite":
+            safety_probabilities = refined_composite_safety_logit.sigmoid()
+            base_safety = safety_probabilities.gather(1, base_indices)
+            safe = safety_probabilities >= self.config.safety_floor
+            safe &= (
+                safety_probabilities
+                >= base_safety - self.config.safety_relative_tolerance
+            )
+        else:
+            safety_indices = [0, 1, 3]
+            if self.config.preserve_ddc:
+                safety_indices.append(2)
+            safety_probabilities = refined_factor_logits.sigmoid()[..., safety_indices]
+            base_safety = safety_probabilities.gather(
+                1,
+                base_indices[..., None].expand(-1, 1, len(safety_indices)),
+            )
+            safe = (safety_probabilities >= self.config.safety_floor).all(dim=-1)
+            safe &= (
+                safety_probabilities
+                >= base_safety - self.config.safety_relative_tolerance
+            ).all(dim=-1)
         eligible &= safe
         eligible |= base_selected
         adjusted_scores = refined_scores - (
@@ -374,6 +400,7 @@ class PublicBaseResidualRanker(nn.Module):
             "residual": score_delta,
             "utility_delta": utility_delta,
             "factor_score_delta": factor_score_delta,
+            "refined_composite_safety_logit": refined_composite_safety_logit,
             "refined_scores": refined_scores,
             "selection_scores": selection_scores,
             "refined_factor_logits": refined_factor_logits,
@@ -457,7 +484,20 @@ class PublicBaseResidualScorerAgent(EpisodeDriveAgent):
             self.checkpoint_path = requested_path
         self._install_residual(artifact["model_config"])
         assert self.residual_scorer is not None
-        self.residual_scorer.load_state_dict(artifact["model_state_dict"], strict=True)
+        incompatible = self.residual_scorer.load_state_dict(
+            artifact["model_state_dict"], strict=False
+        )
+        allowed_missing = {
+            key
+            for key in self.residual_scorer.state_dict()
+            if key.startswith("safety_delta_head.")
+        }
+        if set(incompatible.missing_keys) - allowed_missing or incompatible.unexpected_keys:
+            raise RuntimeError(
+                "Incompatible residual scorer artifact: "
+                f"missing={incompatible.missing_keys}, "
+                f"unexpected={incompatible.unexpected_keys}"
+            )
         self._residual_artifact = artifact
         print(f"✅ Residual scorer artifact loaded: {requested}")
 
@@ -496,7 +536,7 @@ def build_residual_artifact(
 ) -> Dict[str, object]:
     return {
         "artifact_type": PublicBaseResidualScorerAgent.ARTIFACT_TYPE,
-        "artifact_version": 1,
+        "artifact_version": 2,
         "base_checkpoint_path": str(base_checkpoint_path.resolve()),
         "base_checkpoint_sha256": _sha256(base_checkpoint_path),
         "model_config": asdict(model.config),
