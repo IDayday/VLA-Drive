@@ -86,12 +86,17 @@ def _persist_log_rows(root: Path, log_name: str, rows: List[Dict[str, Any]]) -> 
     scalar_rows: List[Dict[str, Any]] = []
     score_by_token: Dict[str, np.ndarray] = {}
     prediction_by_token: Dict[str, np.ndarray] = {}
+    factors_by_token: Dict[str, np.ndarray] = {}
     for source in rows:
         row = dict(source)
         if row.get("valid"):
             token = str(row["token"])
             score_by_token[token] = np.asarray(row.pop("candidate_scores"), dtype=np.float32)
             prediction_by_token[token] = np.asarray(row.pop("predicted_scores"), dtype=np.float32)
+            if "candidate_factors" in row:
+                factors_by_token[token] = np.asarray(
+                    row.pop("candidate_factors"), dtype=np.float32
+                )
         scalar_rows.append(row)
 
     valid_tokens = sorted(score_by_token)
@@ -102,12 +107,22 @@ def _persist_log_rows(root: Path, log_name: str, rows: List[Dict[str, Any]]) -> 
         candidate_scores = np.empty((0, 0), dtype=np.float32)
         predicted_scores = np.empty((0, 0), dtype=np.float32)
 
+    if factors_by_token and set(factors_by_token) != set(valid_tokens):
+        raise ValueError("Candidate factor coverage differs from valid score coverage")
+    candidate_factors = (
+        np.stack([factors_by_token[token] for token in valid_tokens])
+        if factors_by_token
+        else np.empty((0, 0, 0), dtype=np.float32)
+    )
+
     _atomic_write_csv(directory / "rows.csv", pd.DataFrame(scalar_rows))
     _atomic_write_npz(
         directory / "scores.npz",
         tokens=np.asarray(valid_tokens),
         candidate_scores=candidate_scores,
         predicted_scores=predicted_scores,
+        candidate_factors=candidate_factors,
+        candidate_factor_names=np.asarray(FACTOR_NAMES),
     )
     manifest = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -115,6 +130,7 @@ def _persist_log_rows(root: Path, log_name: str, rows: List[Dict[str, Any]]) -> 
         "scene_count": len(rows),
         "valid_scene_count": len(valid_tokens),
         "invalid_scene_count": len(rows) - len(valid_tokens),
+        "candidate_factors_present": bool(factors_by_token),
     }
     _atomic_write_text(
         directory / "manifest.json", json.dumps(manifest, indent=2, sort_keys=True) + "\n"
@@ -186,7 +202,7 @@ def _predictions_by_log(
 
 def _read_persisted_rows(root: Path) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
-    arrays: Dict[str, tuple[np.ndarray, np.ndarray]] = {}
+    arrays: Dict[str, tuple[np.ndarray, np.ndarray, np.ndarray | None]] = {}
     for manifest_path in sorted((root / "scored_logs").glob("*/manifest.json")):
         directory = manifest_path.parent
         manifest = json.loads(manifest_path.read_text())
@@ -198,12 +214,19 @@ def _read_persisted_rows(root: Path) -> tuple[List[Dict[str, Any]], Dict[str, An
             tokens = archive["tokens"].astype(str)
             scores = archive["candidate_scores"]
             predictions = archive["predicted_scores"]
+            factors = archive["candidate_factors"] if "candidate_factors" in archive else None
         if len(tokens) != len(scores) or len(tokens) != len(predictions):
             raise ValueError(f"Array length mismatch in {directory}")
+        if factors is not None and factors.size and len(tokens) != len(factors):
+            raise ValueError(f"Candidate factor length mismatch in {directory}")
         for index, token in enumerate(tokens):
             if token in arrays:
                 raise ValueError(f"Duplicate persisted token {token}")
-            arrays[token] = (scores[index], predictions[index])
+            arrays[token] = (
+                scores[index],
+                predictions[index],
+                factors[index] if factors is not None and factors.size else None,
+            )
     return rows, arrays
 
 
@@ -231,14 +254,19 @@ def aggregate_persisted_logs(
 
     candidate_scores = np.stack([arrays[token][0] for token in valid_tokens])
     predicted_scores = np.stack([arrays[token][1] for token in valid_tokens])
+    factor_values = [arrays[token][2] for token in valid_tokens]
+    candidate_factors = None
+    if any(value is not None for value in factor_values):
+        if not all(value is not None for value in factor_values):
+            raise ValueError("Candidate factor matrices have partial token coverage")
+        candidate_factors = np.stack(factor_values)
     selected_indices = np.asarray(
         [int(row["selected_index"]) for row in valid_rows], dtype=np.int16
     )
     oracle_indices = np.asarray(
         [int(row["oracle_index"]) for row in valid_rows], dtype=np.int16
     )
-    _atomic_write_npz(
-        output_dir / "candidate_scores.npz",
+    matrix_arrays = dict(
         tokens=np.asarray(valid_tokens),
         log_names=np.asarray([str(row["log_name"]) for row in valid_rows]),
         candidate_scores=candidate_scores,
@@ -246,6 +274,12 @@ def aggregate_persisted_logs(
         selected_indices=selected_indices,
         oracle_indices=oracle_indices,
     )
+    if candidate_factors is not None:
+        matrix_arrays.update(
+            candidate_factors=candidate_factors,
+            candidate_factor_names=np.asarray(FACTOR_NAMES),
+        )
+    _atomic_write_npz(output_dir / "candidate_scores.npz", **matrix_arrays)
     _atomic_write_csv(output_dir / "per_scene_candidate_quality.csv", pd.DataFrame(rows))
 
     numeric_keys = (
@@ -276,6 +310,7 @@ def aggregate_persisted_logs(
         "invalid_scene_count": len(rows) - len(valid_rows),
         "log_count": len({str(row["log_name"]) for row in valid_rows}),
         "candidate_count": int(candidate_scores.shape[1]),
+        "candidate_factor_matrix_present": candidate_factors is not None,
         "proposal_predictions_path": str(prediction_path.resolve()),
         "proposal_predictions_sha256": _sha256(prediction_path),
         "checkpoint": str(checkpoint) if checkpoint else None,

@@ -56,6 +56,14 @@ FACTOR_NAMES = (
     "driving_direction_compliance",
     "score",
 )
+SCORER_FACTOR_KEYS = (
+    "no_at_fault_collisions",
+    "drivable_area_compliance",
+    "driving_direction_compliance",
+    "time_to_collision_within_bound",
+    "ego_progress",
+    "comfort",
+)
 
 
 def _sha256(path: Path, chunk_size: int = 8 * 1024 * 1024) -> str:
@@ -87,13 +95,101 @@ class ProposalExportModule(AgentLightningModule):
                 f"{proposals.shape} versus {predicted_scores.shape}"
             )
 
+        factor_logits = None
+        if "scorer_candidate_features" in prediction:
+            factor_logits = torch.stack(
+                [prediction["pred_logit"][key] for key in SCORER_FACTOR_KEYS],
+                dim=-1,
+            )
         result = {}
         for index, token in enumerate(tokens):
-            result[str(token)] = {
+            token_result = {
                 "proposals": proposals[index],
                 "predicted_scores": predicted_scores[index],
             }
+            if factor_logits is not None:
+                token_result.update(
+                    {
+                        # These tensors are current-observation inference outputs.
+                        # Keep FP32 so offline and online residual scorer decisions
+                        # can be checked at numerical precision.
+                        "base_factor_logits": factor_logits[index]
+                        .detach()
+                        .float()
+                        .cpu()
+                        .numpy(),
+                        "candidate_features": prediction[
+                            "scorer_candidate_features"
+                        ][index]
+                        .detach()
+                        .float()
+                        .cpu()
+                        .numpy(),
+                    }
+                )
+            if "language_feature" in prediction:
+                token_result["scene_features"] = (
+                    prediction["language_feature"][index]
+                    .detach()
+                    .float()
+                    .cpu()
+                    .numpy()
+                )
+            if "ego_feature" in prediction:
+                token_result["ego_features"] = (
+                    prediction["ego_feature"][index]
+                    .detach()
+                    .float()
+                    .cpu()
+                    .numpy()
+                )
+            result[str(token)] = token_result
         return result
+
+
+def _compare_prediction_banks(
+    candidate: Dict[str, Dict[str, np.ndarray]],
+    reference: Dict[str, Dict[str, np.ndarray]],
+    *,
+    allow_reference_superset: bool = False,
+) -> Dict[str, Any]:
+    """Strictly compare the proposal/base-score portion of two caches."""
+
+    candidate_tokens = set(candidate)
+    reference_tokens = set(reference)
+    token_sets_valid = (
+        candidate_tokens.issubset(reference_tokens)
+        if allow_reference_superset
+        else candidate_tokens == reference_tokens
+    )
+    if not token_sets_valid:
+        raise RuntimeError(
+            "Prediction token mismatch: "
+            f"missing={len(reference_tokens - candidate_tokens)}, "
+            f"extra={len(candidate_tokens - reference_tokens)}"
+        )
+    maximum = {"proposals": 0.0, "predicted_scores": 0.0}
+    for token in sorted(candidate_tokens):
+        for key in maximum:
+            left = np.asarray(candidate[token][key])
+            right = np.asarray(reference[token][key])
+            if left.shape != right.shape:
+                raise RuntimeError(
+                    f"Shape mismatch for {token}/{key}: {left.shape} != {right.shape}"
+                )
+            if not np.isfinite(left).all() or not np.isfinite(right).all():
+                raise RuntimeError(f"Non-finite values in {token}/{key}")
+            maximum[key] = max(
+                maximum[key], float(np.max(np.abs(left.astype(np.float64) - right)))
+            )
+    maximum["overall"] = max(maximum.values())
+    return {
+        "scene_count": len(candidate_tokens),
+        "reference_scene_count": len(reference_tokens),
+        "reference_superset_allowed": bool(allow_reference_superset),
+        "max_abs": maximum,
+        "passes_1e_8": bool(maximum["overall"] <= 1e-8),
+    }
 
 
 def _candidate_geometry(proposals: np.ndarray) -> Dict[str, float]:
@@ -232,6 +328,7 @@ def score_candidate_partition(args: List[Dict[str, Any]]) -> List[Dict[str, Any]
                             np.mean(target_scores >= 0.8)
                         ),
                         "candidate_scores": target_scores.astype(np.float32),
+                        "candidate_factors": target_factors.astype(np.float32),
                         "predicted_scores": predicted_scores.astype(np.float32),
                         **_candidate_geometry(proposals),
                     }
@@ -340,6 +437,53 @@ def main(cfg: DictConfig) -> None:
     with (output_dir / "proposal_predictions.pkl").open("wb") as file:
         pickle.dump(merged, file, protocol=pickle.HIGHEST_PROTOCOL)
 
+    prediction_path = output_dir / "proposal_predictions.pkl"
+    sample = next(iter(merged.values()))
+    cache_manifest: Dict[str, Any] = {
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "checkpoint": str(checkpoint_path.resolve()),
+        "checkpoint_sha256": _sha256(checkpoint_path),
+        "agent_target": str(cfg.agent._target_),
+        "precision": str(cfg.trainer.params.precision),
+        "scene_count": len(merged),
+        "world_size": world_size,
+        "proposal_predictions_path": str(prediction_path.resolve()),
+        "proposal_predictions_sha256": _sha256(prediction_path),
+        "fields": {
+            key: {
+                "shape": list(np.asarray(value).shape),
+                "dtype": str(np.asarray(value).dtype),
+            }
+            for key, value in sample.items()
+        },
+        "inference_inputs_only": True,
+        "future_target_present": False,
+        "official_score_input_present": False,
+    }
+    reference_path_value = cfg.get("proposal_audit_reference_predictions_path")
+    if reference_path_value:
+        reference_path = Path(str(reference_path_value))
+        with reference_path.open("rb") as file:
+            reference_predictions = pickle.load(file)
+        cache_manifest["reference_predictions_path"] = str(reference_path.resolve())
+        cache_manifest["reference_predictions_sha256"] = _sha256(reference_path)
+        cache_manifest["reference_parity"] = _compare_prediction_banks(
+            merged,
+            reference_predictions,
+            allow_reference_superset=bool(limit_scenes > 0),
+        )
+        if not cache_manifest["reference_parity"]["passes_1e_8"]:
+            raise RuntimeError(
+                "Exported proposal bank differs from the locked FP32 public bank: "
+                f"{cache_manifest['reference_parity']}"
+            )
+    (output_dir / "proposal_cache_manifest.json").write_text(
+        json.dumps(cache_manifest, indent=2, sort_keys=True) + "\n"
+    )
+    if bool(cfg.get("proposal_audit_skip_cpu_scoring", False)):
+        print(json.dumps(cache_manifest, indent=2, sort_keys=True), flush=True)
+        return
+
     log_for_token = {
         token: log_name
         for log_name, tokens in scene_loader.get_tokens_list_per_log().items()
@@ -374,6 +518,9 @@ def main(cfg: DictConfig) -> None:
     candidate_scores = np.stack(
         [row.pop("candidate_scores") for row in valid_rows], axis=0
     )
+    candidate_factors = np.stack(
+        [row.pop("candidate_factors") for row in valid_rows], axis=0
+    )
     predicted_scores = np.stack(
         [row.pop("predicted_scores") for row in valid_rows], axis=0
     )
@@ -382,6 +529,8 @@ def main(cfg: DictConfig) -> None:
         tokens=np.asarray([row["token"] for row in valid_rows]),
         log_names=np.asarray([row["log_name"] for row in valid_rows]),
         candidate_scores=candidate_scores,
+        candidate_factors=candidate_factors,
+        candidate_factor_names=np.asarray(FACTOR_NAMES),
         predicted_scores=predicted_scores,
         selected_indices=np.asarray(
             [row["selected_index"] for row in valid_rows], dtype=np.int16

@@ -149,3 +149,30 @@ weight-2 loss with 200x top-K safety weighting was also rejected
 4. Export all 12,146 Navtest scenes in FP32 and score all 64 proposals.
 5. Accept only if the selected PDMS exceeds 0.93 with 12,146 scenes, 136 logs,
    64 candidates per scene, no invalid rows, and no future/evaluator input.
+
+## Navtest policy for every effective scorer
+
+Navtrain validation is a promotion gate, not the reported endpoint. Every
+scorer whose log-isolated validation delta has a positive log-bootstrap lower
+bound is entered into the full Navtest campaign. Methods with non-regressing
+NOC/DAC/TTC form the deployable tier; positive methods with a safety-factor
+regression are still tested as a separately marked diagnostic tier and cannot
+be selected as the final method without correction. Closely related
+hyperparameters remain separate methods; a single winning validation
+configuration is not used as a substitute for their test results.
+
+To make this policy computationally practical, the released checkpoint is run
+once over Navtest in FP32 while exporting proposals, Base factor logits, the
+trajectory-conditioned scorer hidden state, scene tokens and the ego token.
+The resulting cache is immutable and contains no future target or official
+metric. Every residual scorer then selects from that identical 64-proposal
+bank. Only after selection is fixed are the offline PDM candidate/factor
+matrices joined for evaluation. A four-scene online-vs-cache check is still
+required for each promoted artifact.
+
+The four-scene cache smoke passed exactly on 2026-08-31: proposal and Base score
+maximum absolute differences against the locked public FP32 cache were both
+`0.0`. Full-cache export was then launched on rl-zt3 GPUs 1, 2 and 4. In
+parallel, all-candidate factor scoring was split by complete log across three
+hosts with 32 CPU workers per host. The full-data scorer queue runs separately
+on rl-zt3 GPUs 3, 5, 6 and 7; no existing job was stopped.

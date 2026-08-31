@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pytest
 import torch
 
@@ -8,6 +9,7 @@ from local_stage2.export_public_base_scorer_cache import (
     _partition_tokens,
 )
 from local_stage2.score_public_base_scorer_cache import _belongs_to_worker
+from local_stage2.run_navtest_proposal_audit import _compare_prediction_banks
 from local_stage2.train_public_base_residual_scorer import (
     base_pairwise_loss,
     binary_factor_loss,
@@ -37,6 +39,40 @@ def test_first_missing_chunk_requires_contiguous_cache(tmp_path: Path):
     (tmp_path / "chunk_000002.pt").touch()
     with pytest.raises(RuntimeError, match="Non-contiguous"):
         _first_missing_chunk(tmp_path, 3)
+
+
+def test_prediction_bank_parity_is_strict_and_ignores_feature_extras():
+    reference = {
+        "token": {
+            "proposals": np.zeros((64, 8, 3), dtype=np.float32),
+            "predicted_scores": np.zeros(64, dtype=np.float32),
+        }
+    }
+    candidate = {
+        "token": {
+            **reference["token"],
+            "candidate_features": np.zeros((64, 256), dtype=np.float32),
+        }
+    }
+    assert _compare_prediction_banks(candidate, reference)["passes_1e_8"]
+    candidate["token"]["predicted_scores"] = np.full(64, 2e-8, dtype=np.float32)
+    assert not _compare_prediction_banks(candidate, reference)["passes_1e_8"]
+
+
+def test_prediction_bank_smoke_may_be_reference_subset_only_when_explicit():
+    item = {
+        "proposals": np.zeros((64, 8, 3), dtype=np.float32),
+        "predicted_scores": np.zeros(64, dtype=np.float32),
+    }
+    reference = {"a": item, "b": item}
+    with pytest.raises(RuntimeError, match="token mismatch"):
+        _compare_prediction_banks({"a": item}, reference)
+    result = _compare_prediction_banks(
+        {"a": item}, reference, allow_reference_superset=True
+    )
+    assert result["passes_1e_8"]
+    assert result["scene_count"] == 1
+    assert result["reference_scene_count"] == 2
 
 
 def test_cpu_label_worker_partition_is_deterministic():
