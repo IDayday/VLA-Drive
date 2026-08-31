@@ -126,6 +126,19 @@ the missing improvement; it remains a negative control. The complete-cache
 queue prioritizes top-16 unweighted residual and hybrid models across three
 seeds, with top-8 runs retained as the candidate-headroom control.
 
+A subsequent switch-aligned pilot found a stronger local objective. Raw
+`torch.topk` can order a tied maximum differently from the released `argmax`;
+the previous implementation trained on K top-ranked proposals but could add
+the Base choice only during deployment, producing a K-versus-K+1 mismatch.
+The retained set is now exactly the Base candidate plus K-1 alternatives. A
+weighted loss over every Base-versus-alternative pair improved the 2,000-scene
+held-out delta from `+0.00392` at weight 0 to `+0.00491` at weight 2, with a
+log-bootstrap 95% interval of `[+0.00421, +0.00561]` and 14.5% regret
+reduction. Weight 5 over-constrained the ranker (`+0.00329`). Combining the
+weight-2 loss with 200x top-K safety weighting was also rejected
+(`+0.00116`). Top-16 remained stronger than top-8 (`+0.00491` versus
+`+0.00451`). These are partial-cache architecture pilots, not Navtest claims.
+
 ## Acceptance sequence
 
 1. Train and choose hyperparameters only on complete-log-disjoint Navtrain

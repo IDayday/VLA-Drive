@@ -469,6 +469,14 @@ composite NOC-and-DAC-and-TTC head is also swept as a safety-gate control;
 `factor_all` remains the default unless held-out selection chooses the
 composite gate.
 
+The retained set is Base-anchored: the exact released `argmax` is placed first,
+followed by the highest-scoring `K-1` other proposals. This avoids tie cases
+where raw `torch.topk` and `argmax` disagree and keeps training and deployment
+at exactly K candidates. `--base-pairwise-weight` adds a deployment-aligned
+loss that ranks every retained alternative directly against that Base choice.
+`--factor-loss-scope topk` is an ablation only; the complete-cache default
+keeps factor supervision on all proposals.
+
 The exported model artifact contains only the small residual head plus the
 immutable public-checkpoint path and hash. Its deployable agent class is
 `local_stage2.public_base_residual_scorer.PublicBaseResidualScorerAgent`.

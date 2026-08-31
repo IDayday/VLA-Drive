@@ -59,20 +59,21 @@ while ! cache_complete || ! incumbents_finished || ! gpus_are_free; do
 done
 
 names=(
-  full_local_hybrid_top16_safetyw1_seed2_v1
-  full_local_residual_top16_safetyw1_seed2_v1
-  full_local_hybrid_top8_safetyw1_seed2_v1
-  full_local_residual_top8_safetyw1_seed2_v1
-  full_local_hybrid_top16_safetyw1_seed0_v1
-  full_local_residual_top16_safetyw1_seed0_v1
-  full_local_hybrid_top16_safetyw1_seed1_v1
-  full_local_residual_top16_safetyw1_seed1_v1
+  full_local_hybrid_top16_basepairw2_seed2_v1
+  full_local_residual_top16_basepairw2_seed2_v1
+  full_local_hybrid_top8_basepairw2_seed2_v1
+  full_local_hybrid_top16_basepairw0_seed2_v1
+  full_local_hybrid_top16_basepairw2_seed0_v1
+  full_local_residual_top16_basepairw2_seed0_v1
+  full_local_hybrid_top16_basepairw2_seed1_v1
+  full_local_residual_top16_basepairw2_seed1_v1
 )
 modes=(local local local local local local local local)
-score_modes=(hybrid residual hybrid residual hybrid residual hybrid residual)
-top_ks=(16 16 8 8 16 16 16 16)
+score_modes=(hybrid residual hybrid hybrid hybrid residual hybrid residual)
+top_ks=(16 16 8 16 16 16 16 16)
 safety_weights=(1 1 1 1 1 1 1 1)
 seeds=(2 2 2 2 0 0 1 1)
+base_pairwise_weights=(2 2 2 0 2 2 2 2)
 pids=()
 pid_names=()
 
@@ -116,6 +117,10 @@ for index in "${!names[@]}"; do
     --score-mode "${score_modes[index]}"
     --top-k "${top_ks[index]}"
     --safety-negative-weight "${safety_weights[index]}"
+    --base-pairwise-weight "${base_pairwise_weights[index]}"
+    --composite-safety-weight 0
+    --relative-safety-weight 0
+    --factor-loss-scope all
     --seed "${seeds[index]}"
     --epochs 20
     --batch-size 128

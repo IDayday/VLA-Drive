@@ -8,10 +8,15 @@ from local_stage2.export_public_base_scorer_cache import (
     _partition_tokens,
 )
 from local_stage2.score_public_base_scorer_cache import _belongs_to_worker
-from local_stage2.train_public_base_residual_scorer import binary_factor_loss
+from local_stage2.train_public_base_residual_scorer import (
+    base_pairwise_loss,
+    binary_factor_loss,
+    relative_safety_targets,
+)
 from local_stage2.public_base_residual_scorer import (
     PublicBaseResidualRanker,
     ResidualScorerConfig,
+    base_anchored_topk_indices,
     pdm_log_aggregate,
     proposal_kinematic_features,
 )
@@ -87,6 +92,11 @@ def test_residual_ranker_is_candidate_permutation_equivariant(mode: str):
     assert torch.allclose(
         permuted["refined_scores"], direct["refined_scores"][:, permutation], atol=1e-6
     )
+    assert torch.allclose(
+        permuted["relative_safety_logits"],
+        direct["relative_safety_logits"][:, permutation],
+        atol=1e-6,
+    )
     assert torch.equal(
         permuted["eligible_mask"], direct["eligible_mask"][:, permutation]
     )
@@ -104,7 +114,17 @@ def test_proposal_kinematics_are_finite_across_heading_wrap():
     assert features.abs().max() <= 1.1
 
 
-@pytest.mark.parametrize("safety_gate_mode", ["factor_all", "composite"])
+def test_base_anchored_topk_is_exact_size_and_keeps_argmax_first_under_ties():
+    scores = torch.tensor([[1.0, 1.0, 1.0, 0.5], [0.1, 0.4, 0.3, 0.4]])
+    indices = base_anchored_topk_indices(scores, 3)
+    assert indices[:, 0].tolist() == scores.argmax(dim=1).tolist()
+    assert indices.shape == (2, 3)
+    assert all(len(set(row)) == 3 for row in indices.tolist())
+
+
+@pytest.mark.parametrize(
+    "safety_gate_mode", ["factor_all", "composite", "relative_factor"]
+)
 def test_safety_gate_keeps_base_candidate_and_filters_predicted_unsafe(
     safety_gate_mode: str,
 ):
@@ -128,6 +148,10 @@ def test_safety_gate_keeps_base_candidate_and_filters_predicted_unsafe(
     assert torch.equal(
         output["refined_composite_safety_logit"],
         logits[..., [0, 1, 3]].amin(dim=-1),
+    )
+    assert torch.equal(
+        output["relative_safety_logits"],
+        torch.zeros_like(output["relative_safety_logits"]),
     )
 
 
@@ -231,3 +255,25 @@ def test_binary_factor_loss_upweights_safety_violations():
     unweighted = binary_factor_loss(logits, unsafe, 1.0)
     weighted = binary_factor_loss(logits, unsafe, 20.0)
     assert weighted > unweighted
+
+
+def test_relative_safety_targets_compare_against_base_per_factor():
+    target = torch.ones(1, 3, 6)
+    target[0, 0, 1] = 0.0
+    target[0, 2, 0] = 0.0
+    target[0, 2, 1] = 0.0
+    scores = torch.tensor([[1.0, 0.9, 0.8]])
+    assert relative_safety_targets(target, scores).tolist() == [
+        [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0, 1.0]]
+    ]
+
+
+def test_base_pairwise_loss_prefers_correct_switch_direction():
+    target = torch.tensor([[0.5, 0.9, 0.2]])
+    correct = torch.tensor([[0.0, 2.0, -2.0]])
+    reversed_prediction = -correct
+    assert base_pairwise_loss(correct, target, 0.02) < base_pairwise_loss(
+        reversed_prediction,
+        target,
+        0.02,
+    )

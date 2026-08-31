@@ -51,6 +51,7 @@ class ResidualScorerConfig:
     safety_relative_tolerance: float = 1.0
     preserve_ddc: bool = False
     safety_gate_mode: str = "factor_all"
+    base_anchored_topk: bool = True
 
     def __post_init__(self) -> None:
         if self.mode not in {
@@ -85,12 +86,38 @@ class ResidualScorerConfig:
             raise ValueError("safety_floor must be in [0, 1]")
         if self.safety_relative_tolerance < 0:
             raise ValueError("safety_relative_tolerance must be non-negative")
-        if self.safety_gate_mode not in {"factor_all", "composite"}:
-            raise ValueError("safety_gate_mode must be factor_all or composite")
+        if self.safety_gate_mode not in {
+            "factor_all",
+            "composite",
+            "relative_factor",
+        }:
+            raise ValueError(
+                "safety_gate_mode must be factor_all, composite, or relative_factor"
+            )
 
 
 def _wrap_angle(value: torch.Tensor) -> torch.Tensor:
     return torch.atan2(torch.sin(value), torch.cos(value))
+
+
+def base_anchored_topk_indices(
+    base_scores: torch.Tensor,
+    top_k: int,
+) -> torch.Tensor:
+    """Return exactly K candidates with the deployed Base argmax first."""
+
+    if base_scores.ndim != 2:
+        raise ValueError("base_scores must have shape [B, K]")
+    if top_k <= 0:
+        raise ValueError("top_k must be positive")
+    count = min(top_k, base_scores.shape[1])
+    base_indices = base_scores.argmax(dim=1, keepdim=True)
+    if count == 1:
+        return base_indices
+    other_scores = base_scores.clone()
+    other_scores.scatter_(1, base_indices, float("-inf"))
+    other_indices = other_scores.topk(count - 1, dim=1).indices
+    return torch.cat([base_indices, other_indices], dim=1)
 
 
 def proposal_kinematic_features(
@@ -279,9 +306,16 @@ class PublicBaseResidualRanker(nn.Module):
             nn.GELU(),
             nn.Linear(config.hidden_dim, 1),
         )
+        self.relative_safety_head = nn.Sequential(
+            nn.LayerNorm(config.hidden_dim * 4),
+            nn.Linear(config.hidden_dim * 4, config.hidden_dim),
+            nn.GELU(),
+            nn.Linear(config.hidden_dim, 3),
+        )
         _zero_last(self.utility_head)
         _zero_last(self.factor_delta_head)
         _zero_last(self.safety_delta_head)
+        _zero_last(self.relative_safety_head)
 
     def forward(
         self,
@@ -345,6 +379,17 @@ class PublicBaseResidualRanker(nn.Module):
             base_composite_safety_logit
             + self.safety_delta_head(hidden).squeeze(-1)
         )
+        base_indices = base_scores.argmax(dim=1, keepdim=True)
+        base_hidden = hidden.gather(
+            1,
+            base_indices[..., None].expand(-1, 1, hidden.shape[-1]),
+        ).expand_as(hidden)
+        relative_safety_logits = self.relative_safety_head(
+            torch.cat(
+                [hidden, base_hidden, hidden - base_hidden, hidden * base_hidden],
+                dim=-1,
+            )
+        )
         raw_factor_delta = pdm_log_aggregate(
             refined_factor_logits
         ) - pdm_log_aggregate(base_factor_logits)
@@ -358,15 +403,25 @@ class PublicBaseResidualRanker(nn.Module):
         else:
             score_delta = utility_delta + factor_score_delta
         refined_scores = base_scores + self.config.inference_scale * score_delta
-        top_k = min(self.config.top_k, base_scores.shape[1])
-        top_indices = base_scores.topk(top_k, dim=1).indices
+        if self.config.base_anchored_topk:
+            top_indices = base_anchored_topk_indices(
+                base_scores,
+                self.config.top_k,
+            )
+        else:
+            top_indices = base_scores.topk(
+                min(self.config.top_k, base_scores.shape[1]),
+                dim=1,
+            ).indices
         top_k_mask = torch.zeros_like(base_scores, dtype=torch.bool)
         top_k_mask.scatter_(1, top_indices, True)
         eligible = top_k_mask.clone()
         base_selected = torch.zeros_like(base_scores, dtype=torch.bool)
-        base_indices = base_scores.argmax(dim=1, keepdim=True)
         base_selected.scatter_(1, base_indices, True)
-        if self.config.safety_gate_mode == "composite":
+        if self.config.safety_gate_mode == "relative_factor":
+            safety_probabilities = relative_safety_logits.sigmoid()
+            safe = (safety_probabilities >= self.config.safety_floor).all(dim=-1)
+        elif self.config.safety_gate_mode == "composite":
             safety_probabilities = refined_composite_safety_logit.sigmoid()
             base_safety = safety_probabilities.gather(1, base_indices)
             safe = safety_probabilities >= self.config.safety_floor
@@ -401,6 +456,7 @@ class PublicBaseResidualRanker(nn.Module):
             "utility_delta": utility_delta,
             "factor_score_delta": factor_score_delta,
             "refined_composite_safety_logit": refined_composite_safety_logit,
+            "relative_safety_logits": relative_safety_logits,
             "refined_scores": refined_scores,
             "selection_scores": selection_scores,
             "refined_factor_logits": refined_factor_logits,
@@ -482,7 +538,10 @@ class PublicBaseResidualScorerAgent(EpisodeDriveAgent):
             super().initialize()
         finally:
             self.checkpoint_path = requested_path
-        self._install_residual(artifact["model_config"])
+        artifact_config = dict(artifact["model_config"])
+        if int(artifact.get("artifact_version", 1)) < 4:
+            artifact_config.setdefault("base_anchored_topk", False)
+        self._install_residual(artifact_config)
         assert self.residual_scorer is not None
         incompatible = self.residual_scorer.load_state_dict(
             artifact["model_state_dict"], strict=False
@@ -490,7 +549,7 @@ class PublicBaseResidualScorerAgent(EpisodeDriveAgent):
         allowed_missing = {
             key
             for key in self.residual_scorer.state_dict()
-            if key.startswith("safety_delta_head.")
+            if key.startswith(("safety_delta_head.", "relative_safety_head."))
         }
         if set(incompatible.missing_keys) - allowed_missing or incompatible.unexpected_keys:
             raise RuntimeError(
@@ -536,7 +595,7 @@ def build_residual_artifact(
 ) -> Dict[str, object]:
     return {
         "artifact_type": PublicBaseResidualScorerAgent.ARTIFACT_TYPE,
-        "artifact_version": 2,
+        "artifact_version": 4,
         "base_checkpoint_path": str(base_checkpoint_path.resolve()),
         "base_checkpoint_sha256": _sha256(base_checkpoint_path),
         "model_config": asdict(model.config),

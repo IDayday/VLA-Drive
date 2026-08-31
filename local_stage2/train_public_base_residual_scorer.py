@@ -26,6 +26,7 @@ from local_stage2.public_base_residual_scorer import (
     FACTOR_KEYS,
     PublicBaseResidualRanker,
     ResidualScorerConfig,
+    base_anchored_topk_indices,
     build_residual_artifact,
 )
 
@@ -197,6 +198,27 @@ def weighted_pairwise_loss(
     return (loss[valid] * weight[valid]).sum() / weight[valid].sum()
 
 
+def base_pairwise_loss(
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    minimum_delta: float,
+) -> torch.Tensor:
+    """Rank every retained candidate directly against the public Base choice."""
+
+    if prediction.shape != target.shape or prediction.ndim != 2:
+        raise ValueError("prediction and target must share shape [B, K]")
+    if minimum_delta < 0:
+        raise ValueError("minimum_delta must be non-negative")
+    prediction_delta = prediction[:, 1:] - prediction[:, :1]
+    target_delta = target[:, 1:] - target[:, :1]
+    valid = target_delta.abs() >= minimum_delta
+    if not bool(valid.any()):
+        return prediction.sum() * 0.0
+    weight = target_delta.abs()
+    loss = F.softplus(-target_delta.sign() * prediction_delta)
+    return (loss[valid] * weight[valid]).sum() / weight[valid].sum()
+
+
 def listwise_loss(
     prediction: torch.Tensor,
     target: torch.Tensor,
@@ -278,6 +300,23 @@ def binary_factor_loss(
     return (element * weight).sum() / weight.sum()
 
 
+def relative_safety_targets(
+    target_six: torch.Tensor,
+    base_scores: torch.Tensor,
+) -> torch.Tensor:
+    """Label whether each proposal is no worse than the Base choice per factor."""
+
+    if target_six.shape[:2] != base_scores.shape or target_six.shape[-1] != 6:
+        raise ValueError("target_six/base score dimensions disagree")
+    safety_target = target_six[..., [0, 1, 3]] == 1.0
+    base_indices = base_scores.argmax(dim=1, keepdim=True)
+    base_safety_target = safety_target.gather(
+        1,
+        base_indices[..., None].expand(-1, 1, 3),
+    )
+    return (safety_target | ~base_safety_target).to(target_six.dtype)
+
+
 def compute_training_loss(
     model: PublicBaseResidualRanker,
     batch: Sequence[torch.Tensor],
@@ -285,6 +324,7 @@ def compute_training_loss(
     minimum_pair_delta: float,
     target_temperature: float,
     pairwise_weight: float,
+    base_pairwise_weight: float,
     listwise_weight: float,
     factor_weight: float,
     residual_l2_weight: float,
@@ -294,6 +334,8 @@ def compute_training_loss(
     prediction_temperature: float,
     safety_negative_weight: float,
     composite_safety_weight: float,
+    relative_safety_weight: float,
+    factor_loss_scope: str,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
     (
         proposals,
@@ -312,10 +354,15 @@ def compute_training_loss(
         scene_features,
         ego_features,
     )
-    top_indices = base_scores.topk(min(model.config.top_k, base_scores.shape[1]), dim=1).indices
+    top_indices = base_anchored_topk_indices(base_scores, model.config.top_k)
     predicted = _gather_candidates(output["refined_scores"], top_indices)
     target_scores = _gather_candidates(target_factors[..., -1], top_indices)
     pairwise = weighted_pairwise_loss(predicted, target_scores, minimum_pair_delta)
+    base_pairwise = base_pairwise_loss(
+        predicted,
+        target_scores,
+        minimum_pair_delta,
+    )
     listwise = listwise_loss(predicted, target_scores, target_temperature)
     top_set = top_set_cross_entropy(
         predicted,
@@ -333,18 +380,38 @@ def compute_training_loss(
     reorder = torch.tensor([0, 1, 5, 3, 2, 4], device=target_factors.device)
     target_six = target_factors.index_select(-1, reorder)
     predicted_factors = output["refined_factor_logits"]
+    relative_target = relative_safety_targets(target_six, base_scores)
+    composite_predictions = output["refined_composite_safety_logit"]
+    relative_predictions = output["relative_safety_logits"]
+    if factor_loss_scope == "topk":
+        factor_targets = _gather_candidates(target_six, top_indices)
+        factor_predictions = _gather_candidates(predicted_factors, top_indices)
+        relative_target = _gather_candidates(relative_target, top_indices)
+        composite_predictions = _gather_candidates(
+            composite_predictions,
+            top_indices,
+        )
+        relative_predictions = _gather_candidates(
+            relative_predictions,
+            top_indices,
+        )
+    elif factor_loss_scope == "all":
+        factor_targets = target_six
+        factor_predictions = predicted_factors
+    else:
+        raise ValueError("factor_loss_scope must be all or topk")
     binary = binary_factor_loss(
-        predicted_factors,
-        target_six,
+        factor_predictions,
+        factor_targets,
         safety_negative_weight,
     )
     composite_target = (
-        (target_six[..., 0] == 1.0)
-        & (target_six[..., 1] == 1.0)
-        & (target_six[..., 3] == 1.0)
+        (factor_targets[..., 0] == 1.0)
+        & (factor_targets[..., 1] == 1.0)
+        & (factor_targets[..., 3] == 1.0)
     ).to(predicted_factors.dtype)
     composite_element = F.binary_cross_entropy_with_logits(
-        output["refined_composite_safety_logit"],
+        composite_predictions,
         composite_target,
         reduction="none",
     )
@@ -356,27 +423,47 @@ def compute_training_loss(
     composite_safety = (
         composite_element * composite_weight
     ).sum() / composite_weight.sum()
-    progress = F.smooth_l1_loss(predicted_factors[..., 4].sigmoid(), target_six[..., 4])
+    relative_element = F.binary_cross_entropy_with_logits(
+        relative_predictions,
+        relative_target,
+        reduction="none",
+    )
+    relative_weight = torch.where(
+        relative_target < 0.5,
+        safety_negative_weight,
+        1.0,
+    )
+    relative_safety = (
+        relative_element * relative_weight
+    ).sum() / relative_weight.sum()
+    progress = F.smooth_l1_loss(
+        factor_predictions[..., 4].sigmoid(),
+        factor_targets[..., 4],
+    )
     factor = binary + 2.0 * progress
     residual_l2 = output["residual"].square().mean()
     total = (
         pairwise_weight * pairwise
+        + base_pairwise_weight * base_pairwise
         + listwise_weight * listwise
         + factor_weight * factor
         + residual_l2_weight * residual_l2
         + top_set_weight * top_set
         + expected_regret_weight * expected_regret
         + composite_safety_weight * composite_safety
+        + relative_safety_weight * relative_safety
     )
     return total, {
         "loss": float(total.detach()),
         "pairwise_loss": float(pairwise.detach()),
+        "base_pairwise_loss": float(base_pairwise.detach()),
         "listwise_loss": float(listwise.detach()),
         "factor_loss": float(factor.detach()),
         "residual_l2": float(residual_l2.detach()),
         "top_set_loss": float(top_set.detach()),
         "expected_regret_loss": float(expected_regret.detach()),
         "composite_safety_loss": float(composite_safety.detach()),
+        "relative_safety_loss": float(relative_safety.detach()),
     }
 
 
@@ -415,6 +502,7 @@ class EvaluationOutputs:
     residual: torch.Tensor
     refined_factor_logits: torch.Tensor
     refined_composite_safety_logits: torch.Tensor
+    relative_safety_logits: torch.Tensor
     top_k_mask: torch.Tensor
     target_factors: torch.Tensor
 
@@ -431,6 +519,7 @@ def collect_evaluation_outputs(
     residual_output: List[torch.Tensor] = []
     refined_factor_output: List[torch.Tensor] = []
     refined_composite_output: List[torch.Tensor] = []
+    relative_safety_output: List[torch.Tensor] = []
     top_k_output: List[torch.Tensor] = []
     target_output: List[torch.Tensor] = []
     dataset = TensorDataset(
@@ -469,6 +558,9 @@ def collect_evaluation_outputs(
         refined_composite_output.append(
             output["refined_composite_safety_logit"].float().cpu()
         )
+        relative_safety_output.append(
+            output["relative_safety_logits"].float().cpu()
+        )
         top_k_output.append(output["top_k_mask"].cpu())
         target_output.append(target_factors.float().cpu())
     return EvaluationOutputs(
@@ -476,6 +568,7 @@ def collect_evaluation_outputs(
         residual=torch.cat(residual_output),
         refined_factor_logits=torch.cat(refined_factor_output),
         refined_composite_safety_logits=torch.cat(refined_composite_output),
+        relative_safety_logits=torch.cat(relative_safety_output),
         top_k_mask=torch.cat(top_k_output),
         target_factors=torch.cat(target_output),
     )
@@ -506,7 +599,10 @@ def evaluate_collected(
         (~base_selected_mask).to(refined_scores.dtype) * switch_penalty
     )
 
-    if safety_gate_mode == "composite":
+    if safety_gate_mode == "relative_factor":
+        probabilities = outputs.relative_safety_logits.sigmoid()
+        safety_mask = (probabilities >= safety_floor).all(dim=-1)
+    elif safety_gate_mode == "composite":
         probabilities = outputs.refined_composite_safety_logits.sigmoid()
         base_probabilities = probabilities.gather(1, base_index[:, None])
         safety_mask = probabilities >= safety_floor
@@ -527,7 +623,9 @@ def evaluate_collected(
             probabilities >= base_probabilities - safety_relative_tolerance
         ).all(dim=-1)
     else:
-        raise ValueError("safety_gate_mode must be factor_all or composite")
+        raise ValueError(
+            "safety_gate_mode must be factor_all, composite, or relative_factor"
+        )
     eligible = outputs.top_k_mask & safety_mask
     eligible |= base_selected_mask
     selection_scores = torch.where(eligible, refined_scores, base_scores - 100.0)
@@ -704,10 +802,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--minimum-pair-delta", type=float, default=0.02)
     parser.add_argument("--target-temperature", type=float, default=0.05)
     parser.add_argument("--pairwise-weight", type=float, default=1.0)
+    parser.add_argument("--base-pairwise-weight", type=float, default=0.0)
     parser.add_argument("--listwise-weight", type=float, default=0.2)
     parser.add_argument("--factor-weight", type=float, default=0.5)
     parser.add_argument("--safety-negative-weight", type=float, default=1.0)
-    parser.add_argument("--composite-safety-weight", type=float, default=1.0)
+    parser.add_argument("--composite-safety-weight", type=float, default=0.0)
+    parser.add_argument("--relative-safety-weight", type=float, default=0.0)
+    parser.add_argument(
+        "--factor-loss-scope",
+        choices=("all", "topk"),
+        default="all",
+    )
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
     parser.add_argument("--top-set-weight", type=float, default=0.5)
     parser.add_argument("--expected-regret-weight", type=float, default=2.0)
@@ -733,6 +838,10 @@ def main() -> None:
         raise ValueError("safety-negative-weight must be positive")
     if args.composite_safety_weight < 0:
         raise ValueError("composite-safety-weight must be non-negative")
+    if args.relative_safety_weight < 0:
+        raise ValueError("relative-safety-weight must be non-negative")
+    if args.base_pairwise_weight < 0:
+        raise ValueError("base-pairwise-weight must be non-negative")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -817,6 +926,7 @@ def main() -> None:
                 minimum_pair_delta=args.minimum_pair_delta,
                 target_temperature=args.target_temperature,
                 pairwise_weight=args.pairwise_weight,
+                base_pairwise_weight=args.base_pairwise_weight,
                 listwise_weight=args.listwise_weight,
                 factor_weight=args.factor_weight,
                 residual_l2_weight=args.residual_l2_weight,
@@ -826,6 +936,8 @@ def main() -> None:
                 prediction_temperature=args.prediction_temperature,
                 safety_negative_weight=args.safety_negative_weight,
                 composite_safety_weight=args.composite_safety_weight,
+                relative_safety_weight=args.relative_safety_weight,
+                factor_loss_scope=args.factor_loss_scope,
             )
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
@@ -871,6 +983,10 @@ def main() -> None:
         (floor, tolerance, False, "composite")
         for floor in (0.5, 0.7, 0.8, 0.9, 0.95, 0.98)
         for tolerance in (0.02, 0.10, 1.0)
+    )
+    safety_settings.extend(
+        (floor, 1.0, False, "relative_factor")
+        for floor in (0.5, 0.7, 0.8, 0.9, 0.95, 0.98)
     )
     for scale in (0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0):
         for penalty in (0.0, 0.001, 0.002, 0.005, 0.01, 0.02):
