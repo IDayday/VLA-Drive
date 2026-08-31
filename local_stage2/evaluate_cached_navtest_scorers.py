@@ -63,6 +63,18 @@ def _parse_artifacts(values: Sequence[str]) -> List[Tuple[str, Path]]:
     return parsed
 
 
+def _load_artifact_manifest(path: Path) -> List[Tuple[str, Path]]:
+    payload = json.loads(path.read_text())
+    parsed = []
+    for record in payload.get("artifacts", []):
+        name = str(record["name"])
+        artifact_path = Path(str(record["path"]))
+        if not artifact_path.is_file():
+            raise FileNotFoundError(artifact_path)
+        parsed.append((name, artifact_path))
+    return parsed
+
+
 def _load_feature_cache(path: Path) -> Dict[str, Dict[str, np.ndarray]]:
     with path.open("rb") as file:
         cache = pickle.load(file)
@@ -309,7 +321,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--feature-manifest", type=Path, required=True)
     parser.add_argument("--candidate-matrix", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--artifact", action="append", required=True)
+    parser.add_argument("--artifact", action="append", default=[])
+    parser.add_argument("--artifact-manifest", type=Path)
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--bootstrap-iterations", type=int, default=10_000)
@@ -321,6 +334,13 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     artifacts = _parse_artifacts(args.artifact)
+    if args.artifact_manifest is not None:
+        artifacts.extend(_load_artifact_manifest(args.artifact_manifest))
+    names = [name for name, _path in artifacts]
+    if not artifacts:
+        raise ValueError("At least one --artifact or --artifact-manifest is required")
+    if len(names) != len(set(names)):
+        raise ValueError("Duplicate method names across artifact inputs")
     feature_manifest = json.loads(args.feature_manifest.read_text())
     if not feature_manifest.get("inference_inputs_only"):
         raise RuntimeError("Feature cache is not marked inference-input-only")
