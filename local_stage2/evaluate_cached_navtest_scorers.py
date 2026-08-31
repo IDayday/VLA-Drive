@@ -279,6 +279,7 @@ def _evaluate(
         "candidate_count_64": candidate_scores.shape[1] == EXPECTED_CANDIDATES,
         "zero_invalid": bool(np.isfinite(selected_pdms).all()),
         "public_reference_parity_1e_8": bool(reference_parity.get("passes_1e_8", False)),
+        "candidate_proposal_lineage_match": bool(matrix.get("_lineage_ok", False)),
         "candidate_factor_matrix_present": candidate_factors is not None,
     }
     summary: Dict[str, object] = {
@@ -295,6 +296,7 @@ def _evaluate(
         "feature_cache_sha256": feature_manifest.get("proposal_predictions_sha256"),
         "candidate_matrix_path": str(Path(matrix["_path"]).resolve()),
         "candidate_matrix_sha256": matrix["_sha256"],
+        "candidate_matrix_summary_path": matrix.get("_summary_path"),
         "scene_count": len(selected),
         "log_count": len(set(log_names)),
         "candidate_count": int(candidate_scores.shape[1]),
@@ -320,6 +322,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--feature-cache", type=Path, required=True)
     parser.add_argument("--feature-manifest", type=Path, required=True)
     parser.add_argument("--candidate-matrix", type=Path, required=True)
+    parser.add_argument("--candidate-summary", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--artifact", action="append", default=[])
     parser.add_argument("--artifact-manifest", type=Path)
@@ -352,6 +355,24 @@ def main() -> None:
     matrix = _load_candidate_matrix(args.candidate_matrix)
     matrix["_path"] = str(args.candidate_matrix)
     matrix["_sha256"] = _sha256(args.candidate_matrix)
+    candidate_summary_path = args.candidate_summary or (
+        args.candidate_matrix.parent / "summary.json"
+    )
+    candidate_summary = None
+    if candidate_summary_path.is_file():
+        candidate_summary = json.loads(candidate_summary_path.read_text())
+        matrix["_summary_path"] = str(candidate_summary_path.resolve())
+    reference_hash = feature_manifest.get("reference_predictions_sha256")
+    matrix["_lineage_ok"] = bool(
+        candidate_summary is not None
+        and reference_hash
+        and candidate_summary.get("proposal_predictions_sha256") == reference_hash
+    )
+    if not matrix["_lineage_ok"] and not args.allow_missing_factors:
+        raise RuntimeError(
+            "Candidate matrix does not trace to the feature cache's locked "
+            "reference proposal SHA256"
+        )
     if "candidate_factors" not in matrix and not args.allow_missing_factors:
         raise RuntimeError("Formal audit requires the all-candidate factor matrix")
 
@@ -405,6 +426,7 @@ def main() -> None:
         "feature_cache_sha256": _sha256(args.feature_cache),
         "candidate_matrix": str(args.candidate_matrix.resolve()),
         "candidate_matrix_sha256": matrix["_sha256"],
+        "candidate_proposal_lineage_match": matrix["_lineage_ok"],
         "base_score_max_abs": base_max_abs,
         "methods": summaries,
     }
