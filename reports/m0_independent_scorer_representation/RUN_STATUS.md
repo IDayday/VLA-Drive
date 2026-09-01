@@ -405,3 +405,9 @@ This makes constant velocity an architectural prior rather than an oracle
 inference input. Training-batch alignment, metric normalization, zero-residual
 initialization, future candidate-independence, and inference-input boundaries
 are covered by tests. The complete suite passes `219` tests.
+
+The held-out future audit now also reports the current-actor head separately:
+presence, type, and metric-space state errors at horizon zero are measured
+before the constant-velocity rollout. This separates a current visual
+perception failure from a future-dynamics failure without adding any input to
+the deployable model or changing the immutable training runs.

@@ -213,6 +213,9 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
     target_mask_parts: List[torch.Tensor] = []
     current_parts: List[torch.Tensor] = []
     current_mask_parts: List[torch.Tensor] = []
+    predicted_current_state_parts: List[torch.Tensor] = []
+    current_presence_parts: List[torch.Tensor] = []
+    current_type_parts: List[torch.Tensor] = []
     with torch.inference_mode():
         for batch in loader:
             proposals, observation, observation_mask, status = batch[:4]
@@ -237,6 +240,18 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
                 output["shared_future_presence_logits"].float().cpu()
             )
             type_parts.append(output["shared_future_type_logits"].float().cpu())
+            if private_config.current_actor_auxiliary:
+                predicted_current_state_parts.append(
+                    _decode_predicted_state(
+                        output["current_actor_state"]
+                    ).float().cpu()
+                )
+                current_presence_parts.append(
+                    output["current_actor_presence_logits"].float().cpu()
+                )
+                current_type_parts.append(
+                    output["current_actor_type_logits"].float().cpu()
+                )
             target_parts.append(batch[8].float())
             target_mask_parts.append(batch[9].bool())
             current_index = current_rows.index_select(0, source_indices.long())
@@ -264,6 +279,30 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
     model_errors = _state_errors(predicted, target_state, target_mask)
     constant_errors = _state_errors(constant, target_state, target_mask)
     cv_errors = _state_errors(constant_velocity, target_state, target_mask)
+    current_model = None
+    if private_config.current_actor_auxiliary:
+        predicted_current = torch.cat(predicted_current_state_parts)
+        current_presence = torch.cat(current_presence_parts)
+        current_type_logits = torch.cat(current_type_parts)
+        current_state_errors = _state_errors(
+            predicted_current[:, None],
+            current_raw[..., 1:][:, None],
+            current_mask[:, None],
+        )
+        current_state_errors["per_horizon"][0]["horizon_seconds"] = 0.0
+        current_type = current_raw[..., 0].round().long()
+        current_model = {
+            "presence": _presence_metrics(current_presence, current_mask),
+            "type_accuracy_on_present_actors": float(
+                (
+                    current_type_logits.argmax(dim=-1)[current_mask]
+                    == current_type[current_mask]
+                )
+                .float()
+                .mean()
+            ),
+            "state": current_state_errors,
+        }
     result = {
         "schema_version": 1,
         "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -278,6 +317,9 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
         "official_score_used_as_model_input": False,
         "external_model_representation_or_weight_used": False,
         "shared_future_relabeling": private_config.shared_future_relabeling,
+        "shared_future_constant_velocity_residual": (
+            private_config.shared_future_constant_velocity_residual
+        ),
         "model": {
             "presence": _presence_metrics(presence_logits, target_mask),
             "type_accuracy_on_present_actors": type_accuracy,
@@ -322,6 +364,8 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
             "split_manifest_sha256": _sha256(args.split_manifest),
         },
     }
+    if current_model is not None:
+        result["model_current_actor"] = current_model
     if not all(
         math.isfinite(float(value))
         for value in (
