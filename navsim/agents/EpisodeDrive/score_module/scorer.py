@@ -1,14 +1,46 @@
+from typing import Dict
+
+import torch
 import torch.nn as nn
 # from ..bevformer.transformer_decoder import MyTransformeDecoder,MLP
 # from ..bevformer.transformer_decoder import MLP
 from ..layers.utils.mlp import MLP
 # from .map_head import MapHead
 
+# Adapted from valeoai/DrivoR by its original authors, pinned to commit
+# fc6e5aa144bbcb5a046e22c18f1bd5cf3af8634a.
+
+
+DRIVOR_SCORE_HEAD_NAMES = (
+    'no_at_fault_collisions',
+    'drivable_area_compliance',
+    'time_to_collision_within_bound',
+    'ego_progress',
+    'driving_direction_compliance',
+    'comfort',
+)
+
+
+def aggregate_drivor_pdm_score(
+    pred_logit: Dict[str, torch.Tensor],
+    config,
+) -> torch.Tensor:
+    """Apply the frozen DrivoR sigmoid/log PDM aggregation verbatim."""
+    return (
+        config.noc * pred_logit['no_at_fault_collisions'].sigmoid().log() +
+        config.dac * pred_logit['drivable_area_compliance'].sigmoid().log() +
+        config.ddc * pred_logit['driving_direction_compliance'].sigmoid().log() +
+        (config.ttc * pred_logit['time_to_collision_within_bound'].sigmoid() +
+         config.ep * pred_logit['ego_progress'].sigmoid() +
+         config.comfort * pred_logit['comfort'].sigmoid()).log()
+    )
+
 
 class Scorer(nn.Module):
     def __init__(self, config):
         super().__init__()
 
+        self.b2d=config.b2d
 
         self.proposal_num=config.proposal_num
         self.score_num = 6
@@ -72,15 +104,24 @@ class Scorer(nn.Module):
         self.agent_pred= config.agent_pred
 
         if self.agent_pred:
-            self.pred_col_agent = MLP(config.tf_d_model, config.tf_d_ffn,2* 40 * 9)
+            if self.b2d:
+                self.pred_col_agent = MLP(config.tf_d_model, config.tf_d_ffn, 2*6* 9)
+            else:
+                self.pred_col_agent = MLP(config.tf_d_model, config.tf_d_ffn,2* 40 * 9)
 
         self.area_pred=config.area_pred
 
         if self.area_pred:
             if config.one_token_per_traj:
-                self.pred_area =  MLP(config.tf_d_model, config.tf_d_ffn, config.num_poses*5*2)
+                if self.b2d:
+                    self.pred_area =  MLP(config.tf_d_model, config.tf_d_ffn, config.num_poses*2)
+                else:
+                    self.pred_area =  MLP(config.tf_d_model, config.tf_d_ffn, config.num_poses*5*2)
             else:
-                self.pred_area =  MLP(config.tf_d_model, config.tf_d_ffn, 5*2)
+                if self.b2d:
+                    self.pred_area =  MLP(config.tf_d_model, config.tf_d_ffn, 2)
+                else:
+                    self.pred_area =  MLP(config.tf_d_model, config.tf_d_ffn, 5*2)
 
         self.bev_map=config.bev_map
         self.bev_agent=config.bev_agent

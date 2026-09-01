@@ -10,6 +10,9 @@ from .timm_layers import (
     LayerScale,
 )
 
+# Adapted from valeoai/DrivoR by its original authors, pinned to commit
+# fc6e5aa144bbcb5a046e22c18f1bd5cf3af8634a.
+
 
 class Attention(torch.nn.Module):
     fused_attn: Final[bool]
@@ -182,6 +185,5 @@ class TransformerDecoderScorer(torch.nn.Module):
             return torch.stack(intermediate)
         else:
             return x
-
 
 

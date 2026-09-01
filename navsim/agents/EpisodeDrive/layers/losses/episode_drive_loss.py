@@ -6,6 +6,9 @@ import torch.nn as nn
 import os
 from scipy.optimize import linear_sum_assignment
 
+# Adapted from valeoai/DrivoR by its original authors, pinned to commit
+# fc6e5aa144bbcb5a046e22c18f1bd5cf3af8634a.
+
 @torch.no_grad()
 def _get_ce_cost(gt_valid: torch.Tensor, pred_logits: torch.Tensor) -> torch.Tensor:
     """
@@ -194,7 +197,13 @@ class EpisodeDriveLoss(torch.nn.Module):
 
         da_loss = F.binary_cross_entropy_with_logits(drivable_area_compliance, gt_drivable_area_compliance.to(dtype))
 
-        ttc_loss = F.binary_cross_entropy_with_logits(time_to_collision_within_bound, gt_time_to_collision_within_bound.to(dtype))
+        mask_valid_ttc = (gt_time_to_collision_within_bound != 2.0).float()
+        ttc_loss = F.binary_cross_entropy_with_logits(
+            time_to_collision_within_bound,
+            gt_time_to_collision_within_bound.to(dtype),
+            mask_valid_ttc,
+            reduction='sum',
+        ) / mask_valid_ttc.sum().clamp(min=1.0)
 
         # print("gt_no_at_fault_collisions:", gt_no_at_fault_collisions)
         noc_gt = three_to_two_classes(gt_no_at_fault_collisions.to(dtype))

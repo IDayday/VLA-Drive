@@ -2,7 +2,7 @@ from typing import Dict, Optional
 import numpy as np
 import torch
 import torch.nn as nn
-from .score_module.scorer import Scorer
+from .score_module.scorer import Scorer, aggregate_drivor_pdm_score
 from .transformer_decoder import TransformerDecoder, TransformerDecoderScorer
 from .layers.image_encoder.dinov2_lora import ImgEncoder
 from .layers.utils.mlp import MLP
@@ -11,6 +11,9 @@ from .layers.q_former.q_former import VisionOnlyQFormer
 log = pylogger.get_pylogger(__name__)
 import logging
 # log.setLevel(logging.DEBUG)
+
+# Scorer path adapted from valeoai/DrivoR by its original authors, pinned to
+# commit fc6e5aa144bbcb5a046e22c18f1bd5cf3af8634a.
 
 class ActionDecoder(nn.Module):
     def __init__(self, config):
@@ -87,6 +90,7 @@ class ActionDecoder(nn.Module):
 
         # scorer
         self.scorer = Scorer(config)
+        self.b2d = config.b2d
         # Attached only after loading the original Base checkpoint. Keeping this
         # as None preserves the exact legacy state_dict and inference behavior.
         self.memory_attention = None
@@ -195,14 +199,7 @@ class ActionDecoder(nn.Module):
         output["agent_states"]=agent_states
         output["agent_labels"]=agent_labels
 
-        pdm_score = (
-        self._config.noc * pred_logit['no_at_fault_collisions'].sigmoid().log() +
-        self._config.dac * pred_logit['drivable_area_compliance'].sigmoid().log() +
-        self._config.ddc * pred_logit['driving_direction_compliance'].sigmoid().log() +    
-        (self._config.ttc * pred_logit['time_to_collision_within_bound'].sigmoid() +
-        self._config.ep * pred_logit['ego_progress'].sigmoid()  
-        + self._config.comfort * pred_logit['comfort'].sigmoid()).log()
-        )
+        pdm_score = aggregate_drivor_pdm_score(pred_logit, self._config)
 
         token = torch.argmax(pdm_score, dim=1)
         trajectory = proposals[
