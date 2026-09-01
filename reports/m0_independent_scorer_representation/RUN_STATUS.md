@@ -434,3 +434,38 @@ them unchanged. The source tree therefore exposes dormant optional modules,
 but the released weights do not provide their learned representation. Current
 actor, shared-future, and candidate-relative heads in this campaign are newly
 trained M0-owned modules rather than reuse of hidden public auxiliary weights.
+
+## Masked-consequence conservative-policy Navtest
+
+The immutable epoch-0 masked-consequence artifact has SHA256
+`30b91c9444ada03d9b5ba4be0f481f9080190223af9e17f3b0c1f7c955b17df3`.
+A nested physical-log calibration selected a predeclared conservative policy
+with residual scale `0.75`, relative-factor safety gating, and safety floor
+`0.85`. On the calibration half it improved PDMS by `+0.006234`; on the
+disjoint promotion half it improved `0.953332 -> 0.958610`, with log-bootstrap
+95% CI `[+0.002651, +0.007402]`. The derived ranker artifact has SHA256
+`86d97ca0d95c3bef2f7dc1f0eba5101052f5f44dd4d04312c81791c28289e9dc`.
+
+The required strict full Navtest audit then rejected this policy. Across all
+`12,146` scenes, `136` physical logs, `64` candidates per scene, FP32, and zero
+invalid scenes, selected PDMS is `0.893988`, versus the released M0 reference
+`0.909594`: delta `-0.015606`, with log-bootstrap 95% CI
+`[-0.018699, -0.012138]`. Best-of-64 remains exactly `0.984112`, proving that
+the proposal bank did not change. Progress improves by `+0.002482`, but NOC,
+DAC, DDC, and TTC change by `-0.007822`, `-0.009962`, `-0.006834`, and
+`-0.024535`; those safety losses dominate the mean. There are 5,040 improved,
+1,650 degraded, and 5,456 tied scenes, illustrating why win count alone is an
+unsafe promotion criterion. The offline audit passes candidate-order,
+selected-score reconstruction, oracle-identity, and public-reference parity.
+Its separate online/cache parity replay was killed by the `rl-zt4` Ray node at
+the configured 95% host-memory threshold while eight training processes were
+resident; it is queued to be repeated after memory is naturally released.
+
+This sign flip rules out threshold calibration of the existing pooled feature
+head as the main solution. The next representation test retains the same M0
+InternVL checkpoint and current-only four-camera inputs but changes spatial
+pooling from `2 x 2` to `4 x 4` per crop, increasing fixed visual tokens from
+80 to 320. Four trainval cache shards are queued across authorized
+`rl-zt3`/`rl-zt4` GPUs, with two matching Navtest shards and a frozen-generator
+training/evaluation chain behind them. No `vla-zt` or `vla-zt2` GPU is used,
+and no existing task is terminated.

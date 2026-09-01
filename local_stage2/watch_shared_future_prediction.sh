@@ -14,6 +14,7 @@ PYTHON_BIN="${PYTHON_BIN:-/mnt/project/DriveVLA-M0-env/bin/python}"
 RUN_ROOT="${RUN_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93}"
 SPLIT_MANIFEST="${SPLIT_MANIFEST:-/mnt/project/DriveVLA-M0-scorer-pdms93/reports/scorer_pdms93/OFFICIAL_SCORER_SPLIT.json}"
 CURRENT_ACTOR_TARGET_ROOT="${CURRENT_ACTOR_TARGET_ROOT:-/mnt/project/DriveVLA-M0-gate-c/outputs/shared_future_candidate_consequence_gate_c/all/oracle_store}"
+PRIVATE_OBSERVATION_ROOT="${PRIVATE_OBSERVATION_ROOT:-${RUN_ROOT}/m0_native_multiview_trainval_pool2_tiles4_v1_4shard}"
 LOCK_PATH="${LOCK_PATH:-/tmp/m0_native_navtest_gpu.lock}"
 WAIT_ATTEMPTS="${WAIT_ATTEMPTS:-1440}"
 
@@ -57,7 +58,7 @@ exec "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/evaluate_shared_future_predictio
   --source-name public_base \
   --feature-root "${RUN_ROOT}/public_base_features_full_v1" \
   --label-root "${RUN_ROOT}/public_base_labels_full_v1" \
-  --private-observation-root "${RUN_ROOT}/m0_native_multiview_trainval_pool2_tiles4_v1_4shard" \
+  --private-observation-root "${PRIVATE_OBSERVATION_ROOT}" \
   --shared-future-target-root "${RUN_ROOT}/shared_future_target_table_v1" \
   --current-actor-target-root "${CURRENT_ACTOR_TARGET_ROOT}" \
   --split-manifest "${SPLIT_MANIFEST}" \
