@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import numpy as np
@@ -42,7 +43,17 @@ from local_stage2.temporal_consequence_scorer import (
     TemporalConsequenceRanker,
     temporal_trajectory_features,
 )
-from local_stage2.train_temporal_consequence_scorer import assign_balanced_log_folds
+from local_stage2.train_temporal_consequence_scorer import (
+    assign_balanced_log_folds,
+    load_full_data_cv_policy,
+)
+from local_stage2.summarize_temporal_consequence_cv import (
+    _console_summary,
+    summarize_cv,
+)
+from local_stage2.materialize_temporal_cv_policy import (
+    materialize_common_policy_artifact,
+)
 
 
 def test_partition_tokens_is_disjoint_and_complete():
@@ -236,6 +247,168 @@ def test_balanced_log_folds_are_deterministic_disjoint_and_scene_balanced():
     assert set(first) == set(logs)
     fold_scenes = [sum(first[name] == fold for name in logs) for fold in range(3)]
     assert max(fold_scenes) - min(fold_scenes) <= 2
+
+
+def _synthetic_temporal_fold(fold_index: int, unsafe_gain: float):
+    validation = f"log-{fold_index}"
+    training = f"log-{1 - fold_index}"
+    factor_keys = (
+        "no_at_fault_collisions",
+        "drivable_area_compliance",
+        "driving_direction_compliance",
+        "ego_progress",
+        "time_to_collision_within_bound",
+        "comfort",
+        "score",
+    )
+
+    def result(delta, scale, collision_delta=0.0):
+        return {
+            "scene_count": 10,
+            "selected_pdms_delta": delta,
+            "base_top1_regret": 0.10,
+            "model_top1_regret": 0.10 - delta,
+            "pairwise_accuracy_delta_ge_0_02": 0.75 + delta,
+            "residual_scale": scale,
+            "switch_penalty": 0.0,
+            "safety_floor": 0.0,
+            "safety_relative_tolerance": 1.0,
+            "selected_factor_delta": {
+                key: collision_delta if key == "no_at_fault_collisions" else 0.0
+                for key in factor_keys
+            },
+        }
+
+    return {
+        "metadata": {
+            "fold": {
+                "num_folds": 2,
+                "fold_seed": 7,
+                "fold_index": fold_index,
+                "train_logs": [training],
+                "validation_logs": [validation],
+                "train_scene_count": 10,
+                "validation_scene_count": 10,
+            }
+        },
+        "history": [
+            {"epoch": 0, "validation": result(0.01, 1.0)},
+            {"epoch": 1, "validation": result(0.02, 1.0)},
+        ],
+        "deployment_sweep": [
+            result(0.01, 0.5),
+            result(unsafe_gain, 1.0, collision_delta=-0.01),
+        ],
+    }
+
+
+def test_temporal_cv_summary_uses_one_safe_policy_across_disjoint_folds():
+    summary = summarize_cv(
+        [_synthetic_temporal_fold(0, 0.03), _synthetic_temporal_fold(1, 0.04)]
+    )
+    assert summary["fold_audit"]["complete"]
+    assert summary["fold_audit"]["validation_log_count"] == 2
+    assert summary["common_epoch"]["epoch"] == 1
+    assert summary["common_deployment"]["residual_scale"] == 0.5
+    assert summary["common_deployment"]["safety_nonregressing"]
+
+
+def test_temporal_cv_console_summary_omits_large_search_grids():
+    summary = summarize_cv(
+        [_synthetic_temporal_fold(0, 0.03), _synthetic_temporal_fold(1, 0.04)]
+    )
+    compact = _console_summary(summary)
+    assert "epoch_results" not in compact
+    assert "deployment_results" not in compact
+    assert compact["common_epoch"] == summary["common_epoch"]
+    assert compact["common_deployment"] == summary["common_deployment"]
+    assert compact["output_contains_full_grids"] is True
+
+
+def test_temporal_cv_common_policy_changes_only_deployment_config(tmp_path: Path):
+    config = TemporalConsequenceConfig(hidden_dim=64, trajectory_dim=32, temporal_layers=1)
+    model = TemporalConsequenceRanker(config)
+    source = tmp_path / "fold_0" / "best.pt"
+    source.parent.mkdir()
+    sweep = [
+        {
+            "residual_scale": 0.2,
+            "switch_penalty": 0.02,
+            "safety_floor": 0.95,
+            "safety_relative_tolerance": 0.1,
+            "selected_pdms_delta": 0.001,
+            "selected_pdms_delta_log_bootstrap_95ci": [0.0001, 0.002],
+            "selected_factor_delta": {
+                "no_at_fault_collisions": 0.0,
+                "drivable_area_compliance": 0.0,
+                "time_to_collision_within_bound": 0.0,
+            },
+        }
+    ]
+    torch.save(
+        {
+            "artifact_type": "episode_drive_temporal_consequence_scorer_v1",
+            "model_config": config.__dict__,
+            "model_state_dict": model.state_dict(),
+            "metadata": {
+                "deployment_sweep": sweep,
+                "future_inputs_used": False,
+                "official_scores_used_at_inference": False,
+            },
+        },
+        source,
+    )
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps(
+            {
+                "robust_deployment_available": True,
+                "fold_audit": {"complete": True, "observed_fold_count": 2},
+                "common_deployment": sweep[0],
+            }
+        )
+    )
+    output = tmp_path / "derived" / "common.pt"
+    materialize_common_policy_artifact(source, output, summary_path)
+    derived = torch.load(output, map_location="cpu")
+    assert derived["model_config"]["inference_scale"] == 0.2
+    assert derived["model_config"]["switch_penalty"] == 0.02
+    assert derived["model_config"]["safety_floor"] == 0.95
+    assert derived["model_config"]["safety_relative_tolerance"] == 0.1
+    for key, value in model.state_dict().items():
+        assert torch.equal(derived["model_state_dict"][key], value)
+    assert derived["metadata"]["validation"]["selected_pdms_delta"] == 0.001
+    assert not derived["metadata"]["common_cv_policy"][
+        "navtest_used_for_policy_selection"
+    ]
+
+
+def test_full_data_temporal_training_uses_only_complete_cv_policy(tmp_path: Path):
+    path = tmp_path / "cv.json"
+    payload = {
+        "fold_audit": {
+            "complete": True,
+            "declared_num_folds": 5,
+            "fold_seed": 17,
+        },
+        "robust_deployment_available": True,
+        "common_epoch": {"epoch": 9},
+        "common_deployment": {
+            "residual_scale": 0.2,
+            "switch_penalty": 0.02,
+            "safety_floor": 0.95,
+            "safety_relative_tolerance": 0.1,
+        },
+    }
+    path.write_text(json.dumps(payload))
+    epoch, policy, loaded = load_full_data_cv_policy(path)
+    assert epoch == 9
+    assert policy["residual_scale"] == 0.2
+    assert loaded["fold_audit"]["declared_num_folds"] == 5
+    payload["fold_audit"]["complete"] = False
+    path.write_text(json.dumps(payload))
+    with pytest.raises(ValueError, match="complete cross-validation"):
+        load_full_data_cv_policy(path)
 
 
 def test_cached_navtest_evaluator_accepts_temporal_consequence_artifact(tmp_path: Path):

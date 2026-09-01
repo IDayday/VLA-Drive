@@ -28,6 +28,7 @@ from local_stage2.temporal_consequence_scorer import (
     TemporalConsequenceRanker,
     build_temporal_consequence_artifact,
 )
+from local_stage2.materialize_temporal_cv_policy import POLICY_TO_CONFIG
 from local_stage2.train_public_base_residual_scorer import (
     LABEL_FACTOR_KEYS,
     _log_bootstrap_ci,
@@ -237,6 +238,24 @@ def assign_balanced_log_folds(
         fold_scenes[fold] += counts[name]
         fold_logs[fold] += 1
     return assignment
+
+
+def load_full_data_cv_policy(path: Path) -> Tuple[int, Dict[str, float], Mapping[str, object]]:
+    """Load the epoch and one deployment policy fixed only by complete Navtrain CV."""
+
+    summary = json.loads(path.read_text())
+    fold_audit = summary.get("fold_audit", {})
+    if not bool(fold_audit.get("complete")):
+        raise ValueError("Full-data training requires a complete cross-validation summary")
+    if not bool(summary.get("robust_deployment_available")):
+        raise ValueError("Full-data training requires a robust common deployment")
+    retained_epoch = int(summary["common_epoch"]["epoch"])
+    deployment = summary["common_deployment"]
+    policy = {
+        policy_key: float(deployment[policy_key])
+        for policy_key in POLICY_TO_CONFIG
+    }
+    return retained_epoch, policy, summary
 
 
 def _weighted_bce(
@@ -649,6 +668,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--area-positive-weight", type=float, default=5.0)
     parser.add_argument("--actor-positive-weight", type=float, default=5.0)
     parser.add_argument("--use-base-candidate-features", action="store_true")
+    parser.add_argument(
+        "--train-all",
+        action="store_true",
+        help="Train on every Navtrain log using an epoch/policy fixed by complete CV.",
+    )
+    parser.add_argument(
+        "--cv-summary",
+        type=Path,
+        help="Complete temporal CV summary required by --train-all.",
+    )
     parser.add_argument("--max-scenes", type=int, default=0)
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
@@ -664,8 +693,10 @@ def main() -> None:
     ):
         if not path.exists():
             raise FileNotFoundError(path)
-    if not 0 <= args.fold_index < args.num_folds:
+    if not args.train_all and not 0 <= args.fold_index < args.num_folds:
         raise ValueError("fold-index must be in [0, num-folds)")
+    if args.train_all and args.cv_summary is None:
+        raise ValueError("--train-all requires --cv-summary")
     if args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but unavailable")
 
@@ -686,26 +717,60 @@ def main() -> None:
         args.consequence_root,
         max_scenes=args.max_scenes,
     )
-    assignment = assign_balanced_log_folds(
-        all_data.log_names,
-        args.num_folds,
-        args.fold_seed,
-    )
-    val_indices = [
-        index
-        for index, name in enumerate(all_data.log_names)
-        if assignment[name] == args.fold_index
-    ]
-    train_indices = [
-        index
-        for index, name in enumerate(all_data.log_names)
-        if assignment[name] != args.fold_index
-    ]
-    train_data = all_data.subset(train_indices)
-    val_data = all_data.subset(val_indices)
-    if set(train_data.log_names).intersection(val_data.log_names):
-        raise RuntimeError("Log-level fold leakage")
-    del all_data
+    cv_summary: Optional[Mapping[str, object]] = None
+    retained_epoch: Optional[int] = None
+    common_policy: Optional[Dict[str, float]] = None
+    if args.train_all:
+        assert args.cv_summary is not None
+        retained_epoch, common_policy, cv_summary = load_full_data_cv_policy(
+            args.cv_summary
+        )
+        if not 0 <= retained_epoch < args.epochs:
+            raise ValueError(
+                f"CV retained epoch {retained_epoch} is outside {args.epochs} epochs"
+            )
+        train_data = all_data
+        val_data = None
+        fold_payload = {
+            "mode": "all_logs",
+            "num_folds": int(cv_summary["fold_audit"]["declared_num_folds"]),
+            "fold_seed": int(cv_summary["fold_audit"]["fold_seed"]),
+            "fold_index": None,
+            "train_logs": sorted(set(train_data.log_names)),
+            "validation_logs": [],
+            "train_scene_count": len(train_data),
+            "validation_scene_count": 0,
+        }
+    else:
+        assignment = assign_balanced_log_folds(
+            all_data.log_names,
+            args.num_folds,
+            args.fold_seed,
+        )
+        val_indices = [
+            index
+            for index, name in enumerate(all_data.log_names)
+            if assignment[name] == args.fold_index
+        ]
+        train_indices = [
+            index
+            for index, name in enumerate(all_data.log_names)
+            if assignment[name] != args.fold_index
+        ]
+        train_data = all_data.subset(train_indices)
+        val_data = all_data.subset(val_indices)
+        if set(train_data.log_names).intersection(val_data.log_names):
+            raise RuntimeError("Log-level fold leakage")
+        fold_payload = {
+            "num_folds": args.num_folds,
+            "fold_seed": args.fold_seed,
+            "fold_index": args.fold_index,
+            "train_logs": sorted(set(train_data.log_names)),
+            "validation_logs": sorted(set(val_data.log_names)),
+            "train_scene_count": len(train_data),
+            "validation_scene_count": len(val_data),
+        }
+        del all_data
 
     model = TemporalConsequenceRanker(
         TemporalConsequenceConfig(
@@ -733,29 +798,24 @@ def main() -> None:
         pin_memory=device.type == "cuda",
     )
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    fold_payload = {
-        "num_folds": args.num_folds,
-        "fold_seed": args.fold_seed,
-        "fold_index": args.fold_index,
-        "train_logs": sorted(set(train_data.log_names)),
-        "validation_logs": sorted(set(val_data.log_names)),
-        "train_scene_count": len(train_data),
-        "validation_scene_count": len(val_data),
-    }
     _atomic_json_dump(fold_payload, args.output_dir / "fold.json")
 
-    initial_outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
-    initial = evaluate_outputs(
-        initial_outputs,
-        val_data.log_names,
-        residual_scale=0.0,
-        switch_penalty=0.0,
-        safety_floor=0.0,
-        safety_relative_tolerance=1.0,
-        seed=args.seed,
-    )
-    history: List[Dict[str, object]] = [{"epoch": -1, "validation": initial}]
-    print("TEMPORAL_CONSEQUENCE_EVAL " + json.dumps(history[-1], sort_keys=True), flush=True)
+    if val_data is not None:
+        initial_outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
+        initial: Optional[Mapping[str, object]] = evaluate_outputs(
+            initial_outputs,
+            val_data.log_names,
+            residual_scale=0.0,
+            switch_penalty=0.0,
+            safety_floor=0.0,
+            safety_relative_tolerance=1.0,
+            seed=args.seed,
+        )
+        history: List[Dict[str, object]] = [{"epoch": -1, "validation": initial}]
+        print("TEMPORAL_CONSEQUENCE_EVAL " + json.dumps(history[-1], sort_keys=True), flush=True)
+    else:
+        initial = None
+        history = []
     best_pairwise = -float("inf")
     best_state: Optional[Dict[str, torch.Tensor]] = None
     best_epoch = -1
@@ -775,27 +835,34 @@ def main() -> None:
                 sums[key] = sums.get(key, 0.0) + value
             batches += 1
         scheduler.step()
-        outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
-        validation = evaluate_outputs(
-            outputs,
-            val_data.log_names,
-            residual_scale=1.0,
-            switch_penalty=0.0,
-            safety_floor=0.0,
-            safety_relative_tolerance=1.0,
-            seed=args.seed + epoch + 1,
-        )
         record = {
             "epoch": epoch,
             "learning_rate": optimizer.param_groups[0]["lr"],
             "training": {key: value / max(batches, 1) for key, value in sums.items()},
-            "validation": validation,
         }
+        if val_data is not None:
+            outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
+            validation = evaluate_outputs(
+                outputs,
+                val_data.log_names,
+                residual_scale=1.0,
+                switch_penalty=0.0,
+                safety_floor=0.0,
+                safety_relative_tolerance=1.0,
+                seed=args.seed + epoch + 1,
+            )
+            record["validation"] = validation
         history.append(record)
-        print("TEMPORAL_CONSEQUENCE_EVAL " + json.dumps(record, sort_keys=True), flush=True)
-        pairwise = float(validation["pairwise_accuracy_delta_ge_0_02"])
-        if pairwise > best_pairwise:
-            best_pairwise = pairwise
+        prefix = "TEMPORAL_CONSEQUENCE_EVAL" if val_data is not None else "TEMPORAL_CONSEQUENCE_TRAIN"
+        print(prefix + " " + json.dumps(record, sort_keys=True), flush=True)
+        if val_data is not None:
+            pairwise = float(validation["pairwise_accuracy_delta_ge_0_02"])
+            retain = pairwise > best_pairwise
+        else:
+            retain = epoch == retained_epoch
+        if retain:
+            if val_data is not None:
+                best_pairwise = pairwise
             best_epoch = epoch
             best_state = {
                 key: value.detach().cpu().clone() for key, value in model.state_dict().items()
@@ -804,24 +871,29 @@ def main() -> None:
     if best_state is None:
         raise RuntimeError("No trained epoch was retained")
     model.load_state_dict(best_state, strict=True)
-    outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
-    sweep = deployment_sweep(outputs, val_data.log_names, args.seed + 1000)
-    safety_tolerance = 5e-4
-    safe = [
-        item
-        for item in sweep
-        if item["selected_factor_delta"]["no_at_fault_collisions"] >= -safety_tolerance
-        and item["selected_factor_delta"]["drivable_area_compliance"] >= -safety_tolerance
-        and item["selected_factor_delta"]["time_to_collision_within_bound"] >= -safety_tolerance
-    ]
-    best_deployment = max(
-        safe or sweep,
-        key=lambda item: (
-            float(item["model_selected_pdms"]),
-            -float(item["selection_switch_rate"]),
-            -float(item["residual_scale"]),
-        ),
-    )
+    if val_data is not None:
+        outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
+        sweep = deployment_sweep(outputs, val_data.log_names, args.seed + 1000)
+        safety_tolerance = 5e-4
+        safe = [
+            item
+            for item in sweep
+            if item["selected_factor_delta"]["no_at_fault_collisions"] >= -safety_tolerance
+            and item["selected_factor_delta"]["drivable_area_compliance"] >= -safety_tolerance
+            and item["selected_factor_delta"]["time_to_collision_within_bound"] >= -safety_tolerance
+        ]
+        best_deployment = max(
+            safe or sweep,
+            key=lambda item: (
+                float(item["model_selected_pdms"]),
+                -float(item["selection_switch_rate"]),
+                -float(item["residual_scale"]),
+            ),
+        )
+    else:
+        assert common_policy is not None and cv_summary is not None
+        sweep = []
+        best_deployment = dict(cv_summary["common_deployment"])
     deployed = TemporalConsequenceRanker(
         replace(
             model.config,
@@ -834,16 +906,20 @@ def main() -> None:
         )
     ).to(device)
     deployed.load_state_dict(model.state_dict(), strict=True)
-    final_outputs = collect_outputs(deployed, val_data, device, args.eval_batch_size)
-    validation = evaluate_outputs(
-        final_outputs,
-        val_data.log_names,
-        residual_scale=deployed.config.inference_scale,
-        switch_penalty=deployed.config.switch_penalty,
-        safety_floor=deployed.config.safety_floor,
-        safety_relative_tolerance=deployed.config.safety_relative_tolerance,
-        seed=args.seed + 2000,
-    )
+    if val_data is not None:
+        final_outputs = collect_outputs(deployed, val_data, device, args.eval_batch_size)
+        validation: Optional[Mapping[str, object]] = evaluate_outputs(
+            final_outputs,
+            val_data.log_names,
+            residual_scale=deployed.config.inference_scale,
+            switch_penalty=deployed.config.switch_penalty,
+            safety_floor=deployed.config.safety_floor,
+            safety_relative_tolerance=deployed.config.safety_relative_tolerance,
+            seed=args.seed + 2000,
+        )
+    else:
+        assert cv_summary is not None
+        validation = dict(cv_summary["common_deployment"])
     metadata = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed,
@@ -854,8 +930,8 @@ def main() -> None:
         "consequence_root": str(args.consequence_root.resolve()),
         "train_scene_count": len(train_data),
         "train_log_count": len(set(train_data.log_names)),
-        "val_scene_count": len(val_data),
-        "val_log_count": len(set(val_data.log_names)),
+        "val_scene_count": len(val_data) if val_data is not None else 0,
+        "val_log_count": len(set(val_data.log_names)) if val_data is not None else 0,
         "validation": validation,
         "deployment_sweep": sweep,
         "training_args": {
@@ -865,6 +941,11 @@ def main() -> None:
         "future_inputs_used": False,
         "future_targets_training_only": True,
         "official_scores_used_at_inference": False,
+        "full_data_training": args.train_all,
+        "cv_summary_path": str(args.cv_summary.resolve()) if args.cv_summary else None,
+        "cv_common_epoch": retained_epoch if args.train_all else None,
+        "cv_common_deployment": common_policy if args.train_all else None,
+        "navtest_used_for_training_or_selection": False,
         "inference_signature": [
             "current_scene_features",
             "current_ego_feature",
