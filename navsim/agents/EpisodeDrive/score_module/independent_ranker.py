@@ -974,3 +974,40 @@ def factor_prediction_loss(
         raise ValueError("valid_mask must have shape [B, K]")
     expanded = valid_mask.unsqueeze(-1).expand_as(losses).to(losses.dtype)
     return (losses * expanded).sum() / expanded.sum().clamp_min(1.0)
+
+
+def episode_drive_factor_loss(
+    factor_logits: torch.Tensor,
+    factor_targets: torch.Tensor,
+    safety_negative_weight: float = 1.0,
+) -> torch.Tensor:
+    """Match the released EpisodeDrive six-head scorer loss.
+
+    The factor order is NOC, DAC, DDC, TTC, progress, comfort.  Released M0
+    maps partial NOC/DDC credit to binary failure, then applies BCE to all six
+    heads, including the continuous progress target.  A non-unit safety weight
+    is retained only as an explicit ablation; ``1.0`` is source-equivalent.
+    """
+
+    if factor_logits.shape != factor_targets.shape:
+        raise ValueError("factor logits/targets must have identical shape")
+    if factor_logits.shape[-1] != len(FACTOR_KEYS):
+        raise ValueError("EpisodeDrive factor tensors must contain six fields")
+    if safety_negative_weight <= 0:
+        raise ValueError("safety_negative_weight must be positive")
+    target = factor_targets.to(factor_logits.dtype).clone()
+    target[..., 0] = (target[..., 0] == 1.0).to(target.dtype)
+    target[..., 2] = (target[..., 2] == 1.0).to(target.dtype)
+    element = F.binary_cross_entropy_with_logits(
+        factor_logits, target, reduction="none"
+    )
+    if safety_negative_weight == 1.0:
+        return element.mean()
+    weights = torch.ones_like(element)
+    for index in (0, 1, 3):
+        weights[..., index] = torch.where(
+            target[..., index] < 0.5,
+            safety_negative_weight,
+            1.0,
+        )
+    return (element * weights).sum() / weights.sum().clamp_min(1.0)

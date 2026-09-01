@@ -110,3 +110,8 @@ independent campaign so far upweighted rare violations by 10. The resulting
 Navtest signature (better safety, worse progress/DAC) is directionally
 consistent with that change. A full 2x2 Q-Former diagnostic now tests
 unweighted BCE with factor-ranking and current-actor supervision independently.
+The inspection also found that the independent loss had excluded progress from
+BCE and replaced it with `2 * SmoothL1`; released EpisodeDrive includes the
+continuous progress target directly in the same six-head BCE. The new explicit
+`episode_drive_bce` mode is unit-tested against the source-equivalent formula,
+while the former behavior remains available only as a named ablation.

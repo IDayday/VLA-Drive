@@ -39,6 +39,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     IndependentProposalRanker,
     IndependentRankerConfig,
     current_actor_auxiliary_loss,
+    episode_drive_factor_loss,
     pdms_factor_log_utility,
     top_heavy_listwise_loss,
     top_regret_rank_loss,
@@ -758,16 +759,25 @@ def compute_training_loss(
         device=target_factors.device,
     )
     target_six = target_factors.index_select(-1, reorder)
-    factor = binary_factor_loss(
-        output["factor_logits"],
-        target_six,
-        args.safety_negative_weight,
-    )
     progress = F.smooth_l1_loss(
         output["factor_logits"][..., 4].sigmoid(),
         target_six[..., 4],
     )
-    factor = factor + 2.0 * progress
+    if args.factor_loss_mode == "episode_drive_bce":
+        factor = episode_drive_factor_loss(
+            output["factor_logits"],
+            target_six,
+            args.safety_negative_weight,
+        )
+    elif args.factor_loss_mode == "continuous_progress":
+        factor = binary_factor_loss(
+            output["factor_logits"],
+            target_six,
+            args.safety_negative_weight,
+        )
+        factor = factor + args.progress_regression_weight * progress
+    else:
+        raise RuntimeError(f"Unknown factor loss mode: {args.factor_loss_mode}")
     factor_rank = weighted_pairwise_rank_loss(
         pdms_factor_log_utility(output["factor_logits"]),
         target_scores,
@@ -841,6 +851,7 @@ def compute_training_loss(
         "coarse_top_regret": coarse_top_regret,
         "fine_top_regret": fine_top_regret,
         "factor": factor,
+        "progress_regression": progress,
         "factor_rank": factor_rank,
         "consequence": consequence,
         "confidence": confidence,
@@ -1141,6 +1152,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--top-regret-weight", type=float, default=1.0)
     parser.add_argument("--coarse-loss-weight", type=float, default=0.5)
     parser.add_argument("--factor-weight", type=float, default=0.5)
+    parser.add_argument(
+        "--factor-loss-mode",
+        choices=("continuous_progress", "episode_drive_bce"),
+        default="continuous_progress",
+    )
+    parser.add_argument("--progress-regression-weight", type=float, default=2.0)
     parser.add_argument("--factor-rank-weight", type=float, default=0.25)
     parser.add_argument("--consequence-weight", type=float, default=0.5)
     parser.add_argument("--confidence-weight", type=float, default=0.1)
@@ -1185,6 +1202,8 @@ def main() -> None:
         raise FileNotFoundError(args.private_observation_root)
     if args.current_actor_weight < 0:
         raise ValueError("current-actor-weight must be non-negative")
+    if args.progress_regression_weight < 0:
+        raise ValueError("progress-regression-weight must be non-negative")
     if (args.current_actor_target_root is None) != (
         args.current_actor_weight == 0
     ):

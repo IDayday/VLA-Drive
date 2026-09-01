@@ -20,6 +20,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     assert_current_observation_only,
     conservative_reference_selection_scores,
     current_actor_auxiliary_loss,
+    episode_drive_factor_loss,
     factor_prediction_loss,
     masked_pinball_quantile_loss,
     pdms_factor_log_utility,
@@ -245,6 +246,31 @@ def test_future_and_evaluator_inputs_are_rejected() -> None:
         assert_current_observation_only({"current_image": object(), "official_score": object()})
     with pytest.raises(RuntimeError, match="future_annotations"):
         assert_current_observation_only({"future_annotations": object()})
+
+
+def test_episode_drive_factor_loss_matches_released_six_head_bce() -> None:
+    logits = torch.tensor(
+        [[[0.2, -0.4, 0.7, -1.0, 0.5, 1.2], [-0.3, 0.8, -0.2, 0.4, -0.7, 0.1]]]
+    )
+    targets = torch.tensor(
+        [[[1.0, 0.0, 0.5, 1.0, 0.35, 1.0], [0.5, 1.0, 1.0, 0.0, 0.82, 0.0]]]
+    )
+    released_targets = targets.clone()
+    released_targets[..., 0] = (released_targets[..., 0] == 1.0).float()
+    released_targets[..., 2] = (released_targets[..., 2] == 1.0).float()
+    expected = torch.nn.functional.binary_cross_entropy_with_logits(
+        logits, released_targets
+    )
+    actual = episode_drive_factor_loss(
+        logits, targets, safety_negative_weight=1.0
+    )
+    torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+
+    changed_progress = targets.clone()
+    changed_progress[..., 4] = 1.0 - changed_progress[..., 4]
+    assert not torch.equal(
+        episode_drive_factor_loss(logits, changed_progress), actual
+    )
 
 
 def test_candidate_permutation_equivariance() -> None:
