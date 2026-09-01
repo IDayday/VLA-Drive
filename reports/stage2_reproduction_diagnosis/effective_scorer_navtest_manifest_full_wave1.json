@@ -1,0 +1,202 @@
+{
+  "artifacts": [
+    {
+      "aliases": [
+        "full_local_hybrid_top16_basepairw0_seed2_v1"
+      ],
+      "future_inputs_used": false,
+      "model_config": {
+        "base_anchored_topk": true,
+        "dropout": 0.1,
+        "factor_dim": 64,
+        "hidden_dim": 256,
+        "inference_scale": 0.35,
+        "max_residual": 0.5,
+        "mode": "local",
+        "num_blocks": 2,
+        "preserve_ddc": false,
+        "safety_floor": 0.95,
+        "safety_gate_mode": "composite",
+        "safety_relative_tolerance": 0.1,
+        "scene_heads": 8,
+        "scene_layers": 2,
+        "score_mode": "hybrid",
+        "set_heads": 8,
+        "set_layers": 1,
+        "switch_penalty": 0.02,
+        "top_k": 16,
+        "trajectory_dim": 128
+      },
+      "name": "full_local_hybrid_top16_basepairw0_seed2_v1",
+      "official_scores_used_at_inference": false,
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/full_local_hybrid_top16_basepairw0_seed2_v1/best_residual_scorer.pt",
+      "promoted": true,
+      "reason": "positive_log_bootstrap_ci",
+      "sha256": "6352100ced6748aac826e4fec4bd8d61218474b58197a6d7ffbb6eb9601cf1a8",
+      "tier": "diagnostic_safety_regression",
+      "validation_log_count": 214,
+      "validation_pdms_delta": 0.00393920112401247,
+      "validation_pdms_delta_ci95": [
+        0.0032342325800194228,
+        0.004643491294387531
+      ],
+      "validation_safety_factor_delta": {
+        "drivable_area_compliance": -0.0004950761795043945,
+        "no_at_fault_collisions": 5.501508712768555e-05,
+        "time_to_collision_within_bound": -0.0004950761795043945
+      },
+      "validation_scene_count": 18179
+    },
+    {
+      "aliases": [
+        "full_local_hybrid_top16_basepairw2_seed2_v1"
+      ],
+      "future_inputs_used": false,
+      "model_config": {
+        "base_anchored_topk": true,
+        "dropout": 0.1,
+        "factor_dim": 64,
+        "hidden_dim": 256,
+        "inference_scale": 0.35,
+        "max_residual": 0.5,
+        "mode": "local",
+        "num_blocks": 2,
+        "preserve_ddc": false,
+        "safety_floor": 0.95,
+        "safety_gate_mode": "composite",
+        "safety_relative_tolerance": 0.02,
+        "scene_heads": 8,
+        "scene_layers": 2,
+        "score_mode": "hybrid",
+        "set_heads": 8,
+        "set_layers": 1,
+        "switch_penalty": 0.01,
+        "top_k": 16,
+        "trajectory_dim": 128
+      },
+      "name": "full_local_hybrid_top16_basepairw2_seed2_v1",
+      "official_scores_used_at_inference": false,
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/full_local_hybrid_top16_basepairw2_seed2_v1/best_residual_scorer.pt",
+      "promoted": true,
+      "reason": "positive_log_bootstrap_ci",
+      "sha256": "f98cbe7e736be5ea1e755fa560c765a51043613520fe7621b818686edd269095",
+      "tier": "diagnostic_safety_regression",
+      "validation_log_count": 214,
+      "validation_pdms_delta": 0.003566780826076865,
+      "validation_pdms_delta_ci95": [
+        0.003005274096998766,
+        0.004115820787942578
+      ],
+      "validation_safety_factor_delta": {
+        "drivable_area_compliance": -0.0001100301742553711,
+        "no_at_fault_collisions": 5.501508712768555e-05,
+        "time_to_collision_within_bound": -0.0003300309181213379
+      },
+      "validation_scene_count": 18179
+    },
+    {
+      "aliases": [
+        "full_local_hybrid_top8_basepairw2_seed2_v1"
+      ],
+      "future_inputs_used": false,
+      "model_config": {
+        "base_anchored_topk": true,
+        "dropout": 0.1,
+        "factor_dim": 64,
+        "hidden_dim": 256,
+        "inference_scale": 0.5,
+        "max_residual": 0.5,
+        "mode": "local",
+        "num_blocks": 2,
+        "preserve_ddc": false,
+        "safety_floor": 0.5,
+        "safety_gate_mode": "composite",
+        "safety_relative_tolerance": 0.02,
+        "scene_heads": 8,
+        "scene_layers": 2,
+        "score_mode": "hybrid",
+        "set_heads": 8,
+        "set_layers": 1,
+        "switch_penalty": 0.0,
+        "top_k": 8,
+        "trajectory_dim": 128
+      },
+      "name": "full_local_hybrid_top8_basepairw2_seed2_v1",
+      "official_scores_used_at_inference": false,
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/full_local_hybrid_top8_basepairw2_seed2_v1/best_residual_scorer.pt",
+      "promoted": true,
+      "reason": "positive_log_bootstrap_ci",
+      "sha256": "ef21f3d4c35cf36b9b0188c44ad055b8ae3ff142145368a74dd0d7dcc79eb45e",
+      "tier": "diagnostic_safety_regression",
+      "validation_log_count": 214,
+      "validation_pdms_delta": 0.0046055978164076805,
+      "validation_pdms_delta_ci95": [
+        0.003942036362047601,
+        0.005275843007231788
+      ],
+      "validation_safety_factor_delta": {
+        "drivable_area_compliance": -5.501508712768555e-05,
+        "no_at_fault_collisions": 0.0,
+        "time_to_collision_within_bound": -0.0004950761795043945
+      },
+      "validation_scene_count": 18179
+    },
+    {
+      "aliases": [
+        "full_local_residual_top16_basepairw2_seed2_v1"
+      ],
+      "future_inputs_used": false,
+      "model_config": {
+        "base_anchored_topk": true,
+        "dropout": 0.1,
+        "factor_dim": 64,
+        "hidden_dim": 256,
+        "inference_scale": 0.35,
+        "max_residual": 0.5,
+        "mode": "local",
+        "num_blocks": 2,
+        "preserve_ddc": false,
+        "safety_floor": 0.95,
+        "safety_gate_mode": "composite",
+        "safety_relative_tolerance": 0.02,
+        "scene_heads": 8,
+        "scene_layers": 2,
+        "score_mode": "residual",
+        "set_heads": 8,
+        "set_layers": 1,
+        "switch_penalty": 0.01,
+        "top_k": 16,
+        "trajectory_dim": 128
+      },
+      "name": "full_local_residual_top16_basepairw2_seed2_v1",
+      "official_scores_used_at_inference": false,
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/full_local_residual_top16_basepairw2_seed2_v1/best_residual_scorer.pt",
+      "promoted": true,
+      "reason": "positive_log_bootstrap_ci",
+      "sha256": "cd48de3820006e49d657965b6d05fce690306602a185d2548518e03b02eca780",
+      "tier": "diagnostic_safety_regression",
+      "validation_log_count": 214,
+      "validation_pdms_delta": 0.0036160543095320463,
+      "validation_pdms_delta_ci95": [
+        0.003073196446993204,
+        0.004178418027711318
+      ],
+      "validation_safety_factor_delta": {
+        "drivable_area_compliance": 0.0,
+        "no_at_fault_collisions": 0.0,
+        "time_to_collision_within_bound": -0.000440061092376709
+      },
+      "validation_scene_count": 18179
+    }
+  ],
+  "created_at_utc": "2026-08-31T23:55:52.173728+00:00",
+  "excluded": [],
+  "minimum_ci_lower": 0.0,
+  "patterns": [
+    "full_local_*seed2_v1/best_residual_scorer.pt"
+  ],
+  "promoted_experiment_count": 4,
+  "scanned_artifact_count": 4,
+  "search_root": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93",
+  "unique_promoted_artifact_count": 4
+}

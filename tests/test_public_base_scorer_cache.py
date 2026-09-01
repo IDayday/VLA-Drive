@@ -11,8 +11,11 @@ from local_stage2.export_public_base_scorer_cache import (
 from local_stage2.score_public_base_scorer_cache import _belongs_to_worker
 from local_stage2.run_navtest_proposal_audit import _compare_prediction_banks
 from local_stage2.train_public_base_residual_scorer import (
+    EvaluationOutputs,
     base_pairwise_loss,
     binary_factor_loss,
+    evaluate_collected,
+    evaluate_selection_sweep,
     relative_safety_targets,
 )
 from local_stage2.public_base_residual_scorer import (
@@ -291,6 +294,89 @@ def test_binary_factor_loss_upweights_safety_violations():
     unweighted = binary_factor_loss(logits, unsafe, 1.0)
     weighted = binary_factor_loss(logits, unsafe, 20.0)
     assert weighted > unweighted
+
+
+def test_vectorized_deployment_sweep_matches_complete_evaluation():
+    torch.manual_seed(29)
+    scenes, candidates = 7, 6
+    base_scores = torch.randn(scenes, candidates)
+    top_k_mask = torch.zeros(scenes, candidates, dtype=torch.bool)
+    top_k_mask.scatter_(1, base_scores.topk(4, dim=1).indices, True)
+    outputs = EvaluationOutputs(
+        base_scores=base_scores,
+        residual=torch.randn(scenes, candidates) * 0.1,
+        refined_factor_logits=torch.randn(scenes, candidates, 6),
+        refined_composite_safety_logits=torch.randn(scenes, candidates),
+        relative_safety_logits=torch.randn(scenes, candidates, 3),
+        top_k_mask=top_k_mask,
+        target_factors=torch.rand(scenes, candidates, 7),
+    )
+    logs = [f"log-{index // 2}" for index in range(scenes)]
+    scales = (0.0, 0.35)
+    penalties = (0.0, 0.01)
+    settings = (
+        (0.0, 1.0, False, "factor_all"),
+        (0.7, 0.1, False, "composite"),
+        (0.7, 1.0, False, "relative_factor"),
+    )
+    fast = evaluate_selection_sweep(
+        outputs,
+        logs,
+        scales=scales,
+        penalties=penalties,
+        safety_settings=settings,
+        device=torch.device("cpu"),
+    )
+    keyed = {
+        (
+            item["residual_scale"],
+            item["switch_penalty"],
+            item["safety_floor"],
+            item["safety_relative_tolerance"],
+            item["preserve_ddc"],
+            item["safety_gate_mode"],
+        ): item
+        for item in fast
+    }
+    assert len(keyed) == len(scales) * len(penalties) * len(settings)
+    for scale in scales:
+        for penalty in penalties:
+            for floor, tolerance, preserve_ddc, gate_mode in settings:
+                expected = evaluate_collected(
+                    outputs,
+                    logs,
+                    seed=0,
+                    residual_scale=scale,
+                    switch_penalty=penalty,
+                    safety_floor=floor,
+                    safety_relative_tolerance=tolerance,
+                    preserve_ddc=preserve_ddc,
+                    safety_gate_mode=gate_mode,
+                    bootstrap_replicates=0,
+                )
+                actual = keyed[
+                    (scale, penalty, floor, tolerance, preserve_ddc, gate_mode)
+                ]
+                for key in (
+                    "model_selected_pdms",
+                    "selected_pdms_delta",
+                    "model_top1_regret",
+                    "selection_switch_rate",
+                    "pairwise_accuracy_delta_ge_0_02",
+                ):
+                    assert actual[key] == pytest.approx(expected[key], abs=1e-7)
+                assert actual["improved_scene_count_delta_gt_0_01"] == expected[
+                    "improved_scene_count_delta_gt_0_01"
+                ]
+                assert actual["degraded_scene_count_delta_lt_minus_0_01"] == expected[
+                    "degraded_scene_count_delta_lt_minus_0_01"
+                ]
+                for factor_name, factor_delta in expected[
+                    "selected_factor_delta"
+                ].items():
+                    assert actual["selected_factor_delta"][factor_name] == pytest.approx(
+                        factor_delta, abs=1e-7
+                    )
 
 
 def test_relative_safety_targets_compare_against_base_per_factor():

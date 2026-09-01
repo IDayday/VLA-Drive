@@ -727,6 +727,192 @@ def evaluate_collected(
     }
 
 
+@torch.inference_mode()
+def evaluate_selection_sweep(
+    outputs: EvaluationOutputs,
+    log_names: Sequence[str],
+    *,
+    scales: Sequence[float],
+    penalties: Sequence[float],
+    safety_settings: Sequence[Tuple[float, float, bool, str]],
+    device: torch.device,
+) -> List[Dict[str, object]]:
+    """Evaluate deployment settings without repeating invariant diagnostics.
+
+    ``evaluate_collected`` intentionally computes a complete diagnostic record,
+    including top-K pairwise accuracy. The deployment sweep previously repeated
+    those invariant calculations for every penalty and safety gate (1,488 times
+    in the full run). Here pairwise statistics are computed once per residual
+    scale, while all switch penalties are evaluated together. Selection and
+    metric definitions remain identical to ``evaluate_collected``.
+    """
+
+    base_scores = outputs.base_scores.to(device)
+    residual = outputs.residual.to(device)
+    refined_factor_logits = outputs.refined_factor_logits.to(device)
+    refined_composite_logits = outputs.refined_composite_safety_logits.to(device)
+    relative_safety_logits = outputs.relative_safety_logits.to(device)
+    top_k_mask = outputs.top_k_mask.to(device)
+    target_factors = outputs.target_factors.to(device)
+    target_scores = target_factors[..., -1]
+
+    scene_count = base_scores.shape[0]
+    row_index = torch.arange(scene_count, device=device)
+    base_index = base_scores.argmax(dim=1)
+    base_selected_mask = torch.zeros_like(base_scores, dtype=torch.bool)
+    base_selected_mask.scatter_(1, base_index[:, None], True)
+    non_base_mask = ~base_selected_mask
+    base_values = target_scores[row_index, base_index]
+    oracle_index = target_scores.argmax(dim=1)
+    oracle_values = target_scores[row_index, oracle_index]
+    base_factors = target_factors[row_index, base_index]
+    oracle_factors = target_factors[row_index, oracle_index]
+    base_factor_means_tensor = base_factors.mean(dim=0)
+    oracle_factor_means_tensor = oracle_factors.mean(dim=0)
+    top_target = target_scores.masked_fill(~top_k_mask, -1.0)
+    topk_values = top_target.max(dim=1).values
+
+    top_k = int(top_k_mask.sum(dim=1).min().item())
+    ordered_indices = base_scores.topk(top_k, dim=1).indices
+    top_targets = _gather_candidates(target_scores, ordered_indices)
+    left, right = torch.triu_indices(top_k, top_k, offset=1, device=device)
+    target_delta = top_targets[:, left] - top_targets[:, right]
+    valid_pairs = target_delta.abs() >= 0.02
+    pair_total = int(valid_pairs.sum().item())
+    scale_pairwise: Dict[float, float] = {}
+    for scale in scales:
+        refined_scores = base_scores + float(scale) * residual
+        top_prediction = _gather_candidates(refined_scores, ordered_indices)
+        prediction_delta = top_prediction[:, left] - top_prediction[:, right]
+        pair_correct = int(
+            ((prediction_delta.sign() == target_delta.sign()) & valid_pairs)
+            .sum()
+            .item()
+        )
+        scale_pairwise[float(scale)] = float(pair_correct / max(pair_total, 1))
+
+    base_mean = float(base_values.mean().item())
+    oracle_mean = float(oracle_values.mean().item())
+    best_topk_mean = float(topk_values.mean().item())
+    base_regret = float((oracle_values - base_values).mean().item())
+    base_factor_means = {
+        key: float(base_factor_means_tensor[index].item())
+        for index, key in enumerate(LABEL_FACTOR_KEYS)
+    }
+    oracle_factor_means = {
+        key: float(oracle_factor_means_tensor[index].item())
+        for index, key in enumerate(LABEL_FACTOR_KEYS)
+    }
+    penalty_tensor = torch.as_tensor(
+        list(penalties), dtype=base_scores.dtype, device=device
+    )[:, None, None]
+    results: List[Dict[str, object]] = []
+
+    for (
+        safety_floor,
+        safety_tolerance,
+        preserve_ddc,
+        safety_gate_mode,
+    ) in safety_settings:
+        if safety_gate_mode == "relative_factor":
+            probabilities = relative_safety_logits.sigmoid()
+            safety_mask = (probabilities >= safety_floor).all(dim=-1)
+        elif safety_gate_mode == "composite":
+            probabilities = refined_composite_logits.sigmoid()
+            base_probabilities = probabilities.gather(1, base_index[:, None])
+            safety_mask = probabilities >= safety_floor
+            safety_mask &= probabilities >= base_probabilities - safety_tolerance
+        elif safety_gate_mode == "factor_all":
+            safety_indices = [0, 1, 3]
+            if preserve_ddc:
+                safety_indices.append(2)
+            probabilities = refined_factor_logits.sigmoid()[..., safety_indices]
+            base_probabilities = probabilities.gather(
+                1,
+                base_index[:, None, None].expand(-1, 1, len(safety_indices)),
+            )
+            safety_mask = (probabilities >= safety_floor).all(dim=-1)
+            safety_mask &= (
+                probabilities >= base_probabilities - safety_tolerance
+            ).all(dim=-1)
+        else:
+            raise ValueError(
+                "safety_gate_mode must be factor_all, composite, or relative_factor"
+            )
+        eligible = (top_k_mask & safety_mask) | base_selected_mask
+
+        for scale in scales:
+            refined_scores = base_scores + float(scale) * residual
+            adjusted_scores = refined_scores[None] - (
+                non_base_mask.to(refined_scores.dtype)[None] * penalty_tensor
+            )
+            selection_scores = torch.where(
+                eligible[None], adjusted_scores, base_scores[None] - 100.0
+            )
+            model_indices = selection_scores.argmax(dim=-1)
+            scene_rows = row_index[None].expand(len(penalties), -1)
+            model_values = target_scores[scene_rows, model_indices]
+            model_factors = target_factors[scene_rows, model_indices]
+            deltas = model_values - base_values[None]
+            model_factor_means = model_factors.mean(dim=1)
+            switch_rates = (model_indices != base_index[None]).float().mean(dim=1)
+            improved_counts = (deltas > 0.01).sum(dim=1)
+            degraded_counts = (deltas < -0.01).sum(dim=1)
+            model_means = model_values.mean(dim=1)
+            model_regrets = (oracle_values[None] - model_values).mean(dim=1)
+
+            for penalty_index, penalty in enumerate(penalties):
+                factor_means = {
+                    key: float(model_factor_means[penalty_index, index].item())
+                    for index, key in enumerate(LABEL_FACTOR_KEYS)
+                }
+                results.append(
+                    {
+                        "scene_count": scene_count,
+                        "log_count": len(set(log_names)),
+                        "base_selected_pdms": base_mean,
+                        "model_selected_pdms": float(model_means[penalty_index].item()),
+                        "selected_pdms_delta": float(deltas[penalty_index].mean().item()),
+                        "selected_pdms_delta_log_bootstrap_95ci": [
+                            float("nan"),
+                            float("nan"),
+                        ],
+                        "best_of_topk_pdms": best_topk_mean,
+                        "best_of_64_pdms": oracle_mean,
+                        "base_top1_regret": base_regret,
+                        "model_top1_regret": float(model_regrets[penalty_index].item()),
+                        "regret_reduction_fraction": float(
+                            1.0
+                            - model_regrets[penalty_index].item()
+                            / max(base_regret, 1e-12)
+                        ),
+                        "pairwise_accuracy_delta_ge_0_02": scale_pairwise[float(scale)],
+                        "pair_count_delta_ge_0_02": pair_total,
+                        "residual_scale": float(scale),
+                        "switch_penalty": float(penalty),
+                        "safety_floor": float(safety_floor),
+                        "safety_relative_tolerance": float(safety_tolerance),
+                        "preserve_ddc": bool(preserve_ddc),
+                        "safety_gate_mode": safety_gate_mode,
+                        "selection_switch_rate": float(switch_rates[penalty_index].item()),
+                        "improved_scene_count_delta_gt_0_01": int(
+                            improved_counts[penalty_index].item()
+                        ),
+                        "degraded_scene_count_delta_lt_minus_0_01": int(
+                            degraded_counts[penalty_index].item()
+                        ),
+                        "base_selected_factors": base_factor_means,
+                        "model_selected_factors": factor_means,
+                        "oracle_selected_factors": oracle_factor_means,
+                        "selected_factor_delta": {
+                            key: factor_means[key] - base_factor_means[key]
+                            for key in LABEL_FACTOR_KEYS
+                        },
+                    }
+                )
+    return results
+
+
 def evaluate(
     model: PublicBaseResidualRanker,
     data: CacheTensorSet,
@@ -969,7 +1155,6 @@ def main() -> None:
     validation_outputs = collect_evaluation_outputs(
         model, val_data, device, args.eval_batch_size
     )
-    scale_sweep = []
     safety_settings = [
         (0.0, 1.0, False, "factor_all"),
         (0.95, 0.10, False, "factor_all"),
@@ -988,27 +1173,14 @@ def main() -> None:
         (floor, 1.0, False, "relative_factor")
         for floor in (0.5, 0.7, 0.8, 0.9, 0.95, 0.98)
     )
-    for scale in (0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0):
-        for penalty in (0.0, 0.001, 0.002, 0.005, 0.01, 0.02):
-            for (
-                safety_floor,
-                safety_tolerance,
-                preserve_ddc,
-                safety_gate_mode,
-            ) in safety_settings:
-                metrics = evaluate_collected(
-                    validation_outputs,
-                    val_data.log_names,
-                    args.seed + 1000,
-                    residual_scale=scale,
-                    switch_penalty=penalty,
-                    safety_floor=safety_floor,
-                    safety_relative_tolerance=safety_tolerance,
-                    preserve_ddc=preserve_ddc,
-                    safety_gate_mode=safety_gate_mode,
-                    bootstrap_replicates=0,
-                )
-                scale_sweep.append(metrics)
+    scale_sweep = evaluate_selection_sweep(
+        validation_outputs,
+        val_data.log_names,
+        scales=(0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0),
+        penalties=(0.0, 0.001, 0.002, 0.005, 0.01, 0.02),
+        safety_settings=safety_settings,
+        device=device,
+    )
     safety_tolerance = 5e-4
     safe_candidates = [
         value
