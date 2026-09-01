@@ -152,3 +152,21 @@ loss weights, optimizer settings, seed, selected stop epoch, and original
 scheduler horizon.  The refit itself reports no validation metric and cannot be
 used as a new selection artifact.  This permits a pre-specified 103,288-scene
 refit without using Navtest feedback for model or epoch selection.
+
+The current-actor auxiliary ranker later reached a strict held-out promotion
+at epoch 7: PDMS `0.954557`, delta `+0.002945`, with physical-log bootstrap
+95% interval `[+0.000697, +0.004724]`. Its complete 12,146-scene Navtest audit
+reversed sign again: PDMS `0.897208`, delta `-0.012386`, interval
+`[-0.016207, -0.008677]`. The audit has 64 candidates per scene, zero invalid
+scenes, exact selected-score reconstruction, and the unchanged M0 candidate
+bank upper bound `0.984112`. Current-actor supervision therefore improves the
+held-out trainval fold but worsens the present Navtest selection; it is not a
+deployable improvement.
+
+Two additional M0-native four-view experiments are queued on `rl-zt3` GPUs
+5/6 behind completion of the immutable 103,288-scene observation cache. Both
+score all 64 candidates and retain the released six-factor BCE auxiliary. One
+optimizes regret-weighted pairwise ranking; the other adds listwise, top-set,
+expected-regret, and top-regret objectives. These runs test direct candidate
+ranking separately from the four parameter-matched factor-only controls on
+`rl-zt4`.
