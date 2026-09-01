@@ -1,6 +1,6 @@
 # Independent scorer experiment status
 
-Updated: 2026-09-01 19:34 UTC.
+Updated: 2026-09-01 21:02 UTC.
 
 ## Resource contract
 
@@ -212,6 +212,15 @@ strict 12,146-scene audit. It reaches Navtest PDMS `0.897837`, delta
 `-0.019595`, and DDC by `-0.005022`. Training on all physical logs therefore
 does not repair the held-out-to-Navtest reversal and is rejected.
 
+The separately validation-locked current-actor all-log refit also completed
+and passed the same strict audit. It reaches Navtest PDMS `0.895842`, delta
+`-0.013752` from public M0 with log-bootstrap 95% interval
+`[-0.017315, -0.010182]`. Its factor deltas are collision `-0.006957`, DAC
+`-0.009880`, TTC `-0.022641`, DDC `-0.003828`, and progress `+0.004004`.
+Together, the two pre-specified all-log refits show that simply exposing a
+post-hoc fixed-bank scorer to all 103,288 training scenes does not remove the
+distribution shift: both trade measurable safety for small progress gains.
+
 M0-native deployment artifacts now use the real
 `M0NativePrivateScorerAgent`, not a cache-only surrogate class. The online
 agent obtains F0/L0/R0/B0 from the current frame, extracts private tokens with
@@ -223,3 +232,11 @@ four-scene same-device online/cache parity test with `1e-6` tolerance in
 addition to full Navtest. Remote validation now calls the repository's audited
 validators directly instead of assuming `/root/.codex/skills` is mounted on
 every worker. The complete suite passes `202` tests.
+
+The immutable four-view trainval cache is now complete for all 103,288 scenes.
+`rl-zt4` GPUs 0/1/2/6 are training the four factor-loss/current-actor controls,
+GPU 5 is training the Base-calibrated hybrid residual, and GPUs 3/4 are
+exporting the matching full Navtest observation cache. `rl-zt3` GPUs 5/6 run
+the two direct-ranking controls and GPU 3 runs the Base-calibrated factor
+residual. Strict full-Navtest promotion remains serialized on `rl-zt4` GPU 7;
+no job uses `vla-zt` or `vla-zt2`.
