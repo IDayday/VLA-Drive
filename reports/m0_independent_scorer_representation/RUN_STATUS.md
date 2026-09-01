@@ -250,3 +250,11 @@ are diagnostic and cannot select an artifact. This directly tests whether the
 joint scorer's exposure to changing proposal distributions is important,
 without changing the final inference inputs. Multi-source selection semantics
 are unit-tested, and the complete suite passes `203` tests.
+
+The M0-native Navtest observation cache is complete and independently scanned:
+96 chunks and two manifests contain exactly 12,146 unique scene tokens from
+136 segment logs. Every row has `[80,1536]` FP16 visual slots and an 11-value
+FP32 current-state vector with finite values. All four current cameras decoded
+successfully (three crops per camera); the cache contains no future, proposal,
+official-score, or factor key. The machine-readable audit is
+`M0_NATIVE_NAVTEST_CACHE_AUDIT.json`.
