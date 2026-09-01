@@ -303,6 +303,9 @@ class M0PrivateResidualRanker(nn.Module):
             "shared_future_presence_logits",
             "shared_future_type_logits",
             "shared_future_actor_state",
+            "candidate_relative_consequence",
+            "candidate_relative_consequence_token",
+            "shared_future_fusion_gate",
         ):
             if key in private:
                 result[key] = private[key]

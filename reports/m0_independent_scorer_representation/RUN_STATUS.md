@@ -309,3 +309,16 @@ passes `207` tests. Two factor-residual runs with auxiliary weights `0.5` and
 `1.0` are assigned to `rl-zt4` GPUs 3/4; selection remains confined to the
 predeclared physical-log validation split and any promoted artifact must still
 pass the complete 12,146-scene Navtest protocol.
+
+The auxiliary-only runs are paired with a stricter
+`SharedFutureFactorized` implementation. The M0-owned dynamic queries predict
+one candidate-independent actor future; a differentiable relabeler then
+transforms that same prediction against every proposal and computes signed
+box clearance, soft collision probability, soft TTC, corridor occupancy, and
+nearest-actor relative position/velocity at all eight horizons. A temporal
+consequence token is injected through a zero-initialized scalar gate, keeping
+the initial Base-selected trajectory exactly unchanged. The shared prediction
+head is called once per scene and cannot receive candidate geometry; candidate
+permutation equivariance and collision/clearance physical ordering are tested.
+The deployable forward signature still contains no logged-future input. The
+complete suite passes `211` tests.

@@ -607,6 +607,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--private-observation-root", type=Path, required=True)
     parser.add_argument("--shared-future-target-root", type=Path, default=None)
+    parser.add_argument("--shared-future-relabeling", action="store_true")
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--selection-source", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -686,6 +687,10 @@ def main() -> None:
         raise ValueError(
             "shared-future target schema has 16 fixed current-actor slots; "
             "--dynamic-queries must be 16"
+        )
+    if args.shared_future_relabeling and args.shared_future_target_root is None:
+        raise ValueError(
+            "shared-future relabeling requires shared-future supervision"
         )
 
     random.seed(args.seed)
@@ -785,6 +790,7 @@ def main() -> None:
         dropout=args.dropout,
         shared_future_auxiliary=shared_future_table is not None,
         shared_future_horizons=8,
+        shared_future_relabeling=args.shared_future_relabeling,
     )
     residual_config = M0PrivateResidualConfig(
         hidden_dim=args.model_dim,
@@ -859,6 +865,9 @@ def main() -> None:
         "future_or_evaluator_input": False,
         "logged_future_used_as_training_only_auxiliary_target": (
             shared_future_table is not None
+        ),
+        "predicted_shared_future_relabeling_used_at_inference": (
+            args.shared_future_relabeling
         ),
         "official_score_input": False,
         "args": serialized_args,

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 4 ]]; then
-  echo "Usage: $0 {hybrid|factor|direct} SHARED_FUTURE_WEIGHT GPU OUTPUT_DIR" >&2
+if [[ $# -lt 4 || $# -gt 5 ]]; then
+  echo "Usage: $0 {hybrid|factor|direct} SHARED_FUTURE_WEIGHT GPU OUTPUT_DIR [auxiliary_only|factorized]" >&2
   exit 2
 fi
 
@@ -10,8 +10,13 @@ score_mode="$1"
 shared_future_weight="$2"
 gpu="$3"
 output_dir="$4"
+future_mode="${5:-auxiliary_only}"
 if [[ "${score_mode}" != "hybrid" && "${score_mode}" != "factor" && "${score_mode}" != "direct" ]]; then
   echo "Unsupported residual score mode: ${score_mode}" >&2
+  exit 2
+fi
+if [[ "${future_mode}" != "auxiliary_only" && "${future_mode}" != "factorized" ]]; then
+  echo "Unsupported shared-future mode: ${future_mode}" >&2
   exit 2
 fi
 
@@ -46,11 +51,17 @@ export CUDA_VISIBLE_DEVICES="${gpu}"
 export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 export PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/navsim/planning/script${PYTHONPATH:+:${PYTHONPATH}}"
 
+future_args=()
+if [[ "${future_mode}" == "factorized" ]]; then
+  future_args+=(--shared-future-relabeling)
+fi
+
 exec "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/train_m0_private_residual_scorer.py" \
   --source public_base "${RUN_ROOT}/public_base_features_full_v1" "${RUN_ROOT}/public_base_labels_full_v1" \
   --private-observation-root "${TRAIN_CACHE_ROOT}" \
   --shared-future-target-root "${SHARED_FUTURE_TARGET_ROOT}" \
   --shared-future-weight "${shared_future_weight}" \
+  "${future_args[@]}" \
   --split-manifest "${SPLIT_MANIFEST}" \
   --selection-source public_base \
   --seed 2 \

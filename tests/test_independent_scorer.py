@@ -17,6 +17,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     IndependentProposalRanker,
     IndependentRankerConfig,
     ProposalTrajectoryEncoder,
+    SharedFutureCandidateRelabeler,
     assert_current_observation_only,
     conservative_reference_selection_scores,
     current_actor_auxiliary_loss,
@@ -499,7 +500,8 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
     private_config = _small_config(
         fine_top_k=6,
         shared_future_auxiliary=True,
-        shared_future_horizons=3,
+        shared_future_horizons=8,
+        shared_future_relabeling=True,
     )
     model = M0PrivateResidualRanker(
         private_config,
@@ -516,19 +518,16 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
     base_factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
     base_scores = torch.randn(2, 6)
     target_factors = torch.rand(2, 6, 7)
-    future = torch.zeros(2, 3, 3, 8)
+    future = torch.zeros(2, 8, 3, 8)
     future[0, :, 0] = torch.tensor(
         [0.0, 8.0, -1.0, 2.0, 0.2, 0.1, 4.5, 1.9]
     )
     future[0, 1:, 1] = torch.tensor(
         [1.0, 15.0, 2.0, -1.0, 0.0, -0.2, 1.0, 0.8]
     )
-    future_mask = torch.tensor(
-        [
-            [[True, False, False], [True, True, False], [True, True, False]],
-            [[False, False, False], [False, False, False], [False, False, False]],
-        ]
-    )
+    future_mask = torch.zeros(2, 8, 3, dtype=torch.bool)
+    future_mask[0, :, 0] = True
+    future_mask[0, 1:, 1] = True
     args = SimpleNamespace(
         minimum_pair_delta=0.02,
         factor_rank_minimum_delta=0.05,
@@ -569,6 +568,87 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
     assert details["shared_future"] > 0
     loss.backward()
     assert model.private_ranker.shared_future_state_head.weight.grad is not None
+
+
+def test_shared_future_candidate_relabeler_has_physical_ordering() -> None:
+    torch.manual_seed(105)
+    relabeler = SharedFutureCandidateRelabeler(
+        model_dim=32,
+        horizons=3,
+        num_heads=4,
+        dropout=0.0,
+        interval_seconds=0.5,
+    ).eval()
+    presence = torch.full((1, 3, 2), -10.0)
+    presence[..., 0] = 10.0
+    actor = torch.zeros(1, 3, 2, 8)
+    actor[..., 0, 0] = 5.0 / 50.0
+    actor[..., 0, 5] = 1.0
+    actor[..., 0, 6] = 4.0 / 10.0
+    actor[..., 0, 7] = 2.0 / 5.0
+    proposals = torch.zeros(1, 2, 3, 3)
+    proposals[:, 0, :, 0] = 5.0
+    proposals[:, 1, :, 0] = -20.0
+
+    consequence, token = relabeler(presence, actor, proposals)
+    assert tuple(consequence.shape) == (1, 2, 3, 8)
+    assert tuple(token.shape) == (1, 2, 32)
+    # Candidate 0 overlaps the actor; candidate 1 remains far away.
+    assert torch.all(consequence[0, 0, :, 0] < consequence[0, 1, :, 0])
+    assert torch.all(consequence[0, 0, :, 1] > consequence[0, 1, :, 1])
+    assert torch.isfinite(consequence).all()
+    assert torch.isfinite(token).all()
+
+    permutation = torch.tensor([1, 0])
+    permuted_consequence, permuted_token = relabeler(
+        presence, actor, proposals[:, permutation]
+    )
+    torch.testing.assert_close(
+        consequence, permuted_consequence[:, permutation]
+    )
+    torch.testing.assert_close(token, permuted_token[:, permutation])
+
+
+def test_factorized_shared_future_is_predicted_once_and_candidate_equivariant() -> None:
+    torch.manual_seed(106)
+    config = _small_config(
+        shared_future_auxiliary=True,
+        shared_future_horizons=8,
+        shared_future_relabeling=True,
+    )
+    model = IndependentProposalRanker(config).eval()
+    observations, status, proposals = _inputs()
+    calls = []
+    handle = model.shared_future_state_head.register_forward_hook(
+        lambda *_: calls.append(1)
+    )
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        assert len(calls) == 1
+        calls.clear()
+        permuted = model(observations, status, proposals[:, permutation])
+        assert len(calls) == 1
+    handle.remove()
+    for key in (
+        "shared_future_presence_logits",
+        "shared_future_type_logits",
+        "shared_future_actor_state",
+    ):
+        torch.testing.assert_close(reference[key], permuted[key])
+    for key in (
+        "candidate_relative_consequence",
+        "candidate_relative_consequence_token",
+    ):
+        torch.testing.assert_close(
+            reference[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
+        )
+
+
+def test_factorized_shared_future_requires_prediction_head() -> None:
+    with pytest.raises(ValueError, match="requires the shared-future"):
+        _small_config(shared_future_relabeling=True)
 
 
 def test_m0_private_residual_multireplay_selects_metrics_by_source() -> None:

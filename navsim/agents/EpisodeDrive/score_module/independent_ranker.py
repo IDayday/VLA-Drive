@@ -84,6 +84,7 @@ class IndependentRankerConfig:
     current_actor_type_count: int = 3
     shared_future_auxiliary: bool = False
     shared_future_horizons: int = 8
+    shared_future_relabeling: bool = False
 
     def __post_init__(self) -> None:
         if self.model_dim % self.num_heads:
@@ -101,6 +102,16 @@ class IndependentRankerConfig:
         if self.shared_future_auxiliary and not self.dynamic_queries:
             raise ValueError(
                 "shared-future supervision requires dynamic actor queries"
+            )
+        if self.shared_future_relabeling and not self.shared_future_auxiliary:
+            raise ValueError(
+                "candidate relabeling requires the shared-future prediction head"
+            )
+        if self.shared_future_relabeling and (
+            self.shared_future_horizons != self.num_poses
+        ):
+            raise ValueError(
+                "candidate relabeling requires one shared-future horizon per pose"
             )
         for count in (
             self.dynamic_queries,
@@ -305,6 +316,207 @@ class ProposalTrajectoryEncoder(nn.Module):
         return pooled, encoded
 
 
+class SharedFutureCandidateRelabeler(nn.Module):
+    """Turn one predicted actor future into candidate-relative risk features.
+
+    Actor states are predicted once in the current-ego frame.  This module is
+    proposal conditioned only through deterministic, differentiable geometry;
+    it never creates a separate future world for each candidate.
+    """
+
+    FEATURE_NAMES: Tuple[str, ...] = (
+        "soft_min_box_clearance_over_20m",
+        "soft_collision_probability",
+        "soft_min_ttc_over_10s",
+        "candidate_corridor_occupancy_over_4",
+        "nearest_actor_relative_x_over_50m",
+        "nearest_actor_relative_y_over_20m",
+        "nearest_actor_relative_vx_over_20mps",
+        "nearest_actor_relative_vy_over_20mps",
+    )
+
+    def __init__(
+        self,
+        model_dim: int,
+        horizons: int,
+        num_heads: int,
+        dropout: float,
+        interval_seconds: float,
+    ) -> None:
+        super().__init__()
+        self.horizons = horizons
+        self.interval_seconds = interval_seconds
+        self.feature_encoder = nn.Sequential(
+            nn.LayerNorm(len(self.FEATURE_NAMES)),
+            nn.Linear(len(self.FEATURE_NAMES), model_dim),
+            nn.GELU(),
+            nn.Linear(model_dim, model_dim),
+        )
+        self.time_embedding = nn.Parameter(
+            torch.empty(1, 1, horizons, model_dim)
+        )
+        layer = nn.TransformerEncoderLayer(
+            d_model=model_dim,
+            nhead=num_heads,
+            dim_feedforward=2 * model_dim,
+            dropout=dropout,
+            activation="gelu",
+            batch_first=True,
+            norm_first=True,
+        )
+        self.temporal_encoder = nn.TransformerEncoder(
+            layer,
+            num_layers=1,
+            norm=nn.LayerNorm(model_dim),
+        )
+        nn.init.trunc_normal_(self.time_embedding, std=0.02)
+
+    @staticmethod
+    def _candidate_velocity(
+        proposals: torch.Tensor,
+        interval_seconds: float,
+    ) -> torch.Tensor:
+        xy = proposals[..., :2]
+        previous = torch.cat((torch.zeros_like(xy[..., :1, :]), xy[..., :-1, :]), dim=-2)
+        return (xy - previous) / interval_seconds
+
+    def forward(
+        self,
+        presence_logits: torch.Tensor,
+        normalized_actor_state: torch.Tensor,
+        proposals: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        if presence_logits.ndim != 3:
+            raise ValueError("presence_logits must have shape [B,H,N]")
+        if normalized_actor_state.shape != (*presence_logits.shape, 8):
+            raise ValueError("normalized_actor_state must have shape [B,H,N,8]")
+        if proposals.ndim != 4 or proposals.shape[-2:] != (self.horizons, 3):
+            raise ValueError("proposals must have shape [B,K,H,3]")
+        if proposals.shape[0] != presence_logits.shape[0]:
+            raise ValueError("shared future and proposals have different batches")
+        if presence_logits.shape[1] != self.horizons:
+            raise ValueError("shared future has an unexpected horizon count")
+
+        # Decode the bounded training representation into metric current-ego
+        # actor states.  Heading is represented periodically as sin/cos.
+        actor_x = normalized_actor_state[..., 0] * 50.0
+        actor_y = normalized_actor_state[..., 1] * 50.0
+        actor_vx = normalized_actor_state[..., 2] * 20.0
+        actor_vy = normalized_actor_state[..., 3] * 20.0
+        actor_heading = torch.atan2(
+            normalized_actor_state[..., 4],
+            normalized_actor_state[..., 5],
+        )
+        actor_length = normalized_actor_state[..., 6].abs() * 10.0
+        actor_width = normalized_actor_state[..., 7].abs() * 5.0
+        presence = presence_logits.sigmoid()[:, None]
+
+        candidate_x = proposals[..., 0, None]
+        candidate_y = proposals[..., 1, None]
+        candidate_heading = proposals[..., 2, None]
+        cosine = torch.cos(candidate_heading)
+        sine = torch.sin(candidate_heading)
+        delta_x = actor_x[:, None] - candidate_x
+        delta_y = actor_y[:, None] - candidate_y
+        relative_x = cosine * delta_x + sine * delta_y
+        relative_y = -sine * delta_x + cosine * delta_y
+
+        candidate_velocity = self._candidate_velocity(
+            proposals, self.interval_seconds
+        )
+        delta_vx = actor_vx[:, None] - candidate_velocity[..., 0, None]
+        delta_vy = actor_vy[:, None] - candidate_velocity[..., 1, None]
+        relative_vx = cosine * delta_vx + sine * delta_vy
+        relative_vy = -sine * delta_vx + cosine * delta_vy
+
+        relative_heading = actor_heading[:, None] - candidate_heading
+        heading_cosine = torch.cos(relative_heading).abs()
+        heading_sine = torch.sin(relative_heading).abs()
+        projected_half_length = 0.5 * (
+            heading_cosine * actor_length[:, None]
+            + heading_sine * actor_width[:, None]
+        )
+        projected_half_width = 0.5 * (
+            heading_sine * actor_length[:, None]
+            + heading_cosine * actor_width[:, None]
+        )
+
+        # Signed distance of the actor rectangle to an ego-aligned rectangle.
+        # It is exact for the projected axis-aligned approximation: negative
+        # values indicate overlap and positive values indicate clearance.
+        longitudinal = relative_x.abs() - (2.45 + projected_half_length)
+        lateral = relative_y.abs() - (1.0 + projected_half_width)
+        outside = torch.sqrt(
+            torch.relu(longitudinal).square()
+            + torch.relu(lateral).square()
+            + 1.0e-6
+        )
+        inside = torch.minimum(
+            torch.maximum(longitudinal, lateral),
+            torch.zeros_like(longitudinal),
+        )
+        clearance = outside + inside
+
+        masked_clearance = clearance + (1.0 - presence) * 40.0
+        nearest_weight = torch.softmax(-masked_clearance / 2.0, dim=-1)
+        soft_min_clearance = (nearest_weight * clearance).sum(dim=-1)
+        collision_per_actor = presence * torch.sigmoid(-clearance / 0.75)
+        soft_collision = 1.0 - torch.prod(
+            (1.0 - collision_per_actor).clamp(1.0e-5, 1.0), dim=-1
+        )
+
+        center_distance = torch.sqrt(
+            relative_x.square() + relative_y.square() + 1.0e-6
+        )
+        closing_speed = -(
+            relative_x * relative_vx + relative_y * relative_vy
+        ) / center_distance
+        closing_probability = torch.sigmoid((closing_speed - 0.2) / 0.25)
+        ttc = (
+            clearance.clamp_min(0.0) / closing_speed.clamp_min(0.1)
+        ).clamp(0.0, 10.0)
+        ttc_masked = (
+            ttc
+            + (1.0 - presence) * 10.0
+            + (1.0 - closing_probability) * 10.0
+        )
+        ttc_weight = torch.softmax(-ttc_masked / 1.0, dim=-1)
+        soft_min_ttc = (ttc_weight * ttc).sum(dim=-1)
+
+        ahead = torch.sigmoid((relative_x + 2.45) / 0.75) * torch.sigmoid(
+            (12.0 - relative_x) / 1.5
+        )
+        in_width = torch.sigmoid(
+            (1.0 + projected_half_width - relative_y.abs()) / 0.4
+        )
+        corridor_occupancy = (presence * ahead * in_width).sum(dim=-1)
+        nearest_relative_x = (nearest_weight * relative_x).sum(dim=-1)
+        nearest_relative_y = (nearest_weight * relative_y).sum(dim=-1)
+        nearest_relative_vx = (nearest_weight * relative_vx).sum(dim=-1)
+        nearest_relative_vy = (nearest_weight * relative_vy).sum(dim=-1)
+
+        consequence = torch.stack(
+            (
+                soft_min_clearance.clamp(-5.0, 40.0) / 20.0,
+                soft_collision,
+                soft_min_ttc / 10.0,
+                corridor_occupancy.clamp(0.0, 16.0) / 4.0,
+                nearest_relative_x.clamp(-100.0, 100.0) / 50.0,
+                nearest_relative_y.clamp(-50.0, 50.0) / 20.0,
+                nearest_relative_vx.clamp(-40.0, 40.0) / 20.0,
+                nearest_relative_vy.clamp(-40.0, 40.0) / 20.0,
+            ),
+            dim=-1,
+        )
+        batch_size, candidate_count, horizons, _ = consequence.shape
+        temporal = self.feature_encoder(consequence) + self.time_embedding
+        temporal = self.temporal_encoder(
+            temporal.reshape(batch_size * candidate_count, horizons, -1)
+        ).reshape(batch_size, candidate_count, horizons, -1)
+        token = 0.5 * (temporal.mean(dim=-2) + temporal[..., -1, :])
+        return consequence, token
+
+
 class IndependentProposalRanker(nn.Module):
     """Independent all-candidate coarse-to-fine scorer.
 
@@ -379,6 +591,18 @@ class IndependentProposalRanker(nn.Module):
             self.shared_future_presence_head = None
             self.shared_future_type_head = None
             self.shared_future_state_head = None
+        if config.shared_future_relabeling:
+            self.shared_future_relabeler = SharedFutureCandidateRelabeler(
+                model_dim=config.model_dim,
+                horizons=config.shared_future_horizons,
+                num_heads=config.num_heads,
+                dropout=config.dropout,
+                interval_seconds=config.interval_seconds,
+            )
+            self.shared_future_fusion_gate = nn.Parameter(torch.zeros(()))
+        else:
+            self.shared_future_relabeler = None
+            self.register_parameter("shared_future_fusion_gate", None)
 
         self.fine_encoder = nn.TransformerEncoder(
             _make_encoder_layer(config),
@@ -418,6 +642,32 @@ class IndependentProposalRanker(nn.Module):
 
         # This is intentionally executed once and shared by every proposal.
         scene_streams = self.scene_encoder(observation_tokens, observation_valid_mask)
+        shared_future: Dict[str, torch.Tensor] = {}
+        if self.shared_future_presence_head is not None:
+            dynamic_tokens = scene_streams["dynamic"]
+            batch_size, actor_slots, _ = dynamic_tokens.shape
+            horizons = self.config.shared_future_horizons
+            type_count = self.config.current_actor_type_count
+            state_width = len(CURRENT_ACTOR_STATE_FIELDS)
+            shared_future = {
+                "shared_future_presence_logits": (
+                    self.shared_future_presence_head(dynamic_tokens)
+                    .permute(0, 2, 1)
+                    .contiguous()
+                ),
+                "shared_future_type_logits": (
+                    self.shared_future_type_head(dynamic_tokens)
+                    .reshape(batch_size, actor_slots, horizons, type_count)
+                    .permute(0, 2, 1, 3)
+                    .contiguous()
+                ),
+                "shared_future_actor_state": (
+                    self.shared_future_state_head(dynamic_tokens)
+                    .reshape(batch_size, actor_slots, horizons, state_width)
+                    .permute(0, 2, 1, 3)
+                    .contiguous()
+                ),
+            }
         proposal_tokens, temporal_tokens = self.trajectory_encoder(proposals)
         proposal_tokens = proposal_tokens + self.status_encoder(status_feature).unsqueeze(1)
 
@@ -436,6 +686,19 @@ class IndependentProposalRanker(nn.Module):
             for index, stream in enumerate(attended)
         )
         coarse_features = self.coarse_candidate_encoder(fused)
+        candidate_consequence = None
+        candidate_consequence_token = None
+        if self.shared_future_relabeler is not None:
+            candidate_consequence, candidate_consequence_token = (
+                self.shared_future_relabeler(
+                    shared_future["shared_future_presence_logits"],
+                    shared_future["shared_future_actor_state"],
+                    proposals,
+                )
+            )
+            coarse_features = coarse_features + torch.tanh(
+                self.shared_future_fusion_gate
+            ) * candidate_consequence_token
         factor_logits = torch.stack(
             [self.coarse_factor_heads[key](coarse_features).squeeze(-1) for key in FACTOR_KEYS],
             dim=-1,
@@ -499,30 +762,16 @@ class IndependentProposalRanker(nn.Module):
                     ),
                 }
             )
-        if self.shared_future_presence_head is not None:
-            dynamic_tokens = scene_streams["dynamic"]
-            batch_size, actor_slots, _ = dynamic_tokens.shape
-            horizons = self.config.shared_future_horizons
-            type_count = self.config.current_actor_type_count
-            state_width = len(CURRENT_ACTOR_STATE_FIELDS)
+        result.update(shared_future)
+        if candidate_consequence is not None:
             result.update(
                 {
-                    "shared_future_presence_logits": (
-                        self.shared_future_presence_head(dynamic_tokens)
-                        .permute(0, 2, 1)
-                        .contiguous()
+                    "candidate_relative_consequence": candidate_consequence,
+                    "candidate_relative_consequence_token": (
+                        candidate_consequence_token
                     ),
-                    "shared_future_type_logits": (
-                        self.shared_future_type_head(dynamic_tokens)
-                        .reshape(batch_size, actor_slots, horizons, type_count)
-                        .permute(0, 2, 1, 3)
-                        .contiguous()
-                    ),
-                    "shared_future_actor_state": (
-                        self.shared_future_state_head(dynamic_tokens)
-                        .reshape(batch_size, actor_slots, horizons, state_width)
-                        .permute(0, 2, 1, 3)
-                        .contiguous()
+                    "shared_future_fusion_gate": torch.tanh(
+                        self.shared_future_fusion_gate
                     ),
                 }
             )
