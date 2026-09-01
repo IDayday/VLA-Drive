@@ -99,6 +99,7 @@ class IndependentRankerConfig:
     shared_future_auxiliary: bool = False
     shared_future_horizons: int = 8
     shared_future_relabeling: bool = False
+    shared_future_constant_velocity_residual: bool = False
 
     def __post_init__(self) -> None:
         if self.model_dim % self.num_heads:
@@ -126,6 +127,13 @@ class IndependentRankerConfig:
         ):
             raise ValueError(
                 "candidate relabeling requires one shared-future horizon per pose"
+            )
+        if self.shared_future_constant_velocity_residual and not (
+            self.shared_future_auxiliary and self.current_actor_auxiliary
+        ):
+            raise ValueError(
+                "constant-velocity future residuals require current-actor and "
+                "shared-future prediction heads"
             )
         for count in (
             self.dynamic_queries,
@@ -640,6 +648,14 @@ class IndependentProposalRanker(nn.Module):
                 config.model_dim,
                 horizons * len(CURRENT_ACTOR_STATE_FIELDS),
             )
+            if config.shared_future_constant_velocity_residual:
+                for head in (
+                    self.shared_future_presence_head,
+                    self.shared_future_type_head,
+                    self.shared_future_state_head,
+                ):
+                    nn.init.zeros_(head.weight)
+                    nn.init.zeros_(head.bias)
         else:
             self.shared_future_presence_head = None
             self.shared_future_type_head = None
@@ -679,6 +695,36 @@ class IndependentProposalRanker(nn.Module):
             index=indices.unsqueeze(-1).expand(-1, -1, features.shape[-1]),
         )
 
+    def _constant_velocity_actor_future(
+        self,
+        current_actor_state: torch.Tensor,
+    ) -> torch.Tensor:
+        """Extrapolate normalized current actor slots in current-ego frame."""
+
+        if current_actor_state.ndim != 3 or current_actor_state.shape[-1] != 8:
+            raise ValueError("current_actor_state must have shape [B,N,8]")
+        horizons = self.config.shared_future_horizons
+        seconds = torch.arange(
+            1,
+            horizons + 1,
+            dtype=current_actor_state.dtype,
+            device=current_actor_state.device,
+        ) * self.config.interval_seconds
+        baseline = current_actor_state[:, None].expand(
+            -1, horizons, -1, -1
+        ).clone()
+        # Position targets are divided by 50 m and velocity targets by 20 m/s.
+        displacement_scale = seconds[None, :, None] * (20.0 / 50.0)
+        baseline[..., 0] = (
+            baseline[..., 0]
+            + current_actor_state[:, None, :, 2] * displacement_scale
+        )
+        baseline[..., 1] = (
+            baseline[..., 1]
+            + current_actor_state[:, None, :, 3] * displacement_scale
+        )
+        return baseline
+
     def forward(
         self,
         observation_tokens: torch.Tensor,
@@ -695,31 +741,62 @@ class IndependentProposalRanker(nn.Module):
 
         # This is intentionally executed once and shared by every proposal.
         scene_streams = self.scene_encoder(observation_tokens, observation_valid_mask)
+        dynamic_tokens = scene_streams["dynamic"]
+        current_actor: Dict[str, torch.Tensor] = {}
+        if self.current_actor_presence_head is not None:
+            current_actor = {
+                "current_actor_presence_logits": (
+                    self.current_actor_presence_head(dynamic_tokens).squeeze(-1)
+                ),
+                "current_actor_type_logits": self.current_actor_type_head(
+                    dynamic_tokens
+                ),
+                "current_actor_state": self.current_actor_state_head(
+                    dynamic_tokens
+                ),
+            }
         shared_future: Dict[str, torch.Tensor] = {}
         if self.shared_future_presence_head is not None:
-            dynamic_tokens = scene_streams["dynamic"]
             batch_size, actor_slots, _ = dynamic_tokens.shape
             horizons = self.config.shared_future_horizons
             type_count = self.config.current_actor_type_count
             state_width = len(CURRENT_ACTOR_STATE_FIELDS)
+            future_presence = (
+                self.shared_future_presence_head(dynamic_tokens)
+                .permute(0, 2, 1)
+                .contiguous()
+            )
+            future_type = (
+                self.shared_future_type_head(dynamic_tokens)
+                .reshape(batch_size, actor_slots, horizons, type_count)
+                .permute(0, 2, 1, 3)
+                .contiguous()
+            )
+            future_state = (
+                self.shared_future_state_head(dynamic_tokens)
+                .reshape(batch_size, actor_slots, horizons, state_width)
+                .permute(0, 2, 1, 3)
+                .contiguous()
+            )
+            if self.config.shared_future_constant_velocity_residual:
+                future_presence = (
+                    future_presence
+                    + current_actor["current_actor_presence_logits"][:, None]
+                )
+                future_type = (
+                    future_type
+                    + current_actor["current_actor_type_logits"][:, None]
+                )
+                future_state = (
+                    future_state
+                    + self._constant_velocity_actor_future(
+                        current_actor["current_actor_state"]
+                    )
+                )
             shared_future = {
-                "shared_future_presence_logits": (
-                    self.shared_future_presence_head(dynamic_tokens)
-                    .permute(0, 2, 1)
-                    .contiguous()
-                ),
-                "shared_future_type_logits": (
-                    self.shared_future_type_head(dynamic_tokens)
-                    .reshape(batch_size, actor_slots, horizons, type_count)
-                    .permute(0, 2, 1, 3)
-                    .contiguous()
-                ),
-                "shared_future_actor_state": (
-                    self.shared_future_state_head(dynamic_tokens)
-                    .reshape(batch_size, actor_slots, horizons, state_width)
-                    .permute(0, 2, 1, 3)
-                    .contiguous()
-                ),
+                "shared_future_presence_logits": future_presence,
+                "shared_future_type_logits": future_type,
+                "shared_future_actor_state": future_state,
             }
         proposal_tokens, temporal_tokens = self.trajectory_encoder(proposals)
         proposal_tokens = proposal_tokens + self.status_encoder(status_feature).unsqueeze(1)
@@ -800,21 +877,7 @@ class IndependentProposalRanker(nn.Module):
             # target.
             "candidate_features": coarse_features,
         }
-        if self.current_actor_presence_head is not None:
-            dynamic_tokens = scene_streams["dynamic"]
-            result.update(
-                {
-                    "current_actor_presence_logits": (
-                        self.current_actor_presence_head(dynamic_tokens).squeeze(-1)
-                    ),
-                    "current_actor_type_logits": self.current_actor_type_head(
-                        dynamic_tokens
-                    ),
-                    "current_actor_state": self.current_actor_state_head(
-                        dynamic_tokens
-                    ),
-                }
-            )
+        result.update(current_actor)
         result.update(shared_future)
         if candidate_consequence is not None:
             result.update(

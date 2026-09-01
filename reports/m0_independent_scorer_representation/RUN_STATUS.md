@@ -380,3 +380,28 @@ against the installed official `get_pacifica_parameters()` result. The already
 launched mask/direct-loss v2 is retained as an immutable ablation; the exact
 rear-axle v3 will use a new output directory on the next naturally released
 authorized GPU. The complete suite passes `216` tests.
+
+An immutable epoch-0 auxiliary-only snapshot was evaluated on all 9,052
+aligned held-out scenes before reading any future target. Its actor-presence
+BCE is `0.3461` (better than the all-present baseline `1.1488`), but its
+position MAE is `26.982 m`, versus `3.558 m` for constant position and
+`0.804 m` for constant velocity from the logged current actor state. Velocity
+MAE is `2.012 m/s` versus `0.468 m/s` for the baseline. Thus the early shared
+head has learned occupancy/type signals but not a usable metric actor future;
+injecting it into scoring cannot yet be interpreted as a successful world
+model. The final eight-epoch audit remains required before rejecting the
+target outright.
+
+The next parameterization addresses that measured failure directly. The same
+16 dynamic queries first predict current actor presence, type, position,
+velocity, heading, and size from the current four-camera tokens. A fixed,
+differentiable constant-velocity extrapolation is then formed in normalized
+current-ego coordinates, and zero-initialized horizon heads predict only its
+residual. Logged current actor annotations supervise this intermediate state
+during training but never enter inference. The current and future stores have
+exactly matching 45,378 scene-token order and 16 slots; across 4,404,241
+jointly valid actor-steps, object type agrees `100%`, confirming slot identity.
+This makes constant velocity an architectural prior rather than an oracle
+inference input. Training-batch alignment, metric normalization, zero-residual
+initialization, future candidate-independence, and inference-input boundaries
+are covered by tests. The complete suite passes `219` tests.

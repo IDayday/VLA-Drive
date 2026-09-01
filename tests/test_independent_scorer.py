@@ -510,9 +510,11 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
     torch.manual_seed(104)
     private_config = _small_config(
         fine_top_k=6,
+        current_actor_auxiliary=True,
         shared_future_auxiliary=True,
         shared_future_horizons=8,
         shared_future_relabeling=True,
+        shared_future_constant_velocity_residual=True,
     )
     model = M0PrivateResidualRanker(
         private_config,
@@ -557,6 +559,7 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
         relative_safety_weight=0.5,
         residual_l2_weight=0.01,
         shared_future_weight=0.5,
+        current_actor_weight=0.5,
         candidate_relative_weight=1.0,
     )
     loss, details = compute_residual_training_loss(
@@ -570,6 +573,9 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
             base_factor_logits,
             target_factors,
             torch.arange(2),
+            future[:, 0],
+            future_mask[:, 0],
+            torch.tensor([True, False]),
             future,
             future_mask,
             torch.tensor([True, False]),
@@ -578,9 +584,11 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
     )
     assert torch.isfinite(loss)
     assert details["shared_future"] > 0
+    assert details["current_actor"] > 0
     assert details["candidate_relative"] > 0
     loss.backward()
     assert model.private_ranker.shared_future_state_head.weight.grad is not None
+    assert model.private_ranker.current_actor_state_head.weight.grad is not None
 
 
 def test_candidate_relative_relabeler_empty_actor_slots_are_safe() -> None:
@@ -754,6 +762,64 @@ def test_factorized_shared_future_is_predicted_once_and_candidate_equivariant() 
     ):
         torch.testing.assert_close(
             reference[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
+        )
+
+
+def test_shared_future_constant_velocity_residual_starts_from_predicted_current() -> None:
+    torch.manual_seed(107)
+    config = _small_config(
+        current_actor_auxiliary=True,
+        shared_future_auxiliary=True,
+        shared_future_horizons=8,
+        shared_future_relabeling=True,
+        shared_future_constant_velocity_residual=True,
+    )
+    model = IndependentProposalRanker(config).eval()
+    observations, status, proposals = _inputs()
+    with torch.no_grad():
+        output = model(observations, status, proposals)
+    expected_state = model._constant_velocity_actor_future(
+        output["current_actor_state"]
+    )
+    torch.testing.assert_close(output["shared_future_actor_state"], expected_state)
+    torch.testing.assert_close(
+        output["shared_future_presence_logits"],
+        output["current_actor_presence_logits"][:, None].expand(-1, 8, -1),
+    )
+    torch.testing.assert_close(
+        output["shared_future_type_logits"],
+        output["current_actor_type_logits"][:, None].expand(-1, 8, -1, -1),
+    )
+    assert torch.count_nonzero(model.shared_future_state_head.weight) == 0
+
+
+def test_shared_future_constant_velocity_normalization_is_metric_correct() -> None:
+    config = _small_config(
+        current_actor_auxiliary=True,
+        shared_future_auxiliary=True,
+        shared_future_horizons=2,
+        shared_future_constant_velocity_residual=True,
+    )
+    model = IndependentProposalRanker(config)
+    current = torch.zeros(1, 1, 8)
+    current[..., 0] = 0.1
+    current[..., 1] = -0.2
+    current[..., 2] = 0.5
+    current[..., 3] = -0.25
+    future = model._constant_velocity_actor_future(current)
+    torch.testing.assert_close(
+        future[0, :, 0, :4],
+        torch.tensor(
+            [[0.2, -0.25, 0.5, -0.25], [0.3, -0.3, 0.5, -0.25]]
+        ),
+    )
+
+
+def test_constant_velocity_future_residual_requires_current_actor_head() -> None:
+    with pytest.raises(ValueError, match="require current-actor"):
+        _small_config(
+            shared_future_auxiliary=True,
+            shared_future_constant_velocity_residual=True,
         )
 
 

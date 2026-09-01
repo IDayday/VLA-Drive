@@ -49,6 +49,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     FACTOR_KEYS,
     IndependentRankerConfig,
     candidate_relative_consequence_loss,
+    current_actor_auxiliary_loss,
     episode_drive_factor_loss,
     pdms_factor_log_utility,
     shared_future_auxiliary_loss,
@@ -219,6 +220,7 @@ class ResidualReplayDataset(Dataset):
         data: ReplayTensorSet,
         base_factor_logits: torch.Tensor,
         indices: Sequence[int],
+        include_current_actor_targets: bool = False,
         shared_future_table: Optional[SharedFutureTargetTable] = None,
         shared_future_row_indices: Optional[torch.Tensor] = None,
     ) -> None:
@@ -227,6 +229,7 @@ class ResidualReplayDataset(Dataset):
         self.data = data
         self.base_factor_logits = base_factor_logits
         self.indices = torch.as_tensor(indices, dtype=torch.long)
+        self.include_current_actor_targets = include_current_actor_targets
         self.shared_future_table = shared_future_table
         self.shared_future_row_indices = shared_future_row_indices
         if (shared_future_table is None) != (shared_future_row_indices is None):
@@ -237,6 +240,11 @@ class ResidualReplayDataset(Dataset):
             raise ValueError("shared-future row indices must align with replay rows")
         self._empty_future = torch.zeros(8, 16, 8)
         self._empty_future_mask = torch.zeros(8, 16, dtype=torch.bool)
+        if include_current_actor_targets:
+            if data.current_actor_states.shape != (len(data), 16, 8):
+                raise ValueError("current-actor states do not align with replay rows")
+            if data.current_actor_masks.shape != (len(data), 16):
+                raise ValueError("current-actor masks do not align with replay rows")
 
     def __len__(self) -> int:
         return int(self.indices.numel())
@@ -254,16 +262,23 @@ class ResidualReplayDataset(Dataset):
             self.data.target_factors[source_index],
             torch.tensor(source_index, dtype=torch.long),
         )
+        auxiliary = ()
+        if self.include_current_actor_targets:
+            auxiliary = (
+                self.data.current_actor_states[source_index],
+                self.data.current_actor_masks[source_index],
+                self.data.current_actor_supervision_valid[source_index],
+            )
         if self.shared_future_table is None:
-            return base
+            return base + auxiliary
         target_index = int(self.shared_future_row_indices[source_index])
         if target_index < 0:
-            return base + (
+            return base + auxiliary + (
                 self._empty_future,
                 self._empty_future_mask,
                 torch.tensor(False),
             )
-        return base + (
+        return base + auxiliary + (
             self.shared_future_table.actor_future[target_index],
             self.shared_future_table.actor_masks[target_index],
             self.shared_future_table.supervision_valid[target_index],
@@ -367,15 +382,37 @@ def compute_residual_training_loss(
         relative_element * relative_weight
     ).sum() / relative_weight.sum().clamp_min(1.0)
     residual_l2 = output["residual"].square().mean()
-    if len(batch) == 11:
+    cursor = 8
+    zero = output["residual"].sum() * 0.0
+    current_actor = {
+        "total": zero,
+        "presence": zero,
+        "type": zero,
+        "state": zero,
+    }
+    if model.private_config.current_actor_auxiliary:
+        if len(batch) < cursor + 3:
+            raise RuntimeError("current-actor prediction head lacks training targets")
+        current_actor = current_actor_auxiliary_loss(
+            output,
+            batch[cursor],
+            batch[cursor + 1],
+            batch[cursor + 2],
+        )
+        cursor += 3
+
+    future_targets = None
+    if model.private_config.shared_future_auxiliary:
+        if len(batch) != cursor + 3:
+            raise RuntimeError("shared-future prediction head lacks training targets")
+        future_targets = batch[cursor : cursor + 3]
         future = shared_future_auxiliary_loss(
             output,
-            batch[8],
-            batch[9],
-            batch[10],
+            future_targets[0],
+            future_targets[1],
+            future_targets[2],
         )
-    elif len(batch) == 8:
-        zero = output["residual"].sum() * 0.0
+    elif len(batch) == cursor:
         future = {
             "total": zero,
             "presence": zero,
@@ -384,7 +421,6 @@ def compute_residual_training_loss(
         }
     else:
         raise ValueError(f"unexpected residual training batch width: {len(batch)}")
-    zero = output["residual"].sum() * 0.0
     consequence = {
         "total": zero,
         "clearance": zero,
@@ -395,7 +431,7 @@ def compute_residual_training_loss(
     }
     candidate_relative_weight = getattr(args, "candidate_relative_weight", 0.0)
     if candidate_relative_weight > 0.0:
-        if len(batch) != 11:
+        if future_targets is None:
             raise RuntimeError(
                 "candidate-relative supervision requires shared-future targets"
             )
@@ -408,9 +444,9 @@ def compute_residual_training_loss(
             output,
             relabeler,
             proposals,
-            batch[8],
-            batch[9],
-            batch[10],
+            future_targets[0],
+            future_targets[1],
+            future_targets[2],
         )
     total = (
         args.pairwise_weight * pairwise
@@ -424,6 +460,7 @@ def compute_residual_training_loss(
         + args.relative_safety_weight * relative_safety
         + args.residual_l2_weight * residual_l2
         + getattr(args, "shared_future_weight", 0.0) * future["total"]
+        + getattr(args, "current_actor_weight", 0.0) * current_actor["total"]
         + candidate_relative_weight * consequence["total"]
     )
     details = {
@@ -442,6 +479,10 @@ def compute_residual_training_loss(
         "shared_future_presence": future["presence"],
         "shared_future_type": future["type"],
         "shared_future_state": future["state"],
+        "current_actor": current_actor["total"],
+        "current_actor_presence": current_actor["presence"],
+        "current_actor_type": current_actor["type"],
+        "current_actor_state": current_actor["state"],
         "candidate_relative": consequence["total"],
         "candidate_relative_clearance": consequence["clearance"],
         "candidate_relative_collision": consequence["collision"],
@@ -642,8 +683,12 @@ def parse_args() -> argparse.Namespace:
         required=True,
     )
     parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument("--current-actor-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-relabeling", action="store_true")
+    parser.add_argument(
+        "--shared-future-constant-velocity-residual", action="store_true"
+    )
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--selection-source", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -686,6 +731,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--relative-safety-weight", type=float, default=0.5)
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
     parser.add_argument("--shared-future-weight", type=float, default=0.0)
+    parser.add_argument("--current-actor-weight", type=float, default=0.0)
     parser.add_argument("--candidate-relative-weight", type=float, default=0.0)
     parser.add_argument("--safety-negative-weight", type=float, default=1.0)
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
@@ -714,6 +760,8 @@ def main() -> None:
         raise FileExistsError(args.output_dir)
     if args.shared_future_weight < 0:
         raise ValueError("shared_future_weight must be nonnegative")
+    if args.current_actor_weight < 0:
+        raise ValueError("current_actor_weight must be nonnegative")
     if args.candidate_relative_weight < 0:
         raise ValueError("candidate_relative_weight must be nonnegative")
     if (args.shared_future_target_root is None) != (
@@ -721,6 +769,12 @@ def main() -> None:
     ):
         raise ValueError(
             "shared-future target root is required exactly when its weight is positive"
+        )
+    if (args.current_actor_target_root is None) != (
+        args.current_actor_weight == 0.0
+    ):
+        raise ValueError(
+            "current-actor target root is required exactly when its weight is positive"
         )
     if args.shared_future_target_root is not None and args.dynamic_queries != 16:
         raise ValueError(
@@ -734,6 +788,13 @@ def main() -> None:
     if args.candidate_relative_weight > 0 and not args.shared_future_relabeling:
         raise ValueError(
             "candidate-relative loss requires --shared-future-relabeling"
+        )
+    if (
+        args.shared_future_constant_velocity_residual
+        and args.current_actor_target_root is None
+    ):
+        raise ValueError(
+            "constant-velocity future residuals require current-actor supervision"
         )
 
     random.seed(args.seed)
@@ -751,6 +812,7 @@ def main() -> None:
         sources,
         max_scenes_per_source=args.max_scenes_per_source,
         private_observation_root=args.private_observation_root,
+        current_actor_target_root=args.current_actor_target_root,
     )
     factor_tokens, base_factor_logits = load_replay_base_factor_logits(
         sources,
@@ -831,9 +893,13 @@ def main() -> None:
         num_fine_layers=args.fine_layers,
         fine_top_k=args.private_fine_top_k,
         dropout=args.dropout,
+        current_actor_auxiliary=args.current_actor_target_root is not None,
         shared_future_auxiliary=shared_future_table is not None,
         shared_future_horizons=8,
         shared_future_relabeling=args.shared_future_relabeling,
+        shared_future_constant_velocity_residual=(
+            args.shared_future_constant_velocity_residual
+        ),
     )
     residual_config = M0PrivateResidualConfig(
         hidden_dim=args.model_dim,
@@ -860,6 +926,9 @@ def main() -> None:
             data,
             base_factor_logits,
             train_indices,
+            include_current_actor_targets=(
+                args.current_actor_target_root is not None
+            ),
             shared_future_table=shared_future_table,
             shared_future_row_indices=shared_future_row_indices,
         ),
@@ -875,6 +944,11 @@ def main() -> None:
     serialized_args = vars(args) | {
         "output_dir": str(args.output_dir),
         "private_observation_root": str(args.private_observation_root),
+        "current_actor_target_root": (
+            str(args.current_actor_target_root)
+            if args.current_actor_target_root is not None
+            else None
+        ),
         "shared_future_target_root": (
             str(args.shared_future_target_root)
             if args.shared_future_target_root is not None
@@ -909,11 +983,17 @@ def main() -> None:
         "logged_future_used_as_training_only_auxiliary_target": (
             shared_future_table is not None
         ),
+        "current_actor_annotation_used_as_training_only_target": (
+            args.current_actor_target_root is not None
+        ),
         "predicted_shared_future_relabeling_used_at_inference": (
             args.shared_future_relabeling
         ),
         "candidate_relative_logged_future_used_as_training_only_target": (
             args.candidate_relative_weight > 0
+        ),
+        "shared_future_parameterized_as_constant_velocity_residual": (
+            args.shared_future_constant_velocity_residual
         ),
         "official_score_input": False,
         "args": serialized_args,
