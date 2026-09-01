@@ -414,7 +414,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--initialize-ranker-checkpoint", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--alternative-mode", choices=("factor", "direct"), default="factor")
+    parser.add_argument(
+        "--alternative-mode",
+        choices=("factor", "direct", "all"),
+        default="factor",
+        help=(
+            "factor/direct gate Base against one independent alternative; "
+            "all learns reference-relative gain over every proposal"
+        ),
+    )
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--batch-size", type=int, default=32)

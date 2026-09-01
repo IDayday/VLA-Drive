@@ -362,6 +362,32 @@ def test_drivor_reference_gate_is_binary_and_current_observation_only() -> None:
     ).all()
 
 
+def test_drivor_reference_all_mode_scores_every_candidate() -> None:
+    ranker_config = _small_drivor_config()
+    reference_config = ConservativeReferenceConfig(
+        model_dim=32,
+        hidden_dim=64,
+        num_heads=4,
+        num_layers=1,
+        dropout=0.0,
+    )
+    model = DrivORReferenceGateRanker(
+        ranker_config, reference_config, alternative_mode="all"
+    ).eval()
+    observations, status, proposals = _inputs()
+    references = torch.tensor([1, 4])
+    with torch.no_grad():
+        output = model(
+            observations,
+            status,
+            proposals,
+            references,
+            minimum_lcb_gain=100.0,
+        )
+    assert output["allowed_candidate_mask"].all()
+    assert torch.equal(output["selected_indices"], references)
+
+
 def test_drivor_reference_gate_is_candidate_permutation_equivariant() -> None:
     torch.manual_seed(44)
     ranker_config = _small_drivor_config()

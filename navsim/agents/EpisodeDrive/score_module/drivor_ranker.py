@@ -180,24 +180,21 @@ class DrivORInitializedProposalRanker(nn.Module):
 
 
 class DrivORReferenceGateRanker(nn.Module):
-    """Independent DrivOR scorer plus a conservative two-policy gate.
+    """Independent DrivOR scorer plus a conservative reference ranker.
 
-    The independent scorer first chooses one proposal without consulting the
-    released EpisodeDrive scorer.  The gate then compares that proposal with
-    a deployable reference proposal identified by index.  The reference's
-    numeric score is deliberately absent from this interface.  Restricting the
-    final decision to the two policy choices converts a difficult all-64
-    selection problem into a calibrated policy-improvement decision while
-    preserving an exact reference fallback.
+    ``factor`` and ``direct`` compare one independently selected proposal with
+    a deployable reference proposal. ``all`` instead ranks every proposal by
+    its predicted reference-relative gain.  The reference's numeric score is
+    absent in every mode, and the exact reference proposal remains the fallback.
     """
 
-    _ALTERNATIVE_MODES = frozenset(("factor", "direct"))
+    _ALTERNATIVE_MODES = frozenset(("factor", "direct", "all"))
 
     def __init__(
         self,
         ranker_config: DrivORRankerConfig = DrivORRankerConfig(),
         reference_config: ConservativeReferenceConfig | None = None,
-        alternative_mode: Literal["factor", "direct"] = "factor",
+        alternative_mode: Literal["factor", "direct", "all"] = "factor",
     ) -> None:
         super().__init__()
         if alternative_mode not in self._ALTERNATIVE_MODES:
@@ -215,7 +212,7 @@ class DrivORReferenceGateRanker(nn.Module):
         self.reference_head = ConservativeReferenceHead(self.reference_config)
 
     def _independent_utility(self, output: Mapping[str, torch.Tensor]) -> torch.Tensor:
-        if self.alternative_mode == "factor":
+        if self.alternative_mode in {"factor", "all"}:
             return pdms_factor_log_utility(output["factor_logits"])
         return output["direct_utility"]
 
@@ -243,9 +240,12 @@ class DrivORReferenceGateRanker(nn.Module):
         relative = self.reference_head(
             output["candidate_features"], reference_indices
         )
-        allowed = torch.zeros_like(independent_utility, dtype=torch.bool)
-        allowed.scatter_(1, reference_indices[:, None], True)
-        allowed.scatter_(1, alternative_indices[:, None], True)
+        if self.alternative_mode == "all":
+            allowed = torch.ones_like(independent_utility, dtype=torch.bool)
+        else:
+            allowed = torch.zeros_like(independent_utility, dtype=torch.bool)
+            allowed.scatter_(1, reference_indices[:, None], True)
+            allowed.scatter_(1, alternative_indices[:, None], True)
         selection_scores = conservative_reference_selection_scores(
             relative["gain_quantiles"],
             relative["safety_worse_logits"],
