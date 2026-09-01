@@ -248,6 +248,18 @@ def main() -> None:
         "candidate_factor_matrix_present": True,
         "checkpoint": str(args.artifact.resolve()),
         "checkpoint_sha256": _sha256(args.artifact),
+        "source_ranker_artifact_sha256": artifact.get(
+            "source_ranker_artifact_sha256"
+        ),
+        "source_ranker_refit_all_logs": bool(
+            artifact.get("source_ranker_refit_all_logs", False)
+        ),
+        "source_ranker_validation_performed": bool(
+            artifact.get("source_ranker_validation_performed", True)
+        ),
+        "source_ranker_refit_provenance": artifact.get(
+            "source_ranker_refit_provenance"
+        ),
         "agent_target": (
             "local_stage2.independent_scorer_agent."
             "IndependentShortlistScorerAgent"

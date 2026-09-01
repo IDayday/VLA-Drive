@@ -1208,6 +1208,9 @@ def test_independent_shortlist_artifact_records_no_numeric_base_input(tmp_path) 
         "epoch": 3,
         "model_config": asdict(model.config),
         "state_dict": model.state_dict(),
+        "refit_all_logs": True,
+        "validation_performed": False,
+        "refit_provenance": {"selection_artifact_sha256": "a" * 64},
     }
     torch.save(ranker, ranker_path)
     artifact = build_independent_shortlist_artifact(
@@ -1221,6 +1224,11 @@ def test_independent_shortlist_artifact_records_no_numeric_base_input(tmp_path) 
     assert artifact["base_numeric_score_used_by_independent_ranker"] is False
     assert artifact["base_rank_used_for_shortlist"] is True
     assert artifact["shortlist_size"] == 4
+    assert artifact["source_ranker_refit_all_logs"] is True
+    assert artifact["source_ranker_validation_performed"] is False
+    assert artifact["source_ranker_refit_provenance"] == (
+        ranker["refit_provenance"]
+    )
     assert "official_pdm_score" in artifact["forbidden_inputs"]
 
 

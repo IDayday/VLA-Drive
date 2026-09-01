@@ -158,6 +158,18 @@ def build_independent_shortlist_artifact(
         "source_ranker_artifact_path": str(ranker_artifact_path.resolve()),
         "source_ranker_artifact_sha256": _sha256(ranker_artifact_path),
         "source_ranker_epoch": int(ranker_artifact["epoch"]),
+        "source_ranker_refit_all_logs": bool(
+            ranker_artifact.get("refit_all_logs", False)
+        ),
+        "source_ranker_validation_performed": bool(
+            ranker_artifact.get(
+                "validation_performed",
+                not bool(ranker_artifact.get("refit_all_logs", False)),
+            )
+        ),
+        "source_ranker_refit_provenance": ranker_artifact.get(
+            "refit_provenance"
+        ),
         "model_config": dict(ranker_artifact["model_config"]),
         "model_state_dict": {
             key: value.detach().cpu()
