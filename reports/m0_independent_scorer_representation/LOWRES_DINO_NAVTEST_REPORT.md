@@ -24,6 +24,7 @@
 | Factor-heavy final saved epoch 9 | 0.895823 | 0.984112 | 0.088289 |
 | Three-default-seed equal-score ensemble | 0.897006 | 0.984112 | 0.087106 |
 | Factor-only, all 64 candidates, epoch 3 | 0.897539 | 0.984112 | 0.086572 |
+| Factor-only, all 64 candidates, validation-best epoch 9 | 0.900880 | 0.984112 | 0.083231 |
 
 The epoch-5 scorer improves by `+0.005905` over epoch 4, closely tracking its
 `+0.006271` trainval improvement. Its delta from public M0 is nevertheless
@@ -47,6 +48,13 @@ with interval `[-0.018931, -0.005642]`.  Ensembling improves collision, DAC,
 DDC, and TTC over the single low-resolution models, but lowers progress to
 `0.845409`; variance reduction therefore does not fix the conservative
 planning trade-off.
+
+The completed factor-only run selected epoch 9 on held-out physical logs at
+PDMS `0.931604`. Complete Navtest improves to `0.900880`, or `+0.003341` over
+its previously tested epoch 3, but remains `-0.008714` below public M0 with a
+physical-log bootstrap 95% interval of `[-0.013556, -0.003615]`. It wins 2,538
+scenes, loses 3,871, and ties 5,737. The immutable checkpoint SHA256 is
+`adfb9acd6a7f45872a97238b85ab06396de14a89885728fb9fa0520f624cb3c4`.
 
 ## Factor attribution
 
@@ -83,6 +91,10 @@ The complete non-Git evaluation artifact is stored at:
 and
 
 `/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/m0_independent_dino_lowres_factoronly_all64_seed2_epoch3_navtest_v1`
+
+and
+
+`/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/m0_independent_dino_lowres_factoronly_all64_seed2_final_best_navtest_v1`
 
 and
 

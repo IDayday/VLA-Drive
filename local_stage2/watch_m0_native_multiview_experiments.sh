@@ -10,13 +10,13 @@ PYTHON_BIN="${PYTHON_BIN:-/mnt/project/DriveVLA-M0-env/bin/python}"
 TRAIN_CACHE_ROOT="${TRAIN_CACHE_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/m0_native_multiview_trainval_pool2_tiles4_v1_4shard}"
 TRAIN_CACHE_PRODUCER_PIDS="${TRAIN_CACHE_PRODUCER_PIDS:-1503919 1503920 1503921 1503922}"
 RUN_ROOT="/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93"
-LOG_ROOT="/root/scorer_pdms93_logs/m0_native_multiview_followup_v1"
+LOG_ROOT="/root/scorer_pdms93_logs/m0_native_multiview_followup_unweighted_v1"
 SOURCE_FEATURE_ROOT="${RUN_ROOT}/public_base_features_full_v1"
 SOURCE_LABEL_ROOT="${RUN_ROOT}/public_base_labels_full_v1"
 ACTOR_TARGET_ROOT="/mnt/project/DriveVLA-M0-gate-c/outputs/shared_future_candidate_consequence_gate_c/all/oracle_store"
 SPLIT_MANIFEST="/mnt/project/DriveVLA-M0-scorer-pdms93/reports/scorer_pdms93/OFFICIAL_SCORER_SPLIT.json"
-CONTROL_OUTPUT="${RUN_ROOT}/m0_native_multiview_factoronly_all64_dq16_seed2_v1"
-ACTOR_OUTPUT="${RUN_ROOT}/m0_native_multiview_currentactor_aux_w05_factoronly_all64_seed2_v1"
+CONTROL_OUTPUT="${RUN_ROOT}/m0_native_multiview_factoronly_unweighted_rank0_all64_dq16_seed2_v1"
+ACTOR_OUTPUT="${RUN_ROOT}/m0_native_multiview_currentactor_aux_w05_unweighted_rank0_all64_dq16_seed2_v1"
 NAVTEST_CACHE_ROOT="${RUN_ROOT}/m0_native_multiview_navtest_pool2_tiles4_v1_2shard"
 
 mkdir -p "${LOG_ROOT}"
@@ -88,9 +88,10 @@ COMMON_TRAIN_ARGS=(
   --top-regret-weight 0
   --coarse-loss-weight 0
   --factor-weight 1
-  --factor-rank-weight 1
+  --factor-rank-weight 0
   --consequence-weight 0
   --confidence-weight 0
+  --safety-negative-weight 1
 )
 
 env CUDA_VISIBLE_DEVICES=0 CUBLAS_WORKSPACE_CONFIG=:4096:8 \

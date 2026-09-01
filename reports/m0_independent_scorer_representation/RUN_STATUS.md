@@ -21,6 +21,7 @@ scores are joined only after selection.
 | Factor-heavy, final saved epoch 9 | 0.895823 | -0.013771 |
 | Three-default-seed equal-score ensemble | 0.897006 | -0.012588 |
 | Factor-only all-64, epoch 3 | **0.897539** | **-0.012055** |
+| Factor-only all-64, validation-best epoch 9 | **0.900880** | **-0.008714** |
 
 The current independent method has not improved public M0 on Navtest. Its
 best change is a real improvement over earlier independent checkpoints, not a
@@ -79,6 +80,10 @@ full 103,288-token cache validation, GPU 0/1 will train a parameter-matched
 pair with and without current-actor auxiliary supervision, while GPU 3/4 will
 export the complete 12,146-scene M0-native Navtest observation cache. This
 queue does not reserve GPU memory while the current exporters are active.
+Both training arms restore the released EpisodeDrive factor-loss semantics:
+unweighted BCE (`safety_negative_weight=1`) and no auxiliary factor-ranking
+loss. The earlier idle watcher using weight 10 was replaced before it started
+any training or created any output.
 
 The previous dynamic/static/signal query banks had different parameters but
 no semantic supervision. A new optional training-only auxiliary head now
@@ -92,7 +97,16 @@ on the M0-native four-view cache after export completion.
 All repository tests pass: 189 passed. Warnings are dependency deprecations and
 the pre-existing Shapely numerical warning; there are no test failures.
 
-The low-resolution factor-only all-64 run has reached a best held-out-log PDMS
-of 0.931173 at epoch 8 (the public M0 selector on the same fold is 0.951612).
-A watcher will freeze its final validation-selected factor checkpoint and run
-the complete Navtest evaluation on GPU 2 after epoch 9 finishes.
+The low-resolution factor-only all-64 run reached a best held-out-log PDMS
+of 0.931604 at epoch 9 (the public M0 selector on the same fold is 0.951612).
+Its final validation-selected factor checkpoint reaches complete-Navtest PDMS
+0.900880, an improvement of +0.003341 over the previously tested epoch 3 but
+still -0.008714 below public M0. The physical-log bootstrap 95% interval for
+the delta from public M0 is [-0.013556, -0.003615].
+
+Source inspection identified an important training-semantic difference: the
+released EpisodeDrive loss uses ordinary BCE for NOC/DAC/TTC, whereas the
+independent campaign so far upweighted rare violations by 10. The resulting
+Navtest signature (better safety, worse progress/DAC) is directionally
+consistent with that change. A full 2x2 Q-Former diagnostic now tests
+unweighted BCE with factor-ranking and current-actor supervision independently.
