@@ -170,3 +170,16 @@ optimizes regret-weighted pairwise ranking; the other adds listwise, top-set,
 expected-regret, and top-regret objectives. These runs test direct candidate
 ranking separately from the four parameter-matched factor-only controls on
 `rl-zt4`.
+
+A second queued design keeps the same M0-native scorer-private visual encoder
+but makes the released M0 factor logits and aggregate score an explicit
+calibration anchor. Its factor-correction and utility-correction heads are
+zero initialized, so before training its 64-way output and selected candidate
+are exactly identical to public M0. It then learns candidate-relative factor
+and utility residuals from the current four-view representation. This path
+uses M0 inference tensors only—no DrivOR representation or weight, future
+annotation, MetricCache value, or official PDM input. Hybrid-residual and
+factor-residual variants are queued behind the direct-ranking controls on
+`rl-zt3` GPUs 5/6. The complete repository suite passes `198` tests, including
+zero-init Base identity, candidate-permutation equivariance, inference-schema
+checks, and finite end-to-end residual training loss.

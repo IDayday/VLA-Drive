@@ -28,6 +28,10 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     top_regret_rank_loss,
     weighted_pairwise_rank_loss,
 )
+from navsim.agents.EpisodeDrive.score_module.m0_private_residual_ranker import (
+    M0PrivateResidualConfig,
+    M0PrivateResidualRanker,
+)
 from navsim.agents.EpisodeDrive.score_module.drivor_ranker import (
     DrivORInitializedProposalRanker,
     DrivORRankerConfig,
@@ -54,6 +58,9 @@ from local_stage2.train_independent_scorer import (
     load_replay_sources,
     physical_log_name,
     validate_all_log_refit_provenance,
+)
+from local_stage2.train_m0_private_residual_scorer import (
+    compute_residual_training_loss,
 )
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
@@ -172,6 +179,164 @@ def test_forward_signature_has_no_released_or_future_score_inputs() -> None:
         "observation_valid_mask",
     }
     assert not any("base" in name or "pdm" in name or "future" in name for name in parameters)
+
+
+def test_m0_private_residual_forward_is_current_inference_only() -> None:
+    parameters = set(
+        inspect.signature(M0PrivateResidualRanker.forward).parameters
+    )
+    assert parameters == {
+        "self",
+        "observation_tokens",
+        "status_feature",
+        "proposals",
+        "base_factor_logits",
+        "base_scores",
+        "observation_valid_mask",
+    }
+    assert not any(
+        "future" in name or "official" in name or "metric" in name
+        for name in parameters
+    )
+
+
+def test_m0_private_residual_zero_init_exactly_preserves_base() -> None:
+    torch.manual_seed(101)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+            score_mode="hybrid",
+        ),
+    ).eval()
+    observation, status, proposals = _inputs()
+    factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    with torch.no_grad():
+        output = model(
+            observation,
+            status,
+            proposals,
+            factor_logits,
+            base_scores,
+        )
+    torch.testing.assert_close(output["refined_scores"], base_scores, rtol=0, atol=0)
+    torch.testing.assert_close(output["selection_scores"], base_scores, rtol=0, atol=0)
+    torch.testing.assert_close(
+        output["refined_factor_logits"], factor_logits, rtol=0, atol=0
+    )
+    assert torch.equal(
+        output["selection_scores"].argmax(dim=1),
+        base_scores.argmax(dim=1),
+    )
+
+
+def test_m0_private_residual_is_candidate_permutation_equivariant() -> None:
+    torch.manual_seed(102)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+        ),
+    ).eval()
+    observation, status, proposals = _inputs()
+    factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    with torch.no_grad():
+        reference = model(
+            observation,
+            status,
+            proposals,
+            factor_logits,
+            base_scores,
+        )
+        permuted = model(
+            observation,
+            status,
+            proposals[:, permutation],
+            factor_logits[:, permutation],
+            base_scores[:, permutation],
+        )
+    for key in (
+        "selection_scores",
+        "refined_scores",
+        "refined_factor_logits",
+        "relative_safety_logits",
+        "private_candidate_features",
+    ):
+        torch.testing.assert_close(
+            reference[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
+        )
+
+
+def test_m0_private_residual_training_loss_is_finite() -> None:
+    torch.manual_seed(103)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+        ),
+    )
+    observation, status, proposals = _inputs(batch_size=3, candidates=6)
+    base_factor_logits = torch.randn(3, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(3, 6)
+    target_factors = torch.rand(3, 6, 7)
+    args = SimpleNamespace(
+        minimum_pair_delta=0.02,
+        factor_rank_minimum_delta=0.05,
+        target_temperature=0.05,
+        prediction_temperature=0.05,
+        top_set_tolerance=0.01,
+        safety_negative_weight=1.0,
+        pairwise_weight=1.0,
+        base_pairwise_weight=1.0,
+        listwise_weight=0.1,
+        top_set_weight=0.5,
+        expected_regret_weight=1.0,
+        factor_weight=1.0,
+        private_factor_weight=0.25,
+        factor_rank_weight=0.5,
+        relative_safety_weight=0.5,
+        residual_l2_weight=0.01,
+    )
+    loss, details = compute_residual_training_loss(
+        model,
+        (
+            proposals,
+            observation,
+            torch.ones(3, observation.shape[1], dtype=torch.bool),
+            status,
+            base_scores,
+            base_factor_logits,
+            target_factors,
+            torch.arange(3),
+        ),
+        args,
+    )
+    assert torch.isfinite(loss)
+    assert all(np.isfinite(value) for value in details.values())
+    loss.backward()
+    assert model.factor_delta_head[-1].weight.grad is not None
+    assert model.private_ranker.coarse_factor_heads[
+        FACTOR_KEYS[0]
+    ].weight.grad is not None
 
 
 def test_drivor_ranker_forward_is_current_observation_only() -> None:
