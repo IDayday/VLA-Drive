@@ -240,3 +240,13 @@ exporting the matching full Navtest observation cache. `rl-zt3` GPUs 5/6 run
 the two direct-ranking controls and GPU 3 runs the Base-calibrated factor
 residual. Strict full-Navtest promotion remains serialized on `rl-zt4` GPU 7;
 no job uses `vla-zt` or `vla-zt2`.
+
+A multi-stage proposal-replay residual is queued to take over `rl-zt4` GPU 0
+when its present control finishes. It trains on both the frozen public-final
+and epoch-3 M0 proposal banks while sharing the same M0-owned current-only
+four-view observation. Checkpoint selection and promotion are computed only on
+the predeclared `public_base` held-out physical logs; combined-source metrics
+are diagnostic and cannot select an artifact. This directly tests whether the
+joint scorer's exposure to changing proposal distributions is important,
+without changing the final inference inputs. Multi-source selection semantics
+are unit-tested, and the complete suite passes `203` tests.
