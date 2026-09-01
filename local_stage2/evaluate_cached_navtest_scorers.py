@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pickle
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +18,12 @@ from typing import Dict, Iterable, List, Mapping, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
+
+# Must be configured before torch creates a CuBLAS handle. The evaluator uses
+# strict deterministic algorithms so repeated Navtest campaigns can be compared
+# bit-for-bit; setting this after importing torch is too late.
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+
 import torch
 
 from local_stage2.public_base_residual_scorer import (

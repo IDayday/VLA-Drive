@@ -43,6 +43,7 @@ done
 
 export PYTHONPATH="${DRIVEVLA_REPO_ROOT}:${DRIVEVLA_REPO_ROOT}/nuplan-devkit:/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3:/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_2_1:/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
 export CUDA_VISIBLE_DEVICES="${gpu}"
+export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 
 exec "${python_bin}" \
   "${DRIVEVLA_REPO_ROOT}/local_stage2/evaluate_cached_navtest_scorers.py" \
