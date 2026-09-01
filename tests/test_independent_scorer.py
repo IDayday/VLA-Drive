@@ -12,6 +12,9 @@ import torch
 from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     ConservativeReferenceConfig,
     ConservativeReferenceHead,
+    EGO_HALF_LENGTH_M,
+    EGO_HALF_WIDTH_M,
+    EGO_REAR_AXLE_TO_CENTER_M,
     FACTOR_KEYS,
     IndependentConservativeReferenceRanker,
     IndependentProposalRanker,
@@ -603,6 +606,38 @@ def test_candidate_relative_relabeler_empty_actor_slots_are_safe() -> None:
     )
     torch.testing.assert_close(
         consequence[..., 3:], torch.zeros(1, 2, 3, 5), atol=1.0e-5, rtol=0
+    )
+
+
+def test_candidate_relative_geometry_uses_official_rear_axle_footprint() -> None:
+    from nuplan.common.actor_state.vehicle_parameters import get_pacifica_parameters
+
+    parameters = get_pacifica_parameters()
+    assert EGO_HALF_LENGTH_M == pytest.approx(parameters.length / 2.0)
+    assert EGO_HALF_WIDTH_M == pytest.approx(parameters.width / 2.0)
+    assert EGO_REAR_AXLE_TO_CENTER_M == pytest.approx(
+        (parameters.front_length - parameters.rear_length) / 2.0
+    )
+
+    proposals = torch.zeros(1, 1, 2, 3)
+    proposals[..., 1, 2] = torch.pi / 2.0
+    center, velocity = SharedFutureCandidateRelabeler._candidate_center_and_velocity(
+        proposals, interval_seconds=0.5
+    )
+    torch.testing.assert_close(
+        center[0, 0, 0], torch.tensor([EGO_REAR_AXLE_TO_CENTER_M, 0.0])
+    )
+    torch.testing.assert_close(
+        center[0, 0, 1], torch.tensor([0.0, EGO_REAR_AXLE_TO_CENTER_M]), atol=1e-6, rtol=0
+    )
+    torch.testing.assert_close(velocity[0, 0, 0], torch.zeros(2))
+    torch.testing.assert_close(
+        velocity[0, 0, 1],
+        torch.tensor(
+            [-2.0 * EGO_REAR_AXLE_TO_CENTER_M, 2.0 * EGO_REAR_AXLE_TO_CENTER_M]
+        ),
+        atol=1e-6,
+        rtol=0,
     )
 
 

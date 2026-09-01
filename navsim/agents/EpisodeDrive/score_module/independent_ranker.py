@@ -51,6 +51,20 @@ FORBIDDEN_INFERENCE_FIELDS = frozenset(
     }
 )
 
+# Local NAVSIM evaluates a Pacifica footprint constructed from the trajectory
+# rear axle.  These are the exact values returned by the deployed
+# ``get_pacifica_parameters()`` implementation.  Keeping the geometry in this
+# torch-only module avoids importing nuPlan objects into the deployable scorer.
+EGO_FRONT_LENGTH_FROM_REAR_AXLE_M = 4.049
+EGO_REAR_LENGTH_FROM_REAR_AXLE_M = 1.127
+EGO_HALF_LENGTH_M = 0.5 * (
+    EGO_FRONT_LENGTH_FROM_REAR_AXLE_M + EGO_REAR_LENGTH_FROM_REAR_AXLE_M
+)
+EGO_REAR_AXLE_TO_CENTER_M = 0.5 * (
+    EGO_FRONT_LENGTH_FROM_REAR_AXLE_M - EGO_REAR_LENGTH_FROM_REAR_AXLE_M
+)
+EGO_HALF_WIDTH_M = 0.5 * 2.297
+
 
 def assert_current_observation_only(features: Dict[str, object]) -> None:
     """Reject fields that cannot exist in deployable scorer inference."""
@@ -372,13 +386,19 @@ class SharedFutureCandidateRelabeler(nn.Module):
         nn.init.trunc_normal_(self.time_embedding, std=0.02)
 
     @staticmethod
-    def _candidate_velocity(
+    def _candidate_center_and_velocity(
         proposals: torch.Tensor,
         interval_seconds: float,
-    ) -> torch.Tensor:
-        xy = proposals[..., :2]
-        previous = torch.cat((torch.zeros_like(xy[..., :1, :]), xy[..., :-1, :]), dim=-2)
-        return (xy - previous) / interval_seconds
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        heading = proposals[..., 2]
+        center = proposals[..., :2] + EGO_REAR_AXLE_TO_CENTER_M * torch.stack(
+            (torch.cos(heading), torch.sin(heading)), dim=-1
+        )
+        current_center = torch.zeros_like(center[..., :1, :])
+        current_center[..., 0] = EGO_REAR_AXLE_TO_CENTER_M
+        previous = torch.cat((current_center, center[..., :-1, :]), dim=-2)
+        velocity = (center - previous) / interval_seconds
+        return center, velocity
 
     def consequence_only(
         self,
@@ -418,8 +438,11 @@ class SharedFutureCandidateRelabeler(nn.Module):
         actor_width = normalized_actor_state[..., 7].abs() * 5.0
         presence = presence_logits.sigmoid()[:, None]
 
-        candidate_x = proposals[..., 0, None]
-        candidate_y = proposals[..., 1, None]
+        candidate_center, candidate_velocity = self._candidate_center_and_velocity(
+            proposals, self.interval_seconds
+        )
+        candidate_x = candidate_center[..., 0, None]
+        candidate_y = candidate_center[..., 1, None]
         candidate_heading = proposals[..., 2, None]
         cosine = torch.cos(candidate_heading)
         sine = torch.sin(candidate_heading)
@@ -428,9 +451,6 @@ class SharedFutureCandidateRelabeler(nn.Module):
         relative_x = cosine * delta_x + sine * delta_y
         relative_y = -sine * delta_x + cosine * delta_y
 
-        candidate_velocity = self._candidate_velocity(
-            proposals, self.interval_seconds
-        )
         delta_vx = actor_vx[:, None] - candidate_velocity[..., 0, None]
         delta_vy = actor_vy[:, None] - candidate_velocity[..., 1, None]
         relative_vx = cosine * delta_vx + sine * delta_vy
@@ -451,8 +471,12 @@ class SharedFutureCandidateRelabeler(nn.Module):
         # Signed distance of the actor rectangle to an ego-aligned rectangle.
         # It is exact for the projected axis-aligned approximation: negative
         # values indicate overlap and positive values indicate clearance.
-        longitudinal = relative_x.abs() - (2.45 + projected_half_length)
-        lateral = relative_y.abs() - (1.0 + projected_half_width)
+        longitudinal = relative_x.abs() - (
+            EGO_HALF_LENGTH_M + projected_half_length
+        )
+        lateral = relative_y.abs() - (
+            EGO_HALF_WIDTH_M + projected_half_width
+        )
         outside = torch.sqrt(
             torch.relu(longitudinal).square()
             + torch.relu(lateral).square()
@@ -498,7 +522,9 @@ class SharedFutureCandidateRelabeler(nn.Module):
             + (1.0 - any_closing_actor) * 10.0
         )
 
-        ahead = torch.sigmoid((relative_x + 2.45) / 0.75) * torch.sigmoid(
+        ahead = torch.sigmoid(
+            (relative_x + EGO_HALF_LENGTH_M) / 0.75
+        ) * torch.sigmoid(
             (12.0 - relative_x) / 1.5
         )
         in_width = torch.sigmoid(

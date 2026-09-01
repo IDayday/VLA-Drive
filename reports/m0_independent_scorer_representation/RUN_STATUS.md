@@ -365,3 +365,18 @@ invalid-scene masking, gradient flow, and candidate equivariance are covered;
 the complete suite passes `215` tests. This corrected direct-consequence run is
 queued for the first available authorized GPU without terminating any existing
 job.
+
+The coordinate audit then confirmed that every M0/NAVSIM proposal pose is a
+rear-axle pose, not a vehicle-center pose. The deployed local Pacifica has
+`front_length=4.049 m`, `rear_length=1.127 m`, and `width=2.297 m`, so its
+geometric center is `1.461 m` ahead of the rear axle with half-length
+`2.588 m` and half-width `1.1485 m`. The initial factorized approximation had
+treated the rear axle as the center and used `2.45/1.0 m` half extents. That is
+a systematic collision/clearance/TTC alignment error, not a hyperparameter
+effect. The corrected implementation transforms every proposal rear axle to
+the exact footprint center and finite-differences center positions (including
+heading-induced center motion) for relative velocity. Constants are asserted
+against the installed official `get_pacifica_parameters()` result. The already
+launched mask/direct-loss v2 is retained as an immutable ablation; the exact
+rear-axle v3 will use a new output directory on the next naturally released
+authorized GPU. The complete suite passes `216` tests.
