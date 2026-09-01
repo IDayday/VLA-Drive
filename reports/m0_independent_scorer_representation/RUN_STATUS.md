@@ -411,3 +411,12 @@ presence, type, and metric-space state errors at horizon zero are measured
 before the constant-velocity rollout. This separates a current visual
 perception failure from a future-dynamics failure without adding any input to
 the deployable model or changing the immutable training runs.
+
+With `rl-zt4` newly authorized, a second constant-velocity-residual run was
+started on its otherwise idle GPU 7 without stopping the seven existing
+experiments. Relative to the queued source-equivalent run, this predeclared
+variant raises current-actor supervision from `1.0` to `5.0` and shared-future
+supervision from `0.5` to `1.0`; candidate-relative and safety-negative weights
+remain `1.0` and `5.0`. It directly tests whether the measured bottleneck is
+insufficient current-scene actor localization, while preserving identical
+proposals, split, seed, optimization steps, and strict Navtest promotion gate.
