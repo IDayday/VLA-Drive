@@ -54,6 +54,11 @@ from local_stage2.independent_scorer_agent import (
     IndependentShortlistScorerAgent,
     build_independent_shortlist_artifact,
 )
+from local_stage2.m0_native_private_scorer_agent import (
+    M0NativePrivateFeatureBuilder,
+    M0NativePrivateScorerAgent,
+    build_m0_native_private_scorer_artifact,
+)
 from local_stage2.train_independent_scorer import (
     ReplaySource,
     assign_balanced_physical_log_folds,
@@ -259,6 +264,87 @@ def test_m0_native_promotion_uses_selection_source_log_ci(tmp_path) -> None:
     assert record["promoted"] is True
     assert record["validation_scene_count"] == 80
     assert record["validation_delta"] == pytest.approx(0.01)
+
+
+def test_m0_native_private_feature_builder_uses_four_current_views(tmp_path) -> None:
+    camera_values = {}
+    for name in ("cam_f0", "cam_l0", "cam_r0", "cam_b0"):
+        path = tmp_path / f"{name}.jpg"
+        path.write_bytes(b"test")
+        camera_values[name] = SimpleNamespace(image=path)
+    current = SimpleNamespace(
+        ego_pose=np.asarray([1.0, 2.0, 0.3], dtype=np.float32),
+        ego_velocity=np.asarray([4.0, 5.0], dtype=np.float32),
+        ego_acceleration=np.asarray([0.1, 0.2], dtype=np.float32),
+        driving_command=np.asarray([0.0, 1.0, 0.0, 0.0], dtype=np.float32),
+    )
+    agent_input = SimpleNamespace(
+        cameras=[SimpleNamespace(**camera_values)],
+        ego_statuses=[current, current, current, current],
+    )
+    features = M0NativePrivateFeatureBuilder().compute_features(agent_input)
+    assert "image_path_tensor" in features
+    assert tuple(features["m0_private_status_feature"].shape) == (11,)
+    for name in camera_values:
+        assert f"m0_private_{name}_path_tensor" in features
+
+
+def test_m0_native_private_artifact_packages_exact_online_class(tmp_path) -> None:
+    base_checkpoint = tmp_path / "base.ckpt"
+    base_checkpoint.write_bytes(b"immutable released M0")
+    import hashlib
+
+    base_sha = hashlib.sha256(base_checkpoint.read_bytes()).hexdigest()
+    cache_root = tmp_path / "cache"
+    shard = cache_root / "m0_multiview_shard_000-of-001"
+    shard.mkdir(parents=True)
+    (shard / "manifest.json").write_text(
+        json.dumps(
+            {
+                "shard_count": 1,
+                "m0_checkpoint_sha256": base_sha,
+                "camera_names": ["cam_f0", "cam_l0", "cam_r0", "cam_b0"],
+                "max_dynamic_tiles": 4,
+                "max_crops_per_camera": 5,
+                "pool_grid": [2, 2],
+                "visual_token_count": 80,
+                "visual_width": 32,
+                "visual_model_wrapper_chain": ["fake.M0"],
+                "current_observation_only": True,
+                "future_or_evaluator_input": False,
+                "official_score_or_factor_input": False,
+                "proposal_input": False,
+            }
+        )
+    )
+    config = _small_config(
+        observation_dim=32,
+        max_observation_tokens=80,
+        status_dim=11,
+    )
+    model = IndependentProposalRanker(config)
+    source = {
+        "architecture": "IndependentProposalRanker",
+        "selection_mode": "factor",
+        "state_dict": model.state_dict(),
+        "model_config": asdict(config),
+        "epoch": 3,
+        "validation": {"factor_selected_pdms": 0.91},
+    }
+    source_path = tmp_path / "ranker.pt"
+    torch.save(source, source_path)
+    payload = build_m0_native_private_scorer_artifact(
+        source,
+        source_path=source_path,
+        base_checkpoint=base_checkpoint,
+        private_observation_root=cache_root,
+        shortlist_size=64,
+    )
+    assert payload["artifact_type"] == M0NativePrivateScorerAgent.ARTIFACT_TYPE
+    assert payload["scorer_architecture"] == "IndependentProposalRanker"
+    assert payload["score_mode"] == "factor"
+    assert payload["future_or_evaluator_input"] is False
+    assert payload["official_score_input"] is False
 
 
 def test_m0_private_residual_zero_init_exactly_preserves_base() -> None:

@@ -26,6 +26,10 @@ from local_stage2.train_independent_scorer import (
     physical_log_name,
 )
 from local_stage2.train_public_base_residual_scorer import _log_bootstrap_ci
+from local_stage2.m0_native_private_scorer_agent import (
+    M0NativePrivateScorerAgent,
+    _private_vision_config,
+)
 from navsim.agents.EpisodeDrive.score_module.m0_private_residual_ranker import (
     M0PrivateResidualConfig,
     M0PrivateResidualRanker,
@@ -88,16 +92,19 @@ def main() -> None:
         raise RuntimeError("CUDA requested but unavailable")
 
     artifact = torch.load(args.artifact, map_location="cpu", weights_only=False)
-    if artifact.get("architecture") != "M0PrivateResidualRanker":
+    if artifact.get("artifact_type") != M0NativePrivateScorerAgent.ARTIFACT_TYPE:
+        raise RuntimeError("deployment artifact type mismatch")
+    if artifact.get("scorer_architecture") != "M0PrivateResidualRanker":
         raise RuntimeError("deployment artifact architecture mismatch")
     expected_schema = (
-        "m0_current_visual_tokens",
-        "m0_current_context_feature",
+        "m0_current_f0_l0_r0_b0_images",
+        "m0_current_ego_navigation_status",
         "m0_proposals",
         "m0_base_factor_logits",
         "m0_base_scores",
     )
-    if tuple(artifact.get("inference_input_schema", ())) != expected_schema:
+    declared_schema = tuple(artifact.get("inference_input_schema", ()))
+    if declared_schema != expected_schema:
         raise RuntimeError("deployment artifact inference schema mismatch")
 
     with args.feature_cache.open("rb") as file:
@@ -126,6 +133,22 @@ def main() -> None:
         raise RuntimeError(
             "private-observation cache and candidate matrix token sets differ"
         )
+    evaluation_vision_config = _private_vision_config(
+        args.private_observation_root
+    )
+    declared_vision_config = artifact["private_vision_config"]
+    for key in (
+        "m0_checkpoint_sha256",
+        "camera_names",
+        "max_dynamic_tiles",
+        "max_crops_per_camera",
+        "pool_grid",
+        "visual_token_count",
+        "visual_width",
+        "visual_model_wrapper_chain",
+    ):
+        if evaluation_vision_config[key] != declared_vision_config[key]:
+            raise RuntimeError(f"Navtest private vision config differs for {key}")
 
     private_row_for_token = {
         token: index for index, token in enumerate(private_table.tokens)
@@ -149,7 +172,7 @@ def main() -> None:
         IndependentRankerConfig(**dict(artifact["private_config"])),
         M0PrivateResidualConfig(**dict(artifact["residual_config"])),
     ).to(device)
-    model.load_state_dict(artifact["state_dict"], strict=True)
+    model.load_state_dict(artifact["scorer_state_dict"], strict=True)
     model.eval()
 
     prediction_parts: List[np.ndarray] = []
@@ -311,14 +334,21 @@ def main() -> None:
         "checkpoint": str(args.artifact.resolve()),
         "checkpoint_sha256": _sha256(args.artifact),
         "checkpoint_class": (
+            "local_stage2.m0_native_private_scorer_agent."
+            "M0NativePrivateScorerAgent"
+        ),
+        "ranker_class": (
             "navsim.agents.EpisodeDrive.score_module.m0_private_residual_ranker."
             "M0PrivateResidualRanker"
         ),
-        "checkpoint_epoch": int(artifact["epoch"]),
-        "checkpoint_validation": artifact.get("validation"),
+        "source_ranker_artifact_sha256": artifact[
+            "source_ranker_artifact_sha256"
+        ],
+        "checkpoint_epoch": int(artifact["source_ranker_epoch"]),
+        "checkpoint_validation": artifact.get("source_ranker_validation"),
         "agent_target": (
-            "local_stage2.m0_private_residual_agent."
-            "M0PrivateResidualScorerAgent"
+            "local_stage2.m0_native_private_scorer_agent."
+            "M0NativePrivateScorerAgent"
         ),
         "precision": 32,
         "proposal_predictions_path": str(proposal_path.resolve()),
@@ -337,7 +367,7 @@ def main() -> None:
         "m0_base_factor_logits_used_as_input": True,
         "external_model_representation_or_weight_used": False,
         "drivor_representation_or_weight_used": False,
-        "score_mode": artifact["residual_config"]["score_mode"],
+        "score_mode": artifact["score_mode"],
         "residual_top_k": int(artifact["residual_config"]["top_k"]),
         "max_selected_score_parity_abs": 0.0,
         "metrics": metrics,

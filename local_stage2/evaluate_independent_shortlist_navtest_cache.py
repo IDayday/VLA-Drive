@@ -21,6 +21,10 @@ import pandas as pd
 import torch
 
 from local_stage2.independent_scorer_agent import IndependentShortlistScorerAgent
+from local_stage2.m0_native_private_scorer_agent import (
+    M0NativePrivateScorerAgent,
+    _private_vision_config,
+)
 from local_stage2.train_independent_scorer import (
     load_private_observation_table,
     physical_log_name,
@@ -91,8 +95,25 @@ def main() -> None:
         raise RuntimeError("CUDA requested but unavailable")
 
     artifact = torch.load(args.artifact, map_location="cpu", weights_only=False)
-    if artifact.get("artifact_type") != IndependentShortlistScorerAgent.ARTIFACT_TYPE:
-        raise RuntimeError("deployment artifact type mismatch")
+    if args.private_observation_root is None:
+        if artifact.get("artifact_type") != IndependentShortlistScorerAgent.ARTIFACT_TYPE:
+            raise RuntimeError("deployment artifact type mismatch")
+        model_config = dict(artifact["model_config"])
+        model_state_dict = artifact["model_state_dict"]
+    else:
+        if artifact.get("artifact_type") != M0NativePrivateScorerAgent.ARTIFACT_TYPE:
+            raise RuntimeError("M0-native deployment artifact type mismatch")
+        if artifact.get("scorer_architecture") != "IndependentProposalRanker":
+            raise RuntimeError("M0-native deployment architecture mismatch")
+        if tuple(artifact.get("inference_input_schema", ())) != (
+            "m0_current_f0_l0_r0_b0_images",
+            "m0_current_ego_navigation_status",
+            "m0_proposals",
+            "m0_base_topk_membership",
+        ):
+            raise RuntimeError("M0-native deployment inference schema mismatch")
+        model_config = dict(artifact["private_config"])
+        model_state_dict = artifact["scorer_state_dict"]
     with args.feature_cache.open("rb") as file:
         feature_cache = pickle.load(file)
     private_table = (
@@ -125,14 +146,32 @@ def main() -> None:
         private_row_for_token = {
             token: index for index, token in enumerate(private_table.tokens)
         }
+        evaluation_vision_config = _private_vision_config(
+            args.private_observation_root
+        )
+        declared_vision_config = artifact["private_vision_config"]
+        for key in (
+            "m0_checkpoint_sha256",
+            "camera_names",
+            "max_dynamic_tiles",
+            "max_crops_per_camera",
+            "pool_grid",
+            "visual_token_count",
+            "visual_width",
+            "visual_model_wrapper_chain",
+        ):
+            if evaluation_vision_config[key] != declared_vision_config[key]:
+                raise RuntimeError(
+                    f"Navtest private vision config differs for {key}"
+                )
     if factor_names[-1] != "score":
         raise RuntimeError("candidate factor matrix lacks aggregate score")
 
     device = torch.device(args.device)
     model = IndependentProposalRanker(
-        IndependentRankerConfig(**dict(artifact["model_config"]))
+        IndependentRankerConfig(**model_config)
     ).to(device)
-    model.load_state_dict(artifact["model_state_dict"], strict=True)
+    model.load_state_dict(model_state_dict, strict=True)
     model.eval()
     all_utilities: List[np.ndarray] = []
     selected_parts: List[np.ndarray] = []
@@ -303,6 +342,13 @@ def main() -> None:
         "candidate_factor_matrix_present": True,
         "checkpoint": str(args.artifact.resolve()),
         "checkpoint_sha256": _sha256(args.artifact),
+        "checkpoint_class": (
+            "local_stage2.m0_native_private_scorer_agent."
+            "M0NativePrivateScorerAgent"
+            if private_table is not None
+            else "local_stage2.independent_scorer_agent."
+            "IndependentShortlistScorerAgent"
+        ),
         "source_ranker_artifact_sha256": artifact.get(
             "source_ranker_artifact_sha256"
         ),
@@ -316,7 +362,10 @@ def main() -> None:
             "source_ranker_refit_provenance"
         ),
         "agent_target": (
-            "local_stage2.independent_scorer_agent."
+            "local_stage2.m0_native_private_scorer_agent."
+            "M0NativePrivateScorerAgent"
+            if private_table is not None
+            else "local_stage2.independent_scorer_agent."
             "IndependentShortlistScorerAgent"
         ),
         "precision": 32,

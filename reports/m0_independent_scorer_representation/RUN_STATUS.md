@@ -202,3 +202,24 @@ joined only after all selected indices are fixed. Full audits are serialized
 on an otherwise idle GPU, validated with the reusable Navtest skill, and
 compared scene-by-scene with public M0. The complete repository suite now
 passes `200` tests.
+
+The validation-locked no-actor all-log refit has now completed and passed the
+strict 12,146-scene audit. It reaches Navtest PDMS `0.897837`, delta
+`-0.011757` from public M0 with log-bootstrap 95% interval
+`[-0.015066, -0.008519]`. Its unchanged candidate-bank upper bound is
+`0.984112`; the loss is selection-only. The refit increases progress by
+`+0.003679` but degrades collision by `-0.005475`, DAC by `-0.008315`, TTC by
+`-0.019595`, and DDC by `-0.005022`. Training on all physical logs therefore
+does not repair the held-out-to-Navtest reversal and is rejected.
+
+M0-native deployment artifacts now use the real
+`M0NativePrivateScorerAgent`, not a cache-only surrogate class. The online
+agent obtains F0/L0/R0/B0 from the current frame, extracts private tokens with
+the released M0 vision encoder, and supports either the independent ranker or
+the Base-calibrated residual scorer. The artifact pins the Base checkpoint,
+source-ranker SHA256, camera order, crop policy, pooling grid, wrapper chain,
+and exact scorer class. Every promoted architecture is scheduled for a
+four-scene same-device online/cache parity test with `1e-6` tolerance in
+addition to full Navtest. Remote validation now calls the repository's audited
+validators directly instead of assuming `/root/.codex/skills` is mounted on
+every worker. The complete suite passes `202` tests.

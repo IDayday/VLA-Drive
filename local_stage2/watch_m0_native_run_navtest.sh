@@ -113,17 +113,16 @@ for row in "${promoted_rows[@]}"; do
   IFS=$'\t' read -r name architecture score_mode artifact artifact_sha <<<"${row}"
   audit_dir="${RUN_ROOT}/${name}_navtest_v1"
   comparison_dir="${COMPARISON_ROOT}/${name}_vs_public_v1"
-  if [[ "${architecture}" == "IndependentProposalRanker" ]]; then
-    snapshot="${SNAPSHOT_ROOT}/${name}_all64_v1.pt"
-    if [[ ! -f "${snapshot}" ]]; then
-      "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/package_independent_shortlist_scorer.py" \
-        --ranker-artifact "${artifact}" \
-        --base-checkpoint "${BASE_CHECKPOINT}" \
-        --shortlist-size 64 \
-        --score-mode "${score_mode}" \
-        --output "${snapshot}"
-    fi
-    "${PYTHON_BIN}" - "${snapshot}" "${artifact_sha}" <<'PY'
+  snapshot="${SNAPSHOT_ROOT}/${name}_m0_native_online_v1.pt"
+  if [[ ! -f "${snapshot}" ]]; then
+    "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/package_m0_native_private_scorer.py" \
+      --ranker-artifact "${artifact}" \
+      --base-checkpoint "${BASE_CHECKPOINT}" \
+      --private-observation-root "${PRIVATE_NAVTEST_ROOT}" \
+      --shortlist-size 64 \
+      --output "${snapshot}"
+  fi
+  "${PYTHON_BIN}" - "${snapshot}" "${artifact_sha}" <<'PY'
 import hashlib
 import sys
 import torch
@@ -133,10 +132,10 @@ payload = torch.load(snapshot, map_location="cpu", weights_only=False)
 if payload["source_ranker_artifact_sha256"] != expected:
     raise SystemExit("snapshot/source artifact SHA256 mismatch")
 PY
-    evaluated_artifact="${snapshot}"
+  evaluated_artifact="${snapshot}"
+  if [[ "${architecture}" == "IndependentProposalRanker" ]]; then
     evaluator="${REPO_ROOT}/local_stage2/evaluate_independent_shortlist_navtest_cache.py"
   elif [[ "${architecture}" == "M0PrivateResidualRanker" ]]; then
-    evaluated_artifact="${artifact}"
     evaluator="${REPO_ROOT}/local_stage2/evaluate_m0_private_residual_navtest_cache.py"
   else
     echo "Unsupported promoted architecture: ${architecture}" >&2
@@ -160,16 +159,53 @@ PY
       --bootstrap-replicates 10000
   fi
 
-  /root/.codex/skills/navsim-scorer-evaluation/scripts/validate_audit.sh \
-    "${audit_dir}"
+  "${PYTHON_BIN}" \
+    "${REPO_ROOT}/local_stage2/validate_navtest_proposal_audit.py" \
+    --audit-dir "${audit_dir}" \
+    --expected-scenes 12146 \
+    --expected-candidates 64
   if [[ ! -f "${comparison_dir}/comparison.json" ]]; then
     if [[ -e "${comparison_dir}" ]]; then
       echo "Refusing incomplete/nonempty comparison output: ${comparison_dir}" >&2
       exit 1
     fi
-    /root/.codex/skills/navsim-scorer-evaluation/scripts/compare_audits.sh \
-      "${audit_dir}" "${PUBLIC_AUDIT}" "${comparison_dir}" \
-      "${PUBLIC_REFERENCE}" "${name}" public_open_weight
+    "${PYTHON_BIN}" \
+      "${REPO_ROOT}/local_stage2/compare_navtest_proposal_audits.py" \
+      --audit-a "${audit_dir}" \
+      --audit-b "${PUBLIC_AUDIT}" \
+      --label-a "${name}" \
+      --label-b public_open_weight \
+      --reference-selected-csv "${PUBLIC_REFERENCE}" \
+      --expected-scene-count 12146 \
+      --bootstrap-samples 20000 \
+      --output-dir "${comparison_dir}"
+  fi
+
+  online_experiment="${name}_online_parity4_v1"
+  online_dir="${RUN_ROOT}/../ke_candidate_audit/${online_experiment}"
+  if [[ ! -f "${online_dir}/proposal_predictions.pkl" ]]; then
+    if [[ -e "${online_dir}" ]]; then
+      echo "Refusing incomplete/nonempty online parity output: ${online_dir}" >&2
+      exit 1
+    fi
+    env DRIVEVLA_EVAL_PRECISION=32 DRIVEVLA_SCORE_WORKERS=2 \
+      DRIVEVLA_NAVTEST_SENSOR_ROOT=/mnt/navsim/test_sensor_blobs \
+      bash "${REPO_ROOT}/local_stage2/run_navtest_proposal_audit.sh" \
+      "${evaluated_artifact}" \
+      local_stage2.m0_native_private_scorer_agent.M0NativePrivateScorerAgent \
+      "${online_experiment}" "${gpu}" \
+      +proposal_audit_limit_scenes=4 worker.threads_per_node=2
+  fi
+  if [[ ! -f "${audit_dir}/online_cache_parity.json" ]]; then
+    "${PYTHON_BIN}" \
+      "${REPO_ROOT}/local_stage2/validate_m0_native_online_cache_parity.py" \
+      --online-predictions "${online_dir}/proposal_predictions.pkl" \
+      --public-feature-cache "${FEATURE_CACHE}" \
+      --private-observation-root "${PRIVATE_NAVTEST_ROOT}" \
+      --artifact "${evaluated_artifact}" \
+      --output "${audit_dir}/online_cache_parity.json" \
+      --device cuda \
+      --atol 1e-6
   fi
 done
 
