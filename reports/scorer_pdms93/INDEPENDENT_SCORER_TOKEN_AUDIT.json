@@ -1,0 +1,64 @@
+{
+  "estimated_full_navtrain_qformer_input_fp16_tib": 0.8080333471298218,
+  "estimated_full_navtrain_raw_visual_fp16_tib": 0.6648960113525391,
+  "full_base_forward_seconds": 0.7130829347297549,
+  "image_context_token_count": 2304,
+  "input_ids_shape": [
+    1,
+    2800
+  ],
+  "interpretation": {
+    "qformer_input": "final language-model sequence; contains image-context and prompt tokens",
+    "raw_visual_feature": "frozen InternVL projected crop/patch tokens before language-model mixing",
+    "training_decision": "do not materialize a full-dataset raw-token cache; run the frozen visual encoder and train scorer-private query compression online"
+  },
+  "pixel_crop_shape": [
+    1,
+    9,
+    3,
+    448,
+    448
+  ],
+  "proposal_shape": [
+    1,
+    64,
+    8,
+    3
+  ],
+  "qformer_observation_dtype": "torch.float32",
+  "qformer_observation_shape": [
+    1,
+    2800,
+    1536
+  ],
+  "qformer_query_shape": [
+    1,
+    16,
+    256
+  ],
+  "raw_visual_feature_dtype": "torch.bfloat16",
+  "raw_visual_feature_shape": [
+    9,
+    256,
+    1536
+  ],
+  "released_ego_feature_shape": [
+    1,
+    1,
+    256
+  ],
+  "released_scene_feature_shape": [
+    1,
+    16,
+    256
+  ],
+  "resolved_vlm_path": "/mnt/project/DriveVLA-M0-models/InternVL3-2B-modelscope",
+  "scene_token": "0000be0b1dc65be3",
+  "standalone_visual_forward_seconds": 0.16954077500849962,
+  "valid_input_token_count": 2791,
+  "visual_model_wrapper_chain": [
+    "peft.peft_model.PeftModel",
+    "navsim.agents.EpisodeDrive.drivevla_backbone.DriveVLABackbone",
+    "transformers_modules.InternVL3_hyphen_2B_hyphen_modelscope.modeling_internvl_chat.InternVLChatModel"
+  ]
+}

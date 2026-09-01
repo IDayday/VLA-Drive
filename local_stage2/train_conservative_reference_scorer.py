@@ -1,0 +1,728 @@
+"""Train a conservative scorer that improves a deployable reference choice.
+
+The model receives current-observation tokens, current ego features, proposal
+geometry, and the *index* of the reference policy's selected proposal.  It
+never receives the reference policy's numeric score, future tensors, Metric
+Cache objects, or official PDM labels at inference.  Offline PDM factors are
+used only as training/evaluation targets.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import random
+from dataclasses import asdict
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, List, Mapping, Sequence, Tuple
+
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+from local_stage2.train_independent_scorer import (
+    ReplaySource,
+    _ReplayIndexDataset,
+    _atomic_json_dump,
+    _atomic_torch_save,
+    _build_sampler,
+    _gather_candidates,
+    _log_bootstrap_ci,
+    _sha256,
+    assign_balanced_physical_log_folds,
+    load_replay_sources,
+)
+from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
+    ConservativeReferenceConfig,
+    IndependentConservativeReferenceRanker,
+    IndependentRankerConfig,
+    conservative_reference_selection_scores,
+    masked_pinball_quantile_loss,
+    weighted_pairwise_rank_loss,
+)
+
+
+SAFETY_TARGET_INDICES: Tuple[int, ...] = (0, 1, 3)  # collision, DAC, TTC
+
+
+def _reference_positions(
+    base_scores: torch.Tensor, candidate_permutation: torch.Tensor
+) -> torch.Tensor:
+    """Locate the Base-selected candidate after per-scene permutation."""
+
+    reference_original = base_scores.argmax(dim=1, keepdim=True)
+    matches = candidate_permutation.eq(reference_original)
+    if not bool(matches.any(dim=1).all()):
+        raise RuntimeError("candidate permutation dropped the reference")
+    if not bool(matches.sum(dim=1).eq(1).all()):
+        raise RuntimeError("reference candidate is not unique in permutation")
+    return matches.to(torch.int64).argmax(dim=1)
+
+
+def _reference_targets(
+    target_factors: torch.Tensor,
+    reference_indices: torch.Tensor,
+    *,
+    minimum_improvement: float,
+    factor_epsilon: float,
+) -> Dict[str, torch.Tensor]:
+    """Construct reference-relative targets from offline labels."""
+
+    if target_factors.ndim != 3 or target_factors.shape[-1] != 7:
+        raise ValueError("target_factors must have shape [B,K,7]")
+    batch_size, candidate_count = target_factors.shape[:2]
+    if reference_indices.shape != (batch_size,):
+        raise ValueError("reference_indices must have shape [B]")
+    gather = reference_indices[:, None, None].expand(-1, 1, 7)
+    reference_factors = target_factors.gather(1, gather).expand(
+        -1, candidate_count, -1
+    )
+    gain = target_factors[..., -1] - reference_factors[..., -1]
+    safety = target_factors[..., list(SAFETY_TARGET_INDICES)]
+    reference_safety = reference_factors[..., list(SAFETY_TARGET_INDICES)]
+    safety_worse = safety < (reference_safety - factor_epsilon)
+    safe_improvement = (gain >= minimum_improvement) & ~safety_worse.any(dim=-1)
+    reference_mask = torch.zeros_like(gain, dtype=torch.bool)
+    reference_mask.scatter_(1, reference_indices[:, None], True)
+    return {
+        "gain": gain,
+        "safety_worse": safety_worse,
+        "safe_improvement": safe_improvement,
+        "reference_mask": reference_mask,
+    }
+
+
+def _weighted_binary_loss(
+    logits: torch.Tensor,
+    targets: torch.Tensor,
+    valid_mask: torch.Tensor,
+    positive_weight: float,
+) -> torch.Tensor:
+    element = F.binary_cross_entropy_with_logits(
+        logits, targets.to(logits.dtype), reduction="none"
+    )
+    weights = torch.where(targets.bool(), positive_weight, 1.0).to(logits.dtype)
+    while valid_mask.ndim < element.ndim:
+        valid_mask = valid_mask.unsqueeze(-1)
+    mask = valid_mask.expand_as(element).to(logits.dtype)
+    return (element * weights * mask).sum() / (weights * mask).sum().clamp_min(1.0)
+
+
+def compute_reference_training_loss(
+    model: IndependentConservativeReferenceRanker,
+    batch: Sequence[torch.Tensor],
+    args: argparse.Namespace,
+    candidate_generator: torch.Generator,
+) -> Tuple[torch.Tensor, Dict[str, float]]:
+    (
+        proposals,
+        observation,
+        observation_valid_mask,
+        ego,
+        base_scores,
+        target_factors,
+        _source_indices,
+    ) = batch
+    random_keys = torch.rand(
+        base_scores.shape,
+        generator=candidate_generator,
+        device=base_scores.device,
+    )
+    permutation = torch.argsort(random_keys, dim=1)
+    reference_indices = _reference_positions(base_scores, permutation)
+    proposals = _gather_candidates(proposals, permutation)
+    target_factors = _gather_candidates(target_factors, permutation)
+    targets = _reference_targets(
+        target_factors,
+        reference_indices,
+        minimum_improvement=args.minimum_improvement_target,
+        factor_epsilon=args.factor_epsilon,
+    )
+    output = model(
+        observation.float(),
+        ego.float(),
+        proposals,
+        reference_indices,
+        observation_valid_mask=observation_valid_mask,
+        minimum_lcb_gain=args.minimum_lcb_gain,
+        maximum_safety_worse_probability=args.maximum_safety_worse_probability,
+        minimum_safe_improvement_probability=(
+            args.minimum_safe_improvement_probability
+        ),
+    )
+    valid = ~targets["reference_mask"]
+    quantile = masked_pinball_quantile_loss(
+        output["gain_quantiles"], targets["gain"], valid_mask=valid
+    )
+    median_rank = weighted_pairwise_rank_loss(
+        output["gain_quantiles"][..., 1],
+        targets["gain"],
+        valid_mask=valid,
+        minimum_target_delta=args.minimum_pair_delta,
+    )
+    safety = _weighted_binary_loss(
+        output["safety_worse_logits"],
+        targets["safety_worse"],
+        valid,
+        args.safety_worse_positive_weight,
+    )
+    improvement = _weighted_binary_loss(
+        output["safe_improvement_logit"],
+        targets["safe_improvement"],
+        valid,
+        args.safe_improvement_positive_weight,
+    )
+
+    lower_gain = output["gain_quantiles"][..., 0]
+    harmful = (targets["gain"] <= 0.0) | targets["safety_worse"].any(dim=-1)
+    harmful_mask = valid & harmful
+    if bool(harmful_mask.any()):
+        false_switch = F.softplus(
+            lower_gain[harmful_mask] / args.switch_margin_temperature
+        ).mean()
+    else:
+        false_switch = lower_gain.sum() * 0.0
+    positive = targets["safe_improvement"] & valid
+    if bool(positive.any()):
+        missed_improvement = F.softplus(
+            -lower_gain[positive] / args.switch_margin_temperature
+        ).mean()
+    else:
+        missed_improvement = lower_gain.sum() * 0.0
+
+    total = (
+        args.quantile_weight * quantile
+        + args.median_rank_weight * median_rank
+        + args.safety_weight * safety
+        + args.improvement_weight * improvement
+        + args.false_switch_weight * false_switch
+        + args.missed_improvement_weight * missed_improvement
+    )
+    return total, {
+        "loss": float(total.detach()),
+        "quantile": float(quantile.detach()),
+        "median_rank": float(median_rank.detach()),
+        "safety": float(safety.detach()),
+        "improvement": float(improvement.detach()),
+        "false_switch": float(false_switch.detach()),
+        "missed_improvement": float(missed_improvement.detach()),
+        "positive_fraction": float(targets["safe_improvement"][valid].float().mean()),
+        "harmful_fraction": float(harmful[valid].float().mean()),
+    }
+
+
+@torch.inference_mode()
+def collect_reference_predictions(
+    model: IndependentConservativeReferenceRanker,
+    data,
+    indices: Sequence[int],
+    device: torch.device,
+    batch_size: int,
+) -> Dict[str, torch.Tensor]:
+    model.eval()
+    collected: Dict[str, List[torch.Tensor]] = {
+        "gain_quantiles": [],
+        "safety_worse_logits": [],
+        "safe_improvement_logit": [],
+        "base_scores": [],
+        "target_factors": [],
+    }
+    loader = DataLoader(
+        _ReplayIndexDataset(data, indices),
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=0,
+        pin_memory=True,
+    )
+    for (
+        proposals,
+        observation,
+        observation_valid_mask,
+        ego,
+        base_scores,
+        target_factors,
+        _source_indices,
+    ) in loader:
+        reference_indices = base_scores.argmax(dim=1).to(device)
+        output = model(
+            observation.to(device, non_blocking=True).float(),
+            ego.to(device, non_blocking=True).float(),
+            proposals.to(device, non_blocking=True),
+            reference_indices,
+            observation_valid_mask=observation_valid_mask.to(
+                device, non_blocking=True
+            ),
+        )
+        for key in (
+            "gain_quantiles",
+            "safety_worse_logits",
+            "safe_improvement_logit",
+        ):
+            collected[key].append(output[key].float().cpu())
+        collected["base_scores"].append(base_scores.float())
+        collected["target_factors"].append(target_factors.float())
+    return {key: torch.cat(value) for key, value in collected.items()}
+
+
+def _threshold_specs(
+    args: argparse.Namespace,
+) -> List[Tuple[int, float, float, float]]:
+    quantiles = [int(value) for value in args.gain_quantile_grid.split(",")]
+    gains = [float(value) for value in args.lcb_gain_grid.split(",")]
+    safety = [float(value) for value in args.safety_probability_grid.split(",")]
+    improvement = [
+        float(value) for value in args.improvement_probability_grid.split(",")
+    ]
+    return [
+        (quantile, gain, risk, improve)
+        for quantile in quantiles
+        for gain in gains
+        for risk in safety
+        for improve in improvement
+    ]
+
+
+def evaluate_reference_predictions(
+    prediction: Mapping[str, torch.Tensor],
+    physical_logs: Sequence[str],
+    threshold_specs: Sequence[Tuple[int, float, float, float]],
+    seed: int,
+    bootstrap_replicates: int,
+) -> Dict[str, object]:
+    base_scores = prediction["base_scores"]
+    target_factors = prediction["target_factors"]
+    target_scores = target_factors[..., -1]
+    references = base_scores.argmax(dim=1)
+    row = torch.arange(len(references))
+    base_values = target_scores[row, references]
+    oracle_values = target_scores.max(dim=1).values
+    target_safety = target_factors[..., list(SAFETY_TARGET_INDICES)]
+    base_safety = target_safety.gather(
+        1, references[:, None, None].expand(-1, 1, len(SAFETY_TARGET_INDICES))
+    ).squeeze(1)
+
+    policies: List[Dict[str, object]] = []
+    for (
+        quantile_index,
+        minimum_gain,
+        maximum_safety,
+        minimum_improvement,
+    ) in threshold_specs:
+        scores = conservative_reference_selection_scores(
+            prediction["gain_quantiles"],
+            prediction["safety_worse_logits"],
+            prediction["safe_improvement_logit"],
+            references,
+            gain_quantile_index=quantile_index,
+            minimum_lcb_gain=minimum_gain,
+            maximum_safety_worse_probability=maximum_safety,
+            minimum_safe_improvement_probability=minimum_improvement,
+        )
+        selected = scores.argmax(dim=1)
+        selected_values = target_scores[row, selected]
+        selected_safety = target_safety[row, selected]
+        delta = (selected_values - base_values).numpy()
+        switch = selected.ne(references)
+        switched_delta = delta[switch.numpy()]
+        ci = _log_bootstrap_ci(
+            delta, physical_logs, seed, replicates=bootstrap_replicates
+        )
+        policies.append(
+            {
+                "minimum_lcb_gain": minimum_gain,
+                "gain_quantile_index": quantile_index,
+                "maximum_safety_worse_probability": maximum_safety,
+                "minimum_safe_improvement_probability": minimum_improvement,
+                "selected_pdms": float(selected_values.mean()),
+                "base_selected_pdms": float(base_values.mean()),
+                "oracle_pdms": float(oracle_values.mean()),
+                "delta": float(np.mean(delta)),
+                "delta_log_bootstrap_95ci": list(ci),
+                "switch_rate": float(switch.float().mean()),
+                "switch_count": int(switch.sum()),
+                "improved_switch_count": int(np.sum(switched_delta > 0.0)),
+                "harmful_switch_count": int(np.sum(switched_delta < 0.0)),
+                "catastrophic_switch_count": int(np.sum(switched_delta <= -0.1)),
+                "mean_switched_delta": (
+                    float(np.mean(switched_delta)) if len(switched_delta) else 0.0
+                ),
+                "safety_regression_rate": float(
+                    (
+                        selected_safety
+                        < (base_safety - 1.0e-6)
+                    ).any(dim=-1).float().mean()
+                ),
+            }
+        )
+    # Checkpoint selection is lexicographic: first require positive cluster CI,
+    # then maximize mean PDMS.  If none passes, exact Base fallback wins.
+    passing = [
+        value
+        for value in policies
+        if float(value["delta_log_bootstrap_95ci"][0]) > 0.0
+    ]
+    best = max(
+        passing or policies,
+        key=lambda value: (
+            float(value["selected_pdms"]),
+            -float(value["catastrophic_switch_count"]),
+            -float(value["switch_rate"]),
+        ),
+    )
+    target_gain = target_scores - base_values[:, None]
+    q10 = prediction["gain_quantiles"][..., 0]
+    non_reference = torch.ones_like(target_gain, dtype=torch.bool)
+    non_reference.scatter_(1, references[:, None], False)
+    pairwise = weighted_pairwise_rank_loss(
+        prediction["gain_quantiles"][..., 1],
+        target_scores,
+        valid_mask=non_reference,
+        minimum_target_delta=0.05,
+    )
+    return {
+        "best_policy": best,
+        "policies": policies,
+        "any_positive_ci_policy": bool(passing),
+        "q10_empirical_coverage": float(
+            (target_gain[non_reference] >= q10[non_reference]).float().mean()
+        ),
+        "median_pairwise_logistic_loss_delta_005": float(pairwise),
+    }
+
+
+def _split_indices(data, args: argparse.Namespace):
+    if args.split_manifest is not None:
+        payload = json.loads(args.split_manifest.read_text())
+        train_logs = {str(value) for value in payload["train_physical_logs"]}
+        validation_logs = {
+            str(value) for value in payload["validation_physical_logs"]
+        }
+        if train_logs.intersection(validation_logs):
+            raise RuntimeError("physical-log split overlaps")
+        available = set(data.physical_logs)
+        if available.difference(train_logs | validation_logs):
+            raise RuntimeError("split manifest omits available physical logs")
+        train = [i for i, value in enumerate(data.physical_logs) if value in train_logs]
+        validation = [
+            i for i, value in enumerate(data.physical_logs) if value in validation_logs
+        ]
+        lineage = {
+            "strategy": "external_physical_log_manifest",
+            "path": str(args.split_manifest.resolve()),
+            "sha256": _sha256(args.split_manifest),
+        }
+    else:
+        assignment = assign_balanced_physical_log_folds(
+            data.physical_logs, args.num_folds, args.fold_seed
+        )
+        train = [
+            i
+            for i, value in enumerate(data.physical_logs)
+            if assignment[value] != args.fold_index
+        ]
+        validation = [
+            i
+            for i, value in enumerate(data.physical_logs)
+            if assignment[value] == args.fold_index
+        ]
+        lineage = {
+            "strategy": "balanced_physical_log_fold",
+            "fold_index": args.fold_index,
+            "num_folds": args.num_folds,
+            "fold_seed": args.fold_seed,
+        }
+    if not train or not validation:
+        raise RuntimeError("empty train/validation split")
+    train_names = {data.physical_logs[index] for index in train}
+    validation_names = {data.physical_logs[index] for index in validation}
+    if train_names.intersection(validation_names):
+        raise RuntimeError("physical-log leakage")
+    return train, validation, lineage
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--source",
+        action="append",
+        nargs=3,
+        metavar=("NAME", "FEATURE_ROOT", "LABEL_ROOT"),
+        required=True,
+    )
+    parser.add_argument("--selection-source", default="")
+    parser.add_argument("--private-observation-root", type=Path, default=None)
+    parser.add_argument("--initialize-ranker-checkpoint", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--split-manifest", type=Path, default=None)
+    parser.add_argument("--fold-index", type=int, default=0)
+    parser.add_argument("--num-folds", type=int, default=5)
+    parser.add_argument("--fold-seed", type=int, default=20260901)
+    parser.add_argument("--seed", type=int, default=2)
+    parser.add_argument("--epochs", type=int, default=6)
+    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--eval-batch-size", type=int, default=64)
+    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--backbone-learning-rate-scale", type=float, default=0.0)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--reference-hidden-dim", type=int, default=512)
+    parser.add_argument("--reference-layers", type=int, default=2)
+    parser.add_argument("--dropout", type=float, default=0.1)
+    parser.add_argument("--minimum-pair-delta", type=float, default=0.02)
+    parser.add_argument("--minimum-improvement-target", type=float, default=0.005)
+    parser.add_argument("--factor-epsilon", type=float, default=1e-6)
+    parser.add_argument("--quantile-weight", type=float, default=1.0)
+    parser.add_argument("--median-rank-weight", type=float, default=0.25)
+    parser.add_argument("--safety-weight", type=float, default=1.0)
+    parser.add_argument("--improvement-weight", type=float, default=0.5)
+    parser.add_argument("--false-switch-weight", type=float, default=0.5)
+    parser.add_argument("--missed-improvement-weight", type=float, default=0.0)
+    parser.add_argument("--safety-worse-positive-weight", type=float, default=10.0)
+    parser.add_argument("--safe-improvement-positive-weight", type=float, default=3.0)
+    parser.add_argument("--switch-margin-temperature", type=float, default=0.05)
+    parser.add_argument("--minimum-lcb-gain", type=float, default=0.0)
+    parser.add_argument(
+        "--maximum-safety-worse-probability", type=float, default=0.25
+    )
+    parser.add_argument(
+        "--minimum-safe-improvement-probability", type=float, default=0.5
+    )
+    parser.add_argument("--lcb-gain-grid", default="0.0,0.0025,0.005,0.01")
+    parser.add_argument(
+        "--gain-quantile-grid",
+        default="0,1",
+        help="0=q10 conservative lower bound; 1=q50 with explicit safety gates",
+    )
+    parser.add_argument("--safety-probability-grid", default="0.1,0.2,0.3,0.5")
+    parser.add_argument("--improvement-probability-grid", default="0.3,0.5,0.7")
+    parser.add_argument("--bootstrap-replicates", type=int, default=1000)
+    parser.add_argument("--max-scenes-per-source", type=int, default=0)
+    parser.add_argument("--device", default="cuda")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    if args.device.startswith("cuda") and not torch.cuda.is_available():
+        raise RuntimeError("CUDA requested but unavailable")
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
+        torch.backends.cuda.enable_flash_sdp(False)
+        torch.backends.cuda.enable_mem_efficient_sdp(False)
+        torch.backends.cuda.enable_math_sdp(True)
+    torch.use_deterministic_algorithms(True)
+    device = torch.device(args.device)
+
+    sources = [
+        ReplaySource(name, Path(feature_root), Path(label_root))
+        for name, feature_root, label_root in args.source
+    ]
+    selection_source = args.selection_source or sources[0].name
+    if selection_source not in {source.name for source in sources}:
+        raise ValueError("unknown selection source")
+    data, source_lineage = load_replay_sources(
+        sources,
+        max_scenes_per_source=args.max_scenes_per_source,
+        private_observation_root=args.private_observation_root,
+    )
+    train_indices, validation_indices, split_lineage = _split_indices(data, args)
+
+    initializer = torch.load(
+        args.initialize_ranker_checkpoint, map_location="cpu", weights_only=False
+    )
+    if initializer.get("architecture") != "IndependentProposalRanker":
+        raise RuntimeError("initializer is not an IndependentProposalRanker")
+    ranker_config = IndependentRankerConfig(**initializer["model_config"])
+    expected = (
+        ranker_config.observation_dim,
+        ranker_config.max_observation_tokens,
+        ranker_config.status_dim,
+    )
+    actual = (
+        int(data.observation_tokens.shape[-1]),
+        int(data.observation_tokens.shape[1]),
+        int(data.ego_features.shape[-1]),
+    )
+    if expected != actual:
+        raise RuntimeError(f"initializer/data feature mismatch: {expected} != {actual}")
+    reference_config = ConservativeReferenceConfig(
+        model_dim=ranker_config.model_dim,
+        hidden_dim=args.reference_hidden_dim,
+        num_heads=ranker_config.num_heads,
+        num_layers=args.reference_layers,
+        dropout=args.dropout,
+    )
+    model = IndependentConservativeReferenceRanker(
+        ranker_config, reference_config
+    ).to(device)
+    model.ranker.load_state_dict(initializer["state_dict"], strict=True)
+    if args.backbone_learning_rate_scale == 0.0:
+        model.ranker.requires_grad_(False)
+    parameter_groups = [{"params": model.reference_head.parameters()}]
+    if args.backbone_learning_rate_scale > 0.0:
+        parameter_groups.append(
+            {
+                "params": model.ranker.parameters(),
+                "lr": args.learning_rate * args.backbone_learning_rate_scale,
+            }
+        )
+    optimizer = torch.optim.AdamW(
+        parameter_groups, lr=args.learning_rate, weight_decay=args.weight_decay
+    )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=max(args.epochs, 1),
+        eta_min=args.learning_rate * 0.05,
+    )
+    train_loader = DataLoader(
+        _ReplayIndexDataset(data, train_indices),
+        batch_size=args.batch_size,
+        sampler=_build_sampler(data, train_indices, args.seed),
+        num_workers=args.num_workers,
+        pin_memory=True,
+        persistent_workers=bool(args.num_workers),
+        drop_last=True,
+    )
+    candidate_generator = torch.Generator(device=device).manual_seed(args.seed + 1000)
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "architecture": "IndependentConservativeReferenceRanker",
+        "train_scene_count": len(train_indices),
+        "validation_scene_count": len(validation_indices),
+        "train_physical_logs": sorted(
+            {data.physical_logs[index] for index in train_indices}
+        ),
+        "validation_physical_logs": sorted(
+            {data.physical_logs[index] for index in validation_indices}
+        ),
+        "split_lineage": split_lineage,
+        "source_lineage": source_lineage,
+        "selection_source": selection_source,
+        "initializer": str(args.initialize_ranker_checkpoint.resolve()),
+        "initializer_sha256": _sha256(args.initialize_ranker_checkpoint),
+        "ranker_config": asdict(ranker_config),
+        "reference_config": asdict(reference_config),
+        "numeric_base_score_used_as_model_input": False,
+        "base_selection_index_used_as_reference": True,
+        "future_or_evaluator_input": False,
+        "args": vars(args)
+        | {
+            "output_dir": str(args.output_dir),
+            "initialize_ranker_checkpoint": str(
+                args.initialize_ranker_checkpoint
+            ),
+            "split_manifest": (
+                str(args.split_manifest) if args.split_manifest else None
+            ),
+            "private_observation_root": (
+                str(args.private_observation_root)
+                if args.private_observation_root
+                else None
+            ),
+        },
+    }
+    _atomic_json_dump(manifest, args.output_dir / "training_manifest.json")
+
+    history: List[Dict[str, object]] = []
+    best_pdms = -float("inf")
+    best_epoch = -1
+    thresholds = _threshold_specs(args)
+    validation_logs = [data.physical_logs[index] for index in validation_indices]
+    for epoch in range(args.epochs):
+        model.train()
+        if args.backbone_learning_rate_scale == 0.0:
+            # A frozen feature extractor must also keep dropout disabled; a
+            # mere requires_grad_(False) would otherwise change its semantics.
+            model.ranker.eval()
+        batch_details: List[Dict[str, float]] = []
+        for batch in train_loader:
+            moved = [value.to(device, non_blocking=True) for value in batch]
+            optimizer.zero_grad(set_to_none=True)
+            loss, details = compute_reference_training_loss(
+                model, moved, args, candidate_generator
+            )
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(
+                [parameter for parameter in model.parameters() if parameter.requires_grad],
+                max_norm=5.0,
+            )
+            optimizer.step()
+            batch_details.append(details)
+        scheduler.step()
+        prediction = collect_reference_predictions(
+            model, data, validation_indices, device, args.eval_batch_size
+        )
+        metrics = evaluate_reference_predictions(
+            prediction,
+            validation_logs,
+            thresholds,
+            args.seed + epoch,
+            args.bootstrap_replicates,
+        )
+        training_mean = {
+            key: float(np.mean([value[key] for value in batch_details]))
+            for key in batch_details[0]
+        }
+        record = {
+            "epoch": epoch,
+            "learning_rate": [float(group["lr"]) for group in optimizer.param_groups],
+            "training": training_mean,
+            "validation": metrics,
+        }
+        history.append(record)
+        print(json.dumps(record, sort_keys=True), flush=True)
+        selected_pdms = float(metrics["best_policy"]["selected_pdms"])
+        if selected_pdms > best_pdms:
+            best_pdms = selected_pdms
+            best_epoch = epoch
+            _atomic_torch_save(
+                {
+                    "schema_version": 1,
+                    "architecture": "IndependentConservativeReferenceRanker",
+                    "state_dict": {
+                        key: value.detach().cpu()
+                        for key, value in model.state_dict().items()
+                    },
+                    "ranker_config": asdict(ranker_config),
+                    "reference_config": asdict(reference_config),
+                    "epoch": epoch,
+                    "validation": metrics,
+                    "selected_policy": metrics["best_policy"],
+                    "training_manifest": manifest,
+                    "inference_input_schema": (
+                        "current_observation_tokens",
+                        "current_observation_valid_mask",
+                        "current_ego_status",
+                        "proposals",
+                        "reference_candidate_index",
+                    ),
+                    "forbidden_inputs": (
+                        "numeric_base_score",
+                        "future_annotations",
+                        "future_images",
+                        "official_pdm_score",
+                    ),
+                },
+                args.output_dir / "best_conservative_reference_scorer.pt",
+            )
+        _atomic_json_dump(
+            {
+                "best_epoch": best_epoch,
+                "best_validation_pdms": best_pdms,
+                "history": history,
+            },
+            args.output_dir / "training_summary.json",
+        )
+
+
+if __name__ == "__main__":
+    main()

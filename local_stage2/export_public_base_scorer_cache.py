@@ -243,6 +243,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--chunk-size", type=int, default=128)
     parser.add_argument("--limit-scenes", type=int, default=0)
+    parser.add_argument(
+        "--repair-chunk-index",
+        type=int,
+        default=-1,
+        help=(
+            "Recompute exactly one zero-byte chunk atomically without touching "
+            "later completed chunks or the shard manifest."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -287,11 +296,30 @@ def main() -> None:
         f"{args.split}_shard_{args.shard_index:03d}-of-{args.shard_count:03d}"
     )
     shard_dir.mkdir(parents=True, exist_ok=True)
-    first_missing = _first_missing_chunk(shard_dir, len(token_chunks))
+    repair_mode = args.repair_chunk_index >= 0
+    if repair_mode:
+        if args.repair_chunk_index >= len(token_chunks):
+            raise ValueError(
+                f"repair chunk {args.repair_chunk_index} is outside "
+                f"[0, {len(token_chunks)})"
+            )
+        repair_path = shard_dir / f"chunk_{args.repair_chunk_index:06d}.pt"
+        if repair_path.is_file() and repair_path.stat().st_size > 0:
+            raise RuntimeError(
+                f"Refusing to overwrite nonempty repair target: {repair_path}"
+            )
+        first_missing = args.repair_chunk_index
+        final_chunk_exclusive = first_missing + 1
+    else:
+        first_missing = _first_missing_chunk(shard_dir, len(token_chunks))
+        final_chunk_exclusive = len(token_chunks)
     completed_scenes = sum(len(chunk) for chunk in token_chunks[:first_missing])
 
     # A contiguous suffix keeps deterministic chunk boundaries on resume.
-    dataset.tokens = tokens[completed_scenes:]
+    if repair_mode:
+        dataset.tokens = list(token_chunks[first_missing])
+    else:
+        dataset.tokens = tokens[completed_scenes:]
     dataloader = DataLoader(
         dataset,
         batch_size=args.batch_size,
@@ -336,8 +364,27 @@ def main() -> None:
 
     if buffer["tokens"]:
         raise RuntimeError("Unflushed cache buffer remains after export")
-    if chunk_index != len(token_chunks):
-        raise RuntimeError(f"Expected {len(token_chunks)} chunks, wrote {chunk_index}")
+    if chunk_index != final_chunk_exclusive:
+        raise RuntimeError(
+            f"Expected to stop at chunk {final_chunk_exclusive}, wrote {chunk_index}"
+        )
+
+    if repair_mode:
+        repaired_path = shard_dir / f"chunk_{first_missing:06d}.pt"
+        print(
+            json.dumps(
+                {
+                    "status": "repaired",
+                    "chunk_index": first_missing,
+                    "scene_count": len(token_chunks[first_missing]),
+                    "path": str(repaired_path.resolve()),
+                    "sha256": _sha256(repaired_path),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
 
     manifest = {
         "schema_version": 1,

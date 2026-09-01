@@ -54,6 +54,11 @@ from local_stage2.summarize_temporal_consequence_cv import (
 from local_stage2.materialize_temporal_cv_policy import (
     materialize_common_policy_artifact,
 )
+from local_stage2.analyze_temporal_navtest_failures import (
+    _selection_diagnostics,
+    binary_auroc,
+    binary_calibration,
+)
 
 
 def test_partition_tokens_is_disjoint_and_complete():
@@ -174,6 +179,56 @@ def test_actor_box_transform_is_candidate_relative_and_mask_aware():
 def test_domain_auc_handles_perfect_order_and_score_ties():
     assert _auc(np.asarray([0, 0, 1, 1]), np.asarray([0.1, 0.2, 0.8, 0.9])) == 1.0
     assert _auc(np.asarray([0, 1]), np.asarray([0.5, 0.5])) == 0.5
+
+
+def test_temporal_failure_auc_and_calibration_handle_ties():
+    labels = np.asarray([0, 1, 0, 1])
+    perfect = np.asarray([0.1, 0.9, 0.2, 0.8])
+    tied = np.full(4, 0.5)
+    assert binary_auroc(labels, perfect) == 1.0
+    assert binary_auroc(labels, tied) == 0.5
+    metrics = binary_calibration(labels, perfect)
+    assert metrics["target_rate"] == 0.5
+    assert metrics["auroc"] == 1.0
+    assert 0.0 <= metrics["ece_20bin"] <= 1.0
+
+
+def test_temporal_failure_diagnostics_identify_false_safety_approval():
+    # Model switches scene 0 from an all-safe Base candidate to a higher-progress
+    # collision candidate while predicting lower collision risk for the switch.
+    tokens = ["a", "b"]
+    logs = np.asarray(["log-a", "log-b"])
+    scores = np.asarray([[0.8, 0.7], [0.5, 0.9]], dtype=np.float64)
+    base_scores = np.asarray([[1.0, 0.5], [0.2, 1.0]], dtype=np.float64)
+    factors = np.ones((2, 2, 7), dtype=np.float64)
+    factors[..., 2] = 0.5
+    factors[..., 6] = scores
+    factors[0, 1, 0] = 0.0
+    factors[0, 1, 2] = 0.9
+    selection_scores = np.asarray([[0.0, 1.0], [0.0, 1.0]])
+    predicted_safety = np.asarray(
+        [
+            [[0.8, 0.9], [0.9, 0.9]],
+            [[0.9, 0.9], [0.9, 0.9]],
+        ]
+    )
+    summary, frame, per_log = _selection_diagnostics(
+        tokens,
+        logs,
+        scores,
+        factors,
+        base_scores,
+        {
+            "selection_scores": selection_scores,
+            "predicted_safety": predicted_safety,
+        },
+    )
+    assert summary["switch_count"] == 1
+    assert summary["safe_to_unsafe_count"] == 1
+    assert summary["progress_up_safety_down_count"] == 1
+    assert summary["false_safety_approval_count"] == 1
+    assert bool(frame.loc[0, "false_safety_approval"])
+    assert len(per_log) == 2
 
 
 def _temporal_consequence_inputs(batch: int = 2, candidates: int = 7):
