@@ -53,6 +53,7 @@ from local_stage2.train_independent_scorer import (
     load_current_actor_target_table,
     load_replay_sources,
     physical_log_name,
+    validate_all_log_refit_provenance,
 )
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
@@ -274,6 +275,99 @@ def test_episode_drive_factor_loss_matches_released_six_head_bce() -> None:
     assert not torch.equal(
         episode_drive_factor_loss(logits, changed_progress), actual
     )
+
+
+def _all_log_refit_fixture():
+    config = _small_config()
+    locked = {
+        "seed": 2,
+        "batch_size": 32,
+        "learning_rate": 3.0e-4,
+        "weight_decay": 1.0e-4,
+        "candidate_keep_count": 64,
+        "fine_top_k": 3,
+        "model_dim": 32,
+        "dynamic_queries": 3,
+        "private_layers": 1,
+        "trajectory_layers": 1,
+        "candidate_layers": 1,
+        "fine_layers": 1,
+        "dropout": 0.0,
+        "target_temperature": 0.05,
+        "prediction_temperature": 0.05,
+        "top_set_tolerance": 0.01,
+        "pairwise_weight": 0.0,
+        "hard_pairwise_weight": 0.0,
+        "listwise_weight": 0.0,
+        "top_set_weight": 0.0,
+        "expected_regret_weight": 0.0,
+        "top_regret_weight": 0.0,
+        "coarse_loss_weight": 0.0,
+        "factor_weight": 1.0,
+        "factor_loss_mode": "continuous_progress",
+        "progress_regression_weight": 2.0,
+        "factor_rank_weight": 1.0,
+        "consequence_weight": 0.0,
+        "confidence_weight": 0.0,
+        "current_actor_weight": 0.0,
+        "safety_negative_weight": 1.0,
+    }
+    args = SimpleNamespace(**locked, epochs=4)
+    # The first sweep predates explicit factor-loss switches. Their only
+    # accepted legacy resolution is encoded by the refit validator.
+    selected_args = {
+        key: value
+        for key, value in locked.items()
+        if key not in {"factor_loss_mode", "progress_regression_weight"}
+    }
+    selected_args["epochs"] = 8
+    selected = {
+        "architecture": "IndependentProposalRanker",
+        "selection_mode": "factor",
+        "epoch": 3,
+        "checkpoint_selection_source": "public_base",
+        "model_config": asdict(config),
+        "validation_by_source": {
+            "public_base": {
+                "factor_selected_pdms": 0.96,
+                "factor_selected_delta_log_bootstrap_95ci": [0.001, 0.01],
+            }
+        },
+        "fold_manifest": {
+            "args": selected_args,
+            "train_physical_logs": ["train-a", "train-b"],
+            "validation_physical_logs": ["validation-a"],
+        },
+    }
+    return selected, args, config
+
+
+def test_all_log_refit_requires_positive_heldout_ci_and_locks_schedule() -> None:
+    selected, args, config = _all_log_refit_fixture()
+    provenance = validate_all_log_refit_provenance(selected, args, config)
+    assert provenance["selection_mode"] == "factor"
+    assert provenance["selected_epoch"] == 3
+    assert provenance["scheduler_horizon_epochs"] == 8
+    assert provenance["locked_training_arguments"]["factor_loss_mode"] == (
+        "continuous_progress"
+    )
+    assert provenance["selection_validation_physical_log_count"] == 1
+
+
+def test_all_log_refit_rejects_nonpositive_heldout_ci() -> None:
+    selected, args, config = _all_log_refit_fixture()
+    selected["validation_by_source"]["public_base"][
+        "factor_selected_delta_log_bootstrap_95ci"
+    ] = [0.0, 0.01]
+    with pytest.raises(RuntimeError, match="held-out CI gate"):
+        validate_all_log_refit_provenance(selected, args, config)
+
+
+def test_all_log_refit_rejects_training_argument_change() -> None:
+    selected, args, config = _all_log_refit_fixture()
+    args.learning_rate = 1.0e-3
+    with pytest.raises(RuntimeError, match="arguments differ"):
+        validate_all_log_refit_provenance(selected, args, config)
 
 
 def test_candidate_permutation_equivariance() -> None:

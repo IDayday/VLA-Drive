@@ -94,7 +94,7 @@ store covers 45,377 balanced scenes; unmatched replay rows are explicitly
 masked. A Q-Former control is running on GPU 6, and the same loss will be tested
 on the M0-native four-view cache after export completion.
 
-All repository tests pass: 189 passed. Warnings are dependency deprecations and
+All repository tests pass: 194 passed. Warnings are dependency deprecations and
 the pre-existing Shapely numerical warning; there are no test failures.
 
 The low-resolution factor-only all-64 run reached a best held-out-log PDMS
@@ -135,3 +135,20 @@ oracle identity, and selected-score reconstruction checks.  These gates are
 therefore rejected; the positive trainval result is not a deployable planning
 improvement and provides direct evidence of a severe validation-to-Navtest
 shift for post-hoc switching policies.
+
+The no-actor continuous-progress factor ranker itself later became a strict
+held-out promotion at epoch 6: validation PDMS `0.953213`, delta `+0.001601`,
+with bootstrap lower bound `+0.000010`.  Its complete all-64 Navtest result is
+`0.901797`, delta `-0.007797` with 95% CI
+`[-0.010752, -0.004674]`.  This audit also passes all 12,146-scene completeness
+and reconstruction checks.  Correcting factor weighting and adding a ranking
+objective therefore improves the independent Q-Former control, but does not
+close the public scorer gap or support a 0.93 claim.
+
+An all-physical-log refit path is now available for validation-selected
+architectures.  It accepts only an artifact whose held-out physical-log
+bootstrap lower bound is strictly positive, then locks its model configuration,
+loss weights, optimizer settings, seed, selected stop epoch, and original
+scheduler horizon.  The refit itself reports no validation metric and cannot be
+used as a new selection artifact.  This permits a pre-specified 103,288-scene
+refit without using Navtest feedback for model or epoch selection.

@@ -58,6 +58,46 @@ TARGET_FACTOR_KEYS = (
 )
 TARGET_TO_MODEL_FACTOR_ORDER = (0, 1, 5, 3, 2, 4)
 _SEGMENT_SUFFIX = re.compile(r"_\d{5}_\d{5}$")
+_REFIT_LOCKED_ARGUMENTS = (
+    "seed",
+    "batch_size",
+    "learning_rate",
+    "weight_decay",
+    "candidate_keep_count",
+    "fine_top_k",
+    "model_dim",
+    "dynamic_queries",
+    "private_layers",
+    "trajectory_layers",
+    "candidate_layers",
+    "fine_layers",
+    "dropout",
+    "target_temperature",
+    "prediction_temperature",
+    "top_set_tolerance",
+    "pairwise_weight",
+    "hard_pairwise_weight",
+    "listwise_weight",
+    "top_set_weight",
+    "expected_regret_weight",
+    "top_regret_weight",
+    "coarse_loss_weight",
+    "factor_weight",
+    "factor_loss_mode",
+    "progress_regression_weight",
+    "factor_rank_weight",
+    "consequence_weight",
+    "confidence_weight",
+    "current_actor_weight",
+    "safety_negative_weight",
+)
+_LEGACY_REFIT_ARGUMENT_DEFAULTS = {
+    # These two switches were made explicit after the first Q-Former sweep.
+    # Checkpoints produced by the earlier implementation nevertheless have
+    # exactly these semantics, so absence may only resolve to these constants.
+    "factor_loss_mode": "continuous_progress",
+    "progress_regression_weight": 2.0,
+}
 
 
 def physical_log_name(log_name: str) -> str:
@@ -160,6 +200,116 @@ def _sha256(path: Path, block_size: int = 8 * 1024 * 1024) -> str:
         while block := file.read(block_size):
             digest.update(block)
     return digest.hexdigest()
+
+
+def validate_all_log_refit_provenance(
+    selected: Mapping[str, object],
+    args: argparse.Namespace,
+    config: IndependentRankerConfig,
+) -> Dict[str, object]:
+    """Lock an all-log refit to a genuinely held-out selected artifact.
+
+    The refit receives more training logs, but no new model or optimization
+    choice.  Its stop epoch and scheduler horizon are inherited from the
+    validation-selected run, preventing Navtest-guided refit tuning.
+    """
+
+    if selected.get("architecture") != "IndependentProposalRanker":
+        raise RuntimeError("refit selection artifact has the wrong architecture")
+    if bool(selected.get("refit_all_logs")):
+        raise RuntimeError("an all-log refit cannot select another all-log refit")
+    mode = str(selected.get("selection_mode"))
+    metric_keys = {
+        "direct": ("selected_pdms", "selected_delta_log_bootstrap_95ci"),
+        "coarse": (
+            "coarse_selected_pdms",
+            "coarse_selected_delta_log_bootstrap_95ci",
+        ),
+        "factor": (
+            "factor_selected_pdms",
+            "factor_selected_delta_log_bootstrap_95ci",
+        ),
+    }
+    if mode not in metric_keys:
+        raise RuntimeError(f"unsupported refit selection mode: {mode}")
+    source = str(selected.get("checkpoint_selection_source"))
+    validation_by_source = selected.get("validation_by_source")
+    if not isinstance(validation_by_source, Mapping) or source not in validation_by_source:
+        raise RuntimeError("refit artifact lacks its held-out selection metrics")
+    metrics = validation_by_source[source]
+    if not isinstance(metrics, Mapping):
+        raise RuntimeError("refit selection metrics have the wrong schema")
+    metric_key, ci_key = metric_keys[mode]
+    interval = metrics.get(ci_key)
+    if not isinstance(interval, Sequence) or len(interval) != 2:
+        raise RuntimeError("refit artifact lacks a log-bootstrap interval")
+    if float(interval[0]) <= 0.0:
+        raise RuntimeError("refit artifact did not pass the held-out CI gate")
+
+    model_config = selected.get("model_config")
+    if not isinstance(model_config, Mapping) or dict(model_config) != asdict(config):
+        raise RuntimeError("refit model configuration differs from selection")
+    fold_manifest = selected.get("fold_manifest")
+    if not isinstance(fold_manifest, Mapping):
+        raise RuntimeError("refit artifact lacks fold lineage")
+    selected_args = fold_manifest.get("args")
+    if not isinstance(selected_args, Mapping):
+        raise RuntimeError("refit artifact lacks locked training arguments")
+    selected_train_logs = {
+        str(value) for value in fold_manifest.get("train_physical_logs", ())
+    }
+    selected_validation_logs = {
+        str(value) for value in fold_manifest.get("validation_physical_logs", ())
+    }
+    if not selected_train_logs or not selected_validation_logs:
+        raise RuntimeError("refit artifact was not selected on a held-out log split")
+    if selected_train_logs.intersection(selected_validation_logs):
+        raise RuntimeError("refit selection artifact has physical-log leakage")
+
+    missing = object()
+    resolved_selected_args = {
+        name: selected_args.get(
+            name,
+            _LEGACY_REFIT_ARGUMENT_DEFAULTS.get(name, missing),
+        )
+        for name in _REFIT_LOCKED_ARGUMENTS
+    }
+    unresolved = [
+        name for name, value in resolved_selected_args.items() if value is missing
+    ]
+    if unresolved:
+        raise RuntimeError(
+            f"refit artifact lacks locked arguments: {sorted(unresolved)}"
+        )
+    mismatches = {
+        name: (getattr(args, name), resolved_selected_args[name])
+        for name in _REFIT_LOCKED_ARGUMENTS
+        if getattr(args, name) != resolved_selected_args[name]
+    }
+    if mismatches:
+        raise RuntimeError(f"refit arguments differ from selection: {mismatches}")
+    selected_epoch = int(selected.get("epoch", -1))
+    if selected_epoch < 0 or args.epochs != selected_epoch + 1:
+        raise RuntimeError(
+            "refit epochs must equal the selected zero-based epoch plus one"
+        )
+    scheduler_horizon = int(selected_args.get("epochs", 0))
+    if scheduler_horizon < args.epochs:
+        raise RuntimeError("refit scheduler horizon is shorter than the stop epoch")
+    return {
+        "selection_mode": mode,
+        "selection_source": source,
+        "selected_epoch": selected_epoch,
+        "selected_validation_pdms": float(metrics[metric_key]),
+        "selected_delta_log_bootstrap_95ci": [
+            float(interval[0]),
+            float(interval[1]),
+        ],
+        "scheduler_horizon_epochs": scheduler_horizon,
+        "locked_training_arguments": resolved_selected_args,
+        "selection_train_physical_log_count": len(selected_train_logs),
+        "selection_validation_physical_log_count": len(selected_validation_logs),
+    }
 
 
 def _source_lineage(source: ReplaySource) -> Dict[str, object]:
@@ -1125,6 +1275,23 @@ def parse_args() -> argparse.Namespace:
             "the deterministic balanced fold is used."
         ),
     )
+    parser.add_argument(
+        "--refit-all-logs",
+        action="store_true",
+        help=(
+            "Train on every physical training log after architecture, "
+            "hyperparameters and stop epoch were locked by held-out logs."
+        ),
+    )
+    parser.add_argument(
+        "--refit-selection-artifact",
+        type=Path,
+        default=None,
+        help=(
+            "Held-out-selected IndependentProposalRanker artifact that locks "
+            "an all-log refit. Required together with --refit-all-logs."
+        ),
+    )
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--batch-size", type=int, default=24)
@@ -1179,6 +1346,16 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.refit_all_logs != (args.refit_selection_artifact is not None):
+        raise ValueError(
+            "--refit-all-logs and --refit-selection-artifact must be supplied together"
+        )
+    if args.refit_selection_artifact is not None and not (
+        args.refit_selection_artifact.is_file()
+    ):
+        raise FileNotFoundError(args.refit_selection_artifact)
+    if args.refit_all_logs and args.max_scenes_per_source != 0:
+        raise ValueError("all-log refit forbids max-scenes-per-source truncation")
     if not 0 <= args.fold_index < args.num_folds:
         raise ValueError("fold-index must be in [0, num-folds)")
     if args.device.startswith("cuda") and not torch.cuda.is_available():
@@ -1297,6 +1474,11 @@ def main() -> None:
     validation_logs = {data.physical_logs[index] for index in validation_indices}
     if train_logs.intersection(validation_logs):
         raise RuntimeError("physical log leakage between train and validation")
+    selection_split_lineage = dict(split_lineage)
+    selection_train_scene_count = len(train_indices)
+    selection_validation_scene_count = len(validation_indices)
+    selection_train_logs = set(train_logs)
+    selection_validation_logs = set(validation_logs)
 
     if args.current_actor_weight > 0 and (
         data.current_actor_states.shape[1] != args.dynamic_queries
@@ -1321,6 +1503,61 @@ def main() -> None:
         dropout=args.dropout,
         current_actor_auxiliary=args.current_actor_weight > 0,
     )
+    refit_provenance: Optional[Dict[str, object]] = None
+    if args.refit_all_logs:
+        assert args.refit_selection_artifact is not None
+        selected_artifact = torch.load(
+            args.refit_selection_artifact,
+            map_location="cpu",
+            weights_only=False,
+        )
+        if not isinstance(selected_artifact, Mapping):
+            raise RuntimeError("refit selection artifact has the wrong schema")
+        refit_provenance = validate_all_log_refit_provenance(
+            selected_artifact,
+            args,
+            config,
+        )
+        if refit_provenance["selection_source"] != selection_source:
+            raise RuntimeError(
+                "refit selection source differs from the current replay source"
+            )
+        selected_fold_manifest = selected_artifact["fold_manifest"]
+        if selected_fold_manifest.get("split_lineage") != selection_split_lineage:
+            raise RuntimeError("refit selection split lineage differs from this run")
+        if selected_fold_manifest.get("source_lineage") != source_lineage:
+            raise RuntimeError("refit replay/cache lineage differs from selection")
+        refit_provenance.update(
+            {
+                "selection_artifact": str(
+                    args.refit_selection_artifact.resolve()
+                ),
+                "selection_artifact_sha256": _sha256(
+                    args.refit_selection_artifact
+                ),
+                "selection_split_lineage": selection_split_lineage,
+                "selection_train_scene_count": selection_train_scene_count,
+                "selection_validation_scene_count": (
+                    selection_validation_scene_count
+                ),
+                "selection_train_physical_logs": sorted(selection_train_logs),
+                "selection_validation_physical_logs": sorted(
+                    selection_validation_logs
+                ),
+            }
+        )
+        train_indices = list(range(len(data)))
+        validation_indices = []
+        train_logs = set(data.physical_logs)
+        validation_logs = set()
+        split_lineage = {
+            "strategy": "all_physical_logs_refit_after_heldout_selection",
+            "selection_artifact_sha256": refit_provenance[
+                "selection_artifact_sha256"
+            ],
+            "selection_split_lineage": selection_split_lineage,
+        }
+
     model = IndependentProposalRanker(config).to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -1329,7 +1566,12 @@ def main() -> None:
     )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer,
-        T_max=max(args.epochs, 1),
+        T_max=max(
+            int(refit_provenance["scheduler_horizon_epochs"])
+            if refit_provenance is not None
+            else args.epochs,
+            1,
+        ),
         eta_min=args.learning_rate * 0.05,
     )
     train_dataset = _ReplayIndexDataset(data, train_indices)
@@ -1372,6 +1614,8 @@ def main() -> None:
         "future_or_evaluator_input": False,
         "current_actor_labels_used_as_model_input": False,
         "current_actor_labels_training_only": args.current_actor_weight > 0,
+        "refit_all_logs": args.refit_all_logs,
+        "refit_provenance": refit_provenance,
         "args": vars(args)
         | {
             "output_dir": str(args.output_dir),
@@ -1388,6 +1632,11 @@ def main() -> None:
                 if args.current_actor_target_root is not None
                 else None
             ),
+            "refit_selection_artifact": (
+                str(args.refit_selection_artifact)
+                if args.refit_selection_artifact is not None
+                else None
+            ),
         },
     }
     _atomic_json_dump(fold_manifest, args.output_dir / "fold_manifest.json")
@@ -1400,6 +1649,7 @@ def main() -> None:
     }
     best_values = {mode: -float("inf") for mode in selection_specs}
     best_epochs = {mode: -1 for mode in selection_specs}
+    refit_artifact_path: Optional[Path] = None
     for epoch in range(args.epochs):
         model.train()
         details: List[Dict[str, float]] = []
@@ -1417,6 +1667,77 @@ def main() -> None:
             optimizer.step()
             details.append(batch_details)
         scheduler.step()
+
+        if refit_provenance is not None:
+            record = {
+                "epoch": epoch,
+                "learning_rate": float(optimizer.param_groups[0]["lr"]),
+                "training": _mean_details(details),
+                "validation": None,
+                "validation_reason": (
+                    "all physical logs are training data; model and stop epoch "
+                    "were locked by the selection artifact"
+                ),
+            }
+            history.append(record)
+            print(json.dumps(record, sort_keys=True), flush=True)
+            summary: Dict[str, object] = {
+                "refit_all_logs": True,
+                "completed_epochs": epoch + 1,
+                "requested_epochs": args.epochs,
+                "checkpoint_selection_source": selection_source,
+                "refit_provenance": refit_provenance,
+                "history": history,
+            }
+            if epoch == args.epochs - 1:
+                selection_mode = str(refit_provenance["selection_mode"])
+                refit_artifact_path = (
+                    args.output_dir
+                    / f"refit_{selection_mode}_independent_scorer.pt"
+                )
+                _atomic_torch_save(
+                    {
+                        "schema_version": 1,
+                        "architecture": "IndependentProposalRanker",
+                        "selection_mode": selection_mode,
+                        "state_dict": {
+                            key: value.detach().cpu()
+                            for key, value in model.state_dict().items()
+                        },
+                        "model_config": asdict(config),
+                        "epoch": epoch,
+                        "refit_all_logs": True,
+                        "refit_provenance": refit_provenance,
+                        "checkpoint_selection_source": selection_source,
+                        "fold_manifest": fold_manifest,
+                        "training_history": history,
+                        "validation_performed": False,
+                        "inference_input_schema": (
+                            "current_observation_tokens",
+                            "current_observation_valid_mask",
+                            "current_context_feature",
+                            "proposals",
+                        ),
+                        "forbidden_inputs": (
+                            "released_base_score",
+                            "released_base_factor_logits",
+                            "released_candidate_features",
+                            "future_annotations",
+                            "future_images",
+                            "official_pdm_score",
+                        ),
+                    },
+                    refit_artifact_path,
+                )
+                summary.update(
+                    {
+                        "refit_artifact": str(refit_artifact_path.resolve()),
+                        "refit_artifact_sha256": _sha256(refit_artifact_path),
+                        "selection_mode": selection_mode,
+                    }
+                )
+            _atomic_json_dump(summary, args.output_dir / "training_summary.json")
+            continue
 
         utilities, coarse_utilities, factor_logits, base_scores, target_factors = collect_predictions(
             model,
@@ -1529,6 +1850,27 @@ def main() -> None:
             },
             args.output_dir / "training_summary.json",
         )
+
+    if refit_provenance is not None:
+        if refit_artifact_path is None:
+            raise RuntimeError("all-log refit ended without producing an artifact")
+        print(
+            json.dumps(
+                {
+                    "output_dir": str(args.output_dir.resolve()),
+                    "refit_all_logs": True,
+                    "selection_mode": refit_provenance["selection_mode"],
+                    "selection_artifact_sha256": refit_provenance[
+                        "selection_artifact_sha256"
+                    ],
+                    "refit_artifact": str(refit_artifact_path.resolve()),
+                    "refit_artifact_sha256": _sha256(refit_artifact_path),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
 
     print(
         json.dumps(
