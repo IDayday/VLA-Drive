@@ -1,0 +1,159 @@
+_target_: navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent
+
+checkpoint_path: ${oc.env:DRIVEVLA_BASE_CHECKPOINT,/mnt/project/DriveVLA-M0-modelscope/best-epoch_26-step_174312.server_merged.ckpt}
+stage1_checkpoint_path: ''
+cache_data: false
+
+vlm_config:
+  vlm_path: ${oc.env:DRIVEVLA_VLM_CONFIG,/mnt/project/DriveVLA-M0-models/InternVL3-2B-modelscope}
+  cam_type: single
+  vlm_type: internvl
+  vlm_size: large
+  cache_mode: false
+  cache_hidden_state: false
+  freeze_backbone: true
+  freeze_language_model: true
+  trainable_layers: []
+  initialize_from_config: true
+  use_flash_attn: false
+  skip_lm_head: true
+  freeze_lm_head: true
+  gradient_checkpointing: false
+  extra_token_count: 8
+  target_vocab_size: 151682
+  planning_registers_enabled: true
+  num_planning_registers: 16
+  planning_register_dim: 256
+  tile_register_aggregation: mean
+  vision_qv_lora_enabled: true
+  vision_qv_lora_rank: 32
+
+# Legacy PEFT tensors in the public checkpoint are folded into frozen base
+# weights. No generalized PEFT target_modules are trainable in PlanReg-WM-V1.
+lora_config:
+  use_lora: false
+  lora_rank: 8
+  lora_dropout: 0.0
+  lora_target_modules: []
+  checkpoint_path: ''
+
+vision_adaptation:
+  mode: qv_lora
+  rank: 32
+  dropout: 0.0
+  train_k: false
+  train_mlp: false
+
+scene_fusion:
+  mode: planning_plus_semantic
+  transition_fraction: 0.10
+  semantic_gate_init: 0.0
+
+world_model:
+  enabled: true
+  horizons_sec: [0.5, 1.5, 3.0]
+  predictor_layers: 2
+  hidden_dim: 256
+  weight: 0.25
+  abs_weight: 1.0
+  delta_weight: 0.25
+  future_mode: correct
+  predictor_only: false
+
+ema:
+  enabled: true
+  start_momentum: 0.996
+  end_momentum: 0.9999
+  schedule: cosine
+
+trajectory_sampling:
+  _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+  _convert_: all
+  time_horizon: 4
+  interval_length: 0.5
+
+action_head_config:
+  checkpoint_path: ''
+  b2d: false
+  shared_refiner: false
+  ref_num: 4
+  scorer_ref_num: 4
+  proposal_num: 64
+  num_poses: 8
+  num_scene_tokens: 16
+  one_token_per_traj: true
+  full_history_status: false
+  long_trajectory_additional_poses: -1
+  noc: 1.0
+  dac: 1.0
+  ddc: 0.0
+  ttc: 5.0
+  ep: 5.0
+  comfort: 2.0
+  tf_d_model: 256
+  tf_d_ffn: 1024
+  cam_f0: [3]
+  cam_l0: [3]
+  cam_l1: []
+  cam_l2: []
+  cam_r0: [3]
+  cam_r1: []
+  cam_r2: []
+  cam_b0: [3]
+  lidar_pc: []
+  image_size: [1148, 672]
+  image_backbone:
+    model_name: timm/vit_small_patch14_reg4_dinov2.lvd142m
+    model_weights: ${oc.env:DRIVEVLA_DINO_WEIGHTS,/mnt/project/external/DrivoR/weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors}
+    use_lora: true
+    finetune: false
+    lora_rank: 32
+    focus_front_cam: false
+    use_feature_pooling: false
+    compress_fc: false
+  double_score: false
+  agent_pred: false
+  area_pred: false
+  bev_map: false
+  bev_agent: false
+  refiner_num_heads: 1
+  refiner_ls_values: 0.0
+  trajectory_sampling:
+    _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+    time_horizon: 4
+    interval_length: 0.5
+
+loss:
+  _target_: navsim.agents.EpisodeDrive.layers.losses.episode_drive_loss.EpisodeDriveLoss
+  trajectory_weight: 1.0
+  inter_weight: 0.0
+  sub_score_weight: 0.0
+  final_score_weight: 1.0
+  pred_ce_weight: 1.0
+  pred_l1_weight: 0.1
+  pred_area_weight: 2.0
+  prev_weight: 0.0
+  agent_class_weight: 1.0
+  agent_box_weight: 0.1
+  bev_semantic_weight: 1.0
+  div_weight: 0.0
+
+lr_args:
+  name: AdamW
+  base_lr: 1.0e-4
+  base_batch_size: 16
+  scale_with_batch_size: false
+  new_module_lr: 2.0e-4
+  action_head_lr: 1.0e-4
+  scorer_lr: 1.0e-4
+  vision_qv_lora_lr: 5.0e-5
+  semantic_qformer_lr: 1.0e-5
+  language_model_lr: 0.0
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.95]
+  eps: 1.0e-8
+
+scheduler_args: null
+batch_size: 2
+num_gpus: 8
+progress_bar: true

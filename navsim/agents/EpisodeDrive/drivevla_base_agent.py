@@ -469,6 +469,8 @@ class DriveVLABaseAgent(AbstractAgent):
     def _initialize_ema_register_target(self) -> None:
         if not self.world_model_enabled:
             return
+        if self.ema_register_target is not None:
+            return
         if self.backbone is None:
             raise RuntimeError("Cannot initialize EMA target without a student backbone")
         # This is intentionally called only after legacy/student checkpoint
@@ -748,6 +750,15 @@ class DriveVLABaseAgent(AbstractAgent):
 
         if self.checkpoint_path:
             ckpt = torch.load(self.checkpoint_path, map_location="cpu")["state_dict"]
+            if self.world_model_enabled and any(
+                _key.startswith("agent.ema_register_target.")
+                or _key.startswith("ema_register_target.")
+                for _key in ckpt
+            ):
+                # A PlanReg training checkpoint carries an EMA state. Build the
+                # exact training-only topology so strict restoration can load
+                # it; legacy/base checkpoints initialize EMA after student load.
+                self._initialize_ema_register_target()
             load_legacy_checkpoint_with_planreg_audit(
                 self,
                 ckpt,
@@ -1441,10 +1452,162 @@ class DriveVLABaseAgent(AbstractAgent):
             return final_scores, best_scores, target_scores, key_agent_corners, key_agent_labels, all_ego_areas
 
 
+    def _uses_planreg_optimizer_groups(self) -> bool:
+        return bool(
+            self.scene_fusion is not None
+            or getattr(self.vlm_config, "planning_registers_enabled", False)
+            or self.world_model_enabled
+        )
+
+    def _get_planreg_optimizers(self):
+        if self._lr_args["name"] not in {"Adam", "AdamW"}:
+            raise NotImplementedError
+        if float(self._lr_args.get("language_model_lr", 0.0)) != 0.0:
+            raise ValueError("PlanReg-WM-V1 requires language_model_lr=0")
+
+        global_batch_size = self.batch_size * self.num_gpus
+        batch_scale = 1.0
+        if bool(self._lr_args.get("scale_with_batch_size", False)):
+            batch_scale = math.sqrt(
+                global_batch_size / self._lr_args["base_batch_size"]
+            )
+        learning_rates = {
+            "new_modules": float(self._lr_args.get("new_module_lr", 2e-4))
+            * batch_scale,
+            "action_head": float(self._lr_args.get("action_head_lr", 1e-4))
+            * batch_scale,
+            "scorer": float(self._lr_args.get("scorer_lr", 1e-4))
+            * batch_scale,
+            "vision_qv_lora": float(
+                self._lr_args.get("vision_qv_lora_lr", 5e-5)
+            )
+            * batch_scale,
+            "semantic_qformer": float(
+                self._lr_args.get("semantic_qformer_lr", 1e-5)
+            )
+            * batch_scale,
+        }
+        default_weight_decay = float(self._lr_args.get("weight_decay", 1e-4))
+        grouped = {name: [] for name in learning_rates}
+        unclassified = []
+        trainable_language = []
+
+        for name, parameter in self.named_parameters():
+            if not parameter.requires_grad:
+                continue
+            if "ema_register_target" in name:
+                unclassified.append(name)
+            elif "language_model" in name or "lm_head" in name:
+                trainable_language.append(name)
+            elif name.startswith("future_register_predictor.") or name.startswith(
+                "backbone.planning_register_adapter."
+            ):
+                grouped["new_modules"].append((name, parameter))
+            elif name.startswith("backbone.") and (
+                ".q_lora_" in name or ".v_lora_" in name
+            ):
+                grouped["vision_qv_lora"].append((name, parameter))
+            elif name.startswith("action_head."):
+                action_name = name[len("action_head."):]
+                if action_name.startswith(
+                    ("scorer_attention.", "pos_embed.", "scorer.")
+                ):
+                    grouped["scorer"].append((name, parameter))
+                elif action_name.startswith(
+                    (
+                        "q_former.",
+                        "scene_embeds",
+                        "semantic_gate",
+                        "scene_norm.",
+                    )
+                ):
+                    grouped["semantic_qformer"].append((name, parameter))
+                elif action_name.startswith(
+                    (
+                        "hist_encoding.",
+                        "init_feature.",
+                        "trajectory_decoder.",
+                        "traj_head.",
+                    )
+                ):
+                    grouped["action_head"].append((name, parameter))
+                else:
+                    unclassified.append(name)
+            else:
+                unclassified.append(name)
+
+        if trainable_language:
+            raise RuntimeError(
+                "PlanReg-WM-V1 LLM must be frozen; trainable parameters: "
+                f"{trainable_language[:16]}"
+            )
+        if unclassified:
+            raise RuntimeError(
+                "Unclassified requires_grad=True PlanReg parameters: "
+                f"{unclassified[:32]}"
+            )
+
+        optimizer_groups = []
+        summaries = []
+        for group_name, named_parameters in grouped.items():
+            if not named_parameters:
+                continue
+            weight_decay = float(
+                self._lr_args.get(
+                    f"{group_name}_weight_decay", default_weight_decay
+                )
+            )
+            parameters = [parameter for _, parameter in named_parameters]
+            parameter_count = sum(parameter.numel() for parameter in parameters)
+            optimizer_groups.append(
+                {
+                    "params": parameters,
+                    "lr": learning_rates[group_name],
+                    "weight_decay": weight_decay,
+                    "name": group_name,
+                }
+            )
+            summary = {
+                "name": group_name,
+                "tensor_count": len(parameters),
+                "parameter_count": parameter_count,
+                "lr": learning_rates[group_name],
+                "weight_decay": weight_decay,
+            }
+            summaries.append(summary)
+            print(
+                "PLANREG_OPTIMIZER_GROUP "
+                f"name={group_name} tensors={len(parameters)} "
+                f"parameters={parameter_count} lr={learning_rates[group_name]:.8g} "
+                f"weight_decay={weight_decay:.8g}"
+            )
+        if not optimizer_groups:
+            raise RuntimeError("No trainable PlanReg-WM-V1 parameters found")
+        self._planreg_optimizer_group_summary = summaries
+        optimizer_class = (
+            torch.optim.AdamW
+            if self._lr_args["name"] == "AdamW"
+            else torch.optim.Adam
+        )
+        optimizer = optimizer_class(
+            optimizer_groups,
+            betas=tuple(self._lr_args.get("betas", (0.9, 0.95))),
+            eps=float(self._lr_args.get("eps", 1e-8)),
+        )
+        if self.scheduler_args is not None:
+            raise ValueError(
+                "PlanReg-WM-V1 strict optimizer groups currently require "
+                "scheduler_args=null; configure explicit fixed group LRs."
+            )
+        return [optimizer]
+
+
     def get_optimizers(self) -> Union[Optimizer, Dict[str, LRScheduler]]:
         """
         pack all trainable parameters into optimizer
         """
+        if self._uses_planreg_optimizer_groups():
+            return self._get_planreg_optimizers()
         global_batchsize = self.batch_size * self.num_gpus
         if self._lr_args["name"] not in {"Adam", "AdamW"}:
             raise NotImplementedError

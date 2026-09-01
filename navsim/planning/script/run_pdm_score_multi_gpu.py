@@ -118,6 +118,8 @@ def main(cfg: DictConfig) -> None:
     """
 
     build_logger(cfg)
+    if "seed" in cfg:
+        pl.seed_everything(int(cfg.seed), workers=True)
     timestamp = datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
     dump_root = os.path.join(os.getenv('SUBSCORE_PATH'), "navsim1_pdm_scores", cfg.experiment_name)
     os.makedirs(dump_root, exist_ok=True)
