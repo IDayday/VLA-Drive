@@ -137,7 +137,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-scenes", type=int, default=4)
     parser.add_argument("--search-scenes", type=int, default=256)
     parser.add_argument("--score-tolerance", type=float, default=1e-6)
-    parser.add_argument("--factor-cache-tolerance", type=float, default=1e-3)
+    parser.add_argument(
+        "--factor-cache-tolerance",
+        type=float,
+        default=0.0,
+        help=(
+            "Tolerance after rounding custom FP32 logits to the external "
+            "archive's FP16 dtype. The default requires exact archived values."
+        ),
+    )
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
 
@@ -234,14 +242,21 @@ def main() -> None:
         [external[token]["selected_indices"] for token in tokens]
     ).to(device)
     score_errors = (scores - reference_scores).abs()
-    factor_errors = (output["factor_logits"] - reference_factors).abs()
+    raw_factor_errors = (output["factor_logits"] - reference_factors).abs()
+    # The external cache intentionally archives factor logits in FP16 while
+    # keeping its aggregate selection scores in FP32.  Compare like with like:
+    # exact equality after applying the same FP16 archival quantization.
+    archived_factor_errors = (
+        output["factor_logits"].half().float() - reference_factors
+    ).abs()
     selected = scores.argmax(dim=1)
     selected_equal = selected.eq(reference_indices)
     score_max = float(score_errors.max())
-    factor_max = float(factor_errors.max())
+    factor_raw_max = float(raw_factor_errors.max())
+    factor_archive_max = float(archived_factor_errors.max())
     passed = (
         score_max <= args.score_tolerance
-        and factor_max <= args.factor_cache_tolerance
+        and factor_archive_max <= args.factor_cache_tolerance
         and bool(selected_equal.all())
     )
     report = {
@@ -260,7 +275,12 @@ def main() -> None:
             float(value["score_max_abs_error"]) for value in online_parity
         ),
         "custom_cache_score_max_abs_error": score_max,
-        "custom_cache_factor_logit_max_abs_error_vs_fp16_archive": factor_max,
+        "custom_cache_factor_logit_raw_max_abs_error_vs_fp16_archive": (
+            factor_raw_max
+        ),
+        "custom_cache_factor_logit_archived_max_abs_error": (
+            factor_archive_max
+        ),
         "selected_index_equal": bool(selected_equal.all()),
         "score_tolerance": args.score_tolerance,
         "factor_cache_tolerance": args.factor_cache_tolerance,

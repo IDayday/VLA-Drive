@@ -54,6 +54,10 @@ from local_stage2.train_independent_scorer import (
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
 )
+from local_stage2.build_drivor_promotion_manifest import (
+    _gate_record,
+    _ranker_record,
+)
 
 
 def _small_config(**overrides) -> IndependentRankerConfig:
@@ -467,6 +471,47 @@ def test_drivor_reference_gate_training_is_finite_with_frozen_ranker() -> None:
     assert gradients
     assert all(torch.isfinite(value).all() for value in gradients)
     assert all(parameter.grad is None for parameter in model.ranker.parameters())
+
+
+def test_drivor_promotion_records_lock_source_and_artifact_hash(tmp_path) -> None:
+    artifact_path = tmp_path / "ranker.pt"
+    artifact_path.write_bytes(b"ranker")
+    ranker = {
+        "selection_mode": "factor",
+        "training_manifest": {"checkpoint_selection_source": "public_base"},
+        "validation_by_source": {
+            "public_base": {
+                "factor_selected_pdms": 0.96,
+                "base_selected_pdms": 0.95,
+                "factor_selected_delta": 0.01,
+                "factor_selected_delta_log_bootstrap_95ci": [0.002, 0.018],
+            }
+        },
+        "epoch": 3,
+    }
+    record = _ranker_record(ranker, artifact_path)
+    assert record["selection_source"] == "public_base"
+    assert record["validation_delta_log_bootstrap_95ci"][0] > 0
+    assert len(record["sha256"]) == 64
+
+    gate_path = tmp_path / "gate.pt"
+    gate_path.write_bytes(b"gate")
+    policy = {
+        "selected_pdms": 0.955,
+        "base_selected_pdms": 0.95,
+        "delta": 0.005,
+        "delta_log_bootstrap_95ci": [0.001, 0.009],
+    }
+    gate = {
+        "alternative_mode": "factor",
+        "training_manifest": {"selection_source": "public_base"},
+        "validation_by_source": {"public_base": {"best_policy": policy}},
+        "selected_policy": policy,
+        "epoch": 2,
+    }
+    gate_record = _gate_record(gate, gate_path)
+    assert gate_record["selection_mode"] == "factor"
+    assert gate_record["validation_locked_policy"] == policy
 
 
 def test_masked_pinball_quantile_loss_prefers_calibrated_predictions() -> None:

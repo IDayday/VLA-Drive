@@ -140,6 +140,18 @@ cross-log safety calibration problem; this artifact is rejected and the
 multi-camera DrivOR-register replay control becomes the next representation
 gate.
 
+A second independently trained F1 conservative artifact now repeats the same
+failure with a different locked epoch and policy.  It improves the complete
+official held-out split from `0.951612` to `0.952289` (`+0.000677`, physical-log
+bootstrap interval `[+0.000333,+0.001016]`).  Per the pre-registered promotion
+rule, it was immediately evaluated on all 12,146 Navtest scenes.  It obtains
+only `0.903778` versus Base `0.909594`, a delta of `-0.005816` with interval
+`[-0.007487,-0.004277]`; NC is `0.978800` and TTC is `0.931912`.  The audit
+passes 64-candidate, zero-invalid, regret-identity and artifact-lineage gates.
+Two validation-positive/complete-Navtest-negative artifacts now reject this
+F1 representation family rather than merely one unlucky checkpoint.  No
+Navtest outcome is used to retune its thresholds.
+
 The first post-hoc designs are ruled out as production candidates:
 
 - a private copy of the released Q-Former was 0.002486 below the shared-feature
@@ -254,6 +266,19 @@ and four-scene online/cache parity.  A positive result would isolate scorer
 representation quality; a negative result would expose proposal-distribution
 shift and motivate retraining the same separated architecture on Base replay.
 
+That engineering equivalence is now established.  The external DrivOR full
+forward and its immutable-proposal adapter agree exactly on 12 real scenes.
+On four of those same tokens, using FP32 cached registers and the same batch
+size/device, the custom `DrivORInitializedProposalRanker` differs from the
+online adapter's FP32 aggregate score by at most `9.54e-7` and selects the
+same candidate in 4/4 scenes.  Its FP32 factor logits, after applying the
+external cache's FP16 archival quantization, match the archived values
+exactly.  The checkpoint adapter maps 110 tensors containing 6,092,038 values.
+The passing audit is
+`reports/scorer_pdms93/DRIVOR_ONLINE_CACHE_PARITY_V2.json`; the earlier failed
+attempt is retained separately and documents why batch-size alignment and
+like-for-like FP16 archival comparison are required.
+
 That direct cross-model control is negative on the complete random fold-0
 bank: 20,647 scenes from 32 physical logs, 64 candidates per scene and zero
 invalid rows.  Public Base selects `0.962642`, whereas the released DrivOR
@@ -284,6 +309,15 @@ worse on 4,493; the signed mean is negative because its losses are somewhat
 larger, not because its alternative choices carry no useful information.
 This is an offline two-policy upper bound, not a deployable score or a Navtest
 claim, but it establishes enough headroom for a learned conservative gate.
+
+A factor-level audit localizes the calibration error.  Across the 5,288
+scenes where the DrivOR choice beats Base, its mean target progress difference
+is `+0.0804`; across the 4,493 losses it is `-0.0874`.  Safety regressions are
+important but much rarer among losses: TTC regresses in `3.18%`, DAC in
+`1.31%`, and NC in `0.65%`.  Thus a safety-only veto cannot recover the union
+headroom.  The gate must estimate a conservative relative utility/progress
+gain as well as rare safety regression, and the ranker experiments must compare
+the released equal-weight factor BCE with heavier safety reweighting.
 
 Accordingly, the next independent method has two explicit stages:
 

@@ -101,6 +101,12 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--max-scenes", type=int, default=0)
+    parser.add_argument(
+        "--token",
+        action="append",
+        default=[],
+        help="Optional exact scene token; repeat to export a parity subset.",
+    )
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--seed", type=int, default=2)
     return parser.parse_args()
@@ -195,6 +201,7 @@ def _lineage(args: argparse.Namespace, source_manifests: List[Path]) -> Mapping[
         "shard_count": args.shard_count,
         "shard_index": args.shard_index,
         "seed": args.seed,
+        "explicit_tokens": sorted(str(value) for value in args.token),
     }
 
 
@@ -258,6 +265,20 @@ def main() -> None:
             max_scenes=args.max_scenes,
         )
     entries = source.entries
+    if args.token:
+        if args.max_scenes:
+            raise ValueError("--token and --max-scenes are mutually exclusive")
+        wanted_tokens = {str(value) for value in args.token}
+        if len(wanted_tokens) != len(args.token):
+            raise ValueError("--token values must be unique")
+        entries = [entry for entry in entries if entry.token in wanted_tokens]
+        missing_explicit = sorted(
+            wanted_tokens.difference(entry.token for entry in entries)
+        )
+        if missing_explicit:
+            raise RuntimeError(
+                f"Proposal source lacks explicit tokens: {missing_explicit}"
+            )
     if not entries:
         raise RuntimeError("No current-observation entries selected")
 
