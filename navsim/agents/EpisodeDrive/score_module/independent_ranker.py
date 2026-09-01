@@ -24,6 +24,17 @@ FACTOR_KEYS: Tuple[str, ...] = (
     "comfort",
 )
 
+CURRENT_ACTOR_STATE_FIELDS: Tuple[str, ...] = (
+    "x_over_50m",
+    "y_over_50m",
+    "vx_over_20mps",
+    "vy_over_20mps",
+    "sin_heading",
+    "cos_heading",
+    "length_over_10m",
+    "width_over_5m",
+)
+
 FORBIDDEN_INFERENCE_FIELDS = frozenset(
     {
         "future_image",
@@ -69,6 +80,8 @@ class IndependentRankerConfig:
     consequence_dim: int = 4
     interval_seconds: float = 0.5
     dropout: float = 0.1
+    current_actor_auxiliary: bool = False
+    current_actor_type_count: int = 3
 
     def __post_init__(self) -> None:
         if self.model_dim % self.num_heads:
@@ -79,6 +92,8 @@ class IndependentRankerConfig:
             raise ValueError("max_observation_tokens must be positive")
         if self.interval_seconds <= 0:
             raise ValueError("interval_seconds must be positive")
+        if self.current_actor_type_count <= 0:
+            raise ValueError("current_actor_type_count must be positive")
         for count in (
             self.dynamic_queries,
             self.static_queries,
@@ -327,6 +342,18 @@ class IndependentProposalRanker(nn.Module):
         self.coarse_utility_head = nn.Linear(config.model_dim, 1)
         self.consequence_head = nn.Linear(config.model_dim, config.consequence_dim)
         self.confidence_head = nn.Linear(config.model_dim, 1)
+        if config.current_actor_auxiliary:
+            self.current_actor_presence_head = nn.Linear(config.model_dim, 1)
+            self.current_actor_type_head = nn.Linear(
+                config.model_dim, config.current_actor_type_count
+            )
+            self.current_actor_state_head = nn.Linear(
+                config.model_dim, len(CURRENT_ACTOR_STATE_FIELDS)
+            )
+        else:
+            self.current_actor_presence_head = None
+            self.current_actor_type_head = None
+            self.current_actor_state_head = None
 
         self.fine_encoder = nn.TransformerEncoder(
             _make_encoder_layer(config),
@@ -410,7 +437,7 @@ class IndependentProposalRanker(nn.Module):
 
         fine_mask = torch.zeros_like(coarse_utility, dtype=torch.bool)
         fine_mask.scatter_(1, fine_indices, True)
-        return {
+        result = {
             "utility": selection_utility,
             "selection_utility": selection_utility,
             "coarse_utility": coarse_utility,
@@ -432,6 +459,118 @@ class IndependentProposalRanker(nn.Module):
             # target.
             "candidate_features": coarse_features,
         }
+        if self.current_actor_presence_head is not None:
+            dynamic_tokens = scene_streams["dynamic"]
+            result.update(
+                {
+                    "current_actor_presence_logits": (
+                        self.current_actor_presence_head(dynamic_tokens).squeeze(-1)
+                    ),
+                    "current_actor_type_logits": self.current_actor_type_head(
+                        dynamic_tokens
+                    ),
+                    "current_actor_state": self.current_actor_state_head(
+                        dynamic_tokens
+                    ),
+                }
+            )
+        return result
+
+
+def normalize_current_actor_targets(
+    target_actor_state: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Convert current-ego actor labels into bounded auxiliary targets.
+
+    The raw layout is ``type, x, y, vx, vy, heading, length, width``.  It is
+    a training target only: inference still receives current visual tokens,
+    current ego/navigation state, and proposal geometry.
+    """
+
+    if target_actor_state.ndim != 3 or target_actor_state.shape[-1] != 8:
+        raise ValueError("target_actor_state must have shape [B, N, 8]")
+    actor_type = target_actor_state[..., 0].round().long()
+    continuous = torch.stack(
+        (
+            target_actor_state[..., 1] / 50.0,
+            target_actor_state[..., 2] / 50.0,
+            target_actor_state[..., 3] / 20.0,
+            target_actor_state[..., 4] / 20.0,
+            torch.sin(target_actor_state[..., 5]),
+            torch.cos(target_actor_state[..., 5]),
+            target_actor_state[..., 6] / 10.0,
+            target_actor_state[..., 7] / 5.0,
+        ),
+        dim=-1,
+    )
+    return actor_type, continuous
+
+
+def current_actor_auxiliary_loss(
+    output: Dict[str, torch.Tensor],
+    target_actor_state: torch.Tensor,
+    target_actor_mask: torch.Tensor,
+    supervision_valid: torch.Tensor,
+) -> Dict[str, torch.Tensor]:
+    """Supervise scorer-private dynamic queries with current actor labels."""
+
+    required = {
+        "current_actor_presence_logits",
+        "current_actor_type_logits",
+        "current_actor_state",
+    }
+    missing = sorted(required.difference(output))
+    if missing:
+        raise RuntimeError(f"current-actor auxiliary heads are disabled: {missing}")
+    presence_logits = output["current_actor_presence_logits"]
+    type_logits = output["current_actor_type_logits"]
+    predicted_state = output["current_actor_state"]
+    if target_actor_mask.shape != presence_logits.shape:
+        raise ValueError("target_actor_mask must match dynamic query slots")
+    if supervision_valid.shape != (presence_logits.shape[0],):
+        raise ValueError("supervision_valid must have shape [B]")
+    if target_actor_state.shape[:2] != presence_logits.shape:
+        raise ValueError("target_actor_state slots must match dynamic queries")
+    actor_type, continuous = normalize_current_actor_targets(target_actor_state)
+    if predicted_state.shape != continuous.shape:
+        raise ValueError("predicted current actor state has an unexpected shape")
+    if type_logits.shape[:2] != presence_logits.shape:
+        raise ValueError("current actor type logits have an unexpected shape")
+
+    supervised_slots = supervision_valid.bool().unsqueeze(1).expand_as(
+        target_actor_mask
+    )
+    presence_element = F.binary_cross_entropy_with_logits(
+        presence_logits,
+        target_actor_mask.to(presence_logits.dtype),
+        reduction="none",
+    )
+    presence_weights = supervised_slots.to(presence_element.dtype)
+    presence = (presence_element * presence_weights).sum() / (
+        presence_weights.sum().clamp_min(1.0)
+    )
+
+    actor_valid = supervised_slots & target_actor_mask.bool()
+    if bool(actor_valid.any()):
+        maximum_type = type_logits.shape[-1] - 1
+        valid_types = actor_type[actor_valid]
+        if bool((valid_types < 0).any()) or bool((valid_types > maximum_type).any()):
+            raise ValueError("current actor type is outside the configured classes")
+        actor_type_loss = F.cross_entropy(type_logits[actor_valid], valid_types)
+        state = F.smooth_l1_loss(
+            predicted_state[actor_valid], continuous[actor_valid]
+        )
+    else:
+        zero = presence_logits.sum() * 0.0
+        actor_type_loss = zero
+        state = zero
+    total = presence + 0.25 * actor_type_loss + state
+    return {
+        "total": total,
+        "presence": presence,
+        "type": actor_type_loss,
+        "state": state,
+    }
 
 
 @dataclass(frozen=True)

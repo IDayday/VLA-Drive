@@ -22,6 +22,7 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
@@ -37,6 +38,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     FORBIDDEN_INFERENCE_FIELDS,
     IndependentProposalRanker,
     IndependentRankerConfig,
+    current_actor_auxiliary_loss,
     pdms_factor_log_utility,
     top_heavy_listwise_loss,
     top_regret_rank_loss,
@@ -83,6 +85,9 @@ class ReplayTensorSet:
     ego_features: torch.Tensor
     base_scores_for_evaluation: torch.Tensor
     target_factors: torch.Tensor
+    current_actor_states: torch.Tensor
+    current_actor_masks: torch.Tensor
+    current_actor_supervision_valid: torch.Tensor
 
     def __len__(self) -> int:
         return len(self.tokens)
@@ -94,6 +99,15 @@ class PrivateObservationTable:
     observation_tokens: torch.Tensor
     observation_valid_masks: torch.Tensor
     status_features: torch.Tensor
+    lineage: Dict[str, object]
+
+
+@dataclass
+class CurrentActorTargetTable:
+    tokens: List[str]
+    actor_states: torch.Tensor
+    actor_masks: torch.Tensor
+    supervision_valid: torch.Tensor
     lineage: Dict[str, object]
 
 
@@ -116,6 +130,9 @@ class _ReplayIndexDataset(Dataset):
             self.data.base_scores_for_evaluation[source_index],
             self.data.target_factors[source_index],
             torch.tensor(source_index, dtype=torch.long),
+            self.data.current_actor_states[source_index],
+            self.data.current_actor_masks[source_index],
+            self.data.current_actor_supervision_valid[source_index],
         )
 
 
@@ -181,7 +198,11 @@ def load_private_observation_table(root: Path) -> PrivateObservationTable:
     if len(declared_shards) != 1 or len(manifests) != next(iter(declared_shards)):
         raise RuntimeError("private-observation cache has incomplete shard manifests")
     checkpoint_hashes = {
-        str(payload.get("checkpoint_sha256")) for payload in manifest_payloads
+        str(
+            payload.get("checkpoint_sha256")
+            or payload.get("m0_checkpoint_sha256")
+        )
+        for payload in manifest_payloads
     }
     if len(checkpoint_hashes) != 1:
         raise RuntimeError("private-observation shards use different checkpoints")
@@ -284,6 +305,72 @@ def load_private_observation_table(root: Path) -> PrivateObservationTable:
     )
 
 
+def load_current_actor_target_table(root: Path) -> CurrentActorTargetTable:
+    """Load training-only current actor slots from the Gate-C oracle store."""
+
+    current_path = root / "current.npy"
+    completed_path = root / "completed.npy"
+    metadata_path = root / "scene_metadata.parquet"
+    config_path = root / "store_config.json"
+    for path in (current_path, completed_path, metadata_path, config_path):
+        if not path.is_file():
+            raise FileNotFoundError(path)
+    current = np.load(current_path, mmap_mode="r")
+    completed = np.load(completed_path, mmap_mode="r")
+    metadata = pd.read_parquet(metadata_path)
+    required_columns = {"scene_token", "scene_index", "target_preflight_available"}
+    missing_columns = sorted(required_columns.difference(metadata.columns))
+    if missing_columns:
+        raise RuntimeError(
+            f"Current-actor metadata misses columns: {missing_columns}"
+        )
+    if current.ndim != 2 or (current.shape[1] - 6) % 9:
+        raise RuntimeError(f"Unexpected current target shape: {current.shape}")
+    actor_slots = (current.shape[1] - 6) // 9
+    if actor_slots <= 0:
+        raise RuntimeError("Current-actor target table has no actor slots")
+    row_indices = metadata["scene_index"].to_numpy(dtype=np.int64)
+    if len(row_indices) == 0 or row_indices.min() < 0:
+        raise RuntimeError("Current-actor metadata has invalid scene indices")
+    if row_indices.max() >= len(current) or row_indices.max() >= len(completed):
+        raise RuntimeError("Current-actor metadata index exceeds target arrays")
+    tokens = metadata["scene_token"].astype(str).tolist()
+    if len(set(tokens)) != len(tokens):
+        raise RuntimeError("Current-actor metadata contains duplicate scene tokens")
+
+    selected = np.asarray(current[row_indices], dtype=np.float32)
+    states = selected[:, 6 : 6 + actor_slots * 8].reshape(
+        len(selected), actor_slots, 8
+    )
+    masks = selected[:, 6 + actor_slots * 8 :].astype(bool)
+    preflight = metadata["target_preflight_available"].to_numpy(dtype=bool)
+    supervision_valid = np.asarray(completed[row_indices], dtype=bool) & preflight
+    if masks.shape != (len(tokens), actor_slots):
+        raise RuntimeError("Current-actor mask has an unexpected shape")
+    if not np.isfinite(states[supervision_valid]).all():
+        raise RuntimeError("Current-actor target table contains non-finite values")
+    lineage = {
+        "name": "training_only_current_actor_supervision",
+        "root": str(root.resolve()),
+        "scene_count": len(tokens),
+        "valid_scene_count": int(supervision_valid.sum()),
+        "actor_slots": actor_slots,
+        "coordinate_frame": "current_ego",
+        "depends_on_logged_future": False,
+        "available_as_model_input_at_inference": False,
+        "current_array_sha256": _sha256(current_path),
+        "metadata_sha256": _sha256(metadata_path),
+        "store_config_sha256": _sha256(config_path),
+    }
+    return CurrentActorTargetTable(
+        tokens=tokens,
+        actor_states=torch.from_numpy(states.copy()),
+        actor_masks=torch.from_numpy(masks.copy()),
+        supervision_valid=torch.from_numpy(supervision_valid.copy()),
+        lineage=lineage,
+    )
+
+
 def _iter_joined_chunks(source: ReplaySource) -> Iterable[Tuple[Path, Path]]:
     paths = sorted(source.feature_root.glob("*_shard_*-of-*/chunk_*.pt"))
     if not paths:
@@ -301,6 +388,7 @@ def load_replay_sources(
     *,
     max_scenes_per_source: int = 0,
     private_observation_root: Optional[Path] = None,
+    current_actor_target_root: Optional[Path] = None,
 ) -> Tuple[ReplayTensorSet, List[Dict[str, object]]]:
     tensor_parts: Dict[str, List[torch.Tensor]] = {
         key: []
@@ -412,6 +500,48 @@ def load_replay_sources(
         )
         lineage.append(private_table.lineage)
 
+    if current_actor_target_root is None:
+        current_actor_states = torch.empty(len(tokens), 0, 8)
+        current_actor_masks = torch.empty(len(tokens), 0, dtype=torch.bool)
+        current_actor_supervision_valid = torch.zeros(len(tokens), dtype=torch.bool)
+    else:
+        actor_table = load_current_actor_target_table(current_actor_target_root)
+        actor_row_for_token = {
+            token: index for index, token in enumerate(actor_table.tokens)
+        }
+        actor_slots = int(actor_table.actor_states.shape[1])
+        current_actor_states = torch.zeros(len(tokens), actor_slots, 8)
+        current_actor_masks = torch.zeros(
+            len(tokens), actor_slots, dtype=torch.bool
+        )
+        current_actor_supervision_valid = torch.zeros(
+            len(tokens), dtype=torch.bool
+        )
+        for replay_index, token in enumerate(tokens):
+            actor_index = actor_row_for_token.get(token)
+            if actor_index is None:
+                continue
+            current_actor_states[replay_index] = actor_table.actor_states[
+                actor_index
+            ]
+            current_actor_masks[replay_index] = actor_table.actor_masks[actor_index]
+            current_actor_supervision_valid[replay_index] = (
+                actor_table.supervision_valid[actor_index]
+            )
+        if not bool(current_actor_supervision_valid.any()):
+            raise RuntimeError(
+                "No replay scenes have valid current-actor supervision"
+            )
+        lineage.append(
+            actor_table.lineage
+            | {
+                "matched_replay_rows": int(
+                    current_actor_supervision_valid.sum()
+                ),
+                "total_replay_rows": len(tokens),
+            }
+        )
+
     result = ReplayTensorSet(
         tokens=tokens,
         log_names=log_names,
@@ -421,6 +551,9 @@ def load_replay_sources(
         observation_valid_masks=observation_valid_masks,
         observation_row_indices=observation_row_indices,
         ego_features=ego_features,
+        current_actor_states=current_actor_states,
+        current_actor_masks=current_actor_masks,
+        current_actor_supervision_valid=current_actor_supervision_valid,
         **replay_tensors,
     )
     expected_shapes = {
@@ -440,6 +573,10 @@ def load_replay_sources(
         raise RuntimeError("Observation valid-mask shape mismatch")
     if len(result.ego_features) != len(result.observation_tokens):
         raise RuntimeError("Observation/status table row mismatch")
+    if result.current_actor_states.shape[:2] != result.current_actor_masks.shape:
+        raise RuntimeError("Current-actor state/mask shape mismatch")
+    if result.current_actor_supervision_valid.shape != (len(result),):
+        raise RuntimeError("Current-actor supervision-valid shape mismatch")
     return result, lineage
 
 
@@ -534,6 +671,9 @@ def compute_training_loss(
         _base_scores,
         target_factors,
         _indices,
+        current_actor_states,
+        current_actor_masks,
+        current_actor_supervision_valid,
     ) = batch
     target_scores = target_factors[..., -1]
     candidate_indices = _candidate_dropout_indices(
@@ -644,6 +784,21 @@ def compute_training_loss(
     confidence = F.binary_cross_entropy_with_logits(
         output["confidence_logit"], confidence_target
     )
+    if args.current_actor_weight > 0:
+        current_actor = current_actor_auxiliary_loss(
+            output,
+            current_actor_states.float(),
+            current_actor_masks,
+            current_actor_supervision_valid,
+        )
+    else:
+        zero = coarse_prediction.sum() * 0.0
+        current_actor = {
+            "total": zero,
+            "presence": zero,
+            "type": zero,
+            "state": zero,
+        }
     coarse_objective = (
         args.pairwise_weight * coarse_rank_002
         + args.hard_pairwise_weight * (0.5 * coarse_rank_005 + 0.5 * coarse_rank_010)
@@ -667,6 +822,7 @@ def compute_training_loss(
         + args.factor_rank_weight * factor_rank
         + args.consequence_weight * consequence
         + args.confidence_weight * confidence
+        + args.current_actor_weight * current_actor["total"]
     )
     details = {
         "loss": total,
@@ -688,6 +844,10 @@ def compute_training_loss(
         "factor_rank": factor_rank,
         "consequence": consequence,
         "confidence": confidence,
+        "current_actor": current_actor["total"],
+        "current_actor_presence": current_actor["presence"],
+        "current_actor_type": current_actor["type"],
+        "current_actor_state": current_actor["state"],
     }
     return total, {key: float(value.detach()) for key, value in details.items()}
 
@@ -721,6 +881,9 @@ def collect_predictions(
         base,
         target,
         _source_indices,
+        _current_actor_states,
+        _current_actor_masks,
+        _current_actor_supervision_valid,
     ) in loader:
         output = model(
             observation.to(device, non_blocking=True).float(),
@@ -929,6 +1092,15 @@ def parse_args() -> argparse.Namespace:
             "16-token Q-Former representation."
         ),
     )
+    parser.add_argument(
+        "--current-actor-target-root",
+        type=Path,
+        default=None,
+        help=(
+            "Optional Gate-C oracle store containing current-only actor slots. "
+            "These are training labels, never inference inputs."
+        ),
+    )
     parser.add_argument("--fold-index", type=int, default=0)
     parser.add_argument("--num-folds", type=int, default=5)
     parser.add_argument("--fold-seed", type=int, default=20260901)
@@ -952,6 +1124,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--candidate-keep-count", type=int, default=48)
     parser.add_argument("--fine-top-k", type=int, default=12)
     parser.add_argument("--model-dim", type=int, default=256)
+    parser.add_argument("--dynamic-queries", type=int, default=12)
     parser.add_argument("--private-layers", type=int, default=2)
     parser.add_argument("--trajectory-layers", type=int, default=2)
     parser.add_argument("--candidate-layers", type=int, default=1)
@@ -971,6 +1144,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--factor-rank-weight", type=float, default=0.25)
     parser.add_argument("--consequence-weight", type=float, default=0.5)
     parser.add_argument("--confidence-weight", type=float, default=0.1)
+    parser.add_argument("--current-actor-weight", type=float, default=0.0)
     parser.add_argument("--safety-negative-weight", type=float, default=10.0)
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--max-scenes-per-source", type=int, default=0)
@@ -1009,6 +1183,19 @@ def main() -> None:
         and not args.private_observation_root.is_dir()
     ):
         raise FileNotFoundError(args.private_observation_root)
+    if args.current_actor_weight < 0:
+        raise ValueError("current-actor-weight must be non-negative")
+    if (args.current_actor_target_root is None) != (
+        args.current_actor_weight == 0
+    ):
+        raise ValueError(
+            "current-actor-target-root and a positive current-actor-weight "
+            "must be supplied together"
+        )
+    if args.current_actor_target_root is not None and not (
+        args.current_actor_target_root / "current.npy"
+    ).is_file():
+        raise FileNotFoundError(args.current_actor_target_root / "current.npy")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -1025,6 +1212,7 @@ def main() -> None:
         sources,
         max_scenes_per_source=args.max_scenes_per_source,
         private_observation_root=args.private_observation_root,
+        current_actor_target_root=args.current_actor_target_root,
     )
     split_lineage: Dict[str, object]
     if args.split_manifest is not None:
@@ -1091,11 +1279,20 @@ def main() -> None:
     if train_logs.intersection(validation_logs):
         raise RuntimeError("physical log leakage between train and validation")
 
+    if args.current_actor_weight > 0 and (
+        data.current_actor_states.shape[1] != args.dynamic_queries
+    ):
+        raise RuntimeError(
+            "dynamic query count must equal current actor target slots: "
+            f"{args.dynamic_queries} != {data.current_actor_states.shape[1]}"
+        )
+
     config = IndependentRankerConfig(
         observation_dim=int(data.observation_tokens.shape[-1]),
         max_observation_tokens=int(data.observation_tokens.shape[1]),
         status_dim=int(data.ego_features.shape[-1]),
         model_dim=args.model_dim,
+        dynamic_queries=args.dynamic_queries,
         num_private_layers=args.private_layers,
         num_trajectory_layers=args.trajectory_layers,
         num_candidate_layers=args.candidate_layers,
@@ -1103,6 +1300,7 @@ def main() -> None:
         fine_top_k=args.fine_top_k,
         consequence_dim=4,
         dropout=args.dropout,
+        current_actor_auxiliary=args.current_actor_weight > 0,
     )
     model = IndependentProposalRanker(config).to(device)
     optimizer = torch.optim.AdamW(
@@ -1153,6 +1351,8 @@ def main() -> None:
             else "released_qformer_scene_tokens_control"
         ),
         "future_or_evaluator_input": False,
+        "current_actor_labels_used_as_model_input": False,
+        "current_actor_labels_training_only": args.current_actor_weight > 0,
         "args": vars(args)
         | {
             "output_dir": str(args.output_dir),
@@ -1162,6 +1362,11 @@ def main() -> None:
             "private_observation_root": (
                 str(args.private_observation_root)
                 if args.private_observation_root is not None
+                else None
+            ),
+            "current_actor_target_root": (
+                str(args.current_actor_target_root)
+                if args.current_actor_target_root is not None
                 else None
             ),
         },

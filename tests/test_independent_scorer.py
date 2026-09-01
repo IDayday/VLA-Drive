@@ -19,6 +19,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     ProposalTrajectoryEncoder,
     assert_current_observation_only,
     conservative_reference_selection_scores,
+    current_actor_auxiliary_loss,
     factor_prediction_loss,
     masked_pinball_quantile_loss,
     pdms_factor_log_utility,
@@ -48,6 +49,7 @@ from local_stage2.independent_scorer_agent import (
 from local_stage2.train_independent_scorer import (
     ReplaySource,
     assign_balanced_physical_log_folds,
+    load_current_actor_target_table,
     load_replay_sources,
     physical_log_name,
 )
@@ -265,6 +267,68 @@ def test_candidate_permutation_equivariance() -> None:
             reference[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
         )
     assert torch.equal(reference["fine_mask"], permuted["fine_mask"][:, inverse])
+
+
+def test_current_actor_auxiliary_is_candidate_independent_and_masked() -> None:
+    torch.manual_seed(46)
+    model = IndependentProposalRanker(
+        _small_config(current_actor_auxiliary=True)
+    ).eval()
+    observations, status, proposals = _inputs()
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        permuted = model(observations, status, proposals[:, permutation])
+    for key in (
+        "current_actor_presence_logits",
+        "current_actor_type_logits",
+        "current_actor_state",
+    ):
+        torch.testing.assert_close(reference[key], permuted[key])
+
+    target = torch.zeros(2, 3, 8)
+    target[0, 0] = torch.tensor([0.0, 10.0, -2.0, 3.0, 0.5, 3.1, 4.8, 2.0])
+    target[0, 1] = torch.tensor([2.0, 4.0, 1.0, 0.0, 0.0, -3.1, 1.8, 0.7])
+    # Invalid scenes must be entirely ignored, including out-of-range types.
+    target[1, :, 0] = 99.0
+    mask = torch.tensor([[True, True, False], [True, True, True]])
+    valid = torch.tensor([True, False])
+    output = model(observations, status, proposals)
+    losses = current_actor_auxiliary_loss(output, target, mask, valid)
+    assert set(losses) == {"total", "presence", "type", "state"}
+    assert all(torch.isfinite(value) for value in losses.values())
+    losses["total"].backward()
+    assert model.current_actor_state_head.weight.grad is not None
+
+
+def test_load_current_actor_target_table_respects_scene_indices(tmp_path) -> None:
+    import pandas as pd
+
+    actor_slots = 2
+    current = np.zeros((2, 6 + actor_slots * 9), dtype=np.float32)
+    current[0, 6 : 6 + 16] = np.arange(16, dtype=np.float32)
+    current[0, 6 + 16 :] = [1.0, 0.0]
+    current[1, 6 : 6 + 16] = np.arange(100, 116, dtype=np.float32)
+    current[1, 6 + 16 :] = [1.0, 1.0]
+    np.save(tmp_path / "current.npy", current)
+    np.save(tmp_path / "completed.npy", np.array([True, False]))
+    pd.DataFrame(
+        {
+            "scene_token": ["row-one", "row-zero"],
+            "scene_index": [1, 0],
+            "target_preflight_available": [True, True],
+        }
+    ).to_parquet(tmp_path / "scene_metadata.parquet", index=False)
+    (tmp_path / "store_config.json").write_text("{}\n")
+
+    table = load_current_actor_target_table(tmp_path)
+    assert table.tokens == ["row-one", "row-zero"]
+    assert table.actor_states.shape == (2, actor_slots, 8)
+    assert table.actor_masks.tolist() == [[True, True], [True, False]]
+    assert table.supervision_valid.tolist() == [False, True]
+    torch.testing.assert_close(
+        table.actor_states[0].flatten(), torch.arange(100, 116).float()
+    )
 
 
 def test_conservative_reference_head_is_permutation_equivariant() -> None:
