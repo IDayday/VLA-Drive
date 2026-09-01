@@ -1,4 +1,6 @@
-from typing import List, Optional, Tuple, Union
+from dataclasses import asdict, dataclass
+import json
+from typing import Dict, List, Mapping, Optional, Tuple, Union
 import torch
 from torch import nn
 from transformers import AutoConfig, AutoModel, AutoTokenizer
@@ -6,6 +8,10 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 
 from .utils.conversation import get_conv_template
 from .utils.internvl_tokenize import build_internvl_model_inputs
+from .layers.planning_registers import (
+    InternVLPlanningRegisters,
+    inject_internvit_qv_lora,
+)
 
 IMG_CONTEXT_TOKEN = '<IMG_CONTEXT>'
 IMG_START_TOKEN = '<img>'
@@ -23,6 +29,211 @@ For evaluation, use the **PDM Score**, which combines these metrics: **PDM Score
 Your predictions will be evaluated through a non-reactive 4-second simulation with an LQR controller and background actors following their recorded trajectories. The better your predictions, the higher your score.
 """
 
+
+_PLANREG_LEGACY_ALLOWED_MISSING_PARTS = (
+    "backbone.planning_register_adapter.planning_registers",
+    "backbone.planning_register_adapter.register_norm.",
+    "backbone.planning_register_adapter.register_projection.",
+    "planning_register_adapter.planning_registers",
+    "planning_register_adapter.register_norm.",
+    "planning_register_adapter.register_projection.",
+    ".q_lora_a.",
+    ".q_lora_b.",
+    ".v_lora_a.",
+    ".v_lora_b.",
+)
+
+
+@dataclass
+class LegacyCheckpointAudit:
+    source_key_count: int
+    target_key_count: int
+    loaded_key_count: int
+    direct_key_count: int
+    merged_lora_module_count: int
+    allowed_missing_keys: List[str]
+    invalid_missing_keys: List[str]
+    unexpected_source_keys: List[str]
+    shape_errors: List[str]
+
+    def to_dict(self) -> Dict[str, object]:
+        return asdict(self)
+
+
+def _normalized_checkpoint_key(key: str) -> str:
+    return key[len("agent."):] if key.startswith("agent.") else key
+
+
+def _target_key_candidates(key: str) -> List[str]:
+    candidates = [key]
+    if key.startswith("backbone.base_model.model."):
+        candidates.append("backbone." + key[len("backbone.base_model.model."):])
+    if key.startswith("base_model.model."):
+        candidates.append(key[len("base_model.model."):])
+
+    expanded: List[str] = []
+    for candidate in candidates:
+        expanded.append(candidate)
+        if ".base_layer." in candidate:
+            expanded.append(candidate.replace(".base_layer.", "."))
+        if candidate.endswith(".weight"):
+            expanded.append(candidate[:-len(".weight")] + ".base_layer.weight")
+        elif candidate.endswith(".bias"):
+            expanded.append(candidate[:-len(".bias")] + ".base_layer.bias")
+    return list(dict.fromkeys(expanded))
+
+
+def _find_target_key(
+    source_key: str,
+    source_value: torch.Tensor,
+    target_state: Mapping[str, torch.Tensor],
+) -> Tuple[Optional[str], Optional[str]]:
+    shape_error = None
+    for candidate in _target_key_candidates(source_key):
+        if candidate not in target_state:
+            continue
+        if source_value.shape == target_state[candidate].shape:
+            return candidate, None
+        shape_error = (
+            f"{source_key} -> {candidate}: checkpoint={tuple(source_value.shape)}, "
+            f"model={tuple(target_state[candidate].shape)}"
+        )
+    return None, shape_error
+
+
+def load_legacy_checkpoint_with_planreg_audit(
+    module: nn.Module,
+    source_state: Mapping[str, torch.Tensor],
+    *,
+    legacy_lora_scale: float = 2.0,
+) -> LegacyCheckpointAudit:
+    """Strictly restore a legacy agent, merging PEFT only when topology changed.
+
+    The original PEFT topology is loaded directly when it still exists. In the
+    PlanReg topology, frozen legacy PEFT deltas are folded into their base
+    weights so the new trainable adaptation consists only of InternViT Q/V
+    LoRA. Only the explicitly new planning/QV tensors may remain missing.
+    """
+    normalized_source: Dict[str, torch.Tensor] = {}
+    for original_key, value in source_state.items():
+        normalized = _normalized_checkpoint_key(original_key)
+        if normalized in normalized_source:
+            raise RuntimeError(
+                f"Checkpoint key collision after removing agent prefix: {normalized}"
+            )
+        normalized_source[normalized] = value
+
+    target_state = module.state_dict()
+    loaded: Dict[str, torch.Tensor] = {}
+    consumed = set()
+    source_to_target: Dict[str, str] = {}
+    shape_errors: List[str] = []
+
+    # Direct loading also preserves the exact legacy PEFT path when the target
+    # still has that topology.
+    for source_key, source_value in normalized_source.items():
+        target_key, shape_error = _find_target_key(
+            source_key, source_value, target_state
+        )
+        if target_key is not None:
+            if target_key in loaded:
+                raise RuntimeError(
+                    f"Multiple checkpoint tensors map to target key {target_key}"
+                )
+            loaded[target_key] = source_value
+            consumed.add(source_key)
+            source_to_target[source_key] = target_key
+        elif shape_error is not None:
+            shape_errors.append(shape_error)
+
+    direct_key_count = len(loaded)
+    merged_lora_modules = 0
+    lora_a_suffix = ".lora_A.default.weight"
+    lora_b_suffix = ".lora_B.default.weight"
+    for a_key, a_weight in normalized_source.items():
+        if a_key in consumed or not a_key.endswith(lora_a_suffix):
+            continue
+        root = a_key[:-len(lora_a_suffix)]
+        b_key = root + lora_b_suffix
+        base_key = root + ".base_layer.weight"
+        b_weight = normalized_source.get(b_key)
+        if b_weight is None:
+            shape_errors.append(f"{a_key} has no matching {b_key}")
+            continue
+        target_key = source_to_target.get(base_key)
+        if target_key is None:
+            base_weight = normalized_source.get(base_key)
+            if base_weight is not None:
+                target_key, shape_error = _find_target_key(
+                    base_key, base_weight, target_state
+                )
+                if shape_error is not None:
+                    shape_errors.append(shape_error)
+            if target_key is None:
+                shape_errors.append(
+                    f"Cannot map legacy LoRA base weight {base_key} into target model"
+                )
+                continue
+        base_value = loaded.get(target_key)
+        if base_value is None:
+            shape_errors.append(
+                f"Legacy LoRA target {target_key} was not populated by {base_key}"
+            )
+            continue
+        if a_weight.ndim != 2 or b_weight.ndim != 2:
+            shape_errors.append(f"Legacy LoRA tensors must be matrices: {a_key}, {b_key}")
+            continue
+        delta = torch.matmul(b_weight.float(), a_weight.float())
+        delta.mul_(float(legacy_lora_scale))
+        if delta.shape != base_value.shape:
+            shape_errors.append(
+                f"Legacy LoRA delta {root} has shape {tuple(delta.shape)}, "
+                f"base is {tuple(base_value.shape)}"
+            )
+            continue
+        loaded[target_key] = base_value + delta.to(base_value.dtype)
+        consumed.update((a_key, b_key))
+        merged_lora_modules += 1
+
+    missing = sorted(set(target_state) - set(loaded))
+    allowed_missing = sorted(
+        key
+        for key in missing
+        if any(part in key for part in _PLANREG_LEGACY_ALLOWED_MISSING_PARTS)
+    )
+    invalid_missing = sorted(set(missing) - set(allowed_missing))
+    unexpected = sorted(set(normalized_source) - consumed)
+    audit = LegacyCheckpointAudit(
+        source_key_count=len(normalized_source),
+        target_key_count=len(target_state),
+        loaded_key_count=len(loaded),
+        direct_key_count=direct_key_count,
+        merged_lora_module_count=merged_lora_modules,
+        allowed_missing_keys=allowed_missing,
+        invalid_missing_keys=invalid_missing,
+        unexpected_source_keys=unexpected,
+        shape_errors=sorted(set(shape_errors)),
+    )
+    print("LEGACY_CHECKPOINT_AUDIT " + json.dumps(audit.to_dict(), sort_keys=True))
+    if invalid_missing or unexpected or shape_errors:
+        raise RuntimeError(
+            "Legacy checkpoint audit failed: "
+            f"invalid_missing={invalid_missing}, "
+            f"unexpected={unexpected}, shape_errors={sorted(set(shape_errors))}"
+        )
+
+    incompatible = module.load_state_dict(loaded, strict=False)
+    if sorted(incompatible.missing_keys) != allowed_missing:
+        raise RuntimeError(
+            "Legacy checkpoint load returned an un-audited missing-key set: "
+            f"expected={allowed_missing}, actual={sorted(incompatible.missing_keys)}"
+        )
+    if incompatible.unexpected_keys:
+        raise RuntimeError(
+            f"Legacy checkpoint load produced unexpected keys: {incompatible.unexpected_keys}"
+        )
+    return audit
+
 class DriveVLABackbone(nn.Module):
     """
     The DriveVLA-M0 vision-language backbone with direct loading logic
@@ -37,7 +248,14 @@ class DriveVLABackbone(nn.Module):
                  use_flash_attn: bool = True,
                  initialize_from_config: bool = False,
                  skip_lm_head: bool = False,
-                 gradient_checkpointing: bool = False):
+                 gradient_checkpointing: bool = False,
+                 planning_registers_enabled: bool = False,
+                 num_planning_registers: int = 16,
+                 planning_register_dim: int = 256,
+                 tile_register_aggregation: str = "mean",
+                 vision_qv_lora_enabled: bool = False,
+                 vision_qv_lora_rank: int = 32,
+                 vision_qv_lora_dropout: float = 0.0):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -53,6 +271,18 @@ class DriveVLABackbone(nn.Module):
         self.model_type = model_type.lower()
         self.device = device
         self.skip_lm_head = skip_lm_head
+        self.planning_registers_enabled = bool(planning_registers_enabled)
+        self.vision_qv_lora_enabled = bool(vision_qv_lora_enabled)
+        self.planning_register_adapter = None
+        self.injected_vision_qv_lora_layers: Tuple[str, ...] = ()
+
+        if (
+            self.planning_registers_enabled or self.vision_qv_lora_enabled
+        ) and self.model_type != "internvl":
+            raise NotImplementedError(
+                "PlanReg-WM-V1 supports only the confirmed InternVL/InternViT "
+                "runtime. A Qwen3-VL planning-register adapter is not implemented."
+            )
 
         print(f"Initializing DriveVLA-M0 backbone of type: '{self.model_type}' from path: '{checkpoint_path}'")
 
@@ -108,6 +338,25 @@ class DriveVLABackbone(nn.Module):
                 )
             # Load model-specific configuration
             self._configure_internvl()
+            if self.planning_registers_enabled:
+                InternVLPlanningRegisters.validate_runtime_structure(self.model)
+                vision_model = self.model.vision_model
+                hidden_dim = int(vision_model.config.hidden_size)
+                reference_parameter = next(vision_model.parameters())
+                self.planning_register_adapter = InternVLPlanningRegisters(
+                    vision_hidden_dim=hidden_dim,
+                    num_registers=int(num_planning_registers),
+                    register_dim=int(planning_register_dim),
+                    tile_aggregation=tile_register_aggregation,
+                    device=reference_parameter.device,
+                    dtype=reference_parameter.dtype,
+                )
+            if self.vision_qv_lora_enabled:
+                self.injected_vision_qv_lora_layers = inject_internvit_qv_lora(
+                    self.model.vision_model,
+                    rank=int(vision_qv_lora_rank),
+                    dropout=float(vision_qv_lora_dropout),
+                )
             if gradient_checkpointing:
                 self._enable_internvl_gradient_checkpointing()
             self.num_image_token = 256
@@ -162,6 +411,7 @@ class DriveVLABackbone(nn.Module):
         attention_mask: torch.Tensor,
         position_ids: torch.Tensor,
         image_flags: torch.Tensor,
+        vit_embeds: Optional[torch.Tensor] = None,
     ):
         """Return decoder hidden states without materializing vocabulary logits.
 
@@ -175,7 +425,9 @@ class DriveVLABackbone(nn.Module):
             input_ids
         ).clone()
 
-        vit_embeds = internvl_model.extract_feature(pixel_values)
+        if vit_embeds is None:
+            vit_embeds = internvl_model.extract_feature(pixel_values)
+        image_flags = image_flags.to(vit_embeds.device)
         vit_embeds = vit_embeds[image_flags == 1]
         batch_size, sequence_length, hidden_size = input_embeds.shape
         flat_input_embeds = input_embeds.reshape(-1, hidden_size)
@@ -211,6 +463,106 @@ class DriveVLABackbone(nn.Module):
             output_hidden_states=True,
             return_dict=True,
         )
+
+    def _forward_internvl_from_patch_features(
+        self,
+        patch_features: torch.Tensor,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        position_ids: torch.Tensor,
+        image_flags: torch.Tensor,
+    ):
+        """Run the frozen LLM from patch-only InternVL features."""
+        if self.skip_lm_head:
+            return self._forward_internvl_without_lm_head(
+                pixel_values=patch_features.new_empty(0),
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                position_ids=position_ids,
+                image_flags=image_flags,
+                vit_embeds=patch_features,
+            )
+
+        internvl_model = self.model
+        image_flags = image_flags.squeeze(-1).to(patch_features.device)
+        input_embeds = internvl_model.language_model.get_input_embeddings()(
+            input_ids
+        ).clone()
+        patch_features = patch_features[image_flags == 1]
+        batch_size, sequence_length, hidden_size = input_embeds.shape
+        flat_input_embeds = input_embeds.reshape(-1, hidden_size)
+        flat_input_ids = input_ids.reshape(-1)
+        selected = flat_input_ids == internvl_model.img_context_token_id
+        flat_patch_features = patch_features.reshape(-1, hidden_size).to(
+            flat_input_embeds.device
+        )
+        if int(selected.sum()) != flat_patch_features.shape[0]:
+            raise RuntimeError(
+                "InternVL image-token mismatch with planning registers: "
+                f"prompt has {int(selected.sum())} image tokens but patch-only "
+                f"vision features contain {flat_patch_features.shape[0]} tokens"
+            )
+        flat_input_embeds[selected] = (
+            flat_input_embeds[selected] * 0.0 + flat_patch_features
+        )
+        input_embeds = flat_input_embeds.reshape(
+            batch_size, sequence_length, hidden_size
+        )
+        return internvl_model.language_model(
+            inputs_embeds=input_embeds,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            use_cache=False,
+            output_hidden_states=True,
+            return_dict=True,
+        )
+
+    def encode_internvl_planning_vision(
+        self,
+        pixel_values: torch.Tensor,
+        num_patches_list: List[int],
+    ):
+        """Encode InternViT patches/registers without invoking the LLM."""
+        if not self.planning_registers_enabled or self.planning_register_adapter is None:
+            raise RuntimeError("InternVL planning registers are not enabled")
+        return self.planning_register_adapter(
+            self.model,
+            pixel_values,
+            num_patches_list,
+        )
+
+    def forward_internvl_with_planning_registers(
+        self,
+        pixel_values: torch.Tensor,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        position_ids: torch.Tensor,
+        image_flags: torch.Tensor,
+        num_patches_list: List[int],
+    ) -> Dict[str, torch.Tensor]:
+        """Return LLM hidden states plus InternViT-internal scene registers."""
+        planning_output = self.encode_internvl_planning_vision(
+            pixel_values,
+            num_patches_list,
+        )
+        language_output = self._forward_internvl_from_patch_features(
+            planning_output.patch_features,
+            input_ids,
+            attention_mask,
+            position_ids,
+            image_flags,
+        )
+        hidden_states = getattr(language_output, "hidden_states", None)
+        if not hidden_states:
+            raise RuntimeError(
+                "InternVL language model did not return hidden_states for the "
+                "planning-register path"
+            )
+        return {
+            "last_hidden_state": hidden_states[-1],
+            "planning_registers": planning_output.scene_registers,
+            "per_tile_registers": planning_output.per_tile_registers,
+        }
     
     def forward(
         self,
@@ -241,6 +593,20 @@ class DriveVLABackbone(nn.Module):
         num_patches = pixel_values.size(0)
         image_flags = torch.tensor([1] * num_patches, dtype=torch.long)
 
+        if self.planning_registers_enabled:
+            if return_vision:
+                return self.encode_internvl_planning_vision(
+                    pixel_values.bfloat16(),
+                    num_patches_list,
+                )
+            return self.forward_internvl_with_planning_registers(
+                pixel_values=pixel_values.bfloat16(),
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                position_ids=position_ids,
+                image_flags=image_flags,
+                num_patches_list=num_patches_list,
+            )
         if return_vision:
             return self.model.vision_model(
                 pixel_values=pixel_values.bfloat16(),

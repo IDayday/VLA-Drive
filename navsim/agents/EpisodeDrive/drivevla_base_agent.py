@@ -30,8 +30,12 @@ from .utils.internvl_preprocess import load_image
 from .utils.lr_scheduler import WarmupCosLR
 from .utils.utils import build_drivevla_questions, build_from_configs
 from .drivevla_features import DriveVLAFeatureBuilder ,TrajectoryTargetBuilder
-from .drivevla_backbone import DriveVLABackbone
+from .drivevla_backbone import (
+    DriveVLABackbone,
+    load_legacy_checkpoint_with_planreg_audit,
+)
 from .action_decoder import ActionDecoder
+from .layers.planning_registers import freeze_vision_except_qv_lora
 
 from peft import LoraConfig, get_peft_model
 
@@ -181,6 +185,7 @@ class DriveVLABaseAgent(AbstractAgent):
         vlm_config,
         lora_config,
         action_head_config,
+        vision_adaptation=None,
         lr_args=None,
         loss=None,
         progress_bar=True,
@@ -196,6 +201,7 @@ class DriveVLABaseAgent(AbstractAgent):
         self.action_head_config=action_head_config
         self.vlm_config=vlm_config
         self.lora_config=lora_config
+        self.vision_adaptation = vision_adaptation
 
         self._lr_args=lr_args
         self.progress_bar=progress_bar
@@ -294,6 +300,20 @@ class DriveVLABaseAgent(AbstractAgent):
             print("Agent running in 'no-cache' mode. Initializing internal backbone.")
             if not self.vlm_config.vlm_path or not self.vlm_config.vlm_type:
                 raise ValueError("In 'no-cache' mode, vlm_path and vlm_type are required.")
+            vision_mode = (
+                getattr(self.vision_adaptation, "mode", "none")
+                if self.vision_adaptation is not None
+                else "none"
+            )
+            vision_qv_lora_enabled = bool(
+                getattr(self.vlm_config, "vision_qv_lora_enabled", False)
+                or vision_mode == "qv_lora"
+            )
+            if vision_qv_lora_enabled and self.lora_config.use_lora:
+                raise ValueError(
+                    "PlanReg-WM-V1 Q/V LoRA cannot be combined with the legacy "
+                    "whole-VLM PEFT target_modules path. Set lora_config.use_lora=false."
+                )
             self.backbone = DriveVLABackbone(
                 model_type=self.vlm_config.vlm_type,
                 checkpoint_path=self.vlm_config.vlm_path,
@@ -315,6 +335,33 @@ class DriveVLABaseAgent(AbstractAgent):
                 ),
                 gradient_checkpointing=bool(
                     getattr(self.vlm_config, "gradient_checkpointing", False)
+                ),
+                planning_registers_enabled=bool(
+                    getattr(self.vlm_config, "planning_registers_enabled", False)
+                ),
+                num_planning_registers=int(
+                    getattr(self.vlm_config, "num_planning_registers", 16)
+                ),
+                planning_register_dim=int(
+                    getattr(self.vlm_config, "planning_register_dim", 256)
+                ),
+                tile_register_aggregation=getattr(
+                    self.vlm_config, "tile_register_aggregation", "mean"
+                ),
+                vision_qv_lora_enabled=vision_qv_lora_enabled,
+                vision_qv_lora_rank=int(
+                    getattr(
+                        self.vision_adaptation,
+                        "rank",
+                        getattr(self.vlm_config, "vision_qv_lora_rank", 32),
+                    )
+                    if self.vision_adaptation is not None
+                    else getattr(self.vlm_config, "vision_qv_lora_rank", 32)
+                ),
+                vision_qv_lora_dropout=float(
+                    getattr(self.vision_adaptation, "dropout", 0.0)
+                    if self.vision_adaptation is not None
+                    else 0.0
                 ),
             )
             
@@ -389,6 +436,44 @@ class DriveVLABaseAgent(AbstractAgent):
         # 可选：打印冻结信息
         frozen_params = sum(p.numel() for p in self.backbone.parameters())
         print(f"✅ Backbone冻结完成：{frozen_params:,} 个参数已冻结")
+
+    def _freeze_backbone_for_planreg(self) -> None:
+        """Freeze the VLM and enable only planning neck/registers and Q/V LoRA."""
+        if self.backbone is None:
+            return
+        for parameter in self.backbone.parameters():
+            parameter.requires_grad = False
+
+        adapter = self.backbone.planning_register_adapter
+        if adapter is None:
+            raise RuntimeError(
+                "planning_registers_enabled=true but no planning adapter exists"
+            )
+        for parameter in adapter.parameters():
+            parameter.requires_grad = True
+
+        if self.backbone.vision_qv_lora_enabled:
+            freeze_vision_except_qv_lora(self.backbone.model.vision_model)
+
+        leaked_language = [
+            name
+            for name, parameter in self.backbone.named_parameters()
+            if "language_model" in name and parameter.requires_grad
+        ]
+        if leaked_language:
+            raise RuntimeError(
+                "PlanReg-WM-V1 must freeze the LLM; trainable language keys: "
+                f"{leaked_language[:8]}"
+            )
+        trainable = sum(
+            parameter.numel()
+            for parameter in self.backbone.parameters()
+            if parameter.requires_grad
+        )
+        print(
+            "✅ PlanReg backbone frozen except planning registers/neck and "
+            f"vision Q/V LoRA: {trainable:,} trainable parameters"
+        )
 
     def _freeze_lm_head(self) -> None:
         """Freeze the language decoder head while keeping the VLM trainable."""
@@ -535,18 +620,18 @@ class DriveVLABaseAgent(AbstractAgent):
 
         if self.checkpoint_path:
             ckpt = torch.load(self.checkpoint_path, map_location="cpu")["state_dict"]
-            model_dict = self.state_dict()
-            filtered_ckpt = {}
-            for k, v in ckpt.items():
-                k2 = k[len("agent."):] if k.startswith("agent.") else k
-                if k2 in model_dict and v.shape == model_dict[k2].shape:
-                    filtered_ckpt[k2] = v
-            self.load_state_dict(filtered_ckpt, strict=True)
+            load_legacy_checkpoint_with_planreg_audit(
+                self,
+                ckpt,
+                legacy_lora_scale=2.0,
+            )
             print(f"✅ Agent loaded from checkpoint: {self.checkpoint_path}")
         elif self.stage1_checkpoint_path:
             self._load_stage1_backbone(self.stage1_checkpoint_path)
             
-        if self.vlm_config.freeze_backbone:
+        if bool(getattr(self.vlm_config, "planning_registers_enabled", False)):
+            self._freeze_backbone_for_planreg()
+        elif self.vlm_config.freeze_backbone:
             self._freeze_backbone()
         elif bool(getattr(self.vlm_config, "freeze_lm_head", False)):
             self._freeze_lm_head()

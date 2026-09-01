@@ -75,6 +75,21 @@ Checkpoint:
 Legacy migration must whitelist only keys introduced by PlanReg-WM-V1 and must
 reject every other missing or unexpected key.
 
+The implemented CPU-only full checkpoint migration audit against the real
+InternVL3-2B topology produced:
+
+- source keys: 1,323
+- PlanReg target keys: 1,104
+- loaded legacy target keys: 1,003
+- frozen legacy PEFT modules folded into base weights: 160
+- allowed new PlanReg/QV-LoRA keys: 101
+- invalid missing keys: 0
+- unexpected source keys: 0
+- shape errors: 0
+
+The migration keeps legacy PEFT adapters only as folded, frozen initialization;
+they are not retained as the trainable whole-VLM PEFT adaptation path.
+
 ## Frozen DrivoR source
 
 - Repository: `valeoai/DrivoR`
