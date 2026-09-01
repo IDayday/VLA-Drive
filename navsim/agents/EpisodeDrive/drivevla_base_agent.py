@@ -186,6 +186,7 @@ class DriveVLABaseAgent(AbstractAgent):
         lora_config,
         action_head_config,
         vision_adaptation=None,
+        scene_fusion=None,
         lr_args=None,
         loss=None,
         progress_bar=True,
@@ -202,6 +203,7 @@ class DriveVLABaseAgent(AbstractAgent):
         self.vlm_config=vlm_config
         self.lora_config=lora_config
         self.vision_adaptation = vision_adaptation
+        self.scene_fusion = scene_fusion
 
         self._lr_args=lr_args
         self.progress_bar=progress_bar
@@ -220,7 +222,20 @@ class DriveVLABaseAgent(AbstractAgent):
             )
 
         if not self.cache_data:
-            self.action_head=ActionDecoder(action_head_config)
+            total_optimizer_steps = None
+            if self.scheduler_args is not None:
+                global_batch_size = self.batch_size * self.num_gpus
+                total_optimizer_steps = int(
+                    math.ceil(
+                        self.scheduler_args.dataset_size / global_batch_size
+                    )
+                    * self.scheduler_args.num_epochs
+                )
+            self.action_head = ActionDecoder(
+                action_head_config,
+                scene_fusion_config=self.scene_fusion,
+                total_optimizer_steps=total_optimizer_steps,
+            )
 
         if not self.cache_data and self.action_head_config.checkpoint_path=="":
             self.bce_logit_loss=nn.BCEWithLogitsLoss
@@ -380,6 +395,17 @@ class DriveVLABaseAgent(AbstractAgent):
     ) -> None:
         """Attach Attention Memory after the legacy checkpoint is initialized."""
         self.action_head.set_memory_attention(memory_attention)
+
+    def set_optimizer_step(self, optimizer_step: int) -> None:
+        """Synchronize step-dependent modules with Lightning's resume-safe step."""
+        if not self.cache_data:
+            self.action_head.set_optimizer_step(optimizer_step)
+
+    def configure_total_optimizer_steps(self, total_optimizer_steps: int) -> None:
+        if not self.cache_data:
+            self.action_head.configure_total_optimizer_steps(
+                total_optimizer_steps
+            )
     
     def _apply_lora_to_backbone(self, backbone):
         """Apply LoRA to the backbone."""
@@ -692,14 +718,14 @@ class DriveVLABaseAgent(AbstractAgent):
         return [feature_builders]
 
     def forward(self, features: Dict[str, torch.Tensor], targets=None, tokens_list=None) -> Dict[str, torch.Tensor]:
-        # These payloads are consumed only by the frozen VLM.  Pop them before
-        # the generic feature transfer so paths and prompt construction never
-        # force repeated CUDA-to-host synchronization.
-        pixel_values_batch = features.pop("pixel_values", None)
-        questions = features.pop("questions", None)
-        image_path_tensor = features.pop("image_path_tensor", None)
-        input_ids = features.pop("input_ids", None)
-        attention_mask = features.pop("attention_mask", None)
+        # Work on a shallow local copy. The original feature dictionary remains
+        # available to compute_loss (notably for future image path tensors).
+        runtime_features = dict(features)
+        pixel_values_batch = runtime_features.get("pixel_values")
+        questions = runtime_features.get("questions")
+        image_path_tensor = runtime_features.get("image_path_tensor")
+        input_ids = runtime_features.get("input_ids")
+        attention_mask = runtime_features.get("attention_mask")
         pretokenized_inputs = None
         if input_ids is not None or attention_mask is not None:
             if input_ids is None or attention_mask is None:
@@ -714,8 +740,8 @@ class DriveVLABaseAgent(AbstractAgent):
             and pretokenized_inputs is None
             and not self.vlm_config.cache_hidden_state
         ):
-            prompt_history = features["history_trajectory"]
-            prompt_command = features["high_command_one_hot"]
+            prompt_history = runtime_features["history_trajectory"]
+            prompt_command = runtime_features["high_command_one_hot"]
             if prompt_history.is_cuda:
                 prompt_history = prompt_history.detach().cpu()
             if prompt_command.is_cuda:
@@ -724,9 +750,23 @@ class DriveVLABaseAgent(AbstractAgent):
         elif isinstance(questions, str):
             questions = [questions]
 
-        for key, tensor in features.items():
+        host_only_keys = {
+            "pixel_values",
+            "questions",
+            "image_path_tensor",
+            "input_ids",
+            "attention_mask",
+            "future_image_paths",
+            "future_image_path_lengths",
+            "future_valid_mask",
+        }
+        for key, tensor in list(runtime_features.items()):
+            if key in host_only_keys:
+                continue
             if isinstance(tensor, torch.Tensor):
-                features[key] = tensor.cuda(non_blocking=True)
+                runtime_features[key] = tensor.cuda(non_blocking=True)
+
+        features = runtime_features
 
         history_trajectory = features["history_trajectory"]
         high_command_one_hot = features["high_command_one_hot"]
@@ -735,6 +775,7 @@ class DriveVLABaseAgent(AbstractAgent):
         if history_trajectory.ndim == 2: history_trajectory = history_trajectory.unsqueeze(0)
         if high_command_one_hot.ndim == 1: high_command_one_hot = high_command_one_hot.unsqueeze(0)
 
+        planning_registers = features.get("planning_registers")
         if self.vlm_config.cache_hidden_state:
             last_hidden_state = features["last_hidden_state"]
         else:
@@ -782,7 +823,11 @@ class DriveVLABaseAgent(AbstractAgent):
                     num_patches_list=num_patches_list,
                     model_inputs=pretokenized_inputs,
                 )
-                last_hidden_state = outputs.hidden_states[-1]
+                if isinstance(outputs, dict):
+                    last_hidden_state = outputs["last_hidden_state"]
+                    planning_registers = outputs.get("planning_registers")
+                else:
+                    last_hidden_state = outputs.hidden_states[-1]
             
             elif self.vlm_config.vlm_type == "qwen3vl":
                 if image_paths is None:
@@ -816,6 +861,18 @@ class DriveVLABaseAgent(AbstractAgent):
                 "last_hidden_state":last_hidden_state,
                 "status_feature":status_feature
             }
+
+        if bool(getattr(self.vlm_config, "planning_registers_enabled", False)):
+            if planning_registers is None:
+                raise KeyError(
+                    "planning_registers_enabled=true but forward produced no "
+                    "planning_registers"
+                )
+            action_inputs["planning_registers"] = (
+                planning_registers.float()
+                if not self.training
+                else planning_registers
+            )
 
         for key in (
             "memory_map_query_key",

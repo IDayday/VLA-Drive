@@ -41,6 +41,10 @@ _PLANREG_LEGACY_ALLOWED_MISSING_PARTS = (
     ".q_lora_b.",
     ".v_lora_a.",
     ".v_lora_b.",
+    "action_head.semantic_gate",
+    "action_head.scene_norm.",
+    "action_head._optimizer_step",
+    "action_head._total_optimizer_steps",
 )
 
 

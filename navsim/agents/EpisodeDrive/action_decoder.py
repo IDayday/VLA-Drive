@@ -1,4 +1,5 @@
 from typing import Dict, Optional
+import math
 import numpy as np
 import torch
 import torch.nn as nn
@@ -16,7 +17,12 @@ import logging
 # commit fc6e5aa144bbcb5a046e22c18f1bd5cf3af8634a.
 
 class ActionDecoder(nn.Module):
-    def __init__(self, config):
+    def __init__(
+        self,
+        config,
+        scene_fusion_config=None,
+        total_optimizer_steps: Optional[int] = None,
+    ):
         super().__init__()
         self._config = config
         self.poses_num=config.num_poses
@@ -91,10 +97,121 @@ class ActionDecoder(nn.Module):
         # scorer
         self.scorer = Scorer(config)
         self.b2d = config.b2d
+
+        # Keep the legacy topology byte-for-byte compatible when no scene
+        # fusion config is supplied. PlanReg configurations opt in explicitly.
+        self.scene_fusion_enabled = scene_fusion_config is not None
+        self.scene_feature_mode = "semantic_only"
+        self.scene_transition_fraction = 0.10
+        if self.scene_fusion_enabled:
+            self.scene_feature_mode = str(
+                getattr(scene_fusion_config, "mode", "planning_plus_semantic")
+            )
+            if self.scene_feature_mode not in {
+                "semantic_only",
+                "planning_only",
+                "planning_plus_semantic",
+            }:
+                raise ValueError(
+                    "scene_fusion.mode must be semantic_only, planning_only, "
+                    f"or planning_plus_semantic; got {self.scene_feature_mode!r}"
+                )
+            self.scene_transition_fraction = float(
+                getattr(scene_fusion_config, "transition_fraction", 0.10)
+            )
+            if not 0.0 < self.scene_transition_fraction <= 1.0:
+                raise ValueError("scene_fusion.transition_fraction must be in (0,1]")
+            gate_init = float(
+                getattr(scene_fusion_config, "semantic_gate_init", 0.0)
+            )
+            self.semantic_gate = nn.Parameter(
+                torch.full((1, 1, config.tf_d_model), gate_init)
+            )
+            self.scene_norm = nn.LayerNorm(config.tf_d_model)
+            self.register_buffer(
+                "_optimizer_step",
+                torch.zeros((), dtype=torch.long),
+                persistent=True,
+            )
+            self.register_buffer(
+                "_total_optimizer_steps",
+                torch.tensor(
+                    0 if total_optimizer_steps is None else int(total_optimizer_steps),
+                    dtype=torch.long,
+                ),
+                persistent=True,
+            )
         # Attached only after loading the original Base checkpoint. Keeping this
         # as None preserves the exact legacy state_dict and inference behavior.
         self.memory_attention = None
         self.memory_injection_mode = "shared"
+
+    def set_optimizer_step(self, optimizer_step: int) -> None:
+        if self.scene_fusion_enabled:
+            self._optimizer_step.fill_(int(optimizer_step))
+
+    def configure_total_optimizer_steps(self, total_optimizer_steps: int) -> None:
+        if total_optimizer_steps <= 0:
+            raise ValueError("total_optimizer_steps must be positive")
+        if self.scene_fusion_enabled:
+            self._total_optimizer_steps.fill_(int(total_optimizer_steps))
+
+    def scene_mix_ratio(self, reference: torch.Tensor) -> torch.Tensor:
+        if self.scene_feature_mode == "semantic_only":
+            return reference.new_zeros(())
+        if self.scene_feature_mode == "planning_only" or not self.training:
+            return reference.new_ones(())
+        total_steps = int(self._total_optimizer_steps.item())
+        if total_steps <= 0:
+            raise RuntimeError(
+                "planning_plus_semantic training requires the total optimizer "
+                "step count for the 10% rho transition"
+            )
+        transition_steps = max(
+            1, int(math.ceil(total_steps * self.scene_transition_fraction))
+        )
+        ratio = min(1.0, int(self._optimizer_step.item()) / transition_steps)
+        return reference.new_tensor(ratio)
+
+    def fuse_scene_features(
+        self,
+        semantic_features: torch.Tensor,
+        planning_features: Optional[torch.Tensor],
+    ):
+        if not self.scene_fusion_enabled:
+            return semantic_features, semantic_features.new_zeros(())
+        rho = self.scene_mix_ratio(semantic_features)
+        if self.scene_feature_mode == "semantic_only":
+            combined = semantic_features
+        else:
+            if planning_features is None:
+                raise KeyError(
+                    f"scene_fusion.mode={self.scene_feature_mode} requires "
+                    "features['planning_registers']"
+                )
+            if planning_features.shape != semantic_features.shape:
+                raise ValueError(
+                    "Planning and semantic scene features must both be [B,16,256]; "
+                    f"got {tuple(planning_features.shape)} and "
+                    f"{tuple(semantic_features.shape)}"
+                )
+            planning_features = planning_features.to(
+                device=semantic_features.device,
+                dtype=semantic_features.dtype,
+            )
+            if self.scene_feature_mode == "planning_only":
+                combined = planning_features
+            else:
+                combined = (
+                    (1.0 - rho) * semantic_features
+                    + rho
+                    * (
+                        planning_features
+                        + torch.tanh(self.semantic_gate).to(semantic_features.dtype)
+                        * semantic_features
+                    )
+                )
+        return self.scene_norm(combined), rho
 
     def set_memory_attention(
         self,
@@ -280,9 +397,14 @@ class ActionDecoder(nn.Module):
         ego_token = self.hist_encoding(ego_status)[:, None]
         log.debug(f"Ego features - {ego_token.shape}")
 
-        scene_features = self.q_former(
+        semantic_features = self.q_former(
             self.scene_embeds,
             features["last_hidden_state"],
+        )
+        planning_features = features.get("planning_registers")
+        scene_features, scene_mix_ratio = self.fuse_scene_features(
+            semantic_features,
+            planning_features,
         )
         original_scene_features = scene_features
         enhanced_scene_features, memory_output = self._apply_memory_attention(
@@ -299,9 +421,19 @@ class ActionDecoder(nn.Module):
         else:
             scene_features = enhanced_scene_features
             scorer_scene_features = enhanced_scene_features
-        return self._decode_scene(
+        output = self._decode_scene(
             scene_features,
             ego_token,
             memory_output,
             scorer_scene_features,
         )
+        if self.scene_fusion_enabled:
+            output.update(
+                {
+                    "planning_registers": planning_features,
+                    "semantic_scene_features": semantic_features,
+                    "planning_scene_features": planning_features,
+                    "scene_mix_ratio": scene_mix_ratio,
+                }
+            )
+        return output

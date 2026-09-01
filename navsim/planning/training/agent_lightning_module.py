@@ -30,6 +30,12 @@ class AgentLightningModule(pl.LightningModule):
         self.for_viz = for_viz
         self.for_analysis=for_analysis
 
+    def on_fit_start(self) -> None:
+        if hasattr(self.agent, "configure_total_optimizer_steps"):
+            self.agent.configure_total_optimizer_steps(
+                int(self.trainer.estimated_stepping_batches)
+            )
+
     def _step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], logging_prefix: str) -> Tensor:
         """
         Propagates the model forward and backwards and computes/logs losses and metrics.
@@ -39,6 +45,10 @@ class AgentLightningModule(pl.LightningModule):
         """
         features, targets = batch
 
+        if hasattr(self.agent, "set_optimizer_step"):
+            # Lightning restores global_step on resume, so rho/EMA schedules
+            # continue from the exact completed optimizer step.
+            self.agent.set_optimizer_step(self.global_step)
 
         if not 'mem' in self.agent.name().lower() or self.agent._config.memory_mode=='base':
             prediction = self.agent.forward(features)
