@@ -80,12 +80,7 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         )
 
     @staticmethod
-    def validate_runtime_structure(vlm_model: nn.Module) -> None:
-        vision_model = getattr(vlm_model, "vision_model", None)
-        if vision_model is None:
-            raise RuntimeError(
-                "InternVL planning registers require vlm_model.vision_model"
-            )
+    def validate_vision_structure(vision_model: nn.Module) -> None:
         embeddings = getattr(vision_model, "embeddings", None)
         encoder = getattr(vision_model, "encoder", None)
         if embeddings is None:
@@ -116,6 +111,15 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
                 "InternVL planning registers require a non-empty "
                 "vision_model.encoder.layers"
             )
+
+    @classmethod
+    def validate_runtime_structure(cls, vlm_model: nn.Module) -> None:
+        vision_model = getattr(vlm_model, "vision_model", None)
+        if vision_model is None:
+            raise RuntimeError(
+                "InternVL planning registers require vlm_model.vision_model"
+            )
+        cls.validate_vision_structure(vision_model)
         if getattr(vlm_model, "select_layer", -1) != -1:
             raise RuntimeError(
                 "PlanReg-WM-V1 runs and consumes all InternViT encoder layers, "
@@ -126,39 +130,12 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         if not isinstance(getattr(vlm_model, "mlp1", None), nn.Module):
             raise RuntimeError("InternVL model does not expose its mlp1 projector")
 
-    def _aggregate_tiles(
+    def _encode_with_registers(
         self,
-        per_tile_registers: torch.Tensor,
-        num_patches_list: List[int],
-    ) -> torch.Tensor:
-        counts = [int(count) for count in num_patches_list]
-        if not counts or any(count <= 0 for count in counts):
-            raise ValueError(
-                f"num_patches_list must contain positive tile counts, got {counts}"
-            )
-        if sum(counts) != per_tile_registers.shape[0]:
-            raise ValueError(
-                "InternVL tile/register aggregation mismatch: "
-                f"sum(num_patches_list)={sum(counts)} but encoded "
-                f"{per_tile_registers.shape[0]} tiles"
-            )
-        if self.tile_aggregation != "mean":
-            raise RuntimeError(
-                f"Unsupported tile register aggregation {self.tile_aggregation!r}"
-            )
-        return torch.stack(
-            [tile_group.mean(dim=0) for tile_group in per_tile_registers.split(counts)],
-            dim=0,
-        )
-
-    def forward(
-        self,
-        vlm_model: nn.Module,
+        vision_model: nn.Module,
         pixel_values: torch.Tensor,
-        num_patches_list: List[int],
-    ) -> InternVLPlanningOutput:
-        self.validate_runtime_structure(vlm_model)
-        vision_model = vlm_model.vision_model
+    ):
+        self.validate_vision_structure(vision_model)
         embedded = vision_model.embeddings(pixel_values)
         if embedded.ndim != 3 or embedded.shape[-1] != self.vision_hidden_dim:
             raise RuntimeError(
@@ -198,6 +175,73 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
                 "Patch-token count changed after planning-register split: "
                 f"expected {original_patch_count}, got {encoded_patches.shape[1]}"
             )
+        return encoded_registers, encoded_patches
+
+    def _project_registers(
+        self,
+        encoded_registers: torch.Tensor,
+        num_patches_list: List[int],
+    ):
+        per_tile_registers = self.register_projection(
+            self.register_norm(encoded_registers)
+        )
+        scene_registers = self._aggregate_tiles(
+            per_tile_registers, num_patches_list
+        )
+        return per_tile_registers, scene_registers
+
+    def encode_registers_only(
+        self,
+        vision_model: nn.Module,
+        pixel_values: torch.Tensor,
+        num_patches_list: List[int],
+    ) -> torch.Tensor:
+        """EMA-facing path that does not retain patch or language features."""
+        encoded_registers, _ = self._encode_with_registers(
+            vision_model, pixel_values
+        )
+        _, scene_registers = self._project_registers(
+            encoded_registers, num_patches_list
+        )
+        return scene_registers
+
+    def _aggregate_tiles(
+        self,
+        per_tile_registers: torch.Tensor,
+        num_patches_list: List[int],
+    ) -> torch.Tensor:
+        counts = [int(count) for count in num_patches_list]
+        if not counts or any(count <= 0 for count in counts):
+            raise ValueError(
+                f"num_patches_list must contain positive tile counts, got {counts}"
+            )
+        if sum(counts) != per_tile_registers.shape[0]:
+            raise ValueError(
+                "InternVL tile/register aggregation mismatch: "
+                f"sum(num_patches_list)={sum(counts)} but encoded "
+                f"{per_tile_registers.shape[0]} tiles"
+            )
+        if self.tile_aggregation != "mean":
+            raise RuntimeError(
+                f"Unsupported tile register aggregation {self.tile_aggregation!r}"
+            )
+        return torch.stack(
+            [tile_group.mean(dim=0) for tile_group in per_tile_registers.split(counts)],
+            dim=0,
+        )
+
+    def forward(
+        self,
+        vlm_model: nn.Module,
+        pixel_values: torch.Tensor,
+        num_patches_list: List[int],
+    ) -> InternVLPlanningOutput:
+        self.validate_runtime_structure(vlm_model)
+        vision_model = vlm_model.vision_model
+        encoded_registers, encoded_patches = self._encode_with_registers(
+            vision_model, pixel_values
+        )
+        original_patch_count = encoded_patches.shape[1]
 
         grid_size = math.isqrt(original_patch_count)
         if grid_size * grid_size != original_patch_count:
@@ -220,11 +264,8 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         )
         patch_features = vlm_model.mlp1(shuffled_patches)
 
-        per_tile_registers = self.register_projection(
-            self.register_norm(encoded_registers)
-        )
-        scene_registers = self._aggregate_tiles(
-            per_tile_registers, num_patches_list
+        per_tile_registers, scene_registers = self._project_registers(
+            encoded_registers, num_patches_list
         )
         return InternVLPlanningOutput(
             patch_features=patch_features,

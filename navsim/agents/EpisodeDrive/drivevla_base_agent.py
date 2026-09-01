@@ -36,6 +36,16 @@ from .drivevla_backbone import (
 )
 from .action_decoder import ActionDecoder
 from .layers.planning_registers import freeze_vision_except_qv_lora
+from .layers.planning_registers.register_diagnostics import (
+    compute_register_diagnostics,
+)
+from .layers.world_model import (
+    EMARegisterTarget,
+    EMARegisterTargetCallback,
+    FutureRegisterPredictor,
+    cosine_ema_momentum,
+    decode_path_tensor,
+)
 
 from peft import LoraConfig, get_peft_model
 
@@ -187,6 +197,8 @@ class DriveVLABaseAgent(AbstractAgent):
         action_head_config,
         vision_adaptation=None,
         scene_fusion=None,
+        world_model=None,
+        ema=None,
         lr_args=None,
         loss=None,
         progress_bar=True,
@@ -204,6 +216,24 @@ class DriveVLABaseAgent(AbstractAgent):
         self.lora_config=lora_config
         self.vision_adaptation = vision_adaptation
         self.scene_fusion = scene_fusion
+        self.world_model_config = world_model
+        self.ema_config = ema
+        self.world_model_enabled = bool(
+            world_model is not None and getattr(world_model, "enabled", False)
+        )
+        self.future_mode = (
+            str(getattr(world_model, "future_mode", "correct"))
+            if self.world_model_enabled
+            else "disabled"
+        )
+        if self.future_mode not in {
+            "disabled",
+            "correct",
+            "no_action_condition",
+            "shuffled_batch",
+            "repeated_current",
+        }:
+            raise ValueError(f"Unsupported world_model.future_mode={self.future_mode!r}")
 
         self._lr_args=lr_args
         self.progress_bar=progress_bar
@@ -214,6 +244,35 @@ class DriveVLABaseAgent(AbstractAgent):
         self.stage1_checkpoint_path = stage1_checkpoint_path
         self.cache_data = cache_data
         self._initialized = False
+
+        self.future_register_predictor = None
+        self.ema_register_target = None
+        if self.world_model_enabled:
+            if self.vlm_config.cache_hidden_state or self.vlm_config.cache_mode:
+                raise ValueError(
+                    "PlanReg-WM-V1 requires cache_hidden_state=false and cache_mode=false"
+                )
+            if not bool(getattr(self.vlm_config, "planning_registers_enabled", False)):
+                raise ValueError("World-model training requires planning_registers_enabled=true")
+            if self.ema_config is None or not bool(
+                getattr(self.ema_config, "enabled", False)
+            ):
+                raise ValueError("World-model training requires ema.enabled=true")
+            self.future_register_predictor = FutureRegisterPredictor(
+                hidden_dim=int(getattr(world_model, "hidden_dim", 256)),
+                predictor_layers=int(getattr(world_model, "predictor_layers", 2)),
+                horizons_sec=tuple(
+                    float(value)
+                    for value in getattr(
+                        world_model, "horizons_sec", (0.5, 1.5, 3.0)
+                    )
+                ),
+            )
+            self.register_buffer(
+                "_ema_optimizer_step",
+                torch.zeros((), dtype=torch.long),
+                persistent=True,
+            )
 
         if self.checkpoint_path and self.stage1_checkpoint_path:
             raise ValueError(
@@ -406,6 +465,47 @@ class DriveVLABaseAgent(AbstractAgent):
             self.action_head.configure_total_optimizer_steps(
                 total_optimizer_steps
             )
+
+    def _initialize_ema_register_target(self) -> None:
+        if not self.world_model_enabled:
+            return
+        if self.backbone is None:
+            raise RuntimeError("Cannot initialize EMA target without a student backbone")
+        # This is intentionally called only after legacy/student checkpoint
+        # restoration and custom Q/V LoRA construction.
+        self.ema_register_target = EMARegisterTarget(self.backbone)
+        self.ema_register_target.eval()
+        print(
+            "✅ Initialized training-only EMA target with InternViT, Q/V LoRA, "
+            "planning registers and neck (no LLM/Q-Former/action/scorer modules)."
+        )
+
+    @torch.no_grad()
+    def update_ema_after_optimizer_step(
+        self,
+        optimizer_step: int,
+        total_optimizer_steps: int,
+    ) -> None:
+        if not self.world_model_enabled or self.ema_register_target is None:
+            return
+        completed_step = int(optimizer_step)
+        if completed_step <= int(self._ema_optimizer_step.item()):
+            return
+        start = float(getattr(self.ema_config, "start_momentum", 0.996))
+        end = float(getattr(self.ema_config, "end_momentum", 0.9999))
+        momentum = cosine_ema_momentum(
+            completed_step,
+            total_optimizer_steps,
+            start=start,
+            end=end,
+        )
+        self.ema_register_target.update(self.backbone, momentum)
+        self._ema_optimizer_step.fill_(completed_step)
+
+    def remove_training_only_world_model(self) -> None:
+        """Strip predictor/EMA modules from a deployment-only process."""
+        self.ema_register_target = None
+        self.future_register_predictor = None
     
     def _apply_lora_to_backbone(self, backbone):
         """Apply LoRA to the backbone."""
@@ -558,6 +658,8 @@ class DriveVLABaseAgent(AbstractAgent):
             and bool(getattr(self.vlm_config, "freeze_backbone", False))
         ):
             self.backbone.eval()
+        if self.ema_register_target is not None:
+            self.ema_register_target.eval()
         return self
         
     def _freeze_backbone_selective(self):
@@ -667,6 +769,7 @@ class DriveVLABaseAgent(AbstractAgent):
             # behavior).
             self.backbone.train()
         self._report_backbone_trainability()
+        self._initialize_ema_register_target()
         self._initialized = True
 
     def get_sensor_config(self) -> SensorConfig:
@@ -675,7 +778,10 @@ class DriveVLABaseAgent(AbstractAgent):
             return list(values) if values else []
 
         return SensorConfig(
-            cam_f0=_history("cam_f0"),
+            # Future-register targets use current+0.5/1.5/3.0 s front views.
+            # Loading all front-view frame paths avoids assuming a fixed
+            # history length in SensorConfig's absolute iteration indices.
+            cam_f0=True if self.world_model_enabled else _history("cam_f0"),
             cam_l0=_history("cam_l0"),
             cam_l1=_history("cam_l1"),
             cam_l2=_history("cam_l2"),
@@ -687,7 +793,12 @@ class DriveVLABaseAgent(AbstractAgent):
         )
 
     def get_target_builders(self) -> List[AbstractTargetBuilder]:
-        return [TrajectoryTargetBuilder(config=self.action_head_config)]
+        return [
+            TrajectoryTargetBuilder(
+                config=self.action_head_config,
+                world_model_config=self.world_model_config,
+            )
+        ]
 
     def get_feature_builders(self) -> List[AbstractFeatureBuilder]:
         feature_builders = DriveVLAFeatureBuilder(
@@ -895,6 +1006,8 @@ class DriveVLABaseAgent(AbstractAgent):
 
     def compute_trajectory(self, agent_input: AgentInput) -> Trajectory:
         self.eval()
+        if self.world_model_enabled:
+            self.remove_training_only_world_model()
 
         features: Dict[str, torch.Tensor] = {}
         # build features
@@ -916,6 +1029,8 @@ class DriveVLABaseAgent(AbstractAgent):
 
     def compute_trajectory_vis(self, agent_input: AgentInput) -> Trajectory:
         self.eval()
+        if self.world_model_enabled:
+            self.remove_training_only_world_model()
 
         features: Dict[str, torch.Tensor] = {}
         # build features
@@ -931,13 +1046,296 @@ class DriveVLABaseAgent(AbstractAgent):
         return Trajectory(poses)
 
 
+    def _current_image_tiles(
+        self,
+        features: Dict[str, torch.Tensor],
+        batch_size: int,
+    ) -> List[torch.Tensor]:
+        pixel_values = features.get("pixel_values")
+        if isinstance(pixel_values, torch.Tensor):
+            if pixel_values.ndim == 5:
+                if pixel_values.shape[0] != batch_size:
+                    raise ValueError("Current pixel batch does not match register batch")
+                return [pixel_values[index] for index in range(batch_size)]
+            if pixel_values.ndim == 4 and batch_size == 1:
+                return [pixel_values]
+            raise ValueError(
+                "World-model current pixel_values must be [B,T,C,H,W] or "
+                f"single-sample [T,C,H,W], got {tuple(pixel_values.shape)}"
+            )
+        if isinstance(pixel_values, (list, tuple)):
+            if len(pixel_values) != batch_size:
+                raise ValueError("Current pixel list does not match register batch")
+            return list(pixel_values)
+
+        path_tensor = features.get("image_path_tensor")
+        if path_tensor is None:
+            raise KeyError(
+                "World-model loss requires current pixel_values or image_path_tensor"
+            )
+        if path_tensor.ndim == 1:
+            path_tensor = path_tensor.unsqueeze(0)
+        current_paths = self._decode_paths_from_tensor(path_tensor.detach().cpu())
+        if len(current_paths) != batch_size:
+            raise ValueError("Current image path batch does not match registers")
+        return [load_image(path) for path in current_paths]
+
+    def _encode_ema_register_targets(
+        self,
+        features: Dict[str, torch.Tensor],
+        targets: Dict[str, torch.Tensor],
+        batch_size: int,
+    ):
+        if self.ema_register_target is None:
+            raise RuntimeError("EMA register target has not been initialized")
+        if self.future_mode == "shuffled_batch" and batch_size == 1:
+            raise ValueError(
+                "world_model.future_mode=shuffled_batch requires batch_size > 1"
+            )
+        required = (
+            "future_image_paths",
+            "future_image_path_lengths",
+            "future_valid_mask",
+        )
+        missing = [key for key in required if key not in targets]
+        if missing:
+            raise KeyError(f"World-model targets are missing future fields: {missing}")
+
+        future_paths = targets["future_image_paths"]
+        future_lengths = targets["future_image_path_lengths"]
+        future_valid = targets["future_valid_mask"]
+        if future_paths.ndim == 2:
+            future_paths = future_paths.unsqueeze(0)
+            future_lengths = future_lengths.unsqueeze(0)
+            future_valid = future_valid.unsqueeze(0)
+        if future_paths.shape[:2] != (batch_size, 3):
+            raise ValueError(
+                "future_image_paths must have shape [B,3,1024], got "
+                f"{tuple(future_paths.shape)}"
+            )
+        valid_mask = future_valid.detach().to(dtype=torch.bool, device="cpu")
+        current_tiles = self._current_image_tiles(features, batch_size)
+
+        all_image_tiles: List[torch.Tensor] = []
+        tile_counts: List[int] = []
+        for batch_index in range(batch_size):
+            current = current_tiles[batch_index].detach().cpu()
+            image_group = [current]
+            for horizon_index in range(3):
+                if self.future_mode == "repeated_current" or not bool(
+                    valid_mask[batch_index, horizon_index]
+                ):
+                    future = current
+                else:
+                    path = decode_path_tensor(
+                        future_paths[batch_index, horizon_index],
+                        future_lengths[batch_index, horizon_index],
+                    )
+                    future = load_image(path)
+                image_group.append(future)
+            for image_tiles in image_group:
+                if image_tiles.ndim != 4:
+                    raise ValueError(
+                        f"InternVL image preprocessing must return [T,C,H,W], got {image_tiles.shape}"
+                    )
+                all_image_tiles.append(image_tiles)
+                tile_counts.append(int(image_tiles.shape[0]))
+
+        teacher_parameter = next(self.ema_register_target.parameters())
+        pixel_values = torch.cat(all_image_tiles, dim=0).to(
+            device=teacher_parameter.device,
+            dtype=teacher_parameter.dtype,
+            non_blocking=True,
+        )
+        with torch.no_grad():
+            all_targets = self.ema_register_target(pixel_values, tile_counts)
+        all_targets = all_targets.reshape(batch_size, 4, *all_targets.shape[1:])
+        target_current = all_targets[:, 0].detach()
+        target_future = all_targets[:, 1:].detach()
+
+        if self.future_mode == "repeated_current":
+            target_future = target_current[:, None].expand_as(target_future)
+            valid_mask = torch.ones_like(valid_mask)
+        elif self.future_mode == "shuffled_batch":
+            target_future = torch.roll(target_future, shifts=1, dims=0)
+            valid_mask = torch.roll(valid_mask, shifts=1, dims=0)
+        return (
+            target_current,
+            target_future,
+            valid_mask.to(device=target_current.device),
+        )
+
+    @staticmethod
+    def _masked_horizon_mean(
+        values: torch.Tensor,
+        valid_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        weights = valid_mask.to(device=values.device, dtype=values.dtype)
+        return (values * weights).sum() / weights.sum().clamp_min(1.0)
+
+    def _compute_world_model_loss_from_registers(
+        self,
+        current_registers: torch.Tensor,
+        gt_trajectory: torch.Tensor,
+        target_current: torch.Tensor,
+        target_future: torch.Tensor,
+        future_valid_mask: torch.Tensor,
+    ) -> Dict[str, torch.Tensor]:
+        if self.future_register_predictor is None:
+            raise RuntimeError("Future register predictor is unavailable")
+        if gt_trajectory.ndim == 2:
+            gt_trajectory = gt_trajectory.unsqueeze(0)
+        if gt_trajectory.shape[-2:] != (8, 3):
+            raise ValueError(
+                f"GT trajectory must be [B,8,3], got {tuple(gt_trajectory.shape)}"
+            )
+        if target_future.shape != (
+            current_registers.shape[0],
+            3,
+            current_registers.shape[1],
+            current_registers.shape[2],
+        ):
+            raise ValueError(
+                "Future EMA register target shape mismatch: "
+                f"got {tuple(target_future.shape)}"
+            )
+        if not bool(future_valid_mask.any()):
+            raise RuntimeError("World-model batch has no valid future image targets")
+
+        predictor_only = bool(
+            getattr(self.world_model_config, "predictor_only", False)
+        )
+        predictor_current = (
+            current_registers.detach() if predictor_only else current_registers
+        )
+        trajectories = gt_trajectory.to(
+            device=current_registers.device,
+            dtype=current_registers.dtype,
+        )[:, None]
+        horizons = tuple(
+            float(value)
+            for value in getattr(
+                self.world_model_config, "horizons_sec", (0.5, 1.5, 3.0)
+            )
+        )
+        pred_future = self.future_register_predictor(
+            predictor_current,
+            trajectories,
+            horizons,
+            use_action_condition=self.future_mode != "no_action_condition",
+        )
+        target_current = target_current.detach().to(
+            device=pred_future.device, dtype=pred_future.dtype
+        )
+        target_future = target_future.detach().to(
+            device=pred_future.device, dtype=pred_future.dtype
+        )
+        valid_mask = future_valid_mask.to(device=pred_future.device, dtype=torch.bool)
+
+        cosine_by_register = 1.0 - F.cosine_similarity(
+            pred_future,
+            target_future[:, None],
+            dim=-1,
+            eps=1e-8,
+        )
+        cosine_by_horizon = cosine_by_register.mean(dim=(1, 3))
+        delta_error = F.smooth_l1_loss(
+            pred_future - predictor_current[:, None, None],
+            target_future[:, None] - target_current[:, None, None],
+            reduction="none",
+        )
+        delta_by_horizon = delta_error.mean(dim=(1, 3, 4))
+        wm_abs_loss = self._masked_horizon_mean(cosine_by_horizon, valid_mask)
+        wm_delta_loss = self._masked_horizon_mean(delta_by_horizon, valid_mask)
+        abs_weight = float(getattr(self.world_model_config, "abs_weight", 1.0))
+        delta_weight = float(getattr(self.world_model_config, "delta_weight", 0.25))
+        wm_loss = abs_weight * wm_abs_loss + delta_weight * wm_delta_loss
+
+        diagnostics = compute_register_diagnostics(current_registers)
+        loss_dict = {
+            "wm_loss": wm_loss,
+            "wm_abs_loss": wm_abs_loss,
+            "wm_delta_loss": wm_delta_loss,
+            "predicted_future_registers": pred_future,
+            **diagnostics,
+        }
+        horizon_names = ("0p5", "1p5", "3p0")
+        for index, name in enumerate(horizon_names):
+            mask = valid_mask[:, index]
+            loss_dict[f"wm_cos_{name}"] = self._masked_horizon_mean(
+                cosine_by_horizon[:, index], mask
+            )
+            loss_dict[f"wm_delta_{name}"] = self._masked_horizon_mean(
+                delta_by_horizon[:, index], mask
+            )
+        return loss_dict
+
+    def get_planreg_gradient_norms(self) -> Dict[str, torch.Tensor]:
+        if self.backbone is None:
+            zero = torch.zeros(())
+            return {"vision_lora_grad_norm": zero, "register_grad_norm": zero}
+        device = next(self.parameters()).device
+
+        def norm_for(predicate) -> torch.Tensor:
+            squares = []
+            for name, parameter in self.backbone.named_parameters():
+                if predicate(name) and parameter.grad is not None:
+                    squares.append(parameter.grad.detach().float().square().sum())
+            if not squares:
+                return torch.zeros((), device=device)
+            return torch.stack(squares).sum().sqrt()
+
+        return {
+            "vision_lora_grad_norm": norm_for(
+                lambda name: "q_lora" in name or "v_lora" in name
+            ),
+            "register_grad_norm": norm_for(
+                lambda name: "planning_register_adapter.planning_registers" in name
+            ),
+        }
+
+
     def compute_loss(
             self,
             features: Dict[str, torch.Tensor],
             targets: Dict[str, torch.Tensor],
             pred: Dict[str, torch.Tensor],
     ) -> Dict:
-        return self.loss(targets, pred, self.action_head_config, self.compute_score)
+        base_loss_dict = self.loss(
+            targets, pred, self.action_head_config, self.compute_score
+        )
+        if not self.world_model_enabled:
+            return base_loss_dict
+        if not self.training:
+            return base_loss_dict
+        current_registers = pred.get("planning_registers")
+        if current_registers is None:
+            raise KeyError("World-model loss requires predictions['planning_registers']")
+        target_current, target_future, valid_mask = self._encode_ema_register_targets(
+            features,
+            targets,
+            batch_size=current_registers.shape[0],
+        )
+        wm_loss_dict = self._compute_world_model_loss_from_registers(
+            current_registers,
+            targets["trajectory"],
+            target_current,
+            target_future,
+            valid_mask,
+        )
+        total = base_loss_dict["loss"] + float(
+            getattr(self.world_model_config, "weight", 0.25)
+        ) * wm_loss_dict["wm_loss"]
+        result = dict(base_loss_dict)
+        result["loss"] = total
+        result.update(
+            {
+                key: value
+                for key, value in wm_loss_dict.items()
+                if key != "predicted_future_registers"
+            }
+        )
+        return result
 
     def compute_score(self, targets, proposals, test=True):
         if self.training:
@@ -1283,12 +1681,26 @@ class DriveVLABaseAgent(AbstractAgent):
             if timing_interval > 0
             else []
         )
+        ema_callbacks = (
+            [EMARegisterTargetCallback()] if self.world_model_enabled else []
+        )
         
         if self.progress_bar:
-            return [checkpoint_cb_best, lr_monitor, *timing_callbacks]
+            return [
+                checkpoint_cb_best,
+                lr_monitor,
+                *timing_callbacks,
+                *ema_callbacks,
+            ]
         else:
             progress_bar = LitProgressBar()
-            return [checkpoint_cb_best, progress_bar, lr_monitor, *timing_callbacks]
+            return [
+                checkpoint_cb_best,
+                progress_bar,
+                lr_monitor,
+                *timing_callbacks,
+                *ema_callbacks,
+            ]
 
     def verify_lora_activation(self):
         """

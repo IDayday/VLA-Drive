@@ -36,6 +36,24 @@ class AgentLightningModule(pl.LightningModule):
                 int(self.trainer.estimated_stepping_batches)
             )
 
+    def on_predict_start(self) -> None:
+        if hasattr(self.agent, "remove_training_only_world_model"):
+            self.agent.remove_training_only_world_model()
+
+    def on_after_backward(self) -> None:
+        if bool(getattr(self.agent, "world_model_enabled", False)) and hasattr(
+            self.agent, "get_planreg_gradient_norms"
+        ):
+            for name, value in self.agent.get_planreg_gradient_norms().items():
+                self.log(
+                    f"train/{name}",
+                    value,
+                    on_step=True,
+                    on_epoch=False,
+                    prog_bar=False,
+                    sync_dist=True,
+                )
+
     def _step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], logging_prefix: str) -> Tensor:
         """
         Propagates the model forward and backwards and computes/logs losses and metrics.

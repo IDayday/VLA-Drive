@@ -1,4 +1,5 @@
 from typing import Dict, Optional, Any, List, Tuple
+from pathlib import Path
 import torch
 import numpy as np
 import gzip
@@ -11,6 +12,7 @@ from navsim.common.dataclasses import Scene, Trajectory, Annotations
 from nuplan.planning.simulation.trajectory.trajectory_sampling import TrajectorySampling
 from .drivevla_backbone import DriveVLABackbone
 from .utils.internvl_preprocess import load_image
+from .layers.world_model.future_image_io import encode_path_tensor
 
 
 from enum import IntEnum
@@ -142,12 +144,74 @@ class DriveVLAFeatureBuilder(AbstractFeatureBuilder):
 
 
 class TrajectoryTargetBuilder(AbstractTargetBuilder):
-    def __init__(self, config: Dict):
+    FUTURE_OFFSETS = (1, 3, 6)
+    FUTURE_HORIZONS_SEC = (0.5, 1.5, 3.0)
+    MAX_PATH_BYTES = 1024
+
+    def __init__(self, config: Dict, world_model_config=None):
         self._config = config
+        self._world_model_config = world_model_config
+        self._future_supervision_enabled = bool(
+            world_model_config is not None
+            and getattr(world_model_config, "enabled", False)
+        )
+        if self._future_supervision_enabled:
+            horizons = tuple(
+                float(value)
+                for value in getattr(
+                    world_model_config,
+                    "horizons_sec",
+                    self.FUTURE_HORIZONS_SEC,
+                )
+            )
+            if horizons != self.FUTURE_HORIZONS_SEC:
+                raise ValueError(
+                    "PlanReg-WM-V1 future horizons must be [0.5,1.5,3.0], "
+                    f"got {horizons}"
+                )
 
     def get_unique_name(self) -> str:
         """Inherited, see superclass."""
-        return "trajectory_target"
+        return (
+            "trajectory_target_planreg_wm_v1"
+            if self._future_supervision_enabled
+            else "trajectory_target"
+        )
+
+    def _build_future_image_targets(self, scene: Scene) -> Dict[str, torch.Tensor]:
+        path_tensors = torch.zeros(
+            len(self.FUTURE_OFFSETS),
+            self.MAX_PATH_BYTES,
+            dtype=torch.uint8,
+        )
+        path_lengths = torch.zeros(len(self.FUTURE_OFFSETS), dtype=torch.long)
+        valid_mask = torch.zeros(len(self.FUTURE_OFFSETS), dtype=torch.bool)
+        current_idx = int(scene.scene_metadata.num_history_frames) - 1
+
+        for horizon_index, frame_offset in enumerate(self.FUTURE_OFFSETS):
+            frame_index = current_idx + frame_offset
+            if frame_index >= len(scene.frames):
+                continue
+            image = scene.frames[frame_index].cameras.cam_f0.image
+            if image is None:
+                continue
+            if not isinstance(image, (str, Path)):
+                raise RuntimeError(
+                    "PlanReg-WM-V1 future supervision requires camera images "
+                    "to be loaded as paths. Set load_image_path=true."
+                )
+            encoded, length = encode_path_tensor(
+                image, max_bytes=self.MAX_PATH_BYTES
+            )
+            path_tensors[horizon_index] = encoded
+            path_lengths[horizon_index] = length
+            valid_mask[horizon_index] = Path(image).is_file()
+
+        return {
+            "future_image_paths": path_tensors,
+            "future_image_path_lengths": path_lengths,
+            "future_valid_mask": valid_mask,
+        }
 
     def compute_targets(self, scene: Scene) -> Dict[str, torch.Tensor]:
         """Inherited, see superclass."""
@@ -181,17 +245,19 @@ class TrajectoryTargetBuilder(AbstractTargetBuilder):
             trajectory_long = np.stack(traj_, axis=1)
 
             trajectory_long = torch.tensor(trajectory_long)
-            return {
+            targets = {
                 "trajectory": trajectory,
                 "trajectory_long": trajectory_long,
                 "token":scene.scene_metadata.initial_token
             }
         else:
-
-            return {
+            targets = {
                 "trajectory": trajectory,
                 # "agent_states": agent_states,
                 # "agent_labels": agent_labels,
                 # "bev_semantic_map": bev_semantic_map,
                 "token":scene.scene_metadata.initial_token
             }
+        if self._future_supervision_enabled:
+            targets.update(self._build_future_image_targets(scene))
+        return targets

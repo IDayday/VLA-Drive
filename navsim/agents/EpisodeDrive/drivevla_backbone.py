@@ -45,6 +45,8 @@ _PLANREG_LEGACY_ALLOWED_MISSING_PARTS = (
     "action_head.scene_norm.",
     "action_head._optimizer_step",
     "action_head._total_optimizer_steps",
+    "future_register_predictor.",
+    "_ema_optimizer_step",
 )
 
 
