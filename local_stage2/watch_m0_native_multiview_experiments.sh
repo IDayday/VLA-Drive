@@ -17,6 +17,8 @@ ACTOR_TARGET_ROOT="/mnt/project/DriveVLA-M0-gate-c/outputs/shared_future_candida
 SPLIT_MANIFEST="/mnt/project/DriveVLA-M0-scorer-pdms93/reports/scorer_pdms93/OFFICIAL_SCORER_SPLIT.json"
 CONTROL_OUTPUT="${RUN_ROOT}/m0_native_multiview_factoronly_sourcebce_rank1_all64_dq16_seed2_v1"
 ACTOR_OUTPUT="${RUN_ROOT}/m0_native_multiview_currentactor_aux_w05_sourcebce_rank1_all64_dq16_seed2_v1"
+LEGACY_CONTROL_OUTPUT="${RUN_ROOT}/m0_native_multiview_factoronly_contprogress_rank1_all64_dq16_seed2_v1"
+LEGACY_ACTOR_OUTPUT="${RUN_ROOT}/m0_native_multiview_currentactor_aux_w05_contprogress_rank1_all64_dq16_seed2_v1"
 NAVTEST_CACHE_ROOT="${RUN_ROOT}/m0_native_multiview_navtest_pool2_tiles4_v1_2shard"
 
 mkdir -p "${LOG_ROOT}"
@@ -64,6 +66,8 @@ PY
 
 test ! -e "${CONTROL_OUTPUT}"
 test ! -e "${ACTOR_OUTPUT}"
+test ! -e "${LEGACY_CONTROL_OUTPUT}"
+test ! -e "${LEGACY_ACTOR_OUTPUT}"
 test ! -e "${NAVTEST_CACHE_ROOT}"
 
 COMMON_TRAIN_ARGS=(
@@ -88,8 +92,6 @@ COMMON_TRAIN_ARGS=(
   --top-regret-weight 0
   --coarse-loss-weight 0
   --factor-weight 1
-  --factor-loss-mode episode_drive_bce
-  --progress-regression-weight 0
   --factor-rank-weight 1
   --consequence-weight 0
   --confidence-weight 0
@@ -100,6 +102,8 @@ env CUDA_VISIBLE_DEVICES=0 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
   PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/navsim/planning/script" \
   "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/train_independent_scorer.py" \
   "${COMMON_TRAIN_ARGS[@]}" \
+  --factor-loss-mode episode_drive_bce \
+  --progress-regression-weight 0 \
   --output-dir "${CONTROL_OUTPUT}" \
   >"${LOG_ROOT}/control.log" 2>&1 &
 control_pid=$!
@@ -108,11 +112,35 @@ env CUDA_VISIBLE_DEVICES=1 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
   PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/navsim/planning/script" \
   "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/train_independent_scorer.py" \
   "${COMMON_TRAIN_ARGS[@]}" \
+  --factor-loss-mode episode_drive_bce \
+  --progress-regression-weight 0 \
   --current-actor-target-root "${ACTOR_TARGET_ROOT}" \
   --current-actor-weight 0.5 \
   --output-dir "${ACTOR_OUTPUT}" \
   >"${LOG_ROOT}/current_actor.log" 2>&1 &
 actor_pid=$!
+
+env CUDA_VISIBLE_DEVICES=2 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
+  PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/navsim/planning/script" \
+  "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/train_independent_scorer.py" \
+  "${COMMON_TRAIN_ARGS[@]}" \
+  --factor-loss-mode continuous_progress \
+  --progress-regression-weight 2 \
+  --output-dir "${LEGACY_CONTROL_OUTPUT}" \
+  >"${LOG_ROOT}/continuous_progress_control.log" 2>&1 &
+legacy_control_pid=$!
+
+env CUDA_VISIBLE_DEVICES=6 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
+  PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/navsim/planning/script" \
+  "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/train_independent_scorer.py" \
+  "${COMMON_TRAIN_ARGS[@]}" \
+  --factor-loss-mode continuous_progress \
+  --progress-regression-weight 2 \
+  --current-actor-target-root "${ACTOR_TARGET_ROOT}" \
+  --current-actor-weight 0.5 \
+  --output-dir "${LEGACY_ACTOR_OUTPUT}" \
+  >"${LOG_ROOT}/continuous_progress_current_actor.log" 2>&1 &
+legacy_actor_pid=$!
 
 COMMON_EXPORT_ARGS=(
   --proposal-pickle /mnt/project/DriveVLA-M0-stage2/runs/ke_candidate_audit/public_base_navtest_proposal_full_fp32/proposal_predictions.pkl
@@ -145,8 +173,10 @@ env CUDA_VISIBLE_DEVICES=4 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
   >"${LOG_ROOT}/navtest_shard_1.log" 2>&1 &
 navtest_one_pid=$!
 
-printf 'control_pid=%s actor_pid=%s navtest_pids=%s,%s\n' \
-  "${control_pid}" "${actor_pid}" "${navtest_zero_pid}" "${navtest_one_pid}"
+printf 'source_bce_pids=%s,%s continuous_progress_pids=%s,%s navtest_pids=%s,%s\n' \
+  "${control_pid}" "${actor_pid}" \
+  "${legacy_control_pid}" "${legacy_actor_pid}" \
+  "${navtest_zero_pid}" "${navtest_one_pid}"
 
 wait "${navtest_zero_pid}"
 wait "${navtest_one_pid}"
@@ -166,4 +196,6 @@ PY
 
 wait "${control_pid}"
 wait "${actor_pid}"
+wait "${legacy_control_pid}"
+wait "${legacy_actor_pid}"
 echo "M0 native multiview follow-up completed" 
