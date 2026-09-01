@@ -179,10 +179,18 @@ def main() -> None:
             alternative_count=int(artifact.get("alternative_count", 1)),
         ).to(device)
         agent_target = "DrivORReferenceGateRanker"
+    reference_mode = (
+        str(artifact.get("reference_mode", "base"))
+        if architecture == "DrivORReferenceGateRanker"
+        else "base"
+    )
+    if reference_mode not in {"base", "drivor_factor"}:
+        raise RuntimeError(f"unsupported reference mode: {reference_mode}")
     model.load_state_dict(artifact["state_dict"], strict=True)
     model.eval()
     selection_parts: List[np.ndarray] = []
     index_parts: List[np.ndarray] = []
+    reference_parts: List[np.ndarray] = []
     quantile_index = int(policy["gain_quantile_index"])
     for start in range(0, len(tokens), args.batch_size):
         batch_tokens = tokens[start : start + args.batch_size]
@@ -236,14 +244,14 @@ def main() -> None:
             dtype=torch.float32,
             device=device,
         )
-        references = batch_base.argmax(dim=1)
+        base_references = batch_base.argmax(dim=1)
         with torch.inference_mode():
             if architecture == "IndependentConservativeReferenceRanker":
                 output = model(
                     scene,
                     ego,
                     proposals,
-                    references,
+                    base_references,
                     observation_valid_mask=observation_valid_mask,
                     minimum_lcb_gain=float(policy["minimum_lcb_gain"]),
                     maximum_safety_worse_probability=float(
@@ -259,8 +267,18 @@ def main() -> None:
                     scene,
                     ego,
                     proposals,
-                    references,
+                    (
+                        base_references
+                        if reference_mode == "base"
+                        else None
+                    ),
                     scene_valid_mask=observation_valid_mask,
+                    provided_alternative_indices=(
+                        base_references
+                        if str(artifact["alternative_mode"])
+                        == "provided"
+                        else None
+                    ),
                     minimum_lcb_gain=float(policy["minimum_lcb_gain"]),
                     maximum_safety_worse_probability=float(
                         policy["maximum_safety_worse_probability"]
@@ -270,6 +288,7 @@ def main() -> None:
                     ),
                 )
                 allowed_candidate_mask = output["allowed_candidate_mask"]
+            references = output["reference_indices"]
             # forward defaults to q10; recompute only when validation locked a
             # different quantile.  This is still the exact same learned output.
             from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
@@ -294,19 +313,29 @@ def main() -> None:
             selected = scores.argmax(dim=1)
         selection_parts.append(scores.float().cpu().numpy())
         index_parts.append(selected.cpu().numpy())
+        reference_parts.append(references.cpu().numpy())
 
     predicted_scores = np.concatenate(selection_parts).astype(np.float32)
     selected_indices = np.concatenate(index_parts).astype(np.int16)
+    reference_indices = np.concatenate(reference_parts).astype(np.int16)
     oracle_indices = candidate_scores.argmax(axis=1).astype(np.int16)
     rows = np.arange(len(tokens))
     selected_values = candidate_scores[rows, selected_indices]
     oracle_values = candidate_scores[rows, oracle_indices]
     base_indices = base_matrix.argmax(axis=1)
     base_values = candidate_scores[rows, base_indices]
+    reference_values = candidate_scores[rows, reference_indices]
     delta = selected_values - base_values
+    reference_delta = selected_values - reference_values
     physical_logs = [physical_log_name(value) for value in log_names]
     ci = _log_bootstrap_ci(
         delta, physical_logs, args.seed, replicates=args.bootstrap_replicates
+    )
+    reference_ci = _log_bootstrap_ci(
+        reference_delta,
+        physical_logs,
+        args.seed + 1,
+        replicates=args.bootstrap_replicates,
     )
 
     public_frame = pd.read_csv(
@@ -388,6 +417,7 @@ def main() -> None:
         "checkpoint": str(args.artifact.resolve()),
         "checkpoint_sha256": _sha256(args.artifact),
         "agent_target": agent_target,
+        "reference_mode": reference_mode,
         "precision": 32,
         "proposal_predictions_path": str(proposal_path.resolve()),
         "proposal_predictions_sha256": _sha256(proposal_path),
@@ -406,7 +436,14 @@ def main() -> None:
         "official_score_input_present_during_inference": False,
         "official_candidate_matrix_joined_after_selection": True,
         "base_numeric_score_used_by_reference_ranker": False,
-        "base_selection_index_used_as_reference": True,
+        "base_selection_index_used_as_reference": reference_mode == "base",
+        "drivor_factor_index_used_as_reference": (
+            reference_mode == "drivor_factor"
+        ),
+        "base_selection_index_used_as_alternative": (
+            architecture == "DrivORReferenceGateRanker"
+            and str(artifact["alternative_mode"]) == "provided"
+        ),
         "max_selected_score_parity_abs": 0.0,
         "metrics": metrics,
         "comparison_to_public_base": {
@@ -418,6 +455,18 @@ def main() -> None:
             "ties": int(len(delta) - wins - losses),
             "switch_rate": float(np.mean(selected_indices != base_indices)),
             "physical_log_count": len(set(physical_logs)),
+        },
+        "comparison_to_deployable_reference": {
+            "reference_mode": reference_mode,
+            "reference_selected_pdms": float(reference_values.mean()),
+            "selected_delta": float(reference_delta.mean()),
+            "selected_delta_log_bootstrap_95ci": [
+                float(reference_ci[0]),
+                float(reference_ci[1]),
+            ],
+            "switch_rate": float(
+                np.mean(selected_indices != reference_indices)
+            ),
         },
     }
     (args.output_dir / "summary.json").write_text(

@@ -22,6 +22,13 @@ training:
 This keeps the broad, changing candidate support seen by the released joint
 training while removing simultaneous proposal/representation drift.
 
+The complete Navtest experiments now sharpen that decision: the strongest
+deployable result is not an isolated re-fitted head, but the intact
+scorer-oriented DrivOR representation and scorer transferred together onto
+the frozen M0 proposal bank.  Future scorer work must therefore treat the
+private scene representation and candidate-value head as one calibrated
+module.
+
 ## Evidence that constrains the design
 
 Released public Base on complete FP32 Navtest:
@@ -297,8 +304,63 @@ zero invalid rows.  DrivOR's released scorer selects `0.949808` versus Base
 non-tied candidate pairs and `0.8857` for pairs separated by more than `0.10`,
 yet switches candidates in `82.61%` of scenes.  This combination shows useful
 ranking signal but incompatible top-of-list calibration under proposal shift;
-re-fitting the private scorer representation and conservative decision rule
-on Base replay is required.
+re-fitting and conservative gating were tested next, but had to pass complete
+Navtest rather than being accepted from this held-out split alone.
+
+### Complete Navtest result: representation and scorer transfer together
+
+The full FP32 Navtest result reverses the held-out split comparison in a useful
+way.  With the M0 proposal tensor held exactly fixed, the untouched released
+DrivOR Nav1 representation and factor scorer select `0.929291`, versus
+`0.909594` for public M0 Base.  The gain is `+0.019697`, with a positive
+physical-log bootstrap interval `[+0.015201,+0.023963]`.  Proposal mean,
+diversity and best-of-64 remain exactly the same, so this gain is purely
+candidate selection rather than proposal generation.
+
+The independently pre-selected public scaling checkpoint trained on Train
+103k plus SimScale 134k improves the same fixed M0 bank further to
+`0.932614`.  Relative to M0 Base the delta is `+0.023020`, with physical-log
+bootstrap interval `[+0.017450,+0.028329]`; scorer regret falls from
+`0.074518` to `0.051498`.  Relative to the original released DrivOR transfer,
+the delta is `+0.003323`, interval `[+0.000020,+0.006264]`.  The complete audit
+contains 12,146 scenes, 136 segment logs, 64 candidates per scene and zero
+invalid rows.  It is FP32, joins PDM values only after selection, and passes
+the standard reconstruction/regret validator.
+
+The real-online-to-cache chain also passes.  Full DrivOR online scoring equals
+its proposal adapter exactly on four scenes.  With identical four-scene batch
+composition, the cached-register ranker has maximum aggregate-score error
+`9.54e-7`, exact FP16-archived factor logits and identical selected indices.
+An intentionally retained first check used different vision batch composition
+and measured `1.55e-6`; this documents why same-device and same-batch parity is
+required rather than silently relaxing the `1e-6` tolerance.
+
+The representation dependence is large, not cosmetic.  On all 18,179 scenes
+from 61 held-out physical logs, the frozen released scorer with its correct
+DrivOR current-scene registers obtains `0.949809` and non-tied-pair accuracy
+`0.7006`.  Cross-log shuffling only those registers lowers PDMS to `0.834258`
+and pairwise accuracy to `0.3942`; zeroing them lowers PDMS to `0.891486`.
+Cross-log shuffling only the 11-D current ego state lowers PDMS more modestly
+to `0.923114`.  Every shuffle donor comes from a different physical log, and
+PDM labels are attached only after candidate selection.
+
+Re-fitting confirms that the representation--head calibration should be
+preserved.  Two whole-scorer re-fits that passed the held-out-log promotion
+gate reach only `0.921812` and `0.920703` on full Navtest.  Six validation-
+positive conservative gates span `0.913728`--`0.923998`, all below the
+untouched `0.929291` DrivOR pair.  These are genuine validation-to-test sign
+reversals, not missing evaluations: every promoted artifact was run on the
+complete 12,146-scene cache and passed the strict audit.
+
+The supported claim is therefore precise: scorer-specific visual registers,
+proposal re-embedding/cross-attention and calibrated factor heads jointly
+improve selection from M0's frozen 64 trajectories.  This is not a new overall
+SOTA claim: DrivOR's own public scaling table reports `0.946` for its complete
+generator/scorer system.  It is a validated `0.932614` hybrid result that
+crosses the requested 0.93 target without future or official-score inference
+inputs.  The lightweight evidence is recorded in
+`RELEASED_DRIVOR_SCALING134K_M0_64_NAVTEST.json` and
+`DRIVOR_REPRESENTATION_DEPENDENCE_HELDOUT.json`.
 
 The two policies are nevertheless strongly complementary.  An offline oracle
 that may choose only between the Base-selected proposal and the released
@@ -354,10 +416,11 @@ The implementation is
 with training entry point
 `local_stage2/train_drivor_reference_gate.py`.  Its forward signature has no
 future, MetricCache, official score or numeric Base-score argument.  The
-targeted scorer test suite currently passes 33 tests, including binary
-eligibility, exact fallback and candidate-order equivariance.  All Navtest
-promotion remains contingent on a positive held-out-log bootstrap lower
-bound and complete 12,146-scene FP32 evaluation.
+targeted two-file scorer suite passes 88 tests, including binary eligibility,
+exact fallback, candidate-order equivariance and cross-log representation
+derangement; the complete repository test suite passes 168 tests.  All
+Navtest promotion remains contingent on a positive held-out-log bootstrap
+lower bound and complete 12,146-scene FP32 evaluation.
 
 For strict cached evaluation, DrivOR scene registers now default to FP32.
 FP16 register caches remain valid training-throughput artifacts but are not

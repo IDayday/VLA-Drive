@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Train a current-observation gate between Base and an independent scorer.
+"""Train a current-observation conservative scorer-reference gate.
 
-The frozen DrivOR scorer independently selects one proposal from the immutable
-EpisodeDrive bank.  A scorer-owned gate then predicts whether that proposal is
-a safe improvement over the released Base choice.  Only the Base candidate
-index is supplied; its numeric score and all future/evaluator values are absent
-from the model forward and are used only for offline supervision/evaluation.
+The frozen DrivOR scorer may either supply an independent alternative to the
+released Base choice or act as the conservative fallback itself.  In the
+latter mode the released Base index can be one candidate alternative, but its
+numeric score and all future/evaluator values remain absent from model forward.
 """
 
 from __future__ import annotations
@@ -116,21 +115,31 @@ def compute_gate_training_loss(
         device=base_scores.device,
     )
     permutation = torch.argsort(random_keys, dim=1)
-    reference_indices = _reference_positions(base_scores, permutation)
+    base_reference_indices = _reference_positions(base_scores, permutation)
     proposals = _gather_candidates(proposals, permutation)
     target_factors = _gather_candidates(target_factors, permutation)
+    output = model(
+        observation.float(),
+        status.float(),
+        proposals,
+        (
+            base_reference_indices
+            if args.reference_mode == "base"
+            else None
+        ),
+        scene_valid_mask=observation_valid_mask,
+        provided_alternative_indices=(
+            base_reference_indices
+            if args.alternative_mode == "provided"
+            else None
+        ),
+    )
+    reference_indices = output["reference_indices"]
     targets = _reference_targets(
         target_factors,
         reference_indices,
         minimum_improvement=args.minimum_improvement_target,
         factor_epsilon=args.factor_epsilon,
-    )
-    output = model(
-        observation.float(),
-        status.float(),
-        proposals,
-        reference_indices,
-        scene_valid_mask=observation_valid_mask,
     )
     valid = _binary_valid_mask(output)
     pair_valid = output["allowed_candidate_mask"].bool()
@@ -204,6 +213,8 @@ def collect_gate_predictions(
     indices: Sequence[int],
     device: torch.device,
     batch_size: int,
+    reference_mode: str,
+    alternative_mode: str,
 ) -> Dict[str, torch.Tensor]:
     model.eval()
     collected: Dict[str, List[torch.Tensor]] = {
@@ -212,6 +223,7 @@ def collect_gate_predictions(
         "safe_improvement_logit": [],
         "alternative_indices": [],
         "allowed_candidate_mask": [],
+        "reference_indices": [],
         "base_scores": [],
         "target_factors": [],
     }
@@ -231,13 +243,18 @@ def collect_gate_predictions(
         target_factors,
         _source_indices,
     ) in loader:
-        reference_indices = base_scores.argmax(dim=1).to(device)
+        base_reference_indices = base_scores.argmax(dim=1).to(device)
         output = model(
             observation.to(device, non_blocking=True).float(),
             status.to(device, non_blocking=True).float(),
             proposals.to(device, non_blocking=True),
-            reference_indices,
+            base_reference_indices if reference_mode == "base" else None,
             scene_valid_mask=observation_valid_mask.to(device, non_blocking=True),
+            provided_alternative_indices=(
+                base_reference_indices
+                if alternative_mode == "provided"
+                else None
+            ),
         )
         for key in (
             "gain_quantiles",
@@ -245,6 +262,7 @@ def collect_gate_predictions(
             "safe_improvement_logit",
             "alternative_indices",
             "allowed_candidate_mask",
+            "reference_indices",
         ):
             collected[key].append(output[key].cpu())
         collected["base_scores"].append(base_scores.float())
@@ -262,10 +280,12 @@ def evaluate_gate_predictions(
     base_scores = prediction["base_scores"]
     target_factors = prediction["target_factors"]
     target_scores = target_factors[..., -1]
-    references = base_scores.argmax(dim=1)
+    base_indices = base_scores.argmax(dim=1)
+    references = prediction["reference_indices"].long()
     alternatives = prediction["alternative_indices"].long()
     rows = torch.arange(len(references))
-    base_values = target_scores[rows, references]
+    base_values = target_scores[rows, base_indices]
+    reference_values = target_scores[rows, references]
     alternative_values = target_scores[rows, alternatives]
     allowed = prediction["allowed_candidate_mask"].bool()
     union_oracle_values = target_scores.masked_fill(~allowed, -torch.inf).max(
@@ -273,7 +293,7 @@ def evaluate_gate_predictions(
     ).values
     full_oracle_values = target_scores.max(dim=1).values
     target_safety = target_factors[..., list(SAFETY_TARGET_INDICES)]
-    base_safety = target_safety[rows, references]
+    reference_safety = target_safety[rows, references]
 
     policies: List[Dict[str, object]] = []
     for quantile_index, minimum_gain, maximum_safety, minimum_improvement in threshold_specs:
@@ -291,7 +311,8 @@ def evaluate_gate_predictions(
         selected = scores.argmax(dim=1)
         selected_values = target_scores[rows, selected]
         selected_safety = target_safety[rows, selected]
-        delta = (selected_values - base_values).numpy()
+        delta = (selected_values - reference_values).numpy()
+        delta_vs_base = (selected_values - base_values).numpy()
         switched = selected.ne(references)
         switched_delta = delta[switched.numpy()]
         policies.append(
@@ -302,12 +323,14 @@ def evaluate_gate_predictions(
                 "minimum_safe_improvement_probability": minimum_improvement,
                 "selected_pdms": float(selected_values.mean()),
                 "base_selected_pdms": float(base_values.mean()),
+                "reference_selected_pdms": float(reference_values.mean()),
                 "independent_selected_pdms": float(alternative_values.mean()),
                 "base_independent_union_oracle_pdms": float(
                     union_oracle_values.mean()
                 ),
                 "full_candidate_oracle_pdms": float(full_oracle_values.mean()),
                 "delta": float(np.mean(delta)),
+                "delta_vs_base": float(np.mean(delta_vs_base)),
                 "delta_log_bootstrap_95ci": list(
                     _log_bootstrap_ci(
                         delta,
@@ -325,7 +348,7 @@ def evaluate_gate_predictions(
                     float(np.mean(switched_delta)) if len(switched_delta) else 0.0
                 ),
                 "safety_regression_rate": float(
-                    (selected_safety < (base_safety - 1.0e-6))
+                    (selected_safety < (reference_safety - 1.0e-6))
                     .any(dim=-1)
                     .float()
                     .mean()
@@ -346,18 +369,19 @@ def evaluate_gate_predictions(
         ),
     )
     alternative_differs = alternatives.ne(references)
-    true_gain = alternative_values - base_values
+    true_gain = alternative_values - reference_values
     predicted_median = prediction["gain_quantiles"][rows, alternatives, 1]
     sign_accuracy = (
         predicted_median.gt(0).eq(true_gain.gt(0))[alternative_differs]
     )
-    union_gain = float(union_oracle_values.mean() - base_values.mean())
-    full_headroom = float(full_oracle_values.mean() - base_values.mean())
+    union_gain = float(union_oracle_values.mean() - reference_values.mean())
+    full_headroom = float(full_oracle_values.mean() - reference_values.mean())
     return {
         "best_policy": best,
         "policies": policies,
         "any_positive_ci_policy": bool(passing),
         "base_selected_pdms": float(base_values.mean()),
+        "reference_selected_pdms": float(reference_values.mean()),
         "independent_selected_pdms": float(alternative_values.mean()),
         "base_independent_union_oracle_pdms": float(union_oracle_values.mean()),
         "base_independent_union_oracle_gain": union_gain,
@@ -413,17 +437,27 @@ def parse_args() -> argparse.Namespace:
         required=True,
     )
     parser.add_argument("--selection-source", default="")
+    parser.add_argument(
+        "--reference-mode",
+        choices=("base", "drivor_factor"),
+        default="base",
+        help=(
+            "Conservative fallback policy. drivor_factor preserves the "
+            "released/refit DrivOR factor argmax as the exact fallback."
+        ),
+    )
     parser.add_argument("--private-observation-root", type=Path, required=True)
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--initialize-ranker-checkpoint", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
         "--alternative-mode",
-        choices=("factor", "direct", "all"),
+        choices=("factor", "direct", "all", "provided"),
         default="factor",
         help=(
-            "factor/direct gate Base against one independent alternative; "
-            "all learns reference-relative gain over every proposal"
+            "factor/direct use the independent scorer shortlist, all learns "
+            "over every proposal, and provided compares against the Base "
+            "candidate index supplied without its numeric score"
         ),
     )
     parser.add_argument(
@@ -466,6 +500,20 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.reference_mode == "drivor_factor" and args.alternative_mode in {
+        "factor",
+        "direct",
+    }:
+        raise ValueError(
+            "a DrivOR reference requires all or provided alternatives"
+        )
+    if args.alternative_mode == "provided" and args.reference_mode != (
+        "drivor_factor"
+    ):
+        raise ValueError(
+            "provided mode currently supplies Base as an alternative and "
+            "therefore requires a DrivOR reference"
+        )
     if args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but unavailable")
     for path in (
@@ -553,6 +601,7 @@ def main() -> None:
     manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "architecture": "DrivORReferenceGateRanker",
+        "reference_mode": args.reference_mode,
         "alternative_mode": args.alternative_mode,
         "alternative_count": args.alternative_count,
         "train_scene_count": len(train_indices),
@@ -574,14 +623,27 @@ def main() -> None:
         "reference_config": asdict(reference_config),
         "ranker_frozen": True,
         "numeric_base_score_used_as_model_input": False,
-        "base_selection_index_used_as_fallback": True,
+        "base_selection_index_used_as_fallback": (
+            args.reference_mode == "base"
+        ),
+        "drivor_factor_index_used_as_fallback": (
+            args.reference_mode == "drivor_factor"
+        ),
+        "base_selection_index_used_as_alternative": (
+            args.alternative_mode == "provided"
+        ),
         "future_or_evaluator_input": False,
         "inference_inputs": [
             "current_drivor_scene_registers",
             "current_ego_status",
             "proposal_geometry",
-            "base_selected_candidate_index",
-        ],
+        ]
+        + (
+            ["base_selected_candidate_index"]
+            if args.reference_mode == "base"
+            or args.alternative_mode == "provided"
+            else []
+        ),
         "forbidden_inputs": [
             "numeric_base_score",
             "future_annotations",
@@ -622,7 +684,13 @@ def main() -> None:
         scheduler.step()
 
         prediction = collect_gate_predictions(
-            model, data, validation_indices, device, args.eval_batch_size
+            model,
+            data,
+            validation_indices,
+            device,
+            args.eval_batch_size,
+            args.reference_mode,
+            args.alternative_mode,
         )
         validation, validation_by_source = _evaluate_by_source(
             prediction,
@@ -650,6 +718,7 @@ def main() -> None:
                 {
                     "schema_version": 1,
                     "architecture": "DrivORReferenceGateRanker",
+                    "reference_mode": args.reference_mode,
                     "alternative_mode": args.alternative_mode,
                     "alternative_count": args.alternative_count,
                     "state_dict": {
@@ -667,7 +736,12 @@ def main() -> None:
                         "current_drivor_scene_registers",
                         "current_ego_status",
                         "proposals",
-                        "base_selected_candidate_index",
+                    )
+                    + (
+                        ("base_selected_candidate_index",)
+                        if args.reference_mode == "base"
+                        or args.alternative_mode == "provided"
+                        else ()
                     ),
                     "forbidden_inputs": (
                         "numeric_base_score",

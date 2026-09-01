@@ -188,13 +188,17 @@ class DrivORReferenceGateRanker(nn.Module):
     absent in every mode, and the exact reference proposal remains the fallback.
     """
 
-    _ALTERNATIVE_MODES = frozenset(("factor", "direct", "all"))
+    _ALTERNATIVE_MODES = frozenset(
+        ("factor", "direct", "all", "provided")
+    )
 
     def __init__(
         self,
         ranker_config: DrivORRankerConfig = DrivORRankerConfig(),
         reference_config: ConservativeReferenceConfig | None = None,
-        alternative_mode: Literal["factor", "direct", "all"] = "factor",
+        alternative_mode: Literal[
+            "factor", "direct", "all", "provided"
+        ] = "factor",
         alternative_count: int = 1,
     ) -> None:
         super().__init__()
@@ -216,7 +220,7 @@ class DrivORReferenceGateRanker(nn.Module):
         self.reference_head = ConservativeReferenceHead(self.reference_config)
 
     def _independent_utility(self, output: Mapping[str, torch.Tensor]) -> torch.Tensor:
-        if self.alternative_mode in {"factor", "all"}:
+        if self.alternative_mode in {"factor", "all", "provided"}:
             return pdms_factor_log_utility(output["factor_logits"])
         return output["direct_utility"]
 
@@ -225,8 +229,9 @@ class DrivORReferenceGateRanker(nn.Module):
         scene_registers: torch.Tensor,
         status_feature: torch.Tensor,
         proposals: torch.Tensor,
-        reference_indices: torch.Tensor,
+        reference_indices: torch.Tensor | None,
         scene_valid_mask: torch.Tensor | None = None,
+        provided_alternative_indices: torch.Tensor | None = None,
         *,
         gain_quantile_index: int = 0,
         minimum_lcb_gain: float = 0.0,
@@ -240,10 +245,40 @@ class DrivORReferenceGateRanker(nn.Module):
             scene_valid_mask=scene_valid_mask,
         )
         independent_utility = self._independent_utility(output)
-        keep_count = min(self.alternative_count, independent_utility.shape[1])
-        alternative_candidate_indices = independent_utility.topk(
-            keep_count, dim=1
-        ).indices
+        if reference_indices is None:
+            reference_indices = independent_utility.argmax(dim=1)
+        if self.alternative_mode == "provided":
+            if provided_alternative_indices is None:
+                raise ValueError(
+                    "provided mode requires provided_alternative_indices"
+                )
+            if provided_alternative_indices.ndim == 1:
+                provided_alternative_indices = (
+                    provided_alternative_indices.unsqueeze(1)
+                )
+            if (
+                provided_alternative_indices.ndim != 2
+                or provided_alternative_indices.shape[0]
+                != independent_utility.shape[0]
+            ):
+                raise ValueError(
+                    "provided alternatives must have shape [B] or [B,A]"
+                )
+            if bool((provided_alternative_indices < 0).any()) or bool(
+                (
+                    provided_alternative_indices
+                    >= independent_utility.shape[1]
+                ).any()
+            ):
+                raise IndexError("provided alternative index is out of range")
+            alternative_candidate_indices = provided_alternative_indices.long()
+        else:
+            keep_count = min(
+                self.alternative_count, independent_utility.shape[1]
+            )
+            alternative_candidate_indices = independent_utility.topk(
+                keep_count, dim=1
+            ).indices
         alternative_indices = alternative_candidate_indices[:, 0]
         relative = self.reference_head(
             output["candidate_features"], reference_indices

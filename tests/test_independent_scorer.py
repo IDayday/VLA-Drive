@@ -62,6 +62,9 @@ from local_stage2.build_drivor_promotion_manifest import (
     _ranker_record,
 )
 from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
+from local_stage2.audit_drivor_representation_dependence import (
+    _cross_log_derangement,
+)
 
 
 def _small_config(**overrides) -> IndependentRankerConfig:
@@ -112,6 +115,13 @@ def _small_drivor_config(**overrides) -> DrivORRankerConfig:
     )
     values.update(overrides)
     return DrivORRankerConfig(**values)
+
+
+def test_cross_log_derangement_never_reuses_physical_log() -> None:
+    logs = ["large"] * 7 + ["medium"] * 4 + ["small"] * 3
+    permutation = _cross_log_derangement(logs, seed=19)
+    assert sorted(permutation.tolist()) == list(range(len(logs)))
+    assert all(logs[row] != logs[donor] for row, donor in enumerate(permutation))
 
 
 def test_forward_signature_has_no_released_or_future_score_inputs() -> None:
@@ -326,6 +336,7 @@ def test_drivor_reference_gate_is_binary_and_current_observation_only() -> None:
         "proposals",
         "reference_indices",
         "scene_valid_mask",
+        "provided_alternative_indices",
         "gain_quantile_index",
         "minimum_lcb_gain",
         "maximum_safety_worse_probability",
@@ -390,6 +401,68 @@ def test_drivor_reference_all_mode_scores_every_candidate() -> None:
         )
     assert output["allowed_candidate_mask"].all()
     assert torch.equal(output["selected_indices"], references)
+
+
+def test_drivor_reference_can_use_its_frozen_factor_choice_as_fallback() -> None:
+    ranker_config = _small_drivor_config()
+    reference_config = ConservativeReferenceConfig(
+        model_dim=32,
+        hidden_dim=64,
+        num_heads=4,
+        num_layers=1,
+        dropout=0.0,
+    )
+    model = DrivORReferenceGateRanker(
+        ranker_config, reference_config, alternative_mode="all"
+    ).eval()
+    observations, status, proposals = _inputs()
+    with torch.no_grad():
+        raw = model.ranker(observations, status, proposals)
+        expected = pdms_factor_log_utility(raw["factor_logits"]).argmax(dim=1)
+        output = model(
+            observations,
+            status,
+            proposals,
+            None,
+            minimum_lcb_gain=100.0,
+        )
+    assert torch.equal(output["reference_indices"], expected)
+    assert torch.equal(output["selected_indices"], expected)
+    assert output["allowed_candidate_mask"].all()
+
+
+def test_drivor_reference_provided_mode_only_allows_fallback_and_base() -> None:
+    ranker_config = _small_drivor_config()
+    reference_config = ConservativeReferenceConfig(
+        model_dim=32,
+        hidden_dim=64,
+        num_heads=4,
+        num_layers=1,
+        dropout=0.0,
+    )
+    model = DrivORReferenceGateRanker(
+        ranker_config, reference_config, alternative_mode="provided"
+    ).eval()
+    observations, status, proposals = _inputs()
+    base_alternatives = torch.tensor([2, 5])
+    with torch.no_grad():
+        output = model(
+            observations,
+            status,
+            proposals,
+            None,
+            provided_alternative_indices=base_alternatives,
+            minimum_lcb_gain=100.0,
+        )
+    references = output["reference_indices"]
+    assert torch.equal(output["selected_indices"], references)
+    assert output["allowed_candidate_mask"].sum(dim=1).le(2).all()
+    assert output["allowed_candidate_mask"].gather(
+        1, references[:, None]
+    ).all()
+    assert output["allowed_candidate_mask"].gather(
+        1, base_alternatives[:, None]
+    ).all()
 
 
 def test_drivor_reference_gate_supports_independent_top_k_shortlist() -> None:
@@ -494,6 +567,8 @@ def test_drivor_reference_gate_training_is_finite_with_frozen_ranker() -> None:
         ]
     )
     args = SimpleNamespace(
+        reference_mode="base",
+        alternative_mode="factor",
         minimum_improvement_target=0.005,
         factor_epsilon=1.0e-6,
         minimum_pair_delta=0.02,

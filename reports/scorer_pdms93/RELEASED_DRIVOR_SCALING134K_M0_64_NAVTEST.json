@@ -1,0 +1,136 @@
+{
+  "acceptance": {
+    "candidate_count": 64,
+    "full_audit_passed": true,
+    "invalid_scene_count": 0,
+    "log_count": 136,
+    "max_batch_single_parity_error": 0.0,
+    "max_oracle_npz_csv_error": 2.9811010771041424e-08,
+    "max_regret_identity_error": 1.000000950102109e-10,
+    "max_selected_npz_csv_error": 4.999389791038311e-11,
+    "scene_count": 12146,
+    "strict_target_pdms": 0.93,
+    "strict_target_reached": true
+  },
+  "checkpoint": {
+    "checkpoint_validation_score": 0.9619,
+    "checkpoint_validation_selection_epoch": 26,
+    "path": "/mnt/project/external/DrivoR/weights/scaling/nav1_30epochs_with_134k_simscale_bis_103ktrainval.pth",
+    "published_dataset_composition": "Train 103k + SimScale 134k",
+    "published_full_drivor_pdms": 0.946,
+    "scorer_tensor_count": 110,
+    "scorer_value_count": 6092038,
+    "selected_without_navtest_tuning": true,
+    "sha256": "617e22c5ebcf8b24c542d42a470514b09c3cadce1a2630071d49f2d422d76672"
+  },
+  "comparison_to_original_released_drivor_on_m0_proposals": {
+    "delta": 0.0033234227666145227,
+    "delta_physical_log_bootstrap_95ci": [
+      1.9691450192140923e-05,
+      0.006263551005139647
+    ],
+    "losses": 1835,
+    "original_released_drivor_pdms": 0.929290771484375,
+    "physical_log_count": 44,
+    "ties": 6830,
+    "wins": 3481
+  },
+  "comparison_to_public_m0_base": {
+    "delta": 0.023020314052700996,
+    "delta_physical_log_bootstrap_95ci": [
+      0.017449847513299126,
+      0.02832864401493313
+    ],
+    "losses": 2722,
+    "public_m0_base_pdms": 0.9095938788102468,
+    "ties": 5719,
+    "wins": 3705
+  },
+  "inference": {
+    "base_score_used": false,
+    "current_observation_only": true,
+    "future_or_evaluator_input": false,
+    "m0_proposals_used": true,
+    "official_candidate_matrix_joined_after_selection": true,
+    "official_score_input": false,
+    "precision": 32,
+    "representation": "scaling134k_drivor_current_observation_registers",
+    "zero_refit_transfer": true
+  },
+  "learned_posthoc_controls": {
+    "all_promoted_artifacts_completed_full_navtest": true,
+    "artifact_sha256": {
+      "full_scorer_refit_d6": "f0671a14b856fedf35f6bec460adc08593cf80d02e86d073c60803811aaa10b6",
+      "full_scorer_refit_d7": "ce48c20b06e4f4c8c79e9352a20172899f184e488343b654ef16c8fec47d91d9",
+      "raw_reference_gate_r0": "21f7770c000906f67a11c67f665e392188498639e4ce10c9205547038cbc2ff2",
+      "raw_reference_gate_r1": "8d21edd9d355a77fccaf15fd68289121f33ee68bc97b10ef661a21d0a599fbc4",
+      "raw_reference_gate_r2": "58180f0efecb2d11af8aa7bbfc9de393bd36f65c6e65f27e3427ffd3f277b233",
+      "raw_reference_gate_r3": "8454b41a52ba7414a5505f11f386cb23dc50c9c2fa250c3f171904811fe96853",
+      "reference_gate_g0": "443a8f4c2345951439907ce5cf0ae5fefb40e0e03cda377d3caf4630d10b3abb",
+      "reference_gate_g1": "22532097854e51fb564ad140d09d85185684619fee27e1e6e51aaee5bb8435ef"
+    },
+    "conclusion": "Every held-out-log-positive post-hoc gate or full-scorer refit remained below the untouched DrivOR representation-scorer pair on Navtest.",
+    "full_scorer_refit_d6": 0.9218119382858276,
+    "full_scorer_refit_d7": 0.9207032322883606,
+    "reference_gate_g0": 0.9137284159660339,
+    "reference_gate_g1": 0.9143887758255005,
+    "raw_reference_gate_r0": 0.9143290519714355,
+    "raw_reference_gate_r1": 0.9159253239631653,
+    "raw_reference_gate_r2": 0.9239979982376099,
+    "raw_reference_gate_r3": 0.9235091805458069,
+    "validation_positive_artifact_count": 8,
+    "validation_to_navtest_sign_reversal_count": 8
+  },
+  "metrics": {
+    "best_of_64_pdms": 0.9841117300112348,
+    "scorer_regret": 0.051497537087650785,
+    "selected_comfort": 0.999670684337616,
+    "selected_drivable_area_compliance": 0.9814753532409668,
+    "selected_driving_direction_compliance": 0.9711839556694031,
+    "selected_ego_progress": 0.9032539129257202,
+    "selected_no_at_fault_collisions": 0.9899967312812805,
+    "selected_pdms": 0.9326142072677612,
+    "selected_time_to_collision_within_bound": 0.9641034007072449,
+    "top5_oracle_mean_pdms": 0.9728800457512842
+  },
+  "online_cache_parity": {
+    "factor_archive_max_error": 0.0,
+    "max_score_error": 9.5367431640625e-07,
+    "online_adapter_self_parity_max_error": 0.0,
+    "passed": true,
+    "scene_count": 4,
+    "selected_index_equal": true,
+    "tolerance": 1e-06
+  },
+  "proposal_bank": {
+    "best_of_64_is_offline_oracle_only": true,
+    "candidate_count": 64,
+    "m0_proposal_cache_sha256": "cac47a5a451ac76cf37b5c11d47369ae2a7064ac39b71031f1621408725c57",
+    "mean_candidate_pdms": 0.795275546742409,
+    "unique_candidate_count": 64.0
+  },
+  "representation_dependence_heldout": {
+    "correct_pairwise_accuracy": 0.7005538617513504,
+    "correct_selected_pdms": 0.9498089354208012,
+    "physical_log_count": 61,
+    "scene_and_status_cross_log_shuffle_pdms": 0.8171069965498486,
+    "scene_cross_log_shuffle_pairwise_accuracy": 0.39423300837931413,
+    "scene_cross_log_shuffle_pdms": 0.834257708898183,
+    "scene_cross_log_shuffle_pdms_delta": -0.11555122652261837,
+    "scene_count": 18179,
+    "scene_zero_pdms": 0.8914858501979742,
+    "status_cross_log_shuffle_pdms": 0.9231143225353473
+  },
+  "result_interpretation": {
+    "goal_over_93": "PASS",
+    "new_sota_claim": false,
+    "reason_not_sota": "The public DrivOR scaling table reports 94.6 PDMS for its full proposal-generator/scorer system; this audit establishes a 93.2614 hybrid M0-proposal result, not a new overall state of the art.",
+    "supported_claim": "A separately learned scorer-oriented DrivOR representation and its jointly calibrated factor scorer materially improve selection from the frozen M0 64-proposal bank."
+  },
+  "run_paths": {
+    "full_audit": "/root/scorer_pdms93_runs/released_drivor_scaling134k_m0_64_navtest_fp32_v1",
+    "online_cache_parity": "reports/scorer_pdms93/DRIVOR_SCALING134K_ONLINE_CACHE_PARITY_V2.json",
+    "paired_public_comparison": "reports/scorer_pdms93/comparisons/released_drivor_scaling134k_m0_64_navtest_v1_vs_public",
+    "representation_audit": "reports/scorer_pdms93/DRIVOR_REPRESENTATION_DEPENDENCE_HELDOUT.json"
+  }
+}
