@@ -195,10 +195,13 @@ class DrivORReferenceGateRanker(nn.Module):
         ranker_config: DrivORRankerConfig = DrivORRankerConfig(),
         reference_config: ConservativeReferenceConfig | None = None,
         alternative_mode: Literal["factor", "direct", "all"] = "factor",
+        alternative_count: int = 1,
     ) -> None:
         super().__init__()
         if alternative_mode not in self._ALTERNATIVE_MODES:
             raise ValueError(f"unsupported alternative mode: {alternative_mode}")
+        if not 1 <= alternative_count <= 64:
+            raise ValueError("alternative_count must lie in [1, 64]")
         self.ranker_config = ranker_config
         self.reference_config = reference_config or ConservativeReferenceConfig(
             model_dim=ranker_config.model_dim,
@@ -208,6 +211,7 @@ class DrivORReferenceGateRanker(nn.Module):
         if self.reference_config.model_dim != ranker_config.model_dim:
             raise ValueError("reference and DrivOR ranker widths must match")
         self.alternative_mode = alternative_mode
+        self.alternative_count = alternative_count
         self.ranker = DrivORInitializedProposalRanker(ranker_config)
         self.reference_head = ConservativeReferenceHead(self.reference_config)
 
@@ -236,7 +240,11 @@ class DrivORReferenceGateRanker(nn.Module):
             scene_valid_mask=scene_valid_mask,
         )
         independent_utility = self._independent_utility(output)
-        alternative_indices = independent_utility.argmax(dim=1)
+        keep_count = min(self.alternative_count, independent_utility.shape[1])
+        alternative_candidate_indices = independent_utility.topk(
+            keep_count, dim=1
+        ).indices
+        alternative_indices = alternative_candidate_indices[:, 0]
         relative = self.reference_head(
             output["candidate_features"], reference_indices
         )
@@ -245,7 +253,7 @@ class DrivORReferenceGateRanker(nn.Module):
         else:
             allowed = torch.zeros_like(independent_utility, dtype=torch.bool)
             allowed.scatter_(1, reference_indices[:, None], True)
-            allowed.scatter_(1, alternative_indices[:, None], True)
+            allowed.scatter_(1, alternative_candidate_indices, True)
         selection_scores = conservative_reference_selection_scores(
             relative["gain_quantiles"],
             relative["safety_worse_logits"],
@@ -264,6 +272,7 @@ class DrivORReferenceGateRanker(nn.Module):
         return output | relative | {
             "independent_utility": independent_utility,
             "alternative_indices": alternative_indices,
+            "alternative_candidate_indices": alternative_candidate_indices,
             "allowed_candidate_mask": allowed,
             "reference_selection_scores": selection_scores,
             "selected_indices": selection_scores.argmax(dim=1),

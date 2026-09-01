@@ -389,6 +389,38 @@ def test_drivor_reference_all_mode_scores_every_candidate() -> None:
     assert torch.equal(output["selected_indices"], references)
 
 
+def test_drivor_reference_gate_supports_independent_top_k_shortlist() -> None:
+    ranker_config = _small_drivor_config()
+    reference_config = ConservativeReferenceConfig(
+        model_dim=32,
+        hidden_dim=64,
+        num_heads=4,
+        num_layers=1,
+        dropout=0.0,
+    )
+    model = DrivORReferenceGateRanker(
+        ranker_config,
+        reference_config,
+        alternative_mode="factor",
+        alternative_count=3,
+    ).eval()
+    observations, status, proposals = _inputs()
+    references = torch.tensor([1, 4])
+    with torch.no_grad():
+        output = model(observations, status, proposals, references)
+    assert output["alternative_candidate_indices"].shape == (2, 3)
+    assert output["allowed_candidate_mask"].sum(dim=1).le(4).all()
+    assert output["allowed_candidate_mask"].gather(
+        1, output["alternative_candidate_indices"]
+    ).all()
+    with pytest.raises(ValueError, match="alternative_count"):
+        DrivORReferenceGateRanker(
+            ranker_config,
+            reference_config,
+            alternative_count=0,
+        )
+
+
 def test_drivor_reference_gate_is_candidate_permutation_equivariant() -> None:
     torch.manual_seed(44)
     ranker_config = _small_drivor_config()

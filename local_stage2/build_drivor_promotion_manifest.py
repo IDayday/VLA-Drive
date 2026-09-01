@@ -78,6 +78,7 @@ def _gate_record(
         "sha256": _sha256(path),
         "architecture": "DrivORReferenceGateRanker",
         "selection_mode": str(artifact["alternative_mode"]),
+        "alternative_count": int(artifact.get("alternative_count", 1)),
         "selection_source": source,
         "epoch": int(artifact["epoch"]),
         "validation_selected_pdms": float(policy["selected_pdms"]),

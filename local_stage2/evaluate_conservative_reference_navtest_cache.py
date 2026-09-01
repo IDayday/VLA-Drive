@@ -176,6 +176,7 @@ def main() -> None:
             DrivORRankerConfig(**artifact["ranker_config"]),
             ConservativeReferenceConfig(**artifact["reference_config"]),
             alternative_mode=str(artifact["alternative_mode"]),
+            alternative_count=int(artifact.get("alternative_count", 1)),
         ).to(device)
         agent_target = "DrivORReferenceGateRanker"
     model.load_state_dict(artifact["state_dict"], strict=True)

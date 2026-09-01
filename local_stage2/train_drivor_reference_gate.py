@@ -267,7 +267,10 @@ def evaluate_gate_predictions(
     rows = torch.arange(len(references))
     base_values = target_scores[rows, references]
     alternative_values = target_scores[rows, alternatives]
-    union_oracle_values = torch.maximum(base_values, alternative_values)
+    allowed = prediction["allowed_candidate_mask"].bool()
+    union_oracle_values = target_scores.masked_fill(~allowed, -torch.inf).max(
+        dim=1
+    ).values
     full_oracle_values = target_scores.max(dim=1).values
     target_safety = target_factors[..., list(SAFETY_TARGET_INDICES)]
     base_safety = target_safety[rows, references]
@@ -423,6 +426,12 @@ def parse_args() -> argparse.Namespace:
             "all learns reference-relative gain over every proposal"
         ),
     )
+    parser.add_argument(
+        "--alternative-count",
+        type=int,
+        default=1,
+        help="Number of factor/direct shortlist alternatives; ignored by all mode",
+    )
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--batch-size", type=int, default=32)
@@ -513,6 +522,7 @@ def main() -> None:
         ranker_config,
         reference_config,
         alternative_mode=args.alternative_mode,
+        alternative_count=args.alternative_count,
     )
     initialization_audit = _initialize_ranker(
         model, args.initialize_ranker_checkpoint
@@ -544,6 +554,7 @@ def main() -> None:
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "architecture": "DrivORReferenceGateRanker",
         "alternative_mode": args.alternative_mode,
+        "alternative_count": args.alternative_count,
         "train_scene_count": len(train_indices),
         "validation_scene_count": len(validation_indices),
         "train_physical_log_count": len(
@@ -640,6 +651,7 @@ def main() -> None:
                     "schema_version": 1,
                     "architecture": "DrivORReferenceGateRanker",
                     "alternative_mode": args.alternative_mode,
+                    "alternative_count": args.alternative_count,
                     "state_dict": {
                         key: value.detach().cpu()
                         for key, value in model.state_dict().items()
