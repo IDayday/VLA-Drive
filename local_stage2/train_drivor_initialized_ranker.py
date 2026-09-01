@@ -124,6 +124,7 @@ def compute_training_loss(
         _base_scores,
         target_factors,
         _indices,
+        *_training_only_targets,
     ) = batch
     candidate_indices = _candidate_dropout_indices(
         target_factors[..., -1],
@@ -260,6 +261,7 @@ def collect_predictions(
         base_scores,
         target_factors,
         _source_indices,
+        *_training_only_targets,
     ) in loader:
         output = model(
             observation.to(device, non_blocking=True).float(),

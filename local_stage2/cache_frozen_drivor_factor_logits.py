@@ -101,6 +101,7 @@ def main() -> None:
             _base_scores,
             _target_factors,
             source_indices,
+            *_training_only_targets,
         ) in loader:
             output = model(
                 observation.to(device, non_blocking=True).float(),

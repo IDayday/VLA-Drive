@@ -127,6 +127,7 @@ def compute_reference_training_loss(
         base_scores,
         target_factors,
         _source_indices,
+        *_training_only_targets,
     ) = batch
     random_keys = torch.rand(
         base_scores.shape,
@@ -247,6 +248,7 @@ def collect_reference_predictions(
         base_scores,
         target_factors,
         _source_indices,
+        *_training_only_targets,
     ) in loader:
         reference_indices = base_scores.argmax(dim=1).to(device)
         output = model(

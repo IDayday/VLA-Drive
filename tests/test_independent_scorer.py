@@ -57,6 +57,9 @@ from local_stage2.train_independent_scorer import (
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
 )
+from local_stage2.train_conservative_reference_scorer import (
+    compute_reference_training_loss,
+)
 from local_stage2.train_drivor_initialized_ranker import (
     direct_score_regression_loss,
 )
@@ -711,6 +714,9 @@ def test_drivor_reference_gate_training_is_finite_with_frozen_ranker() -> None:
         base_scores,
         target_factors,
         torch.arange(3),
+        torch.empty(3, 0, 8),
+        torch.empty(3, 0, dtype=torch.bool),
+        torch.zeros(3, dtype=torch.bool),
     )
     loss, details = compute_gate_training_loss(
         model,
@@ -729,6 +735,62 @@ def test_drivor_reference_gate_training_is_finite_with_frozen_ranker() -> None:
     assert gradients
     assert all(torch.isfinite(value).all() for value in gradients)
     assert all(parameter.grad is None for parameter in model.ranker.parameters())
+
+
+def test_conservative_reference_training_accepts_training_only_batch_tail() -> None:
+    torch.manual_seed(46)
+    model = IndependentConservativeReferenceRanker(
+        _small_config(),
+        ConservativeReferenceConfig(
+            model_dim=32,
+            hidden_dim=64,
+            num_heads=4,
+            num_layers=1,
+            dropout=0.0,
+        ),
+    )
+    model.ranker.requires_grad_(False)
+    model.ranker.eval()
+    observations, status, proposals = _inputs(batch_size=3, candidates=6)
+    base_scores = torch.randn(3, 6)
+    target_factors = torch.rand(3, 6, 7)
+    args = SimpleNamespace(
+        minimum_improvement_target=0.005,
+        factor_epsilon=1.0e-6,
+        minimum_lcb_gain=0.0,
+        maximum_safety_worse_probability=0.25,
+        minimum_safe_improvement_probability=0.5,
+        minimum_pair_delta=0.02,
+        safety_worse_positive_weight=10.0,
+        safe_improvement_positive_weight=3.0,
+        switch_margin_temperature=0.05,
+        quantile_weight=1.0,
+        median_rank_weight=0.25,
+        safety_weight=1.0,
+        improvement_weight=0.5,
+        false_switch_weight=0.5,
+        missed_improvement_weight=0.0,
+    )
+    batch = (
+        proposals,
+        observations,
+        torch.ones(3, 13, dtype=torch.bool),
+        status,
+        base_scores,
+        target_factors,
+        torch.arange(3),
+        torch.empty(3, 0, 8),
+        torch.empty(3, 0, dtype=torch.bool),
+        torch.zeros(3, dtype=torch.bool),
+    )
+    loss, details = compute_reference_training_loss(
+        model,
+        batch,
+        args,
+        torch.Generator().manual_seed(460),
+    )
+    assert torch.isfinite(loss)
+    assert all(np.isfinite(value) for value in details.values())
 
 
 def test_drivor_promotion_records_lock_source_and_artifact_hash(tmp_path) -> None:
