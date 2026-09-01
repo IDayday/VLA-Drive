@@ -399,6 +399,63 @@ def evaluate_residual_predictions(
     }
 
 
+def evaluate_residual_predictions_by_source(
+    selection_scores: torch.Tensor,
+    refined_factor_logits: torch.Tensor,
+    base_scores: torch.Tensor,
+    target_factors: torch.Tensor,
+    physical_logs: Sequence[str],
+    source_names: Sequence[str],
+    seed: int,
+    bootstrap_replicates: int,
+) -> Tuple[Dict[str, object], Dict[str, Dict[str, object]]]:
+    """Evaluate a replay mixture without mixing checkpoint-selection domains."""
+
+    scene_count = int(selection_scores.shape[0])
+    tensors = (
+        refined_factor_logits,
+        base_scores,
+        target_factors,
+    )
+    if any(int(value.shape[0]) != scene_count for value in tensors):
+        raise ValueError("residual prediction tensors have different row counts")
+    if len(physical_logs) != scene_count or len(source_names) != scene_count:
+        raise ValueError("residual metadata does not align with prediction rows")
+
+    combined = evaluate_residual_predictions(
+        selection_scores,
+        refined_factor_logits,
+        base_scores,
+        target_factors,
+        physical_logs,
+        seed,
+        bootstrap_replicates,
+    )
+    by_source: Dict[str, Dict[str, object]] = {}
+    for source_name in sorted(set(source_names)):
+        indices = torch.tensor(
+            [
+                index
+                for index, value in enumerate(source_names)
+                if value == source_name
+            ],
+            dtype=torch.long,
+        )
+        if not int(indices.numel()):
+            continue
+        source_logs = [physical_logs[int(index)] for index in indices]
+        by_source[source_name] = evaluate_residual_predictions(
+            selection_scores.index_select(0, indices),
+            refined_factor_logits.index_select(0, indices),
+            base_scores.index_select(0, indices),
+            target_factors.index_select(0, indices),
+            source_logs,
+            seed,
+            bootstrap_replicates,
+        )
+    return combined, by_source
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -638,17 +695,31 @@ def main() -> None:
         validation_physical_logs = [
             data.physical_logs[index] for index in validation_indices
         ]
-        metrics = evaluate_residual_predictions(
-            *predictions,
-            validation_physical_logs,
-            args.seed + epoch,
-            args.bootstrap_replicates,
+        validation_source_names = [
+            data.source_names[index] for index in validation_indices
+        ]
+        combined_metrics, validation_by_source = (
+            evaluate_residual_predictions_by_source(
+                *predictions,
+                validation_physical_logs,
+                validation_source_names,
+                args.seed + epoch,
+                args.bootstrap_replicates,
+            )
         )
+        if selection_source not in validation_by_source:
+            raise RuntimeError(
+                "checkpoint selection source has no validation predictions: "
+                f"{selection_source}"
+            )
+        metrics = validation_by_source[selection_source]
         record = {
             "epoch": epoch,
             "learning_rate": float(optimizer.param_groups[0]["lr"]),
             "training": _mean_details(epoch_details),
             "validation": metrics,
+            "validation_all_sources": combined_metrics,
+            "validation_by_source": validation_by_source,
         }
         history.append(record)
         print(json.dumps(record, sort_keys=True), flush=True)
@@ -667,6 +738,8 @@ def main() -> None:
                     "residual_config": asdict(residual_config),
                     "epoch": epoch,
                     "validation": metrics,
+                    "validation_all_sources": combined_metrics,
+                    "validation_by_source": validation_by_source,
                     "checkpoint_selection_source": selection_source,
                     "fold_manifest": fold_manifest,
                     "inference_input_schema": (

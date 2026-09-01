@@ -69,6 +69,7 @@ from local_stage2.train_independent_scorer import (
 )
 from local_stage2.train_m0_private_residual_scorer import (
     compute_residual_training_loss,
+    evaluate_residual_predictions_by_source,
 )
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
@@ -484,6 +485,50 @@ def test_m0_private_residual_training_loss_is_finite() -> None:
     assert model.private_ranker.coarse_factor_heads[
         FACTOR_KEYS[0]
     ].weight.grad is not None
+
+
+def test_m0_private_residual_multireplay_selects_metrics_by_source() -> None:
+    target_factors = torch.ones(4, 3, 7)
+    target_factors[..., -1] = torch.tensor(
+        [
+            [0.9, 0.5, 0.4],
+            [0.8, 0.3, 0.2],
+            [0.2, 0.7, 0.4],
+            [0.1, 0.6, 0.5],
+        ]
+    )
+    base_scores = torch.tensor(
+        [
+            [0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+        ]
+    )
+    selection_scores = torch.tensor(
+        [
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+        ]
+    )
+    combined, by_source = evaluate_residual_predictions_by_source(
+        selection_scores,
+        torch.zeros(4, 3, 6),
+        base_scores,
+        target_factors,
+        ["public-log-a", "public-log-b", "epoch3-log-a", "epoch3-log-b"],
+        ["public_base", "public_base", "epoch3", "epoch3"],
+        seed=2,
+        bootstrap_replicates=20,
+    )
+    assert combined["scene_count"] == 4
+    assert set(by_source) == {"epoch3", "public_base"}
+    assert by_source["public_base"]["scene_count"] == 2
+    assert by_source["epoch3"]["scene_count"] == 2
+    assert by_source["public_base"]["selected_delta"] == pytest.approx(0.45)
+    assert by_source["epoch3"]["selected_delta"] == pytest.approx(0.0)
 
 
 def test_drivor_ranker_forward_is_current_observation_only() -> None:
