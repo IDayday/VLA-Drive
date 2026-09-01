@@ -258,3 +258,28 @@ FP32 current-state vector with finite values. All four current cameras decoded
 successfully (three crops per camera); the cache contains no future, proposal,
 official-score, or factor key. The machine-readable audit is
 `M0_NATIVE_NAVTEST_CACHE_AUDIT.json`.
+
+## M0-native Base-calibrated residual result
+
+Epoch-0 factor and hybrid residual snapshots were calibrated with a nested
+physical-log protocol: 30 logs selected a deployment switch policy and 31
+disjoint logs performed the promotion test. Factor residual improved the
+promotion half by `+0.006047` (95% CI `[+0.003923,+0.007820]`); hybrid improved
+it by `+0.005186` (`[+0.003069,+0.006791]`). Both therefore underwent the
+mandatory complete Navtest evaluation without using Navtest for selection.
+
+Both gains reversed decisively. Factor residual reaches Navtest PDMS
+`0.897361`, delta `-0.012233` from public M0 with log-bootstrap interval
+`[-0.014750,-0.009766]`. Hybrid residual reaches `0.894111`, delta `-0.015483`
+with interval `[-0.018801,-0.012222]`. Both use 12,146 scenes, 136 segment
+logs, all 64 unchanged M0 candidates, FP32 selection, and zero invalid scenes.
+Repository audit, selected-score reconstruction, candidate-oracle identity,
+and four-scene online/cache parity all pass; maximum online/cache score error
+is `2.3842e-7` and selected indices match exactly.
+
+The factor residual increases ego progress by `+0.004914` on Navtest but loses
+collision `-0.006916`, DAC `-0.008315`, DDC `-0.007328`, and TTC `-0.021653`.
+Hybrid has the same, slightly worse signature. Thus nested thresholding and a
+Base anchor do not solve the trainval-to-Navtest safety shift. Both models are
+rejected; the next scorer representation must receive explicit dynamic-future
+or interaction-risk supervision rather than only aggregate/factor labels.
