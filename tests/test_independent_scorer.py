@@ -881,6 +881,31 @@ def test_episode_drive_factor_loss_matches_released_six_head_bce() -> None:
     )
 
 
+def test_safety_weight_includes_rare_ddc_failures() -> None:
+    logits = torch.zeros(1, 1, len(FACTOR_KEYS))
+    safe = torch.ones_like(logits)
+    ddc_failure = safe.clone()
+    ddc_failure[..., 2] = 0.0
+    source = episode_drive_factor_loss(
+        logits, ddc_failure, safety_negative_weight=1.0
+    )
+    weighted = episode_drive_factor_loss(
+        logits, ddc_failure, safety_negative_weight=5.0
+    )
+    # With zero logits every BCE element is equal, so a correctly normalized
+    # weighted mean is numerically unchanged.  A nonzero DDC logit exposes the
+    # increased influence of the rare negative label.
+    assert weighted == pytest.approx(source)
+    logits[..., 2] = 2.0
+    source = episode_drive_factor_loss(
+        logits, ddc_failure, safety_negative_weight=1.0
+    )
+    weighted = episode_drive_factor_loss(
+        logits, ddc_failure, safety_negative_weight=5.0
+    )
+    assert weighted > source
+
+
 def _all_log_refit_fixture():
     config = _small_config()
     locked = {

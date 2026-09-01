@@ -1379,7 +1379,10 @@ def episode_drive_factor_loss(
     if safety_negative_weight == 1.0:
         return element.mean()
     weights = torch.ones_like(element)
-    for index in (0, 1, 3):
+    # NOC, DAC, DDC and TTC failures are all rare harmful outcomes.  Weighting
+    # mode is an explicit ablation; the source-equivalent 1.0 path above is
+    # unchanged bit for bit.
+    for index in (0, 1, 2, 3):
         weights[..., index] = torch.where(
             target[..., index] < 0.5,
             safety_negative_weight,

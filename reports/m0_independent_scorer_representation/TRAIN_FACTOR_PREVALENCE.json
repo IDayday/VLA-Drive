@@ -1,0 +1,64 @@
+{
+  "chunk_count": 807,
+  "created_utc": "2026-09-01T22:18:49.367918+00:00",
+  "data_scope": "trainval replay only; no Navtest/private-test labels",
+  "label_root": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/public_base_labels_full_v1",
+  "manifest_sha256": {},
+  "predeclared_safety_negative_weight": 5.0,
+  "schema_version": 1,
+  "split_manifest": "/mnt/project/DriveVLA-M0-scorer-pdms93/reports/scorer_pdms93/OFFICIAL_SCORER_SPLIT.json",
+  "split_manifest_sha256": "e829c435e77a3cef69c8097bc57e790eea5e2e86034490e5ae5697d77fd143d7",
+  "splits": {
+    "train": {
+      "candidate_count": 5446976,
+      "factor_mean": {
+        "comfort": 0.9435139791326417,
+        "drivable_area_compliance": 0.9457789055799034,
+        "driving_direction_compliance": 0.9789912788306759,
+        "ego_progress": 0.8341300440587708,
+        "no_at_fault_collisions": 0.9717438630168372,
+        "score": 0.8533226334301616,
+        "time_to_collision_within_bound": 0.9124813474485659
+      },
+      "failure_rate": {
+        "comfort": 0.05648602172732353,
+        "drivable_area_compliance": 0.05422109365463257,
+        "driving_direction_compliance": 0.02834581956267357,
+        "no_at_fault_collisions": 0.030627820640802383,
+        "time_to_collision_within_bound": 0.08751865476369858
+      },
+      "scene_count": 85109
+    },
+    "validation": {
+      "candidate_count": 1163456,
+      "factor_mean": {
+        "comfort": 0.9515297527366742,
+        "drivable_area_compliance": 0.9100378527421751,
+        "driving_direction_compliance": 0.9644606242092524,
+        "ego_progress": 0.7913641224930709,
+        "no_at_fault_collisions": 0.976314531877441,
+        "score": 0.8225617855948718,
+        "time_to_collision_within_bound": 0.9245695582815336
+      },
+      "failure_rate": {
+        "comfort": 0.04847024753689766,
+        "drivable_area_compliance": 0.08996214717626572,
+        "driving_direction_compliance": 0.04745602607727051,
+        "no_at_fault_collisions": 0.02502630092203617,
+        "time_to_collision_within_bound": 0.07543044537305832
+      },
+      "scene_count": 18179
+    }
+  },
+  "target_factor_keys": [
+    "no_at_fault_collisions",
+    "drivable_area_compliance",
+    "ego_progress",
+    "time_to_collision_within_bound",
+    "comfort",
+    "driving_direction_compliance",
+    "score"
+  ],
+  "unique_scene_count": 103288,
+  "weight_selection_basis": "rounded conservative cap below inverse-frequency weights for 2-9% train safety-failure prevalence; selected without Navtest"
+}

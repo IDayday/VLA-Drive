@@ -331,3 +331,13 @@ forward is completed before any future target is read for scoring, and the
 report records the artifact, target, split, and current-actor table hashes.
 These audits share the serialized evaluation-GPU lock with Navtest. The full
 suite passes `212` tests.
+
+A trainval-only prevalence audit covers all 103,288 replay scenes and
+6,610,432 candidates. In the training split, exact/thresholded failure rates
+are NOC `3.06%`, DAC `5.42%`, DDC `2.83%`, TTC `8.75%`, and comfort `5.65%`.
+This confirms severe safety-class imbalance without consulting Navtest. A
+predeclared weight of `5.0`—well below inverse-frequency weighting—is therefore
+added as a separate factorized run while the source-equivalent `1.0` runs stay
+unchanged. The weighted loss now covers DDC as well as NOC/DAC/TTC. Its input
+evidence and split hash are recorded in `TRAIN_FACTOR_PREVALENCE.json`; the
+complete suite passes `213` tests.
