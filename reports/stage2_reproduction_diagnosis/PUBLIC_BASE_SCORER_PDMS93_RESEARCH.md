@@ -176,3 +176,48 @@ maximum absolute differences against the locked public FP32 cache were both
 parallel, all-candidate factor scoring was split by complete log across three
 hosts with 32 CPU workers per host. The full-data scorer queue runs separately
 on rl-zt3 GPUs 3, 5, 6 and 7; no existing job was stopped.
+
+## Complete Navtest outcome for every promoted scorer
+
+The full campaign completed on 2026-09-01. The immutable feature cache contains
+12,146 scenes from 136 logs and matches the locked released checkpoint at a
+maximum absolute proposal and Base-score error of `0.0`. The candidate matrix
+contains all 64 proposals for every scene, has zero invalid scenes, and traces
+to the same locked proposal SHA256. Representative online checks for local,
+factor-aggregate, set-aware, scene-cross-attention, and their set variants all
+matched cached inference at `2.39e-7` or better with identical selected indices.
+
+All 35 unique artifacts whose held-out-log validation bootstrap lower bound was
+positive were then evaluated. This includes 27 partial-cache architecture and
+loss pilots plus all eight full-data configurations across the planned three
+seeds. No promoted artifact was omitted.
+
+| quantity | result |
+|---|---:|
+| promoted artifacts tested | 35 / 35 |
+| public Base PDMS | 0.909594 |
+| best fine-ranker PDMS | 0.908851 |
+| best delta | -0.000743 |
+| best delta 95% log-bootstrap CI | [-0.002145, +0.000664] |
+| methods with positive test delta | 0 / 35 |
+| methods with positive test CI lower bound | 0 / 35 |
+| validation-positive to test-negative sign flips | 35 / 35 |
+| methods above 0.93 | 0 / 35 |
+
+The best result is the full-data residual top-16 seed-1 run. Its interval crosses
+zero, so it is statistically compatible with the released scorer but is not an
+improvement. Most other methods are significantly worse. In particular, the
+full-data validation gains of roughly `+0.0036` to `+0.0048` did not transfer to
+Navtest. The current fine-ranker therefore fails the benchmark objective and
+must not be presented as a new scorer result or SOTA.
+
+This systematic sign reversal is stronger evidence than a single failed model:
+the official Navtrain validation split is not a reliable selector for these
+high-switch-rate residual heads. Further work must target cross-log/domain
+robustness and reduce reliance on calibration patterns specific to Navtrain.
+Test results will remain reporting-only; they will not be used to tune residual
+scale, gates, or ensemble weights.
+
+The complete per-method table, confidence intervals, factor changes, immutable
+cache hashes, and promotion/test coverage assertion are recorded in
+`NAVTEST_ALL_EFFECTIVE_SCORERS.md`, `.csv`, and `.json` in this directory.

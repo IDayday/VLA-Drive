@@ -10,6 +10,10 @@ from local_stage2.export_public_base_scorer_cache import (
 )
 from local_stage2.score_public_base_scorer_cache import _belongs_to_worker
 from local_stage2.run_navtest_proposal_audit import _compare_prediction_banks
+from local_stage2.summarize_navtest_scorer_campaigns import (
+    _build_rows,
+    _status,
+)
 from local_stage2.train_public_base_residual_scorer import (
     EvaluationOutputs,
     base_pairwise_loss,
@@ -42,6 +46,24 @@ def test_first_missing_chunk_requires_contiguous_cache(tmp_path: Path):
     (tmp_path / "chunk_000002.pt").touch()
     with pytest.raises(RuntimeError, match="Non-contiguous"):
         _first_missing_chunk(tmp_path, 3)
+
+
+def test_navtest_campaign_summary_requires_every_promoted_artifact():
+    with pytest.raises(RuntimeError, match="coverage mismatch"):
+        _build_rows({"promoted-sha": {}}, {})
+
+
+@pytest.mark.parametrize(
+    ("delta", "low", "high", "expected"),
+    [
+        (0.01, 0.001, 0.02, "TEST_POSITIVE_SIGNIFICANT"),
+        (0.01, -0.001, 0.02, "TEST_POSITIVE_INCONCLUSIVE"),
+        (-0.01, -0.02, 0.001, "TEST_NEGATIVE_INCONCLUSIVE"),
+        (-0.01, -0.02, -0.001, "TEST_NEGATIVE_SIGNIFICANT"),
+    ],
+)
+def test_navtest_campaign_status(delta, low, high, expected):
+    assert _status(delta, low, high) == expected
 
 
 def test_prediction_bank_parity_is_strict_and_ignores_feature_extras():
