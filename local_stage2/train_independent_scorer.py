@@ -190,6 +190,12 @@ def load_private_observation_table(root: Path) -> PrivateObservationTable:
             raise RuntimeError("private-observation manifest is not current-only")
         if bool(payload.get("future_or_evaluator_input")):
             raise RuntimeError("private-observation manifest declares future/evaluator input")
+        if bool(payload.get("official_score_or_factor_input")):
+            raise RuntimeError("private-observation manifest declares official score input")
+        if bool(payload.get("proposal_input")):
+            raise RuntimeError("private-observation manifest declares proposal input")
+        if bool(payload.get("drivor_checkpoint_or_representation_used")):
+            raise RuntimeError("private-observation manifest declares DrivOR representation use")
 
     tokens: List[str] = []
     observations: List[torch.Tensor] = []
@@ -259,6 +265,9 @@ def load_private_observation_table(root: Path) -> PrivateObservationTable:
         },
         "current_observation_only": True,
         "future_or_evaluator_input": False,
+        "official_score_or_factor_input": False,
+        "proposal_input": False,
+        "drivor_checkpoint_or_representation_used": False,
         "current_context_fields": (
             "status_feature",
             "history_trajectory",
@@ -808,6 +817,8 @@ def evaluate_predictions(
     shortlist_oracle_values = shortlist_values.max(dim=1).values
     target_six = target_factors[..., list(TARGET_TO_MODEL_FACTOR_ORDER)]
     selected_factors = target_six[row, selected]
+    coarse_selected_factors = target_six[row, coarse_selected]
+    factor_selected_factors = target_six[row, factor_selected]
     base_factors = target_six[row, base_selected]
     wins = int((selected_values > base_values + 1e-9).sum())
     losses = int((selected_values < base_values - 1e-9).sum())
@@ -853,6 +864,14 @@ def evaluate_predictions(
         ),
         "selected_factors": {
             key: float(selected_factors[:, index].mean())
+            for index, key in enumerate(FACTOR_KEYS)
+        },
+        "coarse_selected_factors": {
+            key: float(coarse_selected_factors[:, index].mean())
+            for index, key in enumerate(FACTOR_KEYS)
+        },
+        "factor_selected_factors": {
+            key: float(factor_selected_factors[:, index].mean())
             for index, key in enumerate(FACTOR_KEYS)
         },
         "base_selected_factors": {

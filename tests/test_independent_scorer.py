@@ -65,6 +65,10 @@ from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
 from local_stage2.audit_drivor_representation_dependence import (
     _cross_log_derangement,
 )
+from local_stage2.audit_independent_representation_dependence import (
+    _mode_mask,
+    _score_output,
+)
 
 
 def _small_config(**overrides) -> IndependentRankerConfig:
@@ -122,6 +126,33 @@ def test_cross_log_derangement_never_reuses_physical_log() -> None:
     permutation = _cross_log_derangement(logs, seed=19)
     assert sorted(permutation.tolist()) == list(range(len(logs)))
     assert all(logs[row] != logs[donor] for row, donor in enumerate(permutation))
+
+
+def test_independent_representation_audit_uses_donor_mask_only_for_scene_shuffle() -> None:
+    source = torch.tensor([[True, False], [False, True]])
+    donor = ~source
+    assert torch.equal(_mode_mask("correct", source, donor), source)
+    assert torch.equal(_mode_mask("scene_zero", source, donor), source)
+    assert torch.equal(
+        _mode_mask("scene_cross_log_shuffle", source, donor), donor
+    )
+    assert torch.equal(
+        _mode_mask("scene_and_status_cross_log_shuffle", source, donor), donor
+    )
+
+
+def test_independent_representation_audit_score_modes() -> None:
+    factor_logits = torch.randn(2, 3, len(FACTOR_KEYS))
+    output = {
+        "utility": torch.randn(2, 3),
+        "coarse_utility": torch.randn(2, 3),
+        "factor_logits": factor_logits,
+    }
+    assert torch.equal(_score_output(output, "direct"), output["utility"])
+    assert torch.equal(_score_output(output, "coarse"), output["coarse_utility"])
+    torch.testing.assert_close(
+        _score_output(output, "factor"), pdms_factor_log_utility(factor_logits)
+    )
 
 
 def test_forward_signature_has_no_released_or_future_score_inputs() -> None:

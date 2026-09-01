@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Score frozen external proposals with the released DrivOR scorer.
+"""Export or score proposals with the released DrivOR model.
 
-This is an inference-only adapter.  It builds DrivOR scene registers from the
+The default inference-only adapter builds DrivOR scene registers from the
 current camera observation, bypasses DrivOR's trajectory decoder, and feeds an
-immutable proposal bank through DrivOR's detached trajectory embedding and
-scoring decoder.  Future annotations, metric caches and official PDM values are
-deliberately absent from this process.
+immutable external proposal bank through DrivOR's detached trajectory
+embedding and scoring decoder.  ``--native-proposals`` instead executes the
+exact DrivOR trajectory decoder and persists its own final 64-proposal bank.
+The proposal source then supplies only the immutable split token inventory.
+Future annotations, metric caches and official PDM values are deliberately
+absent from both processes.
 """
 
 from __future__ import annotations
@@ -425,7 +428,11 @@ def _lineage(
         }
     return {
         "schema_version": 1,
-        "adapter": "DrivORExternalProposalScorer",
+        "adapter": (
+            "DrivORNativeProposalExporter"
+            if args.native_proposals
+            else "DrivORExternalProposalScorer"
+        ),
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "drivor_repo": str(args.drivor_repo.resolve()),
         "drivor_commit": _git_commit(args.drivor_repo),
@@ -437,6 +444,11 @@ def _lineage(
         "dino_weights_sha256": _sha256_file(args.dino_weights),
         "adapter_sha256": _sha256_file(Path(__file__).resolve()),
         "proposal_source": source,
+        "proposal_source_role": (
+            "token_inventory_only"
+            if args.native_proposals
+            else "immutable_external_candidate_bank"
+        ),
         "candidate_matrix": (
             {
                 "path": str(args.candidate_matrix.resolve()),
@@ -455,12 +467,16 @@ def _lineage(
         ),
         "fold_role": args.fold_role,
         "split": args.split,
+        "log_path": str(args.log_path.resolve()),
+        "sensor_root": str(args.sensor_root.resolve()),
         "precision": "fp32",
         "candidate_count": EXPECTED_CANDIDATES,
         "pose_count": EXPECTED_POSES,
         "pose_interval_seconds": 0.5,
         "proposal_coordinate_frame": "current_ego_local",
-        "inference_inputs": ["current_camera_images", "current_ego_status", "proposals"],
+        "inference_inputs": ["current_camera_images", "current_ego_status"]
+        + ([] if args.native_proposals else ["proposals"]),
+        "native_proposals": bool(args.native_proposals),
         "future_or_evaluator_input": False,
         "official_pdm_input": False,
         "base_scorer_input": False,
@@ -510,6 +526,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--parity-tolerance", type=float, default=1e-6)
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--seed", type=int, default=2)
+    parser.add_argument(
+        "--native-proposals",
+        action="store_true",
+        help=(
+            "Run DrivOR's own trajectory decoder.  The proposal source is "
+            "used only as a token/log inventory and its trajectories are "
+            "never passed to model forward."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -639,6 +664,8 @@ def main() -> None:
         "factor_logits": [],
         "selected_indices": [],
     }
+    if args.native_proposals:
+        output_buffer["proposals"] = []
     chunk_index = len(list(shard_dir.glob("chunk_*.pt")))
     expected_parity_count = min(args.self_parity_scenes, len(entry_tokens))
     parity_remaining = max(0, expected_parity_count - len(parity_results))
@@ -658,6 +685,10 @@ def main() -> None:
                 output_buffer["selected_indices"], dtype=torch.int16
             ),
         }
+        if args.native_proposals:
+            payload["proposals"] = torch.stack(
+                output_buffer["proposals"]
+            ).float()
         _atomic_torch_save(payload, shard_dir / f"chunk_{chunk_index:06d}.pt")
         chunk_index += 1
         for values in output_buffer.values():
@@ -676,13 +707,21 @@ def main() -> None:
                     _atomic_json_dump({"scenes": parity_results}, parity_path)
                 parity_remaining -= min(parity_remaining, len(batch_entries))
 
-            scene_features, ego_token = _encode_context(model, features)
-            proposals = torch.stack(
-                [proposal_source.proposals(entry) for entry in batch_entries]
-            ).to(device=device, dtype=torch.float32)
-            scores, factor_logits = _score_proposals(
-                model, config, proposals, scene_features, ego_token
-            )
+            if args.native_proposals:
+                native_output = model(dict(features))
+                proposals = native_output["proposals"].float()
+                scores = native_output["pdm_score"].float()
+                factor_logits = _stack_factor_logits(
+                    native_output["pred_logit"]
+                ).float()
+            else:
+                scene_features, ego_token = _encode_context(model, features)
+                proposals = torch.stack(
+                    [proposal_source.proposals(entry) for entry in batch_entries]
+                ).to(device=device, dtype=torch.float32)
+                scores, factor_logits = _score_proposals(
+                    model, config, proposals, scene_features, ego_token
+                )
             if not torch.isfinite(scores).all() or not torch.isfinite(factor_logits).all():
                 raise RuntimeError("DrivOR external scorer produced non-finite output")
             selected = scores.argmax(dim=1)
@@ -692,6 +731,10 @@ def main() -> None:
                 output_buffer["scores"].append(scores[row].float().cpu())
                 output_buffer["factor_logits"].append(factor_logits[row].float().cpu())
                 output_buffer["selected_indices"].append(int(selected[row].item()))
+                if args.native_proposals:
+                    output_buffer["proposals"].append(
+                        proposals[row].float().cpu()
+                    )
             if len(output_buffer["tokens"]) >= args.chunk_size:
                 flush()
             print(
@@ -724,6 +767,7 @@ def main() -> None:
         "log_count": len(unique_logs),
         "chunk_count": chunk_index,
         "invalid_scene_count": 0,
+        "native_proposals": bool(args.native_proposals),
         "self_parity": {
             "requested_scene_count": args.self_parity_scenes,
             "evaluated_scene_count": len(parity_results),
