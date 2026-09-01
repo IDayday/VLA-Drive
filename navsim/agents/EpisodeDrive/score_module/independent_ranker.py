@@ -82,6 +82,8 @@ class IndependentRankerConfig:
     dropout: float = 0.1
     current_actor_auxiliary: bool = False
     current_actor_type_count: int = 3
+    shared_future_auxiliary: bool = False
+    shared_future_horizons: int = 8
 
     def __post_init__(self) -> None:
         if self.model_dim % self.num_heads:
@@ -94,6 +96,12 @@ class IndependentRankerConfig:
             raise ValueError("interval_seconds must be positive")
         if self.current_actor_type_count <= 0:
             raise ValueError("current_actor_type_count must be positive")
+        if self.shared_future_horizons <= 0:
+            raise ValueError("shared_future_horizons must be positive")
+        if self.shared_future_auxiliary and not self.dynamic_queries:
+            raise ValueError(
+                "shared-future supervision requires dynamic actor queries"
+            )
         for count in (
             self.dynamic_queries,
             self.static_queries,
@@ -354,6 +362,23 @@ class IndependentProposalRanker(nn.Module):
             self.current_actor_presence_head = None
             self.current_actor_type_head = None
             self.current_actor_state_head = None
+        if config.shared_future_auxiliary:
+            horizons = config.shared_future_horizons
+            self.shared_future_presence_head = nn.Linear(
+                config.model_dim, horizons
+            )
+            self.shared_future_type_head = nn.Linear(
+                config.model_dim,
+                horizons * config.current_actor_type_count,
+            )
+            self.shared_future_state_head = nn.Linear(
+                config.model_dim,
+                horizons * len(CURRENT_ACTOR_STATE_FIELDS),
+            )
+        else:
+            self.shared_future_presence_head = None
+            self.shared_future_type_head = None
+            self.shared_future_state_head = None
 
         self.fine_encoder = nn.TransformerEncoder(
             _make_encoder_layer(config),
@@ -474,6 +499,33 @@ class IndependentProposalRanker(nn.Module):
                     ),
                 }
             )
+        if self.shared_future_presence_head is not None:
+            dynamic_tokens = scene_streams["dynamic"]
+            batch_size, actor_slots, _ = dynamic_tokens.shape
+            horizons = self.config.shared_future_horizons
+            type_count = self.config.current_actor_type_count
+            state_width = len(CURRENT_ACTOR_STATE_FIELDS)
+            result.update(
+                {
+                    "shared_future_presence_logits": (
+                        self.shared_future_presence_head(dynamic_tokens)
+                        .permute(0, 2, 1)
+                        .contiguous()
+                    ),
+                    "shared_future_type_logits": (
+                        self.shared_future_type_head(dynamic_tokens)
+                        .reshape(batch_size, actor_slots, horizons, type_count)
+                        .permute(0, 2, 1, 3)
+                        .contiguous()
+                    ),
+                    "shared_future_actor_state": (
+                        self.shared_future_state_head(dynamic_tokens)
+                        .reshape(batch_size, actor_slots, horizons, state_width)
+                        .permute(0, 2, 1, 3)
+                        .contiguous()
+                    ),
+                }
+            )
         return result
 
 
@@ -556,6 +608,80 @@ def current_actor_auxiliary_loss(
         valid_types = actor_type[actor_valid]
         if bool((valid_types < 0).any()) or bool((valid_types > maximum_type).any()):
             raise ValueError("current actor type is outside the configured classes")
+        actor_type_loss = F.cross_entropy(type_logits[actor_valid], valid_types)
+        state = F.smooth_l1_loss(
+            predicted_state[actor_valid], continuous[actor_valid]
+        )
+    else:
+        zero = presence_logits.sum() * 0.0
+        actor_type_loss = zero
+        state = zero
+    total = presence + 0.25 * actor_type_loss + state
+    return {
+        "total": total,
+        "presence": presence,
+        "type": actor_type_loss,
+        "state": state,
+    }
+
+
+def shared_future_auxiliary_loss(
+    output: Dict[str, torch.Tensor],
+    target_actor_future: torch.Tensor,
+    target_actor_mask: torch.Tensor,
+    supervision_valid: torch.Tensor,
+) -> Dict[str, torch.Tensor]:
+    """Supervise candidate-independent actor futures in the current ego frame."""
+
+    required = {
+        "shared_future_presence_logits",
+        "shared_future_type_logits",
+        "shared_future_actor_state",
+    }
+    missing = sorted(required.difference(output))
+    if missing:
+        raise RuntimeError(f"shared-future auxiliary heads are disabled: {missing}")
+    presence_logits = output["shared_future_presence_logits"]
+    type_logits = output["shared_future_type_logits"]
+    predicted_state = output["shared_future_actor_state"]
+    if target_actor_future.ndim != 4 or target_actor_future.shape[-1] != 8:
+        raise ValueError("target_actor_future must have shape [B,H,N,8]")
+    if target_actor_mask.shape != target_actor_future.shape[:3]:
+        raise ValueError("target_actor_mask must have shape [B,H,N]")
+    if presence_logits.shape != target_actor_mask.shape:
+        raise ValueError("shared-future presence shape does not match target")
+    if predicted_state.shape != (*target_actor_mask.shape, 8):
+        raise ValueError("shared-future state shape does not match target")
+    if type_logits.shape[:3] != target_actor_mask.shape:
+        raise ValueError("shared-future type shape does not match target")
+    if supervision_valid.shape != (target_actor_future.shape[0],):
+        raise ValueError("supervision_valid must have shape [B]")
+
+    batch_size, horizons, actor_slots, _ = target_actor_future.shape
+    actor_type, continuous = normalize_current_actor_targets(
+        target_actor_future.reshape(batch_size * horizons, actor_slots, 8)
+    )
+    actor_type = actor_type.reshape(batch_size, horizons, actor_slots)
+    continuous = continuous.reshape(batch_size, horizons, actor_slots, -1)
+    supervised_slots = supervision_valid.bool()[:, None, None].expand_as(
+        target_actor_mask
+    )
+    presence_element = F.binary_cross_entropy_with_logits(
+        presence_logits,
+        target_actor_mask.to(presence_logits.dtype),
+        reduction="none",
+    )
+    presence_weights = supervised_slots.to(presence_element.dtype)
+    presence = (presence_element * presence_weights).sum() / (
+        presence_weights.sum().clamp_min(1.0)
+    )
+
+    actor_valid = supervised_slots & target_actor_mask.bool()
+    if bool(actor_valid.any()):
+        valid_types = actor_type[actor_valid]
+        maximum_type = type_logits.shape[-1] - 1
+        if bool((valid_types < 0).any()) or bool((valid_types > maximum_type).any()):
+            raise ValueError("shared-future actor type is outside configured classes")
         actor_type_loss = F.cross_entropy(type_logits[actor_valid], valid_types)
         state = F.smooth_l1_loss(
             predicted_state[actor_valid], continuous[actor_valid]

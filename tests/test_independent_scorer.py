@@ -24,6 +24,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     factor_prediction_loss,
     masked_pinball_quantile_loss,
     pdms_factor_log_utility,
+    shared_future_auxiliary_loss,
     top_heavy_listwise_loss,
     top_regret_rank_loss,
     weighted_pairwise_rank_loss,
@@ -68,8 +69,10 @@ from local_stage2.train_independent_scorer import (
     validate_all_log_refit_provenance,
 )
 from local_stage2.train_m0_private_residual_scorer import (
+    ResidualReplayDataset,
     compute_residual_training_loss,
     evaluate_residual_predictions_by_source,
+    load_shared_future_target_table,
 )
 from local_stage2.calibrate_m0_private_residual_policy import (
     balanced_calibration_split,
@@ -831,6 +834,111 @@ def test_current_actor_auxiliary_is_candidate_independent_and_masked() -> None:
     assert all(torch.isfinite(value) for value in losses.values())
     losses["total"].backward()
     assert model.current_actor_state_head.weight.grad is not None
+
+
+def test_shared_future_auxiliary_is_candidate_independent_and_masked() -> None:
+    torch.manual_seed(47)
+    config = _small_config(
+        shared_future_auxiliary=True,
+        shared_future_horizons=3,
+    )
+    model = IndependentProposalRanker(config).eval()
+    observations, status, proposals = _inputs()
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        permuted = model(observations, status, proposals[:, permutation])
+    expected_shapes = {
+        "shared_future_presence_logits": (2, 3, 3),
+        "shared_future_type_logits": (2, 3, 3, 3),
+        "shared_future_actor_state": (2, 3, 3, 8),
+    }
+    for key, shape in expected_shapes.items():
+        assert tuple(reference[key].shape) == shape
+        torch.testing.assert_close(reference[key], permuted[key])
+
+    target = torch.zeros(2, 3, 3, 8)
+    target[0, :, 0] = torch.tensor(
+        [0.0, 10.0, -2.0, 3.0, 0.5, 3.1, 4.8, 2.0]
+    )
+    target[0, 1:, 1] = torch.tensor(
+        [2.0, 4.0, 1.0, 0.0, 0.0, -3.1, 1.8, 0.7]
+    )
+    # An invalid scene must be ignored, including its invalid actor types.
+    target[1, :, :, 0] = 99.0
+    mask = torch.tensor(
+        [
+            [[True, False, False], [True, True, False], [True, True, False]],
+            [[True, True, True], [True, True, True], [True, True, True]],
+        ]
+    )
+    valid = torch.tensor([True, False])
+    output = model(observations, status, proposals)
+    losses = shared_future_auxiliary_loss(output, target, mask, valid)
+    assert set(losses) == {"total", "presence", "type", "state"}
+    assert all(torch.isfinite(value) for value in losses.values())
+    losses["total"].backward()
+    assert model.shared_future_presence_head.weight.grad is not None
+    assert model.shared_future_type_head.weight.grad is not None
+    assert model.shared_future_state_head.weight.grad is not None
+
+
+def test_shared_future_target_table_is_training_only_and_ordered(tmp_path) -> None:
+    import hashlib
+    import pandas as pd
+
+    actor_future = np.zeros((2, 8, 16, 8), dtype=np.float32)
+    actor_future[0, :, 0, 0] = 1.0
+    actor_future[0, :, 0, 1] = 7.0
+    actor_future[1, :, 0, 0] = 2.0
+    actor_future[1, :, 0, 1] = 11.0
+    actor_mask = np.zeros((2, 8, 16), dtype=bool)
+    actor_mask[:, :, 0] = True
+    completed = np.array([True, False])
+    np.save(tmp_path / "shared_actor_future.npy", actor_future)
+    np.save(tmp_path / "shared_actor_mask.npy", actor_mask)
+    np.save(tmp_path / "completed.npy", completed)
+    pd.DataFrame(
+        {
+            "scene_token": ["row-one", "row-zero"],
+            "scene_index": [1, 0],
+            "target_preflight_available": [True, True],
+        }
+    ).to_parquet(tmp_path / "scene_metadata.parquet", index=False)
+
+    def digest(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(
+            {
+                "depends_on_logged_future": True,
+                "training_only_target": True,
+                "available_as_model_input_at_inference": False,
+                "coordinate_frame": "current_ego",
+                "valid_scene_count": 1,
+                "array_sha256": {
+                    "shared_actor_future.npy": digest(
+                        tmp_path / "shared_actor_future.npy"
+                    ),
+                    "shared_actor_mask.npy": digest(
+                        tmp_path / "shared_actor_mask.npy"
+                    ),
+                    "completed.npy": digest(tmp_path / "completed.npy"),
+                },
+            }
+        )
+        + "\n"
+    )
+
+    table = load_shared_future_target_table(tmp_path)
+    assert table.tokens == ["row-zero", "row-one"]
+    assert tuple(table.actor_future.shape) == (2, 8, 16, 8)
+    assert tuple(table.actor_masks.shape) == (2, 8, 16)
+    assert table.supervision_valid.tolist() == [True, False]
+    assert table.actor_future[0, 0, 0, 1].item() == pytest.approx(7.0)
+    assert table.lineage["depends_on_logged_future"] is True
+    assert table.lineage["available_as_model_input_at_inference"] is False
 
 
 def test_load_current_actor_target_table_respects_scene_indices(tmp_path) -> None:

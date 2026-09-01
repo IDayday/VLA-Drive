@@ -8,7 +8,7 @@ import json
 import os
 import random
 from collections import Counter
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
@@ -16,6 +16,7 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
@@ -49,6 +50,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     IndependentRankerConfig,
     episode_drive_factor_loss,
     pdms_factor_log_utility,
+    shared_future_auxiliary_loss,
 )
 from navsim.agents.EpisodeDrive.score_module.m0_private_residual_ranker import (
     M0PrivateResidualConfig,
@@ -121,18 +123,119 @@ def load_replay_base_factor_logits(
     return tokens, torch.cat(parts)
 
 
+@dataclass(frozen=True)
+class SharedFutureTargetTable:
+    tokens: List[str]
+    actor_future: torch.Tensor
+    actor_masks: torch.Tensor
+    supervision_valid: torch.Tensor
+    lineage: Dict[str, object]
+
+
+def load_shared_future_target_table(root: Path) -> SharedFutureTargetTable:
+    """Load training-only shared logged-future actor supervision."""
+
+    state_path = root / "shared_actor_future.npy"
+    mask_path = root / "shared_actor_mask.npy"
+    completed_path = root / "completed.npy"
+    metadata_path = root / "scene_metadata.parquet"
+    manifest_path = root / "manifest.json"
+    for path in (
+        state_path,
+        mask_path,
+        completed_path,
+        metadata_path,
+        manifest_path,
+    ):
+        if not path.is_file():
+            raise FileNotFoundError(path)
+    manifest = json.loads(manifest_path.read_text())
+    if not bool(manifest.get("depends_on_logged_future")):
+        raise RuntimeError("shared-future target manifest lacks future provenance")
+    if not bool(manifest.get("training_only_target")):
+        raise RuntimeError("shared-future targets are not marked training-only")
+    if bool(manifest.get("available_as_model_input_at_inference")):
+        raise RuntimeError("shared-future targets must be training-only")
+    if manifest.get("coordinate_frame") != "current_ego":
+        raise RuntimeError("shared-future targets must use the current ego frame")
+    declared_hashes = manifest.get("array_sha256", {})
+    for path in (state_path, mask_path, completed_path):
+        expected_hash = declared_hashes.get(path.name)
+        if not expected_hash or _sha256(path) != expected_hash:
+            raise RuntimeError(f"shared-future target hash mismatch: {path}")
+    actor_future = np.load(state_path, mmap_mode="r")
+    actor_masks = np.load(mask_path, mmap_mode="r")
+    completed = np.load(completed_path, mmap_mode="r")
+    metadata = pd.read_parquet(metadata_path).sort_values("scene_index")
+    row_indices = metadata["scene_index"].to_numpy(dtype=np.int64)
+    if not np.array_equal(row_indices, np.arange(len(metadata), dtype=np.int64)):
+        raise RuntimeError("shared-future metadata scene indices are not contiguous")
+    expected_state = (len(metadata), 8, 16, 8)
+    expected_mask = (len(metadata), 8, 16)
+    if actor_future.shape != expected_state or actor_masks.shape != expected_mask:
+        raise RuntimeError(
+            "shared-future target shapes are invalid: "
+            f"{actor_future.shape}, {actor_masks.shape}"
+        )
+    if completed.shape != (len(metadata),):
+        raise RuntimeError("shared-future completion mask shape is invalid")
+    tokens = metadata["scene_token"].astype(str).tolist()
+    if len(set(tokens)) != len(tokens):
+        raise RuntimeError("shared-future target tokens are not unique")
+    preflight = metadata["target_preflight_available"].to_numpy(dtype=bool)
+    supervision_valid = np.asarray(completed, dtype=bool) & preflight
+    if int(supervision_valid.sum()) != int(manifest.get("valid_scene_count", -1)):
+        raise RuntimeError("shared-future valid-scene count disagrees with manifest")
+    if not np.isfinite(np.asarray(actor_future[supervision_valid])).all():
+        raise RuntimeError("shared-future actor targets contain non-finite values")
+    lineage = {
+        "name": "training_only_shared_logged_future_actor_supervision",
+        "root": str(root.resolve()),
+        "scene_count": len(tokens),
+        "valid_scene_count": int(supervision_valid.sum()),
+        "actor_slots": 16,
+        "horizons": 8,
+        "coordinate_frame": "current_ego",
+        "depends_on_logged_future": True,
+        "available_as_model_input_at_inference": False,
+        "manifest_sha256": _sha256(manifest_path),
+        "metadata_sha256": _sha256(metadata_path),
+        "state_sha256": str(manifest["array_sha256"]["shared_actor_future.npy"]),
+        "mask_sha256": str(manifest["array_sha256"]["shared_actor_mask.npy"]),
+    }
+    return SharedFutureTargetTable(
+        tokens=tokens,
+        actor_future=torch.from_numpy(np.asarray(actor_future).copy()),
+        actor_masks=torch.from_numpy(np.asarray(actor_masks).copy()),
+        supervision_valid=torch.from_numpy(supervision_valid.copy()),
+        lineage=lineage,
+    )
+
+
 class ResidualReplayDataset(Dataset):
     def __init__(
         self,
         data: ReplayTensorSet,
         base_factor_logits: torch.Tensor,
         indices: Sequence[int],
+        shared_future_table: Optional[SharedFutureTargetTable] = None,
+        shared_future_row_indices: Optional[torch.Tensor] = None,
     ) -> None:
         if base_factor_logits.shape != (len(data), 64, len(FACTOR_KEYS)):
             raise ValueError("Base factor logits do not align with replay rows")
         self.data = data
         self.base_factor_logits = base_factor_logits
         self.indices = torch.as_tensor(indices, dtype=torch.long)
+        self.shared_future_table = shared_future_table
+        self.shared_future_row_indices = shared_future_row_indices
+        if (shared_future_table is None) != (shared_future_row_indices is None):
+            raise ValueError("shared-future table and row indices must be paired")
+        if shared_future_row_indices is not None and shared_future_row_indices.shape != (
+            len(data),
+        ):
+            raise ValueError("shared-future row indices must align with replay rows")
+        self._empty_future = torch.zeros(8, 16, 8)
+        self._empty_future_mask = torch.zeros(8, 16, dtype=torch.bool)
 
     def __len__(self) -> int:
         return int(self.indices.numel())
@@ -140,7 +243,7 @@ class ResidualReplayDataset(Dataset):
     def __getitem__(self, index: int):
         source_index = int(self.indices[index])
         observation_index = int(self.data.observation_row_indices[source_index])
-        return (
+        base = (
             self.data.proposals[source_index],
             self.data.observation_tokens[observation_index],
             self.data.observation_valid_masks[observation_index],
@@ -150,6 +253,20 @@ class ResidualReplayDataset(Dataset):
             self.data.target_factors[source_index],
             torch.tensor(source_index, dtype=torch.long),
         )
+        if self.shared_future_table is None:
+            return base
+        target_index = int(self.shared_future_row_indices[source_index])
+        if target_index < 0:
+            return base + (
+                self._empty_future,
+                self._empty_future_mask,
+                torch.tensor(False),
+            )
+        return base + (
+            self.shared_future_table.actor_future[target_index],
+            self.shared_future_table.actor_masks[target_index],
+            self.shared_future_table.supervision_valid[target_index],
+        )
 
 
 def compute_residual_training_loss(
@@ -157,6 +274,7 @@ def compute_residual_training_loss(
     batch: Sequence[torch.Tensor],
     args: argparse.Namespace,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
+    base_batch = batch[:8]
     (
         proposals,
         observation,
@@ -166,7 +284,7 @@ def compute_residual_training_loss(
         base_factor_logits,
         target_factors,
         _indices,
-    ) = batch
+    ) = base_batch
     output = model(
         observation.float(),
         status.float(),
@@ -248,6 +366,23 @@ def compute_residual_training_loss(
         relative_element * relative_weight
     ).sum() / relative_weight.sum().clamp_min(1.0)
     residual_l2 = output["residual"].square().mean()
+    if len(batch) == 11:
+        future = shared_future_auxiliary_loss(
+            output,
+            batch[8],
+            batch[9],
+            batch[10],
+        )
+    elif len(batch) == 8:
+        zero = output["residual"].sum() * 0.0
+        future = {
+            "total": zero,
+            "presence": zero,
+            "type": zero,
+            "state": zero,
+        }
+    else:
+        raise ValueError(f"unexpected residual training batch width: {len(batch)}")
     total = (
         args.pairwise_weight * pairwise
         + args.base_pairwise_weight * base_pairwise
@@ -259,6 +394,7 @@ def compute_residual_training_loss(
         + args.factor_rank_weight * factor_rank
         + args.relative_safety_weight * relative_safety
         + args.residual_l2_weight * residual_l2
+        + getattr(args, "shared_future_weight", 0.0) * future["total"]
     )
     details = {
         "loss": total,
@@ -272,6 +408,10 @@ def compute_residual_training_loss(
         "factor_rank": factor_rank,
         "relative_safety": relative_safety,
         "residual_l2": residual_l2,
+        "shared_future": future["total"],
+        "shared_future_presence": future["presence"],
+        "shared_future_type": future["type"],
+        "shared_future_state": future["state"],
     }
     return total, {
         key: float(value.detach()) for key, value in details.items()
@@ -466,6 +606,7 @@ def parse_args() -> argparse.Namespace:
         required=True,
     )
     parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument("--shared-future-target-root", type=Path, default=None)
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--selection-source", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -507,6 +648,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--factor-rank-weight", type=float, default=0.5)
     parser.add_argument("--relative-safety-weight", type=float, default=0.5)
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
+    parser.add_argument("--shared-future-weight", type=float, default=0.0)
     parser.add_argument("--safety-negative-weight", type=float, default=1.0)
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--max-scenes-per-source", type=int, default=0)
@@ -532,6 +674,19 @@ def main() -> None:
             raise FileNotFoundError(path)
     if args.output_dir.exists():
         raise FileExistsError(args.output_dir)
+    if args.shared_future_weight < 0:
+        raise ValueError("shared_future_weight must be nonnegative")
+    if (args.shared_future_target_root is None) != (
+        args.shared_future_weight == 0.0
+    ):
+        raise ValueError(
+            "shared-future target root is required exactly when its weight is positive"
+        )
+    if args.shared_future_target_root is not None and args.dynamic_queries != 16:
+        raise ValueError(
+            "shared-future target schema has 16 fixed current-actor slots; "
+            "--dynamic-queries must be 16"
+        )
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -555,6 +710,32 @@ def main() -> None:
     )
     if factor_tokens != data.tokens:
         raise RuntimeError("Base factor logits do not match replay token order")
+    shared_future_table = None
+    shared_future_row_indices = None
+    shared_future_lineage = None
+    if args.shared_future_target_root is not None:
+        shared_future_table = load_shared_future_target_table(
+            args.shared_future_target_root
+        )
+        row_for_token = {
+            token: index for index, token in enumerate(shared_future_table.tokens)
+        }
+        shared_future_row_indices = torch.tensor(
+            [row_for_token.get(token, -1) for token in data.tokens],
+            dtype=torch.long,
+        )
+        matched = shared_future_row_indices >= 0
+        if not bool(matched.any()):
+            raise RuntimeError("no replay row has shared-future supervision")
+        shared_future_lineage = shared_future_table.lineage | {
+            "matched_replay_rows": int(matched.sum()),
+            "total_replay_rows": len(data),
+            "matched_supervised_replay_rows": int(
+                shared_future_table.supervision_valid.index_select(
+                    0, shared_future_row_indices[matched]
+                ).sum()
+            ),
+        }
 
     split_payload = json.loads(args.split_manifest.read_text())
     declared_train_logs = {
@@ -602,6 +783,8 @@ def main() -> None:
         num_fine_layers=args.fine_layers,
         fine_top_k=args.private_fine_top_k,
         dropout=args.dropout,
+        shared_future_auxiliary=shared_future_table is not None,
+        shared_future_horizons=8,
     )
     residual_config = M0PrivateResidualConfig(
         hidden_dim=args.model_dim,
@@ -624,7 +807,13 @@ def main() -> None:
         eta_min=args.learning_rate * 0.05,
     )
     train_loader = DataLoader(
-        ResidualReplayDataset(data, base_factor_logits, train_indices),
+        ResidualReplayDataset(
+            data,
+            base_factor_logits,
+            train_indices,
+            shared_future_table=shared_future_table,
+            shared_future_row_indices=shared_future_row_indices,
+        ),
         batch_size=args.batch_size,
         sampler=_build_sampler(data, train_indices, args.seed),
         num_workers=args.num_workers,
@@ -637,6 +826,11 @@ def main() -> None:
     serialized_args = vars(args) | {
         "output_dir": str(args.output_dir),
         "private_observation_root": str(args.private_observation_root),
+        "shared_future_target_root": (
+            str(args.shared_future_target_root)
+            if args.shared_future_target_root is not None
+            else None
+        ),
         "split_manifest": str(args.split_manifest),
     }
     fold_manifest: Dict[str, object] = {
@@ -653,6 +847,7 @@ def main() -> None:
         "source_counts": dict(Counter(data.source_names)),
         "checkpoint_selection_source": selection_source,
         "source_lineage": source_lineage,
+        "shared_future_target_lineage": shared_future_lineage,
         "private_config": asdict(private_config),
         "residual_config": asdict(residual_config),
         "model_parameter_count": sum(
@@ -662,6 +857,9 @@ def main() -> None:
         "m0_base_numeric_score_used_as_model_input": True,
         "external_model_representation_or_weight_used": False,
         "future_or_evaluator_input": False,
+        "logged_future_used_as_training_only_auxiliary_target": (
+            shared_future_table is not None
+        ),
         "official_score_input": False,
         "args": serialized_args,
     }

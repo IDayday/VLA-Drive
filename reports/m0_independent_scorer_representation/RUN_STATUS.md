@@ -283,3 +283,29 @@ Hybrid has the same, slightly worse signature. Thus nested thresholding and a
 Base anchor do not solve the trainval-to-Navtest safety shift. Both models are
 rejected; the next scorer representation must receive explicit dynamic-future
 or interaction-risk supervision rather than only aggregate/factor labels.
+
+## Shared logged-future representation auxiliary
+
+The next pre-specified experiment adds a training-only, candidate-independent
+shared actor-future auxiliary to the M0-owned dynamic query bank. It predicts
+eight future horizons for the 16 actors selected at the current frame in the
+current-ego coordinate system. Its fields are presence, object type, position,
+velocity, heading, length, and width. The future head receives no proposal and
+therefore cannot encode candidate index or template. At inference the head is
+discardable: scoring still receives only current F0/L0/R0/B0 M0 tokens,
+current ego/navigation state, frozen M0 proposals, and the released M0
+deployable logits/scores. No future tensor, evaluator value, or official score
+is an inference input.
+
+The immutable derived target table contains `45,378` trainval scenes,
+`45,377` valid supervision rows, eight horizons, 16 fixed current-actor slots,
+and eight actor fields. Its source and array SHA256 values are pinned in its
+manifest; the one absent target is the same scene already unavailable in the
+Gate-C preflight. The loader verifies provenance, hashes, coordinate frame,
+shape, coverage, and the training-only contract before training. Candidate
+permutation invariance, invalid-scene masking, target ordering, inference
+signature, and gradient flow are covered by tests. The full repository suite
+passes `207` tests. Two factor-residual runs with auxiliary weights `0.5` and
+`1.0` are assigned to `rl-zt4` GPUs 3/4; selection remains confined to the
+predeclared physical-log validation split and any promoted artifact must still
+pass the complete 12,146-scene Navtest protocol.
