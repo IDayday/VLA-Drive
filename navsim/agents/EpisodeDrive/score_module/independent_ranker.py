@@ -380,12 +380,19 @@ class SharedFutureCandidateRelabeler(nn.Module):
         previous = torch.cat((torch.zeros_like(xy[..., :1, :]), xy[..., :-1, :]), dim=-2)
         return (xy - previous) / interval_seconds
 
-    def forward(
+    def consequence_only(
         self,
         presence_logits: torch.Tensor,
         normalized_actor_state: torch.Tensor,
         proposals: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> torch.Tensor:
+        """Compute mask-aware candidate-relative physical features.
+
+        The actor slot axis is padded.  Presence therefore participates in
+        both the soft nearest-actor weights and the explicit no-actor
+        fallback; otherwise a horizon with no valid actor would spuriously
+        treat zero-filled slots as obstacles at the ego origin.
+        """
         if presence_logits.ndim != 3:
             raise ValueError("presence_logits must have shape [B,H,N]")
         if normalized_actor_state.shape != (*presence_logits.shape, 8):
@@ -457,9 +464,15 @@ class SharedFutureCandidateRelabeler(nn.Module):
         )
         clearance = outside + inside
 
-        masked_clearance = clearance + (1.0 - presence) * 40.0
-        nearest_weight = torch.softmax(-masked_clearance / 2.0, dim=-1)
-        soft_min_clearance = (nearest_weight * clearance).sum(dim=-1)
+        any_actor = 1.0 - torch.prod(1.0 - presence, dim=-1)
+        nearest_logits = -clearance / 2.0 + torch.log(
+            presence.clamp_min(1.0e-8)
+        )
+        nearest_weight = torch.softmax(nearest_logits, dim=-1)
+        nearest_clearance = (nearest_weight * clearance).sum(dim=-1)
+        soft_min_clearance = (
+            any_actor * nearest_clearance + (1.0 - any_actor) * 40.0
+        )
         collision_per_actor = presence * torch.sigmoid(-clearance / 0.75)
         soft_collision = 1.0 - torch.prod(
             (1.0 - collision_per_actor).clamp(1.0e-5, 1.0), dim=-1
@@ -475,13 +488,15 @@ class SharedFutureCandidateRelabeler(nn.Module):
         ttc = (
             clearance.clamp_min(0.0) / closing_speed.clamp_min(0.1)
         ).clamp(0.0, 10.0)
-        ttc_masked = (
-            ttc
-            + (1.0 - presence) * 10.0
-            + (1.0 - closing_probability) * 10.0
+        ttc_relevance = presence * closing_probability
+        any_closing_actor = 1.0 - torch.prod(1.0 - ttc_relevance, dim=-1)
+        ttc_logits = -ttc + torch.log(ttc_relevance.clamp_min(1.0e-8))
+        ttc_weight = torch.softmax(ttc_logits, dim=-1)
+        nearest_ttc = (ttc_weight * ttc).sum(dim=-1)
+        soft_min_ttc = (
+            any_closing_actor * nearest_ttc
+            + (1.0 - any_closing_actor) * 10.0
         )
-        ttc_weight = torch.softmax(-ttc_masked / 1.0, dim=-1)
-        soft_min_ttc = (ttc_weight * ttc).sum(dim=-1)
 
         ahead = torch.sigmoid((relative_x + 2.45) / 0.75) * torch.sigmoid(
             (12.0 - relative_x) / 1.5
@@ -490,12 +505,12 @@ class SharedFutureCandidateRelabeler(nn.Module):
             (1.0 + projected_half_width - relative_y.abs()) / 0.4
         )
         corridor_occupancy = (presence * ahead * in_width).sum(dim=-1)
-        nearest_relative_x = (nearest_weight * relative_x).sum(dim=-1)
-        nearest_relative_y = (nearest_weight * relative_y).sum(dim=-1)
-        nearest_relative_vx = (nearest_weight * relative_vx).sum(dim=-1)
-        nearest_relative_vy = (nearest_weight * relative_vy).sum(dim=-1)
+        nearest_relative_x = any_actor * (nearest_weight * relative_x).sum(dim=-1)
+        nearest_relative_y = any_actor * (nearest_weight * relative_y).sum(dim=-1)
+        nearest_relative_vx = any_actor * (nearest_weight * relative_vx).sum(dim=-1)
+        nearest_relative_vy = any_actor * (nearest_weight * relative_vy).sum(dim=-1)
 
-        consequence = torch.stack(
+        return torch.stack(
             (
                 soft_min_clearance.clamp(-5.0, 40.0) / 20.0,
                 soft_collision,
@@ -507,6 +522,18 @@ class SharedFutureCandidateRelabeler(nn.Module):
                 nearest_relative_vy.clamp(-40.0, 40.0) / 20.0,
             ),
             dim=-1,
+        )
+
+    def forward(
+        self,
+        presence_logits: torch.Tensor,
+        normalized_actor_state: torch.Tensor,
+        proposals: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        consequence = self.consequence_only(
+            presence_logits,
+            normalized_actor_state,
+            proposals,
         )
         batch_size, candidate_count, horizons, _ = consequence.shape
         temporal = self.feature_encoder(consequence) + self.time_embedding
@@ -945,6 +972,81 @@ def shared_future_auxiliary_loss(
         "presence": presence,
         "type": actor_type_loss,
         "state": state,
+    }
+
+
+def candidate_relative_consequence_loss(
+    output: Dict[str, torch.Tensor],
+    relabeler: SharedFutureCandidateRelabeler,
+    proposals: torch.Tensor,
+    target_actor_future: torch.Tensor,
+    target_actor_mask: torch.Tensor,
+    supervision_valid: torch.Tensor,
+) -> Dict[str, torch.Tensor]:
+    """Supervise predicted candidate consequences derived from logged future.
+
+    The target is not an official score or a candidate-specific world.  One
+    shared logged actor future is transformed by the same deterministic
+    geometry for every candidate.  It is used only in the training loss; the
+    model forward path continues to receive current observations and proposal
+    geometry exclusively.
+    """
+
+    key = "candidate_relative_consequence"
+    if key not in output:
+        raise RuntimeError("candidate-relative relabeling is disabled")
+    predicted = output[key]
+    if target_actor_future.ndim != 4 or target_actor_future.shape[-1] != 8:
+        raise ValueError("target_actor_future must have shape [B,H,N,8]")
+    if target_actor_mask.shape != target_actor_future.shape[:3]:
+        raise ValueError("target_actor_mask must have shape [B,H,N]")
+    if supervision_valid.shape != (target_actor_future.shape[0],):
+        raise ValueError("supervision_valid must have shape [B]")
+    if proposals.shape[0] != target_actor_future.shape[0]:
+        raise ValueError("proposal and future-target batches disagree")
+
+    batch_size, horizons, actor_slots, _ = target_actor_future.shape
+    _, normalized = normalize_current_actor_targets(
+        target_actor_future.reshape(batch_size * horizons, actor_slots, 8)
+    )
+    normalized = normalized.reshape(batch_size, horizons, actor_slots, 8)
+    with torch.no_grad():
+        target_presence_logits = torch.where(
+            target_actor_mask,
+            torch.full_like(target_actor_mask, 20.0, dtype=predicted.dtype),
+            torch.full_like(target_actor_mask, -20.0, dtype=predicted.dtype),
+        )
+        target = relabeler.consequence_only(
+            target_presence_logits,
+            normalized.to(predicted.dtype),
+            proposals,
+        )
+    if predicted.shape != target.shape:
+        raise ValueError("predicted and target consequences have different shapes")
+
+    valid = supervision_valid.bool()[:, None, None, None].expand_as(predicted)
+    element = F.smooth_l1_loss(predicted, target, reduction="none")
+    # Collision, TTC, and clearance are the planning-critical dynamic fields.
+    # Relative actor state remains supervised but cannot dominate merely by
+    # contributing four channels.
+    field_weights = predicted.new_tensor(
+        (2.0, 4.0, 2.0, 1.0, 0.25, 0.25, 0.25, 0.25)
+    )
+    weights = valid.to(element.dtype) * field_weights
+    total = (element * weights).sum() / weights.sum().clamp_min(1.0)
+
+    def field_mean(indices: Tuple[int, ...]) -> torch.Tensor:
+        selected = element[..., list(indices)]
+        selected_valid = valid[..., list(indices)].to(selected.dtype)
+        return (selected * selected_valid).sum() / selected_valid.sum().clamp_min(1.0)
+
+    return {
+        "total": total,
+        "clearance": field_mean((0,)),
+        "collision": field_mean((1,)),
+        "ttc": field_mean((2,)),
+        "occupancy": field_mean((3,)),
+        "relative_state": field_mean((4, 5, 6, 7)),
     }
 
 

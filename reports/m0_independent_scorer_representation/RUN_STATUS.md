@@ -341,3 +341,27 @@ added as a separate factorized run while the source-equivalent `1.0` runs stay
 unchanged. The weighted loss now covers DDC as well as NOC/DAC/TTC. Its input
 evidence and split hash are recorded in `TRAIN_FACTOR_PREVALENCE.json`; the
 complete suite passes `213` tests.
+
+The auxiliary-only runs have now completed epoch 0. Weight `0.5` obtains
+held-out-log PDMS `0.928984` (`-0.022628` from Base), while weight `1.0`
+obtains `0.931785` (`-0.019827`). The corresponding no-future factor residual
+at epoch 0 is `0.929651`; future supervision therefore changes early learning
+but does not by itself produce a promotable selector. Both runs continue so
+the prediction audit can measure whether their actor future improves across
+epochs. The factorized and class-balanced factorized runs remain the decisive
+tests because they use the predicted future in candidate scoring.
+
+Review of the factorized geometry exposed a mask bug before launching its next
+version: at an all-empty actor horizon, the old soft-min normalized across
+zero-filled padding slots and could report a fictitious close obstacle. The
+running immutable v1 jobs are retained as baselines. The corrected relabeler
+includes actor presence in nearest-actor and TTC weights and explicitly falls
+back to 40 m clearance, 10 s TTC, and zero relative state when no actor is
+present. A new training-only candidate-relative loss directly supervises the
+clearance, soft collision, TTC, corridor occupancy, and relative actor state
+recomputed from the one shared logged future. The deployable forward signature
+is unchanged and still receives no future tensor. Empty-mask behavior,
+invalid-scene masking, gradient flow, and candidate equivariance are covered;
+the complete suite passes `215` tests. This corrected direct-consequence run is
+queued for the first available authorized GPU without terminating any existing
+job.

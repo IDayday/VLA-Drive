@@ -19,11 +19,13 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     ProposalTrajectoryEncoder,
     SharedFutureCandidateRelabeler,
     assert_current_observation_only,
+    candidate_relative_consequence_loss,
     conservative_reference_selection_scores,
     current_actor_auxiliary_loss,
     episode_drive_factor_loss,
     factor_prediction_loss,
     masked_pinball_quantile_loss,
+    normalize_current_actor_targets,
     pdms_factor_log_utility,
     shared_future_auxiliary_loss,
     top_heavy_listwise_loss,
@@ -552,6 +554,7 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
         relative_safety_weight=0.5,
         residual_l2_weight=0.01,
         shared_future_weight=0.5,
+        candidate_relative_weight=1.0,
     )
     loss, details = compute_residual_training_loss(
         model,
@@ -572,8 +575,75 @@ def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
     )
     assert torch.isfinite(loss)
     assert details["shared_future"] > 0
+    assert details["candidate_relative"] > 0
     loss.backward()
     assert model.private_ranker.shared_future_state_head.weight.grad is not None
+
+
+def test_candidate_relative_relabeler_empty_actor_slots_are_safe() -> None:
+    relabeler = SharedFutureCandidateRelabeler(
+        model_dim=32,
+        horizons=3,
+        num_heads=4,
+        dropout=0.0,
+        interval_seconds=0.5,
+    ).eval()
+    presence = torch.full((1, 3, 4), -20.0)
+    actor = torch.zeros(1, 3, 4, 8)
+    proposals = torch.zeros(1, 2, 3, 3)
+    consequence = relabeler.consequence_only(presence, actor, proposals)
+    torch.testing.assert_close(
+        consequence[..., 0], torch.full((1, 2, 3), 2.0), atol=1.0e-5, rtol=0
+    )
+    torch.testing.assert_close(
+        consequence[..., 1], torch.zeros(1, 2, 3), atol=1.0e-6, rtol=0
+    )
+    torch.testing.assert_close(
+        consequence[..., 2], torch.ones(1, 2, 3), atol=1.0e-5, rtol=0
+    )
+    torch.testing.assert_close(
+        consequence[..., 3:], torch.zeros(1, 2, 3, 5), atol=1.0e-5, rtol=0
+    )
+
+
+def test_candidate_relative_consequence_loss_masks_invalid_scenes() -> None:
+    relabeler = SharedFutureCandidateRelabeler(
+        model_dim=32,
+        horizons=3,
+        num_heads=4,
+        dropout=0.0,
+        interval_seconds=0.5,
+    ).eval()
+    future = torch.zeros(2, 3, 2, 8)
+    future[0, :, 0] = torch.tensor(
+        [0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 4.0, 2.0]
+    )
+    mask = torch.zeros(2, 3, 2, dtype=torch.bool)
+    mask[0, :, 0] = True
+    proposals = torch.zeros(2, 2, 3, 3)
+    _, normalized = normalize_current_actor_targets(
+        future.reshape(2 * 3, 2, 8)
+    )
+    normalized = normalized.reshape(2, 3, 2, 8)
+    target = relabeler.consequence_only(
+        torch.where(mask, torch.tensor(20.0), torch.tensor(-20.0)),
+        normalized,
+        proposals,
+    )
+    predicted = target.clone()
+    predicted[0, ..., 1] += 0.5
+    predicted[1] += 100.0
+    losses = candidate_relative_consequence_loss(
+        {"candidate_relative_consequence": predicted},
+        relabeler,
+        proposals,
+        future,
+        mask,
+        torch.tensor([True, False]),
+    )
+    assert losses["total"] > 0
+    assert losses["collision"] > 0
+    assert losses["ttc"] == pytest.approx(0.0)
 
 
 def test_shared_future_candidate_relabeler_has_physical_ordering() -> None:

@@ -48,6 +48,7 @@ from local_stage2.train_public_base_residual_scorer import (
 from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     FACTOR_KEYS,
     IndependentRankerConfig,
+    candidate_relative_consequence_loss,
     episode_drive_factor_loss,
     pdms_factor_log_utility,
     shared_future_auxiliary_loss,
@@ -383,6 +384,34 @@ def compute_residual_training_loss(
         }
     else:
         raise ValueError(f"unexpected residual training batch width: {len(batch)}")
+    zero = output["residual"].sum() * 0.0
+    consequence = {
+        "total": zero,
+        "clearance": zero,
+        "collision": zero,
+        "ttc": zero,
+        "occupancy": zero,
+        "relative_state": zero,
+    }
+    candidate_relative_weight = getattr(args, "candidate_relative_weight", 0.0)
+    if candidate_relative_weight > 0.0:
+        if len(batch) != 11:
+            raise RuntimeError(
+                "candidate-relative supervision requires shared-future targets"
+            )
+        relabeler = model.private_ranker.shared_future_relabeler
+        if relabeler is None:
+            raise RuntimeError(
+                "candidate-relative supervision requires factorized relabeling"
+            )
+        consequence = candidate_relative_consequence_loss(
+            output,
+            relabeler,
+            proposals,
+            batch[8],
+            batch[9],
+            batch[10],
+        )
     total = (
         args.pairwise_weight * pairwise
         + args.base_pairwise_weight * base_pairwise
@@ -395,6 +424,7 @@ def compute_residual_training_loss(
         + args.relative_safety_weight * relative_safety
         + args.residual_l2_weight * residual_l2
         + getattr(args, "shared_future_weight", 0.0) * future["total"]
+        + candidate_relative_weight * consequence["total"]
     )
     details = {
         "loss": total,
@@ -412,6 +442,12 @@ def compute_residual_training_loss(
         "shared_future_presence": future["presence"],
         "shared_future_type": future["type"],
         "shared_future_state": future["state"],
+        "candidate_relative": consequence["total"],
+        "candidate_relative_clearance": consequence["clearance"],
+        "candidate_relative_collision": consequence["collision"],
+        "candidate_relative_ttc": consequence["ttc"],
+        "candidate_relative_occupancy": consequence["occupancy"],
+        "candidate_relative_state": consequence["relative_state"],
     }
     return total, {
         key: float(value.detach()) for key, value in details.items()
@@ -650,6 +686,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--relative-safety-weight", type=float, default=0.5)
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
     parser.add_argument("--shared-future-weight", type=float, default=0.0)
+    parser.add_argument("--candidate-relative-weight", type=float, default=0.0)
     parser.add_argument("--safety-negative-weight", type=float, default=1.0)
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--max-scenes-per-source", type=int, default=0)
@@ -677,6 +714,8 @@ def main() -> None:
         raise FileExistsError(args.output_dir)
     if args.shared_future_weight < 0:
         raise ValueError("shared_future_weight must be nonnegative")
+    if args.candidate_relative_weight < 0:
+        raise ValueError("candidate_relative_weight must be nonnegative")
     if (args.shared_future_target_root is None) != (
         args.shared_future_weight == 0.0
     ):
@@ -691,6 +730,10 @@ def main() -> None:
     if args.shared_future_relabeling and args.shared_future_target_root is None:
         raise ValueError(
             "shared-future relabeling requires shared-future supervision"
+        )
+    if args.candidate_relative_weight > 0 and not args.shared_future_relabeling:
+        raise ValueError(
+            "candidate-relative loss requires --shared-future-relabeling"
         )
 
     random.seed(args.seed)
@@ -868,6 +911,9 @@ def main() -> None:
         ),
         "predicted_shared_future_relabeling_used_at_inference": (
             args.shared_future_relabeling
+        ),
+        "candidate_relative_logged_future_used_as_training_only_target": (
+            args.candidate_relative_weight > 0
         ),
         "official_score_input": False,
         "args": serialized_args,

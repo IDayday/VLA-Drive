@@ -27,6 +27,7 @@ TRAIN_CACHE_ROOT="${TRAIN_CACHE_ROOT:-${RUN_ROOT}/m0_native_multiview_trainval_p
 SHARED_FUTURE_TARGET_ROOT="${SHARED_FUTURE_TARGET_ROOT:-${RUN_ROOT}/shared_future_target_table_v1}"
 SPLIT_MANIFEST="${SPLIT_MANIFEST:-/mnt/project/DriveVLA-M0-scorer-pdms93/reports/scorer_pdms93/OFFICIAL_SCORER_SPLIT.json}"
 SAFETY_NEGATIVE_WEIGHT="${SAFETY_NEGATIVE_WEIGHT:-1}"
+CANDIDATE_RELATIVE_WEIGHT="${CANDIDATE_RELATIVE_WEIGHT:-0}"
 
 if [[ "$(find "${TRAIN_CACHE_ROOT}" -name manifest.json -type f 2>/dev/null | wc -l)" -ne 4 ]]; then
   echo "M0-native trainval observation cache is incomplete" >&2
@@ -62,6 +63,7 @@ exec "${PYTHON_BIN}" "${REPO_ROOT}/local_stage2/train_m0_private_residual_scorer
   --private-observation-root "${TRAIN_CACHE_ROOT}" \
   --shared-future-target-root "${SHARED_FUTURE_TARGET_ROOT}" \
   --shared-future-weight "${shared_future_weight}" \
+  --candidate-relative-weight "${CANDIDATE_RELATIVE_WEIGHT}" \
   "${future_args[@]}" \
   --split-manifest "${SPLIT_MANIFEST}" \
   --selection-source public_base \
