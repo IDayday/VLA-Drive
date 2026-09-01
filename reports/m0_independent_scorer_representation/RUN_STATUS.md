@@ -74,6 +74,12 @@ records checkpoint SHA256
 Four full-data shards are running on `rl-zt4` GPUs 0/1/3/4 at approximately
 3.6 scenes/s/GPU.
 
+A pinned-code follow-up (`bb573a7`) is queued behind those exporters. After a
+full 103,288-token cache validation, GPU 0/1 will train a parameter-matched
+pair with and without current-actor auxiliary supervision, while GPU 3/4 will
+export the complete 12,146-scene M0-native Navtest observation cache. This
+queue does not reserve GPU memory while the current exporters are active.
+
 The previous dynamic/static/signal query banks had different parameters but
 no semantic supervision. A new optional training-only auxiliary head now
 teaches the dynamic queries to recover the 16 nearest current actors in the
@@ -85,3 +91,8 @@ on the M0-native four-view cache after export completion.
 
 All repository tests pass: 189 passed. Warnings are dependency deprecations and
 the pre-existing Shapely numerical warning; there are no test failures.
+
+The low-resolution factor-only all-64 run has reached a best held-out-log PDMS
+of 0.931173 at epoch 8 (the public M0 selector on the same fold is 0.951612).
+A watcher will freeze its final validation-selected factor checkpoint and run
+the complete Navtest evaluation on GPU 2 after epoch 9 finishes.
