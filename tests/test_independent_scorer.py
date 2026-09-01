@@ -52,6 +52,12 @@ from local_stage2.evaluate_independent_scorer_replay import (
 from local_stage2.evaluate_m0_private_residual_navtest_cache import (
     _required_feature,
 )
+from local_stage2.evaluate_shared_future_prediction import (
+    _baseline_states,
+    _decode_predicted_state,
+    _presence_metrics,
+    _state_errors,
+)
 from local_stage2.independent_scorer_agent import (
     IndependentShortlistScorerAgent,
     build_independent_shortlist_artifact,
@@ -649,6 +655,35 @@ def test_factorized_shared_future_is_predicted_once_and_candidate_equivariant() 
 def test_factorized_shared_future_requires_prediction_head() -> None:
     with pytest.raises(ValueError, match="requires the shared-future"):
         _small_config(shared_future_relabeling=True)
+
+
+def test_shared_future_metrics_compare_constant_velocity_in_metric_units() -> None:
+    normalized = torch.tensor(
+        [[[[0.1, -0.2, 0.15, -0.1, 0.0, 1.0, 0.45, 0.4]]]]
+    )
+    decoded = _decode_predicted_state(normalized)
+    torch.testing.assert_close(
+        decoded,
+        torch.tensor([[[[5.0, -10.0, 3.0, -2.0, 0.0, 4.5, 2.0]]]]),
+    )
+
+    current = torch.tensor([[[0.0, 0.0, 0.0, 2.0, -1.0, 0.0, 4.5, 2.0]]])
+    constant_velocity = _baseline_states(current, horizons=2, constant_velocity=True)
+    expected = torch.tensor(
+        [[[[1.0, -0.5, 2.0, -1.0, 0.0, 4.5, 2.0]],
+          [[2.0, -1.0, 2.0, -1.0, 0.0, 4.5, 2.0]]]]
+    )
+    torch.testing.assert_close(constant_velocity, expected)
+    valid = torch.ones(1, 2, 1, dtype=torch.bool)
+    errors = _state_errors(constant_velocity, expected, valid)
+    assert errors["position_l2_mae_m"] == pytest.approx(0.0)
+    assert errors["velocity_l2_mae_mps"] == pytest.approx(0.0)
+    presence = _presence_metrics(
+        torch.tensor([[[12.0], [-12.0]]]),
+        torch.tensor([[[True], [False]]]),
+    )
+    assert presence["accuracy"] == pytest.approx(1.0)
+    assert presence["f1"] == pytest.approx(1.0)
 
 
 def test_m0_private_residual_multireplay_selects_metrics_by_source() -> None:

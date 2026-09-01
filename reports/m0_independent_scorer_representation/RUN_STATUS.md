@@ -322,3 +322,12 @@ head is called once per scene and cannot receive candidate geometry; candidate
 permutation equivariance and collision/clearance physical ordering are tested.
 The deployable forward signature still contains no logged-future input. The
 complete suite passes `211` tests.
+
+Every shared-future artifact now has a held-out-log prediction audit independent
+of the ranking metric. It compares actor presence and metric-space position,
+velocity, heading, and size errors against both constant-position and
+constant-velocity baselines on the 9,052 aligned validation scenes. The model
+forward is completed before any future target is read for scoring, and the
+report records the artifact, target, split, and current-actor table hashes.
+These audits share the serialized evaluation-GPU lock with Navtest. The full
+suite passes `212` tests.
