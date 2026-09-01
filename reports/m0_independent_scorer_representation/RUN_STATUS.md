@@ -457,9 +457,13 @@ DAC, DDC, and TTC change by `-0.007822`, `-0.009962`, `-0.006834`, and
 1,650 degraded, and 5,456 tied scenes, illustrating why win count alone is an
 unsafe promotion criterion. The offline audit passes candidate-order,
 selected-score reconstruction, oracle-identity, and public-reference parity.
-Its separate online/cache parity replay was killed by the `rl-zt4` Ray node at
-the configured 95% host-memory threshold while eight training processes were
-resident; it is queued to be repeated after memory is naturally released.
+Ray reached the configured 95% host-memory threshold after the four-scene
+online replay had been written, but before the final check ran. A locked FP32
+check on the same `rl-zt4` GPU then passed: proposals are bit exact, selected
+indices match for all four scenes, and maximum score error is `2.38e-7`, below
+the strict `1e-6` tolerance. The CPU diagnostic is retained separately; its
+identical selections but `9.94e-5` score error demonstrate why cross-device
+floating-point output is not accepted as the online/cache parity gate.
 
 This sign flip rules out threshold calibration of the existing pooled feature
 head as the main solution. The next representation test retains the same M0
