@@ -494,6 +494,83 @@ def test_m0_private_residual_training_loss_is_finite() -> None:
     ].weight.grad is not None
 
 
+def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
+    torch.manual_seed(104)
+    private_config = _small_config(
+        fine_top_k=6,
+        shared_future_auxiliary=True,
+        shared_future_horizons=3,
+    )
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+            score_mode="factor",
+        ),
+    )
+    observation, status, proposals = _inputs(batch_size=2, candidates=6)
+    base_factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    target_factors = torch.rand(2, 6, 7)
+    future = torch.zeros(2, 3, 3, 8)
+    future[0, :, 0] = torch.tensor(
+        [0.0, 8.0, -1.0, 2.0, 0.2, 0.1, 4.5, 1.9]
+    )
+    future[0, 1:, 1] = torch.tensor(
+        [1.0, 15.0, 2.0, -1.0, 0.0, -0.2, 1.0, 0.8]
+    )
+    future_mask = torch.tensor(
+        [
+            [[True, False, False], [True, True, False], [True, True, False]],
+            [[False, False, False], [False, False, False], [False, False, False]],
+        ]
+    )
+    args = SimpleNamespace(
+        minimum_pair_delta=0.02,
+        factor_rank_minimum_delta=0.05,
+        target_temperature=0.05,
+        prediction_temperature=0.05,
+        top_set_tolerance=0.01,
+        safety_negative_weight=1.0,
+        pairwise_weight=1.0,
+        base_pairwise_weight=1.0,
+        listwise_weight=0.1,
+        top_set_weight=0.5,
+        expected_regret_weight=1.0,
+        factor_weight=1.0,
+        private_factor_weight=0.25,
+        factor_rank_weight=0.5,
+        relative_safety_weight=0.5,
+        residual_l2_weight=0.01,
+        shared_future_weight=0.5,
+    )
+    loss, details = compute_residual_training_loss(
+        model,
+        (
+            proposals,
+            observation,
+            torch.ones(2, observation.shape[1], dtype=torch.bool),
+            status,
+            base_scores,
+            base_factor_logits,
+            target_factors,
+            torch.arange(2),
+            future,
+            future_mask,
+            torch.tensor([True, False]),
+        ),
+        args,
+    )
+    assert torch.isfinite(loss)
+    assert details["shared_future"] > 0
+    loss.backward()
+    assert model.private_ranker.shared_future_state_head.weight.grad is not None
+
+
 def test_m0_private_residual_multireplay_selects_metrics_by_source() -> None:
     target_factors = torch.ones(4, 3, 7)
     target_factors[..., -1] = torch.tensor(

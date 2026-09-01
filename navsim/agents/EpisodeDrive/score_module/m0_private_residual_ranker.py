@@ -278,7 +278,7 @@ class M0PrivateResidualRanker(nn.Module):
             base_scores - 100.0,
         )
 
-        return {
+        result = {
             "selection_scores": selection_scores,
             "refined_scores": refined_scores,
             "residual": score_delta,
@@ -293,6 +293,20 @@ class M0PrivateResidualRanker(nn.Module):
             "private_candidate_features": candidate_features,
             "private_scene_tokens": private["private_scene_tokens"],
         }
+        # Auxiliary targets supervise the scorer-owned current-observation
+        # representation during training.  Their predictions are exposed to
+        # the loss without adding any future tensor to this forward signature.
+        for key in (
+            "current_actor_presence_logits",
+            "current_actor_type_logits",
+            "current_actor_state",
+            "shared_future_presence_logits",
+            "shared_future_type_logits",
+            "shared_future_actor_state",
+        ):
+            if key in private:
+                result[key] = private[key]
+        return result
 
 
 __all__ = (
