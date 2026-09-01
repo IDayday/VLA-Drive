@@ -420,3 +420,17 @@ supervision from `0.5` to `1.0`; candidate-relative and safety-negative weights
 remain `1.0` and `5.0`. It directly tests whether the measured bottleneck is
 insufficient current-scene actor localization, while preserving identical
 proposals, split, seed, optimization steps, and strict Navtest promotion gate.
+
+## Released M0 map/agent branch audit
+
+The locally deployed public M0 artifact does not contain a pretrained map or
+agent consequence branch that a new scorer can simply reuse. Its resolved
+configuration sets `agent_pred`, `area_pred`, `bev_map`, and `bev_agent` to
+`false`. The 4.0 GiB checkpoint contains 1,323 state-dict entries and zero keys
+matching `pred_col_agent`, `pred_area`, `map_head`, or `_agent_head`.
+Furthermore, the deployed `EpisodeDriveLoss.score_loss` initializes the agent
+classification, agent regression, and area losses to literal zero and returns
+them unchanged. The source tree therefore exposes dormant optional modules,
+but the released weights do not provide their learned representation. Current
+actor, shared-future, and candidate-relative heads in this campaign are newly
+trained M0-owned modules rather than reuse of hidden public auxiliary weights.
