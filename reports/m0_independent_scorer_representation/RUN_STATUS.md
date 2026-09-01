@@ -1,6 +1,6 @@
 # Independent scorer experiment status
 
-Updated: 2026-09-01 18:47 UTC.
+Updated: 2026-09-01 19:34 UTC.
 
 ## Resource contract
 
@@ -75,15 +75,15 @@ records checkpoint SHA256
 Four full-data shards are running on `rl-zt4` GPUs 0/1/3/4 at approximately
 3.6 scenes/s/GPU.
 
-A pinned-code follow-up (`bb573a7`) is queued behind those exporters. After a
+A pinned-code follow-up (`0c3f4b7`) is queued behind those exporters. After a
 full 103,288-token cache validation, GPU 0/1 will train a parameter-matched
-pair with and without current-actor auxiliary supervision, while GPU 3/4 will
+pair with and without current-actor auxiliary supervision using the released
+six-head BCE, while GPU 2/6 will run the corresponding continuous-progress
+regression pair. All four use the same factor-ranking auxiliary. GPU 3/4 will
 export the complete 12,146-scene M0-native Navtest observation cache. This
-queue does not reserve GPU memory while the current exporters are active.
-Both training arms restore the released EpisodeDrive factor-loss semantics:
-unweighted BCE (`safety_negative_weight=1`) and no auxiliary factor-ranking
-loss. The earlier idle watcher using weight 10 was replaced before it started
-any training or created any output.
+queue does not reserve GPU memory while the current exporters are active. The
+earlier idle watchers were replaced before they started any training or
+created any output.
 
 The previous dynamic/static/signal query banks had different parameters but
 no semantic supervision. A new optional training-only auxiliary head now
@@ -115,3 +115,23 @@ BCE and replaced it with `2 * SmoothL1`; released EpisodeDrive includes the
 continuous progress target directly in the same six-head BCE. The new explicit
 `episode_drive_bce` mode is unit-tested against the source-equivalent formula,
 while the former behavior remains available only as a named ablation.
+
+## Q-Former actor supervision and conservative-gate Navtest
+
+With the frozen released 16-token Q-Former observation, the continuous-progress
+factor scorer reached held-out-log PDMS `0.949755` at epoch 3 with current-actor
+auxiliary supervision, versus `0.947291` for its no-actor control at the same
+epoch.  The gain came mainly from ego progress and DAC.  The same actor model's
+conservative reference gate reached `0.954641`, or `+0.003029` over Base on the
+held-out fold with a positive physical-log bootstrap interval.  The no-actor
+gate reached `0.955196`, or `+0.003585`.
+
+Both validation-positive gates were immediately evaluated on all 12,146
+Navtest scenes.  The result reversed sign: the actor gate obtained `0.894955`
+(`-0.014639` from public M0, 95% CI `[-0.017602, -0.011590]`) and the no-actor
+gate obtained `0.899366` (`-0.010228`, 95% CI
+`[-0.012328, -0.008003]`).  Both audits pass the 64-candidate completeness,
+oracle identity, and selected-score reconstruction checks.  These gates are
+therefore rejected; the positive trainval result is not a deployable planning
+improvement and provides direct evidence of a severe validation-to-Navtest
+shift for post-hoc switching policies.
