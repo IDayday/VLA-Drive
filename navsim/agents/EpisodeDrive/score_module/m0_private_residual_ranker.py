@@ -34,6 +34,11 @@ class M0PrivateResidualConfig:
     max_residual: float = 0.5
     inference_scale: float = 1.0
     score_mode: str = "hybrid"
+    switch_penalty: float = 0.0
+    safety_floor: float = 0.0
+    safety_relative_tolerance: float = 1.0
+    preserve_ddc: bool = False
+    safety_gate_mode: str = "none"
 
     def __post_init__(self) -> None:
         if self.hidden_dim <= 0 or self.hidden_dim % self.num_heads:
@@ -44,8 +49,22 @@ class M0PrivateResidualConfig:
             raise ValueError("top_k must be positive")
         if self.max_residual <= 0 or self.inference_scale < 0:
             raise ValueError("residual scale parameters are invalid")
+        if self.switch_penalty < 0:
+            raise ValueError("switch_penalty must be nonnegative")
+        if not 0.0 <= self.safety_floor <= 1.0:
+            raise ValueError("safety_floor must be in [0,1]")
+        if self.safety_relative_tolerance < 0:
+            raise ValueError("safety_relative_tolerance must be nonnegative")
         if self.score_mode not in {"direct", "factor", "hybrid"}:
             raise ValueError("score_mode must be direct, factor, or hybrid")
+        if self.safety_gate_mode not in {
+            "none",
+            "relative_factor",
+            "factor_all",
+        }:
+            raise ValueError(
+                "safety_gate_mode must be none, relative_factor, or factor_all"
+            )
 
 
 def _zero_last(module: nn.Sequential) -> None:
@@ -200,13 +219,9 @@ class M0PrivateResidualRanker(nn.Module):
         )
         shortlist_mask = torch.zeros_like(base_scores, dtype=torch.bool)
         shortlist_mask.scatter_(1, shortlist, True)
-        selection_scores = torch.where(
-            shortlist_mask,
-            refined_scores,
-            base_scores - 100.0,
-        )
-
         base_indices = base_scores.argmax(dim=1, keepdim=True)
+        base_mask = torch.zeros_like(base_scores, dtype=torch.bool)
+        base_mask.scatter_(1, base_indices, True)
         base_hidden = hidden.gather(
             1,
             base_indices[..., None].expand(-1, 1, hidden.shape[-1]),
@@ -222,6 +237,47 @@ class M0PrivateResidualRanker(nn.Module):
                 dim=-1,
             )
         )
+
+        gate_mode = self.residual_config.safety_gate_mode
+        if gate_mode == "none":
+            safety_mask = torch.ones_like(shortlist_mask)
+        elif gate_mode == "relative_factor":
+            safety_mask = (
+                relative_safety_logits.sigmoid()
+                >= self.residual_config.safety_floor
+            ).all(dim=-1)
+        else:
+            safety_indices = [0, 1, 3]
+            if self.residual_config.preserve_ddc:
+                safety_indices.append(2)
+            probabilities = refined_factor_logits.sigmoid()[..., safety_indices]
+            base_probabilities = probabilities.gather(
+                1,
+                base_indices[..., None].expand(
+                    -1,
+                    1,
+                    len(safety_indices),
+                ),
+            )
+            safety_mask = (
+                probabilities >= self.residual_config.safety_floor
+            ).all(dim=-1)
+            safety_mask &= (
+                probabilities
+                >= base_probabilities
+                - self.residual_config.safety_relative_tolerance
+            ).all(dim=-1)
+        eligible = (shortlist_mask & safety_mask) | base_mask
+        adjusted_scores = refined_scores - (
+            (~base_mask).to(refined_scores.dtype)
+            * self.residual_config.switch_penalty
+        )
+        selection_scores = torch.where(
+            eligible,
+            adjusted_scores,
+            base_scores - 100.0,
+        )
+
         return {
             "selection_scores": selection_scores,
             "refined_scores": refined_scores,
@@ -231,6 +287,8 @@ class M0PrivateResidualRanker(nn.Module):
             "refined_factor_logits": refined_factor_logits,
             "relative_safety_logits": relative_safety_logits,
             "shortlist_mask": shortlist_mask,
+            "safety_mask": safety_mask,
+            "eligible_mask": eligible,
             "private_factor_logits": private["factor_logits"],
             "private_candidate_features": candidate_features,
             "private_scene_tokens": private["private_scene_tokens"],

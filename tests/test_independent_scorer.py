@@ -71,6 +71,10 @@ from local_stage2.train_m0_private_residual_scorer import (
     compute_residual_training_loss,
     evaluate_residual_predictions_by_source,
 )
+from local_stage2.calibrate_m0_private_residual_policy import (
+    balanced_calibration_split,
+    policy_selection_indices,
+)
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
 )
@@ -529,6 +533,54 @@ def test_m0_private_residual_multireplay_selects_metrics_by_source() -> None:
     assert by_source["epoch3"]["scene_count"] == 2
     assert by_source["public_base"]["selected_delta"] == pytest.approx(0.45)
     assert by_source["epoch3"]["selected_delta"] == pytest.approx(0.0)
+
+
+def test_m0_private_residual_policy_split_has_no_log_leakage() -> None:
+    logs = ["log-a"] * 5 + ["log-b"] * 2 + ["log-c"] * 4 + ["log-d"]
+    calibration, promotion, assignment = balanced_calibration_split(logs, seed=7)
+    calibration_logs = {logs[index] for index in calibration}
+    promotion_logs = {logs[index] for index in promotion}
+    assert calibration_logs
+    assert promotion_logs
+    assert calibration_logs.isdisjoint(promotion_logs)
+    assert set(assignment) == set(logs)
+
+
+def test_m0_private_residual_conservative_policy_can_preserve_base() -> None:
+    tensors = {
+        "base_scores": torch.tensor([[0.8, 0.7, 0.1]]),
+        "residual": torch.tensor([[0.0, 0.5, 0.5]]),
+        "refined_factor_logits": torch.zeros(1, 3, 6),
+        "relative_safety_logits": torch.zeros(1, 3, 3),
+    }
+    base_policy = {
+        "inference_scale": 0.0,
+        "switch_penalty": 0.0,
+        "safety_floor": 0.0,
+        "safety_relative_tolerance": 1.0,
+        "preserve_ddc": False,
+        "safety_gate_mode": "none",
+    }
+    assert policy_selection_indices(
+        tensors,
+        torch.tensor([0]),
+        base_policy,
+        torch.device("cpu"),
+    ).item() == 0
+    switched = dict(base_policy, inference_scale=1.0)
+    assert policy_selection_indices(
+        tensors,
+        torch.tensor([0]),
+        switched,
+        torch.device("cpu"),
+    ).item() == 1
+    conservative = dict(switched, switch_penalty=0.5)
+    assert policy_selection_indices(
+        tensors,
+        torch.tensor([0]),
+        conservative,
+        torch.device("cpu"),
+    ).item() == 0
 
 
 def test_drivor_ranker_forward_is_current_observation_only() -> None:
