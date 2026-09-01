@@ -58,6 +58,7 @@ from local_stage2.build_drivor_promotion_manifest import (
     _gate_record,
     _ranker_record,
 )
+from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
 
 
 def _small_config(**overrides) -> IndependentRankerConfig:
@@ -538,6 +539,14 @@ def test_drivor_promotion_records_lock_source_and_artifact_hash(tmp_path) -> Non
     gate_record = _gate_record(gate, gate_path)
     assert gate_record["selection_mode"] == "factor"
     assert gate_record["validation_locked_policy"] == policy
+
+
+def test_drivor_shortlist_top_k_parser_is_sorted_and_bounded() -> None:
+    assert _parse_top_k("8,1,4,8") == (1, 4, 8)
+    with pytest.raises(ValueError, match=r"\[1, 64\]"):
+        _parse_top_k("0,1")
+    with pytest.raises(ValueError, match=r"\[1, 64\]"):
+        _parse_top_k("65")
 
 
 def test_masked_pinball_quantile_loss_prefers_calibrated_predictions() -> None:

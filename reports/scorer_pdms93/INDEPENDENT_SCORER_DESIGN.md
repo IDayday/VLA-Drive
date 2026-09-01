@@ -319,6 +319,17 @@ headroom.  The gate must estimate a conservative relative utility/progress
 gain as well as rare safety regression, and the ranker experiments must compare
 the released equal-weight factor BCE with heavier safety reweighting.
 
+The one-alternative gate also leaves substantial candidate coverage unused.
+On the same immutable held-out bank, the Base-plus-DrivOR-top-1 oracle is
+`0.964267`, while Base plus the deployable DrivOR top 8/16/32 shortlists reaches
+`0.973519`/`0.977614`/`0.982103`.  Their true 64-way oracle-candidate recall is
+`19.62%`/`32.20%`/`54.47%`, respectively.  These are explicitly offline
+shortlist upper bounds, not deployable selection results, but they justify an
+independent `all` variant: frozen scorer-private DrivOR current-observation
+features feed a reference-relative gain and safety head over all 64 proposals,
+with no future or numeric Base score entering the model.  The reproducible
+lineage is recorded in `DRIVOR_SHORTLIST_HEADROOM_AUDIT.json`.
+
 Accordingly, the next independent method has two explicit stages:
 
 1. a DrivOR-initialized, scorer-private ranker selects one proposal from all
