@@ -95,6 +95,21 @@ def _split_indices(
     }
 
 
+def direct_score_regression_loss(
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    *,
+    beta: float,
+) -> torch.Tensor:
+    """Calibrate the direct utility to a bounded candidate PDMS estimate."""
+
+    if prediction.shape != target.shape or prediction.ndim != 2:
+        raise ValueError("prediction and target must share shape [B,K]")
+    if beta <= 0.0:
+        raise ValueError("direct regression beta must be positive")
+    return F.smooth_l1_loss(prediction.sigmoid(), target, beta=beta)
+
+
 def compute_training_loss(
     model: DrivORInitializedProposalRanker,
     batch: Sequence[torch.Tensor],
@@ -185,6 +200,11 @@ def compute_training_loss(
         target_scores,
         minimum_target_delta=0.01,
     )
+    direct_regression = direct_score_regression_loss(
+        direct_utility,
+        target_scores,
+        beta=args.direct_regression_beta,
+    )
     total = (
         args.factor_weight * factor
         + args.factor_rank_weight * factor_rank
@@ -193,6 +213,7 @@ def compute_training_loss(
         + args.direct_top_set_weight * direct_top_set
         + args.direct_expected_regret_weight * direct_expected_regret
         + args.direct_top_regret_weight * direct_top_regret
+        + args.direct_regression_weight * direct_regression
     )
     details = {
         "loss": total,
@@ -204,6 +225,7 @@ def compute_training_loss(
         "direct_top_set": direct_top_set,
         "direct_expected_regret": direct_expected_regret,
         "direct_top_regret": direct_top_regret,
+        "direct_regression": direct_regression,
     }
     return total, {
         key: float(value.detach()) for key, value in details.items()
@@ -337,6 +359,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--direct-top-set-weight", type=float, default=0.5)
     parser.add_argument("--direct-expected-regret-weight", type=float, default=1.0)
     parser.add_argument("--direct-top-regret-weight", type=float, default=1.0)
+    parser.add_argument("--direct-regression-weight", type=float, default=0.0)
+    parser.add_argument("--direct-regression-beta", type=float, default=0.1)
     parser.add_argument("--safety-negative-weight", type=float, default=10.0)
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--max-scenes-per-source", type=int, default=0)

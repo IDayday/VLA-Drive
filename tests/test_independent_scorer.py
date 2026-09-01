@@ -54,6 +54,9 @@ from local_stage2.train_independent_scorer import (
 from local_stage2.train_drivor_reference_gate import (
     compute_gate_training_loss,
 )
+from local_stage2.train_drivor_initialized_ranker import (
+    direct_score_regression_loss,
+)
 from local_stage2.build_drivor_promotion_manifest import (
     _gate_record,
     _ranker_record,
@@ -579,6 +582,17 @@ def test_drivor_shortlist_top_k_parser_is_sorted_and_bounded() -> None:
         _parse_top_k("0,1")
     with pytest.raises(ValueError, match=r"\[1, 64\]"):
         _parse_top_k("65")
+
+
+def test_drivor_direct_score_regression_calibrates_candidate_pdms() -> None:
+    target = torch.tensor([[0.2, 0.8]])
+    calibrated = torch.logit(target)
+    uncalibrated = torch.zeros_like(target)
+    assert direct_score_regression_loss(
+        calibrated, target, beta=0.1
+    ) < direct_score_regression_loss(uncalibrated, target, beta=0.1)
+    with pytest.raises(ValueError, match="beta"):
+        direct_score_regression_loss(calibrated, target, beta=0.0)
 
 
 def test_masked_pinball_quantile_loss_prefers_calibrated_predictions() -> None:
