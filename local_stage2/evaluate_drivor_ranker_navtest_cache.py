@@ -39,7 +39,21 @@ def _sha256(path: Path, chunk_size: int = 8 << 20) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--artifact", type=Path, required=True)
+    checkpoint = parser.add_mutually_exclusive_group(required=True)
+    checkpoint.add_argument(
+        "--artifact",
+        type=Path,
+        help="Validation-promoted DrivORInitializedProposalRanker artifact.",
+    )
+    checkpoint.add_argument(
+        "--released-drivor-checkpoint",
+        type=Path,
+        help=(
+            "Released DrivOR checkpoint used without any scorer re-fitting. "
+            "This is a diagnostic proposal-bank transfer evaluation and is "
+            "not subject to the learned-artifact promotion gate."
+        ),
+    )
     parser.add_argument("--feature-cache", type=Path, required=True)
     parser.add_argument("--private-observation-root", type=Path, required=True)
     parser.add_argument("--candidate-matrix", type=Path, required=True)
@@ -70,8 +84,10 @@ def main() -> None:
     args = parse_args()
     if args.output_dir.exists():
         raise FileExistsError(args.output_dir)
+    checkpoint = args.artifact or args.released_drivor_checkpoint
+    assert checkpoint is not None
     required = (
-        args.artifact,
+        checkpoint,
         args.feature_cache,
         args.private_observation_root,
         args.candidate_matrix,
@@ -85,25 +101,39 @@ def main() -> None:
         raise RuntimeError("CUDA requested but unavailable")
     _require_fp32_register_cache(args.private_observation_root)
 
-    artifact = torch.load(args.artifact, map_location="cpu", weights_only=False)
-    if artifact.get("architecture") != "DrivORInitializedProposalRanker":
-        raise RuntimeError("artifact architecture mismatch")
-    score_mode = str(artifact.get("selection_mode"))
-    if score_mode not in {"direct", "factor"}:
-        raise RuntimeError(f"unsupported artifact selection mode: {score_mode}")
-    selection_source = str(
-        artifact["training_manifest"]["checkpoint_selection_source"]
-    )
-    validation = artifact["validation_by_source"][selection_source]
-    ci_key = (
-        "factor_selected_delta_log_bootstrap_95ci"
-        if score_mode == "factor"
-        else "selected_delta_log_bootstrap_95ci"
-    )
-    if float(validation[ci_key][0]) <= 0.0:
-        raise RuntimeError(
-            "artifact did not pass the held-out-log positive-CI promotion gate"
+    released_transfer = args.released_drivor_checkpoint is not None
+    artifact = None
+    initialization_audit = None
+    if released_transfer:
+        score_mode = "factor"
+        selection_source = "released_drivor_no_refit"
+        validation = None
+    else:
+        assert args.artifact is not None
+        artifact = torch.load(
+            args.artifact, map_location="cpu", weights_only=False
         )
+        if artifact.get("architecture") != "DrivORInitializedProposalRanker":
+            raise RuntimeError("artifact architecture mismatch")
+        score_mode = str(artifact.get("selection_mode"))
+        if score_mode not in {"direct", "factor"}:
+            raise RuntimeError(
+                f"unsupported artifact selection mode: {score_mode}"
+            )
+        selection_source = str(
+            artifact["training_manifest"]["checkpoint_selection_source"]
+        )
+        validation = artifact["validation_by_source"][selection_source]
+        ci_key = (
+            "factor_selected_delta_log_bootstrap_95ci"
+            if score_mode == "factor"
+            else "selected_delta_log_bootstrap_95ci"
+        )
+        if float(validation[ci_key][0]) <= 0.0:
+            raise RuntimeError(
+                "artifact did not pass the held-out-log positive-CI "
+                "promotion gate"
+            )
     with args.feature_cache.open("rb") as stream:
         feature_cache = pickle.load(stream)
     with np.load(args.candidate_matrix, allow_pickle=False) as matrix:
@@ -133,10 +163,29 @@ def main() -> None:
         raise RuntimeError("private register and candidate token sets differ")
     private_rows = {token: index for index, token in enumerate(private.tokens)}
     device = torch.device(args.device)
-    model = DrivORInitializedProposalRanker(
-        DrivORRankerConfig(**artifact["model_config"])
-    ).to(device)
-    model.load_state_dict(artifact["state_dict"], strict=True)
+    if released_transfer:
+        assert args.released_drivor_checkpoint is not None
+        model = DrivORInitializedProposalRanker(DrivORRankerConfig())
+        initialization_audit = model.load_drivor_checkpoint(
+            args.released_drivor_checkpoint
+        )
+        cache_checkpoint_sha = str(
+            private.lineage.get("checkpoint_sha256", "")
+        )
+        released_checkpoint_sha = _sha256(args.released_drivor_checkpoint)
+        if cache_checkpoint_sha != released_checkpoint_sha:
+            raise RuntimeError(
+                "DrivOR register cache/checkpoint SHA mismatch: "
+                f"cache={cache_checkpoint_sha}, "
+                f"checkpoint={released_checkpoint_sha}"
+            )
+        model.to(device)
+    else:
+        assert artifact is not None
+        model = DrivORInitializedProposalRanker(
+            DrivORRankerConfig(**artifact["model_config"])
+        ).to(device)
+        model.load_state_dict(artifact["state_dict"], strict=True)
     model.eval()
     utility_parts: List[np.ndarray] = []
     index_parts: List[np.ndarray] = []
@@ -252,11 +301,17 @@ def main() -> None:
         "log_count": 136,
         "candidate_count": 64,
         "candidate_factor_matrix_present": True,
-        "checkpoint": str(args.artifact.resolve()),
-        "checkpoint_sha256": _sha256(args.artifact),
-        "agent_target": "DrivORInitializedProposalRanker",
+        "checkpoint": str(checkpoint.resolve()),
+        "checkpoint_sha256": _sha256(checkpoint),
+        "agent_target": (
+            "DrivORInitializedProposalRanker(released_weights)"
+            if released_transfer
+            else "DrivORInitializedProposalRanker"
+        ),
         "precision": 32,
         "score_mode": score_mode,
+        "released_drivor_zero_refit_transfer": released_transfer,
+        "released_checkpoint_initialization_audit": initialization_audit,
         "validation_selection_source": selection_source,
         "validation_locked_metrics": validation,
         "proposal_predictions_path": str(proposal_path.resolve()),
