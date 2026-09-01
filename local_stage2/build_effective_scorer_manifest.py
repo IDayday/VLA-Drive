@@ -13,6 +13,7 @@ from typing import Dict, List, Mapping
 import torch
 
 from local_stage2.public_base_residual_scorer import PublicBaseResidualScorerAgent
+from local_stage2.temporal_consequence_scorer import TemporalConsequenceScorerAgent
 
 
 SAFETY_FACTORS = (
@@ -34,9 +35,17 @@ def _safe_name(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", value).strip("_")
 
 
-def _artifact_record(path: Path, minimum_ci_lower: float) -> Dict[str, object]:
+def _artifact_record(
+    path: Path,
+    minimum_ci_lower: float,
+    promotion_rule: str = "positive_mean",
+) -> Dict[str, object]:
     payload = torch.load(path, map_location="cpu")
-    if payload.get("artifact_type") != PublicBaseResidualScorerAgent.ARTIFACT_TYPE:
+    supported_types = {
+        PublicBaseResidualScorerAgent.ARTIFACT_TYPE,
+        TemporalConsequenceScorerAgent.ARTIFACT_TYPE,
+    }
+    if payload.get("artifact_type") not in supported_types:
         return {"path": str(path.resolve()), "promoted": False, "reason": "wrong_artifact_type"}
     metadata: Mapping[str, object] = payload.get("metadata", {})
     validation: Mapping[str, object] = metadata.get("validation", {})
@@ -48,7 +57,12 @@ def _artifact_record(path: Path, minimum_ci_lower: float) -> Dict[str, object]:
     official_scores_at_inference = bool(
         metadata.get("official_scores_used_at_inference", False)
     )
-    positive = float(delta) > 0.0 and float(interval[0]) > minimum_ci_lower
+    if promotion_rule == "positive_mean":
+        positive = float(delta) > 0.0
+    elif promotion_rule == "positive_ci":
+        positive = float(delta) > 0.0 and float(interval[0]) > minimum_ci_lower
+    else:
+        raise ValueError(f"Unknown promotion rule: {promotion_rule}")
     deployable_inputs = not future_inputs_used and not official_scores_at_inference
     factor_delta = validation.get("selected_factor_delta", {})
     safety_values = {
@@ -60,7 +74,11 @@ def _artifact_record(path: Path, minimum_ci_lower: float) -> Dict[str, object]:
     )
     reasons: List[str] = []
     if not positive:
-        reasons.append("non_positive_log_bootstrap_lower_bound")
+        reasons.append(
+            "non_positive_validation_mean"
+            if promotion_rule == "positive_mean"
+            else "non_positive_log_bootstrap_lower_bound"
+        )
     if future_inputs_used:
         reasons.append("future_input_used")
     if official_scores_at_inference:
@@ -71,7 +89,8 @@ def _artifact_record(path: Path, minimum_ci_lower: float) -> Dict[str, object]:
         "sha256": _sha256(path),
         "promoted": bool(positive and deployable_inputs),
         "tier": "deployable" if safety_non_regressing else "diagnostic_safety_regression",
-        "reason": ",".join(reasons) if reasons else "positive_log_bootstrap_ci",
+        "reason": ",".join(reasons) if reasons else promotion_rule,
+        "promotion_rule": promotion_rule,
         "validation_scene_count": metadata.get("val_scene_count"),
         "validation_log_count": metadata.get("val_log_count"),
         "validation_pdms_delta": float(delta),
@@ -80,6 +99,7 @@ def _artifact_record(path: Path, minimum_ci_lower: float) -> Dict[str, object]:
         "future_inputs_used": future_inputs_used,
         "official_scores_used_at_inference": official_scores_at_inference,
         "model_config": payload.get("model_config"),
+        "artifact_type": payload.get("artifact_type"),
     }
 
 
@@ -89,6 +109,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pattern", action="append", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--minimum-ci-lower", type=float, default=0.0)
+    parser.add_argument(
+        "--promotion-rule",
+        choices=("positive_mean", "positive_ci"),
+        default="positive_mean",
+        help=(
+            "positive_mean sends every validation-improving method to Navtest; "
+            "positive_ci is the stricter legacy gate"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -102,7 +131,10 @@ def main() -> None:
             if path.is_file()
         }
     )
-    records = [_artifact_record(path, args.minimum_ci_lower) for path in paths]
+    records = [
+        _artifact_record(path, args.minimum_ci_lower, args.promotion_rule)
+        for path in paths
+    ]
     promoted = [record for record in records if record.get("promoted")]
 
     # Exact duplicate artifacts are evaluated once; all experiment aliases are
@@ -120,6 +152,7 @@ def main() -> None:
         "search_root": str(args.search_root.resolve()),
         "patterns": list(args.pattern),
         "minimum_ci_lower": args.minimum_ci_lower,
+        "promotion_rule": args.promotion_rule,
         "scanned_artifact_count": len(records),
         "promoted_experiment_count": len(promoted),
         "unique_promoted_artifact_count": len(artifacts),

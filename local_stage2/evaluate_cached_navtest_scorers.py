@@ -31,6 +31,11 @@ from local_stage2.public_base_residual_scorer import (
     PublicBaseResidualScorerAgent,
     ResidualScorerConfig,
 )
+from local_stage2.temporal_consequence_scorer import (
+    TemporalConsequenceConfig,
+    TemporalConsequenceRanker,
+    TemporalConsequenceScorerAgent,
+)
 
 
 EXPECTED_SCENES = 12_146
@@ -150,23 +155,30 @@ def _score_artifact(
     batch_size: int,
 ) -> Tuple[np.ndarray, np.ndarray, Mapping[str, object]]:
     payload = torch.load(artifact_path, map_location="cpu")
-    if payload.get("artifact_type") != PublicBaseResidualScorerAgent.ARTIFACT_TYPE:
-        raise ValueError(f"Not a residual scorer artifact: {artifact_path}")
+    artifact_type = payload.get("artifact_type")
     config_values = dict(payload["model_config"])
-    if int(payload.get("artifact_version", 1)) < 4:
-        config_values.setdefault("base_anchored_topk", False)
-    model = PublicBaseResidualRanker(ResidualScorerConfig(**config_values))
-    incompatible = model.load_state_dict(payload["model_state_dict"], strict=False)
-    allowed_missing = {
-        key
-        for key in model.state_dict()
-        if key.startswith(("safety_delta_head.", "relative_safety_head."))
-    }
-    if set(incompatible.missing_keys) - allowed_missing or incompatible.unexpected_keys:
-        raise RuntimeError(
-            f"Artifact state mismatch: missing={incompatible.missing_keys}, "
-            f"unexpected={incompatible.unexpected_keys}"
+    if artifact_type == PublicBaseResidualScorerAgent.ARTIFACT_TYPE:
+        if int(payload.get("artifact_version", 1)) < 4:
+            config_values.setdefault("base_anchored_topk", False)
+        model = PublicBaseResidualRanker(ResidualScorerConfig(**config_values))
+        incompatible = model.load_state_dict(payload["model_state_dict"], strict=False)
+        allowed_missing = {
+            key
+            for key in model.state_dict()
+            if key.startswith(("safety_delta_head.", "relative_safety_head."))
+        }
+        if set(incompatible.missing_keys) - allowed_missing or incompatible.unexpected_keys:
+            raise RuntimeError(
+                f"Artifact state mismatch: missing={incompatible.missing_keys}, "
+                f"unexpected={incompatible.unexpected_keys}"
+            )
+    elif artifact_type == TemporalConsequenceScorerAgent.ARTIFACT_TYPE:
+        model = TemporalConsequenceRanker(
+            TemporalConsequenceConfig(**config_values)
         )
+        model.load_state_dict(payload["model_state_dict"], strict=True)
+    else:
+        raise ValueError(f"Unsupported scorer artifact type: {artifact_type!r}")
     model.to(device).eval()
     selected_parts: List[np.ndarray] = []
     score_parts: List[np.ndarray] = []

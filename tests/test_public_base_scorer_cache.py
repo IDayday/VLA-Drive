@@ -9,11 +9,19 @@ from local_stage2.export_public_base_scorer_cache import (
     _partition_tokens,
 )
 from local_stage2.score_public_base_scorer_cache import _belongs_to_worker
+from local_stage2.score_public_base_consequence_cache import (
+    _base_topk_indices,
+    _candidate_relative_box_state,
+    _event_by_horizon,
+)
+from local_stage2.analyze_scorer_domain_shift import _auc
 from local_stage2.run_navtest_proposal_audit import _compare_prediction_banks
 from local_stage2.summarize_navtest_scorer_campaigns import (
     _build_rows,
     _status,
 )
+from local_stage2.evaluate_cached_navtest_scorers import _score_artifact
+from local_stage2.build_effective_scorer_manifest import _artifact_record
 from local_stage2.train_public_base_residual_scorer import (
     EvaluationOutputs,
     base_pairwise_loss,
@@ -29,6 +37,12 @@ from local_stage2.public_base_residual_scorer import (
     pdm_log_aggregate,
     proposal_kinematic_features,
 )
+from local_stage2.temporal_consequence_scorer import (
+    TemporalConsequenceConfig,
+    TemporalConsequenceRanker,
+    temporal_trajectory_features,
+)
+from local_stage2.train_temporal_consequence_scorer import assign_balanced_log_folds
 
 
 def test_partition_tokens_is_disjoint_and_complete():
@@ -111,6 +125,191 @@ def test_cpu_label_worker_partition_is_deterministic():
         [path for path in paths if _belongs_to_worker(path, 4, index)]
         for index in range(4)
     ]
+
+
+def test_consequence_topk_is_stable_and_keeps_deployed_base_first():
+    scores = np.asarray([[1.0, 1.0, 0.5, 1.0], [0.1, 0.3, 0.2, 0.4]])
+    assert _base_topk_indices(scores, 3).tolist() == [[0, 1, 3], [3, 1, 2]]
+
+
+def test_pdm_event_indices_map_to_cumulative_horizon_targets():
+    events = np.asarray([[5.0, np.inf], [11.0, 40.0]])
+    targets = _event_by_horizon(events, [5, 10, 20, 40])
+    assert targets.shape == (2, 2, 4)
+    assert targets[0, 0].tolist() == [True, True, True, True]
+    assert targets[0, 1].tolist() == [False, False, False, False]
+    assert targets[1, 0].tolist() == [False, False, True, True]
+    assert targets[1, 1].tolist() == [False, False, False, True]
+
+
+def test_actor_box_transform_is_candidate_relative_and_mask_aware():
+    # Axis-aligned 4 m x 2 m rectangle centered at current-ego (10, 2).
+    box = np.asarray([[8.0, 1.0], [12.0, 1.0], [12.0, 3.0], [8.0, 3.0]])
+    corners = np.zeros((1, 1, 2, 4, 2), dtype=np.float64)
+    corners[0, 0, 0] = box
+    corners[0, 0, 1] = box
+    valid = np.asarray([[[True, False]]])
+    proposals = np.asarray([[[8.0, 2.0, np.pi / 2.0]]])
+    state = _candidate_relative_box_state(corners, valid, proposals)
+    assert state.shape == (1, 1, 2, 6)
+    # The actor is 2 m to the candidate's left after rotating into its frame.
+    assert state[0, 0, 0, 0] == pytest.approx(0.0, abs=1e-6)
+    assert state[0, 0, 0, 1] == pytest.approx(-2.0, abs=1e-6)
+    assert state[0, 0, 0, 2] == pytest.approx(4.0, abs=1e-6)
+    assert state[0, 0, 0, 3] == pytest.approx(2.0, abs=1e-6)
+    assert np.array_equal(state[0, 0, 1], np.zeros(6, dtype=np.float32))
+
+
+def test_domain_auc_handles_perfect_order_and_score_ties():
+    assert _auc(np.asarray([0, 0, 1, 1]), np.asarray([0.1, 0.2, 0.8, 0.9])) == 1.0
+    assert _auc(np.asarray([0, 1]), np.asarray([0.5, 0.5])) == 0.5
+
+
+def _temporal_consequence_inputs(batch: int = 2, candidates: int = 7):
+    return {
+        "candidate_features": torch.randn(batch, candidates, 256),
+        "proposals": torch.randn(batch, candidates, 8, 3),
+        "base_factor_logits": torch.randn(batch, candidates, 6),
+        "base_scores": torch.randn(batch, candidates),
+        "scene_features": torch.randn(batch, 16, 256),
+        "ego_features": torch.randn(batch, 1, 256),
+    }
+
+
+def test_temporal_consequence_scorer_is_base_exact_at_initialization():
+    torch.manual_seed(31)
+    model = TemporalConsequenceRanker(
+        TemporalConsequenceConfig(dropout=0.0, top_k=4)
+    ).eval()
+    inputs = _temporal_consequence_inputs()
+    output = model(**inputs)
+    assert torch.equal(output["residual"], torch.zeros_like(inputs["base_scores"]))
+    assert torch.equal(output["refined_scores"], inputs["base_scores"])
+    assert torch.equal(
+        output["selection_scores"].argmax(dim=1),
+        inputs["base_scores"].argmax(dim=1),
+    )
+    assert output["risk_logits"].shape == (2, 7, 8, 2)
+    assert output["actor_state"].shape == (2, 7, 8, 2, 6)
+
+
+def test_temporal_consequence_scorer_is_candidate_permutation_equivariant():
+    torch.manual_seed(37)
+    model = TemporalConsequenceRanker(
+        TemporalConsequenceConfig(dropout=0.0, top_k=5)
+    ).eval()
+    with torch.no_grad():
+        model.utility_head[-1].weight.normal_(std=0.02)
+    inputs = _temporal_consequence_inputs(candidates=7)
+    permutation = torch.randperm(7)
+    direct = model(**inputs)
+    permuted_inputs = dict(inputs)
+    for key in ("candidate_features", "proposals", "base_factor_logits", "base_scores"):
+        permuted_inputs[key] = inputs[key][:, permutation]
+    permuted = model(**permuted_inputs)
+    for key in (
+        "selection_scores",
+        "risk_logits",
+        "area_logits",
+        "actor_valid_logits",
+        "actor_state",
+    ):
+        assert torch.allclose(permuted[key], direct[key][:, permutation], atol=1e-6)
+
+
+def test_temporal_trajectory_features_are_finite_across_heading_wrap():
+    proposals = torch.zeros(1, 1, 8, 3)
+    proposals[0, 0, :, 0] = torch.arange(1, 9)
+    proposals[0, 0, :, 2] = torch.tensor(
+        [3.13, -3.13, 3.12, -3.12, 3.11, -3.11, 3.10, -3.10]
+    )
+    features = temporal_trajectory_features(proposals)
+    assert features.shape == (1, 1, 8, 8)
+    assert torch.isfinite(features).all()
+
+
+def test_balanced_log_folds_are_deterministic_disjoint_and_scene_balanced():
+    logs = ["large"] * 10 + [f"small-{index}" for index in range(10) for _ in range(2)]
+    first = assign_balanced_log_folds(logs, 3, 41)
+    second = assign_balanced_log_folds(logs, 3, 41)
+    assert first == second
+    assert set(first) == set(logs)
+    fold_scenes = [sum(first[name] == fold for name in logs) for fold in range(3)]
+    assert max(fold_scenes) - min(fold_scenes) <= 2
+
+
+def test_cached_navtest_evaluator_accepts_temporal_consequence_artifact(tmp_path: Path):
+    torch.manual_seed(43)
+    config = TemporalConsequenceConfig(
+        hidden_dim=64,
+        trajectory_dim=32,
+        temporal_layers=1,
+        temporal_heads=8,
+        scene_layers=1,
+        scene_heads=8,
+        dropout=0.0,
+        top_k=16,
+    )
+    model = TemporalConsequenceRanker(config).eval()
+    artifact = {
+        "artifact_type": "episode_drive_temporal_consequence_scorer_v1",
+        "artifact_version": 1,
+        "model_config": config.__dict__,
+        "model_state_dict": model.state_dict(),
+        "metadata": {},
+    }
+    path = tmp_path / "temporal.pt"
+    torch.save(artifact, path)
+    tokens = ["a", "b"]
+    cache = {
+        token: {
+            "candidate_features": np.zeros((64, 256), dtype=np.float32),
+            "proposals": np.zeros((64, 8, 3), dtype=np.float32),
+            "base_factor_logits": np.zeros((64, 6), dtype=np.float32),
+            "predicted_scores": np.linspace(0.0, 1.0, 64, dtype=np.float32),
+            "scene_features": np.zeros((16, 256), dtype=np.float32),
+            "ego_features": np.zeros((1, 256), dtype=np.float32),
+        }
+        for token in tokens
+    }
+    selected, scores, payload = _score_artifact(
+        path,
+        cache,
+        tokens,
+        device=torch.device("cpu"),
+        batch_size=2,
+    )
+    assert selected.tolist() == [63, 63]
+    base = np.stack([cache[token]["predicted_scores"] for token in tokens])
+    assert np.array_equal(scores[:, -16:], base[:, -16:])
+    assert np.all(scores[:, :-16] < base[:, :-16])
+    assert payload["artifact_type"] == artifact["artifact_type"]
+
+
+def test_positive_mean_promotion_sends_inconclusive_gain_to_navtest(tmp_path: Path):
+    path = tmp_path / "artifact.pt"
+    torch.save(
+        {
+            "artifact_type": "episode_drive_temporal_consequence_scorer_v1",
+            "model_config": {},
+            "metadata": {
+                "validation": {
+                    "selected_pdms_delta": 0.001,
+                    "selected_pdms_delta_log_bootstrap_95ci": [-0.001, 0.003],
+                    "selected_factor_delta": {
+                        "no_at_fault_collisions": 0.0,
+                        "drivable_area_compliance": 0.0,
+                        "time_to_collision_within_bound": 0.0,
+                    },
+                },
+                "future_inputs_used": False,
+                "official_scores_used_at_inference": False,
+            },
+        },
+        path,
+    )
+    assert _artifact_record(path, 0.0, "positive_mean")["promoted"]
+    assert not _artifact_record(path, 0.0, "positive_ci")["promoted"]
 
 
 @pytest.mark.parametrize("mode", ["local", "set_aware"])

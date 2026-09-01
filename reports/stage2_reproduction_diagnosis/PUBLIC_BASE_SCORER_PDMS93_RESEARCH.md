@@ -153,8 +153,10 @@ weight-2 loss with 200x top-K safety weighting was also rejected
 ## Navtest policy for every effective scorer
 
 Navtrain validation is a promotion gate, not the reported endpoint. Every
-scorer whose log-isolated validation delta has a positive log-bootstrap lower
-bound is entered into the full Navtest campaign. Methods with non-regressing
+scorer whose log-isolated validation mean delta is positive is entered into the
+full Navtest campaign, including results whose bootstrap interval still crosses
+zero. A positive lower confidence bound remains the stronger evidence tier,
+not a way to omit weaker positive methods from test. Methods with non-regressing
 NOC/DAC/TTC form the deployable tier; positive methods with a safety-factor
 regression are still tested as a separately marked diagnostic tier and cannot
 be selected as the final method without correction. Closely related
@@ -221,3 +223,40 @@ scale, gates, or ensemble weights.
 The complete per-method table, confidence intervals, factor changes, immutable
 cache hashes, and promotion/test coverage assertion are recorded in
 `NAVTEST_ALL_EFFECTIVE_SCORERS.md`, `.csv`, and `.json` in this directory.
+
+## Domain-shift diagnosis and temporal-consequence scorer
+
+The complete-cache distribution audit now covers all 103,288 Navtrain scenes
+from 1,192 logs and all 12,146 Navtest scenes from 136 logs. Public-Base regret
+is `0.022715` on Navtrain train, `0.037122` on the official Navtrain validation
+logs, and `0.074518` on Navtest. Navtest therefore has 2.01 times the official
+validation regret even though its best-of-64 ceiling remains `0.984112`.
+Current-feature linear domain probes separate Navtrain train from validation
+(AUROC `0.777`) but cannot separate validation from Navtest (AUROC `0.497`).
+The failure is consequently better described as conditional safety/utility
+shift than as an obvious current-feature covariate shift. NOC and TTC Brier
+errors degrade most strongly on Navtest. Full measurements are in
+`SCORER_DOMAIN_SHIFT_AUDIT.md` and `.json`.
+
+Source inspection identified a directly relevant incomplete path in the
+released model. `Scorer` defines `pred_col_agent` and `pred_area`, and
+`compute_score(..., test=False)` constructs collision/TTC key-agent boxes and
+ego-area targets. However, `EpisodeDriveLoss.score_loss` sets `pred_ce_loss`,
+`pred_l1_loss`, and `pred_area_loss` to literal zero, while the released config
+sets both heads false. The next experiment therefore restores the intended
+candidate-consequence supervision without adding any future input at
+inference. A new scorer-specific temporal hidden state predicts eight horizons
+of collision/TTC occurrence, candidate-relative critical-actor geometry, and
+non-drivable/oncoming occupancy before producing a zero-initialized residual
+over Public Base.
+
+The compact training-label cache completed for all 103,288 scenes and Base
+top-16 candidates: 807/807 chunks, 1,192 logs, zero failures, and exact
+(`0.0`) parity with the already locked candidate-factor cache. The labels are
+stored separately under the experiment root and are marked training-only. A
+2,048-scene one-epoch smoke produced `+0.004339` held-out PDMS with interval
+`[+0.002787,+0.006924]`, while improving TTC; this is only an implementation
+smoke, not a result claim. Five balanced log folds over the complete dataset
+are now running on rl-zt3 GPUs 3, 5, 6, and 7. Every fold artifact with positive
+validation mean will be evaluated on complete Navtest; Navtest will not be used
+to select the epoch, residual scale, safety gate, or loss weights.
