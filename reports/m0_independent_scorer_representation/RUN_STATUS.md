@@ -183,3 +183,22 @@ factor-residual variants are queued behind the direct-ranking controls on
 `rl-zt3` GPUs 5/6. The complete repository suite passes `198` tests, including
 zero-init Base identity, candidate-permutation equivariance, inference-schema
 checks, and finite end-to-end residual training loss.
+
+`rl-zt4` is now explicitly available for this campaign. Its GPUs 0/1/3/4 are
+finishing the immutable 103,288-scene released-M0 four-view cache, GPU 5 is
+running the validation-locked no-actor all-log refit, and the existing watcher
+will use GPUs 0/1/2/6 for the four controlled scorer runs plus GPUs 3/4 for the
+12,146-scene current-only Navtest cache. The cache exporter remains unchanged
+near completion rather than being repartitioned and duplicated.
+
+The M0-native Navtest path now supports both independent rankers and the
+Base-calibrated residual architecture. A strict promotion manifest reads the
+artifact selected on held-out physical logs and requires both positive mean
+delta and a bootstrap 95% lower bound above zero. Only promoted artifacts are
+evaluated. Inference consumes current M0 visual tokens, current state, frozen
+M0 proposals, and—only for the calibrated residual—M0's own deployable factor
+logits and scorer values. The official `[12146,64,7]` candidate matrix is
+joined only after all selected indices are fixed. Full audits are serialized
+on an otherwise idle GPU, validated with the reusable Navtest skill, and
+compared scene-by-scene with public M0. The complete repository suite now
+passes `200` tests.

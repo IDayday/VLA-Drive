@@ -47,6 +47,9 @@ from local_stage2.evaluate_independent_scorer_replay import (
     collect_base_shortlist_metrics,
     evaluate_base_shortlist_reranking,
 )
+from local_stage2.evaluate_m0_private_residual_navtest_cache import (
+    _required_feature,
+)
 from local_stage2.independent_scorer_agent import (
     IndependentShortlistScorerAgent,
     build_independent_shortlist_artifact,
@@ -74,6 +77,9 @@ from local_stage2.train_drivor_initialized_ranker import (
 from local_stage2.build_drivor_promotion_manifest import (
     _gate_record,
     _ranker_record,
+)
+from local_stage2.build_m0_native_promotion_manifest import (
+    _record as m0_native_promotion_record,
 )
 from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
 from local_stage2.audit_drivor_representation_dependence import (
@@ -198,6 +204,61 @@ def test_m0_private_residual_forward_is_current_inference_only() -> None:
         "future" in name or "official" in name or "metric" in name
         for name in parameters
     )
+
+
+def test_m0_private_residual_navtest_requires_exact_base_feature_shape() -> None:
+    entry = {
+        "predicted_scores": np.zeros(64, dtype=np.float32),
+    }
+    scores = _required_feature(entry, "predicted_scores", (64,))
+    assert scores.dtype == np.float32
+    with pytest.raises(RuntimeError, match="unexpected predicted_scores shape"):
+        _required_feature(entry, "predicted_scores", (32,))
+    with pytest.raises(RuntimeError, match="lacks base_factor_logits"):
+        _required_feature(entry, "base_factor_logits", (64, 6))
+
+
+def test_m0_native_promotion_uses_selection_source_log_ci(tmp_path) -> None:
+    artifact_path = tmp_path / "best_factor_independent_scorer.pt"
+    torch.save(
+        {
+            "architecture": "IndependentProposalRanker",
+            "checkpoint_selection_source": "public_base",
+            "epoch": 4,
+            "validation": {
+                "scene_count": 99,
+                "physical_log_count": 9,
+                "factor_selected_pdms": 0.99,
+                "base_selected_pdms": 0.90,
+                "factor_selected_delta": 0.09,
+                "factor_selected_delta_log_bootstrap_95ci": [0.08, 0.10],
+            },
+            "validation_by_source": {
+                "public_base": {
+                    "scene_count": 80,
+                    "physical_log_count": 8,
+                    "factor_selected_pdms": 0.91,
+                    "base_selected_pdms": 0.90,
+                    "factor_selected_delta": 0.01,
+                    "factor_selected_delta_log_bootstrap_95ci": [0.002, 0.018],
+                }
+            },
+        },
+        artifact_path,
+    )
+    record = m0_native_promotion_record(
+        run_dir=tmp_path,
+        path=artifact_path,
+        architecture="IndependentProposalRanker",
+        score_mode="factor",
+        selected_key="factor_selected_pdms",
+        delta_key="factor_selected_delta",
+        interval_key="factor_selected_delta_log_bootstrap_95ci",
+        minimum_ci_lower=0.0,
+    )
+    assert record["promoted"] is True
+    assert record["validation_scene_count"] == 80
+    assert record["validation_delta"] == pytest.approx(0.01)
 
 
 def test_m0_private_residual_zero_init_exactly_preserves_base() -> None:
