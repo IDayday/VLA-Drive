@@ -1213,6 +1213,101 @@ def test_factorized_shared_future_is_predicted_once_and_candidate_equivariant() 
         )
 
 
+def test_current_actor_cv_relabeling_is_shared_and_candidate_equivariant() -> None:
+    torch.manual_seed(206)
+    config = _small_config(
+        current_actor_auxiliary=True,
+        shared_future_horizons=8,
+        current_actor_cv_relabeling=True,
+    )
+    model = IndependentProposalRanker(config).eval()
+    observations, status, proposals = _inputs()
+    calls = []
+    handle = model.current_actor_state_head.register_forward_hook(
+        lambda *_: calls.append(1)
+    )
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        assert len(calls) == 1
+        calls.clear()
+        permuted = model(observations, status, proposals[:, permutation])
+        assert len(calls) == 1
+    handle.remove()
+
+    for key in (
+        "current_actor_presence_logits",
+        "current_actor_type_logits",
+        "current_actor_state",
+    ):
+        torch.testing.assert_close(reference[key], permuted[key])
+    for key in (
+        "candidate_relative_consequence",
+        "candidate_relative_consequence_token",
+    ):
+        torch.testing.assert_close(
+            reference[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
+        )
+
+    expected = model.shared_future_relabeler.consequence_only(
+        reference["current_actor_presence_logits"][:, None].expand(-1, 8, -1),
+        model._constant_velocity_actor_future(reference["current_actor_state"]),
+        proposals,
+    )
+    torch.testing.assert_close(
+        reference["candidate_relative_consequence"], expected
+    )
+
+
+def test_current_actor_cv_relabeling_zero_gate_preserves_legacy_outputs() -> None:
+    torch.manual_seed(207)
+    legacy_config = _small_config(current_actor_auxiliary=True)
+    legacy = IndependentProposalRanker(legacy_config).eval()
+    cv = IndependentProposalRanker(
+        _small_config(
+            current_actor_auxiliary=True,
+            current_actor_cv_relabeling=True,
+        )
+    ).eval()
+    missing, unexpected = cv.load_state_dict(legacy.state_dict(), strict=False)
+    assert not unexpected
+    assert missing
+    assert all(
+        name.startswith("shared_future_relabeler.")
+        or name == "shared_future_fusion_gate"
+        for name in missing
+    )
+    observations, status, proposals = _inputs()
+    with torch.no_grad():
+        reference = legacy(observations, status, proposals)
+        candidate = cv(observations, status, proposals)
+    assert candidate["shared_future_fusion_gate"].item() == 0.0
+    for key in (
+        "utility",
+        "coarse_utility",
+        "refined_utility",
+        "factor_logits",
+        "candidate_features",
+    ):
+        torch.testing.assert_close(reference[key], candidate[key], rtol=0, atol=0)
+
+
+def test_current_actor_cv_relabeling_requires_current_actor_head() -> None:
+    with pytest.raises(ValueError, match="requires current-actor"):
+        _small_config(current_actor_cv_relabeling=True)
+
+
+def test_current_actor_and_learned_future_relabeling_are_mutually_exclusive() -> None:
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        _small_config(
+            current_actor_auxiliary=True,
+            shared_future_auxiliary=True,
+            shared_future_relabeling=True,
+            current_actor_cv_relabeling=True,
+        )
+
+
 def test_shared_future_constant_velocity_residual_starts_from_predicted_current() -> None:
     torch.manual_seed(107)
     config = _small_config(

@@ -74,6 +74,7 @@ _M0_REFIT_LOCKED_ARGUMENTS = (
     "private_layers",
     "trajectory_layers",
     "trajectory_observation_attention",
+    "current_actor_cv_relabeling",
     "candidate_layers",
     "fine_layers",
     "private_fine_top_k",
@@ -155,6 +156,7 @@ _M0_LEGACY_REFIT_ARGUMENT_DEFAULTS = {
     "reference_minimum_improvement_target": 0.005,
     "reference_factor_epsilon": 1.0e-6,
     "trajectory_observation_attention": False,
+    "current_actor_cv_relabeling": False,
 }
 _M0_DEPLOYMENT_ONLY_RESIDUAL_FIELDS = (
     "inference_scale",
@@ -209,6 +211,10 @@ def validate_m0_all_log_refit_provenance(
     selected_training_private = dict(selected_private_config)
     selected_training_private.setdefault(
         "trajectory_observation_attention",
+        False,
+    )
+    selected_training_private.setdefault(
+        "current_actor_cv_relabeling",
         False,
     )
     if selected_training_private != asdict(private_config):
@@ -1263,6 +1269,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--shared-future-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-relabeling", action="store_true")
     parser.add_argument(
+        "--current-actor-cv-relabeling",
+        action="store_true",
+        help=(
+            "Project the predicted current actor slots with constant velocity "
+            "and compute differentiable candidate-relative risk. This path "
+            "does not consume a logged-future target at inference."
+        ),
+    )
+    parser.add_argument(
         "--shared-future-constant-velocity-residual", action="store_true"
     )
     parser.add_argument("--split-manifest", type=Path, required=True)
@@ -1465,6 +1480,14 @@ def main() -> None:
         raise ValueError(
             "shared-future relabeling requires shared-future supervision"
         )
+    if args.current_actor_cv_relabeling and args.current_actor_target_root is None:
+        raise ValueError(
+            "current-actor CV relabeling requires current-actor supervision"
+        )
+    if args.current_actor_cv_relabeling and args.shared_future_relabeling:
+        raise ValueError(
+            "current-actor CV and learned shared-future relabeling are mutually exclusive"
+        )
     if args.candidate_relative_weight > 0 and not args.shared_future_relabeling:
         raise ValueError(
             "candidate-relative loss requires --shared-future-relabeling"
@@ -1600,6 +1623,7 @@ def main() -> None:
         shared_future_constant_velocity_residual=(
             args.shared_future_constant_velocity_residual
         ),
+        current_actor_cv_relabeling=args.current_actor_cv_relabeling,
         trajectory_observation_attention=(
             args.trajectory_observation_attention
         ),
@@ -1793,6 +1817,9 @@ def main() -> None:
         ),
         "predicted_shared_future_relabeling_used_at_inference": (
             args.shared_future_relabeling
+        ),
+        "predicted_current_actor_cv_relabeling_used_at_inference": (
+            args.current_actor_cv_relabeling
         ),
         "candidate_relative_logged_future_used_as_training_only_target": (
             args.candidate_relative_weight > 0

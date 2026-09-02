@@ -100,6 +100,12 @@ class IndependentRankerConfig:
     shared_future_horizons: int = 8
     shared_future_relabeling: bool = False
     shared_future_constant_velocity_residual: bool = False
+    # Convert the scorer's candidate-independent current-actor prediction into
+    # one constant-velocity shared future, then geometrically relabel that same
+    # future against every proposal.  This is deployable current-observation
+    # inference: unlike ``shared_future_relabeling`` it needs no logged-future
+    # prediction head or future target.
+    current_actor_cv_relabeling: bool = False
     # Let every trajectory point query the uncompressed current-observation
     # token grid directly.  The existing query-bank path remains intact and
     # this option is off for all legacy artifacts.  It is specifically meant
@@ -141,6 +147,20 @@ class IndependentRankerConfig:
             raise ValueError(
                 "constant-velocity future residuals require current-actor and "
                 "shared-future prediction heads"
+            )
+        if self.current_actor_cv_relabeling and not self.current_actor_auxiliary:
+            raise ValueError(
+                "current-actor CV relabeling requires current-actor prediction heads"
+            )
+        if self.current_actor_cv_relabeling and self.shared_future_relabeling:
+            raise ValueError(
+                "current-actor CV and learned shared-future relabeling are mutually exclusive"
+            )
+        if self.current_actor_cv_relabeling and (
+            self.shared_future_horizons != self.num_poses
+        ):
+            raise ValueError(
+                "current-actor CV relabeling requires one horizon per pose"
             )
         for count in (
             self.dynamic_queries,
@@ -723,7 +743,7 @@ class IndependentProposalRanker(nn.Module):
             self.shared_future_presence_head = None
             self.shared_future_type_head = None
             self.shared_future_state_head = None
-        if config.shared_future_relabeling:
+        if config.shared_future_relabeling or config.current_actor_cv_relabeling:
             self.shared_future_relabeler = SharedFutureCandidateRelabeler(
                 model_dim=config.model_dim,
                 horizons=config.shared_future_horizons,
@@ -930,10 +950,25 @@ class IndependentProposalRanker(nn.Module):
         candidate_consequence = None
         candidate_consequence_token = None
         if self.shared_future_relabeler is not None:
+            if self.config.current_actor_cv_relabeling:
+                horizons = self.config.shared_future_horizons
+                consequence_presence = current_actor[
+                    "current_actor_presence_logits"
+                ][:, None].expand(-1, horizons, -1)
+                consequence_actor_state = self._constant_velocity_actor_future(
+                    current_actor["current_actor_state"]
+                )
+            else:
+                consequence_presence = shared_future[
+                    "shared_future_presence_logits"
+                ]
+                consequence_actor_state = shared_future[
+                    "shared_future_actor_state"
+                ]
             candidate_consequence, candidate_consequence_token = (
                 self.shared_future_relabeler(
-                    shared_future["shared_future_presence_logits"],
-                    shared_future["shared_future_actor_state"],
+                    consequence_presence,
+                    consequence_actor_state,
                     proposals,
                 )
             )

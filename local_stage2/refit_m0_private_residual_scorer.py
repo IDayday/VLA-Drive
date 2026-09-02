@@ -90,6 +90,7 @@ _BOOLEAN_ARGUMENTS = (
     "shared_future_relabeling",
     "shared_future_constant_velocity_residual",
     "trajectory_observation_attention",
+    "current_actor_cv_relabeling",
 )
 _OPTIONAL_PATH_ARGUMENTS = (
     "private_observation_root",
@@ -118,6 +119,7 @@ _LEGACY_DEFAULTS = {
     "reference_switch_margin_temperature": 0.05,
     "reference_minimum_improvement_target": 0.005,
     "reference_factor_epsilon": 1.0e-6,
+    "current_actor_cv_relabeling": False,
 }
 
 

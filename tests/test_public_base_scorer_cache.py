@@ -17,7 +17,13 @@ from local_stage2.score_public_base_consequence_cache import (
     _candidate_relative_box_state,
     _event_by_horizon,
 )
-from local_stage2.analyze_scorer_domain_shift import _auc
+from local_stage2.analyze_scorer_domain_shift import (
+    SOURCE_FACTOR_NAMES,
+    TARGET_FACTOR_NAMES,
+    _auc,
+    _load_log_split,
+    _update_navtrain,
+)
 from local_stage2.run_navtest_proposal_audit import (
     _apply_resolved_agent_config,
     _compare_prediction_banks,
@@ -82,6 +88,81 @@ def test_partition_tokens_is_disjoint_and_complete():
     assert not set(shards[0]).intersection(shards[1])
     assert not set(shards[0]).intersection(shards[2])
     assert not set(shards[1]).intersection(shards[2])
+
+
+@pytest.mark.parametrize(
+    ("payload", "expected_train", "expected_validation"),
+    (
+        (
+            {"train_logs": ["train-a"], "val_logs": ["validation-a"]},
+            {"train-a"},
+            {"validation-a"},
+        ),
+        (
+            {
+                "train_physical_logs": ["train-b"],
+                "validation_physical_logs": ["validation-b"],
+            },
+            {"train-b"},
+            {"validation-b"},
+        ),
+    ),
+)
+def test_domain_shift_log_split_accepts_resolved_and_locked_manifest_schemas(
+    tmp_path: Path,
+    payload: dict,
+    expected_train: set[str],
+    expected_validation: set[str],
+):
+    split = tmp_path / "split.json"
+    split.write_text(json.dumps(payload))
+    train, validation = _load_log_split(split)
+    assert train == expected_train
+    assert validation == expected_validation
+
+
+def test_domain_shift_navtrain_matches_segment_names_at_physical_log_boundary(
+    tmp_path: Path,
+):
+    source_root = tmp_path / "source"
+    label_root = tmp_path / "labels"
+    relative = Path("all_shard_000-of-001/chunk_000000.pt")
+    (source_root / relative.parent).mkdir(parents=True)
+    (label_root / relative.parent).mkdir(parents=True)
+    tokens = ["train-token", "validation-token"]
+    torch.save(
+        {
+            "tokens": tokens,
+            "log_names": [
+                "train-log_00001_00002",
+                "validation-log_00003_00004",
+            ],
+            "factor_keys": SOURCE_FACTOR_NAMES,
+            "base_scores": torch.zeros(2, 64),
+            "factor_logits": torch.zeros(2, 64, len(SOURCE_FACTOR_NAMES)),
+            "scene_features": torch.zeros(2, 16, 256),
+            "ego_features": torch.zeros(2, 1, 256),
+        },
+        source_root / relative,
+    )
+    torch.save(
+        {
+            "tokens": tokens,
+            "target_factor_keys": TARGET_FACTOR_NAMES,
+            "target_factors": torch.zeros(2, 64, len(TARGET_FACTOR_NAMES)),
+        },
+        label_root / relative,
+    )
+    result = _update_navtrain(
+        source_root,
+        label_root,
+        {"train-log"},
+        {"validation-log"},
+    )
+    assert result["navtrain_train"].tokens == ["train-token"]
+    assert result["navtrain_train"].log_names == ["train-log"]
+    assert result["navtrain_validation"].tokens == ["validation-token"]
+    assert result["navtrain_validation"].log_names == ["validation-log"]
 
 
 def test_cache_export_checkpoint_override_accepts_equals(tmp_path: Path):

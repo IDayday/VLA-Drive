@@ -4,7 +4,7 @@
 # every promoted artifact on the complete matching FP32 Navtest bank, and run
 # real-agent/cache parity on four identical scenes per artifact.
 
-set -uo pipefail
+set -euo pipefail
 
 repo_root="${REPO_ROOT:-/mnt/project/DriveVLA-M0-m0-scorer-representation}"
 python_bin="${DRIVEVLA_PYTHON:-/mnt/project/DriveVLA-M0-env/bin/python}"
@@ -79,6 +79,16 @@ PY
 
 while ! training_ready; do
   echo "NO_VQA_NAVTEST_WATCH waiting_for_training_and_candidate_matrix utc=$(date -u +%FT%TZ)"
+  sleep "${wait_seconds}"
+done
+
+# Training summaries live on a shared filesystem and are replaced once per
+# epoch.  Require a second complete read after one polling interval so a
+# watcher cannot race the final summary replacement and silently promote a
+# partially written campaign.
+sleep "${wait_seconds}"
+while ! training_ready; do
+  echo "NO_VQA_NAVTEST_WATCH waiting_for_stable_training_summary utc=$(date -u +%FT%TZ)"
   sleep "${wait_seconds}"
 done
 

@@ -15,6 +15,8 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 
+from local_stage2.train_independent_scorer import physical_log_name
+
 
 TARGET_FACTOR_NAMES = (
     "no_at_fault_collisions",
@@ -262,8 +264,23 @@ class SplitAccumulator:
 
 def _load_log_split(path: Path) -> Tuple[set[str], set[str]]:
     config = OmegaConf.load(path)
-    train_logs = {str(value) for value in config.train_logs}
-    val_logs = {str(value) for value in config.val_logs}
+    # Resolved Hydra training configs use ``train_logs``/``val_logs`` while
+    # the locked scorer split manifest deliberately names the physical-log
+    # boundary explicitly.  Accept both schemas, but never guess a split from
+    # scene ordering.
+    train_values = config.get("train_physical_logs", config.get("train_logs"))
+    val_values = config.get(
+        "validation_physical_logs", config.get("val_logs")
+    )
+    if train_values is None or val_values is None:
+        raise ValueError(
+            "log split must define train_physical_logs/validation_physical_logs "
+            "or train_logs/val_logs"
+        )
+    train_logs = {str(value) for value in train_values}
+    val_logs = {str(value) for value in val_values}
+    if not train_logs or not val_logs:
+        raise ValueError("log split train and validation sets must both be non-empty")
     if train_logs & val_logs:
         raise RuntimeError("Navtrain train/validation log sets overlap")
     return train_logs, val_logs
@@ -282,6 +299,9 @@ def _update_navtrain(
     source_paths = sorted(source_root.glob("*_shard_*-of-*/chunk_*.pt"))
     if not source_paths:
         raise RuntimeError(f"No source chunks found under {source_root}")
+    seen_scene_count = 0
+    assigned_scene_count = 0
+    available_physical_logs: set[str] = set()
     for chunk_index, source_path in enumerate(source_paths, start=1):
         label_path = label_root / source_path.relative_to(source_root)
         if not label_path.is_file():
@@ -294,7 +314,14 @@ def _update_navtrain(
             raise RuntimeError(f"Unexpected source factors: {source_path}")
         if tuple(labels["target_factor_keys"]) != TARGET_FACTOR_NAMES:
             raise RuntimeError(f"Unexpected label factors: {label_path}")
-        log_names = np.asarray(source["log_names"]).astype(str)
+        # Feature caches retain NAVSIM segment-directory names.  Split
+        # manifests are intentionally defined at the physical-log boundary;
+        # use the same audited normalization as scorer training.
+        log_names = np.asarray(
+            [physical_log_name(value) for value in source["log_names"]]
+        ).astype(str)
+        seen_scene_count += len(log_names)
+        available_physical_logs.update(log_names.tolist())
         for split_name, allowed_logs in (
             ("navtrain_train", train_logs),
             ("navtrain_validation", val_logs),
@@ -303,6 +330,7 @@ def _update_navtrain(
             if not mask.any():
                 continue
             indices = np.flatnonzero(mask)
+            assigned_scene_count += len(indices)
             accumulators[split_name].update(
                 tokens=[source["tokens"][index] for index in indices],
                 log_names=log_names[indices],
@@ -317,6 +345,18 @@ def _update_navtrain(
                 f"NAVTRAIN_DOMAIN_AUDIT chunks={chunk_index}/{len(source_paths)}",
                 flush=True,
             )
+    if assigned_scene_count != seen_scene_count:
+        missing_logs = sorted(
+            available_physical_logs.difference(train_logs | val_logs)
+        )
+        raise RuntimeError(
+            "Navtrain split does not cover every cached scene: "
+            f"assigned={assigned_scene_count}, total={seen_scene_count}, "
+            f"missing_physical_logs={missing_logs[:10]}"
+        )
+    for split_name, accumulator in accumulators.items():
+        if not accumulator.tokens:
+            raise RuntimeError(f"Navtrain split is empty after log matching: {split_name}")
     return accumulators
 
 
