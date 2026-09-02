@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from scripts.audit_formal_config_pair import audit_formal_config_pair
@@ -72,7 +74,7 @@ def test_formal_config_pair_rejects_agent_checkpoint():
 
 def test_dual_formal_sequence_uses_the_two_locked_launchers():
     script = (
-        __import__("pathlib").Path(__file__).resolve().parents[1]
+        Path(__file__).resolve().parents[1]
         / "local_planreg_wm_v1/train_formal_dual_init_sequential.sh"
     ).read_text(encoding="utf-8")
     base_position = script.index("train_formal_base_init_wm.sh")

@@ -16,10 +16,10 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/.." && pwd)"
 # shellcheck source=../load_env.sh
 source "${repo_root}/load_env.sh"
-python_bin="${PYTHON_BIN:-/mnt/project/DriveVLA-M0-env/bin/python}"
-if [[ ! -x "${python_bin}" ]]; then
-  python_bin=/mnt/project/DriveVLA-M0-env/bin/python
-fi
+# shellcheck source=formal_runtime.sh
+source "${script_dir}/formal_runtime.sh"
+planreg_formal_runtime_setup "${repo_root}"
+python_bin="${PLANREG_FORMAL_PYTHON_BIN}"
 [[ -f "${student_checkpoint}" ]] || { echo "Missing student checkpoint: ${student_checkpoint}" >&2; exit 2; }
 
 if [[ "${variant}" == "base" ]]; then
@@ -55,6 +55,8 @@ export CUDA_VISIBLE_DEVICES="${PLANREG_EVAL_GPU:-0}"
 "${python_bin}" "${repo_root}/scripts/export_planreg_student_checkpoint.py" \
   --verify "${student_checkpoint}"
 mkdir -p "${evaluation_root}/run_metadata"
+planreg_formal_runtime_audit_local \
+  "${repo_root}" "${evaluation_root}/run_metadata/formal_runtime_node0.json"
 printf '%s\n' 'BF16 VLM + FP32 action/scorer (not full FP32)' \
   > "${evaluation_root}/run_metadata/precision_contract.txt"
 printf '%s\n' 'Current single front frame only; no future input or predictor/EMA construction.' \
