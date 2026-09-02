@@ -49,3 +49,11 @@ post-processing watcher pre-created an empty nested sweep directory before the
 fold launcher performed its no-overwrite check. The watcher ordering was fixed
 and the unchanged predeclared experiment was relaunched under `wave13_v2`.
 The empty `v1` directory is retained as failure evidence.
+
+The initial `wave13_v2` processes on rl-zt4 were also stopped before the first
+training batch or validation result after a capacity audit showed that the
+95 GiB pool-4 cache is independently resident in each of five fold processes,
+while that host already carried unrelated memory-heavy work. The unchanged
+five-fold command was migrated to vla-zt2, which had 832 GiB available and
+idle GPUs. Only the Wave-13 processes were stopped; no unrelated task was
+preempted. The host-local partial directory is retained for auditability.
