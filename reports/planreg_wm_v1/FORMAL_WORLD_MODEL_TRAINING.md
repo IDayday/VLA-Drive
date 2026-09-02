@@ -64,6 +64,15 @@ zero decay. AdamW uses betas 0.9/0.999 and epsilon 1e-8. The step scheduler is
 5% linear warmup from 1% of peak followed by cosine decay to 10% of peak.
 Gradient clipping is global norm 1.0; accumulation is one.
 
+The measured layout lock selects 16 GPUs as two eight-GPU nodes with batch 2
+per GPU (global batch 32). Therefore the LR multiplier is exactly 1.0:
+new planning/fusion/generator/scorer/predictor modules peak at 2e-4, Q-Former
+at 1e-4, and visual Q/V LoRA at 4e-5. Their scheduler start values are
+2e-6/1e-6/4e-7 and final values are 2e-5/1e-5/4e-6 respectively. The exact
+budget is 3,228 steps per epoch and 87,156 optimizer steps; warmup occupies 5%
+of that budget and the WM coefficient ramps from 0.01 to 0.10 over its first
+10%. Actual EMA endpoints are 0.992016 and 0.99980001.
+
 Deployment export strips EMA, predictor, optimizer, scheduler, and callback
 state, then requires an exact topology load without legacy LoRA folding or
 scaling. Evaluation uses BF16 VLM plus FP32 action/scorer, not “full FP32”, and
