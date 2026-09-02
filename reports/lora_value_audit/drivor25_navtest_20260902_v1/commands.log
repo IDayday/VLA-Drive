@@ -1,0 +1,89 @@
+# Repository/environment capture (2026-09-02 UTC)
+$ git status --short
+ M navsim/planning/script/config/training/default_training.yaml
+ M navsim/planning/script/run_training_full.py
+$ git rev-parse HEAD
+6e96cf7321b134c42c2cf0fbbc315cd61c925b11
+$ git branch --show-current
+feature/navsim-candidate-relative-feasibility-audit-V2
+$ python --version
+Python 3.9.25
+$ nvidia-smi
+8 x NVIDIA A800-SXM4-80GB; driver 595.71.05; reported CUDA 13.2; GPUs idle at capture
+$ conda info --envs
+base, b2d_eval, ddp, gcrlo, llamafactory, navsim (active)
+$ git worktree add -b feature/drivor-lora-value-audit-20260902 /mnt/project/DriveVLA-M0-lora-value-audit-20260902 6e96cf7321b134c42c2cf0fbbc315cd61c925b11
+
+# F0 exact online export. CUBLAS_WORKSPACE_CONFIG=:4096:8 and FP32 are set by the runner.
+$ scripts/lora_value_audit/run_f0_parity.sh /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1
+
+# F0 true-PDMS parity: 32 deterministic random scenes, four unique pairs each.
+$ PYTHONPATH=.:nuplan-devkit /mnt/project/DriveVLA-M0-env/bin/python -m tools.lora_value_audit.exact_candidate_scorer --proposal-pickle /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl --candidate-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz --metric-cache /mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest --output-dir /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_pdm_parity128_20260902_v1 --scene-count 32 --pairs-per-scene 4 --seed 20260902 --tolerance 1e-6
+
+# F1/F2 smoke followed by the complete Navtest audit.
+$ scripts/lora_value_audit/run_f1_base_audit.sh /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_f1f2_smoke1024_20260902_v1 1024
+$ scripts/lora_value_audit/run_f1_base_audit.sh /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_f1f2_full_20260902_v1 0
+
+# F3 local alternative-checkpoint pseudo-expert and set-size controls.
+$ scripts/lora_value_audit/run_union_bank.sh alternative_scaling134k /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/scaling134k_navtest_fp32_v1_5shard/proposal_predictions.pkl /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/scaling134k_navtest_fp32_scored_v1/candidate_scores.npz /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_alternative_scaling134k_full_20260902_v1 controls
+
+# F3 deterministic candidate banks (all generators are deterministic and hash-recorded).
+$ python -m tools.lora_value_audit.generate_candidate_bank --enhanced-export-root /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1 --base-proposals /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl --base-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz --output-dir /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1 --banks stage0_64,stage1_64,stage2_64,stage3_64,stage4_64,structured16,jitter8,all_intermediate256_low
+$ python -m tools.lora_value_audit.generate_candidate_bank --enhanced-export-root /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1 --base-proposals /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl --base-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz --output-dir /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_structured256_low_20260902_v1 --banks structured256_low
+$ python -m tools.lora_value_audit.generate_candidate_bank --enhanced-export-root /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1 --base-proposals /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl --base-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz --output-dir /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_oracle_low_20260902_v1 --banks oracle_neighborhood16_low,oracle_neighborhood64_low
+
+# Generic true PDM command used for each generated bank; outputs are resumable per log.
+$ OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:nuplan-devkit /mnt/project/DriveVLA-M0-env/bin/python -m tools.lora_value_audit.score_candidate_bank --candidate-bank BANK.pkl --base-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz --metric-cache /mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest --output-dir OUTPUT --num-workers N
+# BANK/OUTPUT pairs actually run: structured16/full, jitter8/full, all_intermediate256/full, all_intermediate256/low, structured256/low, oracle_neighborhood64/low, reference_upper_bound1/full. Every completed summary records zero failed scenes.
+
+# Frozen scorer union runs (complete-set self-attention; never chunk-scored candidates).
+$ scripts/lora_value_audit/run_union_bank.sh structured16 .../structured16.pkl .../pdm_structured16_full_20260902_v1/candidate_scores.npz .../union_structured16_full_20260902_v1 '' 0
+$ scripts/lora_value_audit/run_union_bank.sh jitter8 .../jitter8.pkl .../pdm_jitter8_full_20260902_v1/candidate_scores.npz .../union_jitter8_full_20260902_v1 '' 4
+$ scripts/lora_value_audit/run_union_bank.sh all_intermediate256_low .../all_intermediate256_low.pkl .../pdm_all_intermediate256_low_20260902_v1/candidate_scores.npz .../union_all_intermediate256_low_20260902_v1 '' 0
+$ scripts/lora_value_audit/run_union_bank.sh all_intermediate256_full .../all_intermediate256.pkl .../pdm_all_intermediate256_full_20260902_v1/candidate_scores.npz .../union_all_intermediate256_full_20260902_v1 '' 0
+$ scripts/lora_value_audit/run_union_bank.sh structured256_low .../structured256_low.pkl .../pdm_structured256_low_20260902_v1/candidate_scores.npz .../union_structured256_low_20260902_v1 '' 4
+$ scripts/lora_value_audit/run_union_bank.sh oracle_neighborhood64_low .../oracle_neighborhood64_low.pkl .../pdm_oracle_neighborhood64_low_20260902_v1/candidate_scores.npz .../union_oracle_neighborhood64_low_20260902_v1 '' 4
+$ scripts/lora_value_audit/run_union_bank.sh reference_upper_bound1 .../reference_upper_bound1.pkl .../pdm_reference_upper_bound_full_20260902_v1/candidate_scores.npz .../union_reference_upper_bound1_full_20260902_v1 '' 4
+
+# Strict-gate note: the first sparse-subset union attempt was rejected at 2.86e-6 Base-score error. It was not used. The rerun preserved original batch grouping and passed with max error 0.0; no threshold was relaxed.
+
+# Unit/consistency tests.
+$ PYTHONPATH=. pytest -q tests/lora_value_audit
+
+# Assemble the immutable report bundle and apply the preregistered verdict rules.
+$ PYTHONPATH=. CUBLAS_WORKSPACE_CONFIG=:4096:8 /mnt/project/DriveVLA-M0-env/bin/python -m tools.lora_value_audit.make_report \
+  --base-audit-dir /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_f1f2_full_20260902_v1 \
+  --forward-parity-root /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1 \
+  --pdm-parity-json /mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_pdm_parity128_20260902_v1/pdm_candidate_parity.json \
+  --base-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz \
+  --base-official-summary /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/summary.json \
+  --base-proposals /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl \
+  --primary-external-matrix /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/scaling134k_navtest_fp32_scored_v1/candidate_scores.npz \
+  --injection alternative=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_alternative_scaling134k_full_20260902_v1 \
+  --injection structured16=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_structured16_full_20260902_v1 \
+  --injection jitter8=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_jitter8_full_20260902_v1 \
+  --injection intermediate_full=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_all_intermediate256_full_20260902_v1 \
+  --injection intermediate_low=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_all_intermediate256_low_20260902_v1 \
+  --injection structured256_low=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_structured256_low_20260902_v1 \
+  --injection oracle_neighborhood_low=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_oracle_neighborhood64_low_20260902_v1 \
+  --injection reference_upper=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_reference_upper_bound1_full_20260902_v1 \
+  --bank-class alternative=deployable_pseudo_expert --bank-class structured16=deployable_structured \
+  --bank-class jitter8=set_size_jitter_control --bank-class intermediate_full=extra_base_control \
+  --bank-class intermediate_low=extra_base_control --bank-class structured256_low=deployable_structured \
+  --bank-class oracle_neighborhood_low=diagnostic_oracle_upper_bound --bank-class reference_upper=diagnostic_reference_upper_bound \
+  --bank-manifest critical=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/bank_manifest.json \
+  --bank-manifest intermediate_full=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_intermediate_full_20260902_v1/bank_manifest.json \
+  --bank-manifest oracle_low=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_oracle_low_20260902_v1/bank_manifest.json \
+  --bank-manifest structured256_low=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_structured256_low_20260902_v1/bank_manifest.json \
+  --bank-manifest reference=/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/reference_upper_bound_full_20260902_v1/manifest.json \
+  --primary-injection alternative \
+  --checkpoint /mnt/project/external/DrivoR/weights/releases/drivor_Nav1_25epochs.pth \
+  --alternative-checkpoint /mnt/project/external/DrivoR/weights/scaling/nav1_30epochs_with_134k_simscale_bis_103ktrainval.pth \
+  --config /mnt/project/external/DrivoR/navsim/planning/script/config/common/agent/drivoR.yaml \
+  --dino-weights /mnt/project/external/DrivoR/weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors \
+  --metric-cache /mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest \
+  --hydra-overrides /mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/code/hydra/overrides.yaml \
+  --repo-root /mnt/project/DriveVLA-M0-lora-value-audit-20260902 \
+  --start-commit 6e96cf7321b134c42c2cf0fbbc315cd61c925b11 \
+  --output-dir reports/lora_value_audit/drivor25_navtest_20260902_v1 \
+  --commands-log reports/lora_value_audit/commands_20260902.source.log --seed 20260902

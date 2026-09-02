@@ -1,0 +1,105 @@
+FOLD 0
+|--- selected_true_ego_progress <= 0.98
+|   |--- selected_oracle_fde <= 0.22
+|   |   |--- class: 1
+|   |--- selected_oracle_fde >  0.22
+|   |   |--- M_B <= 0.06
+|   |   |   |--- class: 0
+|   |   |--- M_B >  0.06
+|   |   |   |--- class: 0
+|--- selected_true_ego_progress >  0.98
+|   |--- selected_true_time_to_collision_within_bound <= 0.50
+|   |   |--- predicted_top1_top2_margin <= 0.00
+|   |   |   |--- class: 0
+|   |   |--- predicted_top1_top2_margin >  0.00
+|   |   |   |--- class: 0
+|   |--- selected_true_time_to_collision_within_bound >  0.50
+|   |   |--- ego_acceleration_norm <= 0.03
+|   |   |   |--- class: 1
+|   |   |--- ego_acceleration_norm >  0.03
+|   |   |   |--- class: 1
+
+
+FOLD 1
+|--- selected_true_ego_progress <= 0.98
+|   |--- selected_oracle_fde <= 0.11
+|   |   |--- class: 1
+|   |--- selected_oracle_fde >  0.11
+|   |   |--- M_B <= 0.06
+|   |   |   |--- class: 0
+|   |   |--- M_B >  0.06
+|   |   |   |--- class: 0
+|--- selected_true_ego_progress >  0.98
+|   |--- selected_true_time_to_collision_within_bound <= 0.50
+|   |   |--- std_B <= 0.30
+|   |   |   |--- class: 0
+|   |   |--- std_B >  0.30
+|   |   |   |--- class: 0
+|   |--- selected_true_time_to_collision_within_bound >  0.50
+|   |   |--- class: 1
+
+
+FOLD 2
+|--- selected_true_ego_progress <= 0.98
+|   |--- selected_oracle_fde <= 0.15
+|   |   |--- class: 1
+|   |--- selected_oracle_fde >  0.15
+|   |   |--- std_B <= 0.02
+|   |   |   |--- class: 0
+|   |   |--- std_B >  0.02
+|   |   |   |--- class: 0
+|--- selected_true_ego_progress >  0.98
+|   |--- selected_true_time_to_collision_within_bound <= 0.50
+|   |   |--- std_B <= 0.30
+|   |   |   |--- class: 0
+|   |   |--- std_B >  0.30
+|   |   |   |--- class: 0
+|   |--- selected_true_time_to_collision_within_bound >  0.50
+|   |   |--- ego_acceleration_norm <= 0.03
+|   |   |   |--- class: 1
+|   |   |--- ego_acceleration_norm >  0.03
+|   |   |   |--- class: 1
+
+
+FOLD 3
+|--- selected_true_ego_progress <= 0.98
+|   |--- selected_oracle_fde <= 0.15
+|   |   |--- class: 1
+|   |--- selected_oracle_fde >  0.15
+|   |   |--- std_B <= 0.02
+|   |   |   |--- class: 0
+|   |   |--- std_B >  0.02
+|   |   |   |--- class: 0
+|--- selected_true_ego_progress >  0.98
+|   |--- selected_true_time_to_collision_within_bound <= 0.50
+|   |   |--- ego_acceleration_norm <= 0.92
+|   |   |   |--- class: 0
+|   |   |--- ego_acceleration_norm >  0.92
+|   |   |   |--- class: 0
+|   |--- selected_true_time_to_collision_within_bound >  0.50
+|   |   |--- ego_acceleration_norm <= 0.03
+|   |   |   |--- class: 1
+|   |   |--- ego_acceleration_norm >  0.03
+|   |   |   |--- class: 1
+
+
+FOLD 4
+|--- selected_true_ego_progress <= 0.98
+|   |--- selected_oracle_fde <= 0.17
+|   |   |--- class: 1
+|   |--- selected_oracle_fde >  0.17
+|   |   |--- M_B <= 0.07
+|   |   |   |--- class: 0
+|   |   |--- M_B >  0.07
+|   |   |   |--- class: 0
+|--- selected_true_ego_progress >  0.98
+|   |--- selected_true_time_to_collision_within_bound <= 0.50
+|   |   |--- N_0.99 <= 5.50
+|   |   |   |--- class: 0
+|   |   |--- N_0.99 >  5.50
+|   |   |   |--- class: 0
+|   |--- selected_true_time_to_collision_within_bound >  0.50
+|   |   |--- ego_acceleration_norm <= 0.03
+|   |   |   |--- class: 1
+|   |   |--- ego_acceleration_norm >  0.03
+|   |   |   |--- class: 1

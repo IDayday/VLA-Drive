@@ -1,0 +1,53 @@
+{
+  "candidate_limited_scene_count": 103,
+  "direct_frozen_scorer_recommendation": "conditional Base56+LoRA8 pilot; repeat safety gate on actual LoRA distribution; retrain/calibrate for 16/64 or any bank failing thresholds",
+  "fixed_budget_primary_strategy": "retain Base predicted Top-56 plus true-selected diverse external 8 (upper bound)",
+  "frozen_scorer_safe": true,
+  "frozen_scorer_scope": "the boolean safety result applies only to the primary IdealExtra8 pre-registered controls",
+  "inputs": {
+    "candidate_limited_share_low": 0.05406824146981627,
+    "coverage_gap": 0.00665779966568409,
+    "duplicate_shift": 0.00020465261653917105,
+    "fixed_budget_gain": 0.004588918369978043,
+    "ideal16_oracle_gain": 0.0027010557032408795,
+    "ideal16_selected_gain": 0.004437710391165848,
+    "ideal1_oracle_gain": 0.0027010557032408795,
+    "ideal1_selected_gain": 0.0017860280428061508,
+    "ideal64_oracle_gain": 0.0027010557032408795,
+    "ideal64_selected_gain": 0.0022674459352458737,
+    "ideal8_oracle_ci_low": 0.0021375751621234796,
+    "ideal8_oracle_gain": 0.0027010557032408795,
+    "ideal8_selected_ci_low": 0.0036655487022802013,
+    "ideal8_selected_gain": 0.004774946161810656,
+    "infrastructure_valid": true,
+    "practical_selected_gain": 0.0022674459352458737,
+    "ranker_limited_share_low": 0.8278215223097113,
+    "ranking_gap": 0.056435540812904354,
+    "saturated_false_replacement_rate": 0.011547714514835605,
+    "target_available_rate": 0.46601941747572817
+  },
+  "operational_definitions": {
+    "fixed_budget_not_fully_eliminated": "fixed_budget_gain > 0 or fixed-budget oracle gain remains positive",
+    "ideal8_clearly_better_than_ideal1": "ideal8_selected_gain - ideal1_selected_gain >= 0.002",
+    "perfect_scorer_potential_obvious": "ranking_gap >= 0.01",
+    "scorer_gap_small": "ranking_gap < 0.002",
+    "target_available_rate_very_low": "target_available_rate < 0.10"
+  },
+  "practical_selected_gain_definition": "maximum full-split union_full DeltaSelected among deployable_structured/deployable_pseudo_expert banks",
+  "primary_full64_saturated_false_replacement_rate": 0.045228548516439454,
+  "primary_ideal16_saturated_false_replacement_rate": 0.02181234963913392,
+  "primary_injection": "alternative",
+  "recommended_output": "8--16 scorer-friendly near-optimal candidates",
+  "rule_priority": [
+    "INFRA_INVALID",
+    "DIRECT_LORA_GENERATOR_STRONG_PASS",
+    "DIRECT_LORA_GENERATOR_CONDITIONAL_PASS",
+    "LORA_DENSIFIER_PASS",
+    "JOINT_LORA_SCORER_ONLY",
+    "SCORER_FIRST",
+    "STOP_LORA",
+    "INCONCLUSIVE"
+  ],
+  "triggered_rule": "Verdict 3",
+  "verdict": "LORA_DENSIFIER_PASS"
+}

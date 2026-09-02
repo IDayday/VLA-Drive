@@ -1,0 +1,886 @@
+{
+  "agent_config": {
+    "path": "/mnt/project/external/DrivoR/navsim/planning/script/config/common/agent/drivoR.yaml",
+    "sha256": "e8c82ed61465a30a898ac953be52778560dc37cb8668ed238e146bb25f9c3e81"
+  },
+  "alternative_checkpoint": {
+    "path": "/mnt/project/external/DrivoR/weights/scaling/nav1_30epochs_with_134k_simscale_bis_103ktrainval.pth",
+    "sha256": "617e22c5ebcf8b24c542d42a470514b09c3cadce1a2630071d49f2d422d76672"
+  },
+  "base_candidate_matrix": {
+    "path": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz",
+    "sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2"
+  },
+  "base_proposals": {
+    "path": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+    "sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b"
+  },
+  "candidate_bank_manifests": {
+    "critical": {
+      "content": {
+        "banks": {
+          "all_intermediate256_low": {
+            "candidate_counts": [
+              256
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/all_intermediate256_low.pkl",
+            "scene_count": 1905,
+            "sha256": "7736b29122c4ecc534fbd1adf1a41eb66707d03e4993de7058fe1bbcdad2bed2",
+            "uses_true_oracle_anchor": false
+          },
+          "jitter8": {
+            "candidate_counts": [
+              8
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/jitter8.pkl",
+            "scene_count": 12146,
+            "sha256": "50976e00a225dd73f9dd18e88e178de183ee72ef11eb43348df55a7f79f3c8e8",
+            "uses_true_oracle_anchor": false
+          },
+          "stage0_64": {
+            "candidate_counts": [
+              64
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/stage0_64.pkl",
+            "scene_count": 12146,
+            "sha256": "54cfb2c4d4e4b7817537a05baadb8ca37f8b103f697fad839c1cf8e57f7dcdcd",
+            "uses_true_oracle_anchor": false
+          },
+          "stage1_64": {
+            "candidate_counts": [
+              64
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/stage1_64.pkl",
+            "scene_count": 12146,
+            "sha256": "a6b33ecae30a4486c328825eb13d2eb6008063426a726e57ab739cc2d98bad06",
+            "uses_true_oracle_anchor": false
+          },
+          "stage2_64": {
+            "candidate_counts": [
+              64
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/stage2_64.pkl",
+            "scene_count": 12146,
+            "sha256": "218f5143bdc67e46ad5bb02edf85f5e9a5f19c73a6952c93e60d36ff7589be84",
+            "uses_true_oracle_anchor": false
+          },
+          "stage3_64": {
+            "candidate_counts": [
+              64
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/stage3_64.pkl",
+            "scene_count": 12146,
+            "sha256": "ce58f4c0365db7cdb0a4e0eb7f513e44b7d16385ed678a38a1b88fcf7ff49824",
+            "uses_true_oracle_anchor": false
+          },
+          "stage4_64": {
+            "candidate_counts": [
+              64
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/stage4_64.pkl",
+            "scene_count": 12146,
+            "sha256": "71f8bc39f68a0a091352d1cfc7627994d6bfa01f24b86cd41be72c9d53330836",
+            "uses_true_oracle_anchor": false
+          },
+          "structured16": {
+            "candidate_counts": [
+              16
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/structured16.pkl",
+            "scene_count": 12146,
+            "sha256": "1e59c0ed9b2efbf55bcb27d4c77b1b922c51bcf1fe50a03258102d68dad684ab",
+            "uses_true_oracle_anchor": false
+          }
+        },
+        "base_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "created_utc": "2026-09-02T09:40:56.174829+00:00",
+        "enhanced_export_root": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1",
+        "large_bank_scene_count": 1905,
+        "large_bank_subset": "V_B < 0.90 union bottom 10% by V_B",
+        "parameters": {
+          "anchors": "selected, predicted top ranks, top-32 geometric FPS; no true oracle for deployable banks",
+          "dedup_mean_ade_m": 0.05,
+          "heading": "finite differences from implicit origin, numpy.unwrap",
+          "hold_after_pose": [
+            4,
+            6
+          ],
+          "interpolation_lambda": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "lateral_endpoint_offset_m": [
+            -1.0,
+            -0.5,
+            0.5,
+            1.0
+          ],
+          "max_step_jump_m": 20.0,
+          "time_progress_scaling": [
+            0.65,
+            0.8,
+            0.9,
+            1.1,
+            1.2
+          ]
+        },
+        "requested_banks": [
+          "all_intermediate256_low",
+          "jitter8",
+          "stage0_64",
+          "stage1_64",
+          "stage2_64",
+          "stage3_64",
+          "stage4_64",
+          "structured16"
+        ],
+        "schema_version": 1
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/bank_manifest.json",
+      "sha256": "7c4e7d77fcbac65ca3aa08724bce668ca37b2bd80c40321d0239374261a63abd"
+    },
+    "intermediate_full": {
+      "content": {
+        "banks": {
+          "all_intermediate256": {
+            "candidate_counts": [
+              256
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_intermediate_full_20260902_v1/all_intermediate256.pkl",
+            "scene_count": 12146,
+            "sha256": "11751535aa2ef3b26083da3ca634ab3e8b377e47b3b6ac8766e1003fa79d73fa",
+            "uses_true_oracle_anchor": false
+          }
+        },
+        "base_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "created_utc": "2026-09-02T09:41:45.472039+00:00",
+        "enhanced_export_root": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1",
+        "large_bank_scene_count": 1905,
+        "large_bank_subset": "V_B < 0.90 union bottom 10% by V_B",
+        "parameters": {
+          "anchors": "selected, predicted top ranks, top-32 geometric FPS; no true oracle for deployable banks",
+          "dedup_mean_ade_m": 0.05,
+          "heading": "finite differences from implicit origin, numpy.unwrap",
+          "hold_after_pose": [
+            4,
+            6
+          ],
+          "interpolation_lambda": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "lateral_endpoint_offset_m": [
+            -1.0,
+            -0.5,
+            0.5,
+            1.0
+          ],
+          "max_step_jump_m": 20.0,
+          "time_progress_scaling": [
+            0.65,
+            0.8,
+            0.9,
+            1.1,
+            1.2
+          ]
+        },
+        "requested_banks": [
+          "all_intermediate256"
+        ],
+        "schema_version": 1
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_intermediate_full_20260902_v1/bank_manifest.json",
+      "sha256": "d1b0828dd454e92868c083be501842463394ba305723d4e9b4c202ab9f107f32"
+    },
+    "oracle_low": {
+      "content": {
+        "banks": {
+          "oracle_neighborhood16_low": {
+            "candidate_counts": [
+              16
+            ],
+            "deployable": false,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_oracle_low_20260902_v1/oracle_neighborhood16_low.pkl",
+            "scene_count": 1905,
+            "sha256": "6a07afe6bb98b4c604b909d53e6a74b784072a4d66946f9f53e7e56acaa4835f",
+            "uses_true_oracle_anchor": true
+          },
+          "oracle_neighborhood64_low": {
+            "candidate_counts": [
+              64
+            ],
+            "deployable": false,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_oracle_low_20260902_v1/oracle_neighborhood64_low.pkl",
+            "scene_count": 1905,
+            "sha256": "c99fc650e7203ce7e587e22a7e5706c24c72bd247bcfc1f6976311a6cc3aad4f",
+            "uses_true_oracle_anchor": true
+          }
+        },
+        "base_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "created_utc": "2026-09-02T09:49:43.775903+00:00",
+        "enhanced_export_root": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1",
+        "large_bank_scene_count": 1905,
+        "large_bank_subset": "V_B < 0.90 union bottom 10% by V_B",
+        "parameters": {
+          "anchors": "selected, predicted top ranks, top-32 geometric FPS; no true oracle for deployable banks",
+          "dedup_mean_ade_m": 0.05,
+          "heading": "finite differences from implicit origin, numpy.unwrap",
+          "hold_after_pose": [
+            4,
+            6
+          ],
+          "interpolation_lambda": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "lateral_endpoint_offset_m": [
+            -1.0,
+            -0.5,
+            0.5,
+            1.0
+          ],
+          "max_step_jump_m": 20.0,
+          "time_progress_scaling": [
+            0.65,
+            0.8,
+            0.9,
+            1.1,
+            1.2
+          ]
+        },
+        "requested_banks": [
+          "oracle_neighborhood16_low",
+          "oracle_neighborhood64_low"
+        ],
+        "schema_version": 1
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_oracle_low_20260902_v1/bank_manifest.json",
+      "sha256": "d597bf0d8bd0c4b06629e88899d069ee33a92137b65ef020fe27b4b335f8d194"
+    },
+    "reference": {
+      "content": {
+        "allowed_use": "diagnostic learnable-target upper bound only",
+        "bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/reference_upper_bound_full_20260902_v1/reference_upper_bound1.pkl",
+        "bank_sha256": "8e59127db3c2b498e2bee570680bdc179cc327a575fb84bca7725a4c3392a31f",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "candidate_count": 1,
+        "created_utc": "2026-09-02T09:27:55.102950+00:00",
+        "deployable": false,
+        "future_or_evaluator_information": true,
+        "metric_cache": "/mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest",
+        "scene_count": 12146,
+        "schema_version": 1,
+        "source": "metric_cache PDM reference trajectory sampled at 8 poses / 0.5 seconds"
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/reference_upper_bound_full_20260902_v1/manifest.json",
+      "sha256": "e45c6979c134f126f6cf586ded4aa85c047879118005fd263dd2e4cafd28b018"
+    },
+    "structured256_low": {
+      "content": {
+        "banks": {
+          "structured256_low": {
+            "candidate_counts": [
+              256
+            ],
+            "deployable": true,
+            "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_structured256_low_20260902_v1/structured256_low.pkl",
+            "scene_count": 1905,
+            "sha256": "c9bc093483ea072920a6368edf595cf521d279a5de1a5ff80bed7a56dd79b647",
+            "uses_true_oracle_anchor": false
+          }
+        },
+        "base_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "created_utc": "2026-09-02T10:01:44.792329+00:00",
+        "enhanced_export_root": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1",
+        "large_bank_scene_count": 1905,
+        "large_bank_subset": "V_B < 0.90 union bottom 10% by V_B",
+        "parameters": {
+          "anchors": "selected, predicted top ranks, top-32 geometric FPS; no true oracle for deployable banks",
+          "dedup_mean_ade_m": 0.05,
+          "heading": "finite differences from implicit origin, numpy.unwrap",
+          "hold_after_pose": [
+            4,
+            6
+          ],
+          "interpolation_lambda": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "lateral_endpoint_offset_m": [
+            -1.0,
+            -0.5,
+            0.5,
+            1.0
+          ],
+          "max_step_jump_m": 20.0,
+          "time_progress_scaling": [
+            0.65,
+            0.8,
+            0.9,
+            1.1,
+            1.2
+          ]
+        },
+        "requested_banks": [
+          "structured256_low"
+        ],
+        "schema_version": 1
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_structured256_low_20260902_v1/bank_manifest.json",
+      "sha256": "afd0d5e4849231e25396b41edbc299191aea32aef2940e1a16d43ea8e2f6df36"
+    }
+  },
+  "checkpoint": {
+    "path": "/mnt/project/external/DrivoR/weights/releases/drivor_Nav1_25epochs.pth",
+    "selection_reason": "local official NAVSIM-v1 release corresponding to the recorded ~93.7 PDMS reproduction",
+    "sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3"
+  },
+  "created_utc": "2026-09-02T10:25:08.991879+00:00",
+  "dino_weights": {
+    "path": "/mnt/project/external/DrivoR/weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors",
+    "sha256": "dca70548ecd7b03ffba6172c4db403014511b5ee6073f9fca72ba9e6e602a25d"
+  },
+  "drivor_source": {
+    "commit": "f02665403df799c1b4ddd8b0d34e073f0555c13a",
+    "root": "/mnt/project/external/DrivoR"
+  },
+  "environment": {
+    "CONDA_DEFAULT_ENV": "navsim",
+    "CONDA_PREFIX": "/root/miniconda3/envs/navsim",
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "CUDA_VISIBLE_DEVICES": null,
+    "PYTHONPATH": "."
+  },
+  "f0_forward": {
+    "all_parity_passed": true,
+    "all_selected_indices_equal": true,
+    "failed_token_count": 0,
+    "manifests": [
+      "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1/shard_000-of-004/manifest.json",
+      "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1/shard_001-of-004/manifest.json",
+      "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1/shard_002-of-004/manifest.json",
+      "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/drivor25_online_full_20260902_v1/shard_003-of-004/manifest.json"
+    ],
+    "max_abs_error": {
+      "external_original64_factor_logits": 0.0,
+      "external_original64_predicted_scores": 0.0,
+      "forward_repeat_factor_logits": 0.0,
+      "forward_repeat_final_proposals": 0.0,
+      "forward_repeat_predicted_scores": 0.0,
+      "locked_factor_logits_fp16_roundtrip": 0.0,
+      "locked_final_proposals": 0.0,
+      "locked_predicted_scores": 0.0,
+      "selected_trajectory": 0.0
+    },
+    "missing_token_count": 0,
+    "scene_count": 12146,
+    "shard_count": 4
+  },
+  "f0_pdm": {
+    "candidate_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/candidate_scores.npz",
+    "candidate_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+    "created_utc": "2026-09-02T08:49:40.644944+00:00",
+    "efficient_protocol": "fixed PDM-reference progress, vectorized candidates",
+    "factor_order": [
+      "no_at_fault_collisions",
+      "drivable_area_compliance",
+      "ego_progress",
+      "time_to_collision_within_bound",
+      "comfort",
+      "driving_direction_compliance",
+      "score"
+    ],
+    "max_abs_error_efficient_vs_official": {
+      "comfort": 0.0,
+      "drivable_area_compliance": 0.0,
+      "driving_direction_compliance": 0.0,
+      "ego_progress": 0.0,
+      "no_at_fault_collisions": 0.0,
+      "score": 0.0,
+      "time_to_collision_within_bound": 0.0
+    },
+    "max_abs_error_stored_float32_vs_official": {
+      "comfort": 0.0,
+      "drivable_area_compliance": 0.0,
+      "driving_direction_compliance": 0.0,
+      "ego_progress": 2.8429293030818314e-08,
+      "no_at_fault_collisions": 0.0,
+      "score": 2.9152864011727786e-08,
+      "time_to_collision_within_bound": 0.0
+    },
+    "metric_cache": "/mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest",
+    "minimum_reproduction": null,
+    "official_protocol": "one PDM reference plus one candidate per pdm_score call",
+    "overall_max_abs_error_efficient_vs_official": 0.0,
+    "pair_count": 128,
+    "pairs_per_scene": 4,
+    "parity_passed": true,
+    "proposal_pickle": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+    "proposal_pickle_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+    "scene_count": 32,
+    "schema_version": 1,
+    "seed": 20260902,
+    "selection": "seeded random scenes; selected + oracle + unique random candidates",
+    "tolerance": 1e-06
+  },
+  "f1_consistency": {
+    "all_true_scores_in_range": true,
+    "gap_identity_abs_error": 0.0,
+    "no_silently_dropped_token": true,
+    "top1_equals_selected": true,
+    "top64_equals_oracle": true
+  },
+  "hardware": {
+    "gpus": [
+      "0, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "1, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "2, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "3, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "4, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "5, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "6, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05",
+      "7, NVIDIA A800-SXM4-80GB, 81920 MiB, 595.71.05"
+    ]
+  },
+  "hydra_overrides": [
+    "- train_test_split=navtest",
+    "- output_dir=/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1",
+    "- +proposal_predictions_path=/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_v1_4shard/proposal_predictions.pkl",
+    "- +proposal_score_shard_count=1",
+    "- +proposal_score_shard_index=0",
+    "- +proposal_score_allow_partial=false",
+    "- +proposal_score_aggregate_when_complete=true",
+    "- metric_cache_path=/mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest",
+    "- navsim_log_path=/mnt/project/DriveDreamer-Policy/navsim_raw/navsim_logs/test",
+    "- worker=ray_distributed_no_torch",
+    "- worker.threads_per_node=48",
+    "- worker.log_to_driver=false",
+    "- logger_level=warning"
+  ],
+  "injections": {
+    "alternative": {
+      "class": "deployable_pseudo_expert",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_alternative_scaling134k_full_20260902_v1",
+      "scene_count": 12146,
+      "shard_lineage": {
+        "bank_name": "alternative_scaling134k",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T09:35:23.474496+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/scaling134k_navtest_fp32_v1_5shard/proposal_predictions.pkl",
+        "external_bank_sha256": "cde9fed1aaabfa912d2669928a54ff96fe0c10e2554ef870e400b83d9cb7c977",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/scaling134k_navtest_fp32_scored_v1/candidate_scores.npz",
+        "external_matrix_sha256": "b8f3d1574f51fca50960dd07c18b5e4816a1977256622781ad3424602fd82e96",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 3003,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8",
+          "union_ideal16",
+          "fixed_top_base48_ideal16",
+          "fixed_diverse_base48_ideal16",
+          "union_ideal32",
+          "fixed_top_base32_ideal32",
+          "fixed_diverse_base32_ideal32",
+          "duplicate8",
+          "duplicate16"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "intermediate_full": {
+      "class": "extra_base_control",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_all_intermediate256_full_20260902_v1",
+      "scene_count": 12146,
+      "shard_lineage": {
+        "bank_name": "all_intermediate256_full",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T10:17:21.951383+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_intermediate_full_20260902_v1/all_intermediate256.pkl",
+        "external_bank_sha256": "11751535aa2ef3b26083da3ca634ab3e8b377e47b3b6ac8766e1003fa79d73fa",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_all_intermediate256_full_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "d289636b72dcaf6648aaa03e94cc8635a1d9ac9b1621fd66ea904f12f2334dba",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 3003,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "external_stage0",
+          "union_stage0",
+          "external_stage1",
+          "union_stage1",
+          "external_stage2",
+          "union_stage2",
+          "external_stage3",
+          "union_stage3",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8",
+          "union_ideal16",
+          "fixed_top_base48_ideal16",
+          "fixed_diverse_base48_ideal16",
+          "union_ideal32",
+          "fixed_top_base32_ideal32",
+          "fixed_diverse_base32_ideal32"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "intermediate_low": {
+      "class": "extra_base_control",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_all_intermediate256_low_20260902_v1",
+      "scene_count": 1905,
+      "shard_lineage": {
+        "bank_name": "all_intermediate256_low",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T09:59:15.443965+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/all_intermediate256_low.pkl",
+        "external_bank_sha256": "7736b29122c4ecc534fbd1adf1a41eb66707d03e4993de7058fe1bbcdad2bed2",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_all_intermediate256_low_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "d1736ebc2a1dd519b3760be9b17981a6b08bb05ed685cad7f98d226f4bae50d3",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 456,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8",
+          "union_ideal16",
+          "fixed_top_base48_ideal16",
+          "fixed_diverse_base48_ideal16",
+          "union_ideal32",
+          "fixed_top_base32_ideal32",
+          "fixed_diverse_base32_ideal32"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "jitter8": {
+      "class": "set_size_jitter_control",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_jitter8_full_20260902_v1",
+      "scene_count": 12146,
+      "shard_lineage": {
+        "bank_name": "jitter8",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T09:50:22.798380+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/jitter8.pkl",
+        "external_bank_sha256": "50976e00a225dd73f9dd18e88e178de183ee72ef11eb43348df55a7f79f3c8e8",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_jitter8_full_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "89b10853322252eafde8b4970272779dcf2180ee4d0e2b4dfa3b447a64266951",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 3003,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "oracle_neighborhood_low": {
+      "class": "diagnostic_oracle_upper_bound",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_oracle_neighborhood64_low_20260902_v1",
+      "scene_count": 1905,
+      "shard_lineage": {
+        "bank_name": "oracle_neighborhood64_low",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T09:58:54.922000+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_oracle_low_20260902_v1/oracle_neighborhood64_low.pkl",
+        "external_bank_sha256": "c99fc650e7203ce7e587e22a7e5706c24c72bd247bcfc1f6976311a6cc3aad4f",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_oracle_neighborhood64_low_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "75806e4ac096c0a0d3d80a48e01b97bfd8afa7696330242592626a2177231f97",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 456,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8",
+          "union_ideal16",
+          "fixed_top_base48_ideal16",
+          "fixed_diverse_base48_ideal16",
+          "union_ideal32",
+          "fixed_top_base32_ideal32",
+          "fixed_diverse_base32_ideal32"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "reference_upper": {
+      "class": "diagnostic_reference_upper_bound",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_reference_upper_bound1_full_20260902_v1",
+      "scene_count": 12146,
+      "shard_lineage": {
+        "bank_name": "reference_upper_bound1",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T09:55:09.331581+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/reference_upper_bound_full_20260902_v1/reference_upper_bound1.pkl",
+        "external_bank_sha256": "8e59127db3c2b498e2bee570680bdc179cc327a575fb84bca7725a4c3392a31f",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_reference_upper_bound_full_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "fb53496f269b2413d87d455cc229a7a724ca7d84affa13b38222d224e82203be",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 3003,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "structured16": {
+      "class": "deployable_structured",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_structured16_full_20260902_v1",
+      "scene_count": 12146,
+      "shard_lineage": {
+        "bank_name": "structured16",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T09:51:08.208346+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_critical_20260902_v1/structured16.pkl",
+        "external_bank_sha256": "1e59c0ed9b2efbf55bcb27d4c77b1b922c51bcf1fe50a03258102d68dad684ab",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_structured16_full_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "4bb897efbb1b612484a0802b5df057aad56c4416ec4592b3cb46967f0478068f",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 3003,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8",
+          "union_ideal16",
+          "fixed_top_base48_ideal16",
+          "fixed_diverse_base48_ideal16"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    },
+    "structured256_low": {
+      "class": "deployable_structured",
+      "forward_parity": {
+        "max_abs_error": 0.0,
+        "selected_index_equal": true
+      },
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/union_structured256_low_20260902_v1",
+      "scene_count": 1905,
+      "shard_lineage": {
+        "bank_name": "structured256_low",
+        "base_matrix_sha256": "2077782a6a3c06482ec9ea182bdde79bbfb8a9a693792a5acc992cf2978063c2",
+        "base_proposals_sha256": "63ab306a5e0632595f2a8eb404e7055fe43855f0653eab9d758e37d4c4410a9b",
+        "base_scorer_max_abs_error": 0.0,
+        "base_selected_index_equal": true,
+        "batch_size": 4,
+        "checkpoint_sha256": "e1a678f201e4f1ab93d117caad42782cd7ead293bdced2b5f80212bc92426ae3",
+        "created_utc": "2026-09-02T10:12:35.397303+00:00",
+        "external_bank": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/candidate_banks_structured256_low_20260902_v1/structured256_low.pkl",
+        "external_bank_sha256": "c9bc093483ea072920a6368edf595cf521d279a5de1a5ff80bed7a56dd79b647",
+        "external_matrix": "/mnt/project/DriveVLA-M0-stage2/runs/lora_value_audit/pdm_structured256_low_20260902_v1/candidate_scores.npz",
+        "external_matrix_sha256": "f89e88cde1a93672553fb6bce8f4906e650d4d84b723b07062539a92cf4015a1",
+        "external_proposals_detached": true,
+        "forward_parity_passed": true,
+        "joint_complete_set_scoring": true,
+        "scene_count": 456,
+        "schema_version": 1,
+        "scorer_frozen": true,
+        "settings": [
+          "base64",
+          "external_only",
+          "union_full",
+          "union_ideal1",
+          "union_ideal8",
+          "fixed_top_base56_ideal8",
+          "fixed_diverse_base56_ideal8",
+          "union_ideal16",
+          "fixed_top_base48_ideal16",
+          "fixed_diverse_base48_ideal16",
+          "union_ideal32",
+          "fixed_top_base32_ideal32",
+          "fixed_diverse_base32_ideal32"
+        ],
+        "shard_count": 4,
+        "shard_index": 1,
+        "source_id_input": false
+      }
+    }
+  },
+  "log_count": 136,
+  "metric_cache": "/mnt/project/DriveDreamer-Policy/navsim_exp/eval_v1_1/metric_cache_navtest",
+  "official_selected_evaluation": {
+    "max_selected_score_parity_abs": 0.0,
+    "path": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/original25_navtest_fp32_scored_v1/summary.json",
+    "selected_pdms": 0.9369066597865426,
+    "sha256": "4fbf0f3e2fff5f4c28991be0be77fefd0e092b069243806064934676c118c010"
+  },
+  "primary_external_matrix": {
+    "path": "/mnt/project/DriveVLA-M0-stage2/runs/drivor_native_proposals/scaling134k_navtest_fp32_scored_v1/candidate_scores.npz",
+    "sha256": "b8f3d1574f51fca50960dd07c18b5e4816a1977256622781ad3424602fd82e96"
+  },
+  "proposal_num": 64,
+  "ref_num": 4,
+  "repo": {
+    "branch": "feature/drivor-lora-value-audit-20260902",
+    "root": "/mnt/project/DriveVLA-M0-lora-value-audit-20260902",
+    "start_commit": "6e96cf7321b134c42c2cf0fbbc315cd61c925b11"
+  },
+  "scene_count": 12146,
+  "schema_version": 1,
+  "scorer_ref_num": 4,
+  "seed": 20260902,
+  "split": "navtest",
+  "verdict": "LORA_DENSIFIER_PASS",
+  "versions": {
+    "cuda": "12.4",
+    "numpy": "1.26.4",
+    "python": "3.9.25",
+    "pytorch": "2.5.1+cu124"
+  }
+}
