@@ -667,7 +667,9 @@ def test_temporal_policy_cache_is_numerically_identical_to_full_evaluation():
         base_scores=base_scores,
         residual=residual,
         refined_factor_logits=torch.randn(scenes, candidates, 6),
-        predicted_safety=torch.rand(scenes, candidates, risk_kinds),
+        # Relative-safety mode predicts NOC/DAC/TTC (three values), while the
+        # temporal risk targets remain collision/TTC (two values).
+        predicted_safety=torch.rand(scenes, candidates, risk_kinds + 1),
         top_k_mask=torch.ones(scenes, candidates, dtype=torch.bool),
         target_factors=target_factors,
         risk_logits=torch.randn(scenes, candidates, horizons, risk_kinds),

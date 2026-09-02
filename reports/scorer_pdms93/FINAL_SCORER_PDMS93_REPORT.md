@@ -16,14 +16,18 @@ an eligible solution to the current objective.
 | Selector on the public M0 64-proposal bank | Complete Navtest PDMS | Eligible |
 | --- | ---: | --- |
 | Public M0 Base | 0.909594 | baseline |
-| Previously reported best M0-only gate/control | 0.923998 | below target |
+| DrivOR-reference gate r2 on M0 proposals | 0.923998 | no: external DrivOR representation/reference |
 | DrivOR original representation + scorer | 0.929291 | no: external model |
 | DrivOR SimScale-134k representation + scorer | 0.932614 | no: external model |
 | Best-of-64 offline oracle | 0.984112 | no: non-deployable oracle |
 
-The `0.923998` row is retained as a historical campaign summary while its
-artifact-SHA aggregation is refreshed. It does not meet the target under
-either interpretation.
+The `0.923998` result is a strict complete-Navtest measurement, but its exact
+lineage is `DrivORReferenceGateRanker`: it uses DrivOR current-observation
+registers and the released DrivOR factor choice as its reference.  It is
+therefore a useful diagnostic/control, not an M0-only result.  The best
+strictly measured result that remains fully within the M0-owned constraint is
+still the released M0 Base at `0.909594`; completed replacement scorers have
+not yet improved that full-Navtest score.
 
 ## Native proposal-bank comparison
 

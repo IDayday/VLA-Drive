@@ -575,8 +575,9 @@ def evaluate_outputs(
     base_mask = torch.zeros_like(base_scores, dtype=torch.bool)
     base_mask.scatter_(1, base_index[:, None], True)
     predicted_safety = outputs.predicted_safety
+    safety_width = predicted_safety.shape[-1]
     base_safety = predicted_safety.gather(
-        1, base_index[:, None, None].expand(-1, 1, RISK_KINDS)
+        1, base_index[:, None, None].expand(-1, 1, safety_width)
     )
     safe = (predicted_safety >= safety_floor).all(dim=-1)
     safe &= (
