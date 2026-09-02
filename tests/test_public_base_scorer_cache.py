@@ -308,6 +308,37 @@ def test_temporal_factor_score_mode_uses_predicted_factor_delta():
     )
 
 
+def test_temporal_relative_safety_gate_requires_relative_head():
+    with pytest.raises(ValueError, match="requires the relative safety head"):
+        TemporalConsequenceConfig(safety_gate_mode="relative")
+
+
+def test_temporal_relative_safety_head_is_candidate_permutation_equivariant():
+    torch.manual_seed(36)
+    model = TemporalConsequenceRanker(
+        TemporalConsequenceConfig(
+            dropout=0.0,
+            top_k=5,
+            use_relative_safety_head=True,
+            safety_gate_mode="relative",
+        )
+    ).eval()
+    assert model.relative_safety_head is not None
+    with torch.no_grad():
+        model.relative_safety_head[-1].weight.normal_(std=0.02)
+    inputs = _temporal_consequence_inputs(candidates=7)
+    permutation = torch.randperm(7)
+    direct = model(**inputs)
+    permuted_inputs = dict(inputs)
+    for key in ("candidate_features", "proposals", "base_factor_logits", "base_scores"):
+        permuted_inputs[key] = inputs[key][:, permutation]
+    permuted = model(**permuted_inputs)
+    assert direct["relative_safety_logits"].shape == (2, 7, 3)
+    assert direct["predicted_safety"].shape == (2, 7, 3)
+    for key in ("relative_safety_logits", "predicted_safety", "selection_scores"):
+        assert torch.allclose(permuted[key], direct[key][:, permutation], atol=1e-6)
+
+
 def test_temporal_consequence_scorer_is_candidate_permutation_equivariant():
     torch.manual_seed(37)
     model = TemporalConsequenceRanker(

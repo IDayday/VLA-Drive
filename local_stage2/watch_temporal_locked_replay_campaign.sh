@@ -24,6 +24,8 @@ minimum_available_gib="${TEMPORAL_MIN_AVAILABLE_GIB:-40}"
 minimum_available_bytes=$((minimum_available_gib * 1024 * 1024 * 1024))
 score_mode="${TEMPORAL_SCORE_MODE:-residual}"
 use_base_candidate_features="${TEMPORAL_USE_BASE_CANDIDATE_FEATURES:-false}"
+use_relative_safety_head="${TEMPORAL_USE_RELATIVE_SAFETY_HEAD:-false}"
+safety_gate_mode="${TEMPORAL_SAFETY_GATE_MODE:-absolute}"
 
 case "${score_mode}" in
   residual|factor_aggregate|hybrid) ;;
@@ -40,10 +42,34 @@ case "${use_base_candidate_features}" in
     exit 64
     ;;
 esac
+case "${use_relative_safety_head}" in
+  true|false) ;;
+  *)
+    printf 'TEMPORAL_CONFIG_ERROR invalid relative-safety flag: %s\n' \
+      "${use_relative_safety_head}" >&2
+    exit 64
+    ;;
+esac
+case "${safety_gate_mode}" in
+  absolute|relative) ;;
+  *)
+    printf 'TEMPORAL_CONFIG_ERROR invalid safety gate mode: %s\n' \
+      "${safety_gate_mode}" >&2
+    exit 64
+    ;;
+esac
+if [[ "${safety_gate_mode}" == "relative" && "${use_relative_safety_head}" != "true" ]]; then
+  printf 'TEMPORAL_CONFIG_ERROR relative gate requires relative-safety head\n' >&2
+  exit 64
+fi
 model_args=()
 if [[ "${use_base_candidate_features}" == "true" ]]; then
   model_args+=(--use-base-candidate-features)
 fi
+if [[ "${use_relative_safety_head}" == "true" ]]; then
+  model_args+=(--use-relative-safety-head)
+fi
+model_args+=(--safety-gate-mode "${safety_gate_mode}")
 
 if [[ "${#replay_gpus[@]}" -ne 5 || "${#replay_wait_pids[@]}" -ne 5 ]]; then
   printf 'TEMPORAL_CONFIG_ERROR replay GPU and wait-PID lists must each have 5 entries\n' >&2
@@ -134,6 +160,17 @@ discovery_base_features="$(
 if [[ "${discovery_base_features}" != "${use_base_candidate_features}" ]]; then
   printf 'TEMPORAL_BASE_FEATURE_ERROR discovery=%s requested=%s\n' \
     "${discovery_base_features}" "${use_base_candidate_features}" >&2
+  exit 65
+fi
+discovery_relative_safety="$(
+  "${DRIVEVLA_PYTHON}" -c \
+    'import glob,json,sys; paths=glob.glob(sys.argv[1]+"/fold_*/training_results.json"); values={(bool(x.get("use_relative_safety_head", False)), str(x.get("safety_gate_mode", "absolute"))) for p in paths for x in [json.load(open(p))["metadata"]["training_args"]]}; assert len(paths)==5 and len(values)==1; enabled,mode=values.pop(); print(("true" if enabled else "false")+","+mode)' \
+    "${discovery_root}"
+)"
+if [[ "${discovery_relative_safety}" != "${use_relative_safety_head},${safety_gate_mode}" ]]; then
+  printf 'TEMPORAL_RELATIVE_SAFETY_ERROR discovery=%s requested=%s,%s\n' \
+    "${discovery_relative_safety}" "${use_relative_safety_head}" \
+    "${safety_gate_mode}" >&2
   exit 65
 fi
 replay_epochs=$((common_epoch + 1))

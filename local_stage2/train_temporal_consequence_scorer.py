@@ -36,6 +36,7 @@ from local_stage2.train_public_base_residual_scorer import (
     binary_factor_loss,
     expected_regret_loss,
     listwise_loss,
+    relative_safety_targets,
     top_set_cross_entropy,
     weighted_pairwise_loss,
 )
@@ -324,6 +325,23 @@ def compute_temporal_training_loss(
         target_six[..., 4],
     )
     factor = factor + 2.0 * progress
+    if model.config.use_relative_safety_head:
+        relative_target = relative_safety_targets(target_six, base_scores)
+        relative_element = F.binary_cross_entropy_with_logits(
+            output["relative_safety_logits"],
+            relative_target,
+            reduction="none",
+        )
+        relative_weight = torch.where(
+            relative_target < 0.5,
+            args.safety_negative_weight,
+            1.0,
+        )
+        relative_safety = (
+            relative_element * relative_weight
+        ).sum() / relative_weight.sum().clamp_min(1.0)
+    else:
+        relative_safety = output["residual"].sum() * 0.0
     risk = _weighted_bce(output["risk_logits"], risk_targets, args.risk_positive_weight)
     area = _weighted_bce(output["area_logits"], area_targets, args.area_positive_weight)
     actor_valid = _weighted_bce(
@@ -352,6 +370,7 @@ def compute_temporal_training_loss(
         + args.top_set_weight * top_set
         + args.expected_regret_weight * expected_regret
         + args.factor_weight * factor
+        + args.relative_safety_weight * relative_safety
         + args.risk_weight * risk
         + args.area_weight * area
         + args.actor_valid_weight * actor_valid
@@ -367,6 +386,7 @@ def compute_temporal_training_loss(
         "top_set_loss": top_set,
         "expected_regret_loss": expected_regret,
         "factor_loss": factor,
+        "relative_safety_loss": relative_safety,
         "risk_loss": risk,
         "area_loss": area,
         "actor_valid_loss": actor_valid,
@@ -716,6 +736,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--top-set-weight", type=float, default=0.5)
     parser.add_argument("--expected-regret-weight", type=float, default=1.0)
     parser.add_argument("--factor-weight", type=float, default=0.2)
+    parser.add_argument("--relative-safety-weight", type=float, default=1.0)
     parser.add_argument("--risk-weight", type=float, default=1.0)
     parser.add_argument("--area-weight", type=float, default=0.5)
     parser.add_argument("--actor-valid-weight", type=float, default=0.25)
@@ -727,6 +748,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--area-positive-weight", type=float, default=5.0)
     parser.add_argument("--actor-positive-weight", type=float, default=5.0)
     parser.add_argument("--use-base-candidate-features", action="store_true")
+    parser.add_argument("--use-relative-safety-head", action="store_true")
+    parser.add_argument(
+        "--safety-gate-mode",
+        choices=("absolute", "relative"),
+        default="absolute",
+    )
     parser.add_argument(
         "--score-mode",
         choices=("residual", "factor_aggregate", "hybrid"),
@@ -868,6 +895,8 @@ def main() -> None:
             top_k=16,
             use_base_candidate_features=args.use_base_candidate_features,
             score_mode=args.score_mode,
+            use_relative_safety_head=args.use_relative_safety_head,
+            safety_gate_mode=args.safety_gate_mode,
         )
     ).to(device)
     optimizer = torch.optim.AdamW(

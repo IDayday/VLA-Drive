@@ -49,6 +49,8 @@ class TemporalConsequenceConfig:
     safety_relative_tolerance: float = 1.0
     use_base_candidate_features: bool = False
     score_mode: str = "residual"
+    use_relative_safety_head: bool = False
+    safety_gate_mode: str = "absolute"
 
     def __post_init__(self) -> None:
         if self.hidden_dim % self.temporal_heads:
@@ -71,6 +73,10 @@ class TemporalConsequenceConfig:
             raise ValueError(
                 "score_mode must be residual, factor_aggregate, or hybrid"
             )
+        if self.safety_gate_mode not in {"absolute", "relative"}:
+            raise ValueError("safety_gate_mode must be absolute or relative")
+        if self.safety_gate_mode == "relative" and not self.use_relative_safety_head:
+            raise ValueError("relative safety gating requires the relative safety head")
 
 
 def _wrap_angle(value: torch.Tensor) -> torch.Tensor:
@@ -239,8 +245,20 @@ class TemporalConsequenceRanker(nn.Module):
             nn.GELU(),
             nn.Linear(config.hidden_dim, len(FACTOR_KEYS)),
         )
+        if config.use_relative_safety_head:
+            scorer_width = config.hidden_dim * 2
+            self.relative_safety_head: Optional[nn.Module] = nn.Sequential(
+                nn.LayerNorm(scorer_width * 4),
+                nn.Linear(scorer_width * 4, config.hidden_dim),
+                nn.GELU(),
+                nn.Linear(config.hidden_dim, 3),
+            )
+        else:
+            self.relative_safety_head = None
         _zero_last(self.utility_head)
         _zero_last(self.factor_delta_head)
+        if self.relative_safety_head is not None:
+            _zero_last(self.relative_safety_head)
 
     @staticmethod
     def _normalized_actor_state(
@@ -323,6 +341,29 @@ class TemporalConsequenceRanker(nn.Module):
         ).flatten(2)
         consequence_token = self.consequence_encoder(consequence_values)
         scorer_hidden = torch.cat((candidate_hidden, consequence_token), dim=-1)
+        base_indices = base_scores.argmax(dim=1, keepdim=True)
+        if self.relative_safety_head is not None:
+            base_hidden = scorer_hidden.gather(
+                1,
+                base_indices[..., None].expand(-1, 1, scorer_hidden.shape[-1]),
+            ).expand_as(scorer_hidden)
+            relative_safety_logits = self.relative_safety_head(
+                torch.cat(
+                    (
+                        scorer_hidden,
+                        base_hidden,
+                        scorer_hidden - base_hidden,
+                        scorer_hidden * base_hidden,
+                    ),
+                    dim=-1,
+                )
+            )
+        else:
+            relative_safety_logits = scorer_hidden.new_zeros(
+                batch_size,
+                candidate_count,
+                3,
+            )
         utility_delta = self.config.max_residual * torch.tanh(
             self.utility_head(scorer_hidden).squeeze(-1)
         )
@@ -344,16 +385,20 @@ class TemporalConsequenceRanker(nn.Module):
         top_indices = base_anchored_topk_indices(base_scores, self.config.top_k)
         top_k_mask = torch.zeros_like(base_scores, dtype=torch.bool)
         top_k_mask.scatter_(1, top_indices, True)
-        base_indices = base_scores.argmax(dim=1, keepdim=True)
         base_selected = torch.zeros_like(top_k_mask)
         base_selected.scatter_(1, base_indices, True)
 
         # risk logits represent P(event by horizon); negating the final logit
         # is exactly the logit of P(no event by 4 s).
-        predicted_safety = torch.sigmoid(-risk_logits[..., -1, :])
+        absolute_predicted_safety = torch.sigmoid(-risk_logits[..., -1, :])
+        if self.config.safety_gate_mode == "relative":
+            predicted_safety = relative_safety_logits.sigmoid()
+        else:
+            predicted_safety = absolute_predicted_safety
+        safety_width = predicted_safety.shape[-1]
         base_safety = predicted_safety.gather(
             1,
-            base_indices[..., None].expand(-1, 1, RISK_KINDS),
+            base_indices[..., None].expand(-1, 1, safety_width),
         )
         safe = (predicted_safety >= self.config.safety_floor).all(dim=-1)
         safe &= (
@@ -377,11 +422,13 @@ class TemporalConsequenceRanker(nn.Module):
             "utility_delta": utility_delta,
             "factor_score_delta": factor_score_delta,
             "refined_factor_logits": refined_factor_logits,
+            "relative_safety_logits": relative_safety_logits,
             "risk_logits": risk_logits,
             "area_logits": area_logits,
             "actor_valid_logits": actor_valid_logits,
             "actor_state": actor_state,
             "predicted_safety": predicted_safety,
+            "absolute_predicted_safety": absolute_predicted_safety,
             "consequence_token": consequence_token,
             "candidate_hidden": candidate_hidden,
             "top_k_mask": top_k_mask,
