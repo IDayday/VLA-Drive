@@ -68,3 +68,15 @@ def test_formal_config_pair_rejects_agent_checkpoint():
     vqa["agent"]["checkpoint_path"] = "/m0.ckpt"
     with pytest.raises(RuntimeError, match="checkpoint_path must be null"):
         audit_formal_config_pair(base, vqa)
+
+
+def test_dual_formal_sequence_uses_the_two_locked_launchers():
+    script = (
+        __import__("pathlib").Path(__file__).resolve().parents[1]
+        / "local_planreg_wm_v1/train_formal_dual_init_sequential.sh"
+    ).read_text(encoding="utf-8")
+    base_position = script.index("train_formal_base_init_wm.sh")
+    vqa_position = script.index("train_formal_vqa_init_wm.sh")
+    assert base_position < vqa_position
+    assert "PLANREG_LAYOUT_LOCK" in script
+    assert "PLANREG_SHARED_INIT" in script

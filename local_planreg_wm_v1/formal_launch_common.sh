@@ -5,6 +5,8 @@ PLANREG_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLANREG_REPO_ROOT="$(cd "${PLANREG_SCRIPT_DIR}/.." && pwd)"
 # shellcheck source=../load_env.sh
 source "${PLANREG_REPO_ROOT}/load_env.sh"
+# shellcheck source=formal_runtime.sh
+source "${PLANREG_SCRIPT_DIR}/formal_runtime.sh"
 
 _formal_json_value() {
   jq -er "$2" "$1"
@@ -53,10 +55,8 @@ formal_launch() {
   : "${PLANREG_LAYOUT_LOCK:?Set PLANREG_LAYOUT_LOCK to formal_training_layout_lock.json}"
   : "${PLANREG_SHARED_INIT:?Set PLANREG_SHARED_INIT to shared_planreg_init_seed${seed}.pt}"
 
-  local python_bin="${PYTHON_BIN:-/mnt/project/DriveVLA-M0-env/bin/python}"
-  if [[ ! -x "${python_bin}" ]]; then
-    python_bin=/mnt/project/DriveVLA-M0-env/bin/python
-  fi
+  planreg_formal_runtime_setup "${PLANREG_REPO_ROOT}"
+  local python_bin="${PLANREG_FORMAL_PYTHON_BIN}"
   local vlm_audit="${PLANREG_VLM_AUDIT_REPORT:-${PLANREG_REPO_ROOT}/reports/planreg_wm_v1/formal_vlm_initialization_audit.json}"
   local input_cache="${PLANREG_INPUT_CACHE:-/mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_full}"
   local metric_cache="${PLANREG_TRAIN_METRIC_CACHE:-/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full}"
@@ -260,6 +260,17 @@ formal_launch() {
   fi
 
   mkdir -p "${output_dir}/run_metadata"
+  local runtime_node0="${output_dir}/run_metadata/formal_runtime_node0.json"
+  planreg_formal_runtime_audit_local "${PLANREG_REPO_ROOT}" "${runtime_node0}"
+  if [[ "${num_nodes}" -eq 2 ]]; then
+    local runtime_node1="${output_dir}/run_metadata/formal_runtime_node1.json"
+    planreg_formal_runtime_audit_remote \
+      "${PLANREG_PEER_HOST:-training-vla-zt2}" "${PLANREG_REPO_ROOT}" \
+      "${runtime_node1}"
+    planreg_formal_runtime_compare \
+      "${PLANREG_REPO_ROOT}" "${runtime_node0}" "${runtime_node1}" \
+      "${output_dir}/run_metadata/formal_runtime_pair_audit.json"
+  fi
   if [[ -z "${RESUME_CHECKPOINT:-}" ]]; then
     cp "${preflight_identity}" "${output_dir}/run_metadata/formal_run_identity.json"
   else
@@ -321,7 +332,7 @@ formal_launch() {
       "DRIVEVLA_TRAIN_LOG_INTERVAL=${DRIVEVLA_TRAIN_LOG_INTERVAL}"
       PLANREG_FORMAL_TIMING=0 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
       OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
-      "PYTHONPATH=${PLANREG_REPO_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
+      "PYTHONPATH=${PLANREG_FORMAL_PYTHONPATH}" PYTHONNOUSERSITE=1
       "HF_HOME=${HF_HOME}" "MPLCONFIGDIR=${MPLCONFIGDIR}"
       "TRANSFORMERS_OFFLINE=${TRANSFORMERS_OFFLINE}"
       "HF_HUB_OFFLINE=${HF_HUB_OFFLINE}"

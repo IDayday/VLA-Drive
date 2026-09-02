@@ -5,6 +5,8 @@ PLANREG_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLANREG_REPO_ROOT="$(cd "${PLANREG_SCRIPT_DIR}/.." && pwd)"
 # shellcheck source=../load_env.sh
 source "${PLANREG_REPO_ROOT}/load_env.sh"
+# shellcheck source=formal_runtime.sh
+source "${PLANREG_SCRIPT_DIR}/formal_runtime.sh"
 
 _formal_benchmark_assert_idle_local() {
   local label="$1"
@@ -36,10 +38,8 @@ formal_benchmark_layout() {
   local devices_per_node=8
   local global_batch=$((gpu_count * per_gpu_batch))
   local num_workers="${PLANREG_BENCHMARK_NUM_WORKERS:-4}"
-  local python_bin="${PYTHON_BIN:-/mnt/project/DriveVLA-M0-env/bin/python}"
-  if [[ ! -x "${python_bin}" ]]; then
-    python_bin=/mnt/project/DriveVLA-M0-env/bin/python
-  fi
+  planreg_formal_runtime_setup "${PLANREG_REPO_ROOT}"
+  local python_bin="${PLANREG_FORMAL_PYTHON_BIN}"
   local base_vlm="${PLANREG_BASE_VLM_PATH:-/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned}"
   local shared_init="${PLANREG_SHARED_INIT:-/mnt/project/DriveVLA-M0-models/planreg-formal/shared_planreg_init_seed0.pt}"
   local input_cache="${PLANREG_INPUT_CACHE:-/mnt/project/DriveVLA-M0-stage2/cache/feature_cache_navtrain_full}"
@@ -79,7 +79,20 @@ formal_benchmark_layout() {
   local base_checkpoint_sha base_config_sha
   base_checkpoint_sha="$(jq -er '.base.checkpoint_sha256' "${vlm_audit}")"
   base_config_sha="$(jq -er '.base.config_sha256' "${vlm_audit}")"
+  export PLANREG_FORMAL_VLM_PATH="${base_vlm}"
   mkdir -p "${output_dir}/run_metadata" "${report_dir}"
+  local runtime_node0="${output_dir}/run_metadata/formal_runtime_node0.json"
+  planreg_formal_runtime_audit_local "${PLANREG_REPO_ROOT}" "${runtime_node0}"
+  if [[ "${num_nodes}" == "2" ]]; then
+    local runtime_node1="${output_dir}/run_metadata/formal_runtime_node1.json"
+    local runtime_pair="${output_dir}/run_metadata/formal_runtime_pair_audit.json"
+    planreg_formal_runtime_audit_remote \
+      "${PLANREG_PEER_HOST:-training-vla-zt2}" "${PLANREG_REPO_ROOT}" \
+      "${runtime_node1}"
+    planreg_formal_runtime_compare \
+      "${PLANREG_REPO_ROOT}" "${runtime_node0}" "${runtime_node1}" \
+      "${runtime_pair}"
+  fi
   git -C "${PLANREG_REPO_ROOT}" rev-parse HEAD > "${output_dir}/run_metadata/git_commit.txt"
   git -C "${PLANREG_REPO_ROOT}" status --short --branch > "${output_dir}/run_metadata/git_status.txt"
   env | LC_ALL=C sort | sed -E \
@@ -184,7 +197,11 @@ formal_benchmark_layout() {
       DRIVEVLA_TRAIN_LOG_INTERVAL=20
       PLANREG_FORMAL_TIMING=1
       OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
-      "PYTHONPATH=${PLANREG_REPO_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
+      "PYTHONPATH=${PLANREG_FORMAL_PYTHONPATH}" PYTHONNOUSERSITE=1
+      "HF_HOME=${HF_HOME}" "MPLCONFIGDIR=${MPLCONFIGDIR}"
+      "TRANSFORMERS_OFFLINE=${TRANSFORMERS_OFFLINE}"
+      "HF_HUB_OFFLINE=${HF_HUB_OFFLINE}"
+      "TOKENIZERS_PARALLELISM=${TOKENIZERS_PARALLELISM}"
     )
     local torchrun_base=(
       "${python_bin}" -m torch.distributed.run
