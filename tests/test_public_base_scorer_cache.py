@@ -44,7 +44,11 @@ from local_stage2.temporal_consequence_scorer import (
     temporal_trajectory_features,
 )
 from local_stage2.train_temporal_consequence_scorer import (
+    TemporalEvaluationOutputs,
+    _pairwise_accuracy,
+    _prediction_diagnostics,
     assign_balanced_log_folds,
+    evaluate_outputs as evaluate_temporal_outputs,
     load_full_data_cv_policy,
     resolve_scheduler_epochs,
 )
@@ -542,6 +546,67 @@ def test_temporal_locked_replay_preserves_discovery_scheduler_horizon():
     assert resolve_scheduler_epochs(12, None) == 12
     with pytest.raises(ValueError, match="at least epochs"):
         resolve_scheduler_epochs(4, 3)
+
+
+def test_temporal_policy_cache_is_numerically_identical_to_full_evaluation():
+    torch.manual_seed(47)
+    scenes, candidates, horizons, risk_kinds, area_kinds = 5, 4, 8, 2, 2
+    base_scores = torch.randn(scenes, candidates)
+    residual = torch.randn(scenes, candidates) * 0.1
+    target_factors = torch.rand(scenes, candidates, 7)
+    target_factors[..., -1] = torch.rand(scenes, candidates)
+    risk_targets = torch.zeros(scenes, candidates, horizons, risk_kinds)
+    risk_targets[0, 0, -1, 0] = 1
+    risk_targets[1, 1, -1, 1] = 1
+    actor_valid = torch.ones(scenes, candidates, horizons, risk_kinds)
+    outputs = TemporalEvaluationOutputs(
+        base_scores=base_scores,
+        residual=residual,
+        refined_factor_logits=torch.randn(scenes, candidates, 6),
+        predicted_safety=torch.rand(scenes, candidates, risk_kinds),
+        top_k_mask=torch.ones(scenes, candidates, dtype=torch.bool),
+        target_factors=target_factors,
+        risk_logits=torch.randn(scenes, candidates, horizons, risk_kinds),
+        risk_targets=risk_targets,
+        area_logits=torch.randn(scenes, candidates, horizons, area_kinds),
+        area_targets=torch.rand(scenes, candidates, horizons, area_kinds),
+        actor_valid_logits=torch.randn(
+            scenes, candidates, horizons, risk_kinds
+        ),
+        actor_valid_targets=actor_valid,
+        actor_state=torch.randn(
+            scenes, candidates, horizons, risk_kinds, 6
+        ),
+        actor_state_targets=torch.randn(
+            scenes, candidates, horizons, risk_kinds, 6
+        ),
+    )
+    kwargs = {
+        "residual_scale": 0.35,
+        "switch_penalty": 0.002,
+        "safety_floor": 0.7,
+        "safety_relative_tolerance": 0.1,
+        "seed": 3,
+        "bootstrap_replicates": 10,
+    }
+    expected = evaluate_temporal_outputs(
+        outputs,
+        [f"log-{index // 2}" for index in range(scenes)],
+        **kwargs,
+    )
+    base_index = base_scores.argmax(dim=1)
+    base_mask = torch.zeros_like(base_scores, dtype=torch.bool)
+    base_mask.scatter_(1, base_index[:, None], True)
+    refined = base_scores + kwargs["residual_scale"] * residual
+    refined -= (~base_mask).to(refined.dtype) * kwargs["switch_penalty"]
+    cached = evaluate_temporal_outputs(
+        outputs,
+        [f"log-{index // 2}" for index in range(scenes)],
+        prediction_diagnostics=_prediction_diagnostics(outputs),
+        pairwise_accuracy=_pairwise_accuracy(outputs, refined),
+        **kwargs,
+    )
+    assert cached == expected
 
 
 def test_cached_navtest_evaluator_accepts_temporal_consequence_artifact(tmp_path: Path):

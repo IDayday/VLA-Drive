@@ -475,6 +475,65 @@ def _binary_auc(labels: np.ndarray, scores: np.ndarray) -> float:
     return float((ranks[labels].sum() - positive * (positive + 1) / 2) / (positive * negative))
 
 
+def _prediction_diagnostics(
+    outputs: TemporalEvaluationOutputs,
+) -> Dict[str, object]:
+    """Compute consequence diagnostics that are invariant to selection policy."""
+
+    risk_probability = outputs.risk_logits.sigmoid().numpy()
+    risk_target = outputs.risk_targets.numpy()
+    risk_metrics = {}
+    for index, name in enumerate(("collision", "ttc")):
+        final_probability = risk_probability[..., -1, index]
+        final_target = risk_target[..., -1, index]
+        risk_metrics[name] = {
+            "auroc": _binary_auc(final_target, final_probability),
+            "brier": float(np.mean(np.square(final_probability - final_target))),
+            "target_rate": float(final_target.mean()),
+            "prediction_mean": float(final_probability.mean()),
+        }
+    actor_mask = outputs.actor_valid_targets.bool().unsqueeze(-1)
+    actor_scale = outputs.actor_state_targets.new_tensor(
+        (30.0, 15.0, 10.0, 5.0, 1.0, 1.0)
+    )
+    if bool(actor_mask.any()):
+        actor_error = (
+            (outputs.actor_state - outputs.actor_state_targets).abs()
+            / actor_scale
+        )[actor_mask.expand_as(outputs.actor_state)].mean()
+    else:
+        actor_error = torch.tensor(float("nan"))
+    return {
+        "risk_prediction": risk_metrics,
+        "area_brier": float(
+            torch.square(outputs.area_logits.sigmoid() - outputs.area_targets).mean()
+        ),
+        "actor_valid_brier": float(
+            torch.square(
+                outputs.actor_valid_logits.sigmoid() - outputs.actor_valid_targets
+            ).mean()
+        ),
+        "actor_state_normalized_l1": float(actor_error),
+    }
+
+
+def _pairwise_accuracy(
+    outputs: TemporalEvaluationOutputs,
+    refined_scores: torch.Tensor,
+) -> float:
+    target_scores = outputs.target_factors[..., -1]
+    left, right = torch.triu_indices(
+        refined_scores.shape[1], refined_scores.shape[1], offset=1
+    )
+    target_delta = target_scores[:, left] - target_scores[:, right]
+    prediction_delta = refined_scores[:, left] - refined_scores[:, right]
+    valid = target_delta.abs() >= 0.02
+    return float(
+        ((target_delta.sign() == prediction_delta.sign()) & valid).sum().item()
+        / max(int(valid.sum()), 1)
+    )
+
+
 def evaluate_outputs(
     outputs: TemporalEvaluationOutputs,
     log_names: Sequence[str],
@@ -485,6 +544,8 @@ def evaluate_outputs(
     safety_relative_tolerance: float,
     seed: int,
     bootstrap_replicates: int = 1000,
+    prediction_diagnostics: Optional[Mapping[str, object]] = None,
+    pairwise_accuracy: Optional[float] = None,
 ) -> Dict[str, object]:
     base_scores = outputs.base_scores
     target_factors = outputs.target_factors
@@ -520,13 +581,10 @@ def evaluate_outputs(
         1, model_index[:, None, None].expand(-1, 1, factor_width)
     ).squeeze(1)
 
-    left, right = torch.triu_indices(base_scores.shape[1], base_scores.shape[1], offset=1)
-    target_delta = target_scores[:, left] - target_scores[:, right]
-    prediction_delta = refined[:, left] - refined[:, right]
-    valid = target_delta.abs() >= 0.02
-    pairwise = float(
-        ((target_delta.sign() == prediction_delta.sign()) & valid).sum().item()
-        / max(int(valid.sum()), 1)
+    pairwise = (
+        _pairwise_accuracy(outputs, refined)
+        if pairwise_accuracy is None
+        else float(pairwise_accuracy)
     )
     ci = _log_bootstrap_ci(delta, log_names, seed, replicates=bootstrap_replicates)
     base_means = {
@@ -537,27 +595,11 @@ def evaluate_outputs(
         name: float(model_factors[:, index].mean())
         for index, name in enumerate(LABEL_FACTOR_KEYS)
     }
-    risk_probability = outputs.risk_logits.sigmoid().numpy()
-    risk_target = outputs.risk_targets.numpy()
-    risk_metrics = {}
-    for index, name in enumerate(("collision", "ttc")):
-        final_probability = risk_probability[..., -1, index]
-        final_target = risk_target[..., -1, index]
-        risk_metrics[name] = {
-            "auroc": _binary_auc(final_target, final_probability),
-            "brier": float(np.mean(np.square(final_probability - final_target))),
-            "target_rate": float(final_target.mean()),
-            "prediction_mean": float(final_probability.mean()),
-        }
-    actor_mask = outputs.actor_valid_targets.bool().unsqueeze(-1)
-    actor_scale = outputs.actor_state_targets.new_tensor((30.0, 15.0, 10.0, 5.0, 1.0, 1.0))
-    if bool(actor_mask.any()):
-        actor_error = (
-            (outputs.actor_state - outputs.actor_state_targets).abs()
-            / actor_scale
-        )[actor_mask.expand_as(outputs.actor_state)].mean()
-    else:
-        actor_error = torch.tensor(float("nan"))
+    diagnostics = dict(
+        prediction_diagnostics
+        if prediction_diagnostics is not None
+        else _prediction_diagnostics(outputs)
+    )
     base_regret = float((oracle_value - base_value).mean())
     model_regret = float((oracle_value - model_value).mean())
     return {
@@ -584,16 +626,7 @@ def evaluate_outputs(
         "selected_factor_delta": {
             key: model_means[key] - base_means[key] for key in LABEL_FACTOR_KEYS
         },
-        "risk_prediction": risk_metrics,
-        "area_brier": float(
-            torch.square(outputs.area_logits.sigmoid() - outputs.area_targets).mean()
-        ),
-        "actor_valid_brier": float(
-            torch.square(
-                outputs.actor_valid_logits.sigmoid() - outputs.actor_valid_targets
-            ).mean()
-        ),
-        "actor_state_normalized_l1": float(actor_error),
+        **diagnostics,
     }
 
 
@@ -603,8 +636,16 @@ def deployment_sweep(
     seed: int,
 ) -> List[Dict[str, object]]:
     results = []
+    diagnostics = _prediction_diagnostics(outputs)
+    base_scores = outputs.base_scores
+    base_index = base_scores.argmax(dim=1)
+    base_mask = torch.zeros_like(base_scores, dtype=torch.bool)
+    base_mask.scatter_(1, base_index[:, None], True)
     for scale in (0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0):
         for penalty in (0.0, 0.001, 0.002, 0.005, 0.01, 0.02):
+            refined = base_scores + scale * outputs.residual
+            refined -= (~base_mask).to(refined.dtype) * penalty
+            pairwise = _pairwise_accuracy(outputs, refined)
             for floor, tolerance in (
                 (0.0, 1.0),
                 (0.5, 1.0),
@@ -626,6 +667,8 @@ def deployment_sweep(
                         safety_relative_tolerance=tolerance,
                         seed=seed,
                         bootstrap_replicates=0,
+                        prediction_diagnostics=diagnostics,
+                        pairwise_accuracy=pairwise,
                     )
                 )
     return results
