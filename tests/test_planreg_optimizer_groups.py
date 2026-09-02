@@ -81,13 +81,17 @@ def _agent():
         "name": "AdamW",
         "base_batch_size": 16,
         "scale_with_batch_size": False,
-        "new_module_lr": 2e-4,
+        "planning_adapter_lr": 2e-4,
+        "future_predictor_lr": 2e-4,
+        "fusion_lr": 1e-4,
         "action_head_lr": 1e-4,
         "scorer_lr": 1e-4,
         "vision_qv_lora_lr": 5e-5,
         "semantic_qformer_lr": 1e-5,
         "language_model_lr": 0.0,
-        "weight_decay": 1e-4,
+        "decay_weight_decay": 0.01,
+        "no_decay_weight_decay": 0.0,
+        "betas": (0.9, 0.999),
     }
     agent.backbone = _Backbone()
     agent.action_head = ActionDecoder(
@@ -106,18 +110,32 @@ def test_exact_configured_optimizer_groups_and_lrs() -> None:
     agent = _agent()
     optimizer = agent.get_optimizers()[0]
     groups = {group["name"]: group for group in optimizer.param_groups}
-    assert set(groups) == {
-        "new_modules",
+    assert {group["logical_name"] for group in groups.values()} == {
+        "planning_adapter",
+        "future_predictor",
+        "fusion",
         "action_head",
         "scorer",
         "vision_qv_lora",
         "semantic_qformer",
     }
-    assert groups["new_modules"]["lr"] == pytest.approx(2e-4)
-    assert groups["action_head"]["lr"] == pytest.approx(1e-4)
-    assert groups["scorer"]["lr"] == pytest.approx(1e-4)
-    assert groups["vision_qv_lora"]["lr"] == pytest.approx(5e-5)
-    assert groups["semantic_qformer"]["lr"] == pytest.approx(1e-5)
+    expected_lrs = {
+        "planning_adapter": 2e-4,
+        "future_predictor": 2e-4,
+        "fusion": 1e-4,
+        "action_head": 1e-4,
+        "scorer": 1e-4,
+        "vision_qv_lora": 5e-5,
+        "semantic_qformer": 1e-5,
+    }
+    for group in groups.values():
+        assert group["lr"] == pytest.approx(expected_lrs[group["logical_name"]])
+        if group["name"].endswith("_no_decay"):
+            assert group["weight_decay"] == 0.0
+        else:
+            assert group["weight_decay"] == pytest.approx(0.01)
+    assert groups["vision_qv_lora_no_decay"]["weight_decay"] == 0.0
+    assert groups["fusion_no_decay"]["weight_decay"] == 0.0
     assert all(
         not parameter.requires_grad
         for parameter in agent.backbone.model.language_model.parameters()
@@ -148,6 +166,8 @@ def test_planreg_hydra_config_contract() -> None:
     assert config.vision_adaptation.train_k is False
     assert config.lora_config.use_lora is False
     assert config.world_model.horizons_sec == [0.5, 1.5, 3.0]
+    assert config.scheduler_args.warmup_ratio == pytest.approx(0.03)
+    assert config.scheduler_args.start_lr_ratio == pytest.approx(0.01)
     assert config.action_head_config.b2d is False
     assert config.action_head_config.proposal_num == 64
     assert config.action_head_config.scorer_ref_num == 4

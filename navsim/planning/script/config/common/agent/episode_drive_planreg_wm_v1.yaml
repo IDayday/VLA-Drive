@@ -155,17 +155,30 @@ lr_args:
   base_lr: 1.0e-4
   base_batch_size: 16
   scale_with_batch_size: false
-  new_module_lr: 2.0e-4
+  planning_adapter_lr: 2.0e-4
+  future_predictor_lr: 2.0e-4
+  fusion_lr: 1.0e-4
   action_head_lr: 1.0e-4
   scorer_lr: 1.0e-4
   vision_qv_lora_lr: 5.0e-5
   semantic_qformer_lr: 1.0e-5
   language_model_lr: 0.0
-  weight_decay: 1.0e-4
-  betas: [0.9, 0.95]
+  decay_weight_decay: 0.01
+  no_decay_weight_decay: 0.0
+  betas: [0.9, 0.999]
   eps: 1.0e-8
 
-scheduler_args: null
+scheduler_args:
+  warmup_ratio: 0.03
+  start_lr_ratio: 0.01
+  min_lr_ratios:
+    planning_adapter: 0.10
+    future_predictor: 0.10
+    fusion: 0.10
+    vision_qv_lora: 0.10
+    action_head: 0.20
+    scorer: 0.20
+    semantic_qformer: 0.20
 batch_size: 2
 num_gpus: 8
 progress_bar: true

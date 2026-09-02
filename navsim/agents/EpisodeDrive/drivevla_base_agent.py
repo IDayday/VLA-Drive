@@ -49,6 +49,37 @@ from .layers.world_model import (
 
 from peft import LoraConfig, get_peft_model
 
+
+def planreg_warmup_cosine_multiplier(
+    optimizer_step: int,
+    *,
+    total_optimizer_steps: int,
+    warmup_ratio: float,
+    start_lr_ratio: float,
+    min_lr_ratio: float,
+) -> float:
+    """Resume-safe step-indexed warmup/cosine multiplier."""
+    if total_optimizer_steps <= 0:
+        raise ValueError("total_optimizer_steps must be positive")
+    if not 0.0 <= warmup_ratio < 1.0:
+        raise ValueError("warmup_ratio must be in [0,1)")
+    if not 0.0 <= start_lr_ratio <= 1.0:
+        raise ValueError("start_lr_ratio must be in [0,1]")
+    if not 0.0 <= min_lr_ratio <= 1.0:
+        raise ValueError("min_lr_ratio must be in [0,1]")
+    last_step = max(1, int(total_optimizer_steps) - 1)
+    warmup_steps = min(
+        last_step, max(1, int(round(total_optimizer_steps * warmup_ratio)))
+    )
+    step = min(last_step, max(0, int(optimizer_step)))
+    if step <= warmup_steps:
+        progress = step / warmup_steps
+        return float(start_lr_ratio + (1.0 - start_lr_ratio) * progress)
+    decay_steps = max(1, last_step - warmup_steps)
+    progress = (step - warmup_steps) / decay_steps
+    cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+    return float(min_lr_ratio + (1.0 - min_lr_ratio) * cosine)
+
 class LitProgressBar(ProgressBar):
 
     def __init__(self):
@@ -303,19 +334,12 @@ class DriveVLABaseAgent(AbstractAgent):
             )
 
         if not self.cache_data:
-            total_optimizer_steps = None
-            if self.scheduler_args is not None:
-                global_batch_size = self.batch_size * self.num_gpus
-                total_optimizer_steps = int(
-                    math.ceil(
-                        self.scheduler_args.dataset_size / global_batch_size
-                    )
-                    * self.scheduler_args.num_epochs
-                )
             self.action_head = ActionDecoder(
                 action_head_config,
                 scene_fusion_config=self.scene_fusion,
-                total_optimizer_steps=total_optimizer_steps,
+                # Lightning supplies its authoritative stepping-batch estimate
+                # after dataloaders and gradient accumulation are configured.
+                total_optimizer_steps=None,
             )
 
         if not self.cache_data and self.action_head_config.checkpoint_path=="":
@@ -1732,7 +1756,9 @@ class DriveVLABaseAgent(AbstractAgent):
             or self.world_model_enabled
         )
 
-    def _get_planreg_optimizers(self):
+    def _get_planreg_optimizers(
+        self, total_optimizer_steps: Optional[int] = None
+    ):
         if self._lr_args["name"] not in {"Adam", "AdamW"}:
             raise NotImplementedError
         if float(self._lr_args.get("language_model_lr", 0.0)) != 0.0:
@@ -1744,8 +1770,19 @@ class DriveVLABaseAgent(AbstractAgent):
             batch_scale = math.sqrt(
                 global_batch_size / self._lr_args["base_batch_size"]
             )
+        legacy_new_module_lr = float(
+            self._lr_args.get("new_module_lr", 2e-4)
+        )
         learning_rates = {
-            "new_modules": float(self._lr_args.get("new_module_lr", 2e-4))
+            "planning_adapter": float(
+                self._lr_args.get("planning_adapter_lr", legacy_new_module_lr)
+            )
+            * batch_scale,
+            "future_predictor": float(
+                self._lr_args.get("future_predictor_lr", legacy_new_module_lr)
+            )
+            * batch_scale,
+            "fusion": float(self._lr_args.get("fusion_lr", 1e-4))
             * batch_scale,
             "action_head": float(self._lr_args.get("action_head_lr", 1e-4))
             * batch_scale,
@@ -1760,7 +1797,12 @@ class DriveVLABaseAgent(AbstractAgent):
             )
             * batch_scale,
         }
-        default_weight_decay = float(self._lr_args.get("weight_decay", 1e-4))
+        decay_weight_decay = float(
+            self._lr_args.get("decay_weight_decay", 0.01)
+        )
+        no_decay_weight_decay = float(
+            self._lr_args.get("no_decay_weight_decay", 0.0)
+        )
         grouped = {name: [] for name in learning_rates}
         unclassified = []
         trainable_language = []
@@ -1772,10 +1814,10 @@ class DriveVLABaseAgent(AbstractAgent):
                 unclassified.append(name)
             elif "language_model" in name or "lm_head" in name:
                 trainable_language.append(name)
-            elif name.startswith("future_register_predictor.") or name.startswith(
-                "backbone.planning_register_adapter."
-            ):
-                grouped["new_modules"].append((name, parameter))
+            elif name.startswith("future_register_predictor."):
+                grouped["future_predictor"].append((name, parameter))
+            elif name.startswith("backbone.planning_register_adapter."):
+                grouped["planning_adapter"].append((name, parameter))
             elif name.startswith("backbone.") and (
                 ".q_lora_" in name or ".v_lora_" in name
             ):
@@ -1787,12 +1829,11 @@ class DriveVLABaseAgent(AbstractAgent):
                 ):
                     grouped["scorer"].append((name, parameter))
                 elif action_name.startswith(
-                    (
-                        "q_former.",
-                        "scene_embeds",
-                        "semantic_gate",
-                        "scene_norm.",
-                    )
+                    ("semantic_gate", "scene_norm.")
+                ):
+                    grouped["fusion"].append((name, parameter))
+                elif action_name.startswith(
+                    ("q_former.", "scene_embeds")
                 ):
                     grouped["semantic_qformer"].append((name, parameter))
                 elif action_name.startswith(
@@ -1820,40 +1861,84 @@ class DriveVLABaseAgent(AbstractAgent):
                 f"{unclassified[:32]}"
             )
 
+        modules = dict(self.named_modules())
+
+        def is_no_decay(parameter_name: str, parameter: nn.Parameter) -> bool:
+            local_name = parameter_name.rsplit(".", 1)[-1]
+            module_name = parameter_name.rsplit(".", 1)[0]
+            owner = modules.get(module_name)
+            owner_class = type(owner).__name__.lower() if owner is not None else ""
+            if local_name == "bias" or parameter.ndim < 2:
+                return True
+            if isinstance(owner, nn.Embedding) or "norm" in owner_class:
+                return True
+            if any(
+                marker in parameter_name
+                for marker in (
+                    ".q_lora_a.",
+                    ".q_lora_b.",
+                    ".v_lora_a.",
+                    ".v_lora_b.",
+                    "planning_registers",
+                    "scene_embeds",
+                    "semantic_gate",
+                    "tile_gate",
+                )
+            ):
+                return True
+            return False
+
         optimizer_groups = []
         summaries = []
-        for group_name, named_parameters in grouped.items():
+        for logical_name, named_parameters in grouped.items():
             if not named_parameters:
                 continue
-            weight_decay = float(
-                self._lr_args.get(
-                    f"{group_name}_weight_decay", default_weight_decay
+            split_parameters = {"decay": [], "no_decay": []}
+            for parameter_name, parameter in named_parameters:
+                split = (
+                    "no_decay"
+                    if is_no_decay(parameter_name, parameter)
+                    else "decay"
                 )
-            )
-            parameters = [parameter for _, parameter in named_parameters]
-            parameter_count = sum(parameter.numel() for parameter in parameters)
-            optimizer_groups.append(
-                {
-                    "params": parameters,
-                    "lr": learning_rates[group_name],
-                    "weight_decay": weight_decay,
+                split_parameters[split].append((parameter_name, parameter))
+            for split_name, split_named_parameters in split_parameters.items():
+                if not split_named_parameters:
+                    continue
+                parameters = [parameter for _, parameter in split_named_parameters]
+                weight_decay = (
+                    decay_weight_decay
+                    if split_name == "decay"
+                    else no_decay_weight_decay
+                )
+                group_name = f"{logical_name}_{split_name}"
+                parameter_count = sum(
+                    parameter.numel() for parameter in parameters
+                )
+                optimizer_groups.append(
+                    {
+                        "params": parameters,
+                        "lr": learning_rates[logical_name],
+                        "weight_decay": weight_decay,
+                        "name": group_name,
+                        "logical_name": logical_name,
+                    }
+                )
+                summary = {
                     "name": group_name,
+                    "logical_name": logical_name,
+                    "tensor_count": len(parameters),
+                    "parameter_count": parameter_count,
+                    "lr": learning_rates[logical_name],
+                    "weight_decay": weight_decay,
                 }
-            )
-            summary = {
-                "name": group_name,
-                "tensor_count": len(parameters),
-                "parameter_count": parameter_count,
-                "lr": learning_rates[group_name],
-                "weight_decay": weight_decay,
-            }
-            summaries.append(summary)
-            print(
-                "PLANREG_OPTIMIZER_GROUP "
-                f"name={group_name} tensors={len(parameters)} "
-                f"parameters={parameter_count} lr={learning_rates[group_name]:.8g} "
-                f"weight_decay={weight_decay:.8g}"
-            )
+                summaries.append(summary)
+                print(
+                    "PLANREG_OPTIMIZER_GROUP "
+                    f"name={group_name} logical_name={logical_name} "
+                    f"tensors={len(parameters)} parameters={parameter_count} "
+                    f"lr={learning_rates[logical_name]:.8g} "
+                    f"weight_decay={weight_decay:.8g}"
+                )
         if not optimizer_groups:
             raise RuntimeError("No trainable PlanReg-WM-V1 parameters found")
         self._planreg_optimizer_group_summary = summaries
@@ -1864,23 +1949,71 @@ class DriveVLABaseAgent(AbstractAgent):
         )
         optimizer = optimizer_class(
             optimizer_groups,
-            betas=tuple(self._lr_args.get("betas", (0.9, 0.95))),
+            betas=tuple(self._lr_args.get("betas", (0.9, 0.999))),
             eps=float(self._lr_args.get("eps", 1e-8)),
         )
-        if self.scheduler_args is not None:
+        if self.scheduler_args is None:
+            return [optimizer]
+        if total_optimizer_steps is None or int(total_optimizer_steps) <= 0:
             raise ValueError(
-                "PlanReg-WM-V1 strict optimizer groups currently require "
-                "scheduler_args=null; configure explicit fixed group LRs."
+                "PlanReg scheduler requires trainer.estimated_stepping_batches"
             )
-        return [optimizer]
+
+        scheduler_args = self.scheduler_args
+        warmup_ratio = float(scheduler_args.get("warmup_ratio", 0.03))
+        start_lr_ratio = float(scheduler_args.get("start_lr_ratio", 0.01))
+        default_min_ratios = {
+            "planning_adapter": 0.10,
+            "future_predictor": 0.10,
+            "fusion": 0.10,
+            "vision_qv_lora": 0.10,
+            "action_head": 0.20,
+            "scorer": 0.20,
+            "semantic_qformer": 0.20,
+        }
+        configured_min_ratios = scheduler_args.get("min_lr_ratios", {})
+        min_ratios = {
+            name: float(configured_min_ratios.get(name, default))
+            for name, default in default_min_ratios.items()
+        }
+        lr_lambdas = []
+        for group in optimizer.param_groups:
+            logical_name = group["logical_name"]
+            min_ratio = min_ratios[logical_name]
+
+            def lr_lambda(step, *, _min_ratio=min_ratio):
+                return planreg_warmup_cosine_multiplier(
+                    step,
+                    total_optimizer_steps=int(total_optimizer_steps),
+                    warmup_ratio=warmup_ratio,
+                    start_lr_ratio=start_lr_ratio,
+                    min_lr_ratio=_min_ratio,
+                )
+
+            lr_lambdas.append(lr_lambda)
+        scheduler = torch.optim.lr_scheduler.LambdaLR(
+            optimizer, lr_lambda=lr_lambdas
+        )
+        print(
+            "PLANREG_LR_SCHEDULER type=warmup_cosine interval=step "
+            f"total_steps={int(total_optimizer_steps)} "
+            f"warmup_ratio={warmup_ratio:.6g} "
+            f"start_lr_ratio={start_lr_ratio:.6g} "
+            f"min_lr_ratios={min_ratios}"
+        )
+        return [optimizer], [
+            {"scheduler": scheduler, "interval": "step", "frequency": 1}
+        ]
 
 
-    def get_optimizers(self) -> Union[Optimizer, Dict[str, LRScheduler]]:
+    def get_optimizers(
+        self, total_optimizer_steps: Optional[int] = None
+    ) -> Union[Optimizer, Dict[str, LRScheduler]]:
         """
         pack all trainable parameters into optimizer
         """
         if self._uses_planreg_optimizer_groups():
-            return self._get_planreg_optimizers()
+            return self._get_planreg_optimizers(total_optimizer_steps)
         global_batchsize = self.batch_size * self.num_gpus
         if self._lr_args["name"] not in {"Adam", "AdamW"}:
             raise NotImplementedError

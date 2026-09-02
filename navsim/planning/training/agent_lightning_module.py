@@ -1,6 +1,7 @@
 from time import sleep
 import os
 import logging
+import inspect
 
 import numpy as np
 import pytorch_lightning as pl
@@ -267,7 +268,17 @@ class AgentLightningModule(pl.LightningModule):
 
     def configure_optimizers(self):
         """Inherited, see superclass."""
-        return self.agent.get_optimizers()
+        optimizer_factory = self.agent.get_optimizers
+        if "total_optimizer_steps" in inspect.signature(
+            optimizer_factory
+        ).parameters:
+            total_steps = int(self.trainer.estimated_stepping_batches)
+            if total_steps <= 0:
+                raise RuntimeError(
+                    "trainer.estimated_stepping_batches must be positive"
+                )
+            return optimizer_factory(total_optimizer_steps=total_steps)
+        return optimizer_factory()
     
     def predict_step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], batch_idx: int):
         """

@@ -148,6 +148,8 @@ planreg_launch() {
     "trainer.params.devices=${PLANREG_NUM_GPUS}"
     "trainer.params.strategy=${strategy}"
     trainer.params.precision=bf16-mixed
+    trainer.params.gradient_clip_val=1.0
+    trainer.params.gradient_clip_algorithm=norm
     "trainer.params.max_epochs=${PLANREG_MAX_EPOCHS}"
     "${resume_args[@]}"
     "${smoke_args[@]}"
