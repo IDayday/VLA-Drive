@@ -93,7 +93,10 @@ The corrected process is two-stage:
 
 Artifacts and sweep rows now record their weight epoch. Policy
 materialization fails if it differs from the common epoch. Discovery outputs
-remain preserved but cannot be promoted directly.
+remain preserved but cannot be promoted directly. The resumable
+`watch_temporal_locked_replay_campaign.sh` controller performs the locked
+replay, three full-data seeds and the eight-artifact Navtest audit only after
+those checks pass.
 
 ## Strict acceptance rules
 
