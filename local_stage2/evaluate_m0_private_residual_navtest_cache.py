@@ -96,9 +96,13 @@ def main() -> None:
         raise RuntimeError("deployment artifact type mismatch")
     if artifact.get("scorer_architecture") != "M0PrivateResidualRanker":
         raise RuntimeError("deployment artifact architecture mismatch")
+    context_fusion = bool(
+        artifact.get("residual_config", {}).get("m0_context_fusion", False)
+    )
     expected_schema = (
         "m0_current_f0_l0_r0_b0_images",
         "m0_current_ego_navigation_status",
+        *(("m0_released_scene_features", "m0_released_ego_features") if context_fusion else ()),
         "m0_proposals",
         "m0_base_factor_logits",
         "m0_base_scores",
@@ -224,6 +228,34 @@ def main() -> None:
             dtype=torch.float32,
             device=device,
         )
+        m0_context = {}
+        if context_fusion:
+            m0_context = {
+                "m0_scene_features": torch.as_tensor(
+                    np.stack(
+                        [
+                            _required_feature(
+                                feature_cache[token], "scene_features", (16, 256)
+                            )
+                            for token in batch_tokens
+                        ]
+                    ),
+                    dtype=torch.float32,
+                    device=device,
+                ),
+                "m0_ego_features": torch.as_tensor(
+                    np.stack(
+                        [
+                            _required_feature(
+                                feature_cache[token], "ego_features", (1, 256)
+                            )
+                            for token in batch_tokens
+                        ]
+                    ),
+                    dtype=torch.float32,
+                    device=device,
+                ),
+            }
         with torch.no_grad():
             output = model(
                 observation,
@@ -232,6 +264,7 @@ def main() -> None:
                 base_factor_logits,
                 base_scores,
                 observation_valid_mask=observation_mask,
+                **m0_context,
             )
             prediction = output["selection_scores"]
             selected = prediction.argmax(dim=1)
@@ -365,6 +398,7 @@ def main() -> None:
         "official_candidate_matrix_joined_after_selection": True,
         "m0_base_model_score_used_as_input": True,
         "m0_base_factor_logits_used_as_input": True,
+        "released_m0_scene_and_ego_context_used_as_input": context_fusion,
         "external_model_representation_or_weight_used": False,
         "drivor_representation_or_weight_used": False,
         "score_mode": artifact["score_mode"],

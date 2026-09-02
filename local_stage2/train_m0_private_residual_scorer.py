@@ -220,6 +220,7 @@ class ResidualReplayDataset(Dataset):
         data: ReplayTensorSet,
         base_factor_logits: torch.Tensor,
         indices: Sequence[int],
+        include_m0_context: bool = False,
         include_current_actor_targets: bool = False,
         shared_future_table: Optional[SharedFutureTargetTable] = None,
         shared_future_row_indices: Optional[torch.Tensor] = None,
@@ -229,6 +230,7 @@ class ResidualReplayDataset(Dataset):
         self.data = data
         self.base_factor_logits = base_factor_logits
         self.indices = torch.as_tensor(indices, dtype=torch.long)
+        self.include_m0_context = include_m0_context
         self.include_current_actor_targets = include_current_actor_targets
         self.shared_future_table = shared_future_table
         self.shared_future_row_indices = shared_future_row_indices
@@ -245,6 +247,13 @@ class ResidualReplayDataset(Dataset):
                 raise ValueError("current-actor states do not align with replay rows")
             if data.current_actor_masks.shape != (len(data), 16):
                 raise ValueError("current-actor masks do not align with replay rows")
+        if include_m0_context:
+            if data.m0_scene_features is None or data.m0_ego_features is None:
+                raise ValueError("released M0 context is absent from replay data")
+            if data.m0_scene_features.shape != (len(data), 16, 256):
+                raise ValueError("released M0 scene context does not align")
+            if data.m0_ego_features.shape != (len(data), 1, 256):
+                raise ValueError("released M0 ego context does not align")
 
     def __len__(self) -> int:
         return int(self.indices.numel())
@@ -263,8 +272,13 @@ class ResidualReplayDataset(Dataset):
             torch.tensor(source_index, dtype=torch.long),
         )
         auxiliary = ()
+        if self.include_m0_context:
+            auxiliary += (
+                self.data.m0_scene_features[source_index],
+                self.data.m0_ego_features[source_index],
+            )
         if self.include_current_actor_targets:
-            auxiliary = (
+            auxiliary += (
                 self.data.current_actor_states[source_index],
                 self.data.current_actor_masks[source_index],
                 self.data.current_actor_supervision_valid[source_index],
@@ -301,6 +315,15 @@ def compute_residual_training_loss(
         target_factors,
         _indices,
     ) = base_batch
+    cursor = 8
+    m0_scene_features = None
+    m0_ego_features = None
+    if model.residual_config.m0_context_fusion:
+        if len(batch) < cursor + 2:
+            raise RuntimeError("M0 context fusion lacks frozen M0 features")
+        m0_scene_features = batch[cursor]
+        m0_ego_features = batch[cursor + 1]
+        cursor += 2
     output = model(
         observation.float(),
         status.float(),
@@ -308,6 +331,8 @@ def compute_residual_training_loss(
         base_factor_logits,
         base_scores,
         observation_valid_mask=observation_valid_mask,
+        m0_scene_features=m0_scene_features,
+        m0_ego_features=m0_ego_features,
     )
     candidate_indices = base_anchored_topk_indices(
         base_scores,
@@ -382,7 +407,6 @@ def compute_residual_training_loss(
         relative_element * relative_weight
     ).sum() / relative_weight.sum().clamp_min(1.0)
     residual_l2 = output["residual"].square().mean()
-    cursor = 8
     zero = output["residual"].sum() * 0.0
     current_actor = {
         "total": zero,
@@ -510,13 +534,19 @@ def collect_residual_predictions(
     base_parts: List[torch.Tensor] = []
     target_parts: List[torch.Tensor] = []
     loader = DataLoader(
-        ResidualReplayDataset(data, base_factor_logits, indices),
+        ResidualReplayDataset(
+            data,
+            base_factor_logits,
+            indices,
+            include_m0_context=model.residual_config.m0_context_fusion,
+        ),
         batch_size=batch_size,
         shuffle=False,
         num_workers=0,
         pin_memory=True,
     )
     for batch in loader:
+        base_batch = batch[:8]
         (
             proposals,
             observation,
@@ -526,7 +556,15 @@ def collect_residual_predictions(
             factor_logits,
             target_factors,
             _source_indices,
-        ) = batch
+        ) = base_batch
+        cursor = 8
+        m0_scene_features = None
+        m0_ego_features = None
+        if model.residual_config.m0_context_fusion:
+            m0_scene_features = batch[cursor].to(device, non_blocking=True).float()
+            m0_ego_features = batch[cursor + 1].to(
+                device, non_blocking=True
+            ).float()
         output = model(
             observation.to(device, non_blocking=True).float(),
             status.to(device, non_blocking=True).float(),
@@ -536,6 +574,8 @@ def collect_residual_predictions(
             observation_valid_mask=observation_valid_mask.to(
                 device, non_blocking=True
             ),
+            m0_scene_features=m0_scene_features,
+            m0_ego_features=m0_ego_features,
         )
         selection_parts.append(output["selection_scores"].float().cpu())
         factor_parts.append(output["refined_factor_logits"].float().cpu())
@@ -707,6 +747,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fine-layers", type=int, default=2)
     parser.add_argument("--private-fine-top-k", type=int, default=16)
     parser.add_argument("--residual-layers", type=int, default=2)
+    parser.add_argument("--m0-context-fusion", action="store_true")
     parser.add_argument("--residual-top-k", type=int, default=64)
     parser.add_argument(
         "--score-mode",
@@ -813,6 +854,7 @@ def main() -> None:
         max_scenes_per_source=args.max_scenes_per_source,
         private_observation_root=args.private_observation_root,
         current_actor_target_root=args.current_actor_target_root,
+        retain_m0_context=args.m0_context_fusion,
     )
     factor_tokens, base_factor_logits = load_replay_base_factor_logits(
         sources,
@@ -909,6 +951,7 @@ def main() -> None:
         top_k=args.residual_top_k,
         max_residual=args.max_residual,
         score_mode=args.score_mode,
+        m0_context_fusion=args.m0_context_fusion,
     )
     model = M0PrivateResidualRanker(private_config, residual_config).to(device)
     optimizer = torch.optim.AdamW(
@@ -926,6 +969,7 @@ def main() -> None:
             data,
             base_factor_logits,
             train_indices,
+            include_m0_context=args.m0_context_fusion,
             include_current_actor_targets=(
                 args.current_actor_target_root is not None
             ),
@@ -978,6 +1022,9 @@ def main() -> None:
         ),
         "m0_base_factor_logits_used_as_model_input": True,
         "m0_base_numeric_score_used_as_model_input": True,
+        "released_m0_scene_and_ego_context_used_as_model_input": (
+            args.m0_context_fusion
+        ),
         "external_model_representation_or_weight_used": False,
         "future_or_evaluator_input": False,
         "logged_future_used_as_training_only_auxiliary_target": (
@@ -1061,7 +1108,7 @@ def main() -> None:
             best_epoch = epoch
             _atomic_torch_save(
                 {
-                    "schema_version": 1,
+                    "schema_version": 2 if args.m0_context_fusion else 1,
                     "architecture": "M0PrivateResidualRanker",
                     "state_dict": {
                         key: value.detach().cpu()
@@ -1078,6 +1125,14 @@ def main() -> None:
                     "inference_input_schema": (
                         "m0_current_visual_tokens",
                         "m0_current_context_feature",
+                        *(
+                            (
+                                "m0_released_scene_features",
+                                "m0_released_ego_features",
+                            )
+                            if args.m0_context_fusion
+                            else ()
+                        ),
                         "m0_proposals",
                         "m0_base_factor_logits",
                         "m0_base_scores",

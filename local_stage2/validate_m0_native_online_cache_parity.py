@@ -119,6 +119,20 @@ def main() -> None:
                 dtype=torch.float32,
                 device=device,
             )
+            m0_context = {}
+            if model.residual_config.m0_context_fusion:
+                m0_context = {
+                    "m0_scene_features": torch.as_tensor(
+                        np.stack([public[token]["scene_features"] for token in tokens]),
+                        dtype=torch.float32,
+                        device=device,
+                    ),
+                    "m0_ego_features": torch.as_tensor(
+                        np.stack([public[token]["ego_features"] for token in tokens]),
+                        dtype=torch.float32,
+                        device=device,
+                    ),
+                }
             output = model(
                 observation,
                 status,
@@ -126,6 +140,7 @@ def main() -> None:
                 base_factor_logits,
                 base_scores,
                 observation_valid_mask=observation_mask,
+                **m0_context,
             )
             cached_scores = output["selection_scores"]
     cached_scores_np = cached_scores.float().cpu().numpy()

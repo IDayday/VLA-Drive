@@ -90,13 +90,19 @@ def collect_policy_tensors(
         )
     }
     loader = DataLoader(
-        ResidualReplayDataset(data, base_factor_logits, indices),
+        ResidualReplayDataset(
+            data,
+            base_factor_logits,
+            indices,
+            include_m0_context=model.residual_config.m0_context_fusion,
+        ),
         batch_size=batch_size,
         shuffle=False,
         num_workers=0,
         pin_memory=True,
     )
     for batch in loader:
+        base_batch = batch[:8]
         (
             proposals,
             observation,
@@ -106,7 +112,17 @@ def collect_policy_tensors(
             factor_logits,
             target_factors,
             _source_indices,
-        ) = batch
+        ) = base_batch
+        m0_context = {}
+        if model.residual_config.m0_context_fusion:
+            m0_context = {
+                "m0_scene_features": batch[8].to(
+                    device, non_blocking=True
+                ).float(),
+                "m0_ego_features": batch[9].to(
+                    device, non_blocking=True
+                ).float(),
+            }
         output = model(
             observation.to(device, non_blocking=True).float(),
             status.to(device, non_blocking=True).float(),
@@ -116,6 +132,7 @@ def collect_policy_tensors(
             observation_valid_mask=observation_valid_mask.to(
                 device, non_blocking=True
             ),
+            **m0_context,
         )
         parts["residual"].append(output["residual"].float().cpu())
         parts["refined_factor_logits"].append(
@@ -347,6 +364,9 @@ def main() -> None:
     data, source_lineage = load_replay_sources(
         sources,
         private_observation_root=args.private_observation_root,
+        retain_m0_context=bool(
+            artifact["residual_config"].get("m0_context_fusion", False)
+        ),
     )
     factor_tokens, base_factor_logits = load_replay_base_factor_logits(sources)
     if factor_tokens != data.tokens:

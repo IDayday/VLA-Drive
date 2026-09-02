@@ -224,6 +224,8 @@ def test_m0_private_residual_forward_is_current_inference_only() -> None:
         "base_factor_logits",
         "base_scores",
         "observation_valid_mask",
+        "m0_scene_features",
+        "m0_ego_features",
     }
     assert not any(
         "future" in name or "official" in name or "metric" in name
@@ -401,6 +403,91 @@ def test_m0_private_residual_zero_init_exactly_preserves_base() -> None:
         output["selection_scores"].argmax(dim=1),
         base_scores.argmax(dim=1),
     )
+
+
+def test_m0_context_fusion_zero_init_exactly_preserves_base() -> None:
+    torch.manual_seed(120)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+            score_mode="hybrid",
+            m0_context_fusion=True,
+        ),
+    ).eval()
+    observation, status, proposals = _inputs()
+    factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    with torch.no_grad():
+        output = model(
+            observation,
+            status,
+            proposals,
+            factor_logits,
+            base_scores,
+            m0_scene_features=torch.randn(2, 16, 256),
+            m0_ego_features=torch.randn(2, 1, 256),
+        )
+    torch.testing.assert_close(output["selection_scores"], base_scores, rtol=0, atol=0)
+    torch.testing.assert_close(
+        output["refined_factor_logits"], factor_logits, rtol=0, atol=0
+    )
+    assert float(output["m0_context_fusion_gate"]) == 0.0
+
+
+def test_m0_context_fusion_is_candidate_permutation_equivariant() -> None:
+    torch.manual_seed(121)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+            m0_context_fusion=True,
+        ),
+    ).eval()
+    with torch.no_grad():
+        model.m0_context_gate.fill_(0.5)
+        model.factor_delta_head[-1].weight.normal_(std=0.02)
+        model.utility_delta_head[-1].weight.normal_(std=0.02)
+    observation, status, proposals = _inputs()
+    factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    scene = torch.randn(2, 16, 256)
+    ego = torch.randn(2, 1, 256)
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    with torch.no_grad():
+        reference = model(
+            observation,
+            status,
+            proposals,
+            factor_logits,
+            base_scores,
+            m0_scene_features=scene,
+            m0_ego_features=ego,
+        )
+        permuted = model(
+            observation,
+            status,
+            proposals[:, permutation],
+            factor_logits[:, permutation],
+            base_scores[:, permutation],
+            m0_scene_features=scene,
+            m0_ego_features=ego,
+        )
+    for key in ("selection_scores", "refined_factor_logits"):
+        torch.testing.assert_close(
+            reference[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
+        )
 
 
 def test_m0_private_residual_is_candidate_permutation_equivariant() -> None:
@@ -2172,6 +2259,18 @@ def test_private_observation_cache_joins_replay_by_token(tmp_path) -> None:
             "log_names": logs,
             "proposals": torch.zeros(2, 64, 8, 3),
             "base_scores": torch.zeros(2, 64),
+            "scene_features": torch.stack(
+                (
+                    torch.full((16, 256), 3.0),
+                    torch.full((16, 256), 4.0),
+                )
+            ).half(),
+            "ego_features": torch.stack(
+                (
+                    torch.full((1, 256), 5.0),
+                    torch.full((1, 256), 6.0),
+                )
+            ).half(),
         },
         feature_root / relative_dir / "chunk_000000.pt",
     )
@@ -2232,6 +2331,7 @@ def test_private_observation_cache_joins_replay_by_token(tmp_path) -> None:
     data, lineage = load_replay_sources(
         [ReplaySource("base", feature_root, label_root)],
         private_observation_root=observation_root,
+        retain_m0_context=True,
     )
     assert data.observation_row_indices.tolist() == [1, 0]
     torch.testing.assert_close(
@@ -2244,3 +2344,11 @@ def test_private_observation_cache_joins_replay_by_token(tmp_path) -> None:
     assert second_context == [20.0] * 8 + [2.0] * 12 + [0.0, 1.0, 0.0, 0.0]
     assert lineage[-1]["current_observation_only"] is True
     assert lineage[-1]["current_context_width"] == 24
+    torch.testing.assert_close(
+        data.m0_scene_features[0],
+        torch.full((16, 256), 3.0, dtype=torch.float16),
+    )
+    torch.testing.assert_close(
+        data.m0_ego_features[1],
+        torch.full((1, 256), 6.0, dtype=torch.float16),
+    )

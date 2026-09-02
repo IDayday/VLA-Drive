@@ -39,6 +39,12 @@ class M0PrivateResidualConfig:
     safety_relative_tolerance: float = 1.0
     preserve_ddc: bool = False
     safety_gate_mode: str = "none"
+    # Fuse the released M0 Q-Former scene/ego representation with the
+    # scorer-private raw visual stream instead of replacing it.  This remains
+    # an M0-only, current-observation input and is disabled for old artifacts.
+    m0_context_fusion: bool = False
+    m0_scene_dim: int = 256
+    m0_ego_dim: int = 256
 
     def __post_init__(self) -> None:
         if self.hidden_dim <= 0 or self.hidden_dim % self.num_heads:
@@ -55,6 +61,10 @@ class M0PrivateResidualConfig:
             raise ValueError("safety_floor must be in [0,1]")
         if self.safety_relative_tolerance < 0:
             raise ValueError("safety_relative_tolerance must be nonnegative")
+        if self.m0_context_fusion and (
+            self.m0_scene_dim <= 0 or self.m0_ego_dim <= 0
+        ):
+            raise ValueError("M0 context dimensions must be positive")
         if self.score_mode not in {"direct", "factor", "hybrid"}:
             raise ValueError("score_mode must be direct, factor, or hybrid")
         if self.safety_gate_mode not in {
@@ -123,6 +133,47 @@ class M0PrivateResidualRanker(nn.Module):
             ),
             nn.GELU(),
         )
+        if residual_config.m0_context_fusion:
+            self.m0_scene_projection = nn.Sequential(
+                nn.LayerNorm(residual_config.m0_scene_dim),
+                nn.Linear(
+                    residual_config.m0_scene_dim,
+                    residual_config.hidden_dim,
+                ),
+            )
+            self.m0_ego_projection = nn.Sequential(
+                nn.LayerNorm(residual_config.m0_ego_dim),
+                nn.Linear(
+                    residual_config.m0_ego_dim,
+                    residual_config.hidden_dim,
+                ),
+            )
+            self.m0_scene_position_embedding = nn.Parameter(
+                torch.empty(1, 16, residual_config.hidden_dim)
+            )
+            self.m0_context_type_embedding = nn.Parameter(
+                torch.empty(1, 2, residual_config.hidden_dim)
+            )
+            self.m0_context_attention = nn.MultiheadAttention(
+                residual_config.hidden_dim,
+                residual_config.num_heads,
+                dropout=residual_config.dropout,
+                batch_first=True,
+            )
+            self.m0_context_norm = nn.LayerNorm(residual_config.hidden_dim)
+            # The experiment starts from the exact private-only hidden path;
+            # the released M0 context is admitted only as this gate learns.
+            self.m0_context_gate = nn.Parameter(torch.zeros(()))
+            nn.init.trunc_normal_(self.m0_scene_position_embedding, std=0.01)
+            nn.init.trunc_normal_(self.m0_context_type_embedding, std=0.01)
+        else:
+            self.m0_scene_projection = None
+            self.m0_ego_projection = None
+            self.register_parameter("m0_scene_position_embedding", None)
+            self.register_parameter("m0_context_type_embedding", None)
+            self.m0_context_attention = None
+            self.m0_context_norm = None
+            self.register_parameter("m0_context_gate", None)
         layer = nn.TransformerEncoderLayer(
             d_model=residual_config.hidden_dim,
             nhead=residual_config.num_heads,
@@ -170,6 +221,8 @@ class M0PrivateResidualRanker(nn.Module):
         base_factor_logits: torch.Tensor,
         base_scores: torch.Tensor,
         observation_valid_mask: Optional[torch.Tensor] = None,
+        m0_scene_features: Optional[torch.Tensor] = None,
+        m0_ego_features: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         if base_factor_logits.shape != (*base_scores.shape, len(FACTOR_KEYS)):
             raise ValueError("base_factor_logits must have shape [B,K,6]")
@@ -189,9 +242,44 @@ class M0PrivateResidualRanker(nn.Module):
                 dim=-1,
             )
         )
-        hidden = self.candidate_context(
-            self.input_fusion(torch.cat((candidate_features, factor_context), dim=-1))
+        fused = self.input_fusion(
+            torch.cat((candidate_features, factor_context), dim=-1)
         )
+        context_gate = fused.new_zeros(())
+        if self.residual_config.m0_context_fusion:
+            if m0_scene_features is None or m0_ego_features is None:
+                raise ValueError(
+                    "M0 context fusion requires released scene and ego features"
+                )
+            if m0_scene_features.shape != (
+                fused.shape[0],
+                16,
+                self.residual_config.m0_scene_dim,
+            ):
+                raise ValueError("m0_scene_features must have shape [B,16,D]")
+            if m0_ego_features.shape != (
+                fused.shape[0],
+                1,
+                self.residual_config.m0_ego_dim,
+            ):
+                raise ValueError("m0_ego_features must have shape [B,1,D]")
+            scene_context = self.m0_scene_projection(m0_scene_features.float())
+            scene_context = scene_context + self.m0_scene_position_embedding
+            scene_context = (
+                scene_context + self.m0_context_type_embedding[:, :1]
+            )
+            ego_context = self.m0_ego_projection(m0_ego_features.float())
+            ego_context = ego_context + self.m0_context_type_embedding[:, 1:]
+            memory = torch.cat((scene_context, ego_context), dim=1)
+            attended, _ = self.m0_context_attention(
+                fused,
+                memory,
+                memory,
+                need_weights=False,
+            )
+            context_gate = torch.tanh(self.m0_context_gate)
+            fused = fused + context_gate * self.m0_context_norm(attended)
+        hidden = self.candidate_context(fused)
 
         maximum = self.residual_config.max_residual
         utility_delta = maximum * torch.tanh(
@@ -292,6 +380,7 @@ class M0PrivateResidualRanker(nn.Module):
             "private_factor_logits": private["factor_logits"],
             "private_candidate_features": candidate_features,
             "private_scene_tokens": private["private_scene_tokens"],
+            "m0_context_fusion_gate": context_gate,
         }
         # Auxiliary targets supervise the scorer-owned current-observation
         # representation during training.  Their predictions are exposed to

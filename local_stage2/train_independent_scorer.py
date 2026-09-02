@@ -129,6 +129,11 @@ class ReplayTensorSet:
     current_actor_states: torch.Tensor
     current_actor_masks: torch.Tensor
     current_actor_supervision_valid: torch.Tensor
+    # Optional frozen features produced by the released M0 forward pass.
+    # They remain separate from scorer-private current-observation tokens so
+    # an experiment can test fusion without silently replacing either stream.
+    m0_scene_features: Optional[torch.Tensor] = None
+    m0_ego_features: Optional[torch.Tensor] = None
 
     def __len__(self) -> int:
         return len(self.tokens)
@@ -540,6 +545,7 @@ def load_replay_sources(
     max_scenes_per_source: int = 0,
     private_observation_root: Optional[Path] = None,
     current_actor_target_root: Optional[Path] = None,
+    retain_m0_context: bool = False,
 ) -> Tuple[ReplayTensorSet, List[Dict[str, object]]]:
     tensor_parts: Dict[str, List[torch.Tensor]] = {
         key: []
@@ -551,6 +557,8 @@ def load_replay_sources(
     }
     source_observations: List[torch.Tensor] = []
     source_ego_features: List[torch.Tensor] = []
+    source_m0_scene_features: List[torch.Tensor] = []
+    source_m0_ego_features: List[torch.Tensor] = []
     tokens: List[str] = []
     log_names: List[str] = []
     source_names: List[str] = []
@@ -597,6 +605,24 @@ def load_replay_sources(
                 )
             seen_tokens.update(selected_tokens)
             selected_logs = [feature_logs[int(index)] for index in valid_indices]
+            if retain_m0_context:
+                if "scene_features" not in features or "ego_features" not in features:
+                    raise RuntimeError(
+                        "M0 context fusion requires scene_features and ego_features "
+                        f"in {feature_path}"
+                    )
+                m0_scene = features["scene_features"][valid_indices]
+                m0_ego = features["ego_features"][valid_indices]
+                if m0_scene.ndim != 3 or m0_scene.shape[-1] != 256:
+                    raise RuntimeError(
+                        f"Unexpected released M0 scene-feature shape: {m0_scene.shape}"
+                    )
+                if m0_ego.shape != (len(valid_indices), 1, 256):
+                    raise RuntimeError(
+                        f"Unexpected released M0 ego-feature shape: {m0_ego.shape}"
+                    )
+                source_m0_scene_features.append(m0_scene)
+                source_m0_ego_features.append(m0_ego)
             if private_observation_root is None:
                 observation = features["scene_features"][valid_indices]
                 ego = features["ego_features"][valid_indices].squeeze(1)
@@ -705,6 +731,12 @@ def load_replay_sources(
         current_actor_states=current_actor_states,
         current_actor_masks=current_actor_masks,
         current_actor_supervision_valid=current_actor_supervision_valid,
+        m0_scene_features=(
+            torch.cat(source_m0_scene_features) if retain_m0_context else None
+        ),
+        m0_ego_features=(
+            torch.cat(source_m0_ego_features) if retain_m0_context else None
+        ),
         **replay_tensors,
     )
     expected_shapes = {
@@ -728,6 +760,13 @@ def load_replay_sources(
         raise RuntimeError("Current-actor state/mask shape mismatch")
     if result.current_actor_supervision_valid.shape != (len(result),):
         raise RuntimeError("Current-actor supervision-valid shape mismatch")
+    if retain_m0_context:
+        if result.m0_scene_features is None or result.m0_ego_features is None:
+            raise RuntimeError("Released M0 context was requested but not retained")
+        if result.m0_scene_features.shape != (len(result), 16, 256):
+            raise RuntimeError("Released M0 scene features do not align with replay rows")
+        if result.m0_ego_features.shape != (len(result), 1, 256):
+            raise RuntimeError("Released M0 ego features do not align with replay rows")
     return result, lineage
 
 

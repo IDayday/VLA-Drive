@@ -166,7 +166,9 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
 
     source = ReplaySource(args.source_name, args.feature_root, args.label_root)
     data, source_lineage = load_replay_sources(
-        [source], private_observation_root=args.private_observation_root
+        [source],
+        private_observation_root=args.private_observation_root,
+        retain_m0_context=residual_config.m0_context_fusion,
     )
     factor_tokens, base_factor_logits = load_replay_base_factor_logits([source])
     if factor_tokens != data.tokens:
@@ -198,6 +200,7 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
             data,
             base_factor_logits,
             indices,
+            include_m0_context=residual_config.m0_context_fusion,
             shared_future_table=future,
             shared_future_row_indices=future_rows,
         ),
@@ -221,6 +224,18 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
             proposals, observation, observation_mask, status = batch[:4]
             base_scores, factor_logits = batch[4:6]
             source_indices = batch[7]
+            cursor = 8
+            m0_context = {}
+            if residual_config.m0_context_fusion:
+                m0_context = {
+                    "m0_scene_features": batch[cursor].to(
+                        args.device, non_blocking=True
+                    ).float(),
+                    "m0_ego_features": batch[cursor + 1].to(
+                        args.device, non_blocking=True
+                    ).float(),
+                }
+                cursor += 2
             output = model(
                 observation.to(args.device, non_blocking=True).float(),
                 status.to(args.device, non_blocking=True).float(),
@@ -230,6 +245,7 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
                 observation_valid_mask=observation_mask.to(
                     args.device, non_blocking=True
                 ),
+                **m0_context,
             )
             predicted_state_parts.append(
                 _decode_predicted_state(
@@ -252,8 +268,8 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
                 current_type_parts.append(
                     output["current_actor_type_logits"].float().cpu()
                 )
-            target_parts.append(batch[8].float())
-            target_mask_parts.append(batch[9].bool())
+            target_parts.append(batch[cursor].float())
+            target_mask_parts.append(batch[cursor + 1].bool())
             current_index = current_rows.index_select(0, source_indices.long())
             current_parts.append(current.actor_states.index_select(0, current_index))
             current_mask_parts.append(current.actor_masks.index_select(0, current_index))

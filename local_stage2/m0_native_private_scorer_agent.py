@@ -249,6 +249,16 @@ class M0NativePrivateScorerAgent(EpisodeDriveAgent):
             factor_logits = torch.stack(
                 [prediction["pred_logit"][key] for key in FACTOR_KEYS], dim=-1
             )
+            m0_context = {}
+            if self.private_scorer.residual_config.m0_context_fusion:
+                if "language_feature" not in prediction or "ego_feature" not in prediction:
+                    raise RuntimeError(
+                        "released M0 scene/ego context is absent from online forward"
+                    )
+                m0_context = {
+                    "m0_scene_features": prediction["language_feature"].float(),
+                    "m0_ego_features": prediction["ego_feature"].float(),
+                }
             output = self.private_scorer(
                 observation,
                 status,
@@ -256,6 +266,7 @@ class M0NativePrivateScorerAgent(EpisodeDriveAgent):
                 factor_logits,
                 base_scores,
                 observation_valid_mask=observation_mask,
+                **m0_context,
             )
             selection_scores = output["selection_scores"]
 
@@ -351,9 +362,13 @@ def build_m0_native_private_scorer_artifact(
         raise RuntimeError("ranker/cache visual token-count mismatch")
     if int(private_config["status_dim"]) != 11:
         raise RuntimeError("M0-native private ranker must use 11 current-state values")
+    context_fusion = bool(
+        residual_config is not None
+        and residual_config.get("m0_context_fusion", False)
+    )
     return {
         "artifact_type": M0NativePrivateScorerAgent.ARTIFACT_TYPE,
-        "artifact_version": 1,
+        "artifact_version": 2 if context_fusion else 1,
         "base_checkpoint_path": str(base_checkpoint.resolve()),
         "base_checkpoint_sha256": base_sha,
         "source_ranker_artifact_path": str(source_path.resolve()),
@@ -372,6 +387,7 @@ def build_m0_native_private_scorer_artifact(
         "inference_input_schema": (
             "m0_current_f0_l0_r0_b0_images",
             "m0_current_ego_navigation_status",
+            *(("m0_released_scene_features", "m0_released_ego_features") if context_fusion else ()),
             "m0_proposals",
             *(
                 ("m0_base_factor_logits", "m0_base_scores")
@@ -383,6 +399,7 @@ def build_m0_native_private_scorer_artifact(
         "official_score_input": False,
         "external_model_representation_or_weight_used": False,
         "drivor_representation_or_weight_used": False,
+        "released_m0_context_fusion": context_fusion,
     }
 
 

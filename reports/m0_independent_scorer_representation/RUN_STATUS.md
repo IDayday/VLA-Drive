@@ -473,3 +473,35 @@ pooling from `2 x 2` to `4 x 4` per crop, increasing fixed visual tokens from
 `rl-zt3`/`rl-zt4` GPUs, with two matching Navtest shards and a frozen-generator
 training/evaluation chain behind them. No `vla-zt` or `vla-zt2` GPU is used,
 and no existing task is terminated.
+
+## Released-context plus scorer-private dual stream
+
+A source audit found a more fundamental representation confound in the first
+M0-private experiments: when the four-camera raw-token cache was enabled, the
+replay loader replaced the released M0 `scene_features` and `ego_features`
+instead of preserving them as a second stream. The residual still received the
+released factor logits and aggregate score, but it could no longer attend to
+the 16 task-contextualized Q-Former scene tokens used by the public scorer.
+Consequently, a failure of the replacement model could not establish that an
+M0-owned private scorer representation is ineffective.
+
+A predeclared single-variable dual-stream mode now retains the frozen released
+M0 scene tensor `[B,16,256]` and ego tensor `[B,1,256]`, while continuing to
+encode the current four-camera raw InternVL tokens independently. Candidate
+features cross-attend to the released context through separate scene/ego
+projections, modality embeddings, and a learned zero-initialized gate. The
+proposal bank, Base factors/scores, labels, physical-log split, loss weights,
+seed, and optimization schedule remain unchanged. Old artifacts default to the
+original path, and the zero-initialized residual still reproduces the Base
+selection exactly before training.
+
+The same tensors are now wired through replay training, conservative
+calibration, cached full-Navtest evaluation, the real online
+`M0NativePrivateScorerAgent`, shared-future diagnostics, and same-device online
+parity. No external-model feature, future annotation, or evaluator value was
+added to inference. Candidate-permutation equivariance, token-aligned replay
+joins, current-only forward signatures, and zero-initialized identity are
+covered by tests. The complete suite passes `221` tests. `rl-zt4` is included
+in the scheduler, but its current eight-task queue and approximately `942 GiB`
+host-memory use are respected; this run starts only after a natural task exit
+or sufficient memory release.
