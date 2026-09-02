@@ -798,6 +798,15 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
     atomic_write_json(args.output / "PROBE_ARCHITECTURE.json", architecture)
 
     asset_manifest = dict(staged_assets)
+    asset_manifest["schema_version"] = "oracle_effect_asset_manifest.matched_v3"
+    asset_manifest["source_asset_manifest"] = {
+        **_artifact_record(args.asset_manifest),
+        "branch": staged_assets.get("branch"),
+        "commit": staged_assets.get("base_or_current_commit"),
+    }
+    asset_manifest["branch"] = args.run_branch
+    asset_manifest["start_commit"] = args.start_commit
+    asset_manifest["base_or_current_commit"] = args.code_commit
     asset_manifest["legacy_report_hash_audit"] = legacy
     run_assets: dict[str, Any] = {
         "branch": args.run_branch,
