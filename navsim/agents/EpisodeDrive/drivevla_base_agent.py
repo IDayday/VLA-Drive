@@ -34,6 +34,10 @@ from .drivevla_backbone import (
     DriveVLABackbone,
     load_legacy_checkpoint_with_planreg_audit,
 )
+from .formal_initialization import (
+    FORMAL_INITIALIZATION_MODE,
+    validate_formal_initialization_config,
+)
 from .action_decoder import ActionDecoder
 from .layers.planning_registers import freeze_vision_except_qv_lora
 from .layers.planning_registers.register_diagnostics import (
@@ -231,6 +235,9 @@ class DriveVLABaseAgent(AbstractAgent):
         scene_fusion=None,
         world_model=None,
         ema=None,
+        initialization=None,
+        cache_policy=None,
+        semantic_path=None,
         lr_args=None,
         loss=None,
         progress_bar=True,
@@ -251,6 +258,9 @@ class DriveVLABaseAgent(AbstractAgent):
         self.scene_fusion = scene_fusion
         self.world_model_config = world_model
         self.ema_config = ema
+        self.initialization_config = initialization
+        self.cache_policy = cache_policy
+        self.semantic_path_config = semantic_path
         self.world_model_enabled = bool(
             world_model is not None and getattr(world_model, "enabled", False)
         )
@@ -275,6 +285,20 @@ class DriveVLABaseAgent(AbstractAgent):
         self.num_gpus=num_gpus
         self.checkpoint_path=checkpoint_path
         self.stage1_checkpoint_path = stage1_checkpoint_path
+        self._formal_initialization = (
+            initialization is not None
+            and str(getattr(initialization, "mode", ""))
+            == FORMAL_INITIALIZATION_MODE
+        )
+        self._formal_initialization_audit = None
+        self._agent_checkpoint_loaded = False
+        if self._formal_initialization:
+            self._formal_initialization_audit = validate_formal_initialization_config(
+                initialization,
+                checkpoint_path=checkpoint_path,
+                stage1_checkpoint_path=stage1_checkpoint_path,
+                vlm_config=vlm_config,
+            )
         self.cache_data = cache_data
         self._initialized = False
         self._latest_registers_for_diagnostics = None
@@ -491,6 +515,9 @@ class DriveVLABaseAgent(AbstractAgent):
                     getattr(self.vision_adaptation, "dropout", 0.0)
                     if self.vision_adaptation is not None
                     else 0.0
+                ),
+                strict_vocab_alignment=bool(
+                    getattr(self.vlm_config, "strict_vocab_alignment", False)
                 ),
             )
             
@@ -858,6 +885,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 ckpt,
                 legacy_lora_scale=2.0,
             )
+            self._agent_checkpoint_loaded = True
             print(f"✅ Agent loaded from checkpoint: {self.checkpoint_path}")
         elif self.stage1_checkpoint_path:
             self._load_stage1_backbone(self.stage1_checkpoint_path)

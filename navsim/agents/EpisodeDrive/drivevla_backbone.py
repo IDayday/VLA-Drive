@@ -268,7 +268,8 @@ class DriveVLABackbone(nn.Module):
                  planning_register_attention_mode: str = "bidirectional",
                  vision_qv_lora_enabled: bool = False,
                  vision_qv_lora_rank: int = 32,
-                 vision_qv_lora_dropout: float = 0.0):
+                 vision_qv_lora_dropout: float = 0.0,
+                 strict_vocab_alignment: bool = False):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -285,6 +286,7 @@ class DriveVLABackbone(nn.Module):
         self.device = device
         self.skip_lm_head = skip_lm_head
         self.gradient_checkpointing_enabled = bool(gradient_checkpointing)
+        self.strict_vocab_alignment = bool(strict_vocab_alignment)
         self.planning_registers_enabled = bool(planning_registers_enabled)
         self.planning_register_attention_mode = str(
             planning_register_attention_mode
@@ -351,6 +353,11 @@ class DriveVLABackbone(nn.Module):
                 trust_remote_code=True,
                 use_fast=False
             )
+            if self.strict_vocab_alignment and extra_token_count:
+                raise ValueError(
+                    "strict_vocab_alignment=true prohibits adding synthetic tokens "
+                    "at runtime; prepare an auditable standalone VLM checkpoint"
+                )
             if extra_token_count:
                 extra_tokens = [
                     f"<DRIVEVLA_EXTRA_{index}>"
@@ -368,6 +375,14 @@ class DriveVLABackbone(nn.Module):
                 )
             embedding_size = self.model.language_model.get_input_embeddings().num_embeddings
             if embedding_size != tokenizer_size:
+                if self.strict_vocab_alignment:
+                    raise RuntimeError(
+                        "Formal VLM initialization rejected a tokenizer/embedding "
+                        f"mismatch ({tokenizer_size} tokenizer IDs versus "
+                        f"{embedding_size} embedding rows). Silent resize would change "
+                        "the scientific initialization; prepare and audit an aligned "
+                        "standalone VLM checkpoint first."
+                    )
                 self.model.language_model.resize_token_embeddings(tokenizer_size)
                 print(
                     f"Expanded InternVL language embeddings from "

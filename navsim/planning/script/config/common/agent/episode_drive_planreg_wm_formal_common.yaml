@@ -1,0 +1,218 @@
+_target_: navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent
+
+# Formal runs load only a standalone VLM. These fields must remain null.
+checkpoint_path: null
+stage1_checkpoint_path: null
+cache_data: false
+
+initialization:
+  mode: vlm_pretrained_random_planning_stack
+  variant: ${oc.env:PLANREG_INITIALIZATION_VARIANT}
+  prohibit_agent_checkpoint: true
+  shared_trainable_init_path: ${oc.env:PLANREG_SHARED_INIT}
+
+vlm_config:
+  vlm_path: ${oc.env:PLANREG_FORMAL_VLM_PATH}
+  cam_type: single
+  vlm_type: internvl
+  vlm_size: large
+  cache_mode: false
+  cache_hidden_state: false
+  freeze_backbone: true
+  freeze_language_model: true
+  trainable_layers: []
+  initialize_from_config: false
+  strict_vocab_alignment: true
+  use_flash_attn: false
+  skip_lm_head: true
+  freeze_lm_head: true
+  gradient_checkpointing: true
+  extra_token_count: 0
+  target_vocab_size: 151682
+  planning_registers_enabled: true
+  num_planning_registers: 16
+  planning_register_dim: 256
+  tile_register_aggregation: thumbnail_query_attention
+  vision_qv_lora_enabled: true
+  vision_qv_lora_rank: 32
+
+lora_config:
+  use_lora: false
+  lora_rank: 8
+  lora_dropout: 0.0
+  lora_target_modules: []
+  checkpoint_path: ''
+
+vision_adaptation:
+  mode: qv_lora
+  layers: all
+  rank: 32
+  train_q: true
+  train_k: false
+  train_v: true
+  train_mlp: false
+  dropout: 0.0
+
+planning_registers:
+  attention_mode: read_only
+
+scene_fusion:
+  mode: planning_primary_semantic_xattn
+  num_heads: 8
+  layers: 1
+  dropout: 0.0
+  semantic_gate_init_probability: 0.20
+
+semantic_path:
+  frozen_llm_no_grad: true
+  backprop_to_vision: false
+  train_qformer: true
+
+cache_policy:
+  mode: input_only
+  cache_feature_paths: true
+  cache_target_paths: true
+  cache_tile_metadata: true
+  cache_tokenized_prompts: true
+  cache_gt_trajectory: true
+  cache_long_trajectory: true
+  cache_vlm_hidden_state: false
+  cache_patch_features: false
+  cache_semantic_tokens: false
+  cache_planning_registers: false
+  cache_future_ema_registers: false
+
+world_model:
+  enabled: true
+  future_mode: correct
+  predictor_only: false
+  horizons_sec: [0.5, 1.5, 3.0]
+  horizon_weights: [1.0, 0.7, 0.4]
+  predictor_layers: 2
+  hidden_dim: 256
+  abs_weight: 1.0
+  delta_weight: 0.5
+  min_weight: 0.01
+  max_weight: 0.10
+  start_fraction: 0.0
+  ramp_fraction: 0.10
+  normalize_state_space: true
+  candidate_count: 1
+  trajectory_source: gt
+  x_scale: 30.0
+  y_scale: 10.0
+  speed_scale: 15.0
+  acceleration_scale: 8.0
+  require_all_horizons_valid: false
+
+ema:
+  enabled: true
+  reference_global_batch: 16
+  scale_momentum_by_global_batch: true
+  start_momentum_reference: 0.996
+  end_momentum_reference: 0.9999
+  schedule: cosine
+
+trajectory_sampling:
+  _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+  _convert_: all
+  time_horizon: 4
+  interval_length: 0.5
+
+action_head_config:
+  checkpoint_path: ''
+  b2d: false
+  shared_refiner: false
+  ref_num: 4
+  scorer_ref_num: 4
+  proposal_num: 64
+  num_poses: 8
+  num_scene_tokens: 16
+  one_token_per_traj: true
+  full_history_status: false
+  long_trajectory_additional_poses: 2
+  noc: 1.0
+  dac: 1.0
+  ddc: 0.0
+  ttc: 5.0
+  ep: 5.0
+  comfort: 2.0
+  tf_d_model: 256
+  tf_d_ffn: 1024
+  cam_f0: [3]
+  cam_l0: []
+  cam_l1: []
+  cam_l2: []
+  cam_r0: []
+  cam_r1: []
+  cam_r2: []
+  cam_b0: []
+  lidar_pc: []
+  image_size: [1148, 672]
+  image_backbone:
+    model_name: timm/vit_small_patch14_reg4_dinov2.lvd142m
+    model_weights: ${oc.env:DRIVEVLA_DINO_WEIGHTS,/mnt/project/external/DrivoR/weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors}
+    use_lora: true
+    finetune: false
+    lora_rank: 32
+    focus_front_cam: false
+    use_feature_pooling: false
+    compress_fc: false
+  double_score: false
+  agent_pred: false
+  area_pred: false
+  bev_map: false
+  bev_agent: false
+  refiner_num_heads: 1
+  refiner_ls_values: 0.0
+  trajectory_sampling:
+    _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+    time_horizon: 4
+    interval_length: 0.5
+
+loss:
+  _target_: navsim.agents.EpisodeDrive.layers.losses.episode_drive_loss.EpisodeDriveLoss
+  trajectory_weight: 1.0
+  inter_weight: 0.0
+  sub_score_weight: 0.0
+  final_score_weight: 1.0
+  pred_ce_weight: 1.0
+  pred_l1_weight: 0.1
+  pred_area_weight: 2.0
+  prev_weight: 0.0
+  agent_class_weight: 1.0
+  agent_box_weight: 0.1
+  bev_semantic_weight: 1.0
+  div_weight: 0.0
+
+lr_args:
+  name: AdamW
+  reference_global_batch: 32
+  scale_with_batch_size: sqrt
+  planning_adapter_lr: 2.0e-4
+  semantic_fusion_lr: 2.0e-4
+  action_generator_lr: 2.0e-4
+  scorer_lr: 2.0e-4
+  future_predictor_lr: 2.0e-4
+  semantic_qformer_lr: 1.0e-4
+  vision_qv_lora_lr: 4.0e-5
+  language_model_lr: 0.0
+  new_module_lr_cap: 3.0e-4
+  action_scorer_lr_cap: 3.0e-4
+  qformer_lr_cap: 1.5e-4
+  vision_lora_lr_cap: 5.0e-5
+  decay_weight_decay: 0.01
+  no_decay_weight_decay: 0.0
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+scheduler_args:
+  type: cosine
+  warmup_ratio: 0.05
+  start_lr_ratio: 0.01
+  min_lr_ratio: 0.10
+  interval: step
+
+batch_size: 4
+num_gpus: 8
+progress_bar: true
