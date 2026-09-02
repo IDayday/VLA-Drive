@@ -130,3 +130,7 @@ was trained; it does not change the locked validation or promotion policy.
   pre-created an empty sweep directory before the fold launcher's no-overwrite
   check. The watcher ordering was corrected and the identical locked protocol
   was relaunched as `wave14_v2`; the empty `v1` directory remains preserved.
+- The active vla-zt Wave-14 runtime was verified as Python 3.9.25, Torch
+  2.5.1+cu124, CUDA 12.4 and NumPy 1.26.4. The reusable train/post wrappers now
+  explicitly resolve the existing `navsim_py39_exact` environment and fail
+  closed if a different Python minor version is selected on another host.

@@ -6,7 +6,8 @@
 set -euo pipefail
 
 repo_root="${REPO_ROOT:-/mnt/project/DriveVLA-M0-m0-scorer-representation}"
-python_bin="${DRIVEVLA_PYTHON:-/mnt/project/DriveVLA-M0-env/bin/python}"
+strict_python=/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python
+python_bin="${DRIVEVLA_PYTHON:-${strict_python}}"
 source_root="${NO_VQA_SOURCE_ROOT:-/root/scorer_pdms93_cache/no_vqa_e35_features_full_v1}"
 label_root="${NO_VQA_LABEL_ROOT:-/root/scorer_pdms93_cache/no_vqa_e35_labels_full_v1}"
 private_root="${NO_VQA_DENSE_TRAIN_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_multiview_trainval_pool4_tiles4_v1_8shard}"
@@ -50,7 +51,15 @@ while true; do
 done
 
 mkdir -p "${run_root}" "${log_root}"
-export PYTHONPATH="${repo_root}:${repo_root}/nuplan-devkit${PYTHONPATH:+:${PYTHONPATH}}"
+export PYTHONPATH="/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/transformers_4_48_3:/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/lightning_2_2_1:${repo_root}:${repo_root}/nuplan-devkit:/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
+[[ -x "${python_bin}" ]] || {
+  echo "missing strict Python runtime: ${python_bin}" >&2
+  exit 2
+}
+[[ "$("${python_bin}" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" == "3.9" ]] || {
+  echo "Wave-14 requires Python 3.9" >&2
+  exit 2
+}
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1

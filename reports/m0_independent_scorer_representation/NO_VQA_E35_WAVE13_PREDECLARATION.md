@@ -57,3 +57,12 @@ while that host already carried unrelated memory-heavy work. The unchanged
 five-fold command was migrated to vla-zt2, which had 832 GiB available and
 idle GPUs. Only the Wave-13 processes were stopped; no unrelated task was
 preempted. The host-local partial directory is retained for auditability.
+
+The vla-zt2 default `/mnt/project/DriveVLA-M0-env/bin/python` resolves to
+Python 3.10 on that host, while Wave-12 and the matched Wave-14 run use Python
+3.9. Although Torch 2.5.1+cu124 and NumPy 1.26.4 match, accepting that run
+would violate the single-variable claim. `wave13_v2` is therefore diagnostic
+only and was excluded before its first validation. The authoritative
+`wave13_v3` train/post commands explicitly use the deployed
+`navsim_py39_exact` interpreter plus its locked compatibility paths. The
+launchers now fail closed on any non-3.9 interpreter.
