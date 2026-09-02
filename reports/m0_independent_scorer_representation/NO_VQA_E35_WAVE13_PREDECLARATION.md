@@ -66,3 +66,28 @@ only and was excluded before its first validation. The authoritative
 `wave13_v3` train/post commands explicitly use the deployed
 `navsim_py39_exact` interpreter plus its locked compatibility paths. The
 launchers now fail closed on any non-3.9 interpreter.
+
+## Authoritative v3 launch
+
+At 2026-09-02 13:59 UTC, the unchanged predeclared five-fold experiment was
+launched with the one-fold distributed wrapper
+`local_stage2/run_no_vqa_e35_dense_risk_cv_wave13_fold_remote.sh`. Folds 0--3
+run on `training-rl-zt3` GPUs 3, 5, 6 and 7; fold 4 runs on
+`training-rl-zt4` GPU 0. These GPUs were read-only audited as idle immediately
+before launch, and no existing process was stopped.
+
+Every fold reports Python 3.9.25 from the exact locked interpreter, uses the
+same Wave-12 fold manifests, seed, optimizer, fixed epoch-7 stop and objective,
+and differs from Wave-12 only by pool-4 instead of pool-2 current-image tokens.
+The 4.7 GiB base feature cache and 185 MiB label cache were copied once from
+the already validated host-local cache to a shared cache directory. Recursive
+`diff -qr` checks passed for both directory trees before training. The dense
+95 GiB observation cache and actor targets remain the original immutable
+shared caches.
+
+The authoritative shared output root is
+`/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_dense_risk_cv_wave13_v3_distributed`.
+Each fold owns a disjoint output directory and completion marker. The global
+completion marker is created only after all five fold markers exist. Results
+from the Python-3.10 `wave13_v2` process, if it finishes while vla-zt2 remains
+unreachable, are excluded from all comparisons and promotion decisions.
