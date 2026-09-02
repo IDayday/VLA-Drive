@@ -339,6 +339,35 @@ def test_temporal_relative_safety_head_is_candidate_permutation_equivariant():
         assert torch.allclose(permuted[key], direct[key][:, permutation], atol=1e-6)
 
 
+def test_temporal_base_relative_utility_keeps_reference_delta_zero_and_equivariant():
+    torch.manual_seed(38)
+    model = TemporalConsequenceRanker(
+        TemporalConsequenceConfig(
+            dropout=0.0,
+            top_k=5,
+            utility_head_mode="base_relative",
+        )
+    ).eval()
+    assert model.base_relative_utility_head is not None
+    with torch.no_grad():
+        model.base_relative_utility_head[-1].weight.normal_(std=0.02)
+    inputs = _temporal_consequence_inputs(candidates=7)
+    direct = model(**inputs)
+    base_indices = inputs["base_scores"].argmax(dim=1, keepdim=True)
+    assert torch.equal(
+        direct["utility_delta"].gather(1, base_indices),
+        torch.zeros_like(base_indices, dtype=direct["utility_delta"].dtype),
+    )
+
+    permutation = torch.randperm(7)
+    permuted_inputs = dict(inputs)
+    for key in ("candidate_features", "proposals", "base_factor_logits", "base_scores"):
+        permuted_inputs[key] = inputs[key][:, permutation]
+    permuted = model(**permuted_inputs)
+    for key in ("utility_delta", "refined_scores", "selection_scores"):
+        assert torch.allclose(permuted[key], direct[key][:, permutation], atol=1e-6)
+
+
 def test_temporal_consequence_scorer_is_candidate_permutation_equivariant():
     torch.manual_seed(37)
     model = TemporalConsequenceRanker(

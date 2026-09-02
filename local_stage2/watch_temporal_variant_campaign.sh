@@ -10,6 +10,7 @@ score_mode="${TEMPORAL_SCORE_MODE:-residual}"
 use_base_candidate_features="${TEMPORAL_USE_BASE_CANDIDATE_FEATURES:-false}"
 use_relative_safety_head="${TEMPORAL_USE_RELATIVE_SAFETY_HEAD:-false}"
 safety_gate_mode="${TEMPORAL_SAFETY_GATE_MODE:-absolute}"
+utility_head_mode="${TEMPORAL_UTILITY_HEAD_MODE:-independent}"
 predecessor_pid="${TEMPORAL_PREDECESSOR_PID:-0}"
 minimum_available_gib="${TEMPORAL_MIN_AVAILABLE_GIB:-40}"
 minimum_available_bytes=$((minimum_available_gib * 1024 * 1024 * 1024))
@@ -56,6 +57,14 @@ if [[ "${safety_gate_mode}" == "relative" && "${use_relative_safety_head}" != "t
   printf 'TEMPORAL_CONFIG_ERROR relative gate requires relative-safety head\n' >&2
   exit 64
 fi
+case "${utility_head_mode}" in
+  independent|base_relative) ;;
+  *)
+    printf 'TEMPORAL_CONFIG_ERROR invalid utility head mode: %s\n' \
+      "${utility_head_mode}" >&2
+    exit 64
+    ;;
+esac
 if [[ "${#campaign_gpus[@]}" -ne 5 ]]; then
   printf 'TEMPORAL_CONFIG_ERROR campaign GPU list must have 5 entries\n' >&2
   exit 64
@@ -106,6 +115,7 @@ if [[ "${use_relative_safety_head}" == "true" ]]; then
   model_args+=(--use-relative-safety-head)
 fi
 model_args+=(--safety-gate-mode "${safety_gate_mode}")
+model_args+=(--utility-head-mode "${utility_head_mode}")
 
 launch_discovery_fold() {
   local fold="$1"
@@ -161,6 +171,7 @@ TEMPORAL_SCORE_MODE="${score_mode}" \
 TEMPORAL_USE_BASE_CANDIDATE_FEATURES="${use_base_candidate_features}" \
 TEMPORAL_USE_RELATIVE_SAFETY_HEAD="${use_relative_safety_head}" \
 TEMPORAL_SAFETY_GATE_MODE="${safety_gate_mode}" \
+TEMPORAL_UTILITY_HEAD_MODE="${utility_head_mode}" \
 TEMPORAL_REPLAY_GPUS="$(IFS=,; printf '%s' "${campaign_gpus[*]}")" \
 TEMPORAL_REPLAY_WAIT_PIDS=0,0,0,0,0 \
 TEMPORAL_FULL_GPUS="${campaign_gpus[0]},${campaign_gpus[1]},${campaign_gpus[2]}" \

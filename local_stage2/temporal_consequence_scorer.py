@@ -51,6 +51,7 @@ class TemporalConsequenceConfig:
     score_mode: str = "residual"
     use_relative_safety_head: bool = False
     safety_gate_mode: str = "absolute"
+    utility_head_mode: str = "independent"
 
     def __post_init__(self) -> None:
         if self.hidden_dim % self.temporal_heads:
@@ -77,6 +78,8 @@ class TemporalConsequenceConfig:
             raise ValueError("safety_gate_mode must be absolute or relative")
         if self.safety_gate_mode == "relative" and not self.use_relative_safety_head:
             raise ValueError("relative safety gating requires the relative safety head")
+        if self.utility_head_mode not in {"independent", "base_relative"}:
+            raise ValueError("utility_head_mode must be independent or base_relative")
 
 
 def _wrap_angle(value: torch.Tensor) -> torch.Tensor:
@@ -239,6 +242,16 @@ class TemporalConsequenceRanker(nn.Module):
             nn.GELU(),
             nn.Linear(config.hidden_dim, 1),
         )
+        if config.utility_head_mode == "base_relative":
+            scorer_width = config.hidden_dim * 2
+            self.base_relative_utility_head: Optional[nn.Module] = nn.Sequential(
+                nn.LayerNorm(scorer_width * 4),
+                nn.Linear(scorer_width * 4, config.hidden_dim),
+                nn.GELU(),
+                nn.Linear(config.hidden_dim, 1),
+            )
+        else:
+            self.base_relative_utility_head = None
         self.factor_delta_head = nn.Sequential(
             nn.LayerNorm(config.hidden_dim * 2),
             nn.Linear(config.hidden_dim * 2, config.hidden_dim),
@@ -256,6 +269,8 @@ class TemporalConsequenceRanker(nn.Module):
         else:
             self.relative_safety_head = None
         _zero_last(self.utility_head)
+        if self.base_relative_utility_head is not None:
+            _zero_last(self.base_relative_utility_head)
         _zero_last(self.factor_delta_head)
         if self.relative_safety_head is not None:
             _zero_last(self.relative_safety_head)
@@ -342,31 +357,45 @@ class TemporalConsequenceRanker(nn.Module):
         consequence_token = self.consequence_encoder(consequence_values)
         scorer_hidden = torch.cat((candidate_hidden, consequence_token), dim=-1)
         base_indices = base_scores.argmax(dim=1, keepdim=True)
-        if self.relative_safety_head is not None:
+        relation_hidden: Optional[torch.Tensor] = None
+        if (
+            self.relative_safety_head is not None
+            or self.base_relative_utility_head is not None
+        ):
             base_hidden = scorer_hidden.gather(
                 1,
                 base_indices[..., None].expand(-1, 1, scorer_hidden.shape[-1]),
             ).expand_as(scorer_hidden)
-            relative_safety_logits = self.relative_safety_head(
-                torch.cat(
-                    (
-                        scorer_hidden,
-                        base_hidden,
-                        scorer_hidden - base_hidden,
-                        scorer_hidden * base_hidden,
-                    ),
-                    dim=-1,
-                )
+            relation_hidden = torch.cat(
+                (
+                    scorer_hidden,
+                    base_hidden,
+                    scorer_hidden - base_hidden,
+                    scorer_hidden * base_hidden,
+                ),
+                dim=-1,
             )
+        if self.relative_safety_head is not None:
+            assert relation_hidden is not None
+            relative_safety_logits = self.relative_safety_head(relation_hidden)
         else:
             relative_safety_logits = scorer_hidden.new_zeros(
                 batch_size,
                 candidate_count,
                 3,
             )
-        utility_delta = self.config.max_residual * torch.tanh(
-            self.utility_head(scorer_hidden).squeeze(-1)
-        )
+        if self.base_relative_utility_head is not None:
+            assert relation_hidden is not None
+            utility_delta = self.config.max_residual * torch.tanh(
+                self.base_relative_utility_head(relation_hidden).squeeze(-1)
+            )
+            # The public Base candidate is the reference action and must not
+            # receive an arbitrary learned offset.
+            utility_delta = utility_delta - utility_delta.gather(1, base_indices)
+        else:
+            utility_delta = self.config.max_residual * torch.tanh(
+                self.utility_head(scorer_hidden).squeeze(-1)
+            )
         refined_factor_logits = base_factor_logits + self.factor_delta_head(scorer_hidden)
         raw_factor_delta = pdm_log_aggregate(
             refined_factor_logits

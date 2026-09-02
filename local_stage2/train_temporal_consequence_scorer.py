@@ -755,6 +755,11 @@ def parse_args() -> argparse.Namespace:
         default="absolute",
     )
     parser.add_argument(
+        "--utility-head-mode",
+        choices=("independent", "base_relative"),
+        default="independent",
+    )
+    parser.add_argument(
         "--score-mode",
         choices=("residual", "factor_aggregate", "hybrid"),
         default="residual",
@@ -897,6 +902,7 @@ def main() -> None:
             score_mode=args.score_mode,
             use_relative_safety_head=args.use_relative_safety_head,
             safety_gate_mode=args.safety_gate_mode,
+            utility_head_mode=args.utility_head_mode,
         )
     ).to(device)
     optimizer = torch.optim.AdamW(

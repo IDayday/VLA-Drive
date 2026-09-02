@@ -26,6 +26,7 @@ score_mode="${TEMPORAL_SCORE_MODE:-residual}"
 use_base_candidate_features="${TEMPORAL_USE_BASE_CANDIDATE_FEATURES:-false}"
 use_relative_safety_head="${TEMPORAL_USE_RELATIVE_SAFETY_HEAD:-false}"
 safety_gate_mode="${TEMPORAL_SAFETY_GATE_MODE:-absolute}"
+utility_head_mode="${TEMPORAL_UTILITY_HEAD_MODE:-independent}"
 
 case "${score_mode}" in
   residual|factor_aggregate|hybrid) ;;
@@ -62,6 +63,14 @@ if [[ "${safety_gate_mode}" == "relative" && "${use_relative_safety_head}" != "t
   printf 'TEMPORAL_CONFIG_ERROR relative gate requires relative-safety head\n' >&2
   exit 64
 fi
+case "${utility_head_mode}" in
+  independent|base_relative) ;;
+  *)
+    printf 'TEMPORAL_CONFIG_ERROR invalid utility head mode: %s\n' \
+      "${utility_head_mode}" >&2
+    exit 64
+    ;;
+esac
 model_args=()
 if [[ "${use_base_candidate_features}" == "true" ]]; then
   model_args+=(--use-base-candidate-features)
@@ -70,6 +79,7 @@ if [[ "${use_relative_safety_head}" == "true" ]]; then
   model_args+=(--use-relative-safety-head)
 fi
 model_args+=(--safety-gate-mode "${safety_gate_mode}")
+model_args+=(--utility-head-mode "${utility_head_mode}")
 
 if [[ "${#replay_gpus[@]}" -ne 5 || "${#replay_wait_pids[@]}" -ne 5 ]]; then
   printf 'TEMPORAL_CONFIG_ERROR replay GPU and wait-PID lists must each have 5 entries\n' >&2
@@ -171,6 +181,16 @@ if [[ "${discovery_relative_safety}" != "${use_relative_safety_head},${safety_ga
   printf 'TEMPORAL_RELATIVE_SAFETY_ERROR discovery=%s requested=%s,%s\n' \
     "${discovery_relative_safety}" "${use_relative_safety_head}" \
     "${safety_gate_mode}" >&2
+  exit 65
+fi
+discovery_utility_head="$(
+  "${DRIVEVLA_PYTHON}" -c \
+    'import glob,json,sys; paths=glob.glob(sys.argv[1]+"/fold_*/training_results.json"); values={str(json.load(open(p))["metadata"]["training_args"].get("utility_head_mode", "independent")) for p in paths}; assert len(paths)==5 and len(values)==1; print(values.pop())' \
+    "${discovery_root}"
+)"
+if [[ "${discovery_utility_head}" != "${utility_head_mode}" ]]; then
+  printf 'TEMPORAL_UTILITY_HEAD_ERROR discovery=%s requested=%s\n' \
+    "${discovery_utility_head}" "${utility_head_mode}" >&2
   exit 65
 fi
 replay_epochs=$((common_epoch + 1))
