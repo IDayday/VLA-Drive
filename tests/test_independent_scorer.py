@@ -459,7 +459,10 @@ def test_m0_scene_token_residual_packages_without_second_visual_branch(
 
 def test_m0_candidate_feature_fusion_preserves_base_and_uses_current_state() -> None:
     torch.manual_seed(141)
-    private_config = _small_config(fine_top_k=6)
+    private_config = _small_config(
+        fine_top_k=6,
+        trajectory_observation_attention=True,
+    )
     model = M0PrivateResidualRanker(
         private_config,
         M0PrivateResidualConfig(
@@ -489,6 +492,8 @@ def test_m0_candidate_feature_fusion_preserves_base_and_uses_current_state() -> 
             m0_candidate_features=candidate_features,
         )
     torch.testing.assert_close(output["selection_scores"], base_scores, rtol=0, atol=0)
+    assert output["trajectory_observation_token"].shape == (2, 6, 32)
+    assert output["trajectory_observation_gate"].item() == 0.0
 
 
 def test_m0_candidate_only_ranking_excludes_private_observation() -> None:
