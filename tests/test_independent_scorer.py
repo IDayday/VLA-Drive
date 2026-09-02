@@ -85,6 +85,7 @@ from local_stage2.train_m0_private_residual_scorer import (
     compute_residual_training_loss,
     evaluate_residual_predictions_by_source,
     load_shared_future_target_table,
+    validate_m0_all_log_refit_provenance,
 )
 from local_stage2.calibrate_m0_private_residual_policy import (
     balanced_calibration_split,
@@ -226,6 +227,7 @@ def test_m0_private_residual_forward_is_current_inference_only() -> None:
         "observation_valid_mask",
         "m0_scene_features",
         "m0_ego_features",
+        "m0_candidate_features",
     }
     assert not any(
         "future" in name or "official" in name or "metric" in name
@@ -367,6 +369,177 @@ def test_m0_native_private_artifact_packages_exact_online_class(tmp_path) -> Non
     assert payload["score_mode"] == "factor"
     assert payload["future_or_evaluator_input"] is False
     assert payload["official_score_input"] is False
+
+
+def test_m0_scene_token_residual_packages_without_second_visual_branch(
+    tmp_path,
+) -> None:
+    base_checkpoint = tmp_path / "no_vqa.ckpt"
+    base_checkpoint.write_bytes(b"immutable no-vqa M0")
+    import hashlib
+
+    base_sha = hashlib.sha256(base_checkpoint.read_bytes()).hexdigest()
+    private_config = _small_config(
+        observation_dim=256,
+        max_observation_tokens=16,
+        status_dim=256,
+        fine_top_k=6,
+    )
+    residual_config = M0PrivateResidualConfig(
+        hidden_dim=private_config.model_dim,
+        num_layers=1,
+        num_heads=4,
+        dropout=0.0,
+        top_k=6,
+        score_mode="hybrid",
+        m0_candidate_fusion=True,
+        m0_candidate_dim=256,
+        conservative_reference=True,
+        reference_hidden_dim=64,
+        reference_layers=1,
+        gain_quantile_index=0,
+    )
+    model = M0PrivateResidualRanker(private_config, residual_config)
+    source = {
+        "architecture": "M0PrivateResidualRanker",
+        "state_dict": model.state_dict(),
+        "private_config": asdict(private_config),
+        "residual_config": asdict(residual_config),
+        "epoch": 2,
+        "checkpoint_selection_source": "no_vqa_e35",
+        "validation": {"selected_pdms": 0.92},
+        "inference_input_schema": (
+            "m0_current_scene_tokens",
+            "m0_current_context_feature",
+            "m0_released_candidate_features",
+            "m0_proposals",
+            "m0_base_factor_logits",
+            "m0_base_scores",
+        ),
+        "fold_manifest": {
+            "scorer_private_observation_source": (
+                "source_checkpoint_current_scene_tokens"
+            ),
+            "source_lineage": [
+                {
+                    "name": "no_vqa_e35",
+                    "checkpoint_sha256": base_sha,
+                },
+                {
+                    "name": "training_only_current_actor_supervision",
+                    "checkpoint_sha256": None,
+                    "available_as_model_input_at_inference": False,
+                },
+            ],
+        },
+    }
+    source_path = tmp_path / "scene_token_ranker.pt"
+    torch.save(source, source_path)
+    payload = build_m0_native_private_scorer_artifact(
+        source,
+        source_path=source_path,
+        base_checkpoint=base_checkpoint,
+        private_observation_root=None,
+        shortlist_size=64,
+    )
+    assert payload["private_observation_source"] == (
+        "source_checkpoint_current_scene_tokens"
+    )
+    assert payload["private_vision_config"] is None
+    assert payload["artifact_version"] == 3
+    assert payload["inference_input_schema"][:2] == (
+        "m0_current_scene_tokens",
+        "m0_current_context_feature",
+    )
+    assert "m0_released_candidate_features" in payload["inference_input_schema"]
+    assert payload["residual_config"]["conservative_reference"] is True
+    assert payload["residual_config"]["gain_quantile_index"] == 0
+    assert payload["external_model_representation_or_weight_used"] is False
+
+
+def test_m0_candidate_feature_fusion_preserves_base_and_uses_current_state() -> None:
+    torch.manual_seed(141)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+            score_mode="hybrid",
+            m0_candidate_fusion=True,
+            m0_candidate_dim=32,
+        ),
+    ).eval()
+    observation, status, proposals = _inputs()
+    factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    candidate_features = torch.randn(2, 6, 32)
+    with pytest.raises(ValueError, match="requires released candidate features"):
+        model(observation, status, proposals, factor_logits, base_scores)
+    with torch.no_grad():
+        output = model(
+            observation,
+            status,
+            proposals,
+            factor_logits,
+            base_scores,
+            m0_candidate_features=candidate_features,
+        )
+    torch.testing.assert_close(output["selection_scores"], base_scores, rtol=0, atol=0)
+
+
+def test_m0_candidate_only_ranking_excludes_private_observation() -> None:
+    torch.manual_seed(142)
+    private_config = _small_config(fine_top_k=6)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=6,
+            score_mode="hybrid",
+            m0_candidate_fusion=True,
+            m0_candidate_dim=32,
+            m0_candidate_only=True,
+        ),
+    ).eval()
+    # Correction heads are zero-initialized for exact Base identity. Make them
+    # observable so this test can prove the private stream is disconnected.
+    with torch.no_grad():
+        model.utility_delta_head[-1].weight.normal_()
+        model.factor_delta_head[-1].weight.normal_()
+    observation, status, proposals = _inputs()
+    factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    candidate_features = torch.randn(2, 6, 32)
+    with torch.no_grad():
+        first = model(
+            observation,
+            status,
+            proposals,
+            factor_logits,
+            base_scores,
+            m0_candidate_features=candidate_features,
+        )["selection_scores"]
+        second = model(
+            observation + 100.0,
+            status - 100.0,
+            proposals,
+            factor_logits,
+            base_scores,
+            m0_candidate_features=candidate_features,
+        )["selection_scores"]
+    torch.testing.assert_close(first, second, rtol=0, atol=0)
+
+
+def test_m0_candidate_only_requires_candidate_fusion() -> None:
+    with pytest.raises(ValueError, match="requires candidate fusion"):
+        M0PrivateResidualConfig(m0_candidate_only=True)
 
 
 def test_m0_private_residual_zero_init_exactly_preserves_base() -> None:
@@ -564,11 +737,14 @@ def test_m0_private_residual_training_loss_is_finite() -> None:
         listwise_weight=0.1,
         top_set_weight=0.5,
         expected_regret_weight=1.0,
+        top_regret_weight=1.0,
+        top_regret_minimum_delta=0.01,
         factor_weight=1.0,
         private_factor_weight=0.25,
         factor_rank_weight=0.5,
         relative_safety_weight=0.5,
         residual_l2_weight=0.01,
+        factor_loss_scope="topk",
     )
     loss, details = compute_residual_training_loss(
         model,
@@ -586,11 +762,188 @@ def test_m0_private_residual_training_loss_is_finite() -> None:
     )
     assert torch.isfinite(loss)
     assert all(np.isfinite(value) for value in details.values())
+    assert details["top_regret"] >= 0
     loss.backward()
     assert model.factor_delta_head[-1].weight.grad is not None
     assert model.private_ranker.coarse_factor_heads[
         FACTOR_KEYS[0]
     ].weight.grad is not None
+
+
+def test_m0_conservative_reference_head_is_equivariant_and_trainable() -> None:
+    torch.manual_seed(110)
+    private_config = _small_config(fine_top_k=6, dropout=0.0)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=4,
+            conservative_reference=True,
+            reference_hidden_dim=64,
+            reference_layers=1,
+            gain_quantile_index=1,
+        ),
+    )
+    observation, status, proposals = _inputs(batch_size=2, candidates=6)
+    base_factor_logits = torch.randn(2, 6, len(FACTOR_KEYS))
+    base_scores = torch.randn(2, 6)
+    target_factors = torch.rand(2, 6, 7)
+    valid_mask = torch.ones(2, observation.shape[1], dtype=torch.bool)
+    output = model(
+        observation,
+        status,
+        proposals,
+        base_factor_logits,
+        base_scores,
+        observation_valid_mask=valid_mask,
+    )
+    reference = base_scores.argmax(dim=1)
+    rows = torch.arange(2)
+    torch.testing.assert_close(
+        output["selection_scores"][rows, reference], torch.zeros(2)
+    )
+    assert output["gain_quantiles"].shape == (2, 6, 3)
+    assert output["safety_worse_logits"].shape == (2, 6, 3)
+
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    permuted = model(
+        observation,
+        status,
+        proposals[:, permutation],
+        base_factor_logits[:, permutation],
+        base_scores[:, permutation],
+        observation_valid_mask=valid_mask,
+    )
+    for key in (
+        "selection_scores",
+        "gain_quantiles",
+        "safety_worse_logits",
+        "safe_improvement_logit",
+    ):
+        torch.testing.assert_close(
+            output[key], permuted[key][:, inverse], rtol=1e-5, atol=1e-6
+        )
+
+    args = SimpleNamespace(
+        minimum_pair_delta=0.02,
+        factor_rank_minimum_delta=0.05,
+        target_temperature=0.05,
+        prediction_temperature=0.05,
+        top_set_tolerance=0.01,
+        safety_negative_weight=1.0,
+        pairwise_weight=0.0,
+        base_pairwise_weight=0.0,
+        listwise_weight=0.0,
+        top_set_weight=0.0,
+        expected_regret_weight=0.0,
+        top_regret_weight=0.0,
+        factor_weight=0.0,
+        private_factor_weight=0.0,
+        factor_rank_weight=0.0,
+        relative_safety_weight=0.0,
+        residual_l2_weight=0.0,
+        factor_loss_scope="topk",
+        reference_weight=1.0,
+        reference_minimum_improvement_target=0.005,
+        reference_factor_epsilon=1e-6,
+        reference_safety_worse_positive_weight=10.0,
+        reference_safe_improvement_positive_weight=3.0,
+        reference_switch_margin_temperature=0.05,
+        reference_quantile_weight=1.0,
+        reference_median_rank_weight=0.25,
+        reference_safety_weight=1.0,
+        reference_improvement_weight=0.5,
+        reference_false_switch_weight=0.5,
+        reference_missed_improvement_weight=0.0,
+    )
+    loss, details = compute_residual_training_loss(
+        model,
+        (
+            proposals,
+            observation,
+            valid_mask,
+            status,
+            base_scores,
+            base_factor_logits,
+            target_factors,
+            torch.arange(2),
+        ),
+        args,
+    )
+    assert torch.isfinite(loss)
+    assert details["reference"] > 0
+    loss.backward()
+    assert model.conservative_reference_head.gain_quantile_head.weight.grad is not None
+
+
+def test_m0_private_factor_loss_can_be_scoped_to_deployed_shortlist() -> None:
+    torch.manual_seed(109)
+    private_config = _small_config(fine_top_k=2, dropout=0.0)
+    model = M0PrivateResidualRanker(
+        private_config,
+        M0PrivateResidualConfig(
+            hidden_dim=private_config.model_dim,
+            num_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            top_k=2,
+        ),
+    ).eval()
+    observation, status, proposals = _inputs(batch_size=1, candidates=6)
+    base_factor_logits = torch.full((1, 6, len(FACTOR_KEYS)), 2.0)
+    base_scores = torch.tensor([[6.0, 5.0, 4.0, 3.0, 2.0, 1.0]])
+    target_a = torch.zeros(1, 6, 7)
+    target_b = target_a.clone()
+    # Only candidates outside the deployed Base-anchored Top-2 differ.
+    target_b[:, 2:, :6] = 1.0
+
+    args = SimpleNamespace(
+        minimum_pair_delta=0.02,
+        factor_rank_minimum_delta=0.05,
+        target_temperature=0.05,
+        prediction_temperature=0.05,
+        top_set_tolerance=0.01,
+        safety_negative_weight=1.0,
+        pairwise_weight=0.0,
+        base_pairwise_weight=0.0,
+        listwise_weight=0.0,
+        top_set_weight=0.0,
+        expected_regret_weight=0.0,
+        top_regret_weight=0.0,
+        top_regret_minimum_delta=0.01,
+        factor_weight=1.0,
+        private_factor_weight=0.0,
+        factor_rank_weight=0.0,
+        relative_safety_weight=0.0,
+        residual_l2_weight=0.0,
+        factor_loss_scope="topk",
+    )
+
+    def compute(target_factors):
+        return compute_residual_training_loss(
+            model,
+            (
+                proposals,
+                observation,
+                torch.ones(1, observation.shape[1], dtype=torch.bool),
+                status,
+                base_scores,
+                base_factor_logits,
+                target_factors,
+                torch.arange(1),
+            ),
+            args,
+        )[1]["factor"]
+
+    topk_a = compute(target_a)
+    topk_b = compute(target_b)
+    assert topk_a == pytest.approx(topk_b, abs=1e-7)
+    args.factor_loss_scope = "all"
+    assert compute(target_a) != pytest.approx(compute(target_b), abs=1e-7)
 
 
 def test_m0_private_residual_shared_future_training_loss_is_finite() -> None:
@@ -1255,6 +1608,153 @@ def test_all_log_refit_rejects_training_argument_change() -> None:
     args.learning_rate = 1.0e-3
     with pytest.raises(RuntimeError, match="arguments differ"):
         validate_all_log_refit_provenance(selected, args, config)
+
+
+def _m0_all_log_refit_fixture():
+    private_config = _small_config()
+    residual_config = M0PrivateResidualConfig(
+        hidden_dim=32,
+        num_layers=1,
+        num_heads=4,
+        dropout=0.0,
+        top_k=4,
+        max_residual=0.5,
+        score_mode="hybrid",
+        m0_candidate_fusion=True,
+        m0_candidate_dim=16,
+    )
+    locked = {
+        "seed": 2,
+        "batch_size": 32,
+        "learning_rate": 3.0e-4,
+        "weight_decay": 1.0e-4,
+        "model_dim": 32,
+        "dynamic_queries": 3,
+        "private_layers": 1,
+        "trajectory_layers": 1,
+        "candidate_layers": 1,
+        "fine_layers": 1,
+        "private_fine_top_k": 3,
+        "residual_layers": 1,
+        "m0_context_fusion": False,
+        "m0_candidate_fusion": True,
+        "m0_candidate_only": False,
+        "conservative_reference": False,
+        "reference_hidden_dim": 512,
+        "reference_layers": 2,
+        "reference_gain_quantile_index": 1,
+        "reference_minimum_lcb_gain": 0.0,
+        "reference_maximum_safety_worse_probability": 0.1,
+        "reference_minimum_safe_improvement_probability": 0.7,
+        "residual_top_k": 4,
+        "score_mode": "hybrid",
+        "max_residual": 0.5,
+        "dropout": 0.0,
+        "minimum_pair_delta": 0.02,
+        "factor_rank_minimum_delta": 0.05,
+        "target_temperature": 0.05,
+        "prediction_temperature": 0.05,
+        "top_set_tolerance": 0.01,
+        "pairwise_weight": 1.0,
+        "base_pairwise_weight": 1.0,
+        "listwise_weight": 0.1,
+        "top_set_weight": 0.5,
+        "expected_regret_weight": 1.0,
+        "top_regret_weight": 0.0,
+        "top_regret_minimum_delta": 0.01,
+        "factor_weight": 1.0,
+        "private_factor_weight": 0.25,
+        "factor_rank_weight": 0.5,
+        "relative_safety_weight": 0.5,
+        "residual_l2_weight": 0.01,
+        "reference_weight": 0.0,
+        "reference_quantile_weight": 1.0,
+        "reference_median_rank_weight": 0.25,
+        "reference_safety_weight": 1.0,
+        "reference_improvement_weight": 0.5,
+        "reference_false_switch_weight": 0.5,
+        "reference_missed_improvement_weight": 0.0,
+        "reference_safety_worse_positive_weight": 10.0,
+        "reference_safe_improvement_positive_weight": 3.0,
+        "reference_switch_margin_temperature": 0.05,
+        "reference_minimum_improvement_target": 0.005,
+        "reference_factor_epsilon": 1e-6,
+        "shared_future_weight": 0.0,
+        "current_actor_weight": 0.0,
+        "candidate_relative_weight": 0.0,
+        "safety_negative_weight": 5.0,
+        "factor_loss_scope": "all",
+        "shared_future_relabeling": False,
+        "shared_future_constant_velocity_residual": False,
+    }
+    args = SimpleNamespace(**locked, epochs=3)
+    selected_args = dict(locked, epochs=8)
+    # Exercise the only valid compatibility path for pre-wave-4 artifacts.
+    for name in (
+        "top_regret_weight",
+        "top_regret_minimum_delta",
+        "factor_loss_scope",
+    ):
+        selected_args.pop(name)
+    deployment_config = asdict(residual_config)
+    deployment_config.update(
+        inference_scale=0.5,
+        safety_floor=0.85,
+        safety_gate_mode="relative_factor",
+    )
+    selected = {
+        "architecture": "M0PrivateResidualRanker",
+        "epoch": 2,
+        "checkpoint_selection_source": "no_vqa_e35",
+        "private_config": asdict(private_config),
+        "residual_config": deployment_config,
+        "validation_by_source": {
+            "no_vqa_e35": {
+                "selected_pdms": 0.94,
+                "base_selected_pdms": 0.93,
+                "selected_delta": 0.01,
+                "selected_delta_log_bootstrap_95ci": [0.001, 0.01],
+                "scene_count": 100,
+                "physical_log_count": 10,
+            }
+        },
+        "fold_manifest": {
+            "args": selected_args,
+            "train_physical_logs": ["train-a", "train-b"],
+            "validation_physical_logs": ["validation-a"],
+        },
+        "policy_calibration": {"policy": {"inference_scale": 0.5}},
+        "policy_selection_uses_navtest": False,
+        "policy_selection_uses_disjoint_physical_logs": True,
+    }
+    return selected, args, private_config, residual_config
+
+
+def test_m0_all_log_refit_locks_training_and_deployment_policy() -> None:
+    selected, args, private_config, residual_config = _m0_all_log_refit_fixture()
+    provenance = validate_m0_all_log_refit_provenance(
+        selected, args, private_config, residual_config
+    )
+    assert provenance["selected_epoch"] == 2
+    assert provenance["scheduler_horizon_epochs"] == 8
+    assert provenance["deployment_policy_frozen_from_selection"] is True
+    assert provenance["deployment_residual_config"]["inference_scale"] == 0.5
+    assert provenance["locked_training_arguments"]["factor_loss_scope"] == "all"
+
+
+def test_m0_all_log_refit_rejects_training_change_or_navtest_policy() -> None:
+    selected, args, private_config, residual_config = _m0_all_log_refit_fixture()
+    args.safety_negative_weight = 1.0
+    with pytest.raises(RuntimeError, match="arguments differ"):
+        validate_m0_all_log_refit_provenance(
+            selected, args, private_config, residual_config
+        )
+    args.safety_negative_weight = 5.0
+    selected["policy_selection_uses_navtest"] = True
+    with pytest.raises(RuntimeError, match="must not use Navtest"):
+        validate_m0_all_log_refit_provenance(
+            selected, args, private_config, residual_config
+        )
 
 
 def test_candidate_permutation_equivariance() -> None:
@@ -2351,4 +2851,19 @@ def test_private_observation_cache_joins_replay_by_token(tmp_path) -> None:
     torch.testing.assert_close(
         data.m0_ego_features[1],
         torch.full((1, 256), 6.0, dtype=torch.float16),
+    )
+
+    scene_data, _ = load_replay_sources(
+        [ReplaySource("base", feature_root, label_root)],
+        private_observation_root=None,
+    )
+    assert scene_data.observation_row_indices.tolist() == [0, 1]
+    assert scene_data.observation_valid_masks.all()
+    torch.testing.assert_close(
+        scene_data.observation_tokens[0],
+        torch.full((16, 256), 3.0, dtype=torch.float16),
+    )
+    torch.testing.assert_close(
+        scene_data.ego_features[1],
+        torch.full((256,), 6.0, dtype=torch.float16),
     )

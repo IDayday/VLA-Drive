@@ -1,12 +1,33 @@
 # Independent scorer experiment status
 
-Updated: 2026-09-01 21:02 UTC.
+Updated: 2026-09-02 UTC.
+
+Unified evidence index:
+
+`reports/m0_independent_scorer_representation/EXPERIMENT_EVIDENCE_INDEX.md`
+
+The active No-VQA representation-learning route is locked at:
+
+`reports/m0_independent_scorer_representation/NO_VQA_SCORER_REPRESENTATION_PLAN.md`
+
+Canonical comparison of V8, the reconstructed Stage2 correction, and No-VQA
+(checkpoint hashes, complete FP32 Navtest metrics, training settings, paired
+log-bootstrap intervals, and evidence paths):
+
+`reports/m0_independent_scorer_representation/M0_V8_CORRECTED_NOVQA_COMPARISON.md`
+
+Do not reconstruct those three runs from this older rolling status section;
+use the canonical comparison above.
 
 ## Resource contract
 
-- New scorer jobs use only `rl-zt3` and `rl-zt4`.
-- No new GPU allocation was made on `vla-zt` or `vla-zt2`.
-- Existing unrelated processes were not stopped.
+- The user subsequently confirmed that `vla-zt` and `vla-zt2` were free and
+  explicitly authorized both for this scorer campaign; both 8-GPU hosts are
+  now running the two primary No-VQA fixed-bank waves.
+- `rl-zt3` was unavailable at the latest connectivity check. On `rl-zt4`,
+  this campaign uses only GPUs 1/3/5/6/7, which were verified idle immediately
+  before launch; the pre-existing work on GPUs 0/2/4 was not touched.
+- No unrelated process was stopped or preempted.
 
 ## Complete Navtest results
 
@@ -505,3 +526,103 @@ covered by tests. The complete suite passes `221` tests. `rl-zt4` is included
 in the scheduler, but its current eight-task queue and approximately `942 GiB`
 host-memory use are respected; this run starts only after a natural task exit
 or sufficient memory release.
+
+## Active No-VQA epoch-35 scene-token campaign (2026-09-02)
+
+The current primary path no longer waits on the older public-M0/four-camera
+experiments. It fixes the locally trained No-VQA epoch-35 generator and uses
+the exact checkpoint/config pair to cache its own 16 current-scene tokens,
+ego token, 64 proposals, factor logits, and Base scores over all `103,288`
+legal trainval scenes. Eight A800 shards are active under launcher PID
+`448227`; the first synchronized progress sample showed all GPUs at 99–100%
+utilization and all shards at `11/101` chunks. Four 12-process CPU workers
+attach labels in a physically separate tree.
+
+The training watcher PID is `455360`; the validation-calibration/Navtest watcher
+PID is `459362`, and the `training-vla-zt2` transfer/launch watcher is `459364`.
+They first require a strict cache audit,
+then starts eight log-disjoint full-data scorer-private runs and the matching
+FP32 full-Navtest candidate-bank scoring job. The primary hybrid model is run
+with seeds 2, 11, and 23; no-actor, direct-only, factor-only, deeper-refiner,
+and shared-future auxiliary variants are fixed before validation results are
+read. No DrivOR representation or weight enters any of these paths.
+
+Each frozen learned ranker also receives a validation-only conservative-policy
+calibration. The 61 held-out physical logs are balanced into disjoint halves:
+one chooses residual scale, switch penalty, and predicted safety gate; the other
+is the promotion set. Both raw and calibrated artifacts are eligible only under
+a positive physical-log bootstrap lower bound, and every eligible artifact is
+scheduled for complete Navtest rather than selected using Navtest outcomes.
+
+An independent second wave is queued for the eight idle A800 GPUs on
+`training-vla-zt2`. It compares M0-candidate-hidden-only residuals at top-64,
+top-16 and top-8 against the full private representation at Base top-4/8/16.
+This is a pre-Navtest representation/support ablation; the immutable cache is
+transferred only after the local 103,288-scene verifier passes, and no existing
+remote task is stopped.
+
+The deployment adapter now supports the exact lightweight path used in
+training: one frozen No-VQA forward produces `language_feature [B,16,256]`
+and `ego_feature [B,1,256]`, plus the original scorer-attention
+`scorer_candidate_features [B,64,256]`. Every active variant fuses this frozen,
+current-only M0 candidate representation with its scorer-private representation;
+no future tensor or external model enters inference. The new scorer consumes
+these tensors without a second vision-tower pass. Packaging verifies source/base
+checkpoint SHA identity. The cache verifier now requires both export flags and
+the exact 64-by-256 candidate-feature shape. The scene-token packaging,
+Base-preserving zero initialization, candidate-feature path, and candidate
+permutation tests pass. Full commands, SHA values, variants, and cache evidence are recorded in
+[NO_VQA_SCORER_REPRESENTATION_PLAN.md](NO_VQA_SCORER_REPRESENTATION_PLAN.md).
+
+## No-VQA scene-token 首个完整 Navtest 与 wave-4（2026-09-02）
+
+matching No-VQA candidate matrix 已完成 136/136 segment logs，并通过
+12,146-scene、64-candidate、0-invalid validator。Base PDMS 为 `0.911493`，
+Best-of-64 为 `0.983129`。Base-Top-4 oracle 仅 `0.929307`，因此不能满足
+`>0.93`；Base-Top-8 oracle 为 `0.940399`。
+
+wave-2 Top-8 frozen ranker 在 30-log calibration / 31-log promotion 的独立
+后半集得到 `+0.002634`，95% CI `[+0.000059,+0.005095]`，因而进入完整
+Navtest。严格测试结果反而为 `0.909580`，比 matching Base 低 `-0.001913`，
+95% CI `[-0.003780,-0.000087]`。progress 增加 `+0.008555`，但 NOC、DAC、
+DDC 和 TTC 分别下降 `-0.003046/-0.003540/-0.002676/-0.007410`。该 artifact
+被明确判为失败，不用于后续调参或成绩声明。
+
+源码层面的下一组固定对照已经在 rl-zt4 GPU 0/2/4 启动：给 shortlist 排序
+增加显式 oracle-vs-rest Top-1 regret loss，并比较 factor/safety loss 在全部
+64 候选和实际 Base-Top-8 shortlist 上的监督范围。旧默认保持不变，新增路径
+有单元测试覆盖。完整证据见
+[NO_VQA_E35_SCORER_CAMPAIGN_RESULTS.md](NO_VQA_E35_SCORER_CAMPAIGN_RESULTS.md)。
+
+随后 wave-2 最终 campaign 已完整收口：11 个 validation-effective artifact
+全部完成 Navtest 和在线/缓存 parity，coverage 为 11/11、0 invalid。最佳测试
+值仅 `0.910824`，仍比 Base 低 `-0.000669`；其余结果介于 `0.906954` 与
+`0.910437`。11 个 validation delta 全为正，但 11 个 Navtest 点估计全为负，
+没有任何结果超过 `0.93`。这已排除“仅靠冻结 No-VQA candidate hidden、
+Base-Top-K 和事后保守阈值即可泛化提升”的假设。
+
+## 最新收口与在运行路径（2026-09-02 08:12 UTC）
+
+- wave-3 三个 validation-selected 架构已按锁定 epoch 在全部 162 条物理日志、
+  103,288 scenes 上 refit，并完成 3/3 严格完整 Navtest。最佳为 `0.910348`，
+  相对 No-VQA Base `-0.001145`，95% CI `[-0.003195,+0.000996]`。全日志 refit
+  缩小了 validation-to-Navtest 损失，但没有产生正增益。
+- wave-4 的 5/5 promoted artifact 已收口；Top-regret calibrated 版本为
+  `0.911414`，相对 Base `-0.000080`，是目前最接近 Base 的自研 scorer，但不构成
+  改善，更不构成 `>0.93`。
+- wave-4 Top-regret 已进一步按锁定 epoch 在全部 162 条物理日志上 refit，并
+  完成严格 Navtest：`0.911192`，相对 Base `-0.000302`，95% CI
+  `[-0.001954,+0.001243]`。12,146 scenes、136 logs、64 candidates、0 invalid
+  与在线/cache parity（最大误差 `2.38e-7`）全部通过；全日志 refit 仍未翻正。
+- wave-5 的 Base-relative conservative-reference head 已通过 152 项相关测试，
+  正在 `training-vla-zt2` 八卡运行。它保留精确 Base fallback，只在相对收益、
+  安全退化与可信度 gate 同时通过时切换。
+- No-VQA epoch-35 原生四视角特征 4-scene smoke 已成功。全 103,288-scene
+  trainval cache 正在本机八卡导出，随后自动导出完整 Navtest cache；预注册的
+  wave-6 raw-multiview scorer 在 `training-vla-zt2` 等待 cache 和 GPU 自然空闲，
+  不会中断 wave-5。
+- DrivOR 始终只用于候选库差距分析；任何在训练、验证或部署中的 M0 新 scorer
+  都没有读取 DrivOR 表征、权重或打分。
+
+完整 consolidated 结果与当前命令边界见
+[NO_VQA_E35_SCORER_CAMPAIGN_RESULTS.md](NO_VQA_E35_SCORER_CAMPAIGN_RESULTS.md)。

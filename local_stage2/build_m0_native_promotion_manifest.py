@@ -132,9 +132,69 @@ def _record(
     }
 
 
+def _refit_record(*, run_dir: Path, path: Path) -> Dict[str, object]:
+    artifact = torch.load(path, map_location="cpu", weights_only=False)
+    if artifact.get("architecture") != "M0PrivateResidualRanker":
+        raise RuntimeError(f"refit artifact architecture mismatch: {path}")
+    if not bool(artifact.get("refit_all_logs")):
+        raise RuntimeError(f"artifact is not an all-log refit: {path}")
+    if artifact.get("validation_performed") is not False:
+        raise RuntimeError(f"all-log refit unexpectedly reports validation: {path}")
+    provenance = artifact.get("refit_provenance")
+    if not isinstance(provenance, Mapping):
+        raise RuntimeError(f"refit artifact lacks selection provenance: {path}")
+    interval = provenance.get("selected_delta_log_bootstrap_95ci")
+    if not isinstance(interval, (list, tuple)) or len(interval) != 2:
+        raise RuntimeError(f"refit artifact lacks selection CI: {path}")
+    lower, upper = float(interval[0]), float(interval[1])
+    if lower <= 0.0:
+        raise RuntimeError(f"refit selection did not pass the held-out gate: {path}")
+    fold = artifact.get("fold_manifest")
+    if not isinstance(fold, Mapping):
+        raise RuntimeError(f"refit artifact lacks fold manifest: {path}")
+    if fold.get("validation_physical_logs") not in ([], ()):
+        raise RuntimeError(f"refit artifact retains validation logs: {path}")
+    score_mode = f"residual_{artifact['residual_config']['score_mode']}"
+    return {
+        "name": f"{_safe_name(run_dir.name)}__{score_mode}",
+        "run_dir": str(run_dir.resolve()),
+        "artifact": str(path.resolve()),
+        "artifact_sha256": _sha256(path),
+        "architecture": "M0PrivateResidualRanker",
+        "score_mode": score_mode,
+        "epoch": int(artifact["epoch"]),
+        "validation_scene_count": int(
+            provenance["selected_validation_scene_count"]
+        ),
+        "validation_physical_log_count": int(
+            provenance["selected_validation_physical_log_count"]
+        ),
+        "validation_selected_pdms": float(
+            provenance["selected_validation_pdms"]
+        ),
+        "validation_base_selected_pdms": float(
+            provenance["selected_validation_base_pdms"]
+        ),
+        "validation_delta": float(provenance["selected_validation_delta"]),
+        "validation_delta_log_bootstrap_95ci": [lower, upper],
+        "promoted": True,
+        "promotion_reason": (
+            "all_log_refit_locked_by_positive_heldout_log_bootstrap_lower_bound"
+        ),
+        "selection_artifact_sha256": str(
+            provenance["selection_artifact_sha256"]
+        ),
+        "refit_all_logs": True,
+        "validation_performed_after_refit": False,
+        "future_or_evaluator_input": False,
+        "external_model_representation_or_weight_used": False,
+    }
+
+
 def build_manifest(
     independent_runs: List[Path],
     residual_runs: List[Path],
+    refit_residual_runs: List[Path],
     minimum_ci_lower: float,
 ) -> Dict[str, object]:
     records: List[Dict[str, object]] = []
@@ -175,6 +235,12 @@ def build_manifest(
                 minimum_ci_lower=minimum_ci_lower,
             )
         )
+    for run_dir in refit_residual_runs:
+        _completed_training(run_dir)
+        path = run_dir / "refit_m0_private_residual_scorer.pt"
+        if not path.is_file():
+            raise RuntimeError(f"missing completed refit artifact: {path}")
+        records.append(_refit_record(run_dir=run_dir, path=path))
     promoted = [record for record in records if bool(record["promoted"])]
     if len({str(record["artifact_sha256"]) for record in promoted}) != len(promoted):
         raise RuntimeError("promoted artifacts unexpectedly share a SHA256")
@@ -193,16 +259,20 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--independent-run", action="append", type=Path, default=[])
     parser.add_argument("--residual-run", action="append", type=Path, default=[])
+    parser.add_argument(
+        "--refit-residual-run", action="append", type=Path, default=[]
+    )
     parser.add_argument("--minimum-ci-lower", type=float, default=0.0)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if not args.independent_run and not args.residual_run:
+    if not args.independent_run and not args.residual_run and not args.refit_residual_run:
         raise ValueError("at least one scorer run is required")
     if args.output.exists():
         raise FileExistsError(args.output)
     payload = build_manifest(
         args.independent_run,
         args.residual_run,
+        args.refit_residual_run,
         args.minimum_ci_lower,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)

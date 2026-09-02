@@ -1,0 +1,262 @@
+{
+  "baseline_recompute_parity": {
+    "combination": "context=public|attention=public|head=public",
+    "score_max_abs_error": 0.0031385421752929688,
+    "score_mean_abs_error": 8.181224256986752e-05,
+    "selected_index_agreement": 0.9962044358253479
+  },
+  "cached_base_best_of_64_pdms": 0.9887335896492004,
+  "cached_base_selected_pdms": 0.9516119360923767,
+  "candidate_count": 64,
+  "checkpoints": {
+    "epoch3": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/runs/training/stage2_official_pl221_tf448_eager_seed2_long2_source_cosine_16x1/milestones/validation_03_epoch3.ckpt",
+      "sha256": "2725d472620ef29e7082ddc65c21b9ee0c2db2c40cf0a8da9f6890f53afeb4b3"
+    },
+    "public": {
+      "path": "/mnt/project/DriveVLA-M0-modelscope/best-epoch_26-step_174312.server_merged.ckpt",
+      "sha256": "7f7ce61b9492936d9af15c7bb68dc57d53c6629fccd23ac5ae530058286a807d"
+    }
+  },
+  "combinations": {
+    "context=epoch3|attention=epoch3|head=epoch3": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.545151528532325,
+      "selected_factors": {
+        "comfort": 0.9998899698257446,
+        "drivable_area_compliance": 0.9812970757484436,
+        "driving_direction_compliance": 0.9782166481018066,
+        "ego_progress": 0.8273171186447144,
+        "no_at_fault_collisions": 0.997139573097229,
+        "score": 0.9113692045211792,
+        "time_to_collision_within_bound": 0.9874580502510071
+      },
+      "selected_index_agreement_with_cached_base": 0.12635459005832672,
+      "selected_pdms": 0.9113693237304688,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.04421795999360265,
+        -0.035173247589575886
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.04024268686771393,
+      "top1_regret": 0.07736431807279587
+    },
+    "context=epoch3|attention=epoch3|head=public": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.685377146177221,
+      "selected_factors": {
+        "comfort": 0.6775400042533875,
+        "drivable_area_compliance": 0.8640189170837402,
+        "driving_direction_compliance": 0.9111887216567993,
+        "ego_progress": 0.7932969927787781,
+        "no_at_fault_collisions": 0.9513174295425415,
+        "score": 0.7291890382766724,
+        "time_to_collision_within_bound": 0.840915322303772
+      },
+      "selected_index_agreement_with_cached_base": 0.015677429735660553,
+      "selected_pdms": 0.7291890978813171,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.24175562800437914,
+        -0.20107873402732138
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.22242291271686554,
+      "top1_regret": 0.25954458117485046
+    },
+    "context=epoch3|attention=public|head=epoch3": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.4135950774398788,
+      "selected_factors": {
+        "comfort": 0.9937290549278259,
+        "drivable_area_compliance": 0.9596237540245056,
+        "driving_direction_compliance": 0.9724132418632507,
+        "ego_progress": 0.7353066802024841,
+        "no_at_fault_collisions": 0.9932339787483215,
+        "score": 0.8562201261520386,
+        "time_to_collision_within_bound": 0.9803619384765625
+      },
+      "selected_index_agreement_with_cached_base": 0.042741626501083374,
+      "selected_pdms": 0.8562201261520386,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.10046153846040994,
+        -0.08998932395644717
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.09539183974266052,
+      "top1_regret": 0.13251346349716187
+    },
+    "context=epoch3|attention=public|head=public": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.6043074696106162,
+      "selected_factors": {
+        "comfort": 0.9993948936462402,
+        "drivable_area_compliance": 0.9716156125068665,
+        "driving_direction_compliance": 0.9745035767555237,
+        "ego_progress": 0.8486025333404541,
+        "no_at_fault_collisions": 0.9961494207382202,
+        "score": 0.9119669198989868,
+        "time_to_collision_within_bound": 0.9795368313789368
+      },
+      "selected_index_agreement_with_cached_base": 0.11777325719594955,
+      "selected_pdms": 0.9119669198989868,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.04286431455007027,
+        -0.03650554507408308
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.039645079523324966,
+      "top1_regret": 0.07676670700311661
+    },
+    "context=public|attention=epoch3|head=epoch3": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.4441015544709273,
+      "selected_factors": {
+        "comfort": 0.9999449849128723,
+        "drivable_area_compliance": 0.9758512377738953,
+        "driving_direction_compliance": 0.9841025471687317,
+        "ego_progress": 0.7666728496551514,
+        "no_at_fault_collisions": 0.997992217540741,
+        "score": 0.883126437664032,
+        "time_to_collision_within_bound": 0.9876781105995178
+      },
+      "selected_index_agreement_with_cached_base": 0.061939600855112076,
+      "selected_pdms": 0.883126437664032,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.07520634564648594,
+        -0.059520710453163345
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.06848553568124771,
+      "top1_regret": 0.10560716688632965
+    },
+    "context=public|attention=epoch3|head=public": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.673732086138376,
+      "selected_factors": {
+        "comfort": 0.6999834775924683,
+        "drivable_area_compliance": 0.8442708849906921,
+        "driving_direction_compliance": 0.918449878692627,
+        "ego_progress": 0.7676804065704346,
+        "no_at_fault_collisions": 0.944001317024231,
+        "score": 0.6948333382606506,
+        "time_to_collision_within_bound": 0.79855877161026
+      },
+      "selected_index_agreement_with_cached_base": 0.01309202890843153,
+      "selected_pdms": 0.6948332786560059,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.27383245159464237,
+        -0.23795118474625812
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.25677868723869324,
+      "top1_regret": 0.2939002811908722
+    },
+    "context=public|attention=public|head=epoch3": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.38634572875079487,
+      "selected_factors": {
+        "comfort": 0.9990648627281189,
+        "drivable_area_compliance": 0.9678750038146973,
+        "driving_direction_compliance": 0.9738984704017639,
+        "ego_progress": 0.7234705686569214,
+        "no_at_fault_collisions": 0.9941691160202026,
+        "score": 0.8579055070877075,
+        "time_to_collision_within_bound": 0.984817624092102
+      },
+      "selected_index_agreement_with_cached_base": 0.04510699212551117,
+      "selected_pdms": 0.8579055666923523,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -0.09834268167191311,
+        -0.08921359846856448
+      ],
+      "selected_pdms_delta_vs_cached_base": -0.09370637685060501,
+      "top1_regret": 0.13082802295684814
+    },
+    "context=public|attention=public|head=public": {
+      "best_of_64_pdms": 0.9887335896492004,
+      "pair_count_delta_ge_0_02": 21786062,
+      "pairwise_accuracy_delta_ge_0_02": 0.7143835356752405,
+      "selected_factors": {
+        "comfort": 0.9997799396514893,
+        "drivable_area_compliance": 0.989163339138031,
+        "driving_direction_compliance": 0.967242419719696,
+        "ego_progress": 0.9074235558509827,
+        "no_at_fault_collisions": 0.9986798167228699,
+        "score": 0.9516100287437439,
+        "time_to_collision_within_bound": 0.9915837049484253
+      },
+      "selected_index_agreement_with_cached_base": 0.9962044358253479,
+      "selected_pdms": 0.9516100287437439,
+      "selected_pdms_delta_log_bootstrap_95ci": [
+        -5.775664982916944e-06,
+        5.255786799475863e-07
+      ],
+      "selected_pdms_delta_vs_cached_base": -1.921178409247659e-06,
+      "top1_regret": 0.03712354972958565
+    }
+  },
+  "component_drift_from_baseline": {
+    "epoch3": {
+      "ego_encoder": {
+        "cosine_similarity": 0.9890439145116814,
+        "max_abs_difference": 0.17551696300506592,
+        "parameter_count": 3072,
+        "relative_l2": 0.15676704469879052,
+        "tensor_count": 2
+      },
+      "factor_heads": {
+        "cosine_similarity": 0.8010751659169397,
+        "max_abs_difference": 0.2507290467619896,
+        "parameter_count": 1585158,
+        "relative_l2": 0.5989118009703803,
+        "tensor_count": 24
+      },
+      "q_former": {
+        "cosine_similarity": 0.8836147709109006,
+        "max_abs_difference": 0.25777965784072876,
+        "parameter_count": 4611840,
+        "relative_l2": 0.4696374844283098,
+        "tensor_count": 77
+      },
+      "scorer_attention": {
+        "cosine_similarity": 0.9011066050792117,
+        "max_abs_difference": 0.22539004310965538,
+        "parameter_count": 4215808,
+        "relative_l2": 0.43458471784342545,
+        "tensor_count": 80
+      },
+      "trajectory_embedding": {
+        "cosine_similarity": 0.7907023767297742,
+        "max_abs_difference": 0.28577321022748947,
+        "parameter_count": 288000,
+        "relative_l2": 0.6124300534981731,
+        "tensor_count": 4
+      }
+    }
+  },
+  "contexts": {
+    "epoch3": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/epoch3_frozen_generator_features_full_v1",
+    "public": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/public_base_features_full_v1"
+  },
+  "created_at_utc": "2026-09-02T03:34:02.556777+00:00",
+  "forbidden_model_inputs": [
+    "PDM targets",
+    "official scores",
+    "future annotations",
+    "future images"
+  ],
+  "inference_inputs": [
+    "fixed proposals",
+    "current-observation scene_features",
+    "current ego_features"
+  ],
+  "label_root": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/public_base_labels_full_v1",
+  "physical_log_count": 61,
+  "proposal_root": "/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/public_base_features_full_v1",
+  "scene_count": 18179,
+  "schema_version": 1,
+  "segment_log_count": 214,
+  "split": "validation",
+  "split_manifest": "/mnt/project/DriveVLA-M0-scorer-pdms93/reports/scorer_pdms93/OFFICIAL_SCORER_SPLIT.json"
+}

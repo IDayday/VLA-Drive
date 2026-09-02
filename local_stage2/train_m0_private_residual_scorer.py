@@ -51,14 +51,235 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     candidate_relative_consequence_loss,
     current_actor_auxiliary_loss,
     episode_drive_factor_loss,
+    masked_pinball_quantile_loss,
     pdms_factor_log_utility,
     shared_future_auxiliary_loss,
+    top_regret_rank_loss,
+    weighted_pairwise_rank_loss,
 )
 from navsim.agents.EpisodeDrive.score_module.m0_private_residual_ranker import (
     M0PrivateResidualConfig,
     M0PrivateResidualRanker,
     base_anchored_topk_indices,
 )
+
+
+_M0_REFIT_LOCKED_ARGUMENTS = (
+    "seed",
+    "batch_size",
+    "learning_rate",
+    "weight_decay",
+    "model_dim",
+    "dynamic_queries",
+    "private_layers",
+    "trajectory_layers",
+    "candidate_layers",
+    "fine_layers",
+    "private_fine_top_k",
+    "residual_layers",
+    "m0_context_fusion",
+    "m0_candidate_fusion",
+    "m0_candidate_only",
+    "conservative_reference",
+    "reference_hidden_dim",
+    "reference_layers",
+    "reference_gain_quantile_index",
+    "reference_minimum_lcb_gain",
+    "reference_maximum_safety_worse_probability",
+    "reference_minimum_safe_improvement_probability",
+    "residual_top_k",
+    "score_mode",
+    "max_residual",
+    "dropout",
+    "minimum_pair_delta",
+    "factor_rank_minimum_delta",
+    "target_temperature",
+    "prediction_temperature",
+    "top_set_tolerance",
+    "pairwise_weight",
+    "base_pairwise_weight",
+    "listwise_weight",
+    "top_set_weight",
+    "expected_regret_weight",
+    "top_regret_weight",
+    "top_regret_minimum_delta",
+    "factor_weight",
+    "private_factor_weight",
+    "factor_rank_weight",
+    "relative_safety_weight",
+    "residual_l2_weight",
+    "reference_weight",
+    "reference_quantile_weight",
+    "reference_median_rank_weight",
+    "reference_safety_weight",
+    "reference_improvement_weight",
+    "reference_false_switch_weight",
+    "reference_missed_improvement_weight",
+    "reference_safety_worse_positive_weight",
+    "reference_safe_improvement_positive_weight",
+    "reference_switch_margin_temperature",
+    "reference_minimum_improvement_target",
+    "reference_factor_epsilon",
+    "shared_future_weight",
+    "current_actor_weight",
+    "candidate_relative_weight",
+    "safety_negative_weight",
+    "factor_loss_scope",
+    "shared_future_relabeling",
+    "shared_future_constant_velocity_residual",
+)
+_M0_LEGACY_REFIT_ARGUMENT_DEFAULTS = {
+    # Wave 1--3 artifacts predate these explicit loss switches but have these
+    # exact semantics.  Missing fields may only resolve to these constants.
+    "top_regret_weight": 0.0,
+    "top_regret_minimum_delta": 0.01,
+    "factor_loss_scope": "all",
+    "conservative_reference": False,
+    "reference_hidden_dim": 512,
+    "reference_layers": 2,
+    "reference_gain_quantile_index": 1,
+    "reference_minimum_lcb_gain": 0.0,
+    "reference_maximum_safety_worse_probability": 0.1,
+    "reference_minimum_safe_improvement_probability": 0.7,
+    "reference_weight": 0.0,
+    "reference_quantile_weight": 1.0,
+    "reference_median_rank_weight": 0.25,
+    "reference_safety_weight": 1.0,
+    "reference_improvement_weight": 0.5,
+    "reference_false_switch_weight": 0.5,
+    "reference_missed_improvement_weight": 0.0,
+    "reference_safety_worse_positive_weight": 10.0,
+    "reference_safe_improvement_positive_weight": 3.0,
+    "reference_switch_margin_temperature": 0.05,
+    "reference_minimum_improvement_target": 0.005,
+    "reference_factor_epsilon": 1.0e-6,
+}
+_M0_DEPLOYMENT_ONLY_RESIDUAL_FIELDS = (
+    "inference_scale",
+    "switch_penalty",
+    "safety_floor",
+    "safety_relative_tolerance",
+    "preserve_ddc",
+    "safety_gate_mode",
+)
+
+
+def validate_m0_all_log_refit_provenance(
+    selected: Mapping[str, object],
+    args: argparse.Namespace,
+    private_config: IndependentRankerConfig,
+    residual_config: M0PrivateResidualConfig,
+) -> Dict[str, object]:
+    """Lock an all-log refit to one held-out-log-selected M0 ranker.
+
+    The refit may see the former validation logs, but it cannot change the
+    architecture, objective, seed, batch size, stop epoch, scheduler horizon,
+    or deployment calibration selected without Navtest.
+    """
+
+    if selected.get("architecture") != "M0PrivateResidualRanker":
+        raise RuntimeError("M0 refit selection artifact has the wrong architecture")
+    if bool(selected.get("refit_all_logs")):
+        raise RuntimeError("an M0 all-log refit cannot select another refit")
+    source = str(selected.get("checkpoint_selection_source"))
+    validation_by_source = selected.get("validation_by_source")
+    if not isinstance(validation_by_source, Mapping) or source not in validation_by_source:
+        raise RuntimeError("M0 refit artifact lacks held-out source metrics")
+    metrics = validation_by_source[source]
+    if not isinstance(metrics, Mapping):
+        raise RuntimeError("M0 refit validation metrics have the wrong schema")
+    interval = metrics.get("selected_delta_log_bootstrap_95ci")
+    if not isinstance(interval, Sequence) or len(interval) != 2:
+        raise RuntimeError("M0 refit artifact lacks a log-bootstrap interval")
+    if float(interval[0]) <= 0.0:
+        raise RuntimeError("M0 refit artifact did not pass the held-out CI gate")
+    if "policy_calibration" in selected:
+        if bool(selected.get("policy_selection_uses_navtest", True)):
+            raise RuntimeError("M0 refit calibration must not use Navtest")
+        if not bool(selected.get("policy_selection_uses_disjoint_physical_logs")):
+            raise RuntimeError(
+                "M0 refit calibration was not evaluated on disjoint physical logs"
+            )
+
+    if selected.get("private_config") != asdict(private_config):
+        raise RuntimeError("M0 refit private configuration differs from selection")
+    selected_residual_config = selected.get("residual_config")
+    if not isinstance(selected_residual_config, Mapping):
+        raise RuntimeError("M0 refit artifact lacks its residual configuration")
+    selected_training_residual = dict(selected_residual_config)
+    current_training_residual = asdict(residual_config)
+    for name in _M0_DEPLOYMENT_ONLY_RESIDUAL_FIELDS:
+        selected_training_residual[name] = current_training_residual[name]
+    if selected_training_residual != current_training_residual:
+        raise RuntimeError("M0 refit residual configuration differs from selection")
+    fold_manifest = selected.get("fold_manifest")
+    if not isinstance(fold_manifest, Mapping):
+        raise RuntimeError("M0 refit artifact lacks fold lineage")
+    selected_args = fold_manifest.get("args")
+    if not isinstance(selected_args, Mapping):
+        raise RuntimeError("M0 refit artifact lacks locked training arguments")
+    selected_train_logs = {
+        str(value) for value in fold_manifest.get("train_physical_logs", ())
+    }
+    selected_validation_logs = {
+        str(value) for value in fold_manifest.get("validation_physical_logs", ())
+    }
+    if not selected_train_logs or not selected_validation_logs:
+        raise RuntimeError("M0 refit selection did not use a held-out log split")
+    if selected_train_logs.intersection(selected_validation_logs):
+        raise RuntimeError("M0 refit selection artifact has physical-log leakage")
+
+    missing = object()
+    resolved_selected_args = {
+        name: selected_args.get(
+            name,
+            _M0_LEGACY_REFIT_ARGUMENT_DEFAULTS.get(name, missing),
+        )
+        for name in _M0_REFIT_LOCKED_ARGUMENTS
+    }
+    unresolved = [
+        name for name, value in resolved_selected_args.items() if value is missing
+    ]
+    if unresolved:
+        raise RuntimeError(
+            f"M0 refit artifact lacks locked arguments: {sorted(unresolved)}"
+        )
+    mismatches = {
+        name: (getattr(args, name), resolved_selected_args[name])
+        for name in _M0_REFIT_LOCKED_ARGUMENTS
+        if getattr(args, name) != resolved_selected_args[name]
+    }
+    if mismatches:
+        raise RuntimeError(f"M0 refit arguments differ from selection: {mismatches}")
+    selected_epoch = int(selected.get("epoch", -1))
+    if selected_epoch < 0 or args.epochs != selected_epoch + 1:
+        raise RuntimeError(
+            "M0 refit epochs must equal the selected zero-based epoch plus one"
+        )
+    scheduler_horizon = int(selected_args.get("epochs", 0))
+    if scheduler_horizon < args.epochs:
+        raise RuntimeError("M0 refit scheduler horizon is shorter than stop epoch")
+    return {
+        "selection_source": source,
+        "selected_epoch": selected_epoch,
+        "selected_validation_pdms": float(metrics["selected_pdms"]),
+        "selected_validation_base_pdms": float(metrics["base_selected_pdms"]),
+        "selected_validation_delta": float(metrics["selected_delta"]),
+        "selected_delta_log_bootstrap_95ci": [
+            float(interval[0]),
+            float(interval[1]),
+        ],
+        "selected_validation_scene_count": int(metrics["scene_count"]),
+        "selected_validation_physical_log_count": int(
+            metrics["physical_log_count"]
+        ),
+        "scheduler_horizon_epochs": scheduler_horizon,
+        "locked_training_arguments": resolved_selected_args,
+        "selection_train_physical_log_count": len(selected_train_logs),
+        "selection_validation_physical_log_count": len(selected_validation_logs),
+        "deployment_policy_frozen_from_selection": "policy_calibration" in selected,
+        "deployment_residual_config": dict(selected_residual_config),
+    }
 
 
 def load_replay_base_factor_logits(
@@ -122,6 +343,76 @@ def load_replay_base_factor_logits(
                 break
         if source_count == 0:
             raise RuntimeError(f"source {source.name} has no Base factor logits")
+    return tokens, torch.cat(parts)
+
+
+def load_replay_base_candidate_features(
+    sources: Sequence[ReplaySource],
+    *,
+    max_scenes_per_source: int = 0,
+) -> Tuple[List[str], torch.Tensor]:
+    """Load M0's deployable candidate-conditioned hidden states in row order."""
+
+    tokens: List[str] = []
+    parts: List[torch.Tensor] = []
+    expected_shape: Optional[Tuple[int, int]] = None
+    for source in sources:
+        source_count = 0
+        seen: set[str] = set()
+        for feature_path, label_path in _iter_joined_chunks(source):
+            features = torch.load(
+                feature_path,
+                map_location="cpu",
+                weights_only=False,
+            )
+            labels = torch.load(
+                label_path,
+                map_location="cpu",
+                weights_only=False,
+            )
+            feature_tokens = [str(value) for value in features["tokens"]]
+            if feature_tokens != [str(value) for value in labels["tokens"]]:
+                raise RuntimeError(f"feature/label token mismatch: {feature_path}")
+            valid = labels["valid_mask"].bool()
+            remaining = (
+                max_scenes_per_source - source_count
+                if max_scenes_per_source > 0
+                else len(feature_tokens)
+            )
+            if remaining <= 0:
+                break
+            indices = torch.nonzero(valid, as_tuple=False).squeeze(-1)[:remaining]
+            selected_tokens = [feature_tokens[int(index)] for index in indices]
+            duplicate = seen.intersection(selected_tokens)
+            if duplicate:
+                raise RuntimeError(
+                    f"duplicate candidate-feature tokens: {sorted(duplicate)[:3]}"
+                )
+            seen.update(selected_tokens)
+            candidate = features.get("candidate_features")
+            if candidate is None:
+                raise RuntimeError(
+                    f"M0 candidate features are absent from {feature_path}"
+                )
+            candidate = candidate[indices]
+            shape = tuple(candidate.shape[1:])
+            if len(shape) != 2 or shape[0] != 64:
+                raise RuntimeError(
+                    f"unexpected M0 candidate-feature shape: {candidate.shape}"
+                )
+            if expected_shape is None:
+                expected_shape = shape
+            if shape != expected_shape:
+                raise RuntimeError("replay sources have different candidate features")
+            if not torch.isfinite(candidate.float()).all():
+                raise RuntimeError("M0 candidate features contain non-finite values")
+            tokens.extend(selected_tokens)
+            parts.append(candidate)
+            source_count += len(selected_tokens)
+            if max_scenes_per_source > 0 and source_count >= max_scenes_per_source:
+                break
+        if source_count == 0:
+            raise RuntimeError(f"source {source.name} has no M0 candidate features")
     return tokens, torch.cat(parts)
 
 
@@ -220,6 +511,7 @@ class ResidualReplayDataset(Dataset):
         data: ReplayTensorSet,
         base_factor_logits: torch.Tensor,
         indices: Sequence[int],
+        m0_candidate_features: Optional[torch.Tensor] = None,
         include_m0_context: bool = False,
         include_current_actor_targets: bool = False,
         shared_future_table: Optional[SharedFutureTargetTable] = None,
@@ -230,6 +522,7 @@ class ResidualReplayDataset(Dataset):
         self.data = data
         self.base_factor_logits = base_factor_logits
         self.indices = torch.as_tensor(indices, dtype=torch.long)
+        self.m0_candidate_features = m0_candidate_features
         self.include_m0_context = include_m0_context
         self.include_current_actor_targets = include_current_actor_targets
         self.shared_future_table = shared_future_table
@@ -254,6 +547,11 @@ class ResidualReplayDataset(Dataset):
                 raise ValueError("released M0 scene context does not align")
             if data.m0_ego_features.shape != (len(data), 1, 256):
                 raise ValueError("released M0 ego context does not align")
+        if m0_candidate_features is not None:
+            if m0_candidate_features.ndim != 3:
+                raise ValueError("M0 candidate features must have shape [N,K,D]")
+            if m0_candidate_features.shape[:2] != (len(data), 64):
+                raise ValueError("M0 candidate features do not align with replay rows")
 
     def __len__(self) -> int:
         return int(self.indices.numel())
@@ -272,6 +570,8 @@ class ResidualReplayDataset(Dataset):
             torch.tensor(source_index, dtype=torch.long),
         )
         auxiliary = ()
+        if self.m0_candidate_features is not None:
+            auxiliary += (self.m0_candidate_features[source_index],)
         if self.include_m0_context:
             auxiliary += (
                 self.data.m0_scene_features[source_index],
@@ -299,6 +599,64 @@ class ResidualReplayDataset(Dataset):
         )
 
 
+def _m0_reference_targets(
+    target_factors: torch.Tensor,
+    reference_indices: torch.Tensor,
+    *,
+    minimum_improvement: float,
+    factor_epsilon: float,
+) -> Dict[str, torch.Tensor]:
+    """Build Base-relative gain and NC/DAC/TTC regression targets."""
+
+    if target_factors.ndim != 3 or target_factors.shape[-1] != 7:
+        raise ValueError("target factors must have shape [B,K,7]")
+    if reference_indices.shape != (target_factors.shape[0],):
+        raise ValueError("reference indices must have shape [B]")
+    reference = target_factors.gather(
+        1,
+        reference_indices[:, None, None].expand(-1, 1, 7),
+    ).expand_as(target_factors)
+    gain = target_factors[..., -1] - reference[..., -1]
+    safety_indices = (0, 1, 3)
+    safety_worse = target_factors[..., list(safety_indices)] < (
+        reference[..., list(safety_indices)] - factor_epsilon
+    )
+    safe_improvement = (
+        gain >= minimum_improvement
+    ) & ~safety_worse.any(dim=-1)
+    reference_mask = torch.zeros_like(gain, dtype=torch.bool)
+    reference_mask.scatter_(1, reference_indices[:, None], True)
+    return {
+        "gain": gain,
+        "safety_worse": safety_worse,
+        "safe_improvement": safe_improvement,
+        "reference_mask": reference_mask,
+    }
+
+
+def _m0_weighted_binary_loss(
+    logits: torch.Tensor,
+    targets: torch.Tensor,
+    valid_mask: torch.Tensor,
+    positive_weight: float,
+) -> torch.Tensor:
+    if positive_weight <= 0:
+        raise ValueError("positive weight must be positive")
+    element = F.binary_cross_entropy_with_logits(
+        logits,
+        targets.to(logits.dtype),
+        reduction="none",
+    )
+    weights = torch.where(targets.bool(), positive_weight, 1.0).to(logits.dtype)
+    mask = valid_mask
+    while mask.ndim < element.ndim:
+        mask = mask.unsqueeze(-1)
+    mask = mask.expand_as(element).to(logits.dtype)
+    return (element * weights * mask).sum() / (
+        weights * mask
+    ).sum().clamp_min(1.0)
+
+
 def compute_residual_training_loss(
     model: M0PrivateResidualRanker,
     batch: Sequence[torch.Tensor],
@@ -316,6 +674,12 @@ def compute_residual_training_loss(
         _indices,
     ) = base_batch
     cursor = 8
+    m0_candidate_features = None
+    if model.residual_config.m0_candidate_fusion:
+        if len(batch) < cursor + 1:
+            raise RuntimeError("M0 candidate fusion lacks frozen candidate features")
+        m0_candidate_features = batch[cursor]
+        cursor += 1
     m0_scene_features = None
     m0_ego_features = None
     if model.residual_config.m0_context_fusion:
@@ -333,6 +697,7 @@ def compute_residual_training_loss(
         observation_valid_mask=observation_valid_mask,
         m0_scene_features=m0_scene_features,
         m0_ego_features=m0_ego_features,
+        m0_candidate_features=m0_candidate_features,
     )
     candidate_indices = base_anchored_topk_indices(
         base_scores,
@@ -370,31 +735,68 @@ def compute_residual_training_loss(
         target_scores,
         prediction_temperature=args.prediction_temperature,
     )
+    top_regret = top_regret_rank_loss(
+        prediction,
+        target_scores,
+        minimum_target_delta=getattr(
+            args,
+            "top_regret_minimum_delta",
+            0.01,
+        ),
+    )
 
     reorder = torch.tensor(
         TARGET_TO_MODEL_FACTOR_ORDER,
         device=target_factors.device,
     )
     target_six = target_factors.index_select(-1, reorder)
+    relative_target = relative_safety_targets(target_six, base_scores)
+    factor_loss_scope = getattr(args, "factor_loss_scope", "all")
+    if factor_loss_scope == "topk":
+        refined_factor_logits = _gather_candidates(
+            output["refined_factor_logits"],
+            candidate_indices,
+        )
+        private_factor_logits = _gather_candidates(
+            output["private_factor_logits"],
+            candidate_indices,
+        )
+        factor_targets = _gather_candidates(target_six, candidate_indices)
+        relative_safety_logits = _gather_candidates(
+            output["relative_safety_logits"],
+            candidate_indices,
+        )
+        relative_target = _gather_candidates(
+            relative_target,
+            candidate_indices,
+        )
+        factor_rank_targets = target_scores
+    elif factor_loss_scope == "all":
+        refined_factor_logits = output["refined_factor_logits"]
+        private_factor_logits = output["private_factor_logits"]
+        factor_targets = target_six
+        relative_safety_logits = output["relative_safety_logits"]
+        factor_rank_targets = target_factors[..., -1]
+    else:
+        raise ValueError("factor_loss_scope must be all or topk")
     factor = episode_drive_factor_loss(
-        output["refined_factor_logits"],
-        target_six,
+        refined_factor_logits,
+        factor_targets,
         args.safety_negative_weight,
     )
     private_factor = episode_drive_factor_loss(
-        output["private_factor_logits"],
-        target_six,
+        private_factor_logits,
+        factor_targets,
         args.safety_negative_weight,
     )
     factor_rank = weighted_pairwise_loss(
-        pdms_factor_log_utility(output["refined_factor_logits"]),
-        target_factors[..., -1],
+        pdms_factor_log_utility(refined_factor_logits),
+        factor_rank_targets,
         args.factor_rank_minimum_delta,
     )
 
-    relative_target = relative_safety_targets(target_six, base_scores)
     relative_element = F.binary_cross_entropy_with_logits(
-        output["relative_safety_logits"],
+        relative_safety_logits,
         relative_target,
         reduction="none",
     )
@@ -408,6 +810,86 @@ def compute_residual_training_loss(
     ).sum() / relative_weight.sum().clamp_min(1.0)
     residual_l2 = output["residual"].square().mean()
     zero = output["residual"].sum() * 0.0
+    reference = {
+        "total": zero,
+        "quantile": zero,
+        "median_rank": zero,
+        "safety": zero,
+        "improvement": zero,
+        "false_switch": zero,
+        "missed_improvement": zero,
+    }
+    if model.residual_config.conservative_reference:
+        reference_indices = base_scores.argmax(dim=1)
+        reference_targets = _m0_reference_targets(
+            target_factors,
+            reference_indices,
+            minimum_improvement=args.reference_minimum_improvement_target,
+            factor_epsilon=args.reference_factor_epsilon,
+        )
+        valid = output["shortlist_mask"] & ~reference_targets["reference_mask"]
+        quantile = masked_pinball_quantile_loss(
+            output["gain_quantiles"],
+            reference_targets["gain"],
+            valid_mask=valid,
+        )
+        median_rank = weighted_pairwise_rank_loss(
+            output["gain_quantiles"][..., 1],
+            reference_targets["gain"],
+            valid_mask=valid,
+            minimum_target_delta=args.minimum_pair_delta,
+        )
+        safety = _m0_weighted_binary_loss(
+            output["safety_worse_logits"],
+            reference_targets["safety_worse"],
+            valid,
+            args.reference_safety_worse_positive_weight,
+        )
+        improvement = _m0_weighted_binary_loss(
+            output["safe_improvement_logit"],
+            reference_targets["safe_improvement"],
+            valid,
+            args.reference_safe_improvement_positive_weight,
+        )
+        lower_gain = output["gain_quantiles"][..., 0]
+        harmful = (
+            reference_targets["gain"] <= 0.0
+        ) | reference_targets["safety_worse"].any(dim=-1)
+        harmful_mask = valid & harmful
+        false_switch = (
+            F.softplus(
+                lower_gain[harmful_mask]
+                / args.reference_switch_margin_temperature
+            ).mean()
+            if bool(harmful_mask.any())
+            else zero
+        )
+        positive = valid & reference_targets["safe_improvement"]
+        missed_improvement = (
+            F.softplus(
+                -lower_gain[positive]
+                / args.reference_switch_margin_temperature
+            ).mean()
+            if bool(positive.any())
+            else zero
+        )
+        reference = {
+            "quantile": quantile,
+            "median_rank": median_rank,
+            "safety": safety,
+            "improvement": improvement,
+            "false_switch": false_switch,
+            "missed_improvement": missed_improvement,
+            "total": (
+                args.reference_quantile_weight * quantile
+                + args.reference_median_rank_weight * median_rank
+                + args.reference_safety_weight * safety
+                + args.reference_improvement_weight * improvement
+                + args.reference_false_switch_weight * false_switch
+                + args.reference_missed_improvement_weight
+                * missed_improvement
+            ),
+        }
     current_actor = {
         "total": zero,
         "presence": zero,
@@ -478,11 +960,13 @@ def compute_residual_training_loss(
         + args.listwise_weight * listwise
         + args.top_set_weight * top_set
         + args.expected_regret_weight * expected_regret
+        + getattr(args, "top_regret_weight", 0.0) * top_regret
         + args.factor_weight * factor
         + args.private_factor_weight * private_factor
         + args.factor_rank_weight * factor_rank
         + args.relative_safety_weight * relative_safety
         + args.residual_l2_weight * residual_l2
+        + getattr(args, "reference_weight", 0.0) * reference["total"]
         + getattr(args, "shared_future_weight", 0.0) * future["total"]
         + getattr(args, "current_actor_weight", 0.0) * current_actor["total"]
         + candidate_relative_weight * consequence["total"]
@@ -494,11 +978,19 @@ def compute_residual_training_loss(
         "listwise": listwise,
         "top_set": top_set,
         "expected_regret": expected_regret,
+        "top_regret": top_regret,
         "factor": factor,
         "private_factor": private_factor,
         "factor_rank": factor_rank,
         "relative_safety": relative_safety,
         "residual_l2": residual_l2,
+        "reference": reference["total"],
+        "reference_quantile": reference["quantile"],
+        "reference_median_rank": reference["median_rank"],
+        "reference_safety": reference["safety"],
+        "reference_improvement": reference["improvement"],
+        "reference_false_switch": reference["false_switch"],
+        "reference_missed_improvement": reference["missed_improvement"],
         "shared_future": future["total"],
         "shared_future_presence": future["presence"],
         "shared_future_type": future["type"],
@@ -524,6 +1016,7 @@ def collect_residual_predictions(
     model: M0PrivateResidualRanker,
     data: ReplayTensorSet,
     base_factor_logits: torch.Tensor,
+    m0_candidate_features: Optional[torch.Tensor],
     indices: Sequence[int],
     device: torch.device,
     batch_size: int,
@@ -538,6 +1031,7 @@ def collect_residual_predictions(
             data,
             base_factor_logits,
             indices,
+            m0_candidate_features=m0_candidate_features,
             include_m0_context=model.residual_config.m0_context_fusion,
         ),
         batch_size=batch_size,
@@ -558,6 +1052,12 @@ def collect_residual_predictions(
             _source_indices,
         ) = base_batch
         cursor = 8
+        candidate_features = None
+        if model.residual_config.m0_candidate_fusion:
+            candidate_features = batch[cursor].to(
+                device, non_blocking=True
+            ).float()
+            cursor += 1
         m0_scene_features = None
         m0_ego_features = None
         if model.residual_config.m0_context_fusion:
@@ -576,6 +1076,7 @@ def collect_residual_predictions(
             ),
             m0_scene_features=m0_scene_features,
             m0_ego_features=m0_ego_features,
+            m0_candidate_features=candidate_features,
         )
         selection_parts.append(output["selection_scores"].float().cpu())
         factor_parts.append(output["refined_factor_logits"].float().cpu())
@@ -722,7 +1223,16 @@ def parse_args() -> argparse.Namespace:
         metavar=("NAME", "FEATURE_ROOT", "LABEL_ROOT"),
         required=True,
     )
-    parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument(
+        "--private-observation-root",
+        type=Path,
+        default=None,
+        help=(
+            "Optional raw/spatial current-observation token cache. When "
+            "omitted, train the scorer-private semantic refiner directly on "
+            "the source checkpoint's cached scene tokens."
+        ),
+    )
     parser.add_argument("--current-actor-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-relabeling", action="store_true")
@@ -732,6 +1242,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--selection-source", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--refit-all-logs",
+        action="store_true",
+        help=(
+            "After held-out-log selection, retrain the identical configuration "
+            "on every physical training log for the locked stop epoch."
+        ),
+    )
+    parser.add_argument(
+        "--refit-selection-artifact",
+        type=Path,
+        default=None,
+        help=(
+            "Held-out-selected M0PrivateResidualRanker artifact that locks an "
+            "all-log refit. Required together with --refit-all-logs."
+        ),
+    )
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -748,6 +1275,32 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--private-fine-top-k", type=int, default=16)
     parser.add_argument("--residual-layers", type=int, default=2)
     parser.add_argument("--m0-context-fusion", action="store_true")
+    parser.add_argument("--m0-candidate-fusion", action="store_true")
+    parser.add_argument(
+        "--m0-candidate-only",
+        action="store_true",
+        help=(
+            "Rank from frozen M0 candidate hidden states plus Base factor "
+            "context; excludes the new private candidate feature from ranking."
+        ),
+    )
+    parser.add_argument("--conservative-reference", action="store_true")
+    parser.add_argument("--reference-hidden-dim", type=int, default=512)
+    parser.add_argument("--reference-layers", type=int, default=2)
+    parser.add_argument(
+        "--reference-gain-quantile-index", type=int, default=1
+    )
+    parser.add_argument("--reference-minimum-lcb-gain", type=float, default=0.0)
+    parser.add_argument(
+        "--reference-maximum-safety-worse-probability",
+        type=float,
+        default=0.1,
+    )
+    parser.add_argument(
+        "--reference-minimum-safe-improvement-probability",
+        type=float,
+        default=0.7,
+    )
     parser.add_argument("--residual-top-k", type=int, default=64)
     parser.add_argument(
         "--score-mode",
@@ -766,15 +1319,48 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--listwise-weight", type=float, default=0.1)
     parser.add_argument("--top-set-weight", type=float, default=0.5)
     parser.add_argument("--expected-regret-weight", type=float, default=1.0)
+    parser.add_argument("--top-regret-weight", type=float, default=0.0)
+    parser.add_argument("--top-regret-minimum-delta", type=float, default=0.01)
     parser.add_argument("--factor-weight", type=float, default=1.0)
     parser.add_argument("--private-factor-weight", type=float, default=0.25)
     parser.add_argument("--factor-rank-weight", type=float, default=0.5)
     parser.add_argument("--relative-safety-weight", type=float, default=0.5)
     parser.add_argument("--residual-l2-weight", type=float, default=0.01)
+    parser.add_argument("--reference-weight", type=float, default=0.0)
+    parser.add_argument("--reference-quantile-weight", type=float, default=1.0)
+    parser.add_argument("--reference-median-rank-weight", type=float, default=0.25)
+    parser.add_argument("--reference-safety-weight", type=float, default=1.0)
+    parser.add_argument("--reference-improvement-weight", type=float, default=0.5)
+    parser.add_argument("--reference-false-switch-weight", type=float, default=0.5)
+    parser.add_argument(
+        "--reference-missed-improvement-weight", type=float, default=0.0
+    )
+    parser.add_argument(
+        "--reference-safety-worse-positive-weight", type=float, default=10.0
+    )
+    parser.add_argument(
+        "--reference-safe-improvement-positive-weight", type=float, default=3.0
+    )
+    parser.add_argument(
+        "--reference-switch-margin-temperature", type=float, default=0.05
+    )
+    parser.add_argument(
+        "--reference-minimum-improvement-target", type=float, default=0.005
+    )
+    parser.add_argument("--reference-factor-epsilon", type=float, default=1e-6)
     parser.add_argument("--shared-future-weight", type=float, default=0.0)
     parser.add_argument("--current-actor-weight", type=float, default=0.0)
     parser.add_argument("--candidate-relative-weight", type=float, default=0.0)
     parser.add_argument("--safety-negative-weight", type=float, default=1.0)
+    parser.add_argument(
+        "--factor-loss-scope",
+        choices=("all", "topk"),
+        default="all",
+        help=(
+            "Apply factor, factor-rank, and relative-safety supervision to all "
+            "64 proposals or only the deployed Base-anchored shortlist."
+        ),
+    )
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--max-scenes-per-source", type=int, default=0)
     parser.add_argument("--device", default="cuda")
@@ -783,6 +1369,16 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.refit_all_logs != (args.refit_selection_artifact is not None):
+        raise ValueError(
+            "--refit-all-logs and --refit-selection-artifact must be supplied together"
+        )
+    if args.refit_selection_artifact is not None and not (
+        args.refit_selection_artifact.is_file()
+    ):
+        raise FileNotFoundError(args.refit_selection_artifact)
+    if args.refit_all_logs and args.max_scenes_per_source != 0:
+        raise ValueError("M0 all-log refit forbids scene truncation")
     if args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but unavailable")
     sources = [
@@ -794,7 +1390,10 @@ def main() -> None:
     selection_source = args.selection_source or sources[0].name
     if selection_source not in {source.name for source in sources}:
         raise ValueError(f"unknown selection source: {selection_source}")
-    for path in (args.private_observation_root, args.split_manifest):
+    required_paths = [args.split_manifest]
+    if args.private_observation_root is not None:
+        required_paths.append(args.private_observation_root)
+    for path in required_paths:
         if not path.exists():
             raise FileNotFoundError(path)
     if args.output_dir.exists():
@@ -805,6 +1404,12 @@ def main() -> None:
         raise ValueError("current_actor_weight must be nonnegative")
     if args.candidate_relative_weight < 0:
         raise ValueError("candidate_relative_weight must be nonnegative")
+    if args.reference_weight < 0:
+        raise ValueError("reference_weight must be nonnegative")
+    if args.conservative_reference != (args.reference_weight > 0.0):
+        raise ValueError(
+            "--conservative-reference is required exactly when reference loss is active"
+        )
     if (args.shared_future_target_root is None) != (
         args.shared_future_weight == 0.0
     ):
@@ -862,6 +1467,16 @@ def main() -> None:
     )
     if factor_tokens != data.tokens:
         raise RuntimeError("Base factor logits do not match replay token order")
+    m0_candidate_features = None
+    if args.m0_candidate_fusion:
+        candidate_tokens, m0_candidate_features = (
+            load_replay_base_candidate_features(
+                sources,
+                max_scenes_per_source=args.max_scenes_per_source,
+            )
+        )
+        if candidate_tokens != data.tokens:
+            raise RuntimeError("M0 candidate features do not match replay token order")
     shared_future_table = None
     shared_future_row_indices = None
     shared_future_lineage = None
@@ -922,6 +1537,15 @@ def main() -> None:
     }
     if train_logs.intersection(validation_logs):
         raise RuntimeError("physical-log leakage between train and validation")
+    selection_split_lineage = {
+        "strategy": "external_physical_log_manifest",
+        "path": str(args.split_manifest.resolve()),
+        "sha256": _sha256(args.split_manifest),
+    }
+    selection_train_indices = list(train_indices)
+    selection_validation_indices = list(validation_indices)
+    selection_train_logs = set(train_logs)
+    selection_validation_logs = set(validation_logs)
 
     private_config = IndependentRankerConfig(
         observation_dim=int(data.observation_tokens.shape[-1]),
@@ -952,7 +1576,84 @@ def main() -> None:
         max_residual=args.max_residual,
         score_mode=args.score_mode,
         m0_context_fusion=args.m0_context_fusion,
+        m0_candidate_fusion=args.m0_candidate_fusion,
+        m0_candidate_only=args.m0_candidate_only,
+        m0_candidate_dim=(
+            int(m0_candidate_features.shape[-1])
+            if m0_candidate_features is not None
+            else 256
+        ),
+        conservative_reference=args.conservative_reference,
+        reference_hidden_dim=args.reference_hidden_dim,
+        reference_layers=args.reference_layers,
+        gain_quantile_index=args.reference_gain_quantile_index,
+        minimum_lcb_gain=args.reference_minimum_lcb_gain,
+        maximum_safety_worse_probability=(
+            args.reference_maximum_safety_worse_probability
+        ),
+        minimum_safe_improvement_probability=(
+            args.reference_minimum_safe_improvement_probability
+        ),
     )
+    refit_provenance: Optional[Dict[str, object]] = None
+    selected_refit_artifact: Optional[Mapping[str, object]] = None
+    split_lineage: Dict[str, object] = dict(selection_split_lineage)
+    if args.refit_all_logs:
+        assert args.refit_selection_artifact is not None
+        loaded = torch.load(
+            args.refit_selection_artifact,
+            map_location="cpu",
+            weights_only=False,
+        )
+        if not isinstance(loaded, Mapping):
+            raise RuntimeError("M0 refit selection artifact has the wrong schema")
+        selected_refit_artifact = loaded
+        refit_provenance = validate_m0_all_log_refit_provenance(
+            selected_refit_artifact,
+            args,
+            private_config,
+            residual_config,
+        )
+        if refit_provenance["selection_source"] != selection_source:
+            raise RuntimeError("M0 refit selection source differs from replay source")
+        selected_fold_manifest = selected_refit_artifact["fold_manifest"]
+        if selected_fold_manifest.get("split_lineage") != selection_split_lineage:
+            raise RuntimeError("M0 refit selection split lineage differs from this run")
+        if selected_fold_manifest.get("source_lineage") != source_lineage:
+            raise RuntimeError("M0 refit replay/cache lineage differs from selection")
+        if (
+            selected_fold_manifest.get("shared_future_target_lineage")
+            != shared_future_lineage
+        ):
+            raise RuntimeError("M0 refit shared-future lineage differs from selection")
+        refit_provenance.update(
+            {
+                "selection_artifact": str(args.refit_selection_artifact.resolve()),
+                "selection_artifact_sha256": _sha256(
+                    args.refit_selection_artifact
+                ),
+                "selection_split_lineage": selection_split_lineage,
+                "selection_train_scene_count": len(selection_train_indices),
+                "selection_validation_scene_count": len(
+                    selection_validation_indices
+                ),
+                "selection_train_physical_logs": sorted(selection_train_logs),
+                "selection_validation_physical_logs": sorted(
+                    selection_validation_logs
+                ),
+            }
+        )
+        train_indices = list(range(len(data)))
+        validation_indices = []
+        train_logs = set(data.physical_logs)
+        validation_logs = set()
+        split_lineage = {
+            "strategy": "all_physical_logs_refit_after_heldout_selection",
+            "selection_artifact_sha256": refit_provenance[
+                "selection_artifact_sha256"
+            ],
+            "selection_split_lineage": selection_split_lineage,
+        }
     model = M0PrivateResidualRanker(private_config, residual_config).to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -961,7 +1662,12 @@ def main() -> None:
     )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer,
-        T_max=max(args.epochs, 1),
+        T_max=max(
+            int(refit_provenance["scheduler_horizon_epochs"])
+            if refit_provenance is not None
+            else args.epochs,
+            1,
+        ),
         eta_min=args.learning_rate * 0.05,
     )
     train_loader = DataLoader(
@@ -969,6 +1675,7 @@ def main() -> None:
             data,
             base_factor_logits,
             train_indices,
+            m0_candidate_features=m0_candidate_features,
             include_m0_context=args.m0_context_fusion,
             include_current_actor_targets=(
                 args.current_actor_target_root is not None
@@ -987,7 +1694,11 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=False)
     serialized_args = vars(args) | {
         "output_dir": str(args.output_dir),
-        "private_observation_root": str(args.private_observation_root),
+        "private_observation_root": (
+            str(args.private_observation_root)
+            if args.private_observation_root is not None
+            else None
+        ),
         "current_actor_target_root": (
             str(args.current_actor_target_root)
             if args.current_actor_target_root is not None
@@ -999,14 +1710,15 @@ def main() -> None:
             else None
         ),
         "split_manifest": str(args.split_manifest),
+        "refit_selection_artifact": (
+            str(args.refit_selection_artifact)
+            if args.refit_selection_artifact is not None
+            else None
+        ),
     }
     fold_manifest: Dict[str, object] = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
-        "split_lineage": {
-            "strategy": "external_physical_log_manifest",
-            "path": str(args.split_manifest.resolve()),
-            "sha256": _sha256(args.split_manifest),
-        },
+        "split_lineage": split_lineage,
         "train_scene_count": len(train_indices),
         "validation_scene_count": len(validation_indices),
         "train_physical_logs": sorted(train_logs),
@@ -1014,6 +1726,11 @@ def main() -> None:
         "source_counts": dict(Counter(data.source_names)),
         "checkpoint_selection_source": selection_source,
         "source_lineage": source_lineage,
+        "scorer_private_observation_source": (
+            "private_current_visual_token_cache"
+            if args.private_observation_root is not None
+            else "source_checkpoint_current_scene_tokens"
+        ),
         "shared_future_target_lineage": shared_future_lineage,
         "private_config": asdict(private_config),
         "residual_config": asdict(residual_config),
@@ -1022,6 +1739,10 @@ def main() -> None:
         ),
         "m0_base_factor_logits_used_as_model_input": True,
         "m0_base_numeric_score_used_as_model_input": True,
+        "m0_candidate_features_used_as_model_input": args.m0_candidate_fusion,
+        "private_candidate_representation_used_for_ranking": not (
+            args.m0_candidate_only
+        ),
         "released_m0_scene_and_ego_context_used_as_model_input": (
             args.m0_context_fusion
         ),
@@ -1043,6 +1764,8 @@ def main() -> None:
             args.shared_future_constant_velocity_residual
         ),
         "official_score_input": False,
+        "refit_all_logs": args.refit_all_logs,
+        "refit_provenance": refit_provenance,
         "args": serialized_args,
     }
     _atomic_json_dump(fold_manifest, args.output_dir / "fold_manifest.json")
@@ -1050,7 +1773,11 @@ def main() -> None:
     history: List[Dict[str, object]] = []
     best_value = -float("inf")
     best_epoch = -1
-    artifact_path = args.output_dir / "best_m0_private_residual_scorer.pt"
+    artifact_path = args.output_dir / (
+        "refit_m0_private_residual_scorer.pt"
+        if refit_provenance is not None
+        else "best_m0_private_residual_scorer.pt"
+    )
     for epoch in range(args.epochs):
         model.train()
         epoch_details: List[Dict[str, float]] = []
@@ -1064,10 +1791,79 @@ def main() -> None:
             epoch_details.append(details)
         scheduler.step()
 
+        if refit_provenance is not None:
+            assert selected_refit_artifact is not None
+            record = {
+                "epoch": epoch,
+                "learning_rate": float(optimizer.param_groups[0]["lr"]),
+                "training": _mean_details(epoch_details),
+                "validation": None,
+                "validation_reason": (
+                    "all physical logs are training data; configuration, "
+                    "deployment policy and stop epoch were locked by the "
+                    "held-out-log selection artifact"
+                ),
+            }
+            history.append(record)
+            print(json.dumps(record, sort_keys=True), flush=True)
+            summary: Dict[str, object] = {
+                "refit_all_logs": True,
+                "completed_epochs": epoch + 1,
+                "requested_epochs": args.epochs,
+                "checkpoint_selection_source": selection_source,
+                "refit_provenance": refit_provenance,
+                "history": history,
+            }
+            if epoch == args.epochs - 1:
+                deployment_residual_config = dict(
+                    refit_provenance["deployment_residual_config"]
+                )
+                payload: Dict[str, object] = {
+                    "schema_version": 2 if args.m0_context_fusion else 1,
+                    "architecture": "M0PrivateResidualRanker",
+                    "state_dict": {
+                        key: value.detach().cpu()
+                        for key, value in model.state_dict().items()
+                    },
+                    "private_config": asdict(private_config),
+                    "residual_config": deployment_residual_config,
+                    "epoch": epoch,
+                    "refit_all_logs": True,
+                    "refit_provenance": refit_provenance,
+                    "validation_performed": False,
+                    "checkpoint_selection_source": selection_source,
+                    "fold_manifest": fold_manifest,
+                    "inference_input_schema": selected_refit_artifact[
+                        "inference_input_schema"
+                    ],
+                    "forbidden_inputs": selected_refit_artifact[
+                        "forbidden_inputs"
+                    ],
+                }
+                for name in (
+                    "policy_calibration",
+                    "derived_conservative_policy",
+                    "policy_selection_uses_disjoint_physical_logs",
+                    "policy_selection_uses_navtest",
+                ):
+                    if name in selected_refit_artifact:
+                        payload[name] = selected_refit_artifact[name]
+                _atomic_torch_save(payload, artifact_path)
+                summary.update(
+                    {
+                        "artifact": str(artifact_path.resolve()),
+                        "artifact_sha256": _sha256(artifact_path),
+                        "deployment_residual_config": deployment_residual_config,
+                    }
+                )
+            _atomic_json_dump(summary, args.output_dir / "training_summary.json")
+            continue
+
         predictions = collect_residual_predictions(
             model,
             data,
             base_factor_logits,
+            m0_candidate_features,
             validation_indices,
             device,
             args.eval_batch_size,
@@ -1123,7 +1919,11 @@ def main() -> None:
                     "checkpoint_selection_source": selection_source,
                     "fold_manifest": fold_manifest,
                     "inference_input_schema": (
-                        "m0_current_visual_tokens",
+                        (
+                            "m0_current_visual_tokens"
+                            if args.private_observation_root is not None
+                            else "m0_current_scene_tokens"
+                        ),
                         "m0_current_context_feature",
                         *(
                             (
@@ -1131,6 +1931,11 @@ def main() -> None:
                                 "m0_released_ego_features",
                             )
                             if args.m0_context_fusion
+                            else ()
+                        ),
+                        *(
+                            ("m0_released_candidate_features",)
+                            if args.m0_candidate_fusion
                             else ()
                         ),
                         "m0_proposals",
@@ -1158,19 +1963,31 @@ def main() -> None:
             args.output_dir / "training_summary.json",
         )
 
-    print(
-        json.dumps(
+    final = {
+        "output_dir": str(args.output_dir.resolve()),
+        "artifact": str(artifact_path.resolve()),
+        "artifact_sha256": _sha256(artifact_path),
+    }
+    if refit_provenance is not None:
+        final.update(
             {
-                "output_dir": str(args.output_dir.resolve()),
-                "artifact": str(artifact_path.resolve()),
-                "artifact_sha256": _sha256(artifact_path),
+                "refit_all_logs": True,
+                "selection_artifact_sha256": refit_provenance[
+                    "selection_artifact_sha256"
+                ],
+                "selected_epoch": refit_provenance["selected_epoch"],
+                "training_physical_log_count": len(train_logs),
+                "validation_performed": False,
+            }
+        )
+    else:
+        final.update(
+            {
                 "best_epoch": best_epoch,
                 "best_validation_pdms": best_value,
-            },
-            indent=2,
-            sort_keys=True,
+            }
         )
-    )
+    print(json.dumps(final, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

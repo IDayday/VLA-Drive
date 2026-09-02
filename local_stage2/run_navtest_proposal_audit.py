@@ -29,7 +29,7 @@ import torch.distributed as dist
 from hydra.utils import instantiate
 from nuplan.planning.script.builders.logging_builder import build_logger
 from nuplan.planning.utils.multithreading.worker_pool import Task
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf, open_dict
 from torch.utils.data import DataLoader
 
 from navsim.agents.EpisodeDrive.score_module.compute_navsim_score import (
@@ -358,8 +358,54 @@ def _flatten_worker_rows(worker_rows: List[Any]) -> List[Dict[str, Any]]:
     return flattened
 
 
+def _apply_resolved_agent_config(cfg: DictConfig) -> Dict[str, Any]:
+    """Restore the exact saved agent architecture before Navtest inference.
+
+    A checkpoint path alone is not enough for local No-VQA runs: the released
+    config enables LoRA, whereas the No-VQA checkpoint was full-finetuned with
+    LoRA disabled.  Keep the saved agent subtree authoritative and copy only
+    explicit evaluation/runtime fields from the Hydra command line.
+    """
+
+    value = cfg.get("proposal_audit_resolved_agent_config")
+    if not value:
+        return {}
+    path = Path(str(value))
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    saved = OmegaConf.load(path)
+    if "agent" not in saved:
+        raise RuntimeError(f"Resolved config has no agent section: {path}")
+    runtime_agent = cfg.agent
+    agent = saved.agent
+    with open_dict(agent):
+        agent._target_ = str(runtime_agent._target_)
+        agent.checkpoint_path = str(runtime_agent.checkpoint_path)
+        agent.stage1_checkpoint_path = None
+        agent.cache_data = False
+    with open_dict(agent.vlm_config):
+        agent.vlm_config.cache_hidden_state = False
+        agent.vlm_config.cache_mode = False
+        agent.vlm_config.freeze_backbone = True
+        agent.vlm_config.use_flash_attn = False
+        agent.vlm_config.gradient_checkpointing = False
+        agent.vlm_config.frozen_backbone_mode = "eval"
+    with open_dict(agent.action_head_config):
+        agent.action_head_config.return_scorer_features = True
+        agent.action_head_config.return_memory_fields = True
+    with open_dict(cfg):
+        cfg.agent = agent
+    return {
+        "resolved_agent_config": str(path.resolve()),
+        "resolved_agent_config_sha256": _sha256(path),
+        "resolved_agent_use_lora": bool(agent.lora_config.use_lora),
+        "resolved_agent_use_flash_attn": bool(agent.vlm_config.use_flash_attn),
+    }
+
+
 @hydra.main(config_path=CONFIG_PATH, config_name=CONFIG_NAME, version_base=None)
 def main(cfg: DictConfig) -> None:
+    resolved_agent_lineage = _apply_resolved_agent_config(cfg)
     build_logger(cfg)
     output_dir = Path(cfg.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -459,6 +505,7 @@ def main(cfg: DictConfig) -> None:
         "inference_inputs_only": True,
         "future_target_present": False,
         "official_score_input_present": False,
+        **resolved_agent_lineage,
     }
     reference_path_value = cfg.get("proposal_audit_reference_predictions_path")
     if reference_path_value:
@@ -580,6 +627,7 @@ def main(cfg: DictConfig) -> None:
         "max_selected_score_parity_abs": float(
             max(row["selected_score_parity_abs"] for row in valid_rows)
         ),
+        **resolved_agent_lineage,
         "artifacts": {
             "per_scene_csv": str(output_dir / "per_scene_candidate_quality.csv"),
             "candidate_scores_npz": str(output_dir / "candidate_scores.npz"),

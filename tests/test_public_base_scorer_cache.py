@@ -1,11 +1,13 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import torch
 
 from local_stage2.export_public_base_scorer_cache import (
+    _compose_agent_config,
     _first_missing_chunk,
     _partition_tokens,
 )
@@ -16,7 +18,11 @@ from local_stage2.score_public_base_consequence_cache import (
     _event_by_horizon,
 )
 from local_stage2.analyze_scorer_domain_shift import _auc
-from local_stage2.run_navtest_proposal_audit import _compare_prediction_banks
+from local_stage2.run_navtest_proposal_audit import (
+    _apply_resolved_agent_config,
+    _compare_prediction_banks,
+)
+from omegaconf import OmegaConf
 from local_stage2.summarize_navtest_scorer_campaigns import (
     _build_rows,
     _status,
@@ -64,6 +70,9 @@ from local_stage2.analyze_temporal_navtest_failures import (
     binary_auroc,
     binary_calibration,
 )
+from local_stage2.summarize_no_vqa_scene_token_campaign import (
+    summarize as summarize_no_vqa_scene_token_campaign,
+)
 
 
 def test_partition_tokens_is_disjoint_and_complete():
@@ -73,6 +82,96 @@ def test_partition_tokens_is_disjoint_and_complete():
     assert not set(shards[0]).intersection(shards[1])
     assert not set(shards[0]).intersection(shards[2])
     assert not set(shards[1]).intersection(shards[2])
+
+
+def test_cache_export_checkpoint_override_accepts_equals(tmp_path: Path):
+    checkpoint = tmp_path / "best-epoch=35-step=232416.ckpt"
+    checkpoint.touch()
+    repository = Path(__file__).resolve().parents[1]
+    config = _compose_agent_config(repository, checkpoint)
+    assert Path(config.agent.checkpoint_path) == checkpoint
+
+
+def test_cache_export_preserves_resolved_no_lora_architecture(tmp_path: Path):
+    checkpoint = tmp_path / "best-epoch=35-step=232416.ckpt"
+    checkpoint.touch()
+    resolved = tmp_path / "config.yaml"
+    resolved.write_text(
+        """
+agent:
+  checkpoint_path: null
+  stage1_checkpoint_path: null
+  cache_data: false
+  vlm_config:
+    freeze_backbone: false
+    use_flash_attn: true
+    gradient_checkpointing: true
+  lora_config:
+    use_lora: false
+  action_head_config: {}
+train_logs: [train-log]
+val_logs: [val-log]
+""".strip()
+        + "\n"
+    )
+    repository = Path(__file__).resolve().parents[1]
+    config = _compose_agent_config(repository, checkpoint, resolved)
+    assert Path(config.agent.checkpoint_path) == checkpoint
+    assert config.agent.lora_config.use_lora is False
+    assert config.agent.vlm_config.freeze_backbone is True
+    assert config.agent.vlm_config.use_flash_attn is False
+    assert config.agent.vlm_config.gradient_checkpointing is False
+    assert config.agent.vlm_config.frozen_backbone_mode == "eval"
+    assert config.agent.action_head_config.return_scorer_features is True
+    assert config.agent.action_head_config.return_memory_fields is True
+    assert list(config.train_logs) == ["train-log"]
+
+
+def test_navtest_resolved_agent_config_preserves_no_vqa_architecture(
+    tmp_path: Path,
+):
+    resolved = tmp_path / "resolved.yaml"
+    resolved.write_text(
+        """
+agent:
+  _target_: saved.Agent
+  checkpoint_path: saved.ckpt
+  stage1_checkpoint_path: stage1.ckpt
+  cache_data: true
+  vlm_config:
+    cache_hidden_state: true
+    cache_mode: true
+    freeze_backbone: false
+    use_flash_attn: true
+    gradient_checkpointing: true
+  lora_config:
+    use_lora: false
+  action_head_config: {}
+""".strip()
+        + "\n"
+    )
+    cfg = OmegaConf.create(
+        {
+            "proposal_audit_resolved_agent_config": str(resolved),
+            "agent": {
+                "_target_": "custom.SceneTokenAgent",
+                "checkpoint_path": "packaged.pt",
+            },
+        }
+    )
+    lineage = _apply_resolved_agent_config(cfg)
+    assert cfg.agent._target_ == "custom.SceneTokenAgent"
+    assert cfg.agent.checkpoint_path == "packaged.pt"
+    assert cfg.agent.stage1_checkpoint_path is None
+    assert cfg.agent.cache_data is False
+    assert cfg.agent.lora_config.use_lora is False
+    assert cfg.agent.vlm_config.freeze_backbone is True
+    assert cfg.agent.vlm_config.use_flash_attn is False
+    assert cfg.agent.vlm_config.gradient_checkpointing is False
+    assert cfg.agent.vlm_config.frozen_backbone_mode == "eval"
+    assert cfg.agent.action_head_config.return_scorer_features is True
+    assert cfg.agent.action_head_config.return_memory_fields is True
+    assert lineage["resolved_agent_use_lora"] is False
 
 
 def test_first_missing_chunk_requires_contiguous_cache(tmp_path: Path):
@@ -133,6 +232,105 @@ def test_prediction_bank_smoke_may_be_reference_subset_only_when_explicit():
     assert result["passes_1e_8"]
     assert result["scene_count"] == 1
     assert result["reference_scene_count"] == 2
+
+
+def test_no_vqa_scene_token_summary_requires_full_promoted_coverage(tmp_path: Path):
+    promotion = tmp_path / "promotion.json"
+    promotion.write_text(
+        json.dumps(
+            {
+                "promoted": [
+                    {
+                        "name": "primary_hybrid_actor050_seed2__residual_hybrid",
+                        "artifact_sha256": "ranker-sha",
+                        "score_mode": "residual_hybrid",
+                        "validation_selected_pdms": 0.94,
+                        "validation_delta": 0.01,
+                        "validation_delta_log_bootstrap_95ci": [0.002, 0.018],
+                    }
+                ],
+                "excluded": [],
+            }
+        )
+    )
+    baseline = tmp_path / "baseline"
+    baseline.mkdir()
+    (baseline / "summary.json").write_text(
+        json.dumps(
+            {
+                "checkpoint": "no-vqa.ckpt",
+                "checkpoint_sha256": "base-sha",
+                "metrics": {
+                    "selected_pdms": 0.911,
+                    "best_of_64_pdms": 0.983,
+                },
+            }
+        )
+    )
+    navtest = tmp_path / "navtest"
+    result_dir = navtest / "result"
+    result_dir.mkdir(parents=True)
+    metrics = {
+        "selected_pdms": 0.931,
+        "scorer_regret": 0.052,
+        "selected_no_at_fault_collisions": 0.99,
+        "selected_drivable_area_compliance": 0.98,
+        "selected_driving_direction_compliance": 0.97,
+        "selected_time_to_collision_within_bound": 0.96,
+        "selected_ego_progress": 0.9,
+        "selected_comfort": 1.0,
+    }
+    (result_dir / "summary.json").write_text(
+        json.dumps(
+            {
+                "source_ranker_artifact_sha256": "ranker-sha",
+                "scene_count": 12146,
+                "valid_scene_count": 12146,
+                "invalid_scene_count": 0,
+                "log_count": 136,
+                "candidate_count": 64,
+                "precision": 32,
+                "inference_inputs_only": True,
+                "official_candidate_matrix_joined_after_selection": True,
+                "future_target_present_during_inference": False,
+                "official_score_input_present_during_inference": False,
+                "external_model_representation_or_weight_used": False,
+                "drivor_representation_or_weight_used": False,
+                "base_score_cache_parity_max_abs": 0.0,
+                "metrics": metrics,
+                "comparison_to_public_base": {
+                    "public_selected_pdms": 0.911,
+                    "selected_delta": 0.02,
+                    "selected_delta_log_bootstrap_95ci": [0.01, 0.03],
+                },
+                "offline_oracle_candidate_bank_upper_bound": 0.983,
+            }
+        )
+    )
+    parity = tmp_path / "parity"
+    parity.mkdir()
+    (parity / "primary_hybrid_actor050_seed2__residual_hybrid.json").write_text(
+        json.dumps(
+            {
+                "passed": True,
+                "scene_count": 4,
+                "proposal_max_abs": 0.0,
+                "score_max_abs": 2e-7,
+            }
+        )
+    )
+    result = summarize_no_vqa_scene_token_campaign(
+        SimpleNamespace(
+            promotion_manifest=promotion,
+            baseline_audit=baseline,
+            navtest_root=navtest,
+            parity_root=parity,
+        )
+    )
+    assert result["coverage_complete"] is True
+    assert result["evaluated_artifact_count"] == 1
+    assert result["exceeds_0_93_count"] == 1
+    assert result["best"]["online_cache_parity_passed"] is True
 
 
 def test_cpu_label_worker_partition_is_deterministic():

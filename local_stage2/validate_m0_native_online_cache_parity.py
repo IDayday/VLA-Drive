@@ -39,7 +39,12 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--online-predictions", type=Path, required=True)
     parser.add_argument("--public-feature-cache", type=Path, required=True)
-    parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument(
+        "--private-observation-root",
+        type=Path,
+        default=None,
+        help="Omit for source-checkpoint scene-token scorer artifacts.",
+    )
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", default="cuda")
@@ -56,10 +61,28 @@ def main() -> None:
     tokens = sorted(online)
     if len(tokens) < 4 or not set(tokens).issubset(public):
         raise RuntimeError("at least four online tokens must exist in public cache")
-    private = load_private_observation_table(args.private_observation_root)
-    private_row = {token: index for index, token in enumerate(private.tokens)}
-    if not set(tokens).issubset(private_row):
-        raise RuntimeError("online tokens are absent from private observation cache")
+    observation_source = str(
+        artifact.get(
+            "private_observation_source",
+            "private_current_visual_token_cache",
+        )
+    )
+    if observation_source == "private_current_visual_token_cache":
+        if args.private_observation_root is None:
+            raise RuntimeError("private visual artifact requires its cache")
+        private = load_private_observation_table(args.private_observation_root)
+        private_row = {token: index for index, token in enumerate(private.tokens)}
+        if not set(tokens).issubset(private_row):
+            raise RuntimeError("online tokens are absent from private observation cache")
+    elif observation_source == "source_checkpoint_current_scene_tokens":
+        if args.private_observation_root is not None:
+            raise RuntimeError("scene-token artifact must not use a private cache")
+        private = None
+        private_row = {}
+    else:
+        raise RuntimeError(
+            f"unsupported private observation source: {observation_source}"
+        )
 
     device = torch.device(args.device)
     architecture = str(artifact["scorer_architecture"])
@@ -77,10 +100,27 @@ def main() -> None:
     model.load_state_dict(artifact["scorer_state_dict"], strict=True)
     model.to(device).eval()
 
-    rows = torch.tensor([private_row[token] for token in tokens], dtype=torch.long)
-    observation = private.observation_tokens[rows].to(device).float()
-    observation_mask = private.observation_valid_masks[rows].to(device)
-    status = private.status_features[rows].to(device).float()
+    if private is not None:
+        rows = torch.tensor(
+            [private_row[token] for token in tokens], dtype=torch.long
+        )
+        observation = private.observation_tokens[rows].to(device).float()
+        observation_mask = private.observation_valid_masks[rows].to(device)
+        status = private.status_features[rows].to(device).float()
+    else:
+        observation = torch.as_tensor(
+            np.stack([public[token]["scene_features"] for token in tokens]),
+            dtype=torch.float32,
+            device=device,
+        )
+        observation_mask = torch.ones(
+            observation.shape[:2], dtype=torch.bool, device=device
+        )
+        status = torch.as_tensor(
+            np.stack([public[token]["ego_features"][0] for token in tokens]),
+            dtype=torch.float32,
+            device=device,
+        )
     proposals = torch.as_tensor(
         np.stack([public[token]["proposals"] for token in tokens]),
         dtype=torch.float32,
@@ -120,8 +160,16 @@ def main() -> None:
                 device=device,
             )
             m0_context = {}
+            if model.residual_config.m0_candidate_fusion:
+                m0_context["m0_candidate_features"] = torch.as_tensor(
+                    np.stack(
+                        [public[token]["candidate_features"] for token in tokens]
+                    ),
+                    dtype=torch.float32,
+                    device=device,
+                )
             if model.residual_config.m0_context_fusion:
-                m0_context = {
+                m0_context.update({
                     "m0_scene_features": torch.as_tensor(
                         np.stack([public[token]["scene_features"] for token in tokens]),
                         dtype=torch.float32,
@@ -132,7 +180,7 @@ def main() -> None:
                         dtype=torch.float32,
                         device=device,
                     ),
-                }
+                })
             output = model(
                 observation,
                 status,
@@ -180,9 +228,12 @@ def main() -> None:
         "architecture": architecture,
         "online_predictions": str(args.online_predictions.resolve()),
         "public_feature_cache": str(args.public_feature_cache.resolve()),
-        "private_observation_root": str(
-            args.private_observation_root.resolve()
+        "private_observation_root": (
+            str(args.private_observation_root.resolve())
+            if args.private_observation_root is not None
+            else None
         ),
+        "private_observation_source": observation_source,
         "scene_count": len(tokens),
         "tokens": tokens,
         "proposal_max_abs": proposal_max_abs,

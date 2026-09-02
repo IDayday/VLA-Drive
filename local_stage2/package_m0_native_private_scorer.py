@@ -17,7 +17,15 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--ranker-artifact", type=Path, required=True)
     parser.add_argument("--base-checkpoint", type=Path, required=True)
-    parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument(
+        "--private-observation-root",
+        type=Path,
+        default=None,
+        help=(
+            "Required for raw/spatial private visual-token rankers. Omit for "
+            "rankers trained directly on the Base checkpoint's 16 scene tokens."
+        ),
+    )
     parser.add_argument("--shortlist-size", type=int, default=64)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()

@@ -25,7 +25,7 @@ from typing import Dict, Iterable, List, Sequence
 import torch
 from hydra import compose, initialize_config_dir
 from hydra.utils import instantiate
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf, open_dict
 from torch.utils.data import DataLoader
 
 from navsim.planning.training.dataset import CacheOnlyDataset, drivevla_cached_collate
@@ -112,11 +112,35 @@ def _first_missing_chunk(shard_dir: Path, chunk_count: int) -> int:
     return missing
 
 
-def _compose_agent_config(repo_root: Path, checkpoint: Path):
+def _compose_agent_config(
+    repo_root: Path,
+    checkpoint: Path,
+    resolved_config: Path | None = None,
+):
+    if resolved_config is not None:
+        cfg = OmegaConf.load(resolved_config)
+        if "agent" not in cfg:
+            raise KeyError(f"Resolved config has no agent section: {resolved_config}")
+        cfg.agent.checkpoint_path = str(checkpoint)
+        cfg.agent.stage1_checkpoint_path = None
+        cfg.agent.cache_data = False
+        cfg.agent.vlm_config.freeze_backbone = True
+        cfg.agent.vlm_config.use_flash_attn = False
+        cfg.agent.vlm_config.gradient_checkpointing = False
+        with open_dict(cfg.agent.vlm_config):
+            cfg.agent.vlm_config.frozen_backbone_mode = "eval"
+        with open_dict(cfg.agent.action_head_config):
+            cfg.agent.action_head_config.return_scorer_features = True
+            cfg.agent.action_head_config.return_memory_fields = True
+        return cfg
+
     config_dir = repo_root / "navsim/planning/script/config/training"
     overrides = [
         "agent=episode_drive",
-        f"agent.checkpoint_path={checkpoint}",
+        # Hydra treats an unquoted ``=`` inside an override value as grammar.
+        # Lightning checkpoint filenames commonly contain ``epoch=...`` and
+        # therefore must be serialized as a quoted string.
+        f"agent.checkpoint_path={json.dumps(str(checkpoint))}",
         "agent.stage1_checkpoint_path=null",
         "agent.cache_data=false",
         "agent.vlm_config.freeze_backbone=true",
@@ -234,6 +258,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
+    parser.add_argument(
+        "--resolved-config",
+        type=Path,
+        default=None,
+        help=(
+            "Previously resolved Hydra training/evaluation config. Use this "
+            "for checkpoints whose architecture differs from the released "
+            "EpisodeDrive defaults, such as the no-LoRA No-VQA run."
+        ),
+    )
     parser.add_argument("--feature-cache", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--split", choices=("train", "val", "all"), default="all")
@@ -259,11 +293,18 @@ def main() -> None:
     args = parse_args()
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for public Base cache export")
-    for path in (args.repo_root, args.checkpoint, args.feature_cache):
+    required_paths = [args.repo_root, args.checkpoint, args.feature_cache]
+    if args.resolved_config is not None:
+        required_paths.append(args.resolved_config)
+    for path in required_paths:
         if not path.exists():
             raise FileNotFoundError(path)
 
-    cfg = _compose_agent_config(args.repo_root.resolve(), args.checkpoint.resolve())
+    cfg = _compose_agent_config(
+        args.repo_root.resolve(),
+        args.checkpoint.resolve(),
+        args.resolved_config.resolve() if args.resolved_config is not None else None,
+    )
     logs = _select_logs(cfg, args.split)
     agent = instantiate(cfg.agent)
     agent.initialize()
@@ -392,6 +433,16 @@ def main() -> None:
         "repo_root": str(args.repo_root.resolve()),
         "checkpoint": str(args.checkpoint.resolve()),
         "checkpoint_sha256": _sha256(args.checkpoint),
+        "resolved_config": (
+            str(args.resolved_config.resolve())
+            if args.resolved_config is not None
+            else None
+        ),
+        "resolved_config_sha256": (
+            _sha256(args.resolved_config)
+            if args.resolved_config is not None
+            else None
+        ),
         "feature_cache": str(args.feature_cache.resolve()),
         "split": args.split,
         "shard_count": args.shard_count,

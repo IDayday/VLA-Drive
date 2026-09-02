@@ -51,7 +51,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--feature-cache", type=Path, required=True)
-    parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument(
+        "--private-observation-root",
+        type=Path,
+        default=None,
+        help=(
+            "Required only for raw/spatial private visual-token artifacts. "
+            "Scene-token refiners consume scene_features/ego_features from "
+            "the locked Base forward cache directly."
+        ),
+    )
     parser.add_argument("--candidate-matrix", type=Path, required=True)
     parser.add_argument("--public-audit-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -77,14 +86,15 @@ def main() -> None:
     args = parse_args()
     if args.output_dir.exists():
         raise FileExistsError(args.output_dir)
-    required_paths = (
+    required_paths = [
         args.artifact,
         args.feature_cache,
-        args.private_observation_root,
         args.candidate_matrix,
         args.public_audit_dir / "summary.json",
         args.public_audit_dir / "per_scene_candidate_quality.csv",
-    )
+    ]
+    if args.private_observation_root is not None:
+        required_paths.append(args.private_observation_root)
     for path in required_paths:
         if not path.exists():
             raise FileNotFoundError(path)
@@ -99,13 +109,46 @@ def main() -> None:
     context_fusion = bool(
         artifact.get("residual_config", {}).get("m0_context_fusion", False)
     )
+    observation_source = str(
+        artifact.get(
+            "private_observation_source",
+            "private_current_visual_token_cache",
+        )
+    )
+    if observation_source == "source_checkpoint_current_scene_tokens":
+        if args.private_observation_root is not None:
+            raise RuntimeError(
+                "scene-token artifact must not use a private-observation cache"
+            )
+        observation_schema = (
+            "m0_current_scene_tokens",
+            "m0_current_context_feature",
+        )
+    elif observation_source == "private_current_visual_token_cache":
+        if args.private_observation_root is None:
+            raise RuntimeError(
+                "private visual-token artifact requires --private-observation-root"
+            )
+        observation_schema = (
+            "m0_current_f0_l0_r0_b0_images",
+            "m0_current_ego_navigation_status",
+        )
+    else:
+        raise RuntimeError(
+            f"unsupported private observation source: {observation_source}"
+        )
+    candidate_fusion = bool(
+        artifact.get("residual_config", {}).get("m0_candidate_fusion", False)
+    )
     expected_schema = (
-        "m0_current_f0_l0_r0_b0_images",
-        "m0_current_ego_navigation_status",
-        *(("m0_released_scene_features", "m0_released_ego_features") if context_fusion else ()),
-        "m0_proposals",
-        "m0_base_factor_logits",
-        "m0_base_scores",
+        observation_schema
+        + (("m0_released_scene_features", "m0_released_ego_features") if context_fusion else ())
+        + (("m0_released_candidate_features",) if candidate_fusion else ())
+        + (
+            "m0_proposals",
+            "m0_base_factor_logits",
+            "m0_base_scores",
+        )
     )
     declared_schema = tuple(artifact.get("inference_input_schema", ()))
     if declared_schema != expected_schema:
@@ -113,7 +156,11 @@ def main() -> None:
 
     with args.feature_cache.open("rb") as file:
         feature_cache = pickle.load(file)
-    private_table = load_private_observation_table(args.private_observation_root)
+    private_table = (
+        load_private_observation_table(args.private_observation_root)
+        if args.private_observation_root is not None
+        else None
+    )
     matrix = np.load(args.candidate_matrix, allow_pickle=False)
     tokens = [str(value) for value in matrix["tokens"]]
     log_names = [str(value) for value in matrix["log_names"]]
@@ -133,30 +180,43 @@ def main() -> None:
         raise RuntimeError("candidate factor matrix lacks aggregate score")
     if set(tokens) != set(feature_cache):
         raise RuntimeError("M0 feature cache and candidate matrix token sets differ")
-    if set(tokens) != set(private_table.tokens):
+    if private_table is not None and set(tokens) != set(private_table.tokens):
         raise RuntimeError(
             "private-observation cache and candidate matrix token sets differ"
         )
-    evaluation_vision_config = _private_vision_config(
-        args.private_observation_root
-    )
-    declared_vision_config = artifact["private_vision_config"]
-    for key in (
-        "m0_checkpoint_sha256",
-        "camera_names",
-        "max_dynamic_tiles",
-        "max_crops_per_camera",
-        "pool_grid",
-        "visual_token_count",
-        "visual_width",
-        "visual_model_wrapper_chain",
-    ):
-        if evaluation_vision_config[key] != declared_vision_config[key]:
-            raise RuntimeError(f"Navtest private vision config differs for {key}")
-
-    private_row_for_token = {
-        token: index for index, token in enumerate(private_table.tokens)
-    }
+    if private_table is not None:
+        evaluation_vision_config = _private_vision_config(
+            args.private_observation_root
+        )
+        declared_vision_config = artifact["private_vision_config"]
+        for key in (
+            "m0_checkpoint_sha256",
+            "camera_names",
+            "max_dynamic_tiles",
+            "max_crops_per_camera",
+            "pool_grid",
+            "visual_token_count",
+            "visual_width",
+            "visual_model_wrapper_chain",
+        ):
+            if evaluation_vision_config[key] != declared_vision_config[key]:
+                raise RuntimeError(f"Navtest private vision config differs for {key}")
+        private_row_for_token = {
+            token: index for index, token in enumerate(private_table.tokens)
+        }
+        private_lineage = private_table.lineage
+    else:
+        if artifact.get("private_vision_config") is not None:
+            raise RuntimeError(
+                "scene-token artifact unexpectedly declares private vision lineage"
+            )
+        private_row_for_token = {}
+        private_lineage = {
+            "name": "locked_no_vqa_current_scene_tokens",
+            "source": str(args.feature_cache.resolve()),
+            "current_observation_only": True,
+            "future_or_evaluator_input": False,
+        }
     base_matrix = np.asarray(matrix["predicted_scores"], dtype=np.float32)
     locked_base_matrix = np.stack(
         [
@@ -183,19 +243,48 @@ def main() -> None:
     selected_parts: List[np.ndarray] = []
     for start in range(0, len(tokens), args.batch_size):
         batch_tokens = tokens[start : start + args.batch_size]
-        private_rows = torch.tensor(
-            [private_row_for_token[token] for token in batch_tokens],
-            dtype=torch.long,
-        )
-        observation = private_table.observation_tokens[private_rows].to(
-            device, non_blocking=True
-        ).float()
-        observation_mask = private_table.observation_valid_masks[private_rows].to(
-            device, non_blocking=True
-        )
-        status = private_table.status_features[private_rows].to(
-            device, non_blocking=True
-        ).float()
+        if private_table is not None:
+            private_rows = torch.tensor(
+                [private_row_for_token[token] for token in batch_tokens],
+                dtype=torch.long,
+            )
+            observation = private_table.observation_tokens[private_rows].to(
+                device, non_blocking=True
+            ).float()
+            observation_mask = private_table.observation_valid_masks[
+                private_rows
+            ].to(device, non_blocking=True)
+            status = private_table.status_features[private_rows].to(
+                device, non_blocking=True
+            ).float()
+        else:
+            observation = torch.as_tensor(
+                np.stack(
+                    [
+                        _required_feature(
+                            feature_cache[token], "scene_features", (16, 256)
+                        )
+                        for token in batch_tokens
+                    ]
+                ),
+                dtype=torch.float32,
+                device=device,
+            )
+            status = torch.as_tensor(
+                np.stack(
+                    [
+                        _required_feature(
+                            feature_cache[token], "ego_features", (1, 256)
+                        )[0]
+                        for token in batch_tokens
+                    ]
+                ),
+                dtype=torch.float32,
+                device=device,
+            )
+            observation_mask = torch.ones(
+                observation.shape[:2], dtype=torch.bool, device=device
+            )
         proposals = torch.as_tensor(
             np.stack(
                 [
@@ -229,8 +318,23 @@ def main() -> None:
             device=device,
         )
         m0_context = {}
+        if candidate_fusion:
+            m0_context["m0_candidate_features"] = torch.as_tensor(
+                np.stack(
+                    [
+                        _required_feature(
+                            feature_cache[token],
+                            "candidate_features",
+                            (64, 256),
+                        )
+                        for token in batch_tokens
+                    ]
+                ),
+                dtype=torch.float32,
+                device=device,
+            )
         if context_fusion:
-            m0_context = {
+            m0_context.update({
                 "m0_scene_features": torch.as_tensor(
                     np.stack(
                         [
@@ -255,7 +359,7 @@ def main() -> None:
                     dtype=torch.float32,
                     device=device,
                 ),
-            }
+            })
         with torch.no_grad():
             output = model(
                 observation,
@@ -388,7 +492,8 @@ def main() -> None:
         "proposal_predictions_sha256": _sha256(proposal_path),
         "feature_cache_path": str(args.feature_cache.resolve()),
         "feature_cache_sha256": _sha256(args.feature_cache),
-        "private_observation_lineage": private_table.lineage,
+        "private_observation_lineage": private_lineage,
+        "private_observation_source": observation_source,
         "candidate_matrix_source": str(args.candidate_matrix.resolve()),
         "candidate_matrix_source_sha256": _sha256(args.candidate_matrix),
         "base_score_cache_parity_max_abs": base_score_parity,
@@ -398,6 +503,7 @@ def main() -> None:
         "official_candidate_matrix_joined_after_selection": True,
         "m0_base_model_score_used_as_input": True,
         "m0_base_factor_logits_used_as_input": True,
+        "m0_candidate_features_used_as_input": candidate_fusion,
         "released_m0_scene_and_ego_context_used_as_input": context_fusion,
         "external_model_representation_or_weight_used": False,
         "drivor_representation_or_weight_used": False,

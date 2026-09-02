@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Cache scorer-private multiview tokens from the released M0 vision encoder.
+"""Cache scorer-private multiview tokens from a specified M0 vision encoder.
 
 Only current F0/L0/R0/B0 images and current ego/navigation state enter the
-visual forward.  The released M0 checkpoint supplies its own vision weights;
+visual forward.  The selected M0 checkpoint supplies its own vision weights;
 no DrivOR checkpoint, generic DINO checkpoint, proposal tensor, future field,
 or evaluator value is read by this exporter.
 """
@@ -181,6 +181,15 @@ def parse_args() -> argparse.Namespace:
     inventory.add_argument("--proposal-pickle", type=Path)
     parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
+    parser.add_argument(
+        "--resolved-config",
+        type=Path,
+        default=None,
+        help=(
+            "Resolved Hydra config that constructed the checkpoint. Required "
+            "when its VLM/LoRA architecture differs from the repository default."
+        ),
+    )
     parser.add_argument("--vlm-path", type=Path, required=True)
     parser.add_argument("--log-path", type=Path, required=True)
     parser.add_argument("--sensor-root", type=Path, required=True)
@@ -216,6 +225,8 @@ def _validate_args(args: argparse.Namespace) -> None:
     ):
         if not path.exists():
             raise FileNotFoundError(path)
+    if args.resolved_config is not None and not args.resolved_config.is_file():
+        raise FileNotFoundError(args.resolved_config)
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for M0 vision export")
 
@@ -288,7 +299,15 @@ def main() -> None:
                 f"Inventory/SceneLoader log mismatch for {len(mismatched)} tokens"
             )
 
-    cfg = _compose_agent_config(args.repo_root.resolve(), args.checkpoint.resolve())
+    cfg = _compose_agent_config(
+        args.repo_root.resolve(),
+        args.checkpoint.resolve(),
+        resolved_config=(
+            args.resolved_config.resolve()
+            if args.resolved_config is not None
+            else None
+        ),
+    )
     agent = instantiate(cfg.agent)
     agent.initialize()
     agent.cuda().eval()
@@ -423,12 +442,17 @@ def main() -> None:
         "m0_checkpoint_sha256": checkpoint_sha256,
         "checkpoint": str(args.checkpoint.resolve()),
         "checkpoint_sha256": checkpoint_sha256,
+        "resolved_agent_config": (
+            str(args.resolved_config.resolve())
+            if args.resolved_config is not None
+            else None
+        ),
         "resolved_class": (
             "navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent"
         ),
         "resolved_vlm_path": str(args.vlm_path.resolve()),
         "visual_model_wrapper_chain": wrapper_chain,
-        "representation_source": "released_m0_vision_encoder",
+        "representation_source": "checkpoint_m0_vision_encoder",
         "additional_external_model_checkpoint_or_representation_used": False,
         "drivor_checkpoint_or_representation_used": False,
         "camera_names": CAMERA_NAMES,

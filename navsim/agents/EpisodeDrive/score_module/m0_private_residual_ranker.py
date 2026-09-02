@@ -17,9 +17,12 @@ import torch
 import torch.nn as nn
 
 from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
+    ConservativeReferenceConfig,
+    ConservativeReferenceHead,
     FACTOR_KEYS,
     IndependentProposalRanker,
     IndependentRankerConfig,
+    conservative_reference_selection_scores,
     pdms_factor_log_utility,
 )
 
@@ -45,6 +48,26 @@ class M0PrivateResidualConfig:
     m0_context_fusion: bool = False
     m0_scene_dim: int = 256
     m0_ego_dim: int = 256
+    # Preserve and refine the candidate-conditioned hidden state produced by
+    # the same frozen M0 scorer_attention path.  This is current-observation
+    # M0 state, not an evaluator target or external-model representation.
+    m0_candidate_fusion: bool = False
+    m0_candidate_dim: int = 256
+    # Low-capacity ablation: rank from the frozen M0 scorer-attention
+    # candidate token plus Base factor context. The scorer-private scene
+    # encoder can still receive auxiliary supervision, but its candidate
+    # feature cannot influence ranking in this mode.
+    m0_candidate_only: bool = False
+    # Optional M0-owned policy-improvement head.  It predicts uncertainty and
+    # safety *relative to the Base-selected proposal* instead of adding an
+    # unconstrained absolute residual to every candidate.
+    conservative_reference: bool = False
+    reference_hidden_dim: int = 512
+    reference_layers: int = 2
+    gain_quantile_index: int = 1
+    minimum_lcb_gain: float = 0.0
+    maximum_safety_worse_probability: float = 0.1
+    minimum_safe_improvement_probability: float = 0.7
 
     def __post_init__(self) -> None:
         if self.hidden_dim <= 0 or self.hidden_dim % self.num_heads:
@@ -65,6 +88,18 @@ class M0PrivateResidualConfig:
             self.m0_scene_dim <= 0 or self.m0_ego_dim <= 0
         ):
             raise ValueError("M0 context dimensions must be positive")
+        if self.m0_candidate_fusion and self.m0_candidate_dim <= 0:
+            raise ValueError("M0 candidate dimension must be positive")
+        if self.m0_candidate_only and not self.m0_candidate_fusion:
+            raise ValueError("M0 candidate-only mode requires candidate fusion")
+        if self.reference_hidden_dim <= 0 or self.reference_layers <= 0:
+            raise ValueError("reference-head dimensions must be positive")
+        if self.gain_quantile_index not in (0, 1, 2):
+            raise ValueError("gain_quantile_index must identify q10, q50, or q90")
+        if not 0.0 <= self.maximum_safety_worse_probability <= 1.0:
+            raise ValueError("maximum safety-worse probability must be in [0,1]")
+        if not 0.0 <= self.minimum_safe_improvement_probability <= 1.0:
+            raise ValueError("minimum safe-improvement probability must be in [0,1]")
         if self.score_mode not in {"direct", "factor", "hybrid"}:
             raise ValueError("score_mode must be direct, factor, or hybrid")
         if self.safety_gate_mode not in {
@@ -133,6 +168,25 @@ class M0PrivateResidualRanker(nn.Module):
             ),
             nn.GELU(),
         )
+        if residual_config.m0_candidate_fusion:
+            self.m0_candidate_projection = nn.Sequential(
+                nn.LayerNorm(residual_config.m0_candidate_dim),
+                nn.Linear(
+                    residual_config.m0_candidate_dim,
+                    residual_config.hidden_dim,
+                ),
+            )
+            self.m0_candidate_fusion = nn.Sequential(
+                nn.LayerNorm(residual_config.hidden_dim * 2),
+                nn.Linear(
+                    residual_config.hidden_dim * 2,
+                    residual_config.hidden_dim,
+                ),
+                nn.GELU(),
+            )
+        else:
+            self.m0_candidate_projection = None
+            self.m0_candidate_fusion = None
         if residual_config.m0_context_fusion:
             self.m0_scene_projection = nn.Sequential(
                 nn.LayerNorm(residual_config.m0_scene_dim),
@@ -212,6 +266,18 @@ class M0PrivateResidualRanker(nn.Module):
         _zero_last(self.utility_delta_head)
         _zero_last(self.factor_delta_head)
         _zero_last(self.relative_safety_head)
+        if residual_config.conservative_reference:
+            self.conservative_reference_head = ConservativeReferenceHead(
+                ConservativeReferenceConfig(
+                    model_dim=residual_config.hidden_dim,
+                    hidden_dim=residual_config.reference_hidden_dim,
+                    num_heads=residual_config.num_heads,
+                    num_layers=residual_config.reference_layers,
+                    dropout=residual_config.dropout,
+                )
+            )
+        else:
+            self.conservative_reference_head = None
 
     def forward(
         self,
@@ -223,6 +289,7 @@ class M0PrivateResidualRanker(nn.Module):
         observation_valid_mask: Optional[torch.Tensor] = None,
         m0_scene_features: Optional[torch.Tensor] = None,
         m0_ego_features: Optional[torch.Tensor] = None,
+        m0_candidate_features: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         if base_factor_logits.shape != (*base_scores.shape, len(FACTOR_KEYS)):
             raise ValueError("base_factor_logits must have shape [B,K,6]")
@@ -245,6 +312,31 @@ class M0PrivateResidualRanker(nn.Module):
         fused = self.input_fusion(
             torch.cat((candidate_features, factor_context), dim=-1)
         )
+        if self.residual_config.m0_candidate_fusion:
+            if m0_candidate_features is None:
+                raise ValueError(
+                    "M0 candidate fusion requires released candidate features"
+                )
+            expected = (
+                fused.shape[0],
+                fused.shape[1],
+                self.residual_config.m0_candidate_dim,
+            )
+            if m0_candidate_features.shape != expected:
+                raise ValueError(
+                    f"m0_candidate_features must have shape {expected}"
+                )
+            released_candidate = self.m0_candidate_projection(
+                m0_candidate_features.float()
+            )
+            private_or_factor = (
+                factor_context
+                if self.residual_config.m0_candidate_only
+                else fused
+            )
+            fused = self.m0_candidate_fusion(
+                torch.cat((private_or_factor, released_candidate), dim=-1)
+            )
         context_gate = fused.new_zeros(())
         if self.residual_config.m0_context_fusion:
             if m0_scene_features is None or m0_ego_features is None:
@@ -326,45 +418,72 @@ class M0PrivateResidualRanker(nn.Module):
             )
         )
 
-        gate_mode = self.residual_config.safety_gate_mode
-        if gate_mode == "none":
-            safety_mask = torch.ones_like(shortlist_mask)
-        elif gate_mode == "relative_factor":
-            safety_mask = (
-                relative_safety_logits.sigmoid()
-                >= self.residual_config.safety_floor
-            ).all(dim=-1)
-        else:
-            safety_indices = [0, 1, 3]
-            if self.residual_config.preserve_ddc:
-                safety_indices.append(2)
-            probabilities = refined_factor_logits.sigmoid()[..., safety_indices]
-            base_probabilities = probabilities.gather(
-                1,
-                base_indices[..., None].expand(
-                    -1,
-                    1,
-                    len(safety_indices),
+        reference_output: Dict[str, torch.Tensor] = {}
+        if self.conservative_reference_head is not None:
+            reference_output = self.conservative_reference_head(
+                hidden,
+                base_indices.squeeze(1),
+            )
+            selection_scores = conservative_reference_selection_scores(
+                reference_output["gain_quantiles"],
+                reference_output["safety_worse_logits"],
+                reference_output["safe_improvement_logit"],
+                base_indices.squeeze(1),
+                gain_quantile_index=self.residual_config.gain_quantile_index,
+                minimum_lcb_gain=self.residual_config.minimum_lcb_gain,
+                maximum_safety_worse_probability=(
+                    self.residual_config.maximum_safety_worse_probability
                 ),
+                minimum_safe_improvement_probability=(
+                    self.residual_config.minimum_safe_improvement_probability
+                ),
+                allowed_candidate_mask=shortlist_mask,
             )
             safety_mask = (
-                probabilities >= self.residual_config.safety_floor
-            ).all(dim=-1)
-            safety_mask &= (
-                probabilities
-                >= base_probabilities
-                - self.residual_config.safety_relative_tolerance
-            ).all(dim=-1)
-        eligible = (shortlist_mask & safety_mask) | base_mask
-        adjusted_scores = refined_scores - (
-            (~base_mask).to(refined_scores.dtype)
-            * self.residual_config.switch_penalty
-        )
-        selection_scores = torch.where(
-            eligible,
-            adjusted_scores,
-            base_scores - 100.0,
-        )
+                reference_output["safety_worse_logits"].sigmoid().amax(dim=-1)
+                <= self.residual_config.maximum_safety_worse_probability
+            )
+            eligible = torch.isfinite(selection_scores)
+        else:
+            gate_mode = self.residual_config.safety_gate_mode
+            if gate_mode == "none":
+                safety_mask = torch.ones_like(shortlist_mask)
+            elif gate_mode == "relative_factor":
+                safety_mask = (
+                    relative_safety_logits.sigmoid()
+                    >= self.residual_config.safety_floor
+                ).all(dim=-1)
+            else:
+                safety_indices = [0, 1, 3]
+                if self.residual_config.preserve_ddc:
+                    safety_indices.append(2)
+                probabilities = refined_factor_logits.sigmoid()[..., safety_indices]
+                base_probabilities = probabilities.gather(
+                    1,
+                    base_indices[..., None].expand(
+                        -1,
+                        1,
+                        len(safety_indices),
+                    ),
+                )
+                safety_mask = (
+                    probabilities >= self.residual_config.safety_floor
+                ).all(dim=-1)
+                safety_mask &= (
+                    probabilities
+                    >= base_probabilities
+                    - self.residual_config.safety_relative_tolerance
+                ).all(dim=-1)
+            eligible = (shortlist_mask & safety_mask) | base_mask
+            adjusted_scores = refined_scores - (
+                (~base_mask).to(refined_scores.dtype)
+                * self.residual_config.switch_penalty
+            )
+            selection_scores = torch.where(
+                eligible,
+                adjusted_scores,
+                base_scores - 100.0,
+            )
 
         result = {
             "selection_scores": selection_scores,
@@ -382,6 +501,7 @@ class M0PrivateResidualRanker(nn.Module):
             "private_scene_tokens": private["private_scene_tokens"],
             "m0_context_fusion_gate": context_gate,
         }
+        result.update(reference_output)
         # Auxiliary targets supervise the scorer-owned current-observation
         # representation during training.  Their predictions are exposed to
         # the loss without adding any future tensor to this forward signature.

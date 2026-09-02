@@ -28,6 +28,7 @@ from local_stage2.train_independent_scorer import (
 )
 from local_stage2.train_m0_private_residual_scorer import (
     ResidualReplayDataset,
+    load_replay_base_candidate_features,
     load_replay_base_factor_logits,
     load_shared_future_target_table,
 )
@@ -173,6 +174,13 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
     factor_tokens, base_factor_logits = load_replay_base_factor_logits([source])
     if factor_tokens != data.tokens:
         raise RuntimeError("factor logits do not align with replay rows")
+    m0_candidate_features = None
+    if residual_config.m0_candidate_fusion:
+        candidate_tokens, m0_candidate_features = (
+            load_replay_base_candidate_features([source])
+        )
+        if candidate_tokens != data.tokens:
+            raise RuntimeError("candidate features do not align with replay rows")
     future = load_shared_future_target_table(args.shared_future_target_root)
     current = load_current_actor_target_table(args.current_actor_target_root)
     future_for_token = {token: index for index, token in enumerate(future.tokens)}
@@ -200,6 +208,7 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
             data,
             base_factor_logits,
             indices,
+            m0_candidate_features=m0_candidate_features,
             include_m0_context=residual_config.m0_context_fusion,
             shared_future_table=future,
             shared_future_row_indices=future_rows,
@@ -226,15 +235,20 @@ def evaluate(args: argparse.Namespace) -> Dict[str, object]:
             source_indices = batch[7]
             cursor = 8
             m0_context = {}
+            if residual_config.m0_candidate_fusion:
+                m0_context["m0_candidate_features"] = batch[cursor].to(
+                    args.device, non_blocking=True
+                ).float()
+                cursor += 1
             if residual_config.m0_context_fusion:
-                m0_context = {
+                m0_context.update({
                     "m0_scene_features": batch[cursor].to(
                         args.device, non_blocking=True
                     ).float(),
                     "m0_ego_features": batch[cursor + 1].to(
                         args.device, non_blocking=True
                     ).float(),
-                }
+                })
                 cursor += 2
             output = model(
                 observation.to(args.device, non_blocking=True).float(),

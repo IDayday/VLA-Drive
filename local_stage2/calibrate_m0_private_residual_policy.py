@@ -13,7 +13,7 @@ import json
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Mapping, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -30,6 +30,7 @@ from local_stage2.train_independent_scorer import (
 )
 from local_stage2.train_m0_private_residual_scorer import (
     ResidualReplayDataset,
+    load_replay_base_candidate_features,
     load_replay_base_factor_logits,
 )
 from local_stage2.train_public_base_residual_scorer import _log_bootstrap_ci
@@ -74,6 +75,7 @@ def collect_policy_tensors(
     model: M0PrivateResidualRanker,
     data,
     base_factor_logits: torch.Tensor,
+    m0_candidate_features: Optional[torch.Tensor],
     indices: Sequence[int],
     device: torch.device,
     batch_size: int,
@@ -94,6 +96,7 @@ def collect_policy_tensors(
             data,
             base_factor_logits,
             indices,
+            m0_candidate_features=m0_candidate_features,
             include_m0_context=model.residual_config.m0_context_fusion,
         ),
         batch_size=batch_size,
@@ -113,13 +116,20 @@ def collect_policy_tensors(
             target_factors,
             _source_indices,
         ) = base_batch
+        cursor = 8
         m0_context = {}
+        if model.residual_config.m0_candidate_fusion:
+            m0_context["m0_candidate_features"] = batch[cursor].to(
+                device, non_blocking=True
+            ).float()
+            cursor += 1
         if model.residual_config.m0_context_fusion:
             m0_context = {
-                "m0_scene_features": batch[8].to(
+                **m0_context,
+                "m0_scene_features": batch[cursor].to(
                     device, non_blocking=True
                 ).float(),
-                "m0_ego_features": batch[9].to(
+                "m0_ego_features": batch[cursor + 1].to(
                     device, non_blocking=True
                 ).float(),
             }
@@ -332,7 +342,15 @@ def parse_args() -> argparse.Namespace:
         metavar=("NAME", "FEATURE_ROOT", "LABEL_ROOT"),
         required=True,
     )
-    parser.add_argument("--private-observation-root", type=Path, required=True)
+    parser.add_argument(
+        "--private-observation-root",
+        type=Path,
+        default=None,
+        help=(
+            "Optional scorer-private visual-token cache. Omit when the ranker "
+            "uses the source checkpoint's current 16 scene tokens."
+        ),
+    )
     parser.add_argument("--split-manifest", type=Path, required=True)
     parser.add_argument("--selection-source", default="")
     parser.add_argument("--artifact", type=Path, required=True)
@@ -371,6 +389,13 @@ def main() -> None:
     factor_tokens, base_factor_logits = load_replay_base_factor_logits(sources)
     if factor_tokens != data.tokens:
         raise RuntimeError("Base factor logits do not match replay token order")
+    m0_candidate_features = None
+    if bool(artifact["residual_config"].get("m0_candidate_fusion", False)):
+        candidate_tokens, m0_candidate_features = (
+            load_replay_base_candidate_features(sources)
+        )
+        if candidate_tokens != data.tokens:
+            raise RuntimeError("M0 candidate features do not match replay token order")
     split = json.loads(args.split_manifest.read_text())
     validation_logs = {str(value) for value in split["validation_physical_logs"]}
     validation_indices = [
@@ -400,6 +425,7 @@ def main() -> None:
         model,
         data,
         base_factor_logits,
+        m0_candidate_features,
         validation_indices,
         device,
         args.eval_batch_size,
@@ -479,6 +505,16 @@ def main() -> None:
         "source_artifact": str(args.artifact.resolve()),
         "source_artifact_sha256": _sha256(args.artifact),
         "source_lineage": source_lineage,
+        "scorer_private_observation_source": artifact.get(
+            "fold_manifest", {}
+        ).get(
+            "scorer_private_observation_source",
+            (
+                "private_current_visual_token_cache"
+                if args.private_observation_root is not None
+                else "source_checkpoint_current_scene_tokens"
+            ),
+        ),
         "split_manifest": str(args.split_manifest.resolve()),
         "split_manifest_sha256": _sha256(args.split_manifest),
         "calibration_physical_logs": calibration_logs,
