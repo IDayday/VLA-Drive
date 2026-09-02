@@ -31,7 +31,7 @@ from .independent_label_store import (
     SIX_FACTOR_LABEL_SCHEMA_VERSION,
     SixFactorIndependentCandidateLabelStore,
 )
-from .six_factor_metrics import SIX_FACTOR_ORDER, pdms_from_six_factors
+from .six_factor_metrics import pdms_from_six_factors
 
 
 CANDIDATE_COUNT = 256
@@ -331,6 +331,7 @@ class RawProbeBatch:
     trajectory: Tensor
     ego_status: Tensor
     current_bev_tokens: Tensor
+    candidate_current_feature: Tensor
     auxiliary_tokens: Tensor
     factor_labels: Tensor
     score_labels: Tensor
@@ -342,6 +343,7 @@ class RawProbeBatch:
 def _feature_keys_for_model(model_type: str) -> tuple[str, ...]:
     keys = {
         "current_bev_tokens",
+        "candidate_current_feature",
         "ego_status_feature",
         "trajectory",
         "selected_index",
@@ -458,11 +460,17 @@ def _records_match(first: Mapping[str, Any], second: Mapping[str, Any]) -> bool:
 def _validate_frozen_scene(token: str, frozen: Mapping[str, npt.NDArray[Any]]) -> None:
     trajectory = np.asarray(frozen["trajectory"])
     current = np.asarray(frozen["current_bev_tokens"])
+    candidate_current = np.asarray(frozen["candidate_current_feature"])
     status = np.asarray(frozen["ego_status_feature"])
-    if trajectory.shape != (256, 8, 3) or current.shape != (64, 256) or status.shape != (8,):
+    if (
+        trajectory.shape != (256, 8, 3)
+        or current.shape != (64, 256)
+        or candidate_current.shape != (256, 256)
+        or status.shape != (8,)
+    ):
         raise OracleEffectDataError(
-            f"{token}: invalid trajectory/BEV/status shapes "
-            f"{trajectory.shape}/{current.shape}/{status.shape}"
+            f"{token}: invalid trajectory/BEV/candidate/status shapes "
+            f"{trajectory.shape}/{current.shape}/{candidate_current.shape}/{status.shape}"
         )
     selected = np.asarray(frozen["selected_index"])
     if selected.size != 1 or not 0 <= int(selected.reshape(-1)[0]) < 256:
@@ -569,12 +577,17 @@ def _scene_batch_values(
     )
     packed = EffectTokenPacker().pack(model_type, effects, scene.frozen)
     current = np.asarray(scene.frozen["current_bev_tokens"], dtype=np.float32)
+    candidate_current = np.asarray(
+        scene.frozen["candidate_current_feature"], dtype=np.float32
+    )
     if not packed.use_current_bev:
         current = np.zeros_like(current)
+        candidate_current = np.zeros_like(candidate_current)
     return (
         np.asarray(scene.frozen["trajectory"], dtype=np.float32)[candidate_indices],
         np.asarray(scene.frozen["ego_status_feature"], dtype=np.float32),
         current,
+        candidate_current[candidate_indices],
         packed.auxiliary_tokens[candidate_indices],
         scene.factor_labels[candidate_indices],
         scene.score_labels[candidate_indices],
@@ -600,12 +613,15 @@ def _stack_batch(
         trajectory=torch.from_numpy(np.stack([value[0] for _, value in rows])),
         ego_status=torch.from_numpy(np.stack([value[1] for _, value in rows])),
         current_bev_tokens=torch.from_numpy(np.stack([value[2] for _, value in rows])),
-        auxiliary_tokens=torch.from_numpy(np.stack([value[3] for _, value in rows])),
-        factor_labels=torch.from_numpy(np.stack([value[4] for _, value in rows])),
-        score_labels=torch.from_numpy(np.stack([value[5] for _, value in rows])),
-        candidate_indices=torch.from_numpy(np.stack([value[6] for _, value in rows])),
+        candidate_current_feature=torch.from_numpy(
+            np.stack([value[3] for _, value in rows])
+        ),
+        auxiliary_tokens=torch.from_numpy(np.stack([value[4] for _, value in rows])),
+        factor_labels=torch.from_numpy(np.stack([value[5] for _, value in rows])),
+        score_labels=torch.from_numpy(np.stack([value[6] for _, value in rows])),
+        candidate_indices=torch.from_numpy(np.stack([value[7] for _, value in rows])),
         pair_indices=torch.from_numpy(pair_indices),
-        wote_selected_indices=np.asarray([value[7] for _, value in rows], dtype=np.int64),
+        wote_selected_indices=np.asarray([value[8] for _, value in rows], dtype=np.int64),
     )
 
 

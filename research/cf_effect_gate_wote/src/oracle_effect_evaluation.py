@@ -13,9 +13,9 @@ import json
 import os
 import random
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 import numpy as np
 import numpy.typing as npt
@@ -27,16 +27,23 @@ from sklearn.metrics import roc_auc_score
 from torch import Tensor
 
 from .effect_tokenizer import MODEL_VARIANTS
-from .feature_store import FeatureShardReader, atomic_write_json
+from .feature_store import FeatureShardReader, atomic_write_json, sha256_file
 from .metrics import candidate_ranks, paired_scene_bootstrap, pairwise_ranking_accuracy
 from .models.structured_six_factor_probe import (
-    CHECKPOINT_SCHEMA,
+    CHECKPOINT_SCHEMA as STRUCTURED_CHECKPOINT_SCHEMA,
     SIX_FACTOR_ORDER,
     StructuredSixFactorProbe,
-    checkpoint_payload,
-    load_v2_checkpoint,
+    checkpoint_payload as structured_checkpoint_payload,
+    load_v2_checkpoint as load_structured_v2_checkpoint,
     six_factor_probe_loss,
-    trainable_parameter_count,
+    trainable_parameter_count as structured_parameter_count,
+)
+from .models.matched_hybrid_oracle_effect_probe import (
+    CHECKPOINT_SCHEMA as MATCHED_CHECKPOINT_SCHEMA,
+    MatchedHybridOracleEffectProbe,
+    checkpoint_payload as matched_checkpoint_payload,
+    load_matched_v3_checkpoint,
+    trainable_parameter_count as matched_parameter_count,
 )
 from .oracle_effect_data import RawProbeBatch, iter_raw_batches
 
@@ -50,6 +57,7 @@ INTERVENTIONS = (
     "static_only_swap",
     "scene_mean_effect",
 )
+PROBE_BACKBONES = ("structured_v2", "matched_hybrid_v3")
 
 
 class OracleEffectEvaluationError(RuntimeError):
@@ -93,6 +101,7 @@ def _move_batch(batch: RawProbeBatch, device: torch.device) -> RawProbeBatch:
         trajectory=batch.trajectory.to(device),
         ego_status=batch.ego_status.to(device),
         current_bev_tokens=batch.current_bev_tokens.to(device),
+        candidate_current_feature=batch.candidate_current_feature.to(device),
         auxiliary_tokens=batch.auxiliary_tokens.to(device),
         factor_labels=batch.factor_labels.to(device),
         score_labels=batch.score_labels.to(device),
@@ -102,7 +111,18 @@ def _move_batch(batch: RawProbeBatch, device: torch.device) -> RawProbeBatch:
     )
 
 
-def _forward(model: StructuredSixFactorProbe, batch: RawProbeBatch) -> Mapping[str, Tensor]:
+ProbeModel = StructuredSixFactorProbe | MatchedHybridOracleEffectProbe
+
+
+def _forward(model: ProbeModel, batch: RawProbeBatch) -> Mapping[str, Tensor]:
+    if isinstance(model, MatchedHybridOracleEffectProbe):
+        return model(
+            batch.trajectory,
+            batch.ego_status,
+            batch.current_bev_tokens,
+            batch.candidate_current_feature,
+            batch.auxiliary_tokens,
+        )
     return model(
         batch.trajectory,
         batch.ego_status,
@@ -111,9 +131,83 @@ def _forward(model: StructuredSixFactorProbe, batch: RawProbeBatch) -> Mapping[s
     )
 
 
+def _new_probe(
+    probe_backbone: str,
+    *,
+    seed: int,
+    direct_checkpoint_root: Path | None,
+) -> tuple[ProbeModel, Mapping[str, Any]]:
+    if probe_backbone not in PROBE_BACKBONES:
+        raise OracleEffectEvaluationError(f"unknown probe backbone: {probe_backbone}")
+    if probe_backbone == "structured_v2":
+        return StructuredSixFactorProbe(), {
+            "probe_backbone": probe_backbone,
+            "checkpoint_schema": STRUCTURED_CHECKPOINT_SCHEMA,
+        }
+    if direct_checkpoint_root is None:
+        raise OracleEffectEvaluationError(
+            "matched_hybrid_v3 requires --direct-checkpoint-root"
+        )
+    path = direct_checkpoint_root / f"hybrid_current-seed{seed}.pt"
+    if not path.is_file():
+        raise OracleEffectEvaluationError(f"missing Direct initialization: {path}")
+    model = MatchedHybridOracleEffectProbe()
+    payload = model.initialize_from_direct_checkpoint(path)
+    if int(payload.get("seed", -1)) != int(seed):
+        raise OracleEffectEvaluationError(
+            f"Direct initialization seed mismatch: {path}: {payload.get('seed')} != {seed}"
+        )
+    return model, {
+        "probe_backbone": probe_backbone,
+        "checkpoint_schema": MATCHED_CHECKPOINT_SCHEMA,
+        "direct_initialization_checkpoint": str(path.resolve()),
+        "direct_initialization_sha256": sha256_file(path),
+        "direct_initialization_schema": payload.get("schema_version"),
+        "direct_initialization_objective": payload.get("objective"),
+    }
+
+
+def _load_probe_checkpoint(
+    path: Path,
+    *,
+    map_location: str | torch.device = "cpu",
+) -> tuple[ProbeModel, Mapping[str, Any]]:
+    payload = torch.load(path, map_location="cpu", weights_only=False)
+    if not isinstance(payload, Mapping):
+        raise OracleEffectEvaluationError(f"checkpoint is not a mapping: {path}")
+    schema = payload.get("schema_version")
+    if schema == STRUCTURED_CHECKPOINT_SCHEMA:
+        return load_structured_v2_checkpoint(path, map_location=map_location)
+    if schema == MATCHED_CHECKPOINT_SCHEMA:
+        return load_matched_v3_checkpoint(path, map_location=map_location)
+    raise OracleEffectEvaluationError(f"unsupported probe checkpoint schema: {schema!r}")
+
+
+def _parameter_count(model: ProbeModel) -> int:
+    if isinstance(model, MatchedHybridOracleEffectProbe):
+        return matched_parameter_count(model)
+    return structured_parameter_count(model)
+
+
+def _checkpoint_payload(
+    model: ProbeModel,
+    *,
+    model_type: str,
+    seed: int,
+    metadata: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    if isinstance(model, MatchedHybridOracleEffectProbe):
+        return matched_checkpoint_payload(
+            model, model_type=model_type, seed=seed, metadata=metadata
+        )
+    return structured_checkpoint_payload(
+        model, model_type=model_type, seed=seed, metadata=metadata
+    )
+
+
 @torch.inference_mode()
 def validation_metrics(
-    model: StructuredSixFactorProbe,
+    model: ProbeModel,
     *,
     frozen_root: Path,
     effect_root: Path,
@@ -171,11 +265,18 @@ def train_trial(
     output: Path,
     train_scene_limit: int | None = None,
     val_scene_limit: int | None = None,
+    probe_backbone: str = "structured_v2",
+    direct_checkpoint_root: Path | None = None,
 ) -> Mapping[str, Any]:
     if model_type not in MODEL_VARIANTS:
         raise OracleEffectEvaluationError(f"unknown model type: {model_type}")
     _seed_everything(seed)
-    model = StructuredSixFactorProbe().to(device)
+    model, initialization = _new_probe(
+        probe_backbone,
+        seed=seed,
+        direct_checkpoint_root=direct_checkpoint_root,
+    )
+    model = model.to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY
     )
@@ -255,6 +356,13 @@ def train_trial(
         improved = val_regret < best_regret - 1.0e-9 or (
             abs(val_regret - best_regret) <= 1.0e-9 and val_selected > best_selected
         )
+        print(
+            f"[oracle-matched] model={model_type} seed={seed} "
+            f"epoch={epoch + 1} loss={loss_sum / epoch_steps:.6f} "
+            f"val_score={val_selected:.6f} val_regret={val_regret:.6f} "
+            f"improved={improved}",
+            flush=True,
+        )
         if improved:
             best_regret = val_regret
             best_selected = val_selected
@@ -274,6 +382,7 @@ def train_trial(
     if device.type == "cuda":
         peak_memory = int(torch.cuda.max_memory_allocated(device))
     metadata = {
+        **dict(initialization),
         "learning_rate": float(learning_rate),
         "pairwise_weight": float(pairwise_weight),
         "weight_decay": WEIGHT_DECAY,
@@ -290,13 +399,14 @@ def train_trial(
         "peak_gpu_memory_bytes": peak_memory,
         "history": history,
     }
-    payload = checkpoint_payload(
+    payload = _checkpoint_payload(
         model, model_type=model_type, seed=seed, metadata=metadata
     )
     _atomic_torch_save(output, payload)
     return {
         "checkpoint": str(output),
-        "schema_version": CHECKPOINT_SCHEMA,
+        "schema_version": str(payload["schema_version"]),
+        "probe_backbone": probe_backbone,
         "model_type": model_type,
         "seed": seed,
         "learning_rate": learning_rate,
@@ -305,7 +415,7 @@ def train_trial(
         "training_steps": steps,
         "validation_regret": best_regret,
         "validation_selected_score": best_selected,
-        "trainable_parameter_count": trainable_parameter_count(model),
+        "trainable_parameter_count": _parameter_count(model),
         "peak_gpu_memory_bytes": peak_memory,
     }
 
@@ -329,7 +439,12 @@ def two_scene_overfit(args: argparse.Namespace) -> Mapping[str, Any]:
             )
         )
         batch = _move_batch(raw, device)
-        model = StructuredSixFactorProbe().to(device)
+        model, initialization = _new_probe(
+            args.probe_backbone,
+            seed=0,
+            direct_checkpoint_root=args.direct_checkpoint_root,
+        )
+        model = model.to(device)
         optimizer = torch.optim.AdamW(model.parameters(), lr=3.0e-4, weight_decay=WEIGHT_DECAY)
         losses: list[float] = []
         for step in range(args.steps):
@@ -357,6 +472,8 @@ def two_scene_overfit(args: argparse.Namespace) -> Mapping[str, Any]:
                 "loss_decreased": losses[-1] < losses[0],
                 "output_shape": list(_forward(model, batch)["factors"].shape),
                 "finite": bool(np.isfinite(losses).all()),
+                "probe_backbone": args.probe_backbone,
+                "initialization": dict(initialization),
             }
         )
     status = all(
@@ -400,7 +517,10 @@ def hyperparameter_pilot(args: argparse.Namespace) -> Mapping[str, Any]:
             metadata = existing["metadata"]
             result = {
                 "checkpoint": str(checkpoint),
-                "schema_version": CHECKPOINT_SCHEMA,
+                "schema_version": str(existing["schema_version"]),
+                "probe_backbone": str(
+                    metadata.get("probe_backbone", "structured_v2")
+                ),
                 "model_type": model_type,
                 "seed": 0,
                 "learning_rate": learning_rate,
@@ -438,6 +558,8 @@ def hyperparameter_pilot(args: argparse.Namespace) -> Mapping[str, Any]:
                 output=checkpoint,
                 train_scene_limit=256,
                 val_scene_limit=64,
+                probe_backbone=args.probe_backbone,
+                direct_checkpoint_root=args.direct_checkpoint_root,
             )
         trials.append(result)
     grouped: list[dict[str, Any]] = []
@@ -488,6 +610,7 @@ def hyperparameter_pilot(args: argparse.Namespace) -> Mapping[str, Any]:
         "schema_version": "oracle_effect_global_hyperparameters.v2",
         "selection_data": {"train_scenes": 256, "val_scenes": 64, "seed": 0},
         "models": ["direct_current", "full_primitive_action_effect"],
+        "probe_backbone": args.probe_backbone,
         "grid": grouped,
         "selected": selected,
         "test_metrics_used": False,
@@ -501,7 +624,7 @@ def hyperparameter_pilot(args: argparse.Namespace) -> Mapping[str, Any]:
 def _validate_existing_checkpoint(
     path: Path, model_type: str, seed: int, learning_rate: float, pairwise_weight: float
 ) -> Mapping[str, Any]:
-    _, payload = load_v2_checkpoint(path)
+    _, payload = _load_probe_checkpoint(path)
     metadata = payload["metadata"]
     expected = {
         "model_type": model_type,
@@ -544,7 +667,10 @@ def train_main(args: argparse.Namespace) -> Mapping[str, Any]:
             trials.append(
                 {
                     "checkpoint": str(checkpoint),
-                    "schema_version": CHECKPOINT_SCHEMA,
+                    "schema_version": str(payload["schema_version"]),
+                    "probe_backbone": str(
+                        metadata.get("probe_backbone", "structured_v2")
+                    ),
                     "model_type": model_type,
                     "seed": seed,
                     "learning_rate": learning_rate,
@@ -575,14 +701,20 @@ def train_main(args: argparse.Namespace) -> Mapping[str, Any]:
                 batch_scenes=int(config["training"]["batch_scenes"]),
                 device=device,
                 output=checkpoint,
+                probe_backbone=args.probe_backbone,
+                direct_checkpoint_root=args.direct_checkpoint_root,
             )
         )
     counts = {int(row["trainable_parameter_count"]) for row in trials}
     if len(counts) != 1:
         raise OracleEffectEvaluationError(f"A-L parameter counts differ: {counts}")
+    schemas = {str(row["schema_version"]) for row in trials}
+    if len(schemas) != 1:
+        raise OracleEffectEvaluationError(f"A-L checkpoint schemas differ: {schemas}")
     manifest = {
         "schema_version": "oracle_effect_training.v2",
-        "checkpoint_schema": CHECKPOINT_SCHEMA,
+        "checkpoint_schema": next(iter(schemas)),
+        "probe_backbone": args.probe_backbone,
         "models": list(models),
         "seeds": seeds,
         "optimizer": "AdamW",
@@ -628,7 +760,7 @@ def evaluate_checkpoint(
     intervention: str = "none",
     forced_model_type: str | None = None,
 ) -> tuple[EvaluationArrays, Mapping[str, Any]]:
-    model, payload = load_v2_checkpoint(checkpoint, map_location=device)
+    model, payload = _load_probe_checkpoint(checkpoint, map_location=device)
     model.to(device).eval()
     model_type = forced_model_type or str(payload["model_type"])
     tokens: list[str] = []
@@ -1142,6 +1274,12 @@ def _common_training_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--val-effects", type=Path, required=True)
     parser.add_argument("--train-labels", type=Path, required=True)
     parser.add_argument("--val-labels", type=Path, required=True)
+    parser.add_argument(
+        "--probe-backbone",
+        choices=PROBE_BACKBONES,
+        default="structured_v2",
+    )
+    parser.add_argument("--direct-checkpoint-root", type=Path)
     parser.add_argument("--device", default="cuda")
 
 
@@ -1152,6 +1290,12 @@ def _parser() -> argparse.ArgumentParser:
     overfit.add_argument("--train-cache", type=Path, required=True)
     overfit.add_argument("--train-effects", type=Path, required=True)
     overfit.add_argument("--train-labels", type=Path, required=True)
+    overfit.add_argument(
+        "--probe-backbone",
+        choices=PROBE_BACKBONES,
+        default="structured_v2",
+    )
+    overfit.add_argument("--direct-checkpoint-root", type=Path)
     overfit.add_argument("--device", default="cuda")
     overfit.add_argument("--steps", type=int, default=30)
     overfit.add_argument("--output", type=Path, required=True)

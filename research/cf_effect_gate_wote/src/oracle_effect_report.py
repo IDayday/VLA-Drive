@@ -6,7 +6,6 @@ import argparse
 import hashlib
 import json
 import shutil
-import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -16,15 +15,21 @@ import numpy.typing as npt
 import pandas as pd
 
 from .effect_tokenizer import MODEL_VARIANTS
-from .feature_store import FeatureShardReader, atomic_write_json, sha256_file, stable_json_hash
+from .feature_store import atomic_write_json, sha256_file, stable_json_hash
 from .independent_label_store import SixFactorIndependentCandidateLabelStore
 from .metrics import paired_scene_bootstrap
 from .models.structured_six_factor_probe import (
-    CHECKPOINT_SCHEMA,
+    CHECKPOINT_SCHEMA as STRUCTURED_CHECKPOINT_SCHEMA,
     SIX_FACTOR_ORDER,
     StructuredProbeConfig,
     StructuredSixFactorProbe,
-    trainable_parameter_count,
+    trainable_parameter_count as structured_parameter_count,
+)
+from .models.matched_hybrid_oracle_effect_probe import (
+    CHECKPOINT_SCHEMA as MATCHED_CHECKPOINT_SCHEMA,
+    MatchedHybridProbeConfig,
+    MatchedHybridOracleEffectProbe,
+    trainable_parameter_count as matched_parameter_count,
 )
 from .oracle_effect_data import validate_effect_cache, validate_label_free_feature_cache
 
@@ -415,16 +420,27 @@ def automatic_verdict(
     }
 
 
-def parameter_audit() -> pd.DataFrame:
+def parameter_audit(probe_backbone: str = "structured_v2") -> pd.DataFrame:
     rows = []
     for model_type in MODEL_VARIANTS:
-        model = StructuredSixFactorProbe()
+        if probe_backbone == "matched_hybrid_v3":
+            model = MatchedHybridOracleEffectProbe()
+            count = matched_parameter_count(model)
+            schema = MATCHED_CHECKPOINT_SCHEMA
+        elif probe_backbone == "structured_v2":
+            model = StructuredSixFactorProbe()
+            count = structured_parameter_count(model)
+            schema = STRUCTURED_CHECKPOINT_SCHEMA
+        else:
+            raise OracleEffectReportError(
+                f"unknown report probe backbone: {probe_backbone}"
+            )
         rows.append(
             {
                 "model_type": model_type,
-                "trainable_parameters": trainable_parameter_count(model),
+                "trainable_parameters": count,
                 "architecture_class": type(model).__name__,
-                "checkpoint_schema": CHECKPOINT_SCHEMA,
+                "checkpoint_schema": schema,
             }
         )
     frame = pd.DataFrame(rows)
@@ -486,12 +502,24 @@ def _data_contract(args: argparse.Namespace) -> Mapping[str, Any]:
     }
 
 
-def _architecture_contract() -> Mapping[str, Any]:
-    config = StructuredProbeConfig()
-    params = parameter_audit()
+def _architecture_contract(
+    probe_backbone: str = "structured_v2",
+) -> Mapping[str, Any]:
+    if probe_backbone == "matched_hybrid_v3":
+        config: StructuredProbeConfig | MatchedHybridProbeConfig = (
+            MatchedHybridProbeConfig()
+        )
+        schema = MATCHED_CHECKPOINT_SCHEMA
+    elif probe_backbone == "structured_v2":
+        config = StructuredProbeConfig()
+        schema = STRUCTURED_CHECKPOINT_SCHEMA
+    else:
+        raise OracleEffectReportError(f"unknown probe backbone: {probe_backbone}")
+    params = parameter_audit(probe_backbone)
     return {
         "status": "PASS",
-        "checkpoint_schema": CHECKPOINT_SCHEMA,
+        "probe_backbone": probe_backbone,
+        "checkpoint_schema": schema,
         "factor_order": list(SIX_FACTOR_ORDER),
         "architecture": asdict(config),
         "trajectory_tokens": [8, 128],
@@ -534,11 +562,19 @@ def _markdown_report(
     interaction: pd.DataFrame,
     comparisons: Mapping[str, Comparison],
     verdict: Mapping[str, Any],
+    probe_backbone: str,
 ) -> str:
     lines = [
         "# Six-Factor Oracle Primitive Action-Effect Gate",
         "",
         "本报告只评价 oracle replay-grounded primitive action-effect representation 的候选排序价值；没有训练 forward/inverse/VLA/WoTE/trajectory 模型。",
+        "",
+        "## 实验契约",
+        "",
+        f"- Probe backbone：`{probe_backbone}`。",
+        "- matched-v3 的 A--L 变体均从相同 seed 的已验证 Direct scorer 初始化，并保持完全相同的可训练参数量。",
+        "- 评价集为预注册的 512-scene development slice；fresh Direct holdout 与 future-effect reserve 均未用于本 Gate。",
+        "- 本报告中的 six-factor score 是独立标签上的离线候选排序指标，不是 navtest PDMS。",
         "",
         "## 表一：基础 scorer",
         "",
@@ -700,7 +736,7 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
         raise FileExistsError(f"refusing existing report directory: {args.output}")
     args.output.mkdir(parents=True, exist_ok=False)
     data_contract = _data_contract(args)
-    architecture = _architecture_contract()
+    architecture = _architecture_contract(args.probe_backbone)
     legacy = audit_legacy_reports(args.repo_root)
     relabel_audit = json.loads(args.relabel_audit.read_text(encoding="utf-8"))
     effect_audit = json.loads(args.effect_audit.read_text(encoding="utf-8"))
@@ -738,7 +774,9 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
         (args.effect_audit, "effect_cache_determinism_audit.json"),
     ):
         _copy_required(source, args.output / name)
-    parameter_audit().to_csv(args.output / "parameter_audit.csv", index=False)
+    parameter_audit(args.probe_backbone).to_csv(
+        args.output / "parameter_audit.csv", index=False
+    )
 
     required_eval = (
         "probe_metrics_per_seed.csv",
@@ -770,13 +808,24 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
     atomic_write_json(args.output / "VERDICT.json", verdict)
     (args.output / "ORACLE_EFFECT_REPORT.md").write_text(
         _markdown_report(
-            aggregate, factor, intervention, interaction, comparisons, verdict
+            aggregate,
+            factor,
+            intervention,
+            interaction,
+            comparisons,
+            verdict,
+            args.probe_backbone,
         ),
         encoding="utf-8",
     )
-    reproduction = """# Reproduction
+    launcher = (
+        "research/cf_effect_gate_wote/scripts/run_gate2o_matched_rehab.sh"
+        if args.probe_backbone == "matched_hybrid_v3"
+        else "research/cf_effect_gate_wote/scripts/run_gate2o_all.sh"
+    )
+    reproduction = f"""# Reproduction
 
-Run `research/cf_effect_gate_wote/scripts/run_gate2o_all.sh` from the isolated
+Run `{launcher}` from the isolated
 Gate2O worktree with explicit `--data-root`, `--map-root`, `--wote-root`, and
 `--release-root` arguments.  Paths follow CLI > one-shot environment > shared
 repository defaults; no personal mount is committed.
@@ -806,6 +855,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--relabel-audit", type=Path, required=True)
     parser.add_argument("--effect-audit", type=Path, required=True)
     parser.add_argument("--asset-manifest", type=Path, required=True)
+    parser.add_argument(
+        "--probe-backbone",
+        choices=("structured_v2", "matched_hybrid_v3"),
+        default="structured_v2",
+    )
     for split in ("train", "val", "test"):
         parser.add_argument(f"--{split}-cache", type=Path, required=True)
         parser.add_argument(f"--{split}-effects", type=Path, required=True)
