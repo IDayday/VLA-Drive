@@ -641,10 +641,10 @@ class DriveVLABackbone(nn.Module):
         """Apply the explicit formal semantic-path gradient boundary."""
         patch_features_for_llm = (
             patch_features
-            if self.semantic_backprop_to_vision
+            if bool(getattr(self, "semantic_backprop_to_vision", True))
             else patch_features.detach()
         )
-        if self.semantic_frozen_llm_no_grad:
+        if bool(getattr(self, "semantic_frozen_llm_no_grad", False)):
             with torch.no_grad():
                 return self._forward_internvl_from_patch_features(
                     patch_features_for_llm,

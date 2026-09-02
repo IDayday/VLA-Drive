@@ -12,6 +12,12 @@ from torch.utils.data._utils.collate import default_collate
 
 from navsim.common.dataloader import SceneLoader
 from navsim.planning.training.abstract_feature_target_builder import AbstractFeatureBuilder, AbstractTargetBuilder
+from navsim.planning.training.input_only_cache import (
+    INPUT_ONLY_CACHE_NAME,
+    reject_dynamic_feature_cache,
+    validate_input_only_cache_record,
+    validate_input_only_manifest,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +32,27 @@ def _decode_image_path(path_tensor: torch.Tensor) -> str:
 def drivevla_cached_collate(batch):
     """Collate worker-preprocessed images without requiring equal patch counts."""
     features = [dict(sample[0]) for sample in batch]
-    pixel_values = [feature.pop("pixel_values") for feature in features]
+    pixel_values = [feature.pop("pixel_values", None) for feature in features]
     tile_metadata = [feature.pop("tile_metadata", None) for feature in features]
+    future_pixel_values = [
+        feature.pop("future_pixel_values", None) for feature in features
+    ]
+    future_tile_metadata = [
+        feature.pop("future_tile_metadata", None) for feature in features
+    ]
     collated_features = default_collate(features)
 
     # NAVSIM front-camera images normally all produce nine patches.  Stack that
     # common case into one pinned allocation and retain a list fallback for any
     # future dataset containing mixed aspect ratios.
-    first_shape = pixel_values[0].shape
-    if all(value.shape == first_shape for value in pixel_values):
-        collated_features["pixel_values"] = torch.stack(pixel_values, dim=0)
-    else:
-        collated_features["pixel_values"] = pixel_values
+    if any(value is not None for value in pixel_values):
+        if not all(value is not None for value in pixel_values):
+            raise ValueError("pixel_values must be present for every sample")
+        first_shape = pixel_values[0].shape
+        if all(value.shape == first_shape for value in pixel_values):
+            collated_features["pixel_values"] = torch.stack(pixel_values, dim=0)
+        else:
+            collated_features["pixel_values"] = pixel_values
     if any(metadata is not None for metadata in tile_metadata):
         if not all(metadata is not None for metadata in tile_metadata):
             raise ValueError("tile_metadata must be present for every sample")
@@ -46,6 +61,19 @@ def drivevla_cached_collate(batch):
             collated_features["tile_metadata"] = torch.stack(tile_metadata, dim=0)
         else:
             collated_features["tile_metadata"] = tile_metadata
+
+    if any(value is not None for value in future_pixel_values):
+        if not all(value is not None for value in future_pixel_values):
+            raise ValueError("future_pixel_values must be present for every sample")
+        if not all(len(value) == 3 for value in future_pixel_values):
+            raise ValueError("Every sample must contain exactly three future horizons")
+        collated_features["future_pixel_values"] = future_pixel_values
+    if any(value is not None for value in future_tile_metadata):
+        if not all(value is not None for value in future_tile_metadata):
+            raise ValueError("future_tile_metadata must be present for every sample")
+        if not all(len(value) == 3 for value in future_tile_metadata):
+            raise ValueError("Every sample must contain three future metadata tensors")
+        collated_features["future_tile_metadata"] = future_tile_metadata
 
     collated_targets = default_collate([sample[1] for sample in batch])
     if len(batch[0]) == 2:
@@ -94,6 +122,10 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
         preprocess_image_dtype: str = "bfloat16",
         pretokenize_inputs: bool = False,
         tokenizer=None,
+        preprocess_future_images: bool = False,
+        reject_dynamic_feature_keys: bool = False,
+        input_only_cache_name: Optional[str] = None,
+        require_input_only_manifest: bool = False,
     ):
         """
         Initializes the dataset module.
@@ -105,6 +137,17 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
         super().__init__()
         assert Path(cache_path).is_dir(), f"Cache path {cache_path} does not exist!"
         self._cache_path = Path(cache_path)
+        self.input_only_cache_name = input_only_cache_name
+        self.reject_dynamic_feature_keys = bool(reject_dynamic_feature_keys)
+        self.preprocess_future_images = bool(preprocess_future_images)
+        self.input_only_manifest = None
+        if require_input_only_manifest:
+            if input_only_cache_name != INPUT_ONLY_CACHE_NAME:
+                raise ValueError(
+                    "Formal input-only manifest requires input_only_cache_name="
+                    f"{INPUT_ONLY_CACHE_NAME!r}"
+                )
+            self.input_only_manifest = validate_input_only_manifest(self._cache_path)
 
         if log_names is not None:
             self.log_names = [Path(log_name) for log_name in log_names if (self._cache_path / log_name).is_dir()]
@@ -118,6 +161,7 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
             feature_builders=self._feature_builders,
             target_builders=self._target_builders,
             log_names=self.log_names,
+            input_only_cache_name=self.input_only_cache_name,
         )
         self.tokens = list(self._valid_cache_paths.keys())
         self.append_token_to_batch = append_token_to_batch
@@ -153,6 +197,7 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
         feature_builders: List[AbstractFeatureBuilder],
         target_builders: List[AbstractTargetBuilder],
         log_names: List[Path],
+        input_only_cache_name: Optional[str] = None,
     ) -> Dict[str, Path]:
         """
         Helper method to load valid cache paths.
@@ -168,6 +213,10 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
         for log_name in tqdm(log_names, desc="Loading Valid Caches"):
             log_path = cache_path / log_name
             for token_path in log_path.iterdir():
+                if input_only_cache_name is not None and not (
+                    token_path / f"{input_only_cache_name}.gz"
+                ).is_file():
+                    continue
                 # found_caches: List[bool] = []
                 # for builder in feature_builders + target_builders:
                 #     data_dict_path = token_path / (builder.get_unique_name() + ".gz")
@@ -186,55 +235,159 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
 
         token_path = self._valid_cache_paths[token]
 
-        features: Dict[str, torch.Tensor] = {}
-        
-        for builder in self._feature_builders:
-            data_dict_path = token_path / (os.getenv('FEATURE_NAME',builder.get_unique_name()) + ".gz")
-            data_dict = load_feature_target_from_pickle(data_dict_path)
-            for key,value in data_dict.items():
-                data_dict[key]=value.detach()
-            features.update(data_dict)
+        def detached(value):
+            if isinstance(value, torch.Tensor):
+                return value.detach()
+            if isinstance(value, list):
+                return [detached(item) for item in value]
+            if isinstance(value, tuple):
+                return tuple(detached(item) for item in value)
+            if isinstance(value, dict):
+                return {key: detached(item) for key, item in value.items()}
+            return value
+
+        if self.input_only_cache_name is not None:
+            record = load_feature_target_from_pickle(
+                token_path / f"{self.input_only_cache_name}.gz"
+            )
+            validate_input_only_cache_record(record)
+            features = detached(dict(record["features"]))
+            targets = detached(dict(record["targets"]))
+        else:
+            features: Dict[str, torch.Tensor] = {}
+            for builder in self._feature_builders:
+                data_dict_path = token_path / (
+                    os.getenv('FEATURE_NAME',builder.get_unique_name()) + ".gz"
+                )
+                data_dict = detached(load_feature_target_from_pickle(data_dict_path))
+                reject_dynamic_feature_cache(
+                    data_dict,
+                    enabled=self.reject_dynamic_feature_keys,
+                    source=str(data_dict_path),
+                )
+                features.update(data_dict)
+
+            targets: Dict[str, torch.Tensor] = {}
+            for builder in self._target_builders:
+                data_dict_path = token_path / (
+                    os.getenv('TARGET_NAME',builder.get_unique_name()) + ".gz"
+                )
+                data_dict = detached(load_feature_target_from_pickle(data_dict_path))
+                reject_dynamic_feature_cache(
+                    data_dict,
+                    enabled=self.reject_dynamic_feature_keys,
+                    source=str(data_dict_path),
+                )
+                if 'token' not in data_dict:
+                    data_dict['token']=token
+                targets.update(data_dict)
+
+        reject_dynamic_feature_cache(
+            features,
+            enabled=self.reject_dynamic_feature_keys,
+            source=str(token_path),
+        )
+        reject_dynamic_feature_cache(
+            targets,
+            enabled=self.reject_dynamic_feature_keys,
+            source=str(token_path),
+        )
 
         if self.preprocess_images:
-            from navsim.agents.EpisodeDrive.utils.internvl_preprocess import load_image
+            from navsim.agents.EpisodeDrive.layers.world_model.future_image_io import (
+                decode_path_tensor,
+            )
+            from navsim.agents.EpisodeDrive.utils.internvl_preprocess import (
+                load_image_with_timings,
+            )
             from navsim.agents.EpisodeDrive.utils.utils import build_drivevla_questions
 
-            image_path_tensor = features.pop("image_path_tensor")
-            image_path = _decode_image_path(image_path_tensor)
-            # The backbone immediately casts the released FP32 preprocessing
-            # result to BF16 on CUDA.  Casting here is bit-identical on this
-            # platform and halves both pinned-memory footprint and H2D traffic.
-            pixel_values, tile_metadata = load_image(
-                image_path, return_tile_metadata=True
+            image_path_tensor = features["image_path_tensor"]
+            if "image_path_length" in features:
+                image_path = decode_path_tensor(
+                    image_path_tensor, features["image_path_length"]
+                )
+            else:
+                image_path = _decode_image_path(image_path_tensor)
+            pixel_values, tile_metadata, decode_time, transform_time = (
+                load_image_with_timings(image_path, return_tile_metadata=True)
             )
+            cached_metadata = features.pop("tile_metadata_cached", None)
+            if cached_metadata is not None and not torch.equal(
+                torch.as_tensor(cached_metadata), tile_metadata
+            ):
+                raise RuntimeError(
+                    "Cached current tile metadata no longer matches image preprocessing"
+                )
             features["pixel_values"] = pixel_values.to(dtype=self.preprocess_image_dtype)
             features["tile_metadata"] = tile_metadata
-            features["questions"] = build_drivevla_questions(
-                features["history_trajectory"], features["high_command_one_hot"]
-            )[0]
-            if self.pretokenize_inputs:
-                from navsim.agents.EpisodeDrive.drivevla_backbone import system_message
-                from navsim.agents.EpisodeDrive.utils.internvl_tokenize import (
-                    build_internvl_model_inputs,
-                )
 
-                model_inputs = build_internvl_model_inputs(
-                    self.tokenizer,
-                    [features["questions"]],
-                    [features["pixel_values"].shape[0]],
-                    system_message,
-                )
-                features["input_ids"] = model_inputs["input_ids"].squeeze(0)
-                features["attention_mask"] = model_inputs["attention_mask"].squeeze(0)
-                del features["questions"]
+            if "input_ids" not in features or "attention_mask" not in features:
+                features["questions"] = build_drivevla_questions(
+                    features["history_trajectory"], features["high_command_one_hot"]
+                )[0]
+                if self.pretokenize_inputs:
+                    from navsim.agents.EpisodeDrive.drivevla_backbone import system_message
+                    from navsim.agents.EpisodeDrive.utils.internvl_tokenize import (
+                        build_internvl_model_inputs,
+                    )
 
-        targets: Dict[str, torch.Tensor] = {}
-        for builder in self._target_builders:
-            data_dict_path = token_path / (os.getenv('TARGET_NAME',builder.get_unique_name()) + ".gz")
-            data_dict = load_feature_target_from_pickle(data_dict_path)
-            if 'token' not in data_dict:
-                data_dict['token']=token
-            targets.update(data_dict)
+                    model_inputs = build_internvl_model_inputs(
+                        self.tokenizer,
+                        [features["questions"]],
+                        [features["pixel_values"].shape[0]],
+                        system_message,
+                    )
+                    features["input_ids"] = model_inputs["input_ids"].squeeze(0)
+                    features["attention_mask"] = model_inputs["attention_mask"].squeeze(0)
+                    del features["questions"]
+
+            if self.preprocess_future_images:
+                required = (
+                    "future_image_paths",
+                    "future_image_path_lengths",
+                    "future_valid_mask",
+                )
+                missing = [name for name in required if name not in targets]
+                if missing:
+                    raise KeyError(
+                        f"Future worker preprocessing is missing target fields: {missing}"
+                    )
+                cached_future_metadata = features.pop(
+                    "future_tile_metadata_cached", None
+                )
+                future_pixels = []
+                future_metadata = []
+                for horizon in range(3):
+                    if bool(targets["future_valid_mask"][horizon]):
+                        future_path = decode_path_tensor(
+                            targets["future_image_paths"][horizon],
+                            targets["future_image_path_lengths"][horizon],
+                        )
+                        values, metadata, decode_elapsed, transform_elapsed = (
+                            load_image_with_timings(
+                                future_path, return_tile_metadata=True
+                            )
+                        )
+                        decode_time += decode_elapsed
+                        transform_time += transform_elapsed
+                    else:
+                        values = pixel_values
+                        metadata = tile_metadata
+                    if cached_future_metadata is not None and not torch.equal(
+                        torch.as_tensor(cached_future_metadata[horizon]), metadata
+                    ):
+                        raise RuntimeError(
+                            "Cached future tile metadata no longer matches image preprocessing"
+                        )
+                    future_pixels.append(values.to(dtype=self.preprocess_image_dtype))
+                    future_metadata.append(metadata)
+                features["future_pixel_values"] = future_pixels
+                features["future_tile_metadata"] = future_metadata
+            features.pop("num_patches_cached", None)
+            features.pop("future_num_patches_cached", None)
+            features["input_decode_time"] = torch.tensor(decode_time)
+            features["input_transform_time"] = torch.tensor(transform_time)
 
         if self.append_token_to_batch:
             return (features,targets,token)

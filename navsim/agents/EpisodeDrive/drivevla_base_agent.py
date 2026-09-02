@@ -17,6 +17,10 @@ import numpy as np
 import torch.nn.functional as F
 import torch.nn as nn
 from navsim.planning.training.dataset import load_feature_target_from_pickle
+from navsim.planning.training.input_only_cache import (
+    reject_dynamic_feature_cache,
+    validate_input_only_cache_policy,
+)
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint, ProgressBar, LearningRateMonitor
 from navsim.common.dataloader import MetricCacheLoader
 
@@ -296,12 +300,18 @@ class DriveVLABaseAgent(AbstractAgent):
         self._agent_checkpoint_loaded = False
         self._shared_trainable_initialization_metadata = None
         if self._formal_initialization:
+            validate_input_only_cache_policy(cache_policy)
             self._formal_initialization_audit = validate_formal_initialization_config(
                 initialization,
                 checkpoint_path=checkpoint_path,
                 stage1_checkpoint_path=stage1_checkpoint_path,
                 vlm_config=vlm_config,
             )
+        self._dynamic_feature_cache_guard_enabled = bool(
+            self._formal_initialization
+            and cache_policy is not None
+            and str(getattr(cache_policy, "mode", "")) == "input_only"
+        )
         self.cache_data = cache_data
         self._initialized = False
         self._latest_registers_for_diagnostics = None
@@ -1010,6 +1020,11 @@ class DriveVLABaseAgent(AbstractAgent):
         return [feature_builders]
 
     def forward(self, features: Dict[str, torch.Tensor], targets=None, tokens_list=None) -> Dict[str, torch.Tensor]:
+        reject_dynamic_feature_cache(
+            features,
+            enabled=self._dynamic_feature_cache_guard_enabled,
+            source="DriveVLABaseAgent.forward inputs",
+        )
         # Lightning/model-summary mode transitions can recursively reset child
         # ``training`` flags after ``DriveVLABaseAgent.train`` returns. Restore
         # the selective checkpoint wrappers at the actual training boundary;
@@ -1065,6 +1080,11 @@ class DriveVLABaseAgent(AbstractAgent):
             "future_image_paths",
             "future_image_path_lengths",
             "future_valid_mask",
+            "future_pixel_values",
+            "future_tile_metadata",
+            "image_path_length",
+            "input_decode_time",
+            "input_transform_time",
         }
         for key, tensor in list(runtime_features.items()):
             if key in host_only_keys:
@@ -1387,6 +1407,19 @@ class DriveVLABaseAgent(AbstractAgent):
             )
         valid_mask = future_valid.detach().to(dtype=torch.bool, device="cpu")
         current_tiles = self._current_image_tiles(features, batch_size)
+        worker_future_pixels = features.get("future_pixel_values")
+        worker_future_metadata = features.get("future_tile_metadata")
+        if (worker_future_pixels is None) != (worker_future_metadata is None):
+            raise ValueError(
+                "future_pixel_values and future_tile_metadata must be provided together"
+            )
+        if worker_future_pixels is not None:
+            if len(worker_future_pixels) != batch_size or len(worker_future_metadata) != batch_size:
+                raise ValueError("Worker-preprocessed future image batch size mismatch")
+            if not all(len(group) == 3 for group in worker_future_pixels):
+                raise ValueError("Worker-preprocessed future images require three horizons")
+            if not all(len(group) == 3 for group in worker_future_metadata):
+                raise ValueError("Worker-preprocessed future metadata require three horizons")
 
         all_image_tiles: List[torch.Tensor] = []
         all_tile_metadata: List[torch.Tensor] = []
@@ -1402,6 +1435,13 @@ class DriveVLABaseAgent(AbstractAgent):
                     valid_mask[batch_index, horizon_index]
                 ):
                     future, future_metadata = current, current_metadata
+                elif worker_future_pixels is not None:
+                    future = torch.as_tensor(
+                        worker_future_pixels[batch_index][horizon_index]
+                    ).detach().cpu()
+                    future_metadata = torch.as_tensor(
+                        worker_future_metadata[batch_index][horizon_index]
+                    ).detach().cpu()
                 else:
                     path = decode_path_tensor(
                         future_paths[batch_index, horizon_index],

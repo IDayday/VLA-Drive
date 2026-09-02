@@ -422,6 +422,14 @@ def main(cfg: DictConfig) -> None:
         preprocess_image_dtype = str(cfg.get("preprocess_image_dtype", "bfloat16"))
         pretokenize_inputs = bool(cfg.get("pretokenize_inputs_in_workers", False))
         tokenizer = agent.backbone.tokenizer if pretokenize_inputs else None
+        formal_input_only = bool(
+            getattr(agent, "_dynamic_feature_cache_guard_enabled", False)
+        )
+        input_only_cache_name = (
+            str(cfg.get("input_only_cache_name", "planreg_input_only"))
+            if formal_input_only
+            else None
+        )
         train_data = CacheOnlyDataset(
             cache_path=cfg.cache_path,
             feature_builders=agent.get_feature_builders(),
@@ -431,6 +439,12 @@ def main(cfg: DictConfig) -> None:
             preprocess_image_dtype=preprocess_image_dtype,
             pretokenize_inputs=pretokenize_inputs,
             tokenizer=tokenizer,
+            preprocess_future_images=bool(
+                cfg.get("preprocess_future_images_in_workers", False)
+            ),
+            reject_dynamic_feature_keys=formal_input_only,
+            input_only_cache_name=input_only_cache_name,
+            require_input_only_manifest=formal_input_only,
         )
         val_data = CacheOnlyDataset(
             cache_path=cfg.cache_path,
@@ -441,6 +455,12 @@ def main(cfg: DictConfig) -> None:
             preprocess_image_dtype=preprocess_image_dtype,
             pretokenize_inputs=pretokenize_inputs,
             tokenizer=tokenizer,
+            preprocess_future_images=bool(
+                cfg.get("preprocess_future_images_in_workers", False)
+            ),
+            reject_dynamic_feature_keys=formal_input_only,
+            input_only_cache_name=input_only_cache_name,
+            require_input_only_manifest=formal_input_only,
         )
 
 
