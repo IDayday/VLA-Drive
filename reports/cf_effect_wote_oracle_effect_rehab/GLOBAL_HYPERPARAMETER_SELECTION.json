@@ -1,0 +1,177 @@
+{
+  "grid": [
+    {
+      "direct_validation_regret": 0.2088071908801794,
+      "full_validation_regret": 0.2088071908801794,
+      "learning_rate": 0.0001,
+      "mean_validation_regret": 0.2088071908801794,
+      "pairwise_weight": 0.25
+    },
+    {
+      "direct_validation_regret": 0.21293393149971962,
+      "full_validation_regret": 0.21299807401373982,
+      "learning_rate": 0.0001,
+      "mean_validation_regret": 0.21296600275672972,
+      "pairwise_weight": 0.5
+    },
+    {
+      "direct_validation_regret": 0.19697019271552563,
+      "full_validation_regret": 0.18130701454356313,
+      "learning_rate": 0.0003,
+      "mean_validation_regret": 0.18913860362954438,
+      "pairwise_weight": 0.25
+    },
+    {
+      "direct_validation_regret": 0.21674380218610168,
+      "full_validation_regret": 0.2269705394282937,
+      "learning_rate": 0.0003,
+      "mean_validation_regret": 0.2218571708071977,
+      "pairwise_weight": 0.5
+    }
+  ],
+  "models": [
+    "direct_current",
+    "full_primitive_action_effect"
+  ],
+  "probe_backbone": "matched_hybrid_v3",
+  "schema_version": "oracle_effect_global_hyperparameters.v2",
+  "selected": {
+    "direct_validation_regret": 0.19697019271552563,
+    "full_validation_regret": 0.18130701454356313,
+    "learning_rate": 0.0003,
+    "mean_validation_regret": 0.18913860362954438,
+    "pairwise_weight": 0.25
+  },
+  "selection_data": {
+    "seed": 0,
+    "train_scenes": 256,
+    "val_scenes": 64
+  },
+  "test_metrics_used": false,
+  "tie_break": [
+    "lower_learning_rate",
+    "lower_pairwise_weight"
+  ],
+  "trials": [
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0001-pair-0.25.pt",
+      "learning_rate": 0.0001,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.2088071908801794,
+      "validation_selected_score": 0.6659995121881366
+    },
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0001-pair-0.25.pt",
+      "learning_rate": 0.0001,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.2088071908801794,
+      "validation_selected_score": 0.6659995121881366
+    },
+    {
+      "best_epoch": 2,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0001-pair-0.5.pt",
+      "learning_rate": 0.0001,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 384,
+      "validation_regret": 0.21293393149971962,
+      "validation_selected_score": 0.6618727701716125
+    },
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0001-pair-0.5.pt",
+      "learning_rate": 0.0001,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.21299807401373982,
+      "validation_selected_score": 0.6618086332455277
+    },
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0003-pair-0.25.pt",
+      "learning_rate": 0.0003,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.19697019271552563,
+      "validation_selected_score": 0.677836500108242
+    },
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0003-pair-0.25.pt",
+      "learning_rate": 0.0003,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.25,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.18130701454356313,
+      "validation_selected_score": 0.6934996787458658
+    },
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/direct_current-lr-0.0003-pair-0.5.pt",
+      "learning_rate": 0.0003,
+      "model_type": "direct_current",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.21674380218610168,
+      "validation_selected_score": 0.658062890637666
+    },
+    {
+      "best_epoch": 1,
+      "checkpoint": "/mnt/workspace/project/VLA-Drive-cf-effect-direct-rehab/experiments/cf_effect_wote_oracle_effect_rehab/gate2o-matched-hybrid-v3-20260902/hyperparameter_pilot_artifacts/checkpoints/full_primitive_action_effect-lr-0.0003-pair-0.5.pt",
+      "learning_rate": 0.0003,
+      "model_type": "full_primitive_action_effect",
+      "pairwise_weight": 0.5,
+      "peak_gpu_memory_bytes": 402594304,
+      "probe_backbone": "matched_hybrid_v3",
+      "schema_version": "matched_hybrid_oracle_effect_probe.v3",
+      "seed": 0,
+      "trainable_parameter_count": 1597576,
+      "training_steps": 320,
+      "validation_regret": 0.2269705394282937,
+      "validation_selected_score": 0.6478361552581191
+    }
+  ]
+}
