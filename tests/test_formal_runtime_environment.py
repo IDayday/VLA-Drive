@@ -64,3 +64,10 @@ def test_formal_launchers_require_shared_runtime_audit():
         assert "planreg_formal_runtime_compare" in source
         assert '"HF_HOME=${HF_HOME}"' in source
         assert '"TRANSFORMERS_OFFLINE=${TRANSFORMERS_OFFLINE}"' in source
+
+    smoke = (
+        repo_root / "local_planreg_wm_v1/smoke_formal_real_data.sh"
+    ).read_text(encoding="utf-8")
+    assert 'source "${script_dir}/formal_runtime.sh"' in smoke
+    assert "planreg_formal_runtime_setup" in smoke
+    assert "planreg_formal_runtime_audit_local" in smoke

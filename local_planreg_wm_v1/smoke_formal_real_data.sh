@@ -10,10 +10,10 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/.." && pwd)"
 # shellcheck source=../load_env.sh
 source "${repo_root}/load_env.sh"
-python_bin="${PYTHON_BIN:-/mnt/project/DriveVLA-M0-env/bin/python}"
-if [[ ! -x "${python_bin}" ]]; then
-  python_bin=/mnt/project/DriveVLA-M0-env/bin/python
-fi
+# shellcheck source=formal_runtime.sh
+source "${script_dir}/formal_runtime.sh"
+planreg_formal_runtime_setup "${repo_root}"
+python_bin="${PLANREG_FORMAL_PYTHON_BIN}"
 base_vlm="${PLANREG_BASE_VLM_PATH:-/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned}"
 shared_init="${PLANREG_SHARED_INIT:-/mnt/project/DriveVLA-M0-models/planreg-formal/shared_planreg_init_seed${seed}.pt}"
 metric_cache="${PLANREG_TRAIN_METRIC_CACHE:-/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full}"
@@ -50,6 +50,8 @@ export CUDA_VISIBLE_DEVICES="${PLANREG_SMOKE_GPU:-0}"
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 
 mkdir -p "${output}/training/run_metadata"
+planreg_formal_runtime_audit_local \
+  "${repo_root}" "${output}/training/run_metadata/formal_runtime_node0.json"
 command=(
   "${python_bin}" "${repo_root}/navsim/planning/script/run_training_full.py"
   --config-name=formal_planreg_wm_training

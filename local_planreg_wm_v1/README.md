@@ -25,6 +25,9 @@ Formal launch refuses to start without all of the following:
 4. Four completed throughput benchmark reports and the shared
    `formal_training_layout_lock.json` selected from them.
 5. A clean git worktree and explicit standalone Base/VQA VLM paths.
+6. Matching cross-node runtime fingerprints (Python ABI, PyTorch,
+   Transformers, PEFT, Lightning, EpisodeDrive source, and InternVL
+   `trust_remote_code` source hashes).
 
 Prepare or re-audit the VLM pair and shared state with:
 
@@ -62,7 +65,10 @@ python scripts/select_formal_training_layout.py \
   --output reports/planreg_wm_v1/formal_training_layout_lock.json
 ```
 
-The 16-GPU scripts use `vla-zt` and `vla-zt2`. No script preempts a busy GPU.
+The 16-GPU scripts use `vla-zt` and `vla-zt2`. They force one shared Python
+3.9/package tree and one shared Hugging Face code cache, then reject any
+cross-node fingerprint difference before model construction. No script
+preempts a busy GPU.
 Each benchmark runs 20 warmup and 300 measured optimizer steps of the complete
 PlanReg-WM graph. The selector enforces finite losses/gradients, no OOM/deadlock,
 and peak allocation below 72 GiB. BaseInit and VQAInit must use the same lock.
@@ -88,6 +94,17 @@ PLANREG_LAYOUT_LOCK=/absolute/formal_training_layout_lock.json \
 PLANREG_SHARED_INIT=/absolute/shared_planreg_init_seed0.pt \
 PLANREG_VQA_VLM_PATH=/absolute/InternVL3-2B-driving-vqa \
 bash local_planreg_wm_v1/train_formal_vqa_init_wm.sh 0
+```
+
+When the selected layout occupies both machines, queue the paired runs in
+their declared order with the same lock and shared state:
+
+```bash
+PLANREG_LAYOUT_LOCK=/absolute/formal_training_layout_lock.json \
+PLANREG_SHARED_INIT=/absolute/shared_planreg_init_seed0.pt \
+PLANREG_BASE_VLM_PATH=/absolute/InternVL3-2B-base \
+PLANREG_VQA_VLM_PATH=/absolute/InternVL3-2B-driving-vqa \
+bash local_planreg_wm_v1/train_formal_dual_init_sequential.sh 0
 ```
 
 Automatic resume is disabled. Lossless continuation requires an explicit

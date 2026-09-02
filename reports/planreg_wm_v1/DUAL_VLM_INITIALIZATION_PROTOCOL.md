@@ -39,6 +39,12 @@ The only permitted resolved-config differences are initialization variant,
 VLM path, VLM checkpoint/config fingerprints, experiment name, and output
 directory. `audit_formal_config_pair.py` rejects every other difference.
 
+Both nodes must also resolve an identical formal runtime before construction:
+CPython 3.9.25, PyTorch 2.5.1+cu124, Transformers 4.57.6, PEFT 0.17.1,
+Lightning 2.6.0, the isolated EpisodeDrive source, and the Python sources used
+by InternVL `trust_remote_code`. The launchers use a shared `HF_HOME` and fail
+before allocating the model if either runtime fingerprint differs.
+
 This protocol does not implement multi-trajectory consequence modeling. World
 model supervision remains K=1 and uses only the GT trajectory and real future
 front-camera frames.
