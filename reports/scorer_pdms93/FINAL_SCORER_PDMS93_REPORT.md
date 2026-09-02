@@ -39,7 +39,14 @@ Navtest scenes from 136 logs, 64 candidates per scene and zero invalid scenes.
 
 The M0 bank already has a high oracle ceiling, but its released scorer leaves
 substantially more regret. DrivOR also has a modestly stronger native bank;
-its advantage is therefore not purely a scorer-head effect.
+its advantage is therefore not purely a scorer-head effect. The strict paired
+decomposition shows that about 34% of DrivOR-original's selected-score gap and
+28% of SimScale-134k's gap comes from the higher oracle ceiling; the remaining
+66% and 72%, respectively, comes from lower scorer regret. M0 has the largest
+within-bank pairwise ADE (`1.877 m`), so lack of raw geometric diversity is not
+the explanation. The complete selected/oracle factor and cross-bank geometry
+audit is recorded in
+[`NATIVE_M0_DRIVOR_64_COMPARISON.md`](NATIVE_M0_DRIVOR_64_COMPARISON.md).
 
 ## What the DrivOR diagnostic established
 
@@ -53,29 +60,48 @@ perception path but cannot be used in the final model.
 
 ## Current M0-only experiments
 
-Two full-log, 103,288-scene context-fusion experiments are running:
+The two full-log M0 context-fusion tests finished and were rejected before
+Navtest promotion. On the fixed 18,179-scene / 61-physical-log validation set,
+`v7` scored `0.922752` against Base `0.951612` (`-0.028860`, bootstrap CI fully
+negative), while the cleaner no-future single-variable `v8` scored `0.928892`
+(`-0.022720`, CI fully negative). Simply concatenating an additional M0 context
+feature does not produce a useful scorer-private representation.
 
-- `v7`: M0 context fusion added to the masked candidate-consequence ranker;
-- `v8`: the same context fusion as a single-variable addition to the strongest
-  no-future residual baseline.
+A separate temporal-consequence scorer is undergoing whole-log five-fold CV
+over 1,192 segment logs and 103,288 scenes. Three discovery folds have
+completed; folds 3 and 4 are still running. Raw selection results are:
 
-Both use only current M0 features at inference. Positive held-out-log results
-must still pass full Navtest and same-device online/cache parity.
+| Fold | Base PDMS | Raw best PDMS | Delta | Regret reduction | Raw best epoch |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | 0.963681 | 0.968600 | +0.004919 | 31.09% | 9 |
+| 1 | 0.965542 | 0.969641 | +0.004099 | 25.57% | 9 |
+| 2 | 0.964957 | 0.970005 | +0.005048 | 32.35% | 3 |
 
-A separate temporal-consequence scorer is undergoing whole-log five-fold CV.
-The discovery pass uses 1,192 logs and 103,288 scenes. Fold 0 contains 20,658
-validation scenes from 238 disjoint logs. Its first four raw epochs are:
+Using epoch 9 as a provisional common epoch across the three completed folds
+gives a scene-weighted delta of `+0.004671`, a worst-fold delta of `+0.004099`,
+`29.56%` regret recovery and `0.9413` pairwise accuracy for score differences
+at least 0.02. All three fold-specific raw improvements have positive
+physical-log bootstrap lower bounds. These are Navtrain held-out-log
+diagnostics, not Navtest results.
 
-| Epoch | Validation PDMS | Delta vs Base | Pairwise accuracy | Regret reduction |
-| ---: | ---: | ---: | ---: | ---: |
-| 0 | 0.967619 | +0.003938 | 0.9405 | 24.9% |
-| 1 | 0.967941 | +0.004260 | 0.9285 | 26.9% |
-| 2 | 0.967953 | +0.004272 | 0.9424 | 27.0% |
-| 3 | 0.967669 | +0.003988 | 0.9430 | 25.2% |
+The current deployment sweep is substantially more conservative than the raw
+ranker. Its retained deltas for folds 0--2 are `+0.001752`, `+0.002087` and
+`+0.001925`, recovering only 11--13% of Base regret. The raw model consistently
+improves progress while modestly lowering TTC and DDC/DAC. Factor-only scoring,
+hybrid factor/residual scoring and denser absolute safety thresholds recovered
+only small or inconsistent extra value. The principal remaining problem is
+therefore safe override accuracy, rather than absence of a learnable ranking
+signal.
 
-These are Navtrain held-out-log diagnostics, not Navtest results. The raw
-selector also trades route progress against TTC/DDC, so a common safety-aware
-deployment policy is required before promotion.
+Source inspection confirmed that EpisodeDrive's `tr_out` is the actual
+trajectory-conditioned hidden state consumed by its scorer and is already
+shaped by the per-proposal agent/area auxiliary losses during joint training.
+A strict single-variable five-fold campaign that exposes this native M0
+candidate hidden state to the temporal scorer is queued on `rl-zt4`. Three
+fold-0 pilots are queued on `rl-zt3`: Base candidate features, a learned
+candidate-vs-Base relative-safety head, and a Base-relative utility head. All
+use current M0 inputs only; no DrivOR representation, future annotation or PDM
+input is present at inference.
 
 ## Cross-validation lineage correction
 
@@ -114,8 +140,10 @@ keeps the learning-rate sequence and retained weights exactly reproducible.
 
 ## Current conclusion
 
-The proposal ceiling supports continued scorer work, and the first temporal
-fold shows meaningful held-out-log regret reduction. However, the requested
-M0-only `>0.93` complete-Navtest result remains unproven. The final conclusion
-will be updated only after common-epoch five-fold replay and strict Navtest
-evaluation of every promoted artifact.
+The native-bank audit and three completed temporal folds both support continued
+M0-owned scorer work. They also narrow the failure mode: M0 has sufficient
+candidate-bank headroom, the temporal scorer learns a repeatable ranking
+signal, but the current safety-aware override policy discards most of it.
+However, the requested M0-only `>0.93` complete-Navtest result remains
+unproven. The final conclusion will be updated only after common-epoch
+five-fold replay and strict Navtest evaluation of every promoted artifact.
