@@ -6,10 +6,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import inspect
 import math
-from typing import List
+from typing import List, Optional
 
 import torch
+import torch.nn.functional as F
 from torch import nn
+
+from .asymmetric_register_attention import (
+    configure_read_only_register_attention,
+    set_read_only_register_sequence_length,
+)
 
 
 @dataclass
@@ -29,6 +35,7 @@ class PlanningRegisterAdapter(nn.Module, ABC):
         vlm_model: nn.Module,
         pixel_values: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ) -> InternVLPlanningOutput:
         raise NotImplementedError
 
@@ -42,6 +49,8 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         num_registers: int = 16,
         register_dim: int = 256,
         tile_aggregation: str = "mean",
+        attention_mode: str = "bidirectional",
+        use_flash_attn: bool = False,
         init_std: float = 1e-6,
         device=None,
         dtype=None,
@@ -51,16 +60,32 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
             raise ValueError("num_registers must be positive")
         if register_dim <= 0:
             raise ValueError("register_dim must be positive")
-        if tile_aggregation != "mean":
+        if tile_aggregation not in {
+            "mean",
+            "thumbnail_only",
+            "thumbnail_query_attention",
+        }:
             raise ValueError(
-                "InternVL PlanReg-WM-V1 supports only tile_register_aggregation='mean'; "
+                "tile_register_aggregation must be mean, thumbnail_only, or "
+                "thumbnail_query_attention; "
                 f"got {tile_aggregation!r}"
+            )
+        if attention_mode not in {"read_only", "bidirectional"}:
+            raise ValueError(
+                "planning_registers.attention_mode must be read_only or "
+                f"bidirectional, got {attention_mode!r}"
+            )
+        if attention_mode == "read_only" and use_flash_attn:
+            raise RuntimeError(
+                "planning_registers.attention_mode=read_only requires "
+                "vlm_config.use_flash_attn=false"
             )
         factory_kwargs = {"device": device, "dtype": dtype}
         self.vision_hidden_dim = int(vision_hidden_dim)
         self.num_registers = int(num_registers)
         self.register_dim = int(register_dim)
         self.tile_aggregation = tile_aggregation
+        self.attention_mode = attention_mode
         self.planning_registers = nn.Parameter(
             torch.empty(
                 1,
@@ -78,6 +103,23 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
             self.register_dim,
             **factory_kwargs,
         )
+        if self.tile_aggregation == "thumbnail_query_attention":
+            self.tile_position_mlp = nn.Sequential(
+                nn.Linear(5, self.register_dim, **factory_kwargs),
+                nn.GELU(),
+                nn.Linear(self.register_dim, self.register_dim, **factory_kwargs),
+            )
+            self.tile_gate = nn.Parameter(
+                torch.zeros(1, 1, self.register_dim, **factory_kwargs)
+            )
+
+    def configure_vision_attention(self, vision_model: nn.Module) -> None:
+        if self.attention_mode == "read_only":
+            configured = configure_read_only_register_attention(
+                vision_model, self.num_registers
+            )
+            if not configured:
+                raise RuntimeError("Read-only attention configured zero InternViT layers")
 
     @staticmethod
     def validate_vision_structure(vision_model: nn.Module) -> None:
@@ -151,6 +193,11 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         encoder_inputs = torch.cat(
             (embedded[:, :1], registers, embedded[:, 1:]), dim=1
         )
+        if self.attention_mode == "read_only":
+            self.configure_vision_attention(vision_model)
+            set_read_only_register_sequence_length(
+                vision_model, encoder_inputs.shape[1]
+            )
         encoder_outputs = vision_model.encoder(
             inputs_embeds=encoder_inputs,
             output_hidden_states=False,
@@ -181,12 +228,13 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         self,
         encoded_registers: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ):
         per_tile_registers = self.register_projection(
             self.register_norm(encoded_registers)
         )
         scene_registers = self._aggregate_tiles(
-            per_tile_registers, num_patches_list
+            per_tile_registers, num_patches_list, tile_metadata
         )
         return per_tile_registers, scene_registers
 
@@ -195,13 +243,14 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         vision_model: nn.Module,
         pixel_values: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """EMA-facing path that does not retain patch or language features."""
         encoded_registers, _ = self._encode_with_registers(
             vision_model, pixel_values
         )
         _, scene_registers = self._project_registers(
-            encoded_registers, num_patches_list
+            encoded_registers, num_patches_list, tile_metadata
         )
         return scene_registers
 
@@ -209,6 +258,7 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         self,
         per_tile_registers: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         counts = [int(count) for count in num_patches_list]
         if not counts or any(count <= 0 for count in counts):
@@ -221,20 +271,71 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
                 f"sum(num_patches_list)={sum(counts)} but encoded "
                 f"{per_tile_registers.shape[0]} tiles"
             )
-        if self.tile_aggregation != "mean":
-            raise RuntimeError(
-                f"Unsupported tile register aggregation {self.tile_aggregation!r}"
+        groups = per_tile_registers.split(counts)
+        if self.tile_aggregation == "mean":
+            return torch.stack([tile_group.mean(dim=0) for tile_group in groups])
+
+        if tile_metadata is None:
+            raise ValueError(
+                f"tile_register_aggregation={self.tile_aggregation} requires "
+                "normalized tile_metadata [num_tiles,5]"
             )
-        return torch.stack(
-            [tile_group.mean(dim=0) for tile_group in per_tile_registers.split(counts)],
-            dim=0,
+        tile_metadata = torch.as_tensor(
+            tile_metadata,
+            device=per_tile_registers.device,
+            dtype=per_tile_registers.dtype,
         )
+        if tile_metadata.shape != (per_tile_registers.shape[0], 5):
+            raise ValueError(
+                "tile_metadata must be [num_tiles,5], got "
+                f"{tuple(tile_metadata.shape)}"
+            )
+        if not bool(((tile_metadata >= 0) & (tile_metadata <= 1)).all()):
+            raise ValueError("tile_metadata coordinates must be normalized to [0,1]")
+
+        metadata_groups = tile_metadata.split(counts)
+        outputs = []
+        for sample_index, (tile_group, metadata_group) in enumerate(
+            zip(groups, metadata_groups)
+        ):
+            thumbnail_mask = metadata_group[:, 4] > 0.5
+            thumbnail_indices = thumbnail_mask.nonzero(as_tuple=False).flatten()
+            if thumbnail_indices.numel() != 1:
+                raise ValueError(
+                    f"Sample {sample_index} requires exactly one thumbnail tile "
+                    f"for {self.tile_aggregation}, found {thumbnail_indices.numel()}"
+                )
+            thumbnail = tile_group[int(thumbnail_indices.item())]
+            if self.tile_aggregation == "thumbnail_only":
+                outputs.append(thumbnail)
+                continue
+
+            crop_mask = ~thumbnail_mask
+            if not bool(crop_mask.any()):
+                raise ValueError(
+                    f"Sample {sample_index} has a thumbnail but no crop tiles"
+                )
+            crops = tile_group[crop_mask]
+            crop_metadata = metadata_group[crop_mask]
+            positioned_crops = crops + self.tile_position_mlp(crop_metadata)[:, None]
+            logits = torch.einsum(
+                "rd,trd->rt", thumbnail, positioned_crops
+            ) / math.sqrt(self.register_dim)
+            probabilities = F.softmax(logits.float(), dim=-1).to(crops.dtype)
+            attention_residual = torch.einsum(
+                "rt,trd->rd", probabilities, positioned_crops
+            )
+            outputs.append(
+                thumbnail + torch.tanh(self.tile_gate.squeeze(0)) * attention_residual
+            )
+        return torch.stack(outputs, dim=0)
 
     def forward(
         self,
         vlm_model: nn.Module,
         pixel_values: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ) -> InternVLPlanningOutput:
         self.validate_runtime_structure(vlm_model)
         vision_model = vlm_model.vision_model
@@ -265,7 +366,7 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         patch_features = vlm_model.mlp1(shuffled_patches)
 
         per_tile_registers, scene_registers = self._project_registers(
-            encoded_registers, num_patches_list
+            encoded_registers, num_patches_list, tile_metadata
         )
         return InternVLPlanningOutput(
             patch_features=patch_features,

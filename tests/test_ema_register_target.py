@@ -46,12 +46,14 @@ class _Vision(nn.Module):
 
 
 class _StudentBackbone(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, tile_aggregation="mean") -> None:
         super().__init__()
         self.model = nn.Module()
         self.model.vision_model = _Vision(8)
         self.model.language_model = nn.Linear(8, 8)
-        self.planning_register_adapter = InternVLPlanningRegisters(8, 16, 32)
+        self.planning_register_adapter = InternVLPlanningRegisters(
+            8, 16, 32, tile_aggregation=tile_aggregation
+        )
 
 
 def test_ema_contains_only_vision_and_register_modules_and_has_no_grad() -> None:
@@ -86,3 +88,14 @@ def test_ema_update_and_cosine_schedule_are_exact() -> None:
     assert cosine_ema_momentum(100, 100) == pytest.approx(0.9999)
     middle = cosine_ema_momentum(50, 100)
     assert 0.996 < middle < 0.9999
+
+
+def test_ema_student_tile_aggregation_topology_is_identical() -> None:
+    student = _StudentBackbone("thumbnail_query_attention")
+    teacher = EMARegisterTarget(student)
+    assert teacher.planning_register_adapter.tile_aggregation == (
+        student.planning_register_adapter.tile_aggregation
+    )
+    assert tuple(teacher.planning_register_adapter.state_dict()) == tuple(
+        student.planning_register_adapter.state_dict()
+    )

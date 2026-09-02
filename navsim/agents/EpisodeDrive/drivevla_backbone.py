@@ -34,9 +34,13 @@ _PLANREG_LEGACY_ALLOWED_MISSING_PARTS = (
     "backbone.planning_register_adapter.planning_registers",
     "backbone.planning_register_adapter.register_norm.",
     "backbone.planning_register_adapter.register_projection.",
+    "backbone.planning_register_adapter.tile_position_mlp.",
+    "backbone.planning_register_adapter.tile_gate",
     "planning_register_adapter.planning_registers",
     "planning_register_adapter.register_norm.",
     "planning_register_adapter.register_projection.",
+    "planning_register_adapter.tile_position_mlp.",
+    "planning_register_adapter.tile_gate",
     ".q_lora_a.",
     ".q_lora_b.",
     ".v_lora_a.",
@@ -259,6 +263,7 @@ class DriveVLABackbone(nn.Module):
                  num_planning_registers: int = 16,
                  planning_register_dim: int = 256,
                  tile_register_aggregation: str = "mean",
+                 planning_register_attention_mode: str = "bidirectional",
                  vision_qv_lora_enabled: bool = False,
                  vision_qv_lora_rank: int = 32,
                  vision_qv_lora_dropout: float = 0.0):
@@ -278,6 +283,9 @@ class DriveVLABackbone(nn.Module):
         self.device = device
         self.skip_lm_head = skip_lm_head
         self.planning_registers_enabled = bool(planning_registers_enabled)
+        self.planning_register_attention_mode = str(
+            planning_register_attention_mode
+        )
         self.vision_qv_lora_enabled = bool(vision_qv_lora_enabled)
         self.planning_register_adapter = None
         self.injected_vision_qv_lora_layers: Tuple[str, ...] = ()
@@ -290,6 +298,16 @@ class DriveVLABackbone(nn.Module):
                 "runtime. A Qwen3-VL planning-register adapter is not implemented."
             )
 
+        if (
+            self.planning_registers_enabled
+            and self.planning_register_attention_mode == "read_only"
+            and use_flash_attn
+        ):
+            raise RuntimeError(
+                "planning_registers.attention_mode=read_only requires "
+                "vlm_config.use_flash_attn=false"
+            )
+
         print(f"Initializing DriveVLA-M0 backbone of type: '{self.model_type}' from path: '{checkpoint_path}'")
 
         if self.model_type == 'internvl':
@@ -299,6 +317,8 @@ class DriveVLABackbone(nn.Module):
                     checkpoint_path,
                     trust_remote_code=True,
                 )
+                if hasattr(model_config, "vision_config"):
+                    model_config.vision_config.use_flash_attn = bool(use_flash_attn)
                 self.model = AutoModel.from_config(
                     model_config,
                     trust_remote_code=True,
@@ -307,8 +327,16 @@ class DriveVLABackbone(nn.Module):
                 ).to(self.device).eval()
                 print("Initialized InternVL architecture from config; awaiting checkpoint weights.")
             else:
+                runtime_config = None
+                if self.planning_register_attention_mode == "read_only":
+                    runtime_config = AutoConfig.from_pretrained(
+                        checkpoint_path,
+                        trust_remote_code=True,
+                    )
+                    runtime_config.vision_config.use_flash_attn = False
                 self.model = AutoModel.from_pretrained(
                     checkpoint_path,
+                    config=runtime_config,
                     torch_dtype=torch.bfloat16,
                     low_cpu_mem_usage=True,
                     trust_remote_code=True,
@@ -354,8 +382,13 @@ class DriveVLABackbone(nn.Module):
                     num_registers=int(num_planning_registers),
                     register_dim=int(planning_register_dim),
                     tile_aggregation=tile_register_aggregation,
+                    attention_mode=planning_register_attention_mode,
+                    use_flash_attn=bool(use_flash_attn),
                     device=reference_parameter.device,
                     dtype=reference_parameter.dtype,
+                )
+                self.planning_register_adapter.configure_vision_attention(
+                    vision_model
                 )
             if self.vision_qv_lora_enabled:
                 self.injected_vision_qv_lora_layers = inject_internvit_qv_lora(
@@ -527,6 +560,7 @@ class DriveVLABackbone(nn.Module):
         self,
         pixel_values: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ):
         """Encode InternViT patches/registers without invoking the LLM."""
         if not self.planning_registers_enabled or self.planning_register_adapter is None:
@@ -535,6 +569,7 @@ class DriveVLABackbone(nn.Module):
             self.model,
             pixel_values,
             num_patches_list,
+            tile_metadata,
         )
 
     def forward_internvl_with_planning_registers(
@@ -545,11 +580,13 @@ class DriveVLABackbone(nn.Module):
         position_ids: torch.Tensor,
         image_flags: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Return LLM hidden states plus InternViT-internal scene registers."""
         planning_output = self.encode_internvl_planning_vision(
             pixel_values,
             num_patches_list,
+            tile_metadata,
         )
         language_output = self._forward_internvl_from_patch_features(
             planning_output.patch_features,
@@ -577,6 +614,7 @@ class DriveVLABackbone(nn.Module):
         num_patches_list: List[int],
         return_vision=False,
         model_inputs=None,
+        tile_metadata: Optional[torch.Tensor] = None,
     ):
         if not self.model:
             raise RuntimeError("Backbone model has not been initialized. Call initialize() on the agent first.")
@@ -604,6 +642,7 @@ class DriveVLABackbone(nn.Module):
                 return self.encode_internvl_planning_vision(
                     pixel_values.bfloat16(),
                     num_patches_list,
+                    tile_metadata,
                 )
             return self.forward_internvl_with_planning_registers(
                 pixel_values=pixel_values.bfloat16(),
@@ -612,6 +651,7 @@ class DriveVLABackbone(nn.Module):
                 position_ids=position_ids,
                 image_flags=image_flags,
                 num_patches_list=num_patches_list,
+                tile_metadata=tile_metadata,
             )
         if return_vision:
             return self.model.vision_model(

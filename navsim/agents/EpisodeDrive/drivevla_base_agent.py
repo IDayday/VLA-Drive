@@ -196,6 +196,7 @@ class DriveVLABaseAgent(AbstractAgent):
         lora_config,
         action_head_config,
         vision_adaptation=None,
+        planning_registers=None,
         scene_fusion=None,
         world_model=None,
         ema=None,
@@ -215,6 +216,7 @@ class DriveVLABaseAgent(AbstractAgent):
         self.vlm_config=vlm_config
         self.lora_config=lora_config
         self.vision_adaptation = vision_adaptation
+        self.planning_registers_config = planning_registers
         self.scene_fusion = scene_fusion
         self.world_model_config = world_model
         self.ema_config = ema
@@ -422,6 +424,15 @@ class DriveVLABaseAgent(AbstractAgent):
                 ),
                 tile_register_aggregation=getattr(
                     self.vlm_config, "tile_register_aggregation", "mean"
+                ),
+                planning_register_attention_mode=str(
+                    getattr(
+                        self.planning_registers_config,
+                        "attention_mode",
+                        "bidirectional",
+                    )
+                    if self.planning_registers_config is not None
+                    else "bidirectional"
                 ),
                 vision_qv_lora_enabled=vision_qv_lora_enabled,
                 vision_qv_lora_rank=int(
@@ -847,6 +858,7 @@ class DriveVLABaseAgent(AbstractAgent):
         pixel_values_batch = runtime_features.get("pixel_values")
         questions = runtime_features.get("questions")
         image_path_tensor = runtime_features.get("image_path_tensor")
+        tile_metadata_batch = runtime_features.get("tile_metadata")
         input_ids = runtime_features.get("input_ids")
         attention_mask = runtime_features.get("attention_mask")
         pretokenized_inputs = None
@@ -879,6 +891,7 @@ class DriveVLABaseAgent(AbstractAgent):
             "image_path_tensor",
             "input_ids",
             "attention_mask",
+            "tile_metadata",
             "future_image_paths",
             "future_image_path_lengths",
             "future_valid_mask",
@@ -913,10 +926,26 @@ class DriveVLABaseAgent(AbstractAgent):
                 image_paths = self._decode_paths_from_tensor(image_path_tensor)
             
             if self.vlm_config.vlm_type == "internvl":
+                tile_metadata = None
+                needs_tile_metadata = bool(
+                    self.backbone.planning_register_adapter is not None
+                    and self.backbone.planning_register_adapter.tile_aggregation
+                    != "mean"
+                )
                 if pixel_values_batch is None:
                     if image_paths is None:
                         raise RuntimeError("InternVL requires image paths or pixel_values")
-                    pixel_values_list = [load_image(path) for path in image_paths]
+                    if needs_tile_metadata:
+                        loaded_images = [
+                            load_image(path, return_tile_metadata=True)
+                            for path in image_paths
+                        ]
+                        pixel_values_list = [item[0] for item in loaded_images]
+                        tile_metadata = torch.cat(
+                            [item[1] for item in loaded_images], dim=0
+                        )
+                    else:
+                        pixel_values_list = [load_image(path) for path in image_paths]
                     num_patches_list = [value.shape[0] for value in pixel_values_list]
                     pixel_values_cat = torch.cat(pixel_values_list, dim=0).cuda(
                         non_blocking=True
@@ -933,18 +962,48 @@ class DriveVLABaseAgent(AbstractAgent):
                         raise ValueError(
                             f"Unexpected pixel_values shape: {pixel_values_batch.shape}"
                         )
+                    if tile_metadata_batch is not None:
+                        if not isinstance(tile_metadata_batch, torch.Tensor):
+                            raise TypeError(
+                                "Stacked pixel_values require tensor tile_metadata"
+                            )
+                        if tile_metadata_batch.ndim == 3:
+                            tile_metadata = tile_metadata_batch.flatten(0, 1)
+                        elif tile_metadata_batch.ndim == 2:
+                            tile_metadata = tile_metadata_batch
+                        else:
+                            raise ValueError(
+                                "tile_metadata must be [B,T,5] or [T,5], got "
+                                f"{tuple(tile_metadata_batch.shape)}"
+                            )
                 else:
                     pixel_values_list = [
                         value.cuda(non_blocking=True) for value in pixel_values_batch
                     ]
                     num_patches_list = [value.shape[0] for value in pixel_values_list]
                     pixel_values_cat = torch.cat(pixel_values_list, dim=0)
+                    if tile_metadata_batch is not None:
+                        if not isinstance(tile_metadata_batch, (list, tuple)):
+                            raise TypeError(
+                                "List pixel_values require list tile_metadata"
+                            )
+                        tile_metadata = torch.cat(
+                            [torch.as_tensor(value) for value in tile_metadata_batch],
+                            dim=0,
+                        )
+
+                if needs_tile_metadata and tile_metadata is None:
+                    raise KeyError(
+                        "Spatial tile aggregation requires tile_metadata; use "
+                        "load_image(..., return_tile_metadata=True)"
+                    )
 
                 outputs = self.backbone(
                     pixel_values_cat,
                     questions,
                     num_patches_list=num_patches_list,
                     model_inputs=pretokenized_inputs,
+                    tile_metadata=tile_metadata,
                 )
                 if isinstance(outputs, dict):
                     last_hidden_state = outputs["last_hidden_state"]
@@ -1069,15 +1128,29 @@ class DriveVLABaseAgent(AbstractAgent):
         self,
         features: Dict[str, torch.Tensor],
         batch_size: int,
-    ) -> List[torch.Tensor]:
+    ):
         pixel_values = features.get("pixel_values")
+        tile_metadata = features.get("tile_metadata")
         if isinstance(pixel_values, torch.Tensor):
             if pixel_values.ndim == 5:
                 if pixel_values.shape[0] != batch_size:
                     raise ValueError("Current pixel batch does not match register batch")
-                return [pixel_values[index] for index in range(batch_size)]
+                pixel_groups = [pixel_values[index] for index in range(batch_size)]
+                if isinstance(tile_metadata, torch.Tensor) and tile_metadata.ndim == 3:
+                    metadata_groups = [
+                        tile_metadata[index] for index in range(batch_size)
+                    ]
+                elif tile_metadata is None:
+                    metadata_groups = [None] * batch_size
+                else:
+                    raise ValueError(
+                        "Batched current pixels require tile_metadata [B,T,5]"
+                    )
+                return list(zip(pixel_groups, metadata_groups))
             if pixel_values.ndim == 4 and batch_size == 1:
-                return [pixel_values]
+                if isinstance(tile_metadata, torch.Tensor) and tile_metadata.ndim == 3:
+                    tile_metadata = tile_metadata[0]
+                return [(pixel_values, tile_metadata)]
             raise ValueError(
                 "World-model current pixel_values must be [B,T,C,H,W] or "
                 f"single-sample [T,C,H,W], got {tuple(pixel_values.shape)}"
@@ -1085,7 +1158,15 @@ class DriveVLABaseAgent(AbstractAgent):
         if isinstance(pixel_values, (list, tuple)):
             if len(pixel_values) != batch_size:
                 raise ValueError("Current pixel list does not match register batch")
-            return list(pixel_values)
+            if tile_metadata is None:
+                metadata_groups = [None] * batch_size
+            elif isinstance(tile_metadata, (list, tuple)):
+                if len(tile_metadata) != batch_size:
+                    raise ValueError("Current tile metadata list does not match batch")
+                metadata_groups = list(tile_metadata)
+            else:
+                raise ValueError("List current pixels require list tile_metadata")
+            return list(zip(pixel_values, metadata_groups))
 
         path_tensor = features.get("image_path_tensor")
         if path_tensor is None:
@@ -1097,7 +1178,9 @@ class DriveVLABaseAgent(AbstractAgent):
         current_paths = self._decode_paths_from_tensor(path_tensor.detach().cpu())
         if len(current_paths) != batch_size:
             raise ValueError("Current image path batch does not match registers")
-        return [load_image(path) for path in current_paths]
+        return [
+            load_image(path, return_tile_metadata=True) for path in current_paths
+        ]
 
     def _encode_ema_register_targets(
         self,
@@ -1136,29 +1219,53 @@ class DriveVLABaseAgent(AbstractAgent):
         current_tiles = self._current_image_tiles(features, batch_size)
 
         all_image_tiles: List[torch.Tensor] = []
+        all_tile_metadata: List[torch.Tensor] = []
         tile_counts: List[int] = []
         for batch_index in range(batch_size):
-            current = current_tiles[batch_index].detach().cpu()
-            image_group = [current]
+            current, current_metadata = current_tiles[batch_index]
+            current = current.detach().cpu()
+            if current_metadata is not None:
+                current_metadata = torch.as_tensor(current_metadata).detach().cpu()
+            image_group = [(current, current_metadata)]
             for horizon_index in range(3):
                 if self.future_mode == "repeated_current" or not bool(
                     valid_mask[batch_index, horizon_index]
                 ):
-                    future = current
+                    future, future_metadata = current, current_metadata
                 else:
                     path = decode_path_tensor(
                         future_paths[batch_index, horizon_index],
                         future_lengths[batch_index, horizon_index],
                     )
-                    future = load_image(path)
-                image_group.append(future)
-            for image_tiles in image_group:
+                    future, future_metadata = load_image(
+                        path, return_tile_metadata=True
+                    )
+                image_group.append((future, future_metadata))
+            for image_tiles, image_tile_metadata in image_group:
                 if image_tiles.ndim != 4:
                     raise ValueError(
                         f"InternVL image preprocessing must return [T,C,H,W], got {image_tiles.shape}"
                     )
                 all_image_tiles.append(image_tiles)
                 tile_counts.append(int(image_tiles.shape[0]))
+                if image_tile_metadata is None:
+                    if (
+                        getattr(
+                            getattr(
+                                self.ema_register_target,
+                                "planning_register_adapter",
+                                None,
+                            ),
+                            "tile_aggregation",
+                            "mean",
+                        )
+                        != "mean"
+                    ):
+                        raise KeyError(
+                            "EMA spatial tile aggregation requires tile_metadata"
+                        )
+                else:
+                    all_tile_metadata.append(image_tile_metadata)
 
         teacher_parameter = next(self.ema_register_target.parameters())
         pixel_values = torch.cat(all_image_tiles, dim=0).to(
@@ -1166,8 +1273,13 @@ class DriveVLABaseAgent(AbstractAgent):
             dtype=teacher_parameter.dtype,
             non_blocking=True,
         )
+        tile_metadata_tensor = (
+            torch.cat(all_tile_metadata, dim=0) if all_tile_metadata else None
+        )
         with torch.no_grad():
-            all_targets = self.ema_register_target(pixel_values, tile_counts)
+            all_targets = self.ema_register_target(
+                pixel_values, tile_counts, tile_metadata_tensor
+            )
         all_targets = all_targets.reshape(batch_size, 4, *all_targets.shape[1:])
         target_current = all_targets[:, 0].detach()
         target_future = all_targets[:, 1:].detach()

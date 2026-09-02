@@ -109,7 +109,7 @@ class _FakeEMA(nn.Module):
         self.anchor = nn.Parameter(torch.zeros(()), requires_grad=False)
         self.forward_calls = 0
 
-    def forward(self, pixel_values, tile_counts):
+    def forward(self, pixel_values, tile_counts, tile_metadata=None):
         self.forward_calls += 1
         groups = pixel_values.split(tile_counts)
         values = torch.stack([group.float().mean() for group in groups])
@@ -128,7 +128,12 @@ def _future_path_targets(values):
 def test_repeated_and_shuffled_controls_share_one_teacher_batch(monkeypatch) -> None:
     monkeypatch.setattr(
         "navsim.agents.EpisodeDrive.drivevla_base_agent.load_image",
-        lambda path: torch.full((1, 3, 2, 2), float(path)),
+        lambda path, return_tile_metadata=False: (
+            torch.full((1, 3, 2, 2), float(path)),
+            torch.tensor([[0.5, 0.5, 1.0, 1.0, 1.0]]),
+        )
+        if return_tile_metadata
+        else torch.full((1, 3, 2, 2), float(path)),
     )
     features = {
         "pixel_values": torch.stack(

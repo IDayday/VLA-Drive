@@ -24,7 +24,7 @@ vlm_config:
   planning_registers_enabled: true
   num_planning_registers: 16
   planning_register_dim: 256
-  tile_register_aggregation: mean
+  tile_register_aggregation: thumbnail_query_attention
   vision_qv_lora_enabled: true
   vision_qv_lora_rank: 32
 
@@ -43,6 +43,9 @@ vision_adaptation:
   dropout: 0.0
   train_k: false
   train_mlp: false
+
+planning_registers:
+  attention_mode: read_only
 
 scene_fusion:
   mode: planning_plus_semantic

@@ -11,6 +11,10 @@ from .internvl_planning_registers import (
     PlanningRegisterAdapter,
 )
 from .register_diagnostics import compute_register_diagnostics
+from .asymmetric_register_attention import (
+    configure_read_only_register_attention,
+    set_read_only_register_sequence_length,
+)
 from .vision_qv_lora import (
     InternViTQVLoRALinear,
     extract_qv_lora_state_dict,
@@ -25,8 +29,10 @@ __all__ = [
     "InternViTQVLoRALinear",
     "PlanningRegisterAdapter",
     "compute_register_diagnostics",
+    "configure_read_only_register_attention",
     "extract_qv_lora_state_dict",
     "freeze_vision_except_qv_lora",
     "inject_internvit_qv_lora",
     "load_qv_lora_state_dict",
+    "set_read_only_register_sequence_length",
 ]

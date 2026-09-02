@@ -34,7 +34,14 @@ def find_closest_aspect_ratio(aspect_ratio, target_ratios, width, height, image_
                 best_ratio = ratio
     return best_ratio
 
-def dynamic_preprocess(image, min_num=1, max_num=12, image_size=448, use_thumbnail=False):
+def dynamic_preprocess(
+    image,
+    min_num=1,
+    max_num=12,
+    image_size=448,
+    use_thumbnail=False,
+    return_tile_metadata=False,
+):
     orig_width, orig_height = image.size
     aspect_ratio = orig_width / orig_height
 
@@ -52,25 +59,58 @@ def dynamic_preprocess(image, min_num=1, max_num=12, image_size=448, use_thumbna
 
     resized_img = image.resize((target_width, target_height))
     processed_images = []
+    tile_metadata = []
+    grid_width, grid_height = target_aspect_ratio
     for i in range(blocks):
+        column = i % grid_width
+        row = i // grid_width
         box = (
-            (i % (target_width // image_size)) * image_size,
-            (i // (target_width // image_size)) * image_size,
-            ((i % (target_width // image_size)) + 1) * image_size,
-            ((i // (target_width // image_size)) + 1) * image_size
+            column * image_size,
+            row * image_size,
+            (column + 1) * image_size,
+            (row + 1) * image_size,
         )
         split_img = resized_img.crop(box)
         processed_images.append(split_img)
+        tile_metadata.append(
+            [
+                (column + 0.5) / grid_width,
+                (row + 0.5) / grid_height,
+                1.0 / grid_width,
+                1.0 / grid_height,
+                0.0,
+            ]
+        )
     assert len(processed_images) == blocks
     if use_thumbnail and len(processed_images) != 1:
         thumbnail_img = image.resize((image_size, image_size))
         processed_images.append(thumbnail_img)
+        tile_metadata.append([0.5, 0.5, 1.0, 1.0, 1.0])
+    if return_tile_metadata:
+        return processed_images, tile_metadata
     return processed_images
 
-def load_image(image_file, input_size=448, max_num=12):
+def load_image(
+    image_file,
+    input_size=448,
+    max_num=12,
+    return_tile_metadata=False,
+):
     image = Image.open(image_file).convert('RGB')
     transform = build_transform(input_size=input_size)
-    images = dynamic_preprocess(image, image_size=input_size, use_thumbnail=True, max_num=max_num)
+    processed = dynamic_preprocess(
+        image,
+        image_size=input_size,
+        use_thumbnail=True,
+        max_num=max_num,
+        return_tile_metadata=return_tile_metadata,
+    )
+    if return_tile_metadata:
+        images, tile_metadata = processed
+    else:
+        images = processed
     pixel_values = [transform(image) for image in images]
     pixel_values = torch.stack(pixel_values)
+    if return_tile_metadata:
+        return pixel_values, torch.tensor(tile_metadata, dtype=torch.float32)
     return pixel_values

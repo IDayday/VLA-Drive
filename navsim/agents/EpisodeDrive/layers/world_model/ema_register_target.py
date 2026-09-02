@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import math
-from typing import List
+from typing import List, Optional
 
 import torch
 from torch import nn
@@ -48,11 +48,13 @@ class EMARegisterTarget(nn.Module):
         self,
         pixel_values: torch.Tensor,
         num_patches_list: List[int],
+        tile_metadata: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         return self.planning_register_adapter.encode_registers_only(
             self.vision_model,
             pixel_values,
             num_patches_list,
+            tile_metadata,
         )
 
     @torch.no_grad()

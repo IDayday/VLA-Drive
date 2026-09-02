@@ -5,11 +5,13 @@ from types import SimpleNamespace
 import pytest
 import torch
 from torch import nn
+from PIL import Image
 
 from navsim.agents.EpisodeDrive.layers.planning_registers import (
     InternVLPlanningRegisters,
 )
 from navsim.agents.EpisodeDrive.drivevla_backbone import DriveVLABackbone
+from navsim.agents.EpisodeDrive.utils.internvl_preprocess import dynamic_preprocess
 
 
 class _FakeEmbeddings(nn.Module):
@@ -206,3 +208,68 @@ def test_tile_count_mismatch_is_not_silently_accepted() -> None:
     adapter = InternVLPlanningRegisters(8, 16, 256)
     with pytest.raises(ValueError, match="aggregation mismatch"):
         adapter(model, torch.randn(2, 3, 2, 2), [1])
+
+
+def _spatial_metadata():
+    return torch.tensor(
+        [
+            [0.25, 0.5, 0.5, 1.0, 0.0],
+            [0.75, 0.5, 0.5, 1.0, 0.0],
+            [0.5, 0.5, 1.0, 1.0, 1.0],
+        ]
+    )
+
+
+def test_tile_metadata_coordinates_and_thumbnail_round_trip() -> None:
+    image = Image.new("RGB", (800, 400), color=(10, 20, 30))
+    tiles, metadata = dynamic_preprocess(
+        image,
+        image_size=64,
+        max_num=4,
+        use_thumbnail=True,
+        return_tile_metadata=True,
+    )
+    assert len(tiles) == len(metadata) == 3
+    torch.testing.assert_close(torch.tensor(metadata), _spatial_metadata())
+    assert all(tile.size == (64, 64) for tile in tiles)
+
+
+def test_thumbnail_tile_attention_is_spatial_and_permutation_invariant() -> None:
+    torch.manual_seed(305)
+    adapter = InternVLPlanningRegisters(
+        8,
+        num_registers=4,
+        register_dim=8,
+        tile_aggregation="thumbnail_query_attention",
+    )
+    registers = torch.randn(3, 4, 8)
+    metadata = _spatial_metadata()
+    thumbnail_only = adapter._aggregate_tiles(registers, [3], metadata)
+    torch.testing.assert_close(thumbnail_only[0], registers[2])
+
+    with torch.no_grad():
+        adapter.tile_gate.fill_(1.0)
+    expected = adapter._aggregate_tiles(registers, [3], metadata)
+    permutation = torch.tensor([2, 0, 1])
+    permuted = adapter._aggregate_tiles(
+        registers[permutation], [3], metadata[permutation]
+    )
+    torch.testing.assert_close(permuted, expected)
+
+    swapped_metadata = metadata.clone()
+    swapped_metadata[[0, 1]] = swapped_metadata[[1, 0]]
+    spatially_wrong = adapter._aggregate_tiles(registers, [3], swapped_metadata)
+    assert not torch.allclose(spatially_wrong, expected)
+
+
+def test_thumbnail_aggregation_requires_an_explicit_thumbnail() -> None:
+    adapter = InternVLPlanningRegisters(
+        8,
+        num_registers=4,
+        register_dim=8,
+        tile_aggregation="thumbnail_only",
+    )
+    with pytest.raises(ValueError, match="exactly one thumbnail"):
+        adapter._aggregate_tiles(
+            torch.randn(2, 4, 8), [2], _spatial_metadata()[:2]
+        )

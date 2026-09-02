@@ -27,6 +27,7 @@ def drivevla_cached_collate(batch):
     """Collate worker-preprocessed images without requiring equal patch counts."""
     features = [dict(sample[0]) for sample in batch]
     pixel_values = [feature.pop("pixel_values") for feature in features]
+    tile_metadata = [feature.pop("tile_metadata", None) for feature in features]
     collated_features = default_collate(features)
 
     # NAVSIM front-camera images normally all produce nine patches.  Stack that
@@ -37,6 +38,14 @@ def drivevla_cached_collate(batch):
         collated_features["pixel_values"] = torch.stack(pixel_values, dim=0)
     else:
         collated_features["pixel_values"] = pixel_values
+    if any(metadata is not None for metadata in tile_metadata):
+        if not all(metadata is not None for metadata in tile_metadata):
+            raise ValueError("tile_metadata must be present for every sample")
+        first_metadata_shape = tile_metadata[0].shape
+        if all(metadata.shape == first_metadata_shape for metadata in tile_metadata):
+            collated_features["tile_metadata"] = torch.stack(tile_metadata, dim=0)
+        else:
+            collated_features["tile_metadata"] = tile_metadata
 
     collated_targets = default_collate([sample[1] for sample in batch])
     if len(batch[0]) == 2:
@@ -195,9 +204,11 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
             # The backbone immediately casts the released FP32 preprocessing
             # result to BF16 on CUDA.  Casting here is bit-identical on this
             # platform and halves both pinned-memory footprint and H2D traffic.
-            features["pixel_values"] = load_image(image_path).to(
-                dtype=self.preprocess_image_dtype
+            pixel_values, tile_metadata = load_image(
+                image_path, return_tile_metadata=True
             )
+            features["pixel_values"] = pixel_values.to(dtype=self.preprocess_image_dtype)
+            features["tile_metadata"] = tile_metadata
             features["questions"] = build_drivevla_questions(
                 features["history_trajectory"], features["high_command_one_hot"]
             )[0]
