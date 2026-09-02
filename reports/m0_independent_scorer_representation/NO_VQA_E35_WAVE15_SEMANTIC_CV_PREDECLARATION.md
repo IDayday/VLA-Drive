@@ -72,3 +72,19 @@ from that strict complete Navtest result.
 - Both fusion gates are zero initialized; legacy selection is unchanged before
   learning.
 - The dedicated combination test passes under the locked Python 3.9 runtime.
+
+## Launch audit
+
+Folds 0--2 were first assigned to idle vla-zt GPUs 5--7. The third concurrent
+loader was killed by the host memory limit before it created an output
+directory, training batch, checkpoint or validation result. Its empty training
+log was moved into a `failed_attempts` audit directory and retained. After one
+Wave-14 fold naturally released approximately 105 GiB, fold 2 was relaunched
+on the same GPU with the identical command and canonical output path.
+
+When vla-zt2 recovered, its excluded Python-3.10 Wave-13 diagnostic processes
+were stopped after exact PID/command validation. That released otherwise idle
+resources, and Wave-15 folds 3--4 were launched there on GPUs 5--6 with the
+same exact Python 3.9.25 runtime and shared immutable caches. No unrelated job
+was stopped, no partial result was overwritten, and host assignment is not a
+model or data variable.

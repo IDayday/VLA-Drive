@@ -91,3 +91,10 @@ Each fold owns a disjoint output directory and completion marker. The global
 completion marker is created only after all five fold markers exist. Results
 from the Python-3.10 `wave13_v2` process, if it finishes while vla-zt2 remains
 unreachable, are excluded from all comparisons and promotion decisions.
+
+The vla-zt2 SSH service recovered at 2026-09-02 14:33 UTC. The diagnostic v2
+run had one absent fold and four folds only at epochs 4--5, so it still could
+not support a complete comparison. After validating every parent, watcher and
+child PID against the v2 command/output prefix, only those invalid duplicate
+processes were terminated. Their partial directories and logs remain intact;
+no artifact is copied into v3 and no unrelated process was touched.
