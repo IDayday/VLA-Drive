@@ -9,17 +9,28 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from .direct_rehab_contracts import AccessAuditLog, AccessPolicy
 
-def _tokens(paths: Sequence[Path], limit: int | None) -> list[str]:
+
+def _tokens(
+    paths: Sequence[Path],
+    limit: int | None,
+    *,
+    access_policy: AccessPolicy | None = None,
+    phase: str = "legacy",
+) -> list[str]:
     """Read one or more non-overlapping fixed split files in argument order."""
     values: list[str] = []
     seen: set[str] = set()
     for path in paths:
-        file_values = [
-            line.strip()
-            for line in path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
+        if access_policy is None:
+            file_values = [
+                line.strip()
+                for line in path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+        else:
+            file_values = list(access_policy.read_token_file(path, phase))
         if not file_values or len(file_values) != len(set(file_values)):
             raise ValueError(f"token file must be non-empty and unique: {path}")
         overlap = seen.intersection(file_values)
@@ -36,7 +47,21 @@ def _tokens(paths: Sequence[Path], limit: int | None) -> list[str]:
 def cache_subset(args: argparse.Namespace) -> None:
     if args.output.exists():
         raise FileExistsError(f"refusing existing metric cache root: {args.output}")
-    values = _tokens(args.tokens, args.limit)
+    policy = AccessPolicy.load(args.access_policy) if args.access_policy else None
+    values = _tokens(
+        args.tokens,
+        args.limit,
+        access_policy=policy,
+        phase=args.access_phase,
+    )
+    if policy is not None:
+        if args.access_log is None:
+            raise ValueError("--access-log is required with --access-policy")
+        audit = AccessAuditLog(args.access_log, policy, args.access_phase)
+        # SceneLoader opens the requested log records during construction, so
+        # authorize and audit the complete token set before instantiating it.
+        for token in values:
+            audit.record(token, "metric_cache_generation")
     os.environ["NUPLAN_MAPS_ROOT"] = str(args.map_root)
     sys.path.insert(0, str(args.wote_root))
     from nuplan.planning.training.experiments.cache_metadata_entry import (
@@ -109,6 +134,9 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--limit", type=int)
+    parser.add_argument("--access-policy", type=Path)
+    parser.add_argument("--access-log", type=Path)
+    parser.add_argument("--access-phase", default="legacy")
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -124,6 +152,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "tokens": [str(path) for path in args.tokens],
         "output": str(args.output),
         "limit": args.limit,
+        "access_policy": str(args.access_policy) if args.access_policy else None,
+        "access_log": str(args.access_log) if args.access_log else None,
+        "access_phase": args.access_phase,
     }
     print(json.dumps(resolved, indent=2, sort_keys=True))
     if not args.dry_run:

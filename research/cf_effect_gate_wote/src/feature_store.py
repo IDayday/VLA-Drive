@@ -18,6 +18,7 @@ import numpy.typing as npt
 
 FEATURE_SCHEMA_VERSION = "wote_debug.v1"
 BASE_ANCHOR_FEATURE_SCHEMA_VERSION = "wote_debug_base_anchor.v2"
+DIRECT_CURRENT_ONLY_SCHEMA_VERSION = "wote_direct_current_only.v1"
 
 
 class FeatureStoreError(RuntimeError):
@@ -177,7 +178,15 @@ class CacheIdentity:
     def validate(self) -> None:
         if not self.run_id or "/" in self.run_id or ".." in self.run_id:
             raise FeatureStoreError(f"unsafe run_id: {self.run_id!r}")
-        if self.split not in {"train", "val", "test", "smoke", "headroom"}:
+        if self.split not in {
+            "train",
+            "val",
+            "test",
+            "smoke",
+            "headroom",
+            "dev",
+            "holdout",
+        }:
             raise FeatureStoreError(f"unsupported split: {self.split}")
         if self.candidate_count <= 0 or self.horizon <= 0:
             raise FeatureStoreError("candidate_count and horizon must be positive")

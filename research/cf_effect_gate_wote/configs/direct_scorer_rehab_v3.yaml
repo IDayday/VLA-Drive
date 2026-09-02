@@ -1,0 +1,112 @@
+schema_version: direct_scorer_rehab.v3
+scientific_scope: current_state_plus_fixed_256_base_anchors
+candidate_count: 256
+label_schema: independent_wote_labels_4s_six_factor.v2
+factor_order: [NC, DAC, DDC, EP, TTC, Comfort]
+forbidden_model_inputs:
+  - future
+  - effect
+  - evaluator_factor
+  - evaluator_score
+  - oracle_index
+  - wote_final_reward
+splits:
+  train: direct_rehab_train_1024.txt
+  val: direct_rehab_val_256.txt
+  dev: direct_rehab_dev_512.txt
+  holdout: direct_rehab_holdout_512.txt
+  reserved: future_effect_reserved_512.txt
+holdout_policy:
+  labels_before_lock: forbidden
+  model_selection: forbidden
+  final_evaluations: 1
+  reserved_access: forbidden
+model:
+  schema: top_aware_direct_scorer.v3
+  d_model: 128
+  num_heads: 4
+  trajectory_layers: 2
+  cross_attention_layers: 2
+  dropout: 0.0
+  max_trainable_parameters: 3000000
+training:
+  optimizer: AdamW
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  batch_scenes: 4
+  candidate_chunk: 64
+  gradient_clip_norm: 1.0
+  full_candidate_list: true
+  max_epochs: 20
+  patience: 4
+  selection_safety_lambda: 0.5
+  seed: 0
+stages:
+  smoke:
+    scenes: 2
+    steps: 40
+    representation: hybrid_current
+    objective: O3
+  objective_ablation:
+    train_scenes: 256
+    val_scenes: 128
+    seed: 0
+    max_epochs: 12
+    patience: 3
+    representation: old_spatial_xattn
+    objectives: [O0, O1, O2, O3]
+    selection_rule: lowest_validation_regret_then_lowest_hard_false_safe
+  representation_ablation:
+    train_scenes: 512
+    val_scenes: 256
+    seed: 0
+    max_epochs: 15
+    patience: 4
+    objective: objective_ablation_winner
+    representations:
+      - trajectory_only
+      - old_spatial_xattn
+      - pretrained_candidate_query
+      - path_aligned_current
+      - hybrid_current
+      - wote_current_only_rollout
+    selection_rule: lowest_validation_regret_then_lowest_hard_false_safe
+  confirmation:
+    train_scenes: 1024
+    val_scenes: 256
+    dev_scenes: 512
+    seeds: [0, 1, 2]
+    max_epochs: 20
+    patience: 4
+    finalists: 2
+    selection_rule: highest_mean_dev_selected_score_then_lowest_regret
+  final_holdout:
+    scenes: 512
+    bootstrap_samples: 5000
+    bootstrap_seed: 20260827
+direct_quality_gate:
+  versus_wote_selector_any:
+    selected_score_gain: 0.05
+    regret_reduction_fraction: 0.20
+final_inference:
+  seed_ensemble: [0, 1, 2]
+  ensemble_operation: arithmetic_mean_predicted_six_factors_and_factor_score
+  base_fallback: frozen_wote_selected_candidate
+  safety_calibration_split: val_initial_then_dev_final_lock
+  predicted_hard_factor_floor_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  predicted_margin_grid: [0.0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0]
+  eligibility:
+    hard_false_safe_tolerance_scenes: 1
+    zero_score_tolerance_scenes: 1
+  selection_rule: highest_selected_score_then_lowest_false_safe_then_highest_margin
+  output_contract:
+    scientific_direct_quality_output: raw_direct_ensemble
+    deployment_diagnostic_output: safe_fallback_primary
+    report_both_from_same_prediction_pass: true
+    result_dependent_output_selection: forbidden
+  locked_safe_policy:
+    calibration_split: dev
+    factor_floor: 0.6
+    predicted_margin: 0.3
+    ranking_metrics: not_applicable_sentinel_top1_policy
+stop_scope: oracle_effect_gate

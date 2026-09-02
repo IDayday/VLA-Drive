@@ -1,0 +1,71 @@
+{
+  "holdout_absent_from_old_oracle_effect_test": true,
+  "holdout_contract": "original_test[712:1224]",
+  "old_oracle_effect_test": "original_test[200:712]",
+  "pairwise_disjoint": true,
+  "reserved_contract": "original_test[1224:1736]",
+  "reserved_file_reopened_after_write": false,
+  "schema_version": "direct_scorer_rehab_split.v1",
+  "splits": {
+    "dev": {
+      "count": 512,
+      "path": "research/cf_effect_gate_wote/configs/splits/direct_rehab_dev_512.txt",
+      "sha256": "54f36c0033b9292b18ae99722ebeee5502ee76a83274defbc5c4fe7378dc82fc",
+      "source": {
+        "file": "test_tokens.txt",
+        "slice": [
+          200,
+          712
+        ]
+      }
+    },
+    "holdout": {
+      "count": 512,
+      "path": "research/cf_effect_gate_wote/configs/splits/direct_rehab_holdout_512.txt",
+      "sha256": "80fa85dc7cb92446a2e669dfaabd660507543a663e9eb4171254b8f4654ee604",
+      "source": {
+        "file": "test_tokens.txt",
+        "slice": [
+          712,
+          1224
+        ]
+      }
+    },
+    "reserved": {
+      "count": 512,
+      "path": "research/cf_effect_gate_wote/configs/splits/future_effect_reserved_512.txt",
+      "sha256": "79c3d64638735d9be37464ee72ba69d73bb5b2494df9b6da2a4a4f164938a977",
+      "source": {
+        "file": "test_tokens.txt",
+        "slice": [
+          1224,
+          1736
+        ]
+      }
+    },
+    "train": {
+      "count": 1024,
+      "path": "research/cf_effect_gate_wote/configs/splits/direct_rehab_train_1024.txt",
+      "sha256": "e8f9a0f5a14bcc54f2565bac2f14d46bb5e35e214598c4d9ab01b26d28651d0a",
+      "source": {
+        "file": "train_tokens.txt",
+        "slice": [
+          0,
+          1024
+        ]
+      }
+    },
+    "val": {
+      "count": 256,
+      "path": "research/cf_effect_gate_wote/configs/splits/direct_rehab_val_256.txt",
+      "sha256": "63dc0f43926917649adc27e891b8a5c3c58f70ee022c3001af3032f7db2be7e7",
+      "source": {
+        "file": "val_tokens.txt",
+        "slice": [
+          0,
+          256
+        ]
+      }
+    }
+  }
+}

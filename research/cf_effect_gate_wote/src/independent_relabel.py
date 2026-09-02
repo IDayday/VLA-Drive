@@ -19,6 +19,7 @@ from typing import Any, Sequence
 import numpy as np
 import numpy.typing as npt
 
+from .direct_rehab_contracts import AccessAuditLog, AccessPolicy
 from .feature_store import atomic_write_json, sha256_file, stable_array_hash
 from .independent_label_store import (
     CANDIDATE_COUNT,
@@ -485,6 +486,9 @@ def run_six_factor_relabel(
     output: Path,
     expected_scenes: int | None,
     shard_scenes: int,
+    access_policy_path: Path | None = None,
+    access_log_path: Path | None = None,
+    access_phase: str = "legacy",
 ) -> Path:
     """Evaluate every complete 256-anchor set and write explicit v2 labels."""
 
@@ -512,7 +516,23 @@ def run_six_factor_relabel(
     if changed:
         raise RelabelContractError(f"six-factor evaluator contract changed: {changed}")
 
-    tokens = read_fixed_tokens(token_path, expected_count=expected_scenes)
+    policy = AccessPolicy.load(access_policy_path) if access_policy_path else None
+    tokens = (
+        list(policy.read_token_file(token_path, access_phase))
+        if policy is not None
+        else read_fixed_tokens(token_path, expected_count=expected_scenes)
+    )
+    if expected_scenes is not None and len(tokens) != expected_scenes:
+        raise RelabelContractError(
+            f"fixed token count mismatch: expected {expected_scenes}, got {len(tokens)}"
+        )
+    if policy is not None and access_log_path is None:
+        raise RelabelContractError("--access-log is required with --access-policy")
+    access_audit = (
+        AccessAuditLog(access_log_path, policy, access_phase)
+        if policy is not None and access_log_path is not None
+        else None
+    )
     anchors = load_base_anchor_bank(anchor_path)
     physical_anchor_sha = sha256_file(anchor_path)
     if physical_anchor_sha != CANDIDATE_BANK_SHA256:
@@ -564,6 +584,8 @@ def run_six_factor_relabel(
     try:
         for scene_number, token in enumerate(tokens, start=1):
             current_token = token
+            if access_audit is not None:
+                access_audit.record(token, "six_factor_label_generation")
             current_cache_path = Path(cache_loader.metric_cache_paths[token])
             if not current_cache_path.is_file():
                 raise RelabelContractError(
@@ -653,6 +675,9 @@ def _parser() -> argparse.ArgumentParser:
     six_run.add_argument("--output", type=Path, required=True)
     six_run.add_argument("--expected-scenes", type=int)
     six_run.add_argument("--shard-scenes", type=int, default=16)
+    six_run.add_argument("--access-policy", type=Path)
+    six_run.add_argument("--access-log", type=Path)
+    six_run.add_argument("--access-phase", default="legacy")
     return parser
 
 
@@ -685,6 +710,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             "expected_scenes": args.expected_scenes,
             "shard_scenes": args.shard_scenes,
         }
+        if args.command == "run-six-factor":
+            arguments.update(
+                {
+                    "access_policy_path": args.access_policy,
+                    "access_log_path": args.access_log,
+                    "access_phase": args.access_phase,
+                }
+            )
         manifest = (
             run_six_factor_relabel(**arguments)
             if args.command == "run-six-factor"

@@ -1,0 +1,60 @@
+{
+  "schema_version": "direct_scorer_rehab_holdout_summary.v1",
+  "split": "direct_rehab_holdout_512",
+  "scene_count": 512,
+  "candidate_count": 256,
+  "output_contract": {
+    "scientific_direct_quality_output": "raw_direct_ensemble",
+    "deployment_diagnostic_output": "safe_fallback_primary",
+    "prediction_passes": 1,
+    "label_store_reads": 1,
+    "result_dependent_output_selection": false
+  },
+  "wote_base_selector": {
+    "selected_score": 0.4899828616034938,
+    "top1_regret": 0.3902171882946277,
+    "mean_selected_candidate_rank": 30.771484375,
+    "hard_false_safe": 0.091796875,
+    "zero_score_selection": 0.0625
+  },
+  "raw_direct_ensemble": {
+    "selected_score": 0.5905436663597357,
+    "top1_regret": 0.28965638353838585,
+    "mean_selected_candidate_rank": 19.826171875,
+    "hard_false_safe": 0.0859375,
+    "zero_score_selection": 0.05078125,
+    "pairwise_accuracy": 0.8959733121008953,
+    "ndcg_at_10": 0.6890750132242107,
+    "score_gain_vs_wote": 0.10056080475624185,
+    "score_gain_95pct_ci": [0.07437876464609872, 0.12577849038243585],
+    "regret_reduction_fraction": 0.25770470336205414
+  },
+  "safe_fallback_primary": {
+    "locked_policy": {
+      "calibration_split": "dev",
+      "factor_floor": 0.6,
+      "predicted_margin": 0.3
+    },
+    "selected_score": 0.5147787666210206,
+    "top1_regret": 0.3654212832771009,
+    "mean_selected_candidate_rank": 26.76953125,
+    "hard_false_safe": 0.08203125,
+    "zero_score_selection": 0.0546875,
+    "override_fraction": 0.146484375,
+    "score_gain_vs_wote": 0.02479590501752682,
+    "score_gain_95pct_ci": [0.01414530907641165, 0.03623911550384946],
+    "regret_reduction_fraction": 0.06354385650179263,
+    "ranking_metrics_status": "NOT_APPLICABLE_SENTINEL_TOP1_POLICY"
+  },
+  "direct_quality_gate": {
+    "selected_score_gain_threshold": 0.05,
+    "regret_reduction_threshold": 0.2,
+    "selected_score_gain_pass": true,
+    "regret_reduction_pass": true,
+    "status": "PASS"
+  },
+  "navtest_pdms": {
+    "status": "NOT_RUN",
+    "reason": "This result is an independent six-factor offline candidate-ranking audit, not a navtest submission."
+  }
+}

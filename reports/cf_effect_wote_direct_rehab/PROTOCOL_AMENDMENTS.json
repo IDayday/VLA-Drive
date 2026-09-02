@@ -1,0 +1,63 @@
+{
+  "amendments": [
+    {
+      "id": "A1_SAFE_ENSEMBLE",
+      "reason": "The preregistered per-seed confirmation exposed top-1 safety variance. Before any holdout label generation or access, lock a three-seed predicted-factor ensemble with a validation-only safety/margin calibration and frozen-WoTE fallback.",
+      "scientific_change": "Inference selection policy only; no model, loss, representation, candidate, label, or checkpoint changes.",
+      "holdout_access_before_amendment": false,
+      "reserved_access_before_amendment": false,
+      "status": "LOCKED_BEFORE_CALIBRATION",
+      "utc_date": "2026-09-02"
+    },
+    {
+      "id": "A2_DEV_FINAL_SAFETY_LOCK",
+      "reason": "The A1 validation-locked policy retained score gain on the designated development set but its false-safe constraint did not transfer. Use the already preregistered threshold/margin grid on the designated dev split for the final safety lock, then evaluate exactly once on the untouched holdout.",
+      "scientific_change": "Calibration split for the existing inference grid only; checkpoints, model, labels, candidates, grid values, and eligibility rule are unchanged.",
+      "a1_dev_selected_score": 0.5784482464659959,
+      "a1_dev_wote_selected_score": 0.5032623478909954,
+      "a1_dev_hard_false_safe": 0.109375,
+      "a1_dev_wote_hard_false_safe": 0.08203125,
+      "holdout_access_before_amendment": false,
+      "reserved_access_before_amendment": false,
+      "status": "FAILED_NO_ELIGIBLE_POLICY",
+      "utc_date": "2026-09-02"
+    },
+    {
+      "id": "A3_CONSERVATIVE_FALLBACK_ENDPOINTS",
+      "reason": "A2 found no eligible policy because the original grid stopped at factor floor 0.9 and margin 0.1, omitting a pure-base fallback endpoint. Add only conservative endpoints before re-evaluating the development grid.",
+      "scientific_change": "Extend factor-floor grid with 1.0 and margin grid with 0.2, 0.3, 0.5, 1.0. Models, checkpoints, candidate features, labels, and optimization criterion remain unchanged.",
+      "holdout_access_before_amendment": false,
+      "reserved_access_before_amendment": false,
+      "status": "LOCKED_BEFORE_EXTENDED_DEV_GRID_EVALUATION",
+      "utc_date": "2026-09-02"
+    },
+    {
+      "id": "A4_DUAL_OUTPUT_AND_METADATA_CORRECTION",
+      "reason": "Before fresh-holdout label generation, correct the generated A3 policy's calibration-split metadata from val to dev and lock both predeclared outputs into one inference pass. The raw ensemble is the scientific Direct-quality output; the safe WoTE-fallback policy is a deployment diagnostic.",
+      "scientific_change": "No model, checkpoint, candidate, feature, label, threshold, margin, or selected index changes. Sentinel-based safe-policy values are explicitly excluded from pairwise/NDCG reporting.",
+      "locked_raw_output": "raw_direct_ensemble",
+      "locked_safe_output": {
+        "name": "safe_fallback_primary",
+        "calibration_split": "dev",
+        "factor_floor": 0.6,
+        "predicted_margin": 0.3
+      },
+      "holdout_labels_generated_before_amendment": false,
+      "reserved_access_before_amendment": false,
+      "status": "LOCKED_BEFORE_FRESH_HOLDOUT_LABEL_GENERATION",
+      "utc_date": "2026-09-02"
+    },
+    {
+      "id": "A5_MATCHED_ORACLE_GATE_BACKBONE_REPAIR",
+      "reason": "The fresh holdout establishes that hybrid_current is a sufficiently strong Direct baseline, while the prior Oracle Gate was blocked by a weak pooled/current probe. Rerun A-L with the validated current representation as the common matched backbone.",
+      "scientific_change": "All A-L variants load the same seed-matched hybrid Direct checkpoint, retain identical trainable modules and parameter count, and differ only in zeroed/packed current and auxiliary inputs. The shared residual effect adapter is zero-initialized, so every variant starts exactly at its validated Direct scorer before effect fine-tuning.",
+      "development_assets": "original Oracle Gate train/val/test[200:712] only",
+      "fresh_holdout_reuse": false,
+      "reserved_access": false,
+      "stop_scope": "ORACLE_EFFECT_GATE",
+      "status": "LOCKED_BEFORE_MATCHED_ORACLE_SMOKE",
+      "utc_date": "2026-09-02"
+    }
+  ],
+  "schema_version": "direct_scorer_rehab_protocol_amendments.v1"
+}
