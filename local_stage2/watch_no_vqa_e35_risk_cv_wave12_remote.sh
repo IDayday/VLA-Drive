@@ -18,6 +18,23 @@ refit_root="${NO_VQA_WAVE12_REFIT_ROOT:-/root/scorer_pdms93_runs/no_vqa_e35_risk
 campaign="${NO_VQA_WAVE12_REFIT_CAMPAIGN:-no_vqa_e35_risk_cv_wave12_all_log_refit_v1}"
 private_navtest_root="${NO_VQA_MULTIVIEW_TEST_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_multiview_navtest_pool2_tiles4_v1_8shard}"
 gpu="${NO_VQA_WAVE12_POST_GPU:-0}"
+source_root="${NO_VQA_SOURCE_ROOT:-/root/scorer_pdms93_cache/no_vqa_e35_features_full_v1}"
+label_root="${NO_VQA_LABEL_ROOT:-/root/scorer_pdms93_cache/no_vqa_e35_labels_full_v1}"
+read -r -a sweep_gpu_ids <<<"${NO_VQA_WAVE12_SWEEP_GPU_IDS:-0 1 2 3 4}"
+sweep_max_parallel="${NO_VQA_WAVE12_SWEEP_MAX_PARALLEL:-${#sweep_gpu_ids[@]}}"
+
+(( ${#sweep_gpu_ids[@]} > 0 )) || { echo "empty sweep GPU list" >&2; exit 2; }
+[[ "${sweep_max_parallel}" =~ ^[1-9][0-9]*$ ]] || {
+  echo "invalid sweep parallelism: ${sweep_max_parallel}" >&2
+  exit 2
+}
+(( sweep_max_parallel <= ${#sweep_gpu_ids[@]} )) || {
+  echo "sweep parallelism exceeds distinct GPU count" >&2
+  exit 2
+}
+for path in "${source_root}" "${label_root}"; do
+  [[ -e "${path}" ]] || { echo "missing scorer cache: ${path}" >&2; exit 2; }
+done
 
 # Do not create ``sweep_root`` here when it is nested under ``run_root``.
 # The fold launcher intentionally refuses any pre-existing run directory, and
@@ -66,15 +83,23 @@ fi
 # GPUs only shorten evaluation wall time; no fold receives another fold's
 # neural weights and Navtest is not available to either program.
 sweep_pids=()
+sweep_launch_index=0
 for fold in 0 1 2 3 4; do
   output="${sweep_root}/fold_${fold}.json"
   [[ -f "${output}" ]] && continue
-  CUDA_VISIBLE_DEVICES="${fold}" "${python_bin}" \
+  gpu_slot="${sweep_gpu_ids[$((sweep_launch_index % ${#sweep_gpu_ids[@]}))]}"
+  while true; do
+    used="$(nvidia-smi --id="${gpu_slot}" --query-gpu=memory.used --format=csv,noheader,nounits | tr -d '[:space:]')"
+    [[ "${used}" =~ ^[0-9]+$ ]] && (( used <= 1024 )) && break
+    echo "NO_VQA_WAVE12_POST waiting_for_sweep_gpu=${gpu_slot} utc=$(date -u +%FT%TZ)"
+    sleep 30
+  done
+  CUDA_VISIBLE_DEVICES="${gpu_slot}" "${python_bin}" \
     "${repo_root}/local_stage2/sweep_m0_conservative_reference_fold.py" \
     --artifact "${run_root}/fold_${fold}/last_m0_private_residual_scorer.pt" \
     --source no_vqa_e35 \
-      /root/scorer_pdms93_cache/no_vqa_e35_features_full_v1 \
-      /root/scorer_pdms93_cache/no_vqa_e35_labels_full_v1 \
+      "${source_root}" \
+      "${label_root}" \
     --private-observation-root \
       "${NO_VQA_WAVE12_PRIVATE_TRAIN_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_multiview_trainval_pool2_tiles4_v1_8shard}" \
     --split-manifest "${fold_root}/fold_${fold}.json" \
@@ -83,6 +108,13 @@ for fold in 0 1 2 3 4; do
     --device cuda \
     >"${log_root}/common_policy_fold_${fold}.log" 2>&1 &
   sweep_pids+=("$!")
+  sweep_launch_index=$((sweep_launch_index + 1))
+  if (( ${#sweep_pids[@]} == sweep_max_parallel )); then
+    for pid in "${sweep_pids[@]}"; do
+      wait "${pid}"
+    done
+    sweep_pids=()
+  fi
 done
 for pid in "${sweep_pids[@]}"; do
   wait "${pid}"
