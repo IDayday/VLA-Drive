@@ -1,8 +1,10 @@
 from time import sleep
 import time
 import os
+import json
 import logging
 import inspect
+from pathlib import Path
 
 import numpy as np
 import pytorch_lightning as pl
@@ -141,6 +143,90 @@ class AgentLightningModule(pl.LightningModule):
                     self._formal_allreduce_state, _timed_allreduce_hook
                 )
                 self._formal_comm_hook_registered = True
+        if getattr(self.agent, "_formal_initialization", False):
+            self._write_formal_parameter_audit()
+
+    def _write_formal_parameter_audit(self) -> None:
+        if not self.trainer.is_global_zero:
+            return
+        summaries = getattr(self.agent, "_planreg_optimizer_group_summary", None)
+        runtime = getattr(self.agent, "_planreg_optimizer_runtime", None)
+        if not summaries or not runtime:
+            raise RuntimeError(
+                "Formal optimizer audit is unavailable after optimizer construction"
+            )
+        trainable = sum(
+            parameter.numel()
+            for parameter in self.agent.parameters()
+            if parameter.requires_grad
+        )
+        frozen = sum(
+            parameter.numel()
+            for parameter in self.agent.parameters()
+            if not parameter.requires_grad
+        )
+        llm_trainable = sum(
+            parameter.numel()
+            for parameter in self.agent.backbone.model.language_model.parameters()
+            if parameter.requires_grad
+        )
+        if llm_trainable:
+            raise RuntimeError("Formal parameter audit found trainable LLM parameters")
+        scheduler = self.agent.scheduler_args
+        start_ratio = float(scheduler.start_lr_ratio)
+        minimum_ratio = float(scheduler.min_lr_ratio)
+        logical_peak_lrs = dict(runtime["logical_learning_rates"])
+        payload = {
+            "schema_version": 1,
+            "agent_checkpoint_loaded": bool(
+                getattr(self.agent, "_agent_checkpoint_loaded", True)
+            ),
+            "actual_global_batch": int(runtime["actual_global_batch"]),
+            "lr_scale_multiplier": float(runtime["lr_scale"]),
+            "optimizer_groups": summaries,
+            "logical_peak_learning_rates": logical_peak_lrs,
+            "logical_start_learning_rates": {
+                name: value * start_ratio
+                for name, value in logical_peak_lrs.items()
+            },
+            "logical_final_learning_rates": {
+                name: value * minimum_ratio
+                for name, value in logical_peak_lrs.items()
+            },
+            "scheduler": {
+                "type": str(scheduler.type),
+                "interval": str(scheduler.interval),
+                "warmup_ratio": float(scheduler.warmup_ratio),
+                "start_lr_ratio": start_ratio,
+                "min_lr_ratio": minimum_ratio,
+                "total_optimizer_steps": int(
+                    self.trainer.estimated_stepping_batches
+                ),
+            },
+            "ema": {
+                "actual_start_momentum": float(
+                    self.agent._ema_actual_start_momentum.item()
+                ),
+                "actual_end_momentum": float(
+                    self.agent._ema_actual_end_momentum.item()
+                ),
+            },
+            "trainable_parameter_count": trainable,
+            "frozen_parameter_count": frozen,
+            "language_model_trainable_parameter_count": llm_trainable,
+            "world_model_enabled": bool(self.agent.world_model_enabled),
+        }
+        if payload["agent_checkpoint_loaded"]:
+            raise RuntimeError("Formal run unexpectedly loaded an agent checkpoint")
+        metadata_dir = Path(self.trainer.default_root_dir) / "run_metadata"
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        output = metadata_dir / "training_parameter_audit.json"
+        temporary = output.with_suffix(output.suffix + ".tmp")
+        temporary.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        temporary.replace(output)
 
     def on_train_batch_start(self, batch, batch_idx) -> None:
         del batch, batch_idx

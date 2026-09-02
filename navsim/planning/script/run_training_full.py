@@ -416,6 +416,11 @@ def configure_formal_step_budget(
         raise RuntimeError("Formal 103k protocol cannot run validation mode")
     if bool(cfg.get("auto_resume", True)):
         raise RuntimeError("Formal runs prohibit automatic cross-experiment resume")
+    if cfg.get("train_ckpt_path") is not None:
+        raise RuntimeError(
+            "Formal resolved config must keep train_ckpt_path=null; resume is "
+            "accepted only through the explicitly validated RESUME_CHECKPOINT environment variable"
+        )
     epochs = int(formal.get("dataset_epochs", 27))
     if epochs != 27:
         raise RuntimeError(f"Formal PlanReg training requires 27 epochs, got {epochs}")
@@ -747,11 +752,19 @@ def main(cfg: DictConfig) -> None:
         pickle.dump(predictions, open(dump_path, 'wb'))
     else:
         logger.info("Starting Training")
+        fit_checkpoint = cfg.train_ckpt_path
+        explicit_resume = os.getenv("RESUME_CHECKPOINT")
+        if formal_step_budget is not None and explicit_resume:
+            fit_checkpoint = str(Path(explicit_resume).expanduser().resolve())
+            if not Path(fit_checkpoint).is_file():
+                raise FileNotFoundError(
+                    f"Explicit formal RESUME_CHECKPOINT does not exist: {fit_checkpoint}"
+                )
         trainer.fit(
             model=lightning_module,
             train_dataloaders=train_dataloader,
             val_dataloaders=val_dataloader,
-            ckpt_path=cfg.train_ckpt_path
+            ckpt_path=fit_checkpoint
         )
 
 

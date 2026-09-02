@@ -10,6 +10,8 @@ initialization:
   variant: ${oc.env:PLANREG_INITIALIZATION_VARIANT}
   prohibit_agent_checkpoint: true
   shared_trainable_init_path: ${oc.env:PLANREG_SHARED_INIT}
+  vlm_checkpoint_sha256: ${oc.env:PLANREG_VLM_CHECKPOINT_SHA256}
+  vlm_config_sha256: ${oc.env:PLANREG_VLM_CONFIG_SHA256}
 
 vlm_config:
   vlm_path: ${oc.env:PLANREG_FORMAL_VLM_PATH}
