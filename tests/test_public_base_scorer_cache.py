@@ -336,6 +336,8 @@ def _synthetic_temporal_fold(fold_index: int, unsafe_gain: float):
 
     return {
         "metadata": {
+            "retained_epoch": 1,
+            "forced_retained_epoch": 1,
             "fold": {
                 "num_folds": 2,
                 "fold_seed": 7,
@@ -346,13 +348,17 @@ def _synthetic_temporal_fold(fold_index: int, unsafe_gain: float):
                 "validation_scene_count": 10,
             }
         },
+        "best_epoch": 1,
         "history": [
             {"epoch": 0, "validation": result(0.01, 1.0)},
             {"epoch": 1, "validation": result(0.02, 1.0)},
         ],
         "deployment_sweep": [
-            result(0.01, 0.5),
-            result(unsafe_gain, 1.0, collision_delta=-0.01),
+            dict(result(0.01, 0.5), weight_epoch=1),
+            dict(
+                result(unsafe_gain, 1.0, collision_delta=-0.01),
+                weight_epoch=1,
+            ),
         ],
     }
 
@@ -364,8 +370,26 @@ def test_temporal_cv_summary_uses_one_safe_policy_across_disjoint_folds():
     assert summary["fold_audit"]["complete"]
     assert summary["fold_audit"]["validation_log_count"] == 2
     assert summary["common_epoch"]["epoch"] == 1
+    assert summary["common_epoch_weights_aligned"]
+    assert summary["epoch_selection_mode"] == "locked_replay"
     assert summary["common_deployment"]["residual_scale"] == 0.5
     assert summary["common_deployment"]["safety_nonregressing"]
+
+
+def test_temporal_cv_discovery_refuses_policy_from_mismatched_epoch_weights():
+    folds = [_synthetic_temporal_fold(0, 0.03), _synthetic_temporal_fold(1, 0.04)]
+    for fold in folds:
+        fold["metadata"]["forced_retained_epoch"] = None
+        fold["metadata"]["retained_epoch"] = 0
+        fold["best_epoch"] = 0
+        for item in fold["deployment_sweep"]:
+            item["weight_epoch"] = 0
+    summary = summarize_cv(folds)
+    assert summary["common_epoch"]["epoch"] == 1
+    assert summary["epoch_selection_mode"] == "discovery"
+    assert not summary["common_epoch_weights_aligned"]
+    assert summary["common_deployment"] is None
+    assert not summary["robust_deployment_available"]
 
 
 def test_temporal_cv_console_summary_omits_large_search_grids():
@@ -391,6 +415,7 @@ def test_temporal_cv_common_policy_changes_only_deployment_config(tmp_path: Path
             "switch_penalty": 0.02,
             "safety_floor": 0.95,
             "safety_relative_tolerance": 0.1,
+            "weight_epoch": 1,
             "selected_pdms_delta": 0.001,
             "selected_pdms_delta_log_bootstrap_95ci": [0.0001, 0.002],
             "selected_factor_delta": {
@@ -407,6 +432,7 @@ def test_temporal_cv_common_policy_changes_only_deployment_config(tmp_path: Path
             "model_state_dict": model.state_dict(),
             "metadata": {
                 "deployment_sweep": sweep,
+                "retained_epoch": 1,
                 "future_inputs_used": False,
                 "official_scores_used_at_inference": False,
             },
@@ -419,6 +445,7 @@ def test_temporal_cv_common_policy_changes_only_deployment_config(tmp_path: Path
             {
                 "robust_deployment_available": True,
                 "fold_audit": {"complete": True, "observed_fold_count": 2},
+                "common_epoch": {"epoch": 1},
                 "common_deployment": sweep[0],
             }
         )
@@ -436,6 +463,49 @@ def test_temporal_cv_common_policy_changes_only_deployment_config(tmp_path: Path
     assert not derived["metadata"]["common_cv_policy"][
         "navtest_used_for_policy_selection"
     ]
+
+
+def test_temporal_cv_common_policy_rejects_wrong_epoch_artifact(tmp_path: Path):
+    config = TemporalConsequenceConfig(hidden_dim=64, trajectory_dim=32, temporal_layers=1)
+    model = TemporalConsequenceRanker(config)
+    source = tmp_path / "fold_0" / "wrong_epoch.pt"
+    source.parent.mkdir()
+    sweep = [
+        {
+            "residual_scale": 0.2,
+            "switch_penalty": 0.0,
+            "safety_floor": 0.0,
+            "safety_relative_tolerance": 1.0,
+            "weight_epoch": 0,
+            "selected_pdms_delta": 0.001,
+        }
+    ]
+    torch.save(
+        {
+            "artifact_type": "episode_drive_temporal_consequence_scorer_v1",
+            "model_config": config.__dict__,
+            "model_state_dict": model.state_dict(),
+            "metadata": {"deployment_sweep": sweep, "retained_epoch": 0},
+        },
+        source,
+    )
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps(
+            {
+                "robust_deployment_available": True,
+                "fold_audit": {"complete": True},
+                "common_epoch": {"epoch": 1},
+                "common_deployment": sweep[0],
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="weights do not match"):
+        materialize_common_policy_artifact(
+            source,
+            tmp_path / "derived.pt",
+            summary_path,
+        )
 
 
 def test_full_data_temporal_training_uses_only_complete_cv_policy(tmp_path: Path):

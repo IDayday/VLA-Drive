@@ -85,10 +85,23 @@ def _validate_folds(payloads: Sequence[Mapping[str, object]]) -> Dict[str, objec
 def _aggregate_deployments(
     payloads: Sequence[Mapping[str, object]],
     safety_tolerance: float,
+    required_epoch: int,
 ) -> List[Dict[str, object]]:
     grouped: Dict[Tuple[float, ...], List[Mapping[str, object]]] = defaultdict(list)
     for payload in payloads:
+        retained_epoch = int(payload["metadata"]["retained_epoch"])
+        if retained_epoch != required_epoch or int(payload["best_epoch"]) != required_epoch:
+            raise RuntimeError(
+                "Deployment sweep weights do not match the common epoch: "
+                f"required={required_epoch} retained={retained_epoch} "
+                f"best={payload['best_epoch']}"
+            )
         for item in payload["deployment_sweep"]:
+            if int(item.get("weight_epoch", -1)) != required_epoch:
+                raise RuntimeError(
+                    "Deployment sweep row has no matching weight_epoch: "
+                    f"required={required_epoch} row={item.get('weight_epoch')}"
+                )
             grouped[_deployment_key(item)].append(item)
     if not grouped:
         raise RuntimeError("Deployment sweeps are empty")
@@ -193,34 +206,66 @@ def summarize_cv(
     safety_tolerance: float = 5e-4,
 ) -> Dict[str, object]:
     fold_audit = _validate_folds(payloads)
-    deployments = _aggregate_deployments(payloads, safety_tolerance)
     epochs = _aggregate_epochs(payloads)
-    robust_deployments = [
-        item
-        for item in deployments
-        if item["all_folds_positive"] and item["safety_nonregressing"]
-    ]
+    if not epochs:
+        raise RuntimeError("No epoch is complete across every fold")
     positive_epochs = [item for item in epochs if item["all_folds_positive"]]
-    best_deployment = max(
-        robust_deployments or deployments,
-        key=lambda item: (
-            float(item["weighted_pdms_delta"]),
-            float(item["worst_fold_pdms_delta"]),
-            -float(item["residual_scale"]),
-        ),
+    forced_epochs = {
+        payload["metadata"].get("forced_retained_epoch") for payload in payloads
+    }
+    if forced_epochs == {None}:
+        best_epoch = max(
+            positive_epochs or epochs,
+            key=lambda item: (
+                float(item["weighted_pdms_delta"]),
+                float(item["worst_fold_pdms_delta"]),
+            ),
+        )
+        epoch_selection_mode = "discovery"
+    elif len(forced_epochs) == 1 and None not in forced_epochs:
+        locked_epoch = int(next(iter(forced_epochs)))
+        matches = [item for item in epochs if int(item["epoch"]) == locked_epoch]
+        if len(matches) != 1:
+            raise RuntimeError(f"Locked epoch {locked_epoch} is not complete across folds")
+        best_epoch = matches[0]
+        epoch_selection_mode = "locked_replay"
+    else:
+        raise RuntimeError("CV folds mix discovery and locked replay epochs")
+
+    common_epoch = int(best_epoch["epoch"])
+    epoch_weights_aligned = all(
+        int(payload.get("best_epoch", -1)) == common_epoch
+        and int(payload["metadata"].get("retained_epoch", -1)) == common_epoch
+        for payload in payloads
     )
-    best_epoch = max(
-        positive_epochs or epochs,
-        key=lambda item: (
-            float(item["weighted_pdms_delta"]),
-            float(item["worst_fold_pdms_delta"]),
-        ),
-    )
+    if epoch_weights_aligned:
+        deployments = _aggregate_deployments(
+            payloads, safety_tolerance, common_epoch
+        )
+        robust_deployments = [
+            item
+            for item in deployments
+            if item["all_folds_positive"] and item["safety_nonregressing"]
+        ]
+        best_deployment = max(
+            robust_deployments or deployments,
+            key=lambda item: (
+                float(item["weighted_pdms_delta"]),
+                float(item["worst_fold_pdms_delta"]),
+                -float(item["residual_scale"]),
+            ),
+        )
+    else:
+        deployments = []
+        robust_deployments = []
+        best_deployment = None
     return {
         "schema_version": 1,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "fold_audit": fold_audit,
         "safety_tolerance": safety_tolerance,
+        "epoch_selection_mode": epoch_selection_mode,
+        "common_epoch_weights_aligned": epoch_weights_aligned,
         "common_epoch": best_epoch,
         "common_deployment": best_deployment,
         "robust_deployment_available": bool(robust_deployments),
@@ -233,6 +278,27 @@ def _markdown(summary: Mapping[str, object]) -> str:
     fold = summary["fold_audit"]
     epoch = summary["common_epoch"]
     deployment = summary["common_deployment"]
+    if deployment is None:
+        return "\n".join(
+            (
+                "# Temporal Consequence Cross-Validation",
+                "",
+                f"- Complete folds: `{fold['complete']}` "
+                f"({fold['observed_fold_count']}/{fold['declared_num_folds']})",
+                f"- Validation logs/scenes: `{fold['validation_log_count']}` / "
+                f"`{fold['validation_scene_count']}`",
+                f"- Discovered common epoch: `{epoch['epoch']}`",
+                f"- Common-epoch PDMS delta: `{epoch['weighted_pdms_delta']:.8f}`",
+                "- Epoch weights aligned: `False`",
+                "- Deployment policy: `NOT MATERIALIZABLE`",
+                "",
+                "The discovery pass selected a common epoch, but one or more "
+                "fold artifacts contain weights from a different epoch. Replay "
+                "every fold with `--retained-epoch` before policy selection or "
+                "Navtest promotion.",
+                "",
+            )
+        )
     factors = deployment["weighted_factor_delta"]
     return "\n".join(
         (

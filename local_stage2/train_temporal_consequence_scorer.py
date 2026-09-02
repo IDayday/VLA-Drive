@@ -678,6 +678,15 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Complete temporal CV summary required by --train-all.",
     )
+    parser.add_argument(
+        "--retained-epoch",
+        type=int,
+        help=(
+            "For CV replay, retain this exact epoch instead of selecting a "
+            "different pairwise-best epoch per fold. The deployment sweep and "
+            "saved artifact are then guaranteed to use the locked common epoch."
+        ),
+    )
     parser.add_argument("--max-scenes", type=int, default=0)
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
@@ -697,6 +706,10 @@ def main() -> None:
         raise ValueError("fold-index must be in [0, num-folds)")
     if args.train_all and args.cv_summary is None:
         raise ValueError("--train-all requires --cv-summary")
+    if args.train_all and args.retained_epoch is not None:
+        raise ValueError("--retained-epoch is only valid for CV replay")
+    if args.retained_epoch is not None and not 0 <= args.retained_epoch < args.epochs:
+        raise ValueError("--retained-epoch must be in [0, epochs)")
     if args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but unavailable")
 
@@ -857,7 +870,10 @@ def main() -> None:
         print(prefix + " " + json.dumps(record, sort_keys=True), flush=True)
         if val_data is not None:
             pairwise = float(validation["pairwise_accuracy_delta_ge_0_02"])
-            retain = pairwise > best_pairwise
+            if args.retained_epoch is not None:
+                retain = epoch == args.retained_epoch
+            else:
+                retain = pairwise > best_pairwise
         else:
             retain = epoch == retained_epoch
         if retain:
@@ -874,6 +890,7 @@ def main() -> None:
     if val_data is not None:
         outputs = collect_outputs(model, val_data, device, args.eval_batch_size)
         sweep = deployment_sweep(outputs, val_data.log_names, args.seed + 1000)
+        sweep = [dict(item, weight_epoch=best_epoch) for item in sweep]
         safety_tolerance = 5e-4
         safe = [
             item
@@ -924,6 +941,8 @@ def main() -> None:
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed,
         "best_epoch": best_epoch,
+        "retained_epoch": best_epoch,
+        "forced_retained_epoch": args.retained_epoch,
         "fold": fold_payload,
         "source_root": str(args.source_root.resolve()),
         "factor_root": str(args.factor_root.resolve()),

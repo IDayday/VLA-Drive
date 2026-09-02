@@ -70,6 +70,7 @@ def materialize_common_policy_artifact(
     if not bool(fold_audit.get("complete")):
         raise ValueError("Refusing to materialize policy from incomplete CV folds")
     policy = _policy_values(summary)
+    common_epoch = int(summary["common_epoch"]["epoch"])
 
     payload = torch.load(source, map_location="cpu")
     if payload.get("artifact_type") != TemporalConsequenceScorerAgent.ARTIFACT_TYPE:
@@ -79,7 +80,17 @@ def materialize_common_policy_artifact(
         config[POLICY_TO_CONFIG[policy_key]] = value
 
     metadata = dict(payload.get("metadata", {}))
+    retained_epoch = metadata.get("retained_epoch")
+    if retained_epoch is None or int(retained_epoch) != common_epoch:
+        raise ValueError(
+            "Artifact weights do not match the CV common epoch: "
+            f"artifact={retained_epoch} common={common_epoch}"
+        )
     validation = _matching_validation(metadata.get("deployment_sweep", ()), policy)
+    if int(validation.get("weight_epoch", -1)) != common_epoch:
+        raise ValueError(
+            "Matched deployment row does not correspond to the CV common epoch"
+        )
     metadata["validation"] = dict(validation)
     metadata["common_cv_policy"] = {
         "summary_path": str(cv_summary_path.resolve()),
@@ -88,6 +99,7 @@ def materialize_common_policy_artifact(
         "source_artifact_sha256": _sha256(source),
         "fold_audit": fold_audit,
         "policy": policy,
+        "common_epoch": common_epoch,
         "navtest_used_for_policy_selection": False,
     }
     derived = dict(payload)
