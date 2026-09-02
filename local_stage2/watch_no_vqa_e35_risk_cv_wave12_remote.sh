@@ -20,6 +20,14 @@ private_navtest_root="${NO_VQA_MULTIVIEW_TEST_ROOT:-/mnt/project/DriveVLA-M0-sta
 gpu="${NO_VQA_WAVE12_POST_GPU:-0}"
 
 mkdir -p "${log_root}" "$(dirname "${selection_artifact}")" "${sweep_root}"
+export PYTHONPATH="${repo_root}:${repo_root}/nuplan-devkit${PYTHONPATH:+:${PYTHONPATH}}"
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+export OMP_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+export VECLIB_MAXIMUM_THREADS=1
+export BLIS_NUM_THREADS=1
 until [[ -f "${run_root}/.wave12_folds_complete" ]]; do
   echo "NO_VQA_WAVE12_POST waiting_for_folds utc=$(date -u +%FT%TZ)"
   sleep 30
@@ -62,7 +70,7 @@ for fold in 0 1 2 3 4; do
       /root/scorer_pdms93_cache/no_vqa_e35_features_full_v1 \
       /root/scorer_pdms93_cache/no_vqa_e35_labels_full_v1 \
     --private-observation-root \
-      /mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_multiview_trainval_pool2_tiles4_v1_8shard \
+      "${NO_VQA_WAVE12_PRIVATE_TRAIN_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_multiview_trainval_pool2_tiles4_v1_8shard}" \
     --split-manifest "${fold_root}/fold_${fold}.json" \
     --output "${output}" \
     --eval-batch-size 64 \
@@ -109,8 +117,6 @@ while true; do
   sleep 30
 done
 export CUDA_VISIBLE_DEVICES="${gpu}"
-export CUBLAS_WORKSPACE_CONFIG=:4096:8
-export PYTHONPATH="${repo_root}:${repo_root}/nuplan-devkit${PYTHONPATH:+:${PYTHONPATH}}"
 "${python_bin}" "${repo_root}/local_stage2/refit_m0_private_residual_scorer.py" \
   --selection-artifact "${selection_artifact}" \
   --output-dir "${refit_root}" \
