@@ -36,8 +36,10 @@ from .drivevla_backbone import (
 )
 from .formal_initialization import (
     FORMAL_INITIALIZATION_MODE,
+    sha256_file,
     validate_formal_initialization_config,
 )
+from .shared_planreg_initialization import load_shared_trainable_initialization
 from .action_decoder import ActionDecoder
 from .layers.planning_registers import freeze_vision_except_qv_lora
 from .layers.planning_registers.register_diagnostics import (
@@ -292,6 +294,7 @@ class DriveVLABaseAgent(AbstractAgent):
         )
         self._formal_initialization_audit = None
         self._agent_checkpoint_loaded = False
+        self._shared_trainable_initialization_metadata = None
         if self._formal_initialization:
             self._formal_initialization_audit = validate_formal_initialization_config(
                 initialization,
@@ -901,6 +904,33 @@ class DriveVLABaseAgent(AbstractAgent):
             # module state (the frozen linear lm_head has no mode-dependent
             # behavior).
             self.backbone.train()
+        if self._formal_initialization:
+            shared_path = getattr(
+                self.initialization_config,
+                "shared_trainable_init_path",
+                None,
+            )
+            if not shared_path:
+                raise RuntimeError(
+                    "Formal PlanReg training requires initialization."
+                    "shared_trainable_init_path. Generate it once and use the same "
+                    "artifact for BaseInit and VQAInit."
+                )
+            self._shared_trainable_initialization_metadata = (
+                load_shared_trainable_initialization(self, str(shared_path))
+            )
+            self._shared_trainable_initialization_metadata["artifact_path"] = str(
+                Path(str(shared_path)).expanduser().resolve()
+            )
+            self._shared_trainable_initialization_metadata["artifact_sha256"] = (
+                sha256_file(Path(str(shared_path)).expanduser().resolve())
+            )
+            print(
+                "✅ Restored shared formal PlanReg initialization: "
+                f"{self._shared_trainable_initialization_metadata['trainable_state_key_count']} "
+                "trainable tensors, SHA-256="
+                f"{self._shared_trainable_initialization_metadata['artifact_sha256']}"
+            )
         self._report_backbone_trainability()
         self._initialize_ema_register_target()
         self._initialized = True

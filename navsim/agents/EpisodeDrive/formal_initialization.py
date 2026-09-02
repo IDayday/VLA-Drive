@@ -284,7 +284,20 @@ def audit_vlm_checkpoint(
         for token in driving_markers
         if token in token_id_map
     }
-    result["driving_vqa_training_marker_detected"] = bool(marker_ids)
+    provenance = config_dict.get("planreg_formal_provenance", {})
+    source_variant = str(provenance.get("source_variant", ""))
+    path_marker = any(
+        marker in str(path).lower()
+        for marker in ("driving-vqa", "driving_vqa", "recogdrive", "vqa")
+    )
+    result["driving_vqa_training_marker_detected"] = (
+        source_variant == "driving_vqa" or path_marker
+    )
+    result["driving_vqa_marker_evidence"] = {
+        "source_variant": source_variant or None,
+        "path_marker": path_marker,
+        "driving_tokens_present": bool(marker_ids),
+    }
     result["driving_token_ids"] = marker_ids
 
     config = AutoConfig.from_pretrained(
