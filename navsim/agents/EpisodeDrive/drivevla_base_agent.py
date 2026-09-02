@@ -270,9 +270,28 @@ class DriveVLABaseAgent(AbstractAgent):
                         world_model, "horizons_sec", (0.5, 1.5, 3.0)
                     )
                 ),
+                normalize_state_space=bool(
+                    getattr(world_model, "normalize_state_space", True)
+                ),
+                x_scale=float(getattr(world_model, "x_scale", 30.0)),
+                y_scale=float(getattr(world_model, "y_scale", 10.0)),
+                speed_scale=float(getattr(world_model, "speed_scale", 15.0)),
+                acceleration_scale=float(
+                    getattr(world_model, "acceleration_scale", 8.0)
+                ),
             )
             self.register_buffer(
                 "_ema_optimizer_step",
+                torch.zeros((), dtype=torch.long),
+                persistent=True,
+            )
+            self.register_buffer(
+                "_world_model_optimizer_step",
+                torch.zeros((), dtype=torch.long),
+                persistent=True,
+            )
+            self.register_buffer(
+                "_world_model_total_optimizer_steps",
                 torch.zeros((), dtype=torch.long),
                 persistent=True,
             )
@@ -471,12 +490,47 @@ class DriveVLABaseAgent(AbstractAgent):
         """Synchronize step-dependent modules with Lightning's resume-safe step."""
         if not self.cache_data:
             self.action_head.set_optimizer_step(optimizer_step)
+        if self.world_model_enabled:
+            self._world_model_optimizer_step.fill_(int(optimizer_step))
 
     def configure_total_optimizer_steps(self, total_optimizer_steps: int) -> None:
         if not self.cache_data:
             self.action_head.configure_total_optimizer_steps(
                 total_optimizer_steps
             )
+        if self.world_model_enabled:
+            self._world_model_total_optimizer_steps.fill_(
+                int(total_optimizer_steps)
+            )
+
+    def current_world_model_weight(self) -> float:
+        """Return the resume-safe optimizer-step WM coefficient."""
+        if not self.world_model_enabled:
+            return 0.0
+        if not hasattr(self.world_model_config, "max_weight"):
+            # Old PlanReg checkpoints/configs used one fixed coefficient.
+            return float(getattr(self.world_model_config, "weight", 0.25))
+        total_steps = int(self._world_model_total_optimizer_steps.item())
+        if total_steps <= 0:
+            raise RuntimeError(
+                "World-model weight schedule requires total optimizer steps"
+            )
+        step = int(self._world_model_optimizer_step.item())
+        start_fraction = float(
+            getattr(self.world_model_config, "start_fraction", 0.05)
+        )
+        ramp_fraction = float(
+            getattr(self.world_model_config, "ramp_fraction", 0.10)
+        )
+        max_weight = float(self.world_model_config.max_weight)
+        if not 0.0 <= start_fraction <= 1.0:
+            raise ValueError("world_model.start_fraction must be in [0,1]")
+        if not 0.0 < ramp_fraction <= 1.0:
+            raise ValueError("world_model.ramp_fraction must be in (0,1]")
+        start_step = start_fraction * total_steps
+        ramp_steps = max(1.0, ramp_fraction * total_steps)
+        progress = min(1.0, max(0.0, (step - start_step) / ramp_steps))
+        return max_weight * progress
 
     def _initialize_ema_register_target(self) -> None:
         if not self.world_model_enabled:
@@ -1304,6 +1358,18 @@ class DriveVLABaseAgent(AbstractAgent):
         weights = valid_mask.to(device=values.device, dtype=values.dtype)
         return (values * weights).sum() / weights.sum().clamp_min(1.0)
 
+    @staticmethod
+    def _weighted_masked_horizon_mean(
+        values: torch.Tensor,
+        valid_mask: torch.Tensor,
+        horizon_weights: torch.Tensor,
+    ) -> torch.Tensor:
+        weights = valid_mask.to(device=values.device, dtype=values.dtype)
+        weights = weights * horizon_weights.to(
+            device=values.device, dtype=values.dtype
+        )[None]
+        return (values * weights).sum() / weights.sum().clamp_min(1.0)
+
     def _compute_world_model_loss_from_registers(
         self,
         current_registers: torch.Tensor,
@@ -1311,6 +1377,7 @@ class DriveVLABaseAgent(AbstractAgent):
         target_current: torch.Tensor,
         target_future: torch.Tensor,
         future_valid_mask: torch.Tensor,
+        current_speed: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         if self.future_register_predictor is None:
             raise RuntimeError("Future register predictor is unavailable")
@@ -1354,6 +1421,7 @@ class DriveVLABaseAgent(AbstractAgent):
             trajectories,
             horizons,
             use_action_condition=self.future_mode != "no_action_condition",
+            current_speed=current_speed,
         )
         target_current = target_current.detach().to(
             device=pred_future.device, dtype=pred_future.dtype
@@ -1363,21 +1431,44 @@ class DriveVLABaseAgent(AbstractAgent):
         )
         valid_mask = future_valid_mask.to(device=pred_future.device, dtype=torch.bool)
 
+        target_current_n = self.future_register_predictor.normalize_register_state(
+            target_current
+        )
+        target_future_n = self.future_register_predictor.normalize_register_state(
+            target_future
+        )
+        current_n = self.future_register_predictor.normalize_register_state(
+            predictor_current
+        )
+
         cosine_by_register = 1.0 - F.cosine_similarity(
             pred_future,
-            target_future[:, None],
+            target_future_n[:, None],
             dim=-1,
             eps=1e-8,
         )
         cosine_by_horizon = cosine_by_register.mean(dim=(1, 3))
         delta_error = F.smooth_l1_loss(
-            pred_future - predictor_current[:, None, None],
-            target_future[:, None] - target_current[:, None, None],
+            pred_future - current_n[:, None, None],
+            target_future_n[:, None] - target_current_n[:, None, None],
             reduction="none",
         )
         delta_by_horizon = delta_error.mean(dim=(1, 3, 4))
-        wm_abs_loss = self._masked_horizon_mean(cosine_by_horizon, valid_mask)
-        wm_delta_loss = self._masked_horizon_mean(delta_by_horizon, valid_mask)
+        horizon_weights = torch.as_tensor(
+            getattr(self.world_model_config, "horizon_weights", (1.0, 1.0, 1.0)),
+            device=pred_future.device,
+            dtype=pred_future.dtype,
+        )
+        if horizon_weights.shape != (3,) or bool((horizon_weights < 0).any()):
+            raise ValueError(
+                "world_model.horizon_weights must be three non-negative values"
+            )
+        wm_abs_loss = self._weighted_masked_horizon_mean(
+            cosine_by_horizon, valid_mask, horizon_weights
+        )
+        wm_delta_loss = self._weighted_masked_horizon_mean(
+            delta_by_horizon, valid_mask, horizon_weights
+        )
         abs_weight = float(getattr(self.world_model_config, "abs_weight", 1.0))
         delta_weight = float(getattr(self.world_model_config, "delta_weight", 0.25))
         wm_loss = abs_weight * wm_abs_loss + delta_weight * wm_delta_loss
@@ -1391,9 +1482,12 @@ class DriveVLABaseAgent(AbstractAgent):
         horizon_names = ("0p5", "1p5", "3p0")
         for index, name in enumerate(horizon_names):
             mask = valid_mask[:, index]
-            loss_dict[f"wm_cos_{name}"] = self._masked_horizon_mean(
+            horizon_abs = self._masked_horizon_mean(
                 cosine_by_horizon[:, index], mask
             )
+            loss_dict[f"wm_abs_{name}"] = horizon_abs
+            # Backward-compatible metric name from the initial implementation.
+            loss_dict[f"wm_cos_{name}"] = horizon_abs
             loss_dict[f"wm_delta_{name}"] = self._masked_horizon_mean(
                 delta_by_horizon[:, index], mask
             )
@@ -1485,18 +1579,39 @@ class DriveVLABaseAgent(AbstractAgent):
             targets,
             batch_size=current_registers.shape[0],
         )
+        status_feature = features.get("status_feature")
+        if status_feature is None:
+            raise KeyError("World-model training requires features['status_feature']")
+        if status_feature.ndim == 1:
+            status_feature = status_feature.unsqueeze(0)
+        if status_feature.shape[-1] < 6:
+            raise ValueError(
+                "status_feature must contain command[4] followed by vx,vy"
+            )
+        current_speed = torch.linalg.vector_norm(
+            status_feature[:, 4:6].to(
+                device=current_registers.device,
+                dtype=current_registers.dtype,
+            ),
+            dim=-1,
+        )
         wm_loss_dict = self._compute_world_model_loss_from_registers(
             current_registers,
             targets["trajectory"],
             target_current,
             target_future,
             valid_mask,
+            current_speed=current_speed,
         )
-        total = base_loss_dict["loss"] + float(
-            getattr(self.world_model_config, "weight", 0.25)
-        ) * wm_loss_dict["wm_loss"]
+        wm_weight = current_registers.new_tensor(
+            self.current_world_model_weight()
+        )
+        weighted_wm_loss = wm_weight * wm_loss_dict["wm_loss"]
+        total = base_loss_dict["loss"] + weighted_wm_loss
         result = dict(base_loss_dict)
         result["loss"] = total
+        result["wm_weight_current"] = wm_weight
+        result["weighted_wm_loss"] = weighted_wm_loss
         result.update(
             {
                 key: value

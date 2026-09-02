@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Sequence, Union
 
 import torch
+import torch.nn.functional as F
 from torch import nn
 
 
@@ -20,6 +21,11 @@ class FutureRegisterPredictor(nn.Module):
         horizons_sec: Sequence[float] = (0.5, 1.5, 3.0),
         dt: float = 0.5,
         dropout: float = 0.0,
+        normalize_state_space: bool = True,
+        x_scale: float = 30.0,
+        y_scale: float = 10.0,
+        speed_scale: float = 15.0,
+        acceleration_scale: float = 8.0,
     ) -> None:
         super().__init__()
         if predictor_layers != 2:
@@ -32,6 +38,19 @@ class FutureRegisterPredictor(nn.Module):
         self.trajectory_points = int(trajectory_points)
         self.dt = float(dt)
         self.horizons_sec = tuple(float(value) for value in horizons_sec)
+        self.normalize_state_space = bool(normalize_state_space)
+        self.x_scale = float(x_scale)
+        self.y_scale = float(y_scale)
+        self.speed_scale = float(speed_scale)
+        self.acceleration_scale = float(acceleration_scale)
+        for name in (
+            "x_scale",
+            "y_scale",
+            "speed_scale",
+            "acceleration_scale",
+        ):
+            if getattr(self, name) <= 0:
+                raise ValueError(f"{name} must be positive")
         self.horizon_indices = tuple(
             int(round(value / self.dt)) - 1 for value in self.horizons_sec
         )
@@ -79,9 +98,63 @@ class FutureRegisterPredictor(nn.Module):
         self.residual_output = nn.Linear(self.hidden_dim, self.hidden_dim)
         nn.init.zeros_(self.residual_output.weight)
         nn.init.zeros_(self.residual_output.bias)
-        self.output_norm = nn.LayerNorm(self.hidden_dim)
 
-    def trajectory_point_features(self, trajectories: torch.Tensor) -> torch.Tensor:
+    def normalize_register_state(self, registers: torch.Tensor) -> torch.Tensor:
+        if not self.normalize_state_space:
+            return registers
+        return F.layer_norm(
+            registers,
+            normalized_shape=(self.hidden_dim,),
+            weight=None,
+            bias=None,
+        )
+
+    def _resolve_current_speed(
+        self,
+        trajectories: torch.Tensor,
+        current_speed: torch.Tensor = None,
+        current_ego_motion: torch.Tensor = None,
+    ) -> torch.Tensor:
+        if current_speed is not None and current_ego_motion is not None:
+            raise ValueError("Provide current_speed or current_ego_motion, not both")
+        batch_size, candidate_count = trajectories.shape[:2]
+        if current_ego_motion is not None:
+            motion = torch.as_tensor(
+                current_ego_motion,
+                device=trajectories.device,
+                dtype=trajectories.dtype,
+            )
+            if motion.shape != (batch_size, 2):
+                raise ValueError(
+                    "current_ego_motion must be [B,2] velocity, got "
+                    f"{tuple(motion.shape)}"
+                )
+            current_speed = torch.linalg.vector_norm(motion, dim=-1)
+        if current_speed is None:
+            return trajectories.new_zeros(batch_size, candidate_count)
+        speed = torch.as_tensor(
+            current_speed,
+            device=trajectories.device,
+            dtype=trajectories.dtype,
+        )
+        if speed.ndim == 2 and speed.shape == (batch_size, 1):
+            speed = speed[:, 0]
+        if speed.ndim == 1 and speed.shape[0] == batch_size:
+            return speed[:, None].expand(-1, candidate_count)
+        if speed.shape == (batch_size, candidate_count):
+            return speed
+        raise ValueError(
+            "current_speed must be [B], [B,1], or [B,K], got "
+            f"{tuple(speed.shape)}"
+        )
+
+    def trajectory_point_features(
+        self,
+        trajectories: torch.Tensor,
+        *,
+        current_speed: torch.Tensor = None,
+        current_ego_motion: torch.Tensor = None,
+    ) -> torch.Tensor:
         if trajectories.ndim != 4 or trajectories.shape[-2:] != (
             self.trajectory_points,
             3,
@@ -94,18 +167,23 @@ class FutureRegisterPredictor(nn.Module):
         heading = trajectories[..., 2]
         previous_xy = torch.cat((torch.zeros_like(xy[..., :1, :]), xy[..., :-1, :]), dim=-2)
         speed = torch.linalg.vector_norm(xy - previous_xy, dim=-1) / self.dt
+        initial_speed = self._resolve_current_speed(
+            trajectories,
+            current_speed=current_speed,
+            current_ego_motion=current_ego_motion,
+        )
         previous_speed = torch.cat(
-            (torch.zeros_like(speed[..., :1]), speed[..., :-1]), dim=-1
+            (initial_speed[..., None], speed[..., :-1]), dim=-1
         )
         acceleration = (speed - previous_speed) / self.dt
         return torch.stack(
             (
-                xy[..., 0],
-                xy[..., 1],
+                xy[..., 0] / self.x_scale,
+                xy[..., 1] / self.y_scale,
                 torch.sin(heading),
                 torch.cos(heading),
-                speed,
-                acceleration,
+                speed / self.speed_scale,
+                acceleration / self.acceleration_scale,
             ),
             dim=-1,
         )
@@ -130,6 +208,8 @@ class FutureRegisterPredictor(nn.Module):
         horizons: Union[torch.Tensor, Sequence[float]],
         *,
         use_action_condition: bool = True,
+        current_speed: torch.Tensor = None,
+        current_ego_motion: torch.Tensor = None,
     ) -> torch.Tensor:
         self._validate_horizons(horizons)
         if current_registers.ndim != 3 or current_registers.shape[-1] != self.hidden_dim:
@@ -141,7 +221,11 @@ class FutureRegisterPredictor(nn.Module):
             raise ValueError("Trajectory and register batch dimensions differ")
 
         batch_size, candidate_count = trajectories.shape[:2]
-        point_features = self.trajectory_point_features(trajectories)
+        point_features = self.trajectory_point_features(
+            trajectories,
+            current_speed=current_speed,
+            current_ego_motion=current_ego_motion,
+        )
         trajectory_tokens = self.point_mlp(point_features).reshape(
             batch_size * candidate_count,
             self.trajectory_points,
@@ -173,7 +257,8 @@ class FutureRegisterPredictor(nn.Module):
 
         horizon_count = len(self.horizons_sec)
         register_count = current_registers.shape[1]
-        current = current_registers[:, None, None].expand(
+        current_n = self.normalize_register_state(current_registers)
+        current = current_n[:, None, None].expand(
             batch_size,
             candidate_count,
             horizon_count,
@@ -199,7 +284,7 @@ class FutureRegisterPredictor(nn.Module):
         predictor_tokens = torch.cat((flat_conditions, flat_current), dim=1)
         predicted_tokens = self.register_transformer(predictor_tokens)[:, 1:]
         residual = self.residual_output(predicted_tokens)
-        predicted = self.output_norm(flat_current + residual)
+        predicted = flat_current + residual
         return predicted.reshape(
             batch_size,
             candidate_count,

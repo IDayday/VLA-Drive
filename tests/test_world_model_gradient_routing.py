@@ -21,7 +21,9 @@ def _loss_agent(*, predictor_only: bool, future_mode: str = "correct"):
         predictor_only=predictor_only,
         horizons_sec=(0.5, 1.5, 3.0),
         abs_weight=1.0,
-        delta_weight=0.25,
+        delta_weight=0.5,
+        horizon_weights=(1.0, 0.7, 0.4),
+        normalize_state_space=True,
     )
     agent.future_mode = future_mode
     agent.backbone = None
@@ -31,6 +33,24 @@ def _loss_agent(*, predictor_only: bool, future_mode: str = "correct"):
         hidden_dim=32,
         predictor_layers=2,
         num_heads=4,
+    )
+    return agent
+
+
+def _scheduled_weight_agent():
+    agent = DriveVLABaseAgent.__new__(DriveVLABaseAgent)
+    nn.Module.__init__(agent)
+    agent.world_model_enabled = True
+    agent.world_model_config = SimpleNamespace(
+        max_weight=0.10,
+        start_fraction=0.05,
+        ramp_fraction=0.10,
+    )
+    agent.register_buffer(
+        "_world_model_optimizer_step", torch.zeros((), dtype=torch.long)
+    )
+    agent.register_buffer(
+        "_world_model_total_optimizer_steps", torch.tensor(100, dtype=torch.long)
     )
     return agent
 
@@ -173,3 +193,35 @@ def test_eval_action_path_requires_no_future_keys() -> None:
     current = torch.randn(1, 16, 32)
     assert current.shape == (1, 16, 32)
     assert not hasattr(agent, "future_image_paths")
+
+
+def test_world_model_weight_schedule_and_resume_are_continuous() -> None:
+    agent = _scheduled_weight_agent()
+    agent._world_model_optimizer_step.fill_(4)
+    assert agent.current_world_model_weight() == 0.0
+    agent._world_model_optimizer_step.fill_(10)
+    assert agent.current_world_model_weight() == pytest.approx(0.05)
+    agent._world_model_optimizer_step.fill_(15)
+    assert agent.current_world_model_weight() == pytest.approx(0.10)
+
+    checkpoint = agent.state_dict()
+    resumed = _scheduled_weight_agent()
+    resumed.load_state_dict(checkpoint, strict=True)
+    before = []
+    after = []
+    for step in range(15, 21):
+        agent._world_model_optimizer_step.fill_(step)
+        resumed._world_model_optimizer_step.fill_(step)
+        before.append(agent.current_world_model_weight())
+        after.append(resumed.current_world_model_weight())
+    assert after == before
+
+
+def test_invalid_horizon_does_not_enter_weighted_denominator() -> None:
+    values = torch.tensor([[1.0, 1000.0, 3.0]])
+    valid = torch.tensor([[True, False, True]])
+    weights = torch.tensor([1.0, 0.7, 0.4])
+    actual = DriveVLABaseAgent._weighted_masked_horizon_mean(
+        values, valid, weights
+    )
+    assert actual.item() == pytest.approx((1.0 + 3.0 * 0.4) / 1.4)

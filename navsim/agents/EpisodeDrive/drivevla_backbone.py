@@ -51,6 +51,8 @@ _PLANREG_LEGACY_ALLOWED_MISSING_PARTS = (
     "action_head._total_optimizer_steps",
     "future_register_predictor.",
     "_ema_optimizer_step",
+    "_world_model_optimizer_step",
+    "_world_model_total_optimizer_steps",
 )
 
 
