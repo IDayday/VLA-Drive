@@ -142,3 +142,19 @@ was trained; it does not change the locked validation or promotion policy.
   The replacement process exposes the exact Python 3.9 interpreter and locked
   compatibility `PYTHONPATH` in `/proc/<pid>/environ` before any post-training
   computation.
+- After the five folds finished, the initial five-way policy sweep and three
+  concurrent Wave-15 loaders were projected to exceed the same host-memory
+  envelope that had just killed one pre-training loader. No sweep fold had yet
+  produced an output. The Wave-14 post watcher and its five sweep children
+  alone were therefore stopped after PID/output-prefix checks and relaunched
+  with three distinct sweep GPUs per batch. The immutable epoch-7 artifacts
+  and fixed-policy summary were not changed; remaining folds run in a second
+  batch, so this changes wall time rather than evaluated data or policy grid.
+- The completed epoch-7 fixed policy improved held-out-log PDMS by
+  `+0.00498339` scene-weighted, with worst-fold delta `+0.00394078` and
+  worst-fold bootstrap lower bound `+0.00255078`. However, none of the 192
+  predeclared common deployment policies satisfied the all-fold clustered-CI
+  and NOC/DAC/TTC safety gate (`robust_policy_count=0`). Wave-14 therefore
+  failed promotion: no all-log refit or Navtest training/evaluation was
+  launched. The diagnostic best worst-fold delta (`+0.00437681`) is retained
+  only as validation evidence and is not a deployable or test-set result.

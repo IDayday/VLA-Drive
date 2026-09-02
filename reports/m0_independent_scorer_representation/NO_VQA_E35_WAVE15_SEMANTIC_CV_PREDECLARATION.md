@@ -88,3 +88,33 @@ resources, and Wave-15 folds 3--4 were launched there on GPUs 5--6 with the
 same exact Python 3.9.25 runtime and shared immutable caches. No unrelated job
 was stopped, no partial result was overwritten, and host assignment is not a
 model or data variable.
+
+After launch, the complete repository test suite was rerun with the same
+locked Python and compatibility paths: `277 passed`, with warnings only. This
+includes the combined representation test as well as checkpoint compatibility,
+no-future input boundaries, candidate permutation, cached evaluation and
+Navtest-audit regressions.
+
+## Resource migration audit
+
+At 2026-09-02 14:57 UTC, training use of `vla-zt` and `vla-zt2` was disabled
+by operator instruction. Wave-15 folds 0--2 on `vla-zt` and folds 3--4 on
+`vla-zt2` were terminated only after exact PID and command-line validation.
+All five partial fold directories and logs were retained without modification
+under the suffix `partial_vla_migration_20260902T1457Z`. At migration time,
+folds 0--1 had completed two epochs and folds 2--4 had completed one epoch.
+
+The trainer does not save a complete optimizer/scheduler resume state, so the
+canonical five-fold run was restarted from epoch 0 rather than combining
+partial and restarted histories. Folds 0--1 were assigned to `rl-zt4` GPUs
+4--5, folds 2--3 to `rl-zt3` GPUs 2 and 4, and fold 4 was queued on `rl-zt4`
+GPU 6 after the existing Wave-13 fold 4 releases host memory. The Wave-15
+post-processing watcher was also moved to `rl-zt4`; its sweep GPUs are locked
+to 4--6 and its refit/Navtest GPU to 7. Existing Wave-13 post-processing keeps
+GPUs 0--3, so the two campaigns do not share a GPU.
+
+No new training launcher remains on `vla-zt` or `vla-zt2`. A completed
+Wave-14 statistical summary was allowed to finish, but its auto-refit launcher
+was disabled before it could start training. Host migration changes neither
+the immutable caches nor any model, optimizer, split, seed, epoch or promotion
+setting.
