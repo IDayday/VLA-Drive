@@ -102,7 +102,7 @@ class ActionDecoder(nn.Module):
         # fusion config is supplied. PlanReg configurations opt in explicitly.
         self.scene_fusion_enabled = scene_fusion_config is not None
         self.scene_feature_mode = "semantic_only"
-        self.scene_transition_fraction = 0.10
+        self.scene_transition_fraction = 0.20
         if self.scene_fusion_enabled:
             self.scene_feature_mode = str(
                 getattr(scene_fusion_config, "mode", "planning_plus_semantic")
@@ -117,43 +117,49 @@ class ActionDecoder(nn.Module):
                     f"or planning_plus_semantic; got {self.scene_feature_mode!r}"
                 )
             self.scene_transition_fraction = float(
-                getattr(scene_fusion_config, "transition_fraction", 0.10)
+                getattr(scene_fusion_config, "transition_fraction", 0.20)
             )
             if not 0.0 < self.scene_transition_fraction <= 1.0:
                 raise ValueError("scene_fusion.transition_fraction must be in (0,1]")
-            gate_init = float(
-                getattr(scene_fusion_config, "semantic_gate_init", 0.0)
-            )
-            self.semantic_gate = nn.Parameter(
-                torch.full((1, 1, config.tf_d_model), gate_init)
-            )
-            self.scene_norm = nn.LayerNorm(config.tf_d_model)
-            self.register_buffer(
-                "_optimizer_step",
-                torch.zeros((), dtype=torch.long),
-                persistent=True,
-            )
-            self.register_buffer(
-                "_total_optimizer_steps",
-                torch.tensor(
-                    0 if total_optimizer_steps is None else int(total_optimizer_steps),
-                    dtype=torch.long,
-                ),
-                persistent=True,
-            )
+            # semantic_only is a strict legacy bypass: its module topology and
+            # scene tensor are identical to ActionDecoder without scene fusion.
+            if self.scene_feature_mode != "semantic_only":
+                self.scene_norm = nn.LayerNorm(config.tf_d_model)
+            if self.scene_feature_mode == "planning_plus_semantic":
+                gate_init = float(
+                    getattr(scene_fusion_config, "semantic_gate_init", 0.549306)
+                )
+                self.semantic_gate = nn.Parameter(
+                    torch.full((1, 1, config.tf_d_model), gate_init)
+                )
+                self.register_buffer(
+                    "_optimizer_step",
+                    torch.zeros((), dtype=torch.long),
+                    persistent=True,
+                )
+                self.register_buffer(
+                    "_total_optimizer_steps",
+                    torch.tensor(
+                        0
+                        if total_optimizer_steps is None
+                        else int(total_optimizer_steps),
+                        dtype=torch.long,
+                    ),
+                    persistent=True,
+                )
         # Attached only after loading the original Base checkpoint. Keeping this
         # as None preserves the exact legacy state_dict and inference behavior.
         self.memory_attention = None
         self.memory_injection_mode = "shared"
 
     def set_optimizer_step(self, optimizer_step: int) -> None:
-        if self.scene_fusion_enabled:
+        if self.scene_feature_mode == "planning_plus_semantic":
             self._optimizer_step.fill_(int(optimizer_step))
 
     def configure_total_optimizer_steps(self, total_optimizer_steps: int) -> None:
         if total_optimizer_steps <= 0:
             raise ValueError("total_optimizer_steps must be positive")
-        if self.scene_fusion_enabled:
+        if self.scene_feature_mode == "planning_plus_semantic":
             self._total_optimizer_steps.fill_(int(total_optimizer_steps))
 
     def scene_mix_ratio(self, reference: torch.Tensor) -> torch.Tensor:
@@ -165,7 +171,7 @@ class ActionDecoder(nn.Module):
         if total_steps <= 0:
             raise RuntimeError(
                 "planning_plus_semantic training requires the total optimizer "
-                "step count for the 10% rho transition"
+                "step count for the configured rho transition"
             )
         transition_steps = max(
             1, int(math.ceil(total_steps * self.scene_transition_fraction))
@@ -182,7 +188,8 @@ class ActionDecoder(nn.Module):
             return semantic_features, semantic_features.new_zeros(())
         rho = self.scene_mix_ratio(semantic_features)
         if self.scene_feature_mode == "semantic_only":
-            combined = semantic_features
+            # Do not normalize or otherwise perturb the exact legacy path.
+            return semantic_features, rho
         else:
             if planning_features is None:
                 raise KeyError(
@@ -200,18 +207,17 @@ class ActionDecoder(nn.Module):
                 dtype=semantic_features.dtype,
             )
             if self.scene_feature_mode == "planning_only":
-                combined = planning_features
+                return self.scene_norm(planning_features), rho
             else:
-                combined = (
-                    (1.0 - rho) * semantic_features
-                    + rho
-                    * (
-                        planning_features
-                        + torch.tanh(self.semantic_gate).to(semantic_features.dtype)
-                        * semantic_features
-                    )
+                planning_target = self.scene_norm(
+                    planning_features
+                    + torch.tanh(self.semantic_gate).to(semantic_features.dtype)
+                    * semantic_features
                 )
-        return self.scene_norm(combined), rho
+                combined = (
+                    (1.0 - rho) * semantic_features + rho * planning_target
+                )
+                return combined, rho
 
     def set_memory_attention(
         self,

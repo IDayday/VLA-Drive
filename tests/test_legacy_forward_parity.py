@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from pathlib import Path
 
 import pytest
 import torch
 from torch import nn
+from hydra import compose, initialize_config_dir
+from omegaconf import OmegaConf
 
+from navsim.agents.EpisodeDrive.action_decoder import ActionDecoder
 from navsim.agents.EpisodeDrive.drivevla_backbone import (
     DriveVLABackbone,
     load_legacy_checkpoint_with_planreg_audit,
@@ -73,6 +77,77 @@ def test_planning_disabled_calls_exact_legacy_forward() -> None:
     )
     max_abs_diff = (reference.hidden_states[-1] - actual.hidden_states[-1]).abs().max()
     assert max_abs_diff.item() <= 1e-5
+
+
+def _resolved_e0_config(monkeypatch):
+    monkeypatch.setenv("NAVSIM_EXP_ROOT", "/tmp/navsim-exp")
+    config_dir = (
+        Path(__file__).resolve().parents[1]
+        / "navsim/planning/script/config/training"
+    )
+    overrides = [
+        "agent=episode_drive_planreg_wm_v1",
+        "agent.vlm_config.planning_registers_enabled=false",
+        "agent.vlm_config.vision_qv_lora_enabled=false",
+        "agent.vision_adaptation.mode=none",
+        "agent.scene_fusion.mode=semantic_only",
+        "agent.world_model.enabled=false",
+        "agent.ema.enabled=false",
+    ]
+    with initialize_config_dir(version_base=None, config_dir=str(config_dir)):
+        cfg = compose(config_name="default_training", overrides=overrides)
+    # Resolve the actual E0 agent subtree; unrelated data-path interpolations
+    # intentionally remain outside this architecture parity audit.
+    OmegaConf.resolve(cfg.agent)
+    return cfg
+
+
+def test_real_e0_resolved_config_is_exact_semantic_legacy_bypass(monkeypatch) -> None:
+    cfg = _resolved_e0_config(monkeypatch)
+    assert cfg.agent.vlm_config.planning_registers_enabled is False
+    assert cfg.agent.vlm_config.vision_qv_lora_enabled is False
+    assert cfg.agent.vision_adaptation.mode == "none"
+    assert cfg.agent.world_model.enabled is False
+    assert cfg.agent.ema.enabled is False
+    assert cfg.agent.scene_fusion.mode == "semantic_only"
+
+    torch.manual_seed(20260902)
+    legacy = ActionDecoder(cfg.agent.action_head_config, scene_fusion_config=None)
+    e0 = ActionDecoder(
+        cfg.agent.action_head_config,
+        scene_fusion_config=cfg.agent.scene_fusion,
+    )
+    # semantic_only adds no trainable parameter, normalization, gate, or buffer.
+    e0.load_state_dict(legacy.state_dict(), strict=True)
+    assert set(e0.state_dict()) == set(legacy.state_dict())
+    assert not hasattr(e0, "scene_norm")
+    assert not hasattr(e0, "semantic_gate")
+    legacy.eval()
+    e0.eval()
+
+    inputs = {
+        "last_hidden_state": torch.randn(2, 12, 1536),
+        "status_feature": torch.randn(2, 8),
+    }
+    with torch.no_grad():
+        reference = legacy(inputs)
+        actual = e0(inputs)
+    compared = ["trajectory", "proposals", "pdm_score"]
+    max_abs_diff = max(
+        (reference[name] - actual[name]).abs().max().item() for name in compared
+    )
+    for head_name in reference["pred_logit"]:
+        max_abs_diff = max(
+            max_abs_diff,
+            (
+                reference["pred_logit"][head_name]
+                - actual["pred_logit"][head_name]
+            )
+            .abs()
+            .max()
+            .item(),
+        )
+    assert max_abs_diff <= 1e-5
 
 
 class _NewPlanningState(nn.Module):

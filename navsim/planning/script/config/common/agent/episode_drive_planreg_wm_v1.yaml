@@ -46,8 +46,9 @@ vision_adaptation:
 
 scene_fusion:
   mode: planning_plus_semantic
-  transition_fraction: 0.10
-  semantic_gate_init: 0.0
+  transition_fraction: 0.20
+  # atanh(0.5): planning target initially retains half of the semantic signal
+  semantic_gate_init: 0.549306
 
 world_model:
   enabled: true

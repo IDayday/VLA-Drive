@@ -53,8 +53,8 @@ def _fusion_config(mode: str):
     return OmegaConf.create(
         {
             "mode": mode,
-            "transition_fraction": 0.10,
-            "semantic_gate_init": 0.0,
+            "transition_fraction": 0.20,
+            "semantic_gate_init": 0.549306,
         }
     )
 
@@ -68,22 +68,25 @@ def test_planning_plus_semantic_rho_schedule_and_formula() -> None:
     decoder.train()
     semantic = torch.randn(2, 16, 256)
     planning = torch.randn(2, 16, 256)
-    assert torch.count_nonzero(decoder.semantic_gate).item() == 0
+    assert torch.tanh(decoder.semantic_gate).mean().item() == pytest.approx(0.5)
 
     decoder.set_optimizer_step(0)
     scene0, rho0 = decoder.fuse_scene_features(semantic, planning)
-    torch.testing.assert_close(scene0, decoder.scene_norm(semantic))
+    torch.testing.assert_close(scene0, semantic)
     assert rho0.item() == 0.0
 
-    decoder.set_optimizer_step(5)
+    decoder.set_optimizer_step(10)
     scene_half, rho_half = decoder.fuse_scene_features(semantic, planning)
-    expected_half = decoder.scene_norm(0.5 * semantic + 0.5 * planning)
+    planning_target = decoder.scene_norm(
+        planning + torch.tanh(decoder.semantic_gate) * semantic
+    )
+    expected_half = 0.5 * semantic + 0.5 * planning_target
     torch.testing.assert_close(scene_half, expected_half)
     assert rho_half.item() == 0.5
 
-    decoder.set_optimizer_step(10)
+    decoder.set_optimizer_step(20)
     scene1, rho1 = decoder.fuse_scene_features(semantic, planning)
-    torch.testing.assert_close(scene1, decoder.scene_norm(planning))
+    torch.testing.assert_close(scene1, planning_target)
     assert rho1.item() == 1.0
     assert scene1.shape == (2, 16, 256)
 
@@ -105,7 +108,9 @@ def test_semantic_only_and_planning_only_modes() -> None:
     semantic_scene, semantic_rho = semantic_decoder.fuse_scene_features(
         semantic, None
     )
-    torch.testing.assert_close(semantic_scene, semantic_decoder.scene_norm(semantic))
+    torch.testing.assert_close(semantic_scene, semantic)
+    assert not hasattr(semantic_decoder, "scene_norm")
+    assert not hasattr(semantic_decoder, "semantic_gate")
     assert semantic_rho.item() == 0.0
 
     planning_decoder = ActionDecoder(
@@ -185,7 +190,7 @@ def test_optimizer_step_is_checkpointed_for_resume() -> None:
     )
     restored.load_state_dict(first.state_dict(), strict=True)
     restored.train()
-    assert restored.scene_mix_ratio(torch.zeros(())).item() == pytest.approx(0.7)
+    assert restored.scene_mix_ratio(torch.zeros(())).item() == pytest.approx(0.35)
 
 
 def test_agent_forward_does_not_pop_shared_feature_dictionary() -> None:
