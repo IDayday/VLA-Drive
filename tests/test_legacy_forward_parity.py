@@ -259,3 +259,37 @@ def test_legacy_raw_qkv_maps_to_new_qv_wrapper() -> None:
     assert len(audit.allowed_missing_keys) == 4
     torch.testing.assert_close(target.backbone.model.qkv.base_layer.weight, source_weight)
     torch.testing.assert_close(target.backbone.model.qkv.base_layer.bias, source_bias)
+
+
+def test_frozen_vlm_checkpoint_wrappers_train_without_enabling_dropout() -> None:
+    class CheckpointLayer(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.gradient_checkpointing = True
+            self.dropout = nn.Dropout(0.5)
+
+    class Container(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.layers = nn.ModuleList([CheckpointLayer(), CheckpointLayer()])
+
+    backbone = DriveVLABackbone.__new__(DriveVLABackbone)
+    nn.Module.__init__(backbone)
+    backbone.model_type = "internvl"
+    backbone.gradient_checkpointing_enabled = True
+    backbone.model = nn.Module()
+    backbone.model.vision_model = nn.Module()
+    backbone.model.vision_model.encoder = Container()
+    backbone.model.language_model = nn.Module()
+    backbone.model.language_model.model = Container()
+    backbone.eval()
+
+    backbone.activate_gradient_checkpointing_train_mode()
+
+    assert backbone.model.vision_model.encoder.training
+    for layer in backbone.model.language_model.model.layers:
+        assert layer.training
+        assert not layer.dropout.training
+    for layer in backbone.model.vision_model.encoder.layers:
+        assert not layer.training
+        assert not layer.dropout.training

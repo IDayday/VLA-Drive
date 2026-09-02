@@ -750,6 +750,10 @@ class DriveVLABaseAgent(AbstractAgent):
             and bool(getattr(self.vlm_config, "freeze_backbone", False))
         ):
             self.backbone.eval()
+            if mode and bool(
+                getattr(self.vlm_config, "gradient_checkpointing", False)
+            ):
+                self.backbone.activate_gradient_checkpointing_train_mode()
         if self.ema_register_target is not None:
             self.ema_register_target.eval()
         return self
@@ -930,6 +934,18 @@ class DriveVLABaseAgent(AbstractAgent):
         return [feature_builders]
 
     def forward(self, features: Dict[str, torch.Tensor], targets=None, tokens_list=None) -> Dict[str, torch.Tensor]:
+        # Lightning/model-summary mode transitions can recursively reset child
+        # ``training`` flags after ``DriveVLABaseAgent.train`` returns. Restore
+        # the selective checkpoint wrappers at the actual training boundary;
+        # this is idempotent and leaves frozen dropout/drop-path children in
+        # eval mode.
+        if (
+            self.training
+            and self.backbone is not None
+            and bool(getattr(self.vlm_config, "gradient_checkpointing", False))
+        ):
+            self.backbone.eval()
+            self.backbone.activate_gradient_checkpointing_train_mode()
         # Work on a shallow local copy. The original feature dictionary remains
         # available to compute_loss (notably for future image path tensors).
         runtime_features = dict(features)
@@ -1179,7 +1195,7 @@ class DriveVLABaseAgent(AbstractAgent):
 
         with torch.no_grad():
             predictions = self.forward(features)
-            poses = predictions["pred_traj"].float().cpu().squeeze(0)
+            poses = predictions["trajectory"].float().cpu().squeeze(0)
 
         return Trajectory(poses)
 
@@ -1198,7 +1214,7 @@ class DriveVLABaseAgent(AbstractAgent):
 
         with torch.no_grad():
             predictions = self.forward(features)
-            poses = predictions["pred_traj"].float().cpu().squeeze(0)
+            poses = predictions["trajectory"].float().cpu().squeeze(0)
         return Trajectory(poses)
 
 
@@ -1394,6 +1410,27 @@ class DriveVLABaseAgent(AbstractAgent):
         )[None]
         return (values * weights).sum() / weights.sum().clamp_min(1.0)
 
+    @staticmethod
+    def _require_every_future_horizon_present(
+        valid_mask: torch.Tensor,
+    ) -> None:
+        """Require batch coverage at 0.5/1.5/3.0s, allowing masked samples."""
+        if valid_mask.ndim != 2 or valid_mask.shape[1] != 3:
+            raise ValueError(
+                "future_valid_mask must be [B,3], got "
+                f"{tuple(valid_mask.shape)}"
+            )
+        horizon_present = valid_mask.to(dtype=torch.bool).any(dim=0)
+        if not bool(horizon_present.all()):
+            missing = (
+                (~horizon_present).nonzero(as_tuple=False).flatten().tolist()
+            )
+            raise RuntimeError(
+                "Real-data smoke requires at least one valid future image for "
+                "every 0.5/1.5/3.0s horizon; "
+                f"missing horizon indices={missing}"
+            )
+
     def _compute_world_model_loss_from_registers(
         self,
         current_registers: torch.Tensor,
@@ -1454,6 +1491,10 @@ class DriveVLABaseAgent(AbstractAgent):
             device=pred_future.device, dtype=pred_future.dtype
         )
         valid_mask = future_valid_mask.to(device=pred_future.device, dtype=torch.bool)
+        if bool(
+            getattr(self.world_model_config, "require_all_horizons_valid", False)
+        ):
+            self._require_every_future_horizon_present(valid_mask)
 
         target_current_n = self.future_register_predictor.normalize_register_state(
             target_current

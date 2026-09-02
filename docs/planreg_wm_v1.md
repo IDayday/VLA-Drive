@@ -12,9 +12,12 @@ later without changing the action or world-model contracts.
 
 The implemented path is:
 
-1. prepend 16 trainable planning registers inside every InternViT forward;
+1. prepend 16 trainable planning registers inside every InternViT forward,
+   using read-only register attention so legacy CLS/patch queries cannot read
+   register key columns;
 2. adapt Q and V only in all InternViT attention blocks with rank-32 LoRA;
-3. project the final registers from vision width 1024 to width 256;
+3. project the final registers from vision width 1024 to width 256 and combine
+   tiles with thumbnail-query attention plus normalized tile geometry;
 4. retain the original LLM-hidden-state to Q-Former semantic path;
 5. mix planning-primary and semantic-residual scene features into exactly 16
    tokens of width 256;
@@ -54,12 +57,17 @@ the PlanReg configuration. No pairwise, listwise, or ranking loss was added.
 Scorer-only backward must leave proposal-coordinate gradients absent/zero and
 must produce a nonzero scene-feature gradient.
 
+Selection still uses the exact upstream log-space value. For calibration
+diagnostics only, `pred_pdms = exp(log_pdm_score)/(5+5+2)` is compared with real
+PDMS. This normalization never changes the argmax or selected trajectory.
+
 ## Tensor contract
 
 | Value | Shape | Consumer |
 | --- | --- | --- |
 | InternViT input | `[tiles,1+16+P,1024]` | InternViT encoder |
 | per-tile planning registers | `[tiles,16,256]` | slot-wise tile reducer |
+| tile metadata | `[tiles,5]` | spatial tile aggregation |
 | scene planning registers | `[B,16,256]` | fusion and WM loss |
 | original patch/LLM features | `[B,L,1536]` | semantic Q-Former |
 | semantic scene tokens | `[B,16,256]` | scene fusion |
@@ -73,17 +81,33 @@ vision blocks, registers are sliced from positions `1:17`; only patch tokens
 continue through square reshape, `pixel_shuffle`, `mlp1`, and the LLM. Registers
 never enter those operations.
 
+In the default `read_only` attention mode, register query rows can read CLS,
+register, and patch keys, while CLS/patch query rows are masked from register
+key columns. Therefore, when Q/V LoRA B matrices are zero, the patch output is
+identical to legacy InternViT within `1e-5`. `bidirectional` remains available
+only as an ablation. Read-only mode explicitly rejects flash attention.
+
+Each tile carries normalized `[cx,cy,width,height,is_thumbnail]` metadata. The
+main `thumbnail_query_attention` reducer uses each thumbnail register slot as
+its query and crop registers plus a tile-position MLP as K/V, then returns
+`thumbnail + tanh(tile_gate) * residual`. `tile_gate` starts at zero, so the
+initial result is exactly `thumbnail_only`. Jointly permuting tiles and their
+metadata leaves the result unchanged. `mean` and `thumbnail_only` remain
+explicit ablations; missing thumbnails fail clearly.
+
 The scene mixer computes, for `planning_plus_semantic`,
 
 ```text
-LayerNorm((1-rho) * semantic
-          + rho * (planning + tanh(semantic_gate) * semantic))
+planning_target = LayerNorm(
+    planning + tanh(semantic_gate) * semantic)
+scene = (1-rho) * semantic + rho * planning_target
 ```
 
-`semantic_gate` starts at zero. During training, `rho` rises linearly from 0 to
-1 over the first 10% of optimizer steps; validation and inference use 1.
-`semantic_only` fixes `rho=0`, while `planning_only` fixes `rho=1` and excludes
-the semantic residual. Fusion does not concatenate tokens.
+`semantic_gate` starts at `atanh(0.5)=0.549306`. During training, `rho` rises
+linearly from 0 to 1 over the first 20% of optimizer steps; validation and
+inference use 1. `semantic_only` is an exact bypass: it returns semantic tokens
+without constructing or using a gate or normalization. `planning_only` fixes
+`rho=1` and excludes the semantic residual. Fusion never concatenates tokens.
 
 ## Vision adaptation and gradient routing
 
@@ -106,12 +130,31 @@ of these groups:
 
 | Group | Learning rate |
 | --- | ---: |
-| planning registers, neck, predictor | `2e-4` |
+| planning adapter | `2e-4` |
+| future predictor | `2e-4` |
+| fusion gate/norm | `1e-4` |
 | trajectory decoder and heads | `1e-4` |
 | scorer decoder and six heads | `1e-4` |
 | vision Q/V LoRA | `5e-5` |
-| semantic Q-Former and gate | `1e-5` |
+| semantic Q-Former and queries | `1e-5` |
 | LLM | frozen (`0`) |
+
+Every logical group is split into `decay` (`weight_decay=0.01`) and
+`no_decay` (`0.0`) subgroups. Biases, norms, register/query/embedding tokens,
+semantic/tile gates, and every LoRA A/B tensor are no-decay. Unclassified
+trainable tensors fail immediately. AdamW uses betas `(0.9,0.999)`, epsilon
+`1e-8`, and does not automatically scale LR with batch size.
+
+The per-step, resume-safe scheduler linearly warms from 1% of each group LR to
+its peak over 3% of total optimizer steps, then cosine-decays. Final LR ratios
+are 0.10 for planning/predictor/fusion/vision-LoRA and 0.20 for
+action/scorer/Q-Former. Lightning's `estimated_stepping_batches` defines the
+step count; scheduler state is restored on resume.
+
+Activation checkpointing is enabled for the InternViT encoder and frozen LLM
+decoder to make the audited per-GPU batch of two executable. Only checkpoint
+wrapper flags enter train mode; frozen attention dropout and InternViT drop-path
+children remain in eval mode, so this does not introduce stochastic VLM drift.
 
 The normal WM setting backpropagates through current planning registers and Q/V
 LoRA. `predictor_only=true` detaches current registers at the WM boundary, so
@@ -143,23 +186,46 @@ momentum schedule from `0.996` to `0.9999`. Its progress buffers are restored on
 Lightning resume.
 
 For V1 training, the GT trajectory is expanded to `K=1`. Point features are
-`[x,y,sin(theta),cos(theta),speed,acceleration]` at `dt=0.5`. The causal
-trajectory transformer samples indices `[0,2,5]`; horizon embeddings and a
-two-layer register transformer predict three residual register states.
+`[x,y,sin(theta),cos(theta),speed,acceleration]` at `dt=0.5`. Initial speed is
+`sqrt(vx^2+vy^2)` from current ego status, so the first acceleration is
+`(v1-v0)/dt`. Fixed scales are `x/30`, `y/10`, `speed/15`, and
+`acceleration/8`; sine/cosine are unscaled. The causal trajectory transformer
+samples indices `[0,2,5]`; horizon embeddings and a two-layer register
+transformer predict three residual register states.
 
 ```text
-wm_abs = mean(1 - cosine(pred_future, stopgrad(target_future)))
-wm_delta = SmoothL1(
-    pred_future - current_registers,
-    stopgrad(target_future - target_current),
-)
-loss = drivor_loss + 0.25 * (wm_abs + 0.25 * wm_delta)
+current_n = layer_norm(current, affine=false)
+target_current_n = layer_norm(target_current, affine=false)
+target_future_n = layer_norm(target_future, affine=false)
+pred_future_n = current_n + residual
+wm_abs = weighted_mean(1 - cosine(pred_future_n, target_future_n))
+wm_delta = weighted_mean(SmoothL1(
+    pred_future_n - current_n,
+    stopgrad(target_future_n - target_current_n)))
+wm = wm_abs + 0.5 * wm_delta
+loss = drivor_loss + current_wm_weight * wm
 ```
+
+Horizon weights are `[1.0,0.7,0.4]`, with invalid horizons excluded from the
+weighted denominator. `current_wm_weight` is zero for the first 5% of optimizer
+steps, ramps linearly over the next 10%, and remains at `0.10`. Its
+optimizer-step buffers are checkpointed, so the schedule is continuous after
+resume. Legacy configs with a fixed `weight` remain loadable.
 
 The four controlled target modes are `correct`, `no_action_condition`,
 `shuffled_batch`, and `repeated_current`. `shuffled_batch` uses a cyclic batch
 shift and fails explicitly for batch size one. No mode reads evaluator scores,
 future actor annotations, map targets, or non-GT future imagery.
+
+## Training data protocol
+
+By default, training uses only `cfg.train_logs`, validation uses only
+`cfg.val_logs`, and overlap is forbidden. The launcher records log counts,
+overlap count, and deterministic SHA-256 hashes for both sets. Cached mode no
+longer concatenates validation into training. Explicit
+`include_val_in_train=true` is final-fit only: it requires zero validation
+batches, disables score-monitored best checkpointing, saves only `last`, and
+must not be used for hyperparameter selection.
 
 ## Checkpoint migration
 
@@ -179,10 +245,11 @@ setting `agent.checkpoint_path` is a weight warm start, not a lossless resume.
 ## Inference contract
 
 Inference accepts current-frame inputs only. Future path tensors are neither
-required nor read. Before prediction, EMA teacher and future predictor modules
-are removed; trajectory generation and scorer selection use only the mixed
-current scene features. The serialized training checkpoint may retain those
-modules for resumption, but the deployed inference object does not execute them.
+required nor read. `scripts/export_planreg_student_checkpoint.py` removes EMA,
+predictor, optimizer/scheduler/callback state, and WM step buffers, and emits a
+SHA-256/provenance manifest. Evaluation forces `world_model.enabled=false` and
+`ema.enabled=false`, so it never constructs those training-only modules.
+Trajectory generation and scorer selection use only current scene features.
 
 ## Experiment matrix
 
@@ -196,6 +263,9 @@ modules for resumption, but the deployed inference object does not execute them.
 | E5 | planning + semantic | on | shuffled future | 0 |
 | E6 | planning + semantic | on | repeated current | 0 |
 | E7 | planning + semantic | on | correct future, predictor-only WM routing | 0 |
+| R1 | bidirectional + mean tiles | on | correct future | 0 |
+| R2 | read-only + thumbnail only | on | correct future | 0 |
+| R3 | read-only + thumbnail attention | on | correct future | 0 |
 
 E0/E2/E3 are the primary comparison; controls test whether the future signal,
 action condition, and visual-gradient path matter independently.
@@ -213,8 +283,9 @@ action condition, and visual-gradient path matter independently.
 4. Validation gate: promote only improvements on held-out validation, using the
    same immutable scorer/evaluator settings and reporting seed dispersion or a
    paired bootstrap interval.
-5. Navtest gate: run full Navtest in FP32 with explicit checkpoint paths and
-   checkpoint SHA-256 records and an explicit seed. Do not mix partial-scene runs into the final
+5. Navtest gate: run full Navtest with BF16 VLM plus FP32 action/scorer (not
+   full FP32), explicit student-only checkpoint paths, checkpoint SHA-256
+   records, and an explicit seed. Do not mix partial-scene runs into the final
    metric.
 
 DriveVLA-M0 here uses a single front camera. DrivoR's reported four-camera 93.7

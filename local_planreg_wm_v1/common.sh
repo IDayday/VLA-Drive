@@ -78,6 +78,12 @@ planreg_require_file() {
   fi
 }
 
+planreg_require_file_unless_dry_run() {
+  if [[ "${DRY_RUN:-0}" != "1" ]]; then
+    planreg_require_file "$1"
+  fi
+}
+
 planreg_require_directory() {
   if [[ ! -d "$1" ]]; then
     echo "Required directory does not exist: $1" >&2
@@ -113,13 +119,13 @@ planreg_launch() {
   data_split="$(planreg_data_split "${PLANREG_TRAIN_TEST_SPLIT}")"
   local smoke_args=()
   if [[ "${SMOKE_SPLIT:-0}" == "1" ]]; then
-    split_args=(train_test_split=navmini)
-    data_split=mini
     smoke_args=(
       "train_test_split.scene_filter.max_scenes=${SMOKE_SCENES:-32}"
       trainer.params.max_epochs=1
       trainer.params.limit_train_batches=2
       trainer.params.limit_val_batches=1
+      diagnostics.require_finite_loss_and_gradients=true
+      agent.world_model.require_all_horizons_valid=true
     )
   fi
 

@@ -99,4 +99,3 @@ def test_protocol_metadata_round_trip(tmp_path) -> None:
     audit = resolve_data_protocol(cfg)
     path = write_data_protocol_metadata(cfg, audit)
     assert json.loads(path.read_text(encoding="utf-8")) == audit
-

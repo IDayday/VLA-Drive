@@ -225,3 +225,13 @@ def test_invalid_horizon_does_not_enter_weighted_denominator() -> None:
         values, valid, weights
     )
     assert actual.item() == pytest.approx((1.0 + 3.0 * 0.4) / 1.4)
+
+
+def test_real_smoke_requires_batch_coverage_for_each_horizon() -> None:
+    DriveVLABaseAgent._require_every_future_horizon_present(
+        torch.tensor([[True, False, False], [False, True, True]])
+    )
+    with pytest.raises(RuntimeError, match=r"missing horizon indices=\[2\]"):
+        DriveVLABaseAgent._require_every_future_horizon_present(
+            torch.tensor([[True, False, False], [False, True, False]])
+        )

@@ -284,6 +284,7 @@ class DriveVLABackbone(nn.Module):
         self.model_type = model_type.lower()
         self.device = device
         self.skip_lm_head = skip_lm_head
+        self.gradient_checkpointing_enabled = bool(gradient_checkpointing)
         self.planning_registers_enabled = bool(planning_registers_enabled)
         self.planning_register_attention_mode = str(
             planning_register_attention_mode
@@ -444,6 +445,45 @@ class DriveVLABackbone(nn.Module):
             language_model._set_gradient_checkpointing()
         language_model.config.use_cache = False
         print("Enabled InternVL vision and language gradient checkpointing.")
+
+    def activate_gradient_checkpointing_train_mode(self) -> None:
+        """Activate checkpoint wrappers without enabling frozen-model dropout.
+
+        PlanReg keeps the frozen VLM in eval mode, but both the local InternViT
+        encoder and Transformers checkpointing layers additionally key off
+        their own ``training`` flag. Set only those wrapper flags after
+        ``eval()``; child attention/drop-path/dropout modules remain in eval
+        mode, so activation checkpointing does not change the model function.
+        """
+        if not self.gradient_checkpointing_enabled:
+            return
+        if self.model_type != "internvl":
+            raise RuntimeError(
+                "Selective frozen-model checkpointing is implemented only for InternVL"
+            )
+        vision_encoder = getattr(self.model.vision_model, "encoder", None)
+        if vision_encoder is None:
+            raise RuntimeError("InternVL gradient checkpointing requires vision encoder")
+        vision_encoder.training = True
+
+        decoder = getattr(self.model.language_model, "model", None)
+        decoder_layers = getattr(decoder, "layers", None)
+        if decoder_layers is None or len(decoder_layers) == 0:
+            raise RuntimeError(
+                "InternVL gradient checkpointing requires language_model.model.layers"
+            )
+        for layer in decoder_layers:
+            if not bool(getattr(layer, "gradient_checkpointing", False)):
+                raise RuntimeError(
+                    "Language decoder layer was not configured for gradient checkpointing"
+                )
+            layer.training = True
+        if not vision_encoder.training or not all(
+            layer.training for layer in decoder_layers
+        ):
+            raise RuntimeError(
+                "Failed to activate frozen InternVL checkpoint wrapper flags"
+            )
 
     def _forward_internvl_without_lm_head(
         self,

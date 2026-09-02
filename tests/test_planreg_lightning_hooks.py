@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 from types import MethodType, SimpleNamespace
 
+import pytest
 import torch
 from torch import nn
 
@@ -34,7 +35,7 @@ class _DiagnosticAgent(nn.Module):
         return {"register_std": torch.tensor(0.5)}
 
 
-def _module(*, step: int, debug: bool = False):
+def _module(*, step: int, debug: bool = False, require_finite: bool = False):
     agent = _DiagnosticAgent()
     module = AgentLightningModule(
         agent,
@@ -42,6 +43,7 @@ def _module(*, step: int, debug: bool = False):
             "grad_log_interval": 10,
             "register_log_interval": 20,
             "debug_unused_parameters": debug,
+            "require_finite_loss_and_gradients": require_finite,
         },
     )
     module._trainer = SimpleNamespace(global_step=step, is_global_zero=True)
@@ -84,6 +86,20 @@ def test_unused_parameter_walk_is_disabled_by_default() -> None:
 
     module.named_parameters = MethodType(fail_if_walked, module)
     module.on_after_backward()
+
+
+def test_finite_gradient_hooks_do_not_walk_parameters_per_step() -> None:
+    module, agent, _ = _module(step=1, require_finite=True)
+
+    def fail_if_walked(self, *args, **kwargs):
+        raise AssertionError("full named_parameters traversal must stay disabled")
+
+    module.named_parameters = MethodType(fail_if_walked, module)
+    loss = agent.weight * torch.tensor(float("nan"))
+    module.on_before_backward(loss)
+    loss.backward()
+    with pytest.raises(FloatingPointError, match="agent.weight"):
+        module.on_after_backward()
 
 
 def test_register_svd_diagnostics_are_detached_and_finite() -> None:

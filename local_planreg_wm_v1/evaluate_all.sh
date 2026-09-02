@@ -19,7 +19,7 @@ fi
 experiment_overrides() {
   local label="$1"
   case "${label}" in
-    e0_*)
+    b0_*|e0_*)
       printf '%s\n' \
         agent.vlm_config.planning_registers_enabled=false \
         agent.vlm_config.vision_qv_lora_enabled=false \
@@ -38,13 +38,29 @@ experiment_overrides() {
     e2_*)
       :
       ;;
+    bootstrap_*) : ;;
+    r1_*)
+      printf '%s\n' \
+        agent.planning_registers.attention_mode=bidirectional \
+        agent.vlm_config.tile_register_aggregation=mean
+      ;;
+    r2_*)
+      printf '%s\n' \
+        agent.planning_registers.attention_mode=read_only \
+        agent.vlm_config.tile_register_aggregation=thumbnail_only
+      ;;
+    r3_*)
+      printf '%s\n' \
+        agent.planning_registers.attention_mode=read_only \
+        agent.vlm_config.tile_register_aggregation=thumbnail_query_attention
+      ;;
     e4_*) printf '%s\n' agent.world_model.future_mode=no_action_condition ;;
     e5_*) printf '%s\n' agent.world_model.future_mode=shuffled_batch ;;
     e6_*) printf '%s\n' agent.world_model.future_mode=repeated_current ;;
     e7_*) printf '%s\n' agent.world_model.predictor_only=true ;;
     e3_*) printf '%s\n' agent.world_model.future_mode=correct ;;
     *)
-      echo "Unknown experiment label (must begin e0_...e7_): ${label}" >&2
+      echo "Unknown experiment label (b0/bootstrap/e0...e7/r1...r3): ${label}" >&2
       return 2
       ;;
   esac
@@ -57,13 +73,15 @@ for specification in "$@"; do
   fi
   label="${specification%%=*}"
   checkpoint="${specification#*=}"
-  if [[ ! -f "${checkpoint}" ]]; then
+  if [[ "${DRY_RUN:-0}" != "1" && ! -f "${checkpoint}" ]]; then
     echo "Checkpoint does not exist: ${checkpoint}" >&2
     exit 2
   fi
-  "${PYTHON_BIN}" \
-    "${PLANREG_REPO_ROOT}/scripts/export_planreg_student_checkpoint.py" \
-    --verify "${checkpoint}"
+  if [[ "${DRY_RUN:-0}" != "1" ]]; then
+    "${PYTHON_BIN}" \
+      "${PLANREG_REPO_ROOT}/scripts/export_planreg_student_checkpoint.py" \
+      --verify "${checkpoint}"
+  fi
   if [[ -n "${PLANREG_EVAL_SEED:-}" ]]; then
     evaluation_seed="${PLANREG_EVAL_SEED}"
   elif [[ "${label}" =~ _seed([0-9]+)$ ]]; then

@@ -38,12 +38,30 @@ from navsim.agents.EpisodeDrive.layers.world_model import (  # noqa: E402
 class _Attention(nn.Module):
     def __init__(self, dim: int) -> None:
         super().__init__()
+        self.num_heads = 4
+        self.scale = (dim // self.num_heads) ** -0.5
         self.qkv = nn.Linear(dim, 3 * dim)
-        self.output = nn.Linear(dim, dim)
+        self.attn_drop = nn.Dropout(0.0)
+        self.proj = nn.Linear(dim, dim)
+        self.proj_drop = nn.Dropout(0.0)
+        self.qk_normalization = False
+        self.use_flash_attn = False
+
+    def _naive_attn(self, inputs: torch.Tensor) -> torch.Tensor:
+        batch, tokens, dim = inputs.shape
+        qkv = (
+            self.qkv(inputs)
+            .reshape(batch, tokens, 3, self.num_heads, dim // self.num_heads)
+            .permute(2, 0, 3, 1, 4)
+        )
+        query, key, value = qkv.unbind(0)
+        probabilities = ((query * self.scale) @ key.transpose(-2, -1)).softmax(-1)
+        probabilities = self.attn_drop(probabilities)
+        output = (probabilities @ value).transpose(1, 2).reshape(batch, tokens, dim)
+        return self.proj_drop(self.proj(output))
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        query, _key, value = self.qkv(inputs).chunk(3, dim=-1)
-        return self.output(torch.tanh(query + value))
+        return self._naive_attn(inputs)
 
 
 class _VisionBlock(nn.Module):
@@ -87,7 +105,7 @@ class _Encoder(nn.Module):
 class _Vision(nn.Module):
     def __init__(self, dim: int) -> None:
         super().__init__()
-        self.config = SimpleNamespace(hidden_size=dim)
+        self.config = SimpleNamespace(hidden_size=dim, use_flash_attn=False)
         self.embeddings = _Embeddings(dim)
         self.encoder = _Encoder(dim)
 
@@ -185,7 +203,8 @@ def run_smoke(seed: int, device: torch.device) -> dict:
         vision_hidden_dim=vision_dim,
         num_registers=16,
         register_dim=256,
-        tile_aggregation="mean",
+        tile_aggregation="thumbnail_query_attention",
+        attention_mode="read_only",
         device=device,
     )
     student = _StudentBackbone(model, adapter)
@@ -194,16 +213,41 @@ def run_smoke(seed: int, device: torch.device) -> dict:
         parameter.requires_grad = True
     teacher = EMARegisterTarget(student).to(device)
 
-    current_pixels = torch.randn(batch_size, 3, 2, 2, device=device)
-    current_vision = adapter(model, current_pixels, [1, 1])
+    per_scene_tiles = 3
+    tile_metadata_one = torch.tensor(
+        [
+            [0.25, 0.5, 0.5, 1.0, 0.0],
+            [0.75, 0.5, 0.5, 1.0, 0.0],
+            [0.5, 0.5, 1.0, 1.0, 1.0],
+        ],
+        device=device,
+    )
+    current_pixels = torch.randn(
+        batch_size * per_scene_tiles, 3, 2, 2, device=device
+    )
+    current_metadata = tile_metadata_one.repeat(batch_size, 1)
+    current_vision = adapter(
+        model,
+        current_pixels,
+        [per_scene_tiles] * batch_size,
+        current_metadata,
+    )
+    semantic_features = torch.stack(
+        [
+            group.reshape(-1, group.shape[-1])
+            for group in current_vision.patch_features.split(
+                [per_scene_tiles] * batch_size
+            )
+        ]
+    )
     current_vision.scene_registers.retain_grad()
     action = ActionDecoder(
         _action_config(),
         scene_fusion_config=OmegaConf.create(
             {
                 "mode": "planning_plus_semantic",
-                "transition_fraction": 0.10,
-                "semantic_gate_init": 0.0,
+                "transition_fraction": 0.20,
+                "semantic_gate_init": 0.549306,
             }
         ),
         total_optimizer_steps=100,
@@ -213,23 +257,31 @@ def run_smoke(seed: int, device: torch.device) -> dict:
     status = torch.randn(batch_size, 8, device=device)
     predictions = action(
         {
-            "last_hidden_state": current_vision.patch_features,
+            "last_hidden_state": semantic_features,
             "status_feature": status,
             "planning_registers": current_vision.scene_registers,
         }
     )
 
-    future_pixels = torch.randn(batch_size, 3, 3, 2, 2, device=device)
+    future_pixels = torch.randn(
+        batch_size, 3, per_scene_tiles, 3, 2, 2, device=device
+    )
     teacher_images = []
     for batch_index in range(batch_size):
-        teacher_images.append(current_pixels[batch_index:batch_index + 1])
+        start = batch_index * per_scene_tiles
+        teacher_images.append(current_pixels[start:start + per_scene_tiles])
         teacher_images.extend(
-            future_pixels[batch_index, horizon:horizon + 1]
+            future_pixels[batch_index, horizon]
             for horizon in range(3)
         )
     teacher_pixels = torch.cat(teacher_images, dim=0)
+    teacher_metadata = tile_metadata_one.repeat(batch_size * 4, 1)
     with torch.no_grad():
-        teacher_registers = teacher(teacher_pixels, [1] * (batch_size * 4))
+        teacher_registers = teacher(
+            teacher_pixels,
+            [per_scene_tiles] * (batch_size * 4),
+            teacher_metadata,
+        )
     teacher_registers = teacher_registers.reshape(batch_size, 4, 16, 256)
 
     target_trajectory = torch.randn(batch_size, 8, 3, device=device)
@@ -242,7 +294,9 @@ def run_smoke(seed: int, device: torch.device) -> dict:
         predictor_only=False,
         horizons_sec=(0.5, 1.5, 3.0),
         abs_weight=1.0,
-        delta_weight=0.25,
+        delta_weight=0.5,
+        horizon_weights=(1.0, 0.7, 0.4),
+        normalize_state_space=True,
     )
     loss_harness.future_mode = "correct"
     loss_harness.future_register_predictor = FutureRegisterPredictor(
@@ -255,8 +309,9 @@ def run_smoke(seed: int, device: torch.device) -> dict:
         teacher_registers[:, 0],
         teacher_registers[:, 1:],
         torch.ones(batch_size, 3, dtype=torch.bool, device=device),
+        current_speed=torch.linalg.vector_norm(status[:, 4:6], dim=-1),
     )
-    complete_loss = base_loss["loss"] + 0.25 * wm["wm_loss"]
+    complete_loss = base_loss["loss"] + 0.10 * wm["wm_loss"]
     complete_loss.backward()
 
     qv_grad = torch.stack(
@@ -271,7 +326,7 @@ def run_smoke(seed: int, device: torch.device) -> dict:
     # Pure current-frame inference: no future keys, no teacher, no predictor.
     action.eval()
     inference_inputs = {
-        "last_hidden_state": current_vision.patch_features.detach(),
+        "last_hidden_state": semantic_features.detach(),
         "status_feature": status,
         "planning_registers": current_vision.scene_registers.detach(),
     }
@@ -282,6 +337,8 @@ def run_smoke(seed: int, device: torch.device) -> dict:
         "seed": seed,
         "device": str(device),
         "injected_visual_layers": len(injected),
+        "attention_mode": adapter.attention_mode,
+        "tile_register_aggregation": adapter.tile_aggregation,
         "patch_features": list(current_vision.patch_features.shape),
         "per_tile_registers": list(current_vision.per_tile_registers.shape),
         "planning_registers": list(current_vision.scene_registers.shape),

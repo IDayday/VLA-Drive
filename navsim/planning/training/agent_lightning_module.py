@@ -56,8 +56,46 @@ class AgentLightningModule(pl.LightningModule):
                 diagnostics.get("debug_unused_parameters", False),
             )
         )
+        self.require_finite_loss_and_gradients = bool(
+            getattr(
+                diagnostics,
+                "require_finite_loss_and_gradients",
+                diagnostics.get("require_finite_loss_and_gradients", False),
+            )
+        )
         if self.grad_log_interval <= 0 or self.register_log_interval <= 0:
             raise ValueError("Diagnostic log intervals must be positive")
+        self._gradient_finiteness_checks = []
+        self._finite_gradient_hook_handles = []
+        if self.require_finite_loss_and_gradients:
+            # Register once during construction rather than traversing every
+            # parameter after every backward pass.  The hooks only retain the
+            # names of offending gradients, not the gradient tensors.
+            for name, parameter in self.agent.named_parameters():
+                if not parameter.requires_grad:
+                    continue
+
+                def _check_finite_gradient(gradient, *, parameter_name=name):
+                    if gradient is not None:
+                        gradient_values = (
+                            gradient.coalesce().values()
+                            if gradient.is_sparse
+                            else gradient
+                        )
+                        # Keep the scalar on-device here. on_after_backward
+                        # batches the device-to-host check so this does not
+                        # synchronize once per parameter.
+                        self._gradient_finiteness_checks.append(
+                            (
+                                f"agent.{parameter_name}",
+                                torch.isfinite(gradient_values).all(),
+                            )
+                        )
+                    return gradient
+
+                self._finite_gradient_hook_handles.append(
+                    parameter.register_hook(_check_finite_gradient)
+                )
 
     def on_fit_start(self) -> None:
         if hasattr(self.agent, "configure_total_optimizer_steps"):
@@ -68,6 +106,11 @@ class AgentLightningModule(pl.LightningModule):
     def on_predict_start(self) -> None:
         if hasattr(self.agent, "remove_training_only_world_model"):
             self.agent.remove_training_only_world_model()
+
+    def on_before_backward(self, loss: Tensor) -> None:
+        del loss
+        if self.require_finite_loss_and_gradients:
+            self._gradient_finiteness_checks.clear()
 
     def on_after_backward(self) -> None:
         optimizer_step = int(self.global_step)
@@ -112,6 +155,27 @@ class AgentLightningModule(pl.LightningModule):
                     len(unused),
                     "\n".join(f"  {name}" for name in unused),
                 )
+        if self.require_finite_loss_and_gradients:
+            checks_by_device = {}
+            for name, finite in self._gradient_finiteness_checks:
+                checks_by_device.setdefault(finite.device, []).append(
+                    (name, finite)
+                )
+            nonfinite = []
+            for checks in checks_by_device.values():
+                finite_flags = torch.stack(
+                    [finite for _, finite in checks]
+                ).cpu().tolist()
+                nonfinite.extend(
+                    name
+                    for (name, _), is_finite in zip(checks, finite_flags)
+                    if not is_finite
+                )
+            nonfinite.sort()
+            if nonfinite:
+                raise FloatingPointError(
+                    f"Non-finite gradients detected: {nonfinite[:16]}"
+                )
 
     def _step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], logging_prefix: str) -> Tensor:
         """
@@ -141,6 +205,17 @@ class AgentLightningModule(pl.LightningModule):
             loss_dict=self.agent.compute_adapter_loss(targets,prediction)
 
         if type(loss_dict) is dict:
+            if self.require_finite_loss_and_gradients:
+                nonfinite_losses = [
+                    key
+                    for key, value in loss_dict.items()
+                    if isinstance(value, torch.Tensor)
+                    and not bool(torch.isfinite(value).all())
+                ]
+                if nonfinite_losses:
+                    raise FloatingPointError(
+                        f"Non-finite losses detected: {nonfinite_losses}"
+                    )
             sync_metrics = logging_prefix != "train" or os.getenv(
                 "DRIVEVLA_SYNC_TRAIN_METRICS", "0"
             ).lower() in {"1", "true", "yes", "on"}

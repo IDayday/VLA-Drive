@@ -18,7 +18,9 @@ vlm_config:
   use_flash_attn: false
   skip_lm_head: true
   freeze_lm_head: true
-  gradient_checkpointing: false
+  # Required for the audited per-GPU batch of two. Only checkpoint wrapper
+  # flags enter train mode; frozen dropout/drop-path modules remain in eval.
+  gradient_checkpointing: true
   extra_token_count: 8
   target_vocab_size: 151682
   planning_registers_enabled: true
@@ -69,6 +71,7 @@ world_model:
   y_scale: 10.0
   speed_scale: 15.0
   acceleration_scale: 8.0
+  require_all_horizons_valid: false
   future_mode: correct
   predictor_only: false
 

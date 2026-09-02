@@ -49,4 +49,3 @@ def test_read_only_direct_legacy_call_is_not_masked_as_register_input() -> None:
         inputs_embeds=reference.embeddings(pixels), return_dict=True
     ).last_hidden_state
     torch.testing.assert_close(actual, expected, atol=1e-6, rtol=1e-6)
-

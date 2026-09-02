@@ -157,4 +157,3 @@ def test_bidirectional_mode_remains_available_as_ablation() -> None:
     )
     assert registers.shape == (1, 4, 8)
     assert patches.shape == (1, 4, 8)
-

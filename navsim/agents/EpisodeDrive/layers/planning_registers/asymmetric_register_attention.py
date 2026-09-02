@@ -148,4 +148,3 @@ def set_read_only_register_sequence_length(
                 f"encoder.layers.{index}.attn"
             )
         attention._planreg_read_only_sequence_length = int(sequence_length)
-
