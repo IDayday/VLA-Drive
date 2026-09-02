@@ -46,6 +46,7 @@ from local_stage2.temporal_consequence_scorer import (
 from local_stage2.train_temporal_consequence_scorer import (
     assign_balanced_log_folds,
     load_full_data_cv_policy,
+    resolve_scheduler_epochs,
 )
 from local_stage2.summarize_temporal_consequence_cv import (
     _console_summary,
@@ -534,6 +535,13 @@ def test_full_data_temporal_training_uses_only_complete_cv_policy(tmp_path: Path
     path.write_text(json.dumps(payload))
     with pytest.raises(ValueError, match="complete cross-validation"):
         load_full_data_cv_policy(path)
+
+
+def test_temporal_locked_replay_preserves_discovery_scheduler_horizon():
+    assert resolve_scheduler_epochs(3, 12) == 12
+    assert resolve_scheduler_epochs(12, None) == 12
+    with pytest.raises(ValueError, match="at least epochs"):
+        resolve_scheduler_epochs(4, 3)
 
 
 def test_cached_navtest_evaluator_accepts_temporal_consequence_artifact(tmp_path: Path):

@@ -96,7 +96,9 @@ materialization fails if it differs from the common epoch. Discovery outputs
 remain preserved but cannot be promoted directly. The resumable
 `watch_temporal_locked_replay_campaign.sh` controller performs the locked
 replay, three full-data seeds and the eight-artifact Navtest audit only after
-those checks pass.
+those checks pass. Replay also preserves the discovery run's 12-epoch cosine
+scheduler horizon even when it stops immediately after the locked epoch; this
+keeps the learning-rate sequence and retained weights exactly reproducible.
 
 ## Strict acceptance rules
 

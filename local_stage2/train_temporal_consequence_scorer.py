@@ -643,6 +643,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fold-seed", type=int, default=20260901)
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=12)
+    parser.add_argument(
+        "--scheduler-epochs",
+        type=int,
+        help=(
+            "Cosine scheduler horizon. Defaults to --epochs. Locked-epoch CV "
+            "replay can stop early while preserving the discovery LR curve."
+        ),
+    )
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--eval-batch-size", type=int, default=128)
     parser.add_argument("--learning-rate", type=float, default=5e-4)
@@ -692,8 +700,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def resolve_scheduler_epochs(epochs: int, scheduler_epochs: Optional[int]) -> int:
+    resolved = scheduler_epochs or epochs
+    if epochs < 1 or resolved < epochs:
+        raise ValueError(
+            "scheduler-epochs must be at least epochs and both must be positive"
+        )
+    return resolved
+
+
 def main() -> None:
     args = parse_args()
+    scheduler_epochs = resolve_scheduler_epochs(args.epochs, args.scheduler_epochs)
     for path in (
         args.source_root,
         args.factor_root,
@@ -798,7 +816,7 @@ def main() -> None:
     )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer,
-        T_max=max(args.epochs, 1),
+        T_max=scheduler_epochs,
         eta_min=args.learning_rate * 0.05,
     )
     generator = torch.Generator().manual_seed(args.seed)
@@ -943,6 +961,7 @@ def main() -> None:
         "best_epoch": best_epoch,
         "retained_epoch": best_epoch,
         "forced_retained_epoch": args.retained_epoch,
+        "scheduler_epochs": scheduler_epochs,
         "fold": fold_payload,
         "source_root": str(args.source_root.resolve()),
         "factor_root": str(args.factor_root.resolve()),

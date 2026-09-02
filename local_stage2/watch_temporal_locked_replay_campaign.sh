@@ -89,9 +89,20 @@ common_epoch="$(
     'import json,sys; x=json.load(open(sys.argv[1])); assert x["fold_audit"]["complete"]; print(int(x["common_epoch"]["epoch"]))' \
     "${discovery_summary}"
 )"
+discovery_scheduler_epochs="$(
+  "${DRIVEVLA_PYTHON}" -c \
+    'import glob,json,sys; paths=glob.glob(sys.argv[1]+"/fold_*/training_results.json"); values={int(json.load(open(p))["metadata"]["training_args"]["epochs"]) for p in paths}; assert len(paths)==5 and len(values)==1; print(values.pop())' \
+    "${discovery_root}"
+)"
 replay_epochs=$((common_epoch + 1))
-printf 'LOCKED_EPOCH %s epoch=%s replay_epochs=%s\n' \
-  "$(date -u +%FT%TZ)" "${common_epoch}" "${replay_epochs}"
+if [[ "${replay_epochs}" -gt "${discovery_scheduler_epochs}" ]]; then
+  printf 'TEMPORAL_EPOCH_ERROR replay=%s scheduler=%s\n' \
+    "${replay_epochs}" "${discovery_scheduler_epochs}" >&2
+  exit 65
+fi
+printf 'LOCKED_EPOCH %s epoch=%s replay_epochs=%s scheduler_epochs=%s\n' \
+  "$(date -u +%FT%TZ)" "${common_epoch}" "${replay_epochs}" \
+  "${discovery_scheduler_epochs}"
 
 launch_replay_fold() {
   local fold="$1"
@@ -122,6 +133,7 @@ launch_replay_fold() {
       --fold-seed 20260901 \
       --seed 2 \
       --epochs "${replay_epochs}" \
+      --scheduler-epochs "${discovery_scheduler_epochs}" \
       --retained-epoch "${common_epoch}" \
       --batch-size 128 \
       --eval-batch-size 256 \
@@ -181,6 +193,7 @@ launch_full_data() {
       --cv-summary "${cv_summary}" \
       --seed "${seed}" \
       --epochs "${replay_epochs}" \
+      --scheduler-epochs "${discovery_scheduler_epochs}" \
       --batch-size 128 \
       --eval-batch-size 256 \
       --device cuda >"${log}" 2>&1
