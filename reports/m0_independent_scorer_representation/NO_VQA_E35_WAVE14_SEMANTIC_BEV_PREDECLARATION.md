@@ -134,3 +134,11 @@ was trained; it does not change the locked validation or promotion policy.
   2.5.1+cu124, CUDA 12.4 and NumPy 1.26.4. The reusable train/post wrappers now
   explicitly resolve the existing `navsim_py39_exact` environment and fail
   closed if a different Python minor version is selected on another host.
+- Before the final fold completed, an audit found that the originally spawned
+  post-processing watcher predated the explicit runtime lock and did not carry
+  `DRIVEVLA_PYTHON` in its environment. It had performed no summary, sweep,
+  refit or Navtest work and was only sleeping on the fold marker. That watcher
+  alone was replaced at 2026-09-02 14:24 UTC; no training process was touched.
+  The replacement process exposes the exact Python 3.9 interpreter and locked
+  compatibility `PYTHONPATH` in `/proc/<pid>/environ` before any post-training
+  computation.
