@@ -29,6 +29,16 @@ strictly measured result that remains fully within the M0-owned constraint is
 still the released M0 Base at `0.909594`; completed replacement scorers have
 not yet improved that full-Navtest score.
 
+The earlier M0-only `R0` experiment should not be confused with either row.
+Starting from the locally reproduced epoch-3 M0 checkpoint, a 1,000-step
+scorer-only ranking objective improved the same-bank full held-out Navtrain
+validation result from `0.913504` (`S0`) to `0.916108` (`R0`), a gain of
+`+0.002604`; its physical-log bootstrap interval crossed zero.  On complete
+Navtest, the paired epoch-3 results were `0.897897` and `0.899193`, respectively
+(`+0.001296`).  R0 therefore was a real within-lineage scorer improvement, but
+it remained `-0.010401` below the released final M0 score of `0.909594` and did
+not establish a new M0 Navtest best.
+
 ## Native proposal-bank comparison
 
 M0 and DrivOR must be compared on their own native proposal banks before
