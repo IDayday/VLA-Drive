@@ -117,6 +117,15 @@ from local_stage2.build_m0_scorer_cv_folds import (
 from local_stage2.summarize_m0_residual_cv import (
     aggregate_fixed_epoch_folds,
 )
+from local_stage2.sweep_m0_conservative_reference_fold import (
+    REFERENCE_POLICY_FIELDS,
+    conservative_reference_policy_grid,
+)
+from local_stage2.summarize_m0_conservative_reference_cv import (
+    aggregate_common_reference_policy,
+    log_cluster_bootstrap_from_sufficient_statistics,
+    materialize_common_policy_artifact,
+)
 from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
 from local_stage2.audit_drivor_representation_dependence import (
     _cross_log_derangement,
@@ -289,6 +298,174 @@ def test_fixed_epoch_cv_gate_requires_every_fold_positive_lower_bound() -> None:
     assert rejected["all_fold_point_deltas_positive"] is True
     assert rejected["all_fold_bootstrap_lowers_positive"] is False
     assert rejected["robust_refit_gate_passed"] is False
+
+
+def test_conservative_reference_policy_grid_is_fixed_and_contains_default() -> None:
+    policies = conservative_reference_policy_grid()
+    assert len(policies) == 192
+    assert [row["policy_id"] for row in policies] == list(range(192))
+    keys = {
+        tuple(row[name] for name in REFERENCE_POLICY_FIELDS) for row in policies
+    }
+    assert len(keys) == len(policies)
+    assert (1, 0.0, 0.1, 0.7) in keys
+    assert {int(row["gain_quantile_index"]) for row in policies} == {0, 1}
+
+
+def test_log_sufficient_statistic_bootstrap_is_deterministic() -> None:
+    statistics = {
+        "log_a": {"scene_count": 2, "delta_sum": 0.03},
+        "log_b": {"scene_count": 1, "delta_sum": -0.002},
+        "log_c": {"scene_count": 3, "delta_sum": 0.06},
+    }
+    first = log_cluster_bootstrap_from_sufficient_statistics(
+        statistics, seed=41, replicates=1000
+    )
+    second = log_cluster_bootstrap_from_sufficient_statistics(
+        statistics, seed=41, replicates=1000
+    )
+    assert first == second
+    assert first[0] < first[1]
+
+
+def _synthetic_reference_cv_payload(
+    fold_index: int,
+    artifact_path,
+) -> dict:
+    default = {
+        "gain_quantile_index": 1,
+        "minimum_lcb_gain": 0.0,
+        "maximum_safety_worse_probability": 0.1,
+        "minimum_safe_improvement_probability": 0.7,
+    }
+    alternative = default | {"minimum_lcb_gain": 0.005}
+    factor_zero = {key: 0.0 for key in FACTOR_KEYS}
+    base_factors = {key: 0.9 for key in FACTOR_KEYS}
+    log_name = f"log_{fold_index}"
+    policies = []
+    for policy_id, policy in enumerate((default, alternative)):
+        delta = (
+            0.01 + 0.001 * fold_index
+            if policy_id == 0
+            else (-0.001 if fold_index == 4 else 0.02)
+        )
+        policies.append(
+            {
+                "policy_id": policy_id,
+                "policy": policy,
+                "scene_count": 10,
+                "physical_log_count": 1,
+                "selected_pdms": 0.9 + delta,
+                "base_selected_pdms": 0.9,
+                "selected_delta": delta,
+                "switch_rate": 0.1 + 0.01 * fold_index,
+                "wins": 2,
+                "losses": 1 if delta > 0 else 2,
+                "ties": 7 if delta > 0 else 6,
+                "factor_delta": factor_zero,
+                "selected_factors": base_factors,
+                "base_selected_factors": base_factors,
+                "per_log_sufficient_statistics": {
+                    log_name: {
+                        "scene_count": 10,
+                        "delta_sum": 10.0 * delta,
+                        "factor_delta_sum": [0.0] * len(FACTOR_KEYS),
+                    }
+                },
+            }
+        )
+    return {
+        "fold_index": fold_index,
+        "num_folds": 5,
+        "artifact_epoch": 7,
+        "selection_source": "no_vqa_e35",
+        "validation_scene_count": 10,
+        "validation_physical_logs": [log_name],
+        "policy_grid_size": 2,
+        "policy_grid": policies,
+        "artifact_policy": default,
+        "artifact": str(artifact_path),
+        "artifact_sha256": "unused-in-pure-aggregation",
+        "split_manifest": f"fold_{fold_index}.json",
+        "split_manifest_sha256": f"split-{fold_index}",
+    }
+
+
+def test_common_reference_policy_requires_one_policy_to_pass_every_fold(
+    tmp_path,
+) -> None:
+    artifact_path = tmp_path / "fold_0.pt"
+    artifact_path.write_bytes(b"source")
+    payloads = [
+        _synthetic_reference_cv_payload(index, artifact_path)
+        for index in range(5)
+    ]
+    summary = aggregate_common_reference_policy(
+        payloads, bootstrap_replicates=100, bootstrap_seed=43
+    )
+    assert summary["robust_refit_gate_passed"] is True
+    assert summary["robust_policy_count"] == 1
+    assert summary["selected_policy_result"]["policy"] == payloads[0][
+        "artifact_policy"
+    ]
+    assert summary["selected_policy_result"][
+        "all_fold_bootstrap_lowers_positive"
+    ] is True
+    assert summary["validation_physical_log_count"] == 5
+
+
+def test_common_reference_materialization_updates_only_deployment_thresholds(
+    tmp_path,
+) -> None:
+    artifact_path = tmp_path / "fold_0.pt"
+    artifact_path.write_bytes(b"source-artifact")
+    payloads = [
+        _synthetic_reference_cv_payload(index, artifact_path)
+        for index in range(5)
+    ]
+    summary = aggregate_common_reference_policy(
+        payloads, bootstrap_replicates=100, bootstrap_seed=47
+    )
+    source = {
+        "architecture": "M0PrivateResidualRanker",
+        "checkpoint_selection_source": "no_vqa_e35",
+        "state_dict": {"weight": torch.tensor([3.0])},
+        "residual_config": {
+            "conservative_reference": True,
+            "gain_quantile_index": 0,
+            "minimum_lcb_gain": -1.0,
+            "maximum_safety_worse_probability": 1.0,
+            "minimum_safe_improvement_probability": 0.0,
+        },
+        "fold_manifest": {
+            "args": {
+                "split_manifest": "fold_0.json",
+                "reference_gain_quantile_index": 0,
+                "reference_minimum_lcb_gain": -1.0,
+                "reference_maximum_safety_worse_probability": 1.0,
+                "reference_minimum_safe_improvement_probability": 0.0,
+            },
+            "residual_config": {},
+        },
+        "validation": {
+            "best_of_64_pdms": 0.99,
+        },
+        "validation_by_source": {
+            "no_vqa_e35": {"best_of_64_pdms": 0.99}
+        },
+    }
+    derived = materialize_common_policy_artifact(
+        source, summary, source_artifact_path=artifact_path
+    )
+    policy = summary["selected_policy_result"]["policy"]
+    for key, value in policy.items():
+        assert derived["residual_config"][key] == value
+    assert derived["state_dict"]["weight"].item() == 3.0
+    assert derived["validation"]["selected_delta"] > 0.0
+    assert derived["policy_selection_uses_navtest"] is False
+    assert derived["cross_validation_selection"][
+        "robust_refit_gate_passed"
+    ] is True
 
 
 def test_cross_log_derangement_never_reuses_physical_log() -> None:
@@ -1976,6 +2153,20 @@ def test_m0_all_log_refit_rejects_training_change_or_navtest_policy() -> None:
     args.safety_negative_weight = 5.0
     selected["policy_selection_uses_navtest"] = True
     with pytest.raises(RuntimeError, match="must not use Navtest"):
+        validate_m0_all_log_refit_provenance(
+            selected, args, private_config, residual_config
+        )
+
+
+def test_m0_all_log_refit_rejects_failed_cross_validation_gate() -> None:
+    selected, args, private_config, residual_config = _m0_all_log_refit_fixture()
+    selected["cross_validation_selection"] = {
+        "fold_count": 5,
+        "robust_refit_gate_passed": False,
+        "worst_fold_bootstrap_95ci_lower": -0.001,
+        "navtest_used_for_selection": False,
+    }
+    with pytest.raises(RuntimeError, match="cross-validation gate did not pass"):
         validate_m0_all_log_refit_provenance(
             selected, args, private_config, residual_config
         )

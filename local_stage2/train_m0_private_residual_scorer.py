@@ -208,6 +208,22 @@ def validate_m0_all_log_refit_provenance(
             raise RuntimeError(
                 "M0 refit calibration was not evaluated on disjoint physical logs"
             )
+    cross_validation = selected.get("cross_validation_selection")
+    if cross_validation is not None:
+        if not isinstance(cross_validation, Mapping):
+            raise RuntimeError("M0 refit cross-validation evidence has wrong schema")
+        if bool(cross_validation.get("navtest_used_for_selection", True)):
+            raise RuntimeError("M0 refit cross-validation must not use Navtest")
+        if not bool(cross_validation.get("robust_refit_gate_passed", False)):
+            raise RuntimeError("M0 refit cross-validation gate did not pass")
+        if int(cross_validation.get("fold_count", 0)) < 2:
+            raise RuntimeError("M0 refit cross-validation has too few folds")
+        if float(
+            cross_validation.get("worst_fold_bootstrap_95ci_lower", 0.0)
+        ) <= 0.0:
+            raise RuntimeError(
+                "M0 refit cross-validation worst-fold lower bound is not positive"
+            )
 
     selected_private_config = selected.get("private_config")
     if not isinstance(selected_private_config, Mapping):

@@ -52,3 +52,30 @@ epoch and deployment policy are frozen; a fresh deterministic model is then
 trained on all 103,288 scenes. Only that provenance-locked refit is eligible
 for complete 12,146-scene FP32 Navtest and online/cache parity. Navtest cannot
 select a fold, epoch, sampler strength, residual scale, gate or ensemble.
+
+## Prospective deployment-policy amendment
+
+Added at `2026-09-02T11:25:39Z`, while fold training was running but before
+any locked epoch-7 result or deployment-threshold sweep existed. At amendment
+time only the default-policy epoch-1 metrics had been observed; those metrics
+were not used to choose the grid or ordering below. This timing is recorded
+explicitly rather than retroactively describing the amendment as part of the
+original predeclaration.
+
+The phrase “deployment policy is frozen” is made stricter as follows: every
+fold first retains its independently trained epoch-7 weights. The same 192
+deployment policies are then evaluated on all five held-out folds:
+
+- gain quantile: q10 or q50 (q90 is excluded as non-conservative);
+- minimum predicted gain: `-0.01, 0, 0.0025, 0.005, 0.01, 0.02`;
+- maximum safety-worse probability: `0.02, 0.05, 0.10, 0.20`;
+- minimum safe-improvement probability: `0.50, 0.70, 0.80, 0.90`.
+
+A common policy is eligible only when all five point deltas and all five
+physical-log bootstrap 95% lower bounds are positive, and each fold's NOC,
+DAC and TTC delta is at least `-0.0005`. Among eligible policies the immutable
+priority is: maximize worst-fold delta, then combined 162-log bootstrap lower
+bound, then scene-weighted delta, then minimize switch rate. Per-fold policy
+selection is forbidden. If no common policy passes, no all-log refit or
+Navtest evaluation is allowed. The fixed original q50/0/0.10/0.70 policy is
+retained as a separate diagnostic.
