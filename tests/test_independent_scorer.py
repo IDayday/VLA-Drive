@@ -2332,6 +2332,77 @@ def test_semantic_bev_is_shared_once_and_candidate_permutation_equivariant() -> 
         )
 
 
+def test_semantic_bev_and_current_actor_cv_are_jointly_shared_and_equivariant() -> None:
+    """The Wave-15 combination may condition consequences, never the world."""
+
+    torch.manual_seed(47)
+    model = IndependentProposalRanker(
+        _small_config(
+            current_actor_auxiliary=True,
+            current_actor_cv_relabeling=True,
+            semantic_bev_auxiliary=True,
+            semantic_bev_fusion=True,
+            semantic_bev_height=4,
+            semantic_bev_width=8,
+            semantic_bev_layers=1,
+        )
+    ).eval()
+    with torch.no_grad():
+        model.semantic_bev_fusion_gate.fill_(1.0)
+        model.shared_future_fusion_gate.fill_(1.0)
+    observations, status, proposals = _inputs()
+    permutation = torch.tensor([3, 5, 1, 0, 4, 2])
+    inverse = torch.argsort(permutation)
+    semantic_calls = 0
+    actor_calls = 0
+
+    def count_semantic(_module, _arguments, _output):
+        nonlocal semantic_calls
+        semantic_calls += 1
+
+    def count_actor(_module, _arguments, _output):
+        nonlocal actor_calls
+        actor_calls += 1
+
+    semantic_handle = model.semantic_bev_decoder.register_forward_hook(
+        count_semantic
+    )
+    actor_handle = model.current_actor_state_head.register_forward_hook(
+        count_actor
+    )
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        permuted = model(observations, status, proposals[:, permutation])
+    semantic_handle.remove()
+    actor_handle.remove()
+
+    assert semantic_calls == 2
+    assert actor_calls == 2
+    for key in (
+        "semantic_bev_tokens",
+        "semantic_map_logits",
+        "semantic_agent_logits",
+        "current_actor_presence_logits",
+        "current_actor_type_logits",
+        "current_actor_state",
+    ):
+        torch.testing.assert_close(reference[key], permuted[key])
+    for key in (
+        "candidate_relative_consequence",
+        "candidate_relative_consequence_token",
+        "semantic_path_token",
+        "candidate_features",
+        "utility",
+        "factor_logits",
+    ):
+        torch.testing.assert_close(
+            reference[key],
+            permuted[key][:, inverse],
+            rtol=1e-5,
+            atol=1e-6,
+        )
+
+
 def test_semantic_bev_zero_gate_preserves_candidate_path_exactly() -> None:
     torch.manual_seed(45)
     model = IndependentProposalRanker(
