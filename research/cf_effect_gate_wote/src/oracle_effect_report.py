@@ -341,11 +341,20 @@ def automatic_verdict(
         verdict = "INTERACTION_MASK_PROXY"
         blocking.append("interaction mask explains the registered fraction of the full gain")
     elif not statuses["full_vs_direct"]:
-        latent = any(
-            comparisons[name].score_ci_lower > 0
+        latent_models = [
+            name
             for name in ("wote_full_vs_direct", "wote_env_vs_direct")
+            if comparisons[name].score_ci_lower > 0
+        ]
+        verdict = (
+            "WOTE_LATENT_SIGNAL_ONLY"
+            if latent_models
+            else "DIRECT_SCORER_SUFFICIENT"
         )
-        verdict = "WOTE_LATENT_SIGNAL_ONLY" if latent else "DIRECT_SCORER_SUFFICIENT"
+        positive.extend(
+            f"{name} significantly outperformed direct current scoring"
+            for name in latent_models
+        )
         blocking.append("full primitive did not outperform direct current scoring")
     elif not statuses["full_vs_static"]:
         if statuses["interaction_conditional"]:

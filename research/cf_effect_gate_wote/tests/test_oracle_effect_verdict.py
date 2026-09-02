@@ -67,6 +67,23 @@ def test_verdict_priority_and_positive_terminal() -> None:
     assert result["candidate_specificity"] == "NOT_RUN"
 
 
+def test_wote_latent_verdict_records_positive_evidence() -> None:
+    failed_full = statuses()
+    failed_full["full_vs_direct"] = False
+    result = automatic_verdict(
+        data_contract_pass=True,
+        probe_contract_pass=True,
+        statuses=failed_full,
+        comparisons=comparisons(),  # type: ignore[arg-type]
+    )
+    assert result["final_verdict"] == "WOTE_LATENT_SIGNAL_ONLY"
+    assert result["scientific_hypothesis_status"] == "PARTIAL"
+    assert result["positive_evidence"] == [
+        "wote_full_vs_direct significantly outperformed direct current scoring",
+        "wote_env_vs_direct significantly outperformed direct current scoring",
+    ]
+
+
 def test_hard_false_safe_and_direction_include_ddc() -> None:
     factors = np.ones((3, 6), dtype=np.float32)
     factors[0, 2] = 0.0
