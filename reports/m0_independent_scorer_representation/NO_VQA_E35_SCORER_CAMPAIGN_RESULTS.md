@@ -190,8 +190,29 @@ wave-1 至 wave-4 的主要失败模式是大量小 progress 收益被少量大�
 scorer-private scene representation、只用冻结 M0 candidate hidden 的容量对照，
 以及 strict/balanced gate。推理仍只使用当前观测、候选、Base factor logits 和
 Base score；训练标签、future 和 PDM 不进入推理。完整 152-test 回归已通过。
-该 wave 正在 `training-vla-zt2` 八卡运行；只有 held-out physical-log bootstrap
-下界大于 0 的 artifact 才会自动进入完整 Navtest。
+
+八个 validation-promoted artifact 均已完成严格完整 Navtest。所有结果使用
+FP32、12,146 scenes、136 logs、每场景 64 条同一 No-VQA proposal、0 invalid；
+8/8 真实 agent/cache parity 通过，proposal 和 score 最大误差均为 `0`。
+
+| 排名 | artifact | validation delta | Navtest PDMS | Navtest delta | 95% CI |
+|---:|---|---:|---:|---:|---:|
+| 1 | private Top-16 q10 strict | +0.000019 | **0.911499** | **+0.000006** | [+0.000000,+0.000021] |
+| 2 | combined Top-16 q10 strict | +0.000003 | 0.911493 | +0.000000 | [+0.000000,+0.000000] |
+| 3 | combined Top-32 q10 strict | +0.000213 | 0.911462 | -0.000032 | [-0.000214,+0.000092] |
+| 4 | combined Top-8 q10 strict | +0.000215 | 0.911447 | -0.000047 | [-0.000239,+0.000085] |
+| 5 | candidate-only Top-16 q10 strict | +0.000038 | 0.911436 | -0.000057 | [-0.000197,+0.000023] |
+| 6 | combined Top-16 q50 strict | +0.006212 | 0.910079 | -0.001415 | [-0.003466,+0.000453] |
+| 7 | combined Top-8 q50 strict | +0.003812 | 0.909331 | -0.002163 | [-0.003745,-0.000734] |
+| 8 | combined Top-16 q10 balanced | +0.004338 | 0.906180 | -0.005313 | [-0.007615,-0.003006] |
+
+表面最佳的 `+0.000006` 仅对应 1 个 scene 从 Base 选择切换且变好，其余
+12,145 scenes 完全相同，不能解释为有实际意义的泛化收益。validation 提升最大的
+q50 Top-16 模型从 `+0.006212` 翻转为 Navtest `-0.001415`；balanced 模型则下降
+`-0.005313`。因此 conservative gate 能把退化压到接近零，但冻结后的 16 个
+M0 scene token 尚未提供足以跨日志泛化的新选择信息。机器可读结果与逐模型
+parity 证据位于
+`reports/m0_independent_scorer_representation/no_vqa_e35_scene_token_wave5_reference_v1/`。
 
 ## wave-6：No-VQA 自有四视角 scorer-private 表征
 

@@ -626,3 +626,21 @@ Base-Top-K 和事后保守阈值即可泛化提升”的假设。
 
 完整 consolidated 结果与当前命令边界见
 [NO_VQA_E35_SCORER_CAMPAIGN_RESULTS.md](NO_VQA_E35_SCORER_CAMPAIGN_RESULTS.md)。
+
+## wave-5 完整 Navtest 收口（2026-09-02 08:46 UTC）
+
+- 8/8 validation-promoted conservative-reference artifact 已完成完整 FP32
+  Navtest：12,146 scenes、136 logs、64 candidates、0 invalid，且 8/8 在线
+  agent/cache parity 通过，proposal/score 最大误差均为 `0`。
+- 最佳值为 `0.911499`，相对 matching No-VQA Base `0.911493` 仅
+  `+0.000006`；它只改变并改善 1 个 scene，其余 12,145 scenes 与 Base 相同，
+  因而不构成有意义的 scorer 改进。
+- validation 提升最大的 q50 Top-16 模型为 `+0.006212`，但 Navtest 为
+  `0.910079`、相对 Base `-0.001415`。balanced gate 在 Navtest 下降
+  `-0.005313`。这再次证明单一 held-out split 的 scorer 增益不能外推到 Navtest。
+- 三个按 validation 锁定的 wave-5 方案正在 `rl-zt4` 使用全部 162 条训练日志
+  refit；完整 Navtest watcher 已就绪。该实验检验 split 方差，但不会修改已锁定
+  架构、epoch 或 gate。
+- 下一条主路径仍是 wave-6：直接使用同一 No-VQA/M0 vision encoder 的当前
+  `CAM_F0/L0/R0/B0` 空间 token，训练 scorer-private perception；不读取 future、
+  evaluator 或 DrivOR 表征。缓存完成后会自动启动 8 个预注册变体。
