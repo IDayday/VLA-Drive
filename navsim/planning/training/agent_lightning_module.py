@@ -570,6 +570,11 @@ class AgentLightningModule(pl.LightningModule):
     def predict_step_drivor(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor], List[str]], batch_idx: int):
         features, targets, tokens = batch
         self.agent.eval()
+        analysis_start = None
+        if self.for_analysis:
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+            analysis_start = time.perf_counter()
         with torch.no_grad():
             if 'mem' in self.agent.name().lower() and self.agent._config.memory_type=="error" and self.agent._config.memory_mode=="infer":
                 predictions=self.agent.traj_forward(features)
@@ -588,6 +593,11 @@ class AgentLightningModule(pl.LightningModule):
                 # if 'mem' in self.agent.name().lower() and self.agent._config.memory_type=="error" and self.agent._config.memory_mode=="infer":
                 #     predictions=self.agent.test_forward(predictions)
             poses = predictions["trajectory"]
+            analysis_latency = None
+            if self.for_analysis:
+                if torch.cuda.is_available():
+                    torch.cuda.synchronize()
+                analysis_latency = time.perf_counter() - analysis_start
             if self.for_viz:
                 all_proposed_trajectories = predictions["proposal_list"]
                 final_trajectories = predictions["proposals"]
@@ -635,6 +645,45 @@ class AgentLightningModule(pl.LightningModule):
                     'target_pose': t_pose,
                 }
 
+        elif self.for_analysis:
+            selected_indices = predictions["pdm_score"].argmax(dim=1)
+            component_probabilities = {
+                name: value.sigmoid().detach().cpu().numpy()
+                for name, value in predictions["pred_logit"].items()
+            }
+            tile_gate = getattr(
+                getattr(self.agent.backbone, "planning_register_adapter", None),
+                "tile_gate",
+                None,
+            )
+            tile_gate_value = (
+                float(torch.tanh(tile_gate).detach().float().mean().cpu().item())
+                if isinstance(tile_gate, torch.Tensor)
+                else float("nan")
+            )
+            semantic_gate = getattr(self.agent.action_head, "semantic_gate", None)
+            semantic_gate_value = (
+                float(torch.sigmoid(semantic_gate).detach().float().mean().cpu().item())
+                if isinstance(semantic_gate, torch.Tensor)
+                else float("nan")
+            )
+            per_sample_latency = float(analysis_latency) / max(1, len(tokens))
+            for index, (pose, token) in enumerate(zip(poses.cpu().numpy(), tokens)):
+                result[token] = {
+                    "trajectory": Trajectory(pose),
+                    "proposals": predictions["proposals"][index].detach().float().cpu().numpy(),
+                    "predicted_log_pdm": predictions["pdm_score"][index].detach().float().cpu().numpy(),
+                    "predicted_pdms": predictions["pred_pdms"][index].detach().float().cpu().numpy(),
+                    "selected_index": int(selected_indices[index].detach().cpu().item()),
+                    "component_probabilities": {
+                        name: values[index]
+                        for name, values in component_probabilities.items()
+                    },
+                    "planning_registers": predictions["planning_registers"][index].detach().float().cpu().numpy(),
+                    "tile_gate": tile_gate_value,
+                    "semantic_gate": semantic_gate_value,
+                    "inference_latency_seconds": per_sample_latency,
+                }
         else:
             for index, (pose, token) in enumerate(zip(poses.cpu().numpy(), tokens)):
                 proposal = Trajectory(pose)

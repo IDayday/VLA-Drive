@@ -345,6 +345,14 @@ def configure_formal_throughput_callback(
     benchmark = cfg.get("throughput_benchmark", {})
     if not bool(benchmark.get("enabled", False)):
         return callbacks
+    # A bounded layout benchmark is not a model-training result. Avoid writing
+    # multi-gigabyte recovery checkpoints when it intentionally stops after
+    # 320 steps.
+    callbacks = [
+        callback
+        for callback in callbacks
+        if not isinstance(callback, (ModelCheckpoint, FormalEpochCheckpointCallback))
+    ]
     if not bool(cfg.get("formal_training", {}).get("enabled", False)):
         raise RuntimeError("Formal throughput benchmark requires formal_training.enabled")
     output_path = benchmark.get("output_path")

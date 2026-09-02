@@ -18,6 +18,8 @@ split: trainval
 cache_path: ${oc.env:NAVSIM_EXP_ROOT}/navsim_cache_nommcv
 use_cache_without_dataset: true # load the training samples from the cache. scene-filter will be ignored
 force_cache_computation: false
+cache_features: true
+cache_targets: true
 pad_datasets_to_global_batch: false # avoids dropping samples when per-rank dataset length is not batch-aligned
 preprocess_images_in_workers: false # decode/resize cached image paths in DataLoader workers
 preprocess_image_dtype: bfloat16

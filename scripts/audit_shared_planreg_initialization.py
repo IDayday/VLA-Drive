@@ -65,6 +65,22 @@ def _load_state(
         not parameter.requires_grad
         for parameter in agent.backbone.model.language_model.parameters()
     )
+    non_ema_parameters = [
+        parameter
+        for name, parameter in agent.named_parameters()
+        if not name.startswith("ema_register_target.")
+    ]
+    non_ema_total = sum(parameter.numel() for parameter in non_ema_parameters)
+    non_ema_trainable = sum(
+        parameter.numel()
+        for parameter in non_ema_parameters
+        if parameter.requires_grad
+    )
+    ema_parameter_count = sum(
+        parameter.numel()
+        for name, parameter in agent.named_parameters()
+        if name.startswith("ema_register_target.")
+    )
     metadata.update(
         {
             "agent_checkpoint_loaded": bool(agent._agent_checkpoint_loaded),
@@ -77,6 +93,11 @@ def _load_state(
             "all_base_internvit_parameters_frozen": frozen_vision_base,
             "all_language_model_parameters_frozen": frozen_llm,
             "ema_initialized_after_shared_restore": agent.ema_register_target is not None,
+            "non_ema_model_parameter_count": non_ema_total,
+            "non_ema_trainable_parameter_count": non_ema_trainable,
+            "non_ema_frozen_parameter_count": non_ema_total - non_ema_trainable,
+            "ema_teacher_parameter_count": ema_parameter_count,
+            "training_object_parameter_count": non_ema_total + ema_parameter_count,
         }
     )
     del agent

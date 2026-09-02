@@ -53,6 +53,12 @@ def test_frozen_upstream_outputs_match(parity_report) -> None:
     )
     assert parity_report["pdm_score_max_abs_diff"] == 0.0
     assert parity_report["selected_indices_equal"]
+    assert set(parity_report["local_core_sha256"]) == {
+        "navsim/agents/EpisodeDrive/action_decoder.py",
+        "navsim/agents/EpisodeDrive/transformer_decoder.py",
+        "navsim/agents/EpisodeDrive/score_module/scorer.py",
+        "navsim/agents/EpisodeDrive/layers/losses/episode_drive_loss.py",
+    }
 
 
 def test_scorer_gradient_routing(parity_report) -> None:

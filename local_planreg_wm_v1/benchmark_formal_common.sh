@@ -6,6 +6,23 @@ PLANREG_REPO_ROOT="$(cd "${PLANREG_SCRIPT_DIR}/.." && pwd)"
 # shellcheck source=../load_env.sh
 source "${PLANREG_REPO_ROOT}/load_env.sh"
 
+_formal_benchmark_assert_idle_local() {
+  local label="$1"
+  local expected="$2"
+  local visible
+  visible="$(nvidia-smi -L | wc -l)"
+  if [[ "${visible}" -lt "${expected}" ]]; then
+    echo "${label} exposes ${visible} GPUs; ${expected} are required" >&2
+    return 2
+  fi
+  local busy
+  busy="$(nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits | sed '/^[[:space:]]*$/d' || true)"
+  if [[ -n "${busy}" ]]; then
+    echo "${label} has active GPU compute processes; refusing to preempt: ${busy}" >&2
+    return 2
+  fi
+}
+
 formal_benchmark_layout() {
   if [[ $# -ne 5 ]]; then
     echo "formal_benchmark_layout LAYOUT GPU_COUNT PER_GPU_BATCH NUM_NODES SCORER_PROCESSES" >&2
@@ -51,7 +68,17 @@ formal_benchmark_layout() {
     echo "Refusing to overwrite benchmark output for ${layout}: ${output_dir} or ${metrics_path}" >&2
     return 2
   fi
+  _formal_benchmark_assert_idle_local "$(hostname)" 8
+  if [[ "${num_nodes}" == "2" ]]; then
+    local peer_for_idle="${PLANREG_PEER_HOST:-training-vla-zt2}"
+    ssh -o BatchMode=yes "${peer_for_idle}" \
+      'visible=$(nvidia-smi -L | wc -l); busy=$(nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits | sed '\''/^[[:space:]]*$/d'\'' || true); [[ "$visible" -ge 8 && -z "$busy" ]]' \
+      || { echo "${peer_for_idle} is unavailable, lacks 8 GPUs, or has an active GPU process" >&2; return 2; }
+  fi
 
+  local base_checkpoint_sha base_config_sha
+  base_checkpoint_sha="$(jq -er '.base.checkpoint_sha256' "${vlm_audit}")"
+  base_config_sha="$(jq -er '.base.config_sha256' "${vlm_audit}")"
   mkdir -p "${output_dir}/run_metadata" "${report_dir}"
   git -C "${PLANREG_REPO_ROOT}" rev-parse HEAD > "${output_dir}/run_metadata/git_commit.txt"
   git -C "${PLANREG_REPO_ROOT}" status --short --branch > "${output_dir}/run_metadata/git_status.txt"
@@ -62,6 +89,8 @@ formal_benchmark_layout() {
   export PLANREG_BASE_VLM_PATH="${base_vlm}"
   export PLANREG_FORMAL_VLM_PATH="${base_vlm}"
   export PLANREG_INITIALIZATION_VARIANT=base
+  export PLANREG_VLM_CHECKPOINT_SHA256="${base_checkpoint_sha}"
+  export PLANREG_VLM_CONFIG_SHA256="${base_config_sha}"
   export PLANREG_SHARED_INIT="${shared_init}"
   export PLANREG_INPUT_CACHE="${input_cache}"
   export PLANREG_OUTPUT_DIR="${output_dir}"
@@ -137,6 +166,8 @@ formal_benchmark_layout() {
       "PLANREG_BASE_VLM_PATH=${base_vlm}"
       "PLANREG_FORMAL_VLM_PATH=${base_vlm}"
       PLANREG_INITIALIZATION_VARIANT=base
+      "PLANREG_VLM_CHECKPOINT_SHA256=${base_checkpoint_sha}"
+      "PLANREG_VLM_CONFIG_SHA256=${base_config_sha}"
       "PLANREG_SHARED_INIT=${shared_init}"
       "PLANREG_INPUT_CACHE=${input_cache}"
       "PLANREG_OUTPUT_DIR=${output_dir}"

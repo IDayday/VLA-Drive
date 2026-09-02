@@ -1,5 +1,25 @@
 # PlanReg-WM-V1
 
+> Formal protocol update (2026-09-02): the authoritative full-training
+> comparison is now Base InternVL3-2B initialization versus Driving-VQA
+> InternVL3-2B initialization, both with world-model loss from step zero,
+> 103,288 trainval records, 27 epochs, planning-primary semantic
+> cross-attention, and a shared bitwise-identical random trainable stack. See
+> `reports/planreg_wm_v1/DUAL_VLM_INITIALIZATION_PROTOCOL.md`,
+> `FORMAL_WORLD_MODEL_TRAINING.md`, and `FEATURE_CACHE_BOUNDARY.md`. The older
+> transition/ablation descriptions below document retained non-formal code and
+> are not used by either formal launcher.
+
+> Formal protocol update (2026-09-02): the authoritative full-training
+> comparison is now Base InternVL3-2B initialization versus Driving-VQA
+> InternVL3-2B initialization, both with world-model loss from step zero,
+> 103,288 trainval records, 27 epochs, planning-primary semantic
+> cross-attention, and a shared bitwise-identical random trainable stack. See
+> `reports/planreg_wm_v1/DUAL_VLM_INITIALIZATION_PROTOCOL.md`,
+> `FORMAL_WORLD_MODEL_TRAINING.md`, and `FEATURE_CACHE_BOUNDARY.md`. The older
+> transition/ablation descriptions below document retained non-formal code and
+> are not used by either formal launcher.
+
 ## Scope
 
 PlanReg-WM-V1 adds action-oriented latent planning state to the existing

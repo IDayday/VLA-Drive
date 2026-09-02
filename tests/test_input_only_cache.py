@@ -1,4 +1,5 @@
 from pathlib import Path
+import importlib.util
 
 from PIL import Image
 import torch
@@ -125,3 +126,28 @@ def test_cached_collate_preserves_dynamic_future_tile_groups(tmp_path: Path):
     assert len(features["future_pixel_values"]) == 2
     assert all(len(group) == 3 for group in features["future_pixel_values"])
     assert targets["future_valid_mask"].shape == (2, 3)
+
+
+def test_input_cache_builder_excludes_incomplete_historical_directories(
+    tmp_path: Path,
+):
+    script = Path("scripts/build_planreg_input_only_cache.py").resolve()
+    spec = importlib.util.spec_from_file_location(script.stem, script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    complete = tmp_path / "log" / "complete"
+    missing_target = tmp_path / "log" / "missing_target"
+    complete.mkdir(parents=True)
+    missing_target.mkdir(parents=True)
+    for path in (complete, missing_target):
+        (path / "feature.gz").touch()
+    (complete / "target.gz").touch()
+    discovered, eligible = module.discover_eligible_token_paths(
+        tmp_path,
+        allowed_logs=None,
+        feature_name="feature",
+        target_name="target",
+    )
+    assert len(discovered) == 2
+    assert eligible == [complete]

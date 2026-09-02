@@ -60,6 +60,12 @@ UPSTREAM_FILES = {
         "e928a06a58d56363ff31bd8664f56a4f27af5b975125ba7c6bdb2d02715f8efb",
     ),
 }
+LOCAL_SCORER_CORE_FILES = (
+    "navsim/agents/EpisodeDrive/action_decoder.py",
+    "navsim/agents/EpisodeDrive/transformer_decoder.py",
+    "navsim/agents/EpisodeDrive/score_module/scorer.py",
+    "navsim/agents/EpisodeDrive/layers/losses/episode_drive_loss.py",
+)
 
 
 def _default_drivor_repo() -> Path:
@@ -382,6 +388,10 @@ def run_audit(drivor_repo: Path, seed: int = 20260901) -> Dict[str, object]:
         "commit": DRIVOR_COMMIT,
         "source_sha256": {
             name: expected for name, (_, expected) in UPSTREAM_FILES.items()
+        },
+        "local_core_sha256": {
+            path: hashlib.sha256((REPO_ROOT / path).read_bytes()).hexdigest()
+            for path in LOCAL_SCORER_CORE_FILES
         },
         "synthetic_shapes": {
             "proposals": list(proposals.shape),

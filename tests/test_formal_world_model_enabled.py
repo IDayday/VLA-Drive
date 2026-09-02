@@ -75,3 +75,16 @@ def test_formal_contract_rejects_no_world_model_ablation(monkeypatch):
             ema=config.ema,
             action_head_config=config.action_head_config,
         )
+
+
+def test_formal_student_deployment_constructs_no_teacher_or_predictor(monkeypatch):
+    monkeypatch.setenv("PLANREG_FORMAL_VLM_PATH", "/tmp/base")
+    monkeypatch.setenv("PLANREG_STUDENT_CHECKPOINT", "/tmp/student.ckpt")
+    with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
+        deploy = compose(config_name="episode_drive_planreg_wm_formal_student")
+    assert deploy.initialization is None
+    assert deploy.checkpoint_path == "/tmp/student.ckpt"
+    assert deploy.world_model.enabled is False
+    assert deploy.ema.enabled is False
+    assert deploy.vlm_config.exact_student_checkpoint is True
+    assert deploy.scene_fusion.mode == "planning_primary_semantic_xattn"

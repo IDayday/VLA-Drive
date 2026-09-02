@@ -90,6 +90,22 @@ def test_ema_update_and_cosine_schedule_are_exact() -> None:
     assert 0.996 < middle < 0.9999
 
 
+def test_online_ema_target_changes_after_student_update() -> None:
+    torch.manual_seed(42)
+    student = _StudentBackbone()
+    teacher = EMARegisterTarget(student)
+    pixels = torch.randn(2, 3, 2, 2)
+    before = teacher(pixels, [1, 1]).clone()
+    with torch.no_grad():
+        for parameter in student.model.vision_model.parameters():
+            parameter.add_(0.25)
+        for parameter in student.planning_register_adapter.parameters():
+            parameter.add_(0.25)
+    teacher.update(student, momentum=0.5)
+    after = teacher(pixels, [1, 1])
+    assert not torch.equal(before, after)
+
+
 def test_ema_student_tile_aggregation_topology_is_identical() -> None:
     student = _StudentBackbone("thumbnail_query_attention")
     teacher = EMARegisterTarget(student)

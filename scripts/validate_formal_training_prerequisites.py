@@ -153,6 +153,10 @@ def main() -> None:
             "Formal input-only cache must contain exactly 103,288 records; "
             f"found {manifest.get('record_count')}"
         )
+    if not bool(manifest.get("required_source_files_complete", False)):
+        raise RuntimeError(
+            "Formal input cache manifest does not prove complete raw input/target sources"
+        )
     if not bool(manifest.get("front_camera_only", False)) or int(
         manifest.get("sensor_camera_count", -1)
     ) != 1:

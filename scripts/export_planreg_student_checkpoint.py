@@ -19,6 +19,9 @@ TRAINING_ONLY_STATE_PREFIXES = (
 )
 TRAINING_ONLY_STATE_NAMES = {
     "_ema_optimizer_step",
+    "_ema_actual_start_momentum",
+    "_ema_actual_end_momentum",
+    "_ema_current_momentum",
     "_world_model_optimizer_step",
     "_world_model_total_optimizer_steps",
 }

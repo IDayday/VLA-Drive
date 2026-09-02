@@ -117,3 +117,18 @@ def test_zero_matching_layers_fails_immediately() -> None:
     vision.encoder.layers = nn.ModuleList()
     with pytest.raises(RuntimeError, match="zero"):
         inject_internvit_qv_lora(vision, rank=32)
+
+
+def test_all_24_formal_blocks_receive_q_and_v_adapter_gradients() -> None:
+    torch.manual_seed(17)
+    vision = _Vision(dim=8, layers=24)
+    inject_internvit_qv_lora(vision, rank=32, dropout=0.0)
+    inputs = torch.randn(2, 5, 8)
+    loss = sum(block.attn.qkv(inputs).square().mean() for block in vision.encoder.layers)
+    loss.backward()
+    for block in vision.encoder.layers:
+        qkv = block.attn.qkv
+        assert qkv.q_lora_b.weight.grad is not None
+        assert qkv.v_lora_b.weight.grad is not None
+        assert torch.isfinite(qkv.q_lora_b.weight.grad).all()
+        assert torch.isfinite(qkv.v_lora_b.weight.grad).all()

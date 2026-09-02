@@ -88,6 +88,30 @@ def _sha(values: Iterable[str]) -> str:
     ).hexdigest()
 
 
+def discover_eligible_token_paths(
+    root: Path,
+    *,
+    allowed_logs,
+    feature_name: str,
+    target_name: str,
+):
+    discovered = sorted(
+        token_path
+        for log_path in root.iterdir()
+        if log_path.is_dir()
+        and (allowed_logs is None or log_path.name in allowed_logs)
+        for token_path in log_path.iterdir()
+        if token_path.is_dir()
+    )
+    eligible = [
+        path
+        for path in discovered
+        if (path / f"{feature_name}.gz").is_file()
+        and (path / f"{target_name}.gz").is_file()
+    ]
+    return discovered, eligible
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cache-root", required=True)
@@ -107,20 +131,35 @@ def main() -> None:
     if not root.is_dir():
         raise FileNotFoundError(root)
     allowed_logs = set(args.logs.split(",")) if args.logs else None
-    token_paths = sorted(
-        token_path
-        for log_path in root.iterdir()
-        if log_path.is_dir()
-        and (allowed_logs is None or log_path.name in allowed_logs)
-        for token_path in log_path.iterdir()
-        if token_path.is_dir()
+    discovered_token_paths, token_paths = discover_eligible_token_paths(
+        root,
+        allowed_logs=allowed_logs,
+        feature_name=args.feature_name,
+        target_name=args.target_name,
     )
+    # Cache roots can contain historical token directories produced with a
+    # different scene filter.  A formal record is eligible only when both raw
+    # input sources are present; never count an empty/stale directory toward
+    # the 103k protocol.
+    skipped_incomplete_count = len(discovered_token_paths) - len(token_paths)
     if args.limit is not None:
         token_paths = token_paths[: args.limit]
     if not token_paths:
         raise RuntimeError("No token directories matched the input-only cache build")
     if args.dry_run:
-        print(json.dumps({"token_count": len(token_paths), "dry_run": True}))
+        print(
+            json.dumps(
+                {
+                    "discovered_token_directory_count": len(
+                        discovered_token_paths
+                    ),
+                    "eligible_record_count": len(token_paths),
+                    "skipped_incomplete_count": skipped_incomplete_count,
+                    "dry_run": True,
+                },
+                sort_keys=True,
+            )
+        )
         return
 
     statuses = []
@@ -158,6 +197,11 @@ def main() -> None:
         "cache_name": INPUT_ONLY_CACHE_NAME,
         "cache_root": str(root),
         "record_count": len(token_paths),
+        "discovered_token_directory_count": len(discovered_token_paths),
+        "skipped_incomplete_count": skipped_incomplete_count,
+        "required_source_files_complete": True,
+        "source_feature_name": args.feature_name,
+        "source_target_name": args.target_name,
         "written_count": statuses.count("written"),
         "existing_count": statuses.count("existing"),
         "log_count": len(logs),

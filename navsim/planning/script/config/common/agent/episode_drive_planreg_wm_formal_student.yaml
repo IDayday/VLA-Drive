@@ -1,0 +1,20 @@
+defaults:
+  - episode_drive_planreg_wm_formal_common
+  - _self_
+
+# Deployment restores the exported full student state. It deliberately does
+# not enter the VLM-only training initialization path or construct EMA/WM.
+initialization: null
+checkpoint_path: ${oc.env:PLANREG_STUDENT_CHECKPOINT}
+stage1_checkpoint_path: null
+
+vlm_config:
+  vlm_path: ${oc.env:PLANREG_FORMAL_VLM_PATH}
+  gradient_checkpointing: false
+  exact_student_checkpoint: true
+
+world_model:
+  enabled: false
+
+ema:
+  enabled: false

@@ -53,10 +53,18 @@ def cache_features(args: List[Dict[str, Union[List[str], DictConfig]]]) -> List[
     )
     logger.info(f"Extracted {len(scene_loader.tokens)} scenarios for thread_id={thread_id}, node_id={node_id}.")
 
+    cache_feature_builders = bool(cfg.get("cache_features", True))
+    cache_target_builders = bool(cfg.get("cache_targets", True))
+    if not cache_feature_builders and not cache_target_builders:
+        raise ValueError("At least one of cache_features/cache_targets must be true")
     dataset = Dataset(
         scene_loader=scene_loader,
-        feature_builders=agent.get_feature_builders(),
-        target_builders=agent.get_target_builders(),
+        feature_builders=(
+            agent.get_feature_builders() if cache_feature_builders else []
+        ),
+        target_builders=(
+            agent.get_target_builders() if cache_target_builders else []
+        ),
         cache_path=cfg.cache_path,
         force_cache_computation=cfg.force_cache_computation,
     )

@@ -8,6 +8,10 @@ from pathlib import Path
 import pytest
 import torch
 
+from navsim.agents.EpisodeDrive.drivevla_backbone import (
+    load_exact_student_checkpoint_with_audit,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,6 +39,9 @@ def _training_checkpoint():
             "agent.ema_register_target.vision_model.weight": torch.randn(2, 2),
             "agent.future_register_predictor.residual_output.weight": torch.randn(4, 4),
             "agent._ema_optimizer_step": torch.tensor(9),
+            "agent._ema_actual_start_momentum": torch.tensor(0.996),
+            "agent._ema_actual_end_momentum": torch.tensor(0.9999),
+            "agent._ema_current_momentum": torch.tensor(0.997),
             "agent._world_model_optimizer_step": torch.tensor(9),
             "agent._world_model_total_optimizer_steps": torch.tensor(100),
         },
@@ -78,7 +85,7 @@ def test_student_export_strips_training_state_and_writes_manifest(tmp_path) -> N
 
     assert manifest["source_checkpoint_sha256"] == _sha256(source)
     assert manifest["export_checkpoint_sha256"] == _sha256(output)
-    assert manifest["removed_key_count"] == 5
+    assert manifest["removed_key_count"] == 8
     assert manifest["retained_key_count"] == 4
     assert manifest["source_git_commit"] == "deadbeef"
     assert manifest["resolved_architecture_config"]["vlm_config"]["vlm_type"] == "internvl"
@@ -90,6 +97,25 @@ def test_student_verifier_rejects_training_checkpoint() -> None:
     module = _load_export_module()
     with pytest.raises(RuntimeError, match="not student-only"):
         module.verify_student_checkpoint_payload(_training_checkpoint())
+
+
+def test_exact_student_loader_requires_identical_topology_and_values() -> None:
+    source = torch.nn.Sequential(torch.nn.Linear(3, 4), torch.nn.LayerNorm(4))
+    target = torch.nn.Sequential(torch.nn.Linear(3, 4), torch.nn.LayerNorm(4))
+    prefixed = {
+        f"agent.{key}": value.clone() for key, value in source.state_dict().items()
+    }
+    audit = load_exact_student_checkpoint_with_audit(target, prefixed)
+    assert audit["missing_keys"] == []
+    assert audit["unexpected_keys"] == []
+    assert audit["legacy_lora_scale_applied"] is False
+    for key, value in source.state_dict().items():
+        torch.testing.assert_close(value, target.state_dict()[key], rtol=0, atol=0)
+
+    incomplete = dict(prefixed)
+    incomplete.pop(next(iter(incomplete)))
+    with pytest.raises(RuntimeError, match="Exact formal student"):
+        load_exact_student_checkpoint_with_audit(target, incomplete)
 
 
 def test_export_refuses_to_overwrite_source(tmp_path) -> None:

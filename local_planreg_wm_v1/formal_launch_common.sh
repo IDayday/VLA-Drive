@@ -249,6 +249,16 @@ formal_launch() {
     return 0
   fi
 
+  _formal_assert_idle_gpus "$(hostname)" "${devices_per_node}"
+  if [[ "${num_nodes}" -eq 2 ]]; then
+    if [[ "$(hostname)" != *"vla-zt-worker-0"* || "$(hostname)" == *"vla-zt2"* ]]; then
+      echo "A 16-GPU formal run must be coordinated from training-vla-zt" >&2
+      return 2
+    fi
+    ssh -o BatchMode=yes "${PLANREG_PEER_HOST:-training-vla-zt2}" \
+      "nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits | sed '/^[[:space:]]*$/d' | grep -q . && exit 42 || test \$(nvidia-smi -L | wc -l) -ge ${devices_per_node}"
+  fi
+
   mkdir -p "${output_dir}/run_metadata"
   if [[ -z "${RESUME_CHECKPOINT:-}" ]]; then
     cp "${preflight_identity}" "${output_dir}/run_metadata/formal_run_identity.json"
@@ -270,16 +280,6 @@ formal_launch() {
   env | LC_ALL=C sort | sed -E \
     's/^([^=]*(TOKEN|SECRET|PASSWORD|API_KEY)[^=]*)=.*/\1=<redacted>/I' \
     > "${output_dir}/run_metadata/environment.txt"
-
-  _formal_assert_idle_gpus "$(hostname)" "${devices_per_node}"
-  if [[ "${num_nodes}" -eq 2 ]]; then
-    if [[ "$(hostname)" != *"vla-zt-worker-0"* || "$(hostname)" == *"vla-zt2"* ]]; then
-      echo "A 16-GPU formal run must be coordinated from training-vla-zt" >&2
-      return 2
-    fi
-    ssh -o BatchMode=yes "${PLANREG_PEER_HOST:-training-vla-zt2}" \
-      "nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits | sed '/^[[:space:]]*$/d' | grep -q . && exit 42 || test \$(nvidia-smi -L | wc -l) -ge ${devices_per_node}"
-  fi
 
   local training_hydra_args=(
     --config-name=formal_planreg_wm_training

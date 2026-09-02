@@ -16,6 +16,8 @@
 import logging
 import os
 import pickle
+import hashlib
+import json
 import traceback
 import uuid
 from dataclasses import fields
@@ -49,6 +51,107 @@ logger = logging.getLogger(__name__)
 
 CONFIG_PATH = "config/pdm_scoring"
 CONFIG_NAME = "default_run_pdm_score_gpu"
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def save_formal_candidate_bank(
+    predictions: Dict[str, Dict[str, Any]],
+    token_order: List[str],
+    output_path: Path,
+) -> Dict[str, Any]:
+    """Persist current-frame model outputs once; official scoring is separate."""
+    ordered_tokens = [token for token in token_order if token in predictions]
+    if len(ordered_tokens) != len(predictions):
+        raise RuntimeError("Candidate-bank token ordering is incomplete")
+    component_names = (
+        "no_at_fault_collisions",
+        "drivable_area_compliance",
+        "time_to_collision_within_bound",
+        "ego_progress",
+        "driving_direction_compliance",
+        "comfort",
+    )
+    component_probabilities = np.stack(
+        [
+            np.stack(
+                [
+                    predictions[token]["component_probabilities"][name]
+                    for name in component_names
+                ],
+                axis=-1,
+            )
+            for token in ordered_tokens
+        ]
+    )
+    arrays = {
+        "tokens": np.asarray(ordered_tokens),
+        "proposals": np.stack(
+            [predictions[token]["proposals"] for token in ordered_tokens]
+        ).astype(np.float32),
+        "predicted_log_pdm": np.stack(
+            [predictions[token]["predicted_log_pdm"] for token in ordered_tokens]
+        ).astype(np.float32),
+        "predicted_pdms": np.stack(
+            [predictions[token]["predicted_pdms"] for token in ordered_tokens]
+        ).astype(np.float32),
+        "selected_indices": np.asarray(
+            [predictions[token]["selected_index"] for token in ordered_tokens],
+            dtype=np.int64,
+        ),
+        "component_probabilities": component_probabilities.astype(np.float32),
+        "component_names": np.asarray(component_names),
+        "planning_registers": np.stack(
+            [predictions[token]["planning_registers"] for token in ordered_tokens]
+        ).astype(np.float32),
+        "tile_gate": np.asarray(
+            [predictions[token]["tile_gate"] for token in ordered_tokens],
+            dtype=np.float32,
+        ),
+        "semantic_gate": np.asarray(
+            [predictions[token]["semantic_gate"] for token in ordered_tokens],
+            dtype=np.float32,
+        ),
+        "inference_latency_seconds": np.asarray(
+            [
+                predictions[token]["inference_latency_seconds"]
+                for token in ordered_tokens
+            ],
+            dtype=np.float64,
+        ),
+    }
+    if arrays["proposals"].shape[1:] != (64, 8, 3):
+        raise RuntimeError(
+            "Formal candidate bank requires exactly [scene,64,8,3], got "
+            f"{arrays['proposals'].shape}"
+        )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output_path.with_suffix(output_path.suffix + ".tmp")
+    with temporary.open("wb") as stream:
+        np.savez_compressed(stream, **arrays)
+    temporary.replace(output_path)
+    manifest = {
+        "schema_version": 1,
+        "candidate_bank": str(output_path.resolve()),
+        "candidate_bank_sha256": _sha256(output_path),
+        "scene_count": len(ordered_tokens),
+        "candidate_count": 64,
+        "poses_per_candidate": 8,
+        "state_size": 3,
+        "inference_uses_future_inputs": False,
+        "official_candidate_scores_in_bank": False,
+    }
+    manifest_path = output_path.with_suffix(output_path.suffix + ".manifest.json")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return manifest
 
 def run_pdm_score(args: List[Dict[str, Union[List[str], DictConfig]]]) -> List[pd.DataFrame]:
     """
@@ -150,7 +253,10 @@ def main(cfg: DictConfig) -> None:
     dataloader = DataLoader(dataset, **cfg.dataloader.params, shuffle=False)
     trainer = pl.Trainer(**cfg.trainer.params)
     predictions = trainer.predict(
-        AgentLightningModule(agent=agent),
+        AgentLightningModule(
+            agent=agent,
+            for_analysis=bool(cfg.get("candidate_analysis", False)),
+        ),
         dataloader,
         return_predictions=True
     )
@@ -176,6 +282,19 @@ def main(cfg: DictConfig) -> None:
             merged_predictions.update(d)
 
     pickle.dump(merged_predictions, open(dump_path, 'wb'))
+
+    if bool(cfg.get("candidate_analysis", False)):
+        candidate_path = cfg.get("candidate_artifact_path")
+        if not candidate_path:
+            raise ValueError(
+                "candidate_analysis=true requires candidate_artifact_path"
+            )
+        manifest = save_formal_candidate_bank(
+            merged_predictions,
+            list(scene_loader_inference.tokens),
+            Path(str(candidate_path)).expanduser().resolve(),
+        )
+        logger.info("Formal candidate bank: %s", json.dumps(manifest, sort_keys=True))
 
     data_points = [
         {

@@ -37,6 +37,7 @@ from .utils.utils import build_drivevla_questions, build_from_configs
 from .drivevla_features import DriveVLAFeatureBuilder ,TrajectoryTargetBuilder
 from .drivevla_backbone import (
     DriveVLABackbone,
+    load_exact_student_checkpoint_with_audit,
     load_legacy_checkpoint_with_planreg_audit,
 )
 from .formal_initialization import (
@@ -977,6 +978,13 @@ class DriveVLABaseAgent(AbstractAgent):
 
         if self.checkpoint_path:
             ckpt = torch.load(self.checkpoint_path, map_location="cpu")["state_dict"]
+            exact_student_checkpoint = bool(
+                getattr(self.vlm_config, "exact_student_checkpoint", False)
+            )
+            if exact_student_checkpoint and self.world_model_enabled:
+                raise RuntimeError(
+                    "Exact student deployment cannot enable the world model or EMA"
+                )
             if self.world_model_enabled and any(
                 _key.startswith("agent.ema_register_target.")
                 or _key.startswith("ema_register_target.")
@@ -986,11 +994,14 @@ class DriveVLABaseAgent(AbstractAgent):
                 # exact training-only topology so strict restoration can load
                 # it; legacy/base checkpoints initialize EMA after student load.
                 self._initialize_ema_register_target()
-            load_legacy_checkpoint_with_planreg_audit(
-                self,
-                ckpt,
-                legacy_lora_scale=2.0,
-            )
+            if exact_student_checkpoint:
+                load_exact_student_checkpoint_with_audit(self, ckpt)
+            else:
+                load_legacy_checkpoint_with_planreg_audit(
+                    self,
+                    ckpt,
+                    legacy_lora_scale=2.0,
+                )
             self._agent_checkpoint_loaded = True
             print(f"✅ Agent loaded from checkpoint: {self.checkpoint_path}")
         elif self.stage1_checkpoint_path:

@@ -129,6 +129,17 @@ def main() -> None:
         source_git_commit=git_commit,
     )
     artifact_path = Path(args.output).expanduser().resolve()
+    non_ema_parameters = [
+        parameter
+        for name, parameter in agent.named_parameters()
+        if not name.startswith("ema_register_target.")
+    ]
+    non_ema_total = sum(parameter.numel() for parameter in non_ema_parameters)
+    non_ema_trainable = sum(
+        parameter.numel()
+        for parameter in non_ema_parameters
+        if parameter.requires_grad
+    )
     metadata.update(
         {
             "artifact_path": str(artifact_path),
@@ -137,6 +148,9 @@ def main() -> None:
             "vision_qv_adapter_count": len(qv_modules) * 2,
             "vision_qv_ab_linear_count": qv_linear_count,
             "vision_qv_lora_parameter_count": qv_parameter_count,
+            "non_ema_model_parameter_count": non_ema_total,
+            "non_ema_trainable_parameter_count": non_ema_trainable,
+            "non_ema_frozen_parameter_count": non_ema_total - non_ema_trainable,
             "agent_checkpoint_loaded": False,
             "ema_initialized_during_creation": False,
             "paired_runtime_bitwise_verification": "required_before_launch",

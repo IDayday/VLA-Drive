@@ -42,6 +42,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--sensor-blobs-path", type=Path, required=True)
     parser.add_argument("--split", default="navtrain")
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument(
+        "--formal",
+        action="store_true",
+        help="Use the exact student-only formal topology and strict loader",
+    )
     return parser.parse_args()
 
 
@@ -50,9 +55,14 @@ def _compose_config(args: argparse.Namespace) -> DictConfig:
         Path(__file__).resolve().parents[1]
         / "navsim/planning/script/config/training"
     )
+    agent_config = (
+        "episode_drive_planreg_wm_formal_student"
+        if args.formal
+        else "episode_drive_planreg_wm_v1"
+    )
     overrides = [
         f"train_test_split={args.split}",
-        "agent=episode_drive_planreg_wm_v1",
+        f"agent={agent_config}",
         f"agent.checkpoint_path={args.checkpoint.resolve()}",
         "agent.stage1_checkpoint_path=null",
         f"agent.vlm_config.vlm_path={args.vlm_path.resolve()}",
@@ -85,6 +95,18 @@ def _batch_features(features: Dict[str, object]) -> Dict[str, object]:
     return batched
 
 
+def _to_device(value, device: torch.device):
+    if isinstance(value, torch.Tensor):
+        return value.to(device=device, non_blocking=True)
+    if isinstance(value, dict):
+        return {key: _to_device(item, device) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_to_device(item, device) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_to_device(item, device) for item in value)
+    return value
+
+
 def main() -> None:
     args = _parse_args()
     if not torch.cuda.is_available() or not str(args.device).startswith("cuda"):
@@ -97,6 +119,9 @@ def main() -> None:
     os.environ.setdefault("DRIVEVLA_SCORE_RAY", "0")
     os.environ.setdefault("DRIVEVLA_SCORE_PROCESSES", "0")
     os.environ.setdefault("LOCAL_RANK", str(torch.device(args.device).index or 0))
+    if args.formal:
+        os.environ["PLANREG_STUDENT_CHECKPOINT"] = str(checkpoint)
+        os.environ["PLANREG_FORMAL_VLM_PATH"] = str(args.vlm_path.resolve())
 
     cfg = _compose_config(args)
     agent = instantiate(cfg.agent)
@@ -120,7 +145,9 @@ def main() -> None:
         raise RuntimeError("No validation scene is available for deployment smoke")
     features, targets = val_data[0]
     future_keys_in_target = sorted(FUTURE_ONLY_KEYS.intersection(targets))
-    runtime_features = _batch_features(features)
+    runtime_features = _to_device(
+        _batch_features(features), torch.device(args.device)
+    )
     if FUTURE_ONLY_KEYS.intersection(runtime_features):
         raise AssertionError("Future-only keys leaked into deployment inference")
 
@@ -144,6 +171,7 @@ def main() -> None:
         "future_predictor_constructed": False,
         "ema_teacher_constructed": False,
         "runtime_future_keys": [],
+        "exact_formal_student_loader": bool(args.formal),
         "target_future_keys_present_but_unused": future_keys_in_target,
         "train_log_count": protocol["train_log_count"],
         "val_log_count": protocol["val_log_count"],

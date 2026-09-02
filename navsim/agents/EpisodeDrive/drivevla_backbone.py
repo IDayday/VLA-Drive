@@ -78,6 +78,55 @@ def _normalized_checkpoint_key(key: str) -> str:
     return key[len("agent."):] if key.startswith("agent.") else key
 
 
+def load_exact_student_checkpoint_with_audit(
+    module: nn.Module,
+    source_state: Mapping[str, torch.Tensor],
+) -> Dict[str, object]:
+    """Restore an exported PlanReg student without legacy key allowances.
+
+    Formal deployment checkpoints have the same student topology as the
+    inference model. Unlike historical M0 migration, every tensor must match
+    exactly and no PEFT delta may be folded or rescaled.
+    """
+    normalized_source: Dict[str, torch.Tensor] = {}
+    for original_key, value in source_state.items():
+        normalized = _normalized_checkpoint_key(str(original_key))
+        if normalized in normalized_source:
+            raise RuntimeError(
+                "Student checkpoint key collision after removing agent prefix: "
+                f"{normalized}"
+            )
+        normalized_source[normalized] = value
+
+    target_state = module.state_dict()
+    missing = sorted(set(target_state) - set(normalized_source))
+    unexpected = sorted(set(normalized_source) - set(target_state))
+    shape_errors = sorted(
+        f"{key}: checkpoint={tuple(normalized_source[key].shape)}, "
+        f"model={tuple(target_state[key].shape)}"
+        for key in set(target_state).intersection(normalized_source)
+        if normalized_source[key].shape != target_state[key].shape
+    )
+    audit: Dict[str, object] = {
+        "source_key_count": len(normalized_source),
+        "target_key_count": len(target_state),
+        "missing_keys": missing,
+        "unexpected_keys": unexpected,
+        "shape_errors": shape_errors,
+        "legacy_lora_merge_applied": False,
+        "legacy_lora_scale_applied": False,
+    }
+    print("EXACT_STUDENT_CHECKPOINT_AUDIT " + json.dumps(audit, sort_keys=True))
+    if missing or unexpected or shape_errors:
+        raise RuntimeError(
+            "Exact formal student checkpoint audit failed: "
+            f"missing={missing[:16]}, unexpected={unexpected[:16]}, "
+            f"shape_errors={shape_errors[:16]}"
+        )
+    module.load_state_dict(normalized_source, strict=True)
+    return audit
+
+
 def _target_key_candidates(key: str) -> List[str]:
     candidates = [key]
     if key.startswith("backbone.base_model.model."):
@@ -694,14 +743,24 @@ class DriveVLABackbone(nn.Module):
         tile_metadata: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Return LLM hidden states plus InternViT-internal scene registers."""
-        vision_timer = self._formal_phase_timer.start("student_vision_time")
+        phase_timer = getattr(self, "_formal_phase_timer", None)
+        vision_timer = (
+            phase_timer.start("student_vision_time")
+            if phase_timer is not None
+            else None
+        )
         planning_output = self.encode_internvl_planning_vision(
             pixel_values,
             num_patches_list,
             tile_metadata,
         )
-        self._formal_phase_timer.stop(vision_timer)
-        language_timer = self._formal_phase_timer.start("frozen_llm_time")
+        if phase_timer is not None:
+            phase_timer.stop(vision_timer)
+        language_timer = (
+            phase_timer.start("frozen_llm_time")
+            if phase_timer is not None
+            else None
+        )
         language_output = self._forward_semantic_language_path(
             planning_output.patch_features,
             input_ids,
@@ -709,7 +768,8 @@ class DriveVLABackbone(nn.Module):
             position_ids,
             image_flags,
         )
-        self._formal_phase_timer.stop(language_timer)
+        if phase_timer is not None:
+            phase_timer.stop(language_timer)
         hidden_states = getattr(language_output, "hidden_states", None)
         if not hidden_states:
             raise RuntimeError(
@@ -723,7 +783,8 @@ class DriveVLABackbone(nn.Module):
         }
 
     def consume_formal_timings(self) -> Dict[str, float]:
-        return self._formal_phase_timer.consume()
+        phase_timer = getattr(self, "_formal_phase_timer", None)
+        return {} if phase_timer is None else phase_timer.consume()
     
     def forward(
         self,
