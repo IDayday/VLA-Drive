@@ -517,6 +517,11 @@ class M0PrivateResidualRanker(nn.Module):
             "shared_future_fusion_gate",
             "trajectory_observation_token",
             "trajectory_observation_gate",
+            "semantic_bev_tokens",
+            "semantic_map_logits",
+            "semantic_agent_logits",
+            "semantic_path_token",
+            "semantic_bev_fusion_gate",
         ):
             if key in private:
                 result[key] = private[key]

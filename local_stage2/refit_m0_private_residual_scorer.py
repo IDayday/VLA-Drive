@@ -76,6 +76,7 @@ _SCALAR_ARGUMENTS = (
     "reference_factor_epsilon",
     "shared_future_weight",
     "current_actor_weight",
+    "semantic_bev_weight",
     "candidate_relative_weight",
     "safety_negative_weight",
     "factor_loss_scope",
@@ -93,10 +94,12 @@ _BOOLEAN_ARGUMENTS = (
     "shared_future_constant_velocity_residual",
     "trajectory_observation_attention",
     "current_actor_cv_relabeling",
+    "semantic_bev_fusion",
 )
 _OPTIONAL_PATH_ARGUMENTS = (
     "private_observation_root",
     "current_actor_target_root",
+    "semantic_bev_target_root",
     "shared_future_target_root",
 )
 _LEGACY_DEFAULTS = {
@@ -122,6 +125,8 @@ _LEGACY_DEFAULTS = {
     "reference_minimum_improvement_target": 0.005,
     "reference_factor_epsilon": 1.0e-6,
     "current_actor_cv_relabeling": False,
+    "semantic_bev_weight": 0.0,
+    "semantic_bev_fusion": False,
     "scene_sampling_mode": "log_balanced",
     "risk_scene_max_multiplier": 4.0,
 }

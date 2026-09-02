@@ -25,11 +25,13 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     candidate_relative_consequence_loss,
     conservative_reference_selection_scores,
     current_actor_auxiliary_loss,
+    deterministic_bilinear_sample_2d,
     episode_drive_factor_loss,
     factor_prediction_loss,
     masked_pinball_quantile_loss,
     normalize_current_actor_targets,
     pdms_factor_log_utility,
+    semantic_bev_auxiliary_loss,
     shared_future_auxiliary_loss,
     top_heavy_listwise_loss,
     top_regret_rank_loss,
@@ -85,6 +87,7 @@ from local_stage2.train_m0_private_residual_scorer import (
     build_m0_training_sampler,
     compute_residual_training_loss,
     evaluate_residual_predictions_by_source,
+    load_semantic_bev_target_table,
     load_shared_future_target_table,
     validate_m0_all_log_refit_provenance,
 )
@@ -110,6 +113,9 @@ from local_stage2.build_m0_native_promotion_manifest import (
 )
 from local_stage2.build_full_current_actor_target_cache import (
     aggregate as aggregate_full_current_actor_targets,
+)
+from local_stage2.build_full_current_semantic_bev_target_cache import (
+    foreground_preserving_pool,
 )
 from local_stage2.build_m0_scorer_cv_folds import (
     assign_risk_stratified_log_folds,
@@ -2252,6 +2258,153 @@ def test_trajectory_observation_attention_zero_gate_is_exact_noop() -> None:
     )
 
 
+def test_semantic_bev_requires_auxiliary_branch_for_path_fusion() -> None:
+    with pytest.raises(ValueError, match="requires the semantic-BEV branch"):
+        _small_config(semantic_bev_fusion=True)
+
+
+def test_deterministic_bilinear_sampler_matches_grid_sample_and_backpropagates() -> None:
+    torch.manual_seed(300)
+    raster = torch.randn(2, 5, 4, 7, requires_grad=True)
+    grid = torch.empty(2, 3, 8, 2).uniform_(-1.0, 1.0).requires_grad_()
+    expected = torch.nn.functional.grid_sample(
+        raster,
+        grid,
+        mode="bilinear",
+        padding_mode="zeros",
+        align_corners=False,
+    )
+    actual = deterministic_bilinear_sample_2d(raster, grid)
+    torch.testing.assert_close(actual, expected, rtol=1e-6, atol=1e-6)
+
+    loss = actual.square().mean()
+    loss.backward()
+    assert raster.grad is not None and torch.isfinite(raster.grad).all()
+    assert grid.grad is not None and torch.isfinite(grid.grad).all()
+
+
+def test_semantic_bev_is_shared_once_and_candidate_permutation_equivariant() -> None:
+    torch.manual_seed(44)
+    model = IndependentProposalRanker(
+        _small_config(
+            semantic_bev_auxiliary=True,
+            semantic_bev_fusion=True,
+            semantic_bev_height=4,
+            semantic_bev_width=8,
+            semantic_bev_layers=1,
+        )
+    ).eval()
+    with torch.no_grad():
+        model.semantic_bev_fusion_gate.fill_(1.0)
+    observations, status, proposals = _inputs()
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    calls = 0
+
+    def count_call(_module, _arguments, _output):
+        nonlocal calls
+        calls += 1
+
+    handle = model.semantic_bev_decoder.register_forward_hook(count_call)
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        permuted = model(observations, status, proposals[:, permutation])
+    handle.remove()
+    assert calls == 2
+    for key in (
+        "semantic_bev_tokens",
+        "semantic_map_logits",
+        "semantic_agent_logits",
+    ):
+        torch.testing.assert_close(reference[key], permuted[key])
+    for key in (
+        "utility",
+        "coarse_utility",
+        "factor_logits",
+        "semantic_path_token",
+        "candidate_features",
+    ):
+        torch.testing.assert_close(
+            reference[key],
+            permuted[key][:, inverse],
+            rtol=1e-5,
+            atol=1e-6,
+        )
+
+
+def test_semantic_bev_zero_gate_preserves_candidate_path_exactly() -> None:
+    torch.manual_seed(45)
+    model = IndependentProposalRanker(
+        _small_config(
+            semantic_bev_auxiliary=True,
+            semantic_bev_fusion=True,
+            semantic_bev_height=4,
+            semantic_bev_width=8,
+            semantic_bev_layers=1,
+        )
+    ).eval()
+    observations, status, proposals = _inputs()
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        for parameter in model.semantic_path_projection.parameters():
+            parameter.add_(10.0 * torch.randn_like(parameter))
+        perturbed = model(observations, status, proposals)
+    assert reference["semantic_bev_fusion_gate"].item() == 0.0
+    torch.testing.assert_close(
+        reference["candidate_features"],
+        perturbed["candidate_features"],
+        rtol=0,
+        atol=0,
+    )
+
+
+def test_semantic_bev_auxiliary_loss_is_masked_and_differentiable() -> None:
+    torch.manual_seed(46)
+    model = IndependentProposalRanker(
+        _small_config(
+            semantic_bev_auxiliary=True,
+            semantic_bev_fusion=True,
+            semantic_bev_height=4,
+            semantic_bev_width=8,
+            semantic_bev_layers=1,
+        )
+    )
+    observations, status, proposals = _inputs()
+    output = model(observations, status, proposals)
+    target_map = torch.zeros_like(output["semantic_map_logits"], dtype=torch.bool)
+    target_agent = torch.zeros_like(
+        output["semantic_agent_logits"], dtype=torch.bool
+    )
+    target_map[0, :, 1, 2] = True
+    target_agent[0, :, 2, 3] = True
+    losses = semantic_bev_auxiliary_loss(
+        output,
+        target_map,
+        target_agent,
+        torch.tensor([True, False]),
+    )
+    assert torch.isfinite(losses["total"])
+    assert 0.0 <= losses["map_iou"].item() <= 1.0
+    assert 0.0 <= losses["agent_iou"].item() <= 1.0
+    losses["total"].backward()
+    assert model.semantic_bev_queries.grad is not None
+    assert model.semantic_map_head.weight.grad is not None
+    assert model.semantic_agent_head.weight.grad is not None
+
+
+def test_semantic_bev_pool_preserves_single_foreground_pixels() -> None:
+    labels = np.zeros((128, 256), dtype=np.uint8)
+    labels[7, 7] = 1
+    labels[-1, -1] = 2
+    pooled = foreground_preserving_pool(
+        labels,
+        (labels == 1, labels == 2),
+    )
+    assert pooled.shape == (2, 16, 32)
+    assert pooled[0, 0, 0]
+    assert pooled[1, -1, -1]
+
+
 def test_current_actor_auxiliary_is_candidate_independent_and_masked() -> None:
     torch.manual_seed(46)
     model = IndependentProposalRanker(
@@ -2329,6 +2482,64 @@ def test_shared_future_auxiliary_is_candidate_independent_and_masked() -> None:
     assert model.shared_future_presence_head.weight.grad is not None
     assert model.shared_future_type_head.weight.grad is not None
     assert model.shared_future_state_head.weight.grad is not None
+
+
+def test_semantic_bev_target_table_is_training_only_and_ordered(tmp_path) -> None:
+    import hashlib
+    import pandas as pd
+
+    map_targets = np.zeros((2, 3, 16, 32), dtype=bool)
+    agent_targets = np.zeros((2, 2, 16, 32), dtype=bool)
+    map_targets[0, 0, 1, 2] = True
+    map_targets[1, 2, 3, 4] = True
+    agent_targets[0, 0, 5, 6] = True
+    agent_targets[1, 1, 7, 8] = True
+    np.save(tmp_path / "map_targets.npy", map_targets)
+    np.save(tmp_path / "agent_targets.npy", agent_targets)
+    np.save(tmp_path / "completed.npy", np.ones(2, dtype=bool))
+    pd.DataFrame(
+        {
+            "scene_token": ["row-one", "row-zero"],
+            "scene_index": [1, 0],
+            "target_preflight_available": [True, True],
+        }
+    ).to_parquet(tmp_path / "scene_metadata.parquet", index=False)
+
+    def digest(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    (tmp_path / "MANIFEST.json").write_text(
+        json.dumps(
+            {
+                "current_observation_only": True,
+                "depends_on_logged_future": False,
+                "training_only_target": True,
+                "available_as_model_input_at_inference": False,
+                "future_or_evaluator_input": False,
+                "coordinate_frame": "current_ego",
+                "bev_height": 16,
+                "bev_width": 32,
+                "map_channels": ["road", "walkway", "centerline"],
+                "agent_channels": ["vehicle", "pedestrian"],
+                "array_sha256": {
+                    "map_targets.npy": digest(tmp_path / "map_targets.npy"),
+                    "agent_targets.npy": digest(tmp_path / "agent_targets.npy"),
+                    "completed.npy": digest(tmp_path / "completed.npy"),
+                },
+                "metadata_sha256": digest(tmp_path / "scene_metadata.parquet"),
+            }
+        )
+        + "\n"
+    )
+    table = load_semantic_bev_target_table(tmp_path)
+    assert table.tokens == ["row-zero", "row-one"]
+    assert tuple(table.map_targets.shape) == (2, 3, 16, 32)
+    assert tuple(table.agent_targets.shape) == (2, 2, 16, 32)
+    assert table.map_targets[0, 0, 1, 2]
+    assert table.agent_targets[1, 1, 7, 8]
+    assert table.lineage["current_observation_only"] is True
+    assert table.lineage["depends_on_logged_future"] is False
+    assert table.lineage["available_as_model_input_at_inference"] is False
 
 
 def test_shared_future_target_table_is_training_only_and_ordered(tmp_path) -> None:

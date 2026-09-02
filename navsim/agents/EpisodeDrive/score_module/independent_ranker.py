@@ -74,6 +74,76 @@ def assert_current_observation_only(features: Dict[str, object]) -> None:
         raise RuntimeError(f"Future/evaluator input leaked into scorer: {leaked}")
 
 
+def deterministic_bilinear_sample_2d(
+    raster: torch.Tensor,
+    grid: torch.Tensor,
+) -> torch.Tensor:
+    """Bilinearly sample a raster without CUDA ``grid_sample`` backward.
+
+    This implements the ``padding_mode='zeros', align_corners=False`` mapping
+    used by :func:`torch.nn.functional.grid_sample`.  CUDA grid-sample backward
+    is intentionally rejected by PyTorch when deterministic algorithms are
+    enabled.  The scorer training contract requires strict determinism, so the
+    four neighbours are gathered explicitly and blended with differentiable
+    weights instead.
+
+    Args:
+        raster: Tensor with shape ``[B, C, H, W]``.
+        grid: Normalized coordinates with shape ``[B, ..., 2]`` in ``(x, y)``
+            order. Values outside ``[-1, 1]`` receive zero padding.
+
+    Returns:
+        Sampled values with shape ``[B, C, ...]``.
+    """
+
+    if raster.ndim != 4:
+        raise ValueError("raster must have shape [B,C,H,W]")
+    if grid.ndim < 3 or grid.shape[0] != raster.shape[0] or grid.shape[-1] != 2:
+        raise ValueError("grid must have shape [B,...,2]")
+    batch_size, channels, height, width = raster.shape
+    if height <= 0 or width <= 0:
+        raise ValueError("raster spatial dimensions must be positive")
+
+    # align_corners=False maps -1/+1 to half a pixel outside the first/last
+    # pixel centre. Keep coordinates floating-point so gradients can flow to
+    # proposal geometry through the interpolation weights.
+    x = ((grid[..., 0] + 1.0) * float(width) - 1.0) * 0.5
+    y = ((grid[..., 1] + 1.0) * float(height) - 1.0) * 0.5
+    x0_float = torch.floor(x)
+    y0_float = torch.floor(y)
+    x1_float = x0_float + 1.0
+    y1_float = y0_float + 1.0
+    x0 = x0_float.to(torch.long)
+    y0 = y0_float.to(torch.long)
+    x1 = x1_float.to(torch.long)
+    y1 = y1_float.to(torch.long)
+
+    flat_raster = raster.reshape(batch_size, channels, height * width)
+    output_shape = (batch_size, channels, *grid.shape[1:-1])
+
+    def gather(ix: torch.Tensor, iy: torch.Tensor) -> torch.Tensor:
+        valid = (ix >= 0) & (ix < width) & (iy >= 0) & (iy < height)
+        flat_index = (
+            iy.clamp(0, height - 1) * width + ix.clamp(0, width - 1)
+        ).reshape(batch_size, -1)
+        values = flat_raster.gather(
+            2,
+            flat_index[:, None].expand(-1, channels, -1),
+        ).reshape(output_shape)
+        return values * valid[:, None].to(values.dtype)
+
+    wx1 = x - x0_float
+    wy1 = y - y0_float
+    wx0 = 1.0 - wx1
+    wy0 = 1.0 - wy1
+    return (
+        gather(x0, y0) * (wx0 * wy0)[:, None]
+        + gather(x1, y0) * (wx1 * wy0)[:, None]
+        + gather(x0, y1) * (wx0 * wy1)[:, None]
+        + gather(x1, y1) * (wx1 * wy1)[:, None]
+    )
+
+
 @dataclass(frozen=True)
 class IndependentRankerConfig:
     observation_dim: int = 1536
@@ -113,6 +183,16 @@ class IndependentRankerConfig:
     # visual stream is first compressed into a small candidate-independent
     # query bank.
     trajectory_observation_attention: bool = False
+    # Training-only current-frame map/actor labels supervise a scorer-owned
+    # shared BEV representation.  At inference this branch still consumes only
+    # current visual tokens; the map API and annotations are not inputs.
+    semantic_bev_auxiliary: bool = False
+    semantic_bev_fusion: bool = False
+    semantic_bev_height: int = 16
+    semantic_bev_width: int = 32
+    semantic_map_channels: int = 3
+    semantic_agent_channels: int = 2
+    semantic_bev_layers: int = 2
 
     def __post_init__(self) -> None:
         if self.model_dim % self.num_heads:
@@ -162,6 +242,18 @@ class IndependentRankerConfig:
             raise ValueError(
                 "current-actor CV relabeling requires one horizon per pose"
             )
+        if self.semantic_bev_fusion and not self.semantic_bev_auxiliary:
+            raise ValueError(
+                "semantic-BEV path fusion requires the semantic-BEV branch"
+            )
+        if min(
+            self.semantic_bev_height,
+            self.semantic_bev_width,
+            self.semantic_map_channels,
+            self.semantic_agent_channels,
+            self.semantic_bev_layers,
+        ) <= 0:
+            raise ValueError("semantic-BEV dimensions/layers must be positive")
         for count in (
             self.dynamic_queries,
             self.static_queries,
@@ -656,6 +748,60 @@ class IndependentProposalRanker(nn.Module):
             nn.GELU(),
             nn.Linear(config.model_dim, config.model_dim),
         )
+        if config.semantic_bev_auxiliary:
+            bev_count = config.semantic_bev_height * config.semantic_bev_width
+            self.semantic_bev_queries = nn.Parameter(
+                torch.empty(1, bev_count, config.model_dim)
+            )
+            self.semantic_bev_position = nn.Parameter(
+                torch.empty(1, bev_count, config.model_dim)
+            )
+            self.semantic_bev_decoder = nn.TransformerDecoder(
+                _make_decoder_layer(config),
+                num_layers=config.semantic_bev_layers,
+                norm=nn.LayerNorm(config.model_dim),
+            )
+            self.semantic_map_head = nn.Linear(
+                config.model_dim, config.semantic_map_channels
+            )
+            self.semantic_agent_head = nn.Linear(
+                config.model_dim, config.semantic_agent_channels
+            )
+            nn.init.trunc_normal_(self.semantic_bev_queries, std=0.02)
+            nn.init.trunc_normal_(self.semantic_bev_position, std=0.01)
+            if config.semantic_bev_fusion:
+                semantic_width = (
+                    config.model_dim
+                    + config.semantic_map_channels
+                    + config.semantic_agent_channels
+                )
+                self.semantic_path_projection = nn.Sequential(
+                    nn.LayerNorm(semantic_width),
+                    nn.Linear(semantic_width, config.model_dim),
+                    nn.GELU(),
+                )
+                self.semantic_path_encoder = nn.TransformerEncoder(
+                    _make_encoder_layer(config),
+                    num_layers=1,
+                    norm=nn.LayerNorm(config.model_dim),
+                )
+                self.semantic_path_norm = nn.LayerNorm(config.model_dim)
+                self.semantic_bev_fusion_gate = nn.Parameter(torch.zeros(()))
+            else:
+                self.semantic_path_projection = None
+                self.semantic_path_encoder = None
+                self.semantic_path_norm = None
+                self.register_parameter("semantic_bev_fusion_gate", None)
+        else:
+            self.register_parameter("semantic_bev_queries", None)
+            self.register_parameter("semantic_bev_position", None)
+            self.semantic_bev_decoder = None
+            self.semantic_map_head = None
+            self.semantic_agent_head = None
+            self.semantic_path_projection = None
+            self.semantic_path_encoder = None
+            self.semantic_path_norm = None
+            self.register_parameter("semantic_bev_fusion_gate", None)
         if config.trajectory_observation_attention:
             self.trajectory_observation_attention = nn.MultiheadAttention(
                 config.model_dim,
@@ -808,6 +954,72 @@ class IndependentProposalRanker(nn.Module):
         )
         return baseline
 
+    def _sample_semantic_bev_for_candidates(
+        self,
+        semantic_tokens: torch.Tensor,
+        map_logits: torch.Tensor,
+        agent_logits: torch.Tensor,
+        proposals: torch.Tensor,
+    ) -> torch.Tensor:
+        """Sample one candidate-relative token from a shared current BEV.
+
+        The target convention is 0--32 m forward along the BEV height and
+        -32--32 m lateral along its width, all in the current-ego frame.
+        The underlying semantic BEV is computed once and cannot depend on the
+        candidate count or order.
+        """
+
+        if self.semantic_path_projection is None:
+            raise RuntimeError("semantic-BEV path fusion is disabled")
+        batch_size, candidate_count, pose_count, _ = proposals.shape
+        height = self.config.semantic_bev_height
+        width = self.config.semantic_bev_width
+        feature_map = semantic_tokens.reshape(
+            batch_size, height, width, self.config.model_dim
+        ).permute(0, 3, 1, 2)
+        raster = torch.cat((feature_map, map_logits, agent_logits), dim=1)
+        forward = proposals[..., 0]
+        lateral = proposals[..., 1]
+        grid = torch.stack(
+            (
+                lateral / 32.0,
+                2.0 * forward / 32.0 - 1.0,
+            ),
+            dim=-1,
+        )
+        valid = (
+            (forward >= 0.0)
+            & (forward <= 32.0)
+            & (lateral >= -32.0)
+            & (lateral <= 32.0)
+        )
+        sampled = deterministic_bilinear_sample_2d(
+            raster,
+            grid.clamp(-1.0, 1.0),
+        ).permute(0, 2, 3, 1)
+        sampled = self.semantic_path_projection(sampled)
+        sampled = sampled * valid.unsqueeze(-1).to(sampled.dtype)
+        sampled = self.semantic_path_encoder(
+            sampled.reshape(
+                batch_size * candidate_count,
+                pose_count,
+                self.config.model_dim,
+            )
+        ).reshape(
+            batch_size,
+            candidate_count,
+            pose_count,
+            self.config.model_dim,
+        )
+        valid_weight = valid.unsqueeze(-1).to(sampled.dtype)
+        pooled = (sampled * valid_weight).sum(dim=-2) / valid_weight.sum(
+            dim=-2
+        ).clamp_min(1.0)
+        # Retain terminal-path evidence while keeping invalid endpoints from
+        # injecting a learned out-of-bounds token.
+        terminal = sampled[..., -1, :] * valid[..., -1:].to(sampled.dtype)
+        return self.semantic_path_norm(0.5 * (pooled + terminal))
+
     def forward(
         self,
         observation_tokens: torch.Tensor,
@@ -833,6 +1045,52 @@ class IndependentProposalRanker(nn.Module):
                 return_memory=True,
             )
         )
+        semantic_bev: Dict[str, torch.Tensor] = {}
+        semantic_path_token = torch.zeros(
+            proposals.shape[0],
+            proposals.shape[1],
+            self.config.model_dim,
+            device=proposals.device,
+            dtype=observation_memory.dtype,
+        )
+        semantic_bev_gate = observation_memory.new_zeros(())
+        if self.semantic_bev_decoder is not None:
+            batch_size = observation_memory.shape[0]
+            semantic_tokens = self.semantic_bev_decoder(
+                self.semantic_bev_queries.expand(batch_size, -1, -1)
+                + self.semantic_bev_position,
+                observation_memory,
+                memory_key_padding_mask=observation_padding_mask,
+            )
+            height = self.config.semantic_bev_height
+            width = self.config.semantic_bev_width
+            map_logits = self.semantic_map_head(semantic_tokens).transpose(1, 2)
+            map_logits = map_logits.reshape(
+                batch_size,
+                self.config.semantic_map_channels,
+                height,
+                width,
+            )
+            agent_logits = self.semantic_agent_head(semantic_tokens).transpose(1, 2)
+            agent_logits = agent_logits.reshape(
+                batch_size,
+                self.config.semantic_agent_channels,
+                height,
+                width,
+            )
+            semantic_bev = {
+                "semantic_bev_tokens": semantic_tokens,
+                "semantic_map_logits": map_logits,
+                "semantic_agent_logits": agent_logits,
+            }
+            if self.config.semantic_bev_fusion:
+                semantic_path_token = self._sample_semantic_bev_for_candidates(
+                    semantic_tokens,
+                    map_logits,
+                    agent_logits,
+                    proposals,
+                )
+                semantic_bev_gate = torch.tanh(self.semantic_bev_fusion_gate)
         dynamic_tokens = scene_streams["dynamic"]
         current_actor: Dict[str, torch.Tensor] = {}
         if self.current_actor_presence_head is not None:
@@ -893,6 +1151,7 @@ class IndependentProposalRanker(nn.Module):
         proposal_tokens, temporal_tokens = self.trajectory_encoder(proposals)
         status_token = self.status_encoder(status_feature)
         proposal_tokens = proposal_tokens + status_token.unsqueeze(1)
+        proposal_tokens = proposal_tokens + semantic_bev_gate * semantic_path_token
         trajectory_observation_token = torch.zeros_like(proposal_tokens)
         trajectory_observation_gate = proposal_tokens.new_zeros(())
         if self.trajectory_observation_attention is not None:
@@ -1019,6 +1278,8 @@ class IndependentProposalRanker(nn.Module):
             "trajectory_tokens": temporal_tokens,
             "trajectory_observation_token": trajectory_observation_token,
             "trajectory_observation_gate": trajectory_observation_gate,
+            "semantic_path_token": semantic_path_token,
+            "semantic_bev_fusion_gate": semantic_bev_gate,
             # Exposed for scorer-owned policy-improvement heads.  This tensor
             # is computed solely from current observation, ego status, and
             # proposal geometry; it contains no released score or evaluator
@@ -1027,6 +1288,7 @@ class IndependentProposalRanker(nn.Module):
         }
         result.update(current_actor)
         result.update(shared_future)
+        result.update(semantic_bev)
         if candidate_consequence is not None:
             result.update(
                 {
@@ -1040,6 +1302,87 @@ class IndependentProposalRanker(nn.Module):
                 }
             )
         return result
+
+
+def semantic_bev_auxiliary_loss(
+    output: Dict[str, torch.Tensor],
+    target_map: torch.Tensor,
+    target_agent: torch.Tensor,
+    supervision_valid: torch.Tensor,
+    *,
+    map_positive_weights: Tuple[float, ...] = (1.0, 4.0, 8.0),
+    agent_positive_weights: Tuple[float, ...] = (20.0, 40.0),
+) -> Dict[str, torch.Tensor]:
+    """Weighted multilabel loss for training-only current semantic BEV.
+
+    Independent foreground channels preserve thin centerlines and small actors
+    through target downsampling.  The targets never enter the model forward.
+    """
+
+    required = {"semantic_map_logits", "semantic_agent_logits"}
+    missing = sorted(required.difference(output))
+    if missing:
+        raise RuntimeError(f"semantic-BEV auxiliary heads are disabled: {missing}")
+    map_logits = output["semantic_map_logits"]
+    agent_logits = output["semantic_agent_logits"]
+    if target_map.shape != map_logits.shape:
+        raise ValueError("semantic map target must match semantic_map_logits")
+    if target_agent.shape != agent_logits.shape:
+        raise ValueError("semantic agent target must match semantic_agent_logits")
+    if supervision_valid.shape != (map_logits.shape[0],):
+        raise ValueError("semantic-BEV supervision_valid must have shape [B]")
+    if len(map_positive_weights) != map_logits.shape[1]:
+        raise ValueError("map positive weights do not match channel count")
+    if len(agent_positive_weights) != agent_logits.shape[1]:
+        raise ValueError("agent positive weights do not match channel count")
+
+    def branch_loss(
+        logits: torch.Tensor,
+        target: torch.Tensor,
+        positive_weights: Tuple[float, ...],
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        target = target.to(dtype=logits.dtype)
+        positive = logits.new_tensor(positive_weights).view(1, -1, 1, 1)
+        element = F.binary_cross_entropy_with_logits(
+            logits,
+            target,
+            reduction="none",
+        )
+        weights = torch.where(target > 0.5, positive, 1.0)
+        valid = supervision_valid[:, None, None, None].to(logits.dtype)
+        loss = (element * weights * valid).sum() / (
+            weights * valid
+        ).sum().clamp_min(1.0)
+        with torch.no_grad():
+            prediction = logits >= 0.0
+            truth = target > 0.5
+            valid_bool = supervision_valid[:, None, None, None]
+            intersection = (prediction & truth & valid_bool).sum(
+                dim=(0, 2, 3)
+            ).float()
+            union = ((prediction | truth) & valid_bool).sum(
+                dim=(0, 2, 3)
+            ).float()
+            iou = (intersection / union.clamp_min(1.0)).mean()
+        return loss, iou
+
+    map_loss, map_iou = branch_loss(
+        map_logits,
+        target_map,
+        map_positive_weights,
+    )
+    agent_loss, agent_iou = branch_loss(
+        agent_logits,
+        target_agent,
+        agent_positive_weights,
+    )
+    return {
+        "total": map_loss + agent_loss,
+        "map": map_loss,
+        "agent": agent_loss,
+        "map_iou": map_iou,
+        "agent_iou": agent_iou,
+    }
 
 
 def normalize_current_actor_targets(

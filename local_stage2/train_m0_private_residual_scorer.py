@@ -53,6 +53,7 @@ from navsim.agents.EpisodeDrive.score_module.independent_ranker import (
     episode_drive_factor_loss,
     masked_pinball_quantile_loss,
     pdms_factor_log_utility,
+    semantic_bev_auxiliary_loss,
     shared_future_auxiliary_loss,
     top_regret_rank_loss,
     weighted_pairwise_rank_loss,
@@ -74,6 +75,7 @@ _M0_REFIT_LOCKED_ARGUMENTS = (
     "private_layers",
     "trajectory_layers",
     "trajectory_observation_attention",
+    "semantic_bev_fusion",
     "current_actor_cv_relabeling",
     "scene_sampling_mode",
     "risk_scene_max_multiplier",
@@ -126,6 +128,7 @@ _M0_REFIT_LOCKED_ARGUMENTS = (
     "reference_factor_epsilon",
     "shared_future_weight",
     "current_actor_weight",
+    "semantic_bev_weight",
     "candidate_relative_weight",
     "safety_negative_weight",
     "factor_loss_scope",
@@ -158,6 +161,8 @@ _M0_LEGACY_REFIT_ARGUMENT_DEFAULTS = {
     "reference_minimum_improvement_target": 0.005,
     "reference_factor_epsilon": 1.0e-6,
     "trajectory_observation_attention": False,
+    "semantic_bev_fusion": False,
+    "semantic_bev_weight": 0.0,
     "current_actor_cv_relabeling": False,
     "scene_sampling_mode": "log_balanced",
     "risk_scene_max_multiplier": 4.0,
@@ -237,6 +242,16 @@ def validate_m0_all_log_refit_provenance(
         "current_actor_cv_relabeling",
         False,
     )
+    for name, value in (
+        ("semantic_bev_auxiliary", False),
+        ("semantic_bev_fusion", False),
+        ("semantic_bev_height", 16),
+        ("semantic_bev_width", 32),
+        ("semantic_map_channels", 3),
+        ("semantic_agent_channels", 2),
+        ("semantic_bev_layers", 2),
+    ):
+        selected_training_private.setdefault(name, value)
     if selected_training_private != asdict(private_config):
         raise RuntimeError("M0 refit private configuration differs from selection")
     selected_residual_config = selected.get("residual_config")
@@ -469,6 +484,115 @@ def load_replay_base_candidate_features(
 
 
 @dataclass(frozen=True)
+class SemanticBEVTargetTable:
+    tokens: List[str]
+    map_targets: torch.Tensor
+    agent_targets: torch.Tensor
+    supervision_valid: torch.Tensor
+    lineage: Dict[str, object]
+
+
+def load_semantic_bev_target_table(root: Path) -> SemanticBEVTargetTable:
+    """Load current-frame, training-only semantic-BEV supervision."""
+
+    map_path = root / "map_targets.npy"
+    agent_path = root / "agent_targets.npy"
+    completed_path = root / "completed.npy"
+    metadata_path = root / "scene_metadata.parquet"
+    manifest_path = root / "MANIFEST.json"
+    for path in (
+        map_path,
+        agent_path,
+        completed_path,
+        metadata_path,
+        manifest_path,
+    ):
+        if not path.is_file():
+            raise FileNotFoundError(path)
+    manifest = json.loads(manifest_path.read_text())
+    if not bool(manifest.get("current_observation_only")):
+        raise RuntimeError("semantic-BEV targets are not current-frame-only")
+    if bool(manifest.get("depends_on_logged_future")):
+        raise RuntimeError("semantic-BEV targets unexpectedly depend on future")
+    if not bool(manifest.get("training_only_target")):
+        raise RuntimeError("semantic-BEV targets are not marked training-only")
+    if bool(manifest.get("available_as_model_input_at_inference")):
+        raise RuntimeError("semantic-BEV targets must not be inference inputs")
+    if bool(manifest.get("future_or_evaluator_input")):
+        raise RuntimeError("semantic-BEV target cache declares forbidden inputs")
+    if manifest.get("coordinate_frame") != "current_ego":
+        raise RuntimeError("semantic-BEV targets must use current ego frame")
+    if (manifest.get("bev_height"), manifest.get("bev_width")) != (16, 32):
+        raise RuntimeError("semantic-BEV target grid must be 16x32")
+    if tuple(manifest.get("map_channels", ())) != (
+        "road",
+        "walkway",
+        "centerline",
+    ):
+        raise RuntimeError("semantic-BEV map channel schema mismatch")
+    if tuple(manifest.get("agent_channels", ())) != (
+        "vehicle",
+        "pedestrian",
+    ):
+        raise RuntimeError("semantic-BEV agent channel schema mismatch")
+    declared_hashes = manifest.get("array_sha256", {})
+    for path in (map_path, agent_path, completed_path):
+        expected_hash = declared_hashes.get(path.name)
+        if not expected_hash or _sha256(path) != expected_hash:
+            raise RuntimeError(f"semantic-BEV target hash mismatch: {path}")
+    if manifest.get("metadata_sha256") != _sha256(metadata_path):
+        raise RuntimeError("semantic-BEV metadata hash mismatch")
+
+    map_targets = np.load(map_path, mmap_mode="r")
+    agent_targets = np.load(agent_path, mmap_mode="r")
+    completed = np.load(completed_path, mmap_mode="r")
+    metadata = pd.read_parquet(metadata_path).sort_values("scene_index")
+    row_indices = metadata["scene_index"].to_numpy(dtype=np.int64)
+    if not np.array_equal(row_indices, np.arange(len(metadata), dtype=np.int64)):
+        raise RuntimeError("semantic-BEV scene indices are not contiguous")
+    if map_targets.shape != (len(metadata), 3, 16, 32):
+        raise RuntimeError(f"semantic-BEV map shape is invalid: {map_targets.shape}")
+    if agent_targets.shape != (len(metadata), 2, 16, 32):
+        raise RuntimeError(
+            f"semantic-BEV agent shape is invalid: {agent_targets.shape}"
+        )
+    if completed.shape != (len(metadata),):
+        raise RuntimeError("semantic-BEV completion mask shape is invalid")
+    tokens = metadata["scene_token"].astype(str).tolist()
+    if len(set(tokens)) != len(tokens):
+        raise RuntimeError("semantic-BEV target tokens are not unique")
+    preflight = metadata["target_preflight_available"].to_numpy(dtype=bool)
+    supervision_valid = np.asarray(completed, dtype=bool) & preflight
+    if not bool(supervision_valid.all()):
+        raise RuntimeError("semantic-BEV target cache is not fully valid")
+    if not bool(np.asarray(map_targets).any()) or not bool(
+        np.asarray(agent_targets).any()
+    ):
+        raise RuntimeError("semantic-BEV target cache is degenerate")
+    lineage = {
+        "name": "training_only_current_semantic_bev_supervision",
+        "root": str(root.resolve()),
+        "scene_count": len(tokens),
+        "valid_scene_count": int(supervision_valid.sum()),
+        "coordinate_frame": "current_ego",
+        "current_observation_only": True,
+        "depends_on_logged_future": False,
+        "available_as_model_input_at_inference": False,
+        "manifest_sha256": _sha256(manifest_path),
+        "metadata_sha256": _sha256(metadata_path),
+        "map_sha256": str(declared_hashes["map_targets.npy"]),
+        "agent_sha256": str(declared_hashes["agent_targets.npy"]),
+    }
+    return SemanticBEVTargetTable(
+        tokens=tokens,
+        map_targets=torch.from_numpy(np.asarray(map_targets).copy()),
+        agent_targets=torch.from_numpy(np.asarray(agent_targets).copy()),
+        supervision_valid=torch.from_numpy(supervision_valid.copy()),
+        lineage=lineage,
+    )
+
+
+@dataclass(frozen=True)
 class SharedFutureTargetTable:
     tokens: List[str]
     actor_future: torch.Tensor
@@ -566,6 +690,8 @@ class ResidualReplayDataset(Dataset):
         m0_candidate_features: Optional[torch.Tensor] = None,
         include_m0_context: bool = False,
         include_current_actor_targets: bool = False,
+        semantic_bev_table: Optional[SemanticBEVTargetTable] = None,
+        semantic_bev_row_indices: Optional[torch.Tensor] = None,
         shared_future_table: Optional[SharedFutureTargetTable] = None,
         shared_future_row_indices: Optional[torch.Tensor] = None,
     ) -> None:
@@ -577,10 +703,18 @@ class ResidualReplayDataset(Dataset):
         self.m0_candidate_features = m0_candidate_features
         self.include_m0_context = include_m0_context
         self.include_current_actor_targets = include_current_actor_targets
+        self.semantic_bev_table = semantic_bev_table
+        self.semantic_bev_row_indices = semantic_bev_row_indices
         self.shared_future_table = shared_future_table
         self.shared_future_row_indices = shared_future_row_indices
         if (shared_future_table is None) != (shared_future_row_indices is None):
             raise ValueError("shared-future table and row indices must be paired")
+        if (semantic_bev_table is None) != (semantic_bev_row_indices is None):
+            raise ValueError("semantic-BEV table and row indices must be paired")
+        if semantic_bev_row_indices is not None and semantic_bev_row_indices.shape != (
+            len(data),
+        ):
+            raise ValueError("semantic-BEV row indices must align with replay rows")
         if shared_future_row_indices is not None and shared_future_row_indices.shape != (
             len(data),
         ):
@@ -592,6 +726,11 @@ class ResidualReplayDataset(Dataset):
                 raise ValueError("current-actor states do not align with replay rows")
             if data.current_actor_masks.shape != (len(data), 16):
                 raise ValueError("current-actor masks do not align with replay rows")
+        if semantic_bev_table is not None:
+            if semantic_bev_table.map_targets.shape[1:] != (3, 16, 32):
+                raise ValueError("semantic-BEV map target schema is invalid")
+            if semantic_bev_table.agent_targets.shape[1:] != (2, 16, 32):
+                raise ValueError("semantic-BEV agent target schema is invalid")
         if include_m0_context:
             if data.m0_scene_features is None or data.m0_ego_features is None:
                 raise ValueError("released M0 context is absent from replay data")
@@ -634,6 +773,15 @@ class ResidualReplayDataset(Dataset):
                 self.data.current_actor_states[source_index],
                 self.data.current_actor_masks[source_index],
                 self.data.current_actor_supervision_valid[source_index],
+            )
+        if self.semantic_bev_table is not None:
+            target_index = int(self.semantic_bev_row_indices[source_index])
+            if target_index < 0:
+                raise RuntimeError("replay row lacks required semantic-BEV target")
+            auxiliary += (
+                self.semantic_bev_table.map_targets[target_index],
+                self.semantic_bev_table.agent_targets[target_index],
+                self.semantic_bev_table.supervision_valid[target_index],
             )
         if self.shared_future_table is None:
             return base + auxiliary
@@ -1072,6 +1220,24 @@ def compute_residual_training_loss(
         )
         cursor += 3
 
+    semantic_bev = {
+        "total": zero,
+        "map": zero,
+        "agent": zero,
+        "map_iou": zero,
+        "agent_iou": zero,
+    }
+    if model.private_config.semantic_bev_auxiliary:
+        if len(batch) < cursor + 3:
+            raise RuntimeError("semantic-BEV prediction head lacks training targets")
+        semantic_bev = semantic_bev_auxiliary_loss(
+            output,
+            batch[cursor],
+            batch[cursor + 1],
+            batch[cursor + 2],
+        )
+        cursor += 3
+
     future_targets = None
     if model.private_config.shared_future_auxiliary:
         if len(batch) != cursor + 3:
@@ -1134,6 +1300,7 @@ def compute_residual_training_loss(
         + getattr(args, "reference_weight", 0.0) * reference["total"]
         + getattr(args, "shared_future_weight", 0.0) * future["total"]
         + getattr(args, "current_actor_weight", 0.0) * current_actor["total"]
+        + getattr(args, "semantic_bev_weight", 0.0) * semantic_bev["total"]
         + candidate_relative_weight * consequence["total"]
     )
     details = {
@@ -1164,6 +1331,11 @@ def compute_residual_training_loss(
         "current_actor_presence": current_actor["presence"],
         "current_actor_type": current_actor["type"],
         "current_actor_state": current_actor["state"],
+        "semantic_bev": semantic_bev["total"],
+        "semantic_bev_map": semantic_bev["map"],
+        "semantic_bev_agent": semantic_bev["agent"],
+        "semantic_bev_map_iou": semantic_bev["map_iou"],
+        "semantic_bev_agent_iou": semantic_bev["agent_iou"],
         "candidate_relative": consequence["total"],
         "candidate_relative_clearance": consequence["clearance"],
         "candidate_relative_collision": consequence["collision"],
@@ -1399,6 +1571,7 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--current-actor-target-root", type=Path, default=None)
+    parser.add_argument("--semantic-bev-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-target-root", type=Path, default=None)
     parser.add_argument("--shared-future-relabeling", action="store_true")
     parser.add_argument(
@@ -1450,6 +1623,14 @@ def parse_args() -> argparse.Namespace:
         help=(
             "Let each proposal waypoint query the shared uncompressed current "
             "visual-token memory before candidate aggregation."
+        ),
+    )
+    parser.add_argument(
+        "--semantic-bev-fusion",
+        action="store_true",
+        help=(
+            "Decode one current-scene semantic BEV and sample its shared "
+            "features along each proposal. Labels supervise training only."
         ),
     )
     parser.add_argument("--candidate-layers", type=int, default=1)
@@ -1532,6 +1713,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--reference-factor-epsilon", type=float, default=1e-6)
     parser.add_argument("--shared-future-weight", type=float, default=0.0)
     parser.add_argument("--current-actor-weight", type=float, default=0.0)
+    parser.add_argument("--semantic-bev-weight", type=float, default=0.0)
     parser.add_argument("--candidate-relative-weight", type=float, default=0.0)
     parser.add_argument("--safety-negative-weight", type=float, default=1.0)
     parser.add_argument(
@@ -1596,6 +1778,8 @@ def main() -> None:
     required_paths = [args.split_manifest]
     if args.private_observation_root is not None:
         required_paths.append(args.private_observation_root)
+    if args.semantic_bev_target_root is not None:
+        required_paths.append(args.semantic_bev_target_root)
     for path in required_paths:
         if not path.exists():
             raise FileNotFoundError(path)
@@ -1605,6 +1789,8 @@ def main() -> None:
         raise ValueError("shared_future_weight must be nonnegative")
     if args.current_actor_weight < 0:
         raise ValueError("current_actor_weight must be nonnegative")
+    if args.semantic_bev_weight < 0:
+        raise ValueError("semantic_bev_weight must be nonnegative")
     if args.candidate_relative_weight < 0:
         raise ValueError("candidate_relative_weight must be nonnegative")
     if args.reference_weight < 0:
@@ -1627,6 +1813,14 @@ def main() -> None:
         raise ValueError(
             "current-actor target root is required exactly when its weight is positive"
         )
+    if (args.semantic_bev_target_root is None) != (
+        args.semantic_bev_weight == 0.0
+    ):
+        raise ValueError(
+            "semantic-BEV target root is required exactly when its weight is positive"
+        )
+    if args.semantic_bev_fusion and args.semantic_bev_target_root is None:
+        raise ValueError("semantic-BEV fusion requires semantic-BEV supervision")
     if args.shared_future_target_root is not None and args.dynamic_queries != 16:
         raise ValueError(
             "shared-future target schema has 16 fixed current-actor slots; "
@@ -1690,6 +1884,29 @@ def main() -> None:
         )
         if candidate_tokens != data.tokens:
             raise RuntimeError("M0 candidate features do not match replay token order")
+    semantic_bev_table = None
+    semantic_bev_row_indices = None
+    semantic_bev_lineage = None
+    if args.semantic_bev_target_root is not None:
+        semantic_bev_table = load_semantic_bev_target_table(
+            args.semantic_bev_target_root
+        )
+        semantic_row_for_token = {
+            token: index for index, token in enumerate(semantic_bev_table.tokens)
+        }
+        semantic_bev_row_indices = torch.tensor(
+            [semantic_row_for_token.get(token, -1) for token in data.tokens],
+            dtype=torch.long,
+        )
+        if not bool((semantic_bev_row_indices >= 0).all()):
+            missing_count = int((semantic_bev_row_indices < 0).sum())
+            raise RuntimeError(
+                f"{missing_count} replay rows lack semantic-BEV supervision"
+            )
+        semantic_bev_lineage = semantic_bev_table.lineage | {
+            "matched_replay_rows": len(data),
+            "total_replay_rows": len(data),
+        }
     shared_future_table = None
     shared_future_row_indices = None
     shared_future_lineage = None
@@ -1783,6 +2000,13 @@ def main() -> None:
         trajectory_observation_attention=(
             args.trajectory_observation_attention
         ),
+        semantic_bev_auxiliary=semantic_bev_table is not None,
+        semantic_bev_fusion=args.semantic_bev_fusion,
+        semantic_bev_height=16,
+        semantic_bev_width=32,
+        semantic_map_channels=3,
+        semantic_agent_channels=2,
+        semantic_bev_layers=2,
     )
     residual_config = M0PrivateResidualConfig(
         hidden_dim=args.model_dim,
@@ -1843,6 +2067,11 @@ def main() -> None:
             != shared_future_lineage
         ):
             raise RuntimeError("M0 refit shared-future lineage differs from selection")
+        if (
+            selected_fold_manifest.get("semantic_bev_target_lineage")
+            != semantic_bev_lineage
+        ):
+            raise RuntimeError("M0 refit semantic-BEV lineage differs from selection")
         refit_provenance.update(
             {
                 "selection_artifact": str(args.refit_selection_artifact.resolve()),
@@ -1905,6 +2134,8 @@ def main() -> None:
             include_current_actor_targets=(
                 args.current_actor_target_root is not None
             ),
+            semantic_bev_table=semantic_bev_table,
+            semantic_bev_row_indices=semantic_bev_row_indices,
             shared_future_table=shared_future_table,
             shared_future_row_indices=shared_future_row_indices,
         ),
@@ -1927,6 +2158,11 @@ def main() -> None:
         "current_actor_target_root": (
             str(args.current_actor_target_root)
             if args.current_actor_target_root is not None
+            else None
+        ),
+        "semantic_bev_target_root": (
+            str(args.semantic_bev_target_root)
+            if args.semantic_bev_target_root is not None
             else None
         ),
         "shared_future_target_root": (
@@ -1957,6 +2193,7 @@ def main() -> None:
             else "source_checkpoint_current_scene_tokens"
         ),
         "shared_future_target_lineage": shared_future_lineage,
+        "semantic_bev_target_lineage": semantic_bev_lineage,
         "training_sampler": training_sampler_lineage,
         "private_config": asdict(private_config),
         "residual_config": asdict(residual_config),
@@ -1980,6 +2217,10 @@ def main() -> None:
         "current_actor_annotation_used_as_training_only_target": (
             args.current_actor_target_root is not None
         ),
+        "current_map_and_actor_bev_used_as_training_only_target": (
+            semantic_bev_table is not None
+        ),
+        "predicted_semantic_bev_sampled_at_inference": args.semantic_bev_fusion,
         "predicted_shared_future_relabeling_used_at_inference": (
             args.shared_future_relabeling
         ),
