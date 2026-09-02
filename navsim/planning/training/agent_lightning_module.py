@@ -1,4 +1,5 @@
 from time import sleep
+import time
 import os
 import logging
 import inspect
@@ -6,12 +7,33 @@ import inspect
 import numpy as np
 import pytorch_lightning as pl
 import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel
 from torch import Tensor
 from typing import Dict, Tuple, Any, List
 from navsim.agents.abstract_agent import AbstractAgent
 from navsim.common.dataclasses import Trajectory
+from navsim.planning.training.formal_timing import PhaseTimer
 
 logger = logging.getLogger(__name__)
+
+
+def _timed_allreduce_hook(
+    state: Dict[str, Any], bucket: dist.GradBucket
+) -> torch.futures.Future[torch.Tensor]:
+    """DDP-equivalent averaged all-reduce with benchmark-only timing."""
+    start = time.perf_counter()
+    tensor = bucket.buffer()
+    future = dist.all_reduce(tensor, async_op=True).get_future()
+
+    def finish(result):
+        reduced = result.value()[0]
+        reduced.div_(dist.get_world_size())
+        state["seconds"] += time.perf_counter() - start
+        state["bucket_count"] += 1
+        return reduced
+
+    return future.then(finish)
 
 def _rowwise_isin(tensor_1: torch.Tensor, target_tensor: torch.Tensor) -> torch.Tensor:
     matches = (tensor_1[:, None] == target_tensor)
@@ -35,6 +57,16 @@ class AgentLightningModule(pl.LightningModule):
         """
         super().__init__()
         self.agent = agent
+        self._formal_timing_enabled = (
+            os.getenv("PLANREG_FORMAL_TIMING", "0").lower()
+            in {"1", "true", "yes", "on"}
+        )
+        self._formal_phase_timer = PhaseTimer(self._formal_timing_enabled)
+        self._formal_backward_token = None
+        self._formal_latest_loss_tensors = {}
+        self._formal_latest_gradient_norms = {}
+        self._formal_allreduce_state = {"seconds": 0.0, "bucket_count": 0}
+        self._formal_comm_hook_registered = False
         self.checkpoint_file=None
         self.for_viz = for_viz
         self.for_analysis=for_analysis
@@ -102,6 +134,27 @@ class AgentLightningModule(pl.LightningModule):
             self.agent.configure_total_optimizer_steps(
                 int(self.trainer.estimated_stepping_batches)
             )
+        if self._formal_timing_enabled and dist.is_available() and dist.is_initialized():
+            wrapped_model = self.trainer.strategy.model
+            if isinstance(wrapped_model, DistributedDataParallel):
+                wrapped_model.register_comm_hook(
+                    self._formal_allreduce_state, _timed_allreduce_hook
+                )
+                self._formal_comm_hook_registered = True
+
+    def on_train_batch_start(self, batch, batch_idx) -> None:
+        del batch, batch_idx
+        if self._formal_timing_enabled:
+            self._formal_allreduce_state["seconds"] = 0.0
+            self._formal_allreduce_state["bucket_count"] = 0
+
+    def transfer_batch_to_device(self, batch, device, dataloader_idx):
+        token = self._formal_phase_timer.start("host_to_device_time")
+        transferred = super().transfer_batch_to_device(
+            batch, device, dataloader_idx
+        )
+        self._formal_phase_timer.stop(token)
+        return transferred
 
     def on_predict_start(self) -> None:
         if hasattr(self.agent, "remove_training_only_world_model"):
@@ -109,10 +162,24 @@ class AgentLightningModule(pl.LightningModule):
 
     def on_before_backward(self, loss: Tensor) -> None:
         del loss
+        self._formal_backward_token = self._formal_phase_timer.start(
+            "backward_time"
+        )
         if self.require_finite_loss_and_gradients:
             self._gradient_finiteness_checks.clear()
 
     def on_after_backward(self) -> None:
+        self._formal_phase_timer.stop(self._formal_backward_token)
+        self._formal_backward_token = None
+        if self._formal_timing_enabled:
+            self._formal_phase_timer.add_seconds(
+                "all_reduce_time", self._formal_allreduce_state["seconds"]
+            )
+            if hasattr(self.agent, "get_planreg_gradient_norms"):
+                self._formal_latest_gradient_norms = {
+                    name: value.detach()
+                    for name, value in self.agent.get_planreg_gradient_norms().items()
+                }
         optimizer_step = int(self.global_step)
         log_gradients = optimizer_step % self.grad_log_interval == 0
         log_registers = optimizer_step % self.register_log_interval == 0
@@ -186,6 +253,13 @@ class AgentLightningModule(pl.LightningModule):
         """
         features, targets = batch
 
+        if self._formal_timing_enabled:
+            self._formal_latest_input_timing = {
+                name: features[name].detach()
+                for name in ("input_decode_time", "input_transform_time")
+                if name in features and isinstance(features[name], torch.Tensor)
+            }
+
         if hasattr(self.agent, "set_optimizer_step"):
             # Lightning restores global_step on resume, so rho/EMA schedules
             # continue from the exact completed optimizer step.
@@ -205,6 +279,12 @@ class AgentLightningModule(pl.LightningModule):
             loss_dict=self.agent.compute_adapter_loss(targets,prediction)
 
         if type(loss_dict) is dict:
+            if self._formal_timing_enabled:
+                self._formal_latest_loss_tensors = {
+                    name: value.detach()
+                    for name, value in loss_dict.items()
+                    if isinstance(value, torch.Tensor) and value.numel() == 1
+                }
             if self.require_finite_loss_and_gradients:
                 nonfinite_losses = [
                     key
@@ -241,6 +321,27 @@ class AgentLightningModule(pl.LightningModule):
             return loss_dict["loss"]
         else:
             return loss_dict
+
+    def consume_formal_step_timings(self) -> Dict[str, float]:
+        if not self._formal_timing_enabled:
+            return {}
+        result = self._formal_phase_timer.consume()
+        if hasattr(self.agent, "consume_formal_timings"):
+            for name, seconds in self.agent.consume_formal_timings().items():
+                result[name] = result.get(name, 0.0) + float(seconds)
+        for name, value in getattr(self, "_formal_latest_input_timing", {}).items():
+            result[name] = float(value.detach().float().mean().cpu().item())
+        for name, value in self._formal_latest_gradient_norms.items():
+            result[f"gradient/{name}"] = float(value.float().cpu().item())
+        for name, value in self._formal_latest_loss_tensors.items():
+            result[f"loss/{name}"] = float(value.float().cpu().item())
+        result["all_reduce_bucket_count"] = float(
+            self._formal_allreduce_state["bucket_count"]
+        )
+        self._formal_latest_input_timing = {}
+        self._formal_latest_gradient_norms = {}
+        self._formal_latest_loss_tensors = {}
+        return result
             
 
     def training_step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], batch_idx: int) -> Tensor:

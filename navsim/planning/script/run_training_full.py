@@ -28,6 +28,9 @@ from navsim.planning.training.dataset import (
     drivevla_cached_collate,
 )
 from navsim.planning.training.agent_lightning_module import AgentLightningModule
+from navsim.planning.training.formal_throughput import (
+    FormalThroughputBenchmarkCallback,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +167,13 @@ def _configured_global_batch_size(cfg: DictConfig) -> int:
 
 def dist_ready():
     return dist.is_available() and dist.is_initialized()
+
+
+def preinit_global_zero() -> bool:
+    """Identify global rank zero before Lightning initializes torch.distributed."""
+    if dist_ready():
+        return dist.get_rank() == 0
+    return int(os.getenv("RANK", os.getenv("LOCAL_RANK", "0"))) == 0
 
 
 def _ordered_unique_log_names(log_names: Iterable[str]) -> list[str]:
@@ -327,6 +337,48 @@ def configure_callbacks_for_data_protocol(
     return callbacks
 
 
+def configure_formal_throughput_callback(
+    cfg: DictConfig, callbacks: Iterable[pl.Callback]
+) -> list[pl.Callback]:
+    """Add the bounded formal-layout benchmark when explicitly requested."""
+    callbacks = list(callbacks)
+    benchmark = cfg.get("throughput_benchmark", {})
+    if not bool(benchmark.get("enabled", False)):
+        return callbacks
+    if not bool(cfg.get("formal_training", {}).get("enabled", False)):
+        raise RuntimeError("Formal throughput benchmark requires formal_training.enabled")
+    output_path = benchmark.get("output_path")
+    layout_name = benchmark.get("layout_name")
+    if not output_path or not layout_name:
+        raise ValueError(
+            "throughput_benchmark.output_path and layout_name are required"
+        )
+    if os.getenv("PLANREG_FORMAL_TIMING", "0").lower() not in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
+        raise RuntimeError(
+            "Formal throughput benchmark requires PLANREG_FORMAL_TIMING=1 "
+            "before agent construction"
+        )
+    callbacks.append(
+        FormalThroughputBenchmarkCallback(
+            str(output_path),
+            global_batch_size=_configured_global_batch_size(cfg),
+            warmup_steps=int(benchmark.get("warmup_steps", 20)),
+            timed_steps=int(benchmark.get("timed_steps", 300)),
+            layout_name=str(layout_name),
+            scorer_processes_per_rank=int(
+                benchmark.get("scorer_processes_per_rank", 0)
+            ),
+            num_workers=int(cfg.dataloader.params.num_workers),
+        )
+    )
+    return callbacks
+
+
 def compute_formal_step_budget(
     dataset_length: int,
     global_batch_size: int,
@@ -381,14 +433,15 @@ def configure_formal_step_budget(
     with open_dict(cfg):
         cfg.trainer.params.max_epochs = epochs
         cfg.trainer.params.max_steps = budget["total_steps"]
-    metadata_dir = Path(str(cfg.output_dir)) / "run_metadata"
-    metadata_dir.mkdir(parents=True, exist_ok=True)
-    output = metadata_dir / "formal_step_budget.json"
-    temporary = metadata_dir / ".formal_step_budget.json.tmp"
-    temporary.write_text(
-        json.dumps(budget, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    temporary.replace(output)
+    if preinit_global_zero():
+        metadata_dir = Path(str(cfg.output_dir)) / "run_metadata"
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        output = metadata_dir / "formal_step_budget.json"
+        temporary = metadata_dir / ".formal_step_budget.json.tmp"
+        temporary.write_text(
+            json.dumps(budget, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        temporary.replace(output)
     logger.info(
         "FORMAL_STEP_BUDGET dataset=%d global_batch=%d steps_per_epoch=%d "
         "epochs=%d total_steps=%d sampler_padding=%d",
@@ -499,7 +552,7 @@ def main(cfg: DictConfig) -> None:
     data_protocol = resolve_data_protocol(
         cfg, scene_filter_log_names=scene_filter_log_names
     )
-    if not dist_ready() or dist.get_rank() == 0:
+    if preinit_global_zero():
         metadata_path = write_data_protocol_metadata(cfg, data_protocol)
         logger.info("Wrote train/validation protocol metadata: %s", metadata_path)
 
@@ -645,6 +698,7 @@ def main(cfg: DictConfig) -> None:
         output_dir=str(cfg.output_dir),
         formal_milestones=formal_step_budget is not None,
     )
+    callbacks = configure_formal_throughput_callback(cfg, callbacks)
     trainer = pl.Trainer(**cfg.trainer.params, callbacks=callbacks)
 
     if cfg.validation_run:

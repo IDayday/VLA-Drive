@@ -1,10 +1,12 @@
 from dataclasses import asdict, dataclass
 import json
+import os
 from typing import Dict, List, Mapping, Optional, Tuple, Union
 import torch
 from torch import nn
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 from transformers.modeling_outputs import CausalLMOutputWithPast
+from navsim.planning.training.formal_timing import PhaseTimer
 
 from .utils.conversation import get_conv_template
 from .utils.internvl_tokenize import build_internvl_model_inputs
@@ -288,6 +290,10 @@ class DriveVLABackbone(nn.Module):
         self.device = device
         self.skip_lm_head = skip_lm_head
         self.gradient_checkpointing_enabled = bool(gradient_checkpointing)
+        self._formal_phase_timer = PhaseTimer(
+            os.getenv("PLANREG_FORMAL_TIMING", "0").lower()
+            in {"1", "true", "yes", "on"}
+        )
         self.strict_vocab_alignment = bool(strict_vocab_alignment)
         self.semantic_frozen_llm_no_grad = bool(semantic_frozen_llm_no_grad)
         self.semantic_backprop_to_vision = bool(semantic_backprop_to_vision)
@@ -688,11 +694,14 @@ class DriveVLABackbone(nn.Module):
         tile_metadata: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Return LLM hidden states plus InternViT-internal scene registers."""
+        vision_timer = self._formal_phase_timer.start("student_vision_time")
         planning_output = self.encode_internvl_planning_vision(
             pixel_values,
             num_patches_list,
             tile_metadata,
         )
+        self._formal_phase_timer.stop(vision_timer)
+        language_timer = self._formal_phase_timer.start("frozen_llm_time")
         language_output = self._forward_semantic_language_path(
             planning_output.patch_features,
             input_ids,
@@ -700,6 +709,7 @@ class DriveVLABackbone(nn.Module):
             position_ids,
             image_flags,
         )
+        self._formal_phase_timer.stop(language_timer)
         hidden_states = getattr(language_output, "hidden_states", None)
         if not hidden_states:
             raise RuntimeError(
@@ -711,6 +721,9 @@ class DriveVLABackbone(nn.Module):
             "planning_registers": planning_output.scene_registers,
             "per_tile_registers": planning_output.per_tile_registers,
         }
+
+    def consume_formal_timings(self) -> Dict[str, float]:
+        return self._formal_phase_timer.consume()
     
     def forward(
         self,

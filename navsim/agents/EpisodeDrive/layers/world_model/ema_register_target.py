@@ -11,6 +11,21 @@ from torch import nn
 from pytorch_lightning.callbacks import Callback
 
 
+def scale_ema_momentum_for_global_batch(
+    reference_momentum: float,
+    actual_global_batch: int,
+    reference_global_batch: int = 16,
+) -> float:
+    """Preserve per-sample EMA decay when the optimizer batch changes."""
+    if not 0.0 <= reference_momentum <= 1.0:
+        raise ValueError("reference_momentum must be in [0,1]")
+    if actual_global_batch <= 0 or reference_global_batch <= 0:
+        raise ValueError("actual/reference global batches must be positive")
+    return float(
+        reference_momentum ** (actual_global_batch / reference_global_batch)
+    )
+
+
 def cosine_ema_momentum(
     optimizer_step: int,
     total_optimizer_steps: int,

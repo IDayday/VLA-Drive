@@ -21,6 +21,7 @@ from navsim.planning.training.input_only_cache import (
     reject_dynamic_feature_cache,
     validate_input_only_cache_policy,
 )
+from navsim.planning.training.formal_timing import PhaseTimer
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint, ProgressBar, LearningRateMonitor
 from navsim.common.dataloader import MetricCacheLoader
 
@@ -56,6 +57,7 @@ from .layers.world_model import (
     FutureRegisterPredictor,
     cosine_ema_momentum,
     decode_path_tensor,
+    scale_ema_momentum_for_global_batch,
 )
 
 from peft import LoraConfig, get_peft_model
@@ -257,6 +259,10 @@ class DriveVLABaseAgent(AbstractAgent):
         cache_data: bool = False,
     ):
         super().__init__()
+        self._formal_phase_timer = PhaseTimer(
+            os.getenv("PLANREG_FORMAL_TIMING", "0").lower()
+            in {"1", "true", "yes", "on"}
+        )
         self.action_head_config=action_head_config
         self.vlm_config=vlm_config
         self.lora_config=lora_config
@@ -373,6 +379,27 @@ class DriveVLABaseAgent(AbstractAgent):
                 "_world_model_total_optimizer_steps",
                 torch.zeros((), dtype=torch.long),
                 persistent=True,
+            )
+            ema_start, ema_end = self._resolve_ema_momentum_endpoints()
+            self.register_buffer(
+                "_ema_actual_start_momentum",
+                torch.tensor(ema_start, dtype=torch.float64),
+                persistent=True,
+            )
+            self.register_buffer(
+                "_ema_actual_end_momentum",
+                torch.tensor(ema_end, dtype=torch.float64),
+                persistent=True,
+            )
+            self.register_buffer(
+                "_ema_current_momentum",
+                torch.tensor(ema_start, dtype=torch.float64),
+                persistent=True,
+            )
+            print(
+                "PLANREG_EMA_BATCH_SCALING "
+                f"actual_global_batch={self.batch_size * self.num_gpus} "
+                f"start={ema_start:.12f} end={ema_end:.12f}"
             )
 
         if self.checkpoint_path and self.stage1_checkpoint_path:
@@ -646,6 +673,37 @@ class DriveVLABaseAgent(AbstractAgent):
             "planning registers and neck (no LLM/Q-Former/action/scorer modules)."
         )
 
+    def _resolve_ema_momentum_endpoints(self):
+        if self.ema_config is None:
+            raise ValueError("EMA configuration is required")
+        has_reference = hasattr(self.ema_config, "start_momentum_reference")
+        if has_reference:
+            start_reference = float(self.ema_config.start_momentum_reference)
+            end_reference = float(self.ema_config.end_momentum_reference)
+            reference_batch = int(
+                getattr(self.ema_config, "reference_global_batch", 16)
+            )
+            if bool(
+                getattr(self.ema_config, "scale_momentum_by_global_batch", True)
+            ):
+                actual_batch = int(self.batch_size * self.num_gpus)
+                start = scale_ema_momentum_for_global_batch(
+                    start_reference, actual_batch, reference_batch
+                )
+                end = scale_ema_momentum_for_global_batch(
+                    end_reference, actual_batch, reference_batch
+                )
+            else:
+                start, end = start_reference, end_reference
+        else:
+            start = float(getattr(self.ema_config, "start_momentum", 0.996))
+            end = float(getattr(self.ema_config, "end_momentum", 0.9999))
+        if not 0.0 <= start <= end <= 1.0:
+            raise ValueError(
+                f"Invalid EMA momentum endpoints after batch scaling: {start}, {end}"
+            )
+        return start, end
+
     @torch.no_grad()
     def update_ema_after_optimizer_step(
         self,
@@ -657,8 +715,8 @@ class DriveVLABaseAgent(AbstractAgent):
         completed_step = int(optimizer_step)
         if completed_step <= int(self._ema_optimizer_step.item()):
             return
-        start = float(getattr(self.ema_config, "start_momentum", 0.996))
-        end = float(getattr(self.ema_config, "end_momentum", 0.9999))
+        start = float(self._ema_actual_start_momentum.item())
+        end = float(self._ema_actual_end_momentum.item())
         momentum = cosine_ema_momentum(
             completed_step,
             total_optimizer_steps,
@@ -666,6 +724,7 @@ class DriveVLABaseAgent(AbstractAgent):
             end=end,
         )
         self.ema_register_target.update(self.backbone, momentum)
+        self._ema_current_momentum.fill_(momentum)
         self._ema_optimizer_step.fill_(completed_step)
 
     def remove_training_only_world_model(self) -> None:
@@ -1279,7 +1338,9 @@ class DriveVLABaseAgent(AbstractAgent):
             if key in features:
                 action_inputs[key] = features[key]
 
+        action_timer = self._formal_phase_timer.start("action_scorer_time")
         predictions = self.action_head(action_inputs)
+        self._formal_phase_timer.stop(action_timer)
         diagnostic_registers = predictions.get("planning_registers")
         self._latest_registers_for_diagnostics = (
             diagnostic_registers.detach()
@@ -1437,14 +1498,17 @@ class DriveVLABaseAgent(AbstractAgent):
             if not all(len(group) == 3 for group in worker_future_metadata):
                 raise ValueError("Worker-preprocessed future metadata require three horizons")
 
+        teacher_parameter = next(self.ema_register_target.parameters())
+        teacher_device = teacher_parameter.device
+        teacher_dtype = teacher_parameter.dtype
         all_image_tiles: List[torch.Tensor] = []
         all_tile_metadata: List[torch.Tensor] = []
         tile_counts: List[int] = []
         for batch_index in range(batch_size):
             current, current_metadata = current_tiles[batch_index]
-            current = current.detach().cpu()
+            current = current.detach()
             if current_metadata is not None:
-                current_metadata = torch.as_tensor(current_metadata).detach().cpu()
+                current_metadata = torch.as_tensor(current_metadata).detach()
             image_group = [(current, current_metadata)]
             for horizon_index in range(3):
                 if self.future_mode == "repeated_current" or not bool(
@@ -1454,10 +1518,10 @@ class DriveVLABaseAgent(AbstractAgent):
                 elif worker_future_pixels is not None:
                     future = torch.as_tensor(
                         worker_future_pixels[batch_index][horizon_index]
-                    ).detach().cpu()
+                    ).detach()
                     future_metadata = torch.as_tensor(
                         worker_future_metadata[batch_index][horizon_index]
-                    ).detach().cpu()
+                    ).detach()
                 else:
                     path = decode_path_tensor(
                         future_paths[batch_index, horizon_index],
@@ -1472,7 +1536,16 @@ class DriveVLABaseAgent(AbstractAgent):
                     raise ValueError(
                         f"InternVL image preprocessing must return [T,C,H,W], got {image_tiles.shape}"
                     )
-                all_image_tiles.append(image_tiles)
+                # Lightning has already transferred worker-preprocessed tensors
+                # to the rank-local GPU.  Keep them there so the fused EMA
+                # current+future call does not incur a GPU->CPU->GPU round trip.
+                all_image_tiles.append(
+                    image_tiles.to(
+                        device=teacher_device,
+                        dtype=teacher_dtype,
+                        non_blocking=True,
+                    )
+                )
                 tile_counts.append(int(image_tiles.shape[0]))
                 if image_tile_metadata is None:
                     if (
@@ -1491,21 +1564,27 @@ class DriveVLABaseAgent(AbstractAgent):
                             "EMA spatial tile aggregation requires tile_metadata"
                         )
                 else:
-                    all_tile_metadata.append(image_tile_metadata)
+                    all_tile_metadata.append(
+                        torch.as_tensor(image_tile_metadata).to(
+                            device=teacher_device,
+                            non_blocking=True,
+                        )
+                    )
 
-        teacher_parameter = next(self.ema_register_target.parameters())
-        pixel_values = torch.cat(all_image_tiles, dim=0).to(
-            device=teacher_parameter.device,
-            dtype=teacher_parameter.dtype,
-            non_blocking=True,
-        )
+        pixel_values = torch.cat(all_image_tiles, dim=0)
         tile_metadata_tensor = (
             torch.cat(all_tile_metadata, dim=0) if all_tile_metadata else None
+        )
+        phase_timer = getattr(self, "_formal_phase_timer", None)
+        ema_timer = (
+            phase_timer.start("ema_vision_time") if phase_timer is not None else None
         )
         with torch.no_grad():
             all_targets = self.ema_register_target(
                 pixel_values, tile_counts, tile_metadata_tensor
             )
+        if phase_timer is not None:
+            phase_timer.stop(ema_timer)
         all_targets = all_targets.reshape(batch_size, 4, *all_targets.shape[1:])
         target_current = all_targets[:, 0].detach()
         target_future = all_targets[:, 1:].detach()
@@ -1761,9 +1840,13 @@ class DriveVLABaseAgent(AbstractAgent):
             targets: Dict[str, torch.Tensor],
             pred: Dict[str, torch.Tensor],
     ) -> Dict:
+        metric_timer = self._formal_phase_timer.start(
+            "metric_target_time", cuda=False
+        )
         base_loss_dict = self.loss(
             targets, pred, self.action_head_config, self.compute_score
         )
+        self._formal_phase_timer.stop(metric_timer)
         if not self.world_model_enabled:
             return base_loss_dict
         if not self.training:
@@ -1808,6 +1891,9 @@ class DriveVLABaseAgent(AbstractAgent):
         result = dict(base_loss_dict)
         result["loss"] = total
         result["wm_weight_current"] = wm_weight
+        result["ema_momentum_current"] = current_registers.new_tensor(
+            float(self._ema_current_momentum.item())
+        )
         result["weighted_wm_loss"] = weighted_wm_loss
         result.update(
             {
@@ -1843,6 +1929,9 @@ class DriveVLABaseAgent(AbstractAgent):
             for token, poses in zip(targets["token"], proposals.float().cpu().numpy())
         ]
 
+        scorer_wait_timer = self._formal_phase_timer.start(
+            "scorer_queue_wait", cuda=False
+        )
         if self.ray:
             all_res = self.worker_map(self.worker, self.get_scores, data_points)
         elif self.score_process_count and (
@@ -1901,6 +1990,7 @@ class DriveVLABaseAgent(AbstractAgent):
             ]
         else:
             all_res = self.get_scores(data_points)
+        self._formal_phase_timer.stop(scorer_wait_timer)
 
         target_scores = torch.FloatTensor(np.stack([res[0] for res in all_res])).to(proposals.device)
 
@@ -1921,6 +2011,15 @@ class DriveVLABaseAgent(AbstractAgent):
 
             return final_scores, best_scores, target_scores, key_agent_corners, key_agent_labels, all_ego_areas
 
+    def consume_formal_timings(self) -> Dict[str, float]:
+        timings = self._formal_phase_timer.consume()
+        if self.backbone is not None and hasattr(
+            self.backbone, "consume_formal_timings"
+        ):
+            for name, seconds in self.backbone.consume_formal_timings().items():
+                timings[name] = timings.get(name, 0.0) + seconds
+        return timings
+
 
     def _uses_planreg_optimizer_groups(self) -> bool:
         return bool(
@@ -1938,38 +2037,81 @@ class DriveVLABaseAgent(AbstractAgent):
             raise ValueError("PlanReg-WM-V1 requires language_model_lr=0")
 
         global_batch_size = self.batch_size * self.num_gpus
+        formal_optimizer = bool(getattr(self, "_formal_initialization", False))
         batch_scale = 1.0
-        if bool(self._lr_args.get("scale_with_batch_size", False)):
+        scale_setting = self._lr_args.get("scale_with_batch_size", False)
+        if formal_optimizer:
+            if str(scale_setting).lower() != "sqrt":
+                raise ValueError(
+                    "Formal PlanReg optimizer requires scale_with_batch_size=sqrt"
+                )
+            reference_batch = int(
+                self._lr_args.get("reference_global_batch", 32)
+            )
+            if reference_batch <= 0:
+                raise ValueError("reference_global_batch must be positive")
+            batch_scale = math.sqrt(
+                global_batch_size / reference_batch
+            )
+        elif bool(scale_setting):
             batch_scale = math.sqrt(
                 global_batch_size / self._lr_args["base_batch_size"]
             )
         legacy_new_module_lr = float(
             self._lr_args.get("new_module_lr", 2e-4)
         )
-        learning_rates = {
-            "planning_adapter": float(
-                self._lr_args.get("planning_adapter_lr", legacy_new_module_lr)
-            )
-            * batch_scale,
-            "future_predictor": float(
-                self._lr_args.get("future_predictor_lr", legacy_new_module_lr)
-            )
-            * batch_scale,
-            "fusion": float(self._lr_args.get("fusion_lr", 1e-4))
-            * batch_scale,
-            "action_head": float(self._lr_args.get("action_head_lr", 1e-4))
-            * batch_scale,
-            "scorer": float(self._lr_args.get("scorer_lr", 1e-4))
-            * batch_scale,
-            "vision_qv_lora": float(
-                self._lr_args.get("vision_qv_lora_lr", 5e-5)
-            )
-            * batch_scale,
-            "semantic_qformer": float(
-                self._lr_args.get("semantic_qformer_lr", 1e-5)
-            )
-            * batch_scale,
-        }
+        if formal_optimizer:
+            reference_lrs = {
+                "planning_adapter": float(self._lr_args["planning_adapter_lr"]),
+                "semantic_fusion": float(self._lr_args["semantic_fusion_lr"]),
+                "action_generator": float(self._lr_args["action_generator_lr"]),
+                "scorer": float(self._lr_args["scorer_lr"]),
+                "future_predictor": float(self._lr_args["future_predictor_lr"]),
+                "semantic_qformer": float(self._lr_args["semantic_qformer_lr"]),
+                "vision_qv_lora": float(self._lr_args["vision_qv_lora_lr"]),
+            }
+            caps = {
+                "planning_adapter": float(self._lr_args["new_module_lr_cap"]),
+                "semantic_fusion": float(self._lr_args["new_module_lr_cap"]),
+                "future_predictor": float(self._lr_args["new_module_lr_cap"]),
+                "action_generator": float(self._lr_args["action_scorer_lr_cap"]),
+                "scorer": float(self._lr_args["action_scorer_lr_cap"]),
+                "semantic_qformer": float(self._lr_args["qformer_lr_cap"]),
+                "vision_qv_lora": float(self._lr_args["vision_lora_lr_cap"]),
+            }
+            learning_rates = {
+                name: min(reference_lr * batch_scale, caps[name])
+                for name, reference_lr in reference_lrs.items()
+            }
+            fusion_group_name = "semantic_fusion"
+            action_group_name = "action_generator"
+        else:
+            learning_rates = {
+                "planning_adapter": float(
+                    self._lr_args.get("planning_adapter_lr", legacy_new_module_lr)
+                )
+                * batch_scale,
+                "future_predictor": float(
+                    self._lr_args.get("future_predictor_lr", legacy_new_module_lr)
+                )
+                * batch_scale,
+                "fusion": float(self._lr_args.get("fusion_lr", 1e-4))
+                * batch_scale,
+                "action_head": float(self._lr_args.get("action_head_lr", 1e-4))
+                * batch_scale,
+                "scorer": float(self._lr_args.get("scorer_lr", 1e-4))
+                * batch_scale,
+                "vision_qv_lora": float(
+                    self._lr_args.get("vision_qv_lora_lr", 5e-5)
+                )
+                * batch_scale,
+                "semantic_qformer": float(
+                    self._lr_args.get("semantic_qformer_lr", 1e-5)
+                )
+                * batch_scale,
+            }
+            fusion_group_name = "fusion"
+            action_group_name = "action_head"
         decay_weight_decay = float(
             self._lr_args.get("decay_weight_decay", 0.01)
         )
@@ -2002,9 +2144,16 @@ class DriveVLABaseAgent(AbstractAgent):
                 ):
                     grouped["scorer"].append((name, parameter))
                 elif action_name.startswith(
-                    ("semantic_gate", "scene_norm.")
+                    (
+                        "semantic_gate",
+                        "scene_norm.",
+                        "planning_norm.",
+                        "semantic_norm.",
+                        "semantic_cross_attention.",
+                        "output_norm.",
+                    )
                 ):
-                    grouped["fusion"].append((name, parameter))
+                    grouped[fusion_group_name].append((name, parameter))
                 elif action_name.startswith(
                     ("q_former.", "scene_embeds")
                 ):
@@ -2017,7 +2166,7 @@ class DriveVLABaseAgent(AbstractAgent):
                         "traj_head.",
                     )
                 ):
-                    grouped["action_head"].append((name, parameter))
+                    grouped[action_group_name].append((name, parameter))
                 else:
                     unclassified.append(name)
             else:
@@ -2115,6 +2264,12 @@ class DriveVLABaseAgent(AbstractAgent):
         if not optimizer_groups:
             raise RuntimeError("No trainable PlanReg-WM-V1 parameters found")
         self._planreg_optimizer_group_summary = summaries
+        self._planreg_optimizer_runtime = {
+            "formal": formal_optimizer,
+            "actual_global_batch": global_batch_size,
+            "lr_scale": batch_scale,
+            "logical_learning_rates": learning_rates,
+        }
         optimizer_class = (
             torch.optim.AdamW
             if self._lr_args["name"] == "AdamW"
@@ -2135,20 +2290,28 @@ class DriveVLABaseAgent(AbstractAgent):
         scheduler_args = self.scheduler_args
         warmup_ratio = float(scheduler_args.get("warmup_ratio", 0.03))
         start_lr_ratio = float(scheduler_args.get("start_lr_ratio", 0.01))
-        default_min_ratios = {
-            "planning_adapter": 0.10,
-            "future_predictor": 0.10,
-            "fusion": 0.10,
-            "vision_qv_lora": 0.10,
-            "action_head": 0.20,
-            "scorer": 0.20,
-            "semantic_qformer": 0.20,
-        }
-        configured_min_ratios = scheduler_args.get("min_lr_ratios", {})
-        min_ratios = {
-            name: float(configured_min_ratios.get(name, default))
-            for name, default in default_min_ratios.items()
-        }
+        if formal_optimizer:
+            if str(scheduler_args.get("type", "cosine")) != "cosine":
+                raise ValueError("Formal PlanReg scheduler type must be cosine")
+            if str(scheduler_args.get("interval", "step")) != "step":
+                raise ValueError("Formal PlanReg scheduler interval must be step")
+            common_min_ratio = float(scheduler_args.get("min_lr_ratio", 0.10))
+            min_ratios = {name: common_min_ratio for name in learning_rates}
+        else:
+            default_min_ratios = {
+                "planning_adapter": 0.10,
+                "future_predictor": 0.10,
+                "fusion": 0.10,
+                "vision_qv_lora": 0.10,
+                "action_head": 0.20,
+                "scorer": 0.20,
+                "semantic_qformer": 0.20,
+            }
+            configured_min_ratios = scheduler_args.get("min_lr_ratios", {})
+            min_ratios = {
+                name: float(configured_min_ratios.get(name, default))
+                for name, default in default_min_ratios.items()
+            }
         lr_lambdas = []
         for group in optimizer.param_groups:
             logical_name = group["logical_name"]
