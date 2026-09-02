@@ -337,6 +337,22 @@ wave-10 已在 `training-vla-zt2` 的 8 张 GPU 上运行，使用全覆盖 103,
 当前 actor 训练 target。只有 held-out-log bootstrap 下界大于零的 artifact 才会
 进入完整 Navtest；配置与选择规则见 `NO_VQA_E35_WAVE10_PREDECLARATION.md`。
 
+最终 8/8 个 validation-promoted 模型均完成严格 FP32 Navtest：12,146 scenes、
+136 logs、64 条固定 No-VQA E35 候选、0 invalid，并全部通过真实 Agent/缓存
+在线一致性（proposal 最大误差 0，score 最大误差不超过 `2.38e-7`）。最佳项为
+point-attention + Top-16 conservative reference：validation `+0.005164`，但
+Navtest PDMS 仅 `0.910868`，相对匹配 Base `0.911493` 为 `-0.000626`，日志
+bootstrap 95% CI `[-0.002761, +0.001475]`。其余七项也全部低于 Base；Top-32
+pooled 虽在 validation 达到 `+0.006615`，Navtest 却为 `-0.002983`，且置信
+区间完全为负。
+
+分项揭示了错误迁移方向。最佳 Wave-10 模型相对 Base 的 Navtest progress
+约 `+0.01308`，但 NOC、DAC、TTC 和 DDC 分别约 `-0.00231`、`-0.00387`、
+`-0.00906`、`-0.00358`。因此“预测当前 actor → 恒速共享外推 → 候选相对
+后果”在这个 80-token 表征和单一 61-log 验证选择下，主要学会用进度交换安全，
+没有产生可部署规划收益。完整机器可读结果、promotion lineage 和 8 份 parity
+证据位于 `no_vqa_e35_current_actor_cv_wave10_v1/`。
+
 ## wave-11/12：风险平衡与五折跨日志验证
 
 根据域审计，wave-11 不再只增加容量，而是在保持每条物理日志总采样质量完全
