@@ -82,3 +82,5 @@ def test_dual_formal_sequence_uses_the_two_locked_launchers():
     assert base_position < vqa_position
     assert "PLANREG_LAYOUT_LOCK" in script
     assert "PLANREG_SHARED_INIT" in script
+    assert "PLANREG_EVALUATE_AFTER_TRAINING:-1" in script
+    assert script.index("evaluate_formal_checkpoint.sh") > vqa_position

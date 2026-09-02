@@ -16,4 +16,15 @@ echo "PLANREG_FORMAL_SEQUENCE state=starting_base seed=${seed} utc=$(date -u +%F
 bash "${script_dir}/train_formal_base_init_wm.sh" "${seed}"
 echo "PLANREG_FORMAL_SEQUENCE state=base_complete_starting_vqa seed=${seed} utc=$(date -u +%FT%TZ)"
 bash "${script_dir}/train_formal_vqa_init_wm.sh" "${seed}"
+
+if [[ "${PLANREG_EVALUATE_AFTER_TRAINING:-1}" == "1" ]]; then
+  run_root="${PLANREG_FORMAL_RUN_ROOT:-/mnt/project/DriveVLA-M0-formal-runs/training}"
+  base_student="${run_root}/formal_base_init_wm_seed${seed}/deploy/formal_base_init_wm_epoch27_student.ckpt"
+  vqa_student="${run_root}/formal_vqa_init_wm_seed${seed}/deploy/formal_vqa_init_wm_epoch27_student.ckpt"
+  echo "PLANREG_FORMAL_SEQUENCE state=base_evaluation seed=${seed} utc=$(date -u +%FT%TZ)"
+  bash "${script_dir}/evaluate_formal_checkpoint.sh" base "${base_student}"
+  echo "PLANREG_FORMAL_SEQUENCE state=vqa_evaluation seed=${seed} utc=$(date -u +%FT%TZ)"
+  bash "${script_dir}/evaluate_formal_checkpoint.sh" driving_vqa "${vqa_student}"
+fi
+
 echo "PLANREG_FORMAL_SEQUENCE state=complete seed=${seed} utc=$(date -u +%FT%TZ)"
