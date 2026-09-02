@@ -522,6 +522,24 @@ class DriveVLABaseAgent(AbstractAgent):
                 strict_vocab_alignment=bool(
                     getattr(self.vlm_config, "strict_vocab_alignment", False)
                 ),
+                semantic_frozen_llm_no_grad=bool(
+                    getattr(
+                        self.semantic_path_config,
+                        "frozen_llm_no_grad",
+                        False,
+                    )
+                    if self.semantic_path_config is not None
+                    else False
+                ),
+                semantic_backprop_to_vision=bool(
+                    getattr(
+                        self.semantic_path_config,
+                        "backprop_to_vision",
+                        True,
+                    )
+                    if self.semantic_path_config is not None
+                    else True
+                ),
             )
             
             if self.lora_config.use_lora:

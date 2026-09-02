@@ -269,7 +269,9 @@ class DriveVLABackbone(nn.Module):
                  vision_qv_lora_enabled: bool = False,
                  vision_qv_lora_rank: int = 32,
                  vision_qv_lora_dropout: float = 0.0,
-                 strict_vocab_alignment: bool = False):
+                 strict_vocab_alignment: bool = False,
+                 semantic_frozen_llm_no_grad: bool = False,
+                 semantic_backprop_to_vision: bool = True):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -287,6 +289,13 @@ class DriveVLABackbone(nn.Module):
         self.skip_lm_head = skip_lm_head
         self.gradient_checkpointing_enabled = bool(gradient_checkpointing)
         self.strict_vocab_alignment = bool(strict_vocab_alignment)
+        self.semantic_frozen_llm_no_grad = bool(semantic_frozen_llm_no_grad)
+        self.semantic_backprop_to_vision = bool(semantic_backprop_to_vision)
+        if self.semantic_frozen_llm_no_grad and self.semantic_backprop_to_vision:
+            raise ValueError(
+                "frozen_llm_no_grad=true is incompatible with "
+                "semantic_path.backprop_to_vision=true"
+            )
         self.planning_registers_enabled = bool(planning_registers_enabled)
         self.planning_register_attention_mode = str(
             planning_register_attention_mode
@@ -454,12 +463,18 @@ class DriveVLABackbone(nn.Module):
             vision_model.encoder.gradient_checkpointing = True
 
         language_model = self.model.language_model
-        if hasattr(language_model, "gradient_checkpointing_enable"):
-            language_model.gradient_checkpointing_enable()
-        elif hasattr(language_model, "_set_gradient_checkpointing"):
-            language_model._set_gradient_checkpointing()
         language_model.config.use_cache = False
-        print("Enabled InternVL vision and language gradient checkpointing.")
+        if not self.semantic_frozen_llm_no_grad:
+            if hasattr(language_model, "gradient_checkpointing_enable"):
+                language_model.gradient_checkpointing_enable()
+            elif hasattr(language_model, "_set_gradient_checkpointing"):
+                language_model._set_gradient_checkpointing()
+            print("Enabled InternVL vision and language gradient checkpointing.")
+        else:
+            print(
+                "Enabled InternVL vision gradient checkpointing; frozen semantic "
+                "LLM runs under no_grad without language checkpoint wrappers."
+            )
 
     def activate_gradient_checkpointing_train_mode(self) -> None:
         """Activate checkpoint wrappers without enabling frozen-model dropout.
@@ -481,6 +496,8 @@ class DriveVLABackbone(nn.Module):
             raise RuntimeError("InternVL gradient checkpointing requires vision encoder")
         vision_encoder.training = True
 
+        if bool(getattr(self, "semantic_frozen_llm_no_grad", False)):
+            return
         decoder = getattr(self.model.language_model, "model", None)
         decoder_layers = getattr(decoder, "layers", None)
         if decoder_layers is None or len(decoder_layers) == 0:
@@ -613,6 +630,37 @@ class DriveVLABackbone(nn.Module):
             return_dict=True,
         )
 
+    def _forward_semantic_language_path(
+        self,
+        patch_features: torch.Tensor,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        position_ids: torch.Tensor,
+        image_flags: torch.Tensor,
+    ):
+        """Apply the explicit formal semantic-path gradient boundary."""
+        patch_features_for_llm = (
+            patch_features
+            if self.semantic_backprop_to_vision
+            else patch_features.detach()
+        )
+        if self.semantic_frozen_llm_no_grad:
+            with torch.no_grad():
+                return self._forward_internvl_from_patch_features(
+                    patch_features_for_llm,
+                    input_ids,
+                    attention_mask,
+                    position_ids,
+                    image_flags,
+                )
+        return self._forward_internvl_from_patch_features(
+            patch_features_for_llm,
+            input_ids,
+            attention_mask,
+            position_ids,
+            image_flags,
+        )
+
     def encode_internvl_planning_vision(
         self,
         pixel_values: torch.Tensor,
@@ -645,7 +693,7 @@ class DriveVLABackbone(nn.Module):
             num_patches_list,
             tile_metadata,
         )
-        language_output = self._forward_internvl_from_patch_features(
+        language_output = self._forward_semantic_language_path(
             planning_output.patch_features,
             input_ids,
             attention_mask,

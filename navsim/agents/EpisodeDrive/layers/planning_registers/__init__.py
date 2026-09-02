@@ -20,6 +20,7 @@ from .vision_qv_lora import (
     extract_qv_lora_state_dict,
     freeze_vision_except_qv_lora,
     inject_internvit_qv_lora,
+    iter_qv_lora_modules,
     load_qv_lora_state_dict,
 )
 
@@ -33,6 +34,7 @@ __all__ = [
     "extract_qv_lora_state_dict",
     "freeze_vision_except_qv_lora",
     "inject_internvit_qv_lora",
+    "iter_qv_lora_modules",
     "load_qv_lora_state_dict",
     "set_read_only_register_sequence_length",
 ]

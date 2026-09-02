@@ -115,10 +115,12 @@ class ActionDecoder(nn.Module):
                 "semantic_only",
                 "planning_only",
                 "planning_plus_semantic",
+                "planning_primary_semantic_xattn",
             }:
                 raise ValueError(
                     "scene_fusion.mode must be semantic_only, planning_only, "
-                    f"or planning_plus_semantic; got {self.scene_feature_mode!r}"
+                    "planning_plus_semantic, or planning_primary_semantic_xattn; "
+                    f"got {self.scene_feature_mode!r}"
                 )
             self.scene_transition_fraction = float(
                 getattr(scene_fusion_config, "transition_fraction", 0.20)
@@ -127,7 +129,7 @@ class ActionDecoder(nn.Module):
                 raise ValueError("scene_fusion.transition_fraction must be in (0,1]")
             # semantic_only is a strict legacy bypass: its module topology and
             # scene tensor are identical to ActionDecoder without scene fusion.
-            if self.scene_feature_mode != "semantic_only":
+            if self.scene_feature_mode in {"planning_only", "planning_plus_semantic"}:
                 self.scene_norm = nn.LayerNorm(config.tf_d_model)
             if self.scene_feature_mode == "planning_plus_semantic":
                 gate_init = float(
@@ -151,6 +153,48 @@ class ActionDecoder(nn.Module):
                     ),
                     persistent=True,
                 )
+            elif self.scene_feature_mode == "planning_primary_semantic_xattn":
+                fusion_layers = int(getattr(scene_fusion_config, "layers", 1))
+                if fusion_layers != 1:
+                    raise ValueError(
+                        "PlanReg-WM-V1 formal semantic fusion is exactly one "
+                        f"cross-attention layer, got layers={fusion_layers}"
+                    )
+                num_heads = int(getattr(scene_fusion_config, "num_heads", 8))
+                dropout = float(getattr(scene_fusion_config, "dropout", 0.0))
+                if self.embed_dims % num_heads != 0:
+                    raise ValueError(
+                        f"Fusion embed dim {self.embed_dims} is not divisible by "
+                        f"num_heads={num_heads}"
+                    )
+                if dropout != 0.0:
+                    raise ValueError(
+                        "Formal planning-primary semantic fusion requires dropout=0.0"
+                    )
+                initial_probability = float(
+                    getattr(
+                        scene_fusion_config,
+                        "semantic_gate_init_probability",
+                        0.20,
+                    )
+                )
+                if not 0.0 < initial_probability < 1.0:
+                    raise ValueError(
+                        "semantic_gate_init_probability must be strictly between 0 and 1"
+                    )
+                gate_logit = math.log(
+                    initial_probability / (1.0 - initial_probability)
+                )
+                self.planning_norm = nn.LayerNorm(self.embed_dims)
+                self.semantic_norm = nn.LayerNorm(self.embed_dims)
+                self.semantic_cross_attention = nn.MultiheadAttention(
+                    embed_dim=self.embed_dims,
+                    num_heads=num_heads,
+                    dropout=dropout,
+                    batch_first=True,
+                )
+                self.output_norm = nn.LayerNorm(self.embed_dims)
+                self.semantic_gate = nn.Parameter(torch.tensor(gate_logit))
         # Attached only after loading the original Base checkpoint. Keeping this
         # as None preserves the exact legacy state_dict and inference behavior.
         self.memory_attention = None
@@ -169,6 +213,10 @@ class ActionDecoder(nn.Module):
     def scene_mix_ratio(self, reference: torch.Tensor) -> torch.Tensor:
         if self.scene_feature_mode == "semantic_only":
             return reference.new_zeros(())
+        if self.scene_feature_mode == "planning_primary_semantic_xattn":
+            return torch.sigmoid(self.semantic_gate).to(
+                device=reference.device, dtype=reference.dtype
+            )
         if self.scene_feature_mode == "planning_only" or not self.training:
             return reference.new_ones(())
         total_steps = int(self._total_optimizer_steps.item())
@@ -212,6 +260,23 @@ class ActionDecoder(nn.Module):
             )
             if self.scene_feature_mode == "planning_only":
                 return self.scene_norm(planning_features), rho
+            elif self.scene_feature_mode == "planning_primary_semantic_xattn":
+                planning = self.planning_norm(planning_features)
+                semantic = self.semantic_norm(semantic_features)
+                semantic_context, _ = self.semantic_cross_attention(
+                    query=planning,
+                    key=semantic,
+                    value=semantic,
+                    need_weights=False,
+                )
+                scene_tokens = self.output_norm(
+                    planning
+                    + torch.sigmoid(self.semantic_gate).to(
+                        dtype=semantic_context.dtype
+                    )
+                    * semantic_context
+                )
+                return scene_tokens, rho
             else:
                 planning_target = self.scene_norm(
                     planning_features
