@@ -107,6 +107,9 @@ from local_stage2.build_drivor_promotion_manifest import (
 from local_stage2.build_m0_native_promotion_manifest import (
     _record as m0_native_promotion_record,
 )
+from local_stage2.build_full_current_actor_target_cache import (
+    aggregate as aggregate_full_current_actor_targets,
+)
 from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
 from local_stage2.audit_drivor_representation_dependence import (
     _cross_log_derangement,
@@ -2006,6 +2009,52 @@ def test_load_current_actor_target_table_respects_scene_indices(tmp_path) -> Non
     assert table.supervision_valid.tolist() == [False, True]
     torch.testing.assert_close(
         table.actor_states[0].flatten(), torch.arange(100, 116).float()
+    )
+
+
+def test_full_current_actor_target_aggregate_matches_training_schema(tmp_path) -> None:
+    shard_root = tmp_path / "shards"
+    final_root = tmp_path / "final"
+    feature_root = tmp_path / "features"
+    shard_root.mkdir()
+    feature_root.mkdir()
+    for shard in range(2):
+        states = np.zeros((2, 16, 8), dtype=np.float32)
+        states[:, 0, 1] = np.asarray([shard * 2 + 1, shard * 2 + 2])
+        masks = np.zeros((2, 16), dtype=bool)
+        masks[:, 0] = True
+        np.savez_compressed(
+            shard_root / f"shard_{shard:03d}-of-002.npz",
+            tokens=np.asarray([f"token-{shard}-0", f"token-{shard}-1"]),
+            log_names=np.asarray([f"log-{shard}", f"log-{shard}"]),
+            actor_states=states,
+            actor_masks=masks,
+        )
+    result = aggregate_full_current_actor_targets(
+        SimpleNamespace(
+            output_root=shard_root,
+            final_root=final_root,
+            feature_root=feature_root,
+            num_shards=2,
+            expected_scenes=4,
+        )
+    )
+    assert result["status"] == "PASS"
+    assert result["current_observation_only"] is True
+    assert result["future_or_evaluator_input"] is False
+    table = load_current_actor_target_table(final_root)
+    assert table.tokens == [
+        "token-0-0",
+        "token-0-1",
+        "token-1-0",
+        "token-1-1",
+    ]
+    assert table.actor_states.shape == (4, 16, 8)
+    assert table.actor_masks[:, 0].all()
+    assert table.supervision_valid.all()
+    torch.testing.assert_close(
+        table.actor_states[:, 0, 1],
+        torch.tensor([1.0, 2.0, 3.0, 4.0]),
     )
 
 
