@@ -23,6 +23,7 @@ eval_gpu="${TEMPORAL_EVAL_GPU:-5}"
 minimum_available_gib="${TEMPORAL_MIN_AVAILABLE_GIB:-40}"
 minimum_available_bytes=$((minimum_available_gib * 1024 * 1024 * 1024))
 score_mode="${TEMPORAL_SCORE_MODE:-residual}"
+use_base_candidate_features="${TEMPORAL_USE_BASE_CANDIDATE_FEATURES:-false}"
 
 case "${score_mode}" in
   residual|factor_aggregate|hybrid) ;;
@@ -31,6 +32,18 @@ case "${score_mode}" in
     exit 64
     ;;
 esac
+case "${use_base_candidate_features}" in
+  true|false) ;;
+  *)
+    printf 'TEMPORAL_CONFIG_ERROR invalid base-feature flag: %s\n' \
+      "${use_base_candidate_features}" >&2
+    exit 64
+    ;;
+esac
+model_args=()
+if [[ "${use_base_candidate_features}" == "true" ]]; then
+  model_args+=(--use-base-candidate-features)
+fi
 
 if [[ "${#replay_gpus[@]}" -ne 5 || "${#replay_wait_pids[@]}" -ne 5 ]]; then
   printf 'TEMPORAL_CONFIG_ERROR replay GPU and wait-PID lists must each have 5 entries\n' >&2
@@ -113,6 +126,16 @@ if [[ "${discovery_score_mode}" != "${score_mode}" ]]; then
     "${discovery_score_mode}" "${score_mode}" >&2
   exit 65
 fi
+discovery_base_features="$(
+  "${DRIVEVLA_PYTHON}" -c \
+    'import glob,json,sys; paths=glob.glob(sys.argv[1]+"/fold_*/training_results.json"); values={bool(json.load(open(p))["metadata"]["training_args"].get("use_base_candidate_features", False)) for p in paths}; assert len(paths)==5 and len(values)==1; print("true" if values.pop() else "false")' \
+    "${discovery_root}"
+)"
+if [[ "${discovery_base_features}" != "${use_base_candidate_features}" ]]; then
+  printf 'TEMPORAL_BASE_FEATURE_ERROR discovery=%s requested=%s\n' \
+    "${discovery_base_features}" "${use_base_candidate_features}" >&2
+  exit 65
+fi
 replay_epochs=$((common_epoch + 1))
 if [[ "${replay_epochs}" -gt "${discovery_scheduler_epochs}" ]]; then
   printf 'TEMPORAL_EPOCH_ERROR replay=%s scheduler=%s\n' \
@@ -155,6 +178,7 @@ launch_replay_fold() {
       --scheduler-epochs "${discovery_scheduler_epochs}" \
       --retained-epoch "${common_epoch}" \
       --score-mode "${score_mode}" \
+      "${model_args[@]}" \
       --batch-size 128 \
       --eval-batch-size 256 \
       --device cuda >"${log}" 2>&1
@@ -215,6 +239,7 @@ launch_full_data() {
       --epochs "${replay_epochs}" \
       --scheduler-epochs "${discovery_scheduler_epochs}" \
       --score-mode "${score_mode}" \
+      "${model_args[@]}" \
       --batch-size 128 \
       --eval-batch-size 256 \
       --device cuda >"${log}" 2>&1
