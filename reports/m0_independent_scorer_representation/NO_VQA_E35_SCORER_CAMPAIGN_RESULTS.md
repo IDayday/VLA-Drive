@@ -370,3 +370,40 @@ epoch。只有五折的 point delta 与日志 bootstrap 下界全部大于零，
 162 logs 上 refit 并进入 Navtest。预注册与 fold lineage 位于
 `NO_VQA_E35_WAVE11_PREDECLARATION.md`、`NO_VQA_E35_WAVE12_PREDECLARATION.md`
 和 `no_vqa_e35_risk_cv_wave12_v1/folds/`。
+
+wave-11 最终七项均在单一 61-log validation 上显著为正（约
+`+0.00580` 至 `+0.00624`），并且 7/7 都完成严格完整 Navtest 与真实
+Agent/cache parity。最佳测试项反而是不使用 proposal-point 直连视觉的
+`risk4 raw-combined Top-32`：
+
+| wave-11 项 | Navtest PDMS | 相对 Base | 95% CI |
+|---|---:|---:|---:|
+| risk4 raw-combined Top-32 | **0.912089** | **+0.000596** | [-0.001380,+0.002450] |
+| risk4 point+context Top-16 | 0.911583 | +0.000090 | [-0.002160,+0.002520] |
+| risk4 point Top-16 | 0.911443 | -0.000050 | [-0.002638,+0.002189] |
+| risk8 point Top-32 | 0.910400 | -0.001094 | [-0.004441,+0.001863] |
+| risk4 point Top-32 | 0.909327 | -0.002166 | [-0.004908,+0.000258] |
+| risk2 point Top-32 | 0.908670 | -0.002823 | [-0.005484,-0.000296] |
+| risk4 current-actor-CV point Top-32 | 0.907770 | -0.003723 | [-0.006856,-0.000544] |
+
+因此风险场景重采样只把最佳点估计抬到 `+0.000596`，置信区间仍跨零，距离
+`0.93` 仍有 `0.017911`；倍率更高和 current-actor CV 路径反而显著损害
+Navtest。完整覆盖、artifact SHA 和 parity 结果在
+`no_vqa_e35_risk_balanced_wave11_v2/`。
+
+wave-12 的固定 epoch-7 默认 policy 在五个互斥 fold 上全部为正：平均
+`+0.004539`、最差 fold `+0.003579`、最差日志 bootstrap 下界
+`+0.002099`。但该收益稳定地依赖用 progress 换安全：按 scene 加权，progress
+为 `+0.01810`，NOC/DAC/TTC 分别为 `-0.000697`、`-0.002091`、
+`-0.004124`。随后在每折冻结神经权重，对同一个预注册 192-policy 网格做共同
+选择；没有任何 policy 同时满足：五折点估计为正、五折聚类置信区间下界为正，
+以及每折 NOC/DAC/TTC 均不低于 Base 超过 `0.0005`。因此 robust policy 数为
+`0`，预注册 all-log refit gate 为 `FAIL`，没有借此结果启动主 Navtest
+宣称。诊断最优 policy 的最差 fold 仍有 `+0.003791`，但加权 TTC 为
+`-0.002169`，所以它也不能解释为安全非退化的规划改进。
+
+这个五折结果排除了“单一 validation split 恰好选错 epoch/日志”作为唯一原因：
+当前 scorer 确实能跨所有 Navtrain 日志学到 progress 收益，却没有学到足够可靠
+的动态安全表征。下一项预注册单变量实验 wave-13 将同一 M0 当前视觉 token 从
+每 crop `2×2`（80 tokens）提高到 `4×4`（320 tokens），其余 folds、目标、
+epoch 和共同 policy gate 全部保持不变。

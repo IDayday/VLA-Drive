@@ -101,7 +101,7 @@ fi
 
 gate="$("${python_bin}" - "${report_root}/CV_RESULTS.json" <<'PY'
 import json, sys
-print("1" if json.load(open(sys.argv[1]))["aggregate"]["robust_refit_gate_passed"] else "0")
+print("1" if json.load(open(sys.argv[1]))["robust_refit_gate_passed"] else "0")
 PY
 )"
 if [[ "${gate}" != "1" ]]; then
