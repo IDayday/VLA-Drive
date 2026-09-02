@@ -36,6 +36,17 @@ def aggregate_drivor_pdm_score(
     )
 
 
+def normalized_drivor_pred_pdms(
+    log_pdm_score: torch.Tensor,
+    config,
+) -> torch.Tensor:
+    """Return a [0,1]-scale PDMS diagnostic without changing DrivoR argmax."""
+    denominator = float(config.ttc + config.ep + config.comfort)
+    if denominator <= 0:
+        raise ValueError("TTC + EP + Comfort scorer weights must be positive")
+    return torch.exp(log_pdm_score) / denominator
+
+
 class Scorer(nn.Module):
     def __init__(self, config):
         super().__init__()

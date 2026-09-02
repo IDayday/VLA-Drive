@@ -3,7 +3,11 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-from .score_module.scorer import Scorer, aggregate_drivor_pdm_score
+from .score_module.scorer import (
+    Scorer,
+    aggregate_drivor_pdm_score,
+    normalized_drivor_pred_pdms,
+)
 from .transformer_decoder import TransformerDecoder, TransformerDecoderScorer
 from .layers.image_encoder.dinov2_lora import ImgEncoder
 from .layers.utils.mlp import MLP
@@ -332,6 +336,9 @@ class ActionDecoder(nn.Module):
 
         output["trajectory"] = trajectory
         output["pdm_score"] = pdm_score
+        output["pred_pdms"] = normalized_drivor_pred_pdms(
+            pdm_score, self._config
+        )
         if bool(getattr(self._config, "return_memory_fields", False)):
             output["language_feature"] = scene_features
             output["ego_feature"] = ego_token

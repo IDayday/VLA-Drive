@@ -218,11 +218,29 @@ class AgentLightningModule(pl.LightningModule):
             logging_prefix="val"
             if "pdm_score" in predictions:
                 pdm_score = predictions["pdm_score"]
-                best_pred_score_values = pdm_score[torch.arange(len(pdm_score)), torch.argmax(pdm_score, dim=1)]
-                score_error = torch.abs(best_pred_score_values - proposal_scores).mean()
+                pred_pdms = predictions.get("pred_pdms")
+                if pred_pdms is None:
+                    pred_pdms = torch.exp(pdm_score) / float(
+                        self.agent.action_head_config.ttc
+                        + self.agent.action_head_config.ep
+                        + self.agent.action_head_config.comfort
+                    )
+                best_pred_indices = torch.argmax(pdm_score, dim=1)
+                batch_indices = torch.arange(
+                    len(pdm_score), device=pdm_score.device
+                )
+                best_pred_score_values = pred_pdms[
+                    batch_indices, best_pred_indices
+                ]
+                selected_target_pdms = proposal_scores.reshape(
+                    len(proposal_scores), -1
+                )[:, 0]
+                score_error = torch.abs(
+                    best_pred_score_values - selected_target_pdms
+                ).mean()
                 self.log(f"{logging_prefix}/score_error", score_error, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
                 
-                best_pred_score_index = torch.argmax(pdm_score, dim=1)
+                best_pred_score_index = best_pred_indices
                 best_real_score_index = torch.argmax(all_proposal_scores, dim=1)
                 score_hit_rate = torch.mean(best_pred_score_index == best_real_score_index, dtype=torch.float32)
 

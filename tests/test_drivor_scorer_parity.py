@@ -15,6 +15,8 @@ from navsim.agents.EpisodeDrive.layers.losses.episode_drive_loss import (
 from navsim.agents.EpisodeDrive.score_module.scorer import (
     DRIVOR_SCORE_HEAD_NAMES,
     Scorer,
+    aggregate_drivor_pdm_score,
+    normalized_drivor_pred_pdms,
 )
 
 
@@ -117,3 +119,27 @@ def test_b2d_false_default_shapes() -> None:
     scorer = Scorer(config)
     assert scorer.pred_col_agent.mlp[-1].out_features == 2 * 40 * 9
     assert scorer.pred_area.mlp[-1].out_features == 8 * 5 * 2
+
+
+def test_normalized_pdms_diagnostic_matches_manual_and_preserves_argmax() -> None:
+    audit = _load_audit_module()
+    config = audit.make_config()
+    generator = torch.Generator().manual_seed(20260902)
+    logits = {
+        name: torch.randn(2, 64, generator=generator)
+        for name in DRIVOR_SCORE_HEAD_NAMES
+    }
+    log_score = aggregate_drivor_pdm_score(logits, config)
+    diagnostic = normalized_drivor_pred_pdms(log_score, config)
+    manual = (
+        logits["no_at_fault_collisions"].sigmoid()
+        * logits["drivable_area_compliance"].sigmoid()
+        * (
+            config.ttc * logits["time_to_collision_within_bound"].sigmoid()
+            + config.ep * logits["ego_progress"].sigmoid()
+            + config.comfort * logits["comfort"].sigmoid()
+        )
+        / (config.ttc + config.ep + config.comfort)
+    )
+    torch.testing.assert_close(diagnostic, manual)
+    assert torch.equal(log_score.argmax(dim=1), diagnostic.argmax(dim=1))

@@ -36,7 +36,7 @@ experiment_overrides() {
         agent.ema.enabled=false
       ;;
     e2_*)
-      printf '%s\n' agent.world_model.enabled=false agent.ema.enabled=false
+      :
       ;;
     e4_*) printf '%s\n' agent.world_model.future_mode=no_action_condition ;;
     e5_*) printf '%s\n' agent.world_model.future_mode=shuffled_batch ;;
@@ -61,6 +61,9 @@ for specification in "$@"; do
     echo "Checkpoint does not exist: ${checkpoint}" >&2
     exit 2
   fi
+  "${PYTHON_BIN}" \
+    "${PLANREG_REPO_ROOT}/scripts/export_planreg_student_checkpoint.py" \
+    --verify "${checkpoint}"
   if [[ -n "${PLANREG_EVAL_SEED:-}" ]]; then
     evaluation_seed="${PLANREG_EVAL_SEED}"
   elif [[ "${label}" =~ _seed([0-9]+)$ ]]; then
@@ -89,6 +92,8 @@ for specification in "$@"; do
     "+trainer.params.devices=${PLANREG_NUM_GPUS}"
     "trainer.params.strategy=${evaluation_strategy}"
     trainer.params.precision=32
+    agent.world_model.enabled=false
+    agent.ema.enabled=false
     "metric_cache_path=${PLANREG_NAVTEST_METRIC_CACHE}"
     "${overrides[@]}"
   )
@@ -104,6 +109,8 @@ for specification in "$@"; do
   planreg_require_directory "${NUPLAN_MAPS_ROOT}"
   mkdir -p "${output_dir}/run_metadata"
   sha256sum "${checkpoint}" > "${output_dir}/run_metadata/checkpoint.sha256"
+  printf '%s\n' 'BF16 VLM + FP32 action/scorer (not full FP32)' \
+    > "${output_dir}/run_metadata/precision_contract.txt"
   git -C "${PLANREG_REPO_ROOT}" rev-parse HEAD > "${output_dir}/run_metadata/git_commit.txt"
   git -C "${PLANREG_REPO_ROOT}" status --short --branch > "${output_dir}/run_metadata/git_status.txt"
   env | LC_ALL=C sort | sed -E \
