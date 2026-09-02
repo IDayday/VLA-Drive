@@ -1,10 +1,12 @@
 import os
 import random
 import multiprocessing as mp
-from typing import Tuple
+from typing import Any, Dict, Iterable, Optional, Tuple
 from pathlib import Path
 import logging
 import pickle
+import hashlib
+import json
 from datetime import datetime
 
 import hydra
@@ -14,6 +16,7 @@ from omegaconf import DictConfig
 from torch.utils.data import DataLoader, ConcatDataset, Subset
 import torch.distributed as dist
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 from navsim.agents.abstract_agent import AbstractAgent
 from navsim.common.dataclasses import SceneFilter
@@ -161,7 +164,142 @@ def _configured_global_batch_size(cfg: DictConfig) -> int:
 def dist_ready():
     return dist.is_available() and dist.is_initialized()
 
-def build_datasets(cfg: DictConfig, agent: AbstractAgent) -> Tuple[Dataset, Dataset]:
+
+def _ordered_unique_log_names(log_names: Iterable[str]) -> list[str]:
+    """Return stable, duplicate-free log names as plain strings."""
+    return list(dict.fromkeys(str(log_name) for log_name in log_names))
+
+
+def _sha256_log_set(log_names: Iterable[str]) -> str:
+    """Hash a log set independently of Hydra list order."""
+    payload = "\n".join(sorted(set(str(name) for name in log_names))).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def resolve_data_protocol(
+    cfg: DictConfig,
+    *,
+    scene_filter_log_names: Optional[Iterable[str]] = None,
+) -> Dict[str, Any]:
+    """Resolve and strictly audit the train/validation log contract."""
+    protocol_cfg = cfg.get("data_protocol", {})
+    include_val = bool(protocol_cfg.get("include_val_in_train", False))
+    require_disjoint = bool(protocol_cfg.get("require_disjoint_train_val", True))
+
+    train_logs = _ordered_unique_log_names(cfg.train_logs)
+    val_logs = _ordered_unique_log_names(cfg.val_logs)
+    if scene_filter_log_names is not None:
+        allowed = set(_ordered_unique_log_names(scene_filter_log_names))
+        train_logs = [name for name in train_logs if name in allowed]
+        val_logs = [name for name in val_logs if name in allowed]
+
+    overlap = sorted(set(train_logs).intersection(val_logs))
+    if require_disjoint and overlap:
+        preview = ", ".join(overlap[:10])
+        raise RuntimeError(
+            "Train/validation log overlap is forbidden by "
+            "data_protocol.require_disjoint_train_val=true: "
+            f"count={len(overlap)}, first_logs=[{preview}]"
+        )
+
+    if include_val:
+        if bool(cfg.get("validation_run", False)):
+            raise RuntimeError(
+                "data_protocol.include_val_in_train=true cannot be combined "
+                "with validation_run=true"
+            )
+        limit_val_batches = cfg.trainer.params.get("limit_val_batches", 1.0)
+        if float(limit_val_batches) != 0.0:
+            raise RuntimeError(
+                "data_protocol.include_val_in_train=true is final-fit mode and "
+                "requires trainer.params.limit_val_batches=0"
+            )
+
+    effective_train_logs = _ordered_unique_log_names(
+        [*train_logs, *(val_logs if include_val else [])]
+    )
+    audit = {
+        "mode": "final_fit" if include_val else "train_with_validation",
+        "include_val_in_train": include_val,
+        "require_disjoint_train_val": require_disjoint,
+        "hyperparameter_selection_allowed": not include_val,
+        "best_checkpoint_allowed": not include_val,
+        "train_log_count": len(train_logs),
+        "val_log_count": len(val_logs),
+        "effective_train_log_count": len(effective_train_logs),
+        "overlap_count": len(overlap),
+        "overlap_logs": overlap,
+        "train_logs_sha256": _sha256_log_set(train_logs),
+        "val_logs_sha256": _sha256_log_set(val_logs),
+        "effective_train_logs_sha256": _sha256_log_set(effective_train_logs),
+        "train_logs": train_logs,
+        "val_logs": val_logs,
+        "effective_train_logs": effective_train_logs,
+    }
+    logger.info(
+        "TRAIN_VAL_PROTOCOL mode=%s train_log_count=%d val_log_count=%d "
+        "overlap_count=%d train_sha256=%s val_sha256=%s",
+        audit["mode"],
+        audit["train_log_count"],
+        audit["val_log_count"],
+        audit["overlap_count"],
+        audit["train_logs_sha256"],
+        audit["val_logs_sha256"],
+    )
+    if include_val:
+        logger.warning(
+            "FINAL-FIT MODE: validation is included in training; validation, "
+            "best-checkpoint selection, and hyperparameter selection are disabled"
+        )
+    return audit
+
+
+def write_data_protocol_metadata(cfg: DictConfig, audit: Dict[str, Any]) -> Path:
+    """Persist the exact split audit in the run metadata directory."""
+    metadata_dir = Path(str(cfg.output_dir)) / "run_metadata"
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+    output_path = metadata_dir / "train_val_protocol.json"
+    temporary_path = metadata_dir / ".train_val_protocol.json.tmp"
+    temporary_path.write_text(
+        json.dumps(audit, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    temporary_path.replace(output_path)
+    return output_path
+
+
+def configure_callbacks_for_data_protocol(
+    callbacks: Iterable[pl.Callback], audit: Dict[str, Any]
+) -> list[pl.Callback]:
+    """Enforce last-only checkpointing for final-fit runs."""
+    callbacks = list(callbacks)
+    if not audit["include_val_in_train"]:
+        return callbacks
+    callbacks = [
+        callback for callback in callbacks if not isinstance(callback, ModelCheckpoint)
+    ]
+    callbacks.append(
+        ModelCheckpoint(
+            monitor=None,
+            save_top_k=0,
+            save_last=True,
+            save_on_train_epoch_end=True,
+        )
+    )
+    return callbacks
+
+
+def combine_cached_train_data(train_data, val_data, audit: Dict[str, Any]):
+    """Include validation cache entries only for explicit final-fit runs."""
+    if audit["include_val_in_train"]:
+        return ConcatDataset([train_data, val_data])
+    return train_data
+
+
+def build_datasets(
+    cfg: DictConfig,
+    agent: AbstractAgent,
+    data_protocol: Optional[Dict[str, Any]] = None,
+) -> Tuple[Dataset, Dataset]:
     """
     Builds training and validation datasets from omega config
     :param cfg: omegaconf dictionary
@@ -169,25 +307,18 @@ def build_datasets(cfg: DictConfig, agent: AbstractAgent) -> Tuple[Dataset, Data
     :return: tuple for training and validation dataset
     """
     
-    print("Train without caching....")
+    logger.info("Training without cache-only dataset")
     train_scene_filter: SceneFilter = instantiate(cfg.train_test_split.scene_filter)
-    if train_scene_filter.log_names is not None:
-        train_scene_filter.log_names = [
-            log_name for log_name in train_scene_filter.log_names if log_name in cfg.train_logs or log_name in cfg.val_logs 
-        ]
-        print("-----------")
-    else:
-        train_scene_filter.log_names = cfg.train_logs + cfg.val_logs
-        print("===========")
-    
-
-    print("len(train_scene_filter.log_names) ", len(train_scene_filter.log_names))
+    configured_filter_logs = train_scene_filter.log_names
+    if data_protocol is None:
+        data_protocol = resolve_data_protocol(
+            cfg, scene_filter_log_names=configured_filter_logs
+        )
+    train_scene_filter.log_names = list(data_protocol["effective_train_logs"])
+    logger.info("Train scene filter log count: %d", len(train_scene_filter.log_names))
 
     val_scene_filter: SceneFilter = instantiate(cfg.train_test_split.scene_filter)
-    if val_scene_filter.log_names is not None:
-        val_scene_filter.log_names = [log_name for log_name in val_scene_filter.log_names if log_name in cfg.val_logs]
-    else:
-        val_scene_filter.log_names = cfg.val_logs
+    val_scene_filter.log_names = list(data_protocol["val_logs"])
 
     data_path = Path(cfg.navsim_log_path)
     sensor_blobs_path = Path(cfg.sensor_blobs_path)
@@ -245,6 +376,19 @@ def main(cfg: DictConfig) -> None:
 
     logger.info(f"Path where all results are stored: {cfg.output_dir}")
 
+    scene_filter_log_names = None
+    if not cfg.use_cache_without_dataset:
+        audit_scene_filter: SceneFilter = instantiate(
+            cfg.train_test_split.scene_filter
+        )
+        scene_filter_log_names = audit_scene_filter.log_names
+    data_protocol = resolve_data_protocol(
+        cfg, scene_filter_log_names=scene_filter_log_names
+    )
+    if not dist_ready() or dist.get_rank() == 0:
+        metadata_path = write_data_protocol_metadata(cfg, data_protocol)
+        logger.info("Wrote train/validation protocol metadata: %s", metadata_path)
+
     logger.info("Building Agent")
     agent: AbstractAgent = instantiate(cfg.agent)
     agent.initialize()
@@ -263,6 +407,7 @@ def main(cfg: DictConfig) -> None:
     logger.info("Building Lightning Module")
     lightning_module = AgentLightningModule(
         agent=agent,
+        diagnostics=cfg.get("diagnostics", {}),
     )
 
     if cfg.use_cache_without_dataset:
@@ -281,7 +426,7 @@ def main(cfg: DictConfig) -> None:
             cache_path=cfg.cache_path,
             feature_builders=agent.get_feature_builders(),
             target_builders=agent.get_target_builders(),
-            log_names=cfg.train_logs,
+            log_names=data_protocol["train_logs"],
             preprocess_images=preprocess_images,
             preprocess_image_dtype=preprocess_image_dtype,
             pretokenize_inputs=pretokenize_inputs,
@@ -291,7 +436,7 @@ def main(cfg: DictConfig) -> None:
             cache_path=cfg.cache_path,
             feature_builders=agent.get_feature_builders(),
             target_builders=agent.get_target_builders(),
-            log_names=cfg.val_logs,
+            log_names=data_protocol["val_logs"],
             preprocess_images=preprocess_images,
             preprocess_image_dtype=preprocess_image_dtype,
             pretokenize_inputs=pretokenize_inputs,
@@ -301,10 +446,10 @@ def main(cfg: DictConfig) -> None:
 
         logger.info("Building Datasets")
 
-        train_data = ConcatDataset([train_data, val_data])
+        train_data = combine_cached_train_data(train_data, val_data, data_protocol)
     else:
         logger.info("Building SceneLoader")
-        train_data, val_data = build_datasets(cfg, agent)
+        train_data, val_data = build_datasets(cfg, agent, data_protocol)
 
     if bool(cfg.get("pad_datasets_to_global_batch", False)):
         global_batch_size = _configured_global_batch_size(cfg)
@@ -358,7 +503,10 @@ def main(cfg: DictConfig) -> None:
         cfg.train_ckpt_path = find_latest_checkpoint(search_pattern)
         print("cfg.train_ckpt_path ", cfg.train_ckpt_path)
 
-    trainer = pl.Trainer(**cfg.trainer.params, callbacks=agent.get_training_callbacks())
+    callbacks = configure_callbacks_for_data_protocol(
+        agent.get_training_callbacks(), data_protocol
+    )
+    trainer = pl.Trainer(**cfg.trainer.params, callbacks=callbacks)
 
     if cfg.validation_run:
         logger.info("Starting Validation")
@@ -374,7 +522,11 @@ def main(cfg: DictConfig) -> None:
         )
         logger.info("Running predictions to collect trajectories")
         predictions = trainer.predict(
-            AgentLightningModule(agent=agent, for_viz=True),
+            AgentLightningModule(
+                agent=agent,
+                for_viz=True,
+                diagnostics=cfg.get("diagnostics", {}),
+            ),
             val_dataloader,
             return_predictions=True
         )

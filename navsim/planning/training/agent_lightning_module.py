@@ -1,14 +1,16 @@
 from time import sleep
 import os
+import logging
 
 import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch import Tensor
 from typing import Dict, Tuple, Any, List
-from navsim.common.dataclasses import Trajectory
 from navsim.agents.abstract_agent import AbstractAgent
 from navsim.common.dataclasses import Trajectory
+
+logger = logging.getLogger(__name__)
 
 def _rowwise_isin(tensor_1: torch.Tensor, target_tensor: torch.Tensor) -> torch.Tensor:
     matches = (tensor_1[:, None] == target_tensor)
@@ -19,7 +21,13 @@ def _rowwise_isin(tensor_1: torch.Tensor, target_tensor: torch.Tensor) -> torch.
 class AgentLightningModule(pl.LightningModule):
     """Pytorch lightning wrapper for learnable agent."""
 
-    def __init__(self, agent: AbstractAgent, for_viz = False,for_analysis=False):
+    def __init__(
+        self,
+        agent: AbstractAgent,
+        for_viz=False,
+        for_analysis=False,
+        diagnostics=None,
+    ):
         """
         Initialise the lightning module wrapper.
         :param agent: agent interface in NAVSIM
@@ -29,6 +37,26 @@ class AgentLightningModule(pl.LightningModule):
         self.checkpoint_file=None
         self.for_viz = for_viz
         self.for_analysis=for_analysis
+        diagnostics = diagnostics or {}
+        self.grad_log_interval = int(
+            getattr(diagnostics, "grad_log_interval", diagnostics.get("grad_log_interval", 100))
+        )
+        self.register_log_interval = int(
+            getattr(
+                diagnostics,
+                "register_log_interval",
+                diagnostics.get("register_log_interval", 100),
+            )
+        )
+        self.debug_unused_parameters = bool(
+            getattr(
+                diagnostics,
+                "debug_unused_parameters",
+                diagnostics.get("debug_unused_parameters", False),
+            )
+        )
+        if self.grad_log_interval <= 0 or self.register_log_interval <= 0:
+            raise ValueError("Diagnostic log intervals must be positive")
 
     def on_fit_start(self) -> None:
         if hasattr(self.agent, "configure_total_optimizer_steps"):
@@ -41,9 +69,11 @@ class AgentLightningModule(pl.LightningModule):
             self.agent.remove_training_only_world_model()
 
     def on_after_backward(self) -> None:
-        if bool(getattr(self.agent, "world_model_enabled", False)) and hasattr(
-            self.agent, "get_planreg_gradient_norms"
-        ):
+        optimizer_step = int(self.global_step)
+        log_gradients = optimizer_step % self.grad_log_interval == 0
+        log_registers = optimizer_step % self.register_log_interval == 0
+
+        if log_gradients and hasattr(self.agent, "get_planreg_gradient_norms"):
             for name, value in self.agent.get_planreg_gradient_norms().items():
                 self.log(
                     f"train/{name}",
@@ -52,6 +82,34 @@ class AgentLightningModule(pl.LightningModule):
                     on_epoch=False,
                     prog_bar=False,
                     sync_dist=True,
+                )
+
+        if log_registers and hasattr(
+            self.agent, "get_planreg_register_diagnostics"
+        ):
+            for name, value in self.agent.get_planreg_register_diagnostics().items():
+                self.log(
+                    f"train/{name}",
+                    value,
+                    on_step=True,
+                    on_epoch=False,
+                    prog_bar=False,
+                    sync_dist=True,
+                )
+
+        # Full parameter traversal is deliberately opt-in and interval-gated.
+        if self.debug_unused_parameters and log_gradients:
+            unused = [
+                name
+                for name, parameter in self.named_parameters()
+                if parameter.requires_grad and parameter.grad is None
+            ]
+            if unused and self.trainer.is_global_zero:
+                logger.warning(
+                    "Unused trainable parameters at optimizer step %d (%d total):\n%s",
+                    optimizer_step,
+                    len(unused),
+                    "\n".join(f"  {name}" for name in unused),
                 )
 
     def _step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], logging_prefix: str) -> Tensor:
@@ -304,15 +362,3 @@ class AgentLightningModule(pl.LightningModule):
     def on_save_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
         if 'mem' in self.agent.name().lower():
             checkpoint['memory'] = self.agent.memory.banks
-
-
-    def on_after_backward(self):
-        unused = []
-        for name, p in self.named_parameters():
-            if p.requires_grad and p.grad is None:
-                unused.append(name)
-
-        if unused:
-            print("❌ Unused parameters (no grad):")
-            for n in unused:
-                print("  ", n)

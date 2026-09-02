@@ -73,9 +73,6 @@ def test_world_model_loss_updates_registers_and_vision_qv_lora() -> None:
         "wm_delta_0p5",
         "wm_delta_1p5",
         "wm_delta_3p0",
-        "register_effective_rank",
-        "register_mean_pairwise_cosine",
-        "register_std",
     ):
         assert key in losses
 

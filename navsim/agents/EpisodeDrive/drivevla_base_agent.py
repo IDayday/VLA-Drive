@@ -244,6 +244,7 @@ class DriveVLABaseAgent(AbstractAgent):
         self.stage1_checkpoint_path = stage1_checkpoint_path
         self.cache_data = cache_data
         self._initialized = False
+        self._latest_registers_for_diagnostics = None
 
         self.future_register_predictor = None
         self.ema_register_target = None
@@ -1013,7 +1014,14 @@ class DriveVLABaseAgent(AbstractAgent):
             if key in features:
                 action_inputs[key] = features[key]
 
-        return self.action_head(action_inputs)
+        predictions = self.action_head(action_inputs)
+        diagnostic_registers = predictions.get("planning_registers")
+        self._latest_registers_for_diagnostics = (
+            diagnostic_registers.detach()
+            if isinstance(diagnostic_registers, torch.Tensor)
+            else None
+        )
+        return predictions
 
     def compute_trajectory(self, agent_input: AgentInput) -> Trajectory:
         self.eval()
@@ -1262,13 +1270,11 @@ class DriveVLABaseAgent(AbstractAgent):
         delta_weight = float(getattr(self.world_model_config, "delta_weight", 0.25))
         wm_loss = abs_weight * wm_abs_loss + delta_weight * wm_delta_loss
 
-        diagnostics = compute_register_diagnostics(current_registers)
         loss_dict = {
             "wm_loss": wm_loss,
             "wm_abs_loss": wm_abs_loss,
             "wm_delta_loss": wm_delta_loss,
             "predicted_future_registers": pred_future,
-            **diagnostics,
         }
         horizon_names = ("0p5", "1p5", "3p0")
         for index, name in enumerate(horizon_names):
@@ -1282,28 +1288,68 @@ class DriveVLABaseAgent(AbstractAgent):
         return loss_dict
 
     def get_planreg_gradient_norms(self) -> Dict[str, torch.Tensor]:
-        if self.backbone is None:
-            zero = torch.zeros(())
-            return {"vision_lora_grad_norm": zero, "register_grad_norm": zero}
         device = next(self.parameters()).device
 
-        def norm_for(predicate) -> torch.Tensor:
+        def module_norm(modules) -> torch.Tensor:
             squares = []
-            for name, parameter in self.backbone.named_parameters():
-                if predicate(name) and parameter.grad is not None:
-                    squares.append(parameter.grad.detach().float().square().sum())
+            seen = set()
+            for module in modules:
+                if module is None:
+                    continue
+                for parameter in module.parameters():
+                    if id(parameter) in seen:
+                        continue
+                    seen.add(id(parameter))
+                    if parameter.grad is not None:
+                        squares.append(parameter.grad.detach().float().square().sum())
             if not squares:
                 return torch.zeros((), device=device)
             return torch.stack(squares).sum().sqrt()
 
+        planning_adapter = None
+        vision_lora_modules = []
+        if self.backbone is not None:
+            planning_adapter = getattr(
+                self.backbone, "planning_register_adapter", None
+            )
+            for module_name, module in self.backbone.named_modules():
+                if module_name.endswith(("q_lora_a", "q_lora_b", "v_lora_a", "v_lora_b")):
+                    vision_lora_modules.append(module)
+
+        action_modules = []
+        scorer_modules = []
+        if hasattr(self, "action_head"):
+            action_modules = [
+                getattr(self.action_head, name, None)
+                for name in (
+                    "hist_encoding",
+                    "init_feature",
+                    "trajectory_decoder",
+                    "traj_head",
+                )
+            ]
+            scorer_modules = [
+                getattr(self.action_head, name, None)
+                for name in ("scorer_attention", "pos_embed", "scorer")
+            ]
+
         return {
-            "vision_lora_grad_norm": norm_for(
-                lambda name: "q_lora" in name or "v_lora" in name
+            "vision_lora_grad_norm": module_norm(vision_lora_modules),
+            "register_grad_norm": module_norm([planning_adapter]),
+            "future_predictor_grad_norm": module_norm(
+                [self.future_register_predictor]
             ),
-            "register_grad_norm": norm_for(
-                lambda name: "planning_register_adapter.planning_registers" in name
-            ),
+            "action_head_grad_norm": module_norm(action_modules),
+            "scorer_grad_norm": module_norm(scorer_modules),
         }
+
+    def get_planreg_register_diagnostics(self) -> Dict[str, torch.Tensor]:
+        """Compute interval-gated diagnostics from a detached forward snapshot."""
+        registers = self._latest_registers_for_diagnostics
+        self._latest_registers_for_diagnostics = None
+        if registers is None:
+            return {}
+        return compute_register_diagnostics(registers)
 
 
     def compute_loss(

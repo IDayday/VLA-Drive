@@ -8,12 +8,14 @@ import torch
 import torch.nn.functional as F
 
 
+@torch.no_grad()
 def compute_register_diagnostics(registers: torch.Tensor) -> Dict[str, torch.Tensor]:
     if registers.ndim != 3:
         raise ValueError(
             f"Planning registers must have shape [B,R,D], got {tuple(registers.shape)}"
         )
-    batch_size, register_count, _ = registers.shape
+    registers = registers.detach()
+    _, register_count, _ = registers.shape
     centered = registers.float() - registers.float().mean(dim=1, keepdim=True)
     singular_values = torch.linalg.svdvals(centered)
     squared = singular_values.square()

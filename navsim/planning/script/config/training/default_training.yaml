@@ -26,6 +26,18 @@ experiment_name: navsim_nommcv
 seed: 0 
 validation_run: false
 
+data_protocol:
+  # Default training and validation logs must remain disjoint. Enabling
+  # include_val_in_train is an explicit final-fit protocol with no validation
+  # or best-checkpoint selection.
+  include_val_in_train: false
+  require_disjoint_train_val: true
+
+diagnostics:
+  grad_log_interval: 100
+  register_log_interval: 100
+  debug_unused_parameters: false
+
 dataloader:
   params:
     batch_size: 64 #number of samples per batch
