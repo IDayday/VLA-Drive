@@ -1,0 +1,83 @@
+hydra:
+  run:
+    dir: ${output_dir}
+  output_subdir: ${output_dir}/code/hydra
+  searchpath:
+    - pkg://navsim.planning.script.config.common
+  job:
+    chdir: false
+
+defaults:
+  - default_common
+  - default_evaluation
+  - default_train_val_test_log_split
+  - agent: episode_drive_planreg_wm_formal_base
+  - override train_test_split: trainval
+  - _self_
+
+split: trainval
+cache_path: ${oc.env:PLANREG_INPUT_CACHE}
+input_only_cache_name: planreg_input_only
+use_cache_without_dataset: true
+force_cache_computation: false
+pad_datasets_to_global_batch: true
+preprocess_images_in_workers: true
+preprocess_future_images_in_workers: true
+preprocess_image_dtype: bfloat16
+pretokenize_inputs_in_workers: true
+load_image_path: true
+experiment_name: ${oc.env:PLANREG_EXPERIMENT_NAME,formal_base_init_wm_seed0}
+output_dir: ${oc.env:PLANREG_OUTPUT_DIR}
+seed: 0
+validation_run: false
+
+data_protocol:
+  include_val_in_train: true
+  require_disjoint_train_val: true
+
+formal_training:
+  enabled: true
+  expected_dataset_size: 103288
+  require_exact_dataset_size: true
+  dataset_epochs: 27
+  fixed_report_epoch: 27
+  internal_validation: false
+  checkpoint_milestones: [5, 10, 15, 20, 25, 27]
+
+diagnostics:
+  grad_log_interval: 100
+  register_log_interval: 100
+  debug_unused_parameters: false
+  require_finite_loss_and_gradients: true
+
+dataloader:
+  params:
+    batch_size: 4
+    num_workers: 8
+    persistent_workers: true
+    pin_memory: true
+    prefetch_factor: 2
+    multiprocessing_context: null
+
+trainer:
+  params:
+    max_epochs: 27
+    max_steps: -1
+    check_val_every_n_epoch: 1
+    val_check_interval: 1.0
+    limit_train_batches: 1.0
+    limit_val_batches: 0
+    accelerator: gpu
+    strategy: ddp
+    precision: bf16-mixed
+    num_nodes: 1
+    devices: 8
+    num_sanity_val_steps: 0
+    fast_dev_run: false
+    accumulate_grad_batches: 1
+    gradient_clip_val: 1.0
+    gradient_clip_algorithm: norm
+    default_root_dir: ${output_dir}
+
+train_ckpt_path: null
+auto_resume: false

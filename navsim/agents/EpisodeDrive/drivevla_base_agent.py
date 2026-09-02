@@ -42,6 +42,7 @@ from .formal_initialization import (
     FORMAL_INITIALIZATION_MODE,
     sha256_file,
     validate_formal_initialization_config,
+    validate_formal_scientific_contract,
 )
 from .shared_planreg_initialization import load_shared_trainable_initialization
 from .action_decoder import ActionDecoder
@@ -306,6 +307,16 @@ class DriveVLABaseAgent(AbstractAgent):
                 checkpoint_path=checkpoint_path,
                 stage1_checkpoint_path=stage1_checkpoint_path,
                 vlm_config=vlm_config,
+            )
+            validate_formal_scientific_contract(
+                vlm_config=vlm_config,
+                vision_adaptation=vision_adaptation,
+                planning_registers=planning_registers,
+                scene_fusion=scene_fusion,
+                semantic_path=semantic_path,
+                world_model=world_model,
+                ema=ema,
+                action_head_config=action_head_config,
             )
         self._dynamic_feature_cache_guard_enabled = bool(
             self._formal_initialization
@@ -605,14 +616,19 @@ class DriveVLABaseAgent(AbstractAgent):
             getattr(self.world_model_config, "ramp_fraction", 0.10)
         )
         max_weight = float(self.world_model_config.max_weight)
+        min_weight = float(getattr(self.world_model_config, "min_weight", 0.0))
         if not 0.0 <= start_fraction <= 1.0:
             raise ValueError("world_model.start_fraction must be in [0,1]")
         if not 0.0 < ramp_fraction <= 1.0:
             raise ValueError("world_model.ramp_fraction must be in (0,1]")
+        if not 0.0 <= min_weight <= max_weight:
+            raise ValueError(
+                "world_model.min_weight must satisfy 0 <= min_weight <= max_weight"
+            )
         start_step = start_fraction * total_steps
         ramp_steps = max(1.0, ramp_fraction * total_steps)
         progress = min(1.0, max(0.0, (step - start_step) / ramp_steps))
-        return max_weight * progress
+        return min_weight + (max_weight - min_weight) * progress
 
     def _initialize_ema_register_target(self) -> None:
         if not self.world_model_enabled:

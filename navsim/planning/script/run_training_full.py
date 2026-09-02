@@ -7,12 +7,13 @@ import logging
 import pickle
 import hashlib
 import json
+import math
 from datetime import datetime
 
 import hydra
 import numpy as np
 from hydra.utils import instantiate
-from omegaconf import DictConfig
+from omegaconf import DictConfig, open_dict
 from torch.utils.data import DataLoader, ConcatDataset, Subset
 import torch.distributed as dist
 import pytorch_lightning as pl
@@ -267,8 +268,37 @@ def write_data_protocol_metadata(cfg: DictConfig, audit: Dict[str, Any]) -> Path
     return output_path
 
 
+class FormalEpochCheckpointCallback(pl.Callback):
+    """Save predetermined recovery checkpoints without validation selection."""
+
+    MILESTONES = frozenset({5, 10, 15, 20, 25, 27})
+
+    def __init__(self, output_dir: str):
+        super().__init__()
+        self.output_dir = str(Path(output_dir).expanduser().resolve())
+
+    def on_train_epoch_end(self, trainer, pl_module) -> None:
+        completed_epoch = int(trainer.current_epoch) + 1
+        if completed_epoch not in self.MILESTONES:
+            return
+        directory = Path(self.output_dir) / "checkpoints"
+        if trainer.is_global_zero:
+            directory.mkdir(parents=True, exist_ok=True)
+        trainer.strategy.barrier()
+        filename = (
+            "epoch_27_final.ckpt"
+            if completed_epoch == 27
+            else f"epoch_{completed_epoch:02d}.ckpt"
+        )
+        trainer.save_checkpoint(str(directory / filename), weights_only=False)
+
+
 def configure_callbacks_for_data_protocol(
-    callbacks: Iterable[pl.Callback], audit: Dict[str, Any]
+    callbacks: Iterable[pl.Callback],
+    audit: Dict[str, Any],
+    *,
+    output_dir: Optional[str] = None,
+    formal_milestones: bool = False,
 ) -> list[pl.Callback]:
     """Enforce last-only checkpointing for final-fit runs."""
     callbacks = list(callbacks)
@@ -279,13 +309,97 @@ def configure_callbacks_for_data_protocol(
     ]
     callbacks.append(
         ModelCheckpoint(
+            dirpath=(
+                str(Path(output_dir).expanduser().resolve() / "checkpoints")
+                if output_dir is not None
+                else None
+            ),
             monitor=None,
             save_top_k=0,
             save_last=True,
             save_on_train_epoch_end=True,
         )
     )
+    if formal_milestones:
+        if output_dir is None:
+            raise ValueError("Formal milestone checkpoints require output_dir")
+        callbacks.append(FormalEpochCheckpointCallback(output_dir))
     return callbacks
+
+
+def compute_formal_step_budget(
+    dataset_length: int,
+    global_batch_size: int,
+    *,
+    dataset_epochs: int = 27,
+) -> Dict[str, int]:
+    if dataset_length <= 0 or global_batch_size <= 0 or dataset_epochs <= 0:
+        raise ValueError("Dataset length, global batch, and epochs must be positive")
+    steps_per_epoch = int(math.ceil(dataset_length / global_batch_size))
+    padded_samples_per_epoch = steps_per_epoch * global_batch_size
+    return {
+        "dataset_length": int(dataset_length),
+        "global_batch_size": int(global_batch_size),
+        "dataset_epochs": int(dataset_epochs),
+        "steps_per_epoch": steps_per_epoch,
+        "total_steps": steps_per_epoch * int(dataset_epochs),
+        "padded_samples_per_epoch": padded_samples_per_epoch,
+        "sampler_padding_per_epoch": padded_samples_per_epoch - int(dataset_length),
+        "unpadded_sample_exposures": int(dataset_length) * int(dataset_epochs),
+        "optimizer_sample_slots": padded_samples_per_epoch * int(dataset_epochs),
+    }
+
+
+def configure_formal_step_budget(
+    cfg: DictConfig, dataset_length: int
+) -> Optional[Dict[str, Any]]:
+    formal = cfg.get("formal_training", {})
+    if not bool(formal.get("enabled", False)):
+        return None
+    if not bool(cfg.data_protocol.include_val_in_train):
+        raise RuntimeError("Formal 103k protocol requires include_val_in_train=true")
+    if float(cfg.trainer.params.limit_val_batches) != 0.0:
+        raise RuntimeError("Formal 103k protocol prohibits internal validation")
+    if bool(cfg.validation_run):
+        raise RuntimeError("Formal 103k protocol cannot run validation mode")
+    if bool(cfg.get("auto_resume", True)):
+        raise RuntimeError("Formal runs prohibit automatic cross-experiment resume")
+    epochs = int(formal.get("dataset_epochs", 27))
+    if epochs != 27:
+        raise RuntimeError(f"Formal PlanReg training requires 27 epochs, got {epochs}")
+    expected_size = int(formal.get("expected_dataset_size", 103288))
+    if bool(formal.get("require_exact_dataset_size", True)) and dataset_length != expected_size:
+        raise RuntimeError(
+            "Formal trainval dataset size mismatch: "
+            f"expected={expected_size}, actual={dataset_length}"
+        )
+    budget = compute_formal_step_budget(
+        dataset_length,
+        _configured_global_batch_size(cfg),
+        dataset_epochs=epochs,
+    )
+    with open_dict(cfg):
+        cfg.trainer.params.max_epochs = epochs
+        cfg.trainer.params.max_steps = budget["total_steps"]
+    metadata_dir = Path(str(cfg.output_dir)) / "run_metadata"
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+    output = metadata_dir / "formal_step_budget.json"
+    temporary = metadata_dir / ".formal_step_budget.json.tmp"
+    temporary.write_text(
+        json.dumps(budget, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    temporary.replace(output)
+    logger.info(
+        "FORMAL_STEP_BUDGET dataset=%d global_batch=%d steps_per_epoch=%d "
+        "epochs=%d total_steps=%d sampler_padding=%d",
+        budget["dataset_length"],
+        budget["global_batch_size"],
+        budget["steps_per_epoch"],
+        budget["dataset_epochs"],
+        budget["total_steps"],
+        budget["sampler_padding_per_epoch"],
+    )
+    return budget
 
 
 def combine_cached_train_data(train_data, val_data, audit: Dict[str, Any]):
@@ -471,6 +585,8 @@ def main(cfg: DictConfig) -> None:
         logger.info("Building SceneLoader")
         train_data, val_data = build_datasets(cfg, agent, data_protocol)
 
+    formal_step_budget = configure_formal_step_budget(cfg, len(train_data))
+
     if bool(cfg.get("pad_datasets_to_global_batch", False)):
         global_batch_size = _configured_global_batch_size(cfg)
         train_data = _pad_dataset_to_multiple(train_data, global_batch_size, "train")
@@ -524,7 +640,10 @@ def main(cfg: DictConfig) -> None:
         print("cfg.train_ckpt_path ", cfg.train_ckpt_path)
 
     callbacks = configure_callbacks_for_data_protocol(
-        agent.get_training_callbacks(), data_protocol
+        agent.get_training_callbacks(),
+        data_protocol,
+        output_dir=str(cfg.output_dir),
+        formal_milestones=formal_step_budget is not None,
     )
     trainer = pl.Trainer(**cfg.trainer.params, callbacks=callbacks)
 

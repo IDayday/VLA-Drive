@@ -192,6 +192,66 @@ def validate_formal_initialization_config(
     }
 
 
+def validate_formal_scientific_contract(
+    *,
+    vlm_config: Any,
+    vision_adaptation: Any,
+    planning_registers: Any,
+    scene_fusion: Any,
+    semantic_path: Any,
+    world_model: Any,
+    ema: Any,
+    action_head_config: Any,
+) -> None:
+    """Reject accidental ablations in either official formal launcher."""
+    errors = []
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+            errors.append(message)
+
+    require(str(_cfg_get(vlm_config, "vlm_type", "")) == "internvl", "VLM must be InternVL")
+    require(not bool(_cfg_get(vlm_config, "cache_hidden_state", True)), "cache_hidden_state must be false")
+    require(not bool(_cfg_get(vlm_config, "cache_mode", True)), "cache_mode must be false")
+    require(bool(_cfg_get(vlm_config, "freeze_language_model", False)), "LLM must remain frozen")
+    require(bool(_cfg_get(vlm_config, "planning_registers_enabled", False)), "planning registers must be enabled")
+    require(int(_cfg_get(vlm_config, "num_planning_registers", -1)) == 16, "exactly 16 planning registers are required")
+    require(str(_cfg_get(vlm_config, "tile_register_aggregation", "")) == "thumbnail_query_attention", "tile aggregation must be thumbnail_query_attention")
+    require(str(_cfg_get(vision_adaptation, "mode", "")) == "qv_lora", "vision adaptation must be Q/V LoRA")
+    require(str(_cfg_get(vision_adaptation, "layers", "")) == "all", "all vision blocks must be adapted")
+    require(int(_cfg_get(vision_adaptation, "rank", -1)) == 32, "vision Q/V LoRA rank must be 32")
+    require(bool(_cfg_get(vision_adaptation, "train_q", False)), "vision Q must be trainable through LoRA")
+    require(not bool(_cfg_get(vision_adaptation, "train_k", True)), "vision K must not be trained")
+    require(bool(_cfg_get(vision_adaptation, "train_v", False)), "vision V must be trainable through LoRA")
+    require(str(_cfg_get(planning_registers, "attention_mode", "")) == "read_only", "planning registers must use read_only attention")
+    require(str(_cfg_get(scene_fusion, "mode", "")) == "planning_primary_semantic_xattn", "formal fusion must be planning-primary semantic cross-attention")
+    require(bool(_cfg_get(semantic_path, "frozen_llm_no_grad", False)), "semantic LLM must run under no_grad")
+    require(not bool(_cfg_get(semantic_path, "backprop_to_vision", True)), "semantic path must not backpropagate to vision")
+    require(bool(_cfg_get(semantic_path, "train_qformer", False)), "semantic Q-Former must be trainable")
+    require(bool(_cfg_get(world_model, "enabled", False)), "world model must be enabled")
+    require(str(_cfg_get(world_model, "future_mode", "")) == "correct", "future_mode must be correct")
+    require(not bool(_cfg_get(world_model, "predictor_only", True)), "predictor_only must be false")
+    require(float(_cfg_get(world_model, "min_weight", 0.0)) > 0.0, "WM weight must be positive from optimizer step zero")
+    require(float(_cfg_get(world_model, "start_fraction", -1.0)) == 0.0, "WM start_fraction must be zero")
+    require(int(_cfg_get(world_model, "candidate_count", -1)) == 1, "WM candidate_count must be one")
+    require(str(_cfg_get(world_model, "trajectory_source", "")) == "gt", "WM trajectory source must be GT")
+    require(bool(_cfg_get(ema, "enabled", False)), "online EMA teacher must be enabled")
+    for key, expected in {
+        "proposal_num": 64,
+        "num_poses": 8,
+        "ref_num": 4,
+        "scorer_ref_num": 4,
+        "long_trajectory_additional_poses": 2,
+    }.items():
+        require(int(_cfg_get(action_head_config, key, -1)) == expected, f"action_head_config.{key} must be {expected}")
+    require(bool(_cfg_get(action_head_config, "one_token_per_traj", False)), "one_token_per_traj must be true")
+    require(list(_cfg_get(action_head_config, "cam_f0", [])) == [3], "front camera history must be cam_f0=[3]")
+    for camera in ("cam_l0", "cam_l1", "cam_l2", "cam_r0", "cam_r1", "cam_r2", "cam_b0"):
+        require(not list(_cfg_get(action_head_config, camera, [])), f"{camera} must be disabled")
+    if errors:
+        raise ValueError("Invalid formal PlanReg-WM scientific contract: " + "; ".join(errors))
+
+
 def _tokenizer_artifact_fingerprint(checkpoint_path: Path) -> Dict[str, Any]:
     artifacts = [
         checkpoint_path / name
@@ -390,4 +450,5 @@ __all__ = [
     "scan_forbidden_state_keys",
     "sha256_file",
     "validate_formal_initialization_config",
+    "validate_formal_scientific_contract",
 ]
