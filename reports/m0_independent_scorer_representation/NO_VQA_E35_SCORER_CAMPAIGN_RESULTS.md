@@ -160,6 +160,10 @@ split 上的约 `+0.002` 到 `+0.007` 不能被解释为可泛化 scorer 改进�
 | wave-4 Top-regret 的 162-log refit | 1/1 | 0.911192 | -0.000302 | [-0.001954,+0.001243] | 未改善 |
 | wave-5：Base-relative conservative gate | 8/8 | 0.911499 | +0.000006 | [+0.000000,+0.000021] | 仅改变 1 个 scene，无实质增益 |
 | wave-5 三个方案的 162-log refit | 3/3 | 0.911415 | -0.000079 | [-0.000952,+0.000905] | 未改善 |
+| wave-6：四视角 spatial token scorer | 8/8 | 0.910470 | -0.001024 | [-0.003084,+0.001130] | validation 正增益再次翻转 |
+| wave-7：proposal-point 查询四视角 token | 7/7 | 0.910623 | -0.000871 | [-0.003166,+0.001291] | 更细粒度交互仍未改善 |
+| wave-8：100% current-actor target 覆盖 | 6/6 | 0.910377 | -0.001117 | [-0.003411,+0.001019] | 排除稀疏 actor target 主因 |
+| wave-9：直接重排全部 64 candidates | 1/1 | 0.908253 | -0.003240 | [-0.006108,-0.000686] | shortlist 不是主瓶颈 |
 
 对应机器可读结果位于：
 
@@ -172,6 +176,10 @@ reports/m0_independent_scorer_representation/no_vqa_e35_all_log_refit_wave3_v1/
 reports/m0_independent_scorer_representation/no_vqa_e35_all_log_refit_wave4_topregret_v1/
 reports/m0_independent_scorer_representation/no_vqa_e35_scene_token_wave5_reference_v1/
 reports/m0_independent_scorer_representation/no_vqa_e35_all_log_refit_wave5_reference_v1/
+reports/m0_independent_scorer_representation/no_vqa_e35_multiview_wave6_v1/
+reports/m0_independent_scorer_representation/no_vqa_e35_multiview_point_attention_wave7_v1/
+reports/m0_independent_scorer_representation/no_vqa_e35_full_current_actor_wave8_v1/
+reports/m0_independent_scorer_representation/no_vqa_e35_point_top64_wave9_v1/
 ```
 
 这些实验共同排除了以下解释：只增加 scorer MLP/Transformer 容量、冻结 M0
@@ -250,12 +258,99 @@ lineage 校验。wave-6 已预注册八个
 raw + released-context 双流、current-actor auxiliary 与 no-actor。其设计冻结于
 wave-5 Navtest 之前，因此不会按测试集结果修改。
 
-截至 2026-09-02 09:40 UTC，wave-6 八项均在 `training-vla-zt2` 正常训练；
-held-out 61-log validation 上多个 conservative-reference 变体暂时达到约
-`+0.0040`，bootstrap 下界为正。该数字仅用于预注册 promotion，考虑到 wave-5
-曾发生明显符号翻转，在完整 Navtest 与在线/cache parity 完成前不作为性能结论。
+wave-6 八项在 held-out 61-log validation 上全部满足正 bootstrap 下界并全部
+晋级，validation delta 为 `+0.002844` 到 `+0.006912`。随后八项均完成严格
+完整 Navtest：12,146 scenes、136 logs、64 candidates、0 invalid、FP32；8/8
+真实 Agent/cache parity 通过，proposal 最大误差为 `0`，score 最大误差不超过
+`2.38e-7`。
+
+| wave-6 artifact | validation delta | Navtest PDMS | Navtest delta | 95% CI |
+|---|---:|---:|---:|---:|
+| raw context+combined Top-16 q50 strict | +0.005956 | **0.910470** | **-0.001024** | [-0.003084,+0.001130] |
+| raw combined Top-16 q50 strict | +0.005833 | 0.910391 | -0.001102 | [-0.003263,+0.001111] |
+| raw combined Top-16 q50 strict, no actor | +0.006236 | 0.910165 | -0.001328 | [-0.003394,+0.000680] |
+| raw private Top-16 q50 strict | +0.003598 | 0.909699 | -0.001795 | [-0.003987,+0.000186] |
+| raw combined Top-32 q50 strict | +0.006912 | 0.909344 | -0.002149 | [-0.005008,+0.000458] |
+| raw combined Top-8 standard + top-regret | +0.002844 | 0.908988 | -0.002506 | [-0.005276,+0.000188] |
+| raw combined Top-16 q50 balanced | +0.005017 | 0.907531 | -0.003962 | [-0.006518,-0.001409] |
+| raw combined Top-16 standard | +0.003948 | 0.906327 | -0.005167 | [-0.007810,-0.002219] |
+
+因此，更丰富的四视角 spatial token 确实提高了固定 validation split 上的拟合
+能力，却仍未形成跨 Navtest 日志的可泛化选择能力。该结果排除了“16 个 scene
+token 压缩是唯一瓶颈”：把 scorer 输入扩展为 80 个四视角空间 token 后，最佳
+测试点估计仍低于 Base `0.001024`，距离 `0.93` 仍为 `0.019530`。
 
 为消除旧 current-actor table 仅覆盖约 44% 训练场景的问题，已从 Scene 当前帧
 构造 103,288/103,288 全覆盖 actor target；验证确认它不读取 future、MetricCache
 或 PDM。wave-8 在 `rl-zt4` 以 Wave-6/7 的六个严格匹配配置进行单变量 A/B，
 训练 target 覆盖率是唯一关键变化，推理输入不增加 actor 标注。
+
+wave-7、wave-8 和 wave-9 均已完成严格完整 Navtest 与在线/cache parity：
+
+| 诊断 | validation 最佳 delta | Navtest 最佳 PDMS | Navtest delta | 95% CI |
+|---|---:|---:|---:|---:|
+| proposal waypoint 逐点查询 80 个四视角 token | +0.006218 | **0.910623** | -0.000871 | [-0.003166,+0.001291] |
+| current-actor auxiliary 从约 44% 提升到 100% 覆盖 | +0.006452 | **0.910377** | -0.001117 | [-0.003411,+0.001019] |
+| 不做 shortlist，直接重排全部 64 candidates | +0.006601 | **0.908253** | -0.003240 | [-0.006108,-0.000686] |
+
+三项的 validation 增益都很稳定，却在 Navtest 全部翻负。由此又排除了三个具体
+解释：候选只在场景级汇聚后看视觉、actor auxiliary 覆盖不完整、以及 Top-K
+shortlist 截断候选，均不是当前泛化失败的主因。尤其 Top-64 的置信区间完全低于
+零，说明让新 scorer 自由改写全部候选排序反而放大了跨日志误差。
+
+## 训练域、验证域与 Navtest 难度审计
+
+为解释多轮稳定的 validation-to-Navtest 符号翻转，使用同一份 No-VQA
+checkpoint、同一 64-candidate bank 和同一 PDM 因子定义，对完整 103,288 个
+Navtrain 场景及 12,146 个 Navtest 场景进行了只读诊断。Navtest 标签只用于
+诊断，未用于训练、epoch、架构或阈值选择。
+
+| split | scenes / physical logs | Base PDMS | Best-64 | regret | Top-16 pairwise |
+|---|---:|---:|---:|---:|---:|
+| Navtrain train | 85,109 / 101 | 0.955618 | 0.987749 | 0.032131 | 0.6670 |
+| Navtrain validation | 18,179 / 61 | 0.931313 | 0.980300 | 0.048988 | 0.6352 |
+| Navtest | 12,146 / 136 | 0.911493 | 0.983129 | 0.071635 | 0.5961 |
+
+候选上限在三个 split 都接近 `0.98`，但 Base regret 从 train 到 validation 再到
+Navtest 单调扩大；Navtest regret 是 validation 的 `1.4623x`。Navtest 候选也
+明显更偏向动态安全困难样本：全部候选平均 NOC 为 `0.9601`、TTC 为 `0.8988`，
+而 validation 分别为 `0.9799`、`0.9355`。Base 自身 factor calibration 在
+Navtest 的 NOC/TTC Brier 也明显更差。
+
+仅用当前 scene/ego/Base-score/factor-logit 特征训练的日志隔离线性域分类器，
+validation 与 Navtest 的 AUROC 为 `0.6461`；train 与 validation 为 `0.7504`。
+这证明当前表示和任务难度存在可检测的跨日志分布差异。后续不能再用单一 61-log
+split 的正增益作为方法选择充分条件；需要在 Navtrain 内使用多折、worst-fold 与
+稀有安全场景平衡，再将锁定方案 refit 到全部日志。完整机器可读证据见
+`NO_VQA_SCORER_DOMAIN_SHIFT_AUDIT.json/.md`。
+
+## wave-10：当前 actor 共享外推与候选相对后果
+
+在读取 wave-6 完整 Navtest 结果前已预注册 wave-10。该路径从 M0 自有当前
+四视角表示预测当前 actor，一次性做恒速共享外推，再以可微几何为每条候选计算
+clearance、soft collision、TTC、corridor occupancy 与相对状态。共享未来不接收
+候选，候选置换时后果严格同步置换；融合 gate 零初始化，因此开始时与旧 scorer
+逐值完全一致。推理不读取 future image、future annotation、MetricCache、PDM
+或 DrivOR。
+
+wave-10 已在 `training-vla-zt2` 的 8 张 GPU 上运行，使用全覆盖 103,288-scene
+当前 actor 训练 target。只有 held-out-log bootstrap 下界大于零的 artifact 才会
+进入完整 Navtest；配置与选择规则见 `NO_VQA_E35_WAVE10_PREDECLARATION.md`。
+
+## wave-11/12：风险平衡与五折跨日志验证
+
+根据域审计，wave-11 不再只增加容量，而是在保持每条物理日志总采样质量完全
+相同的前提下，仅在日志内部提高“Base Top-K 中同时存在安全/不安全候选、Base
+自身不安全、或有明显候选上界”的场景抽样率。采样使用的 PDM 标签只决定训练
+样本频率，不进入模型 forward 或推理 artifact。倍率 2/4/8、Top-16/32、pooled/
+point/context 和 current-actor CV 七项均在结果读取前预注册；每个 validation
+正下界模型都必须完整跑 Navtest。
+
+wave-12 进一步覆盖全部 103,288 个 Navtrain scene 与 162 条物理日志。五个
+validation fold 两两无日志交集且恰好覆盖所有日志一次；每折 20,082–20,842
+scenes、32–33 logs，并同时平衡 scene 数、风险 scene 数、不安全候选数和分数
+跨度。模型、seed、scheduler 和最终 epoch 7 全部固定，不允许逐折选择 best
+epoch。只有五折的 point delta 与日志 bootstrap 下界全部大于零，才允许在全部
+162 logs 上 refit 并进入 Navtest。预注册与 fold lineage 位于
+`NO_VQA_E35_WAVE11_PREDECLARATION.md`、`NO_VQA_E35_WAVE12_PREDECLARATION.md`
+和 `no_vqa_e35_risk_cv_wave12_v1/folds/`。

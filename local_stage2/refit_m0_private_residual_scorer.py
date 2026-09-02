@@ -81,6 +81,8 @@ _SCALAR_ARGUMENTS = (
     "factor_loss_scope",
     "bootstrap_replicates",
     "max_scenes_per_source",
+    "scene_sampling_mode",
+    "risk_scene_max_multiplier",
 )
 _BOOLEAN_ARGUMENTS = (
     "m0_context_fusion",
@@ -120,6 +122,8 @@ _LEGACY_DEFAULTS = {
     "reference_minimum_improvement_target": 0.005,
     "reference_factor_epsilon": 1.0e-6,
     "current_actor_cv_relabeling": False,
+    "scene_sampling_mode": "log_balanced",
+    "risk_scene_max_multiplier": 4.0,
 }
 
 

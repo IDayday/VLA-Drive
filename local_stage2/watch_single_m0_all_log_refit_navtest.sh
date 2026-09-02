@@ -24,6 +24,16 @@ resolved_config="/mnt/project/DriveVLA-M0-no-vqa/runs/training/no_vqa_full_ft_se
 navtest_features="/mnt/project/DriveVLA-M0-stage2/runs/ke_candidate_audit/no_vqa_e35_navtest_scorer_features_fp32_v1/proposal_predictions.pkl"
 navtest_scores="/root/scorer_pdms93_cache/no_vqa_e35_navtest_candidate_scores_fp32_v1"
 resume_post="${M0_SINGLE_REFIT_POST_RESUME:-0}"
+private_observation_root="${M0_SINGLE_REFIT_PRIVATE_OBSERVATION_ROOT:-}"
+
+private_args=()
+if [[ -n "${private_observation_root}" ]]; then
+  [[ -f "${private_observation_root}/.complete" ]] || {
+    echo "incomplete private-observation cache: ${private_observation_root}" >&2
+    exit 2
+  }
+  private_args+=(--private-observation-root "${private_observation_root}")
+fi
 
 until [[ -f "${run_dir}/refit_m0_private_residual_scorer.pt" ]]; do
   echo "M0_SINGLE_REFIT_NAVTEST waiting campaign=${campaign} utc=$(date -u +%FT%TZ)"
@@ -75,6 +85,7 @@ package="${package_root}/${name}.pt"
 if [[ ! -f "${package}" ]]; then
   "${python_bin}" "${repo_root}/local_stage2/package_m0_native_private_scorer.py" \
     --ranker-artifact "${artifact}" --base-checkpoint "${base_checkpoint}" \
+    "${private_args[@]}" \
     --shortlist-size 64 --output "${package}" >"${log_root}/package.log" 2>&1
 elif [[ "${resume_post}" != "1" ]]; then
   echo "refusing existing package: ${package}" >&2
@@ -87,6 +98,7 @@ if [[ -f "${navtest_root}/${name}/summary.json" ]]; then
 elif [[ ! -e "${navtest_root}/${name}" ]]; then
   "${python_bin}" "${repo_root}/local_stage2/evaluate_m0_private_residual_navtest_cache.py" \
     --artifact "${package}" --feature-cache "${navtest_features}" \
+    "${private_args[@]}" \
     --candidate-matrix "${navtest_scores}/candidate_scores.npz" \
     --public-audit-dir "${navtest_scores}" --output-dir "${navtest_root}/${name}" \
     --batch-size 64 --bootstrap-replicates 10000 --seed 20260952 --device cuda \
@@ -115,6 +127,7 @@ if [[ ! -f "${parity_root}/${name}.json" ]]; then
   "${python_bin}" "${repo_root}/local_stage2/validate_m0_native_online_cache_parity.py" \
     --online-predictions "${online_root}/ke_candidate_audit/${experiment}/proposal_predictions.pkl" \
     --public-feature-cache "${navtest_features}" --artifact "${package}" \
+    "${private_args[@]}" \
     --output "${parity_root}/${name}.json" --device cuda --atol 1e-6 \
     >"${log_root}/parity.log" 2>&1
 fi

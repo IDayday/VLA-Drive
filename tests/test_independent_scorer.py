@@ -82,6 +82,7 @@ from local_stage2.train_independent_scorer import (
 )
 from local_stage2.train_m0_private_residual_scorer import (
     ResidualReplayDataset,
+    build_m0_training_sampler,
     compute_residual_training_loss,
     evaluate_residual_predictions_by_source,
     load_shared_future_target_table,
@@ -109,6 +110,12 @@ from local_stage2.build_m0_native_promotion_manifest import (
 )
 from local_stage2.build_full_current_actor_target_cache import (
     aggregate as aggregate_full_current_actor_targets,
+)
+from local_stage2.build_m0_scorer_cv_folds import (
+    assign_risk_stratified_log_folds,
+)
+from local_stage2.summarize_m0_residual_cv import (
+    aggregate_fixed_epoch_folds,
 )
 from local_stage2.analyze_policy_shortlist_headroom import _parse_top_k
 from local_stage2.audit_drivor_representation_dependence import (
@@ -168,6 +175,120 @@ def _small_drivor_config(**overrides) -> DrivORRankerConfig:
     )
     values.update(overrides)
     return DrivORRankerConfig(**values)
+
+
+def _risk_sampler_inputs() -> SimpleNamespace:
+    base_scores = torch.zeros(4, 64)
+    base_scores[:, 0] = 1.0
+    base_scores[:, 1] = 0.9
+    target_factors = torch.ones(4, 64, 7)
+    target_factors[..., -1] = 0.5
+    # Only the first scene contains a Base-top-2 safe/unsafe choice and useful
+    # score headroom. The sampler may use this training target for sampling,
+    # but it never becomes a model-forward feature.
+    target_factors[0, 1, 0] = 0.0
+    target_factors[0, 1, -1] = 0.8
+    return SimpleNamespace(
+        physical_logs=["log_a", "log_a", "log_b", "log_b"],
+        base_scores_for_evaluation=base_scores,
+        target_factors=target_factors,
+    )
+
+
+def test_risk_balanced_sampler_emphasizes_hard_scene_within_log_only() -> None:
+    sampler, lineage = build_m0_training_sampler(
+        _risk_sampler_inputs(),
+        [0, 1, 2, 3],
+        seed=19,
+        mode="risk_balanced",
+        top_k=2,
+        risk_scene_max_multiplier=4.0,
+    )
+    weights = sampler.weights
+    assert weights[0] > weights[1]
+    assert weights[:2].sum().item() == pytest.approx(weights[2:].sum().item())
+    assert lineage["training_only_targets_used_for_sampling"] is True
+    assert lineage["model_forward_receives_sampling_targets"] is False
+    assert lineage["per_physical_log_total_weight_equalized"] is True
+    assert lineage["risk_contrast_fraction"] == pytest.approx(0.25)
+
+
+def test_risk_balanced_sampler_is_deterministic() -> None:
+    kwargs = dict(
+        seed=23,
+        mode="risk_balanced",
+        top_k=2,
+        risk_scene_max_multiplier=4.0,
+    )
+    first, _ = build_m0_training_sampler(
+        _risk_sampler_inputs(), [0, 1, 2, 3], **kwargs
+    )
+    second, _ = build_m0_training_sampler(
+        _risk_sampler_inputs(), [0, 1, 2, 3], **kwargs
+    )
+    assert list(iter(first)) == list(iter(second))
+
+
+def test_log_balanced_sampler_remains_the_default_non_target_path() -> None:
+    sampler, lineage = build_m0_training_sampler(
+        _risk_sampler_inputs(),
+        [0, 1, 2, 3],
+        seed=29,
+        mode="log_balanced",
+        top_k=2,
+        risk_scene_max_multiplier=4.0,
+    )
+    assert sampler.weights.tolist() == pytest.approx([0.5, 0.5, 0.5, 0.5])
+    assert lineage["training_only_targets_used_for_sampling"] is False
+    assert lineage["per_physical_log_total_weight_equalized"] is True
+
+
+def test_risk_stratified_cv_folds_are_deterministic_and_log_disjoint() -> None:
+    stats = {
+        f"log_{index:02d}": {
+            "scene_count": 80.0 + 7.0 * index,
+            "risk_scene_count": 10.0 + 3.0 * (index % 5),
+            "unsafe_candidate_count": 100.0 + 17.0 * (index % 7),
+            "score_span_sum": 8.0 + float(index % 4),
+        }
+        for index in range(20)
+    }
+    first = assign_risk_stratified_log_folds(stats, num_folds=5, seed=31)
+    second = assign_risk_stratified_log_folds(stats, num_folds=5, seed=31)
+    assert first == second
+    assert set(first) == set(stats)
+    assert set(first.values()) == set(range(5))
+    fold_scenes = [
+        sum(
+            stats[name]["scene_count"]
+            for name, assigned_fold in first.items()
+            if assigned_fold == fold
+        )
+        for fold in range(5)
+    ]
+    assert max(fold_scenes) - min(fold_scenes) <= max(
+        value["scene_count"] for value in stats.values()
+    )
+
+
+def test_fixed_epoch_cv_gate_requires_every_fold_positive_lower_bound() -> None:
+    passing = [
+        {
+            "scene_count": 100 + index,
+            "selected_delta": 0.01 + 0.001 * index,
+            "bootstrap_95ci": [0.002 + 0.001 * index, 0.02],
+        }
+        for index in range(5)
+    ]
+    accepted = aggregate_fixed_epoch_folds(passing)
+    assert accepted["robust_refit_gate_passed"] is True
+    assert accepted["validation_scene_count"] == 510
+    failing = [dict(row) for row in passing]
+    failing[3] = failing[3] | {"bootstrap_95ci": [-0.0001, 0.02]}
+    rejected = aggregate_fixed_epoch_folds(failing)
+    assert rejected["all_fold_point_deltas_positive"] is True
+    assert rejected["all_fold_bootstrap_lowers_positive"] is False
+    assert rejected["robust_refit_gate_passed"] is False
 
 
 def test_cross_log_derangement_never_reuses_physical_log() -> None:

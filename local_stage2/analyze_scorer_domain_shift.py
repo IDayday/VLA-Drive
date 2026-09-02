@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import pickle
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Mapping, Sequence, Tuple
@@ -14,6 +15,10 @@ from typing import Dict, List, Mapping, Sequence, Tuple
 import numpy as np
 import torch
 from omegaconf import OmegaConf
+
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPOSITORY_ROOT))
 
 from local_stage2.train_independent_scorer import physical_log_name
 

@@ -1,0 +1,317 @@
+{
+  "domain_probes": [
+    {
+      "domain_a": "navtrain_train",
+      "domain_b": "navtrain_validation",
+      "feature_dimension": 523,
+      "positive_rate": 0.529837965965271,
+      "test_accuracy": 0.6899904671115348,
+      "test_auroc": 0.7504093819157527,
+      "test_log_count": 34,
+      "test_scene_count": 5245,
+      "train_log_count": 128,
+      "train_scene_count": 18755
+    },
+    {
+      "domain_a": "navtrain_train",
+      "domain_b": "navtest",
+      "feature_dimension": 523,
+      "positive_rate": 0.4601576328277588,
+      "test_accuracy": 0.6169001751313485,
+      "test_auroc": 0.6455876032018323,
+      "test_log_count": 49,
+      "test_scene_count": 4568,
+      "train_log_count": 188,
+      "train_scene_count": 19432
+    },
+    {
+      "domain_a": "navtrain_validation",
+      "domain_b": "navtest",
+      "feature_dimension": 523,
+      "positive_rate": 0.5096322298049927,
+      "test_accuracy": 0.5998248686514887,
+      "test_auroc": 0.6461142611683849,
+      "test_log_count": 41,
+      "test_scene_count": 5710,
+      "train_log_count": 156,
+      "train_scene_count": 18290
+    }
+  ],
+  "future_inputs_used_by_domain_probe": false,
+  "interpretation": "Navtest Base scorer regret is 1.46x the Navtrain-validation regret, while the best-of-64 ceiling remains high. The held-out-log current-feature domain AUROC is 0.646. This separates candidate-generation headroom from scorer-domain generalization: new rankers must be selected by multi-domain/worst-fold Navtrain criteria rather than a single official validation split.",
+  "navtest_used_for_training_or_hyperparameter_selection": false,
+  "navtrain_validation_to_navtest_regret_ratio": 1.4623109834800814,
+  "schema_version": 1,
+  "splits": {
+    "navtest": {
+      "all_candidate_factor_means": {
+        "comfort": 0.9963323830890828,
+        "drivable_area_compliance": 0.9145603490861189,
+        "driving_direction_compliance": 0.9703194467314342,
+        "ego_progress": 0.7695904820227084,
+        "no_at_fault_collisions": 0.9601167565453648,
+        "score": 0.8102399097811066,
+        "time_to_collision_within_bound": 0.8988131380701465
+      },
+      "base_oracle_hit_rate": 0.02725177013008398,
+      "base_score_margin_mean": 0.0036809241361443735,
+      "base_scorer_regret": 0.07163531538212532,
+      "base_selected_pdms": 0.9114933910954632,
+      "best_of_64_pdms": 0.9831287064849497,
+      "best_of_base_top16_pdms": 0.952347144664865,
+      "best_of_base_top2_pdms": 0.9196775557352765,
+      "best_of_base_top4_pdms": 0.9293071208676612,
+      "best_of_base_top8_pdms": 0.9403989464621184,
+      "candidate_pdms_mean": 0.8102399109421927,
+      "candidate_pdms_std_mean": 0.17829979507932212,
+      "factor_prediction": {
+        "comfort": {
+          "brier": 0.0007135442639242194,
+          "log_loss": 0.002461710789518996,
+          "target_mean": 0.9963323830890828,
+          "threshold_accuracy": 0.999051899802404
+        },
+        "drivable_area_compliance": {
+          "brier": 0.051371918592168914,
+          "log_loss": 0.17871820998684235,
+          "target_mean": 0.9145603490861189,
+          "threshold_accuracy": 0.9315849868269389
+        },
+        "driving_direction_compliance": {
+          "brier": 0.026381165423162354,
+          "log_loss": 0.09556236555702641,
+          "target_mean": 0.9571167977111806,
+          "threshold_accuracy": 0.964953739914375
+        },
+        "ego_progress": {
+          "brier": 0.06749568064502104,
+          "log_loss": 0.4431802342419094,
+          "target_mean": 0.7695904820227084,
+          "threshold_accuracy": 0.8839239770294747
+        },
+        "no_at_fault_collisions": {
+          "brier": 0.03510016570659611,
+          "log_loss": 0.14307605575853985,
+          "target_mean": 0.9579774205499753,
+          "threshold_accuracy": 0.9570704861682858
+        },
+        "time_to_collision_within_bound": {
+          "brier": 0.07056692374371848,
+          "log_loss": 0.25074534094015444,
+          "target_mean": 0.8988131380701465,
+          "threshold_accuracy": 0.9079532356331302
+        }
+      },
+      "log_count": 136,
+      "oracle_factor_means": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.9955540918821011,
+        "driving_direction_compliance": 0.967149678906636,
+        "ego_progress": 0.96907583139892,
+        "no_at_fault_collisions": 0.9995883418409353,
+        "score": 0.9831287064849497,
+        "time_to_collision_within_bound": 0.99580108677754
+      },
+      "per_log_regret": {
+        "mean": 0.07146434726645735,
+        "p05": 0.012827334596830256,
+        "p25": 0.03253873021769449,
+        "p50": 0.06428730242274608,
+        "p75": 0.09496724373275889,
+        "p95": 0.16225191559947905
+      },
+      "scene_count": 12146,
+      "selected_factor_means": {
+        "comfort": 1.0,
+        "drivable_area_compliance": 0.9780997859377573,
+        "driving_direction_compliance": 0.9772353038037214,
+        "ego_progress": 0.8673440895001754,
+        "no_at_fault_collisions": 0.9876502552280586,
+        "score": 0.9114933910954632,
+        "time_to_collision_within_bound": 0.954141281080191
+      },
+      "top16_pair_count_delta_ge_0_02": 388889,
+      "top16_pairwise_accuracy_delta_ge_0_02": 0.5961006868283751
+    },
+    "navtrain_train": {
+      "all_candidate_factor_means": {
+        "comfort": 0.993918093268632,
+        "drivable_area_compliance": 0.9491604148797425,
+        "driving_direction_compliance": 0.9786997409204667,
+        "ego_progress": 0.8238478270403082,
+        "no_at_fault_collisions": 0.9768891032382004,
+        "score": 0.8636379436718125,
+        "time_to_collision_within_bound": 0.9246234975149514
+      },
+      "base_oracle_hit_rate": 0.027964140102691843,
+      "base_score_margin_mean": 0.0036995878762670744,
+      "base_scorer_regret": 0.03213099435816236,
+      "base_selected_pdms": 0.9556182991815227,
+      "best_of_64_pdms": 0.9877492935328569,
+      "best_of_base_top16_pdms": 0.9725440344690561,
+      "best_of_base_top2_pdms": 0.9594422142616215,
+      "best_of_base_top4_pdms": 0.9635338968132824,
+      "best_of_base_top8_pdms": 0.9678749839793397,
+      "candidate_pdms_mean": 0.8636379449626193,
+      "candidate_pdms_std_mean": 0.14345429509370602,
+      "factor_prediction": {
+        "comfort": {
+          "brier": 0.0008941364566086663,
+          "log_loss": 0.003270982815615393,
+          "target_mean": 0.993918093268632,
+          "threshold_accuracy": 0.9987971307382298
+        },
+        "drivable_area_compliance": {
+          "brier": 0.024847770689606412,
+          "log_loss": 0.08367539203355144,
+          "target_mean": 0.9491604148797425,
+          "threshold_accuracy": 0.9665052682442515
+        },
+        "driving_direction_compliance": {
+          "brier": 0.010561742528910454,
+          "log_loss": 0.03674424708186566,
+          "target_mean": 0.9700130861601006,
+          "threshold_accuracy": 0.98589657821147
+        },
+        "ego_progress": {
+          "brier": 0.03583321397662364,
+          "log_loss": 0.34171701828209444,
+          "target_mean": 0.8238478270403082,
+          "threshold_accuracy": 0.9378480830464463
+        },
+        "no_at_fault_collisions": {
+          "brier": 0.016182125163932085,
+          "log_loss": 0.0592613899049856,
+          "target_mean": 0.9750098036047892,
+          "threshold_accuracy": 0.9790994122243241
+        },
+        "time_to_collision_within_bound": {
+          "brier": 0.04041357571335795,
+          "log_loss": 0.14012464615802686,
+          "target_mean": 0.9246234975149514,
+          "threshold_accuracy": 0.9463063542046082
+        }
+      },
+      "log_count": 101,
+      "oracle_factor_means": {
+        "comfort": 0.999941251806507,
+        "drivable_area_compliance": 0.9948301589726116,
+        "driving_direction_compliance": 0.976347977299698,
+        "ego_progress": 0.9785833590577949,
+        "no_at_fault_collisions": 0.9998707539743152,
+        "score": 0.9877492935328569,
+        "time_to_collision_within_bound": 0.9988720346849335
+      },
+      "per_log_regret": {
+        "mean": 0.03481842806401431,
+        "p05": 0.020204424031071432,
+        "p25": 0.023887918935860043,
+        "p50": 0.027692778536709407,
+        "p75": 0.04415104844990898,
+        "p95": 0.059807016603483906
+      },
+      "scene_count": 85109,
+      "selected_factor_means": {
+        "comfort": 0.9997767568647264,
+        "drivable_area_compliance": 0.9916460068852883,
+        "driving_direction_compliance": 0.9822286714683524,
+        "ego_progress": 0.9179350245936839,
+        "no_at_fault_collisions": 0.998208180098462,
+        "score": 0.9556182991815227,
+        "time_to_collision_within_bound": 0.9876863786438567
+      },
+      "top16_pair_count_delta_ge_0_02": 2137675,
+      "top16_pairwise_accuracy_delta_ge_0_02": 0.6669933455740465
+    },
+    "navtrain_validation": {
+      "all_candidate_factor_means": {
+        "comfort": 0.9963960820177128,
+        "drivable_area_compliance": 0.9116159098410254,
+        "driving_direction_compliance": 0.9669759750261291,
+        "ego_progress": 0.7677661052018142,
+        "no_at_fault_collisions": 0.9799227474008472,
+        "score": 0.8246578818036666,
+        "time_to_collision_within_bound": 0.9354715605918917
+      },
+      "base_oracle_hit_rate": 0.027229220529182023,
+      "base_score_margin_mean": 0.00419879667212962,
+      "base_scorer_regret": 0.0489877435042196,
+      "base_selected_pdms": 0.9313126765238687,
+      "best_of_64_pdms": 0.9803004200305474,
+      "best_of_base_top16_pdms": 0.9580371582414314,
+      "best_of_base_top2_pdms": 0.9374458819949081,
+      "best_of_base_top4_pdms": 0.9440183289034728,
+      "best_of_base_top8_pdms": 0.9504892270723332,
+      "candidate_pdms_mean": 0.8246578827415403,
+      "candidate_pdms_std_mean": 0.1710246879089896,
+      "factor_prediction": {
+        "comfort": {
+          "brier": 0.0007077444863300142,
+          "log_loss": 0.002606151043666287,
+          "target_mean": 0.9963960820177128,
+          "threshold_accuracy": 0.9990854832499038
+        },
+        "drivable_area_compliance": {
+          "brier": 0.04647891973686592,
+          "log_loss": 0.15511465837613933,
+          "target_mean": 0.9116159098410254,
+          "threshold_accuracy": 0.9366516653831344
+        },
+        "driving_direction_compliance": {
+          "brier": 0.02213941777000262,
+          "log_loss": 0.07901576221953426,
+          "target_mean": 0.9545466266021233,
+          "threshold_accuracy": 0.9709262748225975
+        },
+        "ego_progress": {
+          "brier": 0.04808685066487626,
+          "log_loss": 0.42224546771287574,
+          "target_mean": 0.7677661052018142,
+          "threshold_accuracy": 0.9064631580394962
+        },
+        "no_at_fault_collisions": {
+          "brier": 0.014746510878610572,
+          "log_loss": 0.056937511187627944,
+          "target_mean": 0.978473616535563,
+          "threshold_accuracy": 0.9816374663072777
+        },
+        "time_to_collision_within_bound": {
+          "brier": 0.03724899051117003,
+          "log_loss": 0.13186951320603998,
+          "target_mean": 0.9354715605918917,
+          "threshold_accuracy": 0.9512890904340173
+        }
+      },
+      "log_count": 61,
+      "oracle_factor_means": {
+        "comfort": 0.9999449914736784,
+        "drivable_area_compliance": 0.9943341217888773,
+        "driving_direction_compliance": 0.9564882556796304,
+        "ego_progress": 0.9619844440397233,
+        "no_at_fault_collisions": 0.9995599317894274,
+        "score": 0.9803004200305474,
+        "time_to_collision_within_bound": 0.9981847186313879
+      },
+      "per_log_regret": {
+        "mean": 0.042846309640411265,
+        "p05": 0.011093180094446455,
+        "p25": 0.02530571628560708,
+        "p50": 0.0397705134355797,
+        "p75": 0.05605182085914173,
+        "p95": 0.07476998637704288
+      },
+      "scene_count": 18179,
+      "selected_factor_means": {
+        "comfort": 0.9999449914736784,
+        "drivable_area_compliance": 0.9852577149458166,
+        "driving_direction_compliance": 0.9691677209967545,
+        "ego_progress": 0.8712064733279883,
+        "no_at_fault_collisions": 0.9972770779470818,
+        "score": 0.9313126765238687,
+        "time_to_collision_within_bound": 0.9850376808405302
+      },
+      "top16_pair_count_delta_ge_0_02": 609511,
+      "top16_pairwise_accuracy_delta_ge_0_02": 0.6352239746288418
+    }
+  }
+}

@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
 from local_stage2.train_independent_scorer import (
     ReplaySource,
@@ -75,6 +75,8 @@ _M0_REFIT_LOCKED_ARGUMENTS = (
     "trajectory_layers",
     "trajectory_observation_attention",
     "current_actor_cv_relabeling",
+    "scene_sampling_mode",
+    "risk_scene_max_multiplier",
     "candidate_layers",
     "fine_layers",
     "private_fine_top_k",
@@ -157,6 +159,8 @@ _M0_LEGACY_REFIT_ARGUMENT_DEFAULTS = {
     "reference_factor_epsilon": 1.0e-6,
     "trajectory_observation_attention": False,
     "current_actor_cv_relabeling": False,
+    "scene_sampling_mode": "log_balanced",
+    "risk_scene_max_multiplier": 4.0,
 }
 _M0_DEPLOYMENT_ONLY_RESIDUAL_FIELDS = (
     "inference_scale",
@@ -629,6 +633,119 @@ class ResidualReplayDataset(Dataset):
             self.shared_future_table.actor_masks[target_index],
             self.shared_future_table.supervision_valid[target_index],
         )
+
+
+def build_m0_training_sampler(
+    data: ReplayTensorSet,
+    train_indices: Sequence[int],
+    *,
+    seed: int,
+    mode: str,
+    top_k: int,
+    risk_scene_max_multiplier: float,
+) -> Tuple[WeightedRandomSampler, Dict[str, object]]:
+    """Balance physical logs, optionally emphasizing informative risk scenes.
+
+    The risk-balanced path uses training-only PDM targets to choose how often a
+    training scene is sampled. It never exposes those targets to the model
+    forward. Per-log weights are normalized after scene weighting so long or
+    risk-heavy logs cannot dominate the training distribution.
+    """
+
+    if mode not in {"log_balanced", "risk_balanced"}:
+        raise ValueError("scene sampling mode must be log_balanced or risk_balanced")
+    if top_k <= 0:
+        raise ValueError("sampling top_k must be positive")
+    if risk_scene_max_multiplier < 1.0:
+        raise ValueError("risk scene maximum multiplier must be at least one")
+    indices = torch.as_tensor(train_indices, dtype=torch.long)
+    if not int(indices.numel()):
+        raise ValueError("training sampler requires at least one scene")
+    if mode == "log_balanced":
+        sampler = _build_sampler(data, train_indices, seed)
+        return sampler, {
+            "mode": mode,
+            "scene_count": int(indices.numel()),
+            "physical_log_count": len(
+                {data.physical_logs[int(index)] for index in indices}
+            ),
+            "training_only_targets_used_for_sampling": False,
+            "per_physical_log_total_weight_equalized": True,
+        }
+
+    base_scores = data.base_scores_for_evaluation.index_select(0, indices)
+    targets = data.target_factors.index_select(0, indices)
+    if base_scores.shape != (len(indices), 64):
+        raise ValueError("risk sampler expects 64 Base scores per scene")
+    if targets.shape != (len(indices), 64, 7):
+        raise ValueError("risk sampler expects [N,64,7] target factors")
+    shortlist = base_anchored_topk_indices(base_scores, top_k)
+    shortlist_targets = torch.gather(
+        targets,
+        1,
+        shortlist.unsqueeze(-1).expand(-1, -1, targets.shape[-1]),
+    )
+    base_indices = base_scores.argmax(dim=1)
+    base_targets = targets.gather(
+        1,
+        base_indices[:, None, None].expand(-1, 1, targets.shape[-1]),
+    ).squeeze(1)
+    headroom = (
+        shortlist_targets[..., -1].amax(dim=1) - base_targets[..., -1]
+    ).clamp_min(0.0)
+    # Match the conservative-reference definition: NOC, DAC, and TTC. A
+    # scene is especially informative when its shortlist contains both safe
+    # and unsafe choices, or when Base itself is unsafe.
+    safety_indices = torch.tensor((0, 1, 3), dtype=torch.long)
+    shortlist_safe = (
+        shortlist_targets.index_select(-1, safety_indices) >= 1.0 - 1.0e-6
+    ).all(dim=-1)
+    risk_contrast = shortlist_safe.any(dim=1) & (~shortlist_safe).any(dim=1)
+    base_unsafe = ~(
+        base_targets.index_select(-1, safety_indices) >= 1.0 - 1.0e-6
+    ).all(dim=-1)
+    normalized_headroom = (headroom / 0.05).clamp(0.0, 1.0)
+    difficulty = torch.maximum(
+        normalized_headroom,
+        torch.maximum(risk_contrast.float(), base_unsafe.float()),
+    )
+    hardness = 1.0 + (risk_scene_max_multiplier - 1.0) * difficulty
+
+    logs = [data.physical_logs[int(index)] for index in indices]
+    log_hardness: Dict[str, float] = {}
+    hardness_values = hardness.tolist()
+    for log_name, value in zip(logs, hardness_values):
+        log_hardness[log_name] = log_hardness.get(log_name, 0.0) + float(value)
+    weights = torch.tensor(
+        [
+            float(value) / log_hardness[log_name]
+            for log_name, value in zip(logs, hardness_values)
+        ],
+        dtype=torch.double,
+    )
+    generator = torch.Generator().manual_seed(seed)
+    sampler = WeightedRandomSampler(
+        weights,
+        num_samples=len(indices),
+        replacement=True,
+        generator=generator,
+    )
+    effective_size = float(weights.sum().square() / weights.square().sum())
+    return sampler, {
+        "mode": mode,
+        "scene_count": int(indices.numel()),
+        "physical_log_count": len(set(logs)),
+        "training_only_targets_used_for_sampling": True,
+        "model_forward_receives_sampling_targets": False,
+        "per_physical_log_total_weight_equalized": True,
+        "top_k": min(int(top_k), 64),
+        "risk_scene_max_multiplier": float(risk_scene_max_multiplier),
+        "risk_contrast_fraction": float(risk_contrast.float().mean()),
+        "base_unsafe_fraction": float(base_unsafe.float().mean()),
+        "headroom_ge_0_02_fraction": float((headroom >= 0.02).float().mean()),
+        "mean_base_topk_headroom": float(headroom.mean()),
+        "effective_sample_size": effective_size,
+    }
 
 
 def _m0_reference_targets(
@@ -1412,6 +1529,25 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--bootstrap-replicates", type=int, default=1000)
     parser.add_argument("--max-scenes-per-source", type=int, default=0)
+    parser.add_argument(
+        "--save-last-artifact",
+        action="store_true",
+        help=(
+            "Also retain the final-epoch held-out artifact. This supports a "
+            "predeclared common stop epoch across disjoint physical-log folds; "
+            "the ordinary best-validation artifact is unchanged."
+        ),
+    )
+    parser.add_argument(
+        "--scene-sampling-mode",
+        choices=("log_balanced", "risk_balanced"),
+        default="log_balanced",
+        help=(
+            "Equalize physical logs, or additionally oversample within each "
+            "log training scenes with Base-top-K safety contrast/regret."
+        ),
+    )
+    parser.add_argument("--risk-scene-max-multiplier", type=float, default=4.0)
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
 
@@ -1422,6 +1558,8 @@ def main() -> None:
         raise ValueError(
             "--refit-all-logs and --refit-selection-artifact must be supplied together"
         )
+    if args.refit_all_logs and args.save_last_artifact:
+        raise ValueError("all-log refit does not retain a validation last artifact")
     if args.refit_selection_artifact is not None and not (
         args.refit_selection_artifact.is_file()
     ):
@@ -1455,6 +1593,8 @@ def main() -> None:
         raise ValueError("candidate_relative_weight must be nonnegative")
     if args.reference_weight < 0:
         raise ValueError("reference_weight must be nonnegative")
+    if args.risk_scene_max_multiplier < 1.0:
+        raise ValueError("risk-scene-max-multiplier must be at least one")
     if args.conservative_reference != (args.reference_weight > 0.0):
         raise ValueError(
             "--conservative-reference is required exactly when reference loss is active"
@@ -1731,6 +1871,14 @@ def main() -> None:
         ),
         eta_min=args.learning_rate * 0.05,
     )
+    training_sampler, training_sampler_lineage = build_m0_training_sampler(
+        data,
+        train_indices,
+        seed=args.seed,
+        mode=args.scene_sampling_mode,
+        top_k=args.residual_top_k,
+        risk_scene_max_multiplier=args.risk_scene_max_multiplier,
+    )
     train_loader = DataLoader(
         ResidualReplayDataset(
             data,
@@ -1745,7 +1893,7 @@ def main() -> None:
             shared_future_row_indices=shared_future_row_indices,
         ),
         batch_size=args.batch_size,
-        sampler=_build_sampler(data, train_indices, args.seed),
+        sampler=training_sampler,
         num_workers=args.num_workers,
         pin_memory=True,
         persistent_workers=bool(args.num_workers),
@@ -1793,6 +1941,7 @@ def main() -> None:
             else "source_checkpoint_current_scene_tokens"
         ),
         "shared_future_target_lineage": shared_future_lineage,
+        "training_sampler": training_sampler_lineage,
         "private_config": asdict(private_config),
         "residual_config": asdict(residual_config),
         "model_parameter_count": sum(
@@ -1842,6 +1991,7 @@ def main() -> None:
         if refit_provenance is not None
         else "best_m0_private_residual_scorer.pt"
     )
+    last_artifact_path = args.output_dir / "last_m0_private_residual_scorer.pt"
     for epoch in range(args.epochs):
         model.train()
         epoch_details: List[Dict[str, float]] = []
@@ -1963,67 +2113,80 @@ def main() -> None:
         }
         history.append(record)
         print(json.dumps(record, sort_keys=True), flush=True)
-        if float(metrics["selected_pdms"]) > best_value:
+        save_best = float(metrics["selected_pdms"]) > best_value
+        save_last = args.save_last_artifact and epoch == args.epochs - 1
+        if save_best:
             best_value = float(metrics["selected_pdms"])
             best_epoch = epoch
-            _atomic_torch_save(
-                {
-                    "schema_version": 2 if args.m0_context_fusion else 1,
-                    "architecture": "M0PrivateResidualRanker",
-                    "state_dict": {
-                        key: value.detach().cpu()
-                        for key, value in model.state_dict().items()
-                    },
-                    "private_config": asdict(private_config),
-                    "residual_config": asdict(residual_config),
-                    "epoch": epoch,
-                    "validation": metrics,
-                    "validation_all_sources": combined_metrics,
-                    "validation_by_source": validation_by_source,
-                    "checkpoint_selection_source": selection_source,
-                    "fold_manifest": fold_manifest,
-                    "inference_input_schema": (
-                        (
-                            "m0_current_visual_tokens"
-                            if args.private_observation_root is not None
-                            else "m0_current_scene_tokens"
-                        ),
-                        "m0_current_context_feature",
-                        *(
-                            (
-                                "m0_released_scene_features",
-                                "m0_released_ego_features",
-                            )
-                            if args.m0_context_fusion
-                            else ()
-                        ),
-                        *(
-                            ("m0_released_candidate_features",)
-                            if args.m0_candidate_fusion
-                            else ()
-                        ),
-                        "m0_proposals",
-                        "m0_base_factor_logits",
-                        "m0_base_scores",
-                    ),
-                    "forbidden_inputs": (
-                        "external_model_representation",
-                        "future_annotations",
-                        "future_images",
-                        "official_pdm_score",
-                        "metric_cache",
-                    ),
+        if save_best or save_last:
+            saved_payload = {
+                "schema_version": 2 if args.m0_context_fusion else 1,
+                "architecture": "M0PrivateResidualRanker",
+                "state_dict": {
+                    key: value.detach().cpu()
+                    for key, value in model.state_dict().items()
                 },
-                artifact_path,
+                "private_config": asdict(private_config),
+                "residual_config": asdict(residual_config),
+                "epoch": epoch,
+                "validation": metrics,
+                "validation_all_sources": combined_metrics,
+                "validation_by_source": validation_by_source,
+                "checkpoint_selection_source": selection_source,
+                "fold_manifest": fold_manifest,
+                "inference_input_schema": (
+                    (
+                        "m0_current_visual_tokens"
+                        if args.private_observation_root is not None
+                        else "m0_current_scene_tokens"
+                    ),
+                    "m0_current_context_feature",
+                    *(
+                        (
+                            "m0_released_scene_features",
+                            "m0_released_ego_features",
+                        )
+                        if args.m0_context_fusion
+                        else ()
+                    ),
+                    *(
+                        ("m0_released_candidate_features",)
+                        if args.m0_candidate_fusion
+                        else ()
+                    ),
+                    "m0_proposals",
+                    "m0_base_factor_logits",
+                    "m0_base_scores",
+                ),
+                "forbidden_inputs": (
+                    "external_model_representation",
+                    "future_annotations",
+                    "future_images",
+                    "official_pdm_score",
+                    "metric_cache",
+                ),
+            }
+            if save_best:
+                _atomic_torch_save(saved_payload, artifact_path)
+            if save_last:
+                _atomic_torch_save(saved_payload, last_artifact_path)
+        training_summary = {
+            "best_epoch": best_epoch,
+            "best_validation_pdms": best_value,
+            "artifact": str(artifact_path.resolve()),
+            "checkpoint_selection_source": selection_source,
+            "history": history,
+        }
+        if save_last:
+            training_summary.update(
+                {
+                    "last_artifact": str(last_artifact_path.resolve()),
+                    "last_artifact_sha256": _sha256(last_artifact_path),
+                    "last_artifact_epoch": epoch,
+                }
             )
         _atomic_json_dump(
-            {
-                "best_epoch": best_epoch,
-                "best_validation_pdms": best_value,
-                "artifact": str(artifact_path.resolve()),
-                "checkpoint_selection_source": selection_source,
-                "history": history,
-            },
+            training_summary,
             args.output_dir / "training_summary.json",
         )
 
@@ -2051,6 +2214,14 @@ def main() -> None:
                 "best_validation_pdms": best_value,
             }
         )
+        if args.save_last_artifact:
+            final.update(
+                {
+                    "last_artifact": str(last_artifact_path.resolve()),
+                    "last_artifact_sha256": _sha256(last_artifact_path),
+                    "last_artifact_epoch": args.epochs - 1,
+                }
+            )
     print(json.dumps(final, indent=2, sort_keys=True))
 
 
