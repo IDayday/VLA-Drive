@@ -264,6 +264,50 @@ def test_temporal_consequence_scorer_is_base_exact_at_initialization():
     assert output["actor_state"].shape == (2, 7, 8, 2, 6)
 
 
+@pytest.mark.parametrize("score_mode", ["factor_aggregate", "hybrid"])
+def test_temporal_factor_score_modes_preserve_base_at_initialization(score_mode: str):
+    torch.manual_seed(33)
+    model = TemporalConsequenceRanker(
+        TemporalConsequenceConfig(
+            dropout=0.0,
+            top_k=4,
+            score_mode=score_mode,
+        )
+    ).eval()
+    inputs = _temporal_consequence_inputs()
+    output = model(**inputs)
+    assert torch.equal(output["utility_delta"], torch.zeros_like(inputs["base_scores"]))
+    assert torch.equal(
+        output["factor_score_delta"], torch.zeros_like(inputs["base_scores"])
+    )
+    assert torch.equal(output["residual"], torch.zeros_like(inputs["base_scores"]))
+    assert torch.equal(output["refined_scores"], inputs["base_scores"])
+
+
+def test_temporal_factor_score_mode_uses_predicted_factor_delta():
+    torch.manual_seed(35)
+    model = TemporalConsequenceRanker(
+        TemporalConsequenceConfig(
+            dropout=0.0,
+            top_k=4,
+            score_mode="factor_aggregate",
+        )
+    ).eval()
+    with torch.no_grad():
+        model.factor_delta_head[-1].weight.normal_(std=0.02)
+    inputs = _temporal_consequence_inputs()
+    output = model(**inputs)
+    assert torch.equal(output["utility_delta"], torch.zeros_like(inputs["base_scores"]))
+    assert not torch.equal(
+        output["factor_score_delta"], torch.zeros_like(inputs["base_scores"])
+    )
+    assert torch.equal(output["residual"], output["factor_score_delta"])
+    assert torch.allclose(
+        output["refined_scores"],
+        inputs["base_scores"] + output["factor_score_delta"],
+    )
+
+
 def test_temporal_consequence_scorer_is_candidate_permutation_equivariant():
     torch.manual_seed(37)
     model = TemporalConsequenceRanker(

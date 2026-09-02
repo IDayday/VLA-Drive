@@ -22,6 +22,15 @@ IFS=',' read -r -a full_gpus <<< "${TEMPORAL_FULL_GPUS:-0,1,2}"
 eval_gpu="${TEMPORAL_EVAL_GPU:-5}"
 minimum_available_gib="${TEMPORAL_MIN_AVAILABLE_GIB:-40}"
 minimum_available_bytes=$((minimum_available_gib * 1024 * 1024 * 1024))
+score_mode="${TEMPORAL_SCORE_MODE:-residual}"
+
+case "${score_mode}" in
+  residual|factor_aggregate|hybrid) ;;
+  *)
+    printf 'TEMPORAL_CONFIG_ERROR invalid score mode: %s\n' "${score_mode}" >&2
+    exit 64
+    ;;
+esac
 
 if [[ "${#replay_gpus[@]}" -ne 5 || "${#replay_wait_pids[@]}" -ne 5 ]]; then
   printf 'TEMPORAL_CONFIG_ERROR replay GPU and wait-PID lists must each have 5 entries\n' >&2
@@ -94,6 +103,16 @@ discovery_scheduler_epochs="$(
     'import glob,json,sys; paths=glob.glob(sys.argv[1]+"/fold_*/training_results.json"); values={int(json.load(open(p))["metadata"]["training_args"]["epochs"]) for p in paths}; assert len(paths)==5 and len(values)==1; print(values.pop())' \
     "${discovery_root}"
 )"
+discovery_score_mode="$(
+  "${DRIVEVLA_PYTHON}" -c \
+    'import glob,json,sys; paths=glob.glob(sys.argv[1]+"/fold_*/training_results.json"); values={str(json.load(open(p))["metadata"]["training_args"].get("score_mode", "residual")) for p in paths}; assert len(paths)==5 and len(values)==1; print(values.pop())' \
+    "${discovery_root}"
+)"
+if [[ "${discovery_score_mode}" != "${score_mode}" ]]; then
+  printf 'TEMPORAL_SCORE_MODE_ERROR discovery=%s requested=%s\n' \
+    "${discovery_score_mode}" "${score_mode}" >&2
+  exit 65
+fi
 replay_epochs=$((common_epoch + 1))
 if [[ "${replay_epochs}" -gt "${discovery_scheduler_epochs}" ]]; then
   printf 'TEMPORAL_EPOCH_ERROR replay=%s scheduler=%s\n' \
@@ -135,6 +154,7 @@ launch_replay_fold() {
       --epochs "${replay_epochs}" \
       --scheduler-epochs "${discovery_scheduler_epochs}" \
       --retained-epoch "${common_epoch}" \
+      --score-mode "${score_mode}" \
       --batch-size 128 \
       --eval-batch-size 256 \
       --device cuda >"${log}" 2>&1
@@ -194,6 +214,7 @@ launch_full_data() {
       --seed "${seed}" \
       --epochs "${replay_epochs}" \
       --scheduler-epochs "${discovery_scheduler_epochs}" \
+      --score-mode "${score_mode}" \
       --batch-size 128 \
       --eval-batch-size 256 \
       --device cuda >"${log}" 2>&1

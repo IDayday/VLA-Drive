@@ -21,6 +21,7 @@ import torch.nn.functional as F
 from local_stage2.public_base_residual_scorer import (
     FACTOR_KEYS,
     base_anchored_topk_indices,
+    pdm_log_aggregate,
 )
 from navsim.agents.EpisodeDrive.episodedrive_agent import EpisodeDriveAgent
 
@@ -47,6 +48,7 @@ class TemporalConsequenceConfig:
     safety_floor: float = 0.0
     safety_relative_tolerance: float = 1.0
     use_base_candidate_features: bool = False
+    score_mode: str = "residual"
 
     def __post_init__(self) -> None:
         if self.hidden_dim % self.temporal_heads:
@@ -65,6 +67,10 @@ class TemporalConsequenceConfig:
             raise ValueError("safety_floor must be in [0, 1]")
         if self.safety_relative_tolerance < 0:
             raise ValueError("safety_relative_tolerance must be non-negative")
+        if self.score_mode not in {"residual", "factor_aggregate", "hybrid"}:
+            raise ValueError(
+                "score_mode must be residual, factor_aggregate, or hybrid"
+            )
 
 
 def _wrap_angle(value: torch.Tensor) -> torch.Tensor:
@@ -317,11 +323,23 @@ class TemporalConsequenceRanker(nn.Module):
         ).flatten(2)
         consequence_token = self.consequence_encoder(consequence_values)
         scorer_hidden = torch.cat((candidate_hidden, consequence_token), dim=-1)
-        residual = self.config.max_residual * torch.tanh(
+        utility_delta = self.config.max_residual * torch.tanh(
             self.utility_head(scorer_hidden).squeeze(-1)
         )
         refined_factor_logits = base_factor_logits + self.factor_delta_head(scorer_hidden)
-        refined_scores = base_scores + self.config.inference_scale * residual
+        raw_factor_delta = pdm_log_aggregate(
+            refined_factor_logits
+        ) - pdm_log_aggregate(base_factor_logits)
+        factor_score_delta = self.config.max_residual * torch.tanh(
+            raw_factor_delta / self.config.max_residual
+        )
+        if self.config.score_mode == "residual":
+            score_delta = utility_delta
+        elif self.config.score_mode == "factor_aggregate":
+            score_delta = factor_score_delta
+        else:
+            score_delta = utility_delta + factor_score_delta
+        refined_scores = base_scores + self.config.inference_scale * score_delta
 
         top_indices = base_anchored_topk_indices(base_scores, self.config.top_k)
         top_k_mask = torch.zeros_like(base_scores, dtype=torch.bool)
@@ -355,7 +373,9 @@ class TemporalConsequenceRanker(nn.Module):
         return {
             "selection_scores": selection_scores,
             "refined_scores": refined_scores,
-            "residual": residual,
+            "residual": score_delta,
+            "utility_delta": utility_delta,
+            "factor_score_delta": factor_score_delta,
             "refined_factor_logits": refined_factor_logits,
             "risk_logits": risk_logits,
             "area_logits": area_logits,

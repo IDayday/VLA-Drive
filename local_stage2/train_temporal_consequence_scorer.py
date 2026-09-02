@@ -653,9 +653,17 @@ def deployment_sweep(
                 (0.8, 1.0),
                 (0.9, 1.0),
                 (0.95, 1.0),
+                (0.98, 1.0),
+                (0.99, 1.0),
+                (0.995, 1.0),
                 (0.8, 0.10),
                 (0.9, 0.10),
                 (0.95, 0.10),
+                (0.95, 0.05),
+                (0.98, 0.05),
+                (0.99, 0.05),
+                (0.98, 0.02),
+                (0.99, 0.02),
             ):
                 results.append(
                     evaluate_outputs(
@@ -719,6 +727,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--area-positive-weight", type=float, default=5.0)
     parser.add_argument("--actor-positive-weight", type=float, default=5.0)
     parser.add_argument("--use-base-candidate-features", action="store_true")
+    parser.add_argument(
+        "--score-mode",
+        choices=("residual", "factor_aggregate", "hybrid"),
+        default="residual",
+        help=(
+            "How the temporal head corrects the frozen Base score. The factor "
+            "modes use only factor logits predicted from current observations."
+        ),
+    )
     parser.add_argument(
         "--train-all",
         action="store_true",
@@ -850,6 +867,7 @@ def main() -> None:
         TemporalConsequenceConfig(
             top_k=16,
             use_base_candidate_features=args.use_base_candidate_features,
+            score_mode=args.score_mode,
         )
     ).to(device)
     optimizer = torch.optim.AdamW(
