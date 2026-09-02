@@ -401,3 +401,17 @@ annotation 加入验证或推理。训练入口和自动严格 Navtest 入口分
 local_stage2/run_no_vqa_e35_full_current_actor_wave8_remote.sh
 local_stage2/watch_no_vqa_e35_full_current_actor_wave8_and_run_navtest_remote.sh
 ```
+
+## 2026-09-02 Wave-9：Top-64 路径注意力边界
+
+Wave-6 的早期 held-out validation 中，Top-32 conservative-reference 暂时优于
+Top-16，而 No-actor 控制同样为正。为在读取 Wave-6 Navtest 前固定候选范围
+消融，Wave-9 只训练一个 Top-64 path-local/no-actor 模型。它与 Wave-7 strict
+模型保持相同特征、损失和 seed，仅把部署 shortlist 从 32 扩大到 64，并关闭
+actor auxiliary；因此能够区分“更丰富当前视觉表征”与“可搜索候选范围”两类
+限制。完整 Navtest 和在线/cache parity 仍由同一严格 watcher 自动执行。
+
+```text
+local_stage2/run_no_vqa_e35_point_top64_wave9_local.sh
+local_stage2/watch_no_vqa_e35_point_top64_wave9_and_run_navtest_local.sh
+```

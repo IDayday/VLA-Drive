@@ -667,3 +667,10 @@ balanced 为 `0.907417`。三项均满足 12,146 scenes、136 logs、64 candidat
 配置已在 `rl-zt4` GPU 1--6 启动，比较 pooled/path-local 表征在 44% 稀疏 actor
 监督与 100% 当前帧 actor 监督下的差异；GPU 7 保留给既有任务。rl-zt3 SSH
 当前连接被拒绝，因此未在该机启动或干预任何任务。
+
+Wave-6 当前最强 held-out 结果为 raw Top-32 strict：PDMS `0.937223`，相对
+matching validation Base `+0.005910`，日志 bootstrap 95% CI
+`[+0.004721,+0.007141]`；No-actor Top-16 strict 为 `+0.004893`。这些仍是
+promotion 数字而不是 Navtest。由于 Top-32 优于 Top-16 且本机 GPU 0 已自然
+空闲，已在读取 Wave-6 Navtest 前预注册 Wave-9 Top-64 path-local/no-actor
+边界实验；它使用相同 No-VQA 当前观测 cache，且不读取 future、PDM 或 DrivOR。
