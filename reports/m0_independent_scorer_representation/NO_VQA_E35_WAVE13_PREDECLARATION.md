@@ -41,3 +41,11 @@ Thus pool-2 versus pool-4 is a single-variable representation-resolution
 comparison. Navtest cannot select token resolution, epoch, fold, policy or
 model. A pool-4 all-log refit may run only after the same all-fold positive
 point/clustered-CI and safety-factor gate used by Wave-12 passes.
+
+## Launcher audit
+
+The first `v1` launcher attempt produced no fold, checkpoint, or result: its
+post-processing watcher pre-created an empty nested sweep directory before the
+fold launcher performed its no-overwrite check. The watcher ordering was fixed
+and the unchanged predeclared experiment was relaunched under `wave13_v2`.
+The empty `v1` directory is retained as failure evidence.

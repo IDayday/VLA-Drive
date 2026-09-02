@@ -15,7 +15,7 @@ private_root="${NO_VQA_DENSE_TRAIN_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/sc
 export REPO_ROOT="${repo_root}"
 export NO_VQA_MULTIVIEW_TRAIN_ROOT="${private_root}"
 export NO_VQA_WAVE12_FOLD_ROOT="${NO_VQA_WAVE13_FOLD_ROOT:-${repo_root}/reports/m0_independent_scorer_representation/no_vqa_e35_risk_cv_wave12_v1/folds}"
-export NO_VQA_WAVE12_RUN_ROOT="${NO_VQA_WAVE13_RUN_ROOT:-/root/scorer_pdms93_runs/no_vqa_e35_dense_risk_cv_wave13_v1}"
-export NO_VQA_WAVE12_LOG_ROOT="${NO_VQA_WAVE13_LOG_ROOT:-/root/scorer_pdms93_logs/no_vqa_e35_dense_risk_cv_wave13_v1}"
+export NO_VQA_WAVE12_RUN_ROOT="${NO_VQA_WAVE13_RUN_ROOT:-/root/scorer_pdms93_runs/no_vqa_e35_dense_risk_cv_wave13_v2}"
+export NO_VQA_WAVE12_LOG_ROOT="${NO_VQA_WAVE13_LOG_ROOT:-/root/scorer_pdms93_logs/no_vqa_e35_dense_risk_cv_wave13_v2}"
 
 exec bash "${repo_root}/local_stage2/run_no_vqa_e35_risk_cv_wave12_remote.sh"

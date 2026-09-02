@@ -126,3 +126,7 @@ was trained; it does not change the locked validation or promotion policy.
   no-future input boundaries, shared-BEV single execution, proposal
   permutation equivariance, zero-gate legacy equivalence, masked semantic
   loss and deterministic bilinear interpolation.
+- The first `v1` launcher attempt trained zero folds: the generic post watcher
+  pre-created an empty sweep directory before the fold launcher's no-overwrite
+  check. The watcher ordering was corrected and the identical locked protocol
+  was relaunched as `wave14_v2`; the empty `v1` directory remains preserved.

@@ -19,7 +19,11 @@ campaign="${NO_VQA_WAVE12_REFIT_CAMPAIGN:-no_vqa_e35_risk_cv_wave12_all_log_refi
 private_navtest_root="${NO_VQA_MULTIVIEW_TEST_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_multiview_navtest_pool2_tiles4_v1_8shard}"
 gpu="${NO_VQA_WAVE12_POST_GPU:-0}"
 
-mkdir -p "${log_root}" "$(dirname "${selection_artifact}")" "${sweep_root}"
+# Do not create ``sweep_root`` here when it is nested under ``run_root``.
+# The fold launcher intentionally refuses any pre-existing run directory, and
+# starting this watcher before the launcher used to create an empty
+# ``run_root/common_policy_sweeps`` directory that made every fold abort.
+mkdir -p "${log_root}" "$(dirname "${selection_artifact}")"
 export PYTHONPATH="${repo_root}:${repo_root}/nuplan-devkit${PYTHONPATH:+:${PYTHONPATH}}"
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export OMP_NUM_THREADS=1
@@ -43,6 +47,8 @@ assert len(payload.get("history", [])) == 8
 assert payload.get("last_artifact_epoch") == 7
 PY
 done
+
+mkdir -p "${sweep_root}"
 
 if [[ ! -f "${report_root}/FIXED_POLICY_CV_RESULTS.json" ]]; then
   "${python_bin}" "${repo_root}/local_stage2/summarize_m0_residual_cv.py" \

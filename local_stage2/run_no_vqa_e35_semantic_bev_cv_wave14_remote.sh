@@ -13,8 +13,8 @@ private_root="${NO_VQA_DENSE_TRAIN_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/sc
 actor_root="${NO_VQA_FULL_CURRENT_ACTOR_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_full_current_actor_targets_v1}"
 semantic_root="${NO_VQA_SEMANTIC_BEV_ROOT:-/mnt/project/DriveVLA-M0-stage2/runs/scorer_pdms93/no_vqa_e35_full_current_semantic_bev_targets_v1}"
 fold_root="${NO_VQA_WAVE14_FOLD_ROOT:-${repo_root}/reports/m0_independent_scorer_representation/no_vqa_e35_risk_cv_wave12_v1/folds}"
-run_root="${NO_VQA_WAVE14_RUN_ROOT:-/root/scorer_pdms93_runs/no_vqa_e35_semantic_bev_cv_wave14_v1}"
-log_root="${NO_VQA_WAVE14_LOG_ROOT:-/root/scorer_pdms93_logs/no_vqa_e35_semantic_bev_cv_wave14_v1}"
+run_root="${NO_VQA_WAVE14_RUN_ROOT:-/root/scorer_pdms93_runs/no_vqa_e35_semantic_bev_cv_wave14_v2}"
+log_root="${NO_VQA_WAVE14_LOG_ROOT:-/root/scorer_pdms93_logs/no_vqa_e35_semantic_bev_cv_wave14_v2}"
 poll_seconds="${NO_VQA_WAVE14_POLL_SECONDS:-30}"
 
 gpu_ids=(0 1 2 3 4)
