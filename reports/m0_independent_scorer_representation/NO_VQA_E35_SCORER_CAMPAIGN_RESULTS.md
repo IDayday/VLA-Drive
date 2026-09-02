@@ -158,6 +158,8 @@ split 上的约 `+0.002` 到 `+0.007` 不能被解释为可泛化 scorer 改进�
 | wave-4：Top-1 regret/shortlist factor scope | 5/5 | **0.911414** | **-0.000080** | [-0.002089,+0.001740] | 与 Base 持平，未改善 |
 | wave-3 架构的 162-log refit | 3/3 | 0.910348 | -0.001145 | [-0.003195,+0.000996] | 损失缩小但未翻正 |
 | wave-4 Top-regret 的 162-log refit | 1/1 | 0.911192 | -0.000302 | [-0.001954,+0.001243] | 未改善 |
+| wave-5：Base-relative conservative gate | 8/8 | 0.911499 | +0.000006 | [+0.000000,+0.000021] | 仅改变 1 个 scene，无实质增益 |
+| wave-5 三个方案的 162-log refit | 3/3 | 0.911415 | -0.000079 | [-0.000952,+0.000905] | 未改善 |
 
 对应机器可读结果位于：
 
@@ -168,6 +170,8 @@ reports/m0_independent_scorer_representation/no_vqa_e35_scene_token_wave3_v1/
 reports/m0_independent_scorer_representation/no_vqa_e35_scene_token_wave4_v1/
 reports/m0_independent_scorer_representation/no_vqa_e35_all_log_refit_wave3_v1/
 reports/m0_independent_scorer_representation/no_vqa_e35_all_log_refit_wave4_topregret_v1/
+reports/m0_independent_scorer_representation/no_vqa_e35_scene_token_wave5_reference_v1/
+reports/m0_independent_scorer_representation/no_vqa_e35_all_log_refit_wave5_reference_v1/
 ```
 
 这些实验共同排除了以下解释：只增加 scorer MLP/Transformer 容量、冻结 M0
@@ -214,6 +218,20 @@ M0 scene token 尚未提供足以跨日志泛化的新选择信息。机器可�
 parity 证据位于
 `reports/m0_independent_scorer_representation/no_vqa_e35_scene_token_wave5_reference_v1/`。
 
+三个在 validation 上预先锁定的 wave-5 配置随后用全部 162 条训练物理日志
+refit，并全部完成 12,146-scene FP32 Navtest 和真实 agent/cache parity：
+
+| all-log refit | validation delta | Navtest PDMS | Navtest delta | 95% CI |
+|---|---:|---:|---:|---:|
+| Top-8 q50 strict | +0.003812 | **0.911415** | **-0.000079** | [-0.000952,+0.000905] |
+| Top-16 q50 strict | +0.006212 | 0.910048 | -0.001445 | [-0.003578,+0.000995] |
+| Top-16 q10 balanced | +0.004338 | 0.907417 | -0.004076 | [-0.006331,-0.001791] |
+
+三项均为 12,146 scenes、136 logs、64 candidates、0 invalid，在线/cache 的
+proposal 与 score 最大误差均为 `0`。因此此前的 validation-to-Navtest 翻转
+不是简单由“训练时少看了 61 条 held-out logs”解释；相同冻结 scene-token
+表征在全部训练日志上 refit 仍不能产生可泛化改进。
+
 ## wave-6：No-VQA 自有四视角 scorer-private 表征
 
 前四个 scene-token wave 的 private encoder 仍以冻结后的 16 个 Q-Former scene
@@ -225,8 +243,19 @@ SHA 为 `72c74a...9309`，resolved No-VQA config 可严格加载，且 manifest 
 `current_observation_only=true`、`future_or_evaluator_input=false`、
 `drivor_checkpoint_or_representation_used=false`。
 
-全量 103,288-scene trainval cache 正在本机八卡导出；完成后同一 pipeline 自动
-导出独立的 12,146-scene Navtest current-observation cache。wave-6 已预注册八个
+全量 103,288-scene trainval cache 与独立的 12,146-scene Navtest cache 均已
+完成并通过 `.complete`、shape、checkpoint SHA 与 current-observation-only
+lineage 校验。wave-6 已预注册八个
 模型，比较普通 residual、Top-regret、conservative-reference、raw-private-only、
 raw + released-context 双流、current-actor auxiliary 与 no-actor。其设计冻结于
 wave-5 Navtest 之前，因此不会按测试集结果修改。
+
+截至 2026-09-02 09:40 UTC，wave-6 八项均在 `training-vla-zt2` 正常训练；
+held-out 61-log validation 上多个 conservative-reference 变体暂时达到约
+`+0.0040`，bootstrap 下界为正。该数字仅用于预注册 promotion，考虑到 wave-5
+曾发生明显符号翻转，在完整 Navtest 与在线/cache parity 完成前不作为性能结论。
+
+为消除旧 current-actor table 仅覆盖约 44% 训练场景的问题，已从 Scene 当前帧
+构造 103,288/103,288 全覆盖 actor target；验证确认它不读取 future、MetricCache
+或 PDM。wave-8 在 `rl-zt4` 以 Wave-6/7 的六个严格匹配配置进行单变量 A/B，
+训练 target 覆盖率是唯一关键变化，推理输入不增加 actor 标注。

@@ -644,3 +644,26 @@ Base-Top-K 和事后保守阈值即可泛化提升”的假设。
 - 下一条主路径仍是 wave-6：直接使用同一 No-VQA/M0 vision encoder 的当前
   `CAM_F0/L0/R0/B0` 空间 token，训练 scorer-private perception；不读取 future、
   evaluator 或 DrivOR 表征。缓存完成后会自动启动 8 个预注册变体。
+
+## wave-5 全日志 refit 收口与 wave-6/7/8 启动（2026-09-02 09:40 UTC）
+
+wave-5 三个 validation-locked 配置的 162-log refit 已全部完成严格完整 Navtest
+与在线/cache parity。最佳 Top-8 q50 strict 为 `0.911415`，相对 matching
+No-VQA Base `0.911493` 为 `-0.000079`，95% CI
+`[-0.000952,+0.000905]`；Top-16 q50 strict 为 `0.910048`，Top-16 q10
+balanced 为 `0.907417`。三项均满足 12,146 scenes、136 logs、64 candidates、
+0 invalid，proposal/score parity 最大误差为 `0`。因此简单增加 refit 日志覆盖
+不能解决 scene-token scorer 的跨日志泛化问题。
+
+当前四相机 raw-token trainval/Navtest cache 均完成并通过 lineage 审计。Wave-6
+八个 query-bank 配置已在 `training-vla-zt2` 运行；初期 held-out validation 的
+最佳 delta 约 `+0.0040` 且日志 bootstrap 下界为正，但必须等待完整 Navtest，
+不能复用 validation 数字作为测试结论。Wave-7 七个 path-local attention 配置
+已在本机 GPU 1--7 运行；每个轨迹点查询同一份 current-observation memory，
+共享视觉 memory 不随候选变化。
+
+另已构造并验证全量当前帧 actor target cache：103,288/103,288 scenes 有效，
+`depends_on_logged_future=false`，模型推理不读取该 target。Wave-8 六个严格匹配
+配置已在 `rl-zt4` GPU 1--6 启动，比较 pooled/path-local 表征在 44% 稀疏 actor
+监督与 100% 当前帧 actor 监督下的差异；GPU 7 保留给既有任务。rl-zt3 SSH
+当前连接被拒绝，因此未在该机启动或干预任何任务。

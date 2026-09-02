@@ -379,3 +379,25 @@ local_stage2/watch_no_vqa_e35_multiview_point_attention_wave7_and_run_navtest_lo
 
 新增路径及 refit 兼容性相关回归当前为 `108 passed`。完整多视角 trainval/Navtest
 cache 通过 `.complete` 和 lineage 验收后，Wave-6 与 Wave-7 才会分别自动启动。
+
+## 2026-09-02 Wave-8：全覆盖当前 actor 表征监督
+
+旧 Gate-C current-actor table 只覆盖 45,378/103,288 个 No-VQA trainval scene，
+使 actor-localization auxiliary 在多数 batch 中没有监督。现已用 Scene 当前帧
+annotations 构造新的 103,288/103,288 全覆盖表；它只读取 current frame，明确
+不依赖 logged future、MetricCache、proposal 或 PDM，且只作为训练 target。
+
+Wave-8 预先固定六个与 Wave-6/7 一一匹配的 conservative-reference 配置：
+
+- pooled raw-token：combined Top-16/Top-32、private Top-16、context+combined Top-16；
+- path-local attention：combined Top-16/Top-32；
+- actor loss weight 保持 `0.5`，其余 split、seed、epoch、优化器、候选、标签、
+  gate 和推理输入均不变。
+
+该实验只回答 actor 监督覆盖是否改善 scorer-private perception，不把 actor
+annotation 加入验证或推理。训练入口和自动严格 Navtest 入口分别为：
+
+```text
+local_stage2/run_no_vqa_e35_full_current_actor_wave8_remote.sh
+local_stage2/watch_no_vqa_e35_full_current_actor_wave8_and_run_navtest_remote.sh
+```
