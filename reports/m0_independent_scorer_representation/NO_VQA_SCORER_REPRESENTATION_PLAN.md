@@ -350,3 +350,32 @@ artifact 都必须做 12,146-scene FP32 Navtest 和四场景 online/cache parity
 
 本轮新增与相关回归测试当前为 `148 passed`；完整项目测试将在实验产物稳定后
 再次运行并单独记录。
+
+## 2026-09-02 Wave-6/7：原生四视角空间表征与路径局部注意力
+
+Wave-5 已证明 Base-relative conservative gate 可以把测试退化压到接近零，但
+16 个冻结 Q-Former scene token 上的最好 Navtest 仅为 `0.911499`，相对 Base
+只有 `+0.000006` 且只改变 1 个 scene。验证提升最大的模型在 Navtest 仍翻转为
+负值。因此下一步不再增加相同 scene-token head 的容量，而是保留同一个 No-VQA
+checkpoint，导出当前时刻 `CAM_F0/L0/R0/B0` 的 80 个空间 token。
+
+Wave-6 的八个配置使用已有 query-bank 压缩路径。Wave-7 在其上增加一个严格
+可选、默认关闭的 scorer-private 路径：每条 proposal 的 8 个轨迹点直接查询同一
+份未压缩当前观测 memory，再在时间维聚合为候选特征。它满足：
+
+- 当前观测 memory 每个 scene 只计算一次，候选不能改变共享视觉表征；
+- candidate permutation 时输出同步置换；
+- 新路径标量门初始化为 0，关闭时对既有 scorer 是精确 no-op；
+- forward 不接收 future、PDM、MetricCache 或 DrivOR 表征；
+- Base generator、Q-Former、trajectory decoder 与原 scorer 全部冻结。
+
+Wave-7 在本机 GPU 1--7 预注册七个与 Wave-6 配对的设置，GPU 0 留给既有任务；
+这些设置在读取 Wave-6/7 validation 与 Navtest 前已经锁定。入口为：
+
+```text
+local_stage2/run_no_vqa_e35_multiview_point_attention_wave7_local.sh
+local_stage2/watch_no_vqa_e35_multiview_point_attention_wave7_and_run_navtest_local.sh
+```
+
+新增路径及 refit 兼容性相关回归当前为 `108 passed`。完整多视角 trainval/Navtest
+cache 通过 `.complete` 和 lineage 验收后，Wave-6 与 Wave-7 才会分别自动启动。

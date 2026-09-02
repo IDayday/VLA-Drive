@@ -89,6 +89,7 @@ _BOOLEAN_ARGUMENTS = (
     "conservative_reference",
     "shared_future_relabeling",
     "shared_future_constant_velocity_residual",
+    "trajectory_observation_attention",
 )
 _OPTIONAL_PATH_ARGUMENTS = (
     "private_observation_root",

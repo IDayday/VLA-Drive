@@ -73,6 +73,7 @@ _M0_REFIT_LOCKED_ARGUMENTS = (
     "dynamic_queries",
     "private_layers",
     "trajectory_layers",
+    "trajectory_observation_attention",
     "candidate_layers",
     "fine_layers",
     "private_fine_top_k",
@@ -153,6 +154,7 @@ _M0_LEGACY_REFIT_ARGUMENT_DEFAULTS = {
     "reference_switch_margin_temperature": 0.05,
     "reference_minimum_improvement_target": 0.005,
     "reference_factor_epsilon": 1.0e-6,
+    "trajectory_observation_attention": False,
 }
 _M0_DEPLOYMENT_ONLY_RESIDUAL_FIELDS = (
     "inference_scale",
@@ -201,7 +203,15 @@ def validate_m0_all_log_refit_provenance(
                 "M0 refit calibration was not evaluated on disjoint physical logs"
             )
 
-    if selected.get("private_config") != asdict(private_config):
+    selected_private_config = selected.get("private_config")
+    if not isinstance(selected_private_config, Mapping):
+        raise RuntimeError("M0 refit artifact lacks its private configuration")
+    selected_training_private = dict(selected_private_config)
+    selected_training_private.setdefault(
+        "trajectory_observation_attention",
+        False,
+    )
+    if selected_training_private != asdict(private_config):
         raise RuntimeError("M0 refit private configuration differs from selection")
     selected_residual_config = selected.get("residual_config")
     if not isinstance(selected_residual_config, Mapping):
@@ -244,10 +254,26 @@ def validate_m0_all_log_refit_provenance(
         raise RuntimeError(
             f"M0 refit artifact lacks locked arguments: {sorted(unresolved)}"
         )
-    mismatches = {
-        name: (getattr(args, name), resolved_selected_args[name])
+    resolved_current_args = {
+        name: getattr(
+            args,
+            name,
+            _M0_LEGACY_REFIT_ARGUMENT_DEFAULTS.get(name, missing),
+        )
         for name in _M0_REFIT_LOCKED_ARGUMENTS
-        if getattr(args, name) != resolved_selected_args[name]
+    }
+    unresolved_current = [
+        name for name, value in resolved_current_args.items() if value is missing
+    ]
+    if unresolved_current:
+        raise RuntimeError(
+            "M0 refit invocation lacks locked arguments: "
+            f"{sorted(unresolved_current)}"
+        )
+    mismatches = {
+        name: (resolved_current_args[name], resolved_selected_args[name])
+        for name in _M0_REFIT_LOCKED_ARGUMENTS
+        if resolved_current_args[name] != resolved_selected_args[name]
     }
     if mismatches:
         raise RuntimeError(f"M0 refit arguments differ from selection: {mismatches}")
@@ -1270,6 +1296,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dynamic-queries", type=int, default=16)
     parser.add_argument("--private-layers", type=int, default=2)
     parser.add_argument("--trajectory-layers", type=int, default=2)
+    parser.add_argument(
+        "--trajectory-observation-attention",
+        action="store_true",
+        help=(
+            "Let each proposal waypoint query the shared uncompressed current "
+            "visual-token memory before candidate aggregation."
+        ),
+    )
     parser.add_argument("--candidate-layers", type=int, default=1)
     parser.add_argument("--fine-layers", type=int, default=2)
     parser.add_argument("--private-fine-top-k", type=int, default=16)
@@ -1565,6 +1599,9 @@ def main() -> None:
         shared_future_relabeling=args.shared_future_relabeling,
         shared_future_constant_velocity_residual=(
             args.shared_future_constant_velocity_residual
+        ),
+        trajectory_observation_attention=(
+            args.trajectory_observation_attention
         ),
     )
     residual_config = M0PrivateResidualConfig(

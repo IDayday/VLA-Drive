@@ -1779,6 +1779,64 @@ def test_candidate_permutation_equivariance() -> None:
     assert torch.equal(reference["fine_mask"], permuted["fine_mask"][:, inverse])
 
 
+def test_trajectory_observation_attention_is_permutation_equivariant() -> None:
+    torch.manual_seed(41)
+    model = IndependentProposalRanker(
+        _small_config(trajectory_observation_attention=True)
+    ).eval()
+    with torch.no_grad():
+        model.trajectory_observation_gate.fill_(1.0)
+    observations, status, proposals = _inputs()
+    permutation = torch.tensor([4, 0, 5, 2, 1, 3])
+    inverse = torch.argsort(permutation)
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        permuted = model(observations, status, proposals[:, permutation])
+    for key in (
+        "utility",
+        "coarse_utility",
+        "factor_logits",
+        "trajectory_observation_token",
+        "candidate_features",
+    ):
+        torch.testing.assert_close(
+            reference[key],
+            permuted[key][:, inverse],
+            rtol=1e-5,
+            atol=1e-6,
+        )
+    assert torch.equal(reference["fine_mask"], permuted["fine_mask"][:, inverse])
+
+
+def test_trajectory_observation_attention_zero_gate_is_exact_noop() -> None:
+    torch.manual_seed(42)
+    model = IndependentProposalRanker(
+        _small_config(trajectory_observation_attention=True)
+    ).eval()
+    observations, status, proposals = _inputs()
+    calls = 0
+
+    def count_call(_module, _arguments, _output):
+        nonlocal calls
+        calls += 1
+
+    handle = model.scene_encoder.register_forward_hook(count_call)
+    with torch.no_grad():
+        reference = model(observations, status, proposals)
+        for parameter in model.trajectory_observation_attention.parameters():
+            parameter.add_(torch.randn_like(parameter) * 10.0)
+        perturbed = model(observations, status, proposals)
+    handle.remove()
+    assert calls == 2
+    assert reference["trajectory_observation_gate"].item() == 0.0
+    torch.testing.assert_close(
+        reference["candidate_features"],
+        perturbed["candidate_features"],
+        rtol=0,
+        atol=0,
+    )
+
+
 def test_current_actor_auxiliary_is_candidate_independent_and_masked() -> None:
     torch.manual_seed(46)
     model = IndependentProposalRanker(

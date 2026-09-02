@@ -8,7 +8,7 @@ scorer logits/features/scores or any future/evaluator field.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -100,6 +100,13 @@ class IndependentRankerConfig:
     shared_future_horizons: int = 8
     shared_future_relabeling: bool = False
     shared_future_constant_velocity_residual: bool = False
+    # Let every trajectory point query the uncompressed current-observation
+    # token grid directly.  The existing query-bank path remains intact and
+    # this option is off for all legacy artifacts.  It is specifically meant
+    # to preserve path-local obstacle evidence that can be lost when the
+    # visual stream is first compressed into a small candidate-independent
+    # query bank.
+    trajectory_observation_attention: bool = False
 
     def __post_init__(self) -> None:
         if self.model_dim % self.num_heads:
@@ -210,11 +217,11 @@ class ScorerPrivateSceneEncoder(nn.Module):
             nn.init.trunc_normal_(bank, std=0.02)
         nn.init.trunc_normal_(self.observation_position_embedding, std=0.01)
 
-    def forward(
+    def project_observation(
         self,
         observation_tokens: torch.Tensor,
         observation_valid_mask: Optional[torch.Tensor] = None,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         if observation_tokens.ndim != 3:
             raise ValueError("observation_tokens must have shape [B, L, D]")
         if observation_tokens.shape[-1] != self.config.observation_dim:
@@ -237,7 +244,18 @@ class ScorerPrivateSceneEncoder(nn.Module):
         memory = memory + self.observation_position_embedding[
             :, : observation_tokens.shape[1]
         ]
-        batch_size = observation_tokens.shape[0]
+        return memory, padding_mask
+
+    def decode_streams(
+        self,
+        memory: torch.Tensor,
+        padding_mask: Optional[torch.Tensor] = None,
+    ) -> Dict[str, torch.Tensor]:
+        if memory.ndim != 3 or memory.shape[-1] != self.config.model_dim:
+            raise ValueError("memory must have shape [B, L, model_dim]")
+        if padding_mask is not None and padding_mask.shape != memory.shape[:2]:
+            raise ValueError("padding_mask must have shape [B, L]")
+        batch_size = memory.shape[0]
         return {
             name: self.decoders[name](
                 self.query_banks[name].expand(batch_size, -1, -1),
@@ -246,6 +264,28 @@ class ScorerPrivateSceneEncoder(nn.Module):
             )
             for name in self._BANK_NAMES
         }
+
+    def forward(
+        self,
+        observation_tokens: torch.Tensor,
+        observation_valid_mask: Optional[torch.Tensor] = None,
+        return_memory: bool = False,
+    ) -> Union[
+        Dict[str, torch.Tensor],
+        Tuple[
+            Dict[str, torch.Tensor],
+            torch.Tensor,
+            Optional[torch.Tensor],
+        ],
+    ]:
+        memory, padding_mask = self.project_observation(
+            observation_tokens,
+            observation_valid_mask,
+        )
+        streams = self.decode_streams(memory, padding_mask)
+        if return_memory:
+            return streams, memory, padding_mask
+        return streams
 
 
 class ProposalTrajectoryEncoder(nn.Module):
@@ -596,6 +636,29 @@ class IndependentProposalRanker(nn.Module):
             nn.GELU(),
             nn.Linear(config.model_dim, config.model_dim),
         )
+        if config.trajectory_observation_attention:
+            self.trajectory_observation_attention = nn.MultiheadAttention(
+                config.model_dim,
+                config.num_heads,
+                dropout=config.dropout,
+                batch_first=True,
+            )
+            self.trajectory_observation_temporal_encoder = nn.TransformerEncoder(
+                _make_encoder_layer(config),
+                num_layers=1,
+                norm=nn.LayerNorm(config.model_dim),
+            )
+            self.trajectory_observation_norm = nn.LayerNorm(config.model_dim)
+            # The direct spatial path begins as an exact no-op.  Main scorer
+            # heads and auxiliary losses first learn whether the additional
+            # path-local evidence is useful, after which this scalar gate can
+            # admit it without changing legacy/default behavior.
+            self.trajectory_observation_gate = nn.Parameter(torch.zeros(()))
+        else:
+            self.trajectory_observation_attention = None
+            self.trajectory_observation_temporal_encoder = None
+            self.trajectory_observation_norm = None
+            self.register_parameter("trajectory_observation_gate", None)
         self.stream_attention = nn.ModuleDict(
             {
                 name: nn.MultiheadAttention(
@@ -739,8 +802,17 @@ class IndependentProposalRanker(nn.Module):
         if proposals.shape[0] != observation_tokens.shape[0] or proposals.shape[0] != status_feature.shape[0]:
             raise ValueError("batch dimensions do not match")
 
-        # This is intentionally executed once and shared by every proposal.
-        scene_streams = self.scene_encoder(observation_tokens, observation_valid_mask)
+        # The projected current-observation memory is intentionally computed
+        # once and shared by every proposal.  Both the candidate-independent
+        # semantic banks and the optional path-local queries read this same
+        # tensor; no candidate can alter the underlying scene memory.
+        scene_streams, observation_memory, observation_padding_mask = (
+            self.scene_encoder(
+                observation_tokens,
+                observation_valid_mask,
+                return_memory=True,
+            )
+        )
         dynamic_tokens = scene_streams["dynamic"]
         current_actor: Dict[str, torch.Tensor] = {}
         if self.current_actor_presence_head is not None:
@@ -799,7 +871,46 @@ class IndependentProposalRanker(nn.Module):
                 "shared_future_actor_state": future_state,
             }
         proposal_tokens, temporal_tokens = self.trajectory_encoder(proposals)
-        proposal_tokens = proposal_tokens + self.status_encoder(status_feature).unsqueeze(1)
+        status_token = self.status_encoder(status_feature)
+        proposal_tokens = proposal_tokens + status_token.unsqueeze(1)
+        trajectory_observation_token = torch.zeros_like(proposal_tokens)
+        trajectory_observation_gate = proposal_tokens.new_zeros(())
+        if self.trajectory_observation_attention is not None:
+            batch_size, candidate_count, pose_count, width = temporal_tokens.shape
+            point_queries = temporal_tokens + status_token[:, None, None, :]
+            attended_points, _ = self.trajectory_observation_attention(
+                point_queries.reshape(
+                    batch_size,
+                    candidate_count * pose_count,
+                    width,
+                ),
+                observation_memory,
+                observation_memory,
+                key_padding_mask=observation_padding_mask,
+                need_weights=False,
+            )
+            attended_points = attended_points.reshape(
+                batch_size * candidate_count,
+                pose_count,
+                width,
+            )
+            attended_points = self.trajectory_observation_temporal_encoder(
+                attended_points
+            ).reshape(batch_size, candidate_count, pose_count, width)
+            trajectory_observation_token = self.trajectory_observation_norm(
+                0.5
+                * (
+                    attended_points.mean(dim=-2)
+                    + attended_points[..., -1, :]
+                )
+            )
+            trajectory_observation_gate = torch.tanh(
+                self.trajectory_observation_gate
+            )
+            proposal_tokens = (
+                proposal_tokens
+                + trajectory_observation_gate * trajectory_observation_token
+            )
 
         attended = []
         for name in ScorerPrivateSceneEncoder._BANK_NAMES:
@@ -871,6 +982,8 @@ class IndependentProposalRanker(nn.Module):
                 dim=1,
             ),
             "trajectory_tokens": temporal_tokens,
+            "trajectory_observation_token": trajectory_observation_token,
+            "trajectory_observation_gate": trajectory_observation_gate,
             # Exposed for scorer-owned policy-improvement heads.  This tensor
             # is computed solely from current observation, ego status, and
             # proposal geometry; it contains no released score or evaluator
