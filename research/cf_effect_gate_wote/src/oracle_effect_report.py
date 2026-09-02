@@ -538,6 +538,15 @@ def _copy_required(source: Path, destination: Path) -> None:
     shutil.copy2(source, destination)
 
 
+def _artifact_record(path: Path) -> Mapping[str, Any]:
+    if not path.is_file():
+        raise FileNotFoundError(f"required provenance artifact is missing: {path}")
+    return {
+        "path": str(path.resolve()),
+        "sha256": sha256_file(path),
+    }
+
+
 def _format(value: Any, digits: int = 6) -> str:
     try:
         numeric = float(value)
@@ -697,6 +706,30 @@ def _markdown_report(
             f"[{_format(value.score_ci_lower)}, {_format(value.score_ci_upper)}] | "
             f"{verdict[verdict_key]} |"
         )
+    full_direct = comparisons["full_vs_direct"]
+    no_mask = comparisons["nomask_vs_direct"]
+    wote_full = comparisons["wote_full_vs_direct"]
+    wote_environment = comparisons["wote_env_vs_direct"]
+    lines.extend(
+        [
+            "",
+            "## 诊断性观察",
+            "",
+            f"- Full primitive 相对 Direct 的三个 seed 增益为 "
+            f"`[{', '.join(_format(value) for value in full_direct.seed_score_deltas)}]`；"
+            "其中一个 seed 为负，且 regret reduction 未达到预注册的 10%。",
+            f"- 去除 interaction mask 的正式 H checkpoint 相对 Direct 为 "
+            f"`{_format(no_mask.score_delta)}`，95% CI "
+            f"`[{_format(no_mask.score_ci_lower)}, {_format(no_mask.score_ci_upper)}]`；"
+            "这是诊断信号，不替代必须由 G 通过的 primitive requirement。",
+            f"- WoTE full-future 相对 Direct 为 `{_format(wote_full.score_delta)}`，95% CI "
+            f"`[{_format(wote_full.score_ci_lower)}, {_format(wote_full.score_ci_upper)}]`；"
+            f"environment-only 相对 Direct 为 `{_format(wote_environment.score_delta)}`，95% CI "
+            f"`[{_format(wote_environment.score_ci_lower)}, {_format(wote_environment.score_ci_upper)}]`。",
+            "- Oracle capture 是逐 scene 比率；当 WoTE-to-oracle gap 很小时，该比率不受界，"
+            "因此均值可能被少数负离群值主导。完整 mean/median/quantile 见 `oracle_capture.csv`。",
+        ]
+    )
     lines.extend(
         [
             "",
@@ -764,8 +797,29 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
     atomic_write_json(args.output / "DATA_CONTRACT.json", data_contract)
     atomic_write_json(args.output / "PROBE_ARCHITECTURE.json", architecture)
 
-    asset_manifest = staged_assets
+    asset_manifest = dict(staged_assets)
     asset_manifest["legacy_report_hash_audit"] = legacy
+    run_assets: dict[str, Any] = {
+        "branch": args.run_branch,
+        "start_commit": args.start_commit,
+        "code_commit_at_report_generation": args.code_commit,
+        "probe_backbone": args.probe_backbone,
+        "source_asset_branch": staged_assets.get("branch"),
+        "source_asset_commit": staged_assets.get("base_or_current_commit"),
+        "evaluation_manifest": _artifact_record(
+            args.evaluation / "evaluation_manifest.json"
+        ),
+    }
+    if args.training_manifest is not None:
+        run_assets["training_manifest"] = _artifact_record(args.training_manifest)
+    if args.direct_checkpoint_root is not None:
+        run_assets["direct_initialization_checkpoints"] = {
+            f"seed_{seed}": _artifact_record(
+                args.direct_checkpoint_root / f"hybrid_current-seed{seed}.pt"
+            )
+            for seed in (0, 1, 2)
+        }
+    asset_manifest["oracle_effect_run"] = run_assets
     atomic_write_json(args.output / "ASSET_MANIFEST.json", asset_manifest)
     for source, name in (
         (args.hyperparameters, "GLOBAL_HYPERPARAMETER_SELECTION.json"),
@@ -825,10 +879,20 @@ def build_reports(args: argparse.Namespace) -> Mapping[str, Any]:
     )
     reproduction = f"""# Reproduction
 
-Run `{launcher}` from the isolated
-Gate2O worktree with explicit `--data-root`, `--map-root`, `--wote-root`, and
-`--release-root` arguments.  Paths follow CLI > one-shot environment > shared
-repository defaults; no personal mount is committed.
+Run `{launcher}` from the isolated Gate2O worktree.  The matched launcher takes
+the stage as its positional argument and resolves machine-local inputs through
+the following explicit environment variables:
+
+```bash
+ORACLE_SOURCE_RUN=/path/to/oracle-effect-v2-run \\
+DIRECT_CHECKPOINT_ROOT=/path/to/direct-rehab-confirmation \\
+MATCHED_ORACLE_OUTPUT_ROOT=/path/to/new-experiment-output \\
+MATCHED_ORACLE_REPORT_ROOT=/path/to/new-report-output \\
+bash {launcher} all
+```
+
+Each output destination must be new; the launcher refuses to overwrite prior
+evaluation or report artifacts.
 
 The launcher enforces: preflight, fixed split, deterministic 16-scene relabel,
 full six-factor relabel, label-free frozen features, deterministic primitive
@@ -855,6 +919,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--relabel-audit", type=Path, required=True)
     parser.add_argument("--effect-audit", type=Path, required=True)
     parser.add_argument("--asset-manifest", type=Path, required=True)
+    parser.add_argument("--training-manifest", type=Path)
+    parser.add_argument("--direct-checkpoint-root", type=Path)
+    parser.add_argument("--run-branch", default="UNKNOWN")
+    parser.add_argument("--start-commit", default="UNKNOWN")
+    parser.add_argument("--code-commit", default="UNKNOWN")
     parser.add_argument(
         "--probe-backbone",
         choices=("structured_v2", "matched_hybrid_v3"),

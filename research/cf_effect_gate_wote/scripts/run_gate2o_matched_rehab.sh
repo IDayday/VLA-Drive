@@ -118,6 +118,11 @@ run_report() {
     --relabel-audit "${old_report}/relabel_determinism_audit.json" \
     --effect-audit "${old_report}/effect_cache_determinism_audit.json" \
     --asset-manifest "${old_report}/ASSET_MANIFEST.json" \
+    --training-manifest "${output_root}/training/training_manifest.json" \
+    --direct-checkpoint-root "${direct_root}" \
+    --run-branch "$(git branch --show-current)" \
+    --start-commit "e68e3e635b0a13eda51438a83ef4df86400d0dce" \
+    --code-commit "$(git rev-parse HEAD)" \
     --train-cache "${source_run}/features-train" \
     --train-effects "${source_run}/effects-train" \
     --train-labels "${source_run}/labels-train" \
