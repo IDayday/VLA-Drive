@@ -9,7 +9,10 @@ source "${PLANREG_REPO_ROOT}/load_env.sh"
 source "${PLANREG_SCRIPT_DIR}/formal_runtime.sh"
 
 _formal_json_value() {
-  jq -er "$2" "$1"
+  # `jq -e` exits non-zero for the perfectly valid JSON value `false`.  Layout
+  # locks intentionally use false for settings such as gradient checkpointing,
+  # so distinguish a missing/null field from a false boolean explicitly.
+  jq -r "$2 | if . == null then error(\"missing required JSON value\") else . end" "$1"
 }
 
 _formal_require_file() {
@@ -169,6 +172,10 @@ formal_launch() {
 
   local common_hydra_args=(
     seed="${seed}"
+    # Hydra's `${now:...}` resolver can cross a minute boundary between the
+    # two config compositions.  Pin one deterministic UID so paired configs
+    # remain identical outside the explicit VLM identity allowlist.
+    "experiment_uid=formal_seed${seed}_${selected_layout}"
     "cache_path=${input_cache}"
     "navsim_log_path=${navsim_data}/navsim_logs/trainval"
     "sensor_blobs_path=${navsim_data}/sensor_blobs/trainval"

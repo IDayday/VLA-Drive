@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import subprocess
 
 from scripts.audit_formal_runtime_environment import compare_fingerprints
 
@@ -73,3 +74,26 @@ def test_formal_launchers_require_shared_runtime_audit():
         assert 'source "${script_dir}/formal_runtime.sh"' in single_node
         assert "planreg_formal_runtime_setup" in single_node
         assert "planreg_formal_runtime_audit_local" in single_node
+
+
+def test_formal_layout_json_reader_accepts_false_boolean(tmp_path):
+    repo_root = Path(__file__).resolve().parents[1]
+    lock = tmp_path / "layout.json"
+    _write(lock, {"gradient_checkpointing": False})
+
+    result = subprocess.run(
+        [
+            "bash",
+            "-c",
+            'source "$1"; _formal_json_value "$2" .gradient_checkpointing',
+            "--",
+            str(repo_root / "local_planreg_wm_v1/formal_launch_common.sh"),
+            str(lock),
+        ],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip() == "false"
