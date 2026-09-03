@@ -109,6 +109,7 @@ class _FakeLanguageModel(nn.Module):
     def __init__(self, hidden_dim: int) -> None:
         super().__init__()
         self.embeddings = nn.Embedding(32, hidden_dim)
+        self.model = _FakeLanguageDecoder()
 
     def get_input_embeddings(self):
         return self.embeddings
@@ -117,6 +118,17 @@ class _FakeLanguageModel(nn.Module):
         assert kwargs["output_hidden_states"]
         assert kwargs["return_dict"]
         return SimpleNamespace(hidden_states=(inputs_embeds, inputs_embeds + 1.0))
+
+
+class _FakeLanguageDecoder(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.output_hidden_states = None
+
+    def forward(self, inputs_embeds: torch.Tensor, **kwargs):
+        self.output_hidden_states = kwargs["output_hidden_states"]
+        hidden = inputs_embeds + 2.0
+        return SimpleNamespace(last_hidden_state=hidden, hidden_states=None)
 
 
 def test_register_and_patch_shapes_and_tile_mean() -> None:
@@ -201,6 +213,30 @@ def test_backbone_returns_hidden_state_and_planning_register_dict() -> None:
     assert result["last_hidden_state"].shape == (1, 6, 12)
     assert result["planning_registers"].shape == (1, 16, 256)
     assert result["per_tile_registers"].shape == (1, 16, 256)
+
+
+def test_formal_skip_lm_head_requests_only_final_decoder_state() -> None:
+    model = _FakeInternVL()
+    backbone = DriveVLABackbone.__new__(DriveVLABackbone)
+    nn.Module.__init__(backbone)
+    backbone.model = model
+    backbone.skip_lm_head = True
+    backbone.planning_registers_enabled = True
+    backbone.planning_register_adapter = InternVLPlanningRegisters(8, 16, 256)
+
+    input_ids = torch.tensor([[1, 9, 9, 9, 9, 2]])
+    attention_mask = torch.ones_like(input_ids)
+    result = backbone.forward_internvl_with_planning_registers(
+        pixel_values=torch.randn(1, 3, 2, 2),
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+        position_ids=torch.arange(input_ids.shape[1]).unsqueeze(0),
+        image_flags=torch.ones(1, dtype=torch.long),
+        num_patches_list=[1],
+    )
+
+    assert model.language_model.model.output_hidden_states is False
+    assert result["last_hidden_state"].shape == (1, 6, 12)
 
 
 def test_tile_count_mismatch_is_not_silently_accepted() -> None:

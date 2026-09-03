@@ -15,6 +15,7 @@ def main() -> None:
     parser.add_argument("--gpu-count", required=True, type=int)
     parser.add_argument("--per-gpu-batch", required=True, type=int)
     parser.add_argument("--scorer-processes-per-rank", required=True, type=int)
+    parser.add_argument("--scorer-partitions-per-scene", required=True, type=int)
     parser.add_argument("--num-workers-per-rank", required=True, type=int)
     parser.add_argument("--deadlock", action="store_true")
     args = parser.parse_args()
@@ -30,6 +31,7 @@ def main() -> None:
         "per_gpu_batch_size": args.per_gpu_batch,
         "global_batch_size": args.global_batch,
         "scorer_processes_per_rank": args.scorer_processes_per_rank,
+        "scorer_partitions_per_scene": args.scorer_partitions_per_scene,
         "num_workers_per_rank": args.num_workers_per_rank,
         "nonfinite_count": 0,
         "oom": False,

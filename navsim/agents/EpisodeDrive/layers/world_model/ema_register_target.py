@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import copy
+from collections import defaultdict
 import math
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import torch
 from torch import nn
@@ -86,26 +87,77 @@ class EMARegisterTarget(nn.Module):
             student_parameters = dict(student_module.named_parameters())
             if teacher_parameters.keys() != student_parameters.keys():
                 raise RuntimeError("EMA student/teacher parameter topology differs")
-            for name, teacher_parameter in teacher_parameters.items():
-                student_parameter = student_parameters[name]
-                teacher_parameter.mul_(momentum).add_(
-                    student_parameter.detach().to(teacher_parameter.dtype),
-                    alpha=1.0 - momentum,
-                )
+            # Frozen InternViT base tensors are identical at teacher creation
+            # and can never change in the student. Updating those hundreds of
+            # millions of elements every optimizer step only burns GPU memory
+            # bandwidth; mathematically their EMA remains the same constant.
+            trainable_teacher_parameters = {
+                name: value
+                for name, value in teacher_parameters.items()
+                if student_parameters[name].requires_grad
+            }
+            trainable_student_parameters = {
+                name: student_parameters[name]
+                for name in trainable_teacher_parameters
+            }
+            self._foreach_ema_update(
+                trainable_teacher_parameters,
+                trainable_student_parameters,
+                momentum,
+            )
             teacher_buffers = dict(teacher_module.named_buffers())
             student_buffers = dict(student_module.named_buffers())
             if teacher_buffers.keys() != student_buffers.keys():
                 raise RuntimeError("EMA student/teacher buffer topology differs")
+            floating_teacher_buffers = {
+                name: value
+                for name, value in teacher_buffers.items()
+                if value.is_floating_point()
+            }
+            floating_student_buffers = {
+                name: student_buffers[name]
+                for name in floating_teacher_buffers
+            }
+            self._foreach_ema_update(
+                floating_teacher_buffers,
+                floating_student_buffers,
+                momentum,
+            )
             for name, teacher_buffer in teacher_buffers.items():
-                student_buffer = student_buffers[name]
-                if teacher_buffer.is_floating_point():
-                    teacher_buffer.mul_(momentum).add_(
-                        student_buffer.detach().to(teacher_buffer.dtype),
-                        alpha=1.0 - momentum,
-                    )
-                else:
-                    teacher_buffer.copy_(student_buffer)
+                if not teacher_buffer.is_floating_point():
+                    teacher_buffer.copy_(student_buffers[name])
         super().train(False)
+
+    @staticmethod
+    def _foreach_ema_update(
+        teacher_tensors: Dict[str, torch.Tensor],
+        student_tensors: Dict[str, torch.Tensor],
+        momentum: float,
+    ) -> None:
+        """Apply the original mul-then-add definition with batched CUDA launches."""
+        grouped: Dict[
+            Tuple[torch.device, torch.dtype],
+            Tuple[List[torch.Tensor], List[torch.Tensor]],
+        ] = defaultdict(lambda: ([], []))
+        for name, teacher_tensor in teacher_tensors.items():
+            student_tensor = student_tensors[name].detach().to(
+                device=teacher_tensor.device,
+                dtype=teacher_tensor.dtype,
+            )
+            teacher_group, student_group = grouped[
+                (teacher_tensor.device, teacher_tensor.dtype)
+            ]
+            teacher_group.append(teacher_tensor)
+            student_group.append(student_tensor)
+        for teacher_group, student_group in grouped.values():
+            if not teacher_group:
+                continue
+            torch._foreach_mul_(teacher_group, momentum)
+            torch._foreach_add_(
+                teacher_group,
+                student_group,
+                alpha=1.0 - momentum,
+            )
 
 
 class EMARegisterTargetCallback(Callback):

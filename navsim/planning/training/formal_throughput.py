@@ -41,6 +41,7 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
         timed_steps: int = 300,
         layout_name: str,
         scorer_processes_per_rank: int,
+        scorer_partitions_per_scene: int,
         num_workers: int,
         gradient_checkpointing: bool,
         read_only_attention_backend: str,
@@ -48,12 +49,15 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
         super().__init__()
         if warmup_steps < 0 or timed_steps <= 0 or global_batch_size <= 0:
             raise ValueError("Invalid formal throughput benchmark dimensions")
+        if scorer_processes_per_rank <= 0 or scorer_partitions_per_scene <= 0:
+            raise ValueError("Formal scorer process and partition counts must be positive")
         self.output_path = str(Path(output_path).expanduser().resolve())
         self.global_batch_size = int(global_batch_size)
         self.warmup_steps = int(warmup_steps)
         self.timed_steps = int(timed_steps)
         self.layout_name = str(layout_name)
         self.scorer_processes_per_rank = int(scorer_processes_per_rank)
+        self.scorer_partitions_per_scene = int(scorer_partitions_per_scene)
         self.num_workers = int(num_workers)
         self.gradient_checkpointing = bool(gradient_checkpointing)
         self.read_only_attention_backend = str(read_only_attention_backend)
@@ -211,6 +215,7 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
             if any(payload["io_wait"] for payload in gathered)
             else None,
             "scorer_processes_per_rank": self.scorer_processes_per_rank,
+            "scorer_partitions_per_scene": self.scorer_partitions_per_scene,
             "peak_child_processes_per_rank": max(
                 payload["peak_child_processes"] for payload in gathered
             ),
@@ -257,6 +262,7 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
             "gradient_checkpointing": self.gradient_checkpointing,
             "read_only_attention_backend": self.read_only_attention_backend,
             "scorer_processes_per_rank": self.scorer_processes_per_rank,
+            "scorer_partitions_per_scene": self.scorer_partitions_per_scene,
             "nonfinite_count": int(
                 "non-finite" in lowered or "nonfinite" in lowered
             ),

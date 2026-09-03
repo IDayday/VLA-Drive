@@ -34,14 +34,31 @@ def main() -> None:
         "NAVSIM_TRAIN_METRIC_CACHE",
         "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full",
     )
-    files = glob.glob(os.path.join(cache_root, "*", "*", "*", "metric_cache.pkl"))[:8]
-    if len(files) < 8:
-        raise RuntimeError(f"Need eight metric caches under {cache_root}")
+    scene_count = int(os.environ.get("DRIVEVLA_SCORE_BENCH_SCENE_COUNT", "8"))
+    scenes_per_batch = int(
+        os.environ.get("DRIVEVLA_SCORE_BENCH_SCENES_PER_BATCH", "2")
+    )
+    repeat_count = int(os.environ.get("DRIVEVLA_SCORE_BENCH_REPEATS", "1"))
+    if scene_count <= 0 or scenes_per_batch <= 0 or repeat_count <= 0:
+        raise ValueError("Scene counts and repeat count must be positive")
+    if scene_count % scenes_per_batch:
+        raise ValueError("scene_count must be divisible by scenes_per_batch")
+    files = glob.glob(
+        os.path.join(cache_root, "*", "*", "*", "metric_cache.pkl")
+    )[:scene_count]
+    if len(files) < scene_count:
+        raise RuntimeError(
+            f"Need {scene_count} metric caches under {cache_root}; found {len(files)}"
+        )
 
     poses = np.zeros((64, 8, 3), dtype=np.float32)
     poses[:, :, 0] = np.arange(1, 9, dtype=np.float32)[None, :]
     poses[:, :, 1] = np.linspace(-2, 2, 64, dtype=np.float32)[:, None]
-    batches = [(files[index:index + 2], poses) for index in range(0, 8, 2)]
+    base_batches = [
+        (files[index:index + scenes_per_batch], poses)
+        for index in range(0, scene_count, scenes_per_batch)
+    ]
+    batches = base_batches * repeat_count
 
     sequential_results = []
     start = time.perf_counter()
@@ -134,7 +151,7 @@ def main() -> None:
                                 (scene_index + 1) * partition_count
                             ]
                         )
-                        for scene_index in range(2)
+                        for scene_index in range(scenes_per_batch)
                     ]
                 )
             all_partitioned_results[partition_count] = partitioned_results
@@ -151,6 +168,8 @@ def main() -> None:
                 assert_exact(expected, partitioned)
 
     print(f"batches={len(batches)}")
+    print(f"scenes_per_batch={scenes_per_batch}")
+    print(f"repeat_count={repeat_count}")
     print(f"start_method={start_method}")
     print(f"processes={process_count}")
     print(f"sequential_total_seconds={sequential_seconds:.6f}")

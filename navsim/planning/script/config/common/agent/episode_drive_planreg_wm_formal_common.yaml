@@ -92,6 +92,9 @@ world_model:
   enabled: true
   future_mode: correct
   predictor_only: false
+  # Execution-only optimization: exact detached DrivoR targets run on CPU
+  # concurrently with the no-grad EMA visual teacher.
+  overlap_metric_target_with_ema: true
   horizons_sec: [0.5, 1.5, 3.0]
   horizon_weights: [1.0, 0.7, 0.4]
   predictor_layers: 2

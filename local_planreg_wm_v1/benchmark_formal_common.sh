@@ -35,6 +35,7 @@ formal_benchmark_layout() {
   local per_gpu_batch="$3"
   local num_nodes="$4"
   local scorer_processes="$5"
+  local scorer_partitions="${PLANREG_BENCHMARK_SCORE_PARTITIONS:-8}"
   local devices_per_node=8
   local global_batch=$((gpu_count * per_gpu_batch))
   local num_workers="${PLANREG_BENCHMARK_NUM_WORKERS:-4}"
@@ -44,6 +45,10 @@ formal_benchmark_layout() {
   local attention_backend="${PLANREG_BENCHMARK_ATTENTION_BACKEND:-split_sdpa}"
   if ! [[ "${warmup_steps}" =~ ^[0-9]+$ && "${timed_steps}" =~ ^[1-9][0-9]*$ ]]; then
     echo "Benchmark warmup/timed steps must be non-negative/positive integers" >&2
+    return 2
+  fi
+  if ! [[ "${scorer_partitions}" =~ ^[1-9][0-9]*$ ]]; then
+    echo "PLANREG_BENCHMARK_SCORE_PARTITIONS must be a positive integer" >&2
     return 2
   fi
   if [[ "${gradient_checkpointing}" != "true" && "${gradient_checkpointing}" != "false" ]]; then
@@ -130,7 +135,7 @@ formal_benchmark_layout() {
   export NUPLAN_MAPS_ROOT="${NUPLAN_MAPS_ROOT:-/mnt/navsim/maps}"
   export DRIVEVLA_SCORE_RAY=0
   export DRIVEVLA_SCORE_PROCESSES="${scorer_processes}"
-  export DRIVEVLA_SCORE_PARTITIONS=8
+  export DRIVEVLA_SCORE_PARTITIONS="${scorer_partitions}"
   export DRIVEVLA_SCORE_START_METHOD=forkserver
   export DRIVEVLA_BIND_RANK_CPUS=1
   export DRIVEVLA_SYNC_TRAIN_METRICS=0
@@ -166,6 +171,7 @@ formal_benchmark_layout() {
     "throughput_benchmark.warmup_steps=${warmup_steps}"
     "throughput_benchmark.timed_steps=${timed_steps}"
     "throughput_benchmark.scorer_processes_per_rank=${scorer_processes}"
+    "throughput_benchmark.scorer_partitions_per_scene=${scorer_partitions}"
     hydra.output_subdir=null
   )
   printf '%q ' "${python_bin}" "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" "${hydra_args[@]}" \
@@ -209,7 +215,7 @@ formal_benchmark_layout() {
       "NUPLAN_MAPS_ROOT=${NUPLAN_MAPS_ROOT}"
       DRIVEVLA_SCORE_RAY=0
       "DRIVEVLA_SCORE_PROCESSES=${scorer_processes}"
-      DRIVEVLA_SCORE_PARTITIONS=8
+      "DRIVEVLA_SCORE_PARTITIONS=${scorer_partitions}"
       DRIVEVLA_SCORE_START_METHOD=forkserver
       DRIVEVLA_BIND_RANK_CPUS=1
       DRIVEVLA_SYNC_TRAIN_METRICS=0
@@ -259,6 +265,7 @@ formal_benchmark_layout() {
       --global-batch "${global_batch}" --gpu-count "${gpu_count}" \
       --per-gpu-batch "${per_gpu_batch}" \
       --scorer-processes-per-rank "${scorer_processes}" \
+      --scorer-partitions-per-scene "${scorer_partitions}" \
       --num-workers-per-rank "${num_workers}" "${deadlock_arg[@]}"
     return "${exit_code}"
   fi

@@ -381,6 +381,9 @@ def configure_formal_throughput_callback(
             scorer_processes_per_rank=int(
                 benchmark.get("scorer_processes_per_rank", 0)
             ),
+            scorer_partitions_per_scene=int(
+                benchmark.get("scorer_partitions_per_scene", 0)
+            ),
             num_workers=int(cfg.dataloader.params.num_workers),
             gradient_checkpointing=bool(
                 cfg.agent.vlm_config.get("gradient_checkpointing", False)

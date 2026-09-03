@@ -106,6 +106,32 @@ def test_online_ema_target_changes_after_student_update() -> None:
     assert not torch.equal(before, after)
 
 
+def test_ema_skips_immutable_frozen_vision_base_parameters() -> None:
+    torch.manual_seed(43)
+    student = _StudentBackbone()
+    parameters = dict(student.model.vision_model.named_parameters())
+    frozen_name, frozen_parameter = next(iter(parameters.items()))
+    frozen_parameter.requires_grad_(False)
+    trainable_name, trainable_parameter = next(
+        (name, value) for name, value in parameters.items() if value.requires_grad
+    )
+    teacher = EMARegisterTarget(student)
+    teacher_parameters = dict(teacher.vision_model.named_parameters())
+    frozen_before = teacher_parameters[frozen_name].detach().clone()
+    trainable_before = teacher_parameters[trainable_name].detach().clone()
+    with torch.no_grad():
+        frozen_parameter.add_(3.0)
+        trainable_parameter.add_(2.0)
+
+    teacher.update(student, momentum=0.5)
+
+    torch.testing.assert_close(teacher_parameters[frozen_name], frozen_before)
+    torch.testing.assert_close(
+        teacher_parameters[trainable_name],
+        trainable_before * 0.5 + trainable_parameter.detach() * 0.5,
+    )
+
+
 def test_ema_student_tile_aggregation_topology_is_identical() -> None:
     student = _StudentBackbone("thumbnail_query_attention")
     teacher = EMARegisterTarget(student)

@@ -13,15 +13,16 @@ from typing import Any, Dict, Mapping, Tuple
 
 
 LAYOUT_SPECS = {
-    "8x2": {"gpu_count": 8, "per_gpu_batch_size": 2, "global_batch_size": 16, "scorer_processes_per_rank": 8},
-    "8x4": {"gpu_count": 8, "per_gpu_batch_size": 4, "global_batch_size": 32, "scorer_processes_per_rank": 8},
-    "16x2": {"gpu_count": 16, "per_gpu_batch_size": 2, "global_batch_size": 32, "scorer_processes_per_rank": 4},
-    "16x4": {"gpu_count": 16, "per_gpu_batch_size": 4, "global_batch_size": 64, "scorer_processes_per_rank": 4},
+    "8x2": {"gpu_count": 8, "per_gpu_batch_size": 2, "global_batch_size": 16, "scorer_processes_per_rank": 8, "scorer_partitions_per_scene": 8},
+    "8x4": {"gpu_count": 8, "per_gpu_batch_size": 4, "global_batch_size": 32, "scorer_processes_per_rank": 8, "scorer_partitions_per_scene": 8},
+    "16x2": {"gpu_count": 16, "per_gpu_batch_size": 2, "global_batch_size": 32, "scorer_processes_per_rank": 4, "scorer_partitions_per_scene": 8},
+    "16x4": {"gpu_count": 16, "per_gpu_batch_size": 4, "global_batch_size": 64, "scorer_processes_per_rank": 4, "scorer_partitions_per_scene": 8},
     "16x6": {
         "gpu_count": 16,
         "per_gpu_batch_size": 6,
         "global_batch_size": 96,
         "scorer_processes_per_rank": 8,
+        "scorer_partitions_per_scene": 8,
         "gradient_checkpointing": False,
         "read_only_attention_backend": "split_sdpa",
     },
@@ -30,7 +31,8 @@ LAYOUT_SPECS = {
         "per_gpu_batch_size": 8,
         "global_batch_size": 128,
         "scorer_processes_per_rank": 8,
-        "gradient_checkpointing": True,
+        "scorer_partitions_per_scene": 2,
+        "gradient_checkpointing": False,
         "read_only_attention_backend": "split_sdpa",
     },
 }
@@ -86,6 +88,10 @@ def validate_layout_metrics(
         expected["scorer_processes_per_rank"]
     ):
         return False, "scorer process count mismatch"
+    if int(metrics.get("scorer_partitions_per_scene", -1)) != int(
+        expected["scorer_partitions_per_scene"]
+    ):
+        return False, "scorer partition count mismatch"
     for name in ("gradient_checkpointing", "read_only_attention_backend"):
         if name in expected and metrics.get(name) != expected[name]:
             return False, f"{name} mismatch"

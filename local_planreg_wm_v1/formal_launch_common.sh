@@ -97,7 +97,7 @@ formal_launch() {
   vqa_config_sha="$(_formal_json_value "${vlm_audit}" '.driving_vqa.config_sha256')"
 
   local selected_layout gpu_count per_gpu_batch global_batch num_nodes devices_per_node
-  local num_workers scorer_processes gradient_checkpointing attention_backend
+  local num_workers scorer_processes scorer_partitions gradient_checkpointing attention_backend
   selected_layout="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.selected_layout')"
   gpu_count="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.gpu_count')"
   per_gpu_batch="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.per_gpu_batch_size')"
@@ -106,6 +106,7 @@ formal_launch() {
   devices_per_node="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.devices_per_node')"
   num_workers="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.num_workers_per_rank')"
   scorer_processes="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.scorer_processes_per_rank')"
+  scorer_partitions="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.scorer_partitions_per_scene')"
   gradient_checkpointing="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.gradient_checkpointing')"
   attention_backend="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.read_only_attention_backend')"
   if [[ "$((gpu_count * per_gpu_batch))" -ne "${global_batch}" ]]; then
@@ -158,7 +159,7 @@ formal_launch() {
   export NUPLAN_MAPS_ROOT="${maps_root}"
   export DRIVEVLA_SCORE_RAY=0
   export DRIVEVLA_SCORE_PROCESSES="${scorer_processes}"
-  export DRIVEVLA_SCORE_PARTITIONS=8
+  export DRIVEVLA_SCORE_PARTITIONS="${scorer_partitions}"
   export DRIVEVLA_SCORE_START_METHOD=forkserver
   export DRIVEVLA_BIND_RANK_CPUS=1
   export DRIVEVLA_SYNC_TRAIN_METRICS=0
@@ -337,7 +338,7 @@ formal_launch() {
       "NUPLAN_MAPS_ROOT=${maps_root}"
       DRIVEVLA_SCORE_RAY=0
       "DRIVEVLA_SCORE_PROCESSES=${scorer_processes}"
-      DRIVEVLA_SCORE_PARTITIONS=8
+      "DRIVEVLA_SCORE_PARTITIONS=${scorer_partitions}"
       DRIVEVLA_SCORE_START_METHOD=forkserver
       DRIVEVLA_BIND_RANK_CPUS=1 DRIVEVLA_SYNC_TRAIN_METRICS=0
       "DRIVEVLA_TRAIN_LOG_INTERVAL=${DRIVEVLA_TRAIN_LOG_INTERVAL}"

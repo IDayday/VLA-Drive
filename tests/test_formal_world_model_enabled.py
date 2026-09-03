@@ -36,6 +36,7 @@ def test_both_formal_variants_have_world_model_from_step_zero(monkeypatch):
         assert config.world_model.enabled is True
         assert config.world_model.future_mode == "correct"
         assert config.world_model.predictor_only is False
+        assert config.world_model.overlap_metric_target_with_ema is True
         assert config.world_model.min_weight == pytest.approx(0.01)
         assert config.world_model.start_fraction == 0.0
         assert config.world_model.candidate_count == 1

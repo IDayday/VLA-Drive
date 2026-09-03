@@ -232,6 +232,10 @@ def validate_formal_scientific_contract(
     require(bool(_cfg_get(world_model, "enabled", False)), "world model must be enabled")
     require(str(_cfg_get(world_model, "future_mode", "")) == "correct", "future_mode must be correct")
     require(not bool(_cfg_get(world_model, "predictor_only", True)), "predictor_only must be false")
+    require(
+        bool(_cfg_get(world_model, "overlap_metric_target_with_ema", False)),
+        "exact metric targets must overlap the EMA teacher",
+    )
     require(float(_cfg_get(world_model, "min_weight", 0.0)) > 0.0, "WM weight must be positive from optimizer step zero")
     require(float(_cfg_get(world_model, "start_fraction", -1.0)) == 0.0, "WM start_fraction must be zero")
     require(int(_cfg_get(world_model, "candidate_count", -1)) == 1, "WM candidate_count must be one")

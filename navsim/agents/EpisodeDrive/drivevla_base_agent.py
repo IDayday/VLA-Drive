@@ -278,6 +278,10 @@ class DriveVLABaseAgent(AbstractAgent):
         self.world_model_enabled = bool(
             world_model is not None and getattr(world_model, "enabled", False)
         )
+        self.overlap_metric_target_with_ema = bool(
+            self.world_model_enabled
+            and getattr(world_model, "overlap_metric_target_with_ema", False)
+        )
         self.future_mode = (
             str(getattr(world_model, "future_mode", "correct"))
             if self.world_model_enabled
@@ -733,7 +737,9 @@ class DriveVLABaseAgent(AbstractAgent):
             start=start,
             end=end,
         )
+        ema_update_timer = self._formal_phase_timer.start("ema_update_time")
         self.ema_register_target.update(self.backbone, momentum)
+        self._formal_phase_timer.stop(ema_update_timer)
         self._ema_current_momentum.fill_(momentum)
         self._ema_optimizer_step.fill_(completed_step)
 
@@ -1860,49 +1866,95 @@ class DriveVLABaseAgent(AbstractAgent):
             targets: Dict[str, torch.Tensor],
             pred: Dict[str, torch.Tensor],
     ) -> Dict:
+        overlap_score_request = None
+        if self._can_overlap_metric_target_with_ema():
+            overlap_score_request = self._submit_score_request(
+                targets, pred["proposals"], test=False
+            )
+            scoring_function = (
+                lambda _targets, _proposals, test=False: self._resolve_score_request(
+                    overlap_score_request
+                )
+            )
+        else:
+            scoring_function = self.compute_score
+
+        # The formal WM path can execute the online, exact CPU PDM target while
+        # the GPU evaluates the no-grad EMA vision teacher.  Proposal tensors
+        # are detached and copied before submission; results are collected in
+        # the original deterministic task order before DrivoR loss evaluation.
+        wm_loss_dict = None
+        current_registers = None
+        if self.world_model_enabled and self.training:
+            try:
+                current_registers = pred.get("planning_registers")
+                if current_registers is None:
+                    raise KeyError(
+                        "World-model loss requires predictions['planning_registers']"
+                    )
+                target_current, target_future, valid_mask = (
+                    self._encode_ema_register_targets(
+                        features,
+                        targets,
+                        batch_size=current_registers.shape[0],
+                    )
+                )
+                status_feature = features.get("status_feature")
+                if status_feature is None:
+                    raise KeyError(
+                        "World-model training requires features['status_feature']"
+                    )
+                if status_feature.ndim == 1:
+                    status_feature = status_feature.unsqueeze(0)
+                if status_feature.shape[-1] < 6:
+                    raise ValueError(
+                        "status_feature must contain command[4] followed by vx,vy"
+                    )
+                current_speed = torch.linalg.vector_norm(
+                    status_feature[:, 4:6].to(
+                        device=current_registers.device,
+                        dtype=current_registers.dtype,
+                    ),
+                    dim=-1,
+                )
+                predictor_timer = self._formal_phase_timer.start(
+                    "world_model_predictor_loss_time"
+                )
+                try:
+                    wm_loss_dict = self._compute_world_model_loss_from_registers(
+                        current_registers,
+                        targets["trajectory"],
+                        target_current,
+                        target_future,
+                        valid_mask,
+                        current_speed=current_speed,
+                    )
+                finally:
+                    self._formal_phase_timer.stop(predictor_timer)
+            except BaseException:
+                if overlap_score_request is not None:
+                    self._cancel_score_request(overlap_score_request)
+                raise
+
         metric_timer = self._formal_phase_timer.start(
             "metric_target_time", cuda=False
         )
-        base_loss_dict = self.loss(
-            targets, pred, self.action_head_config, self.compute_score
-        )
-        self._formal_phase_timer.stop(metric_timer)
+        try:
+            base_loss_dict = self.loss(
+                targets, pred, self.action_head_config, scoring_function
+            )
+        except BaseException:
+            if overlap_score_request is not None:
+                self._cancel_score_request(overlap_score_request)
+            raise
+        finally:
+            self._formal_phase_timer.stop(metric_timer)
         if not self.world_model_enabled:
             return base_loss_dict
         if not self.training:
             return base_loss_dict
-        current_registers = pred.get("planning_registers")
-        if current_registers is None:
-            raise KeyError("World-model loss requires predictions['planning_registers']")
-        target_current, target_future, valid_mask = self._encode_ema_register_targets(
-            features,
-            targets,
-            batch_size=current_registers.shape[0],
-        )
-        status_feature = features.get("status_feature")
-        if status_feature is None:
-            raise KeyError("World-model training requires features['status_feature']")
-        if status_feature.ndim == 1:
-            status_feature = status_feature.unsqueeze(0)
-        if status_feature.shape[-1] < 6:
-            raise ValueError(
-                "status_feature must contain command[4] followed by vx,vy"
-            )
-        current_speed = torch.linalg.vector_norm(
-            status_feature[:, 4:6].to(
-                device=current_registers.device,
-                dtype=current_registers.dtype,
-            ),
-            dim=-1,
-        )
-        wm_loss_dict = self._compute_world_model_loss_from_registers(
-            current_registers,
-            targets["trajectory"],
-            target_current,
-            target_future,
-            valid_mask,
-            current_speed=current_speed,
-        )
+        if current_registers is None or wm_loss_dict is None:
+            raise RuntimeError("World-model loss was not computed during training")
         wm_weight = current_registers.new_tensor(
             self.current_world_model_weight()
         )
@@ -1924,7 +1976,31 @@ class DriveVLABaseAgent(AbstractAgent):
         )
         return result
 
-    def compute_score(self, targets, proposals, test=True):
+    def _can_overlap_metric_target_with_ema(self) -> bool:
+        """Whether exact CPU PDM scoring can overlap the EMA GPU forward."""
+        return bool(
+            self.training
+            and self.world_model_enabled
+            and getattr(self, "overlap_metric_target_with_ema", False)
+            and not getattr(self, "ray", False)
+            and int(getattr(self, "score_process_count", 0)) > 0
+        )
+
+    def _ensure_score_process_pool(self) -> None:
+        if self._score_process_pool is not None:
+            return
+        # CUDA is already initialized in each DDP rank at this point.
+        # Forkserver gives CPU-only scorer workers a clean interpreter.
+        if self.score_start_method == "forkserver":
+            mp.set_forkserver_preload(
+                ["navsim.agents.EpisodeDrive.score_module.compute_navsim_score"]
+            )
+        self._score_process_pool = ProcessPoolExecutor(
+            max_workers=self.score_process_count,
+            mp_context=mp.get_context(self.score_start_method),
+        )
+
+    def _submit_score_request(self, targets, proposals, test=True) -> Dict[str, Any]:
         if self.training:
             metric_cache_paths = self.train_metric_cache_paths
         else:
@@ -1936,10 +2012,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 "Set NAVSIM_TRAIN_METRIC_CACHE to a valid metric cache directory."
             )
 
-        target_trajectory = targets["trajectory"]
-        proposals=proposals.detach()
-
-        
+        proposals = proposals.detach()
         data_points = [
             {
                 "token": metric_cache_paths[token],
@@ -1948,35 +2021,25 @@ class DriveVLABaseAgent(AbstractAgent):
             }
             for token, poses in zip(targets["token"], proposals.float().cpu().numpy())
         ]
-
-        scorer_wait_timer = self._formal_phase_timer.start(
-            "scorer_queue_wait", cuda=False
-        )
+        request = {
+            "targets": targets,
+            "proposals": proposals,
+            "test": bool(test),
+            "submitted_at": time.perf_counter(),
+            "scene_task_ranges": None,
+            "futures": None,
+            "all_res": None,
+            "result": None,
+        }
         if self.ray:
-            all_res = self.worker_map(self.worker, self.get_scores, data_points)
+            request["all_res"] = self.worker_map(
+                self.worker, self.get_scores, data_points
+            )
         elif self.score_process_count and (
             len(data_points) > 1
             or any(len(point["poses"]) > 1 for point in data_points)
         ):
-            if self._score_process_pool is None:
-                # CUDA is already initialized in each DDP rank at this point.
-                # Spawn gives the CPU-only scorer workers fresh interpreters and
-                # avoids inheriting an unsafe CUDA context through fork.
-                if self.score_start_method == "forkserver":
-                    # The forkserver itself is spawned after CUDA init, so it
-                    # has a clean CPU-only address space.  Preloading the scorer
-                    # there lets its children share imports safely and avoids
-                    # importing torch/navsim eight times per rank.
-                    mp.set_forkserver_preload(
-                        [
-                            "navsim.agents.EpisodeDrive.score_module.compute_navsim_score"
-                        ]
-                    )
-                self._score_process_pool = ProcessPoolExecutor(
-                    max_workers=self.score_process_count,
-                    mp_context=mp.get_context(self.score_start_method),
-                )
-
+            self._ensure_score_process_pool()
             task_tokens = []
             task_poses = []
             task_tests = []
@@ -1991,26 +2054,61 @@ class DriveVLABaseAgent(AbstractAgent):
                     task_poses.append(poses_partition)
                     task_tests.append(point["test"])
                 scene_task_ranges.append((start, len(task_poses)))
-
-            task_results = list(
-                self._score_process_pool.map(
-                    self.get_sub_score,
-                    task_tokens,
-                    task_poses,
-                    task_tests,
-                    chunksize=1,
-                )
-            )
-            all_res = [
-                tuple(
-                    np.concatenate(component_parts, axis=0)
-                    for component_parts in zip(*task_results[start:end])
-                )
-                for start, end in scene_task_ranges
-            ]
+            request["scene_task_ranges"] = scene_task_ranges
+            request["futures"] = []
+            try:
+                for token, poses, task_test in zip(
+                    task_tokens, task_poses, task_tests
+                ):
+                    request["futures"].append(
+                        self._score_process_pool.submit(
+                            self.get_sub_score,
+                            token,
+                            poses,
+                            task_test,
+                        )
+                    )
+            except BaseException:
+                self._cancel_score_request(request)
+                raise
         else:
-            all_res = self.get_scores(data_points)
-        self._formal_phase_timer.stop(scorer_wait_timer)
+            request["all_res"] = self.get_scores(data_points)
+        return request
+
+    @staticmethod
+    def _cancel_score_request(request: Dict[str, Any]) -> None:
+        for future in request.get("futures") or ():
+            future.cancel()
+
+    def _resolve_score_request(self, request: Dict[str, Any]):
+        if request["result"] is not None:
+            return request["result"]
+        scorer_wait_timer = self._formal_phase_timer.start(
+            "scorer_queue_wait", cuda=False
+        )
+        try:
+            all_res = request["all_res"]
+            if all_res is None:
+                task_results = [
+                    future.result() for future in request["futures"]
+                ]
+                all_res = [
+                    tuple(
+                        np.concatenate(component_parts, axis=0)
+                        for component_parts in zip(*task_results[start:end])
+                    )
+                    for start, end in request["scene_task_ranges"]
+                ]
+        finally:
+            self._formal_phase_timer.stop(scorer_wait_timer)
+        self._formal_phase_timer.add_seconds(
+            "scorer_async_elapsed",
+            time.perf_counter() - request["submitted_at"],
+        )
+
+        targets = request["targets"]
+        proposals = request["proposals"]
+        target_trajectory = targets["trajectory"]
 
         target_scores = torch.FloatTensor(np.stack([res[0] for res in all_res])).to(proposals.device)
 
@@ -2018,10 +2116,15 @@ class DriveVLABaseAgent(AbstractAgent):
 
         best_scores = torch.amax(final_scores, dim=-1)
 
-        if test:
+        if request["test"]:
             l2_2s = torch.linalg.norm(proposals[:, 0] - target_trajectory, dim=-1)[:, :4]
-
-            return final_scores[:, 0].mean(), best_scores.mean(), final_scores, l2_2s.mean(), target_scores[:, 0]
+            result = (
+                final_scores[:, 0].mean(),
+                best_scores.mean(),
+                final_scores,
+                l2_2s.mean(),
+                target_scores[:, 0],
+            )
         else:
             key_agent_corners = torch.FloatTensor(np.stack([res[1] for res in all_res])).to(proposals.device)
 
@@ -2029,7 +2132,20 @@ class DriveVLABaseAgent(AbstractAgent):
 
             all_ego_areas = torch.BoolTensor(np.stack([res[3] for res in all_res])).to(proposals.device)
 
-            return final_scores, best_scores, target_scores, key_agent_corners, key_agent_labels, all_ego_areas
+            result = (
+                final_scores,
+                best_scores,
+                target_scores,
+                key_agent_corners,
+                key_agent_labels,
+                all_ego_areas,
+            )
+        request["result"] = result
+        return result
+
+    def compute_score(self, targets, proposals, test=True):
+        request = self._submit_score_request(targets, proposals, test=test)
+        return self._resolve_score_request(request)
 
     def consume_formal_timings(self) -> Dict[str, float]:
         timings = self._formal_phase_timer.consume()

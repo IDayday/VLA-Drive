@@ -50,6 +50,8 @@ def test_selects_batch128_only_for_material_wall_time_gain():
         _all_metrics(batch96_throughput=180.0, batch128_throughput=200.0),
     )
     assert selected == "16x8"
+    assert LAYOUT_SPECS[selected]["gradient_checkpointing"] is False
+    assert LAYOUT_SPECS[selected]["scorer_partitions_per_scene"] == 2
 
 
 def test_memory_gate_is_strictly_below_72_gib():
@@ -81,6 +83,7 @@ def test_layout_lock_contains_exact_budget_lr_and_ema_scaling():
     assert lock["selected_layout"] == "16x6"
     assert lock["global_batch_size"] == 96
     assert lock["gradient_checkpointing"] is False
+    assert lock["scorer_partitions_per_scene"] == 8
     assert lock["read_only_attention_backend"] == "split_sdpa"
     assert lock["steps_per_epoch"] == 1076
     assert lock["total_steps"] == 29052

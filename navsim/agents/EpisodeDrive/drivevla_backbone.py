@@ -582,6 +582,7 @@ class DriveVLABackbone(nn.Module):
         position_ids: torch.Tensor,
         image_flags: torch.Tensor,
         vit_embeds: Optional[torch.Tensor] = None,
+        output_hidden_states: bool = True,
     ):
         """Return decoder hidden states without materializing vocabulary logits.
 
@@ -630,7 +631,7 @@ class DriveVLABackbone(nn.Module):
             attention_mask=attention_mask,
             position_ids=position_ids,
             use_cache=False,
-            output_hidden_states=True,
+            output_hidden_states=bool(output_hidden_states),
             return_dict=True,
         )
 
@@ -651,6 +652,7 @@ class DriveVLABackbone(nn.Module):
                 position_ids=position_ids,
                 image_flags=image_flags,
                 vit_embeds=patch_features,
+                output_hidden_states=False,
             )
 
         internvl_model = self.model
@@ -772,14 +774,17 @@ class DriveVLABackbone(nn.Module):
         )
         if phase_timer is not None:
             phase_timer.stop(language_timer)
-        hidden_states = getattr(language_output, "hidden_states", None)
-        if not hidden_states:
+        last_hidden_state = getattr(language_output, "last_hidden_state", None)
+        if last_hidden_state is None:
+            hidden_states = getattr(language_output, "hidden_states", None)
+            last_hidden_state = hidden_states[-1] if hidden_states else None
+        if last_hidden_state is None:
             raise RuntimeError(
-                "InternVL language model did not return hidden_states for the "
+                "InternVL language model did not return a final hidden state for the "
                 "planning-register path"
             )
         return {
-            "last_hidden_state": hidden_states[-1],
+            "last_hidden_state": last_hidden_state,
             "planning_registers": planning_output.scene_registers,
             "per_tile_registers": planning_output.per_tile_registers,
         }

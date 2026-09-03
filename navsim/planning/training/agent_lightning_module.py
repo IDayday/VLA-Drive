@@ -176,6 +176,19 @@ class AgentLightningModule(pl.LightningModule):
         start_ratio = float(scheduler.start_lr_ratio)
         minimum_ratio = float(scheduler.min_lr_ratio)
         logical_peak_lrs = dict(runtime["logical_learning_rates"])
+        ema_source_parameters = list(
+            self.agent.backbone.model.vision_model.parameters()
+        ) + list(self.agent.backbone.planning_register_adapter.parameters())
+        ema_updated_parameter_count = sum(
+            parameter.numel()
+            for parameter in ema_source_parameters
+            if parameter.requires_grad
+        )
+        ema_static_parameter_count = sum(
+            parameter.numel()
+            for parameter in ema_source_parameters
+            if not parameter.requires_grad
+        )
         payload = {
             "schema_version": 1,
             "agent_checkpoint_loaded": bool(
@@ -210,11 +223,22 @@ class AgentLightningModule(pl.LightningModule):
                 "actual_end_momentum": float(
                     self.agent._ema_actual_end_momentum.item()
                 ),
+                "updated_parameter_count": ema_updated_parameter_count,
+                "static_parameter_count": ema_static_parameter_count,
             },
             "trainable_parameter_count": trainable,
             "frozen_parameter_count": frozen,
             "language_model_trainable_parameter_count": llm_trainable,
             "world_model_enabled": bool(self.agent.world_model_enabled),
+            "metric_target_ema_overlap_enabled": bool(
+                getattr(self.agent, "overlap_metric_target_with_ema", False)
+            ),
+            "scorer_processes_per_rank": int(
+                getattr(self.agent, "score_process_count", 0)
+            ),
+            "scorer_partitions_per_scene": int(
+                getattr(self.agent, "score_partition_count", 1)
+            ),
         }
         if payload["agent_checkpoint_loaded"]:
             raise RuntimeError("Formal run unexpectedly loaded an agent checkpoint")
