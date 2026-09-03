@@ -9,8 +9,10 @@ student vision, one fused current-plus-three-future EMA vision call, frozen LLM,
 64-candidate generator/scorer, metric targets, backward, and all-reduce. After
 20 warmup steps, 300 optimizer steps are timed. The original candidates were
 8x2 (global 16), 8x4 (global 32), 16x2 (global 32), and 16x4 (global 64). A
-total-wall-time re-audit added 16x6 (global 96) and exploratory 16x8/16x12
-candidates, using the same data manifest and shared initialization.
+total-wall-time re-audit added 16x6 (global 96), 16x8 (global 128), and an
+exploratory 16x12 candidate, using the same data manifest and shared
+initialization. The final 16x8 evidence also includes the audited execution-only
+PDM/EMA overlap described below.
 
 A candidate is eligible only with no OOM, deadlock, or non-finite value, peak
 allocated memory below 72 GiB, peak reserved memory below 76 GiB, and a p90 to
@@ -50,21 +52,32 @@ zero non-finite values and no OOM or deadlock.
 | 16x2 | 32 | 7.2896 | 0.22780 | 4.3654 / 4.5511 | 18.756 / 24.510 |
 | 16x4 | 64 | 7.6595 | 0.11968 | 8.3376 / 8.5365 | 32.486 / 43.793 |
 | 16x6 split-SDPA, no GC | 96 | 20.4495 | 0.21302 | 4.6152 / 4.9789 | 53.960 / 56.586 |
+| 16x8 split-SDPA, no GC, async PDM | 128 | 27.3426 | 0.21361 | 4.5910 / 4.8809 | 69.127 / 72.752 |
 
-For the selected 16x6 run, mean explicit all-reduce timing was 2.39 ms,
-data wait was 15.19 ms, student vision 0.383 s, fused EMA vision 1.474 s,
-frozen LLM 0.743 s, metric targets 1.050 s, scorer queue wait 0.960 s,
-and backward 1.031 s. Mean GPU utilization was 98.08%; mean host CPU
-utilization and I/O wait were 17.01% and 0.235%. The complete per-phase and
-loss/gradient distributions remain in the machine-readable metrics.
+For the selected 16x8 run, exact detached PDM target computation takes 2.014 s
+end-to-end but executes on CPU concurrently with the no-grad EMA vision pass.
+The residual scorer queue wait is 0.53 ms median (21.38 ms mean), rather than
+being an additive two-second phase. Mean/median-relevant phase timings are:
+data wait 14.56/5.58 ms, host-to-device 27.57 ms, student vision 0.505 s,
+fused EMA vision 1.974 s, frozen LLM 0.980 s, backward 1.087 s, explicit
+all-reduce 4.05/1.20 ms, and EMA update 5.68 ms. Mean GPU utilization was
+99.12%; mean host CPU utilization and I/O wait were 17.74% and 0.175%.
+Worker decode/transform timings are overlapped by DataLoader prefetch and must
+not be added to step time.
 
-Exploratory probes were not eligible lock evidence: eager 16x8 OOMed; split
-16x8 with checkpointing reached 19.7667 samples/s over 50 timed steps; split
-16x8 without checkpointing reached 20.9972 samples/s over 15 steps but reserved
-72.754 GiB and left unsafe runtime headroom; split 16x12 had a p90/median ratio
-of 2.82 and only 9.7806 mean samples/s. The 300-step 16x6 result is faster than
-the checkpointed 16x8 probe, retains 33% more optimizer updates per epoch, and
-has about 23 GiB of device-memory headroom.
+The raw 16x8 JSON contains an `optimizer_step_time` diagnostic from a temporary
+hook pair whose boundaries crossed optimizer-step iterations. It is not a
+valid phase duration, is excluded from every conclusion here, and the hook was
+removed before formal training. All other named phase timers have matched
+start/stop boundaries. The complete distributions and finite loss/gradient
+evidence remain in the machine-readable metrics.
+
+Earlier exploratory probes were not eligible lock evidence: eager 16x8 OOMed;
+split 16x8 with checkpointing reached 19.7667 samples/s over 50 timed steps;
+the first no-checkpoint split 16x8 probe reached 20.9972 samples/s over only 15
+steps; split 16x12 had a p90/median ratio of 2.82 and only 9.7806 mean
+samples/s. The final no-checkpoint 16x8 run completed all 300 measured steps,
+stayed below both memory gates, and had no OOM, deadlock, or non-finite value.
 
 An initial 16x2 attempt exposed a host-local environment mismatch: the same
 nominal environment path resolved to Python 3.9/Lightning 2.6 on `vla-zt` but
@@ -79,17 +92,18 @@ in 0.803 seconds with finite output.
 
 ## Locked selection
 
-`16x6` is selected. It is 2.805 times the sample throughput of the previous
-16x2 lock, passes all 300-step gates, and is the only eligible layout within
-95% of the measured peak. Gradient checkpointing is disabled and the attention
-backend is locked to `split_sdpa`.
+`16x8` is selected. It is 3.751 times the sample throughput of the original
+16x2 lock and 1.337 times the previous 16x6 lock, passes all 300-step gates,
+and is the only eligible layout within 95% of the measured peak. Gradient
+checkpointing is disabled and the attention backend is locked to `split_sdpa`.
 
-The shared lock specifies two nodes / 16 GPUs, batch 6 per GPU, global batch
-96, four DataLoader workers and eight scorer processes per rank. For 103,288
-records it gives 1,076 steps per epoch and 29,052 steps for 27 epochs, with
-eight sampler-padding slots per epoch. LR scale before caps is
-`sqrt(96/32)=1.7320508`; actual EMA endpoints are 0.9762387238 and
-0.9994001500. At measured throughput, one formal run is approximately 1.403
-hours per epoch and 37.884 hours for 27 epochs. The paired sequential runs are
-approximately 75.77 hours (3.16 days) before final evaluation, versus about
-212.6 hours under the superseded global-32 lock.
+The shared lock specifies two nodes / 16 GPUs, batch 8 per GPU, global batch
+128, four DataLoader workers, eight scorer processes per rank, and two proposal
+partitions per scene. For 103,288 records it gives 807 steps per epoch and
+21,789 steps for 27 epochs, with eight sampler-padding slots per epoch. LR
+scale before caps is `sqrt(128/32)=2.0`; actual EMA endpoints are
+0.9684444339 and 0.9992002799. At measured throughput, one formal run is
+approximately 1.049 hours per epoch and 28.334 hours for 27 epochs. The paired
+sequential runs are approximately 56.67 hours before final evaluation, saving
+about 19.10 hours versus the superseded global-96 lock and about 155.9 hours
+versus the original global-32 lock.

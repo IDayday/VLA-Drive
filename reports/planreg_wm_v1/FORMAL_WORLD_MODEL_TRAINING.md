@@ -64,16 +64,21 @@ zero decay. AdamW uses betas 0.9/0.999 and epsilon 1e-8. The step scheduler is
 5% linear warmup from 1% of peak followed by cosine decay to 10% of peak.
 Gradient clipping is global norm 1.0; accumulation is one.
 
-The measured layout lock selects 16 GPUs as two eight-GPU nodes with batch 6
-per GPU (global batch 96), split-SDPA read-only attention, and no vision
-gradient checkpointing. The uncapped LR multiplier is `sqrt(3)=1.7320508`.
+The measured layout lock selects 16 GPUs as two eight-GPU nodes with batch 8
+per GPU (global batch 128), split-SDPA read-only attention, and no vision
+gradient checkpointing. The uncapped LR multiplier is `sqrt(4)=2.0`.
 Configured caps yield peak LRs of 3e-4 for planning/fusion/generator/scorer/
 predictor, 1.5e-4 for Q-Former, and 5e-5 for visual Q/V LoRA. Their scheduler
 start values are 3e-6/1.5e-6/5e-7 and final values are
-3e-5/1.5e-5/5e-6 respectively. The exact budget is 1,076 steps per epoch and
-29,052 optimizer steps; the rounded warmup is 1,453 steps. The WM coefficient
+3e-5/1.5e-5/5e-6 respectively. The exact budget is 807 steps per epoch and
+21,789 optimizer steps; the rounded warmup is 1,089 steps. The WM coefficient
 starts at 0.01 on step zero and reaches 0.10 after the first 10% of steps.
-Actual EMA endpoints are 0.9762387238 and 0.9994001500.
+Actual EMA endpoints are 0.9684444339 and 0.9992002799.
+
+Exact DrivoR metric-target computation is execution-overlapped with the fused
+EMA visual teacher. This does not cache or approximate targets and does not
+change loss values. EMA updates touch only the trainable visual Q/V LoRA and
+planning adapter; frozen visual tensors are immutable and therefore skipped.
 
 Deployment export strips EMA, predictor, optimizer, scheduler, and callback
 state, then requires an exact topology load without legacy LoRA folding or

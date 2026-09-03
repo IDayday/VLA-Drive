@@ -78,9 +78,11 @@ step-time jitter. Among layouts within 95% of peak sample throughput, it chooses
 the smallest global batch to retain more optimizer updates without materially
 increasing total wall time. BaseInit and VQAInit must use the same lock.
 
-The selected 16x6 layout uses split SDPA for the mathematically read-only
-register attention and disables vision gradient checkpointing. Both settings
-are recorded in the lock and applied by the formal launchers; they cannot drift
+The selected 16x8 layout uses split SDPA for the mathematically read-only
+register attention, disables vision gradient checkpointing, and uses two exact
+PDM proposal partitions per scene. Exact detached CPU metric targets run
+concurrently with the no-grad EMA future-vision forward. All settings are
+recorded in the lock and applied by the formal launchers; they cannot drift
 between BaseInit and VQAInit.
 
 Before benchmarking, the real-data gate uses 16 disjoint train and 16
