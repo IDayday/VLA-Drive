@@ -88,7 +88,14 @@ def validate_layout_metrics(
         expected["scorer_processes_per_rank"]
     ):
         return False, "scorer process count mismatch"
-    if int(metrics.get("scorer_partitions_per_scene", -1)) != int(
+    # Metrics produced before the partition counter was added to the callback
+    # used the launcher's fixed historical value of eight.  Preserve those
+    # immutable raw benchmark files, while requiring every non-historical
+    # layout (notably the optimized 16x8 run) to record its value explicitly.
+    observed_partitions = metrics.get("scorer_partitions_per_scene")
+    if observed_partitions is None and int(expected["scorer_partitions_per_scene"]) == 8:
+        observed_partitions = 8
+    if int(observed_partitions if observed_partitions is not None else -1) != int(
         expected["scorer_partitions_per_scene"]
     ):
         return False, "scorer partition count mismatch"

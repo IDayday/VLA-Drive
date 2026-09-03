@@ -62,6 +62,20 @@ def test_memory_gate_is_strictly_below_72_gib():
     assert "not < 72.0" in reason
 
 
+def test_historical_eight_partition_metrics_remain_auditable():
+    metrics = _metrics("16x6", 200.0, peak=54.0)
+    metrics.pop("scorer_partitions_per_scene")
+    valid, reason = validate_layout_metrics("16x6", metrics)
+    assert valid
+    assert reason == "eligible"
+
+    optimized = _metrics("16x8", 210.0, peak=69.0)
+    optimized.pop("scorer_partitions_per_scene")
+    valid, reason = validate_layout_metrics("16x8", optimized)
+    assert not valid
+    assert "partition count mismatch" in reason
+
+
 def test_step_time_tail_gate_rejects_unstable_layout():
     metrics = _metrics("16x6", 200.0, peak=54.0)
     metrics["p90_step_time"] = metrics["median_step_time"] * 1.36
