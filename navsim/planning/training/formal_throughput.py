@@ -42,6 +42,8 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
         layout_name: str,
         scorer_processes_per_rank: int,
         num_workers: int,
+        gradient_checkpointing: bool,
+        read_only_attention_backend: str,
     ) -> None:
         super().__init__()
         if warmup_steps < 0 or timed_steps <= 0 or global_batch_size <= 0:
@@ -53,6 +55,8 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
         self.layout_name = str(layout_name)
         self.scorer_processes_per_rank = int(scorer_processes_per_rank)
         self.num_workers = int(num_workers)
+        self.gradient_checkpointing = bool(gradient_checkpointing)
+        self.read_only_attention_backend = str(read_only_attention_backend)
         self._batch_start = None
         self._previous_batch_end = None
         self._seen = 0
@@ -171,6 +175,8 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
             "per_gpu_batch_size": self.global_batch_size // len(gathered),
             "global_batch_size": self.global_batch_size,
             "num_workers_per_rank": self.num_workers,
+            "gradient_checkpointing": self.gradient_checkpointing,
+            "read_only_attention_backend": self.read_only_attention_backend,
             "samples_per_second": self.global_batch_size / mean_step,
             "optimizer_steps_per_second": 1.0 / mean_step,
             "median_step_time": _percentile(step_times, 0.50),
@@ -248,6 +254,8 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
             "world_size": int(getattr(trainer, "world_size", 1)),
             "global_batch_size": self.global_batch_size,
             "num_workers_per_rank": self.num_workers,
+            "gradient_checkpointing": self.gradient_checkpointing,
+            "read_only_attention_backend": self.read_only_attention_backend,
             "scorer_processes_per_rank": self.scorer_processes_per_rank,
             "nonfinite_count": int(
                 "non-finite" in lowered or "nonfinite" in lowered

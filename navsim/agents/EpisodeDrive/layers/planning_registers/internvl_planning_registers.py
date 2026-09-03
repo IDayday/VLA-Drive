@@ -50,6 +50,7 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         register_dim: int = 256,
         tile_aggregation: str = "mean",
         attention_mode: str = "bidirectional",
+        read_only_attention_backend: str = "eager",
         use_flash_attn: bool = False,
         init_std: float = 1e-6,
         device=None,
@@ -80,12 +81,18 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
                 "planning_registers.attention_mode=read_only requires "
                 "vlm_config.use_flash_attn=false"
             )
+        if read_only_attention_backend not in {"eager", "split_sdpa"}:
+            raise ValueError(
+                "planning_registers.read_only_attention_backend must be eager "
+                f"or split_sdpa, got {read_only_attention_backend!r}"
+            )
         factory_kwargs = {"device": device, "dtype": dtype}
         self.vision_hidden_dim = int(vision_hidden_dim)
         self.num_registers = int(num_registers)
         self.register_dim = int(register_dim)
         self.tile_aggregation = tile_aggregation
         self.attention_mode = attention_mode
+        self.read_only_attention_backend = read_only_attention_backend
         self.planning_registers = nn.Parameter(
             torch.empty(
                 1,
@@ -116,7 +123,9 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
     def configure_vision_attention(self, vision_model: nn.Module) -> None:
         if self.attention_mode == "read_only":
             configured = configure_read_only_register_attention(
-                vision_model, self.num_registers
+                vision_model,
+                self.num_registers,
+                backend=self.read_only_attention_backend,
             )
             if not configured:
                 raise RuntimeError("Read-only attention configured zero InternViT layers")

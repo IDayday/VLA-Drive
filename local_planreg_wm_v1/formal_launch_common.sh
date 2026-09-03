@@ -94,7 +94,7 @@ formal_launch() {
   vqa_config_sha="$(_formal_json_value "${vlm_audit}" '.driving_vqa.config_sha256')"
 
   local selected_layout gpu_count per_gpu_batch global_batch num_nodes devices_per_node
-  local num_workers scorer_processes
+  local num_workers scorer_processes gradient_checkpointing attention_backend
   selected_layout="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.selected_layout')"
   gpu_count="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.gpu_count')"
   per_gpu_batch="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.per_gpu_batch_size')"
@@ -103,6 +103,8 @@ formal_launch() {
   devices_per_node="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.devices_per_node')"
   num_workers="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.num_workers_per_rank')"
   scorer_processes="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.scorer_processes_per_rank')"
+  gradient_checkpointing="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.gradient_checkpointing')"
+  attention_backend="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.read_only_attention_backend')"
   if [[ "$((gpu_count * per_gpu_batch))" -ne "${global_batch}" ]]; then
     echo "Layout lock has inconsistent global batch" >&2
     return 2
@@ -172,6 +174,8 @@ formal_launch() {
     "sensor_blobs_path=${navsim_data}/sensor_blobs/trainval"
     "agent.batch_size=${per_gpu_batch}"
     "agent.num_gpus=${gpu_count}"
+    "agent.vlm_config.gradient_checkpointing=${gradient_checkpointing}"
+    "agent.planning_registers.read_only_attention_backend=${attention_backend}"
     "dataloader.params.batch_size=${per_gpu_batch}"
     "dataloader.params.num_workers=${num_workers}"
     dataloader.params.multiprocessing_context=forkserver

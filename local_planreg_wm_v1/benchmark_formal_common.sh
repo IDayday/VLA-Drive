@@ -38,6 +38,22 @@ formal_benchmark_layout() {
   local devices_per_node=8
   local global_batch=$((gpu_count * per_gpu_batch))
   local num_workers="${PLANREG_BENCHMARK_NUM_WORKERS:-4}"
+  local warmup_steps="${PLANREG_BENCHMARK_WARMUP_STEPS:-20}"
+  local timed_steps="${PLANREG_BENCHMARK_TIMED_STEPS:-300}"
+  local gradient_checkpointing="${PLANREG_BENCHMARK_GRADIENT_CHECKPOINTING:-true}"
+  local attention_backend="${PLANREG_BENCHMARK_ATTENTION_BACKEND:-split_sdpa}"
+  if ! [[ "${warmup_steps}" =~ ^[0-9]+$ && "${timed_steps}" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Benchmark warmup/timed steps must be non-negative/positive integers" >&2
+    return 2
+  fi
+  if [[ "${gradient_checkpointing}" != "true" && "${gradient_checkpointing}" != "false" ]]; then
+    echo "PLANREG_BENCHMARK_GRADIENT_CHECKPOINTING must be true or false" >&2
+    return 2
+  fi
+  if [[ "${attention_backend}" != "eager" && "${attention_backend}" != "split_sdpa" ]]; then
+    echo "PLANREG_BENCHMARK_ATTENTION_BACKEND must be eager or split_sdpa" >&2
+    return 2
+  fi
   planreg_formal_runtime_setup "${PLANREG_REPO_ROOT}"
   local python_bin="${PLANREG_FORMAL_PYTHON_BIN}"
   local base_vlm="${PLANREG_BASE_VLM_PATH:-/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned}"
@@ -46,7 +62,8 @@ formal_benchmark_layout() {
   local vlm_audit="${PLANREG_VLM_AUDIT_REPORT:-${PLANREG_REPO_ROOT}/reports/planreg_wm_v1/formal_vlm_initialization_audit.json}"
   local metric_cache="${PLANREG_TRAIN_METRIC_CACHE:-/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full}"
   local navsim_data="${OPENSCENE_DATA_ROOT:-/mnt/project/DriveDreamer-Policy/navsim_raw}"
-  local report_dir="${PLANREG_REPO_ROOT}/reports/planreg_wm_v1/throughput/${layout}"
+  local report_root="${PLANREG_BENCHMARK_REPORT_ROOT:-${PLANREG_REPO_ROOT}/reports/planreg_wm_v1/throughput}"
+  local report_dir="${report_root}/${layout}"
   local metrics_path="${report_dir}/metrics.json"
   local run_root="${PLANREG_BENCHMARK_RUN_ROOT:-/mnt/project/DriveVLA-M0-formal-runs/throughput}"
   local output_dir="${run_root}/${layout}"
@@ -135,6 +152,8 @@ formal_benchmark_layout() {
     "sensor_blobs_path=${navsim_data}/sensor_blobs/trainval"
     "agent.batch_size=${per_gpu_batch}"
     "agent.num_gpus=${gpu_count}"
+    "agent.vlm_config.gradient_checkpointing=${gradient_checkpointing}"
+    "agent.planning_registers.read_only_attention_backend=${attention_backend}"
     "dataloader.params.batch_size=${per_gpu_batch}"
     "dataloader.params.num_workers=${num_workers}"
     dataloader.params.multiprocessing_context=forkserver
@@ -144,8 +163,8 @@ formal_benchmark_layout() {
     throughput_benchmark.enabled=true
     "throughput_benchmark.layout_name=${layout}"
     "throughput_benchmark.output_path=${metrics_path}"
-    throughput_benchmark.warmup_steps=20
-    throughput_benchmark.timed_steps=300
+    "throughput_benchmark.warmup_steps=${warmup_steps}"
+    "throughput_benchmark.timed_steps=${timed_steps}"
     "throughput_benchmark.scorer_processes_per_rank=${scorer_processes}"
     hydra.output_subdir=null
   )
@@ -154,7 +173,7 @@ formal_benchmark_layout() {
   printf '\n' >> "${output_dir}/run_metadata/benchmark_command.txt"
 
   if [[ "${DRY_RUN:-0}" == "1" ]]; then
-    echo "FORMAL_BENCHMARK_DRY_RUN layout=${layout} global_batch=${global_batch}"
+    echo "FORMAL_BENCHMARK_DRY_RUN layout=${layout} global_batch=${global_batch} gradient_checkpointing=${gradient_checkpointing} attention_backend=${attention_backend} warmup=${warmup_steps} timed=${timed_steps}"
     cat "${output_dir}/run_metadata/benchmark_command.txt"
     return 0
   fi

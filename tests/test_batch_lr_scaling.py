@@ -34,7 +34,7 @@ def _formal_optimizer_agent(global_batch: int):
     return agent
 
 
-@pytest.mark.parametrize("global_batch", [16, 32, 64])
+@pytest.mark.parametrize("global_batch", [16, 32, 64, 96, 128])
 def test_formal_lr_uses_sqrt_global_batch_scaling_and_caps(global_batch):
     agent = _formal_optimizer_agent(global_batch)
     optimizer = agent.get_optimizers()[0]

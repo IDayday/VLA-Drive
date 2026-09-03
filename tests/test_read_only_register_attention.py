@@ -11,6 +11,10 @@ from navsim.agents.EpisodeDrive.layers.planning_registers import (
     InternVLPlanningRegisters,
     inject_internvit_qv_lora,
 )
+from navsim.agents.EpisodeDrive.layers.planning_registers.asymmetric_register_attention import (
+    configure_read_only_register_attention,
+    set_read_only_register_sequence_length,
+)
 
 
 class _Attention(nn.Module):
@@ -78,11 +82,11 @@ class _Embeddings(nn.Module):
 
 
 class _Vision(nn.Module):
-    def __init__(self, *, use_flash_attn: bool = False) -> None:
+    def __init__(self, *, use_flash_attn: bool = False, dim: int = 8) -> None:
         super().__init__()
-        self.config = SimpleNamespace(hidden_size=8, use_flash_attn=use_flash_attn)
-        self.embeddings = _Embeddings()
-        self.encoder = _Encoder()
+        self.config = SimpleNamespace(hidden_size=dim, use_flash_attn=use_flash_attn)
+        self.embeddings = _Embeddings(dim)
+        self.encoder = _Encoder(dim)
 
 
 def test_read_only_patch_rows_match_legacy_with_zero_init_qv_lora() -> None:
@@ -157,3 +161,69 @@ def test_bidirectional_mode_remains_available_as_ablation() -> None:
     )
     assert registers.shape == (1, 4, 8)
     assert patches.shape == (1, 4, 8)
+
+
+@pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])
+def test_split_sdpa_forward_backward_matches_eager(dtype: torch.dtype) -> None:
+    torch.manual_seed(304)
+    eager = _Vision().to(dtype=dtype).eval()
+    split = copy.deepcopy(eager).eval()
+    configure_read_only_register_attention(eager, 4, backend="eager")
+    configure_read_only_register_attention(split, 4, backend="split_sdpa")
+    set_read_only_register_sequence_length(eager, 9)
+    set_read_only_register_sequence_length(split, 9)
+    eager_input = torch.randn(2, 9, 8, dtype=dtype, requires_grad=True)
+    split_input = eager_input.detach().clone().requires_grad_(True)
+
+    eager_output = eager.encoder.layers[0].attn(eager_input)
+    split_output = split.encoder.layers[0].attn(split_input)
+    atol = 1e-6 if dtype == torch.float32 else 1e-2
+    rtol = 1e-5 if dtype == torch.float32 else 1e-2
+    torch.testing.assert_close(split_output, eager_output, atol=atol, rtol=rtol)
+
+    gradient = torch.randn_like(eager_output)
+    eager_output.backward(gradient)
+    split_output.backward(gradient)
+    torch.testing.assert_close(
+        split_input.grad, eager_input.grad, atol=atol, rtol=rtol
+    )
+    for eager_parameter, split_parameter in zip(
+        eager.parameters(), split.parameters()
+    ):
+        if eager_parameter.grad is None and split_parameter.grad is None:
+            continue
+        torch.testing.assert_close(
+            split_parameter.grad, eager_parameter.grad, atol=atol, rtol=rtol
+        )
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA parity audit")
+def test_split_sdpa_cuda_bf16_realistic_attention_shape() -> None:
+    """Bound fused-kernel rounding at the formal InternViT width/token count."""
+    torch.manual_seed(20260903)
+    eager = _Vision(dim=1024).cuda().to(dtype=torch.bfloat16).eval()
+    split = copy.deepcopy(eager).eval()
+    configure_read_only_register_attention(eager, 16, backend="eager")
+    configure_read_only_register_attention(split, 16, backend="split_sdpa")
+    set_read_only_register_sequence_length(eager, 1041)
+    set_read_only_register_sequence_length(split, 1041)
+    eager_input = torch.randn(
+        1, 1041, 1024, device="cuda", dtype=torch.bfloat16, requires_grad=True
+    )
+    split_input = eager_input.detach().clone().requires_grad_(True)
+
+    eager_output = eager.encoder.layers[0].attn(eager_input)
+    split_output = split.encoder.layers[0].attn(split_input)
+    max_forward_difference = (
+        split_output.float() - eager_output.float()
+    ).abs().max()
+    assert max_forward_difference.item() <= 1e-3
+
+    gradient = torch.randn_like(eager_output)
+    eager_output.backward(gradient)
+    split_output.backward(gradient)
+    max_input_gradient_difference = (
+        split_input.grad.float() - eager_input.grad.float()
+    ).abs().max()
+    assert max_input_gradient_difference.item() <= 1e-3
+    assert torch.isfinite(split_input.grad).all()

@@ -382,6 +382,14 @@ def configure_formal_throughput_callback(
                 benchmark.get("scorer_processes_per_rank", 0)
             ),
             num_workers=int(cfg.dataloader.params.num_workers),
+            gradient_checkpointing=bool(
+                cfg.agent.vlm_config.get("gradient_checkpointing", False)
+            ),
+            read_only_attention_backend=str(
+                cfg.agent.planning_registers.get(
+                    "read_only_attention_backend", "eager"
+                )
+            ),
         )
     )
     return callbacks

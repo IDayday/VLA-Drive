@@ -28,7 +28,9 @@ vlm_config:
   use_flash_attn: false
   skip_lm_head: true
   freeze_lm_head: true
-  gradient_checkpointing: true
+  # Locked by formal_training_layout_lock.json; GB96 is memory-safe without
+  # recomputation under the audited split-SDPA read-only attention backend.
+  gradient_checkpointing: false
   extra_token_count: 0
   target_vocab_size: 151682
   planning_registers_enabled: true
@@ -57,6 +59,8 @@ vision_adaptation:
 
 planning_registers:
   attention_mode: read_only
+  # Enabled only after forward/backward parity tests against the eager mask.
+  read_only_attention_backend: split_sdpa
 
 scene_fusion:
   mode: planning_primary_semantic_xattn

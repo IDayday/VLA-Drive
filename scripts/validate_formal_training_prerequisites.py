@@ -48,6 +48,8 @@ def validate_layout_lock(lock: Dict[str, Any]) -> None:
         "global_batch_size",
         "num_workers_per_rank",
         "scorer_processes_per_rank",
+        "gradient_checkpointing",
+        "read_only_attention_backend",
         "steps_per_epoch",
         "total_steps",
     )
@@ -63,6 +65,10 @@ def validate_layout_lock(lock: Dict[str, Any]) -> None:
     global_batch = int(lock["global_batch_size"])
     if global_batch != int(lock["gpu_count"]) * int(lock["per_gpu_batch_size"]):
         raise RuntimeError("Layout lock global batch is internally inconsistent")
+    if not isinstance(lock["gradient_checkpointing"], bool):
+        raise RuntimeError("Layout lock gradient_checkpointing must be boolean")
+    if lock["read_only_attention_backend"] not in {"eager", "split_sdpa"}:
+        raise RuntimeError("Layout lock has an unsupported attention backend")
     steps = math.ceil(EXPECTED_DATASET_SIZE / global_batch)
     if int(lock["steps_per_epoch"]) != steps or int(lock["total_steps"]) != steps * 27:
         raise RuntimeError("Layout lock step budget is internally inconsistent")

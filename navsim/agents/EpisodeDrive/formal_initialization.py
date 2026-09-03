@@ -224,6 +224,7 @@ def validate_formal_scientific_contract(
     require(not bool(_cfg_get(vision_adaptation, "train_k", True)), "vision K must not be trained")
     require(bool(_cfg_get(vision_adaptation, "train_v", False)), "vision V must be trainable through LoRA")
     require(str(_cfg_get(planning_registers, "attention_mode", "")) == "read_only", "planning registers must use read_only attention")
+    require(str(_cfg_get(planning_registers, "read_only_attention_backend", "")) in {"eager", "split_sdpa"}, "read-only attention backend must be eager or split_sdpa")
     require(str(_cfg_get(scene_fusion, "mode", "")) == "planning_primary_semantic_xattn", "formal fusion must be planning-primary semantic cross-attention")
     require(bool(_cfg_get(semantic_path, "frozen_llm_no_grad", False)), "semantic LLM must run under no_grad")
     require(not bool(_cfg_get(semantic_path, "backprop_to_vision", True)), "semantic path must not backpropagate to vision")

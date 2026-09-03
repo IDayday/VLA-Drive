@@ -11,7 +11,13 @@ from navsim.planning.script.run_training_full import (
 
 @pytest.mark.parametrize(
     "global_batch,steps_per_epoch,total_steps",
-    [(16, 6456, 174312), (32, 3228, 87156), (64, 1614, 43578)],
+    [
+        (16, 6456, 174312),
+        (32, 3228, 87156),
+        (64, 1614, 43578),
+        (96, 1076, 29052),
+        (128, 807, 21789),
+    ],
 )
 def test_exact_103k_formal_step_budget(global_batch, steps_per_epoch, total_steps):
     budget = compute_formal_step_budget(103288, global_batch, dataset_epochs=27)

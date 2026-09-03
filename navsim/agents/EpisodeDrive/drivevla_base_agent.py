@@ -553,6 +553,15 @@ class DriveVLABaseAgent(AbstractAgent):
                     if self.planning_registers_config is not None
                     else "bidirectional"
                 ),
+                planning_register_attention_backend=str(
+                    getattr(
+                        self.planning_registers_config,
+                        "read_only_attention_backend",
+                        "eager",
+                    )
+                    if self.planning_registers_config is not None
+                    else "eager"
+                ),
                 vision_qv_lora_enabled=vision_qv_lora_enabled,
                 vision_qv_lora_rank=int(
                     getattr(
