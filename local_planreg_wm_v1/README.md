@@ -22,8 +22,8 @@ Formal launch refuses to start without all of the following:
    state is bitwise identical.
 3. An input-only cache manifest proving exactly 103,288 complete records and no
    cached VLM/Q-Former/register/EMA outputs.
-4. Four completed throughput benchmark reports and the shared
-   `formal_training_layout_lock.json` selected from them.
+4. Completed throughput evidence referenced by the shared
+   `formal_training_layout_lock.json` and the immutable lock itself.
 5. A clean git worktree and explicit standalone Base/VQA VLM paths.
 6. Matching cross-node runtime fingerprints (Python ABI, PyTorch,
    Transformers, PEFT, Lightning, EpisodeDrive source, and InternVL
@@ -59,6 +59,8 @@ bash local_planreg_wm_v1/benchmark_formal_8x2.sh
 bash local_planreg_wm_v1/benchmark_formal_8x4.sh
 bash local_planreg_wm_v1/benchmark_formal_16x2.sh
 bash local_planreg_wm_v1/benchmark_formal_16x4.sh
+bash local_planreg_wm_v1/benchmark_formal_16x6.sh
+bash local_planreg_wm_v1/benchmark_formal_16x8.sh
 
 python scripts/select_formal_training_layout.py \
   --metrics-root reports/planreg_wm_v1/throughput \
@@ -71,7 +73,15 @@ cross-node fingerprint difference before model construction. No script
 preempts a busy GPU.
 Each benchmark runs 20 warmup and 300 measured optimizer steps of the complete
 PlanReg-WM graph. The selector enforces finite losses/gradients, no OOM/deadlock,
-and peak allocation below 72 GiB. BaseInit and VQAInit must use the same lock.
+peak allocation below 72 GiB, peak reservation below 76 GiB, and bounded p90
+step-time jitter. Among layouts within 95% of peak sample throughput, it chooses
+the smallest global batch to retain more optimizer updates without materially
+increasing total wall time. BaseInit and VQAInit must use the same lock.
+
+The selected 16x6 layout uses split SDPA for the mathematically read-only
+register attention and disables vision gradient checkpointing. Both settings
+are recorded in the lock and applied by the formal launchers; they cannot drift
+between BaseInit and VQAInit.
 
 Before benchmarking, the real-data gate uses 16 disjoint train and 16
 validation scenes (32 total), executes two train batches and one validation
