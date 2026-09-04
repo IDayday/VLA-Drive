@@ -85,7 +85,9 @@ command=(
   "sensor_blobs_path=${navsim_root}/sensor_blobs/trainval"
   formal_training.enabled=false
   auto_resume=false
-  "train_ckpt_path=${checkpoint}"
+  # Quote the Hydra value itself because Lightning's default checkpoint
+  # filenames contain '=' (for example epoch=27-step=22597.ckpt).
+  "train_ckpt_path='${checkpoint}'"
   agent.batch_size=8
   agent.num_gpus=16
   agent.vlm_config.gradient_checkpointing=false
