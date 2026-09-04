@@ -325,8 +325,12 @@ def configure_callbacks_for_data_protocol(
                 else None
             ),
             monitor=None,
-            save_top_k=0,
-            save_last=True,
+            # Lightning 2.5 only reaches its ``save_last`` branch after a
+            # top-k checkpoint was written.  With ``save_top_k=0`` it silently
+            # writes nothing at epoch end.  Keep exactly one unmonitored
+            # recovery checkpoint and make ``last.ckpt`` a link to it instead.
+            save_top_k=1,
+            save_last="link",
             save_on_train_epoch_end=True,
         )
     )

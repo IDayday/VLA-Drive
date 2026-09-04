@@ -4,8 +4,9 @@ import json
 
 import pytest
 from omegaconf import OmegaConf
+import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
-from torch.utils.data import ConcatDataset, TensorDataset
+from torch.utils.data import ConcatDataset, DataLoader, TensorDataset
 import torch
 
 from navsim.planning.script.run_training_full import (
@@ -80,8 +81,48 @@ def test_final_fit_requires_no_validation_and_uses_last_only(tmp_path) -> None:
     checkpoints = [item for item in callbacks if isinstance(item, ModelCheckpoint)]
     assert len(checkpoints) == 1
     assert checkpoints[0].monitor is None
-    assert checkpoints[0].save_top_k == 0
-    assert checkpoints[0].save_last is True
+    # Lightning 2.5 does not execute save_last when save_top_k=0.  One
+    # unmonitored rolling checkpoint plus a last.ckpt link is still last-only
+    # final-fit behavior and is actually resume-safe.
+    assert checkpoints[0].save_top_k == 1
+    assert checkpoints[0].save_last == "link"
+
+
+def test_final_fit_last_checkpoint_is_actually_written(tmp_path) -> None:
+    class TinyModule(pl.LightningModule):
+        def __init__(self) -> None:
+            super().__init__()
+            self.layer = torch.nn.Linear(1, 1)
+
+        def training_step(self, batch, batch_idx):
+            del batch_idx
+            return self.layer(batch[0].float()).square().mean()
+
+        def configure_optimizers(self):
+            return torch.optim.SGD(self.parameters(), lr=0.01)
+
+    cfg = _config(tmp_path, include_val=True, limit_val=0)
+    audit = resolve_data_protocol(cfg)
+    callbacks = configure_callbacks_for_data_protocol(
+        [], audit, output_dir=str(tmp_path)
+    )
+    trainer = pl.Trainer(
+        accelerator="cpu",
+        callbacks=callbacks,
+        enable_model_summary=False,
+        enable_progress_bar=False,
+        logger=False,
+        limit_train_batches=1,
+        max_epochs=1,
+        num_sanity_val_steps=0,
+    )
+    trainer.fit(
+        TinyModule(),
+        train_dataloaders=DataLoader(TensorDataset(torch.ones(1, 1))),
+    )
+    last = tmp_path / "checkpoints" / "last.ckpt"
+    assert last.is_file()
+    assert last.is_symlink()
 
 
 def test_final_fit_rejects_validation_or_validation_run(tmp_path) -> None:
