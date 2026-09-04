@@ -193,7 +193,24 @@ if [[ "${local_exit}" -ne 0 || "${remote_exit}" -ne 0 ]]; then
   exit 1
 fi
 
-final_checkpoint="${output_dir}/checkpoints/last.ckpt"
-[[ -f "${final_checkpoint}" ]] || { echo "Missing final continuation checkpoint: ${final_checkpoint}" >&2; exit 1; }
+final_checkpoint="$(${PLANREG_FORMAL_PYTHON_BIN} - <<PY
+import re
+from pathlib import Path
+
+checkpoint_dir = Path(${output_dir@Q}) / "checkpoints"
+target_step = ${target_step}
+matches = []
+for path in checkpoint_dir.glob("epoch=*-step=*.ckpt"):
+    match = re.search(r"-step=(\d+)\.ckpt$", path.name)
+    if match is not None and int(match.group(1)) == target_step:
+        matches.append(path.resolve())
+if len(matches) != 1:
+    raise SystemExit(
+        f"Expected exactly one step-{target_step} checkpoint in {checkpoint_dir}, "
+        f"found {[str(path) for path in matches]}"
+    )
+print(matches[0])
+PY
+)"
 ln -f "${final_checkpoint}" "${output_dir}/checkpoints/continuation_epoch33_final.ckpt"
 printf 'Formal continuation completed: %s\n' "${final_checkpoint}"
