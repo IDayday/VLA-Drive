@@ -1,0 +1,41 @@
+defaults:
+  - episode_drive_planreg_wm_formal_base
+  - _self_
+
+# Six complete trainval passes after the completed epoch-27 checkpoint.
+# Ratios are relative to the GB128 peak LRs in the parent formal config.
+# The 404-step (half-epoch) cosine reheat preserves the restored Adam state
+# while avoiding a discontinuous LR jump at the continuation boundary.
+scheduler_args:
+  type: continuation_cosine
+  interval: step
+  warmup_ratio: 0.0
+  start_lr_ratio: 0.10
+  min_lr_ratio: 0.10
+  continuation_origin_step: 21789
+  continuation_optimizer_steps: 4842
+  reheat_optimizer_steps: 404
+  start_lr_ratios:
+    planning_adapter: 0.10
+    semantic_fusion: 0.10
+    action_generator: 0.10
+    scorer: 0.10
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10
+  peak_lr_ratios:
+    planning_adapter: 0.15
+    semantic_fusion: 0.15
+    action_generator: 0.15
+    scorer: 0.15
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10
+  min_lr_ratios:
+    planning_adapter: 0.016666666666666666
+    semantic_fusion: 0.016666666666666666
+    action_generator: 0.02666666666666667
+    scorer: 0.03333333333333333
+    future_predictor: 0.01
+    semantic_qformer: 0.013333333333333334
+    vision_qv_lora: 0.02

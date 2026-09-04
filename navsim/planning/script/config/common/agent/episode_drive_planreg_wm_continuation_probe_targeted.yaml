@@ -1,0 +1,40 @@
+defaults:
+  - episode_drive_planreg_wm_formal_base
+  - _self_
+
+# A 150-step probe: gently reheat representation/generator modules and give
+# the scorer the largest budget while leaving VLM/Q-Former/WM adaptation at
+# the terminal LR of the completed run.
+scheduler_args:
+  type: continuation_cosine
+  interval: step
+  warmup_ratio: 0.0
+  start_lr_ratio: 0.10
+  min_lr_ratio: 0.10
+  continuation_origin_step: 21789
+  continuation_optimizer_steps: 150
+  reheat_optimizer_steps: 20
+  start_lr_ratios:
+    planning_adapter: 0.10
+    semantic_fusion: 0.10
+    action_generator: 0.10
+    scorer: 0.10
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10
+  peak_lr_ratios:
+    planning_adapter: 0.15
+    semantic_fusion: 0.15
+    action_generator: 0.15
+    scorer: 0.20
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10
+  min_lr_ratios:
+    planning_adapter: 0.15
+    semantic_fusion: 0.15
+    action_generator: 0.15
+    scorer: 0.20
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10

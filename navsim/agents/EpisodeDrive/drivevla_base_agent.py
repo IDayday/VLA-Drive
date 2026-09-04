@@ -94,6 +94,59 @@ def planreg_warmup_cosine_multiplier(
     cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
     return float(min_lr_ratio + (1.0 - min_lr_ratio) * cosine)
 
+
+def planreg_continuation_cosine_multiplier(
+    optimizer_step: int,
+    *,
+    origin_optimizer_step: int,
+    continuation_optimizer_steps: int,
+    reheat_optimizer_steps: int,
+    start_lr_ratio: float,
+    peak_lr_ratio: float,
+    min_lr_ratio: float,
+) -> float:
+    """Piecewise-cosine LR multiplier anchored to a completed training run.
+
+    ``optimizer_step`` remains the global scheduler step restored by Lightning.
+    Subtracting the persisted origin makes the continuation phase resume-safe
+    without discarding Adam moments or rewriting the source checkpoint.
+    Ratios are relative to the original logical peak LR stored in LambdaLR's
+    ``base_lrs``.
+    """
+    if origin_optimizer_step < 0:
+        raise ValueError("origin_optimizer_step must be non-negative")
+    if continuation_optimizer_steps <= 0:
+        raise ValueError("continuation_optimizer_steps must be positive")
+    if not 0 <= reheat_optimizer_steps <= continuation_optimizer_steps:
+        raise ValueError(
+            "reheat_optimizer_steps must be in [0, continuation_optimizer_steps]"
+        )
+    for name, value in (
+        ("start_lr_ratio", start_lr_ratio),
+        ("peak_lr_ratio", peak_lr_ratio),
+        ("min_lr_ratio", min_lr_ratio),
+    ):
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f"{name} must be in [0,1]")
+
+    local_step = min(
+        int(continuation_optimizer_steps),
+        max(0, int(optimizer_step) - int(origin_optimizer_step)),
+    )
+    if reheat_optimizer_steps > 0 and local_step <= reheat_optimizer_steps:
+        progress = local_step / reheat_optimizer_steps
+        interpolation = 0.5 * (1.0 - math.cos(math.pi * progress))
+        return float(
+            start_lr_ratio + (peak_lr_ratio - start_lr_ratio) * interpolation
+        )
+
+    decay_steps = continuation_optimizer_steps - reheat_optimizer_steps
+    if decay_steps <= 0:
+        return float(peak_lr_ratio)
+    progress = (local_step - reheat_optimizer_steps) / decay_steps
+    cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+    return float(min_lr_ratio + (peak_lr_ratio - min_lr_ratio) * cosine)
+
 class LitProgressBar(ProgressBar):
 
     def __init__(self):
@@ -737,6 +790,10 @@ class DriveVLABaseAgent(AbstractAgent):
             start=start,
             end=end,
         )
+        # Extending a completed run increases Lightning's estimated total-step
+        # count. Re-evaluating the cosine against that larger denominator must
+        # not make the already-restored teacher momentum move backwards.
+        momentum = max(momentum, float(self._ema_current_momentum.item()))
         ema_update_timer = self._formal_phase_timer.start("ema_update_time")
         self.ema_register_target.update(self.backbone, momentum)
         self._formal_phase_timer.stop(ema_update_timer)
@@ -2424,11 +2481,15 @@ class DriveVLABaseAgent(AbstractAgent):
             )
 
         scheduler_args = self.scheduler_args
+        scheduler_type = str(scheduler_args.get("type", "cosine"))
         warmup_ratio = float(scheduler_args.get("warmup_ratio", 0.03))
         start_lr_ratio = float(scheduler_args.get("start_lr_ratio", 0.01))
         if formal_optimizer:
-            if str(scheduler_args.get("type", "cosine")) != "cosine":
-                raise ValueError("Formal PlanReg scheduler type must be cosine")
+            if scheduler_type not in {"cosine", "continuation_cosine"}:
+                raise ValueError(
+                    "Formal PlanReg scheduler type must be cosine or "
+                    "continuation_cosine"
+                )
             if str(scheduler_args.get("interval", "step")) != "step":
                 raise ValueError("Formal PlanReg scheduler interval must be step")
             common_min_ratio = float(scheduler_args.get("min_lr_ratio", 0.10))
@@ -2449,30 +2510,82 @@ class DriveVLABaseAgent(AbstractAgent):
                 for name, default in default_min_ratios.items()
             }
         lr_lambdas = []
-        for group in optimizer.param_groups:
-            logical_name = group["logical_name"]
-            min_ratio = min_ratios[logical_name]
-
-            def lr_lambda(step, *, _min_ratio=min_ratio):
-                return planreg_warmup_cosine_multiplier(
-                    step,
-                    total_optimizer_steps=int(total_optimizer_steps),
-                    warmup_ratio=warmup_ratio,
-                    start_lr_ratio=start_lr_ratio,
-                    min_lr_ratio=_min_ratio,
+        if scheduler_type == "continuation_cosine":
+            origin_step = int(scheduler_args["continuation_origin_step"])
+            continuation_steps = int(
+                scheduler_args["continuation_optimizer_steps"]
+            )
+            reheat_steps = int(scheduler_args.get("reheat_optimizer_steps", 0))
+            start_ratios = scheduler_args.get("start_lr_ratios", {})
+            peak_ratios = scheduler_args.get("peak_lr_ratios", {})
+            continuation_min_ratios = scheduler_args.get("min_lr_ratios", {})
+            for group in optimizer.param_groups:
+                logical_name = group["logical_name"]
+                group_start_ratio = float(
+                    start_ratios.get(logical_name, start_lr_ratio)
+                )
+                group_peak_ratio = float(
+                    peak_ratios.get(logical_name, group_start_ratio)
+                )
+                group_min_ratio = float(
+                    continuation_min_ratios.get(
+                        logical_name, group_peak_ratio
+                    )
                 )
 
-            lr_lambdas.append(lr_lambda)
+                def lr_lambda(
+                    step,
+                    *,
+                    _start=group_start_ratio,
+                    _peak=group_peak_ratio,
+                    _min=group_min_ratio,
+                ):
+                    return planreg_continuation_cosine_multiplier(
+                        step,
+                        origin_optimizer_step=origin_step,
+                        continuation_optimizer_steps=continuation_steps,
+                        reheat_optimizer_steps=reheat_steps,
+                        start_lr_ratio=_start,
+                        peak_lr_ratio=_peak,
+                        min_lr_ratio=_min,
+                    )
+
+                lr_lambdas.append(lr_lambda)
+            scheduler_description = (
+                "type=continuation_cosine interval=step "
+                f"origin_step={origin_step} "
+                f"continuation_steps={continuation_steps} "
+                f"reheat_steps={reheat_steps} "
+                f"start_lr_ratios={dict(start_ratios)} "
+                f"peak_lr_ratios={dict(peak_ratios)} "
+                f"min_lr_ratios={dict(continuation_min_ratios)}"
+            )
+        else:
+            for group in optimizer.param_groups:
+                logical_name = group["logical_name"]
+                min_ratio = min_ratios[logical_name]
+
+                def lr_lambda(step, *, _min_ratio=min_ratio):
+                    return planreg_warmup_cosine_multiplier(
+                        step,
+                        total_optimizer_steps=int(total_optimizer_steps),
+                        warmup_ratio=warmup_ratio,
+                        start_lr_ratio=start_lr_ratio,
+                        min_lr_ratio=_min_ratio,
+                    )
+
+                lr_lambdas.append(lr_lambda)
+            scheduler_description = (
+                "type=warmup_cosine interval=step "
+                f"total_steps={int(total_optimizer_steps)} "
+                f"warmup_ratio={warmup_ratio:.6g} "
+                f"start_lr_ratio={start_lr_ratio:.6g} "
+                f"min_lr_ratios={min_ratios}"
+            )
         scheduler = torch.optim.lr_scheduler.LambdaLR(
             optimizer, lr_lambda=lr_lambdas
         )
-        print(
-            "PLANREG_LR_SCHEDULER type=warmup_cosine interval=step "
-            f"total_steps={int(total_optimizer_steps)} "
-            f"warmup_ratio={warmup_ratio:.6g} "
-            f"start_lr_ratio={start_lr_ratio:.6g} "
-            f"min_lr_ratios={min_ratios}"
-        )
+        print(f"PLANREG_LR_SCHEDULER {scheduler_description}")
         return [optimizer], [
             {"scheduler": scheduler, "interval": "step", "frequency": 1}
         ]

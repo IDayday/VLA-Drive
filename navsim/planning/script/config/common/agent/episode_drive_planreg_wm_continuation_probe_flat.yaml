@@ -1,0 +1,38 @@
+defaults:
+  - episode_drive_planreg_wm_formal_base
+  - _self_
+
+# A 150-step control: continue exactly at the terminal LR of the 27-epoch run.
+scheduler_args:
+  type: continuation_cosine
+  interval: step
+  warmup_ratio: 0.0
+  start_lr_ratio: 0.10
+  min_lr_ratio: 0.10
+  continuation_origin_step: 21789
+  continuation_optimizer_steps: 150
+  reheat_optimizer_steps: 20
+  start_lr_ratios:
+    planning_adapter: 0.10
+    semantic_fusion: 0.10
+    action_generator: 0.10
+    scorer: 0.10
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10
+  peak_lr_ratios:
+    planning_adapter: 0.10
+    semantic_fusion: 0.10
+    action_generator: 0.10
+    scorer: 0.10
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10
+  min_lr_ratios:
+    planning_adapter: 0.10
+    semantic_fusion: 0.10
+    action_generator: 0.10
+    scorer: 0.10
+    future_predictor: 0.10
+    semantic_qformer: 0.10
+    vision_qv_lora: 0.10

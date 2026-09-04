@@ -7,6 +7,7 @@ import torch
 from torch import nn
 
 from navsim.agents.EpisodeDrive.drivevla_base_agent import (
+    planreg_continuation_cosine_multiplier,
     planreg_warmup_cosine_multiplier,
 )
 from navsim.planning.training.agent_lightning_module import AgentLightningModule
@@ -41,6 +42,65 @@ def test_warmup_cosine_boundary_multipliers() -> None:
     assert planreg_warmup_cosine_multiplier(0, **arguments) == pytest.approx(0.01)
     assert planreg_warmup_cosine_multiplier(3, **arguments) == pytest.approx(1.0)
     assert planreg_warmup_cosine_multiplier(100, **arguments) == pytest.approx(0.10)
+
+
+def test_continuation_cosine_is_continuous_at_restored_origin() -> None:
+    arguments = {
+        "origin_optimizer_step": 21_789,
+        "continuation_optimizer_steps": 150,
+        "reheat_optimizer_steps": 20,
+        "start_lr_ratio": 0.10,
+        "peak_lr_ratio": 0.20,
+        "min_lr_ratio": 0.08,
+    }
+    assert planreg_continuation_cosine_multiplier(
+        21_788, **arguments
+    ) == pytest.approx(0.10)
+    assert planreg_continuation_cosine_multiplier(
+        21_789, **arguments
+    ) == pytest.approx(0.10)
+    assert planreg_continuation_cosine_multiplier(
+        21_809, **arguments
+    ) == pytest.approx(0.20)
+    assert planreg_continuation_cosine_multiplier(
+        21_939, **arguments
+    ) == pytest.approx(0.08)
+    assert planreg_continuation_cosine_multiplier(
+        30_000, **arguments
+    ) == pytest.approx(0.08)
+
+
+def test_formal_continuation_lr_boundaries() -> None:
+    common = {
+        "origin_optimizer_step": 21_789,
+        "continuation_optimizer_steps": 4_842,
+        "reheat_optimizer_steps": 404,
+    }
+    logical_ratios = {
+        "planning_adapter": (0.10, 0.15, 1 / 60),
+        "semantic_fusion": (0.10, 0.15, 1 / 60),
+        "action_generator": (0.10, 0.15, 2 / 75),
+        "scorer": (0.10, 0.15, 1 / 30),
+        "future_predictor": (0.10, 0.10, 0.01),
+        "semantic_qformer": (0.10, 0.10, 1 / 75),
+        "vision_qv_lora": (0.10, 0.10, 0.02),
+    }
+    for start, peak, minimum in logical_ratios.values():
+        arguments = {
+            **common,
+            "start_lr_ratio": start,
+            "peak_lr_ratio": peak,
+            "min_lr_ratio": minimum,
+        }
+        assert planreg_continuation_cosine_multiplier(
+            21_789, **arguments
+        ) == pytest.approx(start)
+        assert planreg_continuation_cosine_multiplier(
+            22_193, **arguments
+        ) == pytest.approx(peak)
+        assert planreg_continuation_cosine_multiplier(
+            26_631, **arguments
+        ) == pytest.approx(minimum)
 
 
 def test_scheduler_uses_group_specific_minimum_ratios() -> None:
