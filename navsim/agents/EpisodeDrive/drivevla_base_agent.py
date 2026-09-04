@@ -655,6 +655,9 @@ class DriveVLABaseAgent(AbstractAgent):
                     if self.semantic_path_config is not None
                     else True
                 ),
+                compute_dtype=str(
+                    getattr(self.vlm_config, "compute_dtype", "bfloat16")
+                ),
             )
             
             if self.lora_config.use_lora:

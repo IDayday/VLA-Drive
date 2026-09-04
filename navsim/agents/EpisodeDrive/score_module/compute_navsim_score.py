@@ -1,6 +1,9 @@
 import torch
 
 from navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator import PDMSimulator
+from navsim.planning.simulation.planner.pdm_planner.scoring.pdm_scorer import (
+    PDMScorer as OfficialPDMScorer,
+)
 from nuplan.planning.simulation.trajectory.trajectory_sampling import TrajectorySampling
 import lzma
 import pickle
@@ -19,6 +22,46 @@ proposal_sampling = TrajectorySampling(num_poses=40, interval_length=0.1)
 simulator = PDMSimulator(proposal_sampling)
 config = PDMScorerConfig( )
 scorer = PDMScorer(proposal_sampling, config)
+
+
+def _fixed_pdm_progress(metric_cache, simulator_instance):
+    """Return the PDM-reference progress used to normalize candidate progress.
+
+    Train-time metric caches persist this scalar, while the official Navtest
+    cache persists the reference trajectory from which it is derived.  Keep
+    the official cache read-only and reproduce the scalar in memory.
+    """
+
+    if hasattr(metric_cache, "pdm_progress"):
+        return metric_cache.pdm_progress
+
+    pdm_states = get_trajectory_as_array(
+        metric_cache.trajectory,
+        simulator_instance.proposal_sampling,
+        metric_cache.ego_state.time_point,
+    )
+    simulated_states = simulator_instance.simulate_proposals(
+        pdm_states[None], metric_cache.ego_state
+    )
+    reference_scorer = OfficialPDMScorer(
+        simulator_instance.proposal_sampling,
+        config,
+    )
+    reference_scorer.score_proposals(
+        simulated_states,
+        metric_cache.observation,
+        metric_cache.centerline,
+        metric_cache.route_lane_ids,
+        metric_cache.drivable_area_map,
+    )
+    multiplicative = reference_scorer._multi_metrics.prod(axis=0)
+    pdm_progress = reference_scorer._progress_raw * multiplicative
+    if pdm_progress.shape != (1,) or not np.isfinite(pdm_progress).all():
+        raise RuntimeError(
+            "Could not derive one finite PDM-reference progress value from "
+            "the official Navtest MetricCache"
+        )
+    return pdm_progress
 
 def get_scores(args):
 
@@ -68,13 +111,14 @@ def get_sub_score_from_metric_cache(
 
     simulated_states = simulator_instance.simulate_proposals(trajectory_states, initial_ego_state)#32,41,11
 
+    pdm_progress = _fixed_pdm_progress(metric_cache, simulator_instance)
     final_scores=scorer_instance.score_proposals(
         simulated_states,
         metric_cache.observation,
         metric_cache.centerline,
         metric_cache.route_lane_ids,
         metric_cache.drivable_area_map,
-        metric_cache.pdm_progress
+        pdm_progress
     )
 
     num_col=2

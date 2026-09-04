@@ -323,7 +323,8 @@ class DriveVLABackbone(nn.Module):
                  vision_qv_lora_dropout: float = 0.0,
                  strict_vocab_alignment: bool = False,
                  semantic_frozen_llm_no_grad: bool = False,
-                 semantic_backprop_to_vision: bool = True):
+                 semantic_backprop_to_vision: bool = True,
+                 compute_dtype: str = "bfloat16"):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -338,6 +339,19 @@ class DriveVLABackbone(nn.Module):
         self.tokenizer = None  
         self.model_type = model_type.lower()
         self.device = device
+        dtype_name = str(compute_dtype).lower().replace("torch.", "")
+        supported_dtypes = {
+            "bfloat16": torch.bfloat16,
+            "bf16": torch.bfloat16,
+            "float32": torch.float32,
+            "fp32": torch.float32,
+        }
+        if dtype_name not in supported_dtypes:
+            raise ValueError(
+                "compute_dtype must be one of bfloat16/bf16/float32/fp32, "
+                f"got {compute_dtype!r}"
+            )
+        self.compute_dtype = supported_dtypes[dtype_name]
         self.skip_lm_head = skip_lm_head
         self.gradient_checkpointing_enabled = bool(gradient_checkpointing)
         self._formal_phase_timer = PhaseTimer(
@@ -392,7 +406,7 @@ class DriveVLABackbone(nn.Module):
                 self.model = AutoModel.from_config(
                     model_config,
                     trust_remote_code=True,
-                    torch_dtype=torch.bfloat16,
+                    torch_dtype=self.compute_dtype,
                     use_flash_attn=use_flash_attn,
                 ).to(self.device).eval()
                 print("Initialized InternVL architecture from config; awaiting checkpoint weights.")
@@ -407,7 +421,7 @@ class DriveVLABackbone(nn.Module):
                 self.model = AutoModel.from_pretrained(
                     checkpoint_path,
                     config=runtime_config,
-                    torch_dtype=torch.bfloat16,
+                    torch_dtype=self.compute_dtype,
                     low_cpu_mem_usage=True,
                     trust_remote_code=True,
                     use_flash_attn=use_flash_attn,
@@ -826,12 +840,12 @@ class DriveVLABackbone(nn.Module):
         if self.planning_registers_enabled:
             if return_vision:
                 return self.encode_internvl_planning_vision(
-                    pixel_values.bfloat16(),
+                    pixel_values.to(dtype=self.compute_dtype),
                     num_patches_list,
                     tile_metadata,
                 )
             return self.forward_internvl_with_planning_registers(
-                pixel_values=pixel_values.bfloat16(),
+                pixel_values=pixel_values.to(dtype=self.compute_dtype),
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 position_ids=position_ids,
@@ -841,21 +855,21 @@ class DriveVLABackbone(nn.Module):
             )
         if return_vision:
             return self.model.vision_model(
-                pixel_values=pixel_values.bfloat16(),
+                pixel_values=pixel_values.to(dtype=self.compute_dtype),
                 output_hidden_states=True,
                 return_dict=True,
             )
         else:
             if self.skip_lm_head:
                 return self._forward_internvl_without_lm_head(
-                    pixel_values=pixel_values.bfloat16(),
+                    pixel_values=pixel_values.to(dtype=self.compute_dtype),
                     input_ids=input_ids,
                     attention_mask=attention_mask,
                     position_ids=position_ids,
                     image_flags=image_flags,
                 )
             return self.model(
-                    pixel_values=pixel_values.bfloat16(),
+                    pixel_values=pixel_values.to(dtype=self.compute_dtype),
                     input_ids=input_ids,
                     attention_mask=attention_mask,
                     position_ids=position_ids,

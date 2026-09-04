@@ -295,6 +295,12 @@ def main(cfg: DictConfig) -> None:
             Path(str(candidate_path)).expanduser().resolve(),
         )
         logger.info("Formal candidate bank: %s", json.dumps(manifest, sort_keys=True))
+        if bool(cfg.get("candidate_export_only", False)):
+            logger.info(
+                "candidate_export_only=true: skipping online selected-trajectory "
+                "PDM scoring; score the exported bank through the official offline path"
+            )
+            return None
 
     data_points = [
         {
