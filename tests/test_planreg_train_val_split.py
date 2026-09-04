@@ -125,6 +125,44 @@ def test_final_fit_last_checkpoint_is_actually_written(tmp_path) -> None:
     assert last.is_symlink()
 
 
+def test_final_fit_saves_exact_mid_epoch_max_step(tmp_path) -> None:
+    class TinyModule(pl.LightningModule):
+        def __init__(self) -> None:
+            super().__init__()
+            self.layer = torch.nn.Linear(1, 1)
+
+        def training_step(self, batch, batch_idx):
+            del batch_idx
+            return self.layer(batch[0].float()).square().mean()
+
+        def configure_optimizers(self):
+            return torch.optim.SGD(self.parameters(), lr=0.01)
+
+    cfg = _config(tmp_path, include_val=True, limit_val=0)
+    audit = resolve_data_protocol(cfg)
+    callbacks = configure_callbacks_for_data_protocol(
+        [], audit, output_dir=str(tmp_path)
+    )
+    trainer = pl.Trainer(
+        accelerator="cpu",
+        callbacks=callbacks,
+        enable_model_summary=False,
+        enable_progress_bar=False,
+        logger=False,
+        max_epochs=2,
+        max_steps=1,
+        num_sanity_val_steps=0,
+    )
+    trainer.fit(
+        TinyModule(),
+        train_dataloaders=DataLoader(TensorDataset(torch.ones(4, 1))),
+    )
+    last = tmp_path / "checkpoints" / "last.ckpt"
+    checkpoint = torch.load(last, map_location="cpu", weights_only=False)
+    assert last.is_file()
+    assert int(checkpoint["global_step"]) == 1
+
+
 def test_final_fit_rejects_validation_or_validation_run(tmp_path) -> None:
     cfg = _config(tmp_path, include_val=True, limit_val=1.0)
     with pytest.raises(RuntimeError, match="limit_val_batches=0"):

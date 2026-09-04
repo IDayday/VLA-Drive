@@ -303,6 +303,26 @@ class FormalEpochCheckpointCallback(pl.Callback):
         trainer.save_checkpoint(str(directory / filename), weights_only=False)
 
 
+class FinalFitLastCheckpoint(ModelCheckpoint):
+    """Keep a resume-safe final-fit checkpoint when ``max_steps`` stops mid-epoch.
+
+    Lightning's epoch checkpoint hook is not guaranteed to run when the fit
+    loop reaches ``max_steps`` before the dataloader is exhausted.  Formal
+    continuation schedules intentionally use an exact optimizer-step budget,
+    so persist the final optimizer/model/scheduler state from ``on_train_end``
+    when the current step has not already been saved.
+    """
+
+    def on_train_end(self, trainer, pl_module) -> None:
+        del pl_module
+        if self._should_skip_saving_checkpoint(trainer):
+            return
+        monitor_candidates = self._monitor_candidates(trainer)
+        self._save_topk_checkpoint(trainer, monitor_candidates)
+        if self.save_last:
+            self._save_last_checkpoint(trainer, monitor_candidates)
+
+
 def configure_callbacks_for_data_protocol(
     callbacks: Iterable[pl.Callback],
     audit: Dict[str, Any],
@@ -318,7 +338,7 @@ def configure_callbacks_for_data_protocol(
         callback for callback in callbacks if not isinstance(callback, ModelCheckpoint)
     ]
     callbacks.append(
-        ModelCheckpoint(
+        FinalFitLastCheckpoint(
             dirpath=(
                 str(Path(output_dir).expanduser().resolve() / "checkpoints")
                 if output_dir is not None
