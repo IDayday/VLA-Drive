@@ -10,6 +10,7 @@ from navsim.planning.training.formal_timing import PhaseTimer
 
 from .utils.conversation import get_conv_template
 from .utils.internvl_tokenize import build_internvl_model_inputs
+from .utils.prompt_contract import resolve_system_message
 from .layers.planning_registers import (
     InternVLPlanningRegisters,
     inject_internvit_qv_lora,
@@ -324,7 +325,8 @@ class DriveVLABackbone(nn.Module):
                  strict_vocab_alignment: bool = False,
                  semantic_frozen_llm_no_grad: bool = False,
                  semantic_backprop_to_vision: bool = True,
-                 compute_dtype: str = "bfloat16"):
+                 compute_dtype: str = "bfloat16",
+                 prompt_version: str = "legacy"):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -336,6 +338,8 @@ class DriveVLABackbone(nn.Module):
         super().__init__()
 
         self.model = None
+        self.prompt_version = prompt_version
+        self.system_message = resolve_system_message(system_message, prompt_version)
         self.tokenizer = None  
         self.model_type = model_type.lower()
         self.device = device
@@ -521,7 +525,7 @@ class DriveVLABackbone(nn.Module):
 
     def _configure_internvl(self):
         """Applies specific configurations required for the InternVL model."""
-        self.model.system_message = system_message
+        self.model.system_message = self.system_message
         self.img_context_token_id = self.tokenizer.convert_tokens_to_ids(IMG_CONTEXT_TOKEN)
         self.model.img_context_token_id = self.img_context_token_id
         print("InternVL model configured.")
@@ -802,6 +806,7 @@ class DriveVLABackbone(nn.Module):
             )
         return {
             "last_hidden_state": last_hidden_state,
+            "semantic_token_valid_mask": attention_mask.bool(),
             "planning_registers": planning_output.scene_registers,
             "per_tile_registers": planning_output.per_tile_registers,
         }
@@ -827,7 +832,7 @@ class DriveVLABackbone(nn.Module):
                 self.tokenizer,
                 questions,
                 num_patches_list,
-                system_message,
+                getattr(self, "system_message", system_message),
                 self.num_image_token,
             )
         device = pixel_values.device

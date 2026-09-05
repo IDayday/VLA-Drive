@@ -659,6 +659,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 compute_dtype=str(
                     getattr(self.vlm_config, "compute_dtype", "bfloat16")
                 ),
+                prompt_version=str(getattr(self.vlm_config, "prompt_version", "legacy")),
             )
             
             if self.lora_config.use_lora:
@@ -1238,6 +1239,12 @@ class DriveVLABaseAgent(AbstractAgent):
                 "input_ids": input_ids,
                 "attention_mask": attention_mask,
             }
+            if str(getattr(self.vlm_config, "prompt_version", "legacy")) != "legacy":
+                from .utils.prompt_contract import prompt_sha256
+                actual_hash = runtime_features.get("prompt_contract_hash")
+                expected = torch.tensor(list(bytes.fromhex(prompt_sha256(self.backbone.system_message))), dtype=torch.uint8)
+                if actual_hash is None or not bool((actual_hash.detach().cpu() == expected).all()):
+                    raise RuntimeError("Input-only cache prompt hash is stale/missing: rebuild a separate V1.1 cache with PLANREG_PROMPT_VERSION=single_front_v1p1")
 
         if (
             questions is None
@@ -1286,6 +1293,7 @@ class DriveVLABaseAgent(AbstractAgent):
         if high_command_one_hot.ndim == 1: high_command_one_hot = high_command_one_hot.unsqueeze(0)
 
         planning_registers = features.get("planning_registers")
+        semantic_token_valid_mask = features.get("semantic_token_valid_mask")
         if self.vlm_config.cache_hidden_state:
             last_hidden_state = features["last_hidden_state"]
         else:
@@ -1382,6 +1390,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 if isinstance(outputs, dict):
                     last_hidden_state = outputs["last_hidden_state"]
                     planning_registers = outputs.get("planning_registers")
+                    semantic_token_valid_mask = outputs.get("semantic_token_valid_mask")
                 else:
                     last_hidden_state = outputs.hidden_states[-1]
             
@@ -1417,6 +1426,11 @@ class DriveVLABaseAgent(AbstractAgent):
                 "last_hidden_state":last_hidden_state,
                 "status_feature":status_feature
             }
+
+        if bool(getattr(self.action_head, "semantic_use_padding_mask", False)):
+            if semantic_token_valid_mask is None:
+                raise RuntimeError("Q-Former padding repair requires the actual LLM attention mask")
+            action_inputs["semantic_token_valid_mask"] = semantic_token_valid_mask
 
         if bool(getattr(self.vlm_config, "planning_registers_enabled", False)):
             if planning_registers is None:
@@ -1940,7 +1954,15 @@ class DriveVLABaseAgent(AbstractAgent):
         self._latest_registers_for_diagnostics = None
         if registers is None:
             return {}
-        return compute_register_diagnostics(registers)
+        result = compute_register_diagnostics(registers)
+        semantic = getattr(self.action_head, "_latest_semantic_diagnostics", None)
+        if semantic is not None:
+            from .layers.planning_registers.content_diagnostics import semantic_content_diagnostics
+            result.update(semantic_content_diagnostics(semantic))
+        entropy = getattr(self.action_head, "_fusion_entropy", None)
+        if entropy is not None:
+            result["fusion_attention_entropy"] = entropy
+        return result
 
 
     def compute_loss(

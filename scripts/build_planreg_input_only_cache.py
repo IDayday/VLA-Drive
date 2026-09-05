@@ -192,6 +192,7 @@ def main() -> None:
     relative_tokens = [str(path.relative_to(root)) for path in token_paths]
     logs = sorted({path.parent.name for path in token_paths})
     manifest = {
+        "prompt_version": os.getenv("PLANREG_PROMPT_VERSION", "legacy"),
         "schema_version": INPUT_ONLY_CACHE_SCHEMA_VERSION,
         "cache_mode": "input_only",
         "cache_name": INPUT_ONLY_CACHE_NAME,

@@ -328,6 +328,7 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
                 )[0]
                 if self.pretokenize_inputs:
                     from navsim.agents.EpisodeDrive.drivevla_backbone import system_message
+                    from navsim.agents.EpisodeDrive.utils.prompt_contract import resolve_system_message, prompt_sha256
                     from navsim.agents.EpisodeDrive.utils.internvl_tokenize import (
                         build_internvl_model_inputs,
                     )
@@ -336,10 +337,13 @@ class CacheOnlyDataset(torch.utils.data.Dataset):
                         self.tokenizer,
                         [features["questions"]],
                         [features["pixel_values"].shape[0]],
-                        system_message,
+                        resolve_system_message(
+                            system_message, os.getenv("PLANREG_PROMPT_VERSION", "legacy")),
                     )
                     features["input_ids"] = model_inputs["input_ids"].squeeze(0)
                     features["attention_mask"] = model_inputs["attention_mask"].squeeze(0)
+                    message = resolve_system_message(system_message, os.getenv("PLANREG_PROMPT_VERSION", "legacy"))
+                    features["prompt_contract_hash"] = torch.tensor(list(bytes.fromhex(prompt_sha256(message))), dtype=torch.uint8)
                     del features["questions"]
 
             if self.preprocess_future_images:

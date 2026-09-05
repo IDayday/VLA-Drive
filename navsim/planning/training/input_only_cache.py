@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
 
@@ -10,6 +11,7 @@ import torch
 from PIL import Image
 
 from navsim.agents.EpisodeDrive.drivevla_backbone import system_message
+from navsim.agents.EpisodeDrive.utils.prompt_contract import resolve_system_message, prompt_sha256
 from navsim.agents.EpisodeDrive.layers.world_model.future_image_io import (
     decode_path_tensor,
     encode_path_tensor,
@@ -144,7 +146,7 @@ def build_input_only_cache_record(
         tokenizer,
         [question],
         [num_current_tiles],
-        system_message,
+        resolve_system_message(system_message, os.getenv("PLANREG_PROMPT_VERSION", "legacy")),
     )
 
     future_paths = torch.as_tensor(targets["future_image_paths"]).clone()
@@ -180,6 +182,9 @@ def build_input_only_cache_record(
         "num_patches_cached": torch.tensor(num_current_tiles, dtype=torch.long),
         "input_ids": model_inputs["input_ids"].squeeze(0).cpu(),
         "attention_mask": model_inputs["attention_mask"].squeeze(0).cpu(),
+        "prompt_contract_hash": torch.tensor(list(bytes.fromhex(prompt_sha256(
+            resolve_system_message(system_message, os.getenv("PLANREG_PROMPT_VERSION", "legacy"))
+        ))), dtype=torch.uint8),
         "future_image_original_sizes": future_sizes,
         "future_tile_metadata_cached": future_tile_metadata,
         "future_num_patches_cached": future_num_patches,

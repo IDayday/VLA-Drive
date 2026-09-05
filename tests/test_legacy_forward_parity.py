@@ -43,6 +43,7 @@ def _make_disabled_backbone() -> DriveVLABackbone:
     nn.Module.__init__(backbone)
     backbone.model = _FakeInternVL()
     backbone.model_type = "internvl"
+    backbone.compute_dtype = torch.bfloat16
     backbone.device = "cpu"
     backbone.skip_lm_head = False
     backbone.planning_registers_enabled = False

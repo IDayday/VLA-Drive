@@ -61,7 +61,9 @@ class ActionDecoder(nn.Module):
 
 
         self.q_former=VisionOnlyQFormer(vision_dim=1536,hidden_dim=256)
-        self.scene_embeds = nn.Parameter(torch.randn(1, self._config.num_scene_tokens, config.tf_d_model)*1e-6, requires_grad=True)
+        self.semantic_query_init_std = float(getattr(config, "semantic_query_init_std", 1e-6))
+        self.semantic_use_padding_mask = bool(getattr(config, "semantic_use_padding_mask", False))
+        self.scene_embeds = nn.Parameter(torch.randn(1, self._config.num_scene_tokens, config.tf_d_model)*self.semantic_query_init_std, requires_grad=True)
 
         # print("self.scene_embeds ", self.scene_embeds)
 
@@ -201,6 +203,7 @@ class ActionDecoder(nn.Module):
         self.memory_injection_mode = "shared"
 
     def set_optimizer_step(self, optimizer_step: int) -> None:
+        self.collect_content_diagnostics = optimizer_step % 500 == 0
         if self.scene_feature_mode == "planning_plus_semantic":
             self._optimizer_step.fill_(int(optimizer_step))
 
@@ -269,6 +272,12 @@ class ActionDecoder(nn.Module):
                     value=semantic,
                     need_weights=False,
                 )
+                if getattr(self, "collect_content_diagnostics", False):
+                    with torch.no_grad():
+                        _, attention = self.semantic_cross_attention(
+                            planning.detach(), semantic.detach(), semantic.detach(),
+                            need_weights=True, average_attn_weights=False)
+                        self._fusion_entropy = -(attention.float() * attention.float().clamp_min(1e-30).log()).sum(-1).mean()
                 scene_tokens = self.output_norm(
                     planning
                     + torch.sigmoid(self.semantic_gate).to(
@@ -478,7 +487,10 @@ class ActionDecoder(nn.Module):
         semantic_features = self.q_former(
             self.scene_embeds,
             features["last_hidden_state"],
+            semantic_token_valid_mask=(features.get("semantic_token_valid_mask")
+                                       if self.semantic_use_padding_mask else None),
         )
+        self._latest_semantic_diagnostics = semantic_features.detach()
         planning_features = features.get("planning_registers")
         scene_features, scene_mix_ratio = self.fuse_scene_features(
             semantic_features,

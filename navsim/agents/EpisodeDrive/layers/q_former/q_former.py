@@ -12,8 +12,8 @@ class MultiHeadAttention(nn.Module):
             dropout=dropout
         )
 
-    def forward(self, q, k, v):
-        out, _ = self.attn(q, k, v, need_weights=False)
+    def forward(self, q, k, v, key_padding_mask=None):
+        out, _ = self.attn(q, k, v, need_weights=False, key_padding_mask=key_padding_mask)
         return out
 
 class VisionQFormerBlock(nn.Module):
@@ -36,14 +36,14 @@ class VisionQFormerBlock(nn.Module):
             nn.Linear(int(dim * mlp_ratio), dim)
         )
 
-    def forward(self, queries, vision_tokens):
+    def forward(self, queries, vision_tokens, key_padding_mask=None):
         # Self-Attention
         q = self.ln_self(queries)
         queries = queries + self.self_attn(q, q, q)
 
         # Cross-Attention (Q -> Vision)
         q = self.ln_cross(queries)
-        queries = queries + self.cross_attn(q, vision_tokens, vision_tokens)
+        queries = queries + self.cross_attn(q, vision_tokens, vision_tokens, key_padding_mask)
 
         # Feed Forward
         q = self.ln_ffn(queries)
@@ -80,12 +80,26 @@ class VisionOnlyQFormer(nn.Module):
         # Init (important)
         # nn.init.trunc_normal_(self.query_tokens, std=0.02)
 
-    def forward(self, scene_queries, vision_tokens):
+    def forward(self, scene_queries, vision_tokens, semantic_token_valid_mask=None):
         """
         vision_tokens: [B, 2800, 1536]
         return:        [B, 64, 256]
         """
         B = vision_tokens.size(0)
+        padding_mask = None
+        if semantic_token_valid_mask is not None:
+            valid = semantic_token_valid_mask.to(device=vision_tokens.device)
+            if valid.shape != vision_tokens.shape[:2]:
+                raise ValueError("semantic_token_valid_mask must match [batch, LLM tokens]")
+            if not bool(((valid == 0) | (valid == 1)).all()):
+                raise ValueError("semantic_token_valid_mask must contain only boolean/0/1 values")
+            valid = valid.bool()
+            if not bool(valid.any(dim=1).all()):
+                raise ValueError("Every Q-Former sample requires at least one valid semantic token")
+            # PyTorch MHA True means IGNORE, whereas LLM mask True means VALID.
+            padding_mask = ~valid
+            if bool(valid.all()):
+                padding_mask = None
 
         # Project vision tokens
         vision_tokens = self.vision_proj(vision_tokens)
@@ -95,6 +109,6 @@ class VisionOnlyQFormer(nn.Module):
 
         # Q-Former layers
         for blk in self.blocks:
-            queries = blk(queries, vision_tokens)
+            queries = blk(queries, vision_tokens, padding_mask)
 
         return self.ln_out(queries)
