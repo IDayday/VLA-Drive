@@ -278,12 +278,14 @@ epoch33 在同一 4 个场景上的配对可视化几乎没有改变：最终层
 
 关键图：
 
+- [epoch27 全部四场景可视化目录](baseline_epoch27/attention_v3/)
 - [attention depth summary](baseline_epoch27/attention_v3/attention_depth_summary.png)
 - [highest-regret last-layer maps](baseline_epoch27/attention_v3/09d424ddf3a558b3/register_to_patch_last.png)
 - [highest-regret shallow rollout](baseline_epoch27/attention_v3/09d424ddf3a558b3/register_to_patch_shallow_rollout.png)
 - [lowest-entropy heads](baseline_epoch27/attention_v3/09d424ddf3a558b3/register_to_patch_lowest_entropy_head.png)
 - [scorer/generator composite](baseline_epoch27/attention_v3/09d424ddf3a558b3/selected_trajectory_composite_attention.png)
 - [tile attention](baseline_epoch27/attention_v3/09d424ddf3a558b3/tile_attention.png)
+- [epoch33 全部四场景配对可视化目录](continuation_epoch33/attention_paired_epoch27_tokens/)
 - [epoch33 paired attention depth](continuation_epoch33/attention_paired_epoch27_tokens/attention_depth_summary.png)
 - [epoch33 highest-regret composite](continuation_epoch33/attention_paired_epoch27_tokens/09d424ddf3a558b3/selected_trajectory_composite_attention.png)
 
