@@ -2066,6 +2066,7 @@ class DriveVLABaseAgent(AbstractAgent):
         weighted_wm_loss = wm_weight * wm_loss_dict["wm_loss"]
         total = base_loss_dict["loss"] + weighted_wm_loss
         result = dict(base_loss_dict)
+        result["plan_loss"] = base_loss_dict["loss"]
         result["loss"] = total
         result["wm_weight_current"] = wm_weight
         result["ema_momentum_current"] = current_registers.new_tensor(

@@ -94,6 +94,8 @@ class AgentLightningModule(pl.LightningModule):
         self.precision_log_interval = int(diagnostics.get("precision_log_interval", 500))
         self._ema_updates_in_optimizer_step = True
         self._precision_before = {}
+        self.same_batch_gradient_interval = int(diagnostics.get("same_batch_gradient_interval", 0))
+        self._last_same_batch_audit_step = -1
         self.require_finite_loss_and_gradients = bool(
             getattr(
                 diagnostics,
@@ -382,6 +384,17 @@ class AgentLightningModule(pl.LightningModule):
         if not 'mem' in self.agent.name().lower() or self.agent._config.memory_mode=='base':
             prediction = self.agent.forward(features)
             loss_dict = self.agent.compute_loss(features, targets, prediction)
+            if (logging_prefix == 'train' and self.same_batch_gradient_interval > 0
+                    and self.global_step % self.same_batch_gradient_interval == 0
+                    and self._last_same_batch_audit_step != self.global_step):
+                from navsim.agents.EpisodeDrive.gradient_diagnostics import isolated_same_batch_audit
+                report = isolated_same_batch_audit(self.agent, features, targets)
+                report.update(optimizer_step=int(self.global_step), rank=int(self.global_rank))
+                directory = Path(self.trainer.default_root_dir) / 'run_metadata'
+                directory.mkdir(parents=True, exist_ok=True)
+                with (directory / f'same_batch_gradients_rank{self.global_rank}.jsonl').open('a') as stream:
+                    stream.write(json.dumps(report, sort_keys=True) + '\n')
+                self._last_same_batch_audit_step = int(self.global_step)
         elif self.agent._config.memory_mode=='waver':
             prediction = self.agent.forward(features)
             trajectory,gate=self.agent.waver_forward(prediction)
