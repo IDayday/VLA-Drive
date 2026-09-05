@@ -205,6 +205,9 @@ formal_benchmark_layout() {
   printf '%q ' "${python_bin}" "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" "${hydra_args[@]}" \
     > "${output_dir}/run_metadata/benchmark_command.txt"
   printf '\n' >> "${output_dir}/run_metadata/benchmark_command.txt"
+  "${python_bin}" "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
+    "${hydra_args[@]}" --cfg job --resolve \
+    > "${output_dir}/run_metadata/resolved_hydra_config.yaml"
 
   if [[ "${DRY_RUN:-0}" == "1" ]]; then
     echo "FORMAL_BENCHMARK_DRY_RUN layout=${layout} global_batch=${global_batch} gradient_checkpointing=${gradient_checkpointing} attention_backend=${attention_backend} warmup=${warmup_steps} timed=${timed_steps}"

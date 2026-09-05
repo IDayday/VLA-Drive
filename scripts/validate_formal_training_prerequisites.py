@@ -172,6 +172,19 @@ def main() -> None:
                 raise RuntimeError('Lite requires a NEW schema-v2 logged-pose input cache')
             if not layout.get('full_physical_sidecar_smoke_passed',False):
                 raise RuntimeError('Lite needs representative full-step physical-sidecar smoke evidence')
+            if layout['read_only_attention_backend'] == 'split_sdpa':
+                for field in ('attention_parity', 'batch_comparison', 'training_parameter_audit'):
+                    evidence = layout.get(field, {})
+                    path = Path(evidence.get('path', ''))
+                    if not path.is_file() or sha256_file(path) != evidence.get('sha256'):
+                        raise RuntimeError('Accelerated Lite layout needs unchanged evidence: '+field)
+                parity = _read_json(Path(layout['attention_parity']['path']))
+                comparison = _read_json(Path(layout['batch_comparison']['path']))
+                if parity.get('status') != 'PASS' or len(parity.get('blocks', [])) != 24:
+                    raise RuntimeError('Accelerated Lite requires actual 24-block parity')
+                selected = layout['selected_layout']
+                if comparison.get('selected') != selected or not comparison.get('decisions', {}).get(selected, {}).get('eligible'):
+                    raise RuntimeError('Accelerated Lite requires an eligible equal-exposure pilot')
     if int(manifest.get("record_count", -1)) != EXPECTED_DATASET_SIZE:
         raise RuntimeError(
             "Formal input-only cache must contain exactly 103,288 records; "
