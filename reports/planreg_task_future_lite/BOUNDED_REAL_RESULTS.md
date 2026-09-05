@@ -90,6 +90,9 @@ After adding deployment-config and tokenizer-fingerprint regression tests, the
 release rerun completed **233 passed, 23 warnings in 38.63 s**, no skips. Thus the
 final count is 201 existing + 32 new, not the earlier 231 intermediate count.
 
+Final timing-window regression added: **234 passed, 23 warnings in 37.12 s**,
+201 existing + 33 new. The earlier counts above are retained as execution history.
+
 Label extraction in the real smoke averaged .36139 s/scene (maximum .47960 s,
 16 scene calls), excluding the original scorer and cold-map loading. A separate
 synthetic-production-shape **cost-only** A800 benchmark (B4/K8, 20 warmup + 100

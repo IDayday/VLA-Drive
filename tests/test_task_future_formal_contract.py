@@ -46,3 +46,12 @@ def test_lite_cache_tokenizer_fingerprint_is_token_id_sensitive(tmp_path):
     c=tokenizer_manifest(SimpleNamespace(get_vocab=lambda:{'a':2,'b':1}),tmp_path)
     assert a==b
     assert a['tokenizer_vocab_sha256']!=c['tokenizer_vocab_sha256']
+
+
+def test_layout_timing_uses_complete_wall_cycles():
+    from types import SimpleNamespace as NS
+    from scripts.lock_task_future_lite_layout import end_to_end_window
+    report=end_to_end_window([NS(step=49,wall_time=100.),NS(step=149,wall_time=900.)])
+    assert report['optimizer_steps']==100
+    assert report['seconds_per_optimizer_step']==8.
+    with pytest.raises(ValueError):end_to_end_window([NS(step=49,wall_time=100.)])

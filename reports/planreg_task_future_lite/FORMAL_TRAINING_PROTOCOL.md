@@ -59,6 +59,13 @@ exactly. The certified view does not claim exhaustive retokenization; its manife
 binds the untouched source manifest, and the builder now records vocabulary hashes
 directly for future builds. Both variants use this same view.
 
+Actual enumeration was audited on all four servers: 85,109 original train records
++ 18,179 original val records = 103,288, overlap0; identical combined order SHA
+`e4391a868e940d7f1c9a35198c1dff05f9adb9b78f0d9a039ae3e6a699e34a96`.
+Formal final-fit uses both lists. The end-to-end throughput lock uses optimizer
+event wall timestamps, including data waits, rather than omitting loader time from
+the training-time estimate. Callback phase-only timing remains separately recorded.
+
 ## GB64 configuration to be locked from real throughput
 
 Each run uses two nodes x eight GPUs x local batch4, accumulation1. Padding to
