@@ -56,6 +56,10 @@ formal_benchmark_layout() {
   local gpu_count="$2"
   local per_gpu_batch="$3"
   local num_nodes="$4"
+  planreg_formal_resolve_peers "${num_nodes}"
+  if [[ "$2" -ne $((num_nodes * 8)) ]]; then
+    echo 'Benchmark requires exactly eight GPUs per declared node' >&2; return 2
+  fi
   local scorer_processes="$5"
   local scorer_partitions="${PLANREG_BENCHMARK_SCORE_PARTITIONS:-8}"
   local devices_per_node=8
@@ -113,12 +117,12 @@ formal_benchmark_layout() {
     return 2
   fi
   _formal_benchmark_assert_idle_local "$(hostname)" 8
-  if [[ "${num_nodes}" == "2" ]]; then
-    local peer_for_idle="${PLANREG_PEER_HOST:-training-vla-zt2}"
+  local peer_for_idle
+  for peer_for_idle in "${PLANREG_RUNTIME_PEERS[@]}"; do
     ssh -o BatchMode=yes "${peer_for_idle}" \
       'visible=$(nvidia-smi -L | wc -l); busy=$(nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits | sed '\''/^[[:space:]]*$/d'\'' || true); [[ "$visible" -ge 8 && -z "$busy" ]]' \
       || { echo "${peer_for_idle} is unavailable, lacks 8 GPUs, or has an active GPU process" >&2; return 2; }
-  fi
+  done
 
   local base_checkpoint_sha base_config_sha
   base_checkpoint_sha="$(jq -er '.base.checkpoint_sha256' "${vlm_audit}")"
@@ -127,16 +131,18 @@ formal_benchmark_layout() {
   mkdir -p "${output_dir}/run_metadata" "${report_dir}"
   local runtime_node0="${output_dir}/run_metadata/formal_runtime_node0.json"
   planreg_formal_runtime_audit_local "${PLANREG_REPO_ROOT}" "${runtime_node0}"
-  if [[ "${num_nodes}" == "2" ]]; then
-    local runtime_node1="${output_dir}/run_metadata/formal_runtime_node1.json"
-    local runtime_pair="${output_dir}/run_metadata/formal_runtime_pair_audit.json"
+  local runtime_rank=0 runtime_peer
+  for runtime_peer in "${PLANREG_RUNTIME_PEERS[@]}"; do
+    runtime_rank=$((runtime_rank + 1))
+    local runtime_node1="${output_dir}/run_metadata/formal_runtime_node${runtime_rank}.json"
+    local runtime_pair="${output_dir}/run_metadata/formal_runtime_pair_${runtime_rank}_audit.json"
     planreg_formal_runtime_audit_remote \
-      "${PLANREG_PEER_HOST:-training-vla-zt2}" "${PLANREG_REPO_ROOT}" \
+      "${runtime_peer}" "${PLANREG_REPO_ROOT}" \
       "${runtime_node1}"
     planreg_formal_runtime_compare \
       "${PLANREG_REPO_ROOT}" "${runtime_node0}" "${runtime_node1}" \
       "${runtime_pair}"
-  fi
+  done
   git -C "${PLANREG_REPO_ROOT}" rev-parse HEAD > "${output_dir}/run_metadata/git_commit.txt"
   git -C "${PLANREG_REPO_ROOT}" status --short --branch > "${output_dir}/run_metadata/git_status.txt"
   env | LC_ALL=C sort | sed -E \
@@ -212,14 +218,6 @@ formal_benchmark_layout() {
       "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
       "${hydra_args[@]}" 2>&1 | tee "${output_dir}/run_metadata/train.log" || exit_code=${PIPESTATUS[0]}
   else
-    local coordinator="${PLANREG_COORDINATOR_HOST:-training-vla-zt}"
-    local peer="${PLANREG_PEER_HOST:-training-vla-zt2}"
-    local current_host
-    current_host="$(hostname)"
-    if [[ "${current_host}" != *"vla-zt-worker-0"* || "${current_host}" == *"vla-zt2"* ]]; then
-      echo "Run 16-GPU benchmark from ${coordinator}; current host is ${current_host}" >&2
-      return 2
-    fi
     local master_addr="${PLANREG_MASTER_ADDR:-$(hostname -I | awk '{print $1}')}"
     local master_port="${PLANREG_MASTER_PORT:-29620}"
     local common_env=(
@@ -253,26 +251,33 @@ formal_benchmark_layout() {
     )
     local torchrun_base=(
       "${python_bin}" -m torch.distributed.run
-      --nnodes=2 --nproc-per-node=8
+      --nnodes="${num_nodes}" --nproc-per-node=8
       --master-addr="${master_addr}" --master-port="${master_port}"
     )
-    local remote_array=(
-      env "${common_env[@]}" "${torchrun_base[@]}" --node-rank=1
-      "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py"
-      "${hydra_args[@]}"
-    )
-    local remote_command
-    printf -v remote_command '%q ' "${remote_array[@]}"
-    timeout "${timeout_duration}" ssh -o BatchMode=yes "${peer}" "${remote_command}" \
-      > "${output_dir}/run_metadata/node1.log" 2>&1 &
-    local remote_pid=$!
+    local remote_pids=() remote_rank=0 peer
+    for peer in "${PLANREG_RUNTIME_PEERS[@]}"; do
+      remote_rank=$((remote_rank + 1))
+      local remote_array=(
+        env "${common_env[@]}" "${torchrun_base[@]}" --node-rank="${remote_rank}"
+        "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py"
+        "${hydra_args[@]}"
+      )
+      local remote_command
+      printf -v remote_command '%q ' "${remote_array[@]}"
+      timeout "${timeout_duration}" ssh -o BatchMode=yes "${peer}" "${remote_command}" \
+        > "${output_dir}/run_metadata/node${remote_rank}.log" 2>&1 &
+      remote_pids+=("$!")
+    done
     sleep 3
     timeout "${timeout_duration}" env "${common_env[@]}" \
       "${torchrun_base[@]}" --node-rank=0 \
       "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
       "${hydra_args[@]}" 2>&1 | tee "${output_dir}/run_metadata/node0.log" || exit_code=${PIPESTATUS[0]}
     local remote_exit=0
-    wait "${remote_pid}" || remote_exit=$?
+    local remote_pid
+    for remote_pid in "${remote_pids[@]}"; do
+      wait "${remote_pid}" || remote_exit=$?
+    done
     if [[ "${exit_code}" -eq 0 && "${remote_exit}" -ne 0 ]]; then
       exit_code="${remote_exit}"
     fi

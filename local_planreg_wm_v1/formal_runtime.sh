@@ -6,6 +6,32 @@
 PLANREG_FORMAL_PYTHON_BIN="${PLANREG_FORMAL_PYTHON_BIN:-/mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python}"
 PLANREG_FORMAL_SITE_PACKAGES="${PLANREG_FORMAL_SITE_PACKAGES:-/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages}"
 
+# Coordinator is local; the ordered comma-separated list supplies node ranks
+# 1..N-1. Never infer a different world size from whatever hosts happen to work.
+planreg_formal_resolve_peers() {
+  local nodes="$1"
+  local specification="${PLANREG_PEER_HOSTS:-}"
+  if [[ -z "${specification}" && "${nodes}" -eq 2 ]]; then
+    specification="${PLANREG_PEER_HOST:-training-vla-zt2}"
+  fi
+  PLANREG_RUNTIME_PEERS=()
+  if [[ -n "${specification}" ]]; then
+    IFS=',' read -r -a PLANREG_RUNTIME_PEERS <<< "${specification}"
+  fi
+  if [[ ${#PLANREG_RUNTIME_PEERS[@]} -ne $((nodes - 1)) ]]; then
+    echo "Set PLANREG_PEER_HOSTS to exactly $((nodes - 1)) ordered peers for ${nodes} nodes" >&2
+    return 2
+  fi
+  local peer seen=,
+  for peer in "${PLANREG_RUNTIME_PEERS[@]}"; do
+    if [[ ! "${peer}" =~ ^[a-zA-Z0-9._-]+$ || "${seen}" == *",${peer},"* ]]; then
+      echo "Invalid or repeated training peer: ${peer}" >&2
+      return 2
+    fi
+    seen+="${peer},"
+  done
+}
+
 planreg_formal_runtime_setup() {
   local repo_root="$1"
   [[ -x "${PLANREG_FORMAL_PYTHON_BIN}" ]] || {

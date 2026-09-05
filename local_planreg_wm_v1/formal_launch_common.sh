@@ -125,6 +125,7 @@ formal_launch() {
   per_gpu_batch="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.per_gpu_batch_size')"
   global_batch="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.global_batch_size')"
   num_nodes="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.num_nodes')"
+  planreg_formal_resolve_peers "${num_nodes}"
   devices_per_node="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.devices_per_node')"
   num_workers="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.num_workers_per_rank')"
   scorer_processes="$(_formal_json_value "${PLANREG_LAYOUT_LOCK}" '.scorer_processes_per_rank')"
@@ -285,27 +286,25 @@ formal_launch() {
   fi
 
   _formal_assert_idle_gpus "$(hostname)" "${devices_per_node}"
-  if [[ "${num_nodes}" -eq 2 ]]; then
-    if [[ "$(hostname)" != *"vla-zt-worker-0"* && "$(hostname)" != *"vla-zt3-worker-0"* ]]; then
-      echo "A 16-GPU formal run must be coordinated from training-vla-zt" >&2
-      return 2
-    fi
-    ssh -o BatchMode=yes "${PLANREG_PEER_HOST:-training-vla-zt2}" \
+  local runtime_peer runtime_rank=0
+  for runtime_peer in "${PLANREG_RUNTIME_PEERS[@]}"; do
+    ssh -o BatchMode=yes "${runtime_peer}" \
       "nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits | sed '/^[[:space:]]*$/d' | grep -q . && exit 42 || test \$(nvidia-smi -L | wc -l) -ge ${devices_per_node}"
-  fi
+  done
 
   mkdir -p "${output_dir}/run_metadata"
   local runtime_node0="${output_dir}/run_metadata/formal_runtime_node0.json"
   planreg_formal_runtime_audit_local "${PLANREG_REPO_ROOT}" "${runtime_node0}"
-  if [[ "${num_nodes}" -eq 2 ]]; then
-    local runtime_node1="${output_dir}/run_metadata/formal_runtime_node1.json"
+  for runtime_peer in "${PLANREG_RUNTIME_PEERS[@]}"; do
+    runtime_rank=$((runtime_rank + 1))
+    local runtime_node1="${output_dir}/run_metadata/formal_runtime_node${runtime_rank}.json"
     planreg_formal_runtime_audit_remote \
-      "${PLANREG_PEER_HOST:-training-vla-zt2}" "${PLANREG_REPO_ROOT}" \
+      "${runtime_peer}" "${PLANREG_REPO_ROOT}" \
       "${runtime_node1}"
     planreg_formal_runtime_compare \
       "${PLANREG_REPO_ROOT}" "${runtime_node0}" "${runtime_node1}" \
-      "${output_dir}/run_metadata/formal_runtime_pair_audit.json"
-  fi
+      "${output_dir}/run_metadata/formal_runtime_pair_${runtime_rank}_audit.json"
+  done
   if [[ -z "${RESUME_CHECKPOINT:-}" ]]; then
     cp "${preflight_identity}" "${output_dir}/run_metadata/formal_run_identity.json"
   else
@@ -342,7 +341,6 @@ formal_launch() {
     "${python_bin}" "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
       "${training_hydra_args[@]}" 2>&1 | tee "${output_dir}/run_metadata/train.log"
   else
-    local peer="${PLANREG_PEER_HOST:-training-vla-zt2}"
     local master_addr="${PLANREG_MASTER_ADDR:-$(hostname -I | awk '{print $1}')}"
     local master_port="${PLANREG_MASTER_PORT:-29630}"
     local shared_environment=(
@@ -378,25 +376,32 @@ formal_launch() {
       shared_environment+=("RESUME_CHECKPOINT=${RESUME_CHECKPOINT}")
     fi
     local torchrun=(
-      "${python_bin}" -m torch.distributed.run --nnodes=2 --nproc-per-node=8
+      "${python_bin}" -m torch.distributed.run --nnodes="${num_nodes}" --nproc-per-node=8
       --master-addr="${master_addr}" --master-port="${master_port}"
     )
-    local remote_array=(
-      env "${shared_environment[@]}" "${torchrun[@]}" --node-rank=1
-      "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py"
-      "${training_hydra_args[@]}"
-    )
-    local remote_command
-    printf -v remote_command '%q ' "${remote_array[@]}"
-    ssh -o BatchMode=yes "${peer}" "${remote_command}" \
-      > "${output_dir}/run_metadata/node1.log" 2>&1 &
-    local remote_pid=$!
+    local remote_pids=() remote_rank=0 peer
+    for peer in "${PLANREG_RUNTIME_PEERS[@]}"; do
+      remote_rank=$((remote_rank + 1))
+      local remote_array=(
+        env "${shared_environment[@]}" "${torchrun[@]}" --node-rank="${remote_rank}"
+        "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py"
+        "${training_hydra_args[@]}"
+      )
+      local remote_command
+      printf -v remote_command '%q ' "${remote_array[@]}"
+      ssh -o BatchMode=yes "${peer}" "${remote_command}" \
+        > "${output_dir}/run_metadata/node${remote_rank}.log" 2>&1 &
+      remote_pids+=("$!")
+    done
     sleep 3
     local local_exit=0 remote_exit=0
     env "${shared_environment[@]}" "${torchrun[@]}" --node-rank=0 \
       "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
       "${training_hydra_args[@]}" 2>&1 | tee "${output_dir}/run_metadata/node0.log" || local_exit=${PIPESTATUS[0]}
-    wait "${remote_pid}" || remote_exit=$?
+    local remote_pid
+    for remote_pid in "${remote_pids[@]}"; do
+      wait "${remote_pid}" || remote_exit=$?
+    done
     if [[ "${local_exit}" -ne 0 || "${remote_exit}" -ne 0 ]]; then
       echo "Formal multi-node training failed: local=${local_exit} remote=${remote_exit}" >&2
       return 1
