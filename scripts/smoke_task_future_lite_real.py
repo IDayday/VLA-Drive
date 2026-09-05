@@ -39,6 +39,9 @@ def main():
         parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--steps',type=int,default=8)
     parser.add_argument('--skip-pair',action='store_true')
+    parser.add_argument('--batch-size',type=int,default=2)
+    parser.add_argument('--attention-backend',choices=('eager','split_sdpa'),default='eager')
+    parser.add_argument('--no-gradient-checkpointing',action='store_true')
     args=parser.parse_args()
     if args.output.exists():raise FileExistsError(args.output)
     args.output.mkdir(parents=True)
@@ -49,6 +52,10 @@ def main():
         (args.output/'runtime.json').write_text(json.dumps(report,indent=2)+'\n')
     save()
     cfg=agent_config('base',args.shared_init)
+    cfg.planning_registers.read_only_attention_backend=args.attention_backend
+    cfg.vlm_config.gradient_checkpointing=not args.no_gradient_checkpointing
+    report['micro_batch']=args.batch_size
+    report['attention_backend']=args.attention_backend
     OmegaConf.save(cfg,args.output/'architecture.yaml',resolve=True)
     agent=instantiate(cfg);agent.initialize();agent.to('cuda:0')
     state,metadata=capture_shared_trainable_state(agent)
@@ -83,7 +90,7 @@ def main():
     teacher_before=None
     agent.train()
     for step in range(args.steps):
-        pair=[samples[(2*step+i)%len(samples)] for i in range(2)]
+        pair=[samples[(args.batch_size*step+i)%len(samples)] for i in range(args.batch_size)]
         features,targets=drivevla_cached_collate(pair)
         features=to_device_non_paths(features,torch.device('cuda:0'))
         targets=to_device_non_paths(targets,torch.device('cuda:0'))
@@ -140,7 +147,7 @@ def main():
         result=student(current)['trajectory'].cpu()
     report['current_only_export_max_abs_diff']=float((result-reference).abs().max())
     assert report['current_only_export_max_abs_diff']==0
-    report['status']='PASS';save();print(json.dumps({k:report[k] for k in ('status','physical_decoder_parameters','paired_trainable_initial_state_bitwise_equal','peak_allocated_gib','current_only_export_max_abs_diff')},indent=2))
+    report['status']='PASS';save();print(json.dumps({k:report[k] for k in ('status','physical_decoder_parameters','paired_trainable_initial_state_bitwise_equal','peak_allocated_gib','current_only_export_max_abs_diff') if k in report},indent=2))
 
 
 if __name__=='__main__':main()
