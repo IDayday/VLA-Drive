@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "pair_equal_outside_allowlist": true,
+  "allowed_difference_paths": [
+    "agent.initialization.variant",
+    "agent.initialization.vlm_checkpoint_sha256",
+    "agent.initialization.vlm_config_sha256",
+    "agent.vlm_config.vlm_path",
+    "experiment_name",
+    "output_dir"
+  ],
+  "observed_differences": {
+    "agent.initialization.variant": {
+      "base": "base",
+      "driving_vqa": "driving_vqa"
+    },
+    "agent.initialization.vlm_checkpoint_sha256": {
+      "base": "0bd7cfa0ab23300304dd627abb09abbdc38748c8c8ff6c3209baf73a81fb421f",
+      "driving_vqa": "79fb39297e322cd2d3dc68d4f23b86ff85806b336a4d5d0ed5db9b66e4034a3c"
+    },
+    "agent.initialization.vlm_config_sha256": {
+      "base": "7617ced46ca592375c4d6394d9e7b0c8e3c2835f66b8d10c9977f0036caa9ec9",
+      "driving_vqa": "58b3f930bcf3f65f9f62de8a486af018d5e34a3427fb1d41a2d88b1f8adcb394"
+    },
+    "agent.vlm_config.vlm_path": {
+      "base": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+      "driving_vqa": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-driving-vqa-dense"
+    },
+    "experiment_name": {
+      "base": "formal_v1p1_base",
+      "driving_vqa": "formal_v1p1_driving_vqa"
+    },
+    "output_dir": {
+      "base": "/mnt/project/DriveVLA-M0-formal-runs/v1p1_audit_20260905/config_pair/future_formal_base",
+      "driving_vqa": "/mnt/project/DriveVLA-M0-formal-runs/v1p1_audit_20260905/config_pair/future_formal_driving_vqa"
+    }
+  },
+  "shared_trainable_init_path": "/mnt/project/DriveVLA-M0-formal-runs/v1p1_audit_20260905/shared_planreg_init_seed0.pt",
+  "world_model_enabled_both": true,
+  "multi_trajectory_consequence_modeling_implemented": false,
+  "scope": "Resolved configuration parity only; no layout/convergence promotion"
+}
