@@ -298,6 +298,8 @@ class DriveVLABaseAgent(AbstractAgent):
         planning_registers=None,
         scene_fusion=None,
         world_model=None,
+        consequence=None,
+        scorer_variant="exact_drivor",
         ema=None,
         initialization=None,
         cache_policy=None,
@@ -325,6 +327,13 @@ class DriveVLABaseAgent(AbstractAgent):
         self.planning_registers_config = planning_registers
         self.scene_fusion = scene_fusion
         self.world_model_config = world_model
+        self.world_model_mode = str(getattr(world_model, "mode", "legacy_register_prediction"))
+        if self.world_model_mode not in {"legacy_register_prediction", "task_future_lite"}:
+            raise ValueError(f"Unsupported world_model.mode={self.world_model_mode}")
+        self.consequence_config = consequence
+        if self.world_model_mode == "task_future_lite":
+            from .layers.world_model.task_future_training import validate_lite_config
+            validate_lite_config(world_model, consequence, scorer_variant)
         self.ema_config = ema
         self.initialization_config = initialization
         self.cache_policy = cache_policy
@@ -393,6 +402,7 @@ class DriveVLABaseAgent(AbstractAgent):
         self._latest_registers_for_diagnostics = None
 
         self.future_register_predictor = None
+        self.physical_query_decoder = None
         self.ema_register_target = None
         if self.world_model_enabled:
             if self.vlm_config.cache_hidden_state or self.vlm_config.cache_mode:
@@ -405,7 +415,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 getattr(self.ema_config, "enabled", False)
             ):
                 raise ValueError("World-model training requires ema.enabled=true")
-            self.future_register_predictor = FutureRegisterPredictor(
+            self.future_register_predictor = None if self.world_model_mode == "task_future_lite" else FutureRegisterPredictor(
                 hidden_dim=int(getattr(world_model, "hidden_dim", 256)),
                 predictor_layers=int(getattr(world_model, "predictor_layers", 2)),
                 horizons_sec=tuple(
@@ -424,6 +434,9 @@ class DriveVLABaseAgent(AbstractAgent):
                     getattr(world_model, "acceleration_scale", 8.0)
                 ),
             )
+            if self.world_model_mode == "task_future_lite":
+                from .layers.world_model.physical_query_decoder import PhysicalQueryDecoder
+                self.physical_query_decoder = PhysicalQueryDecoder()
             self.register_buffer(
                 "_ema_optimizer_step",
                 torch.zeros((), dtype=torch.long),
@@ -812,6 +825,7 @@ class DriveVLABaseAgent(AbstractAgent):
         """Strip predictor/EMA modules from a deployment-only process."""
         self.ema_register_target = None
         self.future_register_predictor = None
+        self.physical_query_decoder = None
     
     def _apply_lora_to_backbone(self, backbone):
         """Apply LoRA to the backbone."""
@@ -1973,6 +1987,9 @@ class DriveVLABaseAgent(AbstractAgent):
             targets: Dict[str, torch.Tensor],
             pred: Dict[str, torch.Tensor],
     ) -> Dict:
+        if self.world_model_enabled and self.training and getattr(self, "world_model_mode", "legacy_register_prediction") == "task_future_lite":
+            from .layers.world_model.task_future_training import compute_task_future_lite_loss
+            return compute_task_future_lite_loss(self, features, targets, pred)
         overlap_score_request = None
         if self._can_overlap_metric_target_with_ema():
             overlap_score_request = self._submit_score_request(
@@ -2381,7 +2398,7 @@ class DriveVLABaseAgent(AbstractAgent):
                 unclassified.append(name)
             elif "language_model" in name or "lm_head" in name:
                 trainable_language.append(name)
-            elif name.startswith("future_register_predictor."):
+            elif name.startswith(("future_register_predictor.", "physical_query_decoder.")):
                 grouped["future_predictor"].append((name, parameter))
             elif name.startswith("backbone.planning_register_adapter."):
                 grouped["planning_adapter"].append((name, parameter))

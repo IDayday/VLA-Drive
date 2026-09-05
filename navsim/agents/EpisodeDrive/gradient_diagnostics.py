@@ -103,7 +103,8 @@ def isolated_same_batch_audit(agent, features, targets):
                 def recomputed(*args, _forward=original, **kwargs):
                     return checkpoint(_forward, *args, use_reentrant=False, **kwargs)
                 layer.forward = recomputed
-        with preserve_rng():
+        from .layers.world_model.task_future_loss import rank_local_physical_diagnostics
+        with preserve_rng(), rank_local_physical_diagnostics():
             return functional_call(wrapper, clones, (features, targets), strict=False)
     finally:
         for module, forward in forwards:

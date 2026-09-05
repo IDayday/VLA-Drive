@@ -14,6 +14,7 @@ import numpy as np
 from shapely import affinity
 from shapely.geometry import Point
 from shapely.ops import unary_union
+from shapely.strtree import STRtree
 
 from nuplan.common.maps.maps_datatypes import SemanticMapLayer
 from navsim.planning.simulation.planner.pdm_planner.utils.pdm_array_representation import (
@@ -119,6 +120,16 @@ def extract_minimal_physical_targets(
     road_known = (drivable_union is not None and map_coverage is not None
                   and drivable_union.is_valid and not drivable_union.is_empty
                   and map_coverage.is_valid and not map_coverage.is_empty)
+    frame_trees = []
+    for frame in actor_frames:
+        if frame is None:
+            frame_trees.append(None)
+            continue
+        actors = [frame[token] for token in frame.tokens
+                  if not (red_light_token and red_light_token in token)]
+        complete = all(not p.is_empty and p.is_valid for p in actors)
+        geometries = [p for p in actors if not p.is_empty and p.is_valid]
+        frame_trees.append((STRtree(geometries) if geometries else None, geometries, complete))
     for candidate in range(k):
         start = Point(coords[candidate, 0, BBCoordsIndex.CENTER])
         for h, indices in enumerate(TIME_BINS):
@@ -126,7 +137,7 @@ def extract_minimal_physical_targets(
             for t in indices:
                 for lag in LAG_INDICES:
                     at = t + lag
-                    frame = actor_frames[at] if at < len(actor_frames) else None
+                    frame = frame_trees[at] if at < len(frame_trees) else None
                     if frame is None:
                         covered = False
                         continue
@@ -134,13 +145,10 @@ def extract_minimal_physical_targets(
                     ego = affinity.translate(polygons[candidate, t], *offset)
                     if actor_coverage is not None and not actor_coverage.covers(ego):
                         covered = False
-                    for token in frame.tokens:
-                        if red_light_token and red_light_token in token:
-                            continue
-                        actor = frame[token]
-                        if actor.is_empty or not actor.is_valid:
-                            covered = False
-                            continue
+                    tree, geometries, complete = frame
+                    covered &= complete
+                    if tree is not None:
+                        actor = geometries[tree.nearest(ego)]
                         seen_actor = True
                         contact |= ego.intersects(actor)
                         gap = min(gap, ego.distance(actor))
@@ -170,7 +178,7 @@ def extract_minimal_physical_targets(
 
 
 def extract_from_metric_cache(candidates, simulated_states, metric_cache, *, metric_cache_hash,
-                              source_conditions, map_coverage=None):
+                              source_conditions, map_coverage=None, lossless_drivable_union=None):
     """No implicit assumptions about cache creation or map-query coverage."""
     from navsim.planning.simulation.planner.pdm_planner.utils.pdm_array_representation import ego_state_to_state_array
     ego = metric_cache.ego_state
@@ -178,7 +186,7 @@ def extract_from_metric_cache(candidates, simulated_states, metric_cache, *, met
         candidates, simulated_states,
         vehicle_parameters=ego.car_footprint.vehicle_parameters,
         actor_frames=logged_occupancy_frames(metric_cache.observation),
-        drivable_union=road_union(metric_cache.drivable_area_map), map_coverage=map_coverage,
+        drivable_union=lossless_drivable_union, map_coverage=map_coverage,
         centerline=metric_cache.centerline, metric_cache_hash=metric_cache_hash,
         initial_ego_hash=array_hash(ego_state_to_state_array(ego)),
         source_conditions=source_conditions, red_light_token=metric_cache.observation.red_light_token,

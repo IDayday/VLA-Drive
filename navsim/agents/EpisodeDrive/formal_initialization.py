@@ -243,8 +243,9 @@ def validate_formal_scientific_contract(
     )
     require(float(_cfg_get(world_model, "min_weight", 0.0)) > 0.0, "WM weight must be positive from optimizer step zero")
     require(float(_cfg_get(world_model, "start_fraction", -1.0)) == 0.0, "WM start_fraction must be zero")
-    require(int(_cfg_get(world_model, "candidate_count", -1)) == 1, "WM candidate_count must be one")
-    require(str(_cfg_get(world_model, "trajectory_source", "")) == "gt", "WM trajectory source must be GT")
+    lite = _cfg_get(world_model, 'mode', 'legacy_register_prediction') == 'task_future_lite'
+    require(int(_cfg_get(world_model, "candidate_count", -1)) == (8 if lite else 1), "WM candidate count differs from declared mode")
+    require(str(_cfg_get(world_model, "trajectory_source", "")) == ('gt_uniform_proposals' if lite else 'gt'), "WM trajectory source differs from declared mode")
     require(bool(_cfg_get(ema, "enabled", False)), "online EMA teacher must be enabled")
     for key, expected in {
         "proposal_num": 64,

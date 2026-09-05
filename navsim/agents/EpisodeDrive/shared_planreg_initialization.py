@@ -23,7 +23,7 @@ def classify_shared_trainable_parameter(name: str) -> str:
         for marker in (".q_lora_a.", ".q_lora_b.", ".v_lora_a.", ".v_lora_b.")
     ):
         return "vision_qv_lora"
-    if name.startswith("future_register_predictor."):
+    if name.startswith(("future_register_predictor.", "physical_query_decoder.")):
         return "future_predictor"
     if name == "action_head.scene_embeds" or name.startswith("action_head.q_former."):
         return "semantic_qformer"
