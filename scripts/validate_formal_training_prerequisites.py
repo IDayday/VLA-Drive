@@ -119,6 +119,7 @@ def validate_resume_path(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument('--protocol-version', choices=('v1', 'v1p1'), default='v1')
     parser.add_argument("--variant", choices=("base", "driving_vqa"), required=True)
     parser.add_argument("--vlm-path", required=True, type=Path)
     parser.add_argument("--vlm-audit", required=True, type=Path)
@@ -159,6 +160,13 @@ def main() -> None:
                 f"{metrics_path}"
             )
     manifest = validate_input_only_manifest(args.input_cache)
+    if args.protocol_version == 'v1p1':
+        if manifest.get('prompt_version') != 'single_front_v1p1':
+            raise RuntimeError('V1.1 requires separately rebuilt single-front prompt input cache')
+        if layout.get('protocol_version') != 'v1p1' or not layout.get('train_only_pilot_locked', False):
+            raise RuntimeError('V1.1 requires a new layout lock with train-only pilot evidence; V1 GB128 lock is not reusable')
+        if int(layout['global_batch_size']) not in (64, 128):
+            raise RuntimeError('V1.1 pilot layouts must be GB64 or GB128')
     if int(manifest.get("record_count", -1)) != EXPECTED_DATASET_SIZE:
         raise RuntimeError(
             "Formal input-only cache must contain exactly 103,288 records; "
@@ -232,6 +240,11 @@ def main() -> None:
     shared_state = shared_payload.get("trainable_state_dict")
     if not isinstance(shared_state, dict):
         raise RuntimeError("Shared initialization lacks trainable_state_dict")
+    if args.protocol_version == 'v1p1':
+        if any(value.dtype != torch.float32 for value in shared_state.values()):
+            raise RuntimeError('V1.1 shared trainable storage must be FP32')
+        if not any('global_local_readout.global_queries' in key for key in shared_state):
+            raise RuntimeError('V1.1 requires new global/local readout shared initialization')
     if state_sha256(shared_state) != shared_metadata.get("trainable_state_sha256"):
         raise RuntimeError("Shared initialization state hash is invalid")
     if int(shared_metadata.get("seed", -1)) != args.seed:

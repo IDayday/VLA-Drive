@@ -216,7 +216,12 @@ def validate_formal_scientific_contract(
     require(bool(_cfg_get(vlm_config, "freeze_language_model", False)), "LLM must remain frozen")
     require(bool(_cfg_get(vlm_config, "planning_registers_enabled", False)), "planning registers must be enabled")
     require(int(_cfg_get(vlm_config, "num_planning_registers", -1)) == 16, "exactly 16 planning registers are required")
-    require(str(_cfg_get(vlm_config, "tile_register_aggregation", "")) == "thumbnail_query_attention", "tile aggregation must be thumbnail_query_attention")
+    expected_readout = ('global_local_8_8' if _cfg_get(vlm_config, 'planreg_version', 'v1') == 'v1p1' else 'thumbnail_query_attention')
+    require(str(_cfg_get(vlm_config, "tile_register_aggregation", "")) == expected_readout, f"tile aggregation must be {expected_readout}")
+    if expected_readout == 'global_local_8_8':
+        require(float(_cfg_get(action_head_config, 'semantic_query_init_std', 0)) == .02, 'V1.1 semantic query std must be .02')
+        require(bool(_cfg_get(action_head_config, 'semantic_use_padding_mask', False)), 'V1.1 requires semantic padding mask')
+        require(_cfg_get(vlm_config, 'prompt_version') == 'single_front_v1p1', 'V1.1 requires single-front prompt')
     require(str(_cfg_get(vision_adaptation, "mode", "")) == "qv_lora", "vision adaptation must be Q/V LoRA")
     require(str(_cfg_get(vision_adaptation, "layers", "")) == "all", "all vision blocks must be adapted")
     require(int(_cfg_get(vision_adaptation, "rank", -1)) == 32, "vision Q/V LoRA rank must be 32")

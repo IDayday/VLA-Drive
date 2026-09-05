@@ -1,0 +1,32 @@
+defaults:
+  - episode_drive_planreg_wm_formal_common
+  - _self_
+
+vlm_config:
+  planreg_version: v1p1
+  prompt_version: single_front_v1p1
+  tile_register_aggregation: global_local_8_8
+  compute_dtype: bfloat16
+  gradient_checkpointing: true
+
+planning_registers:
+  read_only_attention_backend: eager
+
+action_head_config:
+  semantic_query_init_std: 0.02
+  semantic_use_padding_mask: true
+  refinement_training_policy: final_only
+
+# GB64 is the starting point for a train-only pilot, not an optimum claim.
+lr_args:
+  reference_global_batch: 64
+  planning_adapter_lr: 2.0e-4
+  semantic_fusion_lr: 2.0e-4
+  action_generator_lr: 2.0e-4
+  scorer_lr: 2.0e-4
+  future_predictor_lr: 1.0e-4
+  semantic_qformer_lr: 1.0e-4
+  vision_qv_lora_lr: 3.0e-5
+
+batch_size: 8
+num_gpus: 8

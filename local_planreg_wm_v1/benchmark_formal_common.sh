@@ -31,6 +31,18 @@ formal_benchmark_layout() {
     return 2
   fi
   local layout="$1"
+  local training_config=formal_planreg_wm_training
+  local agent_config=episode_drive_planreg_wm_formal_base
+  if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == v1p1 ]]; then
+    training_config=formal_planreg_wm_v1p1_training
+    agent_config=episode_drive_planreg_wm_v1p1_base
+    export PLANREG_PROMPT_VERSION=single_front_v1p1
+    : "${PLANREG_SHARED_INIT:?V1.1 requires a newly generated FP32 shared init}"
+    : "${PLANREG_INPUT_CACHE:?V1.1 requires a separate prompt-versioned input cache}"
+    [[ "$(jq -r '.prompt_version' "${PLANREG_INPUT_CACHE}/planreg_input_only_manifest.json")" == single_front_v1p1 ]] || {
+      echo 'Stale prompt input cache; rebuild in a separate V1.1 directory' >&2; return 2;
+    }
+  fi
   local gpu_count="$2"
   local per_gpu_batch="$3"
   local num_nodes="$4"
@@ -147,8 +159,8 @@ formal_benchmark_layout() {
   export NUMEXPR_NUM_THREADS="${NUMEXPR_NUM_THREADS:-1}"
 
   local hydra_args=(
-    --config-name=formal_planreg_wm_training
-    agent=episode_drive_planreg_wm_formal_base
+    --config-name="${training_config}"
+    agent="${agent_config}"
     "experiment_name=benchmark_formal_${layout}"
     "output_dir=${output_dir}"
     seed=0
@@ -207,6 +219,7 @@ formal_benchmark_layout() {
       "PLANREG_VLM_CHECKPOINT_SHA256=${base_checkpoint_sha}"
       "PLANREG_VLM_CONFIG_SHA256=${base_config_sha}"
       "PLANREG_SHARED_INIT=${shared_init}"
+      "PLANREG_PROMPT_VERSION=${PLANREG_PROMPT_VERSION:-legacy}"
       "PLANREG_INPUT_CACHE=${input_cache}"
       "PLANREG_OUTPUT_DIR=${output_dir}"
       "PLANREG_EXPERIMENT_NAME=benchmark_formal_${layout}"

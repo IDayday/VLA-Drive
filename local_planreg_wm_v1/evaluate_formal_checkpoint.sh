@@ -7,6 +7,11 @@ if [[ $# -ne 2 ]]; then
 fi
 variant="$1"
 student_checkpoint="$2"
+student_agent=episode_drive_planreg_wm_formal_student
+if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == v1p1 ]]; then
+  student_agent=episode_drive_planreg_wm_v1p1_student
+  export CUBLAS_WORKSPACE_CONFIG=:4096:8
+fi
 if [[ "${variant}" != "base" && "${variant}" != "driving_vqa" ]]; then
   echo "Unknown formal variant: ${variant}" >&2
   exit 2
@@ -59,6 +64,10 @@ planreg_formal_runtime_audit_local \
   "${repo_root}" "${evaluation_root}/run_metadata/formal_runtime_node0.json"
 printf '%s\n' 'BF16 VLM + FP32 action/scorer (not full FP32)' \
   > "${evaluation_root}/run_metadata/precision_contract.txt"
+if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == v1p1 ]]; then
+  printf '%s\n' 'FP32 VLM + FP32 action/scorer, current-only benchmark' \
+    > "${evaluation_root}/run_metadata/precision_contract.txt"
+fi
 printf '%s\n' 'Current single front frame only; no future input or predictor/EMA construction.' \
   > "${evaluation_root}/run_metadata/inference_contract.txt"
 
@@ -70,7 +79,7 @@ run_inference_and_selected_pdms() {
   mkdir -p "${output}"
   local args=(
     train_test_split=navtest
-    agent=episode_drive_planreg_wm_formal_student
+    "agent=${student_agent}"
     "experiment_name=formal_${variant}_${label}"
     "output_dir=${output}"
     "metric_cache_path=${metric_cache}"
@@ -85,6 +94,9 @@ run_inference_and_selected_pdms() {
     candidate_analysis=true
     "candidate_artifact_path=${bank}"
   )
+  if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == v1p1 ]]; then
+    args+=(agent.vlm_config.compute_dtype=float32)
+  fi
   if [[ "${max_scenes}" != "all" ]]; then
     args+=("train_test_split.scene_filter.max_scenes=${max_scenes}")
   fi

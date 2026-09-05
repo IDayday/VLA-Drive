@@ -47,6 +47,17 @@ formal_launch() {
   fi
   local variant="$1"
   local seed="$2"
+  local training_config=formal_planreg_wm_training
+  local base_agent_config=episode_drive_planreg_wm_formal_base
+  local vqa_agent_config=episode_drive_planreg_wm_formal_vqa
+  local run_prefix=formal
+  if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == v1p1 ]]; then
+    training_config=formal_planreg_wm_v1p1_training
+    base_agent_config=episode_drive_planreg_wm_v1p1_base
+    vqa_agent_config=episode_drive_planreg_wm_v1p1_vqa
+    run_prefix=formal_v1p1
+    export PLANREG_PROMPT_VERSION=single_front_v1p1
+  fi
   if [[ "${variant}" != "base" && "${variant}" != "driving_vqa" ]]; then
     echo "Unknown formal initialization variant: ${variant}" >&2
     return 2
@@ -114,8 +125,8 @@ formal_launch() {
     return 2
   fi
 
-  local base_name="formal_base_init_wm_seed${seed}"
-  local vqa_name="formal_vqa_init_wm_seed${seed}"
+  local base_name="${run_prefix}_base_init_wm_seed${seed}"
+  local vqa_name="${run_prefix}_vqa_init_wm_seed${seed}"
   local base_output="${run_root}/${base_name}"
   local vqa_output="${run_root}/${vqa_name}"
   local experiment_name output_dir vlm_path checkpoint_sha config_sha agent_config
@@ -125,14 +136,14 @@ formal_launch() {
     vlm_path="${base_vlm}"
     checkpoint_sha="${base_checkpoint_sha}"
     config_sha="${base_config_sha}"
-    agent_config=episode_drive_planreg_wm_formal_base
+    agent_config="${base_agent_config}"
   else
     experiment_name="${vqa_name}"
     output_dir="${vqa_output}"
     vlm_path="${vqa_vlm}"
     checkpoint_sha="${vqa_checkpoint_sha}"
     config_sha="${vqa_config_sha}"
-    agent_config=episode_drive_planreg_wm_formal_vqa
+    agent_config="${vqa_agent_config}"
   fi
 
   if [[ -z "${RESUME_CHECKPOINT:-}" ]]; then
@@ -195,7 +206,7 @@ formal_launch() {
 
   # Compose both launch configs under one file lock, then prove that only the
   # declared VLM identity fields differ. Both launchers use this same path.
-  local pair_root="${run_root}/formal_config_pair_seed${seed}_${selected_layout}"
+  local pair_root="${run_root}/${run_prefix}_config_pair_seed${seed}_${selected_layout}"
   mkdir -p "${pair_root}"
   exec 9>"${pair_root}/.compose.lock"
   flock 9
@@ -210,8 +221,8 @@ formal_launch() {
     PLANREG_OUTPUT_DIR="${base_output}" \
     PLANREG_EXPERIMENT_NAME="${base_name}" \
     "${python_bin}" "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
-    --config-name=formal_planreg_wm_training \
-    agent=episode_drive_planreg_wm_formal_base "${common_hydra_args[@]}" \
+    --config-name="${training_config}" \
+    agent="${base_agent_config}" "${common_hydra_args[@]}" \
     "experiment_name=${base_name}" "output_dir=${base_output}" --cfg job --resolve \
     > "${base_resolved}.tmp"
   mv "${base_resolved}.tmp" "${base_resolved}"
@@ -223,8 +234,8 @@ formal_launch() {
     PLANREG_OUTPUT_DIR="${vqa_output}" \
     PLANREG_EXPERIMENT_NAME="${vqa_name}" \
     "${python_bin}" "${PLANREG_REPO_ROOT}/navsim/planning/script/run_training_full.py" \
-    --config-name=formal_planreg_wm_training \
-    agent=episode_drive_planreg_wm_formal_vqa "${common_hydra_args[@]}" \
+    --config-name="${training_config}" \
+    agent="${vqa_agent_config}" "${common_hydra_args[@]}" \
     "experiment_name=${vqa_name}" "output_dir=${vqa_output}" --cfg job --resolve \
     > "${vqa_resolved}.tmp"
   mv "${vqa_resolved}.tmp" "${vqa_resolved}"
@@ -237,6 +248,7 @@ formal_launch() {
   preflight_dir="$(mktemp -d)"
   local preflight_identity="${preflight_dir}/formal_run_identity.json"
   local preflight_args=(
+    --protocol-version "${PLANREG_PROTOCOL_VERSION:-v1}"
     --variant "${variant}"
     --vlm-path "${vlm_path}"
     --vlm-audit "${vlm_audit}"
@@ -305,7 +317,7 @@ formal_launch() {
     > "${output_dir}/run_metadata/environment.txt"
 
   local training_hydra_args=(
-    --config-name=formal_planreg_wm_training
+    --config-name="${training_config}"
     "agent=${agent_config}"
     "${common_hydra_args[@]}"
     "experiment_name=${experiment_name}"
@@ -330,6 +342,7 @@ formal_launch() {
       "PLANREG_VLM_CHECKPOINT_SHA256=${checkpoint_sha}"
       "PLANREG_VLM_CONFIG_SHA256=${config_sha}"
       "PLANREG_SHARED_INIT=${PLANREG_SHARED_INIT}"
+      "PLANREG_PROMPT_VERSION=${PLANREG_PROMPT_VERSION:-legacy}"
       "PLANREG_INPUT_CACHE=${input_cache}"
       "PLANREG_OUTPUT_DIR=${output_dir}"
       "PLANREG_EXPERIMENT_NAME=${experiment_name}"
