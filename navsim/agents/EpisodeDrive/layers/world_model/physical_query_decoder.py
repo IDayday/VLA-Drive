@@ -46,7 +46,9 @@ class PhysicalQueryDecoder(nn.Module):
         # Status contains command[4], velocity[2], acceleration[2]. Never future pose.
         self.status_mlp = nn.Sequential(nn.Linear(8,dim), nn.GELU(), nn.Linear(dim,dim))
         self.time_embeddings = nn.Embedding(8,dim)
-        self.frame_pose_key = nn.Sequential(nn.Linear(5,dim),nn.GELU(),nn.Linear(dim,dim))
+        # A final bias cancels in pose(x)-pose(0), so do not register a useless
+        # trainable tensor with identically zero gradients/updates.
+        self.frame_pose_key = nn.Sequential(nn.Linear(5,dim),nn.GELU(),nn.Linear(dim,dim,bias=False))
         self.blocks = nn.ModuleList([PhysicalDecoderBlock(dim, heads, ffn) for _ in range(layers)])
         self.output_norm = nn.LayerNorm(dim)
         self.gap_head = nn.Linear(dim,5)

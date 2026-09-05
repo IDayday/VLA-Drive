@@ -43,6 +43,16 @@ formal_benchmark_layout() {
       echo 'Stale prompt input cache; rebuild in a separate V1.1 directory' >&2; return 2;
     }
   fi
+  if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == task_future_lite ]]; then
+    training_config=formal_task_future_lite_training
+    agent_config=episode_drive_task_future_lite_base
+    export PLANREG_PROMPT_VERSION=single_front_v1p1
+    : "${PLANREG_SHARED_INIT:?Lite requires its own shared init}"
+    : "${PLANREG_INPUT_CACHE:?Lite requires schema-v2 logged-pose input cache}"
+    [[ "$(jq -r '.protocol_version' "${PLANREG_INPUT_CACHE}/planreg_input_only_manifest.json")" == task_future_lite ]] || {
+      echo 'Lite benchmark rejects legacy input cache' >&2; return 2;
+    }
+  fi
   local gpu_count="$2"
   local per_gpu_batch="$3"
   local num_nodes="$4"

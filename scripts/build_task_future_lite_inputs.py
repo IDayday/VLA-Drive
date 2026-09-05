@@ -78,7 +78,7 @@ def main():
     train,val=set(cfg.train_logs),set(cfg.val_logs)
     if train & val:
         raise ValueError('Source train/val log split must be disjoint before final-fit union')
-    logs=sorted(train|val)
+    logs=sorted(log for log in train|val if (args.cache_root/log).is_dir())
     params={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()}
     params['tokens']=None if args.tokens is None else set(json.loads(args.tokens.read_text()))
     if params['tokens'] is not None:
@@ -96,7 +96,10 @@ def main():
         raise ValueError(f'Formal dataset must retain exactly 103288 eligible tokens, got {len(rows)}')
     manifest=dict(schema_version=2,cache_mode='input_only',protocol_version='task_future_lite',
         prompt_version='single_front_v1p1',record_count=len(rows),front_camera_only=True,sensor_camera_count=1,
-        required_source_files_complete=all(all(row['future_valid']) for row in rows),
+        required_source_files_complete=True,  # every required current/feature/target file was read above
+        source_completeness_definition='Required input/target files; explicitly masked future images are permitted, never imputed supervision',
+        scenes_all_future_valid=sum(all(row['future_valid']) for row in rows),
+        scenes_with_masked_future=sum(not all(row['future_valid']) for row in rows),
         train_val_overlap=0,train_source_config_sha256=hashlib.sha256(args.train_config.read_bytes()).hexdigest(),
         cached_fields=['current_image_path','future_image_paths','future_valid_mask','logged_future_poses',
             'logged_future_pose_valid','physical_map_name','gt_trajectory','long_trajectory','ego_status',

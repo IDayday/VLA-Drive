@@ -22,6 +22,12 @@ from .minimal_physical_targets import (
 )
 
 
+@lru_cache(maxsize=16)
+def source_file_hash(runtime_class_or_function):
+    """Fingerprint the actually imported rollout implementation, once per worker."""
+    return hashlib.sha256(Path(inspect.getfile(runtime_class_or_function)).read_bytes()).hexdigest()
+
+
 class RolloutTap:
     """Instance-local observer, not a monkey-patch; preserves first scorer rollout."""
     def __init__(self):
@@ -100,9 +106,14 @@ def score_with_physical_sidecar(metric_path, proposals, gt, indices, map_name):
         map_error=f'{type(error).__name__}: {error}'
         map_meta=dict(map_name=map_name,map_source='unknown',map_error=map_error)
     source_conditions=dict(actor_source='logged_interpolated_10hz',
-        cache_builder_sha256=hashlib.sha256(Path(inspect.getfile(train_cache_processor)).read_bytes()).hexdigest(),
+        cache_builder_sha256=source_file_hash(train_cache_processor),
         vehicle_parameters=dict(vars(cache.ego_state.car_footprint.vehicle_parameters)),
-        simulator_sha256=hashlib.sha256(Path(inspect.getfile(scoring.PDMSimulator)).read_bytes()).hexdigest(),
+        simulator_sha256=source_file_hash(scoring.PDMSimulator),
+        controller_sha256=source_file_hash(type(tap.simulator._tracker)),
+        bicycle_model_sha256=source_file_hash(type(tap.simulator._motion_model)),
+        reference_conversion_sha256=source_file_hash(scoring.transform_trajectory),
+        rollout_sampling=dict(num_poses=tap.proposal_sampling.num_poses,
+                              interval_length=tap.proposal_sampling.interval_length),
         **map_meta)
     label_start=time.perf_counter()
     labels=extract_minimal_physical_targets(candidates,states,

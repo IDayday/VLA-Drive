@@ -106,8 +106,9 @@ def audit_formal_config_pair(
             failures.append("world model must be enabled")
         if agent["world_model"]["future_mode"] != "correct":
             failures.append("future_mode must be correct")
-        if agent["world_model"]["candidate_count"] != 1:
-            failures.append("world-model candidate_count must be one")
+        expected_candidates = 8 if agent['world_model'].get('mode') == 'task_future_lite' else 1
+        if agent["world_model"]["candidate_count"] != expected_candidates:
+            failures.append("world-model candidate_count differs from mode")
         if config["formal_training"]["dataset_epochs"] != 27:
             failures.append("dataset_epochs must be 27")
         if not config["data_protocol"]["include_val_in_train"]:
@@ -126,6 +127,7 @@ def audit_formal_config_pair(
         ],
         "world_model_enabled_both": True,
         "multi_trajectory_consequence_modeling_implemented": False,
+        "consequence_scope": "Lite has multi-candidate training-only physical answers, not V2 structured future-register modeling or a consequence-driven deployment policy" if base_agent["world_model"].get("mode") == "task_future_lite" else "legacy K=1 register prediction",
     }
 
 

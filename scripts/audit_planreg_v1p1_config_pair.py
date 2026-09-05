@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--shared-init',required=True)
     parser.add_argument('--input-cache',required=True)
     parser.add_argument('--output',required=True,type=Path)
+    parser.add_argument('--protocol-version', choices=['v1p1','task_future_lite'], default='v1p1')
     parser.add_argument('--vlm-audit',type=Path,default=ROOT/'reports/planreg_wm_v1/formal_vlm_initialization_audit.json')
     args=parser.parse_args()
     if args.output.exists():
@@ -34,9 +35,13 @@ def main():
                           PLANREG_VLM_CONFIG_SHA256=vlm['config_sha256'],
                           PLANREG_OUTPUT_DIR=str(args.output/('future_formal_'+variant)),
                           PLANREG_EXPERIMENT_NAME='formal_v1p1_'+variant)
+        lite=args.protocol_version=='task_future_lite'
         with initialize_config_dir(version_base=None,config_dir=str(ROOT/'navsim/planning/script/config/training')):
-            cfg=compose(config_name='formal_planreg_wm_v1p1_training',overrides=[
-                'agent=episode_drive_planreg_wm_v1p1_'+suffix,'experiment_uid=v1p1_pair_audit'])
+            cfg=compose(config_name='formal_task_future_lite_training' if lite else 'formal_planreg_wm_v1p1_training',overrides=[
+                'agent='+('episode_drive_task_future_lite_' if lite else 'episode_drive_planreg_wm_v1p1_')+suffix,
+                'experiment_uid='+args.protocol_version+'_pair_audit',
+                'trainer.params.num_nodes=2','trainer.params.devices=8',
+                'agent.num_gpus=16','agent.batch_size=4','dataloader.params.batch_size=4'])
         resolved=OmegaConf.to_container(cfg,resolve=True)
         configs.append(resolved)
         OmegaConf.save(OmegaConf.create(resolved),args.output/(variant+'.yaml'))
