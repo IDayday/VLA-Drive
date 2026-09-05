@@ -16,6 +16,7 @@ import torch
 TRAINING_ONLY_STATE_PREFIXES = (
     "ema_register_target.",
     "future_register_predictor.",
+    "physical_query_decoder.",
 )
 TRAINING_ONLY_STATE_NAMES = {
     "_ema_optimizer_step",

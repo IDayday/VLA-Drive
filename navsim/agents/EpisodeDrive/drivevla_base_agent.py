@@ -1958,7 +1958,7 @@ class DriveVLABaseAgent(AbstractAgent):
             "vision_lora_grad_norm": module_norm(vision_lora_modules),
             "register_grad_norm": module_norm([planning_adapter]),
             "future_predictor_grad_norm": module_norm(
-                [self.future_register_predictor]
+                [self.future_register_predictor, getattr(self, "physical_query_decoder", None)]
             ),
             "action_head_grad_norm": module_norm(action_modules),
             "scorer_grad_norm": module_norm(scorer_modules),

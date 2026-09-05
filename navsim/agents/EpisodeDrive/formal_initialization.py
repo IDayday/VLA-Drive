@@ -26,6 +26,7 @@ FORBIDDEN_AGENT_STATE_MARKERS = (
     "action_head.",
     "scorer.",
     "future_register_predictor.",
+    "physical_query_decoder.",
     "planning_register_adapter.",
 )
 FORBIDDEN_TRAINING_STATE_KEYS = frozenset(

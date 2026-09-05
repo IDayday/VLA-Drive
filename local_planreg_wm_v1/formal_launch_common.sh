@@ -58,6 +58,17 @@ formal_launch() {
     run_prefix=formal_v1p1
     export PLANREG_PROMPT_VERSION=single_front_v1p1
   fi
+  if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == task_future_lite ]]; then
+    if [[ "${LAUNCH_FORMAL:-0}" != 1 && "${DRY_RUN:-0}" != 1 ]]; then
+      echo 'Lite formal launch requires explicit LAUNCH_FORMAL=1' >&2
+      return 2
+    fi
+    training_config=formal_task_future_lite_training
+    base_agent_config=episode_drive_task_future_lite_base
+    vqa_agent_config=episode_drive_task_future_lite_vqa
+    run_prefix=formal_task_future_lite
+    export PLANREG_PROMPT_VERSION=single_front_v1p1
+  fi
   if [[ "${variant}" != "base" && "${variant}" != "driving_vqa" ]]; then
     echo "Unknown formal initialization variant: ${variant}" >&2
     return 2
@@ -275,7 +286,7 @@ formal_launch() {
 
   _formal_assert_idle_gpus "$(hostname)" "${devices_per_node}"
   if [[ "${num_nodes}" -eq 2 ]]; then
-    if [[ "$(hostname)" != *"vla-zt-worker-0"* || "$(hostname)" == *"vla-zt2"* ]]; then
+    if [[ "$(hostname)" != *"vla-zt-worker-0"* && "$(hostname)" != *"vla-zt3-worker-0"* ]]; then
       echo "A 16-GPU formal run must be coordinated from training-vla-zt" >&2
       return 2
     fi

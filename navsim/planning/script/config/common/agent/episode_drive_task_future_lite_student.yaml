@@ -1,0 +1,9 @@
+defaults:
+  - episode_drive_planreg_wm_v1p1_student
+  - _self_
+# No auxiliary head/EMA instantiated: exact V1.1 current-only deployment topology.
+world_model:
+  mode: legacy_register_prediction
+  enabled: false
+ema:
+  enabled: false

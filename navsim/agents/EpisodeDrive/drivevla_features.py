@@ -151,6 +151,7 @@ class TrajectoryTargetBuilder(AbstractTargetBuilder):
     def __init__(self, config: Dict, world_model_config=None):
         self._config = config
         self._world_model_config = world_model_config
+        self._task_future_lite = getattr(world_model_config, "mode", "legacy_register_prediction") == "task_future_lite"
         self._future_supervision_enabled = bool(
             world_model_config is not None
             and getattr(world_model_config, "enabled", False)
@@ -172,6 +173,8 @@ class TrajectoryTargetBuilder(AbstractTargetBuilder):
 
     def get_unique_name(self) -> str:
         """Inherited, see superclass."""
+        if self._future_supervision_enabled and self._task_future_lite:
+            return "trajectory_target_task_future_lite_v1"
         return (
             "trajectory_target_planreg_wm_v1"
             if self._future_supervision_enabled
@@ -260,4 +263,7 @@ class TrajectoryTargetBuilder(AbstractTargetBuilder):
             }
         if self._future_supervision_enabled:
             targets.update(self._build_future_image_targets(scene))
+            if self._task_future_lite:
+                from .layers.world_model.logged_future_pose import build_logged_future_pose_metadata
+                targets.update(build_logged_future_pose_metadata(scene))
         return targets

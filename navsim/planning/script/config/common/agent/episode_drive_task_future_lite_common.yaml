@@ -1,0 +1,24 @@
+defaults:
+  - episode_drive_planreg_wm_v1p1_common
+  - _self_
+
+# V1.1 vision, fusion, generator/scorer are unchanged. Only auxiliary WM differs.
+scorer_variant: exact_drivor
+world_model:
+  mode: task_future_lite
+  enabled: true
+  candidate_count: 8
+  trajectory_source: gt_uniform_proposals
+  future_mode: correct
+  predictor_only: false
+  min_weight: 0.01
+  max_weight: 0.10
+  start_fraction: 0.0
+  ramp_fraction: 0.10
+consequence:
+  train_candidates: 8
+  time_bins: 8
+  target_fields: [projected_gap, road_margin, route_progress]
+  inference_use: false
+lr_args:
+  future_predictor_lr: 1.0e-4

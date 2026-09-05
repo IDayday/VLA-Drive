@@ -194,20 +194,24 @@ def build_input_only_cache_record(
         for name, value in targets.items()
     }
     return {
-        "schema_version": INPUT_ONLY_CACHE_SCHEMA_VERSION,
+        "schema_version": 2 if targets.get('task_future_input_schema') == 'task_future_lite_input_v1_logged_pose' else INPUT_ONLY_CACHE_SCHEMA_VERSION,
         "features": cached_features,
         "targets": cached_targets,
     }
 
 
 def validate_input_only_cache_record(record: Mapping[str, Any]) -> None:
-    if int(record.get("schema_version", -1)) != INPUT_ONLY_CACHE_SCHEMA_VERSION:
+    if int(record.get("schema_version", -1)) not in (INPUT_ONLY_CACHE_SCHEMA_VERSION, 2):
         raise RuntimeError(
             "Stale PlanReg input-only cache schema; rebuild the cache rather than "
             "reusing dynamic feature artifacts"
         )
     features = record.get("features")
     targets = record.get("targets")
+    if int(record.get('schema_version',-1)) == 2:
+        required={'logged_future_poses','logged_future_pose_valid','physical_map_name','task_future_input_schema'}
+        if not isinstance(targets, Mapping) or required - set(targets):
+            raise RuntimeError('Lite v2 input record lacks logged pose/sidecar metadata')
     if not isinstance(features, Mapping) or not isinstance(targets, Mapping):
         raise RuntimeError("Input-only cache record must contain feature/target mappings")
     reject_dynamic_feature_cache(features, enabled=True, source="input-only cache")
@@ -222,7 +226,7 @@ def validate_input_only_manifest(cache_root: Path) -> Dict[str, Any]:
             "feature caches are not accepted"
         )
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    if int(manifest.get("schema_version", -1)) != INPUT_ONLY_CACHE_SCHEMA_VERSION:
+    if int(manifest.get("schema_version", -1)) not in (INPUT_ONLY_CACHE_SCHEMA_VERSION, 2):
         raise RuntimeError("Input-only cache manifest schema is stale")
     if manifest.get("cache_mode") != "input_only":
         raise RuntimeError("Input cache manifest does not declare cache_mode=input_only")
