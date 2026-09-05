@@ -1,0 +1,46 @@
+{
+  "allowed_difference_paths": [
+    "agent.initialization.variant",
+    "agent.initialization.vlm_checkpoint_sha256",
+    "agent.initialization.vlm_config_sha256",
+    "agent.vlm_config.vlm_path",
+    "experiment_name",
+    "output_dir"
+  ],
+  "base_resolved_config": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/formal_runs/formal_task_future_lite_config_pair_seed0_16x4/formal_base_resolved.yaml",
+  "base_resolved_config_sha256": "51c0d2f01ad1c8f3333d10814c0d4bee3986a0ba593b8fe9d1d52664436b9eaa",
+  "consequence_scope": "Lite has multi-candidate training-only physical answers, not V2 structured future-register modeling or a consequence-driven deployment policy",
+  "driving_vqa_resolved_config": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/formal_runs/formal_task_future_lite_config_pair_seed0_16x4/formal_vqa_resolved.yaml",
+  "driving_vqa_resolved_config_sha256": "5536e25053158fa6c085e78e679e3dfcd7486e3ba1d467aa41953a97fde09a19",
+  "multi_trajectory_consequence_modeling_implemented": false,
+  "observed_differences": {
+    "agent.initialization.variant": {
+      "base": "base",
+      "driving_vqa": "driving_vqa"
+    },
+    "agent.initialization.vlm_checkpoint_sha256": {
+      "base": "0bd7cfa0ab23300304dd627abb09abbdc38748c8c8ff6c3209baf73a81fb421f",
+      "driving_vqa": "79fb39297e322cd2d3dc68d4f23b86ff85806b336a4d5d0ed5db9b66e4034a3c"
+    },
+    "agent.initialization.vlm_config_sha256": {
+      "base": "7617ced46ca592375c4d6394d9e7b0c8e3c2835f66b8d10c9977f0036caa9ec9",
+      "driving_vqa": "58b3f930bcf3f65f9f62de8a486af018d5e34a3427fb1d41a2d88b1f8adcb394"
+    },
+    "agent.vlm_config.vlm_path": {
+      "base": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+      "driving_vqa": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-driving-vqa-dense"
+    },
+    "experiment_name": {
+      "base": "formal_task_future_lite_base_init_wm_seed0",
+      "driving_vqa": "formal_task_future_lite_vqa_init_wm_seed0"
+    },
+    "output_dir": {
+      "base": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/formal_runs/formal_task_future_lite_base_init_wm_seed0",
+      "driving_vqa": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/formal_runs/formal_task_future_lite_vqa_init_wm_seed0"
+    }
+  },
+  "pair_equal_outside_allowlist": true,
+  "schema_version": 1,
+  "shared_trainable_init_path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/shared_task_future_lite_seed0_v2.pt",
+  "world_model_enabled_both": true
+}

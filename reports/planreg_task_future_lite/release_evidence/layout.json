@@ -1,0 +1,72 @@
+{
+  "schema_version": 2,
+  "protocol_version": "task_future_lite",
+  "selected_layout": "16x4",
+  "gpu_count": 16,
+  "per_gpu_batch_size": 4,
+  "global_batch_size": 64,
+  "num_nodes": 2,
+  "devices_per_node": 8,
+  "num_workers_per_rank": 8,
+  "scorer_processes_per_rank": 4,
+  "scorer_partitions_per_scene": 1,
+  "gradient_checkpointing": true,
+  "read_only_attention_backend": "eager",
+  "lr_scale_multiplier": 1.0,
+  "logical_peak_learning_rates": {
+    "planning_adapter": 0.0002,
+    "semantic_fusion": 0.0002,
+    "action_generator": 0.0002,
+    "scorer": 0.0002,
+    "future_predictor": 0.0001,
+    "semantic_qformer": 0.0001,
+    "vision_qv_lora": 3e-05
+  },
+  "ema_actual_start_momentum": 0.984095744256,
+  "ema_actual_end_momentum": 0.9996000599960001,
+  "dataset_length": 103288,
+  "dataset_epochs": 27,
+  "steps_per_epoch": 1614,
+  "total_steps": 43578,
+  "sampler_padding_per_epoch": 8,
+  "shared_between_base_and_vqa": true,
+  "train_only_pilot_locked": true,
+  "full_physical_sidecar_smoke_passed": true,
+  "selection_scope": "User requested two 16-GPU runs; tested GB64, not a claim of globally optimal throughput or convergence",
+  "observed_samples_per_second": 8.548277658221915,
+  "estimated_27_epoch_hours": 90.62878289345899,
+  "throughput_scope": "End-to-end rank0 optimizer-cycle wall window, includes loader waits; callback step-only timing is retained separately",
+  "end_to_end_window": {
+    "first_step": 49,
+    "last_step": 319,
+    "optimizer_steps": 270,
+    "wall_seconds": 2021.4598414897919,
+    "seconds_per_optimizer_step": 7.4868883018140435
+  },
+  "callback_step_only_samples_per_second": 8.567206790279357,
+  "event_file_sha256": {
+    "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/benchmark/16x4/lightning_logs/version_0/events.out.tfevents.1788631423.training-vla-zt-worker-0.1728561.0": "8c636e1444c8c5524dc5551f88726b8f3228720d2574eeec9aa831eb4d4cf3f2"
+  },
+  "source_git_commit": "0583137165f92db833375cf3c4aeff1b31ba897a",
+  "benchmark_metrics_sha256": {
+    "16x4": "ae8830ea1b8473ead4d528c0c195576a5273aa12dd8c4f46d73d82e6b7eef72e"
+  },
+  "evidence": {
+    "real_smoke": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/real_smoke_v2/runtime.json",
+      "sha256": "85c0572aa2272c5235f1324d7def8f49870c68927d25cf90145c20b19aba5350"
+    },
+    "train_only_probe": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/learnability_probe_v2.json",
+      "sha256": "c8b4934e2e497719bceeec7e588a5606a1dba87582ba6580da287cea782fa40b"
+    },
+    "input_manifest": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2d_certified/planreg_input_only_manifest.json",
+      "sha256": "3661a93e7883b70343d0cd30d49a5a07912b96069547527f3bf483f2096356e9"
+    },
+    "shared_init": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/shared_task_future_lite_seed0_v2.pt",
+      "sha256": "14250f9a38edd84a1d7335c87836bb430674ae4147bf1c13b4ac8bfc93e51078"
+    }
+  }
+}
