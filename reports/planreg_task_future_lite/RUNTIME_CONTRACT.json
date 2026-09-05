@@ -1,0 +1,82 @@
+{
+  "source_commit": "e85e1a1797f1a26303e9ee81d9f3d1231bc59978",
+  "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.19.36.12_veh-35_00005_00204/unknown/0a678d2136b35b56/metric_cache.pkl",
+  "metric_cache_sha256": "b98682fa44b7c46ede239cf9de5892b394f042f5cff9df8d205586cc1c9cae39",
+  "runtime": {
+    "simulator": {
+      "python_class": "navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator.PDMSimulator",
+      "file": "/mnt/project/DriveVLA-M0-planreg-task-future-lite/navsim/planning/simulation/planner/pdm_planner/simulation/pdm_simulator.py",
+      "sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7"
+    },
+    "scorer": {
+      "python_class": "navsim.agents.EpisodeDrive.score_module.train_pdm_scorer.PDMScorer",
+      "file": "/mnt/project/DriveVLA-M0-planreg-task-future-lite/navsim/agents/EpisodeDrive/score_module/train_pdm_scorer.py",
+      "sha256": "0a93befe3a6d3d31c043de4963c0360f2b1064e46e630d1b48125d4bbefa2f79"
+    },
+    "official_scorer": {
+      "python_class": "navsim.planning.simulation.planner.pdm_planner.scoring.pdm_scorer.PDMScorer",
+      "file": "/mnt/project/DriveVLA-M0-planreg-task-future-lite/navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py",
+      "sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211"
+    },
+    "metric_cache": {
+      "python_class": "navsim.planning.metric_caching.train_metric_chache.MetricCache",
+      "file": "/mnt/project/DriveVLA-M0-planreg-task-future-lite/navsim/planning/metric_caching/train_metric_chache.py",
+      "sha256": "28b09b767eab0440390a46a2020f936d854d775111875a467bcdbd404dcffe1b"
+    },
+    "observation": {
+      "python_class": "navsim.planning.simulation.planner.pdm_planner.observation.pdm_observation.PDMObservation",
+      "file": "/mnt/project/DriveVLA-M0-planreg-task-future-lite/navsim/planning/simulation/planner/pdm_planner/observation/pdm_observation.py",
+      "sha256": "f0cd40d7394490ed89ecc04f033e2e479dcc08bff292db7c92a4647ad30e64f6"
+    },
+    "centerline": {
+      "python_class": "shapely.geometry.linestring.LineString",
+      "file": "/root/miniconda3/envs/navsim/lib/python3.9/site-packages/shapely/geometry/linestring.py",
+      "sha256": "5a5d7230a9922f4ce2017f90260c9b9767a483fd68d6c6020ce948ed9b02edc9"
+    },
+    "drivable_map": {
+      "python_class": "navsim.planning.simulation.planner.pdm_planner.observation.pdm_occupancy_map.PDMDrivableMap",
+      "file": "/mnt/project/DriveVLA-M0-planreg-task-future-lite/navsim/planning/simulation/planner/pdm_planner/observation/pdm_occupancy_map.py",
+      "sha256": "fa7b1acb5b6ad741cc52a85ae8bd6c85165a661a4b02ca184d3d370df314baf4"
+    }
+  },
+  "occupancy_frames": 51,
+  "observation_sample_res": 1,
+  "observation_sample_interval": 0.1,
+  "coverage_4p9": true,
+  "ttc_source_time_max_sec": 4.0,
+  "ttc_max_lag_sec": 0.9,
+  "ttc_required_environment_end_sec": 4.9,
+  "custom_ddc_multiplier_detected": false,
+  "training_ddc_weight": 0.0,
+  "aggregate_source": "    def _aggregate_scores(self) -> npt.NDArray[np.float64]:\n        \"\"\"\n        Aggregates metrics with multiplicative and weighted average.\n        :return: array containing score of each proposal\n        \"\"\"\n\n        # accumulate multiplicative metrics\n        multiplicate_metric_scores = self._multi_metrics.prod(axis=0)\n\n        # normalize and fill progress values\n        raw_progress = self._progress_raw * multiplicate_metric_scores\n        max_raw_progress = np.maximum(raw_progress, self.pdm_progress)\n\n        fast_mask = max_raw_progress > self._config.progress_distance_threshold\n\n        normalized_progress = np.ones([len(raw_progress)], dtype=np.float64)\n\n        normalized_progress[fast_mask] = raw_progress[fast_mask] / max_raw_progress[fast_mask]\n        normalized_progress[(~fast_mask) & (multiplicate_metric_scores == 0)] = 0\n        self._weighted_metrics[WeightedMetricIndex.PROGRESS] = normalized_progress\n\n        # accumulate weighted metrics\n        weighted_metrics_array = self._config.weighted_metrics_array\n        weighted_metric_scores = (self._weighted_metrics * weighted_metrics_array[..., None]).sum(axis=0)\n        weighted_metric_scores /= weighted_metrics_array.sum()\n\n        # calculate final scores\n        final_scores = self._multi_metrics.prod(axis=0) * weighted_metric_scores\n\n        return final_scores\n",
+  "note": "Runtime protocol only; external custom DDC evaluators are not silently imported or mixed with Lite labels.",
+  "upstream_navsim": {
+    "url": "https://raw.githubusercontent.com/autonomousvision/navsim/3e8291bfa89ff247231e0227778840cd0a036896/navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py",
+    "sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211"
+  },
+  "scorer_source_commit": "valeoai/DrivoR@fc6e5aa144bbcb5a046e22c18f1bd5cf3af8634a",
+  "scorer_core_files": {
+    "navsim/agents/EpisodeDrive/score_module/scorer.py": {
+      "sha256": "cb82e2442c708d155bf5c5627956606c2152e83cdfe353ff39b2140f2d45c3be",
+      "unchanged_from_v1p1": true
+    },
+    "navsim/agents/EpisodeDrive/transformer_decoder.py": {
+      "sha256": "e59d25a2ba4da64adc4c593cbfd9c30e23475da0df48274a30373c16d4bb5834",
+      "unchanged_from_v1p1": true
+    },
+    "navsim/agents/EpisodeDrive/layers/losses/episode_drive_loss.py": {
+      "sha256": "c1e9d1229f68e1ed18a23c696f4f6d92c66da817bc0431685de798152851916b",
+      "unchanged_from_v1p1": true
+    },
+    "navsim/agents/EpisodeDrive/score_module/compute_navsim_score.py": {
+      "sha256": "fc4a870fb043e12eecf5b52fb9153c254f2439205c3e3e19fdec7102633edfe1",
+      "unchanged_from_v1p1": true
+    },
+    "navsim/agents/EpisodeDrive/score_module/train_pdm_scorer.py": {
+      "sha256": "0a93befe3a6d3d31c043de4963c0360f2b1064e46e630d1b48125d4bbefa2f79",
+      "unchanged_from_v1p1": true
+    }
+  },
+  "label_protocol": "projected_geometric_gap != official TTC/NC; road_margin != DAC; route_progress_m != normalized EP",
+  "actor_provenance_basis": "Local train_cache_processor._interpolate_gt_observation: logged objects, 5 seconds, interpolated at 10 Hz; audited train cache path."
+}
