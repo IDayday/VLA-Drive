@@ -12,6 +12,10 @@ if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == v1p1 ]]; then
   student_agent=episode_drive_planreg_wm_v1p1_student
   export CUBLAS_WORKSPACE_CONFIG=:4096:8
 fi
+if [[ "${PLANREG_PROTOCOL_VERSION:-v1}" == task_future_lite ]]; then
+  student_agent=episode_drive_task_future_lite_student
+  export CUBLAS_WORKSPACE_CONFIG=:4096:8
+fi
 if [[ "${variant}" != "base" && "${variant}" != "driving_vqa" ]]; then
   echo "Unknown formal variant: ${variant}" >&2
   exit 2

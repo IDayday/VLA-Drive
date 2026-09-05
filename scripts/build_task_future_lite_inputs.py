@@ -13,6 +13,12 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 
 
+def tokenizer_manifest(tokenizer, path):
+    from navsim.agents.EpisodeDrive.formal_initialization import canonical_sha256
+    return dict(tokenizer_path=str(Path(path).resolve()),
+                tokenizer_vocab_sha256=canonical_sha256({k:int(v) for k,v in tokenizer.get_vocab().items()}))
+
+
 def build_log(task):
     log,args=task
     import torch
@@ -94,6 +100,8 @@ def main():
         raise ValueError('Requested tokens not all found in trainval: no Navtest fallback')
     if params['tokens'] is None and len(rows) != 103288:
         raise ValueError(f'Formal dataset must retain exactly 103288 eligible tokens, got {len(rows)}')
+    from transformers import AutoTokenizer
+    tokenizer=AutoTokenizer.from_pretrained(str(args.tokenizer),trust_remote_code=True,use_fast=False,local_files_only=True)
     manifest=dict(schema_version=2,cache_mode='input_only',protocol_version='task_future_lite',
         prompt_version='single_front_v1p1',record_count=len(rows),front_camera_only=True,sensor_camera_count=1,
         required_source_files_complete=True,  # every required current/feature/target file was read above
@@ -104,7 +112,7 @@ def main():
         cached_fields=['current_image_path','future_image_paths','future_valid_mask','logged_future_poses',
             'logged_future_pose_valid','physical_map_name','gt_trajectory','long_trajectory','ego_status',
             'navigation_command','input_ids','attention_mask','image_original_size','tile_metadata'],
-        rows=rows)
+        rows=rows,**tokenizer_manifest(tokenizer,args.tokenizer))
     (args.output_root/'planreg_input_only_manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     print(json.dumps({k:v for k,v in manifest.items() if k!='rows'},indent=2))
 

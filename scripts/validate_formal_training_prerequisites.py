@@ -302,8 +302,10 @@ def main() -> None:
         ),
         "world_model_enabled": True,
         "future_mode": "correct",
-        "world_model_candidate_count": 1,
+        "world_model_candidate_count": 8 if args.protocol_version == 'task_future_lite' else 1,
+        "world_model_mode": 'task_future_lite' if args.protocol_version == 'task_future_lite' else 'legacy_register_prediction',
         "multi_trajectory_consequence_modeling_implemented": False,
+        "consequence_scope": "Training-only multi-candidate physical answers; no V2 structured future-register model or consequence-driven deployment" if args.protocol_version == 'task_future_lite' else "Legacy K=1",
     }
     if args.resume_checkpoint is not None:
         validate_resume_path(args.resume_checkpoint, args.output_dir, identity)

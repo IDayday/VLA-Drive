@@ -18,6 +18,13 @@ The two real VLM instantiations had 468 bitwise-identical effective trainable
 tensors (21,249,830 parameters). The artifact additionally retains dormant legacy
 head keys for compatible loading. No planning modules are loaded from either VLM.
 
+Artifact provenance nuance: the v2 artifact was generated with the cancelling
+frame-key bias fix present but not yet committed; its creation metadata names
+parent `96cb194`. Commit `4d3fad9` contains that exact corrected head topology.
+The artifact's byte hash and effective trainable-state hash are verified by both
+real initialization and update/export audits; it is not described as a clean
+`96cb194`-only build. The old v1 artifact is retained and is not a formal input.
+
 VLM initialization paths / checkpoint fingerprints:
 
 - Base: `/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned`,
@@ -43,6 +50,14 @@ safe. They still receive valid current physical supervision. Successful build
 means all required source records were read; it does not mean missing horizons
 were fabricated. Failed earlier new-root build attempts remain untouched and are
 not formal inputs. No old cache was overwritten.
+
+Formal launch uses `input_cache_v2d_certified`, a NEW directory of log-directory
+symlinks to those same immutable v2c records, plus tokenizer provenance. The initial
+v2c manifest omitted the tokenizer vocabulary hash; this was caught before launch.
+Thirty-two seeded records were retokenized and IDs/masks/prompt hashes matched
+exactly. The certified view does not claim exhaustive retokenization; its manifest
+binds the untouched source manifest, and the builder now records vocabulary hashes
+directly for future builds. Both variants use this same view.
 
 ## GB64 configuration to be locked from real throughput
 
@@ -75,9 +90,10 @@ On `training-vla-zt` (peer `training-vla-zt2`):
 
 ```bash
 LAUNCH_FORMAL=1 PLANREG_PROTOCOL_VERSION=task_future_lite \
+PLANREG_BASE_VLM_PATH=/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned \
 PLANREG_LAYOUT_LOCK=/absolute/formal_training_layout_lock.json \
 PLANREG_SHARED_INIT=/absolute/shared_task_future_lite_seed0_v2.pt \
-PLANREG_INPUT_CACHE=/absolute/input_cache_v2c \
+PLANREG_INPUT_CACHE=/absolute/input_cache_v2d_certified \
 PLANREG_FORMAL_RUN_ROOT=/absolute/new_formal_runs \
 PLANREG_MASTER_PORT=29630 \
 bash local_planreg_wm_v1/train_formal_task_future_lite_base.sh 0
@@ -87,8 +103,9 @@ On `training-vla-zt3` (peer `training-rl-zt4`), use the same inputs/lock and:
 
 ```bash
 LAUNCH_FORMAL=1 PLANREG_LAYOUT_LOCK=/absolute/formal_training_layout_lock.json \
+PLANREG_VQA_VLM_PATH=/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-driving-vqa-dense \
 PLANREG_SHARED_INIT=/absolute/shared_task_future_lite_seed0_v2.pt \
-PLANREG_INPUT_CACHE=/absolute/input_cache_v2c \
+PLANREG_INPUT_CACHE=/absolute/input_cache_v2d_certified \
 PLANREG_FORMAL_RUN_ROOT=/absolute/new_formal_runs \
 PLANREG_MASTER_PORT=29640 \
 bash local_planreg_wm_v1/train_formal_task_future_lite_vqa.sh 0
@@ -100,3 +117,19 @@ Do not claim training started merely from a shell PID; record first finite steps
 from both ranks/node groups in EXECUTION_STATUS. Final export strips all training
 auxiliaries; identical current-only Navtest evaluation is performed only after
 the fixed final epoch, not to select the training epoch.
+
+After the fixed final checkpoint is exported, evaluate with the same Navtest
+configuration for both variants (not executed during this code task):
+
+```bash
+PLANREG_BASE_VLM_PATH=/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned \
+PLANREG_FORMAL_EVAL_ROOT=/absolute/new_lite_epoch27_evaluation \
+bash local_planreg_wm_v1/evaluate_task_future_lite_checkpoint.sh base /absolute/base_epoch27_student.ckpt
+
+PLANREG_VQA_VLM_PATH=/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-driving-vqa-dense \
+PLANREG_FORMAL_EVAL_ROOT=/absolute/new_lite_epoch27_evaluation \
+bash local_planreg_wm_v1/evaluate_task_future_lite_checkpoint.sh driving_vqa /absolute/vqa_epoch27_student.ckpt
+```
+
+This uses the student-only Lite configuration and BF16 VLM + FP32 action/scorer,
+not the V1.1 full-FP32 replay override. Physical predictions never enter selection.

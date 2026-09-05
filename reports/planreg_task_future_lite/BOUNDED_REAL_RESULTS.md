@@ -84,7 +84,11 @@ The complete existing+new suite ran: **231 passed, 23 warnings**, no skips,
   eight-test run passed after report/config-audit changes. Compileall and diff-check
   passed. Tests include two-process Gloo global masked-loss normalization, temporal
 coverage/boundaries, holes/center conversion, K/chunk interfaces, gradient routing,
-  old-mode/export compatibility, cached-data contracts and scorer immutability.
+old-mode/export compatibility, cached-data contracts and scorer immutability.
+
+After adding deployment-config and tokenizer-fingerprint regression tests, the
+release rerun completed **233 passed, 23 warnings in 38.63 s**, no skips. Thus the
+final count is 201 existing + 32 new, not the earlier 231 intermediate count.
 
 Label extraction in the real smoke averaged .36139 s/scene (maximum .47960 s,
 16 scene calls), excluding the original scorer and cold-map loading. A separate
