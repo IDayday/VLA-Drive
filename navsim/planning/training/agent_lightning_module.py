@@ -16,6 +16,7 @@ from typing import Dict, Tuple, Any, List
 from navsim.agents.abstract_agent import AbstractAgent
 from navsim.common.dataclasses import Trajectory
 from navsim.planning.training.formal_timing import PhaseTimer
+from navsim.agents.EpisodeDrive.precision import audit_precision, parameter_update_statistics
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,9 @@ class AgentLightningModule(pl.LightningModule):
                 diagnostics.get("debug_unused_parameters", False),
             )
         )
+        self.precision_log_interval = int(diagnostics.get("precision_log_interval", 500))
+        self._ema_updates_in_optimizer_step = True
+        self._precision_before = {}
         self.require_finite_loss_and_gradients = bool(
             getattr(
                 diagnostics,
@@ -583,6 +587,49 @@ class AgentLightningModule(pl.LightningModule):
                 )
             return optimizer_factory(total_optimizer_steps=total_steps)
         return optimizer_factory()
+
+    def on_before_optimizer_step(self, optimizer):
+        if not getattr(self.agent, "_initialized", False) or not self.agent._uses_planreg_optimizer_groups():
+            return
+        audit_precision(self.agent, optimizer)
+        if self.global_step % self.precision_log_interval == 0:
+            self._precision_before = {name: p.detach().float().clone()
+                                      for name, p in self.agent.named_parameters() if p.requires_grad}
+
+    def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_closure=None):
+        # Adam's post-hook runs only if the optimizer really executed. AMP
+        # overflow skips therefore skip EMA too; accumulation invokes this
+        # hook only on its actual optimizer boundary.
+        completed = []
+        raw_optimizer = getattr(optimizer, "optimizer", optimizer)
+        handle = raw_optimizer.register_step_post_hook(lambda *unused: completed.append(True))
+        try:
+            super().optimizer_step(epoch, batch_idx, optimizer, optimizer_closure)
+        finally:
+            handle.remove()
+        if not completed:
+            self._precision_before = {}
+            return
+        teacher = getattr(self.agent, "ema_register_target", None)
+        if teacher is not None:
+            teacher.collect_update_diagnostics = bool(self._precision_before)
+        if hasattr(self.agent, "update_ema_after_optimizer_step"):
+            self.agent.update_ema_after_optimizer_step(
+                int(self.global_step) + 1, int(self.trainer.estimated_stepping_batches))
+        if self._precision_before:
+            payload = audit_precision(self.agent, raw_optimizer, require_initialized_moments=True)
+            payload["optimizer_step"] = int(self.global_step) + 1
+            payload["updates"] = parameter_update_statistics(self._precision_before, self.agent)
+            payload["learning_rates"] = {g.get("name", str(i)): g["lr"]
+                                         for i, g in enumerate(raw_optimizer.param_groups)}
+            payload["ema"] = getattr(teacher, "latest_update_diagnostics", {})
+            if self.trainer.is_global_zero:
+                destination = Path(self.trainer.default_root_dir) / "run_metadata"
+                destination.mkdir(parents=True, exist_ok=True)
+                with (destination / "precision_updates.jsonl").open("a") as stream:
+                    stream.write(json.dumps(payload, sort_keys=True) + "\n")
+                (destination / "PRECISION_CONTRACT.json").write_text(json.dumps(payload, indent=2) + "\n")
+            self._precision_before = {}
     
     def predict_step(self, batch: Tuple[Dict[str, Tensor], Dict[str, Tensor]], batch_idx: int):
         """

@@ -53,9 +53,14 @@ class InternViTQVLoRALinear(nn.Module):
         self.dim = int(base_layer.in_features)
         self.dropout = nn.Dropout(float(dropout))
 
+        # The frozen InternViT projection may be stored in BF16, but LoRA is
+        # optimizer state.  Keeping its parameters in FP32 is essential: with
+        # the small formal learning rate, both Adam updates and EMA deltas can
+        # otherwise fall below one BF16 ULP.  Autocast still selects the
+        # activation compute dtype in ``forward``.
         factory_kwargs = {
             "device": base_layer.weight.device,
-            "dtype": base_layer.weight.dtype,
+            "dtype": torch.float32,
         }
         self.q_lora_a = nn.Linear(
             self.dim, self.rank, bias=False, **factory_kwargs
@@ -99,11 +104,20 @@ class InternViTQVLoRALinear(nn.Module):
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         base_qkv = self.base_layer(inputs)
         base_q, base_k, base_v = base_qkv.split(self.dim, dim=-1)
-        lora_inputs = self.dropout(inputs)
+        # Outside autocast a BF16 activation cannot be multiplied by an FP32
+        # Linear weight.  Promote the branch input to its storage dtype; under
+        # BF16 autocast the Linear kernels still execute in BF16.  Cast only
+        # the residual back to the frozen base output dtype before addition.
+        lora_inputs = self.dropout(inputs.to(self.q_lora_a.weight.dtype))
         q_update = self.q_lora_b(self.q_lora_a(lora_inputs))
         v_update = self.v_lora_b(self.v_lora_a(lora_inputs))
         return torch.cat(
-            (base_q + q_update, base_k, base_v + v_update), dim=-1
+            (
+                base_q + q_update.to(base_q.dtype),
+                base_k,
+                base_v + v_update.to(base_v.dtype),
+            ),
+            dim=-1,
         )
 
 
@@ -196,6 +210,8 @@ def freeze_vision_except_qv_lora(vision_model: nn.Module) -> int:
         ):
             for parameter in branch.parameters():
                 parameter.requires_grad = True
+                if parameter.dtype != torch.float32:
+                    parameter.data = parameter.detach().float()
                 trainable += parameter.numel()
     if module_count == 0:
         raise RuntimeError("Cannot enable Q/V LoRA training: no injected layers found")

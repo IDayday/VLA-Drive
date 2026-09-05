@@ -483,7 +483,10 @@ class DriveVLABackbone(nn.Module):
                     read_only_attention_backend=planning_register_attention_backend,
                     use_flash_attn=bool(use_flash_attn),
                     device=reference_parameter.device,
-                    dtype=reference_parameter.dtype,
+                    # Parameter storage is deliberately independent of the
+                    # frozen InternViT compute/storage dtype.  New trainable
+                    # planning state must start and remain FP32.
+                    dtype=torch.float32,
                 )
                 self.planning_register_adapter.configure_vision_attention(
                     vision_model

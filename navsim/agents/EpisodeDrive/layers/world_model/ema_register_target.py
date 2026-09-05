@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from collections import defaultdict
 import math
 from typing import Dict, List, Optional, Tuple
@@ -40,6 +41,41 @@ def cosine_ema_momentum(
     return float(end - (end - start) * cosine)
 
 
+class FP32EMAMaster(nn.Module):
+    """Persistent named FP32 buffers which resist module-wide dtype conversion.
+
+    Only a zero-element probe is passed through a dtype conversion. Casting a
+    real master to BF16 and back would already have destroyed its low bits.
+    """
+    def __init__(self, parameters):
+        super().__init__()
+        self.names = tuple(sorted(parameters))
+        schema = json.dumps({"version": 1, "dtype": "torch.float32",
+                             "names": self.names}, sort_keys=True).encode()
+        self.register_buffer("schema", torch.tensor(list(schema), dtype=torch.uint8))
+        self.register_buffer("legacy_bf16_ema_history_unrecoverable", torch.tensor(False))
+        for index, name in enumerate(self.names):
+            self.register_buffer(f"m{index:04d}", parameters[name].detach().float().clone())
+
+    def tensors(self):
+        return {name: self._buffers[f"m{index:04d}"] for index, name in enumerate(self.names)}
+
+    def _apply(self, fn, recurse=True):
+        for name, value in self._buffers.items():
+            destination = fn(value.new_empty(0)).device
+            self._buffers[name] = value.to(device=destination)
+        return self
+
+    def _load_from_state_dict(self, state_dict, prefix, *args, **kwargs):
+        schema = state_dict.get(prefix + "schema")
+        if schema is not None and not torch.equal(schema.cpu(), self.schema.cpu()):
+            raise RuntimeError("EMA master schema/name topology differs from checkpoint")
+        for key, value in state_dict.items():
+            if key.startswith(prefix + "m") and value.dtype != torch.float32:
+                raise RuntimeError(f"EMA master checkpoint must be FP32: {key}={value.dtype}")
+        super()._load_from_state_dict(state_dict, prefix, *args, **kwargs)
+
+
 class EMARegisterTarget(nn.Module):
     """Deep-copy only InternViT (including Q/V LoRA) and the register neck."""
 
@@ -51,9 +87,35 @@ class EMARegisterTarget(nn.Module):
         self.planning_register_adapter = copy.deepcopy(
             student_backbone.planning_register_adapter
         )
+        sources = self.student_parameters(student_backbone)
+        self.master = FP32EMAMaster({name: value for name, value in sources.items()
+                                    if value.requires_grad})
         for parameter in self.parameters():
             parameter.requires_grad = False
         super().train(False)
+
+    @staticmethod
+    def student_parameters(backbone):
+        return {**{"vision_model." + name: value for name, value in
+                   backbone.model.vision_model.named_parameters()},
+                **{"planning_register_adapter." + name: value for name, value in
+                   backbone.planning_register_adapter.named_parameters()}}
+
+    def migrate_legacy_state_dict(self, state, prefix=""):
+        """Explicit migration starting from saved teacher; lost history is lost."""
+        if prefix + "master.schema" in state:
+            return False
+        teachers = dict(self.named_parameters())
+        bf16 = False
+        for index, name in enumerate(self.master.names):
+            key = prefix + name
+            if key not in state:
+                raise RuntimeError(f"Legacy EMA migration missing teacher tensor: {key}")
+            bf16 |= state[key].dtype == torch.bfloat16
+            state[prefix + f"master.m{index:04d}"] = state[key].float().clone()
+        state[prefix + "master.schema"] = self.master.schema.clone()
+        state[prefix + "master.legacy_bf16_ema_history_unrecoverable"] = torch.tensor(bf16)
+        return bf16
 
     def train(self, mode: bool = True):
         # Teacher dropout/stochastic depth must remain disabled.
@@ -77,6 +139,36 @@ class EMARegisterTarget(nn.Module):
     def update(self, student_backbone: nn.Module, momentum: float) -> None:
         if not 0.0 <= momentum <= 1.0:
             raise ValueError(f"EMA momentum must be in [0,1], got {momentum}")
+        sources = self.student_parameters(student_backbone)
+        expected = {name for name, value in sources.items() if value.requires_grad}
+        if expected != set(self.master.names):
+            raise RuntimeError("EMA tracked trainable topology changed after initialization")
+        copies = dict(self.named_parameters())
+        masters = self.master.tensors()
+        diagnostics = bool(getattr(self, "collect_update_diagnostics", False))
+        stats = {"master_changed": 0, "copy_changed": 0, "count": 0,
+                 "student_distance_sq": 0.0}
+        for name, master in masters.items():
+            if master.dtype != torch.float32:
+                raise RuntimeError(f"EMA master was downcast: {name}")
+            student = sources[name].detach().to(device=master.device, dtype=torch.float32)
+            before = master.clone() if diagnostics else None
+            copy_before = copies[name].detach().clone() if diagnostics else None
+            master.add_(student - master, alpha=1.0 - momentum)
+            copies[name].copy_(master)
+            if diagnostics:
+                stats["master_changed"] += int((master != before).sum())
+                stats["copy_changed"] += int((copies[name] != copy_before).sum())
+                stats["count"] += master.numel()
+                stats["student_distance_sq"] += float((student - master).square().sum())
+        self.latest_update_diagnostics = stats if diagnostics else {}
+        # Frozen base tensors are immutable; only non-floating runtime buffers
+        # (if any) are copied. No BF16 teacher tensor feeds back into master.
+        super().train(False)
+
+    @torch.no_grad()
+    def update_legacy_bf16_replay(self, student_backbone: nn.Module, momentum: float) -> None:
+        """Explicit old numeric replay only; never selected by formal training."""
         student_modules = (
             student_backbone.model.vision_model,
             student_backbone.planning_register_adapter,
@@ -172,6 +264,8 @@ class EMARegisterTargetCallback(Callback):
         batch_idx,
     ) -> None:
         agent = getattr(pl_module, "agent", None)
+        if getattr(pl_module, "_ema_updates_in_optimizer_step", False):
+            return
         if agent is not None and hasattr(agent, "update_ema_after_optimizer_step"):
             agent.update_ema_after_optimizer_step(
                 optimizer_step=int(trainer.global_step),

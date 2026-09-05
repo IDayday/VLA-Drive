@@ -47,6 +47,7 @@ from .formal_initialization import (
     validate_formal_scientific_contract,
 )
 from .shared_planreg_initialization import load_shared_trainable_initialization
+from .precision import promote_trainable_parameters, audit_precision
 from .action_decoder import ActionDecoder
 from .layers.planning_registers import freeze_vision_except_qv_lora
 from .layers.planning_registers.register_diagnostics import (
@@ -736,6 +737,9 @@ class DriveVLABaseAgent(AbstractAgent):
             raise RuntimeError("Cannot initialize EMA target without a student backbone")
         # This is intentionally called only after legacy/student checkpoint
         # restoration and custom Q/V LoRA construction.
+        # Establish the actual trainable set before creating the tracked map.
+        self._freeze_backbone_for_planreg()
+        promote_trainable_parameters(self)
         self.ema_register_target = EMARegisterTarget(self.backbone)
         self.ema_register_target.eval()
         print(
@@ -966,6 +970,17 @@ class DriveVLABaseAgent(AbstractAgent):
         if self.ema_register_target is not None:
             self.ema_register_target.eval()
         return self
+
+    def _apply(self, fn, recurse=True):
+        if getattr(self, "_initialized", False) and self._uses_planreg_optimizer_groups():
+            for parameter in self.parameters():
+                if parameter.requires_grad:
+                    if fn(parameter.new_empty(0)).dtype != torch.float32:
+                        raise RuntimeError(
+                            "PlanReg trainable storage must stay FP32; use BF16 mixed autocast, "
+                            "never agent.bfloat16() or a true-BF16 precision plugin")
+                    break
+        return super()._apply(fn, recurse=recurse)
         
     def _freeze_backbone_selective(self):
         """选择性冻结backbone参数"""
@@ -1069,6 +1084,12 @@ class DriveVLABaseAgent(AbstractAgent):
                 # exact training-only topology so strict restoration can load
                 # it; legacy/base checkpoints initialize EMA after student load.
                 self._initialize_ema_register_target()
+                ema_prefix = ("agent.ema_register_target." if any(
+                    key.startswith("agent.ema_register_target.") for key in ckpt
+                ) else "ema_register_target.")
+                migrated = self.ema_register_target.migrate_legacy_state_dict(ckpt, ema_prefix)
+                print("EMA_MIGRATION " + json.dumps({
+                    "legacy_bf16_ema_history_unrecoverable": migrated}))
             if exact_student_checkpoint:
                 load_exact_student_checkpoint_with_audit(self, ckpt)
             else:
@@ -1093,6 +1114,8 @@ class DriveVLABaseAgent(AbstractAgent):
             # module state (the frozen linear lm_head has no mode-dependent
             # behavior).
             self.backbone.train()
+        if self._uses_planreg_optimizer_groups():
+            promote_trainable_parameters(self)
         if self._formal_initialization:
             shared_path = getattr(
                 self.initialization_config,
@@ -2227,6 +2250,7 @@ class DriveVLABaseAgent(AbstractAgent):
     def _get_planreg_optimizers(
         self, total_optimizer_steps: Optional[int] = None
     ):
+        audit_precision(self)
         if self._lr_args["name"] not in {"Adam", "AdamW"}:
             raise NotImplementedError
         if float(self._lr_args.get("language_model_lr", 0.0)) != 0.0:

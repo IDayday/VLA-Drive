@@ -239,8 +239,12 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
         num_patches_list: List[int],
         tile_metadata: Optional[torch.Tensor] = None,
     ):
+        # Trainable neck parameters are FP32 even when InternViT activations
+        # are BF16.  This explicit promotion also makes non-autocast audit
+        # forwards well-defined; BF16 autocast still governs production GEMMs.
+        neck_inputs = encoded_registers.to(self.register_norm.weight.dtype)
         per_tile_registers = self.register_projection(
-            self.register_norm(encoded_registers)
+            self.register_norm(neck_inputs)
         )
         scene_registers = self._aggregate_tiles(
             per_tile_registers, num_patches_list, tile_metadata
