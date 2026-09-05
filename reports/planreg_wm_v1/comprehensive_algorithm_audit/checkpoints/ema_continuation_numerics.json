@@ -1,0 +1,128 @@
+{
+  "checkpoints": [
+    {
+      "ema_current_momentum": 0.9992002799440071,
+      "ema_end_momentum": 0.9992002799440071,
+      "ema_optimizer_step": 21789,
+      "ema_start_momentum": 0.9684444338627706,
+      "epoch": 26,
+      "global_step": 21789,
+      "groups": {
+        "planning_register_tokens": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.0030517578125,
+          "parameter_count": 16384,
+          "simulated_next_update_unchanged_fraction": 1.0,
+          "student_teacher_delta_rms": 0.0003073545049652357,
+          "student_teacher_exact_equal_fraction": 0.5943603515625,
+          "student_teacher_relative_l2": 0.030384888382993403,
+          "tensors": 1
+        },
+        "register_neck": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.00469970703125,
+          "parameter_count": 264448,
+          "simulated_next_update_unchanged_fraction": 0.99983739714424,
+          "student_teacher_delta_rms": 0.0005499113326959801,
+          "student_teacher_exact_equal_fraction": 0.6541815404162633,
+          "student_teacher_relative_l2": 0.008252064761358693,
+          "tensors": 4
+        },
+        "tile_aggregator": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.00439453125,
+          "parameter_count": 67584,
+          "simulated_next_update_unchanged_fraction": 0.9999704071969697,
+          "student_teacher_delta_rms": 0.00042537985502976854,
+          "student_teacher_exact_equal_fraction": 0.7899502840909091,
+          "student_teacher_relative_l2": 0.007895419888167577,
+          "tensors": 5
+        },
+        "vision_qv_lora": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.001953125,
+          "parameter_count": 3145728,
+          "simulated_next_update_unchanged_fraction": 0.999927838643392,
+          "student_teacher_delta_rms": 9.468520114449087e-05,
+          "student_teacher_exact_equal_fraction": 0.7830177942911783,
+          "student_teacher_relative_l2": 0.0071122828918176425,
+          "tensors": 96
+        }
+      },
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/formal_dual_init_gb128_asyncpdm_20260903/formal_base_init_wm_seed0/checkpoints/epoch_27_final.ckpt",
+      "sha256": "f1182013c03f57afde8bb586240fb5c0465c3892a6a050ca38fd5b630f89c753"
+    },
+    {
+      "ema_current_momentum": 0.9992002799440071,
+      "ema_end_momentum": 0.9992002799440071,
+      "ema_optimizer_step": 26631,
+      "ema_start_momentum": 0.9684444338627706,
+      "epoch": 32,
+      "global_step": 26631,
+      "groups": {
+        "planning_register_tokens": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.004730224609375,
+          "parameter_count": 16384,
+          "simulated_next_update_unchanged_fraction": 1.0,
+          "student_teacher_delta_rms": 0.0003757517084944214,
+          "student_teacher_exact_equal_fraction": 0.58099365234375,
+          "student_teacher_relative_l2": 0.03714208419216023,
+          "tensors": 1
+        },
+        "register_neck": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.0069427490234375,
+          "parameter_count": 264448,
+          "simulated_next_update_unchanged_fraction": 1.0,
+          "student_teacher_delta_rms": 0.000644019207227765,
+          "student_teacher_exact_equal_fraction": 0.652184928606002,
+          "student_teacher_relative_l2": 0.009664201576145708,
+          "tensors": 4
+        },
+        "tile_aggregator": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.0060272216796875,
+          "parameter_count": 67584,
+          "simulated_next_update_unchanged_fraction": 0.9999852035984849,
+          "student_teacher_delta_rms": 0.00045730118622337886,
+          "student_teacher_exact_equal_fraction": 0.7882634943181818,
+          "student_teacher_relative_l2": 0.008487898158817956,
+          "tensors": 5
+        },
+        "vision_qv_lora": {
+          "dtype": "torch.bfloat16",
+          "max_abs_delta": 0.001953125,
+          "parameter_count": 3145728,
+          "simulated_next_update_unchanged_fraction": 0.9999987284342448,
+          "student_teacher_delta_rms": 9.883732055461245e-05,
+          "student_teacher_exact_equal_fraction": 0.7829602559407552,
+          "student_teacher_relative_l2": 0.00742416307166544,
+          "tensors": 96
+        }
+      },
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/formal_base_init_wm_continuation_epoch28_33_seed0_20260904_v2/checkpoints/epoch=32-step=26631.ckpt",
+      "sha256": "7811a877b25aff74c71cd46cf35816a7bd3e6c84bb2a2fc18ab3ccae957cee3b"
+    }
+  ],
+  "risk_definition": "simulated_next_update_unchanged_fraction reproduces the in-place mul-then-add EMA update in the checkpoint tensor dtype. A high fraction means per-step EMA changes are quantized away.",
+  "schema_version": 1,
+  "teacher_change_first_to_last": {
+    "planning_register_tokens": {
+      "teacher_checkpoint_change_rms": 2.5464834330240264e-05,
+      "teacher_exactly_unchanged_element_fraction": 0.9949951171875
+    },
+    "register_neck": {
+      "teacher_checkpoint_change_rms": 3.7936725080921646e-05,
+      "teacher_exactly_unchanged_element_fraction": 0.9964076113262342
+    },
+    "tile_aggregator": {
+      "teacher_checkpoint_change_rms": 1.551256490097168e-05,
+      "teacher_exactly_unchanged_element_fraction": 0.9989642518939394
+    },
+    "vision_qv_lora": {
+      "teacher_checkpoint_change_rms": 2.654715957660577e-06,
+      "teacher_exactly_unchanged_element_fraction": 0.9992733001708984
+    }
+  }
+}

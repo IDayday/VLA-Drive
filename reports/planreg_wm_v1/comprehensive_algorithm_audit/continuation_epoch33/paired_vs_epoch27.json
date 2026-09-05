@@ -1,0 +1,151 @@
+{
+  "baseline": {
+    "path": "/mnt/project/DriveVLA-M0-formal-runs/evaluation/base_epoch27_seed0_fp32_navtest_20260904T1415Z/candidate_bank_scored.npz",
+    "sha256": "037bb2fed2771e86c7a9099d74d757920b2a474e25da440506bee4581a83d225"
+  },
+  "baseline_metrics": {
+    "candidate_mean_pdms": 0.7752271525134679,
+    "offline_oracle_at_64": 0.9872393163904688,
+    "scorer_regret": 0.07345165822408982,
+    "selected_pdms": 0.913787658166379
+  },
+  "candidate": {
+    "path": "/mnt/project/DriveVLA-M0-formal-runs/evaluation/base_continuation_epoch33_fp32_navtest_20260905T0039Z/full_navtest_v3/candidate_bank_scored.npz",
+    "sha256": "e5cc0e20dbe258a57db4166ff7a1204589b7b83561dee50ae2d5cb6fba07cf58"
+  },
+  "candidate_count": 64,
+  "candidate_metrics": {
+    "candidate_mean_pdms": 0.7752113688873965,
+    "offline_oracle_at_64": 0.9881961162579466,
+    "scorer_regret": 0.07486783406270428,
+    "selected_pdms": 0.9133282821952423
+  },
+  "inference_uses_future_inputs": false,
+  "log_count": 136,
+  "offline_oracle_definition": "Offline best of each model's same 64 frozen proposals; not a deployable policy.",
+  "paired_deltas_candidate_minus_baseline": {
+    "candidate_scene_mean_pdms": {
+      "mean": -1.5783626071310688e-05,
+      "median": -4.5647379010915756e-05,
+      "p10": -0.046875,
+      "p90": 0.04489163402467966,
+      "std": 0.047062370190211374
+    },
+    "offline_oracle_at_64": {
+      "mean": 0.0009567998674778379,
+      "median": 0.0,
+      "p10": 0.0,
+      "p90": 0.0,
+      "std": 0.03896528213238619
+    },
+    "scorer_regret_reduction": {
+      "mean": -0.0014161758386144602,
+      "median": 0.0,
+      "p10": -0.009639173746109009,
+      "p90": 0.012118935585021973,
+      "std": 0.11111172154630666
+    },
+    "selected_pdms": {
+      "mean": -0.00045937597113662233,
+      "median": 0.0,
+      "p10": -0.008026152849197388,
+      "p90": 0.011877864599227905,
+      "std": 0.10943851898905813
+    }
+  },
+  "paired_log_cluster_bootstrap": {
+    "candidate_scene_mean_pdms": {
+      "bootstrap_mean": -5.6611966313016526e-05,
+      "ci95": [
+        -0.0024464670445776093,
+        0.002438851165883855
+      ],
+      "point_estimate": -1.5783626071310688e-05,
+      "probability_gt_zero": 0.4764
+    },
+    "offline_oracle_at_64": {
+      "bootstrap_mean": 0.0009651409515953652,
+      "ci95": [
+        0.00025299585865353776,
+        0.001701976994516197
+      ],
+      "point_estimate": 0.0009567998674778379,
+      "probability_gt_zero": 0.996
+    },
+    "scorer_regret_reduction": {
+      "bootstrap_mean": -0.0014350241091035,
+      "ci95": [
+        -0.003489211342453877,
+        0.0004982557451107985
+      ],
+      "point_estimate": -0.0014161758386144602,
+      "probability_gt_zero": 0.0738
+    },
+    "selected_pdms": {
+      "bootstrap_mean": -0.0004698831575081347,
+      "ci95": [
+        -0.0024809646114737345,
+        0.001435958460470624
+      ],
+      "point_estimate": -0.00045937597113662233,
+      "probability_gt_zero": 0.3281
+    }
+  },
+  "predicted_score_rms_change": 0.07803906616492,
+  "proposal_endpoint_rms_change": 0.5589905857623231,
+  "proposal_query_aligned_rms_change": 0.23740098414072963,
+  "scene_count": 12146,
+  "schema_version": 1,
+  "selected_component_deltas_candidate_minus_baseline": {
+    "comfort": {
+      "mean": 0.0,
+      "median": 0.0,
+      "p10": 0.0,
+      "p90": 0.0,
+      "std": 0.0
+    },
+    "drivable_area_compliance": {
+      "mean": 0.0011526428453811955,
+      "median": 0.0,
+      "p10": 0.0,
+      "p90": 0.0,
+      "std": 0.08796502034836114
+    },
+    "driving_direction_compliance": {
+      "mean": 0.0009056479499423678,
+      "median": 0.0,
+      "p10": 0.0,
+      "p90": 0.0,
+      "std": 0.06697950235404958
+    },
+    "ego_progress": {
+      "mean": 0.0023080081457022817,
+      "median": 0.0,
+      "p10": -0.017408162355422974,
+      "p90": 0.02736455202102661,
+      "std": 0.10984712993050352
+    },
+    "no_at_fault_collisions": {
+      "mean": -0.002017124979417092,
+      "median": 0.0,
+      "p10": 0.0,
+      "p90": 0.0,
+      "std": 0.07656409062667412
+    },
+    "pdm_score": {
+      "mean": -0.00045937597113662233,
+      "median": 0.0,
+      "p10": -0.008026152849197388,
+      "p90": 0.011877864599227905,
+      "std": 0.10943851898905813
+    },
+    "time_to_collision_within_bound": {
+      "mean": -0.003951918327021241,
+      "median": 0.0,
+      "p10": 0.0,
+      "p90": 0.0,
+      "std": 0.13017180376334467
+    }
+  },
+  "selected_index_change_fraction": 0.5734398155771447
+}

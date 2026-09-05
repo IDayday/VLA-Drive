@@ -83,11 +83,23 @@ def main() -> None:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--jobs", type=int, default=32)
     parser.add_argument(
+        "--chunksize",
+        type=int,
+        default=8,
+        help=(
+            "Number of scenes submitted per ProcessPoolExecutor work item. "
+            "A value greater than one keeps full-Navtest runs from eagerly "
+            "filling the executor wakeup pipe with one future per scene."
+        ),
+    )
+    parser.add_argument(
         "--start-method", choices=("spawn", "forkserver"), default="forkserver"
     )
     args = parser.parse_args()
     if args.jobs <= 0:
         raise ValueError("--jobs must be positive")
+    if args.chunksize <= 0:
+        raise ValueError("--chunksize must be positive")
 
     candidate_sha = _sha256(args.candidate_bank)
     with np.load(args.candidate_bank, allow_pickle=False) as bank:
@@ -118,7 +130,7 @@ def main() -> None:
     score_by_token: Dict[str, np.ndarray] = {}
     with ProcessPoolExecutor(max_workers=args.jobs, mp_context=context) as pool:
         for token, scores in tqdm(
-            pool.map(_score_one, tasks, chunksize=1),
+            pool.map(_score_one, tasks, chunksize=args.chunksize),
             total=len(tasks),
             desc="Official NAVSIM candidate scoring",
         ):

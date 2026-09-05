@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "audit_date_utc": "2026-09-05",
+  "training_code_commit": "be066973",
+  "epoch27_checkpoint_sha256": "f1182013c03f57afde8bb586240fb5c0465c3892a6a050ca38fd5b630f89c753",
+  "epoch33_checkpoint_sha256": "7811a877b25aff74c71cd46cf35816a7bd3e6c84bb2a2fc18ab3ccae957cee3b",
+  "epoch33_scored_candidate_bank_sha256": "e5cc0e20dbe258a57db4166ff7a1204589b7b83561dee50ae2d5cb6fba07cf58",
+  "navtest_scene_count": 12146,
+  "candidate_count": 64,
+  "epoch27": {
+    "selected_pdms": 0.913787658166379,
+    "offline_oracle_at_64": 0.9872393163904688,
+    "scorer_regret": 0.07345165822408982,
+    "candidate_mean_pdms": 0.7752271525134679
+  },
+  "epoch33": {
+    "selected_pdms": 0.9133282821952423,
+    "offline_oracle_at_64": 0.9881961162579466,
+    "scorer_regret": 0.07486783406270428,
+    "candidate_mean_pdms": 0.7752113688873965
+  },
+  "paired_epoch33_minus_epoch27": {
+    "selected_pdms": {
+      "point_estimate": -0.00045937597113662233,
+      "log_cluster_bootstrap_ci95": [-0.0024809646114737345, 0.001435958460470624],
+      "probability_gt_zero": 0.3281
+    },
+    "offline_oracle_at_64": {
+      "point_estimate": 0.0009567998674778379,
+      "log_cluster_bootstrap_ci95": [0.00025299585865353776, 0.001701976994516197],
+      "probability_gt_zero": 0.996
+    },
+    "scorer_regret_reduction": {
+      "point_estimate": -0.0014161758386144602,
+      "log_cluster_bootstrap_ci95": [-0.003489211342453877, 0.0004982557451107985],
+      "probability_gt_zero": 0.0738
+    }
+  },
+  "scientific_findings": {
+    "generator_task_learned": true,
+    "scorer_task_learned_but_limiting": true,
+    "world_model_future_and_action_task_learned": true,
+    "world_model_pdms_causal_gain_established": false,
+    "semantic_tokens_slot_specific": false,
+    "spatial_crop_tiles_materially_used": false,
+    "ema_bf16_numerically_healthy": false,
+    "refinement_heads_0_to_3_trajectory_supervised": false,
+    "continuation_improved_deployable_selected_pdms": false,
+    "multi_trajectory_consequence_modeling_implemented": false
+  },
+  "priority_fixes": [
+    "FP32 EMA master/accumulator",
+    "semantic query slot identity and non-degenerate initialization",
+    "deep supervision for retained refinement heads or removal of dead heads",
+    "proposal diversity/coverage objective",
+    "EP/TTC hard-example and calibration work"
+  ],
+  "validation": {
+    "scorer_parity_passed": true,
+    "scorer_component_max_abs_diff": 0.0,
+    "pdm_score_max_abs_diff": 0.0,
+    "tests_passed": 54,
+    "tests_skipped": 1,
+    "compileall_passed": true
+  }
+}
