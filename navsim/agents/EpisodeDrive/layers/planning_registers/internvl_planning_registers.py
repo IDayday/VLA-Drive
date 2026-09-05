@@ -11,6 +11,7 @@ from typing import List, Optional
 import torch
 import torch.nn.functional as F
 from torch import nn
+from .global_local_readout import GlobalLocalRegisterReadout
 
 from .asymmetric_register_attention import (
     configure_read_only_register_attention,
@@ -65,10 +66,11 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
             "mean",
             "thumbnail_only",
             "thumbnail_query_attention",
+            "global_local_8_8",
         }:
             raise ValueError(
                 "tile_register_aggregation must be mean, thumbnail_only, or "
-                "thumbnail_query_attention; "
+                "thumbnail_query_attention, or global_local_8_8; "
                 f"got {tile_aggregation!r}"
             )
         if attention_mode not in {"read_only", "bidirectional"}:
@@ -110,6 +112,10 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
             self.register_dim,
             **factory_kwargs,
         )
+        if self.tile_aggregation == "global_local_8_8":
+            if num_registers != 16 or register_dim % 8:
+                raise ValueError("global_local_8_8 requires 16 registers and dim divisible by eight")
+            self.global_local_readout = GlobalLocalRegisterReadout(self.register_dim, **factory_kwargs)
         if self.tile_aggregation == "thumbnail_query_attention":
             self.tile_position_mlp = nn.Sequential(
                 nn.Linear(5, self.register_dim, **factory_kwargs),
@@ -330,6 +336,9 @@ class InternVLPlanningRegisters(PlanningRegisterAdapter):
                 )
             crops = tile_group[crop_mask]
             crop_metadata = metadata_group[crop_mask]
+            if self.tile_aggregation == "global_local_8_8":
+                outputs.append(self.global_local_readout(thumbnail, crops, crop_metadata))
+                continue
             positioned_crops = crops + self.tile_position_mlp(crop_metadata)[:, None]
             logits = torch.einsum(
                 "rd,trd->rt", thumbnail, positioned_crops
