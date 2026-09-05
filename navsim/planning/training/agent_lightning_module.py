@@ -103,7 +103,7 @@ class AgentLightningModule(pl.LightningModule):
                 diagnostics.get("require_finite_loss_and_gradients", False),
             )
         )
-        if self.grad_log_interval <= 0 or self.register_log_interval <= 0:
+        if self.grad_log_interval <= 0 or self.register_log_interval <= 0 or self.precision_log_interval <= 0:
             raise ValueError("Diagnostic log intervals must be positive")
         self._gradient_finiteness_checks = []
         self._finite_gradient_hook_handles = []
@@ -602,10 +602,10 @@ class AgentLightningModule(pl.LightningModule):
         return optimizer_factory()
 
     def on_before_optimizer_step(self, optimizer):
-        if not getattr(self.agent, "_initialized", False) or not self.agent._uses_planreg_optimizer_groups():
+        if not getattr(self.agent, "_initialized", False) or not getattr(self.agent, '_uses_planreg_optimizer_groups', lambda: False)():
             return
-        audit_precision(self.agent, optimizer)
         if self.global_step % self.precision_log_interval == 0:
+            audit_precision(self.agent, optimizer)
             self._precision_before = {name: p.detach().float().clone()
                                       for name, p in self.agent.named_parameters() if p.requires_grad}
 

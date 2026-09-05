@@ -121,6 +121,8 @@ def export_student_checkpoint(
     output_path = Path(output_path).resolve()
     if source_path == output_path:
         raise ValueError("Student export output must differ from source checkpoint")
+    if output_path.exists():
+        raise FileExistsError(f'Refusing to overwrite existing student artifact: {output_path}')
     checkpoint = torch.load(source_path, map_location="cpu", weights_only=False)
     if not isinstance(checkpoint, Mapping):
         raise TypeError("Training checkpoint must contain a mapping")

@@ -37,6 +37,8 @@ _WORKER_TOKENIZER = None
 _WORKER_FEATURE_NAME = None
 _WORKER_TARGET_NAME = None
 _WORKER_OVERWRITE = False
+_WORKER_SOURCE_ROOT = None
+_WORKER_OUTPUT_ROOT = None
 
 
 def _initialize_worker(
@@ -44,6 +46,8 @@ def _initialize_worker(
     feature_name: str,
     target_name: str,
     overwrite: bool,
+    source_root: str = None,
+    output_root: str = None,
 ) -> None:
     global _WORKER_TOKENIZER, _WORKER_FEATURE_NAME, _WORKER_TARGET_NAME, _WORKER_OVERWRITE
     from transformers import AutoTokenizer
@@ -57,12 +61,25 @@ def _initialize_worker(
     _WORKER_FEATURE_NAME = feature_name
     _WORKER_TARGET_NAME = target_name
     _WORKER_OVERWRITE = overwrite
+    global _WORKER_SOURCE_ROOT, _WORKER_OUTPUT_ROOT
+    _WORKER_SOURCE_ROOT = Path(source_root) if source_root else None
+    _WORKER_OUTPUT_ROOT = Path(output_root) if output_root else None
 
 
 def _build_one(token_path_text: str) -> Tuple[str, str]:
     token_path = Path(token_path_text)
     output = token_path / f"{INPUT_ONLY_CACHE_NAME}.gz"
+    if _WORKER_OUTPUT_ROOT is not None:
+        output = _WORKER_OUTPUT_ROOT / token_path.relative_to(_WORKER_SOURCE_ROOT) / output.name
     if output.is_file() and not _WORKER_OVERWRITE:
+        from navsim.agents.EpisodeDrive.drivevla_backbone import system_message
+        from navsim.agents.EpisodeDrive.utils.prompt_contract import resolve_system_message, prompt_sha256
+        old = load_feature_target_from_pickle(output)
+        actual = old['features'].get('prompt_contract_hash')
+        expected = bytes.fromhex(prompt_sha256(resolve_system_message(
+            system_message, os.getenv('PLANREG_PROMPT_VERSION', 'legacy'))))
+        if actual is None or bytes(actual.tolist()) != expected:
+            raise RuntimeError(f'Stale prompt in {output}; build a separate versioned cache root')
         return token_path_text, "existing"
     feature_path = token_path / f"{_WORKER_FEATURE_NAME}.gz"
     target_path = token_path / f"{_WORKER_TARGET_NAME}.gz"
@@ -78,6 +95,7 @@ def _build_one(token_path_text: str) -> Tuple[str, str]:
         load_feature_target_from_pickle(target_path),
         tokenizer=_WORKER_TOKENIZER,
     )
+    output.parent.mkdir(parents=True, exist_ok=True)
     dump_feature_target_to_pickle(output, record)
     return token_path_text, "written"
 
@@ -115,6 +133,7 @@ def discover_eligible_token_paths(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cache-root", required=True)
+    parser.add_argument("--output-root", help="Separate destination; source cache is never modified")
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--feature-name", default="internvl_feature")
     parser.add_argument(
@@ -130,6 +149,11 @@ def main() -> None:
     root = Path(args.cache_root).expanduser().resolve()
     if not root.is_dir():
         raise FileNotFoundError(root)
+    output_root = Path(args.output_root).expanduser().resolve() if args.output_root else root
+    if os.getenv('PLANREG_PROMPT_VERSION', 'legacy') != 'legacy' and output_root == root:
+        raise RuntimeError('V1.1 prompt requires a distinct --output-root; never overwrite V1 cache')
+    if output_root != root and output_root.exists():
+        raise FileExistsError(f'Refusing to overwrite versioned cache root: {output_root}')
     allowed_logs = set(args.logs.split(",")) if args.logs else None
     discovered_token_paths, token_paths = discover_eligible_token_paths(
         root,
@@ -163,6 +187,7 @@ def main() -> None:
         return
 
     statuses = []
+    output_root.mkdir(parents=True, exist_ok=True)
     with ProcessPoolExecutor(
         max_workers=args.jobs,
         initializer=_initialize_worker,
@@ -171,6 +196,8 @@ def main() -> None:
             args.feature_name,
             args.target_name,
             args.overwrite,
+            str(root),
+            str(output_root),
         ),
     ) as pool:
         for _path, status in tqdm(
@@ -196,7 +223,8 @@ def main() -> None:
         "schema_version": INPUT_ONLY_CACHE_SCHEMA_VERSION,
         "cache_mode": "input_only",
         "cache_name": INPUT_ONLY_CACHE_NAME,
-        "cache_root": str(root),
+        "cache_root": str(output_root),
+        "source_cache_root": str(root),
         "record_count": len(token_paths),
         "discovered_token_directory_count": len(discovered_token_paths),
         "skipped_incomplete_count": skipped_incomplete_count,
@@ -226,8 +254,8 @@ def main() -> None:
         "front_camera_only": True,
         "sensor_camera_count": 1,
     }
-    manifest_path = root / "planreg_input_only_manifest.json"
-    temporary = root / ".planreg_input_only_manifest.json.tmp"
+    manifest_path = output_root / "planreg_input_only_manifest.json"
+    temporary = output_root / ".planreg_input_only_manifest.json.tmp"
     temporary.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",

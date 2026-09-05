@@ -67,6 +67,11 @@ def load_formal_training_agent(
     if not lightning_state or not all(name.startswith("agent.") for name in lightning_state):
         raise RuntimeError("Expected an exact AgentLightningModule state_dict with agent.* keys")
     state = {name[len("agent."):]: value for name, value in lightning_state.items()}
+    migrated_ema = False
+    if agent.ema_register_target is not None:
+        migrated_ema = agent.ema_register_target.migrate_legacy_state_dict(
+            state, "ema_register_target."
+        )
     incompatible = agent.load_state_dict(state, strict=True)
     if incompatible.missing_keys or incompatible.unexpected_keys:
         raise RuntimeError(f"Strict checkpoint restoration failed: {incompatible}")
@@ -78,6 +83,7 @@ def load_formal_training_agent(
         "checkpoint_global_step": int(payload.get("global_step", -1)),
         "compute_dtype": compute_dtype,
         "strict_checkpoint_restore": True,
+        "legacy_bf16_ema_history_unrecoverable": bool(migrated_ema),
     }
 
 

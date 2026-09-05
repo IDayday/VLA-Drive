@@ -127,6 +127,8 @@ def save_shared_trainable_initialization(
         }
     )
     destination = Path(output).expanduser().resolve()
+    if destination.exists():
+        raise FileExistsError(f"Refusing to overwrite shared initialization: {destination}")
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(destination.suffix + ".tmp")
     torch.save(

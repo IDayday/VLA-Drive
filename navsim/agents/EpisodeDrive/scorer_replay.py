@@ -57,14 +57,18 @@ def categorize_group(predicted, truth, component_predictions):
 
 class FrozenScorerCacheContract:
     """Only upstream-frozen probes may cache representations. No formal cache."""
-    def __init__(self, upstream_modules):
+    def __init__(self, upstream_modules, upstream_parameters=None):
         self.modules = dict(upstream_modules)
+        self.parameters = dict(upstream_parameters or {})
         self.assert_frozen()
         self.versions = {f'{module_name}.{name}': (id(p), p._version)
                          for module_name, module in self.modules.items()
                          for name, p in module.named_parameters()}
+        self.versions.update({name: (id(p), p._version) for name,p in self.parameters.items()})
 
     def assert_frozen(self):
+        if any(p.requires_grad for p in self.parameters.values()):
+            raise RuntimeError('Cached scorer features invalid: upstream standalone query/gate unfrozen')
         for module_name, module in self.modules.items():
             for name, p in module.named_parameters():
                 if p.requires_grad:
@@ -74,6 +78,7 @@ class FrozenScorerCacheContract:
         self.assert_frozen()
         actual = {f'{module_name}.{name}': (id(p), p._version)
                   for module_name, module in self.modules.items() for name, p in module.named_parameters()}
+        actual.update({name:(id(p),p._version) for name,p in self.parameters.items()})
         if actual != self.versions:
             raise RuntimeError('Cached scorer features invalid: upstream parameters changed')
 

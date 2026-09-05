@@ -2457,6 +2457,8 @@ class DriveVLABaseAgent(AbstractAgent):
                     "scene_embeds",
                     "semantic_gate",
                     "tile_gate",
+                    "global_queries",
+                    "local_queries",
                 )
             ):
                 return True

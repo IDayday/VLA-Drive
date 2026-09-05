@@ -57,7 +57,18 @@ class _LossForward(nn.Module):
     def forward(self, features, targets):
         predictions = self.agent(features)
         losses = self.agent.compute_loss(features, targets, predictions)
-        return predictions, losses
+        # Backward must run while functional replacements are still installed:
+        # checkpoint recomputation otherwise observes the original DDP leaves.
+        clones = {name: p for name, p in self.agent.named_parameters() if p.requires_grad}
+        groups = {
+            'vision_qv_lora': [p for name, p in clones.items() if '.q_lora_' in name or '.v_lora_' in name],
+            'planning_registers': [p for name, p in clones.items() if name.endswith('.planning_registers')],
+            'planning_readout': [p for name, p in clones.items() if '.planning_register_adapter.' in name and not name.endswith('.planning_registers')],
+            'readout_output': [predictions['planning_registers']],
+        }
+        weight = float(losses['wm_weight_current'].detach())
+        results = compare_loss_gradients(losses['plan_loss'], losses['wm_loss'], groups, weight)
+        return {'scope': 'same_batch_rank_local_unclipped', 'wm_weight': weight, 'groups': results}
 
 
 def isolated_same_batch_audit(agent, features, targets):
@@ -72,14 +83,30 @@ def isolated_same_batch_audit(agent, features, targets):
     clones = {'agent.' + name: p.detach().clone().requires_grad_(True)
               for name, p in agent.named_parameters() if p.requires_grad}
     wrapper = _LossForward(agent)
-    with preserve_rng():
-        predictions, losses = functional_call(wrapper, clones, (features, targets), strict=False)
-        groups = {
-            'vision_qv_lora': [p for name, p in clones.items() if '.q_lora_' in name or '.v_lora_' in name],
-            'planning_registers': [p for name, p in clones.items() if name.endswith('.planning_registers')],
-            'planning_readout': [p for name, p in clones.items() if '.planning_register_adapter.' in name and not name.endswith('.planning_registers')],
-            'readout_output': [predictions['planning_registers']],
-        }
-        weight = float(losses['wm_weight_current'].detach())
-        results = compare_loss_gradients(losses['plan_loss'], losses['wm_loss'], groups, weight)
-    return {'scope': 'same_batch_rank_local_unclipped', 'wm_weight': weight, 'groups': results}
+    # InternViT's remote encoder uses reentrant checkpointing, incompatible
+    # with autograd.grad. Only during this diagnostic use non-reentrant block
+    # checkpointing, preserving recomputation and the same block function.
+    # Do not globally monkey-patch torch or materialize B*tiles full attention.
+    checkpoint_modules = [(m, m.gradient_checkpointing) for m in agent.modules()
+                          if isinstance(getattr(m, 'gradient_checkpointing', None), bool)]
+    forwards = []
+    try:
+        for module, _ in checkpoint_modules:
+            module.gradient_checkpointing = False
+        vision = getattr(getattr(getattr(agent, 'backbone', None), 'model', None), 'vision_model', None)
+        encoder = getattr(vision, 'encoder', None)
+        if encoder is not None and any(m is encoder and flag for m, flag in checkpoint_modules):
+            from torch.utils.checkpoint import checkpoint
+            for layer in encoder.layers:
+                original = layer.forward
+                forwards.append((layer, original))
+                def recomputed(*args, _forward=original, **kwargs):
+                    return checkpoint(_forward, *args, use_reentrant=False, **kwargs)
+                layer.forward = recomputed
+        with preserve_rng():
+            return functional_call(wrapper, clones, (features, targets), strict=False)
+    finally:
+        for module, forward in forwards:
+            module.forward = forward
+        for module, flag in checkpoint_modules:
+            module.gradient_checkpointing = flag
