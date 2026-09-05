@@ -382,8 +382,9 @@ class AgentLightningModule(pl.LightningModule):
             self.agent.set_optimizer_step(self.global_step)
 
         if not 'mem' in self.agent.name().lower() or self.agent._config.memory_mode=='base':
-            prediction = self.agent.forward(features)
-            loss_dict = self.agent.compute_loss(features, targets, prediction)
+            # The isolated audit restores RNG and never writes optimizer.grad.
+            # Run it BEFORE retaining the normal training graph: overlapping
+            # both graphs caused a diagnostic-only OOM at per-GPU batch eight.
             if (logging_prefix == 'train' and self.same_batch_gradient_interval > 0
                     and self.global_step % self.same_batch_gradient_interval == 0
                     and self._last_same_batch_audit_step != self.global_step):
@@ -395,6 +396,8 @@ class AgentLightningModule(pl.LightningModule):
                 with (directory / f'same_batch_gradients_rank{self.global_rank}.jsonl').open('a') as stream:
                     stream.write(json.dumps(report, sort_keys=True) + '\n')
                 self._last_same_batch_audit_step = int(self.global_step)
+            prediction = self.agent.forward(features)
+            loss_dict = self.agent.compute_loss(features, targets, prediction)
         elif self.agent._config.memory_mode=='waver':
             prediction = self.agent.forward(features)
             trajectory,gate=self.agent.waver_forward(prediction)

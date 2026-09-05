@@ -95,7 +95,9 @@ def isolated_same_batch_audit(agent, features, targets):
             module.gradient_checkpointing = False
         vision = getattr(getattr(getattr(agent, 'backbone', None), 'model', None), 'vision_model', None)
         encoder = getattr(vision, 'encoder', None)
-        if encoder is not None and any(m is encoder and flag for m, flag in checkpoint_modules):
+        # Diagnostic autograd.grad retains both task graphs. Bound its memory
+        # even when normal training intentionally disables recomputation.
+        if encoder is not None and getattr(encoder, 'layers', None) is not None:
             from torch.utils.checkpoint import checkpoint
             for layer in encoder.layers:
                 original = layer.forward

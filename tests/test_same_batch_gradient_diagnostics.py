@@ -56,3 +56,28 @@ def test_functional_checkpoint_diagnostic_does_not_touch_original_leaves():
     assert output['groups']['planning_registers']['cosine'] < -.99
     assert torch.equal(parameter.grad, torch.ones_like(parameter)) and not calls
     assert agent.gradient_checkpointing is True
+
+
+def test_lightning_audit_precedes_normal_graph(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from torch import nn
+    from navsim.planning.training.agent_lightning_module import AgentLightningModule
+    from navsim.agents.EpisodeDrive import gradient_diagnostics
+    calls=[]
+    class Agent(nn.Module):
+        def name(self): return 'plain_agent'
+        def forward(self, features):
+            calls.append('normal_forward')
+            return torch.ones((),requires_grad=True)
+        def compute_loss(self, features, targets, pred): return {'loss':pred.square()}
+    def audit(agent, features, targets):
+        assert calls==[]
+        calls.append('audit')
+        return {'groups':{}}
+    monkeypatch.setattr(gradient_diagnostics,'isolated_same_batch_audit',audit)
+    model=AgentLightningModule(Agent(),diagnostics={'same_batch_gradient_interval':500})
+    model._trainer=SimpleNamespace(global_step=0,global_rank=0,default_root_dir=str(tmp_path))
+    monkeypatch.setattr(model,'log',lambda *args,**kwargs:None)
+    loss=model._step(({},{}),'train')
+    loss.backward()
+    assert calls==['audit','normal_forward']
