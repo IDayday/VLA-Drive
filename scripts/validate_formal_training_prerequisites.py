@@ -40,6 +40,24 @@ def _read_json(path: Path) -> Dict[str, Any]:
     return value
 
 
+def validate_lite_acceleration_evidence(layout: Dict[str, Any]) -> None:
+    for field in ('attention_parity', 'batch_comparison', 'training_parameter_audit', 'acceleration_real_smoke'):
+        evidence = layout.get(field, {})
+        path = Path(evidence.get('path', ''))
+        if not path.is_file() or sha256_file(path) != evidence.get('sha256'):
+            raise RuntimeError('Accelerated Lite layout needs unchanged evidence: '+field)
+    parity = _read_json(Path(layout['attention_parity']['path']))
+    comparison = _read_json(Path(layout['batch_comparison']['path']))
+    smoke = _read_json(Path(layout['acceleration_real_smoke']['path']))
+    if parity.get('status') != 'PASS' or len(parity.get('blocks', [])) != 24:
+        raise RuntimeError('Accelerated Lite requires actual 24-block parity')
+    if smoke.get('status') != 'PASS' or smoke.get('current_only_export_max_abs_diff') != 0:
+        raise RuntimeError('Accelerated Lite requires actual update/deployment smoke')
+    selected = layout['selected_layout']
+    if comparison.get('selected') != selected or not comparison.get('decisions', {}).get(selected, {}).get('eligible'):
+        raise RuntimeError('Accelerated Lite requires an eligible equal-exposure pilot')
+
+
 def validate_layout_lock(lock: Dict[str, Any]) -> None:
     required = (
         "selected_layout",
@@ -173,18 +191,7 @@ def main() -> None:
             if not layout.get('full_physical_sidecar_smoke_passed',False):
                 raise RuntimeError('Lite needs representative full-step physical-sidecar smoke evidence')
             if layout['read_only_attention_backend'] == 'split_sdpa':
-                for field in ('attention_parity', 'batch_comparison', 'training_parameter_audit'):
-                    evidence = layout.get(field, {})
-                    path = Path(evidence.get('path', ''))
-                    if not path.is_file() or sha256_file(path) != evidence.get('sha256'):
-                        raise RuntimeError('Accelerated Lite layout needs unchanged evidence: '+field)
-                parity = _read_json(Path(layout['attention_parity']['path']))
-                comparison = _read_json(Path(layout['batch_comparison']['path']))
-                if parity.get('status') != 'PASS' or len(parity.get('blocks', [])) != 24:
-                    raise RuntimeError('Accelerated Lite requires actual 24-block parity')
-                selected = layout['selected_layout']
-                if comparison.get('selected') != selected or not comparison.get('decisions', {}).get(selected, {}).get('eligible'):
-                    raise RuntimeError('Accelerated Lite requires an eligible equal-exposure pilot')
+                validate_lite_acceleration_evidence(layout)
     if int(manifest.get("record_count", -1)) != EXPECTED_DATASET_SIZE:
         raise RuntimeError(
             "Formal input-only cache must contain exactly 103,288 records; "

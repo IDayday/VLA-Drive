@@ -65,7 +65,7 @@ def compare_candidate(control, candidate):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    for key in ('metrics-root','reference-lock','attention-parity','output','comparison-output'):
+    for key in ('metrics-root','reference-lock','attention-parity','accelerated-smoke','output','comparison-output'):
         p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--control',default='16x4')
     a=p.parse_args()
@@ -76,6 +76,9 @@ def main():
     assert control['status']=='success' and control['global_batch_size']==64
     parity=json.loads(a.attention_parity.read_text())
     assert parity['status']=='PASS' and len(parity['blocks'])==24
+    smoke=json.loads(a.accelerated_smoke.read_text())
+    assert smoke['status']=='PASS' and smoke['attention_backend']=='split_sdpa'
+    assert smoke['current_only_export_max_abs_diff']==0 and len(smoke['steps'])>=3
     decisions={name:compare_candidate(control,m) for name,m in metrics.items()}
     eligible=[name for name,result in decisions.items() if result['eligible']]
     if not eligible:
@@ -116,6 +119,7 @@ def main():
         'benchmark_metrics_sha256':{name:sha(a.metrics_root/name/'metrics.json') for name in metrics},
         'training_parameter_audit':dict(path=str(params_path.resolve()),sha256=sha(params_path)),
         'attention_parity':dict(path=str(a.attention_parity.resolve()),sha256=sha(a.attention_parity)),
+        'acceleration_real_smoke':dict(path=str(a.accelerated_smoke.resolve()),sha256=sha(a.accelerated_smoke)),
         'batch_comparison':dict(path=str(a.comparison_output.resolve()),sha256=sha(a.comparison_output)),
         'throughput_scope':'Measured full optimizer-cycle including loader wait and callback overhead',
         'callback_step_only_samples_per_second':m['samples_per_second']}

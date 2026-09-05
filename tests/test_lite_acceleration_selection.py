@@ -28,3 +28,22 @@ def test_oom_and_memory_limit_are_not_promoted():
     assert not compare_candidate(control,candidate)['eligible']
     candidate['oom']=False;candidate['peak_allocated_gib']=72
     assert not compare_candidate(control,candidate)['eligible']
+
+
+def test_acceleration_preflight_rejects_missing_or_tampered_proof(tmp_path):
+    import hashlib
+    import json
+    import pytest
+    from scripts.validate_formal_training_prerequisites import validate_lite_acceleration_evidence
+    contents={'attention_parity':{'status':'PASS','blocks':[{}]*24},
+              'batch_comparison':{'selected':'32x4','decisions':{'32x4':{'eligible':True}}},
+              'training_parameter_audit':{},
+              'acceleration_real_smoke':{'status':'PASS','current_only_export_max_abs_diff':0}}
+    lock={'selected_layout':'32x4'}
+    for name,value in contents.items():
+        path=tmp_path/(name+'.json');path.write_text(json.dumps(value))
+        lock[name]={'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    validate_lite_acceleration_evidence(lock)
+    (tmp_path/'attention_parity.json').write_text('{}')
+    with pytest.raises(RuntimeError,match='unchanged evidence'):
+        validate_lite_acceleration_evidence(lock)
