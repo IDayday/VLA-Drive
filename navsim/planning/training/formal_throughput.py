@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -65,6 +66,8 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
         self._previous_batch_end = None
         self._seen = 0
         self._records: List[Dict[str, float]] = []
+        self._training_curve: List[Dict[str, float]] = []
+        self._sample_tokens: List[str] = []
         self._gpu_utilization: List[float] = []
         self._cpu_utilization: List[float] = []
         self._io_wait: List[float] = []
@@ -90,7 +93,7 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
     def on_train_batch_end(
         self, trainer, pl_module, outputs, batch, batch_idx
     ) -> None:
-        del outputs, batch, batch_idx
+        del outputs, batch_idx
         if torch.cuda.is_available():
             torch.cuda.synchronize()
         now = time.perf_counter()
@@ -104,6 +107,14 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
         )
         timings["data_wait"] = float(self._data_wait)
         timings["step_time"] = float(step_time)
+        timings["optimizer_cycle_time"] = float(step_time + self._data_wait)
+        self._training_curve.append({
+            "optimizer_step": int(trainer.global_step),
+            **{name: float(value) for name, value in timings.items()
+               if name.startswith(("loss/", "gradient/"))},
+        })
+        if isinstance(batch, (tuple, list)) and len(batch) == 2:
+            self._sample_tokens.extend(str(token) for token in batch[1].get("token", []))
 
         if self._seen > self.warmup_steps:
             self._records.append(timings)
@@ -125,6 +136,8 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
     def _local_payload(self) -> Dict[str, Any]:
         return {
             "records": self._records,
+            "training_curve": self._training_curve,
+            "sample_tokens": self._sample_tokens,
             "gpu_utilization": self._gpu_utilization,
             "cpu_utilization": self._cpu_utilization,
             "io_wait": self._io_wait,
@@ -163,6 +176,16 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
                     by_metric[name].append(float(value))
         step_times = [record["step_time"] for record in rank_zero_records]
         mean_step = statistics.fmean(step_times) if step_times else float("nan")
+        cycle_times = [record["optimizer_cycle_time"] for record in rank_zero_records]
+        global_curve = []
+        for index in range(len(gathered[0]["training_curve"])):
+            rows = [payload["training_curve"][index] for payload in gathered]
+            common_keys = set.intersection(*(set(row) for row in rows))
+            global_curve.append({key: statistics.fmean(row[key] for row in rows)
+                                 for key in sorted(common_keys)})
+        # Sort retains duplicate padding tokens. Equal hashes therefore prove
+        # equal sample exposure counts, not just equal dataset manifest names.
+        tokens = sorted(token for payload in gathered for token in payload["sample_tokens"])
         metrics = {
             "schema_version": 1,
             "layout": self.layout_name,
@@ -183,6 +206,11 @@ class FormalThroughputBenchmarkCallback(pl.Callback):
             "read_only_attention_backend": self.read_only_attention_backend,
             "samples_per_second": self.global_batch_size / mean_step,
             "optimizer_steps_per_second": 1.0 / mean_step,
+            "end_to_end_samples_per_second": self.global_batch_size / statistics.fmean(cycle_times),
+            "mean_optimizer_cycle_seconds": statistics.fmean(cycle_times),
+            "sample_exposure_count_including_warmup": len(tokens),
+            "sample_exposure_multiset_sha256": hashlib.sha256("\n".join(tokens).encode()).hexdigest(),
+            "training_curve_global_rank_mean": global_curve,
             "median_step_time": _percentile(step_times, 0.50),
             "p90_step_time": _percentile(step_times, 0.90),
             "peak_allocated_bytes": max(
