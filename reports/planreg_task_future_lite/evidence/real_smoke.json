@@ -1,0 +1,4078 @@
+{
+  "status": "PASS",
+  "kind": "real_numerical_smoke_not_formal_training",
+  "shared_init_sha256": "14250f9a38edd84a1d7335c87836bb430674ae4147bf1c13b4ac8bfc93e51078",
+  "steps": [
+    {
+      "step": 0,
+      "tokens": [
+        "05c9001786c05490",
+        "05ee0fdf7292508d"
+      ],
+      "seconds": 10.269709691405296,
+      "loss": 27.246233495002134,
+      "wm_loss": 1.195145606994629,
+      "wm_weight": 0.009999999776482582,
+      "grad_norm": 46.6437873840332,
+      "lora_block_grad_norms": [
+        1.0023408297328413,
+        0.7613221504656902,
+        0.6603160853701558,
+        0.46963807311444944,
+        0.28004650821357413,
+        0.3148206823201138,
+        0.5259077326348348,
+        0.4771132511245688,
+        0.5181398204879931,
+        0.5708259074454387,
+        0.6472594694260414,
+        0.7554378467696937,
+        0.6297287508607835,
+        0.5528880401093808,
+        0.5397383074874349,
+        0.43390687169767794,
+        0.391357288610444,
+        0.2986015289716626,
+        0.3129790077085387,
+        0.2812786816171511,
+        0.28161848949474594,
+        0.2783326129537576,
+        0.46921686427277026,
+        0.43538349662570536
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "3996405f68d7107ad964042a73a76ef3908a0775c9d4e81bf4d5ba7028be509a",
+          "initial_ego_hash": "30d4cfa9d991671dab3fe82069b6f288a23d8e4c5851e78f945a79f72c26a40d",
+          "metric_cache_hash": "cb1a3dbec3ed2eff8631da045211cbe9e3a2e489e8db575f62aba60a719464f2",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "1ddb7b7b8219e5656b92a6fd91d5fb79baf00c79cfe44fd3a2eaac9a66f04889",
+            "map_coverage_sha256": "ad826be32fc153faba15ca13c304d4317893c2913eeb24f9c2c8e3b9317a1579"
+          },
+          "cache_key": "19cf43934ecd434cc958607d6f4635666651ffc626701e30e4a74c4637a60ba6",
+          "timing": {
+            "label_extract_sec": 0.2520893644541502,
+            "scorer_and_labels_sec": 3.0934953652322292,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "dc69a7b7fb4da9770f1fc877c4a2aabc7c98d60d6f725a2cb205e1b9571183a7",
+          "initial_ego_hash": "24339babc48c20aa7a02f27322638ee093863cb7a5fb22ba2a18b2f59785c744",
+          "metric_cache_hash": "8c1deb3a25ab7d1e12a94ed1505affcbd4e9a541fa68c1ef69afe4611a26a27c",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "b5e1b84f1b2ebaa6bf0e9e9bdd1b8ca3ddcc7d3660ea821c213e205198f445b1",
+            "map_coverage_sha256": "ff22ac689aec934703711052b3974b4a8b3e79a333e02d431834b400d7ec1481"
+          },
+          "cache_key": "a131b0cf5bf4b5d19e20a56fd822e971ef89232fc60cf2db8403cdccfa60fc7f",
+          "timing": {
+            "label_extract_sec": 0.4690213277935982,
+            "scorer_and_labels_sec": 3.2803027853369713,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "tokens": [
+        "21fd55122da2501d",
+        "41ec11a3d83359a9"
+      ],
+      "seconds": 3.701288564130664,
+      "loss": 19.229827154707014,
+      "wm_loss": 1.1666653156280518,
+      "wm_weight": 0.010020652785897255,
+      "grad_norm": 67.97005462646484,
+      "lora_block_grad_norms": [
+        1.1272963247618635,
+        0.4350077218553456,
+        0.6737645969961196,
+        0.7815968585090416,
+        0.3686846314271888,
+        0.4450342166532884,
+        0.8153065392283857,
+        0.6732681107179734,
+        0.7610817084544554,
+        0.7031416420861418,
+        0.7892050621470594,
+        0.9272723695303909,
+        0.9213633752190302,
+        0.8260089193830151,
+        0.8158106719896776,
+        0.6018776757788635,
+        0.5046097372214389,
+        0.38823923690978973,
+        0.40576092045698553,
+        0.3622811603658783,
+        0.3288511587594239,
+        0.36171204123191814,
+        0.6527808378352975,
+        0.5971778062964415
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "6d154491a7de36f53934898faa6fca83b4a93c1b4815ab8a172db10c7381a627",
+          "initial_ego_hash": "f3bd319574abcb431e769af83b430a53cbea2c23ef8d320c4532630a981b35bd",
+          "metric_cache_hash": "1ff785ad472fc6e882625b00821d15219a84c9ee9b3c2dc4cd6bc5d248def0ee",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "2e9f076c5ddf30f56abd50ac8cbf20f60b7aa64c1d13fea1924afc82bf6cb604",
+            "map_coverage_sha256": "61e34dc530aad109f05f622ac90996679d8a59629c32cf53c123b796ff6393c0"
+          },
+          "cache_key": "eb53754049f82cf7b7887f1638282b6e2dad66612230f882d0ce68a49e33d231",
+          "timing": {
+            "label_extract_sec": 0.3066616002470255,
+            "scorer_and_labels_sec": 0.7834869716316462,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "3f34604a1cc591e8d1e1a2a40ec46f38b2ec8894eca20e0030020fbca4329c2d",
+          "initial_ego_hash": "e0fabdc64f3a9ecf7172d6ff16c35f6ce357f65fa5fc1e53b96661661b0ad291",
+          "metric_cache_hash": "aa6d015617e86b5f99c77b50e7629aba19a432f93970899c3e972ed5fce8e7f2",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "753ac5bfb670174e77f3c0a461f43e0f3438826780c0e4c4fa89cd9af6063d95",
+            "map_coverage_sha256": "82c7e355a218ac1b7e38615740974b9b5d317264be2ebfb9c4ceca2fe0405f85"
+          },
+          "cache_key": "29b446e9c3910e629434c59f0b39742abff59ec8e59dc36abeacbda13f33a7bc",
+          "timing": {
+            "label_extract_sec": 0.4795979466289282,
+            "scorer_and_labels_sec": 0.9813448563218117,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "tokens": [
+        "0a678d2136b35b56",
+        "26a52620df02526b"
+      ],
+      "seconds": 3.6870791018009186,
+      "loss": 28.48735505521978,
+      "wm_loss": 1.1948833465576172,
+      "wm_weight": 0.010041304863989353,
+      "grad_norm": 47.380157470703125,
+      "lora_block_grad_norms": [
+        1.8333055466724775,
+        0.7077211425475953,
+        1.1458510165373244,
+        1.2352857332106337,
+        0.659960900564598,
+        0.7809763580809922,
+        1.2442796243644436,
+        1.2876223015020865,
+        1.6664203384105398,
+        1.2915461027074873,
+        1.180520706873377,
+        1.0528099326898952,
+        0.8557854263833986,
+        0.6440399211210386,
+        0.6253446684309655,
+        0.5137854125787309,
+        0.4180400494465521,
+        0.31923755849367996,
+        0.3152060177261315,
+        0.27606828000935923,
+        0.23481416915276232,
+        0.2552280685511577,
+        0.4705175370782864,
+        0.41422137700249717
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "ecd220e43ab2944babf75f4816401e2fd8062a8ff7e363013eb9f3cd579a4ae8",
+          "initial_ego_hash": "cbd8717c8642750655979f0d0e93c773cb4517c28708ffefbbfd7698e95a1116",
+          "metric_cache_hash": "b98682fa44b7c46ede239cf9de5892b394f042f5cff9df8d205586cc1c9cae39",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "e809033823343fa8260763d37db092bc2fb4d6618b62a49878e95b229e9472e1",
+            "map_coverage_sha256": "9d443877e67f4257c5dbedf0996c3e221942a1b82ed4b45b65b1b59b536618c3"
+          },
+          "cache_key": "feedd40eb5a6def172b539b0635ea97ea61827aa5cc4f233e8fcf0a171f5bd25",
+          "timing": {
+            "label_extract_sec": 0.4384014382958412,
+            "scorer_and_labels_sec": 1.0118620954453945,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "dee7649c8c5acd1a97338d560de6e55d515976eb058e5f837b1b5014140119bc",
+          "initial_ego_hash": "df3b889dcd36dc1c967c69e60ec6697fa4d4d85c0d06d327a18656c24794f61a",
+          "metric_cache_hash": "2e778f8299e9b7136ab3448b40607c30d13b9d6bc62bf249463c02cae9e2c30a",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "8b6dbdc44f430812a860f9ffb9c579839f824fceb836ac59d5e7f21cad03e86e",
+            "map_coverage_sha256": "87d623ab02c68bbfeff03704480d0b1ab28ec81fcff225e7787b939e946e309e"
+          },
+          "cache_key": "c539ef90b86a31f6fcbbb993940df406d5c57c5c7be42cbbd730d69026198ab8",
+          "timing": {
+            "label_extract_sec": 0.3895188868045807,
+            "scorer_and_labels_sec": 1.220530292019248,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "tokens": [
+        "1e996c1856f35493",
+        "018668673de85717"
+      ],
+      "seconds": 3.6836408153176308,
+      "loss": 24.142583022150724,
+      "wm_loss": 0.9970003366470337,
+      "wm_weight": 0.010061957873404026,
+      "grad_norm": 126.65677642822266,
+      "lora_block_grad_norms": [
+        1.336754055166972,
+        0.3745843139658492,
+        0.6776351917446479,
+        0.8270947750784036,
+        0.3753774533862635,
+        0.4492255155788696,
+        0.808180150489211,
+        0.6939026482597324,
+        0.805044949022633,
+        0.8086819753699207,
+        0.8519953689811464,
+        0.782758547106437,
+        0.5541738582298932,
+        0.5233524120224545,
+        0.5298988586077927,
+        0.39184018548032223,
+        0.45250535247495766,
+        0.3023211053596573,
+        0.3278108885411946,
+        0.3039331968820681,
+        0.31304466708621886,
+        0.295243329288242,
+        0.480933313925874,
+        0.4333898087899416
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "e865251a92cc3cec26f2a72a8a0fbff27525e811a8648cd446c1a39392c61e1a",
+          "initial_ego_hash": "36ac9a5760f49c644fa230c6e200a6be02acecafb86466a8c487846c0f2b9b85",
+          "metric_cache_hash": "619c7004a2a106c680e3c064c44c6e760d26b5e8d27b6295f79b7defe17c670c",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "46aa8cee4d72a7880c8639ad4a30ed918221d1268376547be0318739bc639d40",
+            "map_coverage_sha256": "5ac9c03aa2239d81cda3596c88999861be905407caf6bef88a83af7f0a784ab8"
+          },
+          "cache_key": "46fd91369248ed6b581155886190e9d221e25a8e246d739d3329647c838207f2",
+          "timing": {
+            "label_extract_sec": 0.3041350357234478,
+            "scorer_and_labels_sec": 1.0204748213291168,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "06e0ab7e3ac7266e469c24ed77a1f288739c65a4b1887b79ced6b17899936a6d",
+          "initial_ego_hash": "52b593c16729b108e13e98d4c6b88504bf79a601414e19ee13d03fa58737a9dc",
+          "metric_cache_hash": "54b7a06cd8b3f3491fed8d870c248ba1fcb26176fd10e6fa2bc5be68ab726013",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "3f6c885db2c12a2ecd82a7a199833c49a854f44976e1b46bb31c433829400f54",
+            "map_coverage_sha256": "598987d50779c0788cbe247395032f99f1bb4bb773102d581a4735a2e3f63bbc"
+          },
+          "cache_key": "369a26bfdee45b2d9eca74fe0d11dea6e46f5c2e09e705e6c1fe166b8e72d5ce",
+          "timing": {
+            "label_extract_sec": 0.2528518121689558,
+            "scorer_and_labels_sec": 0.606533071026206,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "tokens": [
+        "05c9001786c05490",
+        "05ee0fdf7292508d"
+      ],
+      "seconds": 3.6893176659941673,
+      "loss": 26.628582283511932,
+      "wm_loss": 1.20735502243042,
+      "wm_weight": 0.010082610882818699,
+      "grad_norm": 58.91054916381836,
+      "lora_block_grad_norms": [
+        1.5272460746023462,
+        1.1666979170022642,
+        1.1546393687830734,
+        0.6938612558260888,
+        0.4226699926550008,
+        0.4393265223451069,
+        0.7131422079988614,
+        0.6583467214535698,
+        0.7272091165685067,
+        0.7230857752618362,
+        0.8636598710943613,
+        0.9840075082520636,
+        0.8210315925410709,
+        0.6744790580521088,
+        0.5611004873658914,
+        0.4599301262397108,
+        0.4210521831334476,
+        0.34547469743970893,
+        0.36002746072993497,
+        0.3240475948251758,
+        0.34388188672825826,
+        0.33892771991408593,
+        0.6286813029528552,
+        0.5659446952429753
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "a6d080f881a18f9922bfc2d52db6d994eb52055e2c8b66b5e37697c9374e2692",
+          "initial_ego_hash": "30d4cfa9d991671dab3fe82069b6f288a23d8e4c5851e78f945a79f72c26a40d",
+          "metric_cache_hash": "cb1a3dbec3ed2eff8631da045211cbe9e3a2e489e8db575f62aba60a719464f2",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "1ddb7b7b8219e5656b92a6fd91d5fb79baf00c79cfe44fd3a2eaac9a66f04889",
+            "map_coverage_sha256": "ad826be32fc153faba15ca13c304d4317893c2913eeb24f9c2c8e3b9317a1579"
+          },
+          "cache_key": "0a9747cd2a08ad78f07f9deca1b0296a198cc4446eae6582c82b448f0e1e9050",
+          "timing": {
+            "label_extract_sec": 0.2679950688034296,
+            "scorer_and_labels_sec": 0.6778113692998886,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "518cf56bcc065e83d97197572e4b349dc08e9a7e667bd77148d8962cf67311e3",
+          "initial_ego_hash": "24339babc48c20aa7a02f27322638ee093863cb7a5fb22ba2a18b2f59785c744",
+          "metric_cache_hash": "8c1deb3a25ab7d1e12a94ed1505affcbd4e9a541fa68c1ef69afe4611a26a27c",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "b5e1b84f1b2ebaa6bf0e9e9bdd1b8ca3ddcc7d3660ea821c213e205198f445b1",
+            "map_coverage_sha256": "ff22ac689aec934703711052b3974b4a8b3e79a333e02d431834b400d7ec1481"
+          },
+          "cache_key": "0e7280c31a38694f37c525d04e51c7ba2e3ae606648f9e980bea230866847ad0",
+          "timing": {
+            "label_extract_sec": 0.4563712887465954,
+            "scorer_and_labels_sec": 0.9666973762214184,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "tokens": [
+        "21fd55122da2501d",
+        "41ec11a3d83359a9"
+      ],
+      "seconds": 3.6850618328899145,
+      "loss": 19.355073828416863,
+      "wm_loss": 1.1641203165054321,
+      "wm_weight": 0.010103262960910797,
+      "grad_norm": 71.45381164550781,
+      "lora_block_grad_norms": [
+        1.1525607483684182,
+        0.5777376411700061,
+        0.7556178825807482,
+        0.8999680832793611,
+        0.3772707655494216,
+        0.4502847569944094,
+        0.8005218061826168,
+        0.6395645915931378,
+        0.8014143887974536,
+        0.7038425194936577,
+        0.7480610651400248,
+        0.8433577213325563,
+        0.83627893129768,
+        0.8129117940604091,
+        0.8374082942774802,
+        0.6254542107295964,
+        0.5182267199611597,
+        0.3946143925284063,
+        0.441202064700892,
+        0.3470584360881855,
+        0.330276882352926,
+        0.3383499480263191,
+        0.5582562455470077,
+        0.520559561193886
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "451a8ac592e98c85752394f3472347501cc45a98c705edd87a99781c4acb60b5",
+          "initial_ego_hash": "f3bd319574abcb431e769af83b430a53cbea2c23ef8d320c4532630a981b35bd",
+          "metric_cache_hash": "1ff785ad472fc6e882625b00821d15219a84c9ee9b3c2dc4cd6bc5d248def0ee",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "2e9f076c5ddf30f56abd50ac8cbf20f60b7aa64c1d13fea1924afc82bf6cb604",
+            "map_coverage_sha256": "61e34dc530aad109f05f622ac90996679d8a59629c32cf53c123b796ff6393c0"
+          },
+          "cache_key": "3fd382561d20f49ae9f98e3fbd0f898406dde6bec302dc7acef1195b8dffacae",
+          "timing": {
+            "label_extract_sec": 0.31405532360076904,
+            "scorer_and_labels_sec": 0.7820145655423403,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "5f2a0dd8133a6038ea4bf95550506c01830d0b999094fb55110fe8d00ac0aa1d",
+          "initial_ego_hash": "e0fabdc64f3a9ecf7172d6ff16c35f6ce357f65fa5fc1e53b96661661b0ad291",
+          "metric_cache_hash": "aa6d015617e86b5f99c77b50e7629aba19a432f93970899c3e972ed5fce8e7f2",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "753ac5bfb670174e77f3c0a461f43e0f3438826780c0e4c4fa89cd9af6063d95",
+            "map_coverage_sha256": "82c7e355a218ac1b7e38615740974b9b5d317264be2ebfb9c4ceca2fe0405f85"
+          },
+          "cache_key": "9457582c85b84d027f62608bc9e528897b49b48f2d982cbfbc1b833b6d95aa2e",
+          "timing": {
+            "label_extract_sec": 0.4613229129463434,
+            "scorer_and_labels_sec": 0.96558996476233,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "tokens": [
+        "0a678d2136b35b56",
+        "26a52620df02526b"
+      ],
+      "seconds": 3.688648883253336,
+      "loss": 28.80622106004074,
+      "wm_loss": 1.196190357208252,
+      "wm_weight": 0.01012391597032547,
+      "grad_norm": 55.76824188232422,
+      "lora_block_grad_norms": [
+        2.2977304582304674,
+        0.7609350399576766,
+        1.6796397222376978,
+        1.401584397792904,
+        0.6315304708400089,
+        0.7507053108303315,
+        1.0021868240160459,
+        0.9437455837246055,
+        1.0748640599531216,
+        1.1082925330562203,
+        1.2392901010440571,
+        1.3772787679723428,
+        1.2316285470363089,
+        1.0662950703204024,
+        1.0910445032280416,
+        0.6922511966596129,
+        0.5661600217325372,
+        0.39591908660253666,
+        0.35970597934040827,
+        0.32222610585022365,
+        0.28248529902372643,
+        0.32639135478188824,
+        0.5635818679676828,
+        0.47537003262613603
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "cf33cb9fc67c9edc9929106a801eedd133fea7282e45466bdd106b491db47f69",
+          "initial_ego_hash": "cbd8717c8642750655979f0d0e93c773cb4517c28708ffefbbfd7698e95a1116",
+          "metric_cache_hash": "b98682fa44b7c46ede239cf9de5892b394f042f5cff9df8d205586cc1c9cae39",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "e809033823343fa8260763d37db092bc2fb4d6618b62a49878e95b229e9472e1",
+            "map_coverage_sha256": "9d443877e67f4257c5dbedf0996c3e221942a1b82ed4b45b65b1b59b536618c3"
+          },
+          "cache_key": "527eaf993e706e0dbf6f3c0438ddb324f7cce4afad1aece9a8643c09a5fbe0d9",
+          "timing": {
+            "label_extract_sec": 0.4534001797437668,
+            "scorer_and_labels_sec": 1.0062434170395136,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "a00f53c7970bf35ca02d9419af470a2aad13bf5d3f53916dc9bba1e558cefa82",
+          "initial_ego_hash": "df3b889dcd36dc1c967c69e60ec6697fa4d4d85c0d06d327a18656c24794f61a",
+          "metric_cache_hash": "2e778f8299e9b7136ab3448b40607c30d13b9d6bc62bf249463c02cae9e2c30a",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "8b6dbdc44f430812a860f9ffb9c579839f824fceb836ac59d5e7f21cad03e86e",
+            "map_coverage_sha256": "87d623ab02c68bbfeff03704480d0b1ab28ec81fcff225e7787b939e946e309e"
+          },
+          "cache_key": "e1ad8c34055c8f05a773c10b1a7a4751cdcab3bb0e71cb9f91ba52d64de20e07",
+          "timing": {
+            "label_extract_sec": 0.37922640703618526,
+            "scorer_and_labels_sec": 0.9819719064980745,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "tokens": [
+        "1e996c1856f35493",
+        "018668673de85717"
+      ],
+      "seconds": 3.688482031226158,
+      "loss": 24.029527152592486,
+      "wm_loss": 0.9858287572860718,
+      "wm_weight": 0.010144568048417568,
+      "grad_norm": 108.8919677734375,
+      "lora_block_grad_norms": [
+        2.2696094168005314,
+        0.765184481626241,
+        1.510990707741695,
+        0.9798253248307663,
+        0.41345982795652864,
+        0.5007130583165686,
+        0.6321515602508159,
+        0.46555783385621147,
+        0.5306070412994959,
+        0.5243112209014037,
+        0.6416373588310188,
+        0.6701484629914651,
+        0.4944504652154064,
+        0.5071058931327129,
+        0.45744820798457136,
+        0.33272737646690537,
+        0.3729978364710665,
+        0.24802488080972435,
+        0.264123658971441,
+        0.2400108097220962,
+        0.24196354087169003,
+        0.2229919521155701,
+        0.3989574490241263,
+        0.35681539297261416
+      ],
+      "physical_counts": {
+        "physical_current_gap_count": 128.0,
+        "physical_future_gap_count": 48.0,
+        "physical_current_road_count": 128.0,
+        "physical_future_road_count": 48.0,
+        "physical_current_progress_count": 128.0,
+        "physical_future_progress_count": 48.0
+      },
+      "label_audit": [
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "a545aefbcc47f4ddeb273c90ff3bb9a6f29bc479f9d7bbb4ca7a7eb5e9344657",
+          "initial_ego_hash": "36ac9a5760f49c644fa230c6e200a6be02acecafb86466a8c487846c0f2b9b85",
+          "metric_cache_hash": "619c7004a2a106c680e3c064c44c6e760d26b5e8d27b6295f79b7defe17c670c",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "46aa8cee4d72a7880c8639ad4a30ed918221d1268376547be0318739bc639d40",
+            "map_coverage_sha256": "5ac9c03aa2239d81cda3596c88999861be905407caf6bef88a83af7f0a784ab8"
+          },
+          "cache_key": "68d3b10a40e622108bd51fdf418f95d1279cf2ed7674b68562ac80b6cc11751a",
+          "timing": {
+            "label_extract_sec": 0.3012123517692089,
+            "scorer_and_labels_sec": 0.9389124661684036,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        },
+        {
+          "source_protocol": "task_future_lite_v1_projected_geometric_gap_10hz_lag0_3_6_9",
+          "candidate_coordinates_hash": "1e4b35619022eab0c773092c965bc2a4e9659dbfafa753f01f762ef86b41ab1a",
+          "initial_ego_hash": "52b593c16729b108e13e98d4c6b88504bf79a601414e19ee13d03fa58737a9dc",
+          "metric_cache_hash": "54b7a06cd8b3f3491fed8d870c248ba1fcb26176fd10e6fa2bc5be68ab726013",
+          "source_conditions": {
+            "actor_source": "logged_interpolated_10hz",
+            "cache_builder_sha256": "b3aa205d2f3aa9cf1fd6332ba3838249f7dbcc07837d1093aefdf5dbe6c0aca7",
+            "vehicle_parameters": {
+              "width": 2.297,
+              "front_length": 4.049,
+              "rear_length": 1.127,
+              "wheel_base": 3.089,
+              "length": 5.176,
+              "cog_position_from_rear_axle": 1.67,
+              "height": 1.777,
+              "vehicle_name": "pacifica",
+              "vehicle_type": "gen1"
+            },
+            "simulator_sha256": "6908be76ade1831ad8386a9927c879477ab83f5629a4013d71125f1ab013bec7",
+            "map_name": "us-nv-las-vegas-strip",
+            "map_version": "nuplan-maps-v1.0",
+            "map_source": "original_map_api_union_preserving_holes",
+            "road_union_sha256": "3f6c885db2c12a2ecd82a7a199833c49a854f44976e1b46bb31c433829400f54",
+            "map_coverage_sha256": "598987d50779c0788cbe247395032f99f1bb4bb773102d581a4735a2e3f63bbc"
+          },
+          "cache_key": "a0343e3670788523588584797eec34b37be050b36f41186badb8427923d5fc1e",
+          "timing": {
+            "label_extract_sec": 0.2564410138875246,
+            "scorer_and_labels_sec": 0.5963378734886646,
+            "proposal_rollouts": 64,
+            "extra_gt_rollouts": 1
+          }
+        }
+      ]
+    }
+  ],
+  "initial_state": {
+    "schema_version": 1,
+    "trainable_state_key_count": 468,
+    "trainable_parameter_count": 21249830,
+    "trainable_state_sha256": "a34168bd6df426e67d558db9511fb80b1a9a80b7bdec921bee2e48e4c80a97b5",
+    "logical_modules": {
+      "action_generator": {
+        "key_count": 93,
+        "parameter_count": 5576728,
+        "sha256": "4ef97e6d339235144bbe992e672fab4b4f323659f0f896a4f96d74cd02126771"
+      },
+      "future_predictor": {
+        "key_count": 58,
+        "parameter_count": 616455,
+        "sha256": "7d397141a430343c59c399a183ec6fd289086a91fc34e3cb11886826e3bb965f"
+      },
+      "planning_adapter": {
+        "key_count": 25,
+        "parameter_count": 945408,
+        "sha256": "b7e0b44d792b3a16db8f3160e66a39cb597feba4b3cd7170e0e1e551cf33226b"
+      },
+      "scorer": {
+        "key_count": 108,
+        "parameter_count": 6088966,
+        "sha256": "1bd970178886e8348fe35facb81706a38127b91a2741ff70dda64ca70ca195f9"
+      },
+      "semantic_fusion": {
+        "key_count": 11,
+        "parameter_count": 264705,
+        "sha256": "a7a583d34c012a0c5d388553b2d0c85a77c300f5e0e50cd25843e55139190cb5"
+      },
+      "semantic_qformer": {
+        "key_count": 77,
+        "parameter_count": 4611840,
+        "sha256": "705edcbfed4a5bbec890489f331dfaa265377d7bbd1997cf75a15fd975a4f172"
+      },
+      "vision_qv_lora": {
+        "key_count": 96,
+        "parameter_count": 3145728,
+        "sha256": "b98d24236b23451044a1a03af494928782539d56cf690ebd6b7e1232c40b56b2"
+      }
+    }
+  },
+  "agent_checkpoint_loaded": false,
+  "physical_decoder_parameters": 616455,
+  "paired_trainable_initial_state_bitwise_equal": true,
+  "vqa_initial_state": {
+    "schema_version": 1,
+    "trainable_state_key_count": 468,
+    "trainable_parameter_count": 21249830,
+    "trainable_state_sha256": "a34168bd6df426e67d558db9511fb80b1a9a80b7bdec921bee2e48e4c80a97b5",
+    "logical_modules": {
+      "action_generator": {
+        "key_count": 93,
+        "parameter_count": 5576728,
+        "sha256": "4ef97e6d339235144bbe992e672fab4b4f323659f0f896a4f96d74cd02126771"
+      },
+      "future_predictor": {
+        "key_count": 58,
+        "parameter_count": 616455,
+        "sha256": "7d397141a430343c59c399a183ec6fd289086a91fc34e3cb11886826e3bb965f"
+      },
+      "planning_adapter": {
+        "key_count": 25,
+        "parameter_count": 945408,
+        "sha256": "b7e0b44d792b3a16db8f3160e66a39cb597feba4b3cd7170e0e1e551cf33226b"
+      },
+      "scorer": {
+        "key_count": 108,
+        "parameter_count": 6088966,
+        "sha256": "1bd970178886e8348fe35facb81706a38127b91a2741ff70dda64ca70ca195f9"
+      },
+      "semantic_fusion": {
+        "key_count": 11,
+        "parameter_count": 264705,
+        "sha256": "a7a583d34c012a0c5d388553b2d0c85a77c300f5e0e50cd25843e55139190cb5"
+      },
+      "semantic_qformer": {
+        "key_count": 77,
+        "parameter_count": 4611840,
+        "sha256": "705edcbfed4a5bbec890489f331dfaa265377d7bbd1997cf75a15fd975a4f172"
+      },
+      "vision_qv_lora": {
+        "key_count": 96,
+        "parameter_count": 3145728,
+        "sha256": "b98d24236b23451044a1a03af494928782539d56cf690ebd6b7e1232c40b56b2"
+      }
+    }
+  },
+  "train_scenes": [
+    {
+      "log": "2021.05.12.19.36.12_veh-35_01400_01643",
+      "token": "05c9001786c05490",
+      "category": "turn",
+      "speed": 3.6079232692718506,
+      "endpoint_heading_abs": 0.8714161569380926,
+      "actor_count": 44,
+      "current_road_margin": 2.0885316540156134,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.19.36.12_veh-35_01400_01643/05c9001786c05490/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.19.36.12_veh-35_01400_01643/unknown/05c9001786c05490/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.19.36.12_veh-35_01744_01934",
+      "token": "05ee0fdf7292508d",
+      "category": "turn",
+      "speed": 2.6822125911712646,
+      "endpoint_heading_abs": 0.3868504851667951,
+      "actor_count": 195,
+      "current_road_margin": 3.8480547771339397,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.19.36.12_veh-35_01744_01934/05ee0fdf7292508d/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.19.36.12_veh-35_01744_01934/unknown/05ee0fdf7292508d/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.19.36.12_veh-35_01179_01278",
+      "token": "21fd55122da2501d",
+      "category": "stop",
+      "speed": 0.24747031927108765,
+      "endpoint_heading_abs": 0.003950531343126729,
+      "actor_count": 73,
+      "current_road_margin": 3.417989875753213,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.19.36.12_veh-35_01179_01278/21fd55122da2501d/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.19.36.12_veh-35_01179_01278/unknown/21fd55122da2501d/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.22.00.38_veh-35_00005_00118",
+      "token": "41ec11a3d83359a9",
+      "category": "stop",
+      "speed": 0.4431019425392151,
+      "endpoint_heading_abs": 0.0337919434234395,
+      "actor_count": 196,
+      "current_road_margin": 5.299127377627671,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.22.00.38_veh-35_00005_00118/41ec11a3d83359a9/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.22.00.38_veh-35_00005_00118/unknown/41ec11a3d83359a9/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.19.36.12_veh-35_00005_00204",
+      "token": "0a678d2136b35b56",
+      "category": "crowded",
+      "speed": 1.803356647491455,
+      "endpoint_heading_abs": 0.0007204492740173761,
+      "actor_count": 180,
+      "current_road_margin": 4.902969660624117,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.19.36.12_veh-35_00005_00204/0a678d2136b35b56/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.19.36.12_veh-35_00005_00204/unknown/0a678d2136b35b56/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.19.36.12_veh-35_00215_00405",
+      "token": "26a52620df02526b",
+      "category": "crowded",
+      "speed": 6.8006086349487305,
+      "endpoint_heading_abs": 0.001436784541648528,
+      "actor_count": 103,
+      "current_road_margin": 4.368739501813907,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.19.36.12_veh-35_00215_00405/26a52620df02526b/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.19.36.12_veh-35_00215_00405/unknown/26a52620df02526b/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.22.00.38_veh-35_00129_00204",
+      "token": "1e996c1856f35493",
+      "category": "boundary",
+      "speed": 0.9735952615737915,
+      "endpoint_heading_abs": 0.0016793215498551728,
+      "actor_count": 65,
+      "current_road_margin": 0.3483247231112505,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.22.00.38_veh-35_00129_00204/1e996c1856f35493/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.22.00.38_veh-35_00129_00204/unknown/1e996c1856f35493/metric_cache.pkl",
+      "partition": "train"
+    },
+    {
+      "log": "2021.05.12.22.00.38_veh-35_00215_00995",
+      "token": "018668673de85717",
+      "category": "boundary",
+      "speed": 3.3932201862335205,
+      "endpoint_heading_abs": 0.8417044857640381,
+      "actor_count": 33,
+      "current_road_margin": 0.4994702167318119,
+      "record": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2c/2021.05.12.22.00.38_veh-35_00215_00995/018668673de85717/planreg_input_only.gz",
+      "metric_cache": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/2021.05.12.22.00.38_veh-35_00215_00995/unknown/018668673de85717/metric_cache.pkl",
+      "partition": "train"
+    }
+  ],
+  "development_logs_untouched": true,
+  "optimizer_groups": [
+    {
+      "name": "planning_adapter_decay",
+      "logical_name": "planning_adapter",
+      "tensor_count": 8,
+      "parameter_count": 918784,
+      "lr": 0.0002,
+      "weight_decay": 0.01
+    },
+    {
+      "name": "planning_adapter_no_decay",
+      "logical_name": "planning_adapter",
+      "tensor_count": 17,
+      "parameter_count": 26624,
+      "lr": 0.0002,
+      "weight_decay": 0.0
+    },
+    {
+      "name": "semantic_fusion_decay",
+      "logical_name": "semantic_fusion",
+      "tensor_count": 2,
+      "parameter_count": 262144,
+      "lr": 0.0002,
+      "weight_decay": 0.01
+    },
+    {
+      "name": "semantic_fusion_no_decay",
+      "logical_name": "semantic_fusion",
+      "tensor_count": 9,
+      "parameter_count": 2561,
+      "lr": 0.0002,
+      "weight_decay": 0.0
+    },
+    {
+      "name": "action_generator_decay",
+      "logical_name": "action_generator",
+      "tensor_count": 28,
+      "parameter_count": 5532416,
+      "lr": 0.0002,
+      "weight_decay": 0.01
+    },
+    {
+      "name": "action_generator_no_decay",
+      "logical_name": "action_generator",
+      "tensor_count": 65,
+      "parameter_count": 44312,
+      "lr": 0.0002,
+      "weight_decay": 0.0
+    },
+    {
+      "name": "scorer_decay",
+      "logical_name": "scorer",
+      "tensor_count": 38,
+      "parameter_count": 6060032,
+      "lr": 0.0002,
+      "weight_decay": 0.01
+    },
+    {
+      "name": "scorer_no_decay",
+      "logical_name": "scorer",
+      "tensor_count": 70,
+      "parameter_count": 28934,
+      "lr": 0.0002,
+      "weight_decay": 0.0
+    },
+    {
+      "name": "future_predictor_decay",
+      "logical_name": "future_predictor",
+      "tensor_count": 22,
+      "parameter_count": 609536,
+      "lr": 0.0001,
+      "weight_decay": 0.01
+    },
+    {
+      "name": "future_predictor_no_decay",
+      "logical_name": "future_predictor",
+      "tensor_count": 36,
+      "parameter_count": 6919,
+      "lr": 0.0001,
+      "weight_decay": 0.0
+    },
+    {
+      "name": "semantic_qformer_decay",
+      "logical_name": "semantic_qformer",
+      "tensor_count": 25,
+      "parameter_count": 4587520,
+      "lr": 0.0001,
+      "weight_decay": 0.01
+    },
+    {
+      "name": "semantic_qformer_no_decay",
+      "logical_name": "semantic_qformer",
+      "tensor_count": 52,
+      "parameter_count": 24320,
+      "lr": 0.0001,
+      "weight_decay": 0.0
+    },
+    {
+      "name": "vision_qv_lora_no_decay",
+      "logical_name": "vision_qv_lora",
+      "tensor_count": 96,
+      "parameter_count": 3145728,
+      "lr": 3e-05,
+      "weight_decay": 0.0
+    }
+  ],
+  "precision": {
+    "schema_version": 1,
+    "trainable_storage": {
+      "torch.float32": 21249830
+    },
+    "frozen_storage": {
+      "torch.float32": 9456992,
+      "torch.bfloat16": 2392994304
+    },
+    "adam_moment_storage": {
+      "torch.float32": 42499660
+    },
+    "moments_observed": true
+  },
+  "actual_updates": {
+    "physical_query_decoder.memory_projection.weight": {
+      "update_weight_ratio": 0.00019499083282426,
+      "changed_fraction": 0.99993896484375
+    },
+    "physical_query_decoder.memory_projection.bias": {
+      "update_weight_ratio": 0.00019727180188056082,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.trajectory_mlp.0.weight": {
+      "update_weight_ratio": 2.4298093194374815e-05,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.trajectory_mlp.0.bias": {
+      "update_weight_ratio": 3.305423888377845e-05,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.trajectory_mlp.2.weight": {
+      "update_weight_ratio": 0.00013781907910015434,
+      "changed_fraction": 0.9998779296875
+    },
+    "physical_query_decoder.trajectory_mlp.2.bias": {
+      "update_weight_ratio": 0.000153462024172768,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.status_mlp.0.weight": {
+      "update_weight_ratio": 2.2969510609982535e-05,
+      "changed_fraction": 0.75
+    },
+    "physical_query_decoder.status_mlp.0.bias": {
+      "update_weight_ratio": 3.1314193620346487e-05,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.status_mlp.2.weight": {
+      "update_weight_ratio": 0.00011978231486864388,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.status_mlp.2.bias": {
+      "update_weight_ratio": 0.00015096855349838734,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.time_embeddings.weight": {
+      "update_weight_ratio": 7.200581876531942e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.frame_pose_key.0.weight": {
+      "update_weight_ratio": 1.1610919727900182e-06,
+      "changed_fraction": 0.7796875238418579
+    },
+    "physical_query_decoder.frame_pose_key.0.bias": {
+      "update_weight_ratio": 8.38342089082289e-07,
+      "changed_fraction": 0.828125
+    },
+    "physical_query_decoder.frame_pose_key.2.weight": {
+      "update_weight_ratio": 5.492677246365929e-06,
+      "changed_fraction": 0.9835205078125
+    },
+    "physical_query_decoder.blocks.0.self_attention.in_proj_weight": {
+      "update_weight_ratio": 0.00010626319999573752,
+      "changed_fraction": 0.9999186396598816
+    },
+    "physical_query_decoder.blocks.0.self_attention.in_proj_bias": {
+      "update_weight_ratio": 1.2109057086560604e+26,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.self_attention.out_proj.weight": {
+      "update_weight_ratio": 0.00013334560208022594,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.self_attention.out_proj.bias": {
+      "update_weight_ratio": 8.66106823829072e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.cross_attention.in_proj_weight": {
+      "update_weight_ratio": 9.311416215496138e-05,
+      "changed_fraction": 0.9998372793197632
+    },
+    "physical_query_decoder.blocks.0.cross_attention.in_proj_bias": {
+      "update_weight_ratio": 1.1171933895162845e+26,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.cross_attention.out_proj.weight": {
+      "update_weight_ratio": 0.00013652828056365252,
+      "changed_fraction": 0.999755859375
+    },
+    "physical_query_decoder.blocks.0.cross_attention.out_proj.bias": {
+      "update_weight_ratio": 8.678870268659054e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.norm1.weight": {
+      "update_weight_ratio": 6.920280156919034e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.norm1.bias": {
+      "update_weight_ratio": 8.799837559934016e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.norm2.weight": {
+      "update_weight_ratio": 5.341720680007711e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.norm2.bias": {
+      "update_weight_ratio": 7.626944687855767e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.norm3.weight": {
+      "update_weight_ratio": 6.999506240390474e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.norm3.bias": {
+      "update_weight_ratio": 8.438439095751139e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.ffn.0.weight": {
+      "update_weight_ratio": 0.00013238738756626844,
+      "changed_fraction": 0.9999237060546875
+    },
+    "physical_query_decoder.blocks.0.ffn.0.bias": {
+      "update_weight_ratio": 0.00014632933016400784,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.0.ffn.2.weight": {
+      "update_weight_ratio": 0.00027492365916259587,
+      "changed_fraction": 0.9999847412109375
+    },
+    "physical_query_decoder.blocks.0.ffn.2.bias": {
+      "update_weight_ratio": 0.00030487580806948245,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.self_attention.in_proj_weight": {
+      "update_weight_ratio": 0.0001026446552714333,
+      "changed_fraction": 0.9999186396598816
+    },
+    "physical_query_decoder.blocks.1.self_attention.in_proj_bias": {
+      "update_weight_ratio": 1.1715270751470312e+26,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.self_attention.out_proj.weight": {
+      "update_weight_ratio": 0.00013204084825702012,
+      "changed_fraction": 0.99993896484375
+    },
+    "physical_query_decoder.blocks.1.self_attention.out_proj.bias": {
+      "update_weight_ratio": 8.733573165872436e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.cross_attention.in_proj_weight": {
+      "update_weight_ratio": 0.00010080886568175629,
+      "changed_fraction": 0.9998576045036316
+    },
+    "physical_query_decoder.blocks.1.cross_attention.in_proj_bias": {
+      "update_weight_ratio": 1.204467610506895e+26,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.cross_attention.out_proj.weight": {
+      "update_weight_ratio": 0.00013685486919712275,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.cross_attention.out_proj.bias": {
+      "update_weight_ratio": 8.748506727537308e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.norm1.weight": {
+      "update_weight_ratio": 6.908532668603584e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.norm1.bias": {
+      "update_weight_ratio": 8.651014762770549e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.norm2.weight": {
+      "update_weight_ratio": 5.819859325129073e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.norm2.bias": {
+      "update_weight_ratio": 8.011289056991931e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.norm3.weight": {
+      "update_weight_ratio": 6.771483185730176e-06,
+      "changed_fraction": 0.984375
+    },
+    "physical_query_decoder.blocks.1.norm3.bias": {
+      "update_weight_ratio": 8.039386215227802e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.ffn.0.weight": {
+      "update_weight_ratio": 0.00012897928536403924,
+      "changed_fraction": 0.99993896484375
+    },
+    "physical_query_decoder.blocks.1.ffn.0.bias": {
+      "update_weight_ratio": 0.00014530761109199375,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.blocks.1.ffn.2.weight": {
+      "update_weight_ratio": 0.00027640824555419385,
+      "changed_fraction": 0.99993896484375
+    },
+    "physical_query_decoder.blocks.1.ffn.2.bias": {
+      "update_weight_ratio": 0.00031599809881299734,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.output_norm.weight": {
+      "update_weight_ratio": 7.186120910773752e-06,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.output_norm.bias": {
+      "update_weight_ratio": 8.823304585407385e+25,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.gap_head.weight": {
+      "update_weight_ratio": 0.0001322046882705763,
+      "changed_fraction": 0.9984375238418579
+    },
+    "physical_query_decoder.gap_head.bias": {
+      "update_weight_ratio": 0.00010643039422575384,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.road_head.weight": {
+      "update_weight_ratio": 0.0001492532464908436,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.road_head.bias": {
+      "update_weight_ratio": 0.00016782738384790719,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.progress_head.weight": {
+      "update_weight_ratio": 0.00015829107724130154,
+      "changed_fraction": 1.0
+    },
+    "physical_query_decoder.progress_head.bias": {
+      "update_weight_ratio": 0.00022283325961325318,
+      "changed_fraction": 1.0
+    },
+    "action_head.scene_embeds": {
+      "update_weight_ratio": 0.0002748237457126379,
+      "changed_fraction": 1.0
+    },
+    "action_head.semantic_gate": {
+      "update_weight_ratio": 1.0834906788659282e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.vision_proj.weight": {
+      "update_weight_ratio": 0.00036970898509025574,
+      "changed_fraction": 0.999969482421875
+    },
+    "action_head.q_former.vision_proj.bias": {
+      "update_weight_ratio": 0.0003860302676912397,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ln_self.weight": {
+      "update_weight_ratio": 5.399814199336106e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ln_self.bias": {
+      "update_weight_ratio": 8.783476220277839e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.0001226513704750687,
+      "changed_fraction": 0.9999033808708191
+    },
+    "action_head.q_former.blocks.0.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 1.2294891431033562e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0001490770955570042,
+      "changed_fraction": 0.9997711181640625
+    },
+    "action_head.q_former.blocks.0.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.668869366359492e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ln_cross.weight": {
+      "update_weight_ratio": 5.339949893823359e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ln_cross.bias": {
+      "update_weight_ratio": 8.686551492891347e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00011633873509708792,
+      "changed_fraction": 0.9998830556869507
+    },
+    "action_head.q_former.blocks.0.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 1.2208719310767635e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00015073305985424668,
+      "changed_fraction": 0.999908447265625
+    },
+    "action_head.q_former.blocks.0.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.83793100878343e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ln_ffn.weight": {
+      "update_weight_ratio": 5.675413376593497e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ln_ffn.bias": {
+      "update_weight_ratio": 9.16003145172888e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ffn.0.weight": {
+      "update_weight_ratio": 0.0001469419221393764,
+      "changed_fraction": 0.9998970031738281
+    },
+    "action_head.q_former.blocks.0.ffn.0.bias": {
+      "update_weight_ratio": 0.00015057393466122448,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.0.ffn.2.weight": {
+      "update_weight_ratio": 0.00029730191454291344,
+      "changed_fraction": 0.9999465942382812
+    },
+    "action_head.q_former.blocks.0.ffn.2.bias": {
+      "update_weight_ratio": 0.0003004829050041735,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ln_self.weight": {
+      "update_weight_ratio": 5.531412625714438e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ln_self.bias": {
+      "update_weight_ratio": 8.870946068989351e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 9.090565436054021e-05,
+      "changed_fraction": 0.9995168447494507
+    },
+    "action_head.q_former.blocks.1.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 1.0794541181530858e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00014851216110400856,
+      "changed_fraction": 0.999786376953125
+    },
+    "action_head.q_former.blocks.1.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.757202522693654e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ln_cross.weight": {
+      "update_weight_ratio": 5.644810698868241e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ln_cross.bias": {
+      "update_weight_ratio": 9.218501174082113e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00012164538929937407,
+      "changed_fraction": 0.9998321533203125
+    },
+    "action_head.q_former.blocks.1.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 1.2762318090803306e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00014787039253860712,
+      "changed_fraction": 0.9998779296875
+    },
+    "action_head.q_former.blocks.1.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.665634729786168e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ln_ffn.weight": {
+      "update_weight_ratio": 5.348057584342314e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ln_ffn.bias": {
+      "update_weight_ratio": 8.764029662675334e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ffn.0.weight": {
+      "update_weight_ratio": 0.00014149655180517584,
+      "changed_fraction": 0.9998893737792969
+    },
+    "action_head.q_former.blocks.1.ffn.0.bias": {
+      "update_weight_ratio": 0.00014641007874161005,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.1.ffn.2.weight": {
+      "update_weight_ratio": 0.000294266123091802,
+      "changed_fraction": 0.9999351501464844
+    },
+    "action_head.q_former.blocks.1.ffn.2.bias": {
+      "update_weight_ratio": 0.0002971621579490602,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.ln_self.weight": {
+      "update_weight_ratio": 5.213752501731506e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.q_former.blocks.2.ln_self.bias": {
+      "update_weight_ratio": 8.299808124688397e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 7.744926551822573e-05,
+      "changed_fraction": 0.9990133047103882
+    },
+    "action_head.q_former.blocks.2.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 9.491359878397202e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00014763145009055734,
+      "changed_fraction": 0.999908447265625
+    },
+    "action_head.q_former.blocks.2.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.666259152073063e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.ln_cross.weight": {
+      "update_weight_ratio": 5.280492132442305e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.q_former.blocks.2.ln_cross.bias": {
+      "update_weight_ratio": 8.59295640281016e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00011738709872588515,
+      "changed_fraction": 0.9998321533203125
+    },
+    "action_head.q_former.blocks.2.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 1.2336463013478073e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00014742901839781553,
+      "changed_fraction": 0.9998016357421875
+    },
+    "action_head.q_former.blocks.2.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.671976720398709e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.ln_ffn.weight": {
+      "update_weight_ratio": 4.995357357984176e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.q_former.blocks.2.ln_ffn.bias": {
+      "update_weight_ratio": 8.2966306730217e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.ffn.0.weight": {
+      "update_weight_ratio": 0.00014096315135248005,
+      "changed_fraction": 0.9998703002929688
+    },
+    "action_head.q_former.blocks.2.ffn.0.bias": {
+      "update_weight_ratio": 0.00014419484068639576,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.2.ffn.2.weight": {
+      "update_weight_ratio": 0.00029404120869003236,
+      "changed_fraction": 0.9999427795410156
+    },
+    "action_head.q_former.blocks.2.ffn.2.bias": {
+      "update_weight_ratio": 0.00029704731423407793,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.ln_self.weight": {
+      "update_weight_ratio": 5.30364104633918e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.q_former.blocks.3.ln_self.bias": {
+      "update_weight_ratio": 8.727658217385201e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 7.695840031374246e-05,
+      "changed_fraction": 0.9989725947380066
+    },
+    "action_head.q_former.blocks.3.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 9.568433142148772e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00014791841385886073,
+      "changed_fraction": 0.9998626708984375
+    },
+    "action_head.q_former.blocks.3.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.732110339067391e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.ln_cross.weight": {
+      "update_weight_ratio": 5.261281330604106e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.q_former.blocks.3.ln_cross.bias": {
+      "update_weight_ratio": 8.809812636791874e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00012050234363414347,
+      "changed_fraction": 0.9998067617416382
+    },
+    "action_head.q_former.blocks.3.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 1.2366235136075837e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00014843717508483678,
+      "changed_fraction": 0.999755859375
+    },
+    "action_head.q_former.blocks.3.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 8.73717028096681e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.ln_ffn.weight": {
+      "update_weight_ratio": 5.121369213156868e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.q_former.blocks.3.ln_ffn.bias": {
+      "update_weight_ratio": 8.328066691934912e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.ffn.0.weight": {
+      "update_weight_ratio": 0.00014446651039179415,
+      "changed_fraction": 0.9998359680175781
+    },
+    "action_head.q_former.blocks.3.ffn.0.bias": {
+      "update_weight_ratio": 0.00014584836026187986,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.blocks.3.ffn.2.weight": {
+      "update_weight_ratio": 0.00029760986217297614,
+      "changed_fraction": 0.9999656677246094
+    },
+    "action_head.q_former.blocks.3.ffn.2.bias": {
+      "update_weight_ratio": 0.00030136812711134553,
+      "changed_fraction": 1.0
+    },
+    "action_head.q_former.ln_out.weight": {
+      "update_weight_ratio": 5.4073138926469255e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.q_former.ln_out.bias": {
+      "update_weight_ratio": 8.781696109474726e+25,
+      "changed_fraction": 1.0
+    },
+    "action_head.hist_encoding.weight": {
+      "update_weight_ratio": 4.119911682209931e-05,
+      "changed_fraction": 0.5454545617103577
+    },
+    "action_head.hist_encoding.bias": {
+      "update_weight_ratio": 6.217890768311918e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.init_feature.weight": {
+      "update_weight_ratio": 9.119433343585115e-06,
+      "changed_fraction": 0.99853515625
+    },
+    "action_head.trajectory_decoder.layers.0.self_attn_norm.weight": {
+      "update_weight_ratio": 8.998822522698902e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.0.self_attn_norm.bias": {
+      "update_weight_ratio": 1.5219242700992293e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00019041616178583354,
+      "changed_fraction": 0.9998372793197632
+    },
+    "action_head.trajectory_decoder.layers.0.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.3647674438083444e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0002510162885300815,
+      "changed_fraction": 0.99981689453125
+    },
+    "action_head.trajectory_decoder.layers.0.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.552566894549831e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 7.920325515442528e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 1.3204163728228834e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 6.966384717088658e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.489462151046917e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00016378167492803186,
+      "changed_fraction": 0.9998779296875
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.1538101096465205e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00021954077237751335,
+      "changed_fraction": 0.9998779296875
+    },
+    "action_head.trajectory_decoder.layers.0.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.3620687520064381e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.mlp_norm.weight": {
+      "update_weight_ratio": 8.321650057041552e-06,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.trajectory_decoder.layers.0.mlp_norm.bias": {
+      "update_weight_ratio": 1.4989546610798072e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.mlp.fc1.weight": {
+      "update_weight_ratio": 0.000230490681133233,
+      "changed_fraction": 0.999908447265625
+    },
+    "action_head.trajectory_decoder.layers.0.mlp.fc1.bias": {
+      "update_weight_ratio": 0.0002591019729152322,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.0.mlp.fc2.weight": {
+      "update_weight_ratio": 0.00047323794569820166,
+      "changed_fraction": 0.9999542236328125
+    },
+    "action_head.trajectory_decoder.layers.0.mlp.fc2.bias": {
+      "update_weight_ratio": 0.0005297877360135317,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.self_attn_norm.weight": {
+      "update_weight_ratio": 8.871819773048628e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.self_attn_norm.bias": {
+      "update_weight_ratio": 1.6003408257542464e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00019484435324557126,
+      "changed_fraction": 0.9998728632926941
+    },
+    "action_head.trajectory_decoder.layers.1.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.4188357730255908e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0002516473177820444,
+      "changed_fraction": 0.999847412109375
+    },
+    "action_head.trajectory_decoder.layers.1.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.6417264650184952e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 9.053524991031736e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 1.5250415853802454e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 8.211427484638989e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.7381737906683597e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00019580111256800592,
+      "changed_fraction": 0.9998830556869507
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.524157089379554e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00025950802955776453,
+      "changed_fraction": 0.999969482421875
+    },
+    "action_head.trajectory_decoder.layers.1.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.6121236835313283e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.mlp_norm.weight": {
+      "update_weight_ratio": 8.666036592330784e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.mlp_norm.bias": {
+      "update_weight_ratio": 1.492372217158265e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.mlp.fc1.weight": {
+      "update_weight_ratio": 0.00022869610984344035,
+      "changed_fraction": 0.9999351501464844
+    },
+    "action_head.trajectory_decoder.layers.1.mlp.fc1.bias": {
+      "update_weight_ratio": 0.000255685270531103,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.1.mlp.fc2.weight": {
+      "update_weight_ratio": 0.00046960863983258605,
+      "changed_fraction": 0.9999580383300781
+    },
+    "action_head.trajectory_decoder.layers.1.mlp.fc2.bias": {
+      "update_weight_ratio": 0.0005705292569473386,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.self_attn_norm.weight": {
+      "update_weight_ratio": 9.504054105491377e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.self_attn_norm.bias": {
+      "update_weight_ratio": 1.579006059428357e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00019245600560680032,
+      "changed_fraction": 0.9998830556869507
+    },
+    "action_head.trajectory_decoder.layers.2.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.4117487184199123e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0002517166140023619,
+      "changed_fraction": 0.9998779296875
+    },
+    "action_head.trajectory_decoder.layers.2.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.6673451187206223e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 9.136459993897006e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 1.5257470811073445e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 7.839204954507295e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.3456998491851912e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.0001856571325333789,
+      "changed_fraction": 0.9998626708984375
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.151125923916355e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0002460901450831443,
+      "changed_fraction": 0.999908447265625
+    },
+    "action_head.trajectory_decoder.layers.2.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.5283843198738423e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.mlp_norm.weight": {
+      "update_weight_ratio": 8.187955245375633e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.2.mlp_norm.bias": {
+      "update_weight_ratio": 1.49483854684092e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.mlp.fc1.weight": {
+      "update_weight_ratio": 0.00022757590340916067,
+      "changed_fraction": 0.9998855590820312
+    },
+    "action_head.trajectory_decoder.layers.2.mlp.fc1.bias": {
+      "update_weight_ratio": 0.00025835708947852254,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.2.mlp.fc2.weight": {
+      "update_weight_ratio": 0.00046057734289206564,
+      "changed_fraction": 0.9999656677246094
+    },
+    "action_head.trajectory_decoder.layers.2.mlp.fc2.bias": {
+      "update_weight_ratio": 0.0005393018363974988,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.self_attn_norm.weight": {
+      "update_weight_ratio": 8.981459359347355e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.3.self_attn_norm.bias": {
+      "update_weight_ratio": 1.5782964131838412e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00019562969100661576,
+      "changed_fraction": 0.9998728632926941
+    },
+    "action_head.trajectory_decoder.layers.3.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.5737871319726658e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00025178876239806414,
+      "changed_fraction": 0.9999237060546875
+    },
+    "action_head.trajectory_decoder.layers.3.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.6291976209110724e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 8.955045814218465e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 1.5389651878070814e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 7.873117283452302e-06,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.1264322568181612e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00018953393737319857,
+      "changed_fraction": 0.9998728632926941
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.1518298516702077e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00023932628391776234,
+      "changed_fraction": 0.999969482421875
+    },
+    "action_head.trajectory_decoder.layers.3.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.4889392780861477e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.mlp_norm.weight": {
+      "update_weight_ratio": 7.06719856680138e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.trajectory_decoder.layers.3.mlp_norm.bias": {
+      "update_weight_ratio": 1.2724059543594433e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.mlp.fc1.weight": {
+      "update_weight_ratio": 0.0001879155752249062,
+      "changed_fraction": 0.9998855590820312
+    },
+    "action_head.trajectory_decoder.layers.3.mlp.fc1.bias": {
+      "update_weight_ratio": 0.00021178853057790548,
+      "changed_fraction": 1.0
+    },
+    "action_head.trajectory_decoder.layers.3.mlp.fc2.weight": {
+      "update_weight_ratio": 0.00037819123826920986,
+      "changed_fraction": 0.9999351501464844
+    },
+    "action_head.trajectory_decoder.layers.3.mlp.fc2.bias": {
+      "update_weight_ratio": 0.0004622309352271259,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.self_attn_norm.weight": {
+      "update_weight_ratio": 1.1675525456666946e-05,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.scorer_attention.layers.0.self_attn_norm.bias": {
+      "update_weight_ratio": 1.9803959579583917e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00025726822786964476,
+      "changed_fraction": 0.9999440908432007
+    },
+    "action_head.scorer_attention.layers.0.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.943938576218518e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00032587835448794067,
+      "changed_fraction": 0.9999237060546875
+    },
+    "action_head.scorer_attention.layers.0.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 2.0421875699844188e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 1.0815637324412819e-05,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.scorer_attention.layers.0.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 1.8309503987149967e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 1.091648664441891e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.722025695373675e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00024373966152779758,
+      "changed_fraction": 0.9999644160270691
+    },
+    "action_head.scorer_attention.layers.0.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.6152943352803604e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00030041043646633625,
+      "changed_fraction": 0.999908447265625
+    },
+    "action_head.scorer_attention.layers.0.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.8560929419525814e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.mlp_norm.weight": {
+      "update_weight_ratio": 1.1135904060211033e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.mlp_norm.bias": {
+      "update_weight_ratio": 1.9423842281852243e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.mlp.fc1.weight": {
+      "update_weight_ratio": 0.00030219764448702335,
+      "changed_fraction": 0.9999732971191406
+    },
+    "action_head.scorer_attention.layers.0.mlp.fc1.bias": {
+      "update_weight_ratio": 0.0003297845250926912,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.0.mlp.fc2.weight": {
+      "update_weight_ratio": 0.0006097689620219171,
+      "changed_fraction": 0.9999771118164062
+    },
+    "action_head.scorer_attention.layers.0.mlp.fc2.bias": {
+      "update_weight_ratio": 0.0006735929055139422,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.self_attn_norm.weight": {
+      "update_weight_ratio": 1.0771370398288127e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.self_attn_norm.bias": {
+      "update_weight_ratio": 1.9351656482943003e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00021095745614729822,
+      "changed_fraction": 0.9998931884765625
+    },
+    "action_head.scorer_attention.layers.1.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.6703233709289656e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00030249234987422824,
+      "changed_fraction": 0.999969482421875
+    },
+    "action_head.scorer_attention.layers.1.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.9667979405644567e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 1.0758416465250775e-05,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.scorer_attention.layers.1.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 1.7792646509623107e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 1.0220303920505103e-05,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.scorer_attention.layers.1.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.5942419632285965e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00023462767421733588,
+      "changed_fraction": 0.9999186396598816
+    },
+    "action_head.scorer_attention.layers.1.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.5853934544089624e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00031130219576880336,
+      "changed_fraction": 0.9999542236328125
+    },
+    "action_head.scorer_attention.layers.1.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.93025789203349e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.mlp_norm.weight": {
+      "update_weight_ratio": 1.0405699867988005e-05,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.scorer_attention.layers.1.mlp_norm.bias": {
+      "update_weight_ratio": 1.904577995141038e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.mlp.fc1.weight": {
+      "update_weight_ratio": 0.00027717690682038665,
+      "changed_fraction": 0.99993896484375
+    },
+    "action_head.scorer_attention.layers.1.mlp.fc1.bias": {
+      "update_weight_ratio": 0.0003137263411190361,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.1.mlp.fc2.weight": {
+      "update_weight_ratio": 0.0005746000097133219,
+      "changed_fraction": 0.9999656677246094
+    },
+    "action_head.scorer_attention.layers.1.mlp.fc2.bias": {
+      "update_weight_ratio": 0.0006702262908220291,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.self_attn_norm.weight": {
+      "update_weight_ratio": 1.031064493872691e-05,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.scorer_attention.layers.2.self_attn_norm.bias": {
+      "update_weight_ratio": 1.9528055317822258e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.0002138821582775563,
+      "changed_fraction": 0.9999186396598816
+    },
+    "action_head.scorer_attention.layers.2.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.5944286696562653e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0002928749308921397,
+      "changed_fraction": 0.9998779296875
+    },
+    "action_head.scorer_attention.layers.2.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 1.995742911157955e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 1.1758084838220384e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 2.062874302190999e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 1.0449974070070311e-05,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.scorer_attention.layers.2.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 2.1932437144528894e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00024655339075252414,
+      "changed_fraction": 0.9999338984489441
+    },
+    "action_head.scorer_attention.layers.2.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 3.018825900797353e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0003327613521832973,
+      "changed_fraction": 0.9999847412109375
+    },
+    "action_head.scorer_attention.layers.2.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 2.0868561762914658e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.mlp_norm.weight": {
+      "update_weight_ratio": 1.1038113370887004e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.mlp_norm.bias": {
+      "update_weight_ratio": 2.0408250934671346e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.mlp.fc1.weight": {
+      "update_weight_ratio": 0.00029482340323738754,
+      "changed_fraction": 0.9999732971191406
+    },
+    "action_head.scorer_attention.layers.2.mlp.fc1.bias": {
+      "update_weight_ratio": 0.0003289874002803117,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.2.mlp.fc2.weight": {
+      "update_weight_ratio": 0.0006048444774933159,
+      "changed_fraction": 0.9999809265136719
+    },
+    "action_head.scorer_attention.layers.2.mlp.fc2.bias": {
+      "update_weight_ratio": 0.000741909199859947,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.self_attn_norm.weight": {
+      "update_weight_ratio": 1.1274313692410942e-05,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.scorer_attention.layers.3.self_attn_norm.bias": {
+      "update_weight_ratio": 2.0630738959618764e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.self_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00021523621398955584,
+      "changed_fraction": 0.99993896484375
+    },
+    "action_head.scorer_attention.layers.3.self_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.6050966062215323e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.self_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.00030047373729757965,
+      "changed_fraction": 0.9998931884765625
+    },
+    "action_head.scorer_attention.layers.3.self_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 2.0473321824391357e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.cross_attn_norm_kv.weight": {
+      "update_weight_ratio": 1.1656856258923654e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.cross_attn_norm_kv.bias": {
+      "update_weight_ratio": 2.0351228359390695e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.cross_attn_norm_q.weight": {
+      "update_weight_ratio": 9.237097401637584e-06,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.scorer_attention.layers.3.cross_attn_norm_q.bias": {
+      "update_weight_ratio": 1.5374182438490601e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.cross_attn.attn.in_proj_weight": {
+      "update_weight_ratio": 0.00022752465156372637,
+      "changed_fraction": 0.9998525381088257
+    },
+    "action_head.scorer_attention.layers.3.cross_attn.attn.in_proj_bias": {
+      "update_weight_ratio": 2.6597321728190453e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.cross_attn.attn.out_proj.weight": {
+      "update_weight_ratio": 0.0003336296649649739,
+      "changed_fraction": 0.9999542236328125
+    },
+    "action_head.scorer_attention.layers.3.cross_attn.attn.out_proj.bias": {
+      "update_weight_ratio": 2.0816663693137683e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.mlp_norm.weight": {
+      "update_weight_ratio": 1.0687491339922417e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.mlp_norm.bias": {
+      "update_weight_ratio": 2.0113759733581017e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.mlp.fc1.weight": {
+      "update_weight_ratio": 0.0002888942544814199,
+      "changed_fraction": 0.9999427795410156
+    },
+    "action_head.scorer_attention.layers.3.mlp.fc1.bias": {
+      "update_weight_ratio": 0.0003446554474066943,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer_attention.layers.3.mlp.fc2.weight": {
+      "update_weight_ratio": 0.0006066345376893878,
+      "changed_fraction": 0.9999618530273438
+    },
+    "action_head.scorer_attention.layers.3.mlp.fc2.bias": {
+      "update_weight_ratio": 0.000721053103916347,
+      "changed_fraction": 1.0
+    },
+    "action_head.pos_embed.0.weight": {
+      "update_weight_ratio": 8.69262294145301e-05,
+      "changed_fraction": 0.9712321162223816
+    },
+    "action_head.pos_embed.0.bias": {
+      "update_weight_ratio": 9.746079740580171e-05,
+      "changed_fraction": 0.9716796875
+    },
+    "action_head.pos_embed.2.weight": {
+      "update_weight_ratio": 0.0006230236613191664,
+      "changed_fraction": 0.9716567993164062
+    },
+    "action_head.pos_embed.2.bias": {
+      "update_weight_ratio": 0.0006801020936109126,
+      "changed_fraction": 1.0
+    },
+    "action_head.traj_head.4.mlp.0.weight": {
+      "update_weight_ratio": 0.00023247029457706958,
+      "changed_fraction": 0.999908447265625
+    },
+    "action_head.traj_head.4.mlp.0.bias": {
+      "update_weight_ratio": 0.000271788943791762,
+      "changed_fraction": 1.0
+    },
+    "action_head.traj_head.4.mlp.1.weight": {
+      "update_weight_ratio": 9.263995707442518e-06,
+      "changed_fraction": 0.978515625
+    },
+    "action_head.traj_head.4.mlp.1.bias": {
+      "update_weight_ratio": 3.076858066381158e+26,
+      "changed_fraction": 0.9814453125
+    },
+    "action_head.traj_head.4.mlp.3.weight": {
+      "update_weight_ratio": 0.00048035377403721213,
+      "changed_fraction": 0.9814081192016602
+    },
+    "action_head.traj_head.4.mlp.3.bias": {
+      "update_weight_ratio": 0.0005866248393431306,
+      "changed_fraction": 1.0
+    },
+    "action_head.traj_head.4.mlp.4.weight": {
+      "update_weight_ratio": 9.66988955042325e-06,
+      "changed_fraction": 0.9384765625
+    },
+    "action_head.traj_head.4.mlp.4.bias": {
+      "update_weight_ratio": 3.2514434018505266e+26,
+      "changed_fraction": 0.939453125
+    },
+    "action_head.traj_head.4.mlp.6.weight": {
+      "update_weight_ratio": 0.000567973533179611,
+      "changed_fraction": 0.9364420771598816
+    },
+    "action_head.traj_head.4.mlp.6.bias": {
+      "update_weight_ratio": 0.0006826919852755964,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer.pred_score.no_at_fault_collisions.0.weight": {
+      "update_weight_ratio": 0.00020184041932225227,
+      "changed_fraction": 0.9930610656738281
+    },
+    "action_head.scorer.pred_score.no_at_fault_collisions.0.bias": {
+      "update_weight_ratio": 0.00015177932800725102,
+      "changed_fraction": 0.9931640625
+    },
+    "action_head.scorer.pred_score.no_at_fault_collisions.2.weight": {
+      "update_weight_ratio": 0.0003241470840293914,
+      "changed_fraction": 0.9931640625
+    },
+    "action_head.scorer.pred_score.no_at_fault_collisions.2.bias": {
+      "update_weight_ratio": 0.0002804667456075549,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer.pred_score.drivable_area_compliance.0.weight": {
+      "update_weight_ratio": 0.0003352173080202192,
+      "changed_fraction": 0.9901847839355469
+    },
+    "action_head.scorer.pred_score.drivable_area_compliance.0.bias": {
+      "update_weight_ratio": 0.0004042293003294617,
+      "changed_fraction": 0.990234375
+    },
+    "action_head.scorer.pred_score.drivable_area_compliance.2.weight": {
+      "update_weight_ratio": 0.0008014467312023044,
+      "changed_fraction": 0.990234375
+    },
+    "action_head.scorer.pred_score.drivable_area_compliance.2.bias": {
+      "update_weight_ratio": 0.0006919841398485005,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer.pred_score.time_to_collision_within_bound.0.weight": {
+      "update_weight_ratio": 0.0003067403449676931,
+      "changed_fraction": 0.99114990234375
+    },
+    "action_head.scorer.pred_score.time_to_collision_within_bound.0.bias": {
+      "update_weight_ratio": 0.00038741104071959853,
+      "changed_fraction": 0.9912109375
+    },
+    "action_head.scorer.pred_score.time_to_collision_within_bound.2.weight": {
+      "update_weight_ratio": 0.0006997341988608241,
+      "changed_fraction": 0.9912109375
+    },
+    "action_head.scorer.pred_score.time_to_collision_within_bound.2.bias": {
+      "update_weight_ratio": 0.0005395422340370715,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer.pred_score.ego_progress.0.weight": {
+      "update_weight_ratio": 0.00033421514672227204,
+      "changed_fraction": 0.99212646484375
+    },
+    "action_head.scorer.pred_score.ego_progress.0.bias": {
+      "update_weight_ratio": 0.00041914411121979356,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.scorer.pred_score.ego_progress.2.weight": {
+      "update_weight_ratio": 0.0007946595433168113,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.scorer.pred_score.ego_progress.2.bias": {
+      "update_weight_ratio": 0.001123875379562378,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer.pred_score.driving_direction_compliance.0.weight": {
+      "update_weight_ratio": 0.0003386140160728246,
+      "changed_fraction": 0.9911727905273438
+    },
+    "action_head.scorer.pred_score.driving_direction_compliance.0.bias": {
+      "update_weight_ratio": 0.0004236062231939286,
+      "changed_fraction": 0.9912109375
+    },
+    "action_head.scorer.pred_score.driving_direction_compliance.2.weight": {
+      "update_weight_ratio": 0.000799745786935091,
+      "changed_fraction": 0.9912109375
+    },
+    "action_head.scorer.pred_score.driving_direction_compliance.2.bias": {
+      "update_weight_ratio": 0.0020190661307424307,
+      "changed_fraction": 1.0
+    },
+    "action_head.scorer.pred_score.comfort.0.weight": {
+      "update_weight_ratio": 0.0002862194669432938,
+      "changed_fraction": 0.9950447082519531
+    },
+    "action_head.scorer.pred_score.comfort.0.bias": {
+      "update_weight_ratio": 0.0003466302005108446,
+      "changed_fraction": 0.9951171875
+    },
+    "action_head.scorer.pred_score.comfort.2.weight": {
+      "update_weight_ratio": 0.0006442753947339952,
+      "changed_fraction": 0.9951171875
+    },
+    "action_head.scorer.pred_score.comfort.2.bias": {
+      "update_weight_ratio": 0.0028768107295036316,
+      "changed_fraction": 1.0
+    },
+    "action_head.planning_norm.weight": {
+      "update_weight_ratio": 1.0315086910850368e-05,
+      "changed_fraction": 0.9921875
+    },
+    "action_head.planning_norm.bias": {
+      "update_weight_ratio": 1.7509579377137626e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.semantic_norm.weight": {
+      "update_weight_ratio": 1.0808982551679946e-05,
+      "changed_fraction": 0.99609375
+    },
+    "action_head.semantic_norm.bias": {
+      "update_weight_ratio": 1.7557483726822643e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.semantic_cross_attention.in_proj_weight": {
+      "update_weight_ratio": 0.0001714412064757198,
+      "changed_fraction": 0.9997660517692566
+    },
+    "action_head.semantic_cross_attention.in_proj_bias": {
+      "update_weight_ratio": 2.1774931464929932e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.semantic_cross_attention.out_proj.weight": {
+      "update_weight_ratio": 0.00029778125463053584,
+      "changed_fraction": 0.9999542236328125
+    },
+    "action_head.semantic_cross_attention.out_proj.bias": {
+      "update_weight_ratio": 1.7509276850534817e+26,
+      "changed_fraction": 1.0
+    },
+    "action_head.output_norm.weight": {
+      "update_weight_ratio": 1.0220819604001008e-05,
+      "changed_fraction": 1.0
+    },
+    "action_head.output_norm.bias": {
+      "update_weight_ratio": 1.750947792004522e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.0.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 2.086104132104083e-06,
+      "changed_fraction": 0.67742919921875
+    },
+    "backbone.model.vision_model.encoder.layers.0.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2143528770987574e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.0.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.5871388313826174e-05,
+      "changed_fraction": 0.927581787109375
+    },
+    "backbone.model.vision_model.encoder.layers.0.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.368470996616023e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.1.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 2.9842938147339737e-06,
+      "changed_fraction": 0.970428466796875
+    },
+    "backbone.model.vision_model.encoder.layers.1.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.36468627813442e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.1.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.2974695891898591e-05,
+      "changed_fraction": 0.9945068359375
+    },
+    "backbone.model.vision_model.encoder.layers.1.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.461280624334552e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.2.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 3.363184987392742e-06,
+      "changed_fraction": 0.979461669921875
+    },
+    "backbone.model.vision_model.encoder.layers.2.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2378379803813193e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.2.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.6190288079087622e-05,
+      "changed_fraction": 0.995452880859375
+    },
+    "backbone.model.vision_model.encoder.layers.2.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.2611644416648472e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.3.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 6.506206318590557e-06,
+      "changed_fraction": 0.992950439453125
+    },
+    "backbone.model.vision_model.encoder.layers.3.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.1588628573157502e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.3.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.1770384844567161e-05,
+      "changed_fraction": 0.99688720703125
+    },
+    "backbone.model.vision_model.encoder.layers.3.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.3459432793508867e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.4.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 5.811152732349001e-06,
+      "changed_fraction": 0.99273681640625
+    },
+    "backbone.model.vision_model.encoder.layers.4.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2037185136077046e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.4.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.241850623046048e-05,
+      "changed_fraction": 0.99749755859375
+    },
+    "backbone.model.vision_model.encoder.layers.4.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.309415036736127e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.5.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 3.440187356318347e-06,
+      "changed_fraction": 0.989501953125
+    },
+    "backbone.model.vision_model.encoder.layers.5.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.171004319797625e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.5.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.1221757631574292e-05,
+      "changed_fraction": 0.99737548828125
+    },
+    "backbone.model.vision_model.encoder.layers.5.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.2418097488478297e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.6.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 6.262354872887954e-06,
+      "changed_fraction": 0.994293212890625
+    },
+    "backbone.model.vision_model.encoder.layers.6.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2026554277467367e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.6.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.3397871953202412e-05,
+      "changed_fraction": 0.99786376953125
+    },
+    "backbone.model.vision_model.encoder.layers.6.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.2383554115525868e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.7.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 6.638239028688986e-06,
+      "changed_fraction": 0.995330810546875
+    },
+    "backbone.model.vision_model.encoder.layers.7.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.1789895463722525e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.7.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.442445136490278e-05,
+      "changed_fraction": 0.997772216796875
+    },
+    "backbone.model.vision_model.encoder.layers.7.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.2327186399659834e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.8.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 2.033659620792605e-05,
+      "changed_fraction": 0.998626708984375
+    },
+    "backbone.model.vision_model.encoder.layers.8.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.364919260512071e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.8.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.7701500837574713e-05,
+      "changed_fraction": 0.998504638671875
+    },
+    "backbone.model.vision_model.encoder.layers.8.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.2432026624928355e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.9.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 1.204480849992251e-05,
+      "changed_fraction": 0.997344970703125
+    },
+    "backbone.model.vision_model.encoder.layers.9.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2513319581386785e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.9.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.036747355305124e-05,
+      "changed_fraction": 0.998199462890625
+    },
+    "backbone.model.vision_model.encoder.layers.9.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.2726656176599236e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.10.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 1.4711896255903412e-05,
+      "changed_fraction": 0.998077392578125
+    },
+    "backbone.model.vision_model.encoder.layers.10.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2400093466262356e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.10.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.105011481035035e-05,
+      "changed_fraction": 0.9989013671875
+    },
+    "backbone.model.vision_model.encoder.layers.10.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.3364352740529746e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.11.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 8.912917110137641e-06,
+      "changed_fraction": 0.996978759765625
+    },
+    "backbone.model.vision_model.encoder.layers.11.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.1441574818750705e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.11.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.746640529949218e-05,
+      "changed_fraction": 0.999267578125
+    },
+    "backbone.model.vision_model.encoder.layers.11.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.3827473007895483e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.12.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 1.370266454614466e-05,
+      "changed_fraction": 0.997894287109375
+    },
+    "backbone.model.vision_model.encoder.layers.12.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.348089558023863e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.12.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 3.0133354812278412e-05,
+      "changed_fraction": 0.99920654296875
+    },
+    "backbone.model.vision_model.encoder.layers.12.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.4872980966435527e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.13.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 2.32423008128535e-05,
+      "changed_fraction": 0.99871826171875
+    },
+    "backbone.model.vision_model.encoder.layers.13.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.4013045408602594e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.13.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.159825453418307e-05,
+      "changed_fraction": 0.9989013671875
+    },
+    "backbone.model.vision_model.encoder.layers.13.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.4889287888196686e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.14.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 1.9904733562725596e-05,
+      "changed_fraction": 0.998809814453125
+    },
+    "backbone.model.vision_model.encoder.layers.14.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.4420296022192287e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.14.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.4292885427712463e-05,
+      "changed_fraction": 0.998931884765625
+    },
+    "backbone.model.vision_model.encoder.layers.14.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.462250369670507e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.15.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 1.76523499249015e-05,
+      "changed_fraction": 0.998565673828125
+    },
+    "backbone.model.vision_model.encoder.layers.15.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.410589709489761e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.15.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.823680941015482e-05,
+      "changed_fraction": 0.998626708984375
+    },
+    "backbone.model.vision_model.encoder.layers.15.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.4220600794222344e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.16.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 4.182440989097813e-06,
+      "changed_fraction": 0.992919921875
+    },
+    "backbone.model.vision_model.encoder.layers.16.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.2263960184347194e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.16.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.0630687938828487e-05,
+      "changed_fraction": 0.99737548828125
+    },
+    "backbone.model.vision_model.encoder.layers.16.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.3480432566962378e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.17.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 9.201748980558477e-06,
+      "changed_fraction": 0.996063232421875
+    },
+    "backbone.model.vision_model.encoder.layers.17.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.3691315745213026e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.17.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.051160870702006e-05,
+      "changed_fraction": 0.996490478515625
+    },
+    "backbone.model.vision_model.encoder.layers.17.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.4275959473187547e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.18.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 4.268938937457278e-06,
+      "changed_fraction": 0.992889404296875
+    },
+    "backbone.model.vision_model.encoder.layers.18.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.24159207726776e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.18.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.1865615306305699e-05,
+      "changed_fraction": 0.997344970703125
+    },
+    "backbone.model.vision_model.encoder.layers.18.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.4996572307054974e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.19.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 6.477662282122765e-06,
+      "changed_fraction": 0.99383544921875
+    },
+    "backbone.model.vision_model.encoder.layers.19.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.3620766172503124e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.19.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.3072560250293463e-05,
+      "changed_fraction": 0.998046875
+    },
+    "backbone.model.vision_model.encoder.layers.19.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.5479993216273828e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.20.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 6.23218375039869e-06,
+      "changed_fraction": 0.995452880859375
+    },
+    "backbone.model.vision_model.encoder.layers.20.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.3952217270019537e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.20.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.2882154805993196e-05,
+      "changed_fraction": 0.998016357421875
+    },
+    "backbone.model.vision_model.encoder.layers.20.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.6046324861406378e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.21.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 1.0005491276388057e-05,
+      "changed_fraction": 0.996826171875
+    },
+    "backbone.model.vision_model.encoder.layers.21.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.5207025676168704e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.21.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 1.4844240467937198e-05,
+      "changed_fraction": 0.99798583984375
+    },
+    "backbone.model.vision_model.encoder.layers.21.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.6564951381689907e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.22.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 7.907499821158126e-06,
+      "changed_fraction": 0.99560546875
+    },
+    "backbone.model.vision_model.encoder.layers.22.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.4522752928126485e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.22.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.851908720913343e-05,
+      "changed_fraction": 0.999847412109375
+    },
+    "backbone.model.vision_model.encoder.layers.22.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.6899049586980898e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.23.attn.qkv.q_lora_a.weight": {
+      "update_weight_ratio": 9.601548299542628e-06,
+      "changed_fraction": 0.9971923828125
+    },
+    "backbone.model.vision_model.encoder.layers.23.attn.qkv.q_lora_b.weight": {
+      "update_weight_ratio": 2.5883879143744477e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.model.vision_model.encoder.layers.23.attn.qkv.v_lora_a.weight": {
+      "update_weight_ratio": 2.305040106875822e-05,
+      "changed_fraction": 0.99920654296875
+    },
+    "backbone.model.vision_model.encoder.layers.23.attn.qkv.v_lora_b.weight": {
+      "update_weight_ratio": 2.7348864217846268e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.planning_registers": {
+      "update_weight_ratio": 7.103290557861328,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.register_norm.weight": {
+      "update_weight_ratio": 9.432956176169682e-06,
+      "changed_fraction": 0.9951171875
+    },
+    "backbone.planning_register_adapter.register_norm.bias": {
+      "update_weight_ratio": 3.371798814624563e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.register_projection.weight": {
+      "update_weight_ratio": 0.0005274455179460347,
+      "changed_fraction": 0.9999198913574219
+    },
+    "backbone.planning_register_adapter.register_projection.bias": {
+      "update_weight_ratio": 0.0006088066729716957,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_queries": {
+      "update_weight_ratio": 0.00028401834424585104,
+      "changed_fraction": 0.99951171875
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_queries": {
+      "update_weight_ratio": 0.0004319026484154165,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_attention.in_proj_weight": {
+      "update_weight_ratio": 0.00012545613572001457,
+      "changed_fraction": 0.9990438222885132
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_attention.in_proj_bias": {
+      "update_weight_ratio": 1.9482940115841187e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_attention.out_proj.weight": {
+      "update_weight_ratio": 0.00026554090436547995,
+      "changed_fraction": 0.9999237060546875
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_attention.out_proj.bias": {
+      "update_weight_ratio": 1.6543945820436745e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_attention.in_proj_weight": {
+      "update_weight_ratio": 0.0002158831339329481,
+      "changed_fraction": 0.9999186396598816
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_attention.in_proj_bias": {
+      "update_weight_ratio": 2.4034593050355094e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_attention.out_proj.weight": {
+      "update_weight_ratio": 0.0002989681379403919,
+      "changed_fraction": 0.9999542236328125
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_attention.out_proj.bias": {
+      "update_weight_ratio": 1.794544273546005e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.tile_position_mlp.0.weight": {
+      "update_weight_ratio": 2.2161842935020104e-05,
+      "changed_fraction": 0.7992187738418579
+    },
+    "backbone.planning_register_adapter.global_local_readout.tile_position_mlp.0.bias": {
+      "update_weight_ratio": 2.6083982447744347e-05,
+      "changed_fraction": 0.99609375
+    },
+    "backbone.planning_register_adapter.global_local_readout.tile_position_mlp.2.weight": {
+      "update_weight_ratio": 0.00018084303883370012,
+      "changed_fraction": 0.999847412109375
+    },
+    "backbone.planning_register_adapter.global_local_readout.tile_position_mlp.2.bias": {
+      "update_weight_ratio": 0.00010238613322144374,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_condition.weight": {
+      "update_weight_ratio": 0.00023994689399842173,
+      "changed_fraction": 0.99993896484375
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_condition.bias": {
+      "update_weight_ratio": 0.0002548343618400395,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_norm.weight": {
+      "update_weight_ratio": 9.532024705549702e-06,
+      "changed_fraction": 0.99609375
+    },
+    "backbone.planning_register_adapter.global_local_readout.global_norm.bias": {
+      "update_weight_ratio": 1.6572658177587474e+26,
+      "changed_fraction": 1.0
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_norm.weight": {
+      "update_weight_ratio": 1.0774934708024375e-05,
+      "changed_fraction": 0.9921875
+    },
+    "backbone.planning_register_adapter.global_local_readout.local_norm.bias": {
+      "update_weight_ratio": 1.7916791252564765e+26,
+      "changed_fraction": 1.0
+    }
+  },
+  "same_batch_gradients": {
+    "scope": "same_batch_rank_local_unclipped",
+    "wm_weight": 0.010144568048417568,
+    "groups": {
+      "vision_qv_lora": {
+        "plan_norm": 3.21246337890625,
+        "unweighted_wm_norm": 0.4725673496723175,
+        "weighted_wm_norm": 0.0047939918003976345,
+        "weighted_wm_to_plan_ratio": 0.0014923101989552379,
+        "cosine": -0.5141441822052002,
+        "cosine_defined": true
+      },
+      "planning_registers": {
+        "plan_norm": 66.03782653808594,
+        "unweighted_wm_norm": 7.363998889923096,
+        "weighted_wm_norm": 0.07470458745956421,
+        "weighted_wm_to_plan_ratio": 0.0011312393471598625,
+        "cosine": 0.1145663782954216,
+        "cosine_defined": true
+      },
+      "planning_readout": {
+        "plan_norm": 13.850971221923828,
+        "unweighted_wm_norm": 1.3870383501052856,
+        "weighted_wm_norm": 0.014070904813706875,
+        "weighted_wm_to_plan_ratio": 0.001015878515318036,
+        "cosine": 0.15679173171520233,
+        "cosine_defined": true
+      },
+      "readout_output": {
+        "plan_norm": 0.07522917538881302,
+        "unweighted_wm_norm": 0.006842573639005423,
+        "weighted_wm_norm": 6.941495666978881e-05,
+        "weighted_wm_to_plan_ratio": 0.0009227132541127503,
+        "cosine": 0.0176239013671875,
+        "cosine_defined": true
+      }
+    }
+  },
+  "peak_allocated_gib": 18.622389793395996,
+  "export": {
+    "format": "planreg_student_checkpoint_v1",
+    "source_checkpoint": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/real_smoke_v2/smoke_training.ckpt",
+    "export_checkpoint": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/real_smoke_v2/smoke_student.ckpt",
+    "source_checkpoint_sha256": "ae7620ffc6e6f5fbad2aab26100b6bce98ec680cad572e83f4ee98956676ef19",
+    "export_checkpoint_sha256": "64845f1ad7c4498198ee332ddbe405441642c1d31c767e8c60e813ffb5b284d8",
+    "removed_key_count": 648,
+    "retained_key_count": 1135,
+    "removed_state_keys": [
+      "agent._ema_actual_end_momentum",
+      "agent._ema_actual_start_momentum",
+      "agent._ema_current_momentum",
+      "agent._ema_optimizer_step",
+      "agent._world_model_optimizer_step",
+      "agent._world_model_total_optimizer_steps",
+      "agent.ema_register_target.master.legacy_bf16_ema_history_unrecoverable",
+      "agent.ema_register_target.master.m0000",
+      "agent.ema_register_target.master.m0001",
+      "agent.ema_register_target.master.m0002",
+      "agent.ema_register_target.master.m0003",
+      "agent.ema_register_target.master.m0004",
+      "agent.ema_register_target.master.m0005",
+      "agent.ema_register_target.master.m0006",
+      "agent.ema_register_target.master.m0007",
+      "agent.ema_register_target.master.m0008",
+      "agent.ema_register_target.master.m0009",
+      "agent.ema_register_target.master.m0010",
+      "agent.ema_register_target.master.m0011",
+      "agent.ema_register_target.master.m0012",
+      "agent.ema_register_target.master.m0013",
+      "agent.ema_register_target.master.m0014",
+      "agent.ema_register_target.master.m0015",
+      "agent.ema_register_target.master.m0016",
+      "agent.ema_register_target.master.m0017",
+      "agent.ema_register_target.master.m0018",
+      "agent.ema_register_target.master.m0019",
+      "agent.ema_register_target.master.m0020",
+      "agent.ema_register_target.master.m0021",
+      "agent.ema_register_target.master.m0022",
+      "agent.ema_register_target.master.m0023",
+      "agent.ema_register_target.master.m0024",
+      "agent.ema_register_target.master.m0025",
+      "agent.ema_register_target.master.m0026",
+      "agent.ema_register_target.master.m0027",
+      "agent.ema_register_target.master.m0028",
+      "agent.ema_register_target.master.m0029",
+      "agent.ema_register_target.master.m0030",
+      "agent.ema_register_target.master.m0031",
+      "agent.ema_register_target.master.m0032",
+      "agent.ema_register_target.master.m0033",
+      "agent.ema_register_target.master.m0034",
+      "agent.ema_register_target.master.m0035",
+      "agent.ema_register_target.master.m0036",
+      "agent.ema_register_target.master.m0037",
+      "agent.ema_register_target.master.m0038",
+      "agent.ema_register_target.master.m0039",
+      "agent.ema_register_target.master.m0040",
+      "agent.ema_register_target.master.m0041",
+      "agent.ema_register_target.master.m0042",
+      "agent.ema_register_target.master.m0043",
+      "agent.ema_register_target.master.m0044",
+      "agent.ema_register_target.master.m0045",
+      "agent.ema_register_target.master.m0046",
+      "agent.ema_register_target.master.m0047",
+      "agent.ema_register_target.master.m0048",
+      "agent.ema_register_target.master.m0049",
+      "agent.ema_register_target.master.m0050",
+      "agent.ema_register_target.master.m0051",
+      "agent.ema_register_target.master.m0052",
+      "agent.ema_register_target.master.m0053",
+      "agent.ema_register_target.master.m0054",
+      "agent.ema_register_target.master.m0055",
+      "agent.ema_register_target.master.m0056",
+      "agent.ema_register_target.master.m0057",
+      "agent.ema_register_target.master.m0058",
+      "agent.ema_register_target.master.m0059",
+      "agent.ema_register_target.master.m0060",
+      "agent.ema_register_target.master.m0061",
+      "agent.ema_register_target.master.m0062",
+      "agent.ema_register_target.master.m0063",
+      "agent.ema_register_target.master.m0064",
+      "agent.ema_register_target.master.m0065",
+      "agent.ema_register_target.master.m0066",
+      "agent.ema_register_target.master.m0067",
+      "agent.ema_register_target.master.m0068",
+      "agent.ema_register_target.master.m0069",
+      "agent.ema_register_target.master.m0070",
+      "agent.ema_register_target.master.m0071",
+      "agent.ema_register_target.master.m0072",
+      "agent.ema_register_target.master.m0073",
+      "agent.ema_register_target.master.m0074",
+      "agent.ema_register_target.master.m0075",
+      "agent.ema_register_target.master.m0076",
+      "agent.ema_register_target.master.m0077",
+      "agent.ema_register_target.master.m0078",
+      "agent.ema_register_target.master.m0079",
+      "agent.ema_register_target.master.m0080",
+      "agent.ema_register_target.master.m0081",
+      "agent.ema_register_target.master.m0082",
+      "agent.ema_register_target.master.m0083",
+      "agent.ema_register_target.master.m0084",
+      "agent.ema_register_target.master.m0085",
+      "agent.ema_register_target.master.m0086",
+      "agent.ema_register_target.master.m0087",
+      "agent.ema_register_target.master.m0088",
+      "agent.ema_register_target.master.m0089",
+      "agent.ema_register_target.master.m0090",
+      "agent.ema_register_target.master.m0091",
+      "agent.ema_register_target.master.m0092",
+      "agent.ema_register_target.master.m0093",
+      "agent.ema_register_target.master.m0094",
+      "agent.ema_register_target.master.m0095",
+      "agent.ema_register_target.master.m0096",
+      "agent.ema_register_target.master.m0097",
+      "agent.ema_register_target.master.m0098",
+      "agent.ema_register_target.master.m0099",
+      "agent.ema_register_target.master.m0100",
+      "agent.ema_register_target.master.m0101",
+      "agent.ema_register_target.master.m0102",
+      "agent.ema_register_target.master.m0103",
+      "agent.ema_register_target.master.m0104",
+      "agent.ema_register_target.master.m0105",
+      "agent.ema_register_target.master.m0106",
+      "agent.ema_register_target.master.m0107",
+      "agent.ema_register_target.master.m0108",
+      "agent.ema_register_target.master.m0109",
+      "agent.ema_register_target.master.m0110",
+      "agent.ema_register_target.master.m0111",
+      "agent.ema_register_target.master.m0112",
+      "agent.ema_register_target.master.m0113",
+      "agent.ema_register_target.master.m0114",
+      "agent.ema_register_target.master.m0115",
+      "agent.ema_register_target.master.m0116",
+      "agent.ema_register_target.master.m0117",
+      "agent.ema_register_target.master.m0118",
+      "agent.ema_register_target.master.m0119",
+      "agent.ema_register_target.master.m0120",
+      "agent.ema_register_target.master.schema",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_attention.in_proj_bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_attention.in_proj_weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_attention.out_proj.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_attention.out_proj.weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_norm.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_norm.weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.global_queries",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_attention.in_proj_bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_attention.in_proj_weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_attention.out_proj.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_attention.out_proj.weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_condition.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_condition.weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_norm.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_norm.weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.local_queries",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.tile_position_mlp.0.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.tile_position_mlp.0.weight",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.tile_position_mlp.2.bias",
+      "agent.ema_register_target.planning_register_adapter.global_local_readout.tile_position_mlp.2.weight",
+      "agent.ema_register_target.planning_register_adapter.planning_registers",
+      "agent.ema_register_target.planning_register_adapter.register_norm.bias",
+      "agent.ema_register_target.planning_register_adapter.register_norm.weight",
+      "agent.ema_register_target.planning_register_adapter.register_projection.bias",
+      "agent.ema_register_target.planning_register_adapter.register_projection.weight",
+      "agent.ema_register_target.vision_model.embeddings.class_embedding",
+      "agent.ema_register_target.vision_model.embeddings.patch_embedding.bias",
+      "agent.ema_register_target.vision_model.embeddings.patch_embedding.weight",
+      "agent.ema_register_target.vision_model.embeddings.position_embedding",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.0.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.0.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.0.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.0.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.0.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.0.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.0.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.1.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.1.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.1.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.1.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.1.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.1.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.1.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.10.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.10.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.10.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.10.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.10.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.10.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.10.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.11.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.11.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.11.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.11.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.11.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.11.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.11.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.12.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.12.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.12.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.12.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.12.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.12.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.12.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.13.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.13.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.13.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.13.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.13.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.13.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.13.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.14.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.14.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.14.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.14.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.14.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.14.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.14.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.15.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.15.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.15.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.15.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.15.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.15.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.15.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.16.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.16.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.16.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.16.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.16.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.16.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.16.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.17.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.17.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.17.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.17.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.17.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.17.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.17.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.18.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.18.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.18.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.18.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.18.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.18.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.18.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.19.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.19.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.19.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.19.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.19.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.19.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.19.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.2.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.2.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.2.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.2.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.2.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.2.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.2.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.20.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.20.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.20.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.20.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.20.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.20.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.20.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.21.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.21.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.21.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.21.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.21.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.21.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.21.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.22.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.22.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.22.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.22.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.22.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.22.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.22.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.23.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.23.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.23.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.23.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.23.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.23.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.23.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.3.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.3.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.3.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.3.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.3.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.3.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.3.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.4.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.4.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.4.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.4.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.4.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.4.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.4.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.5.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.5.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.5.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.5.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.5.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.5.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.5.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.6.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.6.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.6.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.6.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.6.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.6.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.6.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.7.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.7.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.7.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.7.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.7.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.7.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.7.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.8.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.8.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.8.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.8.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.8.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.8.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.8.norm2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.proj.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.proj.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.qkv.base_layer.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.qkv.base_layer.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.qkv.q_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.qkv.q_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.qkv.v_lora_a.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.attn.qkv.v_lora_b.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.ls1",
+      "agent.ema_register_target.vision_model.encoder.layers.9.ls2",
+      "agent.ema_register_target.vision_model.encoder.layers.9.mlp.fc1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.9.mlp.fc1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.mlp.fc2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.9.mlp.fc2.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.norm1.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.9.norm1.weight",
+      "agent.ema_register_target.vision_model.encoder.layers.9.norm2.bias",
+      "agent.ema_register_target.vision_model.encoder.layers.9.norm2.weight",
+      "agent.physical_query_decoder.blocks.0.cross_attention.in_proj_bias",
+      "agent.physical_query_decoder.blocks.0.cross_attention.in_proj_weight",
+      "agent.physical_query_decoder.blocks.0.cross_attention.out_proj.bias",
+      "agent.physical_query_decoder.blocks.0.cross_attention.out_proj.weight",
+      "agent.physical_query_decoder.blocks.0.ffn.0.bias",
+      "agent.physical_query_decoder.blocks.0.ffn.0.weight",
+      "agent.physical_query_decoder.blocks.0.ffn.2.bias",
+      "agent.physical_query_decoder.blocks.0.ffn.2.weight",
+      "agent.physical_query_decoder.blocks.0.norm1.bias",
+      "agent.physical_query_decoder.blocks.0.norm1.weight",
+      "agent.physical_query_decoder.blocks.0.norm2.bias",
+      "agent.physical_query_decoder.blocks.0.norm2.weight",
+      "agent.physical_query_decoder.blocks.0.norm3.bias",
+      "agent.physical_query_decoder.blocks.0.norm3.weight",
+      "agent.physical_query_decoder.blocks.0.self_attention.in_proj_bias",
+      "agent.physical_query_decoder.blocks.0.self_attention.in_proj_weight",
+      "agent.physical_query_decoder.blocks.0.self_attention.out_proj.bias",
+      "agent.physical_query_decoder.blocks.0.self_attention.out_proj.weight",
+      "agent.physical_query_decoder.blocks.1.cross_attention.in_proj_bias",
+      "agent.physical_query_decoder.blocks.1.cross_attention.in_proj_weight",
+      "agent.physical_query_decoder.blocks.1.cross_attention.out_proj.bias",
+      "agent.physical_query_decoder.blocks.1.cross_attention.out_proj.weight",
+      "agent.physical_query_decoder.blocks.1.ffn.0.bias",
+      "agent.physical_query_decoder.blocks.1.ffn.0.weight",
+      "agent.physical_query_decoder.blocks.1.ffn.2.bias",
+      "agent.physical_query_decoder.blocks.1.ffn.2.weight",
+      "agent.physical_query_decoder.blocks.1.norm1.bias",
+      "agent.physical_query_decoder.blocks.1.norm1.weight",
+      "agent.physical_query_decoder.blocks.1.norm2.bias",
+      "agent.physical_query_decoder.blocks.1.norm2.weight",
+      "agent.physical_query_decoder.blocks.1.norm3.bias",
+      "agent.physical_query_decoder.blocks.1.norm3.weight",
+      "agent.physical_query_decoder.blocks.1.self_attention.in_proj_bias",
+      "agent.physical_query_decoder.blocks.1.self_attention.in_proj_weight",
+      "agent.physical_query_decoder.blocks.1.self_attention.out_proj.bias",
+      "agent.physical_query_decoder.blocks.1.self_attention.out_proj.weight",
+      "agent.physical_query_decoder.frame_pose_key.0.bias",
+      "agent.physical_query_decoder.frame_pose_key.0.weight",
+      "agent.physical_query_decoder.frame_pose_key.2.weight",
+      "agent.physical_query_decoder.gap_head.bias",
+      "agent.physical_query_decoder.gap_head.weight",
+      "agent.physical_query_decoder.memory_projection.bias",
+      "agent.physical_query_decoder.memory_projection.weight",
+      "agent.physical_query_decoder.output_norm.bias",
+      "agent.physical_query_decoder.output_norm.weight",
+      "agent.physical_query_decoder.progress_head.bias",
+      "agent.physical_query_decoder.progress_head.weight",
+      "agent.physical_query_decoder.road_head.bias",
+      "agent.physical_query_decoder.road_head.weight",
+      "agent.physical_query_decoder.status_mlp.0.bias",
+      "agent.physical_query_decoder.status_mlp.0.weight",
+      "agent.physical_query_decoder.status_mlp.2.bias",
+      "agent.physical_query_decoder.status_mlp.2.weight",
+      "agent.physical_query_decoder.time_embeddings.weight",
+      "agent.physical_query_decoder.trajectory_mlp.0.bias",
+      "agent.physical_query_decoder.trajectory_mlp.0.weight",
+      "agent.physical_query_decoder.trajectory_mlp.2.bias",
+      "agent.physical_query_decoder.trajectory_mlp.2.weight"
+    ],
+    "removed_top_level_keys": [
+      "lr_schedulers",
+      "optimizer_states"
+    ],
+    "source_git_commit": "96cb194df1f831b289e7031b6c8b50cc1de5e290",
+    "resolved_architecture_config": {
+      "_target_": "navsim.agents.EpisodeDrive.episodedrive_agent.EpisodeDriveAgent",
+      "checkpoint_path": null,
+      "stage1_checkpoint_path": null,
+      "cache_data": false,
+      "initialization": {
+        "mode": "vlm_pretrained_random_planning_stack",
+        "variant": "base",
+        "prohibit_agent_checkpoint": true,
+        "shared_trainable_init_path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/shared_task_future_lite_seed0_v2.pt",
+        "vlm_checkpoint_sha256": "79fb39297e322cd2d3dc68d4f23b86ff85806b336a4d5d0ed5db9b66e4034a3c",
+        "vlm_config_sha256": "58b3f930bcf3f65f9f62de8a486af018d5e34a3427fb1d41a2d88b1f8adcb394"
+      },
+      "vlm_config": {
+        "vlm_path": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+        "cam_type": "single",
+        "vlm_type": "internvl",
+        "vlm_size": "large",
+        "cache_mode": false,
+        "cache_hidden_state": false,
+        "freeze_backbone": true,
+        "freeze_language_model": true,
+        "trainable_layers": [],
+        "initialize_from_config": false,
+        "strict_vocab_alignment": true,
+        "use_flash_attn": false,
+        "skip_lm_head": true,
+        "freeze_lm_head": true,
+        "gradient_checkpointing": true,
+        "extra_token_count": 0,
+        "target_vocab_size": 151682,
+        "planning_registers_enabled": true,
+        "num_planning_registers": 16,
+        "planning_register_dim": 256,
+        "tile_register_aggregation": "global_local_8_8",
+        "vision_qv_lora_enabled": true,
+        "vision_qv_lora_rank": 32,
+        "planreg_version": "v1p1",
+        "prompt_version": "single_front_v1p1",
+        "compute_dtype": "bfloat16"
+      },
+      "lora_config": {
+        "use_lora": false,
+        "lora_rank": 8,
+        "lora_dropout": 0.0,
+        "lora_target_modules": [],
+        "checkpoint_path": ""
+      },
+      "vision_adaptation": {
+        "mode": "qv_lora",
+        "layers": "all",
+        "rank": 32,
+        "train_q": true,
+        "train_k": false,
+        "train_v": true,
+        "train_mlp": false,
+        "dropout": 0.0
+      },
+      "planning_registers": {
+        "attention_mode": "read_only",
+        "read_only_attention_backend": "eager"
+      },
+      "scene_fusion": {
+        "mode": "planning_primary_semantic_xattn",
+        "num_heads": 8,
+        "layers": 1,
+        "dropout": 0.0,
+        "semantic_gate_init_probability": 0.2
+      },
+      "semantic_path": {
+        "frozen_llm_no_grad": true,
+        "backprop_to_vision": false,
+        "train_qformer": true
+      },
+      "cache_policy": {
+        "mode": "input_only",
+        "cache_feature_paths": true,
+        "cache_target_paths": true,
+        "cache_tile_metadata": true,
+        "cache_tokenized_prompts": true,
+        "cache_gt_trajectory": true,
+        "cache_long_trajectory": true,
+        "cache_vlm_hidden_state": false,
+        "cache_patch_features": false,
+        "cache_semantic_tokens": false,
+        "cache_planning_registers": false,
+        "cache_future_ema_registers": false
+      },
+      "world_model": {
+        "enabled": true,
+        "future_mode": "correct",
+        "predictor_only": false,
+        "overlap_metric_target_with_ema": true,
+        "horizons_sec": [
+          0.5,
+          1.5,
+          3.0
+        ],
+        "horizon_weights": [
+          1.0,
+          0.7,
+          0.4
+        ],
+        "predictor_layers": 2,
+        "hidden_dim": 256,
+        "abs_weight": 1.0,
+        "delta_weight": 0.5,
+        "min_weight": 0.01,
+        "max_weight": 0.1,
+        "start_fraction": 0.0,
+        "ramp_fraction": 0.1,
+        "normalize_state_space": true,
+        "candidate_count": 8,
+        "trajectory_source": "gt_uniform_proposals",
+        "x_scale": 30.0,
+        "y_scale": 10.0,
+        "speed_scale": 15.0,
+        "acceleration_scale": 8.0,
+        "require_all_horizons_valid": false,
+        "mode": "task_future_lite"
+      },
+      "ema": {
+        "enabled": true,
+        "reference_global_batch": 16,
+        "scale_momentum_by_global_batch": true,
+        "start_momentum_reference": 0.996,
+        "end_momentum_reference": 0.9999,
+        "schedule": "cosine"
+      },
+      "trajectory_sampling": {
+        "_target_": "nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling",
+        "_convert_": "all",
+        "time_horizon": 4,
+        "interval_length": 0.5
+      },
+      "action_head_config": {
+        "checkpoint_path": "",
+        "b2d": false,
+        "shared_refiner": false,
+        "ref_num": 4,
+        "scorer_ref_num": 4,
+        "proposal_num": 64,
+        "num_poses": 8,
+        "num_scene_tokens": 16,
+        "one_token_per_traj": true,
+        "full_history_status": false,
+        "long_trajectory_additional_poses": 2,
+        "noc": 1.0,
+        "dac": 1.0,
+        "ddc": 0.0,
+        "ttc": 5.0,
+        "ep": 5.0,
+        "comfort": 2.0,
+        "tf_d_model": 256,
+        "tf_d_ffn": 1024,
+        "cam_f0": [
+          3
+        ],
+        "cam_l0": [],
+        "cam_l1": [],
+        "cam_l2": [],
+        "cam_r0": [],
+        "cam_r1": [],
+        "cam_r2": [],
+        "cam_b0": [],
+        "lidar_pc": [],
+        "image_size": [
+          1148,
+          672
+        ],
+        "image_backbone": {
+          "model_name": "timm/vit_small_patch14_reg4_dinov2.lvd142m",
+          "model_weights": "/mnt/project/external/DrivoR/weights/vit_small_patch14_reg4_dinov2.lvd142m/model.safetensors",
+          "use_lora": true,
+          "finetune": false,
+          "lora_rank": 32,
+          "focus_front_cam": false,
+          "use_feature_pooling": false,
+          "compress_fc": false
+        },
+        "double_score": false,
+        "agent_pred": false,
+        "area_pred": false,
+        "bev_map": false,
+        "bev_agent": false,
+        "refiner_num_heads": 1,
+        "refiner_ls_values": 0.0,
+        "trajectory_sampling": {
+          "_target_": "nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling",
+          "time_horizon": 4,
+          "interval_length": 0.5
+        },
+        "semantic_query_init_std": 0.02,
+        "semantic_use_padding_mask": true,
+        "refinement_training_policy": "final_only"
+      },
+      "loss": {
+        "_target_": "navsim.agents.EpisodeDrive.layers.losses.episode_drive_loss.EpisodeDriveLoss",
+        "trajectory_weight": 1.0,
+        "inter_weight": 0.0,
+        "sub_score_weight": 0.0,
+        "final_score_weight": 1.0,
+        "pred_ce_weight": 1.0,
+        "pred_l1_weight": 0.1,
+        "pred_area_weight": 2.0,
+        "prev_weight": 0.0,
+        "agent_class_weight": 1.0,
+        "agent_box_weight": 0.1,
+        "bev_semantic_weight": 1.0,
+        "div_weight": 0.0
+      },
+      "lr_args": {
+        "name": "AdamW",
+        "reference_global_batch": 64,
+        "scale_with_batch_size": "sqrt",
+        "planning_adapter_lr": 0.0002,
+        "semantic_fusion_lr": 0.0002,
+        "action_generator_lr": 0.0002,
+        "scorer_lr": 0.0002,
+        "future_predictor_lr": 0.0001,
+        "semantic_qformer_lr": 0.0001,
+        "vision_qv_lora_lr": 3e-05,
+        "language_model_lr": 0.0,
+        "new_module_lr_cap": 0.0003,
+        "action_scorer_lr_cap": 0.0003,
+        "qformer_lr_cap": 0.00015,
+        "vision_lora_lr_cap": 5e-05,
+        "decay_weight_decay": 0.01,
+        "no_decay_weight_decay": 0.0,
+        "betas": [
+          0.9,
+          0.999
+        ],
+        "eps": 1e-08
+      },
+      "scheduler_args": {
+        "type": "cosine",
+        "warmup_ratio": 0.05,
+        "start_lr_ratio": 0.01,
+        "min_lr_ratio": 0.1,
+        "interval": "step"
+      },
+      "batch_size": 8,
+      "num_gpus": 8,
+      "progress_bar": true,
+      "scorer_variant": "exact_drivor",
+      "consequence": {
+        "train_candidates": 8,
+        "time_bins": 8,
+        "target_fields": [
+          "projected_gap",
+          "road_margin",
+          "route_progress"
+        ],
+        "inference_use": false
+      }
+    }
+  },
+  "current_only_export_max_abs_diff": 0.0
+}
