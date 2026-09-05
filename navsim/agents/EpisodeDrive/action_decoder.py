@@ -207,6 +207,21 @@ class ActionDecoder(nn.Module):
         if self.scene_feature_mode == "planning_plus_semantic":
             self._optimizer_step.fill_(int(optimizer_step))
 
+    def apply_refinement_training_policy(self):
+        """Freeze inactive output heads after shared init/checkpoint restore.
+
+        All forward computations are retained, preserving dropout RNG order
+        and old checkpoint topology. Head0 never gets visual deep supervision.
+        """
+        policy = str(getattr(self._config, 'refinement_training_policy', 'legacy'))
+        if policy not in {'legacy', 'final_only', 'light_deep_supervision'}:
+            raise ValueError(f'Unknown refinement training policy: {policy}')
+        if policy == 'legacy':
+            return
+        for index, head in enumerate(self.traj_head):
+            trainable = index == len(self.traj_head)-1 or (policy == 'light_deep_supervision' and index > 0)
+            head.requires_grad_(trainable)
+
     def configure_total_optimizer_steps(self, total_optimizer_steps: int) -> None:
         if total_optimizer_steps <= 0:
             raise ValueError("total_optimizer_steps must be positive")

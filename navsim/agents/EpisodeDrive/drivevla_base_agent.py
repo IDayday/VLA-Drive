@@ -1145,6 +1145,8 @@ class DriveVLABaseAgent(AbstractAgent):
                 f"{self._shared_trainable_initialization_metadata['artifact_sha256']}"
             )
         self._report_backbone_trainability()
+        if not self.cache_data:
+            self.action_head.apply_refinement_training_policy()
         self._initialize_ema_register_target()
         self._initialized = True
 
@@ -2054,6 +2056,13 @@ class DriveVLABaseAgent(AbstractAgent):
             raise
         finally:
             self._formal_phase_timer.stop(metric_timer)
+        if str(getattr(self.action_head_config, 'refinement_training_policy', 'legacy')) == 'light_deep_supervision':
+            if self.loss.prev_weight != 0:
+                raise ValueError('Light deep supervision requires prev_weight=0, never five-head strong WTA')
+            from .refinement_supervision import intermediate_trajectory_loss
+            auxiliary = intermediate_trajectory_loss(pred['proposal_list'], targets)
+            base_loss_dict['generator_auxiliary_loss'] = auxiliary
+            base_loss_dict['loss'] = base_loss_dict['loss'] + auxiliary
         if not self.world_model_enabled:
             return base_loss_dict
         if not self.training:
