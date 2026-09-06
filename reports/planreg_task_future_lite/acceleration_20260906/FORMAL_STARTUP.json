@@ -1,0 +1,223 @@
+{
+  "status": "RUNNING_VERIFIED_AFTER_REAL_OPTIMIZER_STEP",
+  "checked_at_utc": "2026-09-06 00:23:09 UTC",
+  "run_directory": "/mnt/project/DriveVLA-M0-formal-runs/lite_acceleration_20260905/formal_base_fast_gb128/formal_task_future_lite_base_init_wm_seed0",
+  "coordinator_pid": 1781190,
+  "active_variant": "base",
+  "vqa_paused": true,
+  "from_scratch_shared_initialization": true,
+  "old_epoch_one_checkpoints_preserved": true,
+  "parameters": {
+    "actual_global_batch": 128,
+    "agent_checkpoint_loaded": false,
+    "ema": {
+      "actual_end_momentum": 0.9992002799440071,
+      "actual_start_momentum": 0.9684444338627706,
+      "static_parameter_count": 304012288,
+      "updated_parameter_count": 4091136
+    },
+    "frozen_parameter_count": 2402451296,
+    "language_model_trainable_parameter_count": 0,
+    "logical_final_learning_rates": {
+      "action_generator": 0.000028284271247461902,
+      "future_predictor": 0.000014142135623730951,
+      "planning_adapter": 0.000028284271247461902,
+      "scorer": 0.000028284271247461902,
+      "semantic_fusion": 0.000028284271247461902,
+      "semantic_qformer": 0.000014142135623730951,
+      "vision_qv_lora": 0.000004242640687119286
+    },
+    "logical_peak_learning_rates": {
+      "action_generator": 0.000282842712474619,
+      "future_predictor": 0.0001414213562373095,
+      "planning_adapter": 0.000282842712474619,
+      "scorer": 0.000282842712474619,
+      "semantic_fusion": 0.000282842712474619,
+      "semantic_qformer": 0.0001414213562373095,
+      "vision_qv_lora": 0.000042426406871192855
+    },
+    "logical_start_learning_rates": {
+      "action_generator": 0.0000028284271247461903,
+      "future_predictor": 0.0000014142135623730952,
+      "planning_adapter": 0.0000028284271247461903,
+      "scorer": 0.0000028284271247461903,
+      "semantic_fusion": 0.0000028284271247461903,
+      "semantic_qformer": 0.0000014142135623730952,
+      "vision_qv_lora": 4.2426406871192855e-7
+    },
+    "lr_scale_multiplier": 1.4142135623730951,
+    "metric_target_ema_overlap_enabled": true,
+    "optimizer_groups": [
+      {
+        "logical_name": "planning_adapter",
+        "lr": 0.000282842712474619,
+        "name": "planning_adapter_decay",
+        "parameter_count": 918784,
+        "tensor_count": 8,
+        "weight_decay": 0.01
+      },
+      {
+        "logical_name": "planning_adapter",
+        "lr": 0.000282842712474619,
+        "name": "planning_adapter_no_decay",
+        "parameter_count": 26624,
+        "tensor_count": 17,
+        "weight_decay": 0
+      },
+      {
+        "logical_name": "semantic_fusion",
+        "lr": 0.000282842712474619,
+        "name": "semantic_fusion_decay",
+        "parameter_count": 262144,
+        "tensor_count": 2,
+        "weight_decay": 0.01
+      },
+      {
+        "logical_name": "semantic_fusion",
+        "lr": 0.000282842712474619,
+        "name": "semantic_fusion_no_decay",
+        "parameter_count": 2561,
+        "tensor_count": 9,
+        "weight_decay": 0
+      },
+      {
+        "logical_name": "action_generator",
+        "lr": 0.000282842712474619,
+        "name": "action_generator_decay",
+        "parameter_count": 5532416,
+        "tensor_count": 28,
+        "weight_decay": 0.01
+      },
+      {
+        "logical_name": "action_generator",
+        "lr": 0.000282842712474619,
+        "name": "action_generator_no_decay",
+        "parameter_count": 44312,
+        "tensor_count": 65,
+        "weight_decay": 0
+      },
+      {
+        "logical_name": "scorer",
+        "lr": 0.000282842712474619,
+        "name": "scorer_decay",
+        "parameter_count": 6060032,
+        "tensor_count": 38,
+        "weight_decay": 0.01
+      },
+      {
+        "logical_name": "scorer",
+        "lr": 0.000282842712474619,
+        "name": "scorer_no_decay",
+        "parameter_count": 28934,
+        "tensor_count": 70,
+        "weight_decay": 0
+      },
+      {
+        "logical_name": "future_predictor",
+        "lr": 0.0001414213562373095,
+        "name": "future_predictor_decay",
+        "parameter_count": 609536,
+        "tensor_count": 22,
+        "weight_decay": 0.01
+      },
+      {
+        "logical_name": "future_predictor",
+        "lr": 0.0001414213562373095,
+        "name": "future_predictor_no_decay",
+        "parameter_count": 6919,
+        "tensor_count": 36,
+        "weight_decay": 0
+      },
+      {
+        "logical_name": "semantic_qformer",
+        "lr": 0.0001414213562373095,
+        "name": "semantic_qformer_decay",
+        "parameter_count": 4587520,
+        "tensor_count": 25,
+        "weight_decay": 0.01
+      },
+      {
+        "logical_name": "semantic_qformer",
+        "lr": 0.0001414213562373095,
+        "name": "semantic_qformer_no_decay",
+        "parameter_count": 24320,
+        "tensor_count": 52,
+        "weight_decay": 0
+      },
+      {
+        "logical_name": "vision_qv_lora",
+        "lr": 0.000042426406871192855,
+        "name": "vision_qv_lora_no_decay",
+        "parameter_count": 3145728,
+        "tensor_count": 96,
+        "weight_decay": 0
+      }
+    ],
+    "scheduler": {
+      "interval": "step",
+      "min_lr_ratio": 0.1,
+      "start_lr_ratio": 0.01,
+      "total_optimizer_steps": 21789,
+      "type": "cosine",
+      "warmup_ratio": 0.05
+    },
+    "schema_version": 1,
+    "scorer_partitions_per_scene": 1,
+    "scorer_processes_per_rank": 4,
+    "trainable_parameter_count": 21249830,
+    "world_model_enabled": true
+  },
+  "budget": {
+    "dataset_epochs": 27,
+    "dataset_length": 103288,
+    "global_batch_size": 128,
+    "optimizer_sample_slots": 2788992,
+    "padded_samples_per_epoch": 103296,
+    "sampler_padding_per_epoch": 8,
+    "steps_per_epoch": 807,
+    "total_steps": 21789,
+    "unpadded_sample_exposures": 2788776
+  },
+  "actual_precision": {
+    "optimizer_step": 1,
+    "trainable_storage": {
+      "torch.float32": 21249830
+    },
+    "adam_moment_storage": {
+      "torch.float32": 42499660
+    },
+    "moments_observed": true,
+    "ema": {
+      "copy_changed": 2482097,
+      "count": 4091136,
+      "master_changed": 2482097,
+      "student_distance_sq": 0.0000057854973822962785
+    }
+  },
+  "initialization": {
+    "variant": "base",
+    "seed": 0,
+    "shared_init_sha256": "14250f9a38edd84a1d7335c87836bb430674ae4147bf1c13b4ac8bfc93e51078",
+    "vlm_checkpoint_sha256": "0bd7cfa0ab23300304dd627abb09abbdc38748c8c8ff6c3209baf73a81fb421f",
+    "git_commit": "3b7d1665de4d2230abbc94213fc6c3116de0bea0"
+  },
+  "nodes": [
+    {
+      "host": "local",
+      "gpu_and_process_snapshot": "0, NVIDIA A800-SXM4-80GB, 100, 43427\n1, NVIDIA A800-SXM4-80GB, 95, 43439\n2, NVIDIA A800-SXM4-80GB, 97, 43439\n3, NVIDIA A800-SXM4-80GB, 100, 43439\n4, NVIDIA A800-SXM4-80GB, 100, 43439\n5, NVIDIA A800-SXM4-80GB, 87, 43439\n6, NVIDIA A800-SXM4-80GB, 100, 43439\n7, NVIDIA A800-SXM4-80GB, 100, 43427\nverified_training_pid 1781364\nverified_training_pid 1781365\nverified_training_pid 1781366\nverified_training_pid 1781367\nverified_training_pid 1781368\nverified_training_pid 1781369\nverified_training_pid 1781370\nverified_training_pid 1781371\n"
+    },
+    {
+      "host": "training-vla-zt2",
+      "gpu_and_process_snapshot": "0, NVIDIA A800-SXM4-80GB, 88, 43427\n1, NVIDIA A800-SXM4-80GB, 87, 43439\n2, NVIDIA A800-SXM4-80GB, 100, 43439\n3, NVIDIA A800-SXM4-80GB, 100, 43439\n4, NVIDIA A800-SXM4-80GB, 99, 43439\n5, NVIDIA A800-SXM4-80GB, 100, 43439\n6, NVIDIA A800-SXM4-80GB, 100, 43439\n7, NVIDIA A800-SXM4-80GB, 87, 43427\nverified_training_pid 3068764\nverified_training_pid 3068765\nverified_training_pid 3068766\nverified_training_pid 3068767\nverified_training_pid 3068768\nverified_training_pid 3068769\nverified_training_pid 3068770\nverified_training_pid 3068771\n"
+    },
+    {
+      "host": "training-vla-zt3",
+      "gpu_and_process_snapshot": "0, NVIDIA A800-SXM4-80GB, 59, 43427\n1, NVIDIA A800-SXM4-80GB, 67, 43439\n2, NVIDIA A800-SXM4-80GB, 65, 43439\n3, NVIDIA A800-SXM4-80GB, 64, 43439\n4, NVIDIA A800-SXM4-80GB, 59, 43439\n5, NVIDIA A800-SXM4-80GB, 67, 43439\n6, NVIDIA A800-SXM4-80GB, 10, 43439\n7, NVIDIA A800-SXM4-80GB, 65, 43427\nverified_training_pid 106502\nverified_training_pid 106688\nverified_training_pid 106790\nverified_training_pid 106888\nverified_training_pid 106984\nverified_training_pid 107089\nverified_training_pid 107177\nverified_training_pid 107371\n"
+    },
+    {
+      "host": "training-rl-zt4",
+      "gpu_and_process_snapshot": "0, NVIDIA A800-SXM4-80GB, 87, 43427\n1, NVIDIA A800-SXM4-80GB, 88, 43439\n2, NVIDIA A800-SXM4-80GB, 99, 43439\n3, NVIDIA A800-SXM4-80GB, 100, 43439\n4, NVIDIA A800-SXM4-80GB, 87, 43439\n5, NVIDIA A800-SXM4-80GB, 100, 43439\n6, NVIDIA A800-SXM4-80GB, 87, 43439\n7, NVIDIA A800-SXM4-80GB, 87, 43427\nverified_training_pid 137383\nverified_training_pid 137384\nverified_training_pid 137385\nverified_training_pid 137386\nverified_training_pid 137387\nverified_training_pid 137388\nverified_training_pid 137389\nverified_training_pid 137390\n"
+    }
+  ],
+  "final_pdms": "NOT_RUN_WEIGHTS_STILL_TRAINING"
+}

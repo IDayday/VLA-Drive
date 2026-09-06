@@ -12,6 +12,13 @@ Selected **32x4**, global batch **128**; estimated full 27-epoch compute wall ti
 
 Exact budget: 807 updates/epoch, 21789 total. Completed tests: 243 passed (see pytest.log).
 
+Formal startup is now verified in [FORMAL_STARTUP.json](FORMAL_STARTUP.json):
+four hosts, eight identified training GPU processes per host, completed optimizer
+step >=1, 21,249,830 FP32 trainable values and 42,499,660 actual FP32 Adam moment
+values. Running source commit: `3b7d1665de4d2230abbc94213fc6c3116de0bea0`.
+VQA remains stopped. This confirms training is running, not that epoch27 or the
+final PDMS evaluation has completed.
+
 The original 16x8 attempt OOMed inside a duplicated diagnostic graph. The failure is retained. After moving the isolated audit before the normal graph, the B8 real smoke completed three updates and exact student export/reload, but its 73.57 GiB peak is above the formal reserve gate.
 
 All 24 actual attention blocks passed preregistered FP32 forward/backward tolerances. Complete BF16 policy/teacher rounding is reported separately in attention_parity.json. All trainable/optimizer/EMA master precision, physical tasks, source data, horizons, and generator/scorer function are retained.
