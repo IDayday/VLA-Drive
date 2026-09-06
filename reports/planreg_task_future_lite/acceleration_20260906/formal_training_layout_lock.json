@@ -1,0 +1,84 @@
+{
+  "schema_version": 2,
+  "protocol_version": "task_future_lite",
+  "selected_layout": "32x4",
+  "gpu_count": 32,
+  "per_gpu_batch_size": 4,
+  "global_batch_size": 128,
+  "num_nodes": 4,
+  "devices_per_node": 8,
+  "num_workers_per_rank": 8,
+  "scorer_processes_per_rank": 4,
+  "scorer_partitions_per_scene": 1,
+  "gradient_checkpointing": false,
+  "read_only_attention_backend": "split_sdpa",
+  "lr_scale_multiplier": 1.4142135623730951,
+  "logical_peak_learning_rates": {
+    "action_generator": 0.000282842712474619,
+    "future_predictor": 0.0001414213562373095,
+    "planning_adapter": 0.000282842712474619,
+    "scorer": 0.000282842712474619,
+    "semantic_fusion": 0.000282842712474619,
+    "semantic_qformer": 0.0001414213562373095,
+    "vision_qv_lora": 4.2426406871192855e-05
+  },
+  "ema_actual_start_momentum": 0.9684444338627706,
+  "ema_actual_end_momentum": 0.9992002799440071,
+  "dataset_length": 103288,
+  "dataset_epochs": 27,
+  "steps_per_epoch": 807,
+  "total_steps": 21789,
+  "sampler_padding_per_epoch": 8,
+  "shared_between_base_and_vqa": true,
+  "train_only_pilot_locked": true,
+  "full_physical_sidecar_smoke_passed": true,
+  "selection_scope": "User-authorized Base-only acceleration; measured equal-exposure guard, no guarantee of final PDMS equivalence",
+  "observed_samples_per_second": 37.090319783119185,
+  "estimated_27_epoch_hours": 20.887390686574673,
+  "throughput_scope": "Measured full optimizer-cycle including loader wait and callback overhead",
+  "callback_step_only_samples_per_second": 37.22782984756401,
+  "source_git_commit": "31f145c717b70e4ebb6511863a29f52e9231b660",
+  "benchmark_metrics_sha256": {
+    "16x4": "03566344a114d7ca95793fd25a3cf0b33dfe432bafb409d5c343732991c4456d",
+    "16x8": "4ec3a9f541afc05e55519f6015e24138f6c2062ae00043391fa7c449d15ffc78",
+    "32x4": "bb3fb2d8ca728066e746cd3746a60b737aa72e72e192f8f2b371a11cf854a912"
+  },
+  "evidence": {
+    "real_smoke": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/real_smoke_v2/runtime.json",
+      "sha256": "85c0572aa2272c5235f1324d7def8f49870c68927d25cf90145c20b19aba5350"
+    },
+    "train_only_probe": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/learnability_probe_v2.json",
+      "sha256": "c8b4934e2e497719bceeec7e588a5606a1dba87582ba6580da287cea782fa40b"
+    },
+    "input_manifest": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/input_cache_v2d_certified/planreg_input_only_manifest.json",
+      "sha256": "3661a93e7883b70343d0cd30d49a5a07912b96069547527f3bf483f2096356e9"
+    },
+    "shared_init": {
+      "path": "/mnt/project/DriveVLA-M0-formal-runs/task_future_lite_20260905/shared_task_future_lite_seed0_v2.pt",
+      "sha256": "14250f9a38edd84a1d7335c87836bb430674ae4147bf1c13b4ac8bfc93e51078"
+    }
+  },
+  "active_formal_variants": [
+    "base"
+  ],
+  "vqa_paused_by_user": true,
+  "training_parameter_audit": {
+    "path": "/mnt/project/DriveVLA-M0-formal-runs/lite_acceleration_20260905/benchmark/32x4/run_metadata/training_parameter_audit.json",
+    "sha256": "9c0a390b5727982d01f08101fd32315370384d5934ed43cfedb6826775f55db0"
+  },
+  "attention_parity": {
+    "path": "/mnt/project/DriveVLA-M0-formal-runs/lite_acceleration_20260905/attention_parity.json",
+    "sha256": "3b670a85386856255d7396cc173efe7e429ed3b4b31a133b866edc3ee74def4d"
+  },
+  "acceleration_real_smoke": {
+    "path": "/mnt/project/DriveVLA-M0-formal-runs/lite_acceleration_20260905/real_accelerated_b8_smoke/runtime.json",
+    "sha256": "176170c798f09e72067b0766bf3d9da73cc1fb40e26f6f7c16c95988a6c18f08"
+  },
+  "batch_comparison": {
+    "path": "/mnt/project/DriveVLA-M0-formal-runs/lite_acceleration_20260905/batch_comparison.json",
+    "sha256": "958da47ae075e21c458f738a3fd00c8dcb0b9e0d714b65795855039b28ca4733"
+  }
+}
