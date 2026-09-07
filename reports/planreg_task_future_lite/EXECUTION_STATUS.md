@@ -1,5 +1,17 @@
 # Task-Future Lite execution status
 
+## 2026-09-07 update — completed Base epoch27 and postmortem
+
+The later Base-only 32-GPU/GB128 run superseded the two-run launch described
+below. It completed 27 epochs. Full FP32 Navtest selected PDMS is **90.2354**,
+versus **91.3788** for the previous Base epoch27; both audits passed all scene,
+token and batch/single scoring gates. This is not a VQA comparison or a gain.
+See [full evaluation](navtest_20260907/RESULTS.md) and the
+[evidence-backed algorithm postmortem](regression_analysis_20260907/ALGORITHM_POSTMORTEM.md),
+including the measured near-two-prototype 8+8 readout and same-batch gradients.
+The dated startup/status entries below are retained as history, not current
+claims that full evaluation is still NOT_RUN. No new training is running.
+
 Base: `e85e1a1797f1a26303e9ee81d9f3d1231bc59978`.
 Branch: `feature/planreg-task-future-lite`.
 Formal training source: `0583137165f92db833375cf3c4aeff1b31ba897a`.
