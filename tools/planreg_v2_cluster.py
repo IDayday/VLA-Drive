@@ -23,7 +23,9 @@ ENV_KEYS=('PYTHONNOUSERSITE','PYTHONPATH','OMP_NUM_THREADS','OPENBLAS_NUM_THREAD
 def environment(node, extra=None):
     env={k:os.environ[k] for k in ENV_KEYS if k in os.environ}
     env.update(extra or {})
-    env['CUDA_VISIBLE_DEVICES']=','.join(map(str,node['gpus']))
+    # Prefer full physical UUIDs from the actual probe, avoiding CUDA/NVML index-order ambiguity.
+    env['CUDA_VISIBLE_DEVICES']=','.join(map(str,node.get('gpu_uuids',node['gpus'])))
+    env['CUDA_DEVICE_ORDER']='PCI_BUS_ID'
     env['PYTHONNOUSERSITE']='1'
     env['PYTHONPATH']=str(ROOT)+':/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages'
     return env
@@ -44,7 +46,10 @@ def inspect_nodes(layout):
         result=subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True,timeout=150,check=True)
         rows=[line for line in result.stdout.splitlines() if line.startswith('{')]
         if not rows:raise ValueError('No actual hardware/environment response from '+node['host'])
-        return node['host'],json.loads(rows[-1])
+        actual=json.loads(rows[-1])
+        if [g['physical_index'] for g in actual['hardware']]!=node['gpus']:
+            raise ValueError('CUDA physical indices differ from authorized card list on '+node['host'])
+        return node['host'],actual
     with ThreadPoolExecutor(len(nodes)) as pool:return dict(pool.map(inspect,nodes))
 
 

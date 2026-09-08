@@ -99,6 +99,13 @@ def test_gpu_guard_never_blocks_or_touches_reserved_devices():
     with pytest.raises(ValueError):visible_gpu_processes('GPU-ambiguous',query)
 
 
+def test_cluster_uses_exact_physical_uuid_visibility():
+    from planreg_v2_cluster import environment
+    env=environment(dict(host='node',gpus=[2,3],gpu_uuids=['GPU-physical2','GPU-physical3']))
+    assert env['CUDA_VISIBLE_DEVICES']=='GPU-physical2,GPU-physical3'
+    assert env['CUDA_DEVICE_ORDER']=='PCI_BUS_ID'
+
+
 def test_layout_wrapper_requires_real_matching_flat_artifact(tmp_path):
     report=tmp_path/'measured.json';report.write_text('{}')
     flat=tmp_path/'layout.json';value=dict(global_batch=128,report_path=str(report),source_sha256=guard.sha(report));flat.write_text(json.dumps(value))

@@ -146,6 +146,8 @@ def validate_hardware(actual, expected, free_required_gib=72):
     for got,want in zip(actual['hardware'],expected['hardware']):
         if (got['name'],got['memory_bytes']) != (want['name'],want['memory_bytes']):
             raise ValueError('Current GPU hardware differs from measured layout')
+        if want.get('uuid') and got.get('uuid')!=want['uuid']:
+            raise ValueError('Physical GPU identity differs from measured authorized device')
         if got['free_bytes'] < free_required_gib*2**30: raise ValueError('Insufficient free GPU memory; do not evict other work')
     if actual['external_gpu_processes']: raise ValueError('Other GPU tasks are present; never terminate them for preflight')
 
@@ -153,11 +155,15 @@ def validate_hardware(actual, expected, free_required_gib=72):
 def hardware_snapshot():
     from planreg_v2_gpu_guard import visible_gpu_processes
     external = sorted(set(visible_gpu_processes())-{os.getpid()})
+    rows=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid','--format=csv,noheader,nounits'],text=True)
+    mapping={uuid.strip():int(index) for index,uuid in (row.split(',') for row in rows.splitlines())}
     devices=[]
     for i in range(torch.cuda.device_count()):
         prop=torch.cuda.get_device_properties(i)
+        uuid='GPU-'+str(prop.uuid)
+        if uuid not in mapping:raise ValueError('CUDA physical device cannot be mapped to an authorized NVIDIA index')
         free,_=torch.cuda.mem_get_info(i)
-        devices.append(dict(index=i,name=prop.name,memory_bytes=prop.total_memory,free_bytes=free))
+        devices.append(dict(index=i,physical_index=mapping[uuid],uuid=uuid,name=prop.name,memory_bytes=prop.total_memory,free_bytes=free))
     return dict(hostname=socket.gethostname(),hardware=devices,external_gpu_processes=external,
         python=sys.version,torch=torch.__version__,cuda=torch.version.cuda,source_fingerprint_sha256=source_fingerprint()['sha256'])
 
@@ -222,6 +228,10 @@ def validate_request(request, hardware_by_node, check_files=True):
     authorization=read(request['token_authorization'])
     if authorization.get('token_sha256')!=manifest['token_sha256']:
         raise ValueError('Full token set differs from authorized trainval list')
+    if (authorization.get('count'),authorization.get('navtest_token_overlap'),authorization.get('navtest_log_overlap'))!=(103288,0,0):
+        raise ValueError('Complete training-only token authorization required')
+    if sha(authorization['source'])!=authorization['source_sha256']:
+        raise ValueError('Authorized source token list changed')
     vlm_sha=validate_vlm_pair(read(request['vlm_pair_audit']),cfg['variant'],cfg['vlm_path'])
     bank=torch.load(cfg['shared_init_path'],map_location='cpu',weights_only=False); validate_shared(bank,cfg);del bank
     if init.get('status')!='PASS' or init.get('shared_init_sha256')!=sha(cfg['shared_init_path']) or init.get('normalizer_sha256')!=sha(cfg['normalizer_path']):
