@@ -1,0 +1,210 @@
+{
+  "schema": "planreg_v2_formal_preflight_delivery_v1",
+  "branch": "fix/planreg-wm-v2-review-20260908",
+  "start_commit": "f3aa08f1ca6a5b2de35dc0d24076563c1b39c564",
+  "tested_code_commit": "28ca77d0b7a3d191f0527c992c175a6fc0907c9f",
+  "source_fingerprint": "1f3c4f4f843e2d8ab0851f85d18e65854ae0157d399c34858645100719187d3f",
+  "algorithm_changed": false,
+  "existing_training_path_edits": [
+    "visible-physical-GPU admission check",
+    "max_tiles across all accumulation microbatches; existing cross-rank MAX retained"
+  ],
+  "new_helpers": [
+    "tools/planreg_v2_preflight.py",
+    "tools/planreg_v2_cluster.py",
+    "tools/planreg_v2_gpu_guard.py",
+    "tools/scan_planreg_v2_inputs.py",
+    "tools/prepare_planreg_v2_sensor_view.py"
+  ],
+  "ready_at_preflight": true,
+  "training_started": false,
+  "not_started_reason": "START_FORMAL_AFTER_PREFLIGHT is not set to 1; only a bounded profile ran",
+  "performance": "NOT_EVALUATED",
+  "data": {
+    "unique_scenes": 103288,
+    "split": "trainval_final_fit",
+    "all_current_images_decoded": true,
+    "full_scan_processes": 16,
+    "full_scan_elapsed_seconds": 640.4697,
+    "full_scan_errors": 0,
+    "future_valid_counts": [
+      103197,
+      103033,
+      102608
+    ],
+    "future_horizons_seconds": [
+      0.5,
+      1.5,
+      4
+    ],
+    "long_valid_count": 102429,
+    "remaining_missing_reason": "Actual logged timestamps outside existing 20ms tolerance; no remaining missing or corrupt required files",
+    "max_tiles": 9,
+    "max_scene_memory_tokens": 144,
+    "prefix_token_range": [
+      2545,
+      2559
+    ],
+    "max_tokens_including_soft_queries": 2575
+  },
+  "artifacts": {
+    "vlm_path": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+    "vlm_sha256": "0bd7cfa0ab23300304dd627abb09abbdc38748c8c8ff6c3209baf73a81fb421f",
+    "manifest": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/input_trainval103288_complete/manifest.json",
+    "manifest_sha256": "cf21ae39dab96075d3043420c3ead0f39d0952b28d0f045891ef2228bfe4ad11",
+    "normalizer": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/input_trainval103288/normalizer.json",
+    "normalizer_sha256": "0895e53ef14bf4aa27b6ee362f9c7ec4f59364e054253c36ad840bcce29cd39d",
+    "shared_init": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_review_20260908/shared_init_std02_seed0.pt",
+    "shared_init_sha256": "2864c09016be1b9be63d738fc1c194eb3676dcee3188dc27d933d2d89593b047",
+    "layout_path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/formal_gb128_32gpu_layout.json",
+    "layout_sha256": "1f90a0c0f10469cbb462f9e15e7b51e2dfbec06372ec98ae3de6356970f843c1",
+    "shape_summary_sha256": "17e51e2199d9a37da1e486ab9350c46c0a82e7e7e4dc278f7459b40f16312b98"
+  },
+  "layout": {
+    "world_size": 32,
+    "node_gpu_counts": [
+      8,
+      8,
+      6,
+      6,
+      4
+    ],
+    "microbatch": 4,
+    "accumulate": 1,
+    "global_batch": 128,
+    "workers_per_rank": 2,
+    "physical_gpu_uuid_binding": true,
+    "rl_zt3": "NOT_USED: SSH connection refused"
+  },
+  "budget": {
+    "epochs": 27,
+    "steps_per_epoch": 807,
+    "schedule_total_steps": 21789,
+    "padded_exposures_per_epoch": 8
+  },
+  "optimizer_peaks": {
+    "action_generator": 0.0003,
+    "fusion": 0.0003,
+    "future_predictor": 0.0003,
+    "language_lora": 0.00001,
+    "planning_adapter": 0.0003,
+    "scorer": 0.0003,
+    "semantic_queries": 0.00015,
+    "vision_qv_lora": 0.00005
+  },
+  "ema_actual_endpoints": [
+    0.9684444338627706,
+    0.9992002799440071
+  ],
+  "profile": {
+    "warmup_optimizer_steps": 4,
+    "timed_optimizer_steps": 8,
+    "samples_per_second": 12.464945898895133,
+    "median_step_seconds": 10.20762641262263,
+    "p90_step_seconds": 10.746789540536701,
+    "max_tiles": 9
+  },
+  "peak_allocated_gib": 27.1810302734375,
+  "peak_reserved_gib": 37.646484375,
+  "estimated_compute_hours": 62.15189430294035,
+  "tests": {
+    "command": "python -m pytest -q tools/test_planreg_v2_preflight.py tests/test_planreg_v2_review_contracts.py tests/test_drivor_scorer_parity.py",
+    "passed": 58,
+    "warnings": 14,
+    "seconds": 36,
+    "component_scorer_parity": "PASS; all measured differences zero",
+    "compileall": "PASS",
+    "new_real_32_step_smoke": "NOT_RUN: existing review evidence retained; this turn ran a 12-step GB128 real profile",
+    "full_navtest": "NOT_RUN: not authorized"
+  },
+  "evidence": {
+    "formal_admission.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/formal_admission.json",
+      "sha256": "0271916b96cb5dfa26b87419d69b587352a7fe5c3ba7a4443a66c37ffeeb602e"
+    },
+    "formal_gb128_32gpu_layout.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/formal_gb128_32gpu_layout.json",
+      "sha256": "1f90a0c0f10469cbb462f9e15e7b51e2dfbec06372ec98ae3de6356970f843c1"
+    },
+    "formal_base_request.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/formal_base_request.json",
+      "sha256": "6821601f40fe91e86ed040aa282c850244e36be58e17f53f9833560317fee832"
+    },
+    "full_input_scan_complete.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/full_input_scan_complete.json",
+      "sha256": "17e51e2199d9a37da1e486ab9350c46c0a82e7e7e4dc278f7459b40f16312b98"
+    },
+    "supervision_missing_reasons.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/supervision_missing_reasons.json",
+      "sha256": "44ef1ca2f75d61f0065ee07ad9a3b16abc91469655534d2961948900f2d2859e"
+    },
+    "profile32_acceptance.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/profile32_acceptance.json",
+      "sha256": "7bebe0cddcb55cc0af2c22351dcecc7b24d55168286ba2ed0f073bcf697c5b40"
+    },
+    "profile_gb128_32x4_acc1/validation.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/profile_gb128_32x4_acc1/validation.json",
+      "sha256": "652bb0be14f64422729c5068be0025e965d6c634640e7d6d4f0a7b9d7b1027ab"
+    },
+    "profile_inputs1536.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/profile_inputs1536.json",
+      "sha256": "0c6b5f34a956c3d1bfc53ed773096ef2a769e5b6aefd52fb376593cb7ccdb131"
+    },
+    "profile_input_range1536.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/profile_input_range1536.json",
+      "sha256": "782d1643c1bf5b188c373beb42e77d18b3111ddd13c62027023b60344373ccec"
+    },
+    "initialization_guarded_snapshot.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/initialization_guarded_snapshot.json",
+      "sha256": "8f897fe29e3bc43fc8d402ee21f8364d3c588f13e6859eb9c4c4d4a531e229a1"
+    },
+    "vlm_pair_audit.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/vlm_pair_audit.json",
+      "sha256": "04b77a266f668b130a825b79679976f00a405893fd41a0550640a2f356c5c428"
+    },
+    "final_58_tests.log": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/final_58_tests.log",
+      "sha256": "7dfdf5644174c1a8bcfa2c8d83551ee781e2d5881e6d7d113c10875add87443a"
+    },
+    "scorer_component_parity.log": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/scorer_component_parity.log",
+      "sha256": "f0ff5acc30f534ee9321c88b2481499ee370629bd6c3769461757c768c4b61d4"
+    }
+  },
+  "formal_command": "env START_FORMAL_AFTER_PREFLIGHT=1 PYTHONNOUSERSITE=1 PYTHONPATH=/mnt/project/DriveVLA-M0-planreg-wm-v2-review-20260908:/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python /mnt/project/DriveVLA-M0-planreg-wm-v2-review-20260908/tools/planreg_v2_preflight.py --request /mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/formal_base_request.json",
+  "formal_output": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_runs/base_init_gb128_32gpu_seed0_20260908",
+  "speed_diagnosis": {
+    "previous_completed_epoch27_run": "/mnt/project/DriveVLA-M0-formal-runs/lite_acceleration_20260905/formal_base_fast_gb128/formal_task_future_lite_base_init_wm_seed0",
+    "previous_measurement": "Actual TensorBoard train/loss step and wall_time deltas, not the 37.09 samples/s benchmark",
+    "previous_window_samples_per_second_p10_p50_p90": [
+      33.24471775765066,
+      34.27653805518352,
+      35.0367964982213
+    ],
+    "previous_world_microbatch_global": [
+      32,
+      4,
+      128
+    ],
+    "previous_epoch27_v1_original_window_median_samples_per_second": 27.387746867645852,
+    "current_profile_samples_per_second": 12.464945898895133,
+    "source_confirmed_differences": [
+      "Previous split_sdpa versus V2Backbone eager read-only attention",
+      "Previous checkpointing disabled versus V2 vision and language checkpointing enabled",
+      "Previous asynchronous CPU PDM overlapped EMA; V2 waits for PDM before teacher",
+      "Previous frozen no-grad LLM versus V2 language LoRA and backpropagation to vision",
+      "Previous 16 scene tokens versus V2 144 on current input; TF plus differentiable rollout"
+    ],
+    "attribution_caveat": "No same-input one-factor A/B yet; do not attribute the entire slowdown to any one change",
+    "current_steady_mean_seconds": {
+      "student_vision": 1.0504308193922043,
+      "language_forward": 0.7475931867957115,
+      "teacher": 3.0472448468208313,
+      "backward_including_communication": 3.6709675788879395,
+      "pdm": 1.5208001285791397,
+      "action_scorer": 0.08335814345628023,
+      "data_wait": 0.065518110524863
+    },
+    "timing_caveat": "Phase statistics use per-step cross-rank maxima and are not an exact additive breakdown; all-reduce was not separately isolated"
+  }
+}
