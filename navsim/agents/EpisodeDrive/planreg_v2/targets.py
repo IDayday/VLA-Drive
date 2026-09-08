@@ -8,7 +8,11 @@ from ..layers.world_model.future_image_io import encode_path_tensor
 
 def long_target(poses, timestamps, valid, strict=False):
     poses, timestamps, valid = torch.as_tensor(poses), torch.as_tensor(timestamps), torch.as_tensor(valid).bool()
+    if poses.ndim!=2 or poses.shape[-1]!=3 or timestamps.shape!=(len(poses),) or valid.shape!=(len(poses),):
+        raise ValueError('Long target requires matching [T,3] poses, [T] timestamps and validity')
     ok = len(poses) >= 11 and bool(valid[:11].all())
+    ok = ok and bool(torch.isfinite(poses[:11]).all() and torch.isfinite(timestamps[:11]).all())
+    ok = ok and bool((timestamps[1:11]>timestamps[:10]).all())
     ok = ok and bool(torch.allclose(timestamps[:11].float(), torch.arange(11)*.5, atol=.02, rtol=0))
     if not ok:
         if strict:

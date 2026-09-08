@@ -9,6 +9,12 @@ from navsim.agents.EpisodeDrive.planreg_v2.ema import FP32MasterEMA
 
 def _uneven_worker(rank,path):
     dist.init_process_group('gloo',init_method='file://'+path,rank=rank,world_size=2)
+    from navsim.agents.EpisodeDrive.planreg_v2.runtime import prepare_run_directory
+    prepare_run_directory(path+'.run')
+    prepare_run_directory(path+'.run',resume=True)
+    try:prepare_run_directory(path+'.run')
+    except FileExistsError:pass
+    else:raise AssertionError('Existing run must be rejected by every rank')
     layer=torch.nn.Linear(1,1,bias=False)
     with torch.no_grad(): layer.weight.fill_(1.)
     model=DistributedDataParallel(layer)

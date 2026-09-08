@@ -74,3 +74,33 @@ def test_logged_timestamp_jitter_is_not_false_missing_action():
     times[:,-1]=3.
     _,coverage=encoder(torch.zeros(1,8,8),times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
     assert not coverage[0,-1]
+
+
+def test_turning_logged_vectors_no_duplicate_rotation_and_stationary_candidates():
+    # Ego-relative velocity rotated once into the current rear-axle axes, not by global yaw twice.
+    poses=torch.tensor([[10.,20.,1.],[11.,22.,1.5]])
+    source=torch.tensor([[3.,0.],[3.,0.]])
+    out=GTLogMotionBuilder('ego').build(poses,source,source*0,torch.tensor([10.,10.5]),torch.ones(2,dtype=torch.bool))
+    torch.testing.assert_close(out['motion_sequence'][1,4:6],torch.tensor([3*torch.cos(torch.tensor(.5)),3*torch.sin(torch.tensor(.5))]))
+    codec=CandidateKinematicsCodec()(torch.zeros(1,2,8,3),torch.zeros(1,4),torch.arange(1,9)*.5,torch.ones(8,dtype=torch.bool))
+    assert codec['physical_motion'][...,4:].count_nonzero()==0 and codec['valid_mask'].all()
+
+
+def test_all_invalid_motion_and_nonfinite_long_are_explicit():
+    encoder=IntervalMotionEncoder(16)
+    encoded,valid=encoder(torch.full((1,8,8),float('nan')),torch.full((1,8),float('nan')),
+                         torch.zeros(1,8,dtype=torch.bool),[.5,1.5,4.])
+    assert torch.isfinite(encoded).all() and not valid.any()
+    poses=torch.zeros(11,3);poses[5,1]=float('nan')
+    _,valid=long_target(poses,torch.arange(11)*.5,torch.ones(11,dtype=torch.bool))
+    assert not valid
+    with pytest.raises(ValueError):long_target(poses,torch.arange(11)*.5,torch.ones(11,dtype=torch.bool),strict=True)
+
+
+def test_interval_encoder_reads_all_1_2_5_points_and_masks_suffix():
+    encoder=IntervalMotionEncoder(16)
+    motion=torch.randn(1,8,8,requires_grad=True);times=torch.arange(1,9)[None]*.5
+    result,valid=encoder(motion,times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
+    for index,expected in enumerate(([0],[1,2],[3,4,5,6,7])):
+        grad=torch.autograd.grad(result[:,index].square().mean(),motion,retain_graph=True)[0].abs().sum(-1)[0]
+        assert torch.where(grad>0)[0].tolist()==expected

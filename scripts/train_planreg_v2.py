@@ -18,7 +18,7 @@ from omegaconf import OmegaConf
 from navsim.agents.EpisodeDrive.planreg_v2.agent import PlanRegV2Agent,file_sha256
 from navsim.agents.EpisodeDrive.planreg_v2.data import InputOnlyV2Dataset,v2_collate
 from navsim.agents.EpisodeDrive.planreg_v2.optimizer import audit_adam_state
-from navsim.agents.EpisodeDrive.planreg_v2.runtime import ExactExposureSampler,rng_state,restore_rng,validate_formal,same_batch_gradient_audit,load_config,accumulated_batches
+from navsim.agents.EpisodeDrive.planreg_v2.runtime import ExactExposureSampler,rng_state,restore_rng,validate_formal,same_batch_gradient_audit,load_config,accumulated_batches,prepare_run_directory
 
 
 def main():
@@ -64,8 +64,7 @@ def main():
             raise ValueError('Launch does not match profiled layout')
         cfg['total_steps'] = steps_per_epoch*27
     output = Path(args.output)
-    if output.exists() and not args.resume: raise FileExistsError('New run output directory required; no automatic resume')
-    output.mkdir(parents=True,exist_ok=True)
+    prepare_run_directory(output,resume=bool(args.resume))
     manifest_sha = file_sha256(args.manifest)
     run_contract=dict(seed=args.seed,microbatch=args.microbatch,accumulate=args.accumulate,workers=args.workers)
     checkpoint = torch.load(args.resume,map_location='cpu',weights_only=False) if args.resume else None
@@ -163,6 +162,7 @@ def main():
             norm=torch.nn.utils.clip_grad_norm_([p for p in agent.parameters() if p.requires_grad],1.,error_if_nonfinite=True)
             audit_update=(int(agent.optimizer_updates)+1)%500==0 or int(agent.optimizer_updates)<2
             before_update={n:p.detach().clone() for n,p in agent.named_parameters() if p.requires_grad} if audit_update else None
+            applied_lrs={group['name']:group['lr'] for group in optimizer.param_groups}
             optimizer.step(); scheduler.step(); audit_adam_state(optimizer)
             optimizer.zero_grad(set_to_none=True)
             step=int(agent.optimizer_updates)
@@ -183,7 +183,8 @@ def main():
                     for n,p in agent.named_parameters() if p.requires_grad}
                 if rank==0:(output/('updates_step%06d.json'%step)).write_text(json.dumps(update,indent=2))
                 del before_update
-            values['learning_rates']={group['name']:group['lr'] for group in optimizer.param_groups}
+            values['learning_rates_applied']=applied_lrs
+            values['learning_rates_next']={group['name']:group['lr'] for group in optimizer.param_groups}
             if agent.ema_teacher is not None:values['ema']=agent.ema_teacher.last_diagnostics
             if rank==0:
                 print(json.dumps(values),flush=True)

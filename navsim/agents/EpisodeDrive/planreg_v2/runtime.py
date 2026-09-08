@@ -44,6 +44,24 @@ def restore_rng(state):
     if state['cuda']: torch.cuda.set_rng_state_all(state['cuda'])
 
 
+def prepare_run_directory(path,resume=False):
+    """Rank zero owns creation; all ranks receive the same failure instead of racing mkdir."""
+    from pathlib import Path
+    import torch.distributed as dist
+    distributed=dist.is_available() and dist.is_initialized()
+    rank=dist.get_rank() if distributed else 0
+    error=[None]
+    if rank==0:
+        try:
+            if Path(path).exists() and not resume:
+                raise FileExistsError('New run output directory required; no automatic resume')
+            Path(path).mkdir(parents=True,exist_ok=resume)
+        except OSError as exc:error[0]=str(exc)
+    if distributed:dist.broadcast_object_list(error,src=0)
+    if error[0] is not None:raise FileExistsError(error[0])
+    if distributed:dist.barrier()
+
+
 def accumulated_batches(iterator,accumulate):
     """Count the whole optimizer batch before micro-forward; missing targets must not bias accumulation."""
     from itertools import islice
@@ -96,12 +114,15 @@ def validate_formal(config,manifest,layout):
 
 def same_batch_gradient_audit(plan_loss,wm_loss,named_parameters,weight):
     selected = [(n,p) for n,p in named_parameters if p.requires_grad and
-                ('.vision_model.' in n or '.planning_register_adapter.' in n)]
+                any(part in n for part in ('.vision_model.','.planning_register_adapter.','.language_model.','.task_queries.'))]
     parameters = [p for _,p in selected]
     plan = torch.autograd.grad(plan_loss,parameters,retain_graph=True,allow_unused=True)
     wm = torch.autograd.grad(wm_loss,parameters,retain_graph=True,allow_unused=True)
     results = {}
-    for group,match in (('vision_lora',lambda n:'.vision_model.' in n),('registers',lambda n:'.planning_register_adapter.' in n)):
+    for group,match in (('vision_lora',lambda n:'.vision_model.' in n),
+                        ('registers',lambda n:'.planning_register_adapter.' in n),
+                        ('language_lora',lambda n:'.language_model.' in n),
+                        ('semantic_queries',lambda n:'.task_queries.' in n)):
         aa=bb=ab=0.
         for (name,p),g,h in zip(selected,plan,wm):
             if not match(name): continue

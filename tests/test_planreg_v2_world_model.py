@@ -60,3 +60,15 @@ def test_invalid_tf_prefix_does_not_invalidate_rollout_middle_target():
     x = torch.randn(3,requires_grad=True)
     zero = global_valid_mean(x,torch.zeros(3,dtype=torch.bool))
     zero.backward(); assert torch.isfinite(zero) and x.grad.count_nonzero() == 0
+
+
+def test_ema_compute_copy_eventually_crosses_bfloat16_ulp():
+    vision=torch.nn.Linear(1,1,bias=False)
+    with torch.no_grad():vision.weight.fill_(1.)
+    student=SimpleNamespace(model=SimpleNamespace(vision_model=vision),planning_register_adapter=torch.nn.Linear(1,1,bias=False))
+    ema=FP32MasterEMA(student,1200,16).bfloat16()
+    with torch.no_grad():vision.weight.fill_(1.01)
+    ema.update(student)
+    assert ema.vision.weight.item()==1. and ema.master_0000.item()>1.
+    for _ in range(999):ema.update(student)
+    assert ema.vision.weight.item()>1. and ema.master_0000.dtype==torch.float32
