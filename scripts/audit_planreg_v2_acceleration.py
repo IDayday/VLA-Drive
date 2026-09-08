@@ -33,7 +33,7 @@ def main():
         input_type='Real cached train scenes, full pretrained InternVL3-2B, actual NAVSIM CPU labels',
         gates=dict(fp32_block_relative_l2=1e-4,fp32_gradient_relative_l2=1e-3,bf16_visual_relative_l2=.02,
                    overlap_loss_gradient_atol=0,checkpoint_loss_gradient_atol=0),
-        blocks=[],scenes=[],final_pdms_equivalence='NOT_ESTABLISHED')
+        blocks=[],scenes=[],bf16_replay_gate_passed=True,final_pdms_equivalence='NOT_ESTABLISHED')
     def save():output.write_text(json.dumps(report,indent=2))
     save();torch.manual_seed(0);torch.cuda.manual_seed_all(0);torch.set_num_threads(2)
     torch.backends.cuda.matmul.allow_tf32=False
@@ -60,8 +60,11 @@ def main():
                 del pred,teacher
             row=dict(token=dataset.records[index]['token'],category=dataset.records[index]['category'],
                      tiles=len(features['pixel_values'][0]),difference={k:difference(results['eager'][k],results['split_sdpa'][k]) for k in results['eager']})
-            for key in ('visual_content','teacher'):
-                assert row['difference'][key]['relative_l2']<=report['gates']['bf16_visual_relative_l2'],row
+            # Keep the declared gate and its failure. Finish independent FP32,
+            # exact-label/gradient and checkpointing checks rather than hiding them.
+            row['bf16_replay_gate_passed']=all(row['difference'][key]['relative_l2']<=report['gates']['bf16_visual_relative_l2']
+                                              for key in ('visual_content','teacher'))
+            report['bf16_replay_gate_passed'] &= row['bf16_replay_gate_passed']
             report['scenes'].append(row);save()
             if hooks:
                 for handle in hooks:handle.remove()
@@ -84,6 +87,7 @@ def main():
             report['blocks'].append(row);save()
             del eager,split,x,y,ref,new,upstream,rg,ng
         del captured;gc.collect();torch.cuda.empty_cache()
+        report['fp32_operator_and_gradient_parity']='PASS';save()
         set_backend(agent,'split_sdpa');agent.train()
         features,targets=v2_collate([dataset[0]])
         selected=[(n,q) for n,q in agent.named_parameters() if q.requires_grad]
@@ -129,7 +133,12 @@ def main():
             else:torch.testing.assert_close(left,right,atol=0,rtol=0)
         report['real_checkpointing']=dict(status='PASS',forward_max_abs_diff=0,gradient_max_abs_diff=0)
         report['fp32_trainable']=all(q.dtype==torch.float32 for q in agent.parameters() if q.requires_grad)
-        report['status']='PASS';save();print(json.dumps({k:v for k,v in report.items() if k not in ('source_fingerprint','blocks')},indent=2))
+        report['status']='PASS' if report['bf16_replay_gate_passed'] else 'PARTIAL_BF16_REPLAY_GATE_FAILED'
+        save();print(json.dumps({k:v for k,v in report.items() if k not in ('source_fingerprint','blocks')},indent=2))
+        if not report['bf16_replay_gate_passed']:
+            raise SystemExit(2)  # Not PASS, not a relaxed tolerance, never a lossless replay claim.
+    except SystemExit:
+        raise
     except BaseException as exc:
         report.update(status='FAIL',error=type(exc).__name__+': '+str(exc));save();raise
     finally:
