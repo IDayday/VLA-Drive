@@ -31,7 +31,7 @@ def helper_identity():
 
 
 def lock_profile(spec_path, inventory_path, output):
-    from navsim.agents.EpisodeDrive.planreg_v2.runtime import validate_profile_artifact
+    from navsim.agents.EpisodeDrive.planreg_v2.runtime import validate_profile_artifact,execution_settings
     spec=read(spec_path);root=Path(spec['run_output'])
     report=read(root/'validation.json');metadata=read(root/'run_metadata.json');cfg=read(root/'resolved_config.json')
     validate_profile_artifact(report,metadata,cfg)
@@ -58,7 +58,8 @@ def lock_profile(spec_path, inventory_path, output):
         profile_spec_sha256=sha(spec_path),hardware_inventory_sha256=sha(inventory_path),
         peak_allocated_gib=report['peak_allocated_gib'],profile=report['profile'],
         precision='BF16 activations/frozen VLM; FP32 trainable/AdamW/EMA master',
-        schedule_total_steps=metadata['schedule_total_steps'],gradient_checkpointing=cfg['gradient_checkpointing'])
+        schedule_total_steps=metadata['schedule_total_steps'],gradient_checkpointing=cfg['gradient_checkpointing'],
+        execution_settings=execution_settings(cfg))
     if Path(output).exists():raise FileExistsError('Never overwrite an existing measured layout')
     Path(output).write_text(json.dumps(lock,indent=2));print(json.dumps(lock,indent=2))
 
@@ -220,7 +221,9 @@ def validate_request(request, hardware_by_node, check_files=True):
     if (cfg['global_batch'],cfg['total_steps'],cfg['epochs']) != (128,21789,27): raise ValueError('Formal budget is locked at GB128/807/21789')
     if cfg['variant'] not in ('base','driving_vqa') or cfg.get('world_model_enabled') is not True or cfg.get('wm_objective','tf_and_ro')!='tf_and_ro':
         raise ValueError('Only one explicit full Base/VQA TF+RO run is authorized')
-    if cfg.get('motion_mode')!='gt_log' or cfg.get('scene_memory_mode')!='per_tile_register_memory' or cfg.get('gradient_checkpointing') is not True:
+    # Checkpointing/backend/overlap must match the newly measured layout (validate_formal),
+    # not a hard-coded old memory-saving setting. No mathematical module may be disabled.
+    if cfg.get('motion_mode')!='gt_log' or cfg.get('scene_memory_mode')!='per_tile_register_memory':
         raise ValueError('Computation differs from approved formal recipe')
     validate_input_range(summary,sha(request['manifest']),layout,read(request['profile_range']))
     if layout.get('profile_range_sha256')!=sha(request['profile_range']):raise ValueError('Measured input range identity changed')

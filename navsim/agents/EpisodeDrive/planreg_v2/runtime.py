@@ -20,6 +20,13 @@ def load_config(path):
     return OmegaConf.to_container(unresolved(path),resolve=True)
 
 
+def execution_settings(config):
+    """Performance choices are part of profile/resume identity, not algorithm or LR changes."""
+    return dict(read_only_attention_backend=config.get('read_only_attention_backend','eager'),
+                gradient_checkpointing=config.get('gradient_checkpointing',True),
+                overlap_metric_target_with_ema=config.get('overlap_metric_target_with_ema',False))
+
+
 def source_fingerprint():
     """Report-only commits do not alter this production/config/test identity."""
     import hashlib,subprocess
@@ -125,6 +132,8 @@ def validate_formal(config,manifest,layout):
         raise ValueError('V2 must be profiled; V1 throughput evidence cannot authorize this layout')
     if layout['global_batch'] != config['global_batch']:
         raise ValueError('Layout global batch mismatch')
+    if layout.get('execution_settings',execution_settings({})) != execution_settings(config):
+        raise ValueError('Execution backend/checkpointing/overlap differs from the measured layout')
     if (layout.get('recipe_version')!=RECIPE_VERSION or layout.get('source_fingerprint_sha256')!=source_fingerprint()['sha256'] or
             not layout.get('profile_only') or not layout.get('hardware') or layout.get('profile_no_external_gpu_work') is not True):
         raise ValueError('Layout must bind actual V2.2 code/recipe/GB128/hardware and uncontended profiling evidence')
@@ -150,6 +159,8 @@ def validate_profile_artifact(report,metadata,config):
         raise ValueError('Profile may not disable rich memory or world model or FP32 trainable storage')
     if metadata.get('profile_no_external_gpu_work') is not True:
         raise ValueError('Contended GPUs cannot authorize a throughput layout')
+    if metadata.get('execution_settings',execution_settings({})) != execution_settings(config):
+        raise ValueError('Profile execution settings do not match the resolved configuration')
     if report['peak_allocated_gib']>=72 or not all(report['horizons_valid']):raise ValueError('Memory/future horizon gate failed')
     if any(not math.isfinite(r['loss']) or not math.isfinite(r['grad_norm']) for r in report['records']):
         raise ValueError('Nonfinite profile loss/gradient')

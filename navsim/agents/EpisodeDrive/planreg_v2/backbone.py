@@ -30,7 +30,10 @@ def non_reentrant_vision_encoder(self,inputs_embeds,output_hidden_states=None,re
 
 
 class V2Backbone(DriveVLABackbone):
-    def __init__(self, vlm_path, device='cpu', gradient_checkpointing=True, register_init_std=.02):
+    def __init__(self, vlm_path, device='cpu', gradient_checkpointing=True, register_init_std=.02,
+                 read_only_attention_backend='eager'):
+        if read_only_attention_backend not in ('eager', 'split_sdpa'):
+            raise ValueError('V2 read-only attention backend must be eager or split_sdpa')
         from pathlib import Path
         from ..formal_initialization import discover_weight_files,_state_keys_from_weights,scan_forbidden_state_keys
         weight_files = discover_weight_files(Path(vlm_path))
@@ -40,7 +43,7 @@ class V2Backbone(DriveVLABackbone):
             initialize_from_config=False, extra_token_count=0, strict_vocab_alignment=True,
             use_flash_attn=False, skip_lm_head=True, gradient_checkpointing=gradient_checkpointing,
             planning_registers_enabled=True, planning_register_attention_mode='read_only',
-            planning_register_attention_backend='eager', tile_register_aggregation='mean',
+            planning_register_attention_backend=read_only_attention_backend, tile_register_aggregation='mean',
             vision_qv_lora_enabled=True, vision_qv_lora_rank=32,
             semantic_frozen_llm_no_grad=False, semantic_backprop_to_vision=True,
             planning_register_init_std=register_init_std)

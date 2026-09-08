@@ -41,7 +41,7 @@ class PlanRegV2Agent(AbstractAgent):
         if self.config.get('checkpoint_path') or self.config.get('stage1_checkpoint_path'):
             raise ValueError('V2 VLM-only construction prohibits an M0/full-agent checkpoint')
         self.backbone = V2Backbone(config['vlm_path'],device,config.get('gradient_checkpointing',True),
-                                  config.get('register_init_std',.02))
+                                  config.get('register_init_std',.02),config.get('read_only_attention_backend','eager'))
         self.scene_memory = RichSceneMemory(config.get('scene_memory_mode','per_tile_register_memory'))
         if config.get('normalizer_statistics'):
             statistics = config['normalizer_statistics']
@@ -123,25 +123,79 @@ class PlanRegV2Agent(AbstractAgent):
         padded = [torch.nn.functional.pad(x.flatten(0,1),(0,0,0,n-len(x)*16)) for x in split]
         return torch.stack(padded).reshape(len(features['pixel_values']),4 if include_current else 3,n,256)
 
-    def compute_metric_targets(self,targets,proposals):
+    def submit_metric_targets(self,targets,proposals):
+        """Snapshot detached coordinates; submit the unchanged full-64 CPU PDM jobs."""
         from ..score_module.compute_navsim_score import get_sub_score
         paths = targets['metric_cache_path']
-        coords = proposals.detach().float().cpu().numpy()
+        coords = proposals.detach().float().cpu().numpy().copy()
+        if len(paths) != len(coords):
+            raise ValueError('Metric cache paths must match the proposal batch')
         workers = int(self.config.get('scorer_processes',4))
+        request = dict(device=proposals.device,futures=[],results=None)
         if workers:
             if self._score_pool is None:
                 self._score_pool = ProcessPoolExecutor(workers,mp_context=mp.get_context('spawn'))
-            futures = [self._score_pool.submit(get_sub_score,path,p,False) for path,p in zip(paths,coords)]
-            results = [f.result() for f in futures]
+            try:
+                for path,p in zip(paths,coords):
+                    request['futures'].append(self._score_pool.submit(get_sub_score,path,p,False))
+            except BaseException:
+                self.cancel_metric_targets(request)
+                raise
         else:
-            results = [get_sub_score(path,p,False) for path,p in zip(paths,coords)]
-        return torch.tensor(np.stack([r[0] for r in results]),device=proposals.device,dtype=torch.float32)
+            request['results'] = [get_sub_score(path,p,False) for path,p in zip(paths,coords)]
+        return request
+
+    @staticmethod
+    def cancel_metric_targets(request):
+        for future in request['futures']:
+            future.cancel()
+
+    def resolve_metric_targets(self,request):
+        try:
+            results = request['results']
+            if results is None:
+                # Submission order, never completion order; no candidate repartitioning.
+                results = [f.result() for f in request['futures']]
+            return torch.tensor(np.stack([r[0] for r in results]),device=request['device'],dtype=torch.float32)
+        except BaseException:
+            self.cancel_metric_targets(request)
+            raise
+
+    def compute_metric_targets(self,targets,proposals):
+        return self.resolve_metric_targets(self.submit_metric_targets(targets,proposals))
+
+    def metric_targets_with_teacher(self,features,targets,predictions,wm_active):
+        """Overlap independent CPU labels with no-grad EMA, without changing either function.
+
+        The legacy serial path is retained. Teacher has no dropout/RNG or state
+        update in forward; it runs once on the same three future frames. Pending
+        labels are cancelled if either branch fails; errors are never masked.
+        """
+        device = predictions['proposals'].device
+        timer = self.backbone.step_timing
+        overlap = (self.config.get('overlap_metric_target_with_ema',False) and wm_active
+                   and int(self.config.get('scorer_processes',4)) > 0)
+        if not overlap:
+            with timer.stage('pdm_seconds',cuda=False):
+                scores = self.compute_metric_targets(targets,predictions['proposals'])
+            return scores,None
+        with timer.stage('pdm_submit_seconds',cuda=False):
+            request = self.submit_metric_targets(targets,predictions['proposals'])
+        try:
+            with timer.stage('teacher_seconds',device.type=='cuda'):
+                teacher = self.encode_teacher(features,predictions)
+            with timer.stage('pdm_seconds',cuda=False):
+                scores = self.resolve_metric_targets(request)
+            return scores,teacher
+        except BaseException:
+            self.cancel_metric_targets(request)
+            raise
 
     def compute_loss(self,features,targets,predictions):
         device = predictions['proposals'].device
         targets = {k:(v.to(device) if torch.is_tensor(v) else v) for k,v in targets.items()}
-        with self.backbone.step_timing.stage('pdm_seconds',cuda=False):
-            scores = self.compute_metric_targets(targets,predictions['proposals'])
+        wm_active = self.world_model_enabled and (self.training or getattr(self,'wm_diagnostic_forward',False))
+        scores,teacher = self.metric_targets_with_teacher(features,targets,predictions,wm_active)
         self.last_metric_targets=scores.detach()
         count_context=getattr(self,'valid_count_context',None)
         accumulation=count_context['accumulate'] if count_context else 1
@@ -163,9 +217,10 @@ class PlanRegV2Agent(AbstractAgent):
             self.last_diagnostics=dict(semantic=representation_summary(predictions['semantic_queries']),
                 planning=representation_summary(predictions['visual_content'],predictions['scene_valid_mask']),
                 scorer=score_summary(predictions,scores),ttc_label_values=scores[...,3].unique().cpu().tolist())
-        if self.world_model_enabled and (self.training or getattr(self,'wm_diagnostic_forward',False)):
-            with self.backbone.step_timing.stage('teacher_seconds',device.type=='cuda'):
-                teacher = self.encode_teacher(features,predictions)
+        if wm_active:
+            if teacher is None:
+                with self.backbone.step_timing.stage('teacher_seconds',device.type=='cuda'):
+                    teacher = self.encode_teacher(features,predictions)
             if self.config.get('motion_mode','gt_log') == 'gt_log':
                 motion = self.motion_normalizer(targets['motion_sequence'])
                 times,valid = targets['motion_timestamps'],targets['motion_valid']

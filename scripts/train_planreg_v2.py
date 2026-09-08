@@ -157,6 +157,8 @@ def main():
             prompt_sha256=hashlib.sha256(V2_SYSTEM_PROMPT.encode()).hexdigest(),run_contract=run_contract)
         from navsim.agents.EpisodeDrive.planreg_v2.runtime import source_fingerprint
         metadata['source_fingerprint']=source_fingerprint()
+        from navsim.agents.EpisodeDrive.planreg_v2.runtime import execution_settings
+        metadata['execution_settings']=execution_settings(cfg)
         metadata['hardware']=[dict(index=i,name=torch.cuda.get_device_name(i),memory_bytes=torch.cuda.get_device_properties(i).total_memory) for i in range(torch.cuda.device_count())]
         (output/'run_metadata.json').write_text(json.dumps(metadata,indent=2))
         from navsim.agents.EpisodeDrive.score_module import compute_navsim_score as scoring
