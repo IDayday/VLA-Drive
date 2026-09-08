@@ -33,11 +33,12 @@ class Attention(torch.nn.Module):
 
 
     def forward(self, q: torch.Tensor, 
-                kv:Optional[torch.Tensor]=None) -> torch.Tensor:
+                kv:Optional[torch.Tensor]=None, key_padding_mask=None) -> torch.Tensor:
         if kv is None:
             x = self.attn(query=q, key=q, value=q, need_weights=False)[0]
         else:
-            x = self.attn(query=q, key=kv, value=kv, need_weights=False)[0]
+            x = self.attn(query=q, key=kv, value=kv, need_weights=False,
+                          key_padding_mask=key_padding_mask)[0]
         x = self.proj_drop(x)
         return x
 
@@ -96,7 +97,7 @@ class Block(torch.nn.Module):
 
     def forward(self, 
                 x: torch.Tensor,
-                x_cross: torch.Tensor) -> torch.Tensor:
+                x_cross: torch.Tensor, memory_key_padding_mask=None) -> torch.Tensor:
 
         x = x + self.self_attn_drop_path(
                         self.self_attn_ls(
@@ -107,7 +108,8 @@ class Block(torch.nn.Module):
                 self.cross_attn_ls(
                     self.cross_attn(
                         self.cross_attn_norm_q(x), 
-                        self.cross_attn_norm_kv(x_cross))))
+                        self.cross_attn_norm_kv(x_cross),
+                        key_padding_mask=memory_key_padding_mask)))
 
         x = x + self.mlp_drop_path(
                         self.mlp_ls(
@@ -139,11 +141,11 @@ class TransformerDecoder(torch.nn.Module):
         self.return_intermediate = True
 
 
-    def forward(self, x, x_cross):
+    def forward(self, x, x_cross, memory_key_padding_mask=None):
         
         intermediate = []
         for _, layer in enumerate(self.layers):
-            x = layer(x, x_cross)
+            x = layer(x, x_cross, memory_key_padding_mask=memory_key_padding_mask)
             if self.return_intermediate:
                 intermediate.append(x)
 
@@ -173,11 +175,11 @@ class TransformerDecoderScorer(torch.nn.Module):
         self.return_intermediate = False
 
 
-    def forward(self, x, x_cross):
+    def forward(self, x, x_cross, memory_key_padding_mask=None):
         
         intermediate = []
         for _, layer in enumerate(self.layers):
-            x = layer(x, x_cross)
+            x = layer(x, x_cross, memory_key_padding_mask=memory_key_padding_mask)
             if self.return_intermediate:
                 intermediate.append(x)
 
@@ -185,5 +187,4 @@ class TransformerDecoderScorer(torch.nn.Module):
             return torch.stack(intermediate)
         else:
             return x
-
 
