@@ -324,7 +324,8 @@ class DriveVLABackbone(nn.Module):
                  strict_vocab_alignment: bool = False,
                  semantic_frozen_llm_no_grad: bool = False,
                  semantic_backprop_to_vision: bool = True,
-                 compute_dtype: str = "bfloat16"):
+                 compute_dtype: str = "bfloat16",
+                 planning_register_init_std: float = 1e-6):
         """
         Initializes and loads the specified model and its preprocessor/tokenizer.
 
@@ -484,6 +485,7 @@ class DriveVLABackbone(nn.Module):
                     use_flash_attn=bool(use_flash_attn),
                     device=reference_parameter.device,
                     dtype=reference_parameter.dtype,
+                    init_std=float(planning_register_init_std),
                 )
                 self.planning_register_adapter.configure_vision_attention(
                     vision_model

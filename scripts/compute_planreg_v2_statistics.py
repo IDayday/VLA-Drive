@@ -12,6 +12,7 @@ def main():
     p.add_argument('--split', choices=['train', 'trainval_final_fit'], required=True)
     p.add_argument('--data-version', required=True)
     p.add_argument('--std-floor', type=float, default=.001)
+    p.add_argument('--mode',choices=['stepwise_zscore','global_zscore'],default='stepwise_zscore')
     p.add_argument('--output', required=True)
     args = p.parse_args()
     if Path(args.output).exists():
@@ -24,7 +25,7 @@ def main():
                 if r['token'] not in allowed:
                     raise ValueError('Non-training token in statistics input: ' + r['token'])
                 yield r['token'], r['trajectory'], r['valid']
-    result = measured_statistics(records(), args.split, args.data_version, args.std_floor)
+    result = measured_statistics(records(), args.split, args.data_version, args.std_floor,args.mode)
     if result.metadata['count'] != len(allowed):
         raise ValueError('Statistics do not cover the complete declared training token set')
     result.save(args.output)

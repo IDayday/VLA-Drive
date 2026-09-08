@@ -16,11 +16,11 @@ def scorer_config():
 
 
 class V2ActionDecoder(nn.Module):
-    def __init__(self, normalizer):
+    def __init__(self, normalizer, ego_scales=None):
         super().__init__()
         self.config = scorer_config()
         self.normalizer = normalizer
-        self.ego_normalizer = EgoStateNormalizer()
+        self.ego_normalizer = EgoStateNormalizer() if ego_scales is None else EgoStateNormalizer(ego_scales)
         self.hist_encoding = nn.Linear(11,256)
         self.init_feature = nn.Embedding(64,256)
         self.attention = TransformerDecoder(.1,.2,self.config)
@@ -32,7 +32,10 @@ class V2ActionDecoder(nn.Module):
     def score(self, proposals, memory, valid, ego):
         # Physical 8x3 flatten after detach; no generator coordinates in this graph.
         embedded = self.pos_embed(proposals.detach().flatten(-2))
-        hidden = self.scorer_attention(embedded+ego[:,None], memory, memory_key_padding_mask=~valid)
+        # DrivoR@fc6e5aa: ego is injected AFTER the independent scoring decoder.
+        padding = None if valid is None else ~valid
+        hidden = self.scorer_attention(embedded, memory, memory_key_padding_mask=padding)
+        hidden = hidden + ego[:,None]
         result = self.scorer(proposals.detach(),hidden)
         log_score = aggregate_drivor_pdm_score(result[0],self.config)
         return result[0], log_score

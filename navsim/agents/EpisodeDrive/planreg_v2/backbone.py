@@ -5,6 +5,7 @@ from transformers.modeling_outputs import BaseModelOutput
 from .language import SoftTaskQueries, inject_language_lora
 from .memory import pad_tile_registers
 from ..drivevla_backbone import DriveVLABackbone
+from .timing import StepTiming
 
 V2_SYSTEM_PROMPT = ('You are an autonomous driving assistant. The visual input is one current front-camera image, '
                     'represented by image tiles. Numeric ego history and navigation are provided as text. '
@@ -29,7 +30,7 @@ def non_reentrant_vision_encoder(self,inputs_embeds,output_hidden_states=None,re
 
 
 class V2Backbone(DriveVLABackbone):
-    def __init__(self, vlm_path, device='cpu', gradient_checkpointing=True):
+    def __init__(self, vlm_path, device='cpu', gradient_checkpointing=True, register_init_std=.02):
         from pathlib import Path
         from ..formal_initialization import discover_weight_files,_state_keys_from_weights,scan_forbidden_state_keys
         weight_files = discover_weight_files(Path(vlm_path))
@@ -41,7 +42,8 @@ class V2Backbone(DriveVLABackbone):
             planning_registers_enabled=True, planning_register_attention_mode='read_only',
             planning_register_attention_backend='eager', tile_register_aggregation='mean',
             vision_qv_lora_enabled=True, vision_qv_lora_rank=32,
-            semantic_frozen_llm_no_grad=False, semantic_backprop_to_vision=True)
+            semantic_frozen_llm_no_grad=False, semantic_backprop_to_vision=True,
+            planning_register_init_std=register_init_std)
         self.requires_grad_(False)
         self.planning_register_adapter.requires_grad_(True)
         self.planning_register_adapter.float()
@@ -53,6 +55,7 @@ class V2Backbone(DriveVLABackbone):
         hidden = self.model.language_model.get_input_embeddings().embedding_dim
         self.task_queries = SoftTaskQueries(hidden).to(device=device)
         self.model.system_message = V2_SYSTEM_PROMPT
+        self.step_timing=StepTiming()
         vision = self.model.vision_model
         if len(vision.encoder.layers) != 24 or int(vision.config.hidden_size) != 1024:
             raise ValueError('This V2 protocol requires the audited 24-layer InternVL3-2B vision tower')
@@ -72,7 +75,8 @@ class V2Backbone(DriveVLABackbone):
         return self
 
     def forward(self, pixels, counts, metadata, model_inputs):
-        vision = self.encode_internvl_planning_vision(pixels.to(self.compute_dtype), counts, metadata)
+        with self.step_timing.stage('student_vision_seconds',pixels.is_cuda):
+            vision = self.encode_internvl_planning_vision(pixels.to(self.compute_dtype), counts, metadata)
         ids = model_inputs['input_ids'].to(pixels.device)
         mask = model_inputs['attention_mask'].to(pixels.device).bool()
         prefix = self.model.language_model.get_input_embeddings()(ids).clone()
@@ -81,7 +85,8 @@ class V2Backbone(DriveVLABackbone):
         if int(selected.sum()) != len(patches):
             raise ValueError('Prompt image token count does not match patch-only vision output')
         prefix[selected] = patches.to(prefix.dtype)  # CopySlices preserves the visual gradient.
-        semantic = self.task_queries(self.model.language_model, prefix, mask)
+        with self.step_timing.stage('language_seconds',pixels.is_cuda):
+            semantic = self.task_queries(self.model.language_model, prefix, mask)
         content, geometry, valid = pad_tile_registers(vision.per_tile_registers, counts, metadata)
         return dict(visual_content=content, tile_geometry=geometry, scene_valid_mask=valid,
                     semantic_queries=semantic, per_tile_registers=vision.per_tile_registers)

@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 from navsim.agents.EpisodeDrive.planreg_v2.agent import file_sha256
+from navsim.agents.EpisodeDrive.planreg_v2.runtime import validate_profile_artifact
 
 if __name__=='__main__':
     p=argparse.ArgumentParser()
@@ -14,8 +15,7 @@ if __name__=='__main__':
     report=json.loads((root/'validation.json').read_text())
     metadata=json.loads((root/'run_metadata.json').read_text())
     config=json.loads((root/'resolved_config.json').read_text())
-    if report['optimizer_steps']<32 or report['peak_allocated_gib']>=72 or not all(report['horizons_valid']):
-        raise ValueError('Insufficient full-WM, finite 32-step memory profile')
+    validate_profile_artifact(report,metadata,config)
     if not config['world_model_enabled'] or not report['fp32_trainable']:
         raise ValueError('Profile silently disabled part of V2')
     if args.microbatch*args.accumulate*metadata['world_size']!=metadata['global_batch']:
@@ -27,6 +27,10 @@ if __name__=='__main__':
     if metadata['global_batch']!=128:
         raise ValueError('Formal target GB128 requires measured accumulated layout, not a 1-GPU unit smoke')
     lock=dict(architecture_version=config['architecture_version'],passed=True,
+        recipe_version=config['recipe_version'],source_fingerprint_sha256=metadata['source_fingerprint']['sha256'],
+        hardware=metadata['hardware'],profile_only=True,profile_no_external_gpu_work=metadata['profile_no_external_gpu_work'],
+        max_tiles=report['profile']['max_tiles'],code_commit=metadata['git_commit'],
+        report_path=str((root/'validation.json').resolve()),
         global_batch=metadata['global_batch'],world_size=metadata['world_size'],gpus_per_node=args.gpus_per_node,
         microbatch=args.microbatch,accumulate=args.accumulate,workers=args.workers,
         peak_allocated_gib=report['peak_allocated_gib'],source_sha256=file_sha256(root/'validation.json'))

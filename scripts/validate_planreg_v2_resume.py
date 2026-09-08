@@ -1,4 +1,4 @@
-"""Bounded real-data 4-step reference versus 2+2-step complete resume."""
+"""Bounded real-data 8-step reference versus 4+4 on the unchanged formal schedule."""
 import argparse
 import json
 from pathlib import Path
@@ -16,8 +16,8 @@ def main():
     if root.exists():raise FileExistsError('New resume audit directory required')
     root.mkdir(parents=True)
     common=[sys.executable,'-u','scripts/train_planreg_v2.py','--config',args.config,'--manifest',args.manifest,
-            '--smoke-steps','4','--microbatch','1','--workers','2','--accumulate',str(args.accumulate)]
-    cases=[('reference',[]),('interrupted',['--stop-after','2']),
+            '--run-step-limit','8','--microbatch','1','--workers','2','--accumulate',str(args.accumulate)]
+    cases=[('reference',[]),('interrupted',['--stop-after','4']),
            ('resumed',['--resume',str(root/'interrupted'/'last.ckpt')])]
     for label,extra in cases:
         destination=root/('interrupted' if label=='resumed' else label)
@@ -38,6 +38,7 @@ def main():
         for name,value in state.items():
             if torch.is_tensor(value) and not torch.equal(value,resumed['optimizer']['state'][index][name]):moments_equal=False
     result=dict(model_equal=not differences,model_differences=differences,optimizer_moments_equal=moments_equal,
+        continuous_steps=8,resumed_steps=[4,4],schedule_total_steps=reference['config']['total_steps'],
         scheduler_equal=reference['scheduler']==resumed['scheduler'],
         sampler_progress_equal=(reference['epoch'],reference['step_in_epoch'])==(resumed['epoch'],resumed['step_in_epoch']),
         rng_equal=all(torch.equal(a['torch'],b['torch']) and all(torch.equal(x,y) for x,y in zip(a['cuda'],b['cuda']))

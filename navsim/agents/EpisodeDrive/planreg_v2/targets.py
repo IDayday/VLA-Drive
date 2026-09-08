@@ -1,29 +1,38 @@
 """V2 targets: actual 0.5/1.5/4.0 s images; optional real 5 s long target."""
 import numpy as np
 import torch
+from scipy.interpolate import CubicSpline
+from . import LONG_TARGET_VERSION, CACHE_SCHEMA
 from .motion import GTLogMotionBuilder, HORIZONS, OFFSETS
 from .normalizers import wrap_angle, unwrap_heading
 from ..layers.world_model.future_image_io import encode_path_tensor
 
 
-def long_target(poses, timestamps, valid, strict=False):
+def long_target(poses, timestamps, valid, strict=False, timestamp_tolerance=.02, log_ids=None):
     poses, timestamps, valid = torch.as_tensor(poses), torch.as_tensor(timestamps), torch.as_tensor(valid).bool()
     if poses.ndim!=2 or poses.shape[-1]!=3 or timestamps.shape!=(len(poses),) or valid.shape!=(len(poses),):
         raise ValueError('Long target requires matching [T,3] poses, [T] timestamps and validity')
     ok = len(poses) >= 11 and bool(valid[:11].all())
     ok = ok and bool(torch.isfinite(poses[:11]).all() and torch.isfinite(timestamps[:11]).all())
     ok = ok and bool((timestamps[1:11]>timestamps[:10]).all())
-    ok = ok and bool(torch.allclose(timestamps[:11].float(), torch.arange(11)*.5, atol=.02, rtol=0))
+    ok = ok and bool(torch.allclose(timestamps[:11].double(), torch.arange(11).double()*.5, atol=timestamp_tolerance, rtol=0))
+    if log_ids is not None:
+        ok = ok and len(log_ids)>=11 and len(set(log_ids[:11]))==1
     if not ok:
         if strict:
             raise ValueError("Long-2 requires actual same-log poses through 5 seconds")
         return torch.zeros(8, 3), torch.tensor(False)
-    # Explicit retiming: sample the true [0,5s] path into eight output slots.
-    # Use the observed endpoint (within the declared 20ms tolerance), never extrapolate beyond it.
-    query = np.arange(1, 9) * float(timestamps[10]) / 8.
-    unwrapped = unwrap_heading(poses[:11, 2]).numpy()
-    output = np.stack([np.interp(query, timestamps[:11], poses[:11, i]) for i in (0, 1)] +
-                      [np.interp(query, timestamps[:11], unwrapped)], -1)
+    # V1 d9ca73 progressive long-2 mapping. Ten FUTURE knots, never an added t0.
+    j = np.arange(8,dtype=np.float64)
+    q_index = j + np.cumsum((j+1)*(2*2/(8*9)))
+    actual = timestamps[1:11].double().cpu().numpy()
+    query = np.interp(q_index,np.arange(10),actual)
+    values = poses[1:11].double().cpu().numpy().copy()
+    values[:,2] = np.unwrap(values[:,2])
+    output = CubicSpline(actual,values,bc_type='not-a-knot',extrapolate=False)(query)
+    if not np.isfinite(output).all():
+        if strict: raise ValueError('Non-finite long-2 spline; extrapolation is prohibited')
+        return torch.zeros(8,3),torch.tensor(False)
     result = torch.tensor(output, dtype=torch.float32)
     result[:, 2] = wrap_angle(result[:, 2])
     return result, torch.tensor(True)
@@ -35,7 +44,7 @@ class V2TrajectoryTargetBuilder:
         self.strict_long = strict_long
 
     def get_unique_name(self):
-        return "trajectory_target_planreg_v2_0138_logmotion_v1"
+        return CACHE_SCHEMA
 
     def compute_targets(self, scene):
         current = scene.scene_metadata.num_history_frames - 1
@@ -67,7 +76,7 @@ class V2TrajectoryTargetBuilder:
         actual_times = torch.zeros(8)
         actual_times[:count] = t[1:count+1]
         long, long_valid = long_target(local_poses, t, motion["valid_mask"], self.strict_long)
-        return dict(trajectory=trajectory, trajectory_valid=trajectory_valid,
+        return dict(long_target_version=LONG_TARGET_VERSION,trajectory=trajectory, trajectory_valid=trajectory_valid,
                     trajectory_long=long, trajectory_long_valid=long_valid,
                     future_image_paths=paths, future_image_path_lengths=lengths,
                     future_valid_mask=future_valid, motion_sequence=logged,

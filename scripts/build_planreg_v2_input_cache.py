@@ -10,7 +10,7 @@ from navsim.common.dataclasses import Scene,SensorConfig
 from navsim.agents.EpisodeDrive.drivevla_features import DriveVLAFeatureBuilder
 from navsim.agents.EpisodeDrive.layers.world_model.future_image_io import encode_path_tensor,decode_path_tensor
 from navsim.agents.EpisodeDrive.planreg_v2.targets import V2TrajectoryTargetBuilder
-from navsim.agents.EpisodeDrive.planreg_v2 import CACHE_SCHEMA
+from navsim.agents.EpisodeDrive.planreg_v2 import CACHE_SCHEMA,LONG_TARGET_VERSION
 from navsim.agents.EpisodeDrive.planreg_v2.normalizers import measured_statistics
 
 
@@ -19,6 +19,7 @@ def main():
     for name in ('logs','sensors','metric-metadata','output'): p.add_argument('--'+name,required=True)
     p.add_argument('--tokens',help='Explicit JSON training token array; required outside bounded smoke')
     p.add_argument('--smoke-scenes',type=int,default=0)
+    p.add_argument('--exclude-recorded-drives',help='JSON list; disjoint fixed probe selection, not a new unseen claim for old models')
     p.add_argument('--source-vector-frame',choices=['ego','global'],required=True)
     p.add_argument('--split',choices=['train','trainval_final_fit','development','navtest'],default='train')
     args = p.parse_args()
@@ -39,8 +40,12 @@ def main():
     builder = V2TrajectoryTargetBuilder(args.source_vector_frame)
     feature_builder = DriveVLAFeatureBuilder(cache_hidden_state=False)
     records,statistics = [],[]
+    excluded_drives=set(json.loads(Path(args.exclude_recorded_drives).read_text())) if args.exclude_recorded_drives else set()
+    drive_counts={}
     output.mkdir(parents=True)
     for log,tokens in sorted(per_log.items()):
+        drive=log.rsplit('_',2)[0]
+        if drive in excluded_drives or (args.smoke_scenes and drive_counts.get(drive,0)>=4): continue
         path = Path(args.logs)/(log+'.pkl')
         if not path.is_file(): continue
         with path.open('rb') as stream: raw = pickle.load(stream)
@@ -62,8 +67,13 @@ def main():
                     future = decode_path_tensor(target['future_image_paths'][h],target['future_image_path_lengths'][h])
                     if not Path(future).is_file(): target['future_valid_mask'][h] = False
             cache_path = output/(token+'.pt')
-            torch.save(dict(schema=CACHE_SCHEMA,features=feature,targets=target),cache_path)
-            records.append(dict(token=token,log=log,cache_path=str(cache_path.resolve()),metric_cache_path=metric[token]))
+            torch.save(dict(schema=CACHE_SCHEMA,long_target_version=LONG_TARGET_VERSION,features=feature,targets=target),cache_path)
+            velocity=scene.frames[3].ego_status.ego_velocity
+            heading=target['trajectory'][-1,2].item()
+            category='stop' if float(sum(v*v for v in velocity))<.25 else 'turn' if abs(heading)>.3 else 'straight'
+            records.append(dict(token=token,log=log,recorded_drive=drive,category=category,
+                cache_path=str(cache_path.resolve()),metric_cache_path=metric[token],long_target_version=LONG_TARGET_VERSION))
+            drive_counts[drive]=drive_counts.get(drive,0)+1
             statistics.append((token,target['trajectory'],target['trajectory_valid']))
             if args.smoke_scenes and len(records) >= args.smoke_scenes: break
         if args.smoke_scenes and len(records) >= args.smoke_scenes: break
@@ -71,15 +81,20 @@ def main():
     if authorized is not None and not args.smoke_scenes and found != authorized:
         raise ValueError('Missing authorized scene tokens; cache remains incomplete: '+str(len(authorized-found)))
     if not records: raise ValueError('No requested records matched logs and metric cache')
-    manifest = dict(schema=CACHE_SCHEMA,split=args.split,records=records,source_vector_frame=args.source_vector_frame,
+    manifest = dict(schema=CACHE_SCHEMA,long_target_version=LONG_TARGET_VERSION,split=args.split,records=records,source_vector_frame=args.source_vector_frame,
+        producer_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        target_source_sha256=hashlib.sha256(Path(__import__('inspect').getfile(V2TrajectoryTargetBuilder)).read_bytes()).hexdigest(),
         source_vector_contract='Explicit caller declaration; verify against source database before formal training',
         token_sha256=hashlib.sha256('\n'.join(sorted(found)).encode()).hexdigest(),
         future_offsets=[1,3,8],future_seconds=[.5,1.5,4.],long_seconds=5.,sensor_camera_count=1,
         smoke=bool(args.smoke_scenes))
-    (output/'manifest.json').write_text(json.dumps(manifest,indent=2))
     if args.split in ('train','trainval_final_fit'):
         n = measured_statistics(statistics,args.split,'navsim-raw-log:'+manifest['token_sha256'])
         n.save(output/'normalizer.json')
+        manifest['raw_gt_sha256']=n.metadata['raw_gt_sha256']
+        manifest['statistics_contract']=n.metadata['statistics_contract']
+    (output/'manifest.json').write_text(json.dumps(manifest,indent=2))
+    (output/'recorded_drives.json').write_text(json.dumps(sorted(drive_counts),indent=2))
     print(json.dumps(dict(scenes=len(records),logs=len({r['log'] for r in records}),manifest=str(output/'manifest.json'))))
 
 

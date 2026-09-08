@@ -1,4 +1,11 @@
 """Versioned PlanReg V2 implementation; V1 imports and defaults are unchanged."""
 
-ARCHITECTURE_VERSION = "planreg_wm_v2.1"
-CACHE_SCHEMA = "planreg_v2_input_0138_logmotion_v1"
+ARCHITECTURE_VERSION = "planreg_wm_v2.2"
+LONG_TARGET_VERSION = "long2_progressive_not_a_knot_actual_time_v2"
+CACHE_SCHEMA = "planreg_v2_input_0138_progressive_long_v2"
+SHARED_INIT_SCHEMA = "planreg_v2_shared_fp32_std02_v2"
+NORMALIZER_SCHEMA = "planreg_v2_raw_gt_statistics_v2"
+RECIPE_VERSION = "planreg_v2.2_gb32_sqrt_capped_v2"
+SCHEDULE_VERSION = "warmup05_cosine10_fixed_budget_v2"
+CHECKPOINT_SCHEMA = "planreg_v2_training_v2"
+STUDENT_SCHEMA = "planreg_v2_student_v2"

@@ -5,6 +5,7 @@ import torch
 from omegaconf import OmegaConf
 from navsim.agents.EpisodeDrive.planreg_v2.agent import PlanRegV2Agent,file_sha256
 from navsim.agents.EpisodeDrive.planreg_v2.runtime import load_config
+from navsim.agents.EpisodeDrive.planreg_v2.initialization import shared_artifact
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
@@ -17,5 +18,5 @@ if __name__ == '__main__':
     torch.manual_seed(a.seed)
     agent = PlanRegV2Agent(cfg,device='cpu')
     state = agent.trainable_state()
-    torch.save(dict(schema='planreg_v2_shared_trainable_v1',trainable_state=state,seed=a.seed,config=cfg),a.output)
+    torch.save(shared_artifact(agent,a.seed),a.output)
     print(json.dumps(dict(sha256=file_sha256(a.output),tensors=len(state),parameters=sum(v.numel() for v in state.values()))))

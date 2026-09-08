@@ -6,7 +6,7 @@ import time
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
-from . import CACHE_SCHEMA
+from . import CACHE_SCHEMA,LONG_TARGET_VERSION
 from .backbone import V2_SYSTEM_PROMPT
 from ..utils.internvl_preprocess import tile_metadata_from_image_size, build_transform
 from ..utils.internvl_tokenize import build_internvl_model_inputs
@@ -66,7 +66,7 @@ class InputOnlyV2Dataset(Dataset):
     def __init__(self,manifest,vlm_path,world_model=True):
         self.manifest_path = Path(manifest)
         self.manifest = json.loads(self.manifest_path.read_text())
-        if self.manifest.get('schema') != CACHE_SCHEMA:
+        if self.manifest.get('schema') != CACHE_SCHEMA or self.manifest.get('long_target_version')!=LONG_TARGET_VERSION:
             raise ValueError('Stale cache: V2 needs actual offsets [1,3,8] and logged motion')
         if self.manifest.get('split') not in ('train','trainval_final_fit','development','navtest'):
             raise ValueError('Explicit data split provenance required')
@@ -90,10 +90,12 @@ class InputOnlyV2Dataset(Dataset):
     def __getitem__(self,index):
         record = self.records[index]
         cached = torch.load(record['cache_path'],map_location='cpu',weights_only=False)
-        if cached['schema'] != CACHE_SCHEMA:
+        if cached['schema'] != CACHE_SCHEMA or cached.get('long_target_version')!=LONG_TARGET_VERSION:
             raise ValueError('Stale per-scene input cache schema')
         reject_cached_representations(cached)
         feature,target = dict(cached['features']),dict(cached['targets'])
+        if target.get('long_target_version')!=LONG_TARGET_VERSION:
+            raise ValueError('Old uniform-long labels cannot be authorized by relabeling a manifest')
         start = time.perf_counter()
         feature = prepare_current(feature,self.tokenizer)
         if self.world_model:

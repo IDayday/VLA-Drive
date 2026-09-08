@@ -20,6 +20,18 @@ def load_config(path):
     return OmegaConf.to_container(unresolved(path),resolve=True)
 
 
+def source_fingerprint():
+    """Report-only commits do not alter this production/config/test identity."""
+    import hashlib,subprocess
+    from pathlib import Path
+    root=Path(__file__).resolve().parents[4]
+    files=subprocess.check_output(['git','ls-files','-z','navsim/agents/EpisodeDrive',
+        'navsim/planning/script/config/common/agent/planreg_wm_v2*','scripts','tests','local_planreg_wm_v2'],cwd=root).decode().split('\0')
+    hashes={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in sorted(files) if p and (root/p).is_file() and Path(p).suffix in ('.py','.yaml','.sh')}
+    identity=hashlib.sha256('\n'.join(n+':'+h for n,h in hashes.items()).encode()).hexdigest()
+    return dict(sha256=identity,files=hashes)
+
+
 class ExactExposureSampler(Sampler):
     def __init__(self,size,global_batch,world,rank,seed,epoch=0,start_step=0):
         if size <= 0 or global_batch % world: raise ValueError('Invalid exact exposure layout')
@@ -70,24 +82,27 @@ def accumulated_batches(iterator,accumulate):
         group=list(islice(iterator,accumulate))
         if not group:return
         if len(group)!=accumulate:raise ValueError('Sampler did not pad to a complete accumulated optimizer batch')
-        counts=torch.zeros(8,dtype=torch.float32)
-        for _,target in group:
-            times,valid=target['motion_timestamps'],target['motion_valid']
-            cover=[];left=0.
-            for right in (.5,1.5,4.):
-                interval=(times>(left+.02 if left else 0.))&(times<=right+.02)
-                cover.append((((times-right).abs()<=.02)&valid).any(-1)&(~interval|valid).all(-1))
-                left=right
-            actions=torch.stack(cover,-1).long().cumprod(-1).bool()
-            future=target['future_valid_mask']
-            ro=future&actions
-            tf=ro.clone();tf[:,1:]&=future[:,:-1].long().cumprod(-1).bool()
-            counts[:3]+=tf.sum(0);counts[3:6]+=ro.sum(0)
-            counts[6]+=target['trajectory_valid'].any(-1).sum()
-            counts[7]+=target['trajectory_long_valid'].sum()
+        counts=torch.zeros(8,dtype=torch.float32);error=None
+        try:
+            for _,target in group:
+                times,valid=target['motion_timestamps'],target['motion_valid']
+                from .motion import interval_selection,validate_motion_inputs
+                validate_motion_inputs(times,valid,target.get('motion_sequence'))
+                _,cover=interval_selection(times,valid)
+                actions=cover.long().cumprod(-1).bool()
+                future=target['future_valid_mask']
+                ro=future&actions
+                tf=ro.clone();tf[:,1:]&=future[:,:-1].long().cumprod(-1).bool()
+                counts[:3]+=tf.sum(0);counts[3:6]+=ro.sum(0)
+                counts[6]+=target['trajectory_valid'].any(-1).sum()
+                counts[7]+=target['trajectory_long_valid'].sum()
+        except ValueError as exc:error=str(exc)
         if dist.is_available() and dist.is_initialized():
+            errors=[None]*dist.get_world_size();dist.all_gather_object(errors,error)
+            if any(e is not None for e in errors):raise ValueError('Synchronized optimizer-batch data validation: '+str(errors))
             if dist.get_backend()=='nccl':counts=counts.cuda()
             dist.all_reduce(counts)
+        elif error is not None:raise ValueError(error)
         context=dict(tf=counts[:3],ro=counts[3:6],trajectory=counts[6],long=counts[7],accumulate=accumulate)
         for features,target in group:yield features,target,context
 
@@ -95,6 +110,11 @@ def accumulated_batches(iterator,accumulate):
 def validate_formal(config,manifest,layout):
     import json
     from pathlib import Path
+    from . import ARCHITECTURE_VERSION,RECIPE_VERSION,SCHEDULE_VERSION,LONG_TARGET_VERSION,CACHE_SCHEMA,NORMALIZER_SCHEMA
+    if (config.get('architecture_version'),config.get('recipe_version'),config.get('schedule_version'))!=(ARCHITECTURE_VERSION,RECIPE_VERSION,SCHEDULE_VERSION):
+        raise ValueError('Old recipe requires explicit warm start, never silent full resume')
+    if (manifest.get('schema'),manifest.get('long_target_version'))!=(CACHE_SCHEMA,LONG_TARGET_VERSION):
+        raise ValueError('Recompute progressive-long labels in a new versioned cache')
     if config.get('world_model_enabled') is not True and config.get('variant') != 'no_wm':
         raise ValueError('Formal Base/VQA both require world model; no-WM must be an explicitly labeled control')
     if manifest['split'] != 'trainval_final_fit' or len(manifest['records']) != 103288 or manifest.get('smoke'):
@@ -105,11 +125,52 @@ def validate_formal(config,manifest,layout):
         raise ValueError('V2 must be profiled; V1 throughput evidence cannot authorize this layout')
     if layout['global_batch'] != config['global_batch']:
         raise ValueError('Layout global batch mismatch')
+    if (layout.get('recipe_version')!=RECIPE_VERSION or layout.get('source_fingerprint_sha256')!=source_fingerprint()['sha256'] or
+            not layout.get('profile_only') or not layout.get('hardware') or layout.get('profile_no_external_gpu_work') is not True):
+        raise ValueError('Layout must bind actual V2.2 code/recipe/GB128/hardware and uncontended profiling evidence')
     if not config.get('shared_init_path'): raise ValueError('Shared V2 trainable initialization required')
     stats=json.loads(Path(config['normalizer_path']).read_text())['metadata']
     if (stats['count'],stats['split'],stats['token_sha256']) != (
             103288,'trainval_final_fit',manifest['token_sha256']):
         raise ValueError('Formal normalizer must be measured on this exact unique final-fit token manifest, not smoke/held-out data')
+    if (stats.get('schema')!=NORMALIZER_SCHEMA or stats.get('raw_gt_sha256')!=manifest.get('raw_gt_sha256') or
+            not stats.get('raw_gt_sha256') or stats.get('statistics_contract')!=manifest.get('statistics_contract')):
+        raise ValueError('Statistics reuse requires matching raw GT content and normalization contract, not just token count')
+
+
+def validate_profile_artifact(report,metadata,config):
+    from . import ARCHITECTURE_VERSION,RECIPE_VERSION
+    if (not report.get('profile_only') or not metadata.get('profile_only') or
+            metadata.get('global_batch')!=128 or report.get('profile',{}).get('timed_optimizer_steps')!=8 or
+            report.get('profile',{}).get('warmup_optimizer_steps')!=4):
+        raise ValueError('Need actual profile_only GB128 with four warmup and eight timed optimizer steps')
+    if config.get('architecture_version')!=ARCHITECTURE_VERSION or config.get('recipe_version')!=RECIPE_VERSION:
+        raise ValueError('Profile recipe/architecture mismatch')
+    if not config.get('world_model_enabled') or config.get('scene_memory_mode')!='per_tile_register_memory' or not report.get('fp32_trainable'):
+        raise ValueError('Profile may not disable rich memory or world model or FP32 trainable storage')
+    if metadata.get('profile_no_external_gpu_work') is not True:
+        raise ValueError('Contended GPUs cannot authorize a throughput layout')
+    if report['peak_allocated_gib']>=72 or not all(report['horizons_valid']):raise ValueError('Memory/future horizon gate failed')
+    if any(not math.isfinite(r['loss']) or not math.isfinite(r['grad_norm']) for r in report['records']):
+        raise ValueError('Nonfinite profile loss/gradient')
+    if metadata.get('source_fingerprint',{}).get('sha256')!=source_fingerprint()['sha256']:
+        raise ValueError('Profile belongs to a different source snapshot')
+
+
+def validate_ttc_reduction(scores,accumulate=1):
+    """Exact legacy loss is safe for this formal all-valid label protocol.
+
+    Sentinel masking remains untouched in the scorer core. Before introducing
+    sentinel-bearing distributed/accumulated labels, implement optimizer-batch
+    TTC valid denominators; until then fail collectively, never bias or deadlock.
+    """
+    import torch.distributed as dist
+    distributed=dist.is_available() and dist.is_initialized()
+    bad=((scores[...,3]==2).any() & torch.tensor(distributed or accumulate>1,device=scores.device))
+    bad=bad.to(torch.int32)
+    if distributed:dist.all_reduce(bad,op=dist.ReduceOp.MAX)
+    if bad.item():
+        raise ValueError('TTC sentinel2 requires whole-optimizer-batch valid reduction; synchronized rejection on every rank')
 
 
 def same_batch_gradient_audit(plan_loss,wm_loss,named_parameters,weight):
@@ -132,3 +193,26 @@ def same_batch_gradient_audit(plan_loss,wm_loss,named_parameters,weight):
         results[group] = dict(plan_norm=math.sqrt(aa),weighted_wm_norm=math.sqrt(bb),
                               cosine=ab/max(1e-30,math.sqrt(aa*bb)))
     return results
+
+
+def component_gradient_audit(losses,named_parameters):
+    """One graph/batch, three losses, before clipping; autograd.grad never writes .grad."""
+    selected=[(n,p) for n,p in named_parameters if p.requires_grad and any(
+        k in n for k in ('.vision_model.','.planning_register_adapter.','.language_model.','.task_queries.'))]
+    if not selected:raise ValueError('No shared V2 parameters for component gradient audit')
+    objectives={'trajectory':losses['trajectory_loss'],'scorer':losses['scorer_loss']}
+    if 'wm_loss' in losses:objectives['weighted_wm']=losses['wm_loss']*losses['wm_weight']
+    gradients={key:torch.autograd.grad(value,[p for _,p in selected],retain_graph=True,allow_unused=True)
+               for key,value in objectives.items()}
+    report={}
+    for group,part in [('vision_lora','.vision_model.'),('registers_readout','.planning_register_adapter.'),
+                       ('language_lora','.language_model.'),('semantic_queries','.task_queries.')]:
+        dots={}
+        for first,g in gradients.items():
+            for second,h in gradients.items():
+                dots[(first,second)]=sum(float((a.detach().float()*b.detach().float()).sum())
+                    for (name,_),a,b in zip(selected,g,h) if part in name and a is not None and b is not None)
+        norms={name:math.sqrt(max(0.,dots[name,name])) for name in gradients}
+        report[group]=dict(norms=norms,cosines={a+'__'+b:dots[a,b]/max(1e-30,norms[a]*norms[b])
+            for i,a in enumerate(gradients) for b in list(gradients)[i+1:]})
+    return report

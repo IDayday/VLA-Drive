@@ -1,4 +1,11 @@
-architecture_version: planreg_wm_v2.1
+architecture_version: planreg_wm_v2.2
+recipe_version: planreg_v2.2_gb32_sqrt_capped_v2
+schedule_version: warmup05_cosine10_fixed_budget_v2
+register_init_std: 0.02
+reference_global_batch: 32
+normalizer_mode: stepwise_zscore
+motion_scales: [30., 10., 1., 1., 15., 15., 8., 8.]
+ego_scales: [1., 1., 1., 1., 15., 15., 8., 8.]
 variant: base
 vlm_path: ${oc.env:PLANREG_BASE_VLM_PATH}
 normalizer_path: ${oc.env:PLANREG_V2_NORMALIZER}
@@ -17,9 +24,9 @@ scorer_processes: 4
 learning_rates:
   planning_adapter: 0.0002
   fusion: 0.0002
-  action_head: 0.0002
+  action_generator: 0.0002
   scorer: 0.0002
-  future_predictor: 0.0001
-  semantic_qformer: 0.0001
-  vision_qv_lora: 0.00003
+  future_predictor: 0.0002
+  semantic_queries: 0.0001
+  vision_qv_lora: 0.00004
   language_lora: 0.00001

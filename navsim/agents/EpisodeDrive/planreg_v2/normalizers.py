@@ -5,13 +5,27 @@ from pathlib import Path
 
 import torch
 from torch import nn
+from . import NORMALIZER_SCHEMA
 
 
 def wrap_angle(x):
     return torch.atan2(torch.sin(x), torch.cos(x))
 
 
-def unwrap_heading(x):
+def unwrap_heading(x,valid_mask=None):
+    if valid_mask is not None:
+        # Compact in time logically, without allowing a padded NaN into cumsum.
+        valid_mask=valid_mask.bool()
+        clean=torch.where(valid_mask,x,0.)
+        previous=torch.zeros_like(clean[...,0]); unwrapped=previous; seen=valid_mask[...,0]&False
+        outputs=[]
+        for i in range(clean.shape[-1]):
+            ok=valid_mask[...,i]
+            candidate=torch.where(seen,unwrapped+wrap_angle(clean[...,i]-previous),wrap_angle(clean[...,i]))
+            unwrapped=torch.where(ok,candidate,unwrapped)
+            previous=torch.where(ok,clean[...,i],previous);seen=seen|ok
+            outputs.append(torch.where(ok,unwrapped,0.))
+        return torch.stack(outputs,-1)
     first = wrap_angle(x[..., :1])
     return torch.cat((first, first + wrap_angle(x[..., 1:] - x[..., :-1]).cumsum(-1)), -1)
 
@@ -27,9 +41,13 @@ class FP32Statistics(nn.Module):
 
 
 class TrajectoryNormalizer(FP32Statistics):
-    def __init__(self, mean, std, metadata, std_floor=1e-3):
+    def __init__(self, mean, std, metadata, std_floor=1e-3, mode=None):
         super().__init__()
+        mode=mode or metadata.get('mode','stepwise_zscore')
+        if mode not in ('stepwise_zscore','global_zscore','legacy_fixed_affine'): raise ValueError('Unknown normalization mode')
         mean, std = torch.as_tensor(mean).float(), torch.as_tensor(std).float()
+        if mode!='stepwise_zscore' and mean.shape==(3,) and std.shape==(3,):
+            mean,std=mean.expand(8,3).clone(),std.expand(8,3).clone()
         if mean.shape != (8, 3) or std.shape != (8, 3):
             raise ValueError("Trajectory statistics must have shape [8,3]")
         if not torch.isfinite(mean).all() or not torch.isfinite(std).all() or (std < 0).any():
@@ -42,7 +60,7 @@ class TrajectoryNormalizer(FP32Statistics):
         self.register_buffer("raw_std", std)
         self.register_buffer("std", std.clamp_min(std_floor))
         self.register_buffer("times", torch.arange(1, 9).float() * .5)
-        self.metadata = dict(metadata, std_floor=std_floor,
+        self.metadata = dict(metadata, mode=mode,std_floor=std_floor,
                              floor_fraction=float((std < std_floor).float().mean()))
 
     def get_extra_state(self):
@@ -60,13 +78,15 @@ class TrajectoryNormalizer(FP32Statistics):
 
     def normalize(self, physical, times=None, valid_mask=None):
         idx = self.indices(times) if times is not None else slice(0, physical.shape[-2])
-        value = torch.cat((physical[..., :2], unwrap_heading(physical[..., 2])[..., None]), -1)
+        clean=physical if valid_mask is None else torch.where(valid_mask[...,None],physical,0.)
+        value = torch.cat((clean[..., :2], unwrap_heading(clean[..., 2],valid_mask)[..., None]), -1)
         result = (value - self.mean[idx]) / self.std[idx]
         return result if valid_mask is None else torch.where(valid_mask[...,None],result,0.)
 
     def inverse(self, normalized, times=None, valid_mask=None):
         idx = self.indices(times) if times is not None else slice(0, normalized.shape[-2])
-        value = normalized * self.std[idx] + self.mean[idx]
+        clean=normalized if valid_mask is None else torch.where(valid_mask[...,None],normalized,0.)
+        value = clean * self.std[idx] + self.mean[idx]
         result = torch.cat((value[..., :2], wrap_angle(value[..., 2:3])), -1)
         return result if valid_mask is None else torch.where(valid_mask[...,None],result,0.)
 
@@ -85,8 +105,14 @@ class MotionConditionNormalizer(FP32Statistics):
     def __init__(self, scales=(30., 10., 1., 1., 15., 15., 8., 8.)):
         super().__init__()
         self.register_buffer("scales", torch.tensor(scales, dtype=torch.float32))
-        if self.scales.shape != (8,) or (self.scales <= 0).any():
+        if self.scales.shape != (8,) or not torch.isfinite(self.scales).all() or (self.scales <= 0).any():
             raise ValueError("Eight positive motion scales required")
+
+    def get_extra_state(self):
+        return dict(kind='configured_fixed_physical_scales',units=['m','m','unitless','unitless','m/s','m/s','m/s^2','m/s^2'],source='V2.2 declared engineering scales; not fitted Z-score')
+
+    def set_extra_state(self,state):
+        if state!=self.get_extra_state(): raise ValueError('Motion scale provenance mismatch')
 
     def forward(self, x):
         return x / self.scales
@@ -96,9 +122,17 @@ class MotionConditionNormalizer(FP32Statistics):
 
 
 class EgoStateNormalizer(FP32Statistics):
-    def __init__(self):
+    def __init__(self,scales=(1.,1.,1.,1.,15.,15.,8.,8.)):
         super().__init__()
-        self.register_buffer("scales", torch.tensor([1., 1., 1., 1., 15., 15., 8., 8.]))
+        self.register_buffer("scales", torch.tensor(scales,dtype=torch.float32))
+        if self.scales.shape!=(8,) or not torch.isfinite(self.scales).all() or (self.scales<=0).any():
+            raise ValueError('Eight finite positive ego scales required')
+
+    def get_extra_state(self):
+        return dict(kind='configured_fixed_physical_scales',units=['unitless']*4+['m/s']*2+['m/s^2']*2,source='V2.2 declared ego scales; not fitted Z-score')
+
+    def set_extra_state(self,state):
+        if state!=self.get_extra_state(): raise ValueError('Ego scale provenance mismatch')
 
     def forward(self, status):
         if status.shape[-1] != 8:
@@ -106,7 +140,7 @@ class EgoStateNormalizer(FP32Statistics):
         return status / self.scales
 
 
-def measured_statistics(records, split, data_version, std_floor=1e-3):
+def measured_statistics(records, split, data_version, std_floor=1e-3, mode='stepwise_zscore'):
     """Records: (unique scene token, raw physical [8,3], valid [8])."""
     if split not in ("train", "trainval_final_fit"):
         raise ValueError("Statistics require train or declared final-fit trainval")
@@ -116,7 +150,8 @@ def measured_statistics(records, split, data_version, std_floor=1e-3):
         if trajectory.shape != (8, 3) or valid.shape != (8,):
             raise ValueError("Invalid statistics record shape")
         if token in unique:
-            if not torch.equal(unique[token][0], trajectory) or not torch.equal(unique[token][1], valid):
+            old,old_valid=unique[token]
+            if not torch.equal(torch.where(valid[:,None],old,0.),torch.where(valid[:,None],trajectory,0.)) or not torch.equal(old_valid, valid):
                 raise ValueError("Conflicting duplicate training token")
             continue
         unique[token] = (trajectory.clone(), valid.clone())
@@ -132,8 +167,18 @@ def measured_statistics(records, split, data_version, std_floor=1e-3):
         raise ValueError("Every trajectory timestep needs measured statistics")
     mean = x.sum(0) / n[:, None]
     std = (((x - mean).square() * mask[..., None]).sum(0) / n[:, None]).sqrt()
+    if mode=='global_zscore':
+        flat=x[mask];mean=flat.mean(0).expand(8,3).clone();std=flat.std(0,unbiased=False).expand(8,3).clone()
+    elif mode!='stepwise_zscore': raise ValueError('Fixed affine constants must be explicitly supplied, never called measured statistics')
+    raw_hash=hashlib.sha256()
+    for token,(raw,valid) in sorted(unique.items()):
+        raw_hash.update(token.encode());raw_hash.update(valid.numpy().tobytes())
+        raw_hash.update(torch.where(valid[:,None],raw,0.).float().contiguous().numpy().tobytes())
     metadata = dict(count=len(unique), valid_count=n.tolist(), split=split,
         token_sha256=hashlib.sha256("\n".join(sorted(unique)).encode()).hexdigest(),
         dt_seconds=.5, heading="current-anchor-relative, temporally unwrapped radians",
-        coordinates="current rear axle, metres", data_version=data_version)
-    return TrajectoryNormalizer(mean.float(), std.float(), metadata, std_floor)
+        coordinates="current rear axle, metres", data_version=data_version,
+        schema=NORMALIZER_SCHEMA,mode=mode,raw_gt_sha256=raw_hash.hexdigest(),
+        statistics_contract='unique_raw_gt_only_8x3_masked_unwrap_population_std_v2',
+        valid_mask=(n>0).tolist())
+    return TrajectoryNormalizer(mean.float(), std.float(), metadata, std_floor,mode)

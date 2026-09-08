@@ -72,8 +72,8 @@ def test_logged_timestamp_jitter_is_not_false_missing_action():
     output,coverage=encoder(torch.zeros(1,8,8),times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
     assert coverage.all() and output.shape==(1,3,16)
     times[:,-1]=3.
-    _,coverage=encoder(torch.zeros(1,8,8),times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
-    assert not coverage[0,-1]
+    with pytest.raises(ValueError,match='batch/candidate/time'):
+        encoder(torch.zeros(1,8,8),times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
 
 
 def test_turning_logged_vectors_no_duplicate_rotation_and_stationary_candidates():

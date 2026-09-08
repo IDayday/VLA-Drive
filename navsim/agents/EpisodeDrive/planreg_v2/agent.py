@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing as mp
+import time
 import numpy as np
 import torch
 from navsim.agents.abstract_agent import AbstractAgent
@@ -19,6 +20,8 @@ from .motion import CandidateKinematicsCodec,HORIZONS
 from .ema import FP32MasterEMA
 from .losses import trajectory_loss,world_model_loss,wm_weight
 from .optimizer import build_optimizer
+from . import ARCHITECTURE_VERSION
+from .initialization import load_shared_bank
 
 
 def file_sha256(path):
@@ -33,11 +36,12 @@ class PlanRegV2Agent(AbstractAgent):
         super().__init__()
         self.config = copy.deepcopy(dict(config))
         self.deployment = deployment
-        if self.config.get('architecture_version') != 'planreg_wm_v2.1':
+        if self.config.get('architecture_version') != ARCHITECTURE_VERSION:
             raise ValueError('Explicit V2 architecture required')
         if self.config.get('checkpoint_path') or self.config.get('stage1_checkpoint_path'):
             raise ValueError('V2 VLM-only construction prohibits an M0/full-agent checkpoint')
-        self.backbone = V2Backbone(config['vlm_path'],device,config.get('gradient_checkpointing',True))
+        self.backbone = V2Backbone(config['vlm_path'],device,config.get('gradient_checkpointing',True),
+                                  config.get('register_init_std',.02))
         self.scene_memory = RichSceneMemory(config.get('scene_memory_mode','per_tile_register_memory'))
         if config.get('normalizer_statistics'):
             statistics = config['normalizer_statistics']
@@ -45,11 +49,14 @@ class PlanRegV2Agent(AbstractAgent):
                 statistics['metadata'].get('std_floor',.001))
         else:
             normalizer = TrajectoryNormalizer.load(config['normalizer_path'])
-        self.action_head = V2ActionDecoder(normalizer)
+        if normalizer.metadata['mode']!=config.get('normalizer_mode','stepwise_zscore'):
+            raise ValueError('Normalizer artifact mode does not match explicitly configured control')
+        self.action_head = V2ActionDecoder(normalizer,config.get('ego_scales'))
         self.world_model_enabled = bool(config.get('world_model_enabled',True)) and not deployment
         self.wm_predictor = ActionCausalPredictor(layers=config.get('predictor_layers',2)) if self.world_model_enabled else None
-        self.motion_normalizer = MotionConditionNormalizer() if self.world_model_enabled else None
-        self.kinematics_codec = CandidateKinematicsCodec() if self.world_model_enabled else None
+        scales=config.get('motion_scales',(30.,10.,1.,1.,15.,15.,8.,8.))
+        self.motion_normalizer = MotionConditionNormalizer(scales) if self.world_model_enabled else None
+        self.kinematics_codec = CandidateKinematicsCodec(scales) if self.world_model_enabled else None
         self.exact_loss = EpisodeDriveLoss()
         self.ema_teacher = None
         self.register_buffer('optimizer_updates',torch.zeros((),dtype=torch.long))
@@ -81,15 +88,7 @@ class PlanRegV2Agent(AbstractAgent):
 
     def load_shared_initialization(self,path):
         artifact = torch.load(path,map_location='cpu',weights_only=False)
-        state = artifact['trainable_state']
-        target = {n:p for n,p in self.named_parameters() if p.requires_grad}
-        if set(state) != set(target):
-            raise ValueError('Shared init topology mismatch: '+str(set(state)^set(target)))
-        with torch.no_grad():
-            for n,p in target.items():
-                if p.shape != state[n].shape or state[n].dtype != torch.float32:
-                    raise ValueError('Shared initialization shape/dtype mismatch: '+n)
-                p.copy_(state[n])
+        return load_shared_bank(self,artifact)
 
     def forward(self,features):
         # This path deliberately never accesses any future, teacher or motion-target key.
@@ -102,25 +101,26 @@ class PlanRegV2Agent(AbstractAgent):
         # Planning/scoring stay FP32, preserving the original scorer's numerical operations.
         memory,valid = self.scene_memory(visual['visual_content'].float(),visual['tile_geometry'].float(),
                                         visual['scene_valid_mask'],visual['semantic_queries'].float())
-        output = self.action_head(memory,valid,features['status_feature'].to(device).float())
+        with self.backbone.step_timing.stage('action_scorer_seconds',device.type=='cuda'):
+            output = self.action_head(memory,valid,features['status_feature'].to(device).float())
         output.update(visual)
         return output
 
-    def encode_teacher(self,features,predictions):
+    def encode_teacher(self,features,predictions,include_current=False):
         if self.ema_teacher is None: raise RuntimeError('Deployment has no teacher')
         device = predictions['visual_content'].device
         groups,counts = [],[]
         for current,future in zip(features['pixel_values'],features['future_pixel_values']):
             if len(future) != 3 or any(len(f) != len(current) for f in future):
                 raise ValueError('EMA current/future must have identical per-scene tile layout')
-            for pixels in [current]+list(future):
+            for pixels in ([current]+list(future) if include_current else future):
                 groups.append(pixels.to(device,non_blocking=True)); counts.append(len(pixels))
         with torch.no_grad(),torch.autocast(device_type=device.type,dtype=torch.bfloat16,enabled=device.type=='cuda'):
-            encoded = self.ema_teacher(torch.cat(groups))  # ONE visual call for all B*(current+3).
+            encoded = self.ema_teacher(torch.cat(groups))  # ONE call; normally only B*3 FUTURE frames.
         split = encoded.split(counts)
         n = predictions['visual_content'].shape[1]
         padded = [torch.nn.functional.pad(x.flatten(0,1),(0,0,0,n-len(x)*16)) for x in split]
-        return torch.stack(padded).reshape(len(features['pixel_values']),4,n,256)
+        return torch.stack(padded).reshape(len(features['pixel_values']),4 if include_current else 3,n,256)
 
     def compute_metric_targets(self,targets,proposals):
         from ..score_module.compute_navsim_score import get_sub_score
@@ -139,9 +139,13 @@ class PlanRegV2Agent(AbstractAgent):
     def compute_loss(self,features,targets,predictions):
         device = predictions['proposals'].device
         targets = {k:(v.to(device) if torch.is_tensor(v) else v) for k,v in targets.items()}
-        scores = self.compute_metric_targets(targets,predictions['proposals'])
+        with self.backbone.step_timing.stage('pdm_seconds',cuda=False):
+            scores = self.compute_metric_targets(targets,predictions['proposals'])
+        self.last_metric_targets=scores.detach()
         count_context=getattr(self,'valid_count_context',None)
         accumulation=count_context['accumulate'] if count_context else 1
+        from .runtime import validate_ttc_reduction
+        validate_ttc_reduction(scores,accumulation)
         trajectory,stages = trajectory_loss(predictions['stage_proposals'],targets,self.action_head.normalizer.std,valid_counts=count_context)
         trajectory=trajectory*accumulation
         stages=[value*accumulation for value in stages]
@@ -157,9 +161,10 @@ class PlanRegV2Agent(AbstractAgent):
             from .diagnostics import representation_summary,score_summary
             self.last_diagnostics=dict(semantic=representation_summary(predictions['semantic_queries']),
                 planning=representation_summary(predictions['visual_content'],predictions['scene_valid_mask']),
-                scorer=score_summary(predictions,scores))
-        if self.world_model_enabled and self.training:
-            teacher = self.encode_teacher(features,predictions)
+                scorer=score_summary(predictions,scores),ttc_label_values=scores[...,3].unique().cpu().tolist())
+        if self.world_model_enabled and (self.training or getattr(self,'wm_diagnostic_forward',False)):
+            with self.backbone.step_timing.stage('teacher_seconds',device.type=='cuda'):
+                teacher = self.encode_teacher(features,predictions)
             if self.config.get('motion_mode','gt_log') == 'gt_log':
                 motion = self.motion_normalizer(targets['motion_sequence'])
                 times,valid = targets['motion_timestamps'],targets['motion_valid']
@@ -168,9 +173,11 @@ class PlanRegV2Agent(AbstractAgent):
                     targets['motion_timestamps'][:,None],targets['motion_valid'][:,None])
                 motion,times,valid = [codec[n][:,0] for n in ('motion_sequence','timestamps','valid_mask')]
             actions,coverage = self.wm_predictor.motion_encoder(motion,times,valid,HORIZONS)
-            tf,ro,_ = self.wm_predictor.branches(predictions['visual_content'].float(),teacher[:,1:].float(),actions,
+            tf,ro,_ = self.wm_predictor.branches(predictions['visual_content'].float(),teacher.float(),actions,
                 predictions['tile_geometry'],predictions['scene_valid_mask'],predictions['semantic_queries'].float())
-            wm = world_model_loss(tf,ro,teacher[:,1:],predictions['scene_valid_mask'],targets['future_valid_mask'],coverage,count_context)
+            wm = world_model_loss(tf,ro,teacher,predictions['scene_valid_mask'],targets['future_valid_mask'],coverage,count_context)
+            if self.config.get('wm_objective','tf_and_ro')=='tf_only':
+                wm['wm_loss']=wm['wm_tf_loss']
             wm={name:value*accumulation for name,value in wm.items()}
             weight = wm_weight(int(self.optimizer_updates),self.config['total_steps'])
             result.update(wm)
@@ -180,14 +187,14 @@ class PlanRegV2Agent(AbstractAgent):
                 from .predictor import state_norm
                 with torch.no_grad():
                     common=(predictions['tile_geometry'],predictions['scene_valid_mask'],predictions['semantic_queries'].float())
-                    no_tf,no_ro,_=self.wm_predictor.branches(predictions['visual_content'].float(),teacher[:,1:].float(),torch.zeros_like(actions),*common)
-                    no_loss=world_model_loss(no_tf,no_ro,teacher[:,1:],common[1],targets['future_valid_mask'],coverage)
+                    no_tf,no_ro,_=self.wm_predictor.branches(predictions['visual_content'].float(),teacher.float(),torch.zeros_like(actions),*common)
+                    no_loss=world_model_loss(no_tf,no_ro,teacher,common[1],targets['future_valid_mask'],coverage)
                     copied=state_norm(predictions['visual_content'])[:,None].expand_as(ro)
-                    copy_loss=world_model_loss(copied,copied,teacher[:,1:],common[1],targets['future_valid_mask'],coverage)
+                    copy_loss=world_model_loss(copied,copied,teacher,common[1],targets['future_valid_mask'],coverage)
                     controls=dict(no_action_ro=float(no_loss['wm_ro_loss']),copy_current_ro=float(copy_loss['wm_ro_loss']))
                     if len(actions)>1:
-                        sh_tf,sh_ro,_=self.wm_predictor.branches(predictions['visual_content'].float(),teacher[:,1:].float(),actions.roll(1,0),*common)
-                        sh=world_model_loss(sh_tf,sh_ro,teacher[:,1:],common[1],targets['future_valid_mask'],coverage)
+                        sh_tf,sh_ro,_=self.wm_predictor.branches(predictions['visual_content'].float(),teacher.float(),actions.roll(1,0),*common)
+                        sh=world_model_loss(sh_tf,sh_ro,teacher,common[1],targets['future_valid_mask'],coverage)
                         controls['mismatched_actions_ro']=float(sh['wm_ro_loss'])
                     else:controls['mismatched_actions_ro']='NOT_AVAILABLE_BATCH1'
                     self.last_diagnostics['wm_controls']=controls
