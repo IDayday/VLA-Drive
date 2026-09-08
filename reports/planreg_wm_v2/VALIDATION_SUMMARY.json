@@ -1,0 +1,154 @@
+{
+  "base_commit": "d9ca73f3d61f059285fcbf12a5bc81177ee350d7",
+  "evidence_assembly_commit": "052cffd6862632fbac915ac785f05980fc7d3f8c",
+  "tests": {
+    "tests": 76,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "test_report_sha256": "ce66eaf3ea018f46255cb2cc31997b0262d96e9f5c4cd6ca850c96c48f2a38b8",
+  "runs": {
+    "final_smoke32": {
+      "status": "executed",
+      "optimizer_steps": 32,
+      "elapsed_seconds": 147.42580233886838,
+      "fp32_trainable": true,
+      "peak_allocated_gib": 12.076486110687256,
+      "peak_reserved_gib": 14.783203125,
+      "samples_per_second": 0.2170523497419628,
+      "steady_median_step_seconds": 2.9664896484464407,
+      "steady_p90_step_seconds": 3.322290336713195,
+      "horizons_valid": [
+        true,
+        true,
+        true
+      ],
+      "performance_claim": "NOT_EVALUATED",
+      "loaded_git_commit": "90c80d41767b42d55f7fc4196761a03362c3b997",
+      "world_size": 1,
+      "global_batch": 1,
+      "changed_trainable_tensors": 585,
+      "trainable_tensor_count": 585,
+      "loss_first": {
+        "loss": 13.177892684936523,
+        "trajectory_loss": 8.436485290527344,
+        "scorer_loss": 4.718562602996826,
+        "dac_loss": 0.776570200920105,
+        "ttc_loss": 0.8619388937950134,
+        "nc_loss": 0.7500975131988525,
+        "ep_loss": 0.7633718252182007,
+        "ddc_loss": 0.7875216007232666,
+        "comfort_loss": 0.7790623903274536,
+        "wm_tf_loss": 1.1512099504470825,
+        "wm_ro_loss": 1.1331950426101685,
+        "wm_loss": 2.284404993057251
+      },
+      "loss_last": {
+        "loss": 5.594540596008301,
+        "trajectory_loss": 4.768356800079346,
+        "scorer_loss": 0.7089161276817322,
+        "dac_loss": 0.0050101433880627155,
+        "ttc_loss": 0.13488256931304932,
+        "nc_loss": 0.16454480588436127,
+        "ep_loss": 0.14580696821212769,
+        "ddc_loss": 0.039259105920791626,
+        "comfort_loss": 0.21941252052783966,
+        "wm_tf_loss": 0.5971908569335938,
+        "wm_ro_loss": 0.5754876732826233,
+        "wm_loss": 1.1726784706115723
+      },
+      "evidence_sha256": "564fe95cd9ae6cc57a4a40d71f3f7a247da4df18661145bc515e927a1c465a75"
+    },
+    "ddp2_accum2_smoke4": {
+      "status": "executed",
+      "optimizer_steps": 4,
+      "elapsed_seconds": 64.34703811071813,
+      "fp32_trainable": true,
+      "peak_allocated_gib": 12.27241849899292,
+      "peak_reserved_gib": 17.384765625,
+      "samples_per_second": 0.24863700501366384,
+      "steady_median_step_seconds": 5.938625866547227,
+      "steady_p90_step_seconds": 6.02289166636765,
+      "horizons_valid": [
+        true,
+        true,
+        true
+      ],
+      "performance_claim": "NOT_EVALUATED",
+      "loaded_git_commit": "90c80d41767b42d55f7fc4196761a03362c3b997",
+      "world_size": 2,
+      "global_batch": 4,
+      "changed_trainable_tensors": 585,
+      "trainable_tensor_count": 585,
+      "loss_first": {
+        "loss": 9.73501443862915,
+        "trajectory_loss": 4.8992403745651245,
+        "scorer_loss": 4.812907814979553,
+        "dac_loss": 0.7134739756584167,
+        "ttc_loss": 0.9290822148323059,
+        "nc_loss": 0.8185493648052216,
+        "ep_loss": 0.9514538943767548,
+        "ddc_loss": 0.6399652659893036,
+        "comfort_loss": 0.7603830993175507,
+        "wm_tf_loss": 1.1499260067939758,
+        "wm_ro_loss": 1.1366836428642273,
+        "wm_loss": 2.286609649658203
+      },
+      "loss_last": {
+        "loss": 3.692391037940979,
+        "trajectory_loss": 2.5913888216018677,
+        "scorer_loss": 0.8836636990308762,
+        "dac_loss": 0.06771164294332266,
+        "ttc_loss": 0.08916062861680984,
+        "nc_loss": 0.04944293946027756,
+        "ep_loss": 0.11238136142492294,
+        "ddc_loss": 0.20049018785357475,
+        "comfort_loss": 0.3644769564270973,
+        "wm_tf_loss": 1.0886703133583069,
+        "wm_ro_loss": 1.0847147107124329,
+        "wm_loss": 2.1733850240707397
+      },
+      "evidence_sha256": "ffaff4258acd9df33d422b9d1b74a0c4d8d2faf80405f49fd1202592bacffba4"
+    }
+  },
+  "resume_accumulate2": {
+    "model_equal": true,
+    "model_differences": {},
+    "optimizer_moments_equal": true,
+    "scheduler_equal": true,
+    "sampler_progress_equal": true,
+    "rng_equal": true
+  },
+  "export": {
+    "max_abs_diff": 0.0,
+    "no_teacher": true,
+    "no_predictor": true,
+    "current_only": true
+  },
+  "shared_trainable_initial_state_bitwise_equal": true,
+  "shared_optimizer_group_counts_equal": true,
+  "shared_init_sha256": "16cbf90f49a77783f39916ad8754bac3c9f7b9a1e7db646fd0d07ada5fbad9fd",
+  "vlm_config_differences": {
+    "vlm_path": [
+      "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+      "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-driving-vqa-dense"
+    ],
+    "variant": [
+      "base",
+      "driving_vqa"
+    ]
+  },
+  "original_worktree_head": "6e96cf7321b134c42c2cf0fbbc315cd61c925b11",
+  "original_worktree_status": [
+    " M navsim/planning/script/config/training/default_training.yaml",
+    " M navsim/planning/script/run_training_full.py",
+    "?? scripts/run_gt_navtrain_103k_metrics_rlzt3.sh",
+    "?? tools/navsim_gt_metrics/"
+  ],
+  "full_formal_layout": "NOT_RUN",
+  "full_training": "NOT_RUN",
+  "navtest": "NOT_RUN",
+  "performance_claim": "NOT_EVALUATED",
+  "caveat": "The 32-scene cache is a bounded functional test, not a full-data or final-layout benchmark."
+}
