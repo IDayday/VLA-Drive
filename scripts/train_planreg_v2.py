@@ -55,11 +55,11 @@ def main():
     profile_uncontended=False
     if args.profile_only:
         # Read-only check. Never kill non-stress work to obtain a profile.
-        output=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid','--format=csv,noheader,nounits'],text=True)
+        from tools.planreg_v2_gpu_guard import visible_gpu_processes
         external=[]
-        for item in output.splitlines():
+        for pid in visible_gpu_processes():
             try:
-                pid=int(item);cmd=Path('/proc/%d/cmdline'%pid).read_bytes().decode(errors='replace')
+                cmd=Path('/proc/%d/cmdline'%pid).read_bytes().decode(errors='replace')
                 if 'scripts/train_planreg_v2.py' not in cmd:external.append(pid)
             except (ValueError,FileNotFoundError):pass
         profile_uncontended=not external
@@ -180,9 +180,11 @@ def main():
         if saved_rng is not None: restore_rng(saved_rng); saved_rng=None
         optimizer.zero_grad(set_to_none=True)
         accumulated_values={}
+        group_max_tiles=0  # Logging only: include every microbatch, not just the last.
         optimizer_tick=time.perf_counter()
         micro_end=optimizer_tick;data_wait=0.
         for batch_idx,(features,targets,count_context) in enumerate(accumulated_batches(iterator,args.accumulate)):
+            group_max_tiles=max(group_max_tiles,max(len(p) for p in features['pixel_values']))
             data_wait+=time.perf_counter()-micro_end
             exposed_tokens.extend(targets['token'])
             agent.valid_count_context=count_context
@@ -237,8 +239,9 @@ def main():
                 dist.all_reduce(packed);packed/=world
                 values.update(zip(ordered,packed.cpu().tolist()))
             peak_memory=torch.tensor([torch.cuda.max_memory_allocated()/2**30,torch.cuda.max_memory_reserved()/2**30,
-                                      max(len(p) for p in features['pixel_values'])],device='cuda')
+                                      group_max_tiles],device='cuda')
             if world>1:dist.all_reduce(peak_memory,op=dist.ReduceOp.MAX)
+            group_max_tiles=0
             values.update(step=step,epoch=epoch,step_seconds=time.perf_counter()-optimizer_tick,grad_norm=float(norm),
                 peak_allocated_gib=float(peak_memory[0]),peak_reserved_gib=float(peak_memory[1]),timings=timings,
                 max_tiles=int(peak_memory[2]))
