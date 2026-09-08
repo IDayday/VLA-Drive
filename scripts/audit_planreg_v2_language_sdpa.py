@@ -54,6 +54,25 @@ def main():
         report['language_only_kernels']=kernels
         if not any(('flash_attention' in k or 'efficient_attention' in k) and v>0 for k,v in kernels.items()):
             raise AssertionError('Native SDPA did not actually execute a fused CUDA language kernel')
+        # Full pretrained language stack in FP32 distinguishes kernel semantics
+        # from accumulated BF16 rounding. Fixed tolerances, never relaxed post hoc.
+        dtypes={n:p.dtype for n,p in language.named_parameters()}
+        language.float(); fp32={}
+        for backend in ('eager','sdpa'):
+            configure_language_attention(language,backend)
+            prefix=captured['prefix'].float().requires_grad_()
+            out=agent.backbone.task_queries(language,prefix,captured['mask'])
+            gradient=torch.autograd.grad(out.square().mean(),prefix)[0]
+            fp32[backend]=(out.detach(),gradient.detach())
+        report['fp32_full_language_parity']={}
+        for index,key,tolerance in ((0,'output',1e-4),(1,'prefix_gradient',1e-3)):
+            left,right=fp32['eager'][index],fp32['sdpa'][index]
+            relative=float((left-right).norm()/left.norm().clamp_min(1e-20))
+            report['fp32_full_language_parity'][key]=dict(relative_l2=relative,tolerance=tolerance)
+            save()
+            if relative>tolerance:raise AssertionError('Full pretrained FP32 language parity failed: '+key)
+        for name,parameter in language.named_parameters():parameter.data=parameter.data.to(dtypes[name])
+        del fp32,prefix,out,gradient;torch.cuda.empty_cache()
         agent.train(); optimizer,scheduler,_=build_optimizer(agent,cfg['total_steps'],cfg.get('learning_rates'))
         selected={n:p for n,p in agent.named_parameters() if p.requires_grad}
         before={n:p.detach().cpu().clone() for n,p in selected.items()}
