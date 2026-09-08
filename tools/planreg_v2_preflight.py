@@ -296,7 +296,11 @@ def main():
     print(json.dumps({k:v for k,v in report.items() if k not in ('hardware','optimizer_groups','nodes')},indent=2))
     if report['READY_FOR_FORMAL_TRAINING']:
         print('ACTUAL_OPTIMIZER_PEAKS',json.dumps({r['name']:r['resolved_peak'] for r in report['optimizer_groups']}))
-        command='START_FORMAL_AFTER_PREFLIGHT=1 '+shlex.quote(sys.executable)+' '+shlex.quote(str(Path(__file__).resolve()))+' --request '+shlex.quote(str(Path(a.request).resolve()))
+        # This must also work in a fresh shell, before this module imports NAVSIM.
+        bootstrap=['env','START_FORMAL_AFTER_PREFLIGHT=1','PYTHONNOUSERSITE=1',
+            'PYTHONPATH='+str(ROOT)+':/mnt/project/DriveVLA-M0-env/lib/python3.9/site-packages',
+            'OMP_NUM_THREADS=1','OPENBLAS_NUM_THREADS=1','MKL_NUM_THREADS=1']
+        command=shlex.join(bootstrap+[sys.executable,str(Path(__file__).resolve()),'--request',str(Path(a.request).resolve())])
         print('FORMAL_COMMAND',command,flush=True)
         if os.getenv('START_FORMAL_AFTER_PREFLIGHT')=='1':
             launch=launch_formal(request,report);report.update(launch);dest.write_text(json.dumps(report,indent=2));print(json.dumps(launch,indent=2))
