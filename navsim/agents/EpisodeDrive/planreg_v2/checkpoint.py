@@ -47,6 +47,9 @@ def convert_physical_output_head(weight,bias,normalizer):
 def warm_start_v1(v2,source_state):
     """Explicit allowlist transfer. Rebuild EMA; this is NOT whole-model parity or full resume."""
     source = {n.removeprefix('agent.'):v for n,v in source_state.items()}
+    required={'action_head.traj_head.4.mlp.6.weight','action_head.traj_head.4.mlp.6.bias'}
+    if not required.issubset(source):
+        raise ValueError('Not the declared V1 architecture: missing final physical trajectory head')
     target = v2.state_dict()
     copied,skipped = [],[]
     for name,value in target.items():
@@ -72,7 +75,9 @@ def warm_start_v1(v2,source_state):
     if v2.world_model_enabled:
         from .ema import FP32MasterEMA
         v2.ema_teacher = FP32MasterEMA(v2.backbone,v2.config['total_steps'],v2.config['global_batch'])
-    return dict(copied=copied,newly_initialized=skipped,legacy_bf16_ema_history_unrecoverable=True,
+    unused_source=sorted(set(source)-{old for _,old in copied})
+    return dict(copied=copied,newly_initialized=skipped,not_migrated_source_keys=unused_source,
+                legacy_bf16_ema_history_unrecoverable=True,
                 whole_model_parity_claimed=False)
 
 

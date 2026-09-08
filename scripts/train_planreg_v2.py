@@ -175,8 +175,10 @@ def main():
                 packed=torch.tensor([values[k] for k in ordered],device='cuda',dtype=torch.float64)
                 dist.all_reduce(packed);packed/=world
                 values.update(zip(ordered,packed.cpu().tolist()))
+            peak_memory=torch.tensor([torch.cuda.max_memory_allocated()/2**30,torch.cuda.max_memory_reserved()/2**30],device='cuda')
+            if world>1:dist.all_reduce(peak_memory,op=dist.ReduceOp.MAX)
             values.update(step=step,epoch=epoch,step_seconds=time.perf_counter()-optimizer_tick,grad_norm=float(norm),
-                peak_allocated_gib=torch.cuda.max_memory_allocated()/2**30,peak_reserved_gib=torch.cuda.max_memory_reserved()/2**30)
+                peak_allocated_gib=float(peak_memory[0]),peak_reserved_gib=float(peak_memory[1]))
             if audit_update:
                 update={n:dict(update_norm=float((p.detach()-before_update[n]).norm()),
                     update_weight_ratio=float((p.detach()-before_update[n]).norm()/before_update[n].norm().clamp_min(1e-12)))
@@ -212,7 +214,7 @@ def main():
         changed = {n:float((p.detach()-initial[n]).norm()) for n,p in agent.named_parameters() if p.requires_grad} if initial else {}
         report=dict(status='executed',optimizer_steps=int(agent.optimizer_updates),elapsed_seconds=time.perf_counter()-start,
             records=records,trainable_updates=changed,fp32_trainable=all(p.dtype==torch.float32 for p in agent.parameters() if p.requires_grad),
-            peak_allocated_gib=torch.cuda.max_memory_allocated()/2**30,peak_reserved_gib=torch.cuda.max_memory_reserved()/2**30,
+            peak_allocated_gib=max(r['peak_allocated_gib'] for r in records),peak_reserved_gib=max(r['peak_reserved_gib'] for r in records),
             samples_per_second=len(records)*actual_batch/max(.001,time.perf_counter()-start),
             steady_median_step_seconds=float(np.median([r['step_seconds'] for r in records[1:]])) if len(records)>1 else None,
             steady_p90_step_seconds=float(np.quantile([r['step_seconds'] for r in records[1:]],.9)) if len(records)>1 else None,

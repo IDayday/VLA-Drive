@@ -6,7 +6,7 @@ Base: `d9ca73f3d61f059285fcbf12a5bc81177ee350d7`. All paths below are relative t
 |---|---|---|---|
 | Isolated worktree / V1 coexistence | `planreg_v2/` namespace; optional mask in shared decoder | original worktree status recheck; V1 regressions | Implemented |
 | 0.5/1.5/4.0s targets, offsets 1/3/8 | `targets.V2TrajectoryTargetBuilder` | real 32-scene cache; timestamp-jitter test | Implemented |
-| Explicit logged vx/vy/ax/ay | `motion.GTLogMotionBuilder` | data and frame-transform tests; real source declaration | Implemented; producer-frame provenance must accompany each new dataset |
+| Explicit logged vx/vy/ax/ay | `motion.GTLogMotionBuilder` | frame-transform tests; actual 232-interval read-only frame audit | Implemented; new datasets need their own source provenance |
 | Unified candidate kinematics | `motion.CandidateKinematicsCodec` | constant velocity/acceleration, irregular times, GT identity, suffix causality | Implemented |
 | Complete variable interval sequence | `motion.IntervalMotionEncoder` | 1/2/5 coverage, short-prefix/jitter tests | Implemented |
 | Stepwise FP32 normalizers | `normalizers.py` | roundtrip, mask, floor, serialization, wrap tests | Implemented |
@@ -24,7 +24,7 @@ Base: `d9ca73f3d61f059285fcbf12a5bc81177ee350d7`. All paths below are relative t
 | Exact scorer function and loss | retained scorer/loss; `agent.compute_loss` boundary | all component/PDM diffs 0; TTC mask; real full BCE backward | Implemented |
 | FP32 trainable/AdamW state | `optimizer.py` | actual 585 trainable tensors, 1,170 moment tensors | Implemented |
 | Persistent FP32 EMA / schedule | `ema.FP32MasterEMA` | 1,000 sub-ULP updates, dtype-cast protection, resume | Implemented |
-| Accumulation / AMP skip | optimizer post-step hook | actual CPU GradScaler skipped-step test | Implemented |
+| Accumulation / AMP skip | optimizer post-step hook; whole-batch validity counts | actual CPU GradScaler test; real 2-GPU accumulated training; exact accumulated resume | Implemented |
 | Fixed current-layout future encoding | `data.preprocess_fixed_layout`, `agent.encode_teacher` | real future RGB; one concatenated teacher visual call | Implemented |
 | Shared block-causal predictor | `predictor.ActionCausalPredictor` | early-output suffix invariance and independent block tests | Implemented |
 | Full TF and differentiable RO | `predictor.branches` | first-step agreement; late loss→early output/z0; future-input invariance | Implemented |
@@ -34,12 +34,12 @@ Base: `d9ca73f3d61f059285fcbf12a5bc81177ee350d7`. All paths below are relative t
 | Base/VQA identical trainable init | shared-init and shared-pair scripts | actual two VLM constructions, tensor hashes equal | Implemented |
 | Base/VQA/no-WM/compact configs | `config/common/agent/planreg_wm_v2_*.yaml` | strict pair diff audit | Implemented |
 | Input-only cache with V2 schema | `data.py`, cache-builder script | stale/dynamic-feature guards; real preprocessing | Implemented |
-| Complete V2 checkpoint resume | `runtime.py`, training/resume scripts | real 4 versus 2+2 audit | See measured final report; no blanket lossless claim without parity |
+| Complete V2 checkpoint resume | `runtime.py`, training/resume scripts | real accumulated 4 versus 2+2 audit | Bitwise parity passed for tested fixed layout/schedule |
 | Explicit V1→V2 migration | `checkpoint.warm_start_v1`, migration CLI | head-level physical conversion | Implemented; full old-checkpoint replay NOT_RUN |
 | Student-only real constructor | `checkpoint.export_student/load_student` | real export/current-only trajectory replay diff 0 | Implemented |
-| Training/resume/export/eval entrypoints | `local_planreg_wm_v2/`, `scripts/*planreg_v2*` | compile, CLI and bounded real execution | Implemented |
+| Training/resume/export/eval entrypoints | `local_planreg_wm_v2/`, `scripts/*planreg_v2*` | compile, official Hydra config resolution, bounded real execution | Implemented; full Navtest intentionally not run |
 | Same-batch gradient audit | `runtime.same_batch_gradient_audit` | no .grad/RNG pollution; real gradient JSON | Implemented |
-| Full GB128 layout | runtime sampler and strict profile lock | 807 steps/epoch unit test; real microbatch1 memory | Profiling full distributed/accumulated layout NOT_RUN; old layout not accepted |
+| Full GB128 layout | runtime sampler and strict profile lock | 807 steps/epoch unit test; actual single-GPU and 2-GPU/accum2 checks | Full GB128 profile NOT_RUN; small smoke/old layout not accepted |
 | Full formal training / Navtest | explicit launchers | not authorized for this development task | NOT_RUN, intentionally |
 
 No undefined physical consequence labels/heads, extra visual teacher, language full finetuning, candidate coordinate refinement or ranking loss was added. Test-only small models are confined to tests, never the production loss or simulator path.

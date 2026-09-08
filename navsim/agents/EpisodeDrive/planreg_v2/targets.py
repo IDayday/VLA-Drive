@@ -72,4 +72,5 @@ class V2TrajectoryTargetBuilder:
                     future_image_paths=paths, future_image_path_lengths=lengths,
                     future_valid_mask=future_valid, motion_sequence=logged,
                     motion_timestamps=actual_times, motion_valid=trajectory_valid.clone(),
+                    motion_source=motion['source'],
                     token=scene.scene_metadata.initial_token)

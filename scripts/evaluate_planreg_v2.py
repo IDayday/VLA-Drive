@@ -1,4 +1,8 @@
-"""Explicit student-only selected/oracle PDM entry; never launched automatically."""
+"""Student-only candidate-bank diagnostic using the preserved TRAINING PDM protocol.
+
+For official selected Navtest PDMS use local_planreg_wm_v2/navtest.sh. These protocols
+are explicitly named, not silently conflated because they both produce a PDMS scalar.
+"""
 import argparse
 import json
 from pathlib import Path
@@ -31,6 +35,7 @@ def main():
                 candidate_mean=float(truth.mean()),candidate_p10=float(torch.quantile(truth,.1)),
                 candidate_p25=float(torch.quantile(truth,.25)),selected_components=scores[0,selected].tolist()))
     result=dict(checkpoint_sha256=file_sha256(args.checkpoint),manifest_sha256=file_sha256(args.manifest),scenes=len(rows),rows=rows,
+        scoring_protocol='EpisodeDrive.train_pdm_scorer.fixed_reference_progress',official_navtest_result=False,
         selected_pdms=float(np.mean([r['selected_pdms'] for r in rows])),oracle64=float(np.mean([r['oracle64'] for r in rows])))
     result['regret']=result['oracle64']-result['selected_pdms']
     Path(args.output).write_text(json.dumps(result,indent=2))

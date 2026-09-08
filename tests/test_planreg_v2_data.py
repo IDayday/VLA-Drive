@@ -104,3 +104,18 @@ def test_interval_encoder_reads_all_1_2_5_points_and_masks_suffix():
     for index,expected in enumerate(([0],[1,2],[3,4,5,6,7])):
         grad=torch.autograd.grad(result[:,index].square().mean(),motion,retain_graph=True)[0].abs().sum(-1)[0]
         assert torch.where(grad>0)[0].tolist()==expected
+
+
+def test_target_builder_uses_real_1_3_8_offsets_and_separate_five_second_long():
+    from types import SimpleNamespace as S
+    from navsim.agents.EpisodeDrive.planreg_v2.targets import V2TrajectoryTargetBuilder
+    from navsim.agents.EpisodeDrive.layers.world_model.future_image_io import decode_path_tensor
+    frames=[S(timestamp=i*500000,ego_status=S(ego_pose=[i*.5,0.,0.],ego_velocity=[1.,0.],ego_acceleration=[0.,0.]),
+              cameras=S(cam_f0=S(image='/frame%d.png'%i))) for i in range(14)]
+    scene=S(frames=frames,scene_metadata=S(num_history_frames=4,initial_token='unit'))
+    result=V2TrajectoryTargetBuilder('ego').compute_targets(scene)
+    paths=[decode_path_tensor(p,n) for p,n in zip(result['future_image_paths'],result['future_image_path_lengths'])]
+    assert paths==['/frame4.png','/frame6.png','/frame11.png']
+    assert result['future_valid_mask'].all() and result['trajectory_long_valid']
+    assert result['trajectory'][-1,0]==4. and result['trajectory_long'][-1,0]==5.
+    assert result['motion_source']['vector_frame']=='ego'

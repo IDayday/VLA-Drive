@@ -115,9 +115,11 @@ LAUNCH_FORMAL=1 OUTPUT_DIR=/runs/v2_base RESUME_CHECKPOINT=/runs/v2_base/last.ck
 
 $PY scripts/export_planreg_v2_student.py --input /runs/v2_base/epoch_27_final.ckpt \
   --output /runs/v2_base/epoch27_student.ckpt
+# Official selected Navtest score, using the original NAVSIM evaluator:
 PLANREG_V2_STUDENT=/runs/v2_base/epoch27_student.ckpt \
-  PLANREG_V2_EVAL_MANIFEST=/eval/input_only/manifest.json EVAL_OUTPUT=/eval/v2.json \
-  bash local_planreg_wm_v2/evaluate.sh --allow-full-navtest --limit 12146
+  PLANREG_NAVTEST_LOGS=/data/logs/test PLANREG_NAVTEST_SENSORS=/data/sensors/test \
+  PLANREG_NAVTEST_METRIC_CACHE=/cache/official_navtest EVAL_OUTPUT=/eval/v2_official \
+  LAUNCH_NAVTEST=1 bash local_planreg_wm_v2/navtest.sh
 ```
 
 Explicit legacy migration is a separate bounded diagnostic, never implicit initialization of a formal main result:
@@ -133,6 +135,8 @@ $PY scripts/train_planreg_v2.py --config navsim/planning/script/config/common/ag
 Gradient accumulation uses global validity counts across the complete optimizer batch for trajectory and TF/RO terms. Step timing covers all microbatches and data wait; per-step logs report the optimizer-batch mean, current group LRs and EMA momentum. Low-frequency update reports measure actual parameter deltas rather than equating finite gradients with updates.
 
 Standalone V2 training uses fully resolved OmegaConf configs with explicit inheritance; it does not mutate V1's Hydra launch path. `planreg_wm_v2_student.yaml` is also a Hydra factory entry for the normal NAVSIM evaluator. Student construction contains no teacher or predictor and embeds the normalizer statistics in the checkpoint, so it does not need the training statistics file.
+
+`evaluate.sh` is a separate all-64 candidate diagnostic using the preserved **training PDM scorer / fixed reference progress** protocol; its report is marked `official_navtest_result=false`. Do not equate that diagnostic with the official `navtest.sh` result. Both entries use the same deployed policy, and neither is automatically launched. The official entry defaults to the existing sequential worker for an unambiguous selected-score reference; distributed/batch scoring requires its own protocol parity validation.
 
 For 103,288 scenes at GB128, the exact sampler pads eight exposures per epoch: 807 steps/epoch and 21,789 steps at the fixed epoch27 endpoint. The launcher computes this from the actual manifest/layout and refuses silent schedule changes. Checkpoints are last plus epochs 5/10/15/20/25/27. No final-fit internal validation is used to choose a checkpoint.
 
