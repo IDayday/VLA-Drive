@@ -41,7 +41,8 @@ class PlanRegV2Agent(AbstractAgent):
         if self.config.get('checkpoint_path') or self.config.get('stage1_checkpoint_path'):
             raise ValueError('V2 VLM-only construction prohibits an M0/full-agent checkpoint')
         self.backbone = V2Backbone(config['vlm_path'],device,config.get('gradient_checkpointing',True),
-                                  config.get('register_init_std',.02),config.get('read_only_attention_backend','eager'))
+                                  config.get('register_init_std',.02),config.get('read_only_attention_backend','eager'),
+                                  config.get('language_attention_backend','eager'))
         self.scene_memory = RichSceneMemory(config.get('scene_memory_mode','per_tile_register_memory'))
         if config.get('normalizer_statistics'):
             statistics = config['normalizer_statistics']

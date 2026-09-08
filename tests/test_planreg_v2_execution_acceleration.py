@@ -144,7 +144,7 @@ def test_acceleration_configs_preserve_algorithm_lr_and_shared_identity(monkeypa
     allowed=set(execution_settings({}))
     for key in set(legacy)|set(fast):
         if key not in allowed: assert legacy.get(key)==fast.get(key)
-    assert execution_settings(legacy)==dict(read_only_attention_backend='eager',gradient_checkpointing=True,overlap_metric_target_with_ema=False)
-    assert execution_settings(fast)==dict(read_only_attention_backend='split_sdpa',gradient_checkpointing=False,overlap_metric_target_with_ema=True)
+    assert execution_settings(legacy)==dict(read_only_attention_backend='eager',language_attention_backend='eager',gradient_checkpointing=True,overlap_metric_target_with_ema=False)
+    assert execution_settings(fast)==dict(read_only_attention_backend='split_sdpa',language_attention_backend='eager',gradient_checkpointing=False,overlap_metric_target_with_ema=True)
     assert execution_settings(ckpt)['gradient_checkpointing'] is True
     assert {k:v for k,v in fast.items() if k!='variant'}=={k:v for k,v in vqa.items() if k!='variant'}

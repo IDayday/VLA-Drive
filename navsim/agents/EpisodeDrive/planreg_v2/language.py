@@ -4,6 +4,30 @@ import torch
 from torch import nn
 
 
+def configure_language_attention(language_model, backend='eager'):
+    """Use the installed Qwen2 native dispatcher; preserve RoPE, GQA and causal padding.
+
+    No global monkey-patch, extra dependency, parameter replacement or silent fallback.
+    SDPA chooses a supported fused CUDA kernel for the actual mask/dtype.
+    """
+    from transformers.models.qwen2.modeling_qwen2 import Qwen2Attention, Qwen2ForCausalLM
+    if backend not in ('eager', 'sdpa'):
+        raise ValueError('Language attention backend must be eager or sdpa')
+    if not isinstance(language_model, Qwen2ForCausalLM):
+        raise TypeError('Language backend switch requires the inspected native Qwen2ForCausalLM')
+    layers = language_model.model.layers
+    if not layers or any(not isinstance(layer.self_attn, Qwen2Attention) for layer in layers):
+        raise TypeError('Unexpected Qwen2 attention topology; refusing an unverified backend switch')
+    language_model.set_attn_implementation(backend)
+    configs = [language_model.config, language_model.model.config] + [layer.self_attn.config for layer in layers]
+    if any(config._attn_implementation != backend for config in configs):
+        raise RuntimeError('Language attention backend was not applied to every actual decoder layer')
+    result = dict(backend=backend, model_class=type(language_model).__name__,
+                  attention_class=type(layers[0].self_attn).__name__, layers=len(layers))
+    print('V2 actual language attention:', result)
+    return result
+
+
 class LanguageAttentionLoRA(nn.Module):
     def __init__(self, base, rank=32, alpha=64):
         super().__init__()

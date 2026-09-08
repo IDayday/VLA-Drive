@@ -2,7 +2,7 @@ import torch
 from types import MethodType
 from torch.utils.checkpoint import checkpoint
 from transformers.modeling_outputs import BaseModelOutput
-from .language import SoftTaskQueries, inject_language_lora
+from .language import SoftTaskQueries, inject_language_lora, configure_language_attention
 from .memory import pad_tile_registers
 from ..drivevla_backbone import DriveVLABackbone
 from .timing import StepTiming
@@ -31,7 +31,7 @@ def non_reentrant_vision_encoder(self,inputs_embeds,output_hidden_states=None,re
 
 class V2Backbone(DriveVLABackbone):
     def __init__(self, vlm_path, device='cpu', gradient_checkpointing=True, register_init_std=.02,
-                 read_only_attention_backend='eager'):
+                 read_only_attention_backend='eager', language_attention_backend='eager'):
         if read_only_attention_backend not in ('eager', 'split_sdpa'):
             raise ValueError('V2 read-only attention backend must be eager or split_sdpa')
         from pathlib import Path
@@ -55,6 +55,7 @@ class V2Backbone(DriveVLABackbone):
                 parameter.requires_grad_(True)
                 parameter.data = parameter.data.float()
         self.language_lora_modules = inject_language_lora(self.model.language_model)
+        self.language_attention_audit = configure_language_attention(self.model.language_model, language_attention_backend)
         hidden = self.model.language_model.get_input_embeddings().embedding_dim
         self.task_queries = SoftTaskQueries(hidden).to(device=device)
         self.model.system_message = V2_SYSTEM_PROMPT

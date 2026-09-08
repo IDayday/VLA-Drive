@@ -23,6 +23,7 @@ def load_config(path):
 def execution_settings(config):
     """Performance choices are part of profile/resume identity, not algorithm or LR changes."""
     return dict(read_only_attention_backend=config.get('read_only_attention_backend','eager'),
+                language_attention_backend=config.get('language_attention_backend','eager'),
                 gradient_checkpointing=config.get('gradient_checkpointing',True),
                 overlap_metric_target_with_ema=config.get('overlap_metric_target_with_ema',False))
 
