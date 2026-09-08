@@ -1,0 +1,356 @@
+{
+  "schema": "planreg_v2_execution_selection_v1",
+  "tested_code_commit": "7222eabad3a7d7f4c3eb00f836970b0b3abdc440",
+  "source_fingerprint": "fee5e45b6e42319bc99273699f091a5f29aec6ff82084f16e7c0277ffd188174",
+  "branch": "fix/planreg-wm-v2-review-20260908",
+  "selection": "Fastest successfully completed measured configuration; not a global optimality or PDMS claim",
+  "selected_config": "navsim/planning/script/config/common/agent/planreg_wm_v2_base_fast_sdpa.yaml",
+  "selected_vqa_interface": "navsim/planning/script/config/common/agent/planreg_wm_v2_vqa_fast_sdpa.yaml",
+  "architecture": "InternVL3-2B / PlanReg-WM-V2.2",
+  "execution_settings": {
+    "read_only_attention_backend": "split_sdpa",
+    "language_attention_backend": "sdpa",
+    "gradient_checkpointing": true,
+    "overlap_metric_target_with_ema": true
+  },
+  "layout": {
+    "world_size": 32,
+    "microbatch": 4,
+    "accumulation": 1,
+    "global_batch": 128,
+    "workers_per_rank": 2,
+    "max_tiles": 9,
+    "scene_memory_tokens": 144,
+    "nodes": [
+      {
+        "host": "local",
+        "physical_gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      {
+        "host": "training-vla-zt2",
+        "physical_gpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      {
+        "host": "training-vla-zt3",
+        "physical_gpus": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      {
+        "host": "training-rl-zt4",
+        "physical_gpus": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      {
+        "host": "training-rl-zt2",
+        "physical_gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    ]
+  },
+  "measured_profile": {
+    "warmup_optimizer_steps": 4,
+    "timed_optimizer_steps": 8,
+    "samples_per_second": 30.849908801019083,
+    "median_step_seconds": 4.221292204223573,
+    "p90_step_seconds": 4.481478777527809,
+    "max_tiles": 9,
+    "optimizer_steps": 12,
+    "peak_allocated_gib": 11.214082717895508,
+    "peak_reserved_gib": 13.9296875,
+    "all_losses_gradients_finite": true,
+    "all_optimizer_ema_updates_match": true,
+    "mean_timings_max_over_ranks": {
+      "action_scorer_seconds": 0.047853811644017696,
+      "backward_seconds": 1.8257336020469666,
+      "data_wait_seconds": 0.04334813030436635,
+      "language_seconds": 0.308290746062994,
+      "pdm_seconds": 1.2048574164509773,
+      "pdm_submit_seconds": 0.0019495494198054075,
+      "student_vision_seconds": 0.28987089544534683,
+      "teacher_seconds": 0.8075906932353973
+    }
+  },
+  "comparison": {
+    "original_v2_eager_samples_per_second": 12.4649459,
+    "visual_fast_language_eager_samples_per_second": 25.25921737350514,
+    "visual_and_language_fast_samples_per_second": 30.849908801019083,
+    "speedup_vs_original": 2.474933228632712,
+    "speedup_vs_visual_fast": 1.2213327255886448,
+    "rejected_no_checkpoint": {
+      "reason": "OOM with eager language attention; not selected",
+      "optimizer_steps_completed": 0,
+      "allocated_gib_at_error": 75.71
+    },
+    "startup_retry": {
+      "reason": "Read-only hardware inspection CUDA context had not yet exited; GPU guard rejected before training",
+      "configuration_changed": false,
+      "prior_logs_preserved": true
+    }
+  },
+  "numerical_validation": {
+    "status": "PASS",
+    "source_commit": "7222eabad3a7d7f4c3eb00f836970b0b3abdc440",
+    "source_fingerprint": "fee5e45b6e42319bc99273699f091a5f29aec6ff82084f16e7c0277ffd188174",
+    "manifest_sha256": "0c6b5f34a956c3d1bfc53ed773096ef2a769e5b6aefd52fb376593cb7ccdb131",
+    "input_type": "Real training image, pretrained InternVL, actual PDM and future images",
+    "bf16_bitwise_equivalence": false,
+    "final_pdms_equivalence": "NOT_EVALUATED",
+    "language": {
+      "backend": "sdpa",
+      "model_class": "Qwen2ForCausalLM",
+      "attention_class": "Qwen2Attention",
+      "layers": 28
+    },
+    "bf16_full_forward_difference": {
+      "proposals": {
+        "max_abs": 0.10751628875732422,
+        "relative_l2": 0.0027392234187573195
+      },
+      "semantic_queries": {
+        "max_abs": 0.666015625,
+        "relative_l2": 0.29348137974739075
+      }
+    },
+    "language_only_kernels": {
+      "aten::scaled_dot_product_attention": 28,
+      "aten::_scaled_dot_product_flash_attention": 28
+    },
+    "fp32_full_language_parity": {
+      "output": {
+        "relative_l2": 0.000017775819287635386,
+        "tolerance": 0.0001
+      },
+      "prefix_gradient": {
+        "relative_l2": 0.0003418545238673687,
+        "tolerance": 0.001
+      }
+    },
+    "steps": [
+      {
+        "step": 0,
+        "loss": 10.746184349060059,
+        "gradient_norms": {
+          "vision_lora": 1.0350056886672974,
+          "language_lora": 0.23045876622200012,
+          "registers": 17.358877182006836,
+          "semantic_queries": 2.0685884952545166
+        }
+      },
+      {
+        "step": 1,
+        "loss": 10.8159761428833,
+        "gradient_norms": {
+          "vision_lora": 0.9439886808395386,
+          "language_lora": 0.27810966968536377,
+          "registers": 16.705469131469727,
+          "semantic_queries": 2.3330066204071045
+        }
+      }
+    ],
+    "changed_language_lora_a_tensors": 112,
+    "fp32_trainable": true,
+    "fp32_adam_moments": true,
+    "peak_allocated_gib": 27.07661533355713
+  },
+  "preserved_visual_bf16_replay": {
+    "status": "FAILED_ORIGINAL_2_PERCENT_GATE",
+    "report": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/real_attention_equal_rng.json",
+    "note": "FP32 24-block operator/gradient parity passed. BF16 replay was not lossless; its failed gate is retained, not relaxed."
+  },
+  "tests": {
+    "current_cpu_regression": "74 passed",
+    "prior_acceleration_regression": "79 passed, including GPU and DDP, at prior snapshot; overlapping test IDs are not added",
+    "language_real_gradient_updates": 2,
+    "language_lora_a_tensors_updated": 112,
+    "current_32_rank_full_wm_profile": "12 optimizer steps completed; all ranks exit 0",
+    "additional_gpu_ddp_regression": "CANCELLED before timing to avoid profile contention; not claimed PASS"
+  },
+  "fixed_recipe": {
+    "epochs": 27,
+    "steps_per_epoch": 807,
+    "total_optimizer_steps": 21789,
+    "global_batch": 128,
+    "estimated_compute_hours": 25.112553978584472,
+    "estimate_excludes": "Startup/checkpoint/extra I/O/long-run variability",
+    "peaks": {
+      "planning_adapter": 0.0003,
+      "fusion": 0.0003,
+      "action_generator": 0.0003,
+      "scorer": 0.0003,
+      "future_predictor": 0.0003,
+      "semantic_queries": 0.00015,
+      "vision_qv_lora": 0.00005,
+      "language_lora": 0.00001
+    },
+    "wm": "0.01 to 0.10 over first 10%",
+    "lr": "5% warmup, cosine to 10%",
+    "scorer_loss_architecture_and_label_semantics": "UNCHANGED"
+  },
+  "formal_request": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/formal_fast_sdpa_request.json",
+  "formal_training_started": false,
+  "start_switch": "START_FORMAL_AFTER_PREFLIGHT=1 required; currently unset",
+  "performance": "NOT_EVALUATED",
+  "evidence": {
+    "language_sdpa_fp32_real.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/language_sdpa_fp32_real.json",
+      "sha256": "922d1f8d40efffc98da7d7c6462f18f58f7e627ec0e9e7acc9ab5e771ea41944"
+    },
+    "language_sdpa_regression.log": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/language_sdpa_regression.log",
+      "sha256": "217d678fd743874460a3596936d65e16618d9f668d2ae13829fe1f0ae4c8dde6"
+    },
+    "initialization_language_sdpa_tested.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/initialization_language_sdpa_tested.json",
+      "sha256": "31f5f1f0d60db91268fb9f34df44cd547cd6d5659ebf5ce85a0b701954ae0b20"
+    },
+    "formal_language_sdpa_layout.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/formal_language_sdpa_layout.json",
+      "sha256": "0f13ad7da638fa846895cf39044351962d97079802d921c69a427c48881c005f"
+    },
+    "spec_language_sdpa_retry.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/spec_language_sdpa_retry.json",
+      "sha256": "99de6dae7d514dc70b82cf46a0195e2de2a73dcfece96516231484e9067a89a8"
+    },
+    "profile_input_range_language_sdpa.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/profile_input_range_language_sdpa.json",
+      "sha256": "582a565f1186f041e996ae1ac6fbbccba842e1a702f975bf8abb90d4bc4c8a2e"
+    },
+    "profile_language_sdpa_retry/validation.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/profile_language_sdpa_retry/validation.json",
+      "sha256": "f98d26d709a7d0d93fb1cdd96b8d5b720c9bf88c8ae9b9ad4f09fd12ffe92781"
+    },
+    "profile_language_sdpa_retry/run_metadata.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/profile_language_sdpa_retry/run_metadata.json",
+      "sha256": "b32a8d0d2a15b4fd042de85e4c493c9800b5bf164333a6f098042680616e2f69"
+    },
+    "profile_language_sdpa_retry/resolved_config.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/profile_language_sdpa_retry/resolved_config.json",
+      "sha256": "5b6c2e11acb1711b757981e3e874a54d27fb04118217d79d6fb969e48381b4da"
+    },
+    "real_attention_equal_rng.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/real_attention_equal_rng.json",
+      "sha256": "deae8b2989c8ef7aa5a632cd8612a49eb36f83cf458e9e8d4a3808604bb2680e"
+    },
+    "profile_checkpointed/validation.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/profile_checkpointed/validation.json",
+      "sha256": "96039d4c8daca860452665018dbc0f410a47c1c832b182754a3bb09d4d8b2955"
+    },
+    "cohort_no_checkpoint/node00.log": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/cohort_no_checkpoint/node00.log",
+      "sha256": "14f48a8dbed9058f9c0ce082434886fb8b6f468393926d999587d7109df5868b"
+    },
+    "cohort_language_sdpa/node03.log": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/cohort_language_sdpa/node03.log",
+      "sha256": "e02c51a9ca4d970c081952393d052ae3dce388fac818417c5220d63f9ec2ac0a"
+    },
+    "formal_fast_sdpa_admission.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/formal_fast_sdpa_admission.json",
+      "sha256": "3dc47c0887cd8e55e80bd39fa9595549f01b6257f7fcd29c0e7286a32e0ebb21"
+    },
+    "formal_fast_sdpa_preflight.log": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/formal_fast_sdpa_preflight.log",
+      "sha256": "6b4274b0c5874c18656c9760efcc7d6d6d2fc48f1723f57fa4df3527359c8727"
+    },
+    "formal_fast_sdpa_request.json": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/formal_fast_sdpa_request.json",
+      "sha256": "98b0ad93da27da6a21f1fc69b340a59d96a4fbbe871d3a7ed0af1f8f694148d5"
+    },
+    "launch_selected_formal.sh": {
+      "path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/launch_selected_formal.sh",
+      "sha256": "764e50250ef935d4ec9fe60f25260a320b5206bbd5bdf20cba6aa30ccd6d1e76"
+    }
+  },
+  "preflight": {
+    "READY_FOR_FORMAL_TRAINING": true,
+    "source_commit": "7222eabad3a7d7f4c3eb00f836970b0b3abdc440",
+    "source_fingerprint_sha256": "fee5e45b6e42319bc99273699f091a5f29aec6ff82084f16e7c0277ffd188174",
+    "preflight_sha256": "b20abef7d96e265e581678bd702f7fb5cfe325ece7745b4c3630a2f1fd20d26a",
+    "algorithm_changed": false,
+    "variant": "base",
+    "vlm_path": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+    "vlm_sha256": "0bd7cfa0ab23300304dd627abb09abbdc38748c8c8ff6c3209baf73a81fb421f",
+    "manifest": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/input_trainval103288_complete/manifest.json",
+    "manifest_sha256": "cf21ae39dab96075d3043420c3ead0f39d0952b28d0f045891ef2228bfe4ad11",
+    "normalizer": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_preflight_20260908/input_trainval103288/normalizer.json",
+    "normalizer_sha256": "0895e53ef14bf4aa27b6ee362f9c7ec4f59364e054253c36ad840bcce29cd39d",
+    "shared_init": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_review_20260908/shared_init_std02_seed0.pt",
+    "shared_init_sha256": "2864c09016be1b9be63d738fc1c194eb3676dcee3188dc27d933d2d89593b047",
+    "shape_summary_sha256": "17e51e2199d9a37da1e486ab9350c46c0a82e7e7e4dc278f7459b40f16312b98",
+    "layout_path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/formal_language_sdpa_layout.json",
+    "layout_sha256": "0f13ad7da638fa846895cf39044351962d97079802d921c69a427c48881c005f",
+    "coverage": {
+      "gt": [
+        0.9991189683215862,
+        0.9983057083107427,
+        0.9975311749670823,
+        0.9967082332894431,
+        0.9958659282782124,
+        0.9950139416001859,
+        0.9941522732553636,
+        0.9934164665788863
+      ],
+      "future": [
+        0.9991189683215862,
+        0.9975311749670823,
+        0.9934164665788863
+      ],
+      "motion": [
+        0.9991189683215862,
+        0.9975311749670823,
+        0.9934164665788863
+      ],
+      "long": 0.991683448222446
+    },
+    "max_tiles": 9,
+    "profile_max_tiles": 9,
+    "prefix_range": [
+      2545,
+      2559
+    ],
+    "world_size": 32,
+    "microbatch": 4,
+    "accumulate": 1,
+    "global_batch": 128,
+    "steps_per_epoch": 807,
+    "total_steps": 21789,
+    "padded_exposures_per_epoch": 8,
+    "new_output": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_formal_runs/base_init_fast_sdpa_gb128_32gpu_seed0_20260908",
+    "inventory_files_verified": 406140,
+    "training_started": false
+  },
+  "formal_start_command": "START_FORMAL_AFTER_PREFLIGHT=1 bash /mnt/project/DriveVLA-M0-stage2/planreg_v2_acceleration_20260908/launch_selected_formal.sh"
+}
