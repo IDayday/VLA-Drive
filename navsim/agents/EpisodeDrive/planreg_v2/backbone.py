@@ -1,4 +1,7 @@
 import torch
+from types import MethodType
+from torch.utils.checkpoint import checkpoint
+from transformers.modeling_outputs import BaseModelOutput
 from .language import SoftTaskQueries, inject_language_lora
 from .memory import pad_tile_registers
 from ..drivevla_backbone import DriveVLABackbone
@@ -8,8 +11,30 @@ V2_SYSTEM_PROMPT = ('You are an autonomous driving assistant. The visual input i
                     'There are no historical, future, side or rear camera images.')
 
 
+def non_reentrant_vision_encoder(self,inputs_embeds,output_hidden_states=None,return_dict=None):
+    """Audited InternVisionEncoder operation sequence, with non-reentrant checkpoint only.
+
+    Needed for read-only same-batch autograd.grad diagnostics. No module/global torch patch.
+    """
+    output_hidden_states = self.config.output_hidden_states if output_hidden_states is None else output_hidden_states
+    return_dict = self.config.use_return_dict if return_dict is None else return_dict
+    states = () if output_hidden_states else None
+    hidden = inputs_embeds
+    for layer in self.layers:
+        if output_hidden_states: states += (hidden,)
+        hidden = checkpoint(layer,hidden,use_reentrant=False) if self.gradient_checkpointing and self.training else layer(hidden)
+    if output_hidden_states: states += (hidden,)
+    if not return_dict: return tuple(v for v in (hidden,states) if v is not None)
+    return BaseModelOutput(last_hidden_state=hidden,hidden_states=states)
+
+
 class V2Backbone(DriveVLABackbone):
     def __init__(self, vlm_path, device='cpu', gradient_checkpointing=True):
+        from pathlib import Path
+        from ..formal_initialization import discover_weight_files,_state_keys_from_weights,scan_forbidden_state_keys
+        weight_files = discover_weight_files(Path(vlm_path))
+        if not weight_files or scan_forbidden_state_keys(_state_keys_from_weights(weight_files)):
+            raise ValueError('V2 initialization requires standalone VLM-only tensors, never agent/planner state')
         super().__init__(model_type='internvl', checkpoint_path=vlm_path, device=device,
             initialize_from_config=False, extra_token_count=0, strict_vocab_alignment=True,
             use_flash_attn=False, skip_lm_head=True, gradient_checkpointing=gradient_checkpointing,
@@ -28,6 +53,15 @@ class V2Backbone(DriveVLABackbone):
         hidden = self.model.language_model.get_input_embeddings().embedding_dim
         self.task_queries = SoftTaskQueries(hidden).to(device=device)
         self.model.system_message = V2_SYSTEM_PROMPT
+        vision = self.model.vision_model
+        if len(vision.encoder.layers) != 24 or int(vision.config.hidden_size) != 1024:
+            raise ValueError('This V2 protocol requires the audited 24-layer InternVL3-2B vision tower')
+        if gradient_checkpointing:
+            encoder = self.model.vision_model.encoder
+            if type(encoder).__name__ != 'InternVisionEncoder':
+                raise TypeError('Non-reentrant V2 adapter requires audited InternVisionEncoder')
+            encoder.forward = MethodType(non_reentrant_vision_encoder,encoder)
+            self.model.language_model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
 
     def train(self, mode=True):
         super().train(mode)

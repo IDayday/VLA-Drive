@@ -1,0 +1,25 @@
+architecture_version: planreg_wm_v2.1
+variant: base
+vlm_path: ${oc.env:PLANREG_BASE_VLM_PATH}
+normalizer_path: ${oc.env:PLANREG_V2_NORMALIZER}
+shared_init_path: ${oc.env:PLANREG_V2_SHARED_INIT,null}
+checkpoint_path: null
+stage1_checkpoint_path: null
+world_model_enabled: true
+motion_mode: gt_log
+scene_memory_mode: per_tile_register_memory
+gradient_checkpointing: true
+predictor_layers: 2
+epochs: 27
+global_batch: 128
+total_steps: 21789
+scorer_processes: 4
+learning_rates:
+  planning_adapter: 0.0002
+  fusion: 0.0002
+  action_head: 0.0002
+  scorer: 0.0002
+  future_predictor: 0.0001
+  semantic_qformer: 0.0001
+  vision_qv_lora: 0.00003
+  language_lora: 0.00001

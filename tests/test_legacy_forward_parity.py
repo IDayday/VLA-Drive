@@ -44,6 +44,8 @@ def _make_disabled_backbone() -> DriveVLABackbone:
     backbone.model = _FakeInternVL()
     backbone.model_type = "internvl"
     backbone.device = "cpu"
+    # Match the real constructor's existing dtype contract (fixture bypasses __init__).
+    backbone.compute_dtype = torch.bfloat16
     backbone.skip_lm_head = False
     backbone.planning_registers_enabled = False
     backbone.vision_qv_lora_enabled = False

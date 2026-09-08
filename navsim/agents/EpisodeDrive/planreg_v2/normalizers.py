@@ -58,15 +58,17 @@ class TrajectoryNormalizer(FP32Statistics):
             raise ValueError("Unsupported statistics timestamp; rounding is forbidden")
         return match.long().argmax(-1)
 
-    def normalize(self, physical, times=None):
+    def normalize(self, physical, times=None, valid_mask=None):
         idx = self.indices(times) if times is not None else slice(0, physical.shape[-2])
         value = torch.cat((physical[..., :2], unwrap_heading(physical[..., 2])[..., None]), -1)
-        return (value - self.mean[idx]) / self.std[idx]
+        result = (value - self.mean[idx]) / self.std[idx]
+        return result if valid_mask is None else torch.where(valid_mask[...,None],result,0.)
 
-    def inverse(self, normalized, times=None):
+    def inverse(self, normalized, times=None, valid_mask=None):
         idx = self.indices(times) if times is not None else slice(0, normalized.shape[-2])
         value = normalized * self.std[idx] + self.mean[idx]
-        return torch.cat((value[..., :2], wrap_angle(value[..., 2:3])), -1)
+        result = torch.cat((value[..., :2], wrap_angle(value[..., 2:3])), -1)
+        return result if valid_mask is None else torch.where(valid_mask[...,None],result,0.)
 
     def save(self, path):
         Path(path).write_text(json.dumps(dict(mean=self.mean.cpu().tolist(),
@@ -110,7 +112,7 @@ def measured_statistics(records, split, data_version, std_floor=1e-3):
         raise ValueError("Statistics require train or declared final-fit trainval")
     unique, values, masks = {}, [], []
     for token, trajectory, valid in records:
-        trajectory, valid = torch.as_tensor(trajectory).double(), torch.as_tensor(valid).bool()
+        trajectory, valid = torch.as_tensor(trajectory).double().clone(), torch.as_tensor(valid).bool()
         if trajectory.shape != (8, 3) or valid.shape != (8,):
             raise ValueError("Invalid statistics record shape")
         if token in unique:
@@ -119,7 +121,7 @@ def measured_statistics(records, split, data_version, std_floor=1e-3):
             continue
         unique[token] = (trajectory.clone(), valid.clone())
         valid = valid & torch.isfinite(trajectory).all(-1)
-        trajectory[:, 2] = unwrap_heading(trajectory[:, 2])
+        trajectory[valid, 2] = unwrap_heading(trajectory[valid, 2])
         values.append(torch.where(valid[:, None], trajectory, 0.))
         masks.append(valid)
     if not values:

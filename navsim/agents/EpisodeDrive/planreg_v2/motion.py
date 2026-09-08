@@ -18,8 +18,11 @@ class CandidateKinematicsCodec(nn.Module):
             raise ValueError("Physical trajectory must be [B,K,T,3]")
         b, k, t, _ = p.shape
         times = torch.as_tensor(timestamps, device=p.device, dtype=p.dtype)
+        if times.ndim == 2: times = times[:,None]
         times = torch.broadcast_to(times, (b, k, t))
-        valid = torch.broadcast_to(valid_mask.to(device=p.device, dtype=torch.bool), (b, k, t))
+        valid_mask = valid_mask.to(device=p.device,dtype=torch.bool)
+        if valid_mask.ndim == 2: valid_mask = valid_mask[:,None]
+        valid = torch.broadcast_to(valid_mask, (b, k, t))
         dt = times - torch.cat((times.new_zeros(b, k, 1), times[..., :-1]), -1)
         valid = valid & torch.isfinite(p).all(-1) & torch.isfinite(times) & (dt > 0)
         valid = valid.long().cumprod(-1).bool()
@@ -77,8 +80,9 @@ class GTLogMotionBuilder:
 
 
 class IntervalMotionEncoder(nn.Module):
-    def __init__(self, dim=256):
+    def __init__(self, dim=256, timestamp_tolerance=.02):
         super().__init__()
+        self.timestamp_tolerance = timestamp_tolerance
         self.point = nn.Sequential(nn.Linear(11, dim), nn.GELU(), nn.Linear(dim, dim))
 
     def forward(self, motion_sequence, timestamps, valid_mask, query_horizons):
@@ -87,13 +91,16 @@ class IntervalMotionEncoder(nn.Module):
         left = 0.
         for right in query_horizons:
             right = float(right)
-            in_interval = (timestamps > left + 1e-6) & (timestamps <= right + 1e-6)
+            tolerance = self.timestamp_tolerance
+            in_interval = (timestamps > (left+tolerance if left else 0.)) & (timestamps <= right+tolerance)
             selected = in_interval & valid_mask
-            endpoint = ((timestamps-right).abs() < 1e-5) & valid_mask
+            endpoint = ((timestamps-right).abs() <= tolerance) & valid_mask
             ok = endpoint.any(-1) & (~in_interval | valid_mask).all(-1)
             extra = torch.stack((timestamps, timestamps-left,
                                  torch.full_like(timestamps, right-left)), -1)
-            encoded = self.point(torch.cat((motion_sequence, extra), -1))
+            inputs=torch.cat((motion_sequence, extra), -1)
+            inputs=torch.where(selected[...,None],inputs,0.)
+            encoded = self.point(inputs)
             pooled = (encoded * selected[..., None]).sum(-2) / selected.sum(-1).clamp_min(1)[..., None]
             outputs.append(pooled)
             coverage.append(ok)

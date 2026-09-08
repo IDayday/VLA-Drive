@@ -64,3 +64,13 @@ def test_long_five_seconds_and_missing_not_extrapolated():
     assert valid and long[-1,0] == 5
     _, valid = long_target(p[:9],t[:9],torch.ones(9,dtype=torch.bool))
     assert not valid
+
+
+def test_logged_timestamp_jitter_is_not_false_missing_action():
+    times=torch.tensor([[.4997,.9992,1.4988,1.9985,2.4985,2.9987,3.4988,3.9988]])
+    encoder=IntervalMotionEncoder(16)
+    output,coverage=encoder(torch.zeros(1,8,8),times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
+    assert coverage.all() and output.shape==(1,3,16)
+    times[:,-1]=3.
+    _,coverage=encoder(torch.zeros(1,8,8),times,torch.ones(1,8,dtype=torch.bool),[.5,1.5,4.])
+    assert not coverage[0,-1]

@@ -88,4 +88,5 @@ class FP32MasterEMA(nn.Module):
     @torch.no_grad()
     def forward(self,pixels):
         encoded,_ = self.adapter._encode_with_registers(self.vision,pixels)
-        return self.adapter.register_projection(self.adapter.register_norm(encoded.float()))
+        # Identical activation path to the student neck; FP32 refers to storage/master, not forced activations.
+        return self.adapter.register_projection(self.adapter.register_norm(encoded))

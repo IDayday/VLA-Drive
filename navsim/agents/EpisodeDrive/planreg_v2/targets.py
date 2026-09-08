@@ -15,7 +15,8 @@ def long_target(poses, timestamps, valid, strict=False):
             raise ValueError("Long-2 requires actual same-log poses through 5 seconds")
         return torch.zeros(8, 3), torch.tensor(False)
     # Explicit retiming: sample the true [0,5s] path into eight output slots.
-    query = np.arange(1, 9) * 5. / 8.
+    # Use the observed endpoint (within the declared 20ms tolerance), never extrapolate beyond it.
+    query = np.arange(1, 9) * float(timestamps[10]) / 8.
     unwrapped = unwrap_heading(poses[:11, 2]).numpy()
     output = np.stack([np.interp(query, timestamps[:11], poses[:11, i]) for i in (0, 1)] +
                       [np.interp(query, timestamps[:11], unwrapped)], -1)
