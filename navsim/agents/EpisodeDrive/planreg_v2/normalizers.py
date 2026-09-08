@@ -149,6 +149,8 @@ def measured_statistics(records, split, data_version, std_floor=1e-3, mode='step
         trajectory, valid = torch.as_tensor(trajectory).double().clone(), torch.as_tensor(valid).bool()
         if trajectory.shape != (8, 3) or valid.shape != (8,):
             raise ValueError("Invalid statistics record shape")
+        if (valid & ~torch.isfinite(trajectory).all(-1)).any():
+            raise ValueError('Nonfinite declared-valid raw GT statistics token '+str(token))
         if token in unique:
             old,old_valid=unique[token]
             if not torch.equal(torch.where(valid[:,None],old,0.),torch.where(valid[:,None],trajectory,0.)) or not torch.equal(old_valid, valid):

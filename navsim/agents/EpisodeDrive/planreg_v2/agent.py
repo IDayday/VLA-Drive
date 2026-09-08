@@ -103,6 +103,7 @@ class PlanRegV2Agent(AbstractAgent):
                                         visual['scene_valid_mask'],visual['semantic_queries'].float())
         with self.backbone.step_timing.stage('action_scorer_seconds',device.type=='cuda'):
             output = self.action_head(memory,valid,features['status_feature'].to(device).float())
+        output['memory_valid_mask']=valid
         output.update(visual)
         return output
 

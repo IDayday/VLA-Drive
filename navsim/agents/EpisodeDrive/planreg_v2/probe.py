@@ -63,7 +63,7 @@ def fixed_probe(agent,dataset,bank=None,batch_size=2):
                 status=features['status_feature'].to(scores.device).float()
                 ego=agent.action_head.hist_encoding(torch.cat((status.new_zeros(len(status),3),agent.action_head.ego_normalizer(status)),-1))
                 with torch.no_grad():
-                    logits,log_score=agent.action_head.score(physical,predictions['scene_features'],predictions['scene_valid_mask'],ego)
+                    logits,log_score=agent.action_head.score(physical,predictions['scene_features'],predictions['memory_valid_mask'],ego)
                     fixed=dict(pred_logit=logits,log_pdm_score=log_score,selected_indices=log_score.argmax(-1))
                     report['fixed_initial_candidate_bank']=score_summary(fixed,entry['scores'].to(scores.device))
             if agent.world_model_enabled:
