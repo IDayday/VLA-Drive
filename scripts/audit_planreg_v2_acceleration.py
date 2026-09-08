@@ -9,7 +9,7 @@ import time
 import torch
 from navsim.agents.EpisodeDrive.planreg_v2.agent import PlanRegV2Agent, file_sha256
 from navsim.agents.EpisodeDrive.planreg_v2.data import InputOnlyV2Dataset,v2_collate
-from navsim.agents.EpisodeDrive.planreg_v2.runtime import load_config,source_fingerprint
+from navsim.agents.EpisodeDrive.planreg_v2.runtime import load_config,source_fingerprint,rng_state,restore_rng
 
 
 def difference(a,b):
@@ -113,7 +113,9 @@ def main():
         del pred,objectives,gradients,labels;gc.collect();torch.cuda.empty_cache();save()
         # Same real graph/weights and dropout state, with versus without activation recomputation.
         outputs={};gradients={}
+        checkpoint_rng=rng_state()
         for checkpointing in (True,False):
+            restore_rng(checkpoint_rng)  # Generator/scorer training dropout must use the same mask.
             backbone=agent.backbone
             backbone.gradient_checkpointing_enabled=checkpointing
             backbone.model.vision_model.encoder.gradient_checkpointing=checkpointing
