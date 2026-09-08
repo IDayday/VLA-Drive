@@ -1,5 +1,7 @@
 # V2 implementation matrix
 
+> HISTORICAL implementation matrix for the pre-review V2. The current V2.2 acceptance mapping is [REVIEW_FIX_MATRIX](reports/planreg_wm_v2_review/REVIEW_FIX_MATRIX.md) and [ALGORITHM_CONTRACT_MATRIX](reports/planreg_wm_v2_review/ALGORITHM_CONTRACT_MATRIX.md), bound to tested commit `1e01bcbd9e0d2baf668a103ea969ae5e5d980c64`. In particular, the old component parity did not establish actual scorer integration parity, long-2 mapping and LR/init/migration had defects, and old smoke evidence is not reused as a test of the repaired source.
+
 Base: `d9ca73f3d61f059285fcbf12a5bc81177ee350d7`. All paths below are relative to the new worktree. Detailed measured results live in `VALIDATION_REPORT.md`; synthetic tests are not presented as real-model validation.
 
 | Task | Implementation | Validation | Status |

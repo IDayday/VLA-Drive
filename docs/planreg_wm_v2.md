@@ -1,8 +1,14 @@
 # PlanReg-WM-V2
 
+## V2.2 review-fix snapshot
+
+The current review starts at `6e1d9f8c6f91f5ddb2d04461554e0a7d27208084` and is tested at `1e01bcbd9e0d2baf668a103ea969ae5e5d980c64`. See [review evidence](../reports/planreg_wm_v2_review/REVIEW_FIX_MATRIX.md), [artifact compatibility](../reports/planreg_wm_v2_review/ARTIFACT_COMPATIBILITY.md) and [executed commands](../reports/planreg_wm_v2_review/COMMANDS.md). Historical measurements under `reports/planreg_wm_v2/` do not validate this new production snapshot.
+
+V2.2 corrects the actual scorer integration to trajectory embedding → scoring decoder → ego addition → unchanged six heads. Component parity alone did not detect the previous integration error. New V2 registers have std 0.02; the V1 default remains 1e-6. Both VLM initializations load a versioned, common named trainable bank before constructing their teacher.
+
 ## Implementation boundary
 
-V2 lives in `navsim/agents/EpisodeDrive/planreg_v2/`. V1 configs, checkpoint loaders, Q-Former, action decoder and loss remain available. The only shared production-module change is an optional decoder memory padding mask; `mask=None` retains exact frozen-source scorer parity.
+V2 lives in `navsim/agents/EpisodeDrive/planreg_v2/`. V1 configs, checkpoint loaders, Q-Former, action decoder and loss remain available. Shared modules have an optional decoder memory padding mask and an optional register initialization std whose V1 default is unchanged. `mask=None` retains exact frozen-source scorer parity.
 
 V2 uses InternVL3-2B, one current front-camera image and existing numeric ego/history/navigation information. It does not deploy future images, EMA, a WM predictor, privileged labels or a second visual backbone. There is no RL, CEM, TOAD, ranking objective, coordinate correction, or newly invented consequence label/head.
 
@@ -45,7 +51,7 @@ The action encoder consumes all valid points in intervals 0→0.5, 0.5→1.5, 1.
 
 ## World model
 
-Teacher: InternViT + visual Q/V LoRA + registers + norm/projection only. One batched visual call encodes current plus three true future frames, using **the current frame's tile layout** for all four images. Content targets exclude the added geometry/time embeddings.
+Teacher: InternViT + visual Q/V LoRA + registers + norm/projection only. The normal training call batches only the three true future frames, using **the current frame's tile layout** for all three images. Optional `include_current=True` is reserved for target/drift diagnostics and legacy batch replay. Content targets exclude the added geometry/time embeddings.
 
 The shared AC predictor has two independently initialized 256-wide, 8-head blocks, FFN1024 and zero dropout. MHA packed input weights are explicitly initialized. Block-causal masking prevents earlier transitions, including their semantic-prefix path, from reading later states/actions. Geometry, real time/duration and register-slot identity are separate; registers are not represented as a fake spatial grid.
 
@@ -97,7 +103,7 @@ $PY scripts/audit_planreg_v2_pair.py \
   --output /new/pair_audit.json
 ```
 
-Profile V2 with a bounded `--smoke-steps 32` run before creating a GB128 layout lock. A single-GPU microbatch-one smoke is **not** a formal-layout validation. Prefer smaller microbatches plus accumulation to reach GB128; do not disable language adaptation, rich memory or WM to fit memory.
+Run a bounded `--run-step-limit 32` smoke without changing `schedule_total_steps`. Separately run `--profile-only`: exactly four warmup and eight measured optimizer steps at actual GB128. A single-GPU microbatch-one smoke is **not** a formal-layout validation. Prefer smaller microbatches plus accumulation to reach GB128; do not disable language adaptation, rich memory or WM to fit memory. A layout lock covers only the measured source, recipe, hardware, precision and maximum tile length.
 
 ```bash
 # One explicitly authorized full run, 27 epochs and no internal best-epoch selection:
@@ -129,7 +135,7 @@ $PY scripts/migrate_planreg_v1_to_v2.py --config navsim/planning/script/config/c
   --input /old/v1.ckpt --output /new/v1_to_v2_warm_start.pt
 $PY scripts/train_planreg_v2.py --config navsim/planning/script/config/common/agent/planreg_wm_v2_base.yaml \
   --manifest /new/cache/v2/manifest.json --output /new/warm_start_replay \
-  --warm-start /new/v1_to_v2_warm_start.pt --smoke-steps 32 --microbatch 1 --accumulate 1
+  --warm-start /new/v1_to_v2_warm_start.pt --run-step-limit 32 --microbatch 1 --accumulate 1
 ```
 
 Gradient accumulation uses global validity counts across the complete optimizer batch for trajectory and TF/RO terms. Step timing covers all microbatches and data wait; per-step logs report the optimizer-batch mean, current group LRs and EMA momentum. Low-frequency update reports measure actual parameter deltas rather than equating finite gradients with updates.
@@ -140,4 +146,12 @@ Standalone V2 training uses fully resolved OmegaConf configs with explicit inher
 
 For 103,288 scenes at GB128, the exact sampler pads eight exposures per epoch: 807 steps/epoch and 21,789 steps at the fixed epoch27 endpoint. The launcher computes this from the actual manifest/layout and refuses silent schedule changes. Checkpoints are last plus epochs 5/10/15/20/25/27. No final-fit internal validation is used to choose a checkpoint.
 
-The current no-WM and compact-memory configs are explicit controls, never auto-launched. A different trainable topology needs its own versioned initialization artifact. No-WM has no unused predictor parameters.
+The no-WM, TF-only and compact-memory configs are explicit controls, never auto-launched. They filter common named parameters from the same versioned bank; they do not depend merely on the same RNG seed. No-WM has no unused predictor parameters.
+
+## Corrected long target and optimizer identity
+
+Long-2 is not uniformly sampled at 0.625-second intervals. With `j=0..7`, `q=j+cumsum((j+1)*4/72)`, nominal query times are `[0.52777778,1.08333333,1.66666667,2.27777778,2.91666667,3.58333333,4.27777778,5.0]`. CubicSpline uses the ten future nodes, not-a-knot boundaries and no extrapolation. For jitter, q is interpolated onto the actual ten future timestamps before evaluating that spline. Heading is unwrapped before and wrapped after interpolation. Uniform-long caches must be rebuilt, not relabeled.
+
+Reference batch is 32; effective batch includes accumulation. Peak LR is `min(reference_lr*sqrt(actual_batch/32), cap)`, except language LoRA remains fixed at 1e-5. At GB128, planning adapter/fusion/generator/scorer/predictor peak at 3e-4, semantic queries at 1.5e-4, vision LoRA at 5e-5 and language LoRA at 1e-5. The 5% warmup starts at 1% of these peaks; cosine ends at 10%. Old fixed-LR optimizer states cannot silently resume this recipe.
+
+Warm start explicitly maps V1 `trajectory_decoder` to V2 `attention`, and final head4 to the shared head, compensating output normalization and ego-input scaling. New semantic/memory modules stay fresh. This is not whole-model equivalence or recovery of lost BF16 EMA history.

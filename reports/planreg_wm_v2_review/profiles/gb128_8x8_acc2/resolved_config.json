@@ -1,0 +1,53 @@
+{
+  "architecture_version": "planreg_wm_v2.2",
+  "recipe_version": "planreg_v2.2_gb32_sqrt_capped_v2",
+  "schedule_version": "warmup05_cosine10_fixed_budget_v2",
+  "register_init_std": 0.02,
+  "reference_global_batch": 32,
+  "normalizer_mode": "stepwise_zscore",
+  "motion_scales": [
+    30.0,
+    10.0,
+    1.0,
+    1.0,
+    15.0,
+    15.0,
+    8.0,
+    8.0
+  ],
+  "ego_scales": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    15.0,
+    15.0,
+    8.0,
+    8.0
+  ],
+  "variant": "base",
+  "vlm_path": "/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned",
+  "normalizer_path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_review_20260908/input_train48/normalizer.json",
+  "shared_init_path": "/mnt/project/DriveVLA-M0-stage2/planreg_v2_review_20260908/shared_init_std02_seed0.pt",
+  "checkpoint_path": null,
+  "stage1_checkpoint_path": null,
+  "world_model_enabled": true,
+  "motion_mode": "gt_log",
+  "scene_memory_mode": "per_tile_register_memory",
+  "gradient_checkpointing": true,
+  "predictor_layers": 2,
+  "epochs": 27,
+  "global_batch": 128,
+  "total_steps": 21789,
+  "scorer_processes": 4,
+  "learning_rates": {
+    "planning_adapter": 0.0002,
+    "fusion": 0.0002,
+    "action_generator": 0.0002,
+    "scorer": 0.0002,
+    "future_predictor": 0.0002,
+    "semantic_queries": 0.0001,
+    "vision_qv_lora": 4e-05,
+    "language_lora": 1e-05
+  }
+}

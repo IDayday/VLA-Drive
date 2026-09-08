@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="14" skipped="0" tests="14" time="34.144" timestamp="2026-09-08T12:46:41.982474+00:00" hostname="training-vla-zt-worker-0"><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r1_actual_v2_score_against_pinned_upstream[0-16-False]" time="0.573"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 128 / 128 (100.0%)&#10;Greatest absolute difference: 0.26909497380256653 at index (0, 5) (up to 2e-06 allowed)&#10;Greatest relative difference: 4.352420330047607 at index (0, 20) (up to 1e-05 allowed)">seed = 0, n = 16, padded = False
+
+    @pytest.mark.parametrize('seed,n,padded', [(0,16,False),(13,64,False),(3,16,True),(9,64,True)])
+    def test_r1_actual_v2_score_against_pinned_upstream(seed,n,padded):
+        torch.manual_seed(seed)
+        action = V2ActionDecoder(normalizer()).eval()
+        decoder_cls, scorer_cls = load_upstream_classes(load_and_verify_upstream_sources(Path('/mnt/project/external/DrivoR')))
+        reference = decoder_cls(4,256,.1,.2,action.config).eval()
+        heads = scorer_cls(action.config).eval()
+        reference.load_state_dict(action.scorer_attention.state_dict(),strict=True)
+        heads.load_state_dict(action.scorer.state_dict(),strict=True)
+        proposals = torch.randn(2,64,8,3,requires_grad=True)
+        memory = torch.randn(2,n,256,requires_grad=True)
+        ego = torch.randn(2,256,requires_grad=True)
+        valid = torch.ones(2,n,dtype=torch.bool)
+        if padded:
+            valid[0,n//2:] = False
+            valid[1,-3:] = False
+        logits,scores = action.score(proposals,memory,valid,ego)
+        # Upstream is executed from the verified fixed git objects, including its
+        # decoder/heads and verbatim model aggregation. Per-sample trim for padding.
+        if padded:
+            refs = [_forward_scorer_path(action.pos_embed,reference,heads,proposals[i:i+1],
+                memory[i:i+1,valid[i]],ego[i:i+1,None])[0] for i in range(2)]
+            expected = {k:torch.cat([r[k] for r in refs]) for k in refs[0]}
+        else:
+            expected = _forward_scorer_path(action.pos_embed,reference,heads,proposals,memory,ego[:,None])[0]
+        # Fixed a-priori CPU FP32 budget for masked-vs-trimmed MHA, not adjusted at runtime.
+        for name in expected:
+&gt;           torch.testing.assert_close(logits[name],expected[name],atol=2e-6,rtol=1e-5)
+E           AssertionError: Tensor-likes are not close!
+E
+E           Mismatched elements: 128 / 128 (100.0%)
+E           Greatest absolute difference: 0.26909497380256653 at index (0, 5) (up to 2e-06 allowed)
+E           Greatest relative difference: 4.352420330047607 at index (0, 20) (up to 1e-05 allowed)
+
+tests/test_planreg_v2_review_red_green.py:54: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r1_actual_v2_score_against_pinned_upstream[13-64-False]" time="0.209"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 128 / 128 (100.0%)&#10;Greatest absolute difference: 0.2810847759246826 at index (1, 29) (up to 2e-06 allowed)&#10;Greatest relative difference: 2749.576416015625 at index (0, 40) (up to 1e-05 allowed)">seed = 13, n = 64, padded = False
+
+    @pytest.mark.parametrize('seed,n,padded', [(0,16,False),(13,64,False),(3,16,True),(9,64,True)])
+    def test_r1_actual_v2_score_against_pinned_upstream(seed,n,padded):
+        torch.manual_seed(seed)
+        action = V2ActionDecoder(normalizer()).eval()
+        decoder_cls, scorer_cls = load_upstream_classes(load_and_verify_upstream_sources(Path('/mnt/project/external/DrivoR')))
+        reference = decoder_cls(4,256,.1,.2,action.config).eval()
+        heads = scorer_cls(action.config).eval()
+        reference.load_state_dict(action.scorer_attention.state_dict(),strict=True)
+        heads.load_state_dict(action.scorer.state_dict(),strict=True)
+        proposals = torch.randn(2,64,8,3,requires_grad=True)
+        memory = torch.randn(2,n,256,requires_grad=True)
+        ego = torch.randn(2,256,requires_grad=True)
+        valid = torch.ones(2,n,dtype=torch.bool)
+        if padded:
+            valid[0,n//2:] = False
+            valid[1,-3:] = False
+        logits,scores = action.score(proposals,memory,valid,ego)
+        # Upstream is executed from the verified fixed git objects, including its
+        # decoder/heads and verbatim model aggregation. Per-sample trim for padding.
+        if padded:
+            refs = [_forward_scorer_path(action.pos_embed,reference,heads,proposals[i:i+1],
+                memory[i:i+1,valid[i]],ego[i:i+1,None])[0] for i in range(2)]
+            expected = {k:torch.cat([r[k] for r in refs]) for k in refs[0]}
+        else:
+            expected = _forward_scorer_path(action.pos_embed,reference,heads,proposals,memory,ego[:,None])[0]
+        # Fixed a-priori CPU FP32 budget for masked-vs-trimmed MHA, not adjusted at runtime.
+        for name in expected:
+&gt;           torch.testing.assert_close(logits[name],expected[name],atol=2e-6,rtol=1e-5)
+E           AssertionError: Tensor-likes are not close!
+E
+E           Mismatched elements: 128 / 128 (100.0%)
+E           Greatest absolute difference: 0.2810847759246826 at index (1, 29) (up to 2e-06 allowed)
+E           Greatest relative difference: 2749.576416015625 at index (0, 40) (up to 1e-05 allowed)
+
+tests/test_planreg_v2_review_red_green.py:54: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r1_actual_v2_score_against_pinned_upstream[3-16-True]" time="0.227"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 128 / 128 (100.0%)&#10;Greatest absolute difference: 0.436887264251709 at index (0, 60) (up to 2e-06 allowed)&#10;Greatest relative difference: 553.901123046875 at index (0, 30) (up to 1e-05 allowed)">seed = 3, n = 16, padded = True
+
+    @pytest.mark.parametrize('seed,n,padded', [(0,16,False),(13,64,False),(3,16,True),(9,64,True)])
+    def test_r1_actual_v2_score_against_pinned_upstream(seed,n,padded):
+        torch.manual_seed(seed)
+        action = V2ActionDecoder(normalizer()).eval()
+        decoder_cls, scorer_cls = load_upstream_classes(load_and_verify_upstream_sources(Path('/mnt/project/external/DrivoR')))
+        reference = decoder_cls(4,256,.1,.2,action.config).eval()
+        heads = scorer_cls(action.config).eval()
+        reference.load_state_dict(action.scorer_attention.state_dict(),strict=True)
+        heads.load_state_dict(action.scorer.state_dict(),strict=True)
+        proposals = torch.randn(2,64,8,3,requires_grad=True)
+        memory = torch.randn(2,n,256,requires_grad=True)
+        ego = torch.randn(2,256,requires_grad=True)
+        valid = torch.ones(2,n,dtype=torch.bool)
+        if padded:
+            valid[0,n//2:] = False
+            valid[1,-3:] = False
+        logits,scores = action.score(proposals,memory,valid,ego)
+        # Upstream is executed from the verified fixed git objects, including its
+        # decoder/heads and verbatim model aggregation. Per-sample trim for padding.
+        if padded:
+            refs = [_forward_scorer_path(action.pos_embed,reference,heads,proposals[i:i+1],
+                memory[i:i+1,valid[i]],ego[i:i+1,None])[0] for i in range(2)]
+            expected = {k:torch.cat([r[k] for r in refs]) for k in refs[0]}
+        else:
+            expected = _forward_scorer_path(action.pos_embed,reference,heads,proposals,memory,ego[:,None])[0]
+        # Fixed a-priori CPU FP32 budget for masked-vs-trimmed MHA, not adjusted at runtime.
+        for name in expected:
+&gt;           torch.testing.assert_close(logits[name],expected[name],atol=2e-6,rtol=1e-5)
+E           AssertionError: Tensor-likes are not close!
+E
+E           Mismatched elements: 128 / 128 (100.0%)
+E           Greatest absolute difference: 0.436887264251709 at index (0, 60) (up to 2e-06 allowed)
+E           Greatest relative difference: 553.901123046875 at index (0, 30) (up to 1e-05 allowed)
+
+tests/test_planreg_v2_review_red_green.py:54: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r1_actual_v2_score_against_pinned_upstream[9-64-True]" time="0.229"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 128 / 128 (100.0%)&#10;Greatest absolute difference: 0.40209969878196716 at index (1, 45) (up to 2e-06 allowed)&#10;Greatest relative difference: 5.691441535949707 at index (1, 31) (up to 1e-05 allowed)">seed = 9, n = 64, padded = True
+
+    @pytest.mark.parametrize('seed,n,padded', [(0,16,False),(13,64,False),(3,16,True),(9,64,True)])
+    def test_r1_actual_v2_score_against_pinned_upstream(seed,n,padded):
+        torch.manual_seed(seed)
+        action = V2ActionDecoder(normalizer()).eval()
+        decoder_cls, scorer_cls = load_upstream_classes(load_and_verify_upstream_sources(Path('/mnt/project/external/DrivoR')))
+        reference = decoder_cls(4,256,.1,.2,action.config).eval()
+        heads = scorer_cls(action.config).eval()
+        reference.load_state_dict(action.scorer_attention.state_dict(),strict=True)
+        heads.load_state_dict(action.scorer.state_dict(),strict=True)
+        proposals = torch.randn(2,64,8,3,requires_grad=True)
+        memory = torch.randn(2,n,256,requires_grad=True)
+        ego = torch.randn(2,256,requires_grad=True)
+        valid = torch.ones(2,n,dtype=torch.bool)
+        if padded:
+            valid[0,n//2:] = False
+            valid[1,-3:] = False
+        logits,scores = action.score(proposals,memory,valid,ego)
+        # Upstream is executed from the verified fixed git objects, including its
+        # decoder/heads and verbatim model aggregation. Per-sample trim for padding.
+        if padded:
+            refs = [_forward_scorer_path(action.pos_embed,reference,heads,proposals[i:i+1],
+                memory[i:i+1,valid[i]],ego[i:i+1,None])[0] for i in range(2)]
+            expected = {k:torch.cat([r[k] for r in refs]) for k in refs[0]}
+        else:
+            expected = _forward_scorer_path(action.pos_embed,reference,heads,proposals,memory,ego[:,None])[0]
+        # Fixed a-priori CPU FP32 budget for masked-vs-trimmed MHA, not adjusted at runtime.
+        for name in expected:
+&gt;           torch.testing.assert_close(logits[name],expected[name],atol=2e-6,rtol=1e-5)
+E           AssertionError: Tensor-likes are not close!
+E
+E           Mismatched elements: 128 / 128 (100.0%)
+E           Greatest absolute difference: 0.40209969878196716 at index (1, 45) (up to 2e-06 allowed)
+E           Greatest relative difference: 5.691441535949707 at index (1, 31) (up to 1e-05 allowed)
+
+tests/test_planreg_v2_review_red_green.py:54: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r2_progressive_long_cubic_reference[straight]" time="0.105"><failure message="AssertionError: &#10;Not equal to tolerance rtol=1e-06, atol=4e-06&#10;&#10;Mismatched elements: 7 / 24 (29.2%)&#10;Max absolute difference: 2.22222222&#10;Max relative difference: 0.18421053&#10; x: array([[ 6.25,  0.  ,  0.  ],&#10;       [12.5 ,  0.  ,  0.  ],&#10;       [18.75,  0.  ,  0.  ],...&#10; y: array([[ 5.277778,  0.      ,  0.      ],&#10;       [10.833333,  0.      ,  0.      ],&#10;       [16.666667,  0.      ,  0.      ],...">kind = 'straight'
+
+    @pytest.mark.parametrize('kind',['straight','acceleration','curve','jitter','wrap'])
+    def test_r2_progressive_long_cubic_reference(kind):
+        t=np.arange(11,dtype=np.float64)*.5
+        if kind=='jitter': t[1:]+=np.sin(np.arange(1,11))*.009
+        p=np.stack([10*t,np.zeros(11),np.zeros(11)],-1)
+        if kind in ('acceleration','curve','jitter'):
+            p[:,0]=2*t+t**2+.02*t**3
+            p[:,1]=np.sin(t*.7)+t**3*.03
+            p[:,2]=t*.12
+        if kind=='wrap': p[:,2]=np.arctan2(np.sin(3+t*.3),np.cos(3+t*.3))
+        # Independent V1 index-domain reference, future nodes only. The explicit
+        # query array does not call a production mapping/interpolation helper.
+        q=np.array([1/18,7/6,7/3,32/9,29/6,37/6,68/9,9.])
+        times=np.interp(q,np.arange(10),t[1:])
+        unwrapped=p[1:].copy();unwrapped[:,2]=np.unwrap(unwrapped[:,2])
+        expected=CubicSpline(t[1:],unwrapped,bc_type='not-a-knot',extrapolate=False)(times)
+        expected[:,2]=np.arctan2(np.sin(expected[:,2]),np.cos(expected[:,2]))
+        actual,valid=long_target(p,t,np.ones(11,bool))
+        assert valid
+&gt;       np.testing.assert_allclose(actual.numpy(),expected,atol=4e-6,rtol=1e-6)
+
+tests/test_planreg_v2_review_red_green.py:82:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (&lt;function assert_allclose.&lt;locals&gt;.compare at 0x7f41814a5f70&gt;, array([[ 6.25,  0.  ,  0.  ],
+       [12.5 ,  0.  ,  0...      ,  0.        ],
+       [42.77777778,  0.        ,  0.        ],
+       [50.        ,  0.        ,  0.        ]]))
+kwds = {'equal_nan': True, 'err_msg': '', 'header': 'Not equal to tolerance rtol=1e-06, atol=4e-06', 'verbose': True}
+
+    @wraps(func)
+    def inner(*args, **kwds):
+        with self._recreate_cm():
+&gt;           return func(*args, **kwds)
+E           AssertionError:
+E           Not equal to tolerance rtol=1e-06, atol=4e-06
+E
+E           Mismatched elements: 7 / 24 (29.2%)
+E           Max absolute difference: 2.22222222
+E           Max relative difference: 0.18421053
+E            x: array([[ 6.25,  0.  ,  0.  ],
+E                  [12.5 ,  0.  ,  0.  ],
+E                  [18.75,  0.  ,  0.  ],...
+E            y: array([[ 5.277778,  0.      ,  0.      ],
+E                  [10.833333,  0.      ,  0.      ],
+E                  [16.666667,  0.      ,  0.      ],...
+
+../DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/lib/python3.9/contextlib.py:79: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r2_progressive_long_cubic_reference[acceleration]" time="0.002"><failure message="AssertionError: &#10;Not equal to tolerance rtol=1e-06, atol=4e-06&#10;&#10;Mismatched elements: 21 / 24 (87.5%)&#10;Max absolute difference: 1.84535903&#10;Max relative difference: 0.26725339&#10; x: array([[ 1.694375,  0.42854 ,  0.075   ],&#10;       [ 4.16875 ,  0.821445,  0.15    ],&#10;       [ 7.449375,  1.161256,  0.225   ],...&#10; y: array([[ 1.337045,  0.365593,  0.063333],&#10;       [ 3.365706,  0.725787,  0.13    ],&#10;       [ 6.203704,  1.058324,  0.2     ],...">kind = 'acceleration'
+
+    @pytest.mark.parametrize('kind',['straight','acceleration','curve','jitter','wrap'])
+    def test_r2_progressive_long_cubic_reference(kind):
+        t=np.arange(11,dtype=np.float64)*.5
+        if kind=='jitter': t[1:]+=np.sin(np.arange(1,11))*.009
+        p=np.stack([10*t,np.zeros(11),np.zeros(11)],-1)
+        if kind in ('acceleration','curve','jitter'):
+            p[:,0]=2*t+t**2+.02*t**3
+            p[:,1]=np.sin(t*.7)+t**3*.03
+            p[:,2]=t*.12
+        if kind=='wrap': p[:,2]=np.arctan2(np.sin(3+t*.3),np.cos(3+t*.3))
+        # Independent V1 index-domain reference, future nodes only. The explicit
+        # query array does not call a production mapping/interpolation helper.
+        q=np.array([1/18,7/6,7/3,32/9,29/6,37/6,68/9,9.])
+        times=np.interp(q,np.arange(10),t[1:])
+        unwrapped=p[1:].copy();unwrapped[:,2]=np.unwrap(unwrapped[:,2])
+        expected=CubicSpline(t[1:],unwrapped,bc_type='not-a-knot',extrapolate=False)(times)
+        expected[:,2]=np.arctan2(np.sin(expected[:,2]),np.cos(expected[:,2]))
+        actual,valid=long_target(p,t,np.ones(11,bool))
+        assert valid
+&gt;       np.testing.assert_allclose(actual.numpy(),expected,atol=4e-6,rtol=1e-6)
+
+tests/test_planreg_v2_review_red_green.py:82:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (&lt;function assert_allclose.&lt;locals&gt;.compare at 0x7f4180c80ca0&gt;, array([[ 1.694375  ,  0.4285403 ,  0.075     ],
+      ...21009 ,  0.43      ],
+       [28.42055213,  2.49503236,  0.51333333],
+       [37.5       ,  3.39921677,  0.6       ]]))
+kwds = {'equal_nan': True, 'err_msg': '', 'header': 'Not equal to tolerance rtol=1e-06, atol=4e-06', 'verbose': True}
+
+    @wraps(func)
+    def inner(*args, **kwds):
+        with self._recreate_cm():
+&gt;           return func(*args, **kwds)
+E           AssertionError:
+E           Not equal to tolerance rtol=1e-06, atol=4e-06
+E
+E           Mismatched elements: 21 / 24 (87.5%)
+E           Max absolute difference: 1.84535903
+E           Max relative difference: 0.26725339
+E            x: array([[ 1.694375,  0.42854 ,  0.075   ],
+E                  [ 4.16875 ,  0.821445,  0.15    ],
+E                  [ 7.449375,  1.161256,  0.225   ],...
+E            y: array([[ 1.337045,  0.365593,  0.063333],
+E                  [ 3.365706,  0.725787,  0.13    ],
+E                  [ 6.203704,  1.058324,  0.2     ],...
+
+../DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/lib/python3.9/contextlib.py:79: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r2_progressive_long_cubic_reference[curve]" time="0.002"><failure message="AssertionError: &#10;Not equal to tolerance rtol=1e-06, atol=4e-06&#10;&#10;Mismatched elements: 21 / 24 (87.5%)&#10;Max absolute difference: 1.84535903&#10;Max relative difference: 0.26725339&#10; x: array([[ 1.694375,  0.42854 ,  0.075   ],&#10;       [ 4.16875 ,  0.821445,  0.15    ],&#10;       [ 7.449375,  1.161256,  0.225   ],...&#10; y: array([[ 1.337045,  0.365593,  0.063333],&#10;       [ 3.365706,  0.725787,  0.13    ],&#10;       [ 6.203704,  1.058324,  0.2     ],...">kind = 'curve'
+
+    @pytest.mark.parametrize('kind',['straight','acceleration','curve','jitter','wrap'])
+    def test_r2_progressive_long_cubic_reference(kind):
+        t=np.arange(11,dtype=np.float64)*.5
+        if kind=='jitter': t[1:]+=np.sin(np.arange(1,11))*.009
+        p=np.stack([10*t,np.zeros(11),np.zeros(11)],-1)
+        if kind in ('acceleration','curve','jitter'):
+            p[:,0]=2*t+t**2+.02*t**3
+            p[:,1]=np.sin(t*.7)+t**3*.03
+            p[:,2]=t*.12
+        if kind=='wrap': p[:,2]=np.arctan2(np.sin(3+t*.3),np.cos(3+t*.3))
+        # Independent V1 index-domain reference, future nodes only. The explicit
+        # query array does not call a production mapping/interpolation helper.
+        q=np.array([1/18,7/6,7/3,32/9,29/6,37/6,68/9,9.])
+        times=np.interp(q,np.arange(10),t[1:])
+        unwrapped=p[1:].copy();unwrapped[:,2]=np.unwrap(unwrapped[:,2])
+        expected=CubicSpline(t[1:],unwrapped,bc_type='not-a-knot',extrapolate=False)(times)
+        expected[:,2]=np.arctan2(np.sin(expected[:,2]),np.cos(expected[:,2]))
+        actual,valid=long_target(p,t,np.ones(11,bool))
+        assert valid
+&gt;       np.testing.assert_allclose(actual.numpy(),expected,atol=4e-6,rtol=1e-6)
+
+tests/test_planreg_v2_review_red_green.py:82:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (&lt;function assert_allclose.&lt;locals&gt;.compare at 0x7f41809d33a0&gt;, array([[ 1.694375  ,  0.4285403 ,  0.075     ],
+      ...21009 ,  0.43      ],
+       [28.42055213,  2.49503236,  0.51333333],
+       [37.5       ,  3.39921677,  0.6       ]]))
+kwds = {'equal_nan': True, 'err_msg': '', 'header': 'Not equal to tolerance rtol=1e-06, atol=4e-06', 'verbose': True}
+
+    @wraps(func)
+    def inner(*args, **kwds):
+        with self._recreate_cm():
+&gt;           return func(*args, **kwds)
+E           AssertionError:
+E           Not equal to tolerance rtol=1e-06, atol=4e-06
+E
+E           Mismatched elements: 21 / 24 (87.5%)
+E           Max absolute difference: 1.84535903
+E           Max relative difference: 0.26725339
+E            x: array([[ 1.694375,  0.42854 ,  0.075   ],
+E                  [ 4.16875 ,  0.821445,  0.15    ],
+E                  [ 7.449375,  1.161256,  0.225   ],...
+E            y: array([[ 1.337045,  0.365593,  0.063333],
+E                  [ 3.365706,  0.725787,  0.13    ],
+E                  [ 6.203704,  1.058324,  0.2     ],...
+
+../DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/lib/python3.9/contextlib.py:79: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r2_progressive_long_cubic_reference[jitter]" time="0.002"><failure message="AssertionError: &#10;Not equal to tolerance rtol=1e-06, atol=4e-06&#10;&#10;Mismatched elements: 21 / 24 (87.5%)&#10;Max absolute difference: 1.84889124&#10;Max relative difference: 0.24240088&#10; x: array([[ 1.690257,  0.428224,  0.074927],&#10;       [ 4.161255,  0.820851,  0.149853],&#10;       [ 7.435948,  1.1605  ,  0.22478 ],...&#10; y: array([[ 1.360476,  0.370747,  0.064246],&#10;       [ 3.395551,  0.730102,  0.130844],&#10;       [ 6.195876,  1.057578,  0.199829],...">kind = 'jitter'
+
+    @pytest.mark.parametrize('kind',['straight','acceleration','curve','jitter','wrap'])
+    def test_r2_progressive_long_cubic_reference(kind):
+        t=np.arange(11,dtype=np.float64)*.5
+        if kind=='jitter': t[1:]+=np.sin(np.arange(1,11))*.009
+        p=np.stack([10*t,np.zeros(11),np.zeros(11)],-1)
+        if kind in ('acceleration','curve','jitter'):
+            p[:,0]=2*t+t**2+.02*t**3
+            p[:,1]=np.sin(t*.7)+t**3*.03
+            p[:,2]=t*.12
+        if kind=='wrap': p[:,2]=np.arctan2(np.sin(3+t*.3),np.cos(3+t*.3))
+        # Independent V1 index-domain reference, future nodes only. The explicit
+        # query array does not call a production mapping/interpolation helper.
+        q=np.array([1/18,7/6,7/3,32/9,29/6,37/6,68/9,9.])
+        times=np.interp(q,np.arange(10),t[1:])
+        unwrapped=p[1:].copy();unwrapped[:,2]=np.unwrap(unwrapped[:,2])
+        expected=CubicSpline(t[1:],unwrapped,bc_type='not-a-knot',extrapolate=False)(times)
+        expected[:,2]=np.arctan2(np.sin(expected[:,2]),np.cos(expected[:,2]))
+        actual,valid=long_target(p,t,np.ones(11,bool))
+        assert valid
+&gt;       np.testing.assert_allclose(actual.numpy(),expected,atol=4e-6,rtol=1e-6)
+
+tests/test_planreg_v2_review_red_green.py:82:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (&lt;function assert_allclose.&lt;locals&gt;.compare at 0x7f41809d38b0&gt;, array([[ 1.6902567 ,  0.4282244 ,  0.07492656],
+      ...589992,  0.43076937],
+       [28.49072881,  2.50079037,  0.5140555 ],
+       [37.4339326 ,  3.39142273,  0.59941246]]))
+kwds = {'equal_nan': True, 'err_msg': '', 'header': 'Not equal to tolerance rtol=1e-06, atol=4e-06', 'verbose': True}
+
+    @wraps(func)
+    def inner(*args, **kwds):
+        with self._recreate_cm():
+&gt;           return func(*args, **kwds)
+E           AssertionError:
+E           Not equal to tolerance rtol=1e-06, atol=4e-06
+E
+E           Mismatched elements: 21 / 24 (87.5%)
+E           Max absolute difference: 1.84889124
+E           Max relative difference: 0.24240088
+E            x: array([[ 1.690257,  0.428224,  0.074927],
+E                  [ 4.161255,  0.820851,  0.149853],
+E                  [ 7.435948,  1.1605  ,  0.22478 ],...
+E            y: array([[ 1.360476,  0.370747,  0.064246],
+E                  [ 3.395551,  0.730102,  0.130844],
+E                  [ 6.195876,  1.057578,  0.199829],...
+
+../DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/lib/python3.9/contextlib.py:79: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r2_progressive_long_cubic_reference[wrap]" time="0.002"><failure message="AssertionError: &#10;Not equal to tolerance rtol=1e-06, atol=4e-06&#10;&#10;Mismatched elements: 14 / 24 (58.3%)&#10;Max absolute difference: 2.22222222&#10;Max relative difference: 0.18421053&#10; x: array([[ 6.25    ,  0.      , -3.095685],&#10;       [12.5     ,  0.      , -2.908185],&#10;       [18.75    ,  0.      , -2.720685],...&#10; y: array([[ 5.277778,  0.      , -3.124852],&#10;       [10.833333,  0.      , -2.958185],&#10;       [16.666667,  0.      , -2.783185],...">kind = 'wrap'
+
+    @pytest.mark.parametrize('kind',['straight','acceleration','curve','jitter','wrap'])
+    def test_r2_progressive_long_cubic_reference(kind):
+        t=np.arange(11,dtype=np.float64)*.5
+        if kind=='jitter': t[1:]+=np.sin(np.arange(1,11))*.009
+        p=np.stack([10*t,np.zeros(11),np.zeros(11)],-1)
+        if kind in ('acceleration','curve','jitter'):
+            p[:,0]=2*t+t**2+.02*t**3
+            p[:,1]=np.sin(t*.7)+t**3*.03
+            p[:,2]=t*.12
+        if kind=='wrap': p[:,2]=np.arctan2(np.sin(3+t*.3),np.cos(3+t*.3))
+        # Independent V1 index-domain reference, future nodes only. The explicit
+        # query array does not call a production mapping/interpolation helper.
+        q=np.array([1/18,7/6,7/3,32/9,29/6,37/6,68/9,9.])
+        times=np.interp(q,np.arange(10),t[1:])
+        unwrapped=p[1:].copy();unwrapped[:,2]=np.unwrap(unwrapped[:,2])
+        expected=CubicSpline(t[1:],unwrapped,bc_type='not-a-knot',extrapolate=False)(times)
+        expected[:,2]=np.arctan2(np.sin(expected[:,2]),np.cos(expected[:,2]))
+        actual,valid=long_target(p,t,np.ones(11,bool))
+        assert valid
+&gt;       np.testing.assert_allclose(actual.numpy(),expected,atol=4e-6,rtol=1e-6)
+
+tests/test_planreg_v2_review_red_green.py:82:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (&lt;function assert_allclose.&lt;locals&gt;.compare at 0x7f41809d31f0&gt;, array([[ 6.25     ,  0.       , -3.0956852],
+       [1...      , -2.20818531],
+       [42.77777778,  0.        , -1.99985197],
+       [50.        ,  0.        , -1.78318531]]))
+kwds = {'equal_nan': True, 'err_msg': '', 'header': 'Not equal to tolerance rtol=1e-06, atol=4e-06', 'verbose': True}
+
+    @wraps(func)
+    def inner(*args, **kwds):
+        with self._recreate_cm():
+&gt;           return func(*args, **kwds)
+E           AssertionError:
+E           Not equal to tolerance rtol=1e-06, atol=4e-06
+E
+E           Mismatched elements: 14 / 24 (58.3%)
+E           Max absolute difference: 2.22222222
+E           Max relative difference: 0.18421053
+E            x: array([[ 6.25    ,  0.      , -3.095685],
+E                  [12.5     ,  0.      , -2.908185],
+E                  [18.75    ,  0.      , -2.720685],...
+E            y: array([[ 5.277778,  0.      , -3.124852],
+E                  [10.833333,  0.      , -2.958185],
+E                  [16.666667,  0.      , -2.783185],...
+
+../DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/lib/python3.9/contextlib.py:79: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r3_resolved_yaml_optimizer_peak[1]" time="0.019"><failure message="assert 0.0002 == 3.53553390593...e-05 ± 1.0e-12&#10;  &#10;  comparison failed&#10;  Obtained: 0.0002&#10;  Expected: 3.535533905932738e-05 ± 1.0e-12">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f4180c16460&gt;, gb = 1
+
+    @pytest.mark.parametrize('gb',[1,32,128])
+    def test_r3_resolved_yaml_optimizer_peak(monkeypatch,gb):
+        monkeypatch.setenv('PLANREG_BASE_VLM_PATH','/unit/base')
+        monkeypatch.setenv('PLANREG_V2_NORMALIZER','/unit/stats')
+        cfg=load_config('navsim/planning/script/config/common/agent/planreg_wm_v2_base.yaml')
+        cfg['global_batch']=gb
+        opt,scheduler,summary=build_optimizer(GroupAgent(cfg),100,cfg['learning_rates'])
+        for g in summary:
+            semantic=g['name'].startswith(('semantic_qformer/','semantic_queries/'))
+            expected=min((1e-4 if semantic else 2e-4)*np.sqrt(gb/32),1.5e-4 if semantic else 3e-4)
+&gt;           assert g['lr']==pytest.approx(expected,rel=1e-12)
+E           assert 0.0002 == 3.53553390593...e-05 ± 1.0e-12
+E
+E             comparison failed
+E             Obtained: 0.0002
+E             Expected: 3.535533905932738e-05 ± 1.0e-12
+
+tests/test_planreg_v2_review_red_green.py:104: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r3_resolved_yaml_optimizer_peak[32]" time="0.006"><failure message="assert 0.0001 == 0.0002 ± 1.0e-12&#10;  &#10;  comparison failed&#10;  Obtained: 0.0001&#10;  Expected: 0.0002 ± 1.0e-12">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f41815ec5b0&gt;
+gb = 32
+
+    @pytest.mark.parametrize('gb',[1,32,128])
+    def test_r3_resolved_yaml_optimizer_peak(monkeypatch,gb):
+        monkeypatch.setenv('PLANREG_BASE_VLM_PATH','/unit/base')
+        monkeypatch.setenv('PLANREG_V2_NORMALIZER','/unit/stats')
+        cfg=load_config('navsim/planning/script/config/common/agent/planreg_wm_v2_base.yaml')
+        cfg['global_batch']=gb
+        opt,scheduler,summary=build_optimizer(GroupAgent(cfg),100,cfg['learning_rates'])
+        for g in summary:
+            semantic=g['name'].startswith(('semantic_qformer/','semantic_queries/'))
+            expected=min((1e-4 if semantic else 2e-4)*np.sqrt(gb/32),1.5e-4 if semantic else 3e-4)
+&gt;           assert g['lr']==pytest.approx(expected,rel=1e-12)
+E           assert 0.0001 == 0.0002 ± 1.0e-12
+E
+E             comparison failed
+E             Obtained: 0.0001
+E             Expected: 0.0002 ± 1.0e-12
+
+tests/test_planreg_v2_review_red_green.py:104: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r3_resolved_yaml_optimizer_peak[128]" time="0.006"><failure message="assert 0.0002 == 0.0003 ± 1.0e-12&#10;  &#10;  comparison failed&#10;  Obtained: 0.0002&#10;  Expected: 0.0003 ± 1.0e-12">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f4180d04760&gt;
+gb = 128
+
+    @pytest.mark.parametrize('gb',[1,32,128])
+    def test_r3_resolved_yaml_optimizer_peak(monkeypatch,gb):
+        monkeypatch.setenv('PLANREG_BASE_VLM_PATH','/unit/base')
+        monkeypatch.setenv('PLANREG_V2_NORMALIZER','/unit/stats')
+        cfg=load_config('navsim/planning/script/config/common/agent/planreg_wm_v2_base.yaml')
+        cfg['global_batch']=gb
+        opt,scheduler,summary=build_optimizer(GroupAgent(cfg),100,cfg['learning_rates'])
+        for g in summary:
+            semantic=g['name'].startswith(('semantic_qformer/','semantic_queries/'))
+            expected=min((1e-4 if semantic else 2e-4)*np.sqrt(gb/32),1.5e-4 if semantic else 3e-4)
+&gt;           assert g['lr']==pytest.approx(expected,rel=1e-12)
+E           assert 0.0002 == 0.0003 ± 1.0e-12
+E
+E             comparison failed
+E             Obtained: 0.0002
+E             Expected: 0.0003 ± 1.0e-12
+
+tests/test_planreg_v2_review_red_green.py:104: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r4_actual_v2_backbone_register_initialization" time="4.735"><failure message="assert 0.018 &lt; 9.872667305899085e-07&#10; +  where 9.872667305899085e-07 = float(tensor(9.8727e-07, grad_fn=&lt;StdBackward0&gt;))&#10; +    where tensor(9.8727e-07, grad_fn=&lt;StdBackward0&gt;) = &lt;built-in method std of Parameter object at 0x7f417d10dc70&gt;()&#10; +      where &lt;built-in method std of Parameter object at 0x7f417d10dc70&gt; = Parameter containing:\ntensor([[[-2.0713e-06,  4.0978e-07, -5.4389e-07,  ..., -3.4459e-07,\n          -4.7311e-07,  1.14...  [-5.5507e-07,  5.8860e-07, -9.6858e-07,  ..., -2.0955e-08,\n          -6.7428e-07, -1.4603e-06]]], requires_grad=True).std">def test_r4_actual_v2_backbone_register_initialization():
+        # Full actual pretrained class construction; CPU avoids occupying a GPU.
+        from navsim.agents.EpisodeDrive.planreg_v2.backbone import V2Backbone
+        path=os.environ.get('PLANREG_BASE_VLM_PATH','/mnt/project/DriveVLA-M0-models/planreg-formal/InternVL3-2B-base-aligned')
+        if not Path(path).is_dir(): pytest.skip('Real InternVL checkpoint unavailable')
+        backbone=V2Backbone(path,device='cpu',gradient_checkpointing=False)
+        registers=backbone.planning_register_adapter.planning_registers
+        assert registers.dtype==torch.float32
+&gt;       assert .018 &lt; float(registers.std()) &lt; .022
+E       assert 0.018 &lt; 9.872667305899085e-07
+E        +  where 9.872667305899085e-07 = float(tensor(9.8727e-07, grad_fn=&lt;StdBackward0&gt;))
+E        +    where tensor(9.8727e-07, grad_fn=&lt;StdBackward0&gt;) = &lt;built-in method std of Parameter object at 0x7f417d10dc70&gt;()
+E        +      where &lt;built-in method std of Parameter object at 0x7f417d10dc70&gt; = Parameter containing:\ntensor([[[-2.0713e-06,  4.0978e-07, -5.4389e-07,  ..., -3.4459e-07,\n          -4.7311e-07,  1.14...  [-5.5507e-07,  5.8860e-07, -9.6858e-07,  ..., -2.0955e-08,\n          -6.7428e-07, -1.4603e-06]]], requires_grad=True).std
+
+tests/test_planreg_v2_review_red_green.py:116: AssertionError</failure></testcase><testcase classname="tests.test_planreg_v2_review_red_green" name="test_r5_production_warm_start_decoder_mapping_and_nonzero_ego" time="0.267"><failure message="AssertionError: Tensor-likes are not equal!&#10;&#10;Mismatched elements: 196608 / 196608 (100.0%)&#10;Greatest absolute difference: 0.15288102626800537 at index (407, 139)&#10;Greatest relative difference: 217129.40625 at index (665, 30)">def test_r5_production_warm_start_decoder_mapping_and_nonzero_ego():
+        from omegaconf import OmegaConf
+        from navsim.agents.EpisodeDrive.action_decoder import ActionDecoder
+        cfg=vars(scorer_config()).copy()
+        cfg.update(full_history_status=False,num_scene_tokens=16,lidar_pc=[])
+        cfg.update({k:([3] if k=='cam_f0' else []) for k in ['cam_f0','cam_l0','cam_l1','cam_l2','cam_r0','cam_r1','cam_r2','cam_b0']})
+        old=ActionDecoder(OmegaConf.create(cfg)).eval()
+        target=torch.nn.Module(); target.action_head=V2ActionDecoder(normalizer()).eval()
+        target.world_model_enabled=False
+        report=warm_start_v1(target,{'action_head.'+k:v for k,v in old.state_dict().items()})
+        for name,value in old.trajectory_decoder.state_dict().items():
+&gt;           torch.testing.assert_close(target.action_head.attention.state_dict()[name],value,atol=0,rtol=0)
+E           AssertionError: Tensor-likes are not equal!
+E
+E           Mismatched elements: 196608 / 196608 (100.0%)
+E           Greatest absolute difference: 0.15288102626800537 at index (407, 139)
+E           Greatest relative difference: 217129.40625 at index (665, 30)
+
+tests/test_planreg_v2_review_red_green.py:130: AssertionError</failure></testcase></testsuite></testsuites>

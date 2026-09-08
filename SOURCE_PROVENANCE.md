@@ -1,5 +1,13 @@
 # PlanReg-WM-V2 source provenance
 
+## Review-fix provenance (V2.2)
+
+This round starts at `6e1d9f8c6f91f5ddb2d04461554e0a7d27208084`, with tested production snapshot `1e01bcbd9e0d2baf668a103ea969ae5e5d980c64`. The attachment package was not present and was NOT read. The supplied operative task is saved in `docs/planreg_wm_v2_review_fixes_taskbook.md`.
+
+The source list below was verified during the earlier implementation, not newly downloaded or reverified as a new upstream release in this review. This review reads the pinned DrivoR fixture for actual V2 scoring integration, and V1 `d9ca73f3d61f059285fcbf12a5bc81177ee350d7` for progressive long-2. Six heads, BCE/TTC and aggregation remain **原样保留**; moving ego addition after the decoder and restoring progressive cubic mapping are **契约恢复**. Register std/versioning, GB32 scaling/caps, named shared-bank identity and strict migration coverage are **V2.2工程修复**. No new model-performance conclusion follows.
+
+Actual imported runtime classes, paths and SHA-256 are copied into `reports/planreg_wm_v2_review/RUNTIME_PROVENANCE.json`; the actual V2 `action.py` hash is in `SCORER_INTEGRATION_PARITY.json`. See that report rather than substituting a legacy `action_decoder.py` hash. Reports under `reports/planreg_wm_v2/` remain historical artifacts.
+
 Fixed repository base: `d9ca73f3d61f059285fcbf12a5bc81177ee350d7`.
 Implementation is isolated from the original dirty worktree. No V1.1/Lite/V2 experiment branch was merged.
 No separate `PlanReg_WM_V2_Codex_Taskbook.md` was found in the task workspace; the supplied request is the acceptance specification.

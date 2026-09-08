@@ -1,5 +1,7 @@
 # PlanReg-WM-V2 validation
 
+> HISTORICAL report for the original V2 implementation, retained without relabeling old results. The authoritative review-fix validation is [REVIEW_FIX_MATRIX](reports/planreg_wm_v2_review/REVIEW_FIX_MATRIX.md), [FINAL_STATUS](reports/planreg_wm_v2_review/FINAL_STATUS.json) and [COMMANDS](reports/planreg_wm_v2_review/COMMANDS.md). This round uses base `6e1d9f8c6f91f5ddb2d04461554e0a7d27208084` and tested source `1e01bcbd9e0d2baf668a103ea969ae5e5d980c64`; its final regression has 121 passing tests and its real runs are newly executed at that snapshot. The earlier 76-test count, short schedule, uniform-long targets, old shared init and old migration status below must not be treated as V2.2 acceptance evidence.
+
 Fixed base: `d9ca73f3d61f059285fcbf12a5bc81177ee350d7`.
 Isolated branch: `feature/planreg-wm-v2-integrated-20260908`.
 No full training, full Navtest, push, PR, merge, reset, old-checkpoint overwrite or original-worktree cleanup was performed.
