@@ -1,8 +1,9 @@
-"""RL-only backward using the first actual training group and its official rewards.
+"""RL-only backward using the fixed actual training groups and their official rewards.
 
 No seed/candidate selection, diagnostic advantages, resampling, or optimizer step.
 Only locally generated trusted rollout files may be passed here.
 """
+
 import argparse
 import json
 from pathlib import Path
@@ -21,50 +22,80 @@ from starVLA.rl.flow_grpo.math import (
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument("--config", required=True)
-    parser.add_argument("--rollout", type=Path, required=True)
+    parser.add_argument("--rollout", type=Path, nargs="+", required=True)
+    parser.add_argument(
+        "--all-groups",
+        action="store_true",
+        help="Use every group in every supplied rank file, including equal-reward groups",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
     cfg, sft = resolve_config(args.config)
-    # The first stored group from the first update, never selected by its score.
-    rollout = torch.load(args.rollout, map_location="cuda", weights_only=False)[0]
-    assert rollout.policy_version == 0
-    rollout.validate(0)
-    assert rollout.provenance["sft_sha256"] == cfg["checkpoint_contract"]["sha256"]
-    algorithm = cfg["algorithm"]
-    advantage = group_advantages(
-        rollout.rewards,
-        epsilon=algorithm["advantage_epsilon"],
-        clip=algorithm["advantage_clip"],
-    )
-    torch.testing.assert_close(advantage, rollout.advantages, atol=0, rtol=0)
-    if not advantage.count_nonzero():
-        raise ValueError(
-            "first actual group is all-equal; no nonzero RL gradient may be claimed"
-        )
+    if args.output.exists():
+        raise FileExistsError(args.output)
+    if len(args.rollout) != 1 and not args.all_groups:
+        raise ValueError("multiple rank files require explicit --all-groups")
+    buffers = []
+    for path in args.rollout:
+        saved = torch.load(path, map_location="cuda", weights_only=False)
+        buffers.extend(saved if args.all_groups else saved[:1])
+    if not buffers:
+        raise ValueError("empty behavior batch")
     policy = load_policy(cfg, sft).cuda().eval().bfloat16()
     apply_rl_freezes(policy, cfg)
     enable_checkpointing(policy, True)
-    with torch.autocast("cuda", dtype=torch.bfloat16):
-        stats = evaluate_transitions(
-            policy, rollout.observation, rollout, checkpoint=True
+    algorithm, rows = cfg["algorithm"], []
+    for rollout in buffers:
+        assert rollout.policy_version == 0
+        rollout.validate(0)
+        assert rollout.provenance["sft_sha256"] == cfg["checkpoint_contract"]["sha256"]
+        advantage = group_advantages(
+            rollout.rewards,
+            epsilon=algorithm["advantage_epsilon"],
+            clip=algorithm["advantage_clip"],
         )
-        current = reduce_dimensions(
-            stats["elementwise_logprob"], rollout.dimension_mask, rollout.spec.reduction
+        torch.testing.assert_close(advantage, rollout.advantages, atol=0, rtol=0)
+        # Every supplied scene contributes with equal weight, even if all G rewards
+        # are equal. This is graph coverage, NOT ZeRO optimizer/accumulation evidence.
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            stats = evaluate_transitions(
+                policy, rollout.observation, rollout, checkpoint=True
+            )
+            current = reduce_dimensions(
+                stats["elementwise_logprob"],
+                rollout.dimension_mask,
+                rollout.spec.reduction,
+            )
+            logratio = current - rollout.old_logprob
+            torch.testing.assert_close(
+                logratio, torch.zeros_like(logratio), atol=1e-5, rtol=0
+            )
+            pg, ratio = clipped_surrogate(
+                current,
+                rollout.old_logprob,
+                advantage[:, :, None],
+                algorithm["ppo_clip_range"],
+            )
+            loss = (
+                (pg * rollout.transition_mask).sum()
+                / rollout.transition_mask.sum()
+                / len(buffers)
+            )
+        loss.backward()
+        rows.append(
+            dict(
+                tokens=rollout.observation.tokens,
+                rewards=rollout.rewards.tolist(),
+                advantages=advantage.tolist(),
+                nonzero_advantage=bool(advantage.count_nonzero()),
+                loss=float(loss.detach()),
+                max_abs_logratio=float(logratio.detach().abs().max()),
+            )
         )
-        logratio = current - rollout.old_logprob
-        torch.testing.assert_close(
-            logratio, torch.zeros_like(logratio), atol=1e-5, rtol=0
-        )
-        pg, ratio = clipped_surrogate(
-            current,
-            rollout.old_logprob,
-            advantage[:, :, None],
-            algorithm["ppo_clip_range"],
-        )
-        loss = (pg * rollout.transition_mask).sum() / rollout.transition_mask.sum()
-    loss.backward()
+        del stats, current, pg, ratio, loss, logratio
+    effective = sum(row["nonzero_advantage"] for row in rows)
     nonzero, missing, invalid = [], [], []
     for name, parameter in policy.named_parameters():
         if not parameter.requires_grad:
@@ -76,15 +107,13 @@ def main():
         else:
             nonzero.append(name)
     result = dict(
-        status="TESTED" if not missing and not invalid else "FAILED",
-        scope="RL-only; first real training group, unchanged official NAVSIM rewards/advantages; no optimizer step",
-        rollout=str(args.rollout),
-        tokens=rollout.observation.tokens,
+        status="TESTED" if effective and not missing and not invalid else "FAILED",
+        scope="RL-only CUDA BF16 graph coverage of all supplied fixed first behavior groups; official rewards unchanged; no optimizer, no ZeRO accumulation claim",
+        rollouts=list(map(str, args.rollout)),
+        groups=rows,
+        official_nonzero_advantage_groups=effective,
         checkpoint_sha256=policy._flow_source_sha256,
-        rewards=rollout.rewards.tolist(),
-        advantages=advantage.tolist(),
-        max_abs_logratio=float(logratio.detach().abs().max()),
-        loss=float(loss.detach()),
+        max_abs_logratio=max(row["max_abs_logratio"] for row in rows),
         modules=grad_summary(policy),
         nonzero_parameter_names=nonzero,
         missing_or_zero_gradients=missing,
@@ -93,7 +122,7 @@ def main():
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2))
     print(result["status"], "nonzero gradient tensors", len(nonzero), flush=True)
-    assert not missing and not invalid
+    assert effective and not missing and not invalid
 
 
 if __name__ == "__main__":
