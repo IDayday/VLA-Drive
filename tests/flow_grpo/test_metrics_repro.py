@@ -59,6 +59,15 @@ def test_processor_same_path_replacement_rejects_resume(tmp_path):
         assert_resume_identity(old, {"processor": processor_identity(tmp_path)})
 
 
+def test_publisher_refuses_missing_evidence_without_creating_release(tmp_path):
+    from scripts.flow_grpo.publish_acceptance import publish
+
+    destination = tmp_path / "never_ready.json"
+    with pytest.raises(ValueError, match="missing gates"):
+        publish({"runtime": {"acceptance_record": str(destination)}}, {}, [], destination)
+    assert not destination.exists()
+
+
 def test_numerics_and_dependency_change_reject_resume():
     old = {"numerics": {"tf32": False}, "dependencies": {"torch": "2.5.1"}}
     new = copy.deepcopy(old)
@@ -288,6 +297,34 @@ def test_acceptance_rejects_changed_code_config_assets_or_evidence(
     evidence.write_text('{"status":"FAIL"}')
     with pytest.raises(ValueError, match="evidence changed"):
         enforce_training_budget(cfg, context)
+
+
+def test_publisher_validates_before_atomic_publication_and_is_idempotent(tmp_path, monkeypatch):
+    from scripts.flow_grpo.publish_acceptance import publish
+
+    cfg, context, _, _, evidence, receipt = acceptance_fixture(tmp_path, monkeypatch)
+    receipt.unlink()  # TEMP synthetic validator fixture, never a production path
+    publish(cfg, context, [evidence], receipt)
+    before = receipt.stat().st_mtime_ns
+    publish(cfg, context, [evidence], receipt)
+    assert receipt.stat().st_mtime_ns == before
+
+
+@pytest.mark.parametrize("damage", ["inner_fail", "recipe"])
+def test_publisher_does_not_publish_invalid_record(tmp_path, monkeypatch, damage):
+    import json
+    from scripts.flow_grpo.publish_acceptance import publish
+
+    cfg, context, bundle, _, evidence, receipt = acceptance_fixture(tmp_path, monkeypatch)
+    receipt.unlink()
+    if damage == "inner_fail":
+        bundle["tests"][0]["status"] = "FAIL"
+        evidence.write_text(json.dumps(bundle))
+    else:
+        cfg["runtime"]["seed"] = 99
+    with pytest.raises(ValueError):
+        publish(cfg, context, [evidence], receipt)
+    assert not receipt.exists()
 
 
 @pytest.mark.parametrize(

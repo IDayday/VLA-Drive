@@ -58,6 +58,7 @@ def main():
         default="official",
     )
     parser.add_argument("--groups", nargs="+", type=int, default=[2, 8])
+    parser.add_argument("--summary-only", action="store_true", help="Keep the fixed chain and exhaustive per-tensor comparisons without duplicate dense tensor snapshots")
     args = parser.parse_args()
     if args.precision == "bf16" and args.device != "cuda":
         parser.error("production BF16 layout probe requires CUDA")
@@ -280,7 +281,8 @@ def main():
                     "updates": {n: weights[n] - initial[n] for n in weights},
                     "layers": layers,
                 }
-                torch.save(record, out / f"g{g}_chunk{chunk}.pt")
+                if not args.summary_only:
+                    torch.save(record, out / f"g{g}_chunk{chunk}.pt")
                 if records:
                     comparison = {
                         key: compare_named(records[0][key], record[key])

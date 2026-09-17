@@ -281,7 +281,7 @@ def acceptance_context(cfg, resume_identity):
     }
 
 
-def enforce_training_budget(cfg, context=None):
+def enforce_training_budget(cfg, context=None, *, record=None):
     from .diagnostic_loss import validate_scope
 
     runtime = cfg["runtime"]
@@ -340,9 +340,12 @@ def enforce_training_budget(cfg, context=None):
             if cfg[section].get(key) != value:
                 raise ValueError(f"paired recipe changed: {section}.{key}")
     path = runtime.get("acceptance_record")
-    if not path or not Path(path).is_file():
-        raise ValueError("NOT_READY: missing production profile acceptance record")
-    record = json.loads(Path(path).read_text())
+    # The publisher may supply a not-yet-published record for identical semantic
+    # validation before its atomic write. Trainer calls always load the file.
+    if record is None:
+        if not path or not Path(path).is_file():
+            raise ValueError("NOT_READY: missing production profile acceptance record")
+        record = json.loads(Path(path).read_text())
     if record.get("status") != "READY_FOR_THIS_PROFILE" or (
         context is not None and record.get("context") != context
     ):
