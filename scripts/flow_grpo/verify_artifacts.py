@@ -62,10 +62,12 @@ def walk(left, right, path="", differences=None, stats=None):
 
 def compare(left, right, output=None):
     results = {}
-    files = sorted(p.relative_to(left) for p in left.rglob("*.pt"))
+    files = sorted(
+        p.relative_to(left)
+        for p in left.rglob("*")
+        if p.is_file() and p.suffix in {".pt", ".bin", ".pkl"}
+    )
     for relative in files:
-        if "random_states" in str(relative):
-            continue
         a, b = load(left / relative), load(right / relative)
         differences, stats = walk(a, b)
         results[str(relative)] = dict(

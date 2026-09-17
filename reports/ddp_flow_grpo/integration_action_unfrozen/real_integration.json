@@ -1,0 +1,296 @@
+{
+  "source_sha": "f9449d55bea6895a7a0bd86d09d7ab85fd353f26",
+  "tests": {
+    "01_original_ode_equivalence": {
+      "status": "TESTED",
+      "seconds": 1.2861013058573008,
+      "result": {
+        "max_abs": 0.0,
+        "atol": 2e-05,
+        "rtol": 2e-05
+      }
+    },
+    "02_original_sft_equivalence": {
+      "status": "TESTED",
+      "seconds": 0.402413047850132,
+      "result": {
+        "original": {
+          "action_loss": 0.00047969192382879555,
+          "rgb_loss": 0.0,
+          "gs_loss": 0.0,
+          "reward_loss": 0.0,
+          "agent_dino_loss": 0.0
+        },
+        "shared": {
+          "action_loss": 0.00047969192382879555,
+          "rgb_loss": 0.0,
+          "gs_loss": 0.0,
+          "reward_loss": 0.0,
+          "agent_dino_loss": 0.0
+        }
+      }
+    },
+    "03_projection_once": {
+      "status": "TESTED",
+      "seconds": 0.45041973143815994,
+      "result": {
+        "projection_calls": 1
+      }
+    },
+    "09_behavior_recompute_ratio": {
+      "status": "TESTED",
+      "seconds": 2.7707019578665495,
+      "result": {
+        "max_abs_logratio": 0.0,
+        "atol": 1e-05
+      }
+    },
+    "23_real_bf16_network_fp32_probability": {
+      "status": "TESTED",
+      "seconds": 0.5157628823071718,
+      "result": {
+        "network": "real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
+        "math": "production FP32 vs FP64 torch Normal; ratio gradient w.r.t. network velocity",
+        "atol": 2e-05,
+        "rtol": 0.0001,
+        "maximum_absolute_difference": {
+          "mean": 9.862198102617015e-08,
+          "std": 3.474735374431326e-09,
+          "logprob": 7.566599852459888e-06,
+          "ratio": 4.612733899289623e-07,
+          "velocity_gradient": 2.4701586121417263e-06
+        }
+      }
+    },
+    "10_equal_full_reference_kl": {
+      "status": "TESTED",
+      "seconds": 2.768621940165758,
+      "result": {
+        "max_kl": 0.0
+      }
+    },
+    "17_official_reward_pool_order_batch": {
+      "status": "TESTED",
+      "seconds": 26.05566834844649,
+      "result": {
+        "scores": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "serial_parallel_identical": true
+      }
+    },
+    "10_13_full_reference_perturbation_and_negative": {
+      "status": "TESTED",
+      "seconds": 13.874695099890232,
+      "result": {
+        "perturbed_kl": {
+          "qwen": 0.0001844707439886406,
+          "action": 22.981529235839844
+        },
+        "detached_condition_rejected": true,
+        "current_features_in_reference_detected": true
+      }
+    },
+    "20_real_future_label_isolation": {
+      "status": "TESTED",
+      "seconds": 0.31322608329355717,
+      "result": {
+        "max_abs": 0.0
+      }
+    },
+    "12_gradient_auxiliary": {
+      "status": "TESTED",
+      "result": "not applicable: checkpoint has no auxiliary branches; no auxiliary loss was introduced"
+    },
+    "12_gradient_rl": {
+      "status": "TESTED",
+      "seconds": 13.036815660074353,
+      "result": {
+        "loss": 0.0,
+        "modules": {
+          "qwen_vl_interface": {
+            "trainable": 309,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.1887413500631343
+          },
+          "agent_dino_head": {
+            "trainable": 0,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.024005822408071253
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 3.4278780784908394
+          }
+        }
+      }
+    },
+    "12_gradient_reference": {
+      "status": "TESTED",
+      "seconds": 13.326169470325112,
+      "result": {
+        "loss": 0.0001844707439886406,
+        "modules": {
+          "qwen_vl_interface": {
+            "trainable": 309,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.8389008013387094
+          },
+          "agent_dino_head": {
+            "trainable": 0,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.31810815283097327
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 1.717378077360675
+          }
+        }
+      }
+    },
+    "12_gradient_sft": {
+      "status": "TESTED",
+      "seconds": 0.6555995121598244,
+      "result": {
+        "loss": 0.0005742855137214065,
+        "modules": {
+          "qwen_vl_interface": {
+            "trainable": 309,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.0022955177681142965
+          },
+          "agent_dino_head": {
+            "trainable": 0,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.00021445275308451528
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 0.029974442401612025
+          }
+        }
+      }
+    },
+    "12_gradient_total": {
+      "status": "TESTED",
+      "seconds": 13.79272379539907,
+      "result": {
+        "loss": 7.931810250738636e-05,
+        "modules": {
+          "qwen_vl_interface": {
+            "trainable": 309,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.1898935754087916
+          },
+          "agent_dino_head": {
+            "trainable": 0,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.02489693005918525
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 3.410896597192677
+          }
+        }
+      }
+    },
+    "22_checkpointing_gradient_equivalence": {
+      "status": "FAILED",
+      "error": "AssertionError('qwen_vl_interface.model.model.language_model.layers.0.self_attn.v_proj.weight: Tensor-likes are not close!\\n\\nMismatched elements: 101 / 2097152 (0.0%)\\nGreatest absolute difference: 3.874301910400391e-06 at index (859, 425) (up to 2e-06 allowed)\\nGreatest relative difference: 128.0 at index (340, 425) (up to 0.002 allowed)')"
+    },
+    "22_candidate_microbatch_gradient_equivalence": {
+      "status": "FAILED",
+      "error": "AssertionError('qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_proj.weight: Tensor-likes are not close!\\n\\nMismatched elements: 356 / 4194304 (0.0%)\\nGreatest absolute difference: 8.106231689453125e-06 at index (1083, 425) (up to 2e-06 allowed)\\nGreatest relative difference: 10.75 at index (260, 801) (up to 0.002 allowed)')"
+    },
+    "25_reference_frozen_immutable": {
+      "status": "TESTED",
+      "seconds": 6.745631316676736,
+      "result": {
+        "reference_parameters": 988,
+        "frozen_parameters": 322
+      }
+    }
+  },
+  "real_checkpoint": "/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-checkpoints-v1/unfrozen_visual",
+  "failures": [
+    "22_checkpointing_gradient_equivalence",
+    "22_candidate_microbatch_gradient_equivalence"
+  ],
+  "checkpoint_sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+  "scene": "2586fc498f1d5228",
+  "views": [
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ]
+  ],
+  "numel": 2956626820,
+  "trainable_numel": 2233120260,
+  "reward_scores": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "gradient_probe_advantage": "fixed signed diagnostic; no optimizer update; real reward kept separately",
+  "peak_gpu_gib": 18.586205005645752
+}

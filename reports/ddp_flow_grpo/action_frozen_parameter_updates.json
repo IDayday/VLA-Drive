@@ -1,0 +1,32 @@
+{
+  "kind": "full_parameter_update_audit",
+  "checkpoint": "runs/action_frozen_short/checkpoints/update_000050",
+  "baseline": "artifacts/action-only-checkpoints-v1/action-only-frozen-visual-step100000-pdms88.79.pt",
+  "comparison": "SFT values converted to runtime BF16 before comparison",
+  "frozen_unchanged": true,
+  "frozen_changes": [],
+  "dormant_changes": [],
+  "modules": {
+    "qwen_vl_interface": {
+      "parameters": 625,
+      "changed_tensors": 276,
+      "changed_elements": 88712041,
+      "squared_delta": 0.01699153235852739,
+      "max_abs": 6.103515625e-05
+    },
+    "action_input_model": {
+      "parameters": 4,
+      "changed_tensors": 4,
+      "changed_elements": 294647,
+      "squared_delta": 5.8068622813938864e-05,
+      "max_abs": 3.0517578125e-05
+    },
+    "action_model": {
+      "parameters": 359,
+      "changed_tensors": 336,
+      "changed_elements": 104218463,
+      "squared_delta": 0.024346068287078155,
+      "max_abs": 6.103515625e-05
+    }
+  }
+}

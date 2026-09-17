@@ -1,0 +1,203 @@
+{
+  "readiness": "NOT_READY",
+  "reason": "real BF16 candidate-chunk gradient equivalence fails for both initial checkpoints; unchanged tolerances",
+  "executed_runtime_git_sha": "9bcf3b310075ecd9ebc2bf144ed96db664ad4e25",
+  "executed_runtime_source_sha256": "739fc4b888bec23b286a270cb29dfd400d47258d3b33884504ebe5f5d425fe35",
+  "implemented": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "tests": [
+    {
+      "test_id": 1,
+      "contract": "原 ODE 等价",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "两套 f9449d55 独立源码 oracle，输出 max_abs=0"
+    },
+    {
+      "test_id": 2,
+      "contract": "原 SFT loss 等价",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "两套原 forward/head 与共享内核全部 loss 分量相同"
+    },
+    {
+      "test_id": 3,
+      "contract": "投影一次/token 语义",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "真模型 hook，qwen_proj 调用一次；原源语义保留"
+    },
+    {
+      "test_id": 4,
+      "contract": "导出原 evaluator 等价",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "frozen 989、unfrozen 995 张量逐位一致；原 VLAAgent 输出 max_abs=0"
+    },
+    {
+      "test_id": 5,
+      "contract": "锁定上游 mean/std/logp",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "`sampler_numerical_comparison.json`，全部 10 步"
+    },
+    {
+      "test_id": 6,
+      "contract": "Normal/sum/mean/KL",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "`tests/flow_grpo/test_math.py` FP64 严格对照"
+    },
+    {
+      "test_id": 7,
+      "contract": "sqrt(dt)/边界/ODE",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "首末步、小噪声、noise=0 无伪 log-prob"
+    },
+    {
+      "test_id": 8,
+      "contract": "经验均值/方差",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "固定种子 200,000 个 Gaussian 样本"
+    },
+    {
+      "test_id": 9,
+      "contract": "old/current ratio及扰动",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "两套真模型不更新 max_abs_logratio=0；`action_*_perturbed_ratio.json` 分别扰动 Qwen/action 可检测"
+    },
+    {
+      "test_id": 10,
+      "contract": "完整 reference KL",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "相同时 KL=0，分别扰动 Qwen/action 后 KL>0；reference 自己编码"
+    },
+    {
+      "test_id": 11,
+      "contract": "manifest/optimizer",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "两套实际权重 strict load、tied alias 值检查、源/actor 名单及唯一 visual 例外，optimizer 无遗漏/重复"
+    },
+    {
+      "test_id": 12,
+      "contract": "RL/SFT/ref/aux 梯度",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "两套**首个实际训练组、真实官方 rewards/advantages** RL-only：语言309、history4、动作359均非零；见 `action_*_real_reward_gradient.json`。action-only 辅助不适用；原完整 SFT auxiliary-only 回归另存"
+    },
+    {
+      "test_id": 13,
+      "contract": "detach/ref 负例",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "真模型拒绝 detached current；误送 current 条件给 reference 被检出"
+    },
+    {
+      "test_id": 14,
+      "contract": "优势符号/全等组",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "严格低维测试；真实短训全等组保留，优势为0"
+    },
+    {
+      "test_id": 15,
+      "contract": "G/K/累积缩放",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "原生产 loss wrapper 的 replay 每场景一次；真实单卡累积2与双卡累积1的全部 Adam 一/二阶矩逐位相同"
+    },
+    {
+      "test_id": 16,
+      "contract": "rank 不等有效数/全等组",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "真实双进程 Gloo 不等计数对照全局基准；真 DDP 模型训练使用每rank完整等大小组并实际包含全等/非全等组。生产异常全rank失败，不支持静默删候选或可变场景batch"
+    },
+    {
+      "test_id": 17,
+      "contract": "官方 reward 一致性",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "实际 NAVSIM cache，逐条原 evaluator、串行/spawn、候选顺序及 batch 组合一致"
+    },
+    {
+      "test_id": 18,
+      "contract": "零分/异常/timeout",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "真零分有效；缺缓存、worker错误和超时测试；50步评分异常0"
+    },
+    {
+      "test_id": 19,
+      "contract": "normalization/坐标/时间",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "原1225变换往返与8×0.5s轨迹，原 evaluator实际评分"
+    },
+    {
+      "test_id": 20,
+      "contract": "future隔离/split",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "真模型污染未来标签后条件不变；RL train/val与navtest隔离"
+    },
+    {
+      "test_id": 21,
+      "contract": "真模型单卡/多卡更新",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "单卡、单卡CPU optimizer/reference offload、双卡50步25→50恢复；另一初始化1→2恢复"
+    },
+    {
+      "test_id": 22,
+      "contract": "checkpoint/分块梯度",
+      "status": "TESTED",
+      "result": "PARTIAL_FAIL",
+      "evidence_and_scope": "确定性 checkpoint on/off 672张量通过；候选chunk1/2在同链全部10步上失败，两套均失败；见 `candidate_numerics.md`"
+    },
+    {
+      "test_id": 23,
+      "contract": "BF16网络/FP32概率",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "两套实际checkpoint的FP32概率/velocity梯度对FP64 Normal；见真实 integration报告"
+    },
+    {
+      "test_id": 24,
+      "contract": "连续/恢复完整状态",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "双卡连续4 vs 从2恢复到4；模型、2份optimizer、scheduler、2份Accelerator RNG、2份额外RNG/消费游标全部逐位相同；data_workers=2、prefetch=2"
+    },
+    {
+      "test_id": 25,
+      "contract": "冻结/ref不变及actor更新",
+      "status": "TESTED",
+      "result": "PASS_WITH_SCOPE",
+      "evidence_and_scope": "各rank训练前后完整张量哈希不变；完整离线权重审计及真实RL梯度证明actor更新，非仅weight decay推断"
+    }
+  ],
+  "not_run": [
+    "long training",
+    "large hyperparameter search",
+    "8-GPU real model training",
+    "full Navtest",
+    "real model ZeRO1/pure torch DDP"
+  ],
+  "external_blockers": []
+}

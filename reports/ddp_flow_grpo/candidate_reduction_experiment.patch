@@ -1,0 +1,25 @@
+diff --git a/starVLA/rl/flow_grpo/rollout.py b/starVLA/rl/flow_grpo/rollout.py
+index 7eee4cd..d8dff70 100644
+--- a/starVLA/rl/flow_grpo/rollout.py
++++ b/starVLA/rl/flow_grpo/rollout.py
+@@ -175,6 +175,11 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
+         raise RuntimeError("current condition is detached from trainable VLM")
+     b, g, kp, h, d = rollout.chain.shape
+     k = kp - 1
++    # Give each transition its own slot before reducing into the shared VLM
++    # graph. Otherwise chunking changes the nested sums of condition gradients.
++    # The small condition-gradient reduction is FP64; network inputs and all
++    # distribution math keep their original dtypes and values.
++    condition_grid = condition.double()[:, None, None].expand(-1, g, k, -1, -1)
+     means = []
+     stds = []
+     logps = []
+@@ -186,7 +191,7 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
+         for start in range(0, g, rollout.spec.candidate_chunk_size):
+             end = min(g, start + rollout.spec.candidate_chunk_size)
+             n = end - start
+-            cond = condition[:, None].expand(-1, n, -1, -1).flatten(0, 1)
++            cond = condition_grid[:, start:end, step].flatten(0, 1).to(condition.dtype)
+             xt = rollout.chain[:, start:end, step].detach().flatten(0, 1)
+             xn = rollout.chain[:, start:end, step + 1].detach().flatten(0, 1)
+             bucket = torch.full(

@@ -1,0 +1,63 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[2026-09-17 08:31:29,872] [INFO] [real_accelerator.py:254:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+{
+  "left": "runs/action_scaling_single/checkpoints/update_000001",
+  "right": "runs/action_scaling_double/checkpoints/update_000001",
+  "scope": "actual named Adam first/second moments before adaptive division",
+  "relative_l2_tolerance": 0.01,
+  "reason": "BF16 accumulation/all-reduce order; clipping must be inactive",
+  "passed": true,
+  "modules": {
+    "qwen_vl_interface/exp_avg": {
+      "reference_squared_norm": 0.019092765225825554,
+      "difference_squared_norm": 0.0,
+      "max_abs": 0.0,
+      "numel": 1409410048,
+      "relative_l2": 0.0,
+      "pass": true
+    },
+    "qwen_vl_interface/exp_avg_sq": {
+      "reference_squared_norm": 1.1508581453178678e-05,
+      "difference_squared_norm": 0.0,
+      "max_abs": 0.0,
+      "numel": 1409410048,
+      "relative_l2": 0.0,
+      "pass": true
+    },
+    "action_model/exp_avg": {
+      "reference_squared_norm": 0.0645118927526914,
+      "difference_squared_norm": 0.0,
+      "max_abs": 0.0,
+      "numel": 819503620,
+      "relative_l2": 0.0,
+      "pass": true
+    },
+    "action_model/exp_avg_sq": {
+      "reference_squared_norm": 3.962134792325226e-06,
+      "difference_squared_norm": 0.0,
+      "max_abs": 0.0,
+      "numel": 819503620,
+      "relative_l2": 0.0,
+      "pass": true
+    },
+    "action_input_model/exp_avg": {
+      "reference_squared_norm": 0.0005815632985000898,
+      "difference_squared_norm": 0.0,
+      "max_abs": 0.0,
+      "numel": 4206592,
+      "relative_l2": 0.0,
+      "pass": true
+    },
+    "action_input_model/exp_avg_sq": {
+      "reference_squared_norm": 9.167361460961389e-10,
+      "difference_squared_norm": 0.0,
+      "max_abs": 0.0,
+      "numel": 4206592,
+      "relative_l2": 0.0,
+      "pass": true
+    }
+  }
+}

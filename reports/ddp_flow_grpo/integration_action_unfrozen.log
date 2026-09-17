@@ -1,0 +1,87 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:22: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:113: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:44: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:56: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:135: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:103: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:114: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d_s2v.py:55: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+loading 10000 data.
+09/17 [08:11:09] WARNING  | >> xFormers not available            attention.py:25
+                 WARNING  | >> xFormers not available                block.py:32
+Warning: Failed to auto-import framework submodules: No module named 'starVLA.model.modules.gs_model'
+🚨 `return_pre_norm_hidden_state` is part of Qwen3VLTextModel.forward's signature, but not documented. Make sure to add it to the docstring of the function in /mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py.
+loaded name_or_path: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction
+vocab/emb size: 152130 151863
+image_token_id: 151655
+Total number of DiT parameters:  802967040
+⚠️ learning-rate module path does not exist: rgb_model
+⚠️ learning-rate module path does not exist: gs_model
+⚠️ learning-rate module path does not exist: reward_model
+⚠️ learning-rate module path does not exist: rgb_model
+⚠️ learning-rate module path does not exist: gs_model
+⚠️ learning-rate module path does not exist: reward_model
+PASS 01_original_ode_equivalence {'max_abs': 0.0, 'atol': 2e-05, 'rtol': 2e-05}
+PASS 02_original_sft_equivalence {'original': {'action_loss': 0.00047969192382879555, 'rgb_loss': 0.0, 'gs_loss': 0.0, 'reward_loss': 0.0, 'agent_dino_loss': 0.0}, 'shared': {'action_loss': 0.00047969192382879555, 'rgb_loss': 0.0, 'gs_loss': 0.0, 'reward_loss': 0.0, 'agent_dino_loss': 0.0}}
+PASS 03_projection_once {'projection_calls': 1}
+PASS 09_behavior_recompute_ratio {'max_abs_logratio': 0.0, 'atol': 1e-05}
+PASS 23_real_bf16_network_fp32_probability {'network': 'real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention', 'math': 'production FP32 vs FP64 torch Normal; ratio gradient w.r.t. network velocity', 'atol': 2e-05, 'rtol': 0.0001, 'maximum_absolute_difference': {'mean': 9.862198102617015e-08, 'std': 3.474735374431326e-09, 'logprob': 7.566599852459888e-06, 'ratio': 4.612733899289623e-07, 'velocity_gradient': 2.4701586121417263e-06}}
+PASS 10_equal_full_reference_kl {'max_kl': 0.0}
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+PASS 17_official_reward_pool_order_batch {'scores': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 'serial_parallel_identical': True}
+PASS 10_13_full_reference_perturbation_and_negative {'perturbed_kl': {'qwen': 0.0001844707439886406, 'action': 22.981529235839844}, 'detached_condition_rejected': True, 'current_features_in_reference_detected': True}
+PASS 20_real_future_label_isolation {'max_abs': 0.0}
+PASS 12_gradient_rl {'loss': 0.0, 'modules': {'qwen_vl_interface': {'trainable': 309, 'grad_tensors': 309, 'nonzero_tensors': 309, 'squared_norm': 0.1887413500631343}, 'agent_dino_head': {'trainable': 0, 'grad_tensors': 0, 'nonzero_tensors': 0, 'squared_norm': 0.0}, 'action_input_model': {'trainable': 4, 'grad_tensors': 4, 'nonzero_tensors': 4, 'squared_norm': 0.024005822408071253}, 'action_model': {'trainable': 359, 'grad_tensors': 359, 'nonzero_tensors': 359, 'squared_norm': 3.4278780784908394}}}
+PASS 12_gradient_reference {'loss': 0.0001844707439886406, 'modules': {'qwen_vl_interface': {'trainable': 309, 'grad_tensors': 309, 'nonzero_tensors': 309, 'squared_norm': 0.8389008013387094}, 'agent_dino_head': {'trainable': 0, 'grad_tensors': 0, 'nonzero_tensors': 0, 'squared_norm': 0.0}, 'action_input_model': {'trainable': 4, 'grad_tensors': 4, 'nonzero_tensors': 4, 'squared_norm': 0.31810815283097327}, 'action_model': {'trainable': 359, 'grad_tensors': 359, 'nonzero_tensors': 359, 'squared_norm': 1.717378077360675}}}
+PASS 12_gradient_sft {'loss': 0.0005742855137214065, 'modules': {'qwen_vl_interface': {'trainable': 309, 'grad_tensors': 309, 'nonzero_tensors': 309, 'squared_norm': 0.0022955177681142965}, 'agent_dino_head': {'trainable': 0, 'grad_tensors': 0, 'nonzero_tensors': 0, 'squared_norm': 0.0}, 'action_input_model': {'trainable': 4, 'grad_tensors': 4, 'nonzero_tensors': 4, 'squared_norm': 0.00021445275308451528}, 'action_model': {'trainable': 359, 'grad_tensors': 359, 'nonzero_tensors': 359, 'squared_norm': 0.029974442401612025}}}
+PASS 12_gradient_total {'loss': 7.931810250738636e-05, 'modules': {'qwen_vl_interface': {'trainable': 309, 'grad_tensors': 309, 'nonzero_tensors': 309, 'squared_norm': 0.1898935754087916}, 'agent_dino_head': {'trainable': 0, 'grad_tensors': 0, 'nonzero_tensors': 0, 'squared_norm': 0.0}, 'action_input_model': {'trainable': 4, 'grad_tensors': 4, 'nonzero_tensors': 4, 'squared_norm': 0.02489693005918525}, 'action_model': {'trainable': 359, 'grad_tensors': 359, 'nonzero_tensors': 359, 'squared_norm': 3.410896597192677}}}
+Traceback (most recent call last):
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/diagnostics.py", line 108, in record
+    value = fn()
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/diagnostics.py", line 514, in checkpoint_gradient_gate
+    torch.testing.assert_close(
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/testing/_comparison.py", line 1530, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: qwen_vl_interface.model.model.language_model.layers.0.self_attn.v_proj.weight: Tensor-likes are not close!
+
+Mismatched elements: 101 / 2097152 (0.0%)
+Greatest absolute difference: 3.874301910400391e-06 at index (859, 425) (up to 2e-06 allowed)
+Greatest relative difference: 128.0 at index (340, 425) (up to 0.002 allowed)
+Traceback (most recent call last):
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/diagnostics.py", line 108, in record
+    value = fn()
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/diagnostics.py", line 588, in candidate_microbatch_gate
+    torch.testing.assert_close(
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/testing/_comparison.py", line 1530, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: qwen_vl_interface.model.model.language_model.layers.0.self_attn.q_proj.weight: Tensor-likes are not close!
+
+Mismatched elements: 356 / 4194304 (0.0%)
+Greatest absolute difference: 8.106231689453125e-06 at index (1083, 425) (up to 2e-06 allowed)
+Greatest relative difference: 10.75 at index (260, 801) (up to 0.002 allowed)
+PASS 25_reference_frozen_immutable {'reference_parameters': 988, 'frozen_parameters': 322}
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/cli.py", line 130, in <module>
+    main()
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/cli.py", line 60, in main
+    return run_diagnostics(
+  File "/mnt/project/DriveDreamer-Policy-flow-grpo/starVLA/rl/flow_grpo/diagnostics.py", line 636, in run_diagnostics
+    raise RuntimeError(f'real integration failures: {report["failures"]}')
+RuntimeError: real integration failures: ['22_checkpointing_gradient_equivalence', '22_candidate_microbatch_gradient_equivalence']
