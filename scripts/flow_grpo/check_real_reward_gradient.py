@@ -12,6 +12,7 @@ from starVLA.rl.flow_grpo.config import resolve_config
 from starVLA.rl.flow_grpo.contracts import apply_rl_freezes, grad_summary
 from starVLA.rl.flow_grpo.loading import load_policy, enable_checkpointing
 from starVLA.rl.flow_grpo.rollout import evaluate_transitions
+from starVLA.rl.flow_grpo.reproducibility import configure_numerics
 from starVLA.rl.flow_grpo.math import (
     reduce_dimensions,
     clipped_surrogate,
@@ -31,7 +32,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     torch.set_num_threads(1)
-    torch.use_deterministic_algorithms(True)
+    configure_numerics()
     cfg, sft = resolve_config(args.config)
     if args.output.exists():
         raise FileExistsError(args.output)
