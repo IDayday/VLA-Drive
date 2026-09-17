@@ -46,6 +46,20 @@ def load_policy(cfg, sft, accelerator=None):
             mmap=True,
         )
     state = state.get("module", state)
+    aliases = {}
+    for name, parameter in model.named_parameters(remove_duplicate=False):
+        aliases.setdefault(id(parameter), []).append(name)
+    for names in aliases.values():
+        if len(names) > 1:
+            first = state[names[0]]
+            if any(
+                first.dtype != state[name].dtype or not torch.equal(first, state[name])
+                for name in names[1:]
+            ):
+                raise ValueError(
+                    "checkpoint disagrees with source parameter tying: "
+                    + ", ".join(names)
+                )
     model.load_state_dict(state, strict=True)
     inherit_freezing(model, sft)
     return model

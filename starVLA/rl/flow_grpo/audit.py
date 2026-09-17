@@ -19,6 +19,10 @@ def source_fingerprints():
             "starVLA/model/framework/baseline_qwen.py",
             "starVLA/model/modules/action_model/GR00T_ActionHeader.py",
             "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+            "starVLA/model/modules/vlm/QWen3.py",
+            "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py",
+            "starVLA/dataloader/navsim_dataset.py",
             "starVLA/model/modules/video_model/videox_fun/models/attention_utils.py",
             "infer.py",
             "reference_lock.json",
@@ -85,6 +89,20 @@ def capture_source_environment(output, cfg):
         flash_attention_deterministic=os.getenv("FLASH_ATTENTION_DETERMINISTIC", "0"),
         cublas_workspace_config=os.getenv("CUBLAS_WORKSPACE_CONFIG"),
         checkpoint_contract=cfg["checkpoint_contract"],
+        base_vlm_config_and_processor_sha256={
+            name: hashlib.sha256(
+                (Path(cfg["paths"]["base_vlm"]) / name).read_bytes()
+            ).hexdigest()
+            for name in (
+                "config.json",
+                "tokenizer.json",
+                "tokenizer_config.json",
+                "preprocessor_config.json",
+                "processor_config.json",
+                "chat_template.jinja",
+            )
+            if (Path(cfg["paths"]["base_vlm"]) / name).is_file()
+        },
     )
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
