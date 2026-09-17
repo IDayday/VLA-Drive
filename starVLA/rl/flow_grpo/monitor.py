@@ -177,6 +177,9 @@ def dtype_inventory(policy, engine=None):
             partition_buffers=[
                 str(t.dtype)
                 for group in getattr(optimizer, "averaged_gradients", {}).values()
+                # ZeRO-2 0.16.9 releases each group by assigning None after step.
+                # Absence is an empty observation; pre-step inventory is separate.
+                if group is not None
                 for t in group
                 if t is not None
             ],

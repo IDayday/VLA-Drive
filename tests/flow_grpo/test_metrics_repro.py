@@ -124,6 +124,28 @@ def test_comparison_collects_every_failure_and_near_zero():
     assert report["parameters"]["qwen_vl_interface.b"]["relative_l2"] is None
 
 
+def test_dtype_inventory_handles_zero2_released_partition_groups():
+    from types import SimpleNamespace
+    from starVLA.rl.flow_grpo.monitor import dtype_inventory
+
+    model = torch.nn.Linear(2, 1).bfloat16()
+    optimizer = SimpleNamespace(
+        averaged_gradients={0: None, 1: [None, torch.ones(2)]},
+        single_partition_of_fp32_groups=[torch.ones(2)],
+        gradient_accumulation_dtype=torch.float32,
+        communication_data_type=torch.float32,
+        optimizer=SimpleNamespace(state={}),
+    )
+    engine = SimpleNamespace(optimizer=optimizer)
+    before = dtype_inventory(model, engine)
+    assert before["partition_buffers"] == ["torch.float32"]
+    optimizer.averaged_gradients[1] = None
+    after = dtype_inventory(model, engine)
+    assert after["partition_buffers"] == []
+    assert before["partition_buffers"] == ["torch.float32"]
+    assert after["communication_buffers"] == []  # never invent observed dtypes
+
+
 def acceptance_fixture(tmp_path, monkeypatch):
     """Synthetic TEMP fixtures for validator control flow, never production receipts."""
     import json
