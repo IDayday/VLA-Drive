@@ -1,0 +1,22 @@
+from pathlib import Path
+import pickle,json
+from omegaconf import OmegaConf
+cfg=OmegaConf.load('navsim/navsim/planning/script/config/common/train_test_split/scene_filter/navtrain.yaml')
+requested=set(cfg.tokens)
+base=Path('/mnt/project/DriveDreamer-Policy/navsim_raw')
+other=Path('/mnt/navsim/trainval_sensor_blobs/trainval')
+rows=[]
+for log in cfg.log_names:
+ p=base/'navsim_logs/trainval'/f'{log}.pkl'
+ frames=pickle.load(p.open('rb'))
+ for start in range(0,len(frames),cfg.frame_interval):
+  if start+cfg.num_history_frames+cfg.num_future_frames>len(frames): continue
+  cur=frames[start+cfg.num_history_frames-1]
+  if cur['token'] not in requested or (cfg.has_route and not cur['roadblock_ids']): continue
+  for view in ('CAM_F0','CAM_L0','CAM_R0'):
+   rel=cur['cams'].get(view,{}).get('data_path')
+   if rel is None or not (base/'sensor_blobs/trainval'/rel).is_file():
+    rows.append({'token':cur['token'],'view':view,'path':rel,'alternate_exists':bool(rel and (other/rel).is_file()),'alternate':str(other/rel) if rel else None})
+report={'missing_references':len(rows),'recoverable_in_alternate_root':sum(r['alternate_exists'] for r in rows),'missing_tokens':len({r['token'] for r in rows}), 'rows':rows}
+Path('reports/ddp_flow_grpo_paired/missing_train_images.json').write_text(json.dumps(report,indent=2))
+print({k:v for k,v in report.items() if k!='rows'})

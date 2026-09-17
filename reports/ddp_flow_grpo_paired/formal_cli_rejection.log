@@ -1,0 +1,20 @@
+ /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/cli.py", line 161, in <module>
+    main()
+  File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/cli.py", line 62, in main
+    return run(cfg, sft, args.resume)
+  File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/trainer.py", line 647, in run
+    return _run(cfg, sft, resume)
+  File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/trainer.py", line 103, in _run
+    enforce_training_budget(cfg)
+  File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/acceptance.py", line 106, in enforce_training_budget
+    raise ValueError("NOT_READY: missing production profile acceptance record")
+ValueError: NOT_READY: missing production profile acceptance record
+
+{"status": "PASS", "returncode": 1, "command": ["/root/miniconda3/envs/ddp/bin/python", "-m", "starVLA.rl.flow_grpo.cli", "train", "--config", "configs/flow_grpo/paired_frozen_visual.yaml", "--max-updates", "2000", "--output-dir", "runs/formal_guard_cli"], "scope": "real train CLI rejects before Accelerator/CUDA/model allocation; no release record created"}

@@ -1,0 +1,49 @@
+"""Full-cache evidence generator; spawned readers, no GPU/policy inference."""
+from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing as mp
+import datetime
+import json
+import lzma
+import pickle
+
+
+def check(path):
+    with lzma.open(path, "rb") as stream:
+        cache = pickle.load(stream)
+    assert {"human_trajectory", "past_human_trajectory", "map_parameters",
+            "future_tracked_objects"} <= vars(cache).keys(), path
+    return True
+
+
+def main():
+    from omegaconf import OmegaConf
+    from starVLA.rl.flow_grpo.reward import build_cache_index
+    from starVLA.rl.flow_grpo.loading import file_sha
+    from starVLA.rl.flow_grpo.reproducibility import write_asset_manifest
+
+    root = Path("runs/metric_cache_navtest_v2")
+    index = build_cache_index(root)
+    filterpath = Path("navsim/navsim/planning/script/config/common/train_test_split/scene_filter/navtest.yaml")
+    target = set(OmegaConf.load(filterpath).tokens)
+    tokenpath = Path("/mnt/project/DriveDreamer-Policy/test_meta.json")
+    assert set(index) == target == set(json.loads(tokenpath.read_text()))
+    valid = 0
+    with ProcessPoolExecutor(8, mp_context=mp.get_context("spawn")) as pool:
+        for result in pool.map(check, index.values(), chunksize=16):
+            valid += result
+            if valid % 1000 == 0:
+                print(json.dumps({"loadable_v2": valid}), flush=True)
+    manifest = write_asset_manifest([*index.values(), str(filterpath), str(tokenpath)], root / "asset_manifest.json")
+    out = {"status": "PASS", "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+           "target": len(target), "caches": len(index), "loadable_v2": valid,
+           "missing": 0, "extra": 0, "official_filter_sha256": file_sha(filterpath),
+           "asset_manifest": str((root / "asset_manifest.json").resolve()),
+           "asset_identity": manifest["identity"], "verifier_source_sha256": file_sha(__file__),
+           "scope": "complete official navtest v2 cache only; no policy inference or EPDMS experiment executed"}
+    Path("reports/ddp_flow_grpo_paired/navtest_cache_verification.json").write_text(json.dumps(out, indent=2))
+    print(json.dumps(out), flush=True)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,62 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 80, in <module>
+[rank0]:     main()
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 65, in main
+[rank0]:     synchronized_call(scoring, "cpu")
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/distributed.py", line 71, in synchronized_call
+[rank0]:     raise RuntimeError(f"collective phase failed: {errors}")
+[rank0]: RuntimeError: collective phase failed: [None, 'ValueError: injected rank1 official scoring error']
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 80, in <module>
+[rank1]:     main()
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 65, in main
+[rank1]:     synchronized_call(scoring, "cpu")
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/distributed.py", line 71, in synchronized_call
+[rank1]:     raise RuntimeError(f"collective phase failed: {errors}")
+[rank1]: RuntimeError: collective phase failed: [None, 'ValueError: injected rank1 official scoring error']
+E0917 12:35:23.654000 801420 site-packages/torch/distributed/elastic/multiprocessing/api.py:869] failed (exitcode: 1) local_rank: 0 (pid: 801446) of binary: /root/miniconda3/envs/ddp/bin/python
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py", line 923, in <module>
+    main()
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py", line 919, in main
+    run(args)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py", line 910, in run
+    elastic_launch(
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 138, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 269, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+tests/flow_grpo/fault_worker.py FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-09-17_12:35:23
+  host      : training-vla-zt-worker-0
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 801447)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-09-17_12:35:23
+  host      : training-vla-zt-worker-0
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 801446)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================

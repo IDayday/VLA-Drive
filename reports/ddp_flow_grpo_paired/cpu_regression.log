@@ -1,0 +1,186 @@
+.......................................................FFF...F.......... [ 88%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+___________________ test_qwen_trainable_names_match_baseline ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f94befd5840>
+
+    def test_qwen_trainable_names_match_baseline(monkeypatch):
+        monkeypatch.setenv("QWEN_VLM_PATH", str(QWEN))
+>       baseline, _ = qwen_parameter_manifests(_cfg(B1))
+
+tests/baseline_matched/test_config_contract.py:94: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/audit_multitrajectory_config.py:74: in qwen_parameter_manifests
+    checkpoint_names = _checkpoint_keys(model_path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_path = '/mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction'
+
+    def _checkpoint_keys(model_path: str) -> set[str]:
+        root = Path(model_path).expanduser().resolve()
+        index_path = root / "model.safetensors.index.json"
+        if index_path.is_file():
+            with index_path.open("r", encoding="utf-8") as stream:
+                return set(json.load(stream)["weight_map"])
+        tensor_path = root / "model.safetensors"
+        if not tensor_path.is_file():
+>           raise FileNotFoundError(f"Qwen safetensors checkpoint not found under {root}")
+E           FileNotFoundError: Qwen safetensors checkpoint not found under /mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction
+
+scripts/audit_multitrajectory_config.py:64: FileNotFoundError
+____________________ test_qwen_frozen_names_match_baseline _____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f94beb07d30>
+
+    def test_qwen_frozen_names_match_baseline(monkeypatch):
+        monkeypatch.setenv("QWEN_VLM_PATH", str(QWEN))
+>       _, baseline = qwen_parameter_manifests(_cfg(B1))
+
+tests/baseline_matched/test_config_contract.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/audit_multitrajectory_config.py:74: in qwen_parameter_manifests
+    checkpoint_names = _checkpoint_keys(model_path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_path = '/mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction'
+
+    def _checkpoint_keys(model_path: str) -> set[str]:
+        root = Path(model_path).expanduser().resolve()
+        index_path = root / "model.safetensors.index.json"
+        if index_path.is_file():
+            with index_path.open("r", encoding="utf-8") as stream:
+                return set(json.load(stream)["weight_map"])
+        tensor_path = root / "model.safetensors"
+        if not tensor_path.is_file():
+>           raise FileNotFoundError(f"Qwen safetensors checkpoint not found under {root}")
+E           FileNotFoundError: Qwen safetensors checkpoint not found under /mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction
+
+scripts/audit_multitrajectory_config.py:64: FileNotFoundError
+_________________________ test_B1_B4_qwen_policy_equal _________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f94be98f7f0>
+
+    def test_B1_B4_qwen_policy_equal(monkeypatch):
+        monkeypatch.setenv("QWEN_VLM_PATH", str(QWEN))
+>       assert qwen_parameter_manifests(_cfg(B1)) == qwen_parameter_manifests(_cfg(B4))
+
+tests/baseline_matched/test_config_contract.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/audit_multitrajectory_config.py:74: in qwen_parameter_manifests
+    checkpoint_names = _checkpoint_keys(model_path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_path = '/mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction'
+
+    def _checkpoint_keys(model_path: str) -> set[str]:
+        root = Path(model_path).expanduser().resolve()
+        index_path = root / "model.safetensors.index.json"
+        if index_path.is_file():
+            with index_path.open("r", encoding="utf-8") as stream:
+                return set(json.load(stream)["weight_map"])
+        tensor_path = root / "model.safetensors"
+        if not tensor_path.is_file():
+>           raise FileNotFoundError(f"Qwen safetensors checkpoint not found under {root}")
+E           FileNotFoundError: Qwen safetensors checkpoint not found under /mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction
+
+scripts/audit_multitrajectory_config.py:64: FileNotFoundError
+_____________________ test_all_matched_configs_pass_audit ______________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f94bebb1540>
+
+    def test_all_matched_configs_pass_audit(monkeypatch):
+        monkeypatch.setenv("QWEN_VLM_PATH", str(QWEN))
+        for method in (B1, B2, B3, B4):
+>           assert audit_configs(str(B1), str(method)) == []
+
+tests/baseline_matched/test_config_contract.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/audit_multitrajectory_config.py:173: in audit_configs
+    base_trainable, base_frozen = qwen_parameter_manifests(baseline)
+scripts/audit_multitrajectory_config.py:74: in qwen_parameter_manifests
+    checkpoint_names = _checkpoint_keys(model_path)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_path = '/mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction'
+
+    def _checkpoint_keys(model_path: str) -> set[str]:
+        root = Path(model_path).expanduser().resolve()
+        index_path = root / "model.safetensors.index.json"
+        if index_path.is_file():
+            with index_path.open("r", encoding="utf-8") as stream:
+                return set(json.load(stream)["weight_map"])
+        tensor_path = root / "model.safetensors"
+        if not tensor_path.is_file():
+>           raise FileNotFoundError(f"Qwen safetensors checkpoint not found under {root}")
+E           FileNotFoundError: Qwen safetensors checkpoint not found under /mnt/project/DriveDreamer-Policy-paired/models/Qwen3-VL-2B-WorldAction
+
+scripts/audit_multitrajectory_config.py:64: FileNotFoundError
+----------------------------- Captured stdout call -----------------------------
+PASS Qwen model path: '${oc.env:QWEN_VLM_PATH}'
+PASS Qwen attention implementation: 'flash_attention_2'
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+tests/flow_grpo/test_reward_real.py::test_adapter_matches_original_single_scene_evaluator
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+tests/flow_grpo/test_reward_real.py::test_adapter_matches_original_single_scene_evaluator
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: Deprecated call to `pkg_resources.declare_namespace('lightning_fabric')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/flow_grpo/test_reward_real.py::test_adapter_matches_original_single_scene_evaluator
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/pytorch_lightning/__init__.py:37: Deprecated call to `pkg_resources.declare_namespace('pytorch_lightning')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/flow_grpo/test_reward_real.py: 3456 warnings
+  /mnt/project/DriveDreamer-Policy-paired/navsim/navsim/planning/simulation/planner/pdm_planner/observation/pdm_occupancy_map.py:209: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+    output[i] = shapely.vectorized.contains(polygon, flattened_points[:, 0], flattened_points[:, 1])
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:22: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:113: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:44: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:56: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:135: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:103: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:114: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/baseline_matched/test_legacy_compatibility.py::test_legacy_framework_still_builds
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d_s2v.py:55: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/baseline_matched/test_config_contract.py::test_qwen_trainable_names_match_baseline
+FAILED tests/baseline_matched/test_config_contract.py::test_qwen_frozen_names_match_baseline
+FAILED tests/baseline_matched/test_config_contract.py::test_B1_B4_qwen_policy_equal
+FAILED tests/baseline_matched/test_config_contract.py::test_all_matched_configs_pass_audit
+4 failed, 77 passed, 3470 warnings in 134.30s (0:02:14)

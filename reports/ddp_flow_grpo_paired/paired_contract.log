@@ -1,0 +1,71 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+{
+  "status": "PASS",
+  "scope": "per-object canonical manifests from fc354f8 real runs; current CPU/GPU policy manifests checked separately",
+  "trainable_tensors": [
+    672,
+    672
+  ],
+  "fields": [
+    "name",
+    "shape",
+    "aliases",
+    "optimizer_group"
+  ],
+  "manifest_entry_hashes": [
+    "9694ec9b7c31d93fc86aff0c58eababf4171e918caf40c17c400316f823a3008",
+    "9694ec9b7c31d93fc86aff0c58eababf4171e918caf40c17c400316f823a3008"
+  ],
+  "optimizers": {
+    "frozen_visual": {
+      "source_absolute_lr": {
+        "action_model": 1e-05,
+        "base": 1e-05,
+        "qwen_vl_interface": 1e-05
+      },
+      "rl_absolute_lr": {
+        "action_model": 1.0000000000000002e-06,
+        "base": 1.0000000000000002e-06,
+        "qwen_vl_interface": 1.0000000000000002e-06
+      },
+      "adam": {
+        "name": "AdamW",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.001
+      },
+      "max_grad_norm": 1.0
+    },
+    "unfrozen_visual": {
+      "source_absolute_lr": {
+        "action_model": 1e-05,
+        "base": 1e-05,
+        "qwen_vl_interface": 1e-05
+      },
+      "rl_absolute_lr": {
+        "action_model": 1.0000000000000002e-06,
+        "base": 1.0000000000000002e-06,
+        "qwen_vl_interface": 1.0000000000000002e-06
+      },
+      "adam": {
+        "name": "AdamW",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.001
+      },
+      "max_grad_norm": 1.0
+    }
+  },
+  "optimizer_recipe_identical": true,
+  "source_paths": [
+    "reports/ddp_flow_grpo/action_run_evidence/action_frozen_short/actor_parameter_manifest.json",
+    "reports/ddp_flow_grpo/action_run_evidence/action_unfrozen_short/actor_parameter_manifest.json"
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "status": "NOT_READY",
+  "not_a_release_certificate": true,
+  "implementation_code_sha": "45a0837a9c18a196f2b12cfa2286e9ba00b81289",
+  "runtime_sha256": "39a764d64f87ba49f2e2a35b44bf1a1a3564a968aa9f81f50ad6608e504855a1",
+  "executable_sha256": "2c11cf4993105cd2ae366d850b28f70f166b733da71104a1dd5f982bf62cd7d5",
+  "intended_profile": {
+    "precision": "BF16",
+    "zero_stage": 2,
+    "fp32_accumulation_and_communication": true,
+    "candidate_chunk_size": 1,
+    "transition_chunk_size": 1,
+    "world_size": 4,
+    "accumulation_steps": 4,
+    "global_scene_batch": 16,
+    "inner_epochs": 2,
+    "group_size": 8,
+    "num_steps": 10
+  },
+  "unsupported_for_formal": [
+    "candidate_chunk_size>=2"
+  ],
+  "historical_bf16_chunk_gate": "FAIL (preserved)",
+  "variants": {
+    "F": {
+      "status": "NOT_READY",
+      "gates": {
+        "parameter_contract": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "own_visual_unchanged": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "rl_sft_reference_gradients": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "fp32_chunk_mathematics": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "production_optimizer_update": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "fixed_noise_ode": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "production_repeat": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "distributed_update_scaling": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "checkpointing_accumulation": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "exact_resume": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "export_original_protocol": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "inner_epochs_2": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "distributed_faults": {
+          "status": "PASS",
+          "scope": "faults; five actual torchrun process failures; CUDA/NCCL OOM remains NOT_RUN"
+        },
+        "global_metrics": {
+          "status": "PASS",
+          "scope": "tests/flow_grpo + five real Gloo process probes"
+        },
+        "evaluation_protocol": {
+          "status": "PASS",
+          "scope": "actual official adjacent/missing-component cache regression; full model evaluation NOT_RUN"
+        },
+        "clean_checkout": {
+          "status": "PASS",
+          "scope": "clean_final_checkout.json + clean_full_assets.log/xml; 95 CPU tests, GPU tests NOT_RUN"
+        }
+      }
+    },
+    "U": {
+      "status": "NOT_READY",
+      "gates": {
+        "parameter_contract": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "own_visual_unchanged": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "rl_sft_reference_gradients": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "fp32_chunk_mathematics": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "production_optimizer_update": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "fixed_noise_ode": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "production_repeat": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "distributed_update_scaling": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "checkpointing_accumulation": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "exact_resume": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "export_original_protocol": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated"
+        },
+        "inner_epochs_2": {
+          "status": "NOT_RUN",
+          "scope": "new production profile not validated",
+          "cpu_real_evidence": "PASS for both original F/U full models; see numerical_committed_*, gradient_scopes_*, real_inner_cpu_*; this does not set the production gate PASS"
+        },
+        "distributed_faults": {
+          "status": "PASS",
+          "scope": "faults; five actual torchrun process failures; CUDA/NCCL OOM remains NOT_RUN"
+        },
+        "global_metrics": {
+          "status": "PASS",
+          "scope": "tests/flow_grpo + five real Gloo process probes"
+        },
+        "evaluation_protocol": {
+          "status": "PASS",
+          "scope": "actual official adjacent/missing-component cache regression; full model evaluation NOT_RUN"
+        },
+        "clean_checkout": {
+          "status": "PASS",
+          "scope": "clean_final_checkout.json + clean_full_assets.log/xml; 95 CPU tests, GPU tests NOT_RUN"
+        }
+      }
+    }
+  },
+  "effects": "INSUFFICIENT_EVIDENCE",
+  "full_data_assets": "metadata and split locked; official cache build/final manifest pending; no silent subset fallback"
+}

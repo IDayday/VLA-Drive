@@ -1,0 +1,27 @@
+{
+  "pid": 981052,
+  "utc": "2026-09-17T14:39:31.584940+00:00",
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-u",
+    "scripts/flow_grpo/cache_metrics_spawn.py",
+    "train_test_split=navtrain",
+    "metric_cache_path=/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/metric_cache_navtrain_v2",
+    "force_feature_computation=false",
+    "worker=single_machine_thread_pool",
+    "worker.max_workers=32",
+    "worker.use_process_pool=true"
+  ],
+  "log": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/cache_build.log",
+  "cache": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/metric_cache_navtrain_v2",
+  "workers": 32,
+  "threads_per_worker": 1,
+  "gpu_usage": "none",
+  "target_scenes": 103288,
+  "status": "RUNNING",
+  "scope": "official v2 full navtrain cache preparation only; no RL training launched",
+  "start_method": "spawn",
+  "valid_prior_caches": 4656,
+  "source_sha256": "9d65bb97e078de3af428bfae7ebddb3ed431cfbf53a3aec3fb3a44fe87f8db16",
+  "previous_attempt": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/fork_attempt_cache_job.json"
+}

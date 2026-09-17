@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "requirement": "source ODE equivalence",
+    "status": "NOT_RUN",
+    "result_and_scope": "current CUDA/source-oracle not executed; historical PASS retained"
+  },
+  {
+    "id": 2,
+    "requirement": "source SFT loss equivalence",
+    "status": "NOT_RUN",
+    "result_and_scope": "current CUDA/source-oracle not executed; CPU full SFT is exercised but is not the source-oracle comparison"
+  },
+  {
+    "id": 3,
+    "requirement": "condition/projector semantics",
+    "status": "TESTED",
+    "result_and_scope": "PASS: real CPU condition/projector traces and gradients; original CUDA hooks NOT_RUN"
+  },
+  {
+    "id": 4,
+    "requirement": "original inference export equality",
+    "status": "NOT_RUN",
+    "result_and_scope": "PASS real CPU F/U original-format export and every actual forward tensor/config/processor equality; CUDA original inference output equality NOT_RUN"
+  },
+  {
+    "id": 5,
+    "requirement": "locked sampler mean/std/logp",
+    "status": "TESTED",
+    "result_and_scope": "PASS: unchanged reference comparison in 95 tests"
+  },
+  {
+    "id": 6,
+    "requirement": "Normal and reductions/KL",
+    "status": "TESTED",
+    "result_and_scope": "PASS: FP64 analytic/Torch reference"
+  },
+  {
+    "id": 7,
+    "requirement": "sqrt(dt)/boundaries/ODE",
+    "status": "TESTED",
+    "result_and_scope": "PASS: mathematical tests"
+  },
+  {
+    "id": 8,
+    "requirement": "empirical Gaussian statistics",
+    "status": "TESTED",
+    "result_and_scope": "PASS: empirical unit test"
+  },
+  {
+    "id": 9,
+    "requirement": "old/current ratio",
+    "status": "TESTED",
+    "result_and_scope": "PASS real CPU F/U initial ratio exactly 1 and immutable behavior across two real optimizer updates/resume; production inner2 NOT_RUN"
+  },
+  {
+    "id": 10,
+    "requirement": "full own-reference KL",
+    "status": "TESTED",
+    "result_and_scope": "PASS CPU F/U equal KL0 and own-reference current perturbation nonzero"
+  },
+  {
+    "id": 11,
+    "requirement": "parameter/optimizer contract",
+    "status": "TESTED",
+    "result_and_scope": "PASS CPU current F/U actual object aliases, complete manifests, optimizer coverage"
+  },
+  {
+    "id": 12,
+    "requirement": "separate RL/SFT/reference gradients",
+    "status": "TESTED",
+    "result_and_scope": "PASS CPU F/U 672/672; signed diagnostic only, production official-advantage gradient NOT_RUN; auxiliary intentionally absent"
+  },
+  {
+    "id": 13,
+    "requirement": "detach/reference negative cases",
+    "status": "NOT_RUN",
+    "result_and_scope": "new CUDA full-source perturbation probes not rerun; historical results retained"
+  },
+  {
+    "id": 14,
+    "requirement": "advantages/clipping signs",
+    "status": "TESTED",
+    "result_and_scope": "PASS positive/negative advantages, upper/lower clip and old immutability; all-equal groups retained"
+  },
+  {
+    "id": 15,
+    "requirement": "G/K/replay/accumulation scaling",
+    "status": "TESTED",
+    "result_and_scope": "PASS production wrapper and low-dimensional DDP regression; new full ZeRO scaling NOT_RUN"
+  },
+  {
+    "id": 16,
+    "requirement": "unequal rank counts/equal groups",
+    "status": "TESTED",
+    "result_and_scope": "PASS real two-process CPU DDP low-dimensional test; formal uses equal complete scene batches"
+  },
+  {
+    "id": 17,
+    "requirement": "official reward singleton/batch/spawn",
+    "status": "TESTED",
+    "result_and_scope": "PASS actual v2 cache evaluator tests"
+  },
+  {
+    "id": 18,
+    "requirement": "zero/errors/timeouts",
+    "status": "TESTED",
+    "result_and_scope": "PASS real cache plus spawn timeout/error tests, five torchrun fault injections"
+  },
+  {
+    "id": 19,
+    "requirement": "normalization/coordinates/time",
+    "status": "TESTED",
+    "result_and_scope": "PASS original transform and real reward tests"
+  },
+  {
+    "id": 20,
+    "requirement": "future isolation/split",
+    "status": "TESTED",
+    "result_and_scope": "PASS observation API and train/navtest guards; new CUDA future-poison forward NOT_RUN"
+  },
+  {
+    "id": 21,
+    "requirement": "single/multi GPU optimizer updates",
+    "status": "NOT_RUN",
+    "result_and_scope": "all GPUs occupied, new FP32 accumulation production profile not executed"
+  },
+  {
+    "id": 22,
+    "requirement": "checkpointing/candidate chunks",
+    "status": "TESTED",
+    "result_and_scope": "historical BF16 chunk FAIL remains; full real F/U CPU FP32 G2/G8 comparison PASS; new CUDA checkpointing/chunk NOT_RUN"
+  },
+  {
+    "id": 23,
+    "requirement": "BF16 net/FP32 probabilities",
+    "status": "TESTED",
+    "result_and_scope": "PASS mathematical BF16-input probability regression; new actual CUDA/ZeRO path NOT_RUN"
+  },
+  {
+    "id": 24,
+    "requirement": "continuous/exact resume",
+    "status": "TESTED",
+    "result_and_scope": "PASS real full F/U CPU Accelerate: exact weights/Adam/scheduler/RNG, same-chain post ratio and fixed-noise ODE after inner-boundary resume; new ZeRO-2 profile NOT_RUN"
+  },
+  {
+    "id": 25,
+    "requirement": "frozen/reference immutability and update",
+    "status": "TESTED",
+    "result_and_scope": "PASS current real CPU F/U hashes/grad scopes/Adam update; actual BF16 production NOT_RUN"
+  }
+]

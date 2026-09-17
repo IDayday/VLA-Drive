@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-u",
+    "scripts/flow_grpo/cache_metrics_spawn.py",
+    "train_test_split=navtrain",
+    "metric_cache_path=/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/spawn_equivalence_cache",
+    "force_feature_computation=false",
+    "worker=single_machine_thread_pool",
+    "worker.max_workers=2",
+    "worker.use_process_pool=true",
+    "train_test_split.scene_filter.log_names=[2021.05.12.22.00.38_veh-35_00005_00118]",
+    "train_test_split.scene_filter.tokens=[41ec11a3d83359a9,9489fa1d85ce58ba]"
+  ],
+  "tokens": [
+    "41ec11a3d83359a9",
+    "9489fa1d85ce58ba"
+  ],
+  "log": "2021.05.12.22.00.38_veh-35_00005_00118",
+  "selection": "lexicographic first existing cache/log; no reward examined"
+}

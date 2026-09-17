@@ -1,0 +1,70 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 80, in <module>
+[rank1]:     main()
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 59, in main
+[rank1]:     save_boundary(Accelerator(rank), SimpleNamespace(policy=policy), cfg,
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/checkpoint.py", line 50, in save_boundary
+[rank1]:     rank0_call(prepare_directory, accelerator.device)
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/distributed.py", line 17, in rank0_call
+[rank1]:     return synchronized_call(
+[rank1]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/distributed.py", line 71, in synchronized_call
+[rank1]:     raise RuntimeError(f"collective phase failed: {errors}")
+[rank1]: RuntimeError: collective phase failed: ["NotADirectoryError: [Errno 20] Not a directory: '/tmp/pytest-of-root/pytest-1481/test_torchrun_failure_is_bound1/checkpoints/.update_000001.incomplete'", None]
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 80, in <module>
+[rank0]:     main()
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/tests/flow_grpo/fault_worker.py", line 59, in main
+[rank0]:     save_boundary(Accelerator(rank), SimpleNamespace(policy=policy), cfg,
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/checkpoint.py", line 50, in save_boundary
+[rank0]:     rank0_call(prepare_directory, accelerator.device)
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/distributed.py", line 17, in rank0_call
+[rank0]:     return synchronized_call(
+[rank0]:   File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/distributed.py", line 71, in synchronized_call
+[rank0]:     raise RuntimeError(f"collective phase failed: {errors}")
+[rank0]: RuntimeError: collective phase failed: ["NotADirectoryError: [Errno 20] Not a directory: '/tmp/pytest-of-root/pytest-1481/test_torchrun_failure_is_bound1/checkpoints/.update_000001.incomplete'", None]
+E0917 12:35:16.094000 801259 site-packages/torch/distributed/elastic/multiprocessing/api.py:869] failed (exitcode: 1) local_rank: 0 (pid: 801293) of binary: /root/miniconda3/envs/ddp/bin/python
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py", line 923, in <module>
+    main()
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py", line 919, in main
+    run(args)
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/run.py", line 910, in run
+    elastic_launch(
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 138, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 269, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+tests/flow_grpo/fault_worker.py FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-09-17_12:35:16
+  host      : training-vla-zt-worker-0
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 801294)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-09-17_12:35:16
+  host      : training-vla-zt-worker-0
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 801293)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
