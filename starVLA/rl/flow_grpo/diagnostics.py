@@ -4,6 +4,7 @@ from pathlib import Path
 import ast
 import importlib
 import json
+import os
 import subprocess
 import types
 import time
@@ -90,6 +91,12 @@ def tensor_hashes(model, predicate=lambda n, p: True):
 
 
 def run_diagnostics(cfg, sft, output, gradients=True):
+    # Use the same deterministic backward kernels as the production trainer.
+    # The environment flag alone configures FlashAttention, not PyTorch SDPA.
+    if os.environ.get("FLASH_ATTENTION_DETERMINISTIC") == "1":
+        torch.use_deterministic_algorithms(True)
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     from .audit import capture_source_environment

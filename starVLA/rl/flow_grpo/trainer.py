@@ -225,6 +225,15 @@ def run(cfg, sft, resume=None):
     )
     optimizer.zero_grad()
     parameter_probe = ParameterProbe(policy)
+    from .contracts import tensor_hashes
+
+    immutable_before = synchronized_call(
+        lambda: {
+            "reference": tensor_hashes(reference),
+            "frozen": tensor_hashes(policy, lambda n, p: not p.requires_grad),
+        },
+        accelerator.device,
+    )
     try:
         while update < maximum:
             t0 = time.monotonic()
@@ -482,6 +491,38 @@ def run(cfg, sft, resume=None):
                     version,
                     [train_stream, replay_stream],
                 )
+
+        def check_immutable():
+            after = {
+                "reference": tensor_hashes(reference),
+                "frozen": tensor_hashes(policy, lambda n, p: not p.requires_grad),
+            }
+            changed = {
+                scope: [
+                    name
+                    for name, value in hashes.items()
+                    if after[scope].get(name) != value
+                ]
+                for scope, hashes in immutable_before.items()
+            }
+            evidence = {
+                "status": "FAILED" if any(changed.values()) else "TESTED",
+                "scope": "all complete tensors before and after actual optimizer updates",
+                "end_update": update,
+                "changed": changed,
+                "before": immutable_before,
+                "after": after,
+            }
+            (
+                output
+                / f"immutable_update{update:06d}_rank{accelerator.process_index}.json"
+            ).write_text(json.dumps(evidence, indent=2))
+            if any(changed.values()):
+                raise RuntimeError(
+                    "reference/frozen parameters changed during training"
+                )
+
+        synchronized_call(check_immutable, accelerator.device)
     except BaseException as exc:
         if "buffers" in locals():
             torch.save(

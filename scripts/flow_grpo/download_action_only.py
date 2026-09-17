@@ -189,12 +189,26 @@ def aria2_download(parts, expected):
     )
     conf.chmod(0o600)
     for attempt in range(12):
-        result = subprocess.run(
+        process = subprocess.Popen(
             ["aria2c", "--conf-path=" + str(conf), "--input-file=" + str(input_path)]
         )
-        if result.returncode == 0:
+        from download_status import rpc
+
+        while process.poll() is None:
+            time.sleep(2)
+            try:
+                active = rpc("aria2.tellActive")
+                waiting = rpc("aria2.tellWaiting", [0, 100])
+                stopped = rpc("aria2.tellStopped", [0, 100])
+                if stopped and not active and not waiting:
+                    rpc("aria2.shutdown")
+                    break
+            except OSError:
+                pass  # RPC may not yet be listening or may already have exited.
+        result_code = process.wait()
+        if result_code == 0:
             break
-        print("ARIA2_RETRY", attempt + 1, "exit", result.returncode, flush=True)
+        print("ARIA2_RETRY", attempt + 1, "exit", result_code, flush=True)
         time.sleep(5)
     else:
         raise RuntimeError(

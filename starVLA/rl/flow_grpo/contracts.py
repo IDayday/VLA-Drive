@@ -11,6 +11,23 @@ def digest(value):
     ).hexdigest()
 
 
+def tensor_hashes(model, predicate=lambda n, p: True):
+    """Hash complete tensors, including BF16, without allocating a model copy."""
+    return {
+        name: hashlib.sha256(
+            parameter.detach()
+            .cpu()
+            .contiguous()
+            .reshape(-1)
+            .view(torch.uint8)
+            .numpy()
+            .tobytes()
+        ).hexdigest()
+        for name, parameter in model.named_parameters()
+        if predicate(name, parameter)
+    }
+
+
 def inherit_freezing(model, config):
     """Retain constructor freezes, then apply exactly the checkpoint trainer paths."""
     for path in config.trainer.get("freeze_modules", "").split(","):
