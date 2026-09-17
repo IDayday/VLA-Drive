@@ -92,6 +92,9 @@ def tensor_hashes(model, predicate=lambda n, p: True):
 def run_diagnostics(cfg, sft, output, gradients=True):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
+    from .audit import capture_source_environment
+
+    capture_source_environment(output, cfg)
     report = {
         "source_sha": cfg["checkpoint_contract"].get("code_sha", BASE_SHA),
         "tests": {},
