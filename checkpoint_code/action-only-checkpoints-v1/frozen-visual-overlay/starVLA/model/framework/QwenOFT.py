@@ -44,16 +44,14 @@ from starVLA.model.modules.vlm import get_vlm_model
 # from starVLA.model.modules.action_model.MLP_ActionHeader import get_action_model
 from starVLA.model.modules.action_model.GR00T_ActionHeader import get_action_model, FlowmatchingActionHead, MLP, FlowmatchingRewardHead, get_reward_model
 from starVLA.training.trainer_utils.trainer_tools import resize_images
-from starVLA.model.modules.vlm.visual_training import (
-    configure_qwen_visual_backbone,
-    encode_qwen_images,
-)
+from starVLA.model.modules.video_model.wan_i2v_header import WanWorldHead
 import time
 from omegaconf import OmegaConf
 
+##### depth ppd
+from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
 from starVLA.cache.navsim_feature_cache import (
     GS_QUERY_TOKENS,
-    MINE_AGENT_QUERY_TOKENS,
     REWARD_QUERY_TOKENS,
     RGB_QUERY_TOKENS,
     ROBOT_HISTORY_TOKEN,
@@ -140,27 +138,7 @@ class Qwenvl_OFT(baseframework):
         """
         super().__init__()
         self.config = config
-        self._use_named_loss_contract = False
         self.qwen_vl_interface = get_vlm_model(config=self.config)
-        self.qwen_visual_frozen = bool(
-            OmegaConf.select(
-                self.config, "framework.qwenvl.freeze_visual", default=True
-            )
-        )
-        self.qwen_visual_gradient_checkpointing = bool(
-            OmegaConf.select(
-                self.config,
-                "framework.qwenvl.visual_gradient_checkpointing",
-                default=False,
-            )
-        )
-        qwen_visual = self.qwen_vl_interface.model.model.visual
-        self.qwen_visual_trainable_parameters = configure_qwen_visual_backbone(
-            qwen_visual,
-            freeze_visual=self.qwen_visual_frozen,
-            gradient_checkpointing=self.qwen_visual_gradient_checkpointing,
-        )
-        self._last_qwen_visual_feature_grad_norm = None
 
         # 历史轨迹 token（单个 repeated K 次）
         self.robot_history_token = ROBOT_HISTORY_TOKEN
@@ -177,7 +155,6 @@ class Qwenvl_OFT(baseframework):
 
         # reward token
         self.reward_query_tokens = list(REWARD_QUERY_TOKENS)
-        self.mine_agent_query_tokens = list(MINE_AGENT_QUERY_TOKENS)
 
         self.action_prompt_mode = str(
             OmegaConf.select(self.config, "framework.action_prompt_mode", default="full")
@@ -196,12 +173,6 @@ class Qwenvl_OFT(baseframework):
                     "reward": tuple(tokenizer.convert_tokens_to_ids(self.reward_query_tokens)),
                 }
             )
-        if self.action_prompt_mode == "minimal_agent":
-            self._special_token_ids.update(
-                {
-                    "mine_agent": tuple(tokenizer.convert_tokens_to_ids(self.mine_agent_query_tokens)),
-                }
-            )
 
         # if self.config.datasets.vla_data.load_act_data:
         self.action_input_model = MLP(
@@ -212,14 +183,6 @@ class Qwenvl_OFT(baseframework):
 
         self.infer_not_load_wan = infer_not_load_wan
 
-        self.agent_dino_loss_weight = float(OmegaConf.select(self.config, "framework.agent_dino.loss_weight", default=0.1))
-        self.agent_dino_dim = int(OmegaConf.select(self.config, "framework.agent_dino.feature_dim", default=384))
-        self.agent_dino_head = nn.Sequential(
-            nn.LayerNorm(self.qwen_vl_interface.model.config.hidden_size),
-            nn.Linear(self.qwen_vl_interface.model.config.hidden_size, self.qwen_vl_interface.model.config.hidden_size),
-            nn.GELU(),
-            nn.Linear(self.qwen_vl_interface.model.config.hidden_size, self.agent_dino_dim),
-        )
 
         llm_layers, llm_hidden_size = self.config.framework.action_model.diffusion_model_cfg.num_layers, self.qwen_vl_interface.model.config.hidden_size
 
@@ -254,14 +217,6 @@ class Qwenvl_OFT(baseframework):
         ## 2d gen
         if self.config.datasets.video_data.load_2d_data:
             if not infer_not_load_wan:
-                try:
-                    from starVLA.model.modules.video_model.wan_i2v_header import (
-                        WanWorldHead,
-                    )
-                except ModuleNotFoundError as error:
-                    raise ModuleNotFoundError(
-                        "2D world-head training requires the optional Wan dependencies"
-                    ) from error
                 self.rgb_model = WanWorldHead(self.config, accelerator)
 
         if self.config.datasets.video_data.load_2d_data:
@@ -281,14 +236,6 @@ class Qwenvl_OFT(baseframework):
                 )
 
         if self.config.datasets.gs_data.load_3d_data:
-            try:
-                from starVLA.model.modules.gs_model.storm_gs_header import (
-                    StormWorldHead,
-                )
-            except ModuleNotFoundError as error:
-                raise ModuleNotFoundError(
-                    "3D GS training requires the optional GaussianSTORM dependencies"
-                ) from error
             self.gs_model = StormWorldHead(self.config, accelerator)
 
         if self.config.datasets.reward_data.load_reward_data:
@@ -305,14 +252,6 @@ class Qwenvl_OFT(baseframework):
         self.w_depth = OmegaConf.select(self.config, "w_depth", default=0)
 
         if self.w_depth:
-            try:
-                from starVLA.model.modules.depth_model.models.ppd_train import (
-                    PixelPerfectDepth,
-                )
-            except ModuleNotFoundError as error:
-                raise ModuleNotFoundError(
-                    "Depth world-head training requires the optional PPD dependencies"
-                ) from error
             depth_ppd_path = 'starVLA/model/modules/depth_model/configs/train_finetune.yaml'
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
@@ -348,12 +287,6 @@ class Qwenvl_OFT(baseframework):
             )
             self.rgb_latent_type = nn.Parameter(torch.randn(1, 1, self.config.framework.action_model.hidden_size) * 0.02)
 
-    @property
-    def qwen_visual(self) -> nn.Module:
-        """Optimizer-facing alias for the nested Qwen visual backbone."""
-
-        return self.qwen_vl_interface.model.model.visual
-
 
     @staticmethod
     def _find_token_positions(input_ids, token_ids):
@@ -368,9 +301,6 @@ class Qwenvl_OFT(baseframework):
         act_str = "".join(self.act_query_tokens)
         if self.action_prompt_mode == "minimal":
             return f" {hist_str}{act_str}"
-        if self.action_prompt_mode == "minimal_agent":
-            mine_agent_str = "".join(self.mine_agent_query_tokens)
-            return f" {hist_str}{mine_agent_str}{act_str}"
 
         rgb_str = "".join(self.rgb_query_tokens)
         gs_str = "".join(self.gs_query_tokens)
@@ -378,38 +308,6 @@ class Qwenvl_OFT(baseframework):
         if self.w_depth:
             return f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
         return f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
-
-    def _record_qwen_visual_feature_gradient(
-        self, gradient: torch.Tensor
-    ) -> torch.Tensor:
-        """Record the action-loss gradient arriving at ``[N,C]`` image tokens."""
-
-        assert gradient.ndim == 2, "Qwen image-token gradient must be [N,C]"
-        self._last_qwen_visual_feature_grad_norm = (
-            gradient.detach().float().norm(dim=-1).mean()
-        )
-        return gradient
-
-    def get_backbone_training_metrics(self) -> dict[str, torch.Tensor]:
-        """Return low-cost evidence that the visual backbone receives gradients."""
-
-        visual = self.qwen_vl_interface.model.model.visual
-        reference = next(visual.parameters())
-        metrics = {
-            "qwen/visual_trainable": torch.tensor(
-                float(not self.qwen_visual_frozen), device=reference.device
-            ),
-            "qwen/visual_trainable_parameters": torch.tensor(
-                self.qwen_visual_trainable_parameters,
-                device=reference.device,
-                dtype=torch.int64,
-            ),
-        }
-        if self._last_qwen_visual_feature_grad_norm is not None:
-            metrics["qwen/visual_feature_grad_norm"] = (
-                self._last_qwen_visual_feature_grad_norm
-            )
-        return metrics
 
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
@@ -419,11 +317,6 @@ class Qwenvl_OFT(baseframework):
 
         device = self.qwen_vl_interface.model.device
         if all(payload is not None for payload in cached):
-            if not self.qwen_visual_frozen:
-                raise RuntimeError(
-                    "Qwen visual fine-tuning requires raw images; a frozen Qwen "
-                    "feature cache would block gradients"
-                )
             lengths = [int(payload["input_ids"].numel()) for payload in cached]
             max_length = max(lengths)
             batch_size = len(cached)
@@ -471,9 +364,6 @@ class Qwenvl_OFT(baseframework):
                 {name: torch.stack(values) for name, values in positions.items()},
                 image_embeds.to(device, non_blocking=True),
                 [value.to(device, non_blocking=True) for value in deepstack_embeds],
-                torch.stack(
-                    [payload["image_grid_thw"] for payload in cached], dim=0
-                ).to(device=device, dtype=torch.long, non_blocking=True),
             )
 
         batch_images = [example["image"] for example in examples]
@@ -490,19 +380,11 @@ class Qwenvl_OFT(baseframework):
                 video_grid_thw=qwen_inputs.get("video_grid_thw", None),
                 attention_mask=attention_mask,
             )
-        self._last_qwen_visual_feature_grad_norm = None
-        image_embeds, deepstack_embeds = encode_qwen_images(
-            self.qwen_vl_interface.model.model,
-            pixel_values=qwen_inputs["pixel_values"],
-            image_grid_thw=qwen_inputs["image_grid_thw"],
-            freeze_visual=self.qwen_visual_frozen,
-        )
-        if (
-            not self.qwen_visual_frozen
-            and torch.is_grad_enabled()
-            and image_embeds.requires_grad
-        ):
-            image_embeds.register_hook(self._record_qwen_visual_feature_gradient)
+            image_parts, deepstack_embeds = self.qwen_vl_interface.model.model.get_image_features(
+                qwen_inputs["pixel_values"],
+                qwen_inputs["image_grid_thw"],
+            )
+            image_embeds = torch.cat(image_parts, dim=0)
         positions = {
             name: self._find_token_positions(input_ids, token_ids)
             for name, token_ids in self._special_token_ids.items()
@@ -514,9 +396,6 @@ class Qwenvl_OFT(baseframework):
             positions,
             image_embeds,
             deepstack_embeds,
-            qwen_inputs["image_grid_thw"].reshape(
-                len(examples), len(examples[0]["image"]), 3
-            ),
         )
 
     def _qwen_language_forward(
@@ -550,55 +429,6 @@ class Qwenvl_OFT(baseframework):
         )
         return outputs.last_hidden_state
 
-    def _compute_query_extension(
-        self,
-        last_hidden,
-        token_positions,
-        examples,
-        *,
-        input_ids=None,
-        image_grid_thw=None,
-    ):
-        """Extension hook; the legacy framework has no auxiliary query source."""
-        return {
-            "action_context": None,
-            "context_mask": None,
-            "losses": {},
-            "metrics": {},
-        }
-
-    def _condition_action_queries(self, action_queries, extension):
-        """Extension hook returning action queries, context and diagnostics."""
-        return action_queries, extension.get("action_context"), {}
-
-    def _condition_inference_action_queries(
-        self,
-        last_hidden,
-        input_ids,
-        action_queries,
-        *,
-        image_grid_thw=None,
-        examples=None,
-    ):
-        """Inference extension hook; ``None`` context is exact baseline behavior."""
-        del examples
-        return action_queries, None, {}
-
-    def _attach_framework_outputs(self, result, action_loss, extension, planner_metrics):
-        """Attach opt-in named losses/metrics without changing legacy outputs."""
-        if not self._use_named_loss_contract:
-            return result
-        result["losses"] = {"action": action_loss, **extension.get("losses", {})}
-        result["metrics"] = {
-            **extension.get("metrics", {}),
-            **{
-                name: value
-                for name, value in planner_metrics.items()
-                if torch.is_tensor(value) and value.numel() == 1
-            },
-        }
-        return result
-
     def forward(
         self,
         examples: List[dict] = None,
@@ -609,11 +439,11 @@ class Qwenvl_OFT(baseframework):
         instructions = [example["lang"] for example in examples]  # [B, str]
         try:
             actions = [example["action"] for example in examples]  # label [B， len, 7]
-        except KeyError:
+        except:
             actions = None
         try:
             states = [example["state"] for example in examples]
-        except KeyError:
+        except:
             states = None
 
         if self.w_depth:
@@ -629,7 +459,6 @@ class Qwenvl_OFT(baseframework):
             token_positions,
             image_embeds,
             deepstack_embeds,
-            image_grid_thw,
         ) = self._build_qwen_batch(examples, instructions)
 
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -637,12 +466,11 @@ class Qwenvl_OFT(baseframework):
 
 
         # if self.config.datasets.vla_data.load_act_data: 
-        state_device = next(self.action_input_model.parameters()).device
         with torch.autocast("cuda", dtype=torch.float32):
             # 映射到 hidden 维: [B, H]
-            states = torch.as_tensor(np.asarray(states), dtype=torch.float32).to(state_device)[:, 0, :]
+            states = torch.as_tensor(np.asarray(states), device=text_embeds.device)[:, 0, :]
             states_embed = self.action_input_model(states)  # [B, H]
-        states_embed = states_embed.to(dtype=text_embeds.dtype, device=text_embeds.device)
+        states_embed = states_embed.to(dtype=text_embeds.dtype)
 
         # if self.w_depth:
         #     with torch.autocast("cuda", dtype=torch.float32):
@@ -680,46 +508,6 @@ class Qwenvl_OFT(baseframework):
                 deepstack_embeds=deepstack_embeds,
             )
 
-        query_extension = self._compute_query_extension(
-            last_hidden,
-            token_positions,
-            examples,
-            input_ids=input_ids,
-            image_grid_thw=image_grid_thw,
-        )
-        planner_metrics = {}
-
-        agent_dino_loss = torch.tensor(0.).to(text_embeds.device)
-        if self.action_prompt_mode == "minimal_agent":
-            mine_agent_g_idx = token_positions["mine_agent"].unsqueeze(-1).expand(-1, -1, H)
-            mine_agent_queries = last_hidden.gather(dim=1, index=mine_agent_g_idx)  # [B, 4, H]
-            agent_dino_payloads = [example.get("agent_dino_feature_cache") for example in examples]
-            if all(payload is not None for payload in agent_dino_payloads):
-                teacher_features = []
-                teacher_masks = []
-                for payload in agent_dino_payloads:
-                    feats = payload["agent_features"].to(device=mine_agent_queries.device, dtype=torch.float32)
-                    valid_count = int(feats.shape[0])
-                    pad_count = max(0, 4 - valid_count)
-                    if pad_count:
-                        pad = torch.zeros((pad_count, feats.shape[1]), device=feats.device, dtype=feats.dtype)
-                        feats = torch.cat([feats, pad], dim=0)
-                    teacher_features.append(feats[:4])
-                    mask = torch.zeros((4,), device=mine_agent_queries.device, dtype=torch.bool)
-                    mask[:min(valid_count, 4)] = True
-                    teacher_masks.append(mask)
-                teacher_features = torch.stack(teacher_features, dim=0)  # [B,4,D]
-                teacher_masks = torch.stack(teacher_masks, dim=0)        # [B,4]
-                if next(self.agent_dino_head.parameters()).device != mine_agent_queries.device:
-                    self.agent_dino_head = self.agent_dino_head.to(mine_agent_queries.device)
-                pred_features = self.agent_dino_head(mine_agent_queries.float())  # [B,4,D]
-                if teacher_masks.any():
-                    agent_dino_loss = F.smooth_l1_loss(
-                        pred_features[teacher_masks],
-                        teacher_features[teacher_masks],
-                    )
-            agent_dino_loss = agent_dino_loss * self.agent_dino_loss_weight
-
         #### video gen ####
         if self.config.datasets.video_data.load_2d_data:
 
@@ -753,9 +541,6 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.vla_data.load_act_data == 1:
             g_idx = token_positions["action"].unsqueeze(-1).expand(-1, -1, H)
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
-            action_queries, action_context, planner_metrics = self._condition_action_queries(
-                action_queries, query_extension
-            )
 
             with torch.autocast("cuda", dtype=torch.float32):
                 if type(actions) == list:
@@ -769,11 +554,6 @@ class Qwenvl_OFT(baseframework):
                 repeat_actions = actions.repeat(repeated_diffusion_steps, 1, 1)
                 # 对每层特征做 repeat
                 repeat_action_queries = action_queries.repeat(repeated_diffusion_steps, 1, 1)
-                repeat_action_context = (
-                    action_context.repeat(repeated_diffusion_steps, 1, 1)
-                    if action_context is not None
-                    else None
-                )
 
                 if self.w_video_latent:
                     video_token = self.rgb_latent_adapter(video_latent)
@@ -782,12 +562,7 @@ class Qwenvl_OFT(baseframework):
                     video_token = None
 
                 if self.mlp_head == 0:
-                    action_loss = self.action_model(
-                        repeat_action_queries,
-                        repeat_actions,
-                        video_token,
-                        extra_context=repeat_action_context,
-                    )  # scalar flow-matching loss
+                    action_loss = self.action_model(repeat_action_queries, repeat_actions, video_token)  # (B, chunk_len, action_dim)
                 else:
                     b, l, h = action_queries.shape
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
@@ -870,17 +645,11 @@ class Qwenvl_OFT(baseframework):
             with torch.autocast("cuda", dtype=torch.float32):
                 reward_loss = self.reward_model(reward_queries, reward_data)
             
-            result = {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
-            return self._attach_framework_outputs(
-                result, action_loss, query_extension, planner_metrics
-            )
+            return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss}
         else:
             reward_loss = torch.tensor(0.).cuda()
 
-        result = {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss, "agent_dino_loss": agent_dino_loss}
-        return self._attach_framework_outputs(
-            result, action_loss, query_extension, planner_metrics
-        )
+        return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss}
 
     @torch.inference_mode()
     def predict_action(
@@ -922,8 +691,8 @@ class Qwenvl_OFT(baseframework):
         # actions = [example["action"] for example in examples]  # label [B， len, 7]
         try:
             states = [example["state"] for example in examples]
-        except KeyError:
-            states = None
+        except:
+            state = None
 
         suffix = self._build_action_prompt_suffix()
         instructions = [instruction + suffix for instruction in instructions]
@@ -945,6 +714,7 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.reward_data.load_reward_data:
             # one token
             reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
+
         input_ids      = qwen_inputs["input_ids"]          # [B, L]
         attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -1077,22 +847,13 @@ class Qwenvl_OFT(baseframework):
             act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
             g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
             action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
-            action_queries, action_context, _ = self._condition_inference_action_queries(
-                last_hidden,
-                input_ids,
-                action_queries,
-                image_grid_thw=qwen_inputs["image_grid_thw"],
-                examples=examples,
-            )
 
             with torch.autocast("cuda", dtype=torch.float32):
                 # 提取动作 token embedding 作为动作预测查询
                 # input_ids = qwen_inputs.get("input_ids", None)
                 # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
                 if self.mlp_head == 0:
-                    pred_actions = self.action_model.predict_action(
-                        action_queries, extra_context=action_context
-                    )  # (B, chunk_len, action_dim)
+                    pred_actions = self.action_model.predict_action(action_queries)  # (B, chunk_len, action_dim)
                 else:
                     pred_actions = self.action_model(action_queries)
 
@@ -1174,7 +935,7 @@ class Qwenvl_OFT(baseframework):
     def predict_action_infer_1d(
         self,
         examples,
-        **kwargs,
+        **kwargs: str,
     ) -> np.ndarray:
         """
         推理：单次前向直接回归未来动作（无扩散采样）。
@@ -1238,6 +999,7 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.reward_data.load_reward_data:
             # one token
             reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
+
         input_ids      = qwen_inputs["input_ids"]          # [B, L]
         attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -1397,47 +1159,17 @@ class Qwenvl_OFT(baseframework):
         act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
         g_idx = act_pos_idx.unsqueeze(-1).expand(-1, -1, H)                      # [B, T, H]
         action_queries = last_hidden.gather(dim=1, index=g_idx)                     # [B, T, H]
-        action_queries, action_context, _ = self._condition_inference_action_queries(
-            last_hidden,
-            input_ids,
-            action_queries,
-            image_grid_thw=qwen_inputs["image_grid_thw"],
-            examples=examples,
-        )
-
-        num_trajectory_samples = int(kwargs.get("num_trajectory_samples", 1))
-        if num_trajectory_samples < 1:
-            raise ValueError("num_trajectory_samples must be a positive integer")
 
         with torch.autocast("cuda", dtype=torch.float32):
             # 提取动作 token embedding 作为动作预测查询
             # input_ids = qwen_inputs.get("input_ids", None)
             # action_queries = self._gather_action_token_embeddings(last_hidden, input_ids, action_token_id=self.action_token_id)  # [B, chunk_len, H]
-            # Keep candidates sample-major. This preserves candidate zero as
-            # the first B random draws used by legacy single-sample inference.
-            if num_trajectory_samples > 1:
-                action_queries = action_queries.repeat(
-                    num_trajectory_samples, 1, 1
-                )
-                if action_context is not None:
-                    action_context = action_context.repeat(
-                        num_trajectory_samples, 1, 1
-                    )
-
             if self.mlp_head == 0:
-                pred_actions = self.action_model.predict_action(
-                    action_queries, extra_context=action_context
-                )  # (B, chunk_len, action_dim)
+                pred_actions = self.action_model.predict_action(action_queries)  # (B, chunk_len, action_dim)
             else:
                 pred_actions = self.action_model(action_queries)
 
         normalized_actions = pred_actions.detach().cpu().numpy()
-        if num_trajectory_samples > 1:
-            normalized_actions = normalized_actions.reshape(
-                num_trajectory_samples,
-                B,
-                *normalized_actions.shape[1:],
-            ).transpose(1, 0, 2, 3)
 
         # if self.config.datasets.video_data.load_2d_data:
         if False:
@@ -1573,6 +1305,7 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.reward_data.load_reward_data:
             # one token
             reward_ids = tok.convert_tokens_to_ids(self.reward_query_tokens)
+
         input_ids      = qwen_inputs["input_ids"]          # [B, L]
         attention_mask = qwen_inputs["attention_mask"]     # [B, L]
         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -1619,12 +1352,6 @@ class Qwenvl_OFT(baseframework):
                 gs_query_reordered = self.gs_query[order]    # [64, H]
 
                 text_embeds[b, where, :] = gs_query_reordered
-
-            if self.action_prompt_mode == "minimal_agent":
-                mine_agent_ids_tensor = torch.tensor(mine_agent_ids, device=input_ids.device)
-                where = torch.isin(input_ids[b], mine_agent_ids_tensor).nonzero(as_tuple=False).squeeze(1)
-                _, order = torch.sort(where)
-                mine_agent_query_reordered = self.mine_agent_query[order] if hasattr(self, "mine_agent_query") else None
 
             # replace reward token
             if self.config.datasets.reward_data.load_reward_data:

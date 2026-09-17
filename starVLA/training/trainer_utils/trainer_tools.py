@@ -75,6 +75,24 @@ def resolve_training_step_contract(cfg):
     return resume_step, max_train_steps - resume_step
 
 
+def hold_lr_scheduler_after_step(lr_scheduler, hold_step):
+    """Clamp every LambdaLR schedule to its value at ``hold_step``."""
+
+    hold_step = int(hold_step)
+    if hold_step < 0:
+        raise ValueError("hold_step must be non-negative")
+    lr_lambdas = getattr(lr_scheduler, "lr_lambdas", None)
+    if not lr_lambdas:
+        raise TypeError("LR scheduler must expose a non-empty lr_lambdas list")
+    lr_scheduler.lr_lambdas = [
+        lambda current_step, schedule=schedule: schedule(
+            min(int(current_step), hold_step)
+        )
+        for schedule in lr_lambdas
+    ]
+    return lr_scheduler
+
+
 def build_param_lr_groups(model, cfg):
     """
     build multiple param groups based on cfg.trainer.learning_rate.

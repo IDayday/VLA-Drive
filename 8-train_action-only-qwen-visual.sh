@@ -14,9 +14,27 @@ unset NAVSIM_AGENT_DINO_CACHE_ROOT
 unset NAVSIM_VGGT_CACHE_ROOT
 export NAVSIM_USE_FEATURE_CACHE=0
 
-num_machines="${NUM_MACHINES:-${WORLD_SIZE:-1}}"
-machine_rank="${MACHINE_RANK:-${RANK:-0}}"
 local_processes="${LOCAL_NUM_PROCESSES:-${NPROC_PER_NODE:-16}}"
+if ! [[ "$local_processes" =~ ^[1-9][0-9]*$ ]]; then
+  echo "LOCAL_NUM_PROCESSES must be a positive integer, got: $local_processes" >&2
+  exit 2
+fi
+if [[ -n "${NUM_MACHINES:-}" ]]; then
+  num_machines="$NUM_MACHINES"
+elif [[ -n "${WORLD_SIZE:-}" ]]; then
+  if ! [[ "$WORLD_SIZE" =~ ^[1-9][0-9]*$ ]]; then
+    echo "WORLD_SIZE must be a positive integer, got: $WORLD_SIZE" >&2
+    exit 2
+  fi
+  if (( WORLD_SIZE >= local_processes && WORLD_SIZE % local_processes == 0 )); then
+    num_machines=$((WORLD_SIZE / local_processes))
+  else
+    num_machines="$WORLD_SIZE"
+  fi
+else
+  num_machines=1
+fi
+machine_rank="${MACHINE_RANK:-${RANK:-0}}"
 num_processes="${NUM_PROCESSES:-$((num_machines * local_processes))}"
 # Match the released DDP action-only optimization geometry by default. Visual
 # activation checkpointing keeps the trainable vision tower within the PPU
@@ -24,6 +42,13 @@ num_processes="${NUM_PROCESSES:-$((num_machines * local_processes))}"
 per_device_batch="${PER_DEVICE_BATCH_SIZE:-2}"
 gradient_accumulation="${GRADIENT_ACCUMULATION_STEPS:-1}"
 target_effective_batch="${TARGET_EFFECTIVE_BATCH_SIZE:-32}"
+expected_ppus="${QWEN_VISUAL_EXPECTED_PPU_COUNT:-}"
+dlc_dry_run="${QWEN_VISUAL_DLC_DRY_RUN:-0}"
+dlc_preflight="${QWEN_VISUAL_DLC_PREFLIGHT:-0}"
+dlc_preflight_only="${QWEN_VISUAL_DLC_PREFLIGHT_ONLY:-0}"
+tune_dry_run="${QWEN_VISUAL_TUNE_DRY_RUN:-0}"
+constant_learning_rate="${QWEN_VISUAL_CONSTANT_LEARNING_RATE:-0}"
+lr_decay_steps="${QWEN_VISUAL_LR_DECAY_STEPS:-}"
 
 for pair in \
   "NUM_MACHINES:$num_machines" \
@@ -44,6 +69,10 @@ if (( num_machines < 1 || local_processes < 1 || num_processes < 1 )); then
   echo "Training process counts must be positive" >&2
   exit 2
 fi
+if (( machine_rank >= num_machines )); then
+  echo "MACHINE_RANK=$machine_rank is outside NUM_MACHINES=$num_machines" >&2
+  exit 2
+fi
 if (( per_device_batch < 1 || gradient_accumulation < 1 )); then
   echo "Batch size and gradient accumulation must be positive" >&2
   exit 2
@@ -57,6 +86,32 @@ if (( effective_batch != target_effective_batch )); then
   echo "Refusing effective batch $effective_batch; expected $target_effective_batch" >&2
   echo "Formula: $num_processes x $per_device_batch x $gradient_accumulation" >&2
   exit 2
+fi
+if [[ -n "$expected_ppus" ]]; then
+  if ! [[ "$expected_ppus" =~ ^[1-9][0-9]*$ ]]; then
+    echo "QWEN_VISUAL_EXPECTED_PPU_COUNT must be a positive integer, got: $expected_ppus" >&2
+    exit 2
+  fi
+  if (( num_machines != 1 || machine_rank != 0 || local_processes != expected_ppus || num_processes != expected_ppus )); then
+    echo "Expected one DLC node with $expected_ppus processes; got nodes=$num_machines rank=$machine_rank local=$local_processes global=$num_processes" >&2
+    exit 2
+  fi
+fi
+for pair in \
+  "QWEN_VISUAL_DLC_DRY_RUN:$dlc_dry_run" \
+  "QWEN_VISUAL_DLC_PREFLIGHT:$dlc_preflight" \
+  "QWEN_VISUAL_DLC_PREFLIGHT_ONLY:$dlc_preflight_only" \
+  "QWEN_VISUAL_TUNE_DRY_RUN:$tune_dry_run" \
+  "QWEN_VISUAL_CONSTANT_LEARNING_RATE:$constant_learning_rate"; do
+  variable="${pair%%:*}"
+  value="${pair#*:}"
+  if [[ "$value" != "0" && "$value" != "1" ]]; then
+    echo "$variable must be 0 or 1, got: $value" >&2
+    exit 2
+  fi
+done
+if [[ "$dlc_preflight_only" == "1" ]]; then
+  dlc_preflight=1
 fi
 
 split="${SPLIT:-train}"
@@ -72,6 +127,7 @@ qwen_learning_rate="${QWEN_LEARNING_RATE:-1e-5}"
 visual_learning_rate="${VISUAL_LEARNING_RATE:-2e-6}"
 action_learning_rate="${ACTION_LEARNING_RATE:-1e-5}"
 weight_decay="${OPTIMIZER_WEIGHT_DECAY:-1e-3}"
+attention_implementation="${QWEN_VISUAL_ATTN_IMPLEMENTATION:-sdpa}"
 resume_ckpt="${QWEN_VISUAL_RESUME_CKPT:-none}"
 initial_step="${QWEN_VISUAL_INITIAL_STEP:-0}"
 resume_strict="${QWEN_VISUAL_RESUME_STRICT:-0}"
@@ -79,6 +135,14 @@ expected_train_samples="${EXPECTED_TRAIN_SAMPLES:-}"
 timestamp="$(date +'%Y%m%d_%H%M%S')"
 run_id="${RUN_ID:-qwen-visual-action-only-${PAI_JOB_ID:-$timestamp}}"
 
+if ! [[ "$max_train_steps" =~ ^[1-9][0-9]*$ ]]; then
+  echo "MAX_TRAIN_STEPS must be a positive integer, got: $max_train_steps" >&2
+  exit 2
+fi
+if ! [[ "$warmup_steps" =~ ^[0-9]+$ ]]; then
+  echo "NUM_WARMUP_STEPS must be a non-negative integer, got: $warmup_steps" >&2
+  exit 2
+fi
 if ! [[ "$initial_step" =~ ^[0-9]+$ ]]; then
   echo "QWEN_VISUAL_INITIAL_STEP must be a non-negative integer, got: $initial_step" >&2
   exit 2
@@ -99,6 +163,28 @@ if [[ "$resume_ckpt" != "none" ]]; then
   fi
   if (( initial_step >= max_train_steps )); then
     echo "QWEN_VISUAL_INITIAL_STEP must be smaller than MAX_TRAIN_STEPS" >&2
+    exit 2
+  fi
+fi
+if [[ -n "$lr_decay_steps" ]]; then
+  if ! [[ "$lr_decay_steps" =~ ^[1-9][0-9]*$ ]]; then
+    echo "QWEN_VISUAL_LR_DECAY_STEPS must be a positive integer, got: $lr_decay_steps" >&2
+    exit 2
+  fi
+  if (( lr_decay_steps <= warmup_steps )); then
+    echo "QWEN_VISUAL_LR_DECAY_STEPS must be greater than NUM_WARMUP_STEPS" >&2
+    exit 2
+  fi
+  if (( lr_decay_steps > max_train_steps )); then
+    echo "QWEN_VISUAL_LR_DECAY_STEPS must not exceed MAX_TRAIN_STEPS" >&2
+    exit 2
+  fi
+  if (( initial_step != 0 )); then
+    echo "QWEN_VISUAL_LR_DECAY_STEPS is only valid for from-scratch training" >&2
+    exit 2
+  fi
+  if [[ "$constant_learning_rate" == "1" ]]; then
+    echo "QWEN_VISUAL_LR_DECAY_STEPS cannot be combined with QWEN_VISUAL_CONSTANT_LEARNING_RATE=1" >&2
     exit 2
   fi
 fi
@@ -134,7 +220,7 @@ training_args=(
   --config_yaml "$base_config"
   --config_overlay "$experiment_config"
   --framework.qwenvl.base_vlm "$BASE_VLM"
-  --framework.qwenvl.attn_implementation "${QWEN_VISUAL_ATTN_IMPLEMENTATION:-sdpa}"
+  --framework.qwenvl.attn_implementation "$attention_implementation"
   --run_root_dir "$NAVSIM_EXP_ROOT"
   --run_id "$run_id"
   --wandb_project "$WANDB_PROJECT"
@@ -171,22 +257,98 @@ if [[ -n "$expected_train_samples" ]]; then
     --datasets.vla_data.expected_sample_count "$expected_train_samples"
   )
 fi
+if [[ -n "$lr_decay_steps" ]]; then
+  training_args+=(
+    --trainer.lr_scheduler_decay_steps "$lr_decay_steps"
+  )
+fi
+if [[ "$constant_learning_rate" == "1" ]]; then
+  training_args+=(
+    --trainer.lr_scheduler_type constant
+    --trainer.scheduler_specific_kwargs null
+  )
+fi
 
 echo "[qwen-visual] project=$DRIVEDREAMER_ROOT run_id=$run_id"
 echo "[qwen-visual] topology=nodes:$num_machines rank:$machine_rank local:$local_processes global:$num_processes"
 echo "[qwen-visual] effective_batch=$effective_batch (per_device=$per_device_batch accumulation=$gradient_accumulation)"
 echo "[qwen-visual] lr=qwen:$qwen_learning_rate visual:$visual_learning_rate action:$action_learning_rate"
-echo "[qwen-visual] auxiliary_models=disabled feature_caches=disabled attention=${QWEN_VISUAL_ATTN_IMPLEMENTATION:-sdpa}"
+if [[ "$constant_learning_rate" == "1" ]]; then
+  scheduler_summary="constant"
+elif [[ -n "$lr_decay_steps" ]]; then
+  scheduler_summary="config-default decay_steps=$lr_decay_steps hold_after=$lr_decay_steps"
+else
+  scheduler_summary="config-default"
+fi
+echo "[qwen-visual] lr_scheduler=$scheduler_summary warmup_steps=$warmup_steps"
+echo "[qwen-visual] auxiliary_models=disabled feature_caches=disabled attention=$attention_implementation"
 echo "[qwen-visual] global_steps=$initial_step->$max_train_steps expected_train_samples=${expected_train_samples:-unchecked}"
 if [[ "$resume_ckpt" != "none" ]]; then
   echo "[qwen-visual] weight_continuation=$resume_ckpt strict=$resume_strict optimizer_state=fresh"
 fi
 
-if [[ "${QWEN_VISUAL_TUNE_DRY_RUN:-0}" == "1" ]]; then
+if [[ "$tune_dry_run" == "1" || "$dlc_dry_run" == "1" ]]; then
   printf '[qwen-visual] DRY-RUN:'
   printf ' %q' env CUDA_VISIBLE_DEVICES="$visible_devices" accelerate launch "${launch_args[@]}" starVLA/training/train_starvla.py "${training_args[@]}"
   printf '\n'
   exit 0
+fi
+
+if [[ "$dlc_preflight" == "1" ]]; then
+  detected_local_devices="$(python -c 'import torch; print(torch.cuda.device_count())')"
+  if ! [[ "$detected_local_devices" =~ ^[0-9]+$ ]]; then
+    echo "Unable to detect visible accelerator count: $detected_local_devices" >&2
+    exit 2
+  fi
+  if (( detected_local_devices != local_processes )); then
+    echo "PyTorch sees $detected_local_devices accelerators, but LOCAL_NUM_PROCESSES=$local_processes" >&2
+    exit 2
+  fi
+  python - "$attention_implementation" <<'PY'
+import importlib
+import json
+import sys
+
+import torch
+
+required = ("accelerate", "deepspeed", "omegaconf", "safetensors", "transformers", "wandb")
+versions = {"torch": torch.__version__}
+for name in required:
+    try:
+        module = importlib.import_module(name)
+    except Exception as error:
+        raise RuntimeError(
+            f"Required Qwen visual-training package {name!r} is unavailable: {error}"
+        ) from error
+    versions[name] = getattr(module, "__version__", "UNKNOWN")
+if not torch.cuda.is_available():
+    raise RuntimeError("DLC CUDA-compatible accelerator runtime is unavailable")
+if not torch.cuda.is_bf16_supported():
+    raise RuntimeError("The visible DLC accelerator runtime does not support BF16")
+if sys.argv[1] == "flash_attention_2":
+    try:
+        flash_attn = importlib.import_module("flash_attn")
+    except Exception as error:
+        raise RuntimeError(
+            "QWEN_VISUAL_ATTN_IMPLEMENTATION=flash_attention_2 requires a "
+            f"device-compatible flash-attn build: {error}"
+        ) from error
+    versions["flash_attn"] = getattr(flash_attn, "__version__", "UNKNOWN")
+versions["device_count"] = torch.cuda.device_count()
+versions["device_0"] = torch.cuda.get_device_name(0)
+print("[qwen-visual] runtime=" + json.dumps(versions, sort_keys=True))
+PY
+  if ! command -v torchrun >/dev/null 2>&1; then
+    echo "torchrun is unavailable in the DLC image" >&2
+    exit 2
+  fi
+  torchrun --standalone --nnodes=1 --nproc-per-node="$local_processes" \
+    "$DRIVEDREAMER_ROOT/tools/check_ppu_runtime.py"
+  echo "[qwen-visual] DLC $local_processes-device runtime preflight PASS"
+  if [[ "$dlc_preflight_only" == "1" ]]; then
+    echo "[qwen-visual] QWEN_VISUAL_DLC_PREFLIGHT_ONLY=1; training was not started"
+    exit 0
+  fi
 fi
 
 required_paths=(
@@ -227,6 +389,7 @@ if [[ "${QWEN_VISUAL_RUN_SMOKE_BEFORE_FORMAL:-1}" == "1" && "${QWEN_VISUAL_SMOKE
       RUN_ID="$smoke_run_id" \
       MAX_TRAIN_STEPS=2 \
       NUM_WARMUP_STEPS=2 \
+      QWEN_VISUAL_LR_DECAY_STEPS= \
       SAVE_INTERVAL=999999 \
       TRAINING_LOGGING_FREQUENCY=1 \
       TRAINING_SKIP_FINAL_SAVE=1 \
