@@ -1,0 +1,248 @@
+"""Read-only assertions over measured v3 runs; emits semantic evidence, never READY.
+
+No model is evaluated by this collation step. Each model gate is explicitly
+bound to its real run receipts, full CUDA rank inventories and actual artifacts.
+The separate production publisher still revalidates the live asset identity and
+all semantic gates. Missing/failed artifacts stop this verifier before output.
+"""
+import argparse
+import copy
+import json
+from pathlib import Path
+import sys
+from starVLA.rl.flow_grpo.acceptance import GATE_REQUIREMENTS, executable_identity, validate_gate_evidence, validate_observed_dtypes
+from starVLA.rl.flow_grpo.audit import source_fingerprints
+from starVLA.rl.flow_grpo.config import resolve_config, config_hash
+from starVLA.rl.flow_grpo.contracts import digest, check_manifest
+from starVLA.rl.flow_grpo.loading import file_sha
+
+parser = argparse.ArgumentParser(__doc__)
+parser.add_argument('variant', choices=['f', 'u'])
+args = parser.parse_args()
+v = args.variant
+variant = {'f':'frozen_visual','u':'unfrozen_visual'}[v]
+root = Path('runs/production_acceptance_v3')
+report_root = Path('reports/ddp_flow_grpo_production_v3')
+cfg, sft = resolve_config(f'runs/paired_full_assets_v1/published_v2/configs/paired_{variant}.yaml')
+run = root / f'{v}_full_cont'
+context = json.loads((run/'execution_context.json').read_text())
+assert executable_identity() == context['executable_sha256']
+assert config_hash(cfg) == context['config_sha256']
+assert context['world_size'] == 4
+assert cfg['checkpoint_contract']['sha256'] == context['checkpoint_sha256']
+tests = []
+receipts = {}
+
+def read(path):
+    path=Path(path)
+    receipts[str(path)]={'path':str(path.resolve()),'sha256':file_sha(path)}
+    return json.loads(path.read_text())
+
+def passed_exit(name):
+    path=root/(name+'.exit')
+    assert path.read_text().strip() == '0', path
+    receipts[str(path)]={'path':str(path.resolve()),'sha256':file_sha(path)}
+
+def source(run_path):
+    candidates=list(run_path.glob('source_environment_*.json'))
+    assert len(candidates)==1, candidates
+    env=read(candidates[0])
+    assert env['source_sha256']==source_fingerprints(), run_path
+    assert env['git_sha']=='3fe5305b1868bd66b4bbacb6a13432b918d442d9'
+    assert env['checkpoint_contract']['sha256']==context['checkpoint_sha256']
+    return env
+
+env=source(run)
+for suffix in ['full_cont','full_resume','full_resume_comparison','full_resume_ode','full_adam_oracle','full_export','full_export_check','full_repeat','full_repeat_comparison','checkpointing_offload1','checkpointing_comparison']:
+    passed_exit(v+'_'+suffix)
+for name in ['full_resume','full_repeat','rl_only','sft_only','ref_only','scale1','scale4','checkpointing_offload1']:
+    source(root/f'{v}_{name}')
+inventory_path=report_root/f'{v}_full_observed_dtype.json'
+inventory_artifact={'path':str(inventory_path.resolve()),'sha256':file_sha(inventory_path)}
+validate_observed_dtypes(inventory_artifact,4)
+inventory=read(inventory_path)
+observed={'device_type':'cuda','precision':'bfloat16','backend':'deepspeed','world_size':4,
+          'devices':[r['device'] for r in inventory['ranks']], 'zero_stage':2}
+numerics=context['resume_identity']['numerics']
+for key in ['candidate_chunk','transition_chunk','activation_checkpointing','optimizer_offload','attention_backend']:
+    observed[key]=numerics[key]
+# Numerical switches are checked against the actual per-run environment/config,
+# not used as substitutes for dtype buffers/activation observations above.
+actual_cfg=read(run/'rl_config.json')
+assert actual_cfg['runtime']['activation_checkpointing'] is True
+assert actual_cfg['runtime']['optimizer_offload'] is False
+assert actual_cfg['sampling']['candidate_chunk_size']==1
+assert actual_cfg['sampling']['transition_chunk_size']==1
+assert env['launch_environment']['WORLD_SIZE']=='4'
+assert env['deterministic_algorithms'] is True
+
+def gate(name, results, artifacts, note='', profile=None):
+    category,checks=GATE_REQUIREMENTS[name]
+    assert checks <= set(results), (name, checks-set(results))
+    assert all(results[k] is True for k in checks), name
+    row={'schema_version':1,'test_id':name,'status':'PASS',
+         'execution':{'completed':True,'exit_code':0,'command':f'{sys.executable} runs/production_acceptance_v3/verify_release_measurements.py {v}',
+                      'executable_sha256':context['executable_sha256'],
+                      'verification_script_sha256':file_sha(__file__),
+                      'kind':'assertions over completed real executions; this verifier performs no model inference or updates'},
+         'checkpoint':{'sha256':context['checkpoint_sha256'],'variant':variant},
+         'scope':{'kind':'full_model','checks':sorted(checks),'note':note},
+         'observed_profile':copy.deepcopy(profile or observed),
+         'results':results,'artifacts':artifacts}
+    if category=='production':
+        row.update(declared_profile=numerics,config_sha256=context['config_sha256'],resume_identity_sha256=digest(context['resume_identity']))
+        row['artifacts']['dtype_inventory']=inventory_artifact
+    if category.startswith('tool'):
+        row['checkpoint']=None
+        row['scope']['kind']='model_independent'
+    tests.append(row)
+
+contract=read(root/'full_paired_contract.json')
+assert contract['status']=='PASS'
+actor=read(run/'actor_parameter_manifest.json')
+src=read(run/'source_sft_parameter_manifest.json')
+exceptions=read(run/'parameter_contract_exceptions.json')
+check_manifest(src,actor,exceptions['authorized_frozen_parameter_names'])
+trainable={p['name'] for p in actor['parameters'] if p['requires_grad']}
+assert len(trainable)==672
+assert not trainable.intersection(exceptions['authorized_frozen_parameter_names'])
+gate('parameter_contract',dict(name_shape_alias_groups_equal=True,visual_optimizer_excluded=True),{'contract':receipts[str(root/'full_paired_contract.json')]})
+
+immutables=[]
+for update in [1,2]:
+    for rank in range(4):
+        path=run/f'immutable_update{update:06}_rank{rank}.json'
+        row=read(path)
+        assert row['status']=='TESTED' and row['before']==row['after']
+        assert row['changed']=={'reference':[],'frozen':[]}
+        immutables.append(receipts[str(path)])
+gate('own_visual_unchanged',dict(own_visual_equal_initial=True,reference_unchanged=True),{'all_rank_full_tensor_hashes':immutables})
+
+gradient_artifacts=[]
+for scope,update in [('rl_only',1),('sft_only',1),('ref_only',2)]:
+    path=root/f'{v}_{scope}'/'checkpoints'/f'update_{update:06}'/'COMPLETE'
+    assert path.is_file(), path
+    for rank in range(4):
+        path=root/f'{v}_{scope}'/'optimizer_gradients'/f'update_{update:06}'/f'rank_{rank}'/'manifest.json'
+        row=read(path)
+        assert row['frozen_with_gradient']==[]
+        assert {p['name'] for p in row['parameters']}==trainable
+        assert all(p['present'] and p['finite'] and p['nonzero']>0 and p['dtype']=='torch.float32' for p in row['parameters'])
+        gradient_artifacts.append(receipts[str(path)])
+rl=read(root/'rl_only_optimizer_summary.json')[v]
+assert rl['official_nonzero_advantage_groups']==9
+assert rl['reference_frozen_hashes_unchanged'] and not rl['visual_optimizer_gradients']
+gate('rl_sft_reference_gradients',dict(rl_full_parameter_coverage=True,sft_coverage=True,reference_loss_current_gradient=True,visual_reference_no_grad=True,official_nonzero_advantage_groups=9),
+     {'actual_optimizer_gradients':gradient_artifacts},
+     'Ancillary branch-isolation CUDA4 runs use the locked 16 calibration groups, disjoint full dev, same source/weights/profile. Isolated raw SFT/KL use coefficient1; not a joint-loss scaling test. SFT process return code was not retained; complete checkpoints and actual all-rank pre-clip optimizer gradients are verified here. Full joint target execution/dtypes are separately bound.')
+
+math_path=root/f'{v}_fp32_math_final'/'numerical_report.json'
+mat=read(math_path)
+source(math_path.parent)
+assert mat['precision']=='fp32' and mat['device']=='cuda'
+assert mat['weight_sha256']==context['checkpoint_sha256']
+assert set(mat['groups'])=={'2','8'} and mat['visual_unchanged']
+for group in mat['groups'].values():
+    assert group['status']=='PASS'
+    assert all(c['status']=='PASS' for c in group['comparisons'].values())
+    assert 'post_fixed_noise_ode' in group['comparisons']['layers']['parameters']
+profile={'device_type':'cuda','precision':'float32','backend':'pytorch','world_size':1,'devices':[env['devices'][0]]}
+gate('fp32_chunk_mathematics',dict(gradients_equal=True,optimizer_updates_equal=True,fixed_noise_equal=True,chunks=[1,2],groups=[2,8],num_steps=10),{'mathematical_measurements':receipts[str(math_path)]},
+     'Actual CUDA FP32 mathematical group results only. Native root NOT_READY/production_gate NOT_RUN is intentionally retained: this experiment never certifies BF16 production. Diagnostic signed advantages are not official-reward gradient evidence.',profile)
+
+adam_path=root/f'{v}_full_adam_oracle.json'
+adam=read(adam_path)
+assert adam['status']=='PASS' and len(adam['parameters'])==672
+for row in adam['parameters'].values():
+    assert row['forward_equals_actual_master_cast']
+    for key in ['exp_avg','exp_avg_sq','master']:
+        assert row[key]['pass'] and row[key]['finite'] and row[key]['max_abs']==0
+assert sum(x['forward_changed_elements'] for x in adam['parameters'].values())>0
+gate('production_optimizer_update',dict(optimizer_update_comparison=True,forward_weights_changed=True,finite=True,optimizer_updates=1),{'independent_installed_cuda_adam':receipts[str(adam_path)]})
+
+resume_path=root/f'{v}_full_resume_comparison.json'
+repeat_path=root/f'{v}_full_repeat_comparison.json'
+for path in [resume_path,repeat_path]:
+    row=read(path)
+    assert row['status']=='PASS'
+    assert all(f['status']=='PASS' and all(x['allclose'] for x in f['values'].values()) for f in row['files'].values())
+ode_path=root/f'{v}_full_resume_ode'/'export_equivalence.json'
+ode=read(ode_path)
+assert ode['status']=='TESTED' and ode['output_max_abs']==0
+assert ode['original_evaluator']=='infer.VLAAgent'
+gate('fixed_noise_ode',dict(fixed_chain_equal=True,fixed_noise_equal=True),{'complete_boundary':receipts[str(resume_path)],'original_fixed_noise_inference':receipts[str(ode_path)]})
+gate('production_repeat',dict(repeat_equal=True),{'exact_independent_repeat':receipts[str(repeat_path)]})
+gate('exact_resume',dict(weights_equal=True,optimizer_equal=True,rng_cursor_equal=True,same_chain_equal=True,optimizer_updates=2),{'exact_inner_boundary_resume':receipts[str(resume_path)]})
+
+scaling_path=root/f'{v}_scaling_comparison.json'
+scaling=read(scaling_path)
+assert scaling['passed'] and scaling['relative_l2_tolerance']==.01
+assert all(x['pass'] and x['relative_l2']<=.01 for x in scaling['modules'].values())
+gate('distributed_update_scaling',dict(single_multi_update_scaling_equal=True,compared_world_sizes=[1,4]),{'actual_named_adam_moments':receipts[str(scaling_path)]},
+     'Controlled ancillary actual ZeRO world1/accum16 versus world4/accum4, same calibration order/global16; max_grad_norm1e6 keeps clipping inactive. Fixed pre-existing1% criterion, no per-result tolerance fitting.')
+cp_path=root/f'{v}_checkpointing_comparison.json'
+cp=read(cp_path)
+assert cp['status']=='PASS' and cp['same_behavior_scene_replay']
+assert all(f['status']=='PASS' and all(x['allclose'] for x in f['values'].values()) for f in cp['files'].values())
+gate('checkpointing_accumulation',dict(checkpointing_equal=True,accumulation_equal=True),{'checkpoint_recomputation':receipts[str(cp_path)],'accumulation_world1_world4':receipts[str(scaling_path)]},
+     'Full-model CUDA checkpoint-on/off comparison uses world1/accum16, standard CPU saved-tensor storage for OFF, identical actual Adam/master/forward/RNG (zero tolerance). World4 checkpoint-OFF OOM remains FAIL and unsupported. Production is strictly ON/world4, independently checked against ON/world1 accumulation scaling and full-target real runs.')
+
+export_path=root/f'{v}_full_export_check'/'export_equivalence.json'
+export=read(export_path)
+assert export['status']=='TESTED' and export['output_max_abs']==0
+assert export['tensors_identical']==(989 if v=='f' else 995)
+gate('export_original_protocol',dict(export_weights_equal=True,original_inference_equal=True),{'original_interface':receipts[str(export_path)]},profile={'device_type':'cuda','precision':'bfloat16','backend':'pytorch','world_size':1,'devices':[env['devices'][0]]})
+
+training=[json.loads(line) for line in (run/'training.jsonl').read_text().splitlines()]
+assert [x['update'] for x in training]==[1,2]
+assert [x['inner_epoch'] for x in training]==[0,1]
+assert training[0]['pre_update_ratio_min']==training[0]['pre_update_ratio_max']==1
+for field in ['min','max','mean']:
+    assert training[1]['pre_update_ratio_'+field]==training[0]['post_update_probe_ratio_'+field]
+assert training[0]['post_update_probe_ratio_min']<1 or training[0]['post_update_probe_ratio_max']>1
+for rank in range(4):
+    lines=[json.loads(line) for line in (run/f'training_rank{rank}.jsonl').read_text().splitlines()]
+    assert lines[0]['behavior_sha256']==lines[1]['behavior_sha256']
+gate('inner_epochs_2',dict(old_chain_unchanged=True,advantages_unchanged=True,policy_changed=True,inner_boundary_resume_equal=True,optimizer_updates=2),{'exact_resume':receipts[str(resume_path)],'training_log':{'path':str((run/'training.jsonl').resolve()),'sha256':file_sha(run/'training.jsonl')}})
+
+oracle_path=root/f'{v}_oracle_final'/'real_integration.json'
+oracle=read(oracle_path)
+source(oracle_path.parent)
+assert oracle['checkpoint_sha256']==context['checkpoint_sha256']
+assert not oracle['failures']
+for key in ['01_original_ode_equivalence','02_original_sft_equivalence']:
+    assert oracle['tests'][key]['status']=='TESTED'
+gate('source_ode_sft_oracle',dict(source_ode_equal=True,source_sft_loss_equal=True),{'original_source_cuda_oracle':receipts[str(oracle_path)]},profile={'device_type':'cuda','precision':'bfloat16','backend':'pytorch','world_size':1,'devices':[env['devices'][0]]})
+
+cpu_log=root/'clean_final_cpu.log'
+assert '157 passed' in cpu_log.read_text() and 'failed,' not in cpu_log.read_text()
+ledger=read(root/'completed_executions.json')
+entry=next(e for e in ledger['executions'] if e.get('log')==str(cpu_log))
+assert entry['exit_code']==0 and entry['code_sha']=='3fe5305'
+assert entry['log_sha256']==file_sha(cpu_log)
+inventory_text=(root/'clean_test_inventory.log').read_text()
+for name in ['test_torchrun_failure_is_bounded','test_global_metrics_extrema_fraction_quantiles','test_adapter_matches_original_single_scene_evaluator','test_real_adjacent_frames_and_missing_comfort_weight','test_noise_is_stable_across_order_and_shards','test_first_run_and_five_seed_reuse_are_independent_of_resume']:
+    assert name in inventory_text
+tool_artifacts={'clean_pytest_log':{'path':str(cpu_log.resolve()),'sha256':file_sha(cpu_log)},'collected_tests':{'path':str((root/'clean_test_inventory.log').resolve()),'sha256':file_sha(root/'clean_test_inventory.log')}}
+for name in ['distributed_faults','global_metrics','evaluation_protocol','clean_checkout']:
+    category,checks=GATE_REQUIREMENTS[name]
+    world=2 if category=='tool_distributed' else 1
+    profile={'device_type':'cpu','precision':'mixed_test_fixtures','backend':'torchrun_gloo' if world==2 else 'pytest','world_size':world,'devices':[{'type':'cpu','rank':i} for i in range(world)]}
+    gate(name,{check:True for check in checks},copy.deepcopy(tool_artifacts),
+         'All specified real production-function tests were collected and passed in the clean3fe checkout,157 total,no skips; CPU control-flow/official-cache protocol evidence only. Distributed cases launch real two-process torchrun/Gloo and assert bounded nonzero child exits.',profile)
+
+bundle={'schema_version':1,'verification_source_sha256':file_sha(__file__),'tests':tests,'run_artifact_receipts':receipts,
+        'limitations':['Historical BF16 candidate_chunk1/2 FAIL is retained. Only chunk1 production is covered.',
+                       'No formal RL improvement follows from this engineering verification.',
+                       'Ancillary controls and their asset/profile differences are explicitly documented in each affected gate.']}
+output=report_root/f'{variant}_evidence.json'
+assert not output.exists(), output
+output.write_text(json.dumps(bundle,indent=2))
+try:
+    for row in tests:
+        validate_gate_evidence(row['test_id'],{'path':str(output.resolve()),'sha256':file_sha(output),'test_id':row['test_id'],'status':row['status']},context,cfg)
+except BaseException:
+    # Preserve the failed bundle for diagnosis; publisher cannot be invoked on it.
+    output.rename(output.with_name(output.stem+'.FAILED.json'))
+    raise
+print(json.dumps({'status':'PASS','semantic_gates':len(tests),'output':str(output),'production_release':'NOT_PUBLISHED_BY_THIS_VERIFIER'}))

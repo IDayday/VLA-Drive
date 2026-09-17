@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "scope": "actual3fe5305 full-published-assets F/U policy manifests; every trainable name/shape/alias/group; source-to-RL contract check",
+  "details": {
+    "frozen_visual": {
+      "trainable_tensors": 672,
+      "trainable_numel": 2233120260,
+      "entries_sha256": "9694ec9b7c31d93fc86aff0c58eababf4171e918caf40c17c400316f823a3008",
+      "source_manifest": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/f_full_cont/source_sft_parameter_manifest.json",
+      "actor_manifest": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/f_full_cont/actor_parameter_manifest.json",
+      "authorized_visual_frozen_names": 315
+    },
+    "unfrozen_visual": {
+      "trainable_tensors": 672,
+      "trainable_numel": 2233120260,
+      "entries_sha256": "9694ec9b7c31d93fc86aff0c58eababf4171e918caf40c17c400316f823a3008",
+      "source_manifest": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_full_cont/source_sft_parameter_manifest.json",
+      "actor_manifest": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_full_cont/actor_parameter_manifest.json",
+      "authorized_visual_frozen_names": 315
+    }
+  },
+  "optimizers": {
+    "frozen_visual": {
+      "source_lr": {
+        "action_model": 1e-05,
+        "base": 1e-05,
+        "qwen_vl_interface": 1e-05
+      },
+      "rl_lr_actual_python_float": {
+        "action_model": 1.0000000000000002e-06,
+        "base": 1.0000000000000002e-06,
+        "qwen_vl_interface": 1.0000000000000002e-06
+      },
+      "adam": {
+        "name": "AdamW",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.001
+      },
+      "clip": 1.0
+    },
+    "unfrozen_visual": {
+      "source_lr": {
+        "action_model": 1e-05,
+        "base": 1e-05,
+        "qwen_vl_interface": 1e-05
+      },
+      "rl_lr_actual_python_float": {
+        "action_model": 1.0000000000000002e-06,
+        "base": 1.0000000000000002e-06,
+        "qwen_vl_interface": 1.0000000000000002e-06
+      },
+      "adam": {
+        "name": "AdamW",
+        "betas": [
+          0.9,
+          0.95
+        ],
+        "eps": 1e-08,
+        "weight_decay": 0.001
+      },
+      "clip": 1.0
+    }
+  },
+  "fields": [
+    "name",
+    "shape",
+    "aliases",
+    "optimizer_group"
+  ],
+  "prior_reporting_check": {
+    "exit_code": 1,
+    "reason": "An inline report assertion compared binary 1e-5*0.1 to literal1e-6 with ==. Values differ in the last binary bit (1.0000000000000002e-6). Decimal recipe and actual F/U options are checked here; optimizer LR and numerical test tolerances are unchanged."
+  }
+}

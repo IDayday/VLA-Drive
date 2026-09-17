@@ -1,0 +1,58 @@
+{
+  "left": "runs/production_acceptance_v3/u_scale1/checkpoints/update_000001",
+  "right": "runs/production_acceptance_v3/u_scale4/checkpoints/update_000001",
+  "scope": "actual named Adam first/second moments before adaptive division",
+  "relative_l2_tolerance": 0.01,
+  "reason": "BF16 accumulation/all-reduce order; clipping must be inactive",
+  "passed": true,
+  "modules": {
+    "action_model/exp_avg": {
+      "reference_squared_norm": 0.011954815617151874,
+      "difference_squared_norm": 2.8025762468470943e-08,
+      "max_abs": 4.762376192957163e-06,
+      "numel": 819503620,
+      "relative_l2": 0.0015311131177079193,
+      "pass": true
+    },
+    "action_model/exp_avg_sq": {
+      "reference_squared_norm": 2.657606825230655e-08,
+      "difference_squared_norm": 1.9347939256670259e-13,
+      "max_abs": 3.702552930917591e-08,
+      "numel": 819503620,
+      "relative_l2": 0.002698186670019729,
+      "pass": true
+    },
+    "qwen_vl_interface/exp_avg": {
+      "reference_squared_norm": 0.0032407550633867257,
+      "difference_squared_norm": 9.177986555616936e-09,
+      "max_abs": 1.2483913451433182e-05,
+      "numel": 1409410048,
+      "relative_l2": 0.0016828701395100723,
+      "pass": true
+    },
+    "qwen_vl_interface/exp_avg_sq": {
+      "reference_squared_norm": 1.4338453355158914e-07,
+      "difference_squared_norm": 1.2431224827343214e-12,
+      "max_abs": 5.714609869755805e-07,
+      "numel": 1409410048,
+      "relative_l2": 0.0029444610015210483,
+      "pass": true
+    },
+    "action_input_model/exp_avg": {
+      "reference_squared_norm": 0.00041266695017039707,
+      "difference_squared_norm": 3.682532624371516e-09,
+      "max_abs": 3.537541488185525e-06,
+      "numel": 4206592,
+      "relative_l2": 0.002987262983395642,
+      "pass": true
+    },
+    "action_input_model/exp_avg_sq": {
+      "reference_squared_norm": 5.533536639605375e-10,
+      "difference_squared_norm": 1.700522961434948e-14,
+      "max_abs": 2.0339143702585716e-08,
+      "numel": 4206592,
+      "relative_l2": 0.005543574077009809,
+      "pass": true
+    }
+  }
+}

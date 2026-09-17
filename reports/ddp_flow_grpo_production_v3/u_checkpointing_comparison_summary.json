@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "reference": "runs/production_acceptance_v3/u_scale1/checkpoints/update_000001",
+  "actual": "runs/production_acceptance_v3/u_checkpointing_offload1/checkpoints/update_000001",
+  "scope": "all stored forward weights, optimizer state, FP32 master, scheduler, RNG; exact zero tolerance",
+  "supported_scope": "ancillary world1/accum16 checkpoint recomputation comparison; production remains checkpointing ON world4/accum4",
+  "controlled_difference": "activation_checkpointing true vs false + standard CPU saved-tensor storage; no numerical computation offload",
+  "same_behavior_scene_replay": true,
+  "artifact": {
+    "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_checkpointing_comparison.json",
+    "sha256": "644ed0a8cf38c1c4b189b1231d815d56406d9bcf4f409df260bd7ddfc527ef85"
+  },
+  "files": {
+    "pytorch_model/mp_rank_00_model_states.pt": {
+      "status": "PASS",
+      "compared_values": 3837,
+      "failed_values": []
+    },
+    "pytorch_model/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": {
+      "status": "PASS",
+      "compared_values": 2130,
+      "failed_values": []
+    },
+    "scheduler.bin": {
+      "status": "PASS",
+      "compared_values": 17,
+      "failed_values": []
+    },
+    "random_states_0.pkl": {
+      "status": "PASS",
+      "compared_values": 640,
+      "failed_values": []
+    }
+  }
+}

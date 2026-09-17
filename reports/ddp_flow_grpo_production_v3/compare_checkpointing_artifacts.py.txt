@@ -1,0 +1,60 @@
+"""Read-only comparison of actual checkpoint-on/off CUDA optimizer boundaries.
+
+This is an execution artifact, not a new training path. The off case uses the
+recorded standard PyTorch CPU saved-tensor context, with all computation CUDA.
+Both cases use world1/accum16, fixed G8/K10, no clipping, same original SFT.
+Only model/Adam/master/scheduler/RNG are compared here; numerical profile and
+pending provenance are intentionally different and are reported, not hidden.
+"""
+import argparse
+import json
+from pathlib import Path
+import torch
+from scripts.flow_grpo.compare_boundaries import compare_values
+
+p = argparse.ArgumentParser()
+p.add_argument('variant', choices=['f', 'u'])
+a = p.parse_args()
+root = Path('runs/production_acceptance_v3')
+left = root / (a.variant + '_scale1') / 'checkpoints/update_000001'
+right = root / (a.variant + '_checkpointing_offload1') / 'checkpoints/update_000001'
+output = root / (a.variant + '_checkpointing_comparison.json')
+assert not output.exists(), output
+assert all((x / 'COMPLETE').is_file() for x in [left, right])
+configs = [json.loads((x / 'rl_config.json').read_text()) for x in [left, right]]
+assert configs[0]['runtime']['activation_checkpointing'] is True
+assert configs[1]['runtime']['activation_checkpointing'] is False
+for config in configs:
+    assert config['runtime']['accumulation_steps'] == 16
+    assert config['optimizer']['max_grad_norm'] == 1e6
+    assert config['sampling']['group_size'] == 8
+    assert config['sampling']['num_steps'] == 10
+    assert config['sampling']['candidate_chunk_size'] == 1
+    assert config['runtime']['noise_seed_schedule'] == 'global_scene_v1'
+assert configs[0]['checkpoint_contract'] == configs[1]['checkpoint_contract']
+for field in ['sampling', 'algorithm', 'retention', 'optimizer', 'paths']:
+    assert configs[0][field] == configs[1][field], field
+rows = [json.loads((x.parent.parent / 'training.jsonl').read_text().splitlines()[0]) for x in [left,right]]
+assert all(row['clip_scale'] == 1.0 for row in rows)
+rank_rows = [json.loads((x.parent.parent / 'training_rank0.jsonl').read_text().splitlines()[0]) for x in [left,right]]
+for field in ['behavior_sha256', 'scene_tokens', 'replay_tokens']:
+    assert rank_rows[0][field] == rank_rows[1][field], field
+files = ['pytorch_model/mp_rank_00_model_states.pt',
+         'pytorch_model/bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt',
+         'scheduler.bin', 'random_states_0.pkl']
+torch.set_num_threads(4)
+report = {'status':'PASS', 'reference':str(left), 'actual':str(right),
+          'scope':'all stored forward weights, optimizer state, FP32 master, scheduler, RNG; exact zero tolerance',
+          'supported_scope':'ancillary world1/accum16 checkpoint recomputation comparison; production remains checkpointing ON world4/accum4',
+          'controlled_difference':'activation_checkpointing true vs false + standard CPU saved-tensor storage; no numerical computation offload',
+          'same_behavior_scene_replay':True, 'files':{}}
+for name in files:
+    states = [torch.load(x / name, map_location='cpu', weights_only=False) for x in [left,right]]
+    comparisons = compare_values(*states)
+    passed = all(row['allclose'] for row in comparisons.values())
+    report['files'][name] = {'status':'PASS' if passed else 'FAIL', 'values':comparisons}
+    if not passed: report['status']='FAIL'
+    del states, comparisons
+output.write_text(json.dumps(report,indent=2))
+print(json.dumps({'status':report['status'],'files':len(files)}))
+assert report['status']=='PASS', 'checkpointing mismatch; complete failure report preserved'
