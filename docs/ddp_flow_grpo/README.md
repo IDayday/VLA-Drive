@@ -88,3 +88,6 @@ $PYTHON_BIN -m pytest -q tests/flow_grpo tests/baseline_matched
 保存发生在完整 rollout/所有 inner epochs 结束后；恢复拒绝不同 world size 或算法/奖励/归一化/参考版本。损坏或未完成 checkpoint 不允许恢复和导出。短测不自动触发长训练。日志和 checkpoint 不覆盖已有运行；输出目录存在训练日志时必须显式 `--resume`。
 
 训练日志包括按 rank 的场景顺序、真实奖励与分量、零分/全等组、ratio/clipping/KL、原 SFT loss 分量、梯度覆盖、参数抽样变化、时间和显存。梯度 hook 范数是本 rank 各次反向贡献的平方和，不能解释成完整 all-reduce 后的精确 optimizer 范数；参数抽样变化也不能替代完整权重审计。
+
+
+单卡累积/双卡缩放诊断使用同一全局场景批次：单卡 `runtime.accumulation_steps=2` 与双卡 `=1` 各执行一个 update，均设 `optimizer.max_grad_norm=1000000`、`runtime.optimizer_offload=false`，防止 clipping 隐藏倍数错误。用 `scripts/flow_grpo/compare_update_scaling.py --left <单卡 checkpoint> --right <双卡 checkpoint> --output <JSON>` 重构各参数 Adam moments 并比较。该诊断不代替 clipping=1 的正式短测；真实通过与否见验证报告。
