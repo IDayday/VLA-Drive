@@ -21,7 +21,7 @@
 
 原完整 SFT 的固定 16 场景验证集 EPDMS：SFT 0.9631009044960672，RL-50 0.9670846566240842。这既非 Navtest 全量结果，也非 action-only 模型性能结论，不据此宣称 GRPO 普遍提升。
 
-旧非确定性连续/恢复逐位比较失败，证据保留在 `resume_nondeterministic_comparison.json`。已开启确定性后台后的另一次比较仍在执行，发现的差异必须解释，不能直接将其写成 PASS。
+旧非确定性连续/恢复逐位比较失败，证据保留在 `resume_nondeterministic_comparison.json`。开启确定性后的连续/恢复完整状态比较已 TESTED：模型、两个 optimizer 分片和两个 rank RNG/stream 文件均逐位一致，见 `resume_deterministic_comparison.json`。比较器已修正 DeepSpeed LossScaler 对象身份与序列化字段状态的区别；所有 tensor 容差仍为零。共享盘顺序读取替换慢速 mmap 扫描后完成全量重跑，未复用未完成结果。
 
 ## 25 项验收矩阵
 
