@@ -2,6 +2,17 @@ from scripts.flow_grpo.compare_boundaries import compare_values
 import torch
 
 
+def test_zero_loss_scaler_compares_all_serialized_fields():
+    from deepspeed.runtime.fp16.loss_scaler import LossScaler
+
+    a, b = LossScaler(1.0), LossScaler(1.0)
+    assert a is not b
+    assert all(row["allclose"] for row in compare_values(a, b).values())
+    b.cur_scale = 2.0
+    changed = compare_values(a, b)
+    assert not changed["/@state/cur_scale"]["allclose"]
+
+
 def test_boundary_comparison_covers_moments_rng_and_integer_precision():
     before = {
         "master": torch.tensor([1.0]),

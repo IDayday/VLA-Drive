@@ -4,6 +4,7 @@ Use after identical continuous and interrupted/resumed diagnostic jobs. Checks
 all stored tensors exactly; records every difference instead of first failure.
 It never regards file existence or a successful backward as resume evidence.
 """
+
 from pathlib import Path
 import argparse
 import dataclasses
@@ -15,7 +16,12 @@ from starVLA.rl.flow_grpo.config import config_hash
 
 
 def flatten(value, prefix=""):
-    if dataclasses.is_dataclass(value):
+    if type(value).__module__ == "deepspeed.runtime.fp16.loss_scaler":
+        # Installed ZeRO checkpoints pickle a LossScaler object. Compare all
+        # serialized fields, never two distinct Python objects' identity.
+        yield prefix + "/@type", type(value).__module__ + "." + type(value).__qualname__
+        yield from flatten(vars(value), prefix + "/@state")
+    elif dataclasses.is_dataclass(value):
         yield prefix + "/@type", type(value).__qualname__
         for field in dataclasses.fields(value):
             yield from flatten(getattr(value, field.name), prefix + "/" + field.name)
