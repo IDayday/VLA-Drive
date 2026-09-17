@@ -183,7 +183,7 @@ def finalize(root, workers=8):
     if not (root / "METADATA_COMPLETE").is_file():
         raise ValueError("metadata incomplete")
     templates = {
-        v: f"configs/flow_grpo/paired_{v}.yaml"
+        v: f"configs/flow_grpo/paired_fp32_partition_{v}.yaml"
         for v in ("frozen_visual", "unfrozen_visual")
     }
     result = finalize_assets(

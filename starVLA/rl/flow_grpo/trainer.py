@@ -189,6 +189,16 @@ def _run(cfg, sft, resume=None):
     # and AdamW hyperparameters are inherited. Scheduler state remains explicit.
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step: 1.0)
     actor, optimizer, scheduler = accelerator.prepare(actor, optimizer, scheduler)
+    from .zero2_precision import PROFILE, install_fp32_partitions
+
+    if runtime.get("numerical_profile") == PROFILE:
+        if runtime["deepspeed_stage"] != 2:
+            raise ValueError("FP32 partition profile requires ZeRO-2")
+        correction = install_fp32_partitions(actor)
+        rank0_call(
+            lambda: (output / "zero2_precision.json").write_text(json.dumps(correction, indent=2)),
+            accelerator.device,
+        )
     if runtime["deepspeed_stage"]:
         from .monitor import save_full_optimizer_gradients
 

@@ -329,7 +329,7 @@ def enforce_training_budget(cfg, context=None):
             "deepspeed_stage": 2,
             "scene_microbatch": 1,
             "replay_microbatch": 1,
-            "numerical_profile": "bf16_zero2_fp32_accum_v1",
+            "numerical_profile": "bf16_zero2_fp32_partition_v2",
         },
     }
     for section, fields in required.items():

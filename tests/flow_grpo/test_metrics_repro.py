@@ -99,7 +99,7 @@ def test_formal_training_fails_closed():
         run_mode="formal",
         max_updates=2000,
         accumulation_steps=16,
-        numerical_profile="bf16_zero2_fp32_accum_v1",
+        numerical_profile="bf16_zero2_fp32_partition_v2",
     )
     with pytest.raises(ValueError, match="missing"):
         enforce_training_budget(cfg, context={})
@@ -156,7 +156,7 @@ def acceptance_fixture(tmp_path, monkeypatch):
     from starVLA.rl.flow_grpo.contracts import digest
 
     monkeypatch.setenv("WORLD_SIZE", "4")
-    cfg, sft = resolve_config("configs/flow_grpo/paired_frozen_visual.yaml")
+    cfg, sft = resolve_config("configs/flow_grpo/paired_fp32_partition_frozen_visual.yaml")
     profile = numerical_profile(cfg, sft)
     evidence, receipt, inventory = [
         tmp_path / x for x in ("evidence.json", "release.json", "dtype.json")

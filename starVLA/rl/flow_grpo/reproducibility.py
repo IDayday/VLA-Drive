@@ -79,6 +79,11 @@ def numerical_profile(cfg, sft):
         "qwen_autocast": "bfloat16",
         "action_history_projector_autocast": "cuda_float32_torch2.5",
         "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": (
+            "deepspeed_0.16.9_partition_list_v1"
+            if runtime.get("numerical_profile") == "bf16_zero2_fp32_partition_v2"
+            else None
+        ),
         "communication_dtype": "float32",
         "attention_backend": sft.framework.qwenvl.attn_implementation,
         "deterministic": torch.are_deterministic_algorithms_enabled(),
