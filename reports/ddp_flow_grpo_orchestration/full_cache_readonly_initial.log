@@ -1,0 +1,9 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+{"status": "FAIL", "error": "RuntimeError('full assets not ready: reports/ddp_flow_grpo_orchestration/full_cache_readonly_initial.json')", "traceback": "Traceback (most recent call last):\n  File \"/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py\", line 282, in <module>\n    main()\n  File \"/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py\", line 234, in main\n    raise RuntimeError(f\"full assets not ready: {destination}\")\nRuntimeError: full assets not ready: reports/ddp_flow_grpo_orchestration/full_cache_readonly_initial.json\n"}
+Traceback (most recent call last):
+  File "/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py", line 282, in <module>
+    main()
+  File "/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py", line 234, in main
+    raise RuntimeError(f"full assets not ready: {destination}")
+RuntimeError: full assets not ready: reports/ddp_flow_grpo_orchestration/full_cache_readonly_initial.json

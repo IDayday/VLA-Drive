@@ -1,0 +1,27 @@
+{
+  "before_prepare": {
+    "parameters": {
+      "torch.bfloat16": 625,
+      "torch.float32": 363
+    },
+    "gradients": {},
+    "parameter_grad_accum": {}
+  },
+  "after_prepare": {
+    "parameters": {
+      "torch.bfloat16": 988
+    },
+    "gradients": {},
+    "parameter_grad_accum": {},
+    "communication_buffers": [],
+    "accumulation_dtype": "torch.float32",
+    "communication_dtype": "torch.float32",
+    "partition_buffers": [],
+    "master_weights": [
+      "torch.float32",
+      "torch.float32",
+      "torch.float32"
+    ],
+    "optimizer_states": {}
+  }
+}

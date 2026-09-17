@@ -1,0 +1,34 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:22: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:113: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:44: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:56: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:135: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:103: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:114: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+/mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d_s2v.py:55: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @amp.autocast(enabled=False)
+[Agent] config:  runs/review2_u_export/config.yaml
+[Agent] weights: runs/review2_u_export/pytorch_model.pt
+09/17 [16:38:36] WARNING  | >> xFormers not available            attention.py:25
+                 WARNING  | >> xFormers not available                block.py:32
+Warning: Failed to auto-import framework submodules: No module named 'starVLA.model.modules.gs_model'
+🚨 `return_pre_norm_hidden_state` is part of Qwen3VLTextModel.forward's signature, but not documented. Make sure to add it to the docstring of the function in /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py.
+loaded name_or_path: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction
+vocab/emb size: 152130 151863
+image_token_id: 151655
+Total number of DiT parameters:  802967040
+[Agent] Qwen forward mode: optimized
+[Agent] missing keys: 0 []
+[Agent] unused rgb_model keys (Wan intentionally disabled): 0
+[Agent] other unexpected keys: 0 []
+loading 10000 data.
+{"status": "TESTED", "checkpoint": "runs/review2_u_cont_fixed/checkpoints/update_000004", "exported": "runs/review2_u_export", "original_evaluator": "infer.VLAAgent", "tensors_identical": 995, "scene": "72ebf07a88b25937", "output_max_abs": 0.0, "protocol": "same original inference dtype, seed, observation, and ODE steps"}

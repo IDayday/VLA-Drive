@@ -1,0 +1,111 @@
+{
+  "engineering": "NOT_READY",
+  "performance": "INSUFFICIENT_EVIDENCE: no complete dev/navtest paired performance evaluation",
+  "source_code_sha": "2bfdd1eb564eb8ded2ad9f487aac0d92a72f0421",
+  "scope": "Bounded diagnostic runs only, original locked 10k subset, no formal100/2000 run",
+  "variants": {
+    "frozen_visual": {
+      "continuous_updates": 4,
+      "continuous_exit_code": 0,
+      "resume_from_update": 1,
+      "resume_boundary": "inner_epoch, next_inner=1, original policy_version=0",
+      "resumed_actual_updates": [
+        2,
+        3,
+        4
+      ],
+      "resumed_exit_code": 0,
+      "exact_resume": {
+        "status": "PASS",
+        "exit_code": 0,
+        "files": 14,
+        "stored_values_checked": 11527,
+        "comparison": "zero tolerance, every model/ZeRO Adam/master/LossScaler/scheduler/RNG/cursor/rank state value"
+      },
+      "rl_only": {
+        "status": "PASS",
+        "exit_code": 0,
+        "scenes": 16,
+        "official_nonzero_advantage_groups": 9,
+        "nonzero_parameter_tensors": 672,
+        "max_abs_logratio": 0.0,
+        "scope": "Single CUDA BF16 graph check, all fixed groups, not ZeRO accumulation proof"
+      },
+      "export": {
+        "status": "TESTED",
+        "checkpoint": "runs/review2_f_cont_fixed/checkpoints/update_000004",
+        "exported": "runs/review2_f_export",
+        "original_evaluator": "infer.VLAAgent",
+        "tensors_identical": 989,
+        "scene": "72ebf07a88b25937",
+        "output_max_abs": 0.0,
+        "protocol": "same original inference dtype, seed, observation, and ODE steps",
+        "exit_code": 0
+      },
+      "paths": {
+        "continuous_checkpoint": "runs/review2_f_cont_fixed/checkpoints/update_000004",
+        "resumed_checkpoint": "runs/review2_f_resumed/checkpoints/update_000004",
+        "export": "runs/review2_f_export"
+      },
+      "production_dtype_gate": "FAIL; actual pre-step partition buffers BF16",
+      "historical_bf16_chunk_1_2_gate": "FAIL, not rewritten",
+      "source_ode_sft_cuda_oracle": "PASS after FP32 zero-placeholder repair; original failures retained"
+    },
+    "unfrozen_visual": {
+      "continuous_updates": 4,
+      "continuous_exit_code": 0,
+      "resume_from_update": 1,
+      "resume_boundary": "inner_epoch, next_inner=1, original policy_version=0",
+      "resumed_actual_updates": [
+        2,
+        3,
+        4
+      ],
+      "resumed_exit_code": 0,
+      "exact_resume": {
+        "status": "PASS",
+        "exit_code": 0,
+        "files": 14,
+        "stored_values_checked": 11553,
+        "comparison": "zero tolerance, every model/ZeRO Adam/master/LossScaler/scheduler/RNG/cursor/rank state value"
+      },
+      "rl_only": {
+        "status": "PASS",
+        "exit_code": 0,
+        "scenes": 16,
+        "official_nonzero_advantage_groups": 9,
+        "nonzero_parameter_tensors": 672,
+        "max_abs_logratio": 0.0,
+        "scope": "Single CUDA BF16 graph check, all fixed groups, not ZeRO accumulation proof"
+      },
+      "export": {
+        "status": "TESTED",
+        "checkpoint": "runs/review2_u_cont_fixed/checkpoints/update_000004",
+        "exported": "runs/review2_u_export",
+        "original_evaluator": "infer.VLAAgent",
+        "tensors_identical": 995,
+        "scene": "72ebf07a88b25937",
+        "output_max_abs": 0.0,
+        "protocol": "same original inference dtype, seed, observation, and ODE steps",
+        "exit_code": 0
+      },
+      "paths": {
+        "continuous_checkpoint": "runs/review2_u_cont_fixed/checkpoints/update_000004",
+        "resumed_checkpoint": "runs/review2_u_resumed/checkpoints/update_000004",
+        "export": "runs/review2_u_export"
+      },
+      "production_dtype_gate": "FAIL; actual pre-step partition buffers BF16",
+      "historical_bf16_chunk_1_2_gate": "FAIL, not rewritten",
+      "source_ode_sft_cuda_oracle": "PASS after FP32 zero-placeholder repair; original failures retained"
+    }
+  },
+  "not_run": {
+    "formal_paired_100_2000": "NOT_RUN_THIS_SCOPE; explicitly not launched",
+    "production_release": "BLOCKED_PROFILE: FP32 accumulation target not actually observed",
+    "production_single_multi_scaling": "NOT_RUN_PROFILE_BLOCKED",
+    "production_vs_fp32_optimizer_numerical_comparison": "NOT_RUN_PROFILE_BLOCKED",
+    "full_fp32_model_cpu_rerun": "NOT_RUN_NOT_NEEDED; prior mathematical model path unchanged",
+    "complete_full_assets_schema_publication": "BLOCKED_BUILDING; original cache job active; no ASSETS_READY_ONLY published_v2",
+    "full_five_seed_dev_navtest": "NOT_RUN_THIS_SCOPE; no performance gain conclusion"
+  }
+}

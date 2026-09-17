@@ -1,0 +1,1584 @@
+{
+  "scope": "Actual first CUDA optimizer update on four ranks; untouched trainer rows",
+  "run": "review2_f_cont_fixed",
+  "ranks": [
+    {
+      "pre_update_ratio_min": 1.0,
+      "pre_update_ratio_max": 1.0,
+      "pre_update_ratio_mean": 1.0,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 1.0,
+        "0.01": 1.0,
+        "0.5": 1.0,
+        "0.99": 1.0,
+        "1.0": 1.0
+      },
+      "loss": 0.0005912183096370427,
+      "grpo": 2.9802322831784522e-09,
+      "reference": 0.0,
+      "sft": 0.005912153268582188,
+      "old_policy_drift": 0.0,
+      "reward": 0.9886432588100433,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.75,
+      "scene_count": 4.0,
+      "candidate_count": 32.0,
+      "replay_scene_count": 4.0,
+      "sft_component/action_loss": 0.005912153268582188,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.9682011282648222,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.9886432600945796,
+      "reward_component/score": 0.9886432600945796,
+      "post_update_probe_ratio_min": 0.9517176747322083,
+      "post_update_probe_ratio_max": 1.0346688032150269,
+      "post_update_probe_ratio_mean": 0.9997072700411082,
+      "post_update_probe_ratio_clip_fraction": 0.009375,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9517176747322083,
+        "0.01": 0.9877874433994294,
+        "0.5": 0.9999682009220123,
+        "0.99": 1.0088909041881562,
+        "1.0": 1.0346688032150269
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 0.5524937510490417,
+        "qwen_vl_interface": 0.4607428014278412,
+        "action_input_model": 0.09526294469833374
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 1.0315565305063501e-05,
+        "action_input_model": 0.0,
+        "action_model": 1.543743746879045e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.172042727470398,
+      "clip_scale": 0.8532104874263378,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 1,
+      "policy_version": 0,
+      "inner_epoch": 0,
+      "rank": 0,
+      "device": {
+        "type": "cuda",
+        "index": 0,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "a9d9d90511539b9b99b853fdfa008b609e5c4df71c40bdc93c4d8a2ae98d114c",
+        "6754942cd3d04985d1d567e2a062b6754862e8f552d03ed0c3ca82c1094cc518",
+        "daaab90ef4ddba6fec7c7d9d837860f93e40c0802266fc43afd5e05ba97f7cf1",
+        "bd8005225820db386ea3184ffec9723b356b53fd3710daf1ea33ba774cab2dc5"
+      ],
+      "scene_tokens": [
+        [
+          "fb7f5f4fd1a25f13"
+        ],
+        [
+          "af37a2e32a9e510a"
+        ],
+        [
+          "71241e5c844d5947"
+        ],
+        [
+          "856849aa30155d85"
+        ]
+      ],
+      "replay_tokens": [
+        "eb8b19af93e4538e",
+        "9048c89e9d8b516f",
+        "f051f0358fe057c0",
+        "836925f4abc15984"
+      ],
+      "rollout_score_reference_seconds": 40.34834991581738,
+      "update_seconds": 76.99425506219268,
+      "peak_gpu_gib": 21.761545181274414,
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {}
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 1.0,
+      "pre_update_ratio_max": 1.0,
+      "pre_update_ratio_mean": 1.0,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 1.0,
+        "0.01": 1.0,
+        "0.5": 1.0,
+        "0.99": 1.0,
+        "1.0": 1.0
+      },
+      "loss": 0.00034925432373711374,
+      "grpo": 2.0936127498316637e-07,
+      "reference": 0.0,
+      "sft": 0.003490449540549889,
+      "old_policy_drift": 0.0,
+      "reward": 0.9575620424002409,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.25,
+      "scene_count": 4.0,
+      "candidate_count": 32.0,
+      "replay_scene_count": 4.0,
+      "sft_component/action_loss": 0.003490449540549889,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.8811737180451459,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.921847756444695,
+      "reward_component/score": 0.9575620421589808,
+      "post_update_probe_ratio_min": 0.9494331479072571,
+      "post_update_probe_ratio_max": 1.0145294666290283,
+      "post_update_probe_ratio_mean": 0.9996459938585758,
+      "post_update_probe_ratio_clip_fraction": 0.0125,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9494331479072571,
+        "0.01": 0.9801076239347458,
+        "0.5": 0.9999823868274689,
+        "0.99": 1.0103210151195525,
+        "1.0": 1.0145294666290283
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 2.592041254043579,
+        "qwen_vl_interface": 1.6668514013290405,
+        "action_input_model": 0.5848472118377686
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 1.0315565305063501e-05,
+        "action_input_model": 0.0,
+        "action_model": 1.543743746879045e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.172042727470398,
+      "clip_scale": 0.8532104874263378,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 1,
+      "policy_version": 0,
+      "inner_epoch": 0,
+      "rank": 1,
+      "device": {
+        "type": "cuda",
+        "index": 1,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "3cbf97015a88a58e6ee290dbb650318f2fe31aa62916f0b3ad1d6cb1e5d7075c",
+        "b6defcd4ca2bab729ee4ef3d6d36cec87193e85446ff0ec6847e9e01a9b943de",
+        "37c3099ae2fa26349b8adb410698159da86f61cfd8dbdcfc771ec2157cbb7d07",
+        "46b43e23b5dbc0926ef04132b5bc309ad9883f298db0b27fb6d358c55487124b"
+      ],
+      "scene_tokens": [
+        [
+          "5ee47a34fcec50d7"
+        ],
+        [
+          "1d784440aa1d5839"
+        ],
+        [
+          "9d7b5e598edb5c90"
+        ],
+        [
+          "018492d66a515b64"
+        ]
+      ],
+      "replay_tokens": [
+        "56aefa9d2d005e70",
+        "18099cc5101e5fdb",
+        "2eaaa0c583285ec5",
+        "d6352d5b7ec3595b"
+      ],
+      "rollout_score_reference_seconds": 40.348478212952614,
+      "update_seconds": 76.66641227342188,
+      "peak_gpu_gib": 21.769588470458984,
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {}
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 1.0,
+      "pre_update_ratio_max": 1.0,
+      "pre_update_ratio_mean": 1.0,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 1.0,
+        "0.01": 1.0,
+        "0.5": 1.0,
+        "0.99": 1.0,
+        "1.0": 1.0
+      },
+      "loss": 0.0018524159349908587,
+      "grpo": 7.269531351994374e-06,
+      "reference": 0.0,
+      "sft": 0.018451463809469715,
+      "old_policy_drift": 0.0,
+      "reward": 0.9505917504429817,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.25,
+      "scene_count": 4.0,
+      "candidate_count": 32.0,
+      "replay_scene_count": 4.0,
+      "sft_component/action_loss": 0.018451463809469715,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.8616568922720366,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.9505917472400132,
+      "reward_component/score": 0.9505917472400132,
+      "post_update_probe_ratio_min": 0.9634304642677307,
+      "post_update_probe_ratio_max": 1.0214142799377441,
+      "post_update_probe_ratio_mean": 0.9995061296969652,
+      "post_update_probe_ratio_clip_fraction": 0.0125,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9634304642677307,
+        "0.01": 0.985563319325447,
+        "0.5": 0.9999535083770752,
+        "0.99": 1.009989664554596,
+        "1.0": 1.0214142799377441
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.805316686630249,
+        "qwen_vl_interface": 1.6612111330032349,
+        "action_input_model": 0.35532480478286743
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 1.0315565305063501e-05,
+        "action_input_model": 0.0,
+        "action_model": 1.543743746879045e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.172042727470398,
+      "clip_scale": 0.8532104874263378,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 1,
+      "policy_version": 0,
+      "inner_epoch": 0,
+      "rank": 2,
+      "device": {
+        "type": "cuda",
+        "index": 2,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "7c2cec7ac3c7804a7284a21040147232befcca7f68ae751393687d0e08d06a15",
+        "59380fdd5678ff1ee0ad15a8e4cbe0b7eb8ed551825d173a65da6a377915678b",
+        "3983e2d6ca15dcb80249081fb0ec3b55b6b5fcb81334b1ff013577eea8b306f9",
+        "107b5beeb7d2c20d824208dd7107a79b32a14030fdc8b1ce346b43ba78849bf3"
+      ],
+      "scene_tokens": [
+        [
+          "62f3e6790e3f5894"
+        ],
+        [
+          "51153328f6bc54f8"
+        ],
+        [
+          "9f0f80fa77cf5cb7"
+        ],
+        [
+          "9fb2208eaeeb5a13"
+        ]
+      ],
+      "replay_tokens": [
+        "64f1f060282d55d6",
+        "af1594640cef5ee4",
+        "0422dac2df5f5e1c",
+        "29528ac395aa52f2"
+      ],
+      "rollout_score_reference_seconds": 40.34860816039145,
+      "update_seconds": 76.54719028063118,
+      "peak_gpu_gib": 21.774702548980713,
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {}
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 1.0,
+      "pre_update_ratio_max": 1.0,
+      "pre_update_ratio_mean": 1.0,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 1.0,
+        "0.01": 1.0,
+        "0.5": 1.0,
+        "0.99": 1.0,
+        "1.0": 1.0
+      },
+      "loss": 0.0006639599741902202,
+      "grpo": -4.009902454527037e-06,
+      "reference": 0.0,
+      "sft": 0.006679698650259525,
+      "old_policy_drift": 0.0,
+      "reward": 0.946442324668169,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.5,
+      "scene_count": 4.0,
+      "candidate_count": 32.0,
+      "replay_scene_count": 4.0,
+      "sft_component/action_loss": 0.006679698650259525,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.850038514537784,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.9464423266206371,
+      "reward_component/score": 0.9464423266206371,
+      "post_update_probe_ratio_min": 0.9794588685035706,
+      "post_update_probe_ratio_max": 1.0112265348434448,
+      "post_update_probe_ratio_mean": 0.9997591270133853,
+      "post_update_probe_ratio_clip_fraction": 0.003125,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9794588685035706,
+        "0.01": 0.9901819413900376,
+        "0.5": 0.999980092048645,
+        "0.99": 1.0060097932815553,
+        "1.0": 1.0112265348434448
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.942369818687439,
+        "qwen_vl_interface": 1.084898829460144,
+        "action_input_model": 0.3017190098762512
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 1.0315565305063501e-05,
+        "action_input_model": 0.0,
+        "action_model": 1.543743746879045e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.172042727470398,
+      "clip_scale": 0.8532104874263378,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 1,
+      "policy_version": 0,
+      "inner_epoch": 0,
+      "rank": 3,
+      "device": {
+        "type": "cuda",
+        "index": 3,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "dd1dd55a4da08fd7eae286db3103853bab42fcb76dc2ae5111e61af19378d8d2",
+        "bea086872f47d9804614e0dd0fe8f7992d813423d820a09e158ac9fbcc85a572",
+        "ddf0b428048a3c4950ba56acf242d115d9e5f87cf1c2f7ecafae09ca694a27a5",
+        "692df264bfbb153e37fa3213e58fc1745e411942d3f74e75ece2c67d5043ec28"
+      ],
+      "scene_tokens": [
+        [
+          "49215fd7909a5039"
+        ],
+        [
+          "e7a0c2f466c254f0"
+        ],
+        [
+          "02e8a483947b5f21"
+        ],
+        [
+          "3e51a8cdc97a5c7c"
+        ]
+      ],
+      "replay_tokens": [
+        "a5fb311b574f5f2a",
+        "8c2254cc2c8a57eb",
+        "1b49245c089b5f62",
+        "1724faf16eff51bf"
+      ],
+      "rollout_score_reference_seconds": 40.348569149151444,
+      "update_seconds": 76.66464266739786,
+      "peak_gpu_gib": 22.54337453842163,
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.bfloat16",
+          "torch.float32",
+          "torch.bfloat16",
+          "torch.bfloat16"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {}
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    }
+  ]
+}

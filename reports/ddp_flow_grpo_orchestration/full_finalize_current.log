@@ -1,0 +1,13 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+{"status": "FAIL", "error": "ValueError('cache builder has not finished; no finalization or mutation of cache')", "traceback": "Traceback (most recent call last):\n  File \"/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py\", line 282, in <module>\n    main()\n  File \"/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py\", line 277, in main\n    finalize(root, args.workers)\n  File \"/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py\", line 189, in finalize\n    result = finalize_assets(\n  File \"/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/asset_publication.py\", line 277, in finalize_assets\n    raise ValueError(\nValueError: cache builder has not finished; no finalization or mutation of cache\n"}
+Traceback (most recent call last):
+  File "/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py", line 282, in <module>
+    main()
+  File "/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py", line 277, in main
+    finalize(root, args.workers)
+  File "/mnt/project/DriveDreamer-Policy-paired/scripts/flow_grpo/prepare_full_assets.py", line 189, in finalize
+    result = finalize_assets(
+  File "/mnt/project/DriveDreamer-Policy-paired/starVLA/rl/flow_grpo/asset_publication.py", line 277, in finalize_assets
+    raise ValueError(
+ValueError: cache builder has not finished; no finalization or mutation of cache

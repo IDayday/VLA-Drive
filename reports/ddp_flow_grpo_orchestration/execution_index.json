@@ -1,0 +1,184 @@
+{
+  "source_code_sha": "2bfdd1eb564eb8ded2ad9f487aac0d92a72f0421",
+  "engineering": "NOT_READY",
+  "cpu_unique_tests": 140,
+  "executions": [
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/clean_cpu.log",
+      "scope": "CPU flow_grpo regression",
+      "code_sha": "1f3a4c8",
+      "exit_code": 0,
+      "passed_count_if_applicable": 102,
+      "sha256": "ea271ff65f1ea77a2ea48f99caafe79cbd7f3e637563fd263f085ad9636d1b13"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/clean_baseline.log",
+      "scope": "CPU baseline_matched regression",
+      "code_sha": "1f3a4c8",
+      "exit_code": 0,
+      "passed_count_if_applicable": 36,
+      "sha256": "75094ef5e4f05b68369d768897e8a002d9629c9deafadc4360c54a6eb2cf6aec"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/clean_zero2_inventory.log",
+      "scope": "affected CPU gate/dtype regression",
+      "code_sha": "71edcda",
+      "exit_code": 0,
+      "passed_count_if_applicable": 24,
+      "sha256": "a1edd00199d2aeefcf779f2b9e9dc92d189385f4dad14410a368e1858f0d368d"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/clean_scaler.log",
+      "scope": "CPU exact state comparator",
+      "code_sha": "2902fad",
+      "exit_code": 0,
+      "passed_count_if_applicable": 2,
+      "sha256": "12c03432de192e84488f16e4b9bbf7ef0e5b80a4e4a017bb0beda27160cb51eb"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_oracle_frozen.log",
+      "scope": "initial F CUDA oracle and chunk gate",
+      "code_sha": "c96db4d",
+      "exit_code": 1,
+      "passed_count_if_applicable": null,
+      "sha256": "9e800cf0437023aa72f4aa9573bffbd010cefadc3d2cedda12ddfd97df701b2e"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_oracle_unfrozen.log",
+      "scope": "initial U CUDA oracle and chunk gate",
+      "code_sha": "c96db4d",
+      "exit_code": 1,
+      "passed_count_if_applicable": null,
+      "sha256": "66782d4ecd0b7ef73a4001c7e9a7e44a1ff673ea7f44baf73c9515bf0441ce53"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_oracle_fixed_frozen.log",
+      "scope": "F CUDA oracle without repeated gradient diagnostics",
+      "code_sha": "1f3a4c8",
+      "exit_code": 0,
+      "passed_count_if_applicable": 9,
+      "sha256": "8aee1bcc35654f8bb3d126e5bbe4d8989b856bf3a1898f771e9cfce7a7a4f06d"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_oracle_fixed_unfrozen.log",
+      "scope": "U CUDA oracle without repeated gradient diagnostics",
+      "code_sha": "1f3a4c8",
+      "exit_code": 0,
+      "passed_count_if_applicable": 9,
+      "sha256": "bc91f3aac98bc46523c031ef9b87e20c17d47ea1d93b0f3a99ccf3603da2daa2"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_f_cont.log",
+      "scope": "initial F 4-rank logger failure after first optimizer step",
+      "code_sha": "1f3a4c8",
+      "exit_code": 1,
+      "passed_count_if_applicable": null,
+      "sha256": "56f2d442a78c2c21aac1e249397228aa1b94beca90a39d6caef903d358fa733a"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_u_cont.log",
+      "scope": "initial U 4-rank logger failure after first optimizer step",
+      "code_sha": "1f3a4c8",
+      "exit_code": 1,
+      "passed_count_if_applicable": null,
+      "sha256": "2c202ea598f271ce7e4e509203e686e8ae5266c67188dee3141b9b410dc26604"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_f_cont_fixed.log",
+      "scope": "F 4-rank continuous4 updates",
+      "code_sha": "71edcda",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "89c0367a771982a8109c6bdae5fea1a8c44856f0909e0011ff6fa3294797b3ec"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_u_cont_fixed.log",
+      "scope": "U 4-rank continuous4 updates",
+      "code_sha": "71edcda",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "25d068ee7e8a153dea855149cb09180e95c348d35eaaa82b859b40cf83e10911"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_f_resumed.log",
+      "scope": "F 4-rank resume1 through4",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "6c684d76ab83455616d159d7adf88cc55269e97926776832b918109fe0b07129"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/gpu_u_resumed.log",
+      "scope": "U 4-rank resume1 through4",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "afdf33d8da3575dc698a95f98ee59ccf7032ec8916b08e25c5d00ffbaaa8d137"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/f_exact_resume.log",
+      "scope": "F all14 serialized state files zero-tolerance",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "1a9deb994eda7740ac355140537fe5ab6a7edea566a92d4464539edd7503d8c4"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/u_exact_resume.log",
+      "scope": "U all14 serialized state files zero-tolerance",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "62d08c5e2a1af3970324a215da8ecdd756198ee87334e3180b911c9e20cfec8e"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/f_export_verify.log",
+      "scope": "F original infer.VLAAgent CUDA",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "17ada7fcf18b5985d32a6603fb42d6b7b9716bc8897cec3755306a289c0d22b4"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/u_export_verify.log",
+      "scope": "U original infer.VLAAgent CUDA",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "a698102a1d4ab450002f5f992e734ecd53d8645f257e76f25ec89f8ccee5abab"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/f_official_rl_gradient.log",
+      "scope": "F all16 fixed official groups CUDA RL-only graph",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "249eb82181de784a518eaa418625d4491b251715ae6dfb16f65f765270efdcd6"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/u_official_rl_gradient.log",
+      "scope": "U all16 fixed official groups CUDA RL-only graph",
+      "code_sha": "2bfdd1e",
+      "exit_code": 0,
+      "passed_count_if_applicable": null,
+      "sha256": "5474c18e35fca943517bdcc6ddcdc708294f556f1deac993bca178bdf06fb582"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/full_cache_readonly_initial.log",
+      "scope": "readonly full cache blocked by live builder",
+      "code_sha": "1f3a4c8",
+      "exit_code": 1,
+      "passed_count_if_applicable": null,
+      "sha256": "18364e90ea4e53da948fe6d6325ea1b3ca4779b9f91907e4a2758838ffa4588d"
+    },
+    {
+      "log": "reports/ddp_flow_grpo_orchestration/full_finalize_current.log",
+      "scope": "new finalizer rejects unfinished real full cache",
+      "code_sha": "2bfdd1e",
+      "exit_code": 1,
+      "passed_count_if_applicable": null,
+      "sha256": "d6fd23570c2aacbe8f05df52fe89eb709dcb168492c7292ca00d8e3f2d4c127d"
+    }
+  ],
+  "warning": "CPU/diagnostic PASS is not production release or a performance gain"
+}
