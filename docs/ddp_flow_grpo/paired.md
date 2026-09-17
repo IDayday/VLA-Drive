@@ -108,3 +108,27 @@ CUDA_VISIBLE_DEVICES=0 $PYTHON_BIN -m starVLA.rl.flow_grpo.cli evaluate \
 评估保留原10步单候选 ODE/原后处理；噪声由seed+token派生，不随遍历/worker改变。完整官方v2 one-stage聚合计算相邻场景分量，输出覆盖率及缺失分量实际权重。输出逐场景轨迹、全部可用分量、EPDMS；同组相对自身SFT的 paired delta、零分恢复/非零归零/高分退化和按log bootstrap。切片评估明确标 `partial_*`，不能平均这些局部相邻聚合冒充全量，最终必须在完整token集合统一聚合。训练 RewardService 仍拒绝navtest；训练reward仍是没有two-frame comfort的单场景v2 reward。
 
 当前数据是明确的subset experiment：源目标103288；本项目兼容metadata/v2 cache10000，按完整log留出514场景57logs，RL/replay9486。dev可能已被源SFT看过。全量共享metadata的NumPy兼容问题、当前图像缺失及v2 cache缺口详见报告；不能把10k说成完整navtrain。F/U源训练步数不同，只比较各自RL收益，不解释为隔离视觉解冻的因果实验。
+
+## 本轮额外执行的真实 CPU 恢复回归
+
+```bash
+CUDA_VISIBLE_DEVICES='' $PYTHON_BIN scripts/flow_grpo/real_cpu_inner_resume.py \
+  --config configs/flow_grpo/paired_frozen_visual.yaml \
+  --behavior runs/paired_fp32_cpu_frozen_signed/fixed_behavior.pt \
+  --output runs/new_real_cpu_inner_f
+# U对应替换config/behavior/output。fixed_behavior.pt保存的是原官方优势，
+# signed仅指外围数值探针；加载器仍明确拒绝带synthetic诊断标记的buffer。
+```
+
+该回归使用实际完整模型、安装版CPU Accelerate/AdamW、生产checkpoint函数、同一G8/K10链、官方优势和原action replay。global scene batch为1、FP32，受限两次inner更新；连续路径与在inner边界保存恢复的路径比较完整权重/optimizer/scheduler/RNG哈希和固定噪声ODE。它不是正式配对100更新，也不放行4卡BF16/ZeRO2。正式reference仍始终来自原SFT。
+
+本轮navtest cache使用以下官方命令，在独立目录构建，不覆盖旧缓存：
+
+```bash
+CUDA_VISIBLE_DEVICES='' OPENSCENE_DATA_ROOT=/mnt/project/DriveDreamer-Policy/navsim_raw \
+NUPLAN_MAPS_ROOT=/mnt/navsim/maps NUPLAN_MAP_VERSION=nuplan-maps-v1.0 NAVSIM_EXP_ROOT="$PWD/runs" \
+  $PYTHON_BIN navsim/navsim/planning/script/run_metric_caching.py \
+  train_test_split=navtest metric_cache_path="$PWD/runs/metric_cache_navtest_v2" \
+  force_feature_computation=false worker=single_machine_thread_pool \
+  worker.max_workers=8 worker.use_process_pool=true
+```
