@@ -124,35 +124,141 @@ def test_comparison_collects_every_failure_and_near_zero():
     assert report["parameters"]["qwen_vl_interface.b"]["relative_l2"] is None
 
 
+def acceptance_fixture(tmp_path, monkeypatch):
+    """Synthetic TEMP fixtures for validator control flow, never production receipts."""
+    import json
+    from starVLA.rl.flow_grpo.acceptance import GATES, GATE_REQUIREMENTS
+    from starVLA.rl.flow_grpo.loading import file_sha
+    from starVLA.rl.flow_grpo.config import resolve_config, config_hash
+    from starVLA.rl.flow_grpo.reproducibility import numerical_profile
+    from starVLA.rl.flow_grpo.contracts import digest
+
+    monkeypatch.setenv("WORLD_SIZE", "4")
+    cfg, sft = resolve_config("configs/flow_grpo/paired_frozen_visual.yaml")
+    profile = numerical_profile(cfg, sft)
+    evidence, receipt, inventory = [
+        tmp_path / x for x in ("evidence.json", "release.json", "dtype.json")
+    ]
+    cfg["runtime"]["acceptance_record"] = str(receipt)
+    context = {
+        "executable_sha256": "c" * 64,
+        "config_sha256": config_hash(cfg),
+        "checkpoint_sha256": cfg["checkpoint_contract"]["sha256"],
+        "resume_identity": {"numerics": profile, "assets": "TEMP validator fixture"},
+        "world_size": 4,
+    }
+    row = {
+        "device": {"type": "cuda", "name": "SYNTHETIC TEST FIXTURE"},
+        "dtype": {
+            "parameters": {"torch.bfloat16": 1},
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "communication_buffers": ["torch.float32"],
+            "master_weights": ["torch.float32"],
+            "optimizer_states": {"torch.float32": 2},
+        },
+        "dtype_before_step": {"partition_buffers": ["torch.float32"]},
+        "activation_dtypes": {"language": ["torch.bfloat16"]},
+    }
+    inventory.write_text(
+        json.dumps({"ranks": [{**row, "rank": rank} for rank in range(4)]})
+    )
+    tests = []
+    for gate in GATES:
+        category, checks = GATE_REQUIREMENTS[gate]
+        production, cuda = (
+            category == "production",
+            category in {"production", "cuda_model"},
+        )
+        world = 4 if production else 2 if category == "tool_distributed" else 1
+        tests.append(
+            {
+                "schema_version": 1,
+                "test_id": gate,
+                "status": "PASS",
+                "execution": {
+                    "executable_sha256": context["executable_sha256"],
+                    "exit_code": 0,
+                    "completed": True,
+                    "command": ["synthetic schema fixture; not an executed GPU test"],
+                },
+                "checkpoint": None
+                if category.startswith("tool")
+                else {
+                    "sha256": context["checkpoint_sha256"],
+                    "variant": cfg["checkpoint_contract"]["variant"],
+                },
+                "scope": {
+                    "kind": "model_independent"
+                    if category.startswith("tool")
+                    else "full_model",
+                    "checks": sorted(checks),
+                },
+                "observed_profile": {
+                    "device_type": "cuda" if cuda else "cpu",
+                    "precision": "bfloat16" if cuda else "float32",
+                    "backend": "deepspeed" if production else "pytorch",
+                    "world_size": world,
+                    "devices": ["fixture"] * world,
+                    "zero_stage": 2,
+                    **{
+                        key: profile[key]
+                        for key in (
+                            "candidate_chunk",
+                            "transition_chunk",
+                            "activation_checkpointing",
+                            "optimizer_offload",
+                            "attention_backend",
+                        )
+                    },
+                },
+                "declared_profile": profile,
+                "config_sha256": context["config_sha256"],
+                "resume_identity_sha256": digest(context["resume_identity"]),
+                "artifacts": {
+                    "dtype_inventory": {
+                        "path": str(inventory),
+                        "sha256": file_sha(inventory),
+                    }
+                },
+                "results": {
+                    **{check: True for check in checks},
+                    "chunks": [1, 2],
+                    "groups": [2, 8],
+                    "num_steps": 10,
+                    "optimizer_updates": 2,
+                    "official_nonzero_advantage_groups": 1,
+                    "compared_world_sizes": [1, 4],
+                },
+            }
+        )
+    bundle = {"schema_version": 1, "tests": tests}
+
+    def write():
+        evidence.write_text(json.dumps(bundle))
+        record = {
+            "status": "READY_FOR_THIS_PROFILE",
+            "context": context,
+            "gates": {
+                gate: {
+                    "status": "PASS",
+                    "test_id": gate,
+                    "path": str(evidence),
+                    "sha256": file_sha(evidence),
+                }
+                for gate in GATES
+            },
+        }
+        receipt.write_text(json.dumps(record))
+
+    write()
+    return cfg, context, bundle, write, evidence, receipt
+
+
 def test_acceptance_rejects_changed_code_config_assets_or_evidence(
     tmp_path, monkeypatch
 ):
-    import json
-    from starVLA.rl.flow_grpo.acceptance import GATES
-    from starVLA.rl.flow_grpo.loading import file_sha
-    from starVLA.rl.flow_grpo.config import resolve_config
-
-    monkeypatch.setenv("WORLD_SIZE", "4")
-    cfg, _ = resolve_config("configs/flow_grpo/paired_frozen_visual.yaml")
-    evidence = tmp_path / "evidence.json"
-    evidence.write_text('{"status":"PASS","scope":"unit test only"}')
-    receipt = tmp_path / "release.json"
-    cfg["runtime"]["acceptance_record"] = str(receipt)
-    context = {
-        "code": "original",
-        "config": "original",
-        "assets": "original",
-        "world_size": 4,
-    }
-    record = {
-        "status": "READY_FOR_THIS_PROFILE",
-        "context": context,
-        "gates": {
-            g: {"status": "PASS", "path": str(evidence), "sha256": file_sha(evidence)}
-            for g in GATES
-        },
-    }
-    receipt.write_text(json.dumps(record))
+    cfg, context, _, _, evidence, _ = acceptance_fixture(tmp_path, monkeypatch)
     enforce_training_budget(cfg, context)
     for key in context:
         with pytest.raises(ValueError, match="does not match"):
@@ -162,9 +268,105 @@ def test_acceptance_rejects_changed_code_config_assets_or_evidence(
         enforce_training_budget(cfg, context)
 
 
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "FAIL",
+        "NOT_RUN",
+        "BLOCKED",
+        "cpu",
+        "other_checkpoint",
+        "test_id",
+        "backend",
+        "world_size",
+        "devices",
+        "generic",
+        "dtype",
+        "zero_advantage",
+    ],
+)
+def test_semantic_gate_rejects_correct_sha_but_invalid_evidence(
+    tmp_path, monkeypatch, damage
+):
+    cfg, context, bundle, write, evidence, receipt = acceptance_fixture(
+        tmp_path, monkeypatch
+    )
+    entry = next(
+        row for row in bundle["tests"] if row["test_id"] == "rl_sft_reference_gradients"
+    )
+    if damage in {"FAIL", "NOT_RUN", "BLOCKED"}:
+        entry["status"] = damage
+    elif damage == "cpu":
+        entry["observed_profile"].update(device_type="cpu", precision="float32")
+    elif damage == "other_checkpoint":
+        entry["checkpoint"].update(sha256="U" * 64, variant="unfrozen_visual")
+    elif damage == "test_id":
+        entry["test_id"] = "wrong_test_id"
+    elif damage in {"backend", "world_size", "devices"}:
+        entry["observed_profile"].pop(damage)
+    elif damage == "generic":
+        entry["scope"]["kind"] = "model_independent"
+    elif damage == "zero_advantage":
+        entry["results"]["official_nonzero_advantage_groups"] = 0
+    elif damage == "dtype":
+        entry["artifacts"] = {}
+    write()  # deliberately CORRECT SHA: the semantic validator must still refuse.
+    with pytest.raises(ValueError):
+        enforce_training_budget(cfg, context)
+
+
+def test_generic_unit_pass_cannot_satisfy_all_gates(tmp_path, monkeypatch):
+    import json
+    from starVLA.rl.flow_grpo.loading import file_sha
+
+    cfg, context, _, _, evidence, receipt = acceptance_fixture(tmp_path, monkeypatch)
+    evidence.write_text('{"status":"PASS","scope":"unit test only"}')
+    record = json.loads(receipt.read_text())
+    for gate in record["gates"].values():
+        gate["sha256"] = file_sha(evidence)
+    receipt.write_text(json.dumps(record))
+    with pytest.raises(ValueError, match="schema"):
+        enforce_training_budget(cfg, context)
+
+
+def test_legal_cpu_math_evidence_and_complete_bundle(tmp_path, monkeypatch):
+    from starVLA.rl.flow_grpo.acceptance import validate_gate_evidence
+    import json
+
+    cfg, context, bundle, _, _, receipt = acceptance_fixture(tmp_path, monkeypatch)
+    math = next(
+        row for row in bundle["tests"] if row["test_id"] == "fp32_chunk_mathematics"
+    )
+    assert math["observed_profile"]["device_type"] == "cpu"
+    pointer = json.loads(receipt.read_text())["gates"]["fp32_chunk_mathematics"]
+    validate_gate_evidence("fp32_chunk_mathematics", pointer, context, cfg)
+    enforce_training_budget(cfg, context)
+
+
 def test_adam_update_is_not_classified_as_zero_by_acceptance_atol():
     from starVLA.rl.flow_grpo.comparison import tensor_comparison
 
     result = tensor_comparison(torch.tensor([1e-6, -1e-6]), torch.tensor([2e-6, -1e-6]))
     assert not result["near_zero_reference"]
     assert result["relative_l2"] == pytest.approx(2**-0.5)
+
+
+def test_collective_dtype_observer_preserves_arguments_and_restores_api():
+    from types import SimpleNamespace
+    from starVLA.rl.flow_grpo.monitor import CommunicationDtypeMonitor
+
+    calls = []
+
+    def original(value, group=None):
+        calls.append((value, group))
+        return value
+
+    module = SimpleNamespace(all_reduce=original)
+    engine = SimpleNamespace()
+    observer = CommunicationDtypeMonitor(engine, module)
+    tensor = torch.ones(4)
+    assert module.all_reduce(tensor, group="fixture") is tensor
+    assert calls == [(tensor, "fixture")]
+    assert engine.flow_communication_dtypes == set()  # CPU isn't GPU evidence
+    observer.close()
+    assert module.all_reduce is original

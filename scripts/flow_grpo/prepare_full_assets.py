@@ -4,6 +4,7 @@ Metadata is independently checked against each official raw scene window. Only
 current image PATHS change to the verified alternate root when necessary.
 Future labels remain supervision/reward data. No temporal/candidate fallback.
 """
+
 from pathlib import Path
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -19,8 +20,6 @@ from omegaconf import OmegaConf
 from pyquaternion import Quaternion
 from starVLA.rl.flow_grpo.loading import file_sha
 from starVLA.rl.flow_grpo.contracts import digest
-from starVLA.rl.flow_grpo.reproducibility import write_asset_manifest
-from starVLA.rl.flow_grpo.reward import build_cache_index
 
 
 class NumpyCompatUnpickler(pickle.Unpickler):
@@ -178,61 +177,62 @@ def prepare_metadata(root, workers):
     print((root / "METADATA_COMPLETE").read_text(), flush=True)
 
 
-def finalize(root):
+def finalize(root, workers=8):
+    from starVLA.rl.flow_grpo.asset_publication import finalize_assets
+
     if not (root / "METADATA_COMPLETE").is_file():
         raise ValueError("metadata incomplete")
-    if (root / "COMPLETE").exists():
-        raise FileExistsError("full assets already finalized")
-    records = json.loads((root / "metadata_records.json").read_text())
-    index = build_cache_index(root / "metric_cache_navtrain_v2")
-    tokens = {r["token"] for r in records}
-    if tokens != set(index):
-        raise ValueError(
-            f"official full cache incomplete: missing={len(tokens-set(index))}, extra={len(set(index)-tokens)}"
-        )
-    assets = [
-        str(root / "navtrain_tokens.json"),
-        str(root / "split_manifest.json"),
-        "/mnt/project/DriveDreamer-Policy/test_meta.json",
-    ]
-    for r in records:
-        assets.extend([r["metadata"], *r["images"], index[r["token"]]])
-    lock = write_asset_manifest(assets, root / "asset_manifest.json")
-    configs = root / "configs"
-    configs.mkdir(exist_ok=False)
-    for variant in ("frozen_visual", "unfrozen_visual"):
-        cfg = OmegaConf.load(f"configs/flow_grpo/paired_{variant}.yaml")
-        cfg.paths.data_root = str((root / "dataset").resolve())
-        cfg.paths.train_list = str((root / "navtrain_tokens.json").resolve())
-        cfg.paths.split_manifest = str((root / "split_manifest.json").resolve())
-        cfg.paths.metric_cache = str((root / "metric_cache_navtrain_v2").resolve())
-        cfg.paths.asset_manifest = str((root / "asset_manifest.json").resolve())
-        cfg.paths.asset_manifest_identity = lock["identity"]
-        cfg.runtime.acceptance_record = (
-            f"reports/ddp_flow_grpo_paired/release_full_{variant}.json"
-        )
-        OmegaConf.save(cfg, configs / f"paired_{variant}.yaml")
-    (root / "COMPLETE").write_text(
-        json.dumps(
-            {
-                "status": "ASSETS_READY_ONLY",
-                "scenes": len(tokens),
-                "asset_identity": lock["identity"],
-                "engineering": "NOT_READY; CUDA profile acceptance required",
-            }
-        )
+    templates = {
+        v: f"configs/flow_grpo/paired_{v}.yaml"
+        for v in ("frozen_visual", "unfrozen_visual")
+    }
+    result = finalize_assets(
+        root,
+        templates,
+        raw_root="/mnt/project/DriveDreamer-Policy/navsim_raw",
+        workers=workers,
     )
-    print((root / "COMPLETE").read_text(), flush=True)
+    print(json.dumps(result), flush=True)
+    return result
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("phase", choices=["metadata", "finalize", "watch"])
+    p.add_argument("phase", choices=["metadata", "finalize", "watch", "validate"])
     p.add_argument("--root", default="runs/paired_full_assets_v1")
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--validation-output")
     p.add_argument("--wait-hours", type=float, default=6)
     args = p.parse_args()
     root = Path(args.root)
+    if args.phase == "validate":
+        from starVLA.rl.flow_grpo.asset_publication import (
+            expected_cache_records,
+            cache_builder_status,
+            validate_cache_assets,
+        )
+        from starVLA.rl.flow_grpo.transactions import atomic_json
+
+        if not args.validation_output:
+            p.error("validate requires --validation-output (new report path)")
+        records = expected_cache_records(
+            root, "/mnt/project/DriveDreamer-Policy/navsim_raw"
+        )
+        state = cache_builder_status(root, len(records))
+        result = (
+            validate_cache_assets(root, records, args.workers)
+            if state["finished"]
+            else {"status": "NOT_RUN_BUILDING"}
+        )
+        result["builder_status"] = state
+        destination = Path(args.validation_output)
+        if destination.exists():
+            raise FileExistsError(destination)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        atomic_json(destination, result)
+        if result["status"] != "PASS":
+            raise RuntimeError(f"full assets not ready: {destination}")
+        return
     if args.phase == "metadata":
         return prepare_metadata(root, args.workers)
     if args.phase == "watch":
@@ -274,7 +274,7 @@ def main():
             raise TimeoutError(
                 "bounded full asset preparation wait expired; only owned cache process group stopped"
             )
-    finalize(root)
+    finalize(root, args.workers)
 
 
 if __name__ == "__main__":

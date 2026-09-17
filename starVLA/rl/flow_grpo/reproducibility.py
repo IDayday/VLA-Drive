@@ -1,9 +1,11 @@
 """Exact-resume identities for assets and numerical execution, not path labels."""
+
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import importlib.metadata
 import json
 import os
+import pickle
 import torch
 from .contracts import digest
 from .loading import file_sha
@@ -130,6 +132,7 @@ def verify_asset_manifest(path, expected=None):
         expected and payload["identity"] != expected
     ):
         raise ValueError("asset manifest identity changed")
+
     # One content check at startup/resume, never at each optimizer step. Stat-only
     # fingerprints cannot detect same-path same-size replacement.
     def check_entry(entry):
@@ -155,6 +158,54 @@ def asset_map(function, items):
     with ThreadPoolExecutor(max_workers=8) as pool:
         for start in range(0, len(items), 256):
             yield from pool.map(function, items[start : start + 256])
+
+
+def selected_asset_identity(paths, manifest=None):
+    """Hash only the actual selected inputs; reuse and verify locked entries.
+
+    A path/mtime-only memo is deliberately not an identity. Same-path replacement
+    is checked on every request, including requests that reuse completed outputs.
+    """
+    locked = {}
+    if manifest and Path(manifest).is_file():
+        payload = json.loads(Path(manifest).read_text())
+        if digest(payload["files"]) != payload["identity"]:
+            raise ValueError("asset manifest identity changed")
+        locked = {entry["path"]: entry for entry in payload["files"]}
+
+    def entry(path):
+        item = {
+            "path": str(Path(path).resolve()),
+            "size": Path(path).stat().st_size,
+            "sha256": file_sha(path),
+        }
+        if item["path"] in locked and item != locked[item["path"]]:
+            raise ValueError(f"immutable asset changed: {path}")
+        return item
+
+    entries = list(asset_map(entry, sorted({str(Path(p).resolve()) for p in paths})))
+    return {"identity": digest(entries), "files": entries}
+
+
+def observation_asset_identity(data_root, tokens, split, manifest=None):
+    metadata = [
+        Path(data_root)
+        / "meta"
+        / ("test" if split == "navtest" else "train")
+        / f"{t}.pkl"
+        for t in tokens
+    ]
+    paths = list(metadata)
+    # Exactly the current three camera inputs used by NavSimDataset._get_sample.
+    # The full metadata also binds history/commands and preprocessing supervision.
+    for path in metadata:
+        with path.open("rb") as stream:
+            item = pickle.load(stream)  # trusted local project metadata only
+        paths.extend(
+            item["glo_images"][v]["image_paths"][3]
+            for v in ("cam_f0", "cam_l0", "cam_r0")
+        )
+    return selected_asset_identity(paths, manifest)
 
 
 def resume_assets(cfg, sft):
@@ -185,3 +236,27 @@ def assert_resume_identity(saved, current):
             if saved.get(key) != current.get(key)
         ]
         raise ValueError("exact resume identity changed: " + ", ".join(differences))
+
+
+def training_provenance(cfg, sft, assets):
+    from .audit import source_fingerprints
+    from .config import config_hash
+    from .reward import VERSION, reward_metadata
+
+    sha = cfg["checkpoint_contract"]["sha256"]
+    return dict(
+        assets=assets,
+        implementation_sha256=digest(source_fingerprints()),
+        sft_sha256=sha,
+        reference_sha256=sha,
+        normalization=digest(
+            {
+                "ver_1225": int(sft.ver_1225),
+                "act_norm": int(sft.datasets.vla_data.act_norm),
+            }
+        ),
+        reward_version=VERSION,
+        config_hash=config_hash(cfg),
+        reference_lock=digest(json.loads(Path("reference_lock.json").read_text())),
+        reward_config_hash=digest(reward_metadata(Path("navsim").resolve())),
+    )

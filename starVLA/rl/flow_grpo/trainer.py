@@ -1,4 +1,5 @@
 """Synchronous full-parameter Accelerate/DeepSpeed Flow-GRPO training."""
+
 from pathlib import Path
 import json
 import os
@@ -31,11 +32,10 @@ from .distributed import (
 )
 from .loading import load_policy, enable_checkpointing
 from .model import FlowGRPOActor, make_reference
-from .audit import source_fingerprints
 from .observation import prepare_policy_observation
 from .rollout import SamplingSpec, evaluate_transitions
 from .math import group_advantages
-from .reward import RewardService, VERSION
+from .reward import RewardService
 from .monitor import (
     GradientMonitor,
     CheckedDeepSpeedBackward,
@@ -43,6 +43,7 @@ from .monitor import (
     optimizer_norm_metrics,
     dtype_inventory,
     ActivationDtypeMonitor,
+    CommunicationDtypeMonitor,
 )
 from .metrics import Metrics
 from .reproducibility import configure_numerics, resume_assets
@@ -209,6 +210,9 @@ def _run(cfg, sft, resume=None):
     actor.eval()
     policy = accelerator.unwrap_model(actor).policy
     activation_dtypes = ActivationDtypeMonitor(policy)
+    communication_monitor = None
+    if runtime["deepspeed_stage"] and runtime.get("run_mode") == "diagnostic":
+        communication_monitor = CommunicationDtypeMonitor(actor)
     if runtime["deepspeed_stage"]:
         reference.to(dtype=next(policy.action_model.parameters()).dtype)
     if not runtime["reference_offload"]:
@@ -232,21 +236,9 @@ def _run(cfg, sft, resume=None):
     sftsha = policy._flow_source_sha256
     if sftsha != cfg["checkpoint_contract"]["sha256"]:
         raise ValueError("SFT checkpoint SHA does not match audited contract")
-    provenance = dict(
-        assets=assets,
-        implementation_sha256=digest(source_fingerprints()),
-        sft_sha256=sftsha,
-        reference_sha256=sftsha,
-        normalization=digest(
-            {
-                "ver_1225": int(sft.ver_1225),
-                "act_norm": int(sft.datasets.vla_data.act_norm),
-            }
-        ),
-        reward_version=VERSION,
-        config_hash=config_hash(cfg),
-        reference_lock=digest(json.loads(Path("reference_lock.json").read_text())),
-    )
+    from .reproducibility import training_provenance
+
+    provenance = training_provenance(cfg, sft, assets)
     service = RewardService(
         Path("navsim").resolve(),
         cfg["paths"]["metric_cache"],
@@ -256,7 +248,7 @@ def _run(cfg, sft, resume=None):
         timeout=runtime["reward_timeout"],
         cache_dir=output / "reward_cache",
     )
-    provenance["reward_config_hash"] = digest(service.metadata)
+    assert provenance["reward_config_hash"] == digest(service.metadata)
     spec = SamplingSpec(
         group_size=cfg["sampling"]["group_size"],
         num_steps=cfg["sampling"]["num_steps"],
@@ -281,7 +273,7 @@ def _run(cfg, sft, resume=None):
     from infer import deal_action_1225
 
     accelerator.print(
-        f'Flow-GRPO full SFT: {manifest["trainable_numel"]:,} trainable parameters; start={update}, stop={maximum}'
+        f"Flow-GRPO full SFT: {manifest['trainable_numel']:,} trainable parameters; start={update}, stop={maximum}"
     )
     optimizer.zero_grad()
     parameter_probe = ParameterProbe(policy)
@@ -495,6 +487,11 @@ def _run(cfg, sft, resume=None):
                     policy_version=version,
                     inner_epoch=inner,
                     rank=accelerator.process_index,
+                    device={
+                        "type": accelerator.device.type,
+                        "index": accelerator.device.index,
+                        "name": torch.cuda.get_device_name(accelerator.device),
+                    },
                     behavior_sha256=old_fingerprints,
                     scene_tokens=[r.observation.tokens for r in buffers],
                     replay_tokens=[s["token"] for s in replay],
@@ -625,6 +622,8 @@ def _run(cfg, sft, resume=None):
         service.close(abort=failed)
         monitor.close()
         activation_dtypes.close()
+        if communication_monitor is not None:
+            communication_monitor.close()
     accelerator.end_training()
 
 

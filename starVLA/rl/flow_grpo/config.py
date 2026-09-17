@@ -19,6 +19,19 @@ def resolve_config(
         cfg["runtime"]["max_updates"] = int(max_updates)
     if output_dir:
         cfg["runtime"]["output_dir"] = str(Path(output_dir).resolve())
+    if cfg["paths"].get("asset_publication"):
+        from .asset_publication import verify_publication
+
+        published = Path(cfg["paths"]["asset_publication"])
+        marker = verify_publication(published, verify_inputs=False)
+        if (
+            Path(cfg["paths"]["asset_manifest"]).resolve()
+            != (published / "asset_manifest.json").resolve()
+            or cfg["paths"]["asset_manifest_identity"] != marker["asset_identity"]
+        ):
+            raise ValueError(
+                "training configuration references an unpublished/conflicting asset version"
+            )
     ckpt = Path(cfg["sft_checkpoint"])
     config_path = ckpt / "config.yaml" if ckpt.is_dir() else ckpt.parent / "config.yaml"
     sft = OmegaConf.load(config_path)
@@ -146,7 +159,7 @@ def resolve_config(
         "metric_cache",
     ]:
         if not Path(cfg["paths"][key]).exists():
-            raise FileNotFoundError(f'{key}: {cfg["paths"][key]}')
+            raise FileNotFoundError(f"{key}: {cfg['paths'][key]}")
     sft.framework.qwenvl.sft_feature_output = cfg["checkpoint_contract"][
         "sft_feature_output"
     ]

@@ -1,4 +1,5 @@
 """Original ODE + original one-stage NAVSIM aggregation, fixed validation split."""
+
 from pathlib import Path
 import json
 import os
@@ -20,15 +21,33 @@ def scene_noise_seed(seed, token):
     return int(digest(["single_candidate_ode_v1", int(seed), str(token)])[:8], 16)
 
 
-def evaluation_identity(cfg, sft, checkpoint, tokens_file, seed, split):
+def evaluation_identity(
+    cfg, sft, checkpoint, tokens_file, seed, split, data_root, metric_cache
+):
     from .audit import source_fingerprints
     from .reproducibility import (
         processor_identity,
         dependency_versions,
         numerical_profile,
+        observation_asset_identity,
     )
 
+    tokens = json.loads(Path(tokens_file).read_text())
+    inputs = observation_asset_identity(
+        data_root, tokens, split, cfg["paths"].get("asset_manifest")
+    )
+    index = build_cache_index(metric_cache)
+    cache_files = {token: file_sha(index[token]) for token in sorted(tokens)}
+    from omegaconf import OmegaConf
+
     return {
+        "schema_version": 2,
+        "data_root": str(Path(data_root).resolve()),
+        "observation_assets_sha256": inputs["identity"],
+        "metric_assets_sha256": digest(cache_files),
+        "resolved_data_model_config_sha256": digest(
+            OmegaConf.to_container(sft, resolve=True)
+        ),
         "checkpoint_sha256": file_sha(weight_path(checkpoint)),
         "tokens_sha256": file_sha(tokens_file),
         "seed": int(seed),
@@ -150,8 +169,6 @@ def evaluate(
     seed,
     metric_protocol,
 ):
-    from infer import VLAAgent, deal_action_1225, set_inference_seed
-
     if (
         not all([checkpoint, output, tokens_file, data_root, metric_cache])
         or metric_protocol != METRIC_PROTOCOL
@@ -170,9 +187,50 @@ def evaluate(
     from .reproducibility import configure_numerics
 
     configure_numerics()
-    identity = evaluation_identity(cfg, sft, checkpoint, tokens_file, seed, split)
-    root = Path(output)
-    root.mkdir(parents=True, exist_ok=False)
+    identity = evaluation_identity(
+        cfg, sft, checkpoint, tokens_file, seed, split, data_root, metric_cache
+    )
+    from .evaluation_transaction import evaluation_transaction
+
+    def execute(root):
+        return _evaluate_once(
+            cfg,
+            sft,
+            checkpoint,
+            root,
+            identity,
+            tokens,
+            complete,
+            cache_index,
+            tokens_file,
+            data_root,
+            metric_cache,
+            seed,
+            split,
+            metric_protocol,
+        )
+
+    return evaluation_transaction(output, identity, tokens, execute)
+
+
+def _evaluate_once(
+    cfg,
+    sft,
+    checkpoint,
+    root,
+    identity,
+    tokens,
+    complete,
+    cache_index,
+    tokens_file,
+    data_root,
+    metric_cache,
+    seed,
+    split,
+    metric_protocol,
+):
+    from infer import VLAAgent, deal_action_1225, set_inference_seed
+
     # Content identity, including same-path replacement, not an old cache path label.
     cache_files = {token: file_sha(cache_index[token]) for token in sorted(tokens)}
     (root / "metric_cache_identity.json").write_text(json.dumps(cache_files, indent=2))
@@ -242,7 +300,6 @@ def evaluate(
         valid=int(frame["valid"].sum()),
         seconds=time.monotonic() - start,
     )
-    (root / "evaluation.json").write_text(json.dumps(report, indent=2))
     print(json.dumps(report))
     return report
 

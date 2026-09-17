@@ -1,4 +1,5 @@
 """Gradient evidence captured before DeepSpeed consumes/partitions gradients."""
+
 import torch
 
 
@@ -164,6 +165,9 @@ def dtype_inventory(policy, engine=None):
     if engine is not None:
         optimizer = engine.optimizer
         result.update(
+            communication_buffers=sorted(
+                getattr(engine, "flow_communication_dtypes", set())
+            ),
             accumulation_dtype=str(
                 getattr(optimizer, "gradient_accumulation_dtype", "unavailable")
             ),
@@ -190,6 +194,42 @@ def dtype_inventory(policy, engine=None):
             ),
         )
     return result
+
+
+class CommunicationDtypeMonitor:
+    """Read-only observation at installed DeepSpeed collective API boundaries.
+
+    Bounded diagnostic runs only. No casts, autograd hooks, new collectives or
+    changes to arguments/results. Scalar norm/control collectives are excluded.
+    """
+
+    def __init__(self, engine, module=None):
+        if module is None:
+            import deepspeed.comm as module
+        self.module, self.originals = module, {}
+        engine.flow_communication_dtypes = set()
+        for name in ("all_reduce", "reduce", "reduce_scatter", "reduce_scatter_fn"):
+            original = getattr(module, name, None)
+            if original is None:
+                continue
+            self.originals[name] = original
+
+            def observe(*args, _original=original, **kwargs):
+                for value in [*args, *kwargs.values()]:
+                    if (
+                        isinstance(value, torch.Tensor)
+                        and value.is_cuda
+                        and value.is_floating_point()
+                        and value.numel() > 1
+                    ):
+                        engine.flow_communication_dtypes.add(str(value.dtype))
+                return _original(*args, **kwargs)
+
+            setattr(module, name, observe)
+
+    def close(self):
+        for name, original in self.originals.items():
+            setattr(self.module, name, original)
 
 
 class ActivationDtypeMonitor:

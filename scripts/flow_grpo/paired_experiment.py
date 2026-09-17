@@ -3,6 +3,7 @@
 Run each pair concurrently only on explicitly supplied disjoint idle GPUs. Each
 phase uses torchrun max-restarts=0; a failed peer experiment is not relaunched.
 """
+
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import argparse
@@ -16,6 +17,11 @@ import sys
 import numpy as np
 import pandas as pd
 from starVLA.rl.flow_grpo.config import resolve_config
+from starVLA.rl.flow_grpo.orchestration import advance_target
+from starVLA.rl.flow_grpo.checkpoint import validate_checkpoint, validate_export
+from starVLA.rl.flow_grpo.evaluation_transaction import request_evaluation
+from starVLA.rl.flow_grpo.transactions import atomic_json
+from starVLA.rl.flow_grpo.reproducibility import training_provenance
 from starVLA.rl.flow_grpo.reproducibility import configure_numerics, resume_assets
 from starVLA.rl.flow_grpo.acceptance import acceptance_context, enforce_training_budget
 from starVLA.rl.flow_grpo.evaluation import (
@@ -106,11 +112,11 @@ def main():
     parser.add_argument("--navtest-cache", required=True)
     parser.add_argument(
         "--config-f",
-        default="runs/paired_full_assets_v1/configs/paired_frozen_visual.yaml",
+        default="runs/paired_full_assets_v1/published_v2/configs/paired_frozen_visual.yaml",
     )
     parser.add_argument(
         "--config-u",
-        default="runs/paired_full_assets_v1/configs/paired_unfrozen_visual.yaml",
+        default="runs/paired_full_assets_v1/published_v2/configs/paired_unfrozen_visual.yaml",
     )
     parser.add_argument("--sequential", action="store_true")
     parser.add_argument("--resume", action="store_true")
@@ -139,15 +145,21 @@ def main():
                 "configured accumulation does not match selected world size"
             )
         enforce_training_budget(cfg)
-        enforce_training_budget(cfg, acceptance_context(cfg, resume_assets(cfg, sft)))
-        configurations[variant] = (config, cfg, sft)
+        assets = resume_assets(cfg, sft)
+        enforce_training_budget(cfg, acceptance_context(cfg, assets))
+        configurations[variant] = (
+            config,
+            cfg,
+            sft,
+            training_provenance(cfg, sft, assets),
+        )
     # Do not create an apparent run until both releases and GPU availability pass.
     idle_devices(set(sum(devices.values(), [])))
     root = Path(args.output)
     root.mkdir(parents=True, exist_ok=args.resume)
 
     def _variant_run(variant):
-        config, cfg, sft = configurations[variant]
+        config, cfg, sft, provenance = configurations[variant]
         run = root / variant
         env = {
             **os.environ,
@@ -169,42 +181,28 @@ def main():
         eval_root.mkdir(exist_ok=True)
 
         def evaluate(checkpoint, label, split, seeds):
+            results = {}
             for seed in seeds:
                 dest = eval_root / f"{label}_{split}_seed{seed}"
-                if (dest / "evaluation.json").is_file() and args.resume:
-                    saved = json.loads((dest / "evaluation.json").read_text())
-                    identity = evaluation_identity(
-                        cfg,
-                        sft,
-                        checkpoint,
-                        dev_tokens if split == "rl_dev" else cfg["paths"]["test_list"],
-                        seed,
-                        split,
-                    )
-                    if saved.get("identity") != identity:
-                        raise ValueError(
-                            f"completed evaluation identity changed: {dest}"
-                        )
-                    from starVLA.rl.flow_grpo.reward import build_cache_index
-                    from starVLA.rl.flow_grpo.loading import file_sha
-                    from starVLA.rl.flow_grpo.contracts import digest
-
-                    index = build_cache_index(
-                        cfg["paths"]["metric_cache"]
-                        if split == "rl_dev"
-                        else args.navtest_cache
-                    )
-                    expected = json.loads(
-                        (dest / "metric_cache_identity.json").read_text()
-                    )
-                    if (
-                        digest({t: file_sha(index[t]) for t in expected})
-                        != saved["metric_cache_identity"]
-                    ):
-                        raise ValueError(
-                            f"completed evaluation metric assets changed: {dest}"
-                        )
-                    continue
+                token_file = (
+                    dev_tokens if split == "rl_dev" else cfg["paths"]["test_list"]
+                )
+                cache = (
+                    cfg["paths"]["metric_cache"]
+                    if split == "rl_dev"
+                    else args.navtest_cache
+                )
+                identity = evaluation_identity(
+                    cfg,
+                    sft,
+                    checkpoint,
+                    token_file,
+                    seed,
+                    split,
+                    cfg["paths"]["data_root"],
+                    cache,
+                )
+                tokens = json.loads(Path(token_file).read_text())
                 command = [
                     sys.executable,
                     "-m",
@@ -231,32 +229,44 @@ def main():
                     "--metric-protocol",
                     METRIC_PROTOCOL,
                 ]
-                invoke(command, env, eval_root / f"{label}_{split}_seed{seed}.log")
+                results[seed] = request_evaluation(
+                    dest,
+                    identity,
+                    tokens,
+                    lambda: invoke(
+                        command, env, eval_root / f"{label}_{split}_seed{seed}.log"
+                    ),
+                )
+                progress_path = eval_root / "evaluation_progress.json"
+                progress = (
+                    json.loads(progress_path.read_text())
+                    if progress_path.exists()
+                    else {}
+                )
+                progress[f"{label}/{split}/{seed}"] = str(dest)
+                atomic_json(progress_path, progress)
+            return results
 
         evaluate(cfg["sft_checkpoint"], "sft", "rl_dev", [42])
-        boundary = 0
         best = None
-        for target in [100] + list(range(200, 2001, 200)):
-            checkpoint = run / "checkpoints" / f"update_{target:06d}"
-            if not ((checkpoint / "COMPLETE").is_file() and args.resume):
-                command = ["scripts/flow_grpo/launch.sh", "train"]
-                if boundary:
-                    command += [
-                        "--resume",
-                        str(run / "checkpoints" / f"update_{boundary:06d}"),
-                    ]
-                command += [
-                    "--set",
-                    "runtime.run_mode="
-                    + ("paired_short" if target == 100 else "formal"),
-                ]
-                invoke(
-                    command,
-                    {**env, "MAX_UPDATES": str(target)},
-                    root / f"{variant}_to{target}.log",
-                )
+
+        def train_to(resume, target):
+            command = ["scripts/flow_grpo/launch.sh", "train"]
+            if resume is not None:
+                command += ["--resume", str(resume)]
+            command += [
+                "--set",
+                "runtime.run_mode=" + ("paired_short" if target == 100 else "formal"),
+            ]
+            invoke(
+                command,
+                {**env, "MAX_UPDATES": str(target)},
+                root / f"{variant}_to{target}.log",
+            )
+
+        def export_at(checkpoint, target):
             export = run / f"export_update{target}"
-            if not export.exists():
+            if not validate_export(checkpoint, export):
                 invoke(
                     [
                         sys.executable,
@@ -271,9 +281,20 @@ def main():
                     env,
                     root / f"{variant}_export{target}.log",
                 )
-            evaluate(export, f"step{target}", "rl_dev", [42])
-            dev = json.loads(
-                (eval_root / f"step{target}_rl_dev_seed42/evaluation.json").read_text()
+            if not validate_export(checkpoint, export):
+                raise RuntimeError("export executor did not publish a complete result")
+            return export
+
+        for target in [100] + list(range(200, 2001, 200)):
+            checkpoint, export, dev = advance_target(
+                run,
+                target,
+                validate=lambda path: validate_checkpoint(path, cfg, provenance, world),
+                train=train_to,
+                export=export_at,
+                evaluate=lambda exported, update: evaluate(
+                    exported, f"step{update}", "rl_dev", [42]
+                )[42],
             )
             if not dev["complete_split"]:
                 raise ValueError("incomplete dev evaluation cannot select best")
@@ -287,7 +308,12 @@ def main():
             (run / "selection.json").write_text(
                 json.dumps(
                     {
-                        "last": str(checkpoint),
+                        "last": str(
+                            run
+                            / "checkpoints"
+                            / f"update_{json.loads((run / 'orchestration_progress.json').read_text())['training_latest_update']:06d}"
+                        ),
+                        "last_evaluated_checkpoint": str(checkpoint),
                         "best": best,
                         "rule": "max full dev seed42 EPDMS every 200 updates, earliest tie; no navtest",
                         "dev_scenes": len(data_manifest["dev_tokens"]),
@@ -295,7 +321,6 @@ def main():
                     indent=2,
                 )
             )
-            boundary = target
         # Fixed five seeds for the same SFT, last and dev-selected best policies.
         for split in ("rl_dev", "navtest"):
             evaluate(cfg["sft_checkpoint"], "sft", split, EVALUATION_SEEDS)

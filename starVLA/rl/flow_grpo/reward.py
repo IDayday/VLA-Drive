@@ -3,6 +3,7 @@
 Every candidate invokes pdm_score with [official PDM reference, one candidate].
 We never concatenate the G candidates into the scorer proposal pool.
 """
+
 from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
@@ -150,10 +151,40 @@ def build_cache_index(cache_root):
         raise FileNotFoundError(
             f"missing cache directory {root}; run scripts/flow_grpo/cache.sh"
         )
-    index = {p.parent.name: str(p) for p in root.glob("*/*/*/metric_cache.pkl")}
+    index = {}
+    for p in root.glob("*/*/*/metric_cache.pkl"):
+        if p.parent.name in index:
+            raise ValueError(f"duplicate metric cache token: {p.parent.name}")
+        index[p.parent.name] = str(p)
     if not index:
         raise FileNotFoundError(f"no official metric caches in {root}")
     return index
+
+
+def reward_metadata(devkit, split="train"):
+    metadata = dict(
+        version=VERSION,
+        split=split,
+        trajectory="rear_axle_ego_x_y_heading",
+        horizon=8,
+        interval=0.5,
+        protocol_hash=hashlib.sha256(
+            (Path(devkit) / "navsim/evaluate/pdm_score.py").read_bytes()
+        ).hexdigest(),
+    )
+    protocol_files = [
+        "navsim/evaluate/pdm_score.py",
+        "navsim/planning/script/run_pdm_score_one_stage.py",
+        "navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py",
+        "navsim/planning/simulation/planner/pdm_planner/simulation/pdm_simulator.py",
+        "navsim/planning/script/config/pdm_scoring/scorer/pdm_scorer.yaml",
+        "navsim/traffic_agents_policies/log_replay_traffic_agents.py",
+    ]
+    metadata["evaluator_files"] = {
+        name: hashlib.sha256((Path(devkit) / name).read_bytes()).hexdigest()
+        for name in protocol_files
+    }
+    return metadata
 
 
 class RewardService:
@@ -182,28 +213,7 @@ class RewardService:
             raise FileNotFoundError(
                 f"{len(missing)} scenes lack metric cache, e.g. {next(iter(missing))}; run cache.sh"
             )
-        self.metadata = dict(
-            version=VERSION,
-            split=split,
-            trajectory="rear_axle_ego_x_y_heading",
-            horizon=8,
-            interval=0.5,
-            protocol_hash=hashlib.sha256(
-                (Path(devkit) / "navsim/evaluate/pdm_score.py").read_bytes()
-            ).hexdigest(),
-        )
-        protocol_files = [
-            "navsim/evaluate/pdm_score.py",
-            "navsim/planning/script/run_pdm_score_one_stage.py",
-            "navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py",
-            "navsim/planning/simulation/planner/pdm_planner/simulation/pdm_simulator.py",
-            "navsim/planning/script/config/pdm_scoring/scorer/pdm_scorer.yaml",
-            "navsim/traffic_agents_policies/log_replay_traffic_agents.py",
-        ]
-        self.metadata["evaluator_files"] = {
-            name: hashlib.sha256((Path(devkit) / name).read_bytes()).hexdigest()
-            for name in protocol_files
-        }
+        self.metadata = reward_metadata(devkit, split)
         self.cache_dir = Path(cache_dir) if cache_dir else None
         if self.cache_dir:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
