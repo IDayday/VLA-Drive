@@ -729,6 +729,26 @@ class QwenPIDrivoRSuprim(baseframework):
         examples: Optional[Sequence[dict]] = None,
         **kwargs,
     ) -> Dict[str, Any]:
+        """Run inference with the same CUDA BF16 policy used for training."""
+
+        reference = next(self.parameters())
+        with _bf16_context(reference):
+            return self._predict_action_impl(
+                batch_images=batch_images,
+                instructions=instructions,
+                state=state,
+                examples=examples,
+                **kwargs,
+            )
+
+    def _predict_action_impl(
+        self,
+        batch_images: Optional[Sequence[Any]] = None,
+        instructions: Optional[Sequence[str]] = None,
+        state: Optional[Sequence[Any]] = None,
+        examples: Optional[Sequence[dict]] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
         """Run B1/B2 single, B3 DrivoR, or B4 full learned inference."""
 
         if examples is None and batch_images and isinstance(batch_images[0], dict):

@@ -9,8 +9,9 @@ import os
 import re
 import json
 import argparse
+import random
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 import numpy as np
 import torch
@@ -51,6 +52,20 @@ def tensor_to_py(x: Any) -> Any:
     return x
 
 
+def set_inference_seed(seed: int) -> None:
+    """Seed all RNGs used by stochastic trajectory sampling.
+
+    Checkpoint comparisons use the same seed and sample order so each model is
+    evaluated with the same random-noise stream.
+    """
+
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
 def apply_ddp_drs_path_overrides(
     config: Any, path_overrides: Optional[Dict[str, str]]
 ) -> Any:
@@ -60,6 +75,86 @@ def apply_ddp_drs_path_overrides(
         if override:
             OmegaConf.update(config, config_key, override, force_add=True)
     return config
+
+
+def is_hierarchical_planner_config(config: Any) -> bool:
+    """Return whether ``config`` selects the joint Qwen/DrivoR/Suprim model."""
+
+    return (
+        OmegaConf.select(config, "framework.name", default=None)
+        == "QwenPI-DrivoRSuprim"
+    )
+
+
+def resolve_checkpoint_file(ckpt_dir: str, model_iter: Optional[int]) -> str:
+    """Resolve legacy flat or Accelerator/DeepSpeed model checkpoints."""
+
+    root = Path(ckpt_dir)
+    if root.suffix == ".pt":
+        if not root.is_file():
+            raise FileNotFoundError(f"checkpoint file not found: {root}")
+        return str(root)
+
+    if model_iter is not None:
+        step = int(model_iter)
+        candidates = (
+            root / "checkpoints" / f"steps_{step}_pytorch_model.pt",
+            root
+            / "checkpoints"
+            / f"steps_{step}"
+            / "pytorch_model"
+            / "mp_rank_00_model_states.pt",
+        )
+        for candidate in candidates:
+            if candidate.is_file():
+                return str(candidate)
+        raise FileNotFoundError(
+            f"no model checkpoint for step {step}; checked: "
+            + ", ".join(str(path) for path in candidates)
+        )
+
+    candidates = (
+        root / "final_model" / "pytorch_model.pt",
+        root / "pytorch_model.pt",
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+
+    checkpoints = root / "checkpoints"
+    if not checkpoints.is_dir():
+        raise FileNotFoundError(
+            "Neither final_model/pytorch_model.pt, pytorch_model.pt, nor "
+            f"checkpoints/ found under: {root}"
+        )
+    legacy_pattern = re.compile(r"steps_(\d+)_pytorch_model\.pt")
+    deepspeed_pattern = re.compile(r"steps_(\d+)")
+    choices = []
+    for path in checkpoints.iterdir():
+        legacy_match = legacy_pattern.fullmatch(path.name)
+        if legacy_match and path.is_file():
+            choices.append((int(legacy_match.group(1)), path))
+            continue
+        deepspeed_match = deepspeed_pattern.fullmatch(path.name)
+        deepspeed_model = path / "pytorch_model" / "mp_rank_00_model_states.pt"
+        if deepspeed_match and deepspeed_model.is_file():
+            choices.append((int(deepspeed_match.group(1)), deepspeed_model))
+    if not choices:
+        raise FileNotFoundError(f"No complete step checkpoint found in {checkpoints}")
+    return str(max(choices, key=lambda item: item[0])[1])
+
+
+def unwrap_model_state(checkpoint: Any) -> Mapping[str, torch.Tensor]:
+    """Extract a model state dict from a flat or DeepSpeed checkpoint."""
+
+    if not isinstance(checkpoint, Mapping):
+        raise TypeError(f"checkpoint must be a mapping, got {type(checkpoint).__name__}")
+    state = checkpoint.get("module", checkpoint)
+    if not isinstance(state, Mapping) or not state:
+        raise ValueError("checkpoint contains no model state")
+    if not all(isinstance(name, str) for name in state):
+        raise TypeError("model state keys must be strings")
+    return state
 
 
 def wrap_to_pi(a: np.ndarray) -> np.ndarray:
@@ -252,35 +347,7 @@ class VLAAgent:
         OmegaConf.update(self.model_config, "datasets.vla_data",    {"w_neg_traj": None},         force_add=True)
 
         # ── Resolve weight path ────────────────────────────────────────────
-        if ckpt_dir.endswith(".pt"):
-            self.model_path = ckpt_dir
-        else:
-            final_path = os.path.join(ckpt_dir, "final_model", "pytorch_model.pt")
-            flat_path   = os.path.join(ckpt_dir, "pytorch_model.pt")
-            ckpt_subdir = os.path.join(ckpt_dir, "checkpoints")
-            if model_iter is not None:
-                chosen = os.path.join(
-                    ckpt_subdir, f"steps_{int(model_iter)}_pytorch_model.pt"
-                )
-                if not os.path.isfile(chosen):
-                    raise FileNotFoundError(
-                        f"steps_{model_iter}_pytorch_model.pt not found in {ckpt_subdir}"
-                    )
-                self.model_path = chosen
-            elif os.path.exists(final_path):
-                self.model_path = final_path
-            elif os.path.exists(flat_path):
-                # HuggingFace flat layout: config.yaml + pytorch_model.pt in the same dir
-                self.model_path = flat_path
-            else:
-                if not os.path.isdir(ckpt_subdir):
-                    raise FileNotFoundError(f"Neither final_model/pytorch_model.pt, pytorch_model.pt, nor checkpoints/ found under: {ckpt_dir}")
-                pat = re.compile(r"steps_(\d+)_pytorch_model\.pt")
-                step_files = [f for f in os.listdir(ckpt_subdir) if pat.search(f)]
-                if not step_files:
-                    raise FileNotFoundError(f"No steps_*_pytorch_model.pt found in {ckpt_subdir}")
-                chosen = sorted(step_files, key=lambda s: int(pat.search(s).group(1)))[-1]
-                self.model_path = os.path.join(ckpt_subdir, chosen)
+        self.model_path = resolve_checkpoint_file(ckpt_dir, model_iter)
 
         if qwen_forward_mode not in {"auto", "legacy", "optimized"}:
             raise ValueError(
@@ -333,8 +400,16 @@ class VLAAgent:
         print(f"[Agent] weights: {self.model_path}")
 
         # ── Build model ────────────────────────────────────────────────────
+        self.uses_hierarchical_planner = is_hierarchical_planner_config(
+            self.model_config
+        )
         self.uses_ddp_drs = multi_trajectory_enabled(self.model_config)
-        if self.uses_ddp_drs:
+        if self.uses_hierarchical_planner:
+            from starVLA.model.framework import build_framework
+
+            print("[Agent] Loading QwenPI-DrivoRSuprim joint planner")
+            self.model = build_framework(self.model_config)
+        elif self.uses_ddp_drs:
             from starVLA.model.framework.QwenPI import Qwen_PI
 
             print("[Agent] Loading opt-in DDP-DRS Qwen+Layerwise-DiT model")
@@ -352,8 +427,17 @@ class VLAAgent:
             self.model._inference_qwen_forward_mode = self.qwen_forward_mode
         print(f"[Agent] Qwen forward mode: {self.qwen_forward_mode}")
 
-        state = torch.load(self.model_path, map_location="cpu", weights_only=True)
-        if self.uses_ddp_drs:
+        with torch.serialization.safe_globals([set]):
+            checkpoint = torch.load(
+                self.model_path,
+                map_location="cpu",
+                weights_only=True,
+                mmap=True,
+            )
+        state = unwrap_model_state(checkpoint)
+        if self.uses_hierarchical_planner:
+            self.model.load_state_dict(state, strict=True)
+        elif self.uses_ddp_drs:
             from starVLA.model.modules.action_model.multi_trajectory.checkpointing import (
                 load_base_checkpoint_strict,
             )
@@ -380,7 +464,7 @@ class VLAAgent:
 
     @torch.no_grad()
     def predict(self, batch: Any) -> Dict[str, Any]:
-        if self.uses_ddp_drs:
+        if self.uses_hierarchical_planner or self.uses_ddp_drs:
             return self.model.predict_action(examples=batch)
         return self.model.predict_action_infer_1d(batch)
 
@@ -402,6 +486,7 @@ def infer_and_save(
     args=None,
 ):
     os.makedirs(out_dir, exist_ok=True)
+    set_inference_seed(args.seed)
 
     if not overwrite:
         with open(datalist_path, "r", encoding="utf-8") as datalist_file:
@@ -442,6 +527,7 @@ def infer_and_save(
                 "split": split,
                 "rank": args.rank,
                 "world_size": args.world_size,
+                "seed": args.seed,
             },
             manifest_file,
             indent=2,
@@ -523,7 +609,12 @@ def infer_and_save(
 
         action = pred["normalized_actions"]
 
-        if ver_1225 == 1:
+        if agent.uses_hierarchical_planner:
+            # The joint planner has already decoded and selected its final
+            # physical NAVSIM trajectory. Avoid a needless encode/decode
+            # round trip through the legacy action postprocessor.
+            final_xy = pred["trajectory_navsim_8"].float().cpu().numpy()
+        elif ver_1225 == 1:
             if args.smooth:
                 action = smooth_pose_pred(action, alpha_xy=1.0, alpha_heading=0.4)
             final_xy = deal_action_1225(action, act_norm=act_norm)
@@ -569,6 +660,12 @@ def parse_args():
     p.add_argument("--smooth",        type=int, default=0)
     p.add_argument("--rank",          type=int, default=0)
     p.add_argument("--world_size",    type=int, default=1)
+    p.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Shared stochastic sampling seed for fair checkpoint comparison.",
+    )
     p.add_argument("--data_root",     type=str, default=None,
                    help="Root of processed navsim_dataset/. Overrides OPENSCENE_DATA_ROOT.")
     p.add_argument(
