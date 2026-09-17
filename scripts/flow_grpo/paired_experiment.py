@@ -104,6 +104,14 @@ def main():
     parser.add_argument("--devices-u", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--navtest-cache", required=True)
+    parser.add_argument(
+        "--config-f",
+        default="runs/paired_full_assets_v1/configs/paired_frozen_visual.yaml",
+    )
+    parser.add_argument(
+        "--config-u",
+        default="runs/paired_full_assets_v1/configs/paired_unfrozen_visual.yaml",
+    )
     parser.add_argument("--sequential", action="store_true")
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
@@ -124,7 +132,7 @@ def main():
     configure_numerics()
     configurations = {}
     for variant in devices:
-        config = f"configs/flow_grpo/paired_{variant}.yaml"
+        config = args.config_f if variant == "frozen_visual" else args.config_u
         cfg, sft = resolve_config(config)
         if cfg["runtime"]["accumulation_steps"] != 16 // world:
             raise ValueError(

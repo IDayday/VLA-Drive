@@ -1,5 +1,6 @@
 """Exact-resume identities for assets and numerical execution, not path labels."""
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 import importlib.metadata
 import json
 import os
@@ -108,14 +109,15 @@ def write_asset_manifest(paths, output):
     output = Path(output)
     if output.exists():
         raise FileExistsError(output)
-    entries = [
-        {
+
+    def entry(p):
+        return {
             "path": str(Path(p).resolve()),
             "size": Path(p).stat().st_size,
             "sha256": file_sha(p),
         }
-        for p in sorted(set(map(str, paths)))
-    ]
+
+    entries = list(asset_map(entry, sorted(set(map(str, paths)))))
     payload = {"schema": 1, "files": entries, "identity": digest(entries)}
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2))
@@ -130,7 +132,7 @@ def verify_asset_manifest(path, expected=None):
         raise ValueError("asset manifest identity changed")
     # One content check at startup/resume, never at each optimizer step. Stat-only
     # fingerprints cannot detect same-path same-size replacement.
-    for entry in payload["files"]:
+    def check_entry(entry):
         p = Path(entry["path"])
         if (
             not p.is_file()
@@ -138,7 +140,21 @@ def verify_asset_manifest(path, expected=None):
             or file_sha(p) != entry["sha256"]
         ):
             raise ValueError(f"immutable asset changed: {p}")
+
+    for _ in asset_map(check_entry, payload["files"]):
+        pass
     return payload["identity"]
+
+
+def asset_map(function, items):
+    """Bounded I/O overlap, deterministic manifest order, no hash shortcuts.
+
+    Eight threads on rank0, batches of256 avoid hundreds of thousands of queued
+    futures for full navtrain. Every file is still read and checked on resume.
+    """
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        for start in range(0, len(items), 256):
+            yield from pool.map(function, items[start : start + 256])
 
 
 def resume_assets(cfg, sft):

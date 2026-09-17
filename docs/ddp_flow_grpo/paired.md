@@ -74,7 +74,7 @@ $PYTHON_BIN scripts/flow_grpo/paired_experiment.py \
 # 继续同一流程：添加 --resume；完成的评估也校验源码/权重/token/metric cache身份。
 
 # 独立完整训练/恢复入口，同样必须有匹配放行记录：
-CONFIG=configs/flow_grpo/paired_frozen_visual.yaml CUDA_VISIBLE_DEVICES=0,1,2,3 \
+CONFIG=runs/paired_full_assets_v1/configs/paired_frozen_visual.yaml CUDA_VISIBLE_DEVICES=0,1,2,3 \
 NUM_GPUS=4 MAX_UPDATES=2000 OUTPUT_DIR=runs/paired_seed42/frozen_visual \
   scripts/flow_grpo/launch.sh train --resume runs/paired_seed42/frozen_visual/checkpoints/update_000100
 ```
@@ -87,17 +87,17 @@ NUM_GPUS=4 MAX_UPDATES=2000 OUTPUT_DIR=runs/paired_seed42/frozen_visual \
 $PYTHON_BIN -m starVLA.rl.flow_grpo.cli export \
   --checkpoint runs/paired_seed42/frozen_visual/checkpoints/update_002000 \
   --output-dir runs/paired_seed42/frozen_visual/export_final
-CONFIG=configs/flow_grpo/paired_frozen_visual.yaml CUDA_VISIBLE_DEVICES=0 \
+CONFIG=runs/paired_full_assets_v1/configs/paired_frozen_visual.yaml CUDA_VISIBLE_DEVICES=0 \
   scripts/flow_grpo/launch.sh verify-export \
   --checkpoint runs/paired_seed42/frozen_visual/checkpoints/update_002000 \
   --export-dir runs/paired_seed42/frozen_visual/export_final --output-dir runs/export_check_f
 
 CUDA_VISIBLE_DEVICES=0 $PYTHON_BIN -m starVLA.rl.flow_grpo.cli evaluate \
-  --config configs/flow_grpo/paired_frozen_visual.yaml \
+  --config runs/paired_full_assets_v1/configs/paired_frozen_visual.yaml \
   --checkpoint runs/paired_seed42/frozen_visual/export_final \
-  --split rl_dev --tokens reports/ddp_flow_grpo_paired/data/dev_tokens.json \
-  --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset \
-  --metric-cache /mnt/project/DriveDreamer-Policy/navsim_exp/qds_metric_cache_navtrain \
+  --split rl_dev --tokens runs/paired_full_assets_v1/dev_tokens.json \
+  --data-root "$PWD/runs/paired_full_assets_v1/dataset" \
+  --metric-cache "$PWD/runs/paired_full_assets_v1/metric_cache_navtrain_v2" \
   --seed 42 --metric-protocol navsim_v2_official_one_stage --output-dir runs/eval_f_dev42
 # navtest替换参数：
 # --split navtest --tokens /mnt/project/DriveDreamer-Policy/test_meta.json
@@ -107,7 +107,23 @@ CUDA_VISIBLE_DEVICES=0 $PYTHON_BIN -m starVLA.rl.flow_grpo.cli evaluate \
 
 评估保留原10步单候选 ODE/原后处理；噪声由seed+token派生，不随遍历/worker改变。完整官方v2 one-stage聚合计算相邻场景分量，输出覆盖率及缺失分量实际权重。输出逐场景轨迹、全部可用分量、EPDMS；同组相对自身SFT的 paired delta、零分恢复/非零归零/高分退化和按log bootstrap。切片评估明确标 `partial_*`，不能平均这些局部相邻聚合冒充全量，最终必须在完整token集合统一聚合。训练 RewardService 仍拒绝navtest；训练reward仍是没有two-frame comfort的单场景v2 reward。
 
-当前数据是明确的subset experiment：源目标103288；本项目兼容metadata/v2 cache10000，按完整log留出514场景57logs，RL/replay9486。dev可能已被源SFT看过。全量共享metadata的NumPy兼容问题、当前图像缺失及v2 cache缺口详见报告；不能把10k说成完整navtrain。F/U源训练步数不同，只比较各自RL收益，不解释为隔离视觉解冻的因果实验。
+正式配对使用全量目标103288场景，按固定hash和完整log留出1696场景/16 logs，RL/replay101592。开发集可能已被源SFT见过；F/U源SFT步数不同，只比较各自RL收益。原 `configs/flow_grpo/paired_*` 和 `reports/.../data/` 的10k配置保留用于早期诊断；正式编排默认读取 `runs/paired_full_assets_v1/configs/paired_*`。这些完整配置只在全量缓存及内容manifest完成后生成，缺失时直接报错，不能退回10k。
+
+全量准备命令（当前metadata已完成，不重复执行到同一目录）：
+
+```bash
+$PYTHON_BIN scripts/flow_grpo/prepare_full_assets.py metadata --root runs/paired_full_assets_v1
+CUDA_VISIBLE_DEVICES='' OPENSCENE_DATA_ROOT=/mnt/project/DriveDreamer-Policy/navsim_raw \
+NUPLAN_MAPS_ROOT=/mnt/navsim/maps NUPLAN_MAP_VERSION=nuplan-maps-v1.0 NAVSIM_EXP_ROOT="$PWD/runs" \
+  $PYTHON_BIN scripts/flow_grpo/cache_metrics_spawn.py \
+  train_test_split=navtrain metric_cache_path="$PWD/runs/paired_full_assets_v1/metric_cache_navtrain_v2" \
+  force_feature_computation=false worker=single_machine_thread_pool \
+  worker.max_workers=32 worker.use_process_pool=true
+$PYTHON_BIN scripts/flow_grpo/prepare_full_assets.py finalize --root runs/paired_full_assets_v1
+# COMPLETE 只表示 ASSETS_READY_ONLY，绝不是训练放行。
+```
+
+已验证spawn与原fork的两场景/四条官方评分逐值相同，改变的只有多进程启动方式。中断缓存必须先检查完整性、隔离损坏文件再续跑，不能靠“文件存在”判成功。后台watch有6小时上限，只处理自己登记的缓存进程组，不启动RL。完整内容hash并行8路、固定输出顺序，不以mtime代替SHA。
 
 ## 本轮额外执行的真实 CPU 恢复回归
 
