@@ -192,8 +192,9 @@ freeze rule. User-origin inference changes remain attributed to their earlier
 separate commit. Historical candidate failure reports, earlier incompatible
 comparison attempts and both CUDA OOM diagnostics remain intact.
 
-Storage sizing from actual complete artifacts estimates1.714TB for both
-2000-update runs (checkpoints, saved behavior batches and scheduled exports),
+Storage sizing from actual complete artifacts expects about1.497TB for both
+2000-update runs (checkpoints, the first two saved behavior batches and scheduled
+exports);1.714TB is the conservative bound if every behavior batch were saved,
 against3.152TB available at the recorded check. No history/checkpoints were
 deleted. Each four-rank run uses one reward worker per rank, one BLAS/OpenMP
 thread, isolated ports/Triton/reward/output paths; no occupied external job was
@@ -203,3 +204,38 @@ stopped.
 `full_paired_contract.json` and the full actor/source manifests are the current
 3fe full-asset contract evidence. The two files are not interchangeable code
 execution receipts.
+
+## Actual paired training launch
+
+The existing `paired_experiment.py` controller is running in its own process
+session, PID1268540, under `runs/paired_full_navtrain_v3`. F uses local GPU0–3;
+U uses GPU4–7. Both have four ranks/accumulation4/global16, same fixed recipe,
+and start from their own original SFT checkpoints with no training `--resume`.
+The controller's top-level `--resume` reuses the precomputed evaluation root;
+it does not select any diagnostic/F50/U2 checkpoint. Both completed SFT dev42
+evaluations were actually reused by this controller.
+
+The live snapshot in `formal_launch.json` confirms **F4/U5 actual optimizer
+updates**, zero reward errors, finite measured losses/norms and running jobs.
+Both live execution contexts exactly equal their released contexts. Their
+trainable manifests match the accepted manifests. The first two real updates'
+losses, rewards, ratios, pre-clip norms and clip scales exactly equal the
+bounded full-profile measurements; all ranks retain the same chain/advantages
+across the first two inner epochs and observe FP32 partition/master/Adam state.
+Non-diagnostic communication-buffer tracing is explicitly unavailable in this
+live snapshot; the release has the actual diagnostic observations.
+
+These are ongoing jobs, not completed100/2000-update experiments. The first
+formal checkpoint will be saved at100; complete diagnostic checkpoints,
+exact-resume and original-interface exports already exist. The controller
+continues through100 and the registered2000 total, saves every100, evaluates
+fixed dev every200 and applies the documented best-checkpoint rule. Complete
+RL development/navtest performance and improvement remain unmeasured.
+
+The first launcher attempt did not persist after its shell returned; its empty
+log/PID are preserved and its exit code is unavailable. It performed no update.
+The subsequent process has its own session and was checked alive with PPID1.
+An initial inline snapshot assertion incorrectly expected the label `joint`;
+the actual API uses null for normal combined loss. That reporting failure is
+retained in `formal_snapshot_first_attempt.json`. The corrected schema check
+passed with no training/configuration/tolerance change.

@@ -1,0 +1,2623 @@
+{
+  "status": "TRAINING_RUNNING",
+  "verification_exit_code": 0,
+  "observed_utc": "2026-09-17T20:45:19.541296+00:00",
+  "controller": {
+    "phase": "TRAINING_RUNNING",
+    "launched_utc": "2026-09-17T20:03:00.966458+00:00",
+    "host": "training-vla-zt-worker-0",
+    "controller_pid": 1268540,
+    "start_ticks": "1111399413",
+    "boot_id": "0ef059f5-9332-4425-a3d8-4be520ff608b",
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "scripts/flow_grpo/paired_experiment.py",
+      "--devices-f",
+      "0,1,2,3",
+      "--devices-u",
+      "4,5,6,7",
+      "--output",
+      "runs/paired_full_navtrain_v3",
+      "--resume",
+      "--navtest-cache",
+      "runs/metric_cache_navtest_v2"
+    ],
+    "git_head_at_launch": "3fe5305b1868bd66b4bbacb6a13432b918d442d9",
+    "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+    "output_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3",
+    "controller_log": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/controller.log",
+    "variants": {
+      "frozen_visual": {
+        "devices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "world_size": 4,
+        "accumulation_steps": 4,
+        "initialization": "original frozen_visual SFT step100000"
+      },
+      "unfrozen_visual": {
+        "devices": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "world_size": 4,
+        "accumulation_steps": 4,
+        "initialization": "original unfrozen_visual SFT step120000"
+      }
+    },
+    "global_scene_batch": 16,
+    "group_size": 8,
+    "num_steps": 10,
+    "inner_epochs": 2,
+    "seed": 42,
+    "budget_per_variant": 2000,
+    "first_phase_updates": 100,
+    "optimizer_updates_observed": {
+      "frozen_visual": 4,
+      "unfrozen_visual": 5
+    },
+    "prior_launcher_attempt": "Initial nohup attempt did not persist after the launcher returned; exit code unavailable, empty log/PID preserved, no optimizer update. Current controller has its own process session and persists with PPID1.",
+    "last_observed_utc": "2026-09-17T20:27:02.446047+00:00",
+    "owned_training_processes": [
+      {
+        "pid": 1269355,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--max-restarts=0",
+          "--monitor-interval=1",
+          "--nproc_per_node=4",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_frozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/frozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676699.43,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269365,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_frozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/frozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.79,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269366,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_frozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/frozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.79,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269367,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_frozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/frozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.79,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269368,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_frozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/frozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.79,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269356,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "torch.distributed.run",
+          "--standalone",
+          "--max-restarts=0",
+          "--monitor-interval=1",
+          "--nproc_per_node=4",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_unfrozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/unfrozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676699.43,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269359,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_unfrozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/unfrozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.56,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269360,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_unfrozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/unfrozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.56,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269361,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_unfrozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/unfrozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.56,
+        "status": "sleeping"
+      },
+      {
+        "pid": 1269362,
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "starVLA.rl.flow_grpo.cli",
+          "train",
+          "--config",
+          "runs/paired_full_assets_v1/published_v2/configs/paired_unfrozen_visual.yaml",
+          "--output-dir",
+          "runs/paired_full_navtrain_v3/unfrozen_visual",
+          "--max-updates",
+          "100",
+          "--set",
+          "runtime.run_mode=paired_short"
+        ],
+        "created": 1789676700.56,
+        "status": "sleeping"
+      }
+    ]
+  },
+  "variants": {
+    "frozen_visual": {
+      "actual_git_sha": "f104817f60be0f5686a2026f8d5fc5d92ed2ee61",
+      "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+      "context_matches_released_profile": true,
+      "trainable_manifest_equals_validated_manifest": true,
+      "initialized_from_original_sft_without_resume": true,
+      "optimizer_updates_observed": 4,
+      "first_two_updates_exactly_match_released_run": {
+        "loss": true,
+        "grpo": true,
+        "reference": true,
+        "sft": true,
+        "reward": true,
+        "pre_update_ratio_min": true,
+        "pre_update_ratio_max": true,
+        "post_update_probe_ratio_min": true,
+        "post_update_probe_ratio_max": true,
+        "pre_clip_grad_norm": true,
+        "clip_scale": true
+      },
+      "rank_observations": [
+        {
+          "rank": 0,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        },
+        {
+          "rank": 1,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        },
+        {
+          "rank": 2,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        },
+        {
+          "rank": 3,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 988
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        }
+      ],
+      "run_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/frozen_visual",
+      "training_log": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/frozen_visual/training.jsonl",
+      "metrics_snapshot": "reports/ddp_flow_grpo_production_v3/frozen_visual_formal_start_metrics.json",
+      "metrics_snapshot_sha256": "4a97764aea9b163085b8a198117eea5b605d630a79dc294a59240d2e641da001",
+      "fresh_scenes_in_completed_updates": 32.0,
+      "fresh_candidates_in_completed_updates": 256.0,
+      "replay_exposures_in_completed_updates": 64.0,
+      "counter_note": "In-flight rollouts/updates excluded; job continues beyond this timestamp",
+      "complete_formal_checkpoint": "NOT_YET: first save atupdate100; complete diagnostic checkpoints/resume/export already validated"
+    },
+    "unfrozen_visual": {
+      "actual_git_sha": "f104817f60be0f5686a2026f8d5fc5d92ed2ee61",
+      "checkpoint_sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+      "context_matches_released_profile": true,
+      "trainable_manifest_equals_validated_manifest": true,
+      "initialized_from_original_sft_without_resume": true,
+      "optimizer_updates_observed": 5,
+      "first_two_updates_exactly_match_released_run": {
+        "loss": true,
+        "grpo": true,
+        "reference": true,
+        "sft": true,
+        "reward": true,
+        "pre_update_ratio_min": true,
+        "pre_update_ratio_max": true,
+        "post_update_probe_ratio_min": true,
+        "post_update_probe_ratio_max": true,
+        "pre_clip_grad_norm": true,
+        "clip_scale": true
+      },
+      "rank_observations": [
+        {
+          "rank": 0,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        },
+        {
+          "rank": 1,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        },
+        {
+          "rank": 2,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        },
+        {
+          "rank": 3,
+          "same_behavior_and_advantages_both_inners": true,
+          "observed_device": {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          "dtype": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "dtype_before_step": {
+            "parameters": {
+              "torch.bfloat16": 994
+            },
+            "gradients": {},
+            "parameter_grad_accum": {},
+            "communication_buffers": [],
+            "accumulation_dtype": "torch.float32",
+            "communication_dtype": "torch.float32",
+            "partition_buffers": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "master_weights": [
+              "torch.float32",
+              "torch.float32",
+              "torch.float32"
+            ],
+            "optimizer_states": {
+              "torch.float32": 9
+            }
+          },
+          "activation_dtypes": {
+            "qwen_vl_interface.model.visual": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_input_model": {
+              "input": [
+                "torch.float32"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "qwen_vl_interface.model.model.language_model": {
+              "input": [],
+              "output": [
+                "torch.bfloat16"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.qwen_proj": {
+              "input": [
+                "torch.bfloat16"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.action_encoder": {
+              "input": [
+                "torch.float32",
+                "torch.int64"
+              ],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            },
+            "action_model.model": {
+              "input": [],
+              "output": [
+                "torch.float32"
+              ],
+              "parameter": [
+                "torch.bfloat16"
+              ]
+            }
+          },
+          "communication_buffer_trace": "unavailable in non-diagnostic mode; actual measured trace is in released CUDA diagnostic inventories"
+        }
+      ],
+      "run_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/unfrozen_visual",
+      "training_log": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/unfrozen_visual/training.jsonl",
+      "metrics_snapshot": "reports/ddp_flow_grpo_production_v3/unfrozen_visual_formal_start_metrics.json",
+      "metrics_snapshot_sha256": "802b06369d16817fe160fa663906a75f2e66bb0dfdde0500797e34bd941c712a",
+      "fresh_scenes_in_completed_updates": 48.0,
+      "fresh_candidates_in_completed_updates": 384.0,
+      "replay_exposures_in_completed_updates": 80.0,
+      "counter_note": "In-flight rollouts/updates excluded; job continues beyond this timestamp",
+      "complete_formal_checkpoint": "NOT_YET: first save atupdate100; complete diagnostic checkpoints/resume/export already validated"
+    }
+  },
+  "effect": "INSUFFICIENT_EVIDENCE: formal RL development/navtest evaluations not yet completed",
+  "scope": "Actual ongoing paired_short runs; this snapshot does not claim100 or2000 updates complete"
+}

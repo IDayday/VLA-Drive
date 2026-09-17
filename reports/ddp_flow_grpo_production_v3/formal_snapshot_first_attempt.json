@@ -1,0 +1,13 @@
+{
+  "exit_code": 1,
+  "status": "FAIL",
+  "scope": "Inline reporting assertion, not a training failure",
+  "reason": "The reporting check expected diagnostic_loss_scope=\"joint\". The actual production schema uses null for normal combined loss, as defined by diagnostic_loss.validate_scope/selected_loss. The observed value was null on all ranks. The retry checks the real schema; no model, loss, tolerance or configuration is changed.",
+  "completed_checks_before_failure": [
+    "current execution context equals released profile",
+    "current actor manifest equals validated manifest",
+    "initial ratio exactly1",
+    "first two global losses/ratios/grad norms equal the released run",
+    "actual FP32 partition/master/Adam observations"
+  ]
+}
