@@ -1,0 +1,69 @@
+{
+  "references": [
+    {
+      "url": "https://github.com/youngzhou1999/DriveDreamer-Policy",
+      "sha": "8cefcac46e5944add529e1be19cba78bc06cc2bd",
+      "license": "Apache-2.0",
+      "local_read_only_reference": "/tmp/ddp-official-reference",
+      "reviewed_files": {
+        "8-train.sh": "4b1b70ddd9335a736998b68484d7f752cab139199ec2197e5d5cb0cbf0ce18f4",
+        "starVLA/model/framework/QwenOFT.py": "da8065fa30dc51d0f9852b5dbd300181e5fb8b3e0c8dde311fb74f241fde9330",
+        "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "599fb352af6244e89778ad23b371e3b94f780b6dcdb65b02d43522c13d08edb0",
+        "starVLA/training/train_starvla.py": "77af8d8d81b1bced0d4ec4c41e9b00fa36dead7fa16dcc7bd86e599b0955df8f"
+      },
+      "license_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "url": "https://github.com/yifan123/flow_grpo",
+      "sha": "879042cf5707f8b90daa98d147d7deac2317c5da",
+      "license": "MIT",
+      "local_read_only_reference": "/tmp/ddp-flow-grpo-reference",
+      "reviewed_files": {
+        "flow_grpo/diffusers_patch/sd3_sde_with_logprob.py": "4ba34220d7f856b4f6aae8f27f7af3ccd3591df597dd53b5dcb5237066e25075",
+        "flow_grpo/diffusers_patch/sd3_pipeline_with_logprob.py": "dbe509a85463a85949c74950a17b48d6f6fc425322a8d64babd1fd28ec81032f",
+        "scripts/train_sd3.py": "b09c084e6edf7457b6d450ae2a00465f38548a16c92baa773f49751644daeaae"
+      },
+      "license_sha256": "3e06de116fc36fd16e2fb4cff7faa05496533723bf8faf81776a6f51ecc5328d"
+    },
+    {
+      "url": "https://github.com/H-EmbodVis/SimWAM",
+      "sha": "68b426c162827cb7701396895dbb3572d29f3420",
+      "license": "MIT",
+      "local_read_only_reference": "/tmp/ddp-simwam-reference",
+      "reviewed_files": {
+        "src/simwam/models/wan22/simwam_grpo.py": "8fac98b708637c8887cc8231a155291d6bb03639d7748d152390146c5b58dbb0",
+        "src/simwam/trainer_grpo.py": "afdde3d0ba81928223bca6b32c358f68548c750868b12dcc0fc8fd52ba21c40a",
+        "src/simwam/runtime_grpo.py": "8e0d40f7753764da485716d44cd14c177ebb35307a2289bd210b5bf7abf0bddd",
+        "src/simwam/datasets/navsim/pdm_reward.py": "46b2b4d4b27458cb6a372b70f4f6ae5723d14dfe01002fe556da82a7b2183a00"
+      },
+      "license_sha256": "f40411b8b2691648c72ac603ea142c064902997081101d19cbb8886827790097"
+    },
+    {
+      "url": "https://github.com/IDayday/VLA-Drive",
+      "sha": "f9449d55bea6895a7a0bd86d09d7ab85fd353f26",
+      "license": "Apache-2.0; QwenOFT.py retains MIT file header",
+      "local_read_only_reference": "artifacts/action-only-source",
+      "reviewed_files": {
+        "8-train_action-only-qwen-visual.sh": "2c7be59c04b81160eba58a7aa9fb1d262a0568e33c56401e7a8a3182613e5bdc",
+        "ACTION_ONLY_CHECKPOINTS.md": "7afb29b1e828778b4980c25e85ec46f7d7d6d434fd93a8bb66a6df540da88e53",
+        "checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.json": "1f018419dcdd53313b50f97d7da0c2cc266dbf24e6182a9630dc8cee8a2b5387",
+        "checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.yaml": "7a926ca0f32f7643c22f48651e5cccdb5c5abc605581bee7215393eb4f186994",
+        "checkpoint_code/action-only-checkpoints-v1/configs/unfrozen-visual-step120000-run-config.json": "bb23e55d5ef9b5236bcc54af395c9d7c4840dfd634cb00fb73c3d194e039cf27",
+        "checkpoint_code/action-only-checkpoints-v1/configs/unfrozen-visual-step120000-run-config.yaml": "20c85ca65b04feff05e43e6ec646c83dbd9b97009d8614d114fedf38d5e9576a",
+        "checkpoint_code/action-only-checkpoints-v1/frozen-visual-overlay/8-train.sh": "d4b36ce5d9e419e5f5409feea408c8fff09a25128871f7b4d292588dd01c788a",
+        "checkpoint_code/action-only-checkpoints-v1/frozen-visual-overlay/starVLA/model/framework/QwenOFT.py": "2ee42848de6bddb8dbfecb843a7281a437ca021e2bf4a53d31832b86f5741029",
+        "run_qwen_visual_200k_dlc.sh": "a1e2a7c262feb95229360b1b8e4b848db552147dfd8d2ec14d790934841a2641",
+        "starVLA/cache/navsim_feature_cache.py": "0b1df6cb9840ca9c0758fa9aeb4a1e8bec3c47ba331fd7abfb7fc4fe90fe0311",
+        "starVLA/config/training/qwen_visual_action_only.yaml": "ef638b7c6829cbd9488f641e74893deef2561a060364269993e284bc19141876",
+        "starVLA/model/framework/QwenOFT.py": "05ec2371c3e99c91fcfb6d99a1bb4797719818875cd7f085aaf121745939a019",
+        "starVLA/model/modules/action_model/GR00T_ActionHeader.py": "dff9e34f491c2b258655d63f594c9e9da8004b4d31b10aa7b0f529a83d573cb3",
+        "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py": "a4321c7cf820cca337fd263a329175da95273a8fdf94f93151a9ed4ec37c2a4d",
+        "starVLA/model/modules/vlm/visual_training.py": "b1e3649a9b6b4710a02fc3de915c0819506d16a60cc31dba145f087ab04b7ef6",
+        "starVLA/training/trainer_utils/trainer_tools.py": "bbc27d55392c78e3ae5598a5ec8c86593ec011ce951329d3811331fafac9808e"
+      }
+    }
+  ],
+  "RLinf": "not used; existing Accelerate/DeepSpeed sufficient",
+  "schema": 1,
+  "local_base_sha": "9fe1459b8f6ab69a15274450ec301d541209bedd"
+}

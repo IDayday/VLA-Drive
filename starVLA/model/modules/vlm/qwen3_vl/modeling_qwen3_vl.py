@@ -816,6 +816,7 @@ class Qwen3VLTextModel(Qwen3VLPreTrainedModel):
         inputs_embeds: Optional[torch.FloatTensor] = None,
         use_cache: Optional[bool] = None,
         cache_position: Optional[torch.LongTensor] = None,
+        return_pre_norm_hidden_state: bool = False,
         # args for deepstack
         visual_pos_masks: Optional[torch.Tensor] = None,
         deepstack_visual_embeds: Optional[list[torch.Tensor]] = None,
@@ -892,7 +893,11 @@ class Qwen3VLTextModel(Qwen3VLPreTrainedModel):
                     deepstack_visual_embeds[layer_idx],
                 )
 
-        hidden_states = self.norm(hidden_states)
+        # Official DDP consumes the final decoder output collected by the
+        # outer HF hidden-state hooks, BEFORE this norm. Keep the standard
+        # normalized model API as the default for all existing callers.
+        if not return_pre_norm_hidden_state:
+            hidden_states = self.norm(hidden_states)
 
         return BaseModelOutputWithPast(
             last_hidden_state=hidden_states,

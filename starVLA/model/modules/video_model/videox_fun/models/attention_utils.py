@@ -109,6 +109,11 @@ def flash_attention(
             'Flash attention 3 is not available, use flash attention 2 instead.'
         )
 
+    # Opt-in deterministic backward for reproducible RL resume/checkpoint tests.
+    # The original SFT default remains unchanged when the environment is unset.
+    import os
+    deterministic = deterministic or os.getenv("FLASH_ATTENTION_DETERMINISTIC", "0") == "1"
+
     # apply attention
     if (version is None or version == 3) and FLASH_ATTN_3_AVAILABLE:
         # Note: dropout_p, window_size are not supported in FA3 now.

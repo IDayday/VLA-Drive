@@ -169,6 +169,9 @@ class Qwenvl_OFT(baseframework):
 
         # reward token
         self.reward_query_tokens = list(REWARD_QUERY_TOKENS)
+        self.action_prompt_mode = str(OmegaConf.select(config, "framework.action_prompt_mode", default="full"))
+        if self.action_prompt_mode not in {"full", "minimal"}:
+            raise ValueError("Flow-GRPO supports the audited full/minimal action prompts")
 
         tokenizer = self.qwen_vl_interface.processor.tokenizer
         self._special_token_ids = {
@@ -178,6 +181,17 @@ class Qwenvl_OFT(baseframework):
             "action": tuple(tokenizer.convert_tokens_to_ids(self.act_query_tokens)),
             "reward": tuple(tokenizer.convert_tokens_to_ids(self.reward_query_tokens)),
         }
+        if self.action_prompt_mode == "minimal":
+            self._special_token_ids = {name: self._special_token_ids[name] for name in ("history", "action")}
+
+        # The visual-unfrozen action-only release contains this frozen, inactive
+        # module. Preserve its checkpoint keys without connecting a new task.
+        if OmegaConf.select(config, "framework.retain_inactive_agent_dino_head", default=False):
+            hidden = self.qwen_vl_interface.model.config.hidden_size
+            self.agent_dino_head = nn.Sequential(
+                nn.LayerNorm(hidden), nn.Linear(hidden, hidden), nn.GELU(),
+                nn.Linear(hidden, int(OmegaConf.select(config, "framework.agent_dino.feature_dim", default=384))),
+            )
 
         # if self.config.datasets.vla_data.load_act_data:
         self.action_input_model = MLP(
@@ -297,6 +311,15 @@ class Qwenvl_OFT(baseframework):
     def _find_token_positions(input_ids, token_ids):
         return find_token_positions(input_ids, token_ids)
 
+    def _build_action_prompt_suffix(self):
+        if self.action_prompt_mode == "minimal":
+            return " " + self.robot_history_token + "".join(self.act_query_tokens)
+        return append_world_action_tokens("", self.act_tok, bool(self.w_depth))
+
+    @property
+    def qwen_visual(self):
+        return self.qwen_vl_interface.model.model.visual
+
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
         return build_baseline_qwen_batch(
@@ -314,6 +337,7 @@ class Qwenvl_OFT(baseframework):
         position_ids,
         image_embeds,
         deepstack_embeds,
+        feature_output=None,
     ):
         """Run only the trainable Qwen backbone, skipping the unused LM head."""
         return baseline_qwen_language_forward(
@@ -324,33 +348,14 @@ class Qwenvl_OFT(baseframework):
             position_ids=position_ids,
             image_embeds=image_embeds,
             deepstack_embeds=deepstack_embeds,
+            feature_output=feature_output or self.config.framework.qwenvl.get("sft_feature_output", "normalized"),
         )
 
-    def forward(
-        self,
-        examples: List[dict] = None,
-        accelerator = None,
-        **kwargs,
-    ) -> Tuple:
-
-        instructions = [example["lang"] for example in examples]  # [B, str]
-        try:
-            actions = [example["action"] for example in examples]  # label [B， len, 7]
-        except:
-            actions = None
-        try:
-            states = [example["state"] for example in examples]
-        except:
-            states = None
-
-        if self.w_depth:
-            depth_data = [example['depth_data'] for example in examples]
-
-        
-        instructions = [
-            append_world_action_tokens(instruction, self.act_tok, bool(self.w_depth))
-            for instruction in instructions
-        ]
+    def encode_policy_features(self, examples, feature_output=None):
+        """Shared differentiable SFT/inference encoder, using current model weights."""
+        instructions = [example["lang"] for example in examples]
+        states = [example["state"] for example in examples]
+        instructions = [instruction + self._build_action_prompt_suffix() for instruction in instructions]
         (
             input_ids,
             attention_mask,
@@ -405,7 +410,37 @@ class Qwenvl_OFT(baseframework):
                 position_ids=position_ids,
                 image_embeds=image_embeds,
                 deepstack_embeds=deepstack_embeds,
+                feature_output=feature_output,
             )
+
+        return last_hidden, token_positions
+
+    def encode_policy_condition(self, observation, return_raw_dtype=False, feature_output=None):
+        examples = observation.examples()
+        convention = feature_output or self.config.framework.qwenvl.get("policy_feature_output", "decoder_last")
+        hidden, positions = self.encode_policy_features(examples, feature_output=convention)
+        raw = extract_baseline_action_conditions(hidden, positions["action"])
+        with torch.autocast("cuda", dtype=torch.float32):
+            projected = self.action_model._project_condition(raw)
+        return (projected, raw.dtype) if return_raw_dtype else projected
+
+    def compute_sft_losses(self, examples, explicit_randomness=None):
+        losses = self.forward(examples=examples, explicit_randomness=explicit_randomness)
+        if hasattr(self, "agent_dino_head"):
+            losses["agent_dino_loss"] = losses["action_loss"].new_zeros(())
+        return losses
+
+    def forward(
+        self,
+        examples: List[dict] = None,
+        accelerator = None,
+        **kwargs,
+    ) -> Tuple:
+
+        actions = [example["action"] for example in examples]
+        depth_data = [example["depth_data"] for example in examples] if self.w_depth else None
+        last_hidden, token_positions = self.encode_policy_features(examples)
+        B, _, H = last_hidden.shape
 
         #### video gen ####
         if self.config.datasets.video_data.load_2d_data:
@@ -469,7 +504,7 @@ class Qwenvl_OFT(baseframework):
                     video_token = None
 
                 if self.mlp_head == 0:
-                    action_loss = self.action_model(repeat_action_queries, repeat_actions, video_token)  # (B, chunk_len, action_dim)
+                    action_loss = self.action_model(repeat_action_queries, repeat_actions, video_token, explicit_randomness=kwargs.get("explicit_randomness"))  # (B, chunk_len, action_dim)
                 else:
                     b, l, h = action_queries.shape
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
@@ -847,7 +882,22 @@ class Qwenvl_OFT(baseframework):
         return {"normalized_actions": normalized_actions}
 
     @torch.inference_mode()
-    def predict_action_infer_1d(
+    def predict_action_infer_1d(self, examples, **kwargs):
+        from starVLA.rl.flow_grpo.observation import prepare_policy_observation
+        default_output = "normalized" if getattr(self, "_inference_qwen_forward_mode", "legacy") == "optimized" else "decoder_last"
+        convention = self.config.framework.qwenvl.get("policy_feature_output", default_output)
+        condition, raw_dtype = self.encode_policy_condition(prepare_policy_observation(examples), return_raw_dtype=True, feature_output=convention)
+        noise = kwargs.get("initial_noise")
+        if noise is None:
+            noise = torch.randn(len(examples), self.action_model.action_horizon,
+                                self.action_model.action_dim, device=condition.device,
+                                dtype=raw_dtype)
+        with torch.autocast("cuda", dtype=torch.float32):
+            actions = self.action_model._euler_sample(noise, condition)
+        return {"normalized_actions": actions.detach().float().cpu().numpy()}
+
+    @torch.inference_mode()
+    def predict_action_infer_1d_legacy(
         self,
         examples,
         **kwargs: str,
@@ -901,13 +951,8 @@ class Qwenvl_OFT(baseframework):
         # suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
         # instructions = [instruction + suffix for instruction in instructions]
 
-        if not self.w_depth:
-            suffix = f" {hist_str}{rgb_str}{gs_str}{act_str}{rew_str}"
-            instructions = [instruction + suffix for instruction in instructions]
-        else:
-            # 3d first
-            suffix = f" {hist_str}{gs_str}{rgb_str}{act_str}{rew_str}"
-            instructions = [instruction + suffix for instruction in instructions]
+        suffix = self._build_action_prompt_suffix()
+        instructions = [instruction + suffix for instruction in instructions]
 
         # Step 1: QWenVL input format
         qwen_inputs = self.qwen_vl_interface.build_qwenvl_inputs(images=batch_images, instructions=instructions)

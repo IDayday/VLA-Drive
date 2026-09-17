@@ -146,7 +146,7 @@ def build_baseline_qwen_batch(
         position_ids = torch.ones(
             (3, batch_size, max_length), dtype=torch.long, device=device
         )
-        position_names = ("history", "rgb", "gs", "action", "reward")
+        position_names = tuple(special_token_ids)
         positions = {name: [] for name in position_names}
         for batch_index, (payload, length) in enumerate(zip(cached, lengths)):
             offset = max_length - length
@@ -230,9 +230,12 @@ def baseline_qwen_language_forward(
     position_ids: Tensor,
     image_embeds: Tensor,
     deepstack_embeds: Sequence[Tensor],
+    feature_output: str = "normalized",
 ) -> Tensor:
     """Run the baseline trainable Qwen backbone while skipping its LM head."""
 
+    if feature_output not in {"normalized", "decoder_last"}:
+        raise ValueError(f"unknown Qwen feature output {feature_output}")
     image_mask = input_ids.eq(qwen_vl_interface.model.config.image_token_id)
     expanded_mask = image_mask.unsqueeze(-1).expand_as(inputs_embeds)
     image_embeds = image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
@@ -248,6 +251,7 @@ def baseline_qwen_language_forward(
             for value in deepstack_embeds
         ],
         use_cache=False,
+        return_pre_norm_hidden_state=(feature_output == "decoder_last"),
     )
     return outputs.last_hidden_state
 

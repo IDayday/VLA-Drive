@@ -1,0 +1,63 @@
+trainable_policy: inherit_sft
+lora: disabled
+reward_backend: official_navsim
+reward_version: navsim_v2_one_stage_single_scene
+checkpoint_contract:
+  origin: official_release
+  sha256: 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f
+  sft_feature_output: decoder_last
+  policy_feature_output: decoder_last
+sft_checkpoint: /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy
+paths:
+  base_vlm: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction
+  video_model: /mnt/project/DriveDreamer-Policy/models/Wan2.1-Fun-V1.1-1.3B-InP
+  data_root: /mnt/project/DriveDreamer-Policy/navsim_dataset
+  raw_root: /mnt/project/DriveDreamer-Policy/navsim_raw
+  maps_root: /mnt/navsim/maps
+  train_list: /mnt/project/DriveDreamer-Policy/navtrain_meta.json
+  test_list: /mnt/project/DriveDreamer-Policy/test_meta.json
+  metric_cache: /mnt/project/DriveDreamer-Policy/navsim_exp/qds_metric_cache_navtrain
+sampling:
+  group_size: 8
+  num_steps: inherit_checkpoint
+  noise_level: 0.1
+  train_step_fraction: 1.0
+  raw_noise_clipping: false
+  candidate_chunk_size: 1
+  transition_chunk_size: 1
+algorithm:
+  objective: flow_grpo
+  logprob_reduction: flow_grpo_dimension_mean
+  ppo_clip_range: 0.02
+  inner_epochs: 1
+  advantage_std_unbiased: false
+  advantage_epsilon: 1.0e-6
+  advantage_clip: 5.0
+  reference_kl_coefficient: 0.01
+retention:
+  original_sft_enabled: true
+  original_sft_coefficient: 0.1
+  original_loss_weights: inherit_sft
+optimizer:
+  parameter_groups: inherit_sft
+  initial_lr_multiplier: 0.1
+  max_grad_norm: 1.0
+runtime:
+  seed: 42
+  scene_microbatch: 1
+  replay_microbatch: 1
+  accumulation_steps: 1
+  activation_checkpointing: true
+  deepspeed_stage: 2
+  optimizer_offload: false
+  reference_offload: false
+  reward_workers: 2
+  reward_timeout: 180
+  data_workers: 0
+  prefetch_factor: 2
+  save_every: 25
+  log_every: 1
+  max_updates: null
+  validation_scenes: 16
+  calibration_scenes: 16
+  output_dir: null

@@ -329,67 +329,32 @@ class FlowmatchingActionHead(nn.Module):
         return condition
 
 
-    def forward(
-        self,
-        vl_embs: torch.Tensor,
-        actions: torch.Tensor,
-        video_token=None,
-        state: torch.Tensor = None,
-        global_scene_tokens: torch.Tensor = None,
-    ):
-        """
-        vl_embs: shape (B, seq_length, feature_dim)
-        actions: shape (B, future_action_window_size, D_action)
-        """
-        device = vl_embs.device
-
-        # Embed noised action trajectory.
-        noise = torch.randn(actions.shape, device=actions.device, dtype=actions.dtype)
-        t = self.sample_time(actions.shape[0], device=actions.device, dtype=actions.dtype)
-        t = t[:, None, None]  # shape (B,1,1) for broadcast
-
-        noisy_trajectory = (1 - t) * noise + t * actions
-        velocity = actions - noise
-
-        # Convert (continuous) t -> discrete if needed
-        t_discretized = (t[:, 0, 0] * self.num_timestep_buckets).long()
-        action_features = self.action_encoder(noisy_trajectory, t_discretized)
-
-
-        vl_embs = self._project_condition(
-            vl_embs,
-            global_scene_tokens=global_scene_tokens,
-            video_token=video_token,
-        )
-
-
-        # Maybe add position embedding.
+    def predict_velocity(self, actions, timesteps_tensor, projected_condition):
+        """Differentiable velocity; condition has ALREADY passed qwen_proj once."""
+        action_features = self.action_encoder(actions, timesteps_tensor)
         if self.config.add_pos_embed:
-            pos_ids = torch.arange(action_features.shape[1], dtype=torch.long, device=device)
-            pos_embs = self.position_embedding(pos_ids).unsqueeze(0)
-            action_features = action_features + pos_embs
+            pos_ids = torch.arange(action_features.shape[1], device=actions.device)
+            action_features = action_features + self.position_embedding(pos_ids).unsqueeze(0)
+        output = self.model(hidden_states=action_features,
+                            encoder_hidden_states=projected_condition,
+                            timestep=timesteps_tensor, return_all_hidden_states=False)
+        return self.action_decoder(output)
 
-        # state and action embedding along sequence dimension.
-        # future_tokens = self.future_tokens.weight.unsqueeze(0).expand(vl_embs.shape[0], -1, -1)
-        # sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1) \
-        #     if state_features is not None else torch.cat((future_tokens, action_features), dim=1)
-
-        sa_embs = action_features
-
-        # Join VLM features with state and action embedding along sequence dimension.
-        model_output = self.model(
-            hidden_states=sa_embs,
-            encoder_hidden_states=vl_embs,
-            timestep=t_discretized,
-            return_all_hidden_states=False,  # NOTE (YL): not using flare now
-        )
-        pred = self.action_decoder(model_output)
-
-        pred_actions = pred
-
-        # Slice out only the action portion of pred and target.
-        loss = ((pred_actions - velocity) ** 2).mean()
-        return loss
+    def forward(self, vl_embs, actions, video_token=None, state=None,
+                global_scene_tokens=None, explicit_randomness=None):
+        randomness = explicit_randomness or {}
+        noise = randomness.get("noise")
+        if noise is None:
+            noise = torch.randn(actions.shape, device=actions.device, dtype=actions.dtype)
+        t = randomness.get("t")
+        if t is None:
+            t = self.sample_time(actions.shape[0], actions.device, actions.dtype)
+        t = t.reshape(-1, 1, 1)
+        noisy_trajectory = (1 - t) * noise + t * actions
+        projected = self._project_condition(vl_embs, global_scene_tokens, video_token)
+        velocity = self.predict_velocity(noisy_trajectory,
+                                        (t[:, 0, 0] * self.num_timestep_buckets).long(), projected)
+        return ((velocity - (actions - noise)) ** 2).mean()
 
     def _euler_sample(
         self,
@@ -410,20 +375,8 @@ class FlowmatchingActionHead(nn.Module):
                 device=device,
                 dtype=torch.long,
             )
-            action_features = self.action_encoder(actions, timesteps_tensor)
-            if self.config.add_pos_embed:
-                pos_ids = torch.arange(
-                    action_features.shape[1], dtype=torch.long, device=device
-                )
-                action_features = action_features + self.position_embedding(
-                    pos_ids
-                ).unsqueeze(0)
-            model_output = self.model(
-                hidden_states=action_features,
-                encoder_hidden_states=projected_condition,
-                timestep=timesteps_tensor,
-            )
-            actions = actions + dt * self.action_decoder(model_output)
+            actions = actions + dt * self.predict_velocity(
+                actions, timesteps_tensor, projected_condition)
         return actions
 
     @torch.no_grad()
@@ -509,57 +462,9 @@ class FlowmatchingActionHead(nn.Module):
             candidate_chunk_size=1,
         )[:, 0]
 
-    def predict_action_onestep(self, vl_embs: torch.Tensor, actions, timesteps_tensor) -> torch.Tensor:
-        # Set initial actions as the sampled noise.
-        batch_size = vl_embs.shape[0]
-        device = vl_embs.device
-        # actions = torch.randn(
-        #     size=(batch_size, self.config.action_horizon, self.config.action_dim),
-        #     dtype=vl_embs.dtype,
-        #     device=device,
-        # )
-
-        # num_steps = self.num_inference_timesteps
-        # dt = 1.0 / num_steps
-        
-        state_features = None
-
-        # vl_embs = self.qwen_proj(vl_embs)
-
-        # Run denoising steps.
-        # for t in range(num_steps):
-
-        # t_cont = t / float(num_steps)  # e.g. goes 0, 1/N, 2/N, ...
-        # t_discretized = int(t_cont * self.num_timestep_buckets)
-
-        # Embed noised action trajectory.
-        # timesteps_tensor = torch.full(
-        #     size=(batch_size,), fill_value=t_discretized, device=device
-        # )
-        action_features = self.action_encoder(actions, timesteps_tensor)
-        # Maybe add position embedding.
-        if self.config.add_pos_embed:
-            pos_ids = torch.arange(action_features.shape[1], dtype=torch.long, device=device)
-            pos_embs = self.position_embedding(pos_ids).unsqueeze(0)
-            action_features = action_features + pos_embs
-
-        # Join vision, language, state and action embedding along sequence dimension.
-        # future_tokens = self.future_tokens.weight.unsqueeze(0).expand(vl_embs.shape[0], -1, -1)
-        # sa_embs = torch.cat((state_features, future_tokens, action_features), dim=1) \
-        #     if state_features is not None else torch.cat((future_tokens, action_features), dim=1)
-
-        sa_embs = action_features
-
-        # Run model forward.
-        model_output = self.model(
-            hidden_states=sa_embs,
-            encoder_hidden_states=vl_embs,
-            timestep=timesteps_tensor,
-        )
-
-        pred = self.action_decoder(model_output)
-
-        return pred # will deal outside
+    def predict_action_onestep(self, vl_embs, actions, timesteps_tensor):
+        """Legacy one-step API expects projected features, as before."""
+        return self.predict_velocity(actions, timesteps_tensor, vl_embs)
 
     @property
     def device(self):

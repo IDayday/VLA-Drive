@@ -1,0 +1,137 @@
+{
+  "source_sha": "9fe1459b8f6ab69a15274450ec301d541209bedd",
+  "tests": {
+    "01_original_ode_equivalence": {
+      "status": "TESTED",
+      "seconds": 1.3076337203383446,
+      "result": {
+        "max_abs": 0.0,
+        "atol": 2e-05,
+        "rtol": 2e-05
+      }
+    },
+    "02_original_sft_equivalence": {
+      "status": "TESTED",
+      "seconds": 1.346753116697073,
+      "result": {
+        "original": {
+          "action_loss": 0.0009072638931684196,
+          "rgb_loss": 0.07105417549610138,
+          "gs_loss": 0.0019826150964945555,
+          "reward_loss": 0.0
+        },
+        "shared": {
+          "action_loss": 0.0009072638931684196,
+          "rgb_loss": 0.07105417549610138,
+          "gs_loss": 0.0019826150964945555,
+          "reward_loss": 0.0
+        }
+      }
+    },
+    "03_projection_once": {
+      "status": "TESTED",
+      "seconds": 0.4667227268218994,
+      "result": {
+        "projection_calls": 1
+      }
+    },
+    "09_behavior_recompute_ratio": {
+      "status": "TESTED",
+      "seconds": 2.79511758685112,
+      "result": {
+        "max_abs_logratio": 0.0,
+        "atol": 1e-05
+      }
+    },
+    "23_real_bf16_network_fp32_probability": {
+      "status": "TESTED",
+      "seconds": 0.5276410821825266,
+      "result": {
+        "network": "real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
+        "math": "production FP32 vs FP64 torch Normal; ratio gradient w.r.t. network velocity",
+        "atol": 2e-05,
+        "rtol": 0.0001,
+        "maximum_absolute_difference": {
+          "mean": 1.1418040068988944e-07,
+          "std": 3.474735374431326e-09,
+          "logprob": 7.298504259622973e-06,
+          "ratio": 3.2814398620573115e-07,
+          "velocity_gradient": 3.216260696103923e-06
+        }
+      }
+    },
+    "10_equal_full_reference_kl": {
+      "status": "TESTED",
+      "seconds": 2.789313565939665,
+      "result": {
+        "max_kl": 0.0
+      }
+    },
+    "17_official_reward_pool_order_batch": {
+      "status": "TESTED",
+      "seconds": 27.45631332322955,
+      "result": {
+        "scores": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "serial_parallel_identical": true
+      }
+    },
+    "10_13_full_reference_perturbation_and_negative": {
+      "status": "TESTED",
+      "seconds": 14.245567569509149,
+      "result": {
+        "perturbed_kl": {
+          "qwen": 0.00011801002983702347,
+          "action": 19.251983642578125
+        },
+        "detached_condition_rejected": true,
+        "current_features_in_reference_detected": true
+      }
+    },
+    "20_real_future_label_isolation": {
+      "status": "TESTED",
+      "seconds": 0.34541943669319153,
+      "result": {
+        "max_abs": 0.0
+      }
+    }
+  },
+  "real_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+  "failures": [],
+  "scene": "2586fc498f1d5228",
+  "views": [
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ]
+  ],
+  "numel": 6724412344,
+  "trainable_numel": 4693179332,
+  "reward_scores": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "peak_gpu_gib": 23.8569278717041
+}

@@ -1,0 +1,578 @@
+{
+  "source_sha": "9fe1459b8f6ab69a15274450ec301d541209bedd",
+  "tests": {
+    "01_original_ode_equivalence": {
+      "status": "TESTED",
+      "seconds": 1.0074008014053106,
+      "result": {
+        "max_abs": 0.0,
+        "atol": 2e-05,
+        "rtol": 2e-05
+      }
+    },
+    "02_original_sft_equivalence": {
+      "status": "TESTED",
+      "seconds": 1.1293408386409283,
+      "result": {
+        "original": {
+          "action_loss": 0.0009072638931684196,
+          "rgb_loss": 0.07105417549610138,
+          "gs_loss": 0.0019826150964945555,
+          "reward_loss": 0.0
+        },
+        "shared": {
+          "action_loss": 0.0009072638931684196,
+          "rgb_loss": 0.07105417549610138,
+          "gs_loss": 0.0019826150964945555,
+          "reward_loss": 0.0
+        }
+      }
+    },
+    "03_projection_once": {
+      "status": "TESTED",
+      "seconds": 0.3084399551153183,
+      "result": {
+        "projection_calls": 1
+      }
+    },
+    "09_behavior_recompute_ratio": {
+      "status": "TESTED",
+      "seconds": 1.5371904131025076,
+      "result": {
+        "max_abs_logratio": 0.0,
+        "atol": 1e-05
+      }
+    },
+    "10_equal_full_reference_kl": {
+      "status": "TESTED",
+      "seconds": 1.5271031111478806,
+      "result": {
+        "max_kl": 0.0
+      }
+    },
+    "17_official_reward_pool_order_batch": {
+      "status": "TESTED",
+      "seconds": 22.02459285594523,
+      "result": {
+        "scores": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "serial_parallel_identical": true
+      }
+    },
+    "10_13_full_reference_perturbation_and_negative": {
+      "status": "TESTED",
+      "seconds": 8.540686883032322,
+      "result": {
+        "perturbed_kl": {
+          "qwen": 0.00011801002983702347,
+          "action": 19.251983642578125
+        },
+        "detached_condition_rejected": true,
+        "current_features_in_reference_detected": true
+      }
+    },
+    "20_real_future_label_isolation": {
+      "status": "TESTED",
+      "seconds": 0.33641879819333553,
+      "result": {
+        "max_abs": 0.0
+      }
+    },
+    "12_gradient_rl": {
+      "status": "TESTED",
+      "seconds": 8.390544367954135,
+      "result": {
+        "loss": 0.0,
+        "modules": {
+          "rgb_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 2.9168924811528996e-05
+          },
+          "traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.3150492527056485e-05
+          },
+          "gs_traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "qwen_vl_interface": {
+            "trainable": 310,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.9709992269745014
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.004946338310219289
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 4.119185806105742
+          },
+          "rgb_model": {
+            "trainable": 987,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "rgb_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_model": {
+            "trainable": 358,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          }
+        }
+      }
+    },
+    "12_gradient_reference": {
+      "status": "TESTED",
+      "seconds": 8.270859211683273,
+      "result": {
+        "loss": 0.00011801002983702347,
+        "modules": {
+          "rgb_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.890287189278752e-06
+          },
+          "traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 2.7865626179846004e-05
+          },
+          "gs_traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "qwen_vl_interface": {
+            "trainable": 310,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.2854994621687677
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.0031720151455374435
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 0.48653039495332584
+          },
+          "rgb_model": {
+            "trainable": 987,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "rgb_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_model": {
+            "trainable": 358,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "gs_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          }
+        }
+      }
+    },
+    "12_gradient_auxiliary": {
+      "status": "TESTED",
+      "seconds": 2.002339767292142,
+      "result": {
+        "loss": 0.26201075315475464,
+        "modules": {
+          "rgb_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 0.00030624790815636516
+          },
+          "traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.734982237801887e-05
+          },
+          "gs_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 9.638287883717567e-05
+          },
+          "gs_traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 4.473982073704974e-07
+          },
+          "qwen_vl_interface": {
+            "trainable": 310,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 1.1385339642498749
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.007471283211998525
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 0,
+            "nonzero_tensors": 0,
+            "squared_norm": 0.0
+          },
+          "rgb_model": {
+            "trainable": 987,
+            "grad_tensors": 983,
+            "nonzero_tensors": 983,
+            "squared_norm": 0.2348570413952467
+          },
+          "traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.028517035396490087
+          },
+          "rgb_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 6,
+            "nonzero_tensors": 6,
+            "squared_norm": 5.040648449474247
+          },
+          "gs_model": {
+            "trainable": 358,
+            "grad_tensors": 358,
+            "nonzero_tensors": 358,
+            "squared_norm": 0.0027082421369271866
+          },
+          "gs_traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.0005481563719920146
+          },
+          "gs_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 6,
+            "nonzero_tensors": 6,
+            "squared_norm": 0.04779217501322819
+          }
+        }
+      }
+    },
+    "12_gradient_sft": {
+      "status": "TESTED",
+      "seconds": 1.6102455090731382,
+      "result": {
+        "loss": 0.028965048491954803,
+        "modules": {
+          "rgb_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 0.0003088955127168447
+          },
+          "traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.734982237801887e-05
+          },
+          "gs_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 0.00010920879140030593
+          },
+          "gs_traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 4.473982073704974e-07
+          },
+          "qwen_vl_interface": {
+            "trainable": 310,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 1.314195824481486
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.007374729586445028
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 0.12176863253666512
+          },
+          "rgb_model": {
+            "trainable": 987,
+            "grad_tensors": 983,
+            "nonzero_tensors": 982,
+            "squared_norm": 0.4395712230891047
+          },
+          "traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.028517035396490087
+          },
+          "rgb_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 6,
+            "nonzero_tensors": 6,
+            "squared_norm": 5.040648449474247
+          },
+          "gs_model": {
+            "trainable": 358,
+            "grad_tensors": 358,
+            "nonzero_tensors": 358,
+            "squared_norm": 0.0006004747457106314
+          },
+          "gs_traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.0005481563719920146
+          },
+          "gs_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 6,
+            "nonzero_tensors": 6,
+            "squared_norm": 0.04779217501322819
+          }
+        }
+      }
+    },
+    "12_gradient_total": {
+      "status": "TESTED",
+      "seconds": 10.026078648865223,
+      "result": {
+        "loss": 0.0030773321632295847,
+        "modules": {
+          "rgb_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.1587340345140547e-05
+          },
+          "traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.7444709732881165e-07
+          },
+          "gs_query": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 3.4238240914419293e-05
+          },
+          "gs_traj_emb_h0": {
+            "trainable": 1,
+            "grad_tensors": 1,
+            "nonzero_tensors": 1,
+            "squared_norm": 4.4791192976845196e-09
+          },
+          "qwen_vl_interface": {
+            "trainable": 310,
+            "grad_tensors": 309,
+            "nonzero_tensors": 309,
+            "squared_norm": 0.9790685091466127
+          },
+          "action_input_model": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.00597178254975006
+          },
+          "action_model": {
+            "trainable": 359,
+            "grad_tensors": 359,
+            "nonzero_tensors": 359,
+            "squared_norm": 4.095367548442015
+          },
+          "rgb_model": {
+            "trainable": 987,
+            "grad_tensors": 983,
+            "nonzero_tensors": 983,
+            "squared_norm": 0.00045574793896086365
+          },
+          "traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 0.0002876117191676908
+          },
+          "rgb_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 6,
+            "nonzero_tensors": 6,
+            "squared_norm": 0.05053392177069327
+          },
+          "gs_model": {
+            "trainable": 358,
+            "grad_tensors": 358,
+            "nonzero_tensors": 358,
+            "squared_norm": 3.5906463371062868e-06
+          },
+          "gs_traj_emb": {
+            "trainable": 4,
+            "grad_tensors": 4,
+            "nonzero_tensors": 4,
+            "squared_norm": 5.491970630239207e-06
+          },
+          "gs_act_pre": {
+            "trainable": 6,
+            "grad_tensors": 6,
+            "nonzero_tensors": 6,
+            "squared_norm": 0.00047772514487576245
+          }
+        }
+      }
+    },
+    "22_checkpointing_gradient_equivalence": {
+      "status": "TESTED",
+      "seconds": 26.479683497920632,
+      "result": {
+        "scope": "one fixed transition block; full VLM input",
+        "losses": [
+          -1.1008033752441406,
+          -1.1008033752441406
+        ],
+        "gradient_tensors": 674,
+        "bf16_gradient_rtol": 0.002,
+        "gradient_atol": 2e-06
+      }
+    },
+    "25_reference_frozen_immutable": {
+      "status": "TESTED",
+      "seconds": 9.28202336281538,
+      "result": {
+        "reference_parameters": 990,
+        "frozen_parameters": 1636
+      }
+    }
+  },
+  "real_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+  "failures": [],
+  "scene": "2586fc498f1d5228",
+  "views": [
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ]
+  ],
+  "numel": 6724412344,
+  "trainable_numel": 4693179332,
+  "reward_scores": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "gradient_probe_advantage": "fixed signed diagnostic; no optimizer update; real reward kept separately",
+  "peak_gpu_gib": 31.712460041046143
+}

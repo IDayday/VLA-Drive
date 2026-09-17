@@ -1,0 +1,23 @@
+...............................                                          [100%]
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+tests/flow_grpo/test_reward_real.py::test_adapter_matches_original_single_scene_evaluator
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+tests/flow_grpo/test_reward_real.py::test_adapter_matches_original_single_scene_evaluator
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: Deprecated call to `pkg_resources.declare_namespace('lightning_fabric')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/flow_grpo/test_reward_real.py::test_adapter_matches_original_single_scene_evaluator
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/pytorch_lightning/__init__.py:37: Deprecated call to `pkg_resources.declare_namespace('pytorch_lightning')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/flow_grpo/test_reward_real.py: 3456 warnings
+  /mnt/project/DriveDreamer-Policy-flow-grpo/navsim/navsim/planning/simulation/planner/pdm_planner/observation/pdm_occupancy_map.py:209: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+    output[i] = shapely.vectorized.contains(polygon, flattened_points[:, 0], flattened_points[:, 1])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 3460 warnings in 114.16s (0:01:54)

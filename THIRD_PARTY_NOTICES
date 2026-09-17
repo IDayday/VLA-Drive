@@ -1,0 +1,36 @@
+DriveDreamer Flow-GRPO migration
+
+DriveDreamer-Policy, https://github.com/youngzhou1999/DriveDreamer-Policy
+Locked commit: 8cefcac46e5944add529e1be19cba78bc06cc2bd
+Apache-2.0. Existing project modules are refactored in place. An AST extraction
+of the official SFT forward is included ONLY as a regression oracle at
+ tests/flow_grpo/vendor/official_sft_forward.py.
+License: tests/flow_grpo/vendor/LICENSE.drivedreamer.
+
+Flow-GRPO, https://github.com/yifan123/flow_grpo
+Locked commit: 879042cf5707f8b90daa98d147d7deac2317c5da
+MIT. The unmodified sd3_sde_with_logprob.py is included ONLY as an executable
+numerical test oracle at tests/flow_grpo/vendor/sd3_sde_with_logprob.py.
+License: tests/flow_grpo/vendor/LICENSE.flow_grpo.
+The production implementation translates sigma=1-t and v_sigma=-v_t,
+retains dimension-mean surrogate semantics, and uses transition std (including
+sqrt(dt)) for conditional KL. No image pipeline/LoRA trainer is imported.
+
+SimWAM, https://github.com/H-EmbodVis/SimWAM
+Locked commit: 68b426c162827cb7701396895dbb3572d29f3420
+MIT. Reviewed for reward worker and rollout organization. No code copied;
+LoRA-only/frozen-backbone/reference-head behavior is not reused.
+
+Existing NAVSIM and starVLA licenses remain in their original directories.
+Exact reviewed-file hashes are recorded in reference_lock.json.
+RLinf was not needed and is not a dependency.
+
+User's action-only SFT release, https://github.com/IDayday/VLA-Drive
+Locked commit: f9449d55bea6895a7a0bd86d09d7ab85fd353f26
+Repository Apache-2.0; QwenOFT.py retains its Copyright 2025 starVLA community
+MIT header. Frozen-visual overlay and root unfrozen-visual framework methods
+are AST-extracted as independent test oracles under tests/flow_grpo/vendor/.
+The root action head and visual image helper are test-only oracles. The original
+parameter-group function is retained at starVLA/rl/flow_grpo/action_only_optimizer.py.
+All inactive extension branches remain inactive; no agent auxiliary task is added.
+The actual production shared model keeps its existing project license.
