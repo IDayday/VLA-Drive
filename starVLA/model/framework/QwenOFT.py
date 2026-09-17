@@ -365,7 +365,8 @@ class Qwenvl_OFT(baseframework):
             deepstack_embeds,
         ) = self._build_qwen_batch(examples, instructions)
 
-        with torch.autocast("cuda", dtype=torch.bfloat16):
+        qwen_dtype = next(self.qwen_vl_interface.parameters()).dtype
+        with torch.autocast(input_ids.device.type, dtype=qwen_dtype, enabled=qwen_dtype != torch.float32):
             text_embeds = self.qwen_vl_interface.model.get_input_embeddings()(input_ids)  # [B, L, H]
 
 
@@ -402,7 +403,7 @@ class Qwenvl_OFT(baseframework):
                 batch_indices[:, None], token_positions["gs"], :
             ] = self.gs_query.unsqueeze(0).to(text_embeds.dtype)
 
-        with torch.autocast("cuda", dtype=torch.bfloat16):
+        with torch.autocast(input_ids.device.type, dtype=qwen_dtype, enabled=qwen_dtype != torch.float32):
             last_hidden = self._qwen_language_forward(
                 input_ids=input_ids,
                 inputs_embeds=text_embeds,
@@ -468,7 +469,7 @@ class Qwenvl_OFT(baseframework):
             if self.rgb_query_loss:
                 rgb_loss += rgb_query_loss
         else:
-            rgb_loss = torch.tensor(0.).cuda()
+            rgb_loss = last_hidden.new_zeros(())
 
 
         # Step 4: Action Expert Forward and Loss
@@ -510,7 +511,7 @@ class Qwenvl_OFT(baseframework):
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
                     action_loss = nn.SmoothL1Loss()(pred_action, actions)
         else:
-            action_loss = torch.tensor(0.).cuda()
+            action_loss = last_hidden.new_zeros(())
 
 
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
@@ -572,7 +573,7 @@ class Qwenvl_OFT(baseframework):
             
             # return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss}
         else:
-            gs_loss = torch.tensor(0.).cuda()
+            gs_loss = last_hidden.new_zeros(())
 
         if self.config.datasets.reward_data.load_reward_data:
 
@@ -589,7 +590,7 @@ class Qwenvl_OFT(baseframework):
             
             return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss}
         else:
-            reward_loss = torch.tensor(0.).cuda()
+            reward_loss = last_hidden.new_zeros(())
 
         return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss}
 

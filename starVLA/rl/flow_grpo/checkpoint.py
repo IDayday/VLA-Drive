@@ -7,6 +7,8 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 from .config import config_hash
+from .distributed import rank0_call, synchronized_call
+from .reproducibility import assert_resume_identity
 
 
 def capture_rng(policy=None):
@@ -34,28 +36,52 @@ def restore_rng(state, policy=None):
 
 
 def save_boundary(
-    accelerator, actor, cfg, sft, manifest, provenance, update, version, streams
+    accelerator,
+    actor,
+    cfg,
+    sft,
+    manifest,
+    provenance,
+    update,
+    version,
+    streams,
+    pending=None,
 ):
     root = Path(cfg["runtime"]["output_dir"]) / "checkpoints"
     final = root / f"update_{update:06d}"
     temporary = root / f".update_{update:06d}.incomplete"
-    if accelerator.is_main_process:
+
+    def prepare_directory():
         if final.exists() or temporary.exists():
             raise FileExistsError(
                 f"checkpoint must not overwrite {final} / {temporary}"
             )
         temporary.mkdir(parents=True)
-    accelerator.wait_for_everyone()
+
+    rank0_call(prepare_directory, accelerator.device)
+    # save_state/load_state own collectives. Fatal failures escape to torchrun;
+    # do not wrap them in a control-plane collective or a finally barrier.
     accelerator.save_state(str(temporary), safe_serialization=False)
     policy = accelerator.unwrap_model(actor).policy
-    torch.save(
-        {"rng": capture_rng(policy), "streams": [s.state_dict() for s in streams]},
-        temporary / f"rank_{accelerator.process_index}.pt",
+    synchronized_call(
+        lambda: torch.save(
+            {
+                "rng": capture_rng(policy),
+                "streams": [s.state_dict() for s in streams],
+                "pending": pending,
+            },
+            temporary / f"rank_{accelerator.process_index}.pt",
+        ),
+        accelerator.device,
     )
-    if accelerator.is_main_process:
+
+    def write_metadata():
         metadata = dict(
-            schema=1,
-            boundary="complete_rollout_update",
+            schema=2,
+            boundary="inner_epoch"
+            if pending is not None
+            else "complete_rollout_update",
+            next_inner_epoch=pending["next_inner"] if pending else 0,
             update=update,
             policy_version=version,
             world_size=accelerator.num_processes,
@@ -96,37 +122,57 @@ def save_boundary(
                 indent=2,
             )
         )
-    accelerator.wait_for_everyone()
-    if accelerator.is_main_process:
-        (temporary / "COMPLETE").write_text("complete rollout/update boundary\n")
+
+    rank0_call(write_metadata, accelerator.device)
+
+    def publish():
+        (temporary / "COMPLETE").write_text(
+            "complete optimizer boundary; pending behavior state included\n"
+        )
         os.replace(temporary, final)
-    accelerator.wait_for_everyone()
+
+    rank0_call(publish, accelerator.device)
     return final
 
 
 def resume_boundary(path, accelerator, actor, cfg, provenance, streams):
     path = Path(path)
-    if not (path / "COMPLETE").is_file():
-        raise ValueError("incomplete checkpoint")
-    metadata = json.loads((path / "trainer_state.json").read_text())
-    if metadata["world_size"] != accelerator.num_processes:
-        raise ValueError("world-size change: exact resume rejected")
-    if (
-        metadata["config_hash"] != config_hash(cfg)
-        or metadata["provenance"] != provenance
-    ):
-        raise ValueError("resume configuration/reward/reference/normalization changed")
+
+    def validate_local():
+        if not (path / "COMPLETE").is_file():
+            raise ValueError("incomplete checkpoint")
+        metadata = json.loads((path / "trainer_state.json").read_text())
+        if metadata["world_size"] != accelerator.num_processes:
+            raise ValueError("world-size change: exact resume rejected")
+        if metadata["config_hash"] != config_hash(cfg):
+            raise ValueError("resume configuration changed")
+        assert_resume_identity(metadata["provenance"], provenance)
+        state = torch.load(
+            path / f"rank_{accelerator.process_index}.pt",
+            map_location="cpu",
+            weights_only=False,
+        )
+        if len(streams) != len(state["streams"]):
+            raise ValueError("resume stream count changed")
+        for stream, saved in zip(streams, state["streams"]):
+            stream.load_state_dict(saved)
+        if metadata.get("boundary") == "inner_epoch" and not state.get("pending"):
+            raise ValueError("missing pending behavior batch")
+        if state.get("pending"):
+            pending = state["pending"]
+            if not 0 < pending["next_inner"] < cfg["algorithm"].get("inner_epochs", 2):
+                raise ValueError("invalid pending inner-epoch cursor")
+            if pending["next_inner"] != metadata["next_inner_epoch"]:
+                raise ValueError("pending inner-epoch metadata mismatch")
+            for rollout in pending["buffers"]:
+                if hasattr(rollout, "validate"):
+                    rollout.validate(metadata["policy_version"])
+        return metadata, state
+
+    metadata, state = synchronized_call(validate_local, accelerator.device)
     accelerator.load_state(str(path))
-    # Locally generated trusted RNG state includes Python/NumPy objects.
-    state = torch.load(
-        path / f"rank_{accelerator.process_index}.pt",
-        map_location="cpu",
-        weights_only=False,
-    )
-    for stream, saved in zip(streams, state["streams"]):
-        stream.load_state_dict(saved)
     restore_rng(state["rng"], accelerator.unwrap_model(actor).policy)
-    return metadata["update"], metadata["policy_version"]
+    return metadata["update"], metadata["policy_version"], state.get("pending")
 
 
 def export_checkpoint(checkpoint, output):

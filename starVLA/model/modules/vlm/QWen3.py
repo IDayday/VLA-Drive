@@ -66,8 +66,8 @@ class _QWen3_VL_Interface(nn.Module):
         model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_id,
             attn_implementation=attn_implementation,
-            dtype=torch.bfloat16,
-            device_map="cuda",
+            dtype=getattr(torch, qwenvl_config.get("load_dtype", "bfloat16")),
+            device_map=qwenvl_config.get("load_device", "cuda"),
         )
         processor = AutoProcessor.from_pretrained(model_id)
         processor.tokenizer.padding_side = "left"

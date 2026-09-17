@@ -85,7 +85,13 @@ def velocity(policy, x, bucket, condition, checkpoint=False):
     head = policy.action_model
     # Follow the head parameter dtype. Probability tensors stay FP32 outside the network.
     fn = head.predict_velocity
-    with torch.autocast("cuda", dtype=torch.float32):
+    # PyTorch 2.5 CUDA autocast accepts float32 and casts eligible linear ops
+    # (including BF16 parameter values) to FP32. This is the inherited action
+    # kernel profile, NOT equivalent to enabled=False with BF16 weights.
+    # CPU FP32 diagnostics already use actual FP32 parameters.
+    with torch.autocast(
+        x.device.type, dtype=torch.float32, enabled=x.device.type == "cuda"
+    ):
         if checkpoint and torch.is_grad_enabled():
             from torch.utils.checkpoint import checkpoint as checkpoint_fn
 
@@ -178,11 +184,13 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
     means = []
     stds = []
     logps = []
+    velocities = []
     # Keep chunk order identical during no-grad rollout and recomputation.
     for step in range(k):
         step_means = []
         step_logs = []
         step_stds = []
+        step_velocities = []
         for start in range(0, g, rollout.spec.candidate_chunk_size):
             end = min(g, start + rollout.spec.candidate_chunk_size)
             n = end - start
@@ -196,6 +204,7 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
                 dtype=torch.long,
             )
             v = velocity(policy, xt, bucket, cond, checkpoint)
+            step_velocities.append(v.reshape(b, n, h, d))
             dist = transition(
                 xt,
                 v,
@@ -207,10 +216,12 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
             step_means.append(dist.mean.reshape(b, n, h, d))
             step_logs.append(dist.logprob(xn).reshape(b, n, h, d))
             step_stds.append(torch.broadcast_to(dist.std, xt.shape).reshape(b, n, h, d))
+        velocities.append(torch.cat(step_velocities, 1))
         means.append(torch.cat(step_means, 1))
         logps.append(torch.cat(step_logs, 1))
         stds.append(torch.cat(step_stds, 1))
     return {
+        "velocity": torch.stack(velocities, 2),
         "mean": torch.stack(means, 2),
         "std": torch.stack(stds, 2),
         "elementwise_logprob": torch.stack(logps, 2),

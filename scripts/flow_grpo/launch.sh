@@ -8,7 +8,8 @@ export TOKENIZERS_PARALLELISM=false
 export NO_ALBUMENTATIONS_UPDATE=1
 export FLASH_ATTENTION_DETERMINISTIC="${FLASH_ATTENTION_DETERMINISTIC:-1}"
 export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
-export TRITON_CACHE_DIR="${TRITON_CACHE_DIR:-/tmp/ddp-flow-grpo-triton}"
+export TRITON_CACHE_DIR="${TRITON_CACHE_DIR:-${OUTPUT_DIR:-/tmp/ddp-flow-grpo-${BASHPID}}/triton}"
+export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
 PYTHON_BIN="${PYTHON_BIN:-/root/miniconda3/envs/ddp/bin/python}"
 COMMAND="${1:-preflight}"
 shift || true
@@ -20,7 +21,7 @@ if [[ "$COMMAND" == train ]]; then
   : "${MAX_UPDATES:?Set an explicit bounded MAX_UPDATES}"
   : "${OUTPUT_DIR:?Set a new output directory or explicit --resume}"
   args+=(--max-updates "$MAX_UPDATES")
-  "$PYTHON_BIN" -m torch.distributed.run --standalone --nproc_per_node="${NUM_GPUS:-1}" \
+  "$PYTHON_BIN" -m torch.distributed.run --standalone --max-restarts=0 --monitor-interval=1 --nproc_per_node="${NUM_GPUS:-1}" \
     -m starVLA.rl.flow_grpo.cli train "${args[@]}" "$@"
 else
   "$PYTHON_BIN" -m starVLA.rl.flow_grpo.cli "$COMMAND" "${args[@]}" "$@"

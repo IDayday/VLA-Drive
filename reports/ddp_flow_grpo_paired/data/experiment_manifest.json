@@ -1,0 +1,31 @@
+{
+  "variants": [
+    "F\u2192RL",
+    "U\u2192RL"
+  ],
+  "optimizer_updates": 2000,
+  "inner_epochs": 2,
+  "global_scene_batch": 16,
+  "world_size": 4,
+  "accumulation_steps": 4,
+  "group_size": 8,
+  "steps": 10,
+  "fresh_scene_rollouts": 16000,
+  "fresh_candidates": 128000,
+  "sft_replay_draws": 16000,
+  "sft_replay_loss_exposures": 32000,
+  "train_seed": 42,
+  "evaluation_seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "dev_every_updates": 200,
+  "save_every_updates": 100,
+  "dev_selection": "highest dev EPDMS at seed42 on every 200th update; earliest update wins ties",
+  "final_selection": "last and dev-best; no navtest selection",
+  "noise_schedule": "global_scene_v1 for train; sha256(seed, token) for evaluation",
+  "baseline_scope": "F and U have different SFT step counts; paired RL gains, not a causal SFT visual ablation"
+}

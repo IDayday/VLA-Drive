@@ -180,6 +180,15 @@ def split_tokens(cfg):
     test = set(json.loads(Path(cfg["paths"]["test_list"]).read_text()))
     if len(tokens) != len(set(tokens)) or set(tokens) & test:
         raise ValueError("duplicate train scenes or navtest leakage")
+    manifest_path = cfg["paths"].get("split_manifest")
+    if manifest_path:
+        manifest = json.loads(Path(manifest_path).read_text())
+        train, dev = manifest["train_tokens"], manifest["dev_tokens"]
+        if set(train) & set(dev) or set(train + dev) != set(tokens):
+            raise ValueError("split manifest differs from available train tokens")
+        if set(train + dev) & test:
+            raise ValueError("navtest leakage")
+        return train, dev
     # Stable split selected by token hash, independent of rewards and seed search.
     ordered = sorted(tokens, key=lambda token: digest(token))
     n = cfg["runtime"]["validation_scenes"]
@@ -193,4 +202,6 @@ def config_hash(cfg):
     # Run location and stop boundary are operational, not trajectory/optimizer semantics.
     copied["runtime"].pop("output_dir", None)
     copied["runtime"].pop("max_updates", None)
+    copied["runtime"].pop("run_mode", None)
+    copied["runtime"].pop("acceptance_record", None)
     return digest(copied)

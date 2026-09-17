@@ -26,12 +26,12 @@ def data_rng(seed):
 
 
 class KeyedDataset(Dataset):
-    def __init__(self, sft_cfg):
+    def __init__(self, sft_cfg, split="train"):
         from starVLA.dataloader.navsim_dataset import NavSimDataset
 
         self.dataset = NavSimDataset(
             sft_cfg.datasets.vla_data.datalist_path,
-            split="train",
+            split=split,
             video_data_cfg=sft_cfg.datasets.video_data,
             gs_data_cfg=sft_cfg.datasets.gs_data,
             reward_data_cfg=sft_cfg.datasets.reward_data,
@@ -85,6 +85,7 @@ class SceneStream:
         cursor=0,
         workers=0,
         prefetch=2,
+        timeout=180,
     ):
         self.dataset = dataset
         self.tokens = tokens
@@ -94,6 +95,7 @@ class SceneStream:
         self.cursor = cursor
         self.workers = workers
         self.prefetch = prefetch
+        self.timeout = timeout
 
     def take(self, count):
         # Only bounded requested consumption is prefetched. No hidden advancing cursor.
@@ -110,8 +112,14 @@ class SceneStream:
                 prefetch_factor=self.prefetch,
                 multiprocessing_context="spawn",
                 collate_fn=identity,
+                timeout=self.timeout,
             )
-            samples = list(loader)
+            iterator = iter(loader)
+            try:
+                samples = list(iterator)
+            finally:
+                # PyTorch 2.5 DataLoader iterator owns only this call's workers.
+                iterator._shutdown_workers()
         else:
             samples = [self.dataset[key] for key in keys]
         self.cursor += len(samples)
@@ -141,6 +149,16 @@ def identity(value):
 
 
 def to_device(value, device):
+    import dataclasses
+
+    if dataclasses.is_dataclass(value):
+        return dataclasses.replace(
+            value,
+            **{
+                f.name: to_device(getattr(value, f.name), device)
+                for f in dataclasses.fields(value)
+            },
+        )
     if isinstance(value, torch.Tensor):
         return value.to(device)
     if isinstance(value, dict):

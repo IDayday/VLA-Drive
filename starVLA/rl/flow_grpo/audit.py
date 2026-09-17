@@ -12,22 +12,27 @@ import torch
 
 
 def source_fingerprints():
-    paths = list(Path("starVLA/rl").rglob("*.py")) + [
-        Path(name)
-        for name in (
-            "starVLA/model/framework/QwenOFT.py",
-            "starVLA/model/framework/baseline_qwen.py",
-            "starVLA/model/modules/action_model/GR00T_ActionHeader.py",
-            "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
-            "starVLA/model/modules/vlm/QWen3.py",
-            "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
-            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py",
-            "starVLA/dataloader/navsim_dataset.py",
-            "starVLA/model/modules/video_model/videox_fun/models/attention_utils.py",
-            "infer.py",
-            "reference_lock.json",
-        )
-    ]
+    paths = (
+        list(Path("starVLA").rglob("*.py"))
+        + list(Path("navsim/navsim").rglob("*.py"))
+        + list(Path("navsim/navsim").rglob("*.yaml"))
+        + [
+            Path(name)
+            for name in (
+                "starVLA/model/framework/QwenOFT.py",
+                "starVLA/model/framework/baseline_qwen.py",
+                "starVLA/model/modules/action_model/GR00T_ActionHeader.py",
+                "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+                "starVLA/model/modules/vlm/QWen3.py",
+                "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+                "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py",
+                "starVLA/dataloader/navsim_dataset.py",
+                "starVLA/model/modules/video_model/videox_fun/models/attention_utils.py",
+                "infer.py",
+                "reference_lock.json",
+            )
+        ]
+    )
     return {
         str(path): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(paths)

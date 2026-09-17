@@ -30,6 +30,12 @@ def main():
     parser.add_argument("--resume")
     parser.add_argument("--checkpoint")
     parser.add_argument("--export-dir")
+    parser.add_argument("--split", choices=["rl_dev", "navtest"])
+    parser.add_argument("--tokens")
+    parser.add_argument("--data-root")
+    parser.add_argument("--metric-cache")
+    parser.add_argument("--seed", type=int)
+    parser.add_argument("--metric-protocol", choices=["navsim_v2_official_one_stage"])
     parser.add_argument("--skip-gradients", action="store_true")
     parser.add_argument("--set", nargs="*", default=[])
     args = parser.parse_args()
@@ -82,7 +88,32 @@ def main():
     if args.command == "evaluate":
         from .evaluation import evaluate
 
-        return evaluate(cfg, sft, args.checkpoint, args.output_dir)
+        if any(
+            x is None
+            for x in (
+                args.split,
+                args.tokens,
+                args.data_root,
+                args.metric_cache,
+                args.seed,
+                args.metric_protocol,
+            )
+        ):
+            parser.error(
+                "evaluate requires --split --tokens --data-root --metric-cache --seed --metric-protocol"
+            )
+        return evaluate(
+            cfg,
+            sft,
+            args.checkpoint,
+            args.output_dir,
+            split=args.split,
+            tokens_file=args.tokens,
+            data_root=args.data_root,
+            metric_cache=args.metric_cache,
+            seed=args.seed,
+            metric_protocol=args.metric_protocol,
+        )
     from .reward import build_cache_index
     from .loading import file_sha, weight_path
 

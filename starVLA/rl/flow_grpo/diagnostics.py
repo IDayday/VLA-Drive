@@ -579,28 +579,26 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                         if p.grad is not None
                     }
                 else:
-                    actual_names = {
-                        n for n, p in policy.named_parameters() if p.grad is not None
-                    }
-                    assert actual_names == set(snapshots)
-                    for name, parameter in policy.named_parameters():
-                        if name in snapshots:
-                            grad = parameter.grad.detach().cpu()
-                            max_absolute = max(
-                                max_absolute,
-                                float(
-                                    (grad.float() - snapshots[name].float()).abs().max()
-                                ),
-                            )
-                            torch.testing.assert_close(
-                                grad,
-                                snapshots[name],
-                                atol=2e-6,
-                                rtol=2e-3,
-                                msg=lambda message: name + ": " + message,
-                            )
+                    from .comparison import compare_named
+
+                    comparison = compare_named(
+                        snapshots,
+                        {
+                            n: p.grad.detach().cpu() if p.grad is not None else None
+                            for n, p in policy.named_parameters()
+                            if p.requires_grad
+                        },
+                    )
+                    (Path(output) / "candidate_chunk_all_parameters.json").write_text(
+                        json.dumps(comparison, indent=2)
+                    )
+                    max_absolute = comparison["modules"]["whole_model"]["max_abs"]
                 del stats, current, loss
                 policy.zero_grad(set_to_none=True)
+            if comparison["status"] != "PASS":
+                raise AssertionError(
+                    "candidate gradient gate failed; all parameter errors retained in candidate_chunk_all_parameters.json"
+                )
             return {
                 "scope": "same real scene and two saved candidates, all ten transitions",
                 "chunks": [1, 2],

@@ -124,7 +124,7 @@ class FlowGRPOActor(nn.Module):
         )
         if not torch.isfinite(total):
             raise FloatingPointError("nonfinite joint loss")
-        return dict(
+        result = dict(
             loss=total,
             grpo=grpo.mean(),
             reference=reference.mean(),
@@ -133,3 +133,11 @@ class FlowGRPOActor(nn.Module):
             ratio=ratio.detach(),
             logratio=(current - rollout.old_logprob).detach(),
         )
+        if kwargs.get("diagnostic_outputs", False):
+            result["diagnostics"] = {
+                **stats,
+                "current_logprob": current,
+                "per_transition_pg": pg,
+                "per_transition_kl": kl,
+            }
+        return result

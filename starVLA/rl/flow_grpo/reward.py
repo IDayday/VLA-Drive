@@ -288,7 +288,13 @@ class RewardService:
         if self.pool:
             if abort:
                 # Only our own bounded scoring children; never external jobs.
-                for process in (self.pool._processes or {}).values():
+                processes = list((self.pool._processes or {}).values())
+                for process in processes:
                     process.terminate()
-            self.pool.shutdown(wait=True, cancel_futures=True)
+                deadline = time.monotonic() + 2
+                for process in processes:
+                    process.join(timeout=max(0, deadline - time.monotonic()))
+                    if process.is_alive():
+                        process.kill()
+            self.pool.shutdown(wait=not abort, cancel_futures=True)
             self.pool = None
