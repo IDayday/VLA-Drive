@@ -292,6 +292,18 @@ def validate_export(checkpoint, output):
         return False
     if not receipt.is_file():
         raise ValueError("completed export has no verifiable provenance")
+    required = {
+        "pytorch_model.pt",
+        "config.yaml",
+        "normalization.json",
+        "sft_parameter_manifest.json",
+        "trainer_state.json",
+        "rl_config.json",
+    }
+    if not required <= set(saved.get("files", {})) or not any(
+        name.startswith("processor/") for name in saved.get("files", {})
+    ):
+        raise ValueError("completed export required files missing from receipt")
     if saved["files"] != directory_seal(output, ("COMPLETE", "export_state.json")):
         raise ValueError("export file integrity changed")
     return True

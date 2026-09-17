@@ -230,6 +230,15 @@ def verify_publication(publication, verify_inputs=True):
     marker = json.loads((publication / "COMPLETE").read_text())
     if marker.get("schema_version") != 2 or marker.get("status") != "ASSETS_READY_ONLY":
         raise ValueError("asset publication is not complete")
+    required = {
+        "asset_manifest.json",
+        "cache_validation.json",
+        "builder_status.json",
+        "configs/paired_frozen_visual.yaml",
+        "configs/paired_unfrozen_visual.yaml",
+    }
+    if not required <= set(marker.get("files", {})):
+        raise ValueError("asset publication required files missing from receipt")
     for relative, expected in marker["files"].items():
         if file_sha(publication / relative) != expected:
             raise ValueError(f"published asset bundle changed: {relative}")

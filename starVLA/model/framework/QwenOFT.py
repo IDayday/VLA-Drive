@@ -428,7 +428,7 @@ class Qwenvl_OFT(baseframework):
     def compute_sft_losses(self, examples, explicit_randomness=None):
         losses = self.forward(examples=examples, explicit_randomness=explicit_randomness)
         if hasattr(self, "agent_dino_head"):
-            losses["agent_dino_loss"] = losses["action_loss"].new_zeros(())
+            losses["agent_dino_loss"] = losses["action_loss"].new_zeros((), dtype=torch.float32)
         return losses
 
     def forward(
@@ -469,7 +469,7 @@ class Qwenvl_OFT(baseframework):
             if self.rgb_query_loss:
                 rgb_loss += rgb_query_loss
         else:
-            rgb_loss = last_hidden.new_zeros(())
+            rgb_loss = last_hidden.new_zeros((), dtype=torch.float32)
 
 
         # Step 4: Action Expert Forward and Loss
@@ -511,7 +511,7 @@ class Qwenvl_OFT(baseframework):
                     pred_action = self.action_model(action_queries.reshape(b, l*h)).reshape(b, l, -1)
                     action_loss = nn.SmoothL1Loss()(pred_action, actions)
         else:
-            action_loss = last_hidden.new_zeros(())
+            action_loss = last_hidden.new_zeros((), dtype=torch.float32)
 
 
         if self.config.datasets.gs_data.load_3d_data or self.w_depth:
@@ -573,7 +573,7 @@ class Qwenvl_OFT(baseframework):
             
             # return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss}
         else:
-            gs_loss = last_hidden.new_zeros(())
+            gs_loss = last_hidden.new_zeros((), dtype=torch.float32)
 
         if self.config.datasets.reward_data.load_reward_data:
 
@@ -590,7 +590,7 @@ class Qwenvl_OFT(baseframework):
             
             return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss, "reward_loss": reward_loss}
         else:
-            reward_loss = last_hidden.new_zeros(())
+            reward_loss = last_hidden.new_zeros((), dtype=torch.float32)
 
         return {"action_loss": action_loss, "rgb_loss": rgb_loss, "gs_loss": gs_loss*0.1, "reward_loss": reward_loss}
 

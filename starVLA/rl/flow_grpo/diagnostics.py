@@ -1,4 +1,5 @@
 """Real QwenOFT checkpoint integration gates, never replaced by toy models."""
+
 from contextlib import contextmanager
 from pathlib import Path
 import ast
@@ -160,6 +161,7 @@ def run_diagnostics(cfg, sft, output, gradients=True):
     report["trainable_numel"] = manifest["trainable_numel"]
     torch.manual_seed(42)
     torch.cuda.manual_seed_all(42)
+
     # Original head and original (unrefactored) SFT forward are AST-loaded from
     # the recorded workspace commit, not a second call to the shared new kernel.
     def ode_equivalence():
@@ -198,6 +200,18 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                     old = oldforward(policy, batch)
             restore_rng(state, policy)
             new = policy.compute_sft_losses(batch)
+        details = {
+            key: {
+                "original": float(old[key]),
+                "shared": float(new[key]),
+                "original_dtype": str(old[key].dtype),
+                "shared_dtype": str(new[key].dtype),
+            }
+            for key in old
+        }
+        (output / "sft_oracle_components.json").write_text(
+            json.dumps(details, indent=2)
+        )
         for key in old:
             torch.testing.assert_close(old[key], new[key], rtol=2e-6, atol=2e-6)
         return {
@@ -329,9 +343,9 @@ def run_diagnostics(cfg, sft, output, gradients=True):
             kl = conditional_kl(
                 changed["mean"], changed["std"], ref["mean"], ref["std"]
             ).mean()
-            assert (
-                kl > 0
-            ), f"{label} perturbation did not change full policy distribution"
+            assert kl > 0, (
+                f"{label} perturbation did not change full policy distribution"
+            )
             changes[label] = float(kl)
             if label == "qwen":
                 own_encode = reference.encode_policy_condition
@@ -339,9 +353,9 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                 try:
                     with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
                         bad = evaluate_transitions(reference, observation, rollout)
-                    assert not torch.equal(
-                        bad["mean"], ref["mean"]
-                    ), "negative reference feature-injection test did not detect contamination"
+                    assert not torch.equal(bad["mean"], ref["mean"]), (
+                        "negative reference feature-injection test did not detect contamination"
+                    )
                 finally:
                     reference.encode_policy_condition = own_encode
             with torch.no_grad():
@@ -383,9 +397,9 @@ def run_diagnostics(cfg, sft, output, gradients=True):
         diagnostic_adv = torch.linspace(-1, 1, spec.group_size, device="cuda")[
             None, :, None
         ]
-        report[
-            "gradient_probe_advantage"
-        ] = "fixed signed diagnostic; no optimizer update; real reward kept separately"
+        report["gradient_probe_advantage"] = (
+            "fixed signed diagnostic; no optimizer update; real reward kept separately"
+        )
         auxiliary_modules = [
             name
             for name in ("rgb_model", "gs_model", "rgb_act_pre", "gs_act_pre")
@@ -458,17 +472,17 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                         ]
                         if hasattr(policy, name)
                     ]:
-                        assert (
-                            summary[module]["nonzero_tensors"] > 0
-                        ), f"no RL gradient in {module}"
+                        assert summary[module]["nonzero_tensors"] > 0, (
+                            f"no RL gradient in {module}"
+                        )
                     assert all(
                         summary[name]["grad_tensors"] == 0 for name in auxiliary_modules
                     )
                 if source == "auxiliary":
                     for module in auxiliary_modules:
-                        assert (
-                            summary[module]["nonzero_tensors"] > 0
-                        ), f"no auxiliary gradient in {module}"
+                        assert summary[module]["nonzero_tensors"] > 0, (
+                            f"no auxiliary gradient in {module}"
+                        )
                 assert all(p.grad is None for p in reference.parameters())
                 if perturbed is not None:
                     with torch.no_grad():
@@ -638,4 +652,4 @@ def run_diagnostics(cfg, sft, output, gradients=True):
         json.dumps(report, indent=2, default=str)
     )
     if report["failures"]:
-        raise RuntimeError(f'real integration failures: {report["failures"]}')
+        raise RuntimeError(f"real integration failures: {report['failures']}")
