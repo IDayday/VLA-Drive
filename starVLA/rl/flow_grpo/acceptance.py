@@ -282,7 +282,10 @@ def acceptance_context(cfg, resume_identity):
 
 
 def enforce_training_budget(cfg, context=None):
+    from .diagnostic_loss import validate_scope
+
     runtime = cfg["runtime"]
+    validate_scope(runtime)
     mode = runtime.get("run_mode", "diagnostic")
     maximum = runtime["max_updates"]
     if mode == "diagnostic":

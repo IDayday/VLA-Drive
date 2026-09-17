@@ -275,7 +275,7 @@ class ActivationDtypeMonitor:
             handle.remove()
 
 
-def save_full_optimizer_gradients(engine, output):
+def save_full_optimizer_gradients(engine, output, save_tensors=True):
     """Diagnostic only; installed DeepSpeed public API, all ranks participate.
 
     This reads gradients after actual ZeRO reduction/accumulation and before
@@ -300,14 +300,19 @@ def save_full_optimizer_gradients(engine, output):
             "shape": list(parameter.shape),
             "present": gradient is not None,
             "dtype": str(gradient.dtype) if gradient is not None else None,
-            "file": f"{index:04d}.pt",
+            "file": f"{index:04d}.pt" if save_tensors and rank == 0 else None,
+            "numel": gradient.numel() if gradient is not None else 0,
+            "finite": bool(torch.isfinite(gradient).all()) if gradient is not None else False,
+            "nonzero": int(torch.count_nonzero(gradient)) if gradient is not None else 0,
+            "l2": float(gradient.norm(dtype=torch.float64)) if gradient is not None else None,
         }
-        synchronized_call(
-            lambda captured=gradient: torch.save(
-                captured.cpu() if captured is not None else None, path / entry["file"]
-            ),
-            engine.device,
-        )
+        if save_tensors:
+            synchronized_call(
+                lambda captured=gradient: torch.save(
+                    captured.cpu() if captured is not None else None, path / entry["file"]
+                ) if rank == 0 else None,
+                engine.device,
+            )
         metadata.append(entry)
         del gradient
     synchronized_call(
@@ -316,6 +321,10 @@ def save_full_optimizer_gradients(engine, output):
                 {
                     "scope": "actual globally reduced optimizer gradient BEFORE clip/Adam; safe_get_full_grad",
                     "parameters": metadata,
+                    "frozen_with_gradient": [
+                        name for name, parameter in engine.module.policy.named_parameters()
+                        if not parameter.requires_grad and parameter.grad is not None
+                    ],
                 },
                 indent=2,
             )

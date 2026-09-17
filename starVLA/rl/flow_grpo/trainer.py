@@ -97,7 +97,10 @@ def make_accelerator(cfg):
 
 
 def _run(cfg, sft, resume=None):
+    from .diagnostic_loss import validate_scope, selected_loss
+
     runtime = cfg["runtime"]
+    validate_scope(runtime)
     maximum = runtime["max_updates"]
     if maximum is None or maximum <= 0 or not runtime["output_dir"]:
         raise ValueError("MAX_UPDATES and OUTPUT_DIR must be explicit")
@@ -115,6 +118,21 @@ def _run(cfg, sft, resume=None):
     output = Path(runtime["output_dir"])
     rank0_call(
         lambda: initialize_run_directory(output, cfg, resume), accelerator.device
+    )
+    from .transactions import atomic_json
+
+    def write_execution_context():
+        path = output / "execution_context.json"
+        context = acceptance_context(cfg, assets)
+        if path.exists():
+            if json.loads(path.read_text()) != context:
+                raise ValueError("existing execution context differs; refusing to overwrite evidence")
+        else:
+            atomic_json(path, context)
+
+    rank0_call(
+        write_execution_context,
+        accelerator.device,
     )
     train, val = split_tokens(cfg)
     dataset = KeyedDataset(sft)
@@ -203,7 +221,7 @@ def _run(cfg, sft, resume=None):
         from .monitor import save_full_optimizer_gradients
 
         probe = None
-        if runtime.get("diagnostic_optimizer_gradients", False):
+        if runtime.get("diagnostic_optimizer_gradients", False) or runtime.get("diagnostic_gradient_statistics", False):
             if runtime.get("run_mode", "diagnostic") != "diagnostic":
                 raise ValueError(
                     "full gradient dump is only available in bounded diagnostics"
@@ -211,7 +229,8 @@ def _run(cfg, sft, resume=None):
 
             def probe(engine):
                 return save_full_optimizer_gradients(
-                    engine, output / "optimizer_gradients"
+                    engine, output / "optimizer_gradients",
+                    save_tensors=runtime.get("diagnostic_optimizer_gradients", False),
                 )
 
         accelerator.deepspeed_engine_wrapped = CheckedDeepSpeedBackward(
@@ -435,7 +454,7 @@ def _run(cfg, sft, resume=None):
                             result = actor(mode="update", rollout=rollout, replay=batch)
                         # One equally weighted scene per microbatch; Accelerate/DS
                         # owns the 1/accum scaling, never G*K copies of replay.
-                        accelerator.backward(result["loss"])
+                        accelerator.backward(selected_loss(result, runtime, update))
                         if not runtime["deepspeed_stage"]:
                             monitor.assert_finite_collective(accelerator.device)
                         if (
@@ -513,6 +532,7 @@ def _run(cfg, sft, resume=None):
                         "reference": cfg["algorithm"]["reference_kl_coefficient"],
                         "sft": cfg["retention"]["original_sft_coefficient"],
                     },
+                    diagnostic_loss_scope=runtime.get("diagnostic_loss_scope"),
                     lr=[g["lr"] for g in optimizer.param_groups],
                     reward_errors=service.errors,
                     dtype_before_step=getattr(actor, "flow_pre_step_dtype", None),

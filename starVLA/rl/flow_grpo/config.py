@@ -220,6 +220,6 @@ def config_hash(cfg):
     # I/O/observation frequency does not change losses, draws, or optimizer state.
     # Keep the full values in the saved config; permit a bounded diagnostic to
     # save every update while a formal run saves every 100 updates.
-    for field in ("save_every", "log_every", "diagnostic_optimizer_gradients"):
+    for field in ("save_every", "log_every", "diagnostic_optimizer_gradients", "diagnostic_gradient_statistics"):
         copied["runtime"].pop(field, None)
     return digest(copied)
