@@ -1,0 +1,48 @@
+{
+  "job_id": "credit_condition_probe_attempt2",
+  "nodes": [
+    {
+      "host": "local",
+      "devices": [
+        0
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.denoising_credit_probe",
+    "--config",
+    "configs/flow_grpo/frozen_research_g16_euler_credit.yaml",
+    "--manifest",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/probe_manifest.json",
+    "--bank",
+    "runs/correlated_exploration/euler_calibration_shard0",
+    "runs/correlated_exploration/euler_calibration_shard1",
+    "runs/correlated_exploration/euler_calibration_shard2",
+    "runs/correlated_exploration/euler_calibration_shard3",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/probe_attempt2"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/probe_control_attempt2",
+  "require_idle_gpus": true,
+  "timeout_seconds": 1200
+}
