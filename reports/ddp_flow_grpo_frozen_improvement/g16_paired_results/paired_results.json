@@ -1,0 +1,336 @@
+{
+  "status": "COMPLETE",
+  "scope": "1696 fixed dev scenes, 16 logs; single inference seed42",
+  "sources": {
+    "sft/v1": {
+      "path": "runs/frozen_rl_research/v1_g8_eval/frozen_visual_sft.csv",
+      "sha256": "b3c314ffe49c3343f16e3cbbbb0eba7736dcb4124bab2f22ff73f1ad2538f1d4"
+    },
+    "group/v1": {
+      "path": "runs/frozen_rl_research/v1_g16_eval/group.csv",
+      "sha256": "02a7166fd7609618193b63d91918e4f176569a46ee8f7463e457512a62526639"
+    },
+    "batch/v1": {
+      "path": "runs/frozen_rl_research/v1_g16_eval/global_batch.csv",
+      "sha256": "c7c63c2e4be9ae9add491f33d3f7a5c1e2dafa1376a3f0bf581d4ce27c6c769b"
+    },
+    "sft/v2": {
+      "path": "runs/paired_full_navtrain_v3/frozen_visual_evaluation/sft_rl_dev_seed42/original_protocol_scores.csv",
+      "sha256": "d89f54108b1438d03aff20e1e53bddc1c6fc8f71ff5054062bb2701e51c9a430"
+    },
+    "group/v2": {
+      "path": "runs/frozen_rl_research/evaluation_g16_group8/original_protocol_scores.csv",
+      "sha256": "9f58e7527767745f6d2c9e4159797221520c8ba6994dd0bb0d6b9802a126b982"
+    },
+    "batch/v2": {
+      "path": "runs/frozen_rl_research/evaluation_g16_global_batch8/original_protocol_scores.csv",
+      "sha256": "a6f79649818ff1aac177e938a98897d92ae0c5aec442ece83161ebed79de331e"
+    }
+  },
+  "results": {
+    "v1": {
+      "group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": 0.001822782667110308,
+        "log_bootstrap_95ci": [
+          0.0012415462377263016,
+          0.002313044016280336
+        ],
+        "zero_to_nonzero": 1,
+        "nonzero_to_zero": 0,
+        "high_score_degraded": 0,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim",
+        "baseline": 0.934826724640784,
+        "trained": 0.9366495073078943,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9917452830188679,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8570275353642969,
+            "trained": 0.8605767420672483,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9988207547169812,
+            "available": 1696
+          },
+          "comfort": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9988207547169812,
+            "available": 1696
+          }
+        }
+      },
+      "batch": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": 0.0009226919367069689,
+        "log_bootstrap_95ci": [
+          0.00035273068643367964,
+          0.002405273836538646
+        ],
+        "zero_to_nonzero": 1,
+        "nonzero_to_zero": 0,
+        "high_score_degraded": 18,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim",
+        "baseline": 0.934826724640784,
+        "trained": 0.9357494165774911,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9917452830188679,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8570275353642969,
+            "trained": 0.8584165243142803,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9988207547169812,
+            "available": 1696
+          },
+          "comfort": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9988207547169812,
+            "available": 1696
+          }
+        }
+      },
+      "batch_minus_group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.0009000907304033392,
+        "log_bootstrap_95ci": [
+          -0.00185856229088882,
+          0.0009813104517454661
+        ],
+        "zero_to_nonzero": 1,
+        "nonzero_to_zero": 1,
+        "high_score_degraded": 679,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim",
+        "baseline": 0.9366495073078943,
+        "trained": 0.9357494165774911,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9917452830188679,
+            "trained": 0.9917452830188679,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8605767420672483,
+            "trained": 0.8584165243142803,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9988207547169812,
+            "available": 1696
+          },
+          "comfort": {
+            "baseline": 0.9988207547169812,
+            "trained": 0.9988207547169812,
+            "available": 1696
+          }
+        }
+      }
+    },
+    "v2": {
+      "group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": 0.0017710255003280443,
+        "log_bootstrap_95ci": [
+          0.0008115999206130811,
+          0.0022176261304043096
+        ],
+        "zero_to_nonzero": 1,
+        "nonzero_to_zero": 0,
+        "high_score_degraded": 3,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim",
+        "baseline": 0.9362947686109893,
+        "trained": 0.9380657941113173,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9917452830188679,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8680476646054921,
+            "trained": 0.8710325766898801,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 1.0,
+            "trained": 0.9994103773584906,
+            "available": 1696
+          },
+          "lane_keeping": {
+            "baseline": 0.995872641509434,
+            "trained": 0.995872641509434,
+            "available": 1696
+          },
+          "history_comfort": {
+            "baseline": 0.9811320754716981,
+            "trained": 0.9799528301886793,
+            "available": 1696
+          },
+          "two_frame_extended_comfort": {
+            "baseline": 0.9025928521373511,
+            "trained": 0.9081990189208129,
+            "available": 1427
+          }
+        }
+      },
+      "batch": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": 0.000985964683821782,
+        "log_bootstrap_95ci": [
+          0.00027377955671935034,
+          0.0024669944665840953
+        ],
+        "zero_to_nonzero": 1,
+        "nonzero_to_zero": 0,
+        "high_score_degraded": 18,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim",
+        "baseline": 0.9362947686109893,
+        "trained": 0.9372807332948112,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9911556603773585,
+            "trained": 0.9917452830188679,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8680476646054921,
+            "trained": 0.8689618025623268,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "lane_keeping": {
+            "baseline": 0.995872641509434,
+            "trained": 0.995872641509434,
+            "available": 1696
+          },
+          "history_comfort": {
+            "baseline": 0.9811320754716981,
+            "trained": 0.9811320754716981,
+            "available": 1696
+          },
+          "two_frame_extended_comfort": {
+            "baseline": 0.9025928521373511,
+            "trained": 0.9039943938332166,
+            "available": 1427
+          }
+        }
+      },
+      "batch_minus_group": {
+        "scenes": 1696,
+        "logs": 16,
+        "mean_paired_delta": -0.0007850608165062619,
+        "log_bootstrap_95ci": [
+          -0.0017187565487382461,
+          0.0012694175272462555
+        ],
+        "zero_to_nonzero": 1,
+        "nonzero_to_zero": 1,
+        "high_score_degraded": 790,
+        "high_score_threshold": 0.9,
+        "bootstrap_unit": "log",
+        "bootstrap_seed": 42,
+        "causal_scope": "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim",
+        "baseline": 0.9380657941113173,
+        "trained": 0.9372807332948112,
+        "components": {
+          "no_at_fault_collisions": {
+            "baseline": 1.0,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "drivable_area_compliance": {
+            "baseline": 0.9917452830188679,
+            "trained": 0.9917452830188679,
+            "available": 1696
+          },
+          "ego_progress": {
+            "baseline": 0.8710325766898801,
+            "trained": 0.8689618025623268,
+            "available": 1696
+          },
+          "time_to_collision_within_bound": {
+            "baseline": 0.9994103773584906,
+            "trained": 1.0,
+            "available": 1696
+          },
+          "lane_keeping": {
+            "baseline": 0.995872641509434,
+            "trained": 0.995872641509434,
+            "available": 1696
+          },
+          "history_comfort": {
+            "baseline": 0.9799528301886793,
+            "trained": 0.9811320754716981,
+            "available": 1696
+          },
+          "two_frame_extended_comfort": {
+            "baseline": 0.9081990189208129,
+            "trained": 0.9039943938332166,
+            "available": 1427
+          }
+        }
+      }
+    }
+  }
+}

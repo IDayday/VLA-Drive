@@ -1,0 +1,91 @@
+{
+  "trainable_policy": "inherit_sft",
+  "lora": "disabled",
+  "reward_backend": "official_navsim",
+  "reward_version": "navsim_v2_one_stage_single_scene",
+  "checkpoint_contract": {
+    "origin": "action_only_release",
+    "variant": "frozen_visual",
+    "code_sha": "f9449d55bea6895a7a0bd86d09d7ab85fd353f26",
+    "sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "sft_feature_output": "normalized",
+    "policy_feature_output": "normalized",
+    "source_config": "artifacts/action-only-source/checkpoint_code/action-only-checkpoints-v1/configs/frozen-visual-step100000-config.yaml",
+    "source_config_sha256": "7a926ca0f32f7643c22f48651e5cccdb5c5abc605581bee7215393eb4f186994",
+    "framework_oracle": "tests/flow_grpo/vendor/frozen_visual_framework.py",
+    "action_oracle": "tests/flow_grpo/vendor/action_only_head.py"
+  },
+  "sft_checkpoint": "/mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-checkpoints-v1/frozen_visual",
+  "paths": {
+    "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+    "video_model": "/mnt/project/DriveDreamer-Policy/models/Wan2.1-Fun-V1.1-1.3B-InP",
+    "data_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset",
+    "raw_root": "/mnt/project/DriveDreamer-Policy/navsim_raw",
+    "maps_root": "/mnt/navsim/maps",
+    "train_list": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/navtrain_tokens.json",
+    "test_list": "/mnt/project/DriveDreamer-Policy/test_meta.json",
+    "metric_cache": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/metric_cache_navtrain_v2",
+    "split_manifest": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/split_manifest.json",
+    "asset_manifest": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/published_v2/asset_manifest.json",
+    "asset_manifest_identity": "04a0e93c1ea44902a4f73bf6973b236442ec5c8815ce6155c186a4d98254f420",
+    "asset_publication": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/published_v2"
+  },
+  "sampling": {
+    "group_size": 16,
+    "num_steps": 10,
+    "noise_level": 0.1,
+    "train_step_fraction": 1.0,
+    "raw_noise_clipping": false,
+    "candidate_chunk_size": 1,
+    "transition_chunk_size": 1
+  },
+  "algorithm": {
+    "objective": "flow_grpo",
+    "logprob_reduction": "flow_grpo_dimension_mean",
+    "ppo_clip_range": 0.02,
+    "inner_epochs": 2,
+    "advantage_std_unbiased": false,
+    "advantage_epsilon": 1e-06,
+    "advantage_clip": 5.0,
+    "reference_kl_coefficient": 0.01,
+    "advantage_normalization": "global_batch"
+  },
+  "retention": {
+    "original_sft_enabled": true,
+    "original_sft_coefficient": 0.1,
+    "original_loss_weights": "inherit_sft"
+  },
+  "optimizer": {
+    "parameter_groups": "inherit_sft",
+    "initial_lr_multiplier": 0.1,
+    "max_grad_norm": 1.0
+  },
+  "runtime": {
+    "seed": 42,
+    "scene_microbatch": 1,
+    "replay_microbatch": 1,
+    "accumulation_steps": 2,
+    "activation_checkpointing": true,
+    "deepspeed_stage": 2,
+    "optimizer_offload": false,
+    "reference_offload": false,
+    "reward_workers": 1,
+    "reward_timeout": 180,
+    "data_workers": 0,
+    "prefetch_factor": 2,
+    "save_every": 4,
+    "log_every": 1,
+    "max_updates": 8,
+    "validation_scenes": 16,
+    "calibration_scenes": 16,
+    "output_dir": "runs/frozen_rl_research/f_g16_global_batch",
+    "noise_seed_schedule": "global_scene_v1",
+    "run_mode": "diagnostic",
+    "numerical_profile": "bf16_zero2_fp32_partition_v2",
+    "process_group_timeout": 600,
+    "acceptance_record": "reports/ddp_flow_grpo_frozen_improvement/UNRELEASED.json"
+  },
+  "rl_freeze_modules": [
+    "qwen_vl_interface.model.visual"
+  ]
+}

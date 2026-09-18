@@ -12,6 +12,38 @@ from pathlib import Path
 import runpy
 import sys
 
+ASSET_VERIFIERS = (
+    "starVLA/rl/flow_grpo/reproducibility.py",
+    "starVLA/rl/flow_grpo/loading.py",
+    "starVLA/rl/flow_grpo/contracts.py",
+    "starVLA/rl/flow_grpo/asset_publication.py",
+)
+
+
+def validate_source_rebind(data, context, current_executable):
+    """Reuse data verification across an explicitly bound actor-only edit.
+
+    This is NOT model acceptance or exact resume. The old, unmodified execution
+    evidence remains the source of the corpus check. All actual asset-verifier
+    files must be byte-identical to its archived source inventory.
+    """
+    binding = data.get("source_rebind", {})
+    if binding.get("target_executable_sha256") != current_executable:
+        raise ValueError("asset reuse source rebind does not match this executable")
+    source_ref = binding.get("source_environment", {})
+    raw = Path(source_ref["path"]).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != source_ref["sha256"]:
+        raise ValueError("archived asset-verifier source inventory changed")
+    source = json.loads(raw)["source_sha256"]
+    if binding.get("origin_executable_sha256") != context["executable_sha256"]:
+        raise ValueError("source rebind origin differs from verified execution")
+    if set(binding.get("verifier_files", {})) != set(ASSET_VERIFIERS):
+        raise ValueError("incomplete asset verifier source binding")
+    for path in ASSET_VERIFIERS:
+        actual = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        if source.get(path) != actual or binding["verifier_files"][path] != actual:
+            raise ValueError("asset verifier changed: " + path)
+
 
 def install_receipt(receipt, sha256):
     from starVLA.rl.flow_grpo import reproducibility as repro
@@ -28,9 +60,12 @@ def install_receipt(receipt, sha256):
         if hashlib.sha256(value).hexdigest() != data[key]["sha256"]:
             raise ValueError("asset verification evidence changed")
     context, control = json.loads(context_raw), json.loads(control_raw)
-    if (context["executable_sha256"] != executable_identity() or control.get("status") != "PASS"
+    if (control.get("status") != "PASS"
             or not control.get("exit_codes") or any(control["exit_codes"])):
         raise ValueError("asset reuse requires a completed matching native execution")
+    current = executable_identity()
+    if context["executable_sha256"] != current:
+        validate_source_rebind(data, context, current)
     expected_identity = context["resume_identity"]["data_metric_manifest"]
     manifest = Path(data["manifest"]).resolve()
     def reuse(path, expected=None):
@@ -40,7 +75,9 @@ def install_receipt(receipt, sha256):
     repro.verify_asset_manifest = reuse
     print(json.dumps({"asset_verification":"REUSED_PREVIOUS_FULL_CHECK",
                       "receipt":str(Path(receipt).resolve()),"sha256":sha256,
-                      "fresh_data_bytes_checked":False}),flush=True)
+                      "fresh_data_bytes_checked":False,
+                      "asset_verifier_source_rebound":bool(data.get("source_rebind")),
+                      "model_acceptance_granted":False}),flush=True)
     return data
 
 

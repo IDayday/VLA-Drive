@@ -1,0 +1,439 @@
+{
+  "status": "COMPLETE",
+  "scope": "training exploration diagnostic, not dev/navtest improvement",
+  "manifest_sha256": "785adc54462c1e8120e9abed85f708351fb616fa353eae8aa1a9a0bb046420b0",
+  "inputs": {
+    "runs/frozen_rl_research/diversity_shard0": "035d97899fd05dd1f6e5547e2d69e289c14ce29f42595700623d450a67efdd2e",
+    "runs/frozen_rl_research/diversity_shard1": "7523620156e58391ff59bc79ab2b0e38927c24cd46d959b03cb233daff576e32",
+    "runs/frozen_rl_research/diversity_shard2": "a6460636d35a1d6f0f07048f4215abf314fc9657b56b21c70f81b4000b3b1b83",
+    "runs/frozen_rl_research/diversity_shard3": "b4bd69593572a766e017f706cc5b709748f427ac0ee74390a068ea39b72b8005"
+  },
+  "logs": 61,
+  "settings": {
+    "ode": {
+      "g8_prefix": {
+        "scenes": 64,
+        "candidates": 512,
+        "nonconstant_groups": 42,
+        "reward_std_gt": {
+          "0": 42,
+          "0.001": 24,
+          "0.005": 3,
+          "0.01": 3,
+          "0.05": 2
+        },
+        "median_pair_ade_m": 0.05260512414140478,
+        "median_pair_fde_m": 0.06918314401372336,
+        "mean_training_reward": 0.9304052503480187,
+        "candidate_max_reward_mean_diagnostic_only": 0.9379213226400142,
+        "mean_reward_std": 0.005877960926139517,
+        "median_reward_std": 0.0007904754895878112,
+        "zero_fraction": 0.015625,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.984375,
+          "driving_direction_compliance": 0.99609375,
+          "ego_progress": 0.8792675561423235,
+          "history_comfort": 0.9609375,
+          "lane_keeping": 0.986328125,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9192445360623045,
+          "score": 0.9304052503480188,
+          "time_to_collision_within_bound": 1.0,
+          "traffic_light_compliance": 1.0
+        }
+      },
+      "g16": {
+        "scenes": 64,
+        "candidates": 1024,
+        "nonconstant_groups": 42,
+        "reward_std_gt": {
+          "0": 42,
+          "0.001": 27,
+          "0.005": 3,
+          "0.01": 3,
+          "0.05": 3
+        },
+        "median_pair_ade_m": 0.05215217673689887,
+        "median_pair_fde_m": 0.07355644691400545,
+        "mean_training_reward": 0.9300258263617064,
+        "candidate_max_reward_mean_diagnostic_only": 0.93821856952318,
+        "mean_reward_std": 0.00730886187935453,
+        "median_reward_std": 0.0008249559856891157,
+        "zero_fraction": 0.017578125,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.984375,
+          "driving_direction_compliance": 0.9951171875,
+          "ego_progress": 0.8793229967118509,
+          "history_comfort": 0.962890625,
+          "lane_keeping": 0.9873046875,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9188651120759921,
+          "score": 0.9300258263617064,
+          "time_to_collision_within_bound": 1.0,
+          "traffic_light_compliance": 1.0
+        }
+      }
+    },
+    "sde_0.05": {
+      "g8_prefix": {
+        "scenes": 64,
+        "candidates": 512,
+        "nonconstant_groups": 44,
+        "reward_std_gt": {
+          "0": 44,
+          "0.001": 33,
+          "0.005": 7,
+          "0.01": 5,
+          "0.05": 5
+        },
+        "median_pair_ade_m": 0.08003456371645587,
+        "median_pair_fde_m": 0.09796301123783227,
+        "mean_training_reward": 0.9315042136545488,
+        "candidate_max_reward_mean_diagnostic_only": 0.9542744899146445,
+        "mean_reward_std": 0.01968646250620871,
+        "median_reward_std": 0.0010457275097915954,
+        "zero_fraction": 0.015625,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.986328125,
+          "driving_direction_compliance": 0.9951171875,
+          "ego_progress": 0.8791989912749504,
+          "history_comfort": 0.958984375,
+          "lane_keeping": 0.98828125,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9203434993688346,
+          "score": 0.9315042136545488,
+          "time_to_collision_within_bound": 1.0,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9267688324748877,
+          0.8331679419852085,
+          0.7392213792189515,
+          0.6442458280203456,
+          0.5505485643071557,
+          0.4570031549946102,
+          0.36385005113068647,
+          0.2707444416618009,
+          0.1781562450272382,
+          0.08732603743383943,
+          0.0063173534899095985
+        ]
+      },
+      "g16": {
+        "scenes": 64,
+        "candidates": 1024,
+        "nonconstant_groups": 44,
+        "reward_std_gt": {
+          "0": 44,
+          "0.001": 35,
+          "0.005": 7,
+          "0.01": 5,
+          "0.05": 5
+        },
+        "median_pair_ade_m": 0.07966189875299229,
+        "median_pair_fde_m": 0.09305336485202018,
+        "mean_training_reward": 0.930538004818185,
+        "candidate_max_reward_mean_diagnostic_only": 0.9546731232464929,
+        "mean_reward_std": 0.0173072546711771,
+        "median_reward_std": 0.0011250995539673334,
+        "zero_fraction": 0.017578125,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.9853515625,
+          "driving_direction_compliance": 0.99462890625,
+          "ego_progress": 0.8791795498632082,
+          "history_comfort": 0.9609375,
+          "lane_keeping": 0.9892578125,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9193772905324707,
+          "score": 0.930538004818185,
+          "time_to_collision_within_bound": 1.0,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9663655515839092,
+          0.867445741778726,
+          0.7697021713904599,
+          0.6700454863744366,
+          0.5730390537662371,
+          0.4748967006235528,
+          0.3773843742236226,
+          0.28183122592088006,
+          0.18557655322704802,
+          0.09087948659780679,
+          0.006523199468198964
+        ]
+      }
+    },
+    "sde_0.1": {
+      "g8_prefix": {
+        "scenes": 64,
+        "candidates": 512,
+        "nonconstant_groups": 45,
+        "reward_std_gt": {
+          "0": 45,
+          "0.001": 43,
+          "0.005": 11,
+          "0.01": 7,
+          "0.05": 5
+        },
+        "median_pair_ade_m": 0.12931449354197752,
+        "median_pair_fde_m": 0.1393786297979545,
+        "mean_training_reward": 0.928282846866788,
+        "candidate_max_reward_mean_diagnostic_only": 0.9555009444154956,
+        "mean_reward_std": 0.02504797376242644,
+        "median_reward_std": 0.0016419001634467218,
+        "zero_fraction": 0.017578125,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.984375,
+          "driving_direction_compliance": 0.9951171875,
+          "ego_progress": 0.8791552480894103,
+          "history_comfort": 0.955078125,
+          "lane_keeping": 0.98828125,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9171221325810737,
+          "score": 0.928282846866788,
+          "time_to_collision_within_bound": 0.998046875,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9267688324748877,
+          0.8359100083602795,
+          0.7409639946797839,
+          0.6452386853544623,
+          0.5529595059397556,
+          0.46013650122765426,
+          0.3648476962853081,
+          0.27169120051387974,
+          0.1791182138498731,
+          0.0883640023673386,
+          0.010890771819622464
+        ]
+      },
+      "g16": {
+        "scenes": 64,
+        "candidates": 1024,
+        "nonconstant_groups": 47,
+        "reward_std_gt": {
+          "0": 47,
+          "0.001": 47,
+          "0.005": 13,
+          "0.01": 9,
+          "0.05": 7
+        },
+        "median_pair_ade_m": 0.12988677796905834,
+        "median_pair_fde_m": 0.13420923956071856,
+        "mean_training_reward": 0.9278385076599175,
+        "candidate_max_reward_mean_diagnostic_only": 0.9560719895370291,
+        "mean_reward_std": 0.02458869380627827,
+        "median_reward_std": 0.0019221864305476234,
+        "zero_fraction": 0.0185546875,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.9833984375,
+          "driving_direction_compliance": 0.9951171875,
+          "ego_progress": 0.8790471077162596,
+          "history_comfort": 0.9560546875,
+          "lane_keeping": 0.9912109375,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9166777933742033,
+          "score": 0.9278385076599176,
+          "time_to_collision_within_bound": 0.998046875,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9663655515839092,
+          0.8666466829062325,
+          0.7681138745086054,
+          0.6686658406699448,
+          0.5718629829561953,
+          0.4752635023938706,
+          0.37879066689521634,
+          0.28267503512465786,
+          0.18681587974235542,
+          0.09159144237366887,
+          0.011127490103144922
+        ]
+      }
+    },
+    "sde_0.2": {
+      "g8_prefix": {
+        "scenes": 64,
+        "candidates": 512,
+        "nonconstant_groups": 46,
+        "reward_std_gt": {
+          "0": 46,
+          "0.001": 45,
+          "0.005": 20,
+          "0.01": 14,
+          "0.05": 7
+        },
+        "median_pair_ade_m": 0.23596891484077592,
+        "median_pair_fde_m": 0.2385899394545458,
+        "mean_training_reward": 0.922582434288572,
+        "candidate_max_reward_mean_diagnostic_only": 0.9558965285237686,
+        "mean_reward_std": 0.03375686268163887,
+        "median_reward_std": 0.003121568933807428,
+        "zero_fraction": 0.01953125,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.982421875,
+          "driving_direction_compliance": 0.994140625,
+          "ego_progress": 0.8791325081225917,
+          "history_comfort": 0.943359375,
+          "lane_keeping": 0.98828125,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9114217200028578,
+          "score": 0.922582434288572,
+          "time_to_collision_within_bound": 0.994140625,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9267688324748877,
+          0.8393355908258385,
+          0.7399314154484387,
+          0.6499196113300261,
+          0.5563297399589183,
+          0.4622810146412655,
+          0.3710314213667566,
+          0.2770897133383223,
+          0.1835677021042299,
+          0.09246250283591395,
+          0.020817882949678002
+        ]
+      },
+      "g16": {
+        "scenes": 64,
+        "candidates": 1024,
+        "nonconstant_groups": 48,
+        "reward_std_gt": {
+          "0": 48,
+          "0.001": 48,
+          "0.005": 25,
+          "0.01": 18,
+          "0.05": 8
+        },
+        "median_pair_ade_m": 0.23594672124139654,
+        "median_pair_fde_m": 0.22013022459345055,
+        "mean_training_reward": 0.92190500032994,
+        "candidate_max_reward_mean_diagnostic_only": 0.9592104297646631,
+        "mean_reward_std": 0.03559386966796166,
+        "median_reward_std": 0.004039843781231299,
+        "zero_fraction": 0.021484375,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.98046875,
+          "driving_direction_compliance": 0.99462890625,
+          "ego_progress": 0.8787816337728592,
+          "history_comfort": 0.9453125,
+          "lane_keeping": 0.98828125,
+          "no_at_fault_collisions": 1.0,
+          "pdm_score": 0.9107442860442259,
+          "score": 0.92190500032994,
+          "time_to_collision_within_bound": 0.99609375,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9663655515839092,
+          0.867378308581296,
+          0.7699889537237248,
+          0.6737740754520705,
+          0.5776597784364961,
+          0.4798100402348109,
+          0.38483638045634017,
+          0.2881025979728813,
+          0.19116373370207865,
+          0.09510203651541377,
+          0.02125921104979463
+        ]
+      }
+    },
+    "sde_0.3": {
+      "g8_prefix": {
+        "scenes": 64,
+        "candidates": 512,
+        "nonconstant_groups": 49,
+        "reward_std_gt": {
+          "0": 49,
+          "0.001": 48,
+          "0.005": 35,
+          "0.01": 22,
+          "0.05": 15
+        },
+        "median_pair_ade_m": 0.3487173239513739,
+        "median_pair_fde_m": 0.3250882787820025,
+        "mean_training_reward": 0.905615673292172,
+        "candidate_max_reward_mean_diagnostic_only": 0.9581260211616099,
+        "mean_reward_std": 0.06456743815970514,
+        "median_reward_std": 0.005236629292395167,
+        "zero_fraction": 0.033203125,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.970703125,
+          "driving_direction_compliance": 0.994140625,
+          "ego_progress": 0.87911297352943,
+          "history_comfort": 0.935546875,
+          "lane_keeping": 0.9765625,
+          "no_at_fault_collisions": 0.998046875,
+          "pdm_score": 0.8947339768636006,
+          "score": 0.905615673292172,
+          "time_to_collision_within_bound": 0.9921875,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9267688324748877,
+          0.8423007322779164,
+          0.7469538988786977,
+          0.6554654220059115,
+          0.5643407932307261,
+          0.47296718909576585,
+          0.3798886239070326,
+          0.2867535393822132,
+          0.1894647311330515,
+          0.09832590793160602,
+          0.03098741514674326
+        ]
+      },
+      "g16": {
+        "scenes": 64,
+        "candidates": 1024,
+        "nonconstant_groups": 50,
+        "reward_std_gt": {
+          "0": 50,
+          "0.001": 49,
+          "0.005": 39,
+          "0.01": 28,
+          "0.05": 18
+        },
+        "median_pair_ade_m": 0.34817865721788743,
+        "median_pair_fde_m": 0.3132426915214618,
+        "mean_training_reward": 0.9070689938348007,
+        "candidate_max_reward_mean_diagnostic_only": 0.9597792325791661,
+        "mean_reward_std": 0.07060167541607462,
+        "median_reward_std": 0.007356602492308066,
+        "zero_fraction": 0.033203125,
+        "reward_component_means": {
+          "drivable_area_compliance": 0.970703125,
+          "driving_direction_compliance": 0.99365234375,
+          "ego_progress": 0.8784495131050638,
+          "history_comfort": 0.9365234375,
+          "lane_keeping": 0.9794921875,
+          "no_at_fault_collisions": 0.9990234375,
+          "pdm_score": 0.8961872974062293,
+          "score": 0.9070689938348007,
+          "time_to_collision_within_bound": 0.9931640625,
+          "traffic_light_compliance": 1.0
+        },
+        "median_normalized_chain_rms_std": [
+          0.9663655515839092,
+          0.8707479687015118,
+          0.7759896813304681,
+          0.6842855477421874,
+          0.5849694032928322,
+          0.4887044146997399,
+          0.3928121629293151,
+          0.293539264427394,
+          0.1965022378549039,
+          0.10109706557344081,
+          0.0316967533613762
+        ]
+      }
+    }
+  },
+  "group_comparison": "first eight vs all sixteen of the SAME bank; not a separate G=8 RNG run"
+}

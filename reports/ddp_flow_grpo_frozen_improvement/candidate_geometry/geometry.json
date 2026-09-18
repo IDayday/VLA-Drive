@@ -1,0 +1,2712 @@
+{
+  "status": "COMPLETE",
+  "source": {
+    "runs/frozen_rl_research/diversity_shard0": "035d97899fd05dd1f6e5547e2d69e289c14ce29f42595700623d450a67efdd2e",
+    "runs/frozen_rl_research/diversity_shard1": "7523620156e58391ff59bc79ab2b0e38927c24cd46d959b03cb233daff576e32",
+    "runs/frozen_rl_research/diversity_shard2": "a6460636d35a1d6f0f07048f4215abf314fc9657b56b21c70f81b4000b3b1b83",
+    "runs/frozen_rl_research/diversity_shard3": "b4bd69593572a766e017f706cc5b709748f427ac0ee74390a068ea39b72b8005"
+  },
+  "definition": "cosine between candidate deviations from the per-waypoint mean at consecutive physical waypoints; not a semantic mode count",
+  "summary": {
+    "ode": {
+      "scenes": 64,
+      "progress_only_nonconstant_groups": 39,
+      "groups_with_varying_nonprogress_components": 3,
+      "median_adjacent_waypoint_noise_correlation": 0.43994397828730303,
+      "coherence_valid": 64
+    },
+    "sde_0.05": {
+      "scenes": 64,
+      "progress_only_nonconstant_groups": 39,
+      "groups_with_varying_nonprogress_components": 5,
+      "median_adjacent_waypoint_noise_correlation": 0.21948779110227204,
+      "coherence_valid": 64
+    },
+    "sde_0.1": {
+      "scenes": 64,
+      "progress_only_nonconstant_groups": 39,
+      "groups_with_varying_nonprogress_components": 8,
+      "median_adjacent_waypoint_noise_correlation": 0.08863510781473437,
+      "coherence_valid": 64
+    },
+    "sde_0.2": {
+      "scenes": 64,
+      "progress_only_nonconstant_groups": 35,
+      "groups_with_varying_nonprogress_components": 13,
+      "median_adjacent_waypoint_noise_correlation": 0.028804524647199847,
+      "coherence_valid": 64
+    },
+    "sde_0.3": {
+      "scenes": 64,
+      "progress_only_nonconstant_groups": 28,
+      "groups_with_varying_nonprogress_components": 22,
+      "median_adjacent_waypoint_noise_correlation": 0.004975190660917599,
+      "coherence_valid": 64
+    }
+  },
+  "scenes": [
+    {
+      "token": "cf6df734e86157fa",
+      "setting": "sde_0.05",
+      "reward_span": 0.14593969600852397,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.6107450388815667
+    },
+    {
+      "token": "cf6df734e86157fa",
+      "setting": "sde_0.1",
+      "reward_span": 0.147098285130975,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.28290446932481833
+    },
+    {
+      "token": "cf6df734e86157fa",
+      "setting": "sde_0.2",
+      "reward_span": 0.1522921018216924,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.07245774375251764
+    },
+    {
+      "token": "cf6df734e86157fa",
+      "setting": "sde_0.3",
+      "reward_span": 0.15566128763551434,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.03454983187389842
+    },
+    {
+      "token": "cf6df734e86157fa",
+      "setting": "ode",
+      "reward_span": 0.14656817803248112,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.8199008288111778
+    },
+    {
+      "token": "ebb426205205542d",
+      "setting": "sde_0.05",
+      "reward_span": 0.0077092295987271076,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.001018810010126553
+    },
+    {
+      "token": "ebb426205205542d",
+      "setting": "sde_0.1",
+      "reward_span": 0.012967371643888836,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.033113661264903727
+    },
+    {
+      "token": "ebb426205205542d",
+      "setting": "sde_0.2",
+      "reward_span": 0.02615474327517886,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.04424903438738431
+    },
+    {
+      "token": "ebb426205205542d",
+      "setting": "sde_0.3",
+      "reward_span": 0.039794069660124,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.05650391440523232
+    },
+    {
+      "token": "ebb426205205542d",
+      "setting": "ode",
+      "reward_span": 0.004372923873377621,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.1119730369079609
+    },
+    {
+      "token": "beedaaff79945abb",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.010033511960262507
+    },
+    {
+      "token": "beedaaff79945abb",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.12761232110230666
+    },
+    {
+      "token": "beedaaff79945abb",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.15813788463476836
+    },
+    {
+      "token": "beedaaff79945abb",
+      "setting": "sde_0.3",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.14571160347396636
+    },
+    {
+      "token": "beedaaff79945abb",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.24383127460231144
+    },
+    {
+      "token": "fed788046b4b58a6",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.1433997331492476
+    },
+    {
+      "token": "fed788046b4b58a6",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.07902990462925577
+    },
+    {
+      "token": "fed788046b4b58a6",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.029621012823450945
+    },
+    {
+      "token": "fed788046b4b58a6",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.01160002526468823
+    },
+    {
+      "token": "fed788046b4b58a6",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.039319271550839766
+    },
+    {
+      "token": "a9134306f1575f88",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.07482726807545913
+    },
+    {
+      "token": "a9134306f1575f88",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.06456968550951624
+    },
+    {
+      "token": "a9134306f1575f88",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.1554573695392263
+    },
+    {
+      "token": "a9134306f1575f88",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.18741485439689343
+    },
+    {
+      "token": "a9134306f1575f88",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.28090795021335346
+    },
+    {
+      "token": "73f79beb5ea65d1c",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.31998873486998924
+    },
+    {
+      "token": "73f79beb5ea65d1c",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.030205210705281742
+    },
+    {
+      "token": "73f79beb5ea65d1c",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.10188226121867444
+    },
+    {
+      "token": "73f79beb5ea65d1c",
+      "setting": "sde_0.3",
+      "reward_span": 0.0017824489977300573,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.12187636017846744
+    },
+    {
+      "token": "73f79beb5ea65d1c",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.6883588481588737
+    },
+    {
+      "token": "d23c60ab3e7f5e7d",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.2788313322675419
+    },
+    {
+      "token": "d23c60ab3e7f5e7d",
+      "setting": "sde_0.1",
+      "reward_span": 0.3571428571428571,
+      "varying_nonprogress_components": [
+        "time_to_collision_within_bound"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.09289200915772201
+    },
+    {
+      "token": "d23c60ab3e7f5e7d",
+      "setting": "sde_0.2",
+      "reward_span": 0.3571428571428571,
+      "varying_nonprogress_components": [
+        "time_to_collision_within_bound"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.0003000454299451373
+    },
+    {
+      "token": "d23c60ab3e7f5e7d",
+      "setting": "sde_0.3",
+      "reward_span": 0.3571428571428571,
+      "varying_nonprogress_components": [
+        "time_to_collision_within_bound"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.014732627078601965
+    },
+    {
+      "token": "d23c60ab3e7f5e7d",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.5560972147575891
+    },
+    {
+      "token": "fd2d13e0f05d58b1",
+      "setting": "sde_0.05",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.4764784200919847
+    },
+    {
+      "token": "fd2d13e0f05d58b1",
+      "setting": "sde_0.1",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.22030762814409716
+    },
+    {
+      "token": "fd2d13e0f05d58b1",
+      "setting": "sde_0.2",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.027988036470948753
+    },
+    {
+      "token": "fd2d13e0f05d58b1",
+      "setting": "sde_0.3",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.03469570129764165
+    },
+    {
+      "token": "fd2d13e0f05d58b1",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7270814101021985
+    },
+    {
+      "token": "4a370667f49b5026",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.42597198672635833
+    },
+    {
+      "token": "4a370667f49b5026",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.25055364954417897
+    },
+    {
+      "token": "4a370667f49b5026",
+      "setting": "sde_0.2",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.13787666431980605
+    },
+    {
+      "token": "4a370667f49b5026",
+      "setting": "sde_0.3",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.10331532182119187
+    },
+    {
+      "token": "4a370667f49b5026",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.6195644692206349
+    },
+    {
+      "token": "1c307d3667295e52",
+      "setting": "sde_0.05",
+      "reward_span": 0.007593276430970963,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.17162781735033095
+    },
+    {
+      "token": "1c307d3667295e52",
+      "setting": "sde_0.1",
+      "reward_span": 0.012030762412447826,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.1928708117394525
+    },
+    {
+      "token": "1c307d3667295e52",
+      "setting": "sde_0.2",
+      "reward_span": 0.023437577519516806,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.20932046396536672
+    },
+    {
+      "token": "1c307d3667295e52",
+      "setting": "sde_0.3",
+      "reward_span": 0.035824771068455386,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.20887379186875604
+    },
+    {
+      "token": "1c307d3667295e52",
+      "setting": "ode",
+      "reward_span": 0.0054925684602885605,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.11716533418406869
+    },
+    {
+      "token": "66d7ff5701da53d2",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.04937220641337851
+    },
+    {
+      "token": "66d7ff5701da53d2",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.015697549006816573
+    },
+    {
+      "token": "66d7ff5701da53d2",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.0029667565543838965
+    },
+    {
+      "token": "66d7ff5701da53d2",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.0024936544900110414
+    },
+    {
+      "token": "66d7ff5701da53d2",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.14382486677787543
+    },
+    {
+      "token": "ad0298944cc25dba",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.5712051583308765
+    },
+    {
+      "token": "ad0298944cc25dba",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.33037936414837676
+    },
+    {
+      "token": "ad0298944cc25dba",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.11287431678757202
+    },
+    {
+      "token": "ad0298944cc25dba",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.0444022884121537
+    },
+    {
+      "token": "ad0298944cc25dba",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7355369332449693
+    },
+    {
+      "token": "61e4aa3e46b45978",
+      "setting": "sde_0.05",
+      "reward_span": 0.0040217631764162265,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.6043905719517818
+    },
+    {
+      "token": "61e4aa3e46b45978",
+      "setting": "sde_0.1",
+      "reward_span": 0.0060323433627685885,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.35128157126100196
+    },
+    {
+      "token": "61e4aa3e46b45978",
+      "setting": "sde_0.2",
+      "reward_span": 0.010022028997251908,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.11536276336709762
+    },
+    {
+      "token": "61e4aa3e46b45978",
+      "setting": "sde_0.3",
+      "reward_span": 0.9266569893262308,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.024871764964629752
+    },
+    {
+      "token": "61e4aa3e46b45978",
+      "setting": "ode",
+      "reward_span": 0.00278777210420722,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.8181829389250109
+    },
+    {
+      "token": "756a738191815522",
+      "setting": "sde_0.05",
+      "reward_span": 0.0019230292239242885,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2370993944738052
+    },
+    {
+      "token": "756a738191815522",
+      "setting": "sde_0.1",
+      "reward_span": 0.004315936204826842,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.07019521245339146
+    },
+    {
+      "token": "756a738191815522",
+      "setting": "sde_0.2",
+      "reward_span": 0.008654318616840517,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.010660635539168527
+    },
+    {
+      "token": "756a738191815522",
+      "setting": "sde_0.3",
+      "reward_span": 0.013477045018052691,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.0421936996391134
+    },
+    {
+      "token": "756a738191815522",
+      "setting": "ode",
+      "reward_span": 0.0005927312763074344,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.4833452571824868
+    },
+    {
+      "token": "addde5d861a258e1",
+      "setting": "sde_0.05",
+      "reward_span": 0.005198183390848543,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.0688134787733895
+    },
+    {
+      "token": "addde5d861a258e1",
+      "setting": "sde_0.1",
+      "reward_span": 0.007955709811778622,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.07088809693092024
+    },
+    {
+      "token": "addde5d861a258e1",
+      "setting": "sde_0.2",
+      "reward_span": 0.01516124584745393,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.049449311095210835
+    },
+    {
+      "token": "addde5d861a258e1",
+      "setting": "sde_0.3",
+      "reward_span": 0.023250393967249705,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.04417584098832102
+    },
+    {
+      "token": "addde5d861a258e1",
+      "setting": "ode",
+      "reward_span": 0.00411585507055634,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.009371857768152176
+    },
+    {
+      "token": "da29ed1388505a8e",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.5680613992500747
+    },
+    {
+      "token": "da29ed1388505a8e",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.4039392091443678
+    },
+    {
+      "token": "da29ed1388505a8e",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.3019247721401105
+    },
+    {
+      "token": "da29ed1388505a8e",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.2860443467771153
+    },
+    {
+      "token": "da29ed1388505a8e",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7471240007600891
+    },
+    {
+      "token": "4801a14e290e5aec",
+      "setting": "sde_0.05",
+      "reward_span": 0.0033049979219179626,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2480457920817177
+    },
+    {
+      "token": "4801a14e290e5aec",
+      "setting": "sde_0.1",
+      "reward_span": 0.006154269689102154,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.12894421995444164
+    },
+    {
+      "token": "4801a14e290e5aec",
+      "setting": "sde_0.2",
+      "reward_span": 0.011722333464844303,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.039998094480977485
+    },
+    {
+      "token": "4801a14e290e5aec",
+      "setting": "sde_0.3",
+      "reward_span": 0.017085379764374187,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.008129592219347646
+    },
+    {
+      "token": "4801a14e290e5aec",
+      "setting": "ode",
+      "reward_span": 0.0021567744913237874,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.364786033978289
+    },
+    {
+      "token": "9a86deae86035bf6",
+      "setting": "sde_0.05",
+      "reward_span": 0.005827314203009082,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.18556647612098393
+    },
+    {
+      "token": "9a86deae86035bf6",
+      "setting": "sde_0.1",
+      "reward_span": 0.009904884245030332,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06202396964075293
+    },
+    {
+      "token": "9a86deae86035bf6",
+      "setting": "sde_0.2",
+      "reward_span": 0.0175084486945164,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.02188344517311042
+    },
+    {
+      "token": "9a86deae86035bf6",
+      "setting": "sde_0.3",
+      "reward_span": 0.025197143270714872,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.060037058209222734
+    },
+    {
+      "token": "9a86deae86035bf6",
+      "setting": "ode",
+      "reward_span": 0.003903382047050319,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.3343830296659994
+    },
+    {
+      "token": "9cb5c053f04f5873",
+      "setting": "sde_0.05",
+      "reward_span": 0.0053378541344328845,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.20127458769764284
+    },
+    {
+      "token": "9cb5c053f04f5873",
+      "setting": "sde_0.1",
+      "reward_span": 0.008835823166924772,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.07413948586079466
+    },
+    {
+      "token": "9cb5c053f04f5873",
+      "setting": "sde_0.2",
+      "reward_span": 0.016314601182560118,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.03448498310156001
+    },
+    {
+      "token": "9cb5c053f04f5873",
+      "setting": "sde_0.3",
+      "reward_span": 0.16259827982888342,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.020920540245334268
+    },
+    {
+      "token": "9cb5c053f04f5873",
+      "setting": "ode",
+      "reward_span": 0.0027817487790895434,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.5319069594124698
+    },
+    {
+      "token": "1aa9b336c4275f73",
+      "setting": "sde_0.05",
+      "reward_span": 0.003886447146486227,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.20348887126953077
+    },
+    {
+      "token": "1aa9b336c4275f73",
+      "setting": "sde_0.1",
+      "reward_span": 0.00539680091303274,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.04990774516441607
+    },
+    {
+      "token": "1aa9b336c4275f73",
+      "setting": "sde_0.2",
+      "reward_span": 0.15076483778817928,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.03920087184598134
+    },
+    {
+      "token": "1aa9b336c4275f73",
+      "setting": "sde_0.3",
+      "reward_span": 0.1560910350498813,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.06832175900279086
+    },
+    {
+      "token": "1aa9b336c4275f73",
+      "setting": "ode",
+      "reward_span": 0.0031964884567562413,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.420338882238153
+    },
+    {
+      "token": "6f279164300c5844",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.02542679083955637
+    },
+    {
+      "token": "6f279164300c5844",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.004421575726586704
+    },
+    {
+      "token": "6f279164300c5844",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.015615863095798287
+    },
+    {
+      "token": "6f279164300c5844",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.021169324525803525
+    },
+    {
+      "token": "6f279164300c5844",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.13199905072280807
+    },
+    {
+      "token": "1777334a456f5014",
+      "setting": "sde_0.05",
+      "reward_span": 0.00448432679565236,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.024816624665648237
+    },
+    {
+      "token": "1777334a456f5014",
+      "setting": "sde_0.1",
+      "reward_span": 0.009723644826969746,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.013006755237760166
+    },
+    {
+      "token": "1777334a456f5014",
+      "setting": "sde_0.2",
+      "reward_span": 0.021675257539275683,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.004786631062637159
+    },
+    {
+      "token": "1777334a456f5014",
+      "setting": "sde_0.3",
+      "reward_span": 0.03467447709645477,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.011905984744455441
+    },
+    {
+      "token": "1777334a456f5014",
+      "setting": "ode",
+      "reward_span": 0.004206862966307012,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.04352798868622154
+    },
+    {
+      "token": "e81abb06edcd53c2",
+      "setting": "sde_0.05",
+      "reward_span": 0.02237608532465052,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.10462428204306076
+    },
+    {
+      "token": "e81abb06edcd53c2",
+      "setting": "sde_0.1",
+      "reward_span": 0.04771094944587195,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.0541550309410209
+    },
+    {
+      "token": "e81abb06edcd53c2",
+      "setting": "sde_0.2",
+      "reward_span": 0.09488429449132385,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.03277995631018182
+    },
+    {
+      "token": "e81abb06edcd53c2",
+      "setting": "sde_0.3",
+      "reward_span": 0.15186752989166374,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.024152969701846466
+    },
+    {
+      "token": "e81abb06edcd53c2",
+      "setting": "ode",
+      "reward_span": 0.011671921105034788,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.0964496271524245
+    },
+    {
+      "token": "ecbdd33ab8a15ffc",
+      "setting": "sde_0.05",
+      "reward_span": 0.007247579611446953,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.10965372468512498
+    },
+    {
+      "token": "ecbdd33ab8a15ffc",
+      "setting": "sde_0.1",
+      "reward_span": 0.011646475447347093,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.07507882629971475
+    },
+    {
+      "token": "ecbdd33ab8a15ffc",
+      "setting": "sde_0.2",
+      "reward_span": 0.020882185539998543,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.04499445240676657
+    },
+    {
+      "token": "ecbdd33ab8a15ffc",
+      "setting": "sde_0.3",
+      "reward_span": 0.9311874423329584,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.02813232261245825
+    },
+    {
+      "token": "ecbdd33ab8a15ffc",
+      "setting": "ode",
+      "reward_span": 0.002760689129457927,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.20043095677060793
+    },
+    {
+      "token": "a66928fde4905315",
+      "setting": "sde_0.05",
+      "reward_span": 0.00323002607177425,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.45594684361513693
+    },
+    {
+      "token": "a66928fde4905315",
+      "setting": "sde_0.1",
+      "reward_span": 0.004572777337840117,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.17332106231757038
+    },
+    {
+      "token": "a66928fde4905315",
+      "setting": "sde_0.2",
+      "reward_span": 0.9231795190611239,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.03271208146933105
+    },
+    {
+      "token": "a66928fde4905315",
+      "setting": "sde_0.3",
+      "reward_span": 0.9235825576243497,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.019074858960564177
+    },
+    {
+      "token": "a66928fde4905315",
+      "setting": "ode",
+      "reward_span": 0.002640099150200026,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.8035294004753275
+    },
+    {
+      "token": "596bcd00fb1254d6",
+      "setting": "sde_0.05",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.5016798007778001
+    },
+    {
+      "token": "596bcd00fb1254d6",
+      "setting": "sde_0.1",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.29225169355208286
+    },
+    {
+      "token": "596bcd00fb1254d6",
+      "setting": "sde_0.2",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.1905695337285616
+    },
+    {
+      "token": "596bcd00fb1254d6",
+      "setting": "sde_0.3",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.16820368253411852
+    },
+    {
+      "token": "596bcd00fb1254d6",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7984374892015521
+    },
+    {
+      "token": "8fdcb34c87105f6f",
+      "setting": "sde_0.05",
+      "reward_span": 0.009694448012381174,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.060925542790801875
+    },
+    {
+      "token": "8fdcb34c87105f6f",
+      "setting": "sde_0.1",
+      "reward_span": 0.014971594611397743,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.029551633887216874
+    },
+    {
+      "token": "8fdcb34c87105f6f",
+      "setting": "sde_0.2",
+      "reward_span": 0.025900085240401993,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.07464317007666033
+    },
+    {
+      "token": "8fdcb34c87105f6f",
+      "setting": "sde_0.3",
+      "reward_span": 0.036845412146753076,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.07946843320659985
+    },
+    {
+      "token": "8fdcb34c87105f6f",
+      "setting": "ode",
+      "reward_span": 0.005570787041284997,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.25940607184549247
+    },
+    {
+      "token": "edcbd368ae085bff",
+      "setting": "sde_0.05",
+      "reward_span": 0.00583222934411276,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.004897016823236167
+    },
+    {
+      "token": "edcbd368ae085bff",
+      "setting": "sde_0.1",
+      "reward_span": 0.00980281476327638,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.03699262454909484
+    },
+    {
+      "token": "edcbd368ae085bff",
+      "setting": "sde_0.2",
+      "reward_span": 0.018218933160650375,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.037554865382717455
+    },
+    {
+      "token": "edcbd368ae085bff",
+      "setting": "sde_0.3",
+      "reward_span": 0.027968718038808738,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.04921759652791793
+    },
+    {
+      "token": "edcbd368ae085bff",
+      "setting": "ode",
+      "reward_span": 0.004176774763194113,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.21405691046564013
+    },
+    {
+      "token": "8c70b6003ec95ff2",
+      "setting": "sde_0.05",
+      "reward_span": 0.0152731642703956,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.31584742361603363
+    },
+    {
+      "token": "8c70b6003ec95ff2",
+      "setting": "sde_0.1",
+      "reward_span": 0.022972441368299568,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.16698046091060384
+    },
+    {
+      "token": "8c70b6003ec95ff2",
+      "setting": "sde_0.2",
+      "reward_span": 0.03801315470796851,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.1063913916780508
+    },
+    {
+      "token": "8c70b6003ec95ff2",
+      "setting": "sde_0.3",
+      "reward_span": 0.13192588967559327,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.096340805486834
+    },
+    {
+      "token": "8c70b6003ec95ff2",
+      "setting": "ode",
+      "reward_span": 0.007399673552608732,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.5657881393229142
+    },
+    {
+      "token": "f662c9b1a66f59ef",
+      "setting": "sde_0.05",
+      "reward_span": 0.018151550651455572,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.014675324073697564
+    },
+    {
+      "token": "f662c9b1a66f59ef",
+      "setting": "sde_0.1",
+      "reward_span": 0.03125701192683161,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.013467201926110358
+    },
+    {
+      "token": "f662c9b1a66f59ef",
+      "setting": "sde_0.2",
+      "reward_span": 0.060957390542372925,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.03380632650762367
+    },
+    {
+      "token": "f662c9b1a66f59ef",
+      "setting": "sde_0.3",
+      "reward_span": 0.979761077050034,
+      "varying_nonprogress_components": [
+        "no_at_fault_collisions",
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.039820599950928404
+    },
+    {
+      "token": "f662c9b1a66f59ef",
+      "setting": "ode",
+      "reward_span": 0.011135911853705216,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.042122245417115574
+    },
+    {
+      "token": "7c3b2c32a89e57aa",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.5614996361951323
+    },
+    {
+      "token": "7c3b2c32a89e57aa",
+      "setting": "sde_0.1",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.18782903366454595
+    },
+    {
+      "token": "7c3b2c32a89e57aa",
+      "setting": "sde_0.2",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.11494218076959115
+    },
+    {
+      "token": "7c3b2c32a89e57aa",
+      "setting": "sde_0.3",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.2025163222551932
+    },
+    {
+      "token": "7c3b2c32a89e57aa",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.9036470272597533
+    },
+    {
+      "token": "e2db8cf13a0d59cf",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.09251194832466496
+    },
+    {
+      "token": "e2db8cf13a0d59cf",
+      "setting": "sde_0.1",
+      "reward_span": 0.3571428571428571,
+      "varying_nonprogress_components": [
+        "time_to_collision_within_bound"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.030455558431776945
+    },
+    {
+      "token": "e2db8cf13a0d59cf",
+      "setting": "sde_0.2",
+      "reward_span": 0.3571428571428571,
+      "varying_nonprogress_components": [
+        "time_to_collision_within_bound"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.003382697922951029
+    },
+    {
+      "token": "e2db8cf13a0d59cf",
+      "setting": "sde_0.3",
+      "reward_span": 0.3571428571428571,
+      "varying_nonprogress_components": [
+        "time_to_collision_within_bound"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.005387380117659751
+    },
+    {
+      "token": "e2db8cf13a0d59cf",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.20557493817437728
+    },
+    {
+      "token": "c65e242c0a815866",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.2774059783819471
+    },
+    {
+      "token": "c65e242c0a815866",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.13012759447096905
+    },
+    {
+      "token": "c65e242c0a815866",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.045691659546923676
+    },
+    {
+      "token": "c65e242c0a815866",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.026353517907181212
+    },
+    {
+      "token": "c65e242c0a815866",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.48431074665342005
+    },
+    {
+      "token": "c82101f453985450",
+      "setting": "sde_0.05",
+      "reward_span": 0.0043456160548299705,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.4232027045823715
+    },
+    {
+      "token": "c82101f453985450",
+      "setting": "sde_0.1",
+      "reward_span": 0.007133020878280827,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.18770874310740707
+    },
+    {
+      "token": "c82101f453985450",
+      "setting": "sde_0.2",
+      "reward_span": 0.014055700469321697,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.049200226221645854
+    },
+    {
+      "token": "c82101f453985450",
+      "setting": "sde_0.3",
+      "reward_span": 0.022280246635100753,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.01343058013822803
+    },
+    {
+      "token": "c82101f453985450",
+      "setting": "ode",
+      "reward_span": 0.0035390659570099237,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.7737282198154777
+    },
+    {
+      "token": "d77c0dc5e2fb5366",
+      "setting": "sde_0.05",
+      "reward_span": 0.006431960365612555,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.1775468556795622
+    },
+    {
+      "token": "d77c0dc5e2fb5366",
+      "setting": "sde_0.1",
+      "reward_span": 0.008224686711597262,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.06538492870629303
+    },
+    {
+      "token": "d77c0dc5e2fb5366",
+      "setting": "sde_0.2",
+      "reward_span": 0.012044400238604869,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.22551001326515865
+    },
+    {
+      "token": "d77c0dc5e2fb5366",
+      "setting": "sde_0.3",
+      "reward_span": 0.015701546175714176,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.26877865277198815
+    },
+    {
+      "token": "d77c0dc5e2fb5366",
+      "setting": "ode",
+      "reward_span": 0.0048731726576511925,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.45954907433645303
+    },
+    {
+      "token": "e25abac925c858af",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.054396159841287546
+    },
+    {
+      "token": "e25abac925c858af",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.11497365973980063
+    },
+    {
+      "token": "e25abac925c858af",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.13421218306124458
+    },
+    {
+      "token": "e25abac925c858af",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.14417585573556574
+    },
+    {
+      "token": "e25abac925c858af",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.058881282318414295
+    },
+    {
+      "token": "f0c4f1946450571a",
+      "setting": "sde_0.05",
+      "reward_span": 0.004187286208356511,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.35595033033185375
+    },
+    {
+      "token": "f0c4f1946450571a",
+      "setting": "sde_0.1",
+      "reward_span": 0.00594807601445424,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06327504988730097
+    },
+    {
+      "token": "f0c4f1946450571a",
+      "setting": "sde_0.2",
+      "reward_span": 0.010990939208863737,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.06724980647918577
+    },
+    {
+      "token": "f0c4f1946450571a",
+      "setting": "sde_0.3",
+      "reward_span": 0.015538802677082963,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.07957194498385754
+    },
+    {
+      "token": "f0c4f1946450571a",
+      "setting": "ode",
+      "reward_span": 0.0036876922326766204,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.7763269316431366
+    },
+    {
+      "token": "ed1f548922635c14",
+      "setting": "sde_0.05",
+      "reward_span": 0.007520526255547666,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.028297095133800104
+    },
+    {
+      "token": "ed1f548922635c14",
+      "setting": "sde_0.1",
+      "reward_span": 0.01063772728590684,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.07605820435550112
+    },
+    {
+      "token": "ed1f548922635c14",
+      "setting": "sde_0.2",
+      "reward_span": 0.019647471923630477,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.08711198118243309
+    },
+    {
+      "token": "ed1f548922635c14",
+      "setting": "sde_0.3",
+      "reward_span": 0.02935427344688646,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.08567650907278052
+    },
+    {
+      "token": "ed1f548922635c14",
+      "setting": "ode",
+      "reward_span": 0.004622361581332557,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.01004148236097967
+    },
+    {
+      "token": "52e9503e3b0d5d00",
+      "setting": "sde_0.05",
+      "reward_span": 0.002418077486851411,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.08403526301993523
+    },
+    {
+      "token": "52e9503e3b0d5d00",
+      "setting": "sde_0.1",
+      "reward_span": 0.0032227907278697954,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.08008086278395313
+    },
+    {
+      "token": "52e9503e3b0d5d00",
+      "setting": "sde_0.2",
+      "reward_span": 0.006702234710089683,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.04090323919207296
+    },
+    {
+      "token": "52e9503e3b0d5d00",
+      "setting": "sde_0.3",
+      "reward_span": 0.011145860188945478,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.014067600539358722
+    },
+    {
+      "token": "52e9503e3b0d5d00",
+      "setting": "ode",
+      "reward_span": 0.0025964834266332115,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.037323404529314895
+    },
+    {
+      "token": "29743bf097775f11",
+      "setting": "sde_0.05",
+      "reward_span": 0.0029427708196064772,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.11816423068094152
+    },
+    {
+      "token": "29743bf097775f11",
+      "setting": "sde_0.1",
+      "reward_span": 0.004246606639485284,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.0009537672621958192
+    },
+    {
+      "token": "29743bf097775f11",
+      "setting": "sde_0.2",
+      "reward_span": 0.14933032181211492,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.058826305650553114
+    },
+    {
+      "token": "29743bf097775f11",
+      "setting": "sde_0.3",
+      "reward_span": 0.1525064323848222,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.0730993626138271
+    },
+    {
+      "token": "29743bf097775f11",
+      "setting": "ode",
+      "reward_span": 0.0017347977846821072,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.3518020752843816
+    },
+    {
+      "token": "9d064f83b2945ead",
+      "setting": "sde_0.05",
+      "reward_span": 0.006051892230282463,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.59697665537648
+    },
+    {
+      "token": "9d064f83b2945ead",
+      "setting": "sde_0.1",
+      "reward_span": 0.007601238944368038,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.3841126487385741
+    },
+    {
+      "token": "9d064f83b2945ead",
+      "setting": "sde_0.2",
+      "reward_span": 0.01412309655231514,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.15798277082189158
+    },
+    {
+      "token": "9d064f83b2945ead",
+      "setting": "sde_0.3",
+      "reward_span": 0.02079040401864174,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.07662839024662983
+    },
+    {
+      "token": "9d064f83b2945ead",
+      "setting": "ode",
+      "reward_span": 0.005394957752714702,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.773148522669583
+    },
+    {
+      "token": "5d04175f49b659aa",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.11462754061121619
+    },
+    {
+      "token": "5d04175f49b659aa",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.1462840024217799
+    },
+    {
+      "token": "5d04175f49b659aa",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.15407208942595585
+    },
+    {
+      "token": "5d04175f49b659aa",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.15831828145559512
+    },
+    {
+      "token": "5d04175f49b659aa",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.023119817196758735
+    },
+    {
+      "token": "58ce90f0e1b75618",
+      "setting": "sde_0.05",
+      "reward_span": 0.007276378944638839,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2796815292456287
+    },
+    {
+      "token": "58ce90f0e1b75618",
+      "setting": "sde_0.1",
+      "reward_span": 0.00904630879036461,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.02912345923276305
+    },
+    {
+      "token": "58ce90f0e1b75618",
+      "setting": "sde_0.2",
+      "reward_span": 0.016332726671731024,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.0859637035436884
+    },
+    {
+      "token": "58ce90f0e1b75618",
+      "setting": "sde_0.3",
+      "reward_span": 0.9994258124632444,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.1134236819694449
+    },
+    {
+      "token": "58ce90f0e1b75618",
+      "setting": "ode",
+      "reward_span": 0.005149185306406512,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.7368573824037693
+    },
+    {
+      "token": "bda59da9addb549f",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.016264433340326727
+    },
+    {
+      "token": "bda59da9addb549f",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.026420323736384484
+    },
+    {
+      "token": "bda59da9addb549f",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.043896946797440044
+    },
+    {
+      "token": "bda59da9addb549f",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.04524763722500992
+    },
+    {
+      "token": "bda59da9addb549f",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.08631749902174454
+    },
+    {
+      "token": "e8097925dce35195",
+      "setting": "sde_0.05",
+      "reward_span": 0.014476306894680047,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.009075334468526207
+    },
+    {
+      "token": "e8097925dce35195",
+      "setting": "sde_0.1",
+      "reward_span": 0.022534601572096302,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.08213318443549006
+    },
+    {
+      "token": "e8097925dce35195",
+      "setting": "sde_0.2",
+      "reward_span": 0.046984240906996044,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.11721621038766233
+    },
+    {
+      "token": "e8097925dce35195",
+      "setting": "sde_0.3",
+      "reward_span": 0.07149297716337322,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.12297150638350571
+    },
+    {
+      "token": "e8097925dce35195",
+      "setting": "ode",
+      "reward_span": 0.008195348992668827,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06286181291113987
+    },
+    {
+      "token": "aff04d0eedb75da1",
+      "setting": "sde_0.05",
+      "reward_span": 0.8504429361993883,
+      "varying_nonprogress_components": [
+        "driving_direction_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.8245891353760773
+    },
+    {
+      "token": "aff04d0eedb75da1",
+      "setting": "sde_0.1",
+      "reward_span": 0.8501281279367638,
+      "varying_nonprogress_components": [
+        "driving_direction_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7081757492020323
+    },
+    {
+      "token": "aff04d0eedb75da1",
+      "setting": "sde_0.2",
+      "reward_span": 0.8509286038219265,
+      "varying_nonprogress_components": [
+        "driving_direction_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.46972352587247923
+    },
+    {
+      "token": "aff04d0eedb75da1",
+      "setting": "sde_0.3",
+      "reward_span": 0.853255038989471,
+      "varying_nonprogress_components": [
+        "driving_direction_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.28661556022090945
+    },
+    {
+      "token": "aff04d0eedb75da1",
+      "setting": "ode",
+      "reward_span": 0.8507653283281648,
+      "varying_nonprogress_components": [
+        "driving_direction_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.8809863281723121
+    },
+    {
+      "token": "5cbb31cbfc385cfa",
+      "setting": "sde_0.05",
+      "reward_span": 0.0072572915141209116,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06634487984081666
+    },
+    {
+      "token": "5cbb31cbfc385cfa",
+      "setting": "sde_0.1",
+      "reward_span": 0.013174650988377445,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.04346712774558347
+    },
+    {
+      "token": "5cbb31cbfc385cfa",
+      "setting": "sde_0.2",
+      "reward_span": 0.1569031511722344,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.01715797196878556
+    },
+    {
+      "token": "5cbb31cbfc385cfa",
+      "setting": "sde_0.3",
+      "reward_span": 0.16536877684374385,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.013415731384302272
+    },
+    {
+      "token": "5cbb31cbfc385cfa",
+      "setting": "ode",
+      "reward_span": 0.003853635151416901,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.08871190021497433
+    },
+    {
+      "token": "9cdabc29cb205df2",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.4538840707585189
+    },
+    {
+      "token": "9cdabc29cb205df2",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.21639895757137398
+    },
+    {
+      "token": "9cdabc29cb205df2",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.03136767455023215
+    },
+    {
+      "token": "9cdabc29cb205df2",
+      "setting": "sde_0.3",
+      "reward_span": 1.0,
+      "varying_nonprogress_components": [
+        "drivable_area_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": -0.054405801715049114
+    },
+    {
+      "token": "9cdabc29cb205df2",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7180738002484183
+    },
+    {
+      "token": "16bb3ea700cc5f00",
+      "setting": "sde_0.05",
+      "reward_span": 0.006462288481101308,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.12167068006901952
+    },
+    {
+      "token": "16bb3ea700cc5f00",
+      "setting": "sde_0.1",
+      "reward_span": 0.010957545790771017,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.08602197969097806
+    },
+    {
+      "token": "16bb3ea700cc5f00",
+      "setting": "sde_0.2",
+      "reward_span": 0.021257373094750065,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06597195669219472
+    },
+    {
+      "token": "16bb3ea700cc5f00",
+      "setting": "sde_0.3",
+      "reward_span": 0.028790591015234734,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.052277370354653636
+    },
+    {
+      "token": "16bb3ea700cc5f00",
+      "setting": "ode",
+      "reward_span": 0.004446062238432691,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.178097630422185
+    },
+    {
+      "token": "a9c15dee7b5456fc",
+      "setting": "sde_0.05",
+      "reward_span": 0.004921219487742157,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.36981845671957503
+    },
+    {
+      "token": "a9c15dee7b5456fc",
+      "setting": "sde_0.1",
+      "reward_span": 0.006559650915423543,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.13874321756836322
+    },
+    {
+      "token": "a9c15dee7b5456fc",
+      "setting": "sde_0.2",
+      "reward_span": 0.013363929353770065,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.025771159397195487
+    },
+    {
+      "token": "a9c15dee7b5456fc",
+      "setting": "sde_0.3",
+      "reward_span": 0.020729421408249626,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.007456726831824157
+    },
+    {
+      "token": "a9c15dee7b5456fc",
+      "setting": "ode",
+      "reward_span": 0.005287351442240351,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.6726382221734268
+    },
+    {
+      "token": "0714333ecd315ca6",
+      "setting": "sde_0.05",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.5428234561265723
+    },
+    {
+      "token": "0714333ecd315ca6",
+      "setting": "sde_0.1",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.27217580122785234
+    },
+    {
+      "token": "0714333ecd315ca6",
+      "setting": "sde_0.2",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.1392476945158064
+    },
+    {
+      "token": "0714333ecd315ca6",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.12317170731664466
+    },
+    {
+      "token": "0714333ecd315ca6",
+      "setting": "ode",
+      "reward_span": 0.1428571428571429,
+      "varying_nonprogress_components": [
+        "history_comfort"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.8817094593253633
+    },
+    {
+      "token": "9e65833d336e5517",
+      "setting": "sde_0.05",
+      "reward_span": 0.005942508551521786,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.7554914272149299
+    },
+    {
+      "token": "9e65833d336e5517",
+      "setting": "sde_0.1",
+      "reward_span": 0.006639599329507195,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.49761554409015796
+    },
+    {
+      "token": "9e65833d336e5517",
+      "setting": "sde_0.2",
+      "reward_span": 0.009105311561353635,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.19106820608498495
+    },
+    {
+      "token": "9e65833d336e5517",
+      "setting": "sde_0.3",
+      "reward_span": 0.01223761923700617,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.08637439124970478
+    },
+    {
+      "token": "9e65833d336e5517",
+      "setting": "ode",
+      "reward_span": 0.006264783825973619,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.9124416150438547
+    },
+    {
+      "token": "ac8460c27e8f5b76",
+      "setting": "sde_0.05",
+      "reward_span": 0.009311319285021824,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.07346597653663638
+    },
+    {
+      "token": "ac8460c27e8f5b76",
+      "setting": "sde_0.1",
+      "reward_span": 0.01687336660533567,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.10465651900264104
+    },
+    {
+      "token": "ac8460c27e8f5b76",
+      "setting": "sde_0.2",
+      "reward_span": 0.033448153012139104,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.13033078743024037
+    },
+    {
+      "token": "ac8460c27e8f5b76",
+      "setting": "sde_0.3",
+      "reward_span": 0.0513326722979377,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.13097270828970115
+    },
+    {
+      "token": "ac8460c27e8f5b76",
+      "setting": "ode",
+      "reward_span": 0.005268945843589723,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06868180677548545
+    },
+    {
+      "token": "a0b042d598d95456",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.6709501590129602
+    },
+    {
+      "token": "a0b042d598d95456",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.4540628792165875
+    },
+    {
+      "token": "a0b042d598d95456",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.2229429597728349
+    },
+    {
+      "token": "a0b042d598d95456",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.13188392009545527
+    },
+    {
+      "token": "a0b042d598d95456",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.7872536999696278
+    },
+    {
+      "token": "8676513e3fe15a2f",
+      "setting": "sde_0.05",
+      "reward_span": 0.008219124998826155,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2354867109350133
+    },
+    {
+      "token": "8676513e3fe15a2f",
+      "setting": "sde_0.1",
+      "reward_span": 0.012210982004285165,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.11646253317686023
+    },
+    {
+      "token": "8676513e3fe15a2f",
+      "setting": "sde_0.2",
+      "reward_span": 0.020244923419875493,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.046911804268819926
+    },
+    {
+      "token": "8676513e3fe15a2f",
+      "setting": "sde_0.3",
+      "reward_span": 0.028107666302882972,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.024141769733330792
+    },
+    {
+      "token": "8676513e3fe15a2f",
+      "setting": "ode",
+      "reward_span": 0.00420391426222233,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.4159037302101413
+    },
+    {
+      "token": "5516a3b745ec5dcd",
+      "setting": "sde_0.05",
+      "reward_span": 0.0169549548636877,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.09549130357215481
+    },
+    {
+      "token": "5516a3b745ec5dcd",
+      "setting": "sde_0.1",
+      "reward_span": 0.03449776374494806,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.04187398547207253
+    },
+    {
+      "token": "5516a3b745ec5dcd",
+      "setting": "sde_0.2",
+      "reward_span": 0.07332031001426242,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.019718617256588016
+    },
+    {
+      "token": "5516a3b745ec5dcd",
+      "setting": "sde_0.3",
+      "reward_span": 0.11690562058390419,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.020029428368990118
+    },
+    {
+      "token": "5516a3b745ec5dcd",
+      "setting": "ode",
+      "reward_span": 0.011001339747808925,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.1116308437161964
+    },
+    {
+      "token": "1549c87c65a556ef",
+      "setting": "sde_0.05",
+      "reward_span": 0.006502436670366318,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.09844385552102156
+    },
+    {
+      "token": "1549c87c65a556ef",
+      "setting": "sde_0.1",
+      "reward_span": 0.009363984752214671,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.07253315075404652
+    },
+    {
+      "token": "1549c87c65a556ef",
+      "setting": "sde_0.2",
+      "reward_span": 0.016498336012565118,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.1347117091576807
+    },
+    {
+      "token": "1549c87c65a556ef",
+      "setting": "sde_0.3",
+      "reward_span": 0.02388266176160203,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.14451518940467328
+    },
+    {
+      "token": "1549c87c65a556ef",
+      "setting": "ode",
+      "reward_span": 0.0039750734046059,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.34525164255577384
+    },
+    {
+      "token": "ca7638d65e765300",
+      "setting": "sde_0.05",
+      "reward_span": 0.0035268487696871187,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.28332365334682824
+    },
+    {
+      "token": "ca7638d65e765300",
+      "setting": "sde_0.1",
+      "reward_span": 0.0049276691489059665,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.09124823593849067
+    },
+    {
+      "token": "ca7638d65e765300",
+      "setting": "sde_0.2",
+      "reward_span": 0.00799012438690272,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.010337691560307793
+    },
+    {
+      "token": "ca7638d65e765300",
+      "setting": "sde_0.3",
+      "reward_span": 0.01115635662277914,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.03535014131988032
+    },
+    {
+      "token": "ca7638d65e765300",
+      "setting": "ode",
+      "reward_span": 0.002873116737641568,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.5390036479154919
+    },
+    {
+      "token": "cc692933bfa25737",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.1153746274575841
+    },
+    {
+      "token": "cc692933bfa25737",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.10814996708803068
+    },
+    {
+      "token": "cc692933bfa25737",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.0947952244940782
+    },
+    {
+      "token": "cc692933bfa25737",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.08351084375549515
+    },
+    {
+      "token": "cc692933bfa25737",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.10442642608316069
+    },
+    {
+      "token": "d9563f8d3b7151e1",
+      "setting": "sde_0.05",
+      "reward_span": 0.00715780553834211,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.7338715049618153
+    },
+    {
+      "token": "d9563f8d3b7151e1",
+      "setting": "sde_0.1",
+      "reward_span": 0.00726391162863449,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.5425694609258357
+    },
+    {
+      "token": "d9563f8d3b7151e1",
+      "setting": "sde_0.2",
+      "reward_span": 0.007238313760725923,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2857501330975257
+    },
+    {
+      "token": "d9563f8d3b7151e1",
+      "setting": "sde_0.3",
+      "reward_span": 0.4572047409034358,
+      "varying_nonprogress_components": [
+        "driving_direction_compliance"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.14763950034474974
+    },
+    {
+      "token": "d9563f8d3b7151e1",
+      "setting": "ode",
+      "reward_span": 0.006883521865971298,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.8559577793685454
+    },
+    {
+      "token": "50365d557c285865",
+      "setting": "sde_0.05",
+      "reward_span": 0.0029956989185385696,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.3331314005887249
+    },
+    {
+      "token": "50365d557c285865",
+      "setting": "sde_0.1",
+      "reward_span": 0.00558925278879685,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.1463231855704462
+    },
+    {
+      "token": "50365d557c285865",
+      "setting": "sde_0.2",
+      "reward_span": 0.010769978102161848,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.0074637452398007295
+    },
+    {
+      "token": "50365d557c285865",
+      "setting": "sde_0.3",
+      "reward_span": 0.01614467155098598,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.022849982798730194
+    },
+    {
+      "token": "50365d557c285865",
+      "setting": "ode",
+      "reward_span": 0.0017639438322326617,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.5274788091961237
+    },
+    {
+      "token": "45a7f827466e5c24",
+      "setting": "sde_0.05",
+      "reward_span": 0.003765969792265067,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.4161041124296553
+    },
+    {
+      "token": "45a7f827466e5c24",
+      "setting": "sde_0.1",
+      "reward_span": 0.005777966232876075,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2900229003461561
+    },
+    {
+      "token": "45a7f827466e5c24",
+      "setting": "sde_0.2",
+      "reward_span": 0.009435284696948654,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.1986168380973643
+    },
+    {
+      "token": "45a7f827466e5c24",
+      "setting": "sde_0.3",
+      "reward_span": 0.15046617783491878,
+      "varying_nonprogress_components": [
+        "lane_keeping"
+      ],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.16172203383466097
+    },
+    {
+      "token": "45a7f827466e5c24",
+      "setting": "ode",
+      "reward_span": 0.0035549738500854078,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.5780602553870783
+    },
+    {
+      "token": "8bee9023fbb8550c",
+      "setting": "sde_0.05",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.8082108618091673
+    },
+    {
+      "token": "8bee9023fbb8550c",
+      "setting": "sde_0.1",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.6116764436595644
+    },
+    {
+      "token": "8bee9023fbb8550c",
+      "setting": "sde_0.2",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.3495673049445068
+    },
+    {
+      "token": "8bee9023fbb8550c",
+      "setting": "sde_0.3",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.21364191005543706
+    },
+    {
+      "token": "8bee9023fbb8550c",
+      "setting": "ode",
+      "reward_span": 0.0,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": false,
+      "adjacent_waypoint_noise_correlation": 0.9362974424621656
+    },
+    {
+      "token": "783a419e74fa5274",
+      "setting": "sde_0.05",
+      "reward_span": 0.0032582852699449827,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.2933891763485097
+    },
+    {
+      "token": "783a419e74fa5274",
+      "setting": "sde_0.1",
+      "reward_span": 0.004000422223916389,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.06621259986891567
+    },
+    {
+      "token": "783a419e74fa5274",
+      "setting": "sde_0.2",
+      "reward_span": 0.007998351166732198,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.02345104445070098
+    },
+    {
+      "token": "783a419e74fa5274",
+      "setting": "sde_0.3",
+      "reward_span": 0.012057891715560709,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": -0.024467926762037677
+    },
+    {
+      "token": "783a419e74fa5274",
+      "setting": "ode",
+      "reward_span": 0.0029923812409869965,
+      "varying_nonprogress_components": [],
+      "progress_only_differences": true,
+      "adjacent_waypoint_noise_correlation": 0.6567999712860828
+    }
+  ]
+}
