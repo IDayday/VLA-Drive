@@ -255,3 +255,17 @@ def test_controller_lock_rejects_real_second_process_then_allows_restart(tmp_pat
         result=subprocess.run([sys.executable,"-c",code],capture_output=True,text=True,timeout=10)
         assert result.returncode!=0 and "controller already active" in result.stderr
     subprocess.run([sys.executable,"-c",code],check=True,timeout=10)
+
+
+@pytest.mark.parametrize("memory",[4,425])
+def test_idle_check_protects_cpu_loading_cuda_context(tmp_path,monkeypatch,memory):
+    spec={"job_id":"idle_fixture","nodes":[{"host":"local","devices":[0]}],
+          "direct_command":[sys.executable,"-c","pass"],"control_dir":str(tmp_path/"control"),
+          "require_idle_gpus":True,"timeout_seconds":10}
+    path=tmp_path/"spec.json";path.write_text(json.dumps(spec))
+    monkeypatch.setattr(cluster.subprocess,"check_output",lambda *a,**kw:f"0, {memory}, 0\n")
+    monkeypatch.setattr(cluster.signal,"signal",lambda *a:None)
+    if memory==425:
+        with pytest.raises(RuntimeError,match="GPU is occupied"):cluster.supervise(path,0)
+        assert not (tmp_path/"control/node0.json").exists()
+    else:assert cluster.supervise(path,0)==0

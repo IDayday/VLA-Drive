@@ -75,6 +75,6 @@ runtime:
   run_mode: formal
   numerical_profile: bf16_zero2_fp32_partition_v2
   process_group_timeout: 600
-  acceptance_record: reports/ddp_flow_grpo_world16/release_unfrozen_visual.json
+  acceptance_record: ${oc.env:FLOW_GRPO_CLUSTER_RELEASE_DIR,reports/ddp_flow_grpo_world16/UNRELEASED}/release_unfrozen_visual.json
 rl_freeze_modules:
 - qwen_vl_interface.model.visual

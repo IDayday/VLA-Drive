@@ -141,6 +141,25 @@ training job or waiting silently. The18 new CPU tests include a real competing
 process and reacquisition after release. These fixtures are control-flow evidence,
 not model updates or performance results.
 
+Native actor/evidence code keeps its original digest. The additional cluster
+layer now has a separate content-addressed release namespace that hashes every
+cluster Python source, its CPU tests and the allocation JSON. The actual paired
+launcher and remote supervisors compute that namespace; the native configuration
+defaults to an unpublished `UNRELEASED` path when no cluster environment is set.
+The aggregate evidence carries the identical source inventory, and the launcher
+checks it before every training segment. A changed observer/test/plan therefore
+cannot use an old cluster release, while unchanged model-mathematics evidence
+remains explicitly reusable. The native publisher still performs all17 semantic
+gates and fresh full asset verification; this layer never manufactures READY.
+Publication also requires a completed, source-bound CPU regression receipt with
+zero failures/errors/skips, its original JUnit digest and successful workspace
+preparation. The receipt producer records source inventories before/after the
+actual test process; a generic unit-test file cannot replace GPU evidence.
+Only the operational acceptance-file location changed in the two YAMLs; both
+native training/configuration digests were checked against the executed v2 runs
+and are unchanged. Idle checks now reject the~420MiB CUDA contexts observed while
+real ranks load data on CPU, as well as larger active jobs.
+
 ## Current entry points
 
 All commands run from `/mnt/project/DriveDreamer-Policy-paired` with
@@ -149,17 +168,15 @@ All commands run from `/mnt/project/DriveDreamer-Policy-paired` with
 ```bash
 # CPU orchestration regressions; not production CUDA evidence
 python -m pytest -q tests/cluster_flow_grpo
+python scripts/cluster_flow_grpo/test_release.py
 
 # Explicit bounded multi-node job; the JSON contains actual nodes/GPUs/entry
 python scripts/cluster_flow_grpo/cluster.py run runs/resource_reallocation_v1/u16_full_cont_spec.json
 
-# Read-only collation, then the existing semantic release publisher
-python scripts/cluster_flow_grpo/verify_profile.py --variant f \
-  --output reports/ddp_flow_grpo_world16/frozen_visual_evidence.json
-WORLD_SIZE=16 FLASH_ATTENTION_DETERMINISTIC=1 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
-python scripts/flow_grpo/publish_acceptance.py \
-  --config configs/flow_grpo/paired_world16_frozen_visual.yaml \
-  --evidence reports/ddp_flow_grpo_world16/frozen_visual_evidence.json
+# Read-only collation, then the existing semantic publisher and live asset checks
+python scripts/cluster_flow_grpo/release.py --variant f --root runs/resource_reallocation_v2
+python scripts/cluster_flow_grpo/release.py --variant u --root runs/resource_reallocation_v2
+python scripts/cluster_flow_grpo/release.py --print-directory
 
 # Both releases are required; no GPU acceptance is issued by this launcher
 python scripts/cluster_flow_grpo/paired.py \

@@ -17,9 +17,11 @@ from starVLA.rl.flow_grpo.audit import source_fingerprints
 from starVLA.rl.flow_grpo.config import resolve_config, config_hash
 from starVLA.rl.flow_grpo.contracts import check_manifest, digest
 from starVLA.rl.flow_grpo.loading import file_sha
+from scripts.cluster_flow_grpo.identity import orchestration_identity
 
 
 def verify(short, root, output):
+    cluster_identity=orchestration_identity()
     variant={"f":"frozen_visual","u":"unfrozen_visual"}[short]
     prefix=short+"16"
     root,output=Path(root),Path(output)
@@ -128,6 +130,7 @@ def verify(short, root, output):
         "Actual world16 branch-isolation runs on the prior fixed calibration split; official rewards, all equal groups retained. Full-assets joint target execution is separately measured.")
     adam_path=root/(prefix+"_adam_oracle_final.json");adam=read(adam_path)
     assert adam["status"]=="PASS" and adam["world_size"]==16 and len(adam["parameters"])==672
+    assert adam["analysis_source_sha256"]==file_sha(Path(__file__).with_name("optimizer_evidence.py"))
     assert all(p["forward_equals_actual_master_cast"] and all(p[k]["pass"] for k in ("exp_avg","exp_avg_sq","master")) for p in adam["parameters"].values())
     assert sum(p["forward_changed_elements"] for p in adam["parameters"].values())>0
     gate("production_optimizer_update",dict(optimizer_update_comparison=True,forward_weights_changed=True,finite=True,optimizer_updates=1),
@@ -145,6 +148,7 @@ def verify(short, root, output):
     gate("fixed_noise_ode",dict(fixed_chain_equal=True,fixed_noise_equal=True),{"fixed_noise_original_interface":receipts[str(ode_path)],"full_boundary":comparisons["resume"]})
     scaling_path=root/(prefix+"_scaling_comparison.json");scaling=read(scaling_path)
     assert scaling["passed"] and scaling["relative_l2_tolerance"]==.01
+    assert scaling["analysis_source_sha256"]==file_sha(Path(__file__).with_name("optimizer_evidence.py"))
     assert all(r["pass"] and r["relative_l2"]<=.01 for r in scaling["modules"].values())
     gate("distributed_update_scaling",dict(single_multi_update_scaling_equal=True,compared_world_sizes=[1,16]),
          {"actual_unclipped_moments":receipts[str(scaling_path)]},"Same global16 and calibration scenes; inherited1% relative-L2 criterion unchanged.")
@@ -169,7 +173,11 @@ def verify(short, root, output):
     gate("inner_epochs_2",dict(old_chain_unchanged=True,advantages_unchanged=True,policy_changed=True,inner_boundary_resume_equal=True,optimizer_updates=2),
          {"resume":comparisons["resume"],"training_log":{"path":str((run/"training.jsonl").resolve()),"sha256":file_sha(run/"training.jsonl")}})
     assert {t["test_id"] for t in tests}==set(GATES) and len(tests)==len(GATES)
+    assert orchestration_identity()==cluster_identity,"verification sources changed during collation"
     bundle={"schema_version":1,"tests":tests,"run_artifact_receipts":receipts,
+            "orchestration_identity":cluster_identity,
+            "cluster_cpu_validation":{"path":str((output.parent/"cpu_validation.json").resolve()),
+                                      "sha256":file_sha(output.parent/"cpu_validation.json")},
             "limitations":["Historical BF16 chunk1/2 FAIL unchanged; only chunk1.","World16 two-node Socket/NCCL fixed topology; no cross-world exact resume claim.","No RL performance improvement inferred from engineering acceptance."]}
     if output.exists():raise FileExistsError(output)
     output.write_text(json.dumps(bundle,indent=2))

@@ -30,6 +30,7 @@ def test_paired_main_reuses_steps_last_best_and_complete_restart(tmp_path, monke
                          "metric_cache":"fixture_cache"}},None
     monkeypatch.setattr(paired,"resolve_config",config)
     monkeypatch.setattr(paired,"enforce_training_budget",lambda *a:None)
+    monkeypatch.setattr(paired,"validate_binding",lambda *a:None)
     monkeypatch.setattr(paired,"resume_assets",lambda *a:{})
     monkeypatch.setattr(paired,"acceptance_context",lambda *a:{})
     monkeypatch.setattr(paired,"training_provenance",lambda *a:{})

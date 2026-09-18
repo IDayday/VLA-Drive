@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from scripts.cluster_flow_grpo.cluster import run as cluster_run, PYTHON, ROOT, write_json, exclusive_controller
 from scripts.cluster_flow_grpo.parallel_evaluation import evaluate_parallel, run_evaluator
+from scripts.cluster_flow_grpo.identity import configure_release, validate_binding
 from starVLA.rl.flow_grpo.acceptance import acceptance_context, enforce_training_budget, executable_identity
 from starVLA.rl.flow_grpo.config import resolve_config
 from starVLA.rl.flow_grpo.checkpoint import validate_checkpoint, validate_export
@@ -68,6 +69,7 @@ def main():
     a = p.parse_args()
     plan = json.loads(Path(a.plan).read_text())
     world = validate_plan(plan)
+    cluster_identity,_=configure_release()
     os.environ.update(WORLD_SIZE=str(world), FLASH_ATTENTION_DETERMINISTIC="1",
                       CUBLAS_WORKSPACE_CONFIG=":4096:8")
     configure_numerics()
@@ -94,6 +96,7 @@ def main():
             if cfg["runtime"]["accumulation_steps"] * world != 16:
                 raise ValueError("configured global scene batch differs from16")
             enforce_training_budget(cfg)
+            validate_binding(cfg,cluster_identity)
             assets = resume_assets(cfg, sft)
             enforce_training_budget(cfg, acceptance_context(cfg, assets))
             provenance = training_provenance(cfg, sft, assets)
@@ -131,6 +134,7 @@ def main():
             def train(resume, target):
                 if cancelled.is_set():
                     raise RuntimeError("paired experiment cancelled")
+                validate_binding(cfg,cluster_identity)
                 suffix = f"{variant}_to{target}_{time.time_ns()}"
                 spec = {"job_id": suffix, "nodes": group["nodes"],
                     "master_addr": group["master_addr"], "master_port": group["master_port"],

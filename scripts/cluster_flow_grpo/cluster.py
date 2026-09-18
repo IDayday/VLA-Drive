@@ -44,6 +44,8 @@ def write_json(path, value):
 
 
 def base_env():
+    from scripts.cluster_flow_grpo.identity import configure_release
+    configure_release()
     return {
         **os.environ,
         "PYTHONPATH": f"{ROOT}/navsim:{ROOT}",
@@ -107,7 +109,9 @@ def supervise(spec_path, node_rank):
         rows = subprocess.check_output(["nvidia-smi", "--query-gpu=index,memory.used,utilization.gpu",
                                        "--format=csv,noheader,nounits"], text=True)
         used = {int(a): (int(b),int(c)) for a,b,c in (line.split(",") for line in rows.splitlines())}
-        if any(used.get(int(gpu),(10**9,100))[0] > 1024 or
+        # A live rank doing CPU asset checks already owns a~420MiB CUDA context.
+        # It must not be mistaken for an idle GPU merely because utilization is0.
+        if any(used.get(int(gpu),(10**9,100))[0] > 64 or
                used.get(int(gpu),(10**9,100))[1] > 10 for gpu in node["devices"]):
             raise RuntimeError("allocated GPU is occupied; refusing to launch")
     env = base_env()
