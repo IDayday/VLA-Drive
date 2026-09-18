@@ -1,0 +1,165 @@
+{
+  "scope": "FP32 fixed-chain chunk 1/2 no-grad explanation; not a gate override",
+  "historical_tolerance_status": "FAIL",
+  "execution": "13de4419718444787bbffa877b5e5ef25749a4fcff00eb9d109e4ce1f025e0eb",
+  "token": [
+    "e87a8b541c235da3"
+  ],
+  "device": "NVIDIA A800-SXM4-80GB",
+  "dtype": "float32",
+  "attention_backend": "SDPA MATH",
+  "tf32": false,
+  "layers": {
+    "velocity": {
+      "reference_present": true,
+      "actual_present": true,
+      "numel": 5120,
+      "max_abs": 5.245208740234375e-06,
+      "reference_norm": 124.1789854429112,
+      "actual_norm": 124.17898479962446,
+      "difference_norm": 2.0187201334822913e-05,
+      "near_zero_rms_threshold": 1e-12,
+      "near_zero_reference": false,
+      "relative_l2": 1.6256535888758388e-07,
+      "cosine": 0.9999999999999886,
+      "norm_ratio": 0.9999999948196812,
+      "nonidentical": 4008,
+      "outside_tolerance": 0,
+      "error_histogram": {
+        "0.0": 1112,
+        "1e-08": 1133,
+        "1e-07": 2250,
+        "1e-06": 5072,
+        "2e-06": 5113,
+        "1e-05": 5120,
+        "0.0001": 5120,
+        "0.001": 5120
+      },
+      "first_bad_flat_indices": [],
+      "finite": true,
+      "allclose": true,
+      "atol": 2e-06,
+      "rtol": 0.002
+    },
+    "mean": {
+      "reference_present": true,
+      "actual_present": true,
+      "numel": 5120,
+      "max_abs": 4.76837158203125e-07,
+      "reference_norm": 77.42579861769697,
+      "actual_norm": 77.42579840823694,
+      "difference_norm": 3.05314389459071e-06,
+      "near_zero_rms_threshold": 1e-12,
+      "near_zero_reference": false,
+      "relative_l2": 3.9433159865306996e-08,
+      "cosine": 0.9999999999999992,
+      "norm_ratio": 0.9999999972946998,
+      "nonidentical": 1645,
+      "outside_tolerance": 0,
+      "error_histogram": {
+        "0.0": 3475,
+        "1e-08": 3581,
+        "1e-07": 4917,
+        "1e-06": 5120,
+        "2e-06": 5120,
+        "1e-05": 5120,
+        "0.0001": 5120,
+        "0.001": 5120
+      },
+      "first_bad_flat_indices": [],
+      "finite": true,
+      "allclose": true,
+      "atol": 2e-06,
+      "rtol": 0.002
+    },
+    "std": {
+      "reference_present": true,
+      "actual_present": true,
+      "numel": 5120,
+      "max_abs": 0.0,
+      "reference_norm": 3.872507975149678,
+      "actual_norm": 3.872507975149678,
+      "difference_norm": 0.0,
+      "near_zero_rms_threshold": 1e-12,
+      "near_zero_reference": false,
+      "relative_l2": 0.0,
+      "cosine": 1.0000000000000022,
+      "norm_ratio": 1.0,
+      "nonidentical": 0,
+      "outside_tolerance": 0,
+      "error_histogram": {
+        "0.0": 5120,
+        "1e-08": 5120,
+        "1e-07": 5120,
+        "1e-06": 5120,
+        "2e-06": 5120,
+        "1e-05": 5120,
+        "0.0001": 5120,
+        "0.001": 5120
+      },
+      "first_bad_flat_indices": [],
+      "finite": true,
+      "allclose": true,
+      "atol": 2e-06,
+      "rtol": 0.002
+    },
+    "elementwise_logprob": {
+      "reference_present": true,
+      "actual_present": true,
+      "numel": 5120,
+      "max_abs": 0.00020599365234375,
+      "reference_norm": 182.44184616830574,
+      "actual_norm": 182.4418464874168,
+      "difference_norm": 0.0005766768449313162,
+      "near_zero_rms_threshold": 1e-12,
+      "near_zero_reference": false,
+      "relative_l2": 3.1608803410119074e-06,
+      "cosine": 0.9999999999950101,
+      "norm_ratio": 1.000000001749111,
+      "nonidentical": 2311,
+      "outside_tolerance": 1,
+      "error_histogram": {
+        "0.0": 2809,
+        "1e-08": 2809,
+        "1e-07": 2809,
+        "1e-06": 3991,
+        "2e-06": 4373,
+        "1e-05": 4955,
+        "0.0001": 5112,
+        "0.001": 5120
+      },
+      "first_bad_flat_indices": [
+        4945
+      ],
+      "finite": true,
+      "allclose": false,
+      "atol": 2e-06,
+      "rtol": 0.002
+    }
+  },
+  "failed_elements": [
+    {
+      "flat_index": 4945,
+      "fp32_values": [
+        0.003717958927154541,
+        0.003731071949005127
+      ],
+      "fp64_values": [
+        0.0037178607238149697,
+        0.0037300853183094285
+      ],
+      "analytical_mean_delta": 1.2224594495467835e-05,
+      "fp32_roundoff": [
+        9.820333957133442e-08,
+        9.866306956984872e-07
+      ]
+    }
+  ],
+  "analytic_identity_max_residual": 4.462657457113273e-15,
+  "logprob_fp64_max_delta": 0.00020874796240955007,
+  "dimension_mean_ratio_max_error": 9.298324584960938e-06,
+  "probability_roundoff_max_abs_by_chunk": [
+    3.514648201807802e-06,
+    4.30907203596842e-06
+  ]
+}

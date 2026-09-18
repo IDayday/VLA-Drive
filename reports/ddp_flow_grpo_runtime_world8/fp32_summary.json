@@ -1,0 +1,2172 @@
+[
+  {
+    "status": "NOT_READY",
+    "precision": "fp32",
+    "device": "cuda",
+    "scope": "real model FP32 Adam mathematical diagnostic; not production ZeRO certification",
+    "weight_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "dependencies": {
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0",
+      "accelerate": "1.5.2",
+      "deepspeed": "0.16.9",
+      "diffusers": "0.35.2",
+      "flash-attn": "2.7.4.post1",
+      "numpy": "1.26.4",
+      "scipy": "1.11.4",
+      "tokenizers": "0.22.1",
+      "pillow": "10.1.0",
+      "torchvision": "0.20.1+cu124",
+      "triton": "3.1.0",
+      "omegaconf": "2.3.0",
+      "hydra-core": "1.3.2",
+      "shapely": "2.1.2"
+    },
+    "fixed_behavior_sha256": "5cff8f1badd2b158f6cc9d7f365553502b207f1f757cf4df17d52c0b676fe938",
+    "token": "e87a8b541c235da3",
+    "real_rewards": [
+      [
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064,
+        0.8571428656578064
+      ]
+    ],
+    "official_advantages": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "advantage_source": "official",
+    "historical_tolerances": {
+      "atol": 2e-06,
+      "rtol": 0.002
+    },
+    "production_gate": "NOT_RUN",
+    "visual_unchanged": true,
+    "groups": {
+      "2": {
+        "status": "PASS",
+        "comparisons": {
+          "gradients": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.409171090926975e-08,
+                "relative_l2": 0.00024040045920058399,
+                "norm_ratio": 1.000097695498004,
+                "cosine": 0.9999999758783713,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 2.0070001482963562e-07,
+                "relative_l2": 0.00013547085818236537,
+                "norm_ratio": 1.0000036946380007,
+                "cosine": 0.9999999908306821,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.581652213644702e-07,
+                "relative_l2": 0.00013218491556857287,
+                "norm_ratio": 1.0000042111059042,
+                "cosine": 0.9999999912724776,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 6.438004618303239e-08,
+                "relative_l2": 0.0001775095880378195,
+                "norm_ratio": 0.9999997260430078,
+                "cosine": 0.9999999842452063,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.0070001482963562e-07,
+                "relative_l2": 0.00014058239243235098,
+                "norm_ratio": 1.0000012515158525,
+                "cosine": 0.9999999901190909,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "optimizer_received": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.409171090926975e-08,
+                "relative_l2": 0.00024040045920058399,
+                "norm_ratio": 1.000097695498004,
+                "cosine": 0.9999999758783713,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 2.0070001482963562e-07,
+                "relative_l2": 0.00013547085818236537,
+                "norm_ratio": 1.0000036946380007,
+                "cosine": 0.9999999908306821,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.581652213644702e-07,
+                "relative_l2": 0.00013218491556857287,
+                "norm_ratio": 1.0000042111059042,
+                "cosine": 0.9999999912724776,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 6.438004618303239e-08,
+                "relative_l2": 0.0001775095880378195,
+                "norm_ratio": 0.9999997260430078,
+                "cosine": 0.9999999842452063,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.0070001482963562e-07,
+                "relative_l2": 0.00014058239243235098,
+                "norm_ratio": 1.0000012515158525,
+                "cosine": 0.9999999901190909,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "moments": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 1.4092620403971523e-09,
+                "relative_l2": 1.721168881463461e-08,
+                "norm_ratio": 1.0000000000005007,
+                "cosine": 0.9999999999999998,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 3
+              },
+              "whole_model": {
+                "tensors": 2016,
+                "failed_tensors": 0,
+                "max_abs": 2.007072907872498e-08,
+                "relative_l2": 1.7982825147515268e-08,
+                "norm_ratio": 1.0000000000000646,
+                "cosine": 0.9999999999999998,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 627
+              },
+              "optimizer_state/exp_avg": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 2.007072907872498e-08,
+                "relative_l2": 0.00013547079302609737,
+                "norm_ratio": 1.000003695234749,
+                "cosine": 0.9999999908306934,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "optimizer_state/exp_avg_sq": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.518429826319334e-11,
+                "relative_l2": 5.719190163772468e-05,
+                "norm_ratio": 1.0000054965237788,
+                "cosine": 0.999999998379658,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 603
+              },
+              "optimizer_state/step": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 1065,
+                "failed_tensors": 0,
+                "max_abs": 1.5816539189472678e-08,
+                "relative_l2": 2.136151780557166e-08,
+                "norm_ratio": 1.0000000000001101,
+                "cosine": 0.9999999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 356
+              },
+              "projector": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 6.438004795938923e-09,
+                "relative_l2": 5.013242082543823e-08,
+                "norm_ratio": 0.9999999999999781,
+                "cosine": 0.9999999999999984,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 927,
+                "failed_tensors": 0,
+                "max_abs": 2.007072907872498e-08,
+                "relative_l2": 1.1944188986183988e-08,
+                "norm_ratio": 1.0000000000000093,
+                "cosine": 1.0000000000000002,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 268
+              }
+            }
+          },
+          "weights": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 4.172325134277344e-07,
+                "relative_l2": 9.690787575422927e-08,
+                "norm_ratio": 0.9999999989959019,
+                "cosine": 0.9999999999999952,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.3355165719985962e-06,
+                "relative_l2": 2.8628813179405404e-08,
+                "norm_ratio": 0.9999999999969714,
+                "cosine": 0.9999999999999996,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.3355165719985962e-06,
+                "relative_l2": 7.099986295795607e-08,
+                "norm_ratio": 0.9999999999568537,
+                "cosine": 0.9999999999999976,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 8.651986718177795e-07,
+                "relative_l2": 1.927013390828871e-06,
+                "norm_ratio": 0.99999998453201,
+                "cosine": 0.9999999999981433,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 5.867332220077515e-07,
+                "relative_l2": 8.41438365955901e-09,
+                "norm_ratio": 1.0000000000008904,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "updates": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 4.172325134277344e-07,
+                "relative_l2": 0.0030335973888922945,
+                "norm_ratio": 0.9999843382806309,
+                "cosine": 0.9999953986940213,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.3355165719985962e-06,
+                "relative_l2": 0.0020171336149015203,
+                "norm_ratio": 1.0000021272306228,
+                "cosine": 0.9999979655925801,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 23
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.3355165719985962e-06,
+                "relative_l2": 0.001449772611386979,
+                "norm_ratio": 1.0000020260422253,
+                "cosine": 0.9999989490838691,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 23
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 8.651986718177795e-07,
+                "relative_l2": 0.04382498890363827,
+                "norm_ratio": 1.0009562945991923,
+                "cosine": 0.999041059453144,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 5.867332220077515e-07,
+                "relative_l2": 0.000691570845432655,
+                "norm_ratio": 1.0000000336015071,
+                "cosine": 0.9999997608648915,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "layers": {
+            "status": "PASS",
+            "modules": {
+              "condition_projected_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 18,
+                "failed_tensors": 0,
+                "max_abs": 0.002310514450073242,
+                "relative_l2": 8.60192778975272e-06,
+                "norm_ratio": 1.0000001000723038,
+                "cosine": 0.9999999999630083,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 4
+              },
+              "condition_projected_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_projected_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 7.157754944309147e-10,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "condition_projected_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 3.2184777065680237e-10,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "condition_raw_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "current_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 5.4836273193359375e-06,
+                "relative_l2": 5.211184833129427e-07,
+                "norm_ratio": 1.0000001725961158,
+                "cosine": 0.999999999999879,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "elementwise_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.00018930435180664062,
+                "relative_l2": 4.28270500159955e-06,
+                "norm_ratio": 1.0000000607711117,
+                "cosine": 0.999999999990831,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "mean": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 4.76837158203125e-07,
+                "relative_l2": 4.5699680017159573e-08,
+                "norm_ratio": 0.9999999997827792,
+                "cosine": 0.999999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_credit": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_kl": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "per_transition_pg": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "post_fixed_noise_ode": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0003781318664550781,
+                "relative_l2": 5.011779710788697e-05,
+                "norm_ratio": 0.9999605183687773,
+                "cosine": 0.9999999995234841,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "post_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.002310514450073242,
+                "relative_l2": 0.00029278379987414513,
+                "norm_ratio": 1.0001412905090517,
+                "cosine": 0.9999999671249723,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "std": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "velocity": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 5.245208740234375e-06,
+                "relative_l2": 2.1267231801758787e-07,
+                "norm_ratio": 0.9999999886701147,
+                "cosine": 0.9999999999999774,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          }
+        }
+      },
+      "16": {
+        "status": "FAIL",
+        "comparisons": {
+          "gradients": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.8299033399671316e-09,
+                "relative_l2": 3.0029674431396482e-05,
+                "norm_ratio": 0.9999918052281843,
+                "cosine": 0.999999999582683,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 3.403874870855361e-08,
+                "relative_l2": 3.425065705933345e-05,
+                "norm_ratio": 1.0000012676522476,
+                "cosine": 0.9999999994142506,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 3.403874870855361e-08,
+                "relative_l2": 3.7006497203901265e-05,
+                "norm_ratio": 1.0000015365134525,
+                "cosine": 0.9999999993164411,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.0819086071478523e-08,
+                "relative_l2": 3.657916575890418e-05,
+                "norm_ratio": 1.000000621249253,
+                "cosine": 0.9999999993311759,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.5494955480098724e-08,
+                "relative_l2": 1.8325058535603602e-05,
+                "norm_ratio": 1.0000003295993805,
+                "cosine": 0.9999999998321505,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "optimizer_received": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.8299033399671316e-09,
+                "relative_l2": 3.0029674431396482e-05,
+                "norm_ratio": 0.9999918052281843,
+                "cosine": 0.999999999582683,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 3.403874870855361e-08,
+                "relative_l2": 3.425065705933345e-05,
+                "norm_ratio": 1.0000012676522476,
+                "cosine": 0.9999999994142506,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 3.403874870855361e-08,
+                "relative_l2": 3.7006497203901265e-05,
+                "norm_ratio": 1.0000015365134525,
+                "cosine": 0.9999999993164411,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.0819086071478523e-08,
+                "relative_l2": 3.657916575890418e-05,
+                "norm_ratio": 1.000000621249253,
+                "cosine": 0.9999999993311759,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.5494955480098724e-08,
+                "relative_l2": 1.8325058535603602e-05,
+                "norm_ratio": 1.0000003295993805,
+                "cosine": 0.9999999998321505,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "moments": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 1.830358087318018e-10,
+                "relative_l2": 2.149972195307117e-09,
+                "norm_ratio": 0.9999999999999581,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 3
+              },
+              "whole_model": {
+                "tensors": 2016,
+                "failed_tensors": 0,
+                "max_abs": 3.403783921385184e-09,
+                "relative_l2": 4.546544068871265e-09,
+                "norm_ratio": 1.000000000000022,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 627
+              },
+              "optimizer_state/exp_avg": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 3.403783921385184e-09,
+                "relative_l2": 3.4250676857852765e-05,
+                "norm_ratio": 1.0000012680997272,
+                "cosine": 0.9999999994142503,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 24
+              },
+              "optimizer_state/exp_avg_sq": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.5418777365994174e-12,
+                "relative_l2": 7.946212833523476e-06,
+                "norm_ratio": 1.0000011318848556,
+                "cosine": 0.9999999999690694,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 603
+              },
+              "optimizer_state/step": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 1065,
+                "failed_tensors": 0,
+                "max_abs": 3.403783921385184e-09,
+                "relative_l2": 5.980376889912018e-09,
+                "norm_ratio": 1.00000000000004,
+                "cosine": 0.9999999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 356
+              },
+              "projector": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 1.0819086737612338e-09,
+                "relative_l2": 1.0330709187188165e-08,
+                "norm_ratio": 1.0000000000000495,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 927,
+                "failed_tensors": 0,
+                "max_abs": 2.5502231437712908e-09,
+                "relative_l2": 1.556932725357268e-09,
+                "norm_ratio": 1.0000000000000027,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 268
+              }
+            }
+          },
+          "weights": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.960464477539063e-08,
+                "relative_l2": 1.465078237406718e-08,
+                "norm_ratio": 0.9999999999696007,
+                "cosine": 0.9999999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 9.5367431640625e-07,
+                "relative_l2": 7.2961766342630085e-09,
+                "norm_ratio": 1.0000000000025362,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 4.3213367462158203e-07,
+                "relative_l2": 1.937350230031361e-08,
+                "norm_ratio": 1.0000000000002094,
+                "cosine": 0.9999999999999998,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.19677996635437e-07,
+                "relative_l2": 4.725684653512111e-07,
+                "norm_ratio": 0.9999999997730638,
+                "cosine": 0.9999999999998883,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 9.5367431640625e-07,
+                "relative_l2": 2.579568219924544e-09,
+                "norm_ratio": 1.0000000000026408,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "updates": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.960464477539063e-08,
+                "relative_l2": 0.0004586270703973867,
+                "norm_ratio": 1.0000028639202365,
+                "cosine": 0.9999998948350074,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 9.5367431640625e-07,
+                "relative_l2": 0.0005140752100690665,
+                "norm_ratio": 1.0000002386327302,
+                "cosine": 0.999999867863399,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 23
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 4.3213367462158203e-07,
+                "relative_l2": 0.00039559474978579897,
+                "norm_ratio": 1.0000004775574447,
+                "cosine": 0.9999999217525484,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 23
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.19677996635437e-07,
+                "relative_l2": 0.010747360578180229,
+                "norm_ratio": 1.0000606552052724,
+                "cosine": 0.999942252462517,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 9.5367431640625e-07,
+                "relative_l2": 0.00021201245948396021,
+                "norm_ratio": 1.000000003564217,
+                "cosine": 0.9999999775253586,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "layers": {
+            "status": "FAIL",
+            "modules": {
+              "condition_projected_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 18,
+                "failed_tensors": 1,
+                "max_abs": 0.0010540485382080078,
+                "relative_l2": 5.404845617538347e-06,
+                "norm_ratio": 0.9999998488959757,
+                "cosine": 0.9999999999854052,
+                "outside_tolerance": 1,
+                "near_zero_tensors": 4
+              },
+              "condition_projected_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_projected_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 1.8572055004995036e-10,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "condition_projected_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 4.915211640477146e-11,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "condition_raw_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "current_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 9.298324584960938e-06,
+                "relative_l2": 5.264808712340827e-07,
+                "norm_ratio": 1.0000000388003298,
+                "cosine": 0.9999999999998622,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "elementwise_logprob": {
+                "tensors": 1,
+                "failed_tensors": 1,
+                "max_abs": 0.00020599365234375,
+                "relative_l2": 3.1608803410119074e-06,
+                "norm_ratio": 1.0000000017491109,
+                "cosine": 0.9999999999950044,
+                "outside_tolerance": 1,
+                "near_zero_tensors": 0
+              },
+              "mean": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 4.76837158203125e-07,
+                "relative_l2": 3.9433159865306996e-08,
+                "norm_ratio": 0.9999999972946998,
+                "cosine": 0.9999999999999992,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_credit": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_kl": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "per_transition_pg": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "post_fixed_noise_ode": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.00010251998901367188,
+                "relative_l2": 1.72869479745289e-05,
+                "norm_ratio": 1.0000149339976798,
+                "cosine": 0.9999999999620934,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "post_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0010540485382080078,
+                "relative_l2": 7.419474312171564e-05,
+                "norm_ratio": 0.999968414242355,
+                "cosine": 0.9999999977463289,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "std": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "velocity": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 5.245208740234375e-06,
+                "relative_l2": 1.6256535888758388e-07,
+                "norm_ratio": 0.9999999948196812,
+                "cosine": 0.9999999999999869,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "status": "NOT_READY",
+    "precision": "fp32",
+    "device": "cuda",
+    "scope": "real model FP32 Adam mathematical diagnostic; not production ZeRO certification",
+    "weight_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+    "dependencies": {
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0",
+      "accelerate": "1.5.2",
+      "deepspeed": "0.16.9",
+      "diffusers": "0.35.2",
+      "flash-attn": "2.7.4.post1",
+      "numpy": "1.26.4",
+      "scipy": "1.11.4",
+      "tokenizers": "0.22.1",
+      "pillow": "10.1.0",
+      "torchvision": "0.20.1+cu124",
+      "triton": "3.1.0",
+      "omegaconf": "2.3.0",
+      "hydra-core": "1.3.2",
+      "shapely": "2.1.2"
+    },
+    "fixed_behavior_sha256": "97f5bd97222363c6bbbb6286f1b32a98461743b0a1b1974f458aea438f0286ec",
+    "token": "8f236f0c4d8a5e13",
+    "real_rewards": [
+      [
+        0.9302678108215332,
+        0.9321388006210327,
+        0.9307417869567871,
+        0.9308612942695618,
+        0.932655394077301,
+        0.933208703994751,
+        0.9306209683418274,
+        0.9311960339546204,
+        0.9320401549339294,
+        0.9296245574951172,
+        0.929253876209259,
+        0.9293707609176636,
+        0.9298171401023865,
+        0.9330568313598633,
+        0.931441605091095,
+        0.930946946144104
+      ]
+    ],
+    "official_advantages": [
+      [
+        -0.6589537262916565,
+        0.8634108304977417,
+        -0.27329450845718384,
+        -0.17605523765087128,
+        1.2837464809417725,
+        1.733957052230835,
+        -0.3716007471084595,
+        0.09631174802780151,
+        0.7831460237503052,
+        -1.182348370552063,
+        -1.4839599132537842,
+        -1.3888546228408813,
+        -1.025650143623352,
+        1.610383152961731,
+        0.2961251437664032,
+        -0.10636304318904877
+      ]
+    ],
+    "advantage_source": "official",
+    "historical_tolerances": {
+      "atol": 2e-06,
+      "rtol": 0.002
+    },
+    "production_gate": "NOT_RUN",
+    "visual_unchanged": true,
+    "groups": {
+      "2": {
+        "status": "PASS",
+        "comparisons": {
+          "gradients": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 9.802170097827911e-08,
+                "relative_l2": 2.4412733381958915e-06,
+                "norm_ratio": 1.0000005352246617,
+                "cosine": 0.9999999999971633,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.952052116394043e-06,
+                "relative_l2": 1.5670533966847806e-05,
+                "norm_ratio": 0.9999933810674498,
+                "cosine": 0.9999999998991218,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 7
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.952052116394043e-06,
+                "relative_l2": 1.767027720859487e-05,
+                "norm_ratio": 0.9999909809132683,
+                "cosine": 0.9999999998845516,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 7
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.820766091346741e-07,
+                "relative_l2": 1.564280322726868e-05,
+                "norm_ratio": 0.9999928865574557,
+                "cosine": 0.9999999999029513,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 1.3783574104309082e-06,
+                "relative_l2": 8.806906933582323e-06,
+                "norm_ratio": 1.0000001894341495,
+                "cosine": 0.9999999999612371,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "optimizer_received": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.448237061500549e-08,
+                "relative_l2": 7.438017042134695e-06,
+                "norm_ratio": 1.0000070461665704,
+                "cosine": 0.9999999999971622,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 4.4330954551696777e-07,
+                "relative_l2": 1.4204391400001019e-05,
+                "norm_ratio": 0.9999998921001667,
+                "cosine": 0.9999999998991234,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 16
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 3.3527612686157227e-07,
+                "relative_l2": 1.5400704957706e-05,
+                "norm_ratio": 0.9999974919098498,
+                "cosine": 0.9999999998845542,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 16
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.21421180665493e-07,
+                "relative_l2": 1.3944940507121636e-05,
+                "norm_ratio": 0.9999993975138044,
+                "cosine": 0.9999999999029507,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 4.4330954551696777e-07,
+                "relative_l2": 1.1064452630851371e-05,
+                "norm_ratio": 1.0000067006713735,
+                "cosine": 0.9999999999612388,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "moments": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 5.413312464952469e-09,
+                "relative_l2": 9.997461995542892e-08,
+                "norm_ratio": 1.000000001272928,
+                "cosine": 0.9999999999999949,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 2016,
+                "failed_tensors": 0,
+                "max_abs": 4.423782229423523e-08,
+                "relative_l2": 5.4794789246956616e-08,
+                "norm_ratio": 0.9999999999983938,
+                "cosine": 0.9999999999999984,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 215
+              },
+              "optimizer_state/exp_avg": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 4.423782229423523e-08,
+                "relative_l2": 1.420444720724412e-05,
+                "norm_ratio": 0.999999891997314,
+                "cosine": 0.9999999998991225,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 23
+              },
+              "optimizer_state/exp_avg_sq": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 9.258656064048409e-10,
+                "relative_l2": 1.7101997194613106e-05,
+                "norm_ratio": 1.0000051739160898,
+                "cosine": 0.9999999998671463,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 192
+              },
+              "optimizer_state/step": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 1065,
+                "failed_tensors": 0,
+                "max_abs": 3.3527612686157227e-08,
+                "relative_l2": 6.84663884384537e-08,
+                "norm_ratio": 0.9999999999504265,
+                "cosine": 0.9999999999999978,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 212
+              },
+              "projector": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 1.2143573258072138e-08,
+                "relative_l2": 1.5745368318455695e-07,
+                "norm_ratio": 0.9999999999231816,
+                "cosine": 0.9999999999999878,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 927,
+                "failed_tensors": 0,
+                "max_abs": 4.423782229423523e-08,
+                "relative_l2": 2.6339479726233108e-08,
+                "norm_ratio": 1.000000000037974,
+                "cosine": 0.9999999999999997,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 3
+              }
+            }
+          },
+          "weights": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 3.725290298461914e-09,
+                "relative_l2": 6.671838486577601e-10,
+                "norm_ratio": 0.9999999999994574,
+                "cosine": 1.0000000000000002,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.1578667908906937e-06,
+                "relative_l2": 2.6297876124042763e-09,
+                "norm_ratio": 1.0000000000002047,
+                "cosine": 0.9999999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.1578667908906937e-06,
+                "relative_l2": 1.2404891546837424e-08,
+                "norm_ratio": 1.0000000000008724,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 4.416797310113907e-07,
+                "relative_l2": 2.9019840321715567e-08,
+                "norm_ratio": 0.9999999999990278,
+                "cosine": 0.9999999999999998,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-07,
+                "relative_l2": 1.7986089152682903e-09,
+                "norm_ratio": 1.0000000000001892,
+                "cosine": 0.9999999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "updates": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 3.725290298461914e-09,
+                "relative_l2": 1.8223925806527776e-05,
+                "norm_ratio": 1.0000000852492295,
+                "cosine": 0.9999999998339478,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.1578667908906937e-06,
+                "relative_l2": 0.0001434814204732952,
+                "norm_ratio": 1.0000001092098525,
+                "cosine": 0.999999989706548,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.1578667908906937e-06,
+                "relative_l2": 0.0001746699828193414,
+                "norm_ratio": 1.000000023090742,
+                "cosine": 0.9999999847451992,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 4.416797310113907e-07,
+                "relative_l2": 0.0005334190672716498,
+                "norm_ratio": 1.000000020328069,
+                "cosine": 0.9999998577320525,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-07,
+                "relative_l2": 0.00012074396517254294,
+                "norm_ratio": 1.0000001565714125,
+                "cosine": 0.9999999927104609,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "layers": {
+            "status": "PASS",
+            "modules": {
+              "condition_projected_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 18,
+                "failed_tensors": 0,
+                "max_abs": 3.814697265625e-05,
+                "relative_l2": 1.9945877417578148e-07,
+                "norm_ratio": 1.000000003510244,
+                "cosine": 0.9999999999999801,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "condition_projected_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_projected_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 2.200249582529068e-08,
+                "relative_l2": 1.7219069994909936e-05,
+                "norm_ratio": 0.9999942583935068,
+                "cosine": 0.999999999868234,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_projected_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 5.384208634495735e-09,
+                "relative_l2": 1.2285427166723812e-05,
+                "norm_ratio": 0.9999979141227618,
+                "cosine": 0.9999999999267094,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "current_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-06,
+                "relative_l2": 2.8724097909870674e-07,
+                "norm_ratio": 1.000000131247735,
+                "cosine": 0.9999999999999671,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "elementwise_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 3.814697265625e-05,
+                "relative_l2": 1.083144993257779e-06,
+                "norm_ratio": 1.000000092170191,
+                "cosine": 0.9999999999994177,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "mean": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-07,
+                "relative_l2": 3.618224698120854e-08,
+                "norm_ratio": 1.0000000024492581,
+                "cosine": 0.9999999999999993,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_credit": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_kl": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "per_transition_pg": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 1.6093254089355469e-06,
+                "relative_l2": 6.703457702619036e-07,
+                "norm_ratio": 1.0000002790255846,
+                "cosine": 0.999999999999814,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "post_fixed_noise_ode": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 4.76837158203125e-07,
+                "relative_l2": 2.0842457244944566e-07,
+                "norm_ratio": 1.0000000035460506,
+                "cosine": 0.9999999999999784,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "post_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 5.9604644775390625e-06,
+                "relative_l2": 7.003345439101969e-07,
+                "norm_ratio": 1.0000002522635942,
+                "cosine": 0.9999999999997868,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "std": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "velocity": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 7.152557373046875e-07,
+                "relative_l2": 1.2570013405028427e-07,
+                "norm_ratio": 1.000000010701555,
+                "cosine": 0.999999999999992,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          }
+        }
+      },
+      "16": {
+        "status": "PASS",
+        "comparisons": {
+          "gradients": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 5.4016709327697754e-08,
+                "relative_l2": 4.218033218002955e-06,
+                "norm_ratio": 0.9999963943646838,
+                "cosine": 0.9999999999976044,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 9.406358003616333e-07,
+                "relative_l2": 7.551132909700346e-06,
+                "norm_ratio": 0.9999955128777673,
+                "cosine": 0.9999999999815572,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 12
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 9.406358003616333e-07,
+                "relative_l2": 8.33820936054412e-06,
+                "norm_ratio": 0.9999953373448852,
+                "cosine": 0.9999999999761071,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 12
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.8440186977386475e-07,
+                "relative_l2": 6.598501535073127e-06,
+                "norm_ratio": 0.9999951511259377,
+                "cosine": 0.9999999999899856,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 4.991888999938965e-07,
+                "relative_l2": 5.235574837514604e-06,
+                "norm_ratio": 0.9999960363217943,
+                "cosine": 0.9999999999941498,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "optimizer_received": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 1.1408701539039612e-08,
+                "relative_l2": 2.3492566989385925e-06,
+                "norm_ratio": 1.0000008522384298,
+                "cosine": 0.9999999999976036,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 3.1944364309310913e-07,
+                "relative_l2": 6.0733339700021906e-06,
+                "norm_ratio": 0.999999970500244,
+                "cosine": 0.9999999999815578,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 14
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 3.1944364309310913e-07,
+                "relative_l2": 6.9157451205909655e-06,
+                "norm_ratio": 0.9999997951798989,
+                "cosine": 0.9999999999761073,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 14
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 4.586763679981232e-08,
+                "relative_l2": 4.492630555125072e-06,
+                "norm_ratio": 0.9999996097051531,
+                "cosine": 0.9999999999899843,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 1.5832483768463135e-07,
+                "relative_l2": 3.4554002351367426e-06,
+                "norm_ratio": 1.000000493026757,
+                "cosine": 0.9999999999941517,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "moments": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 1.1350493878126144e-09,
+                "relative_l2": 1.8769443249911132e-08,
+                "norm_ratio": 1.0000000000543905,
+                "cosine": 0.9999999999999998,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 2016,
+                "failed_tensors": 0,
+                "max_abs": 3.189779818058014e-08,
+                "relative_l2": 2.3429000186788206e-08,
+                "norm_ratio": 0.9999999999995624,
+                "cosine": 0.9999999999999998,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 254
+              },
+              "optimizer_state/exp_avg": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 3.189779818058014e-08,
+                "relative_l2": 6.073496732662963e-06,
+                "norm_ratio": 0.9999999705805972,
+                "cosine": 0.9999999999815565,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 23
+              },
+              "optimizer_state/exp_avg_sq": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 4.147295840084553e-10,
+                "relative_l2": 7.113086464905885e-06,
+                "norm_ratio": 1.0000021361582232,
+                "cosine": 0.9999999999769837,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 231
+              },
+              "optimizer_state/step": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 1065,
+                "failed_tensors": 0,
+                "max_abs": 3.189779818058014e-08,
+                "relative_l2": 3.0398440533776804e-08,
+                "norm_ratio": 0.9999999999960428,
+                "cosine": 0.9999999999999993,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 251
+              },
+              "projector": {
+                "tensors": 12,
+                "failed_tensors": 0,
+                "max_abs": 4.598405212163925e-09,
+                "relative_l2": 5.5059586612964165e-08,
+                "norm_ratio": 0.9999999999414794,
+                "cosine": 0.9999999999999984,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 927,
+                "failed_tensors": 0,
+                "max_abs": 1.5832483768463135e-08,
+                "relative_l2": 9.397966111016575e-09,
+                "norm_ratio": 1.000000000003648,
+                "cosine": 1.0000000000000002,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 3
+              }
+            }
+          },
+          "weights": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 2.0489096641540527e-08,
+                "relative_l2": 3.4667669304165013e-09,
+                "norm_ratio": 1.0000000000002045,
+                "cosine": 1.0000000000000002,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.1194497346878052e-06,
+                "relative_l2": 1.7006494164965987e-09,
+                "norm_ratio": 1.0000000000001055,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.1194497346878052e-06,
+                "relative_l2": 8.017786674837367e-09,
+                "norm_ratio": 1.0000000000003955,
+                "cosine": 1.0000000000000002,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 3.855675458908081e-07,
+                "relative_l2": 3.49378284659094e-08,
+                "norm_ratio": 0.9999999999856382,
+                "cosine": 0.9999999999999993,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-07,
+                "relative_l2": 1.095686711781315e-09,
+                "norm_ratio": 1.000000000000101,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "updates": {
+            "status": "PASS",
+            "modules": {
+              "history": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 2.0489096641540527e-08,
+                "relative_l2": 9.455225147160927e-05,
+                "norm_ratio": 1.0000006308807898,
+                "cosine": 0.9999999955301377,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 672,
+                "failed_tensors": 0,
+                "max_abs": 1.1194497346878052e-06,
+                "relative_l2": 9.255637650548164e-05,
+                "norm_ratio": 1.0000000367695894,
+                "cosine": 0.9999999957166593,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "action": {
+                "tensors": 355,
+                "failed_tensors": 0,
+                "max_abs": 1.1194497346878052e-06,
+                "relative_l2": 0.0001125921857256879,
+                "norm_ratio": 1.000000088168412,
+                "cosine": 0.9999999936615043,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "projector": {
+                "tensors": 4,
+                "failed_tensors": 0,
+                "max_abs": 3.855675458908081e-07,
+                "relative_l2": 0.000637352605917203,
+                "norm_ratio": 1.0000009636206144,
+                "cosine": 0.9999997968914879,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "language": {
+                "tensors": 309,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-07,
+                "relative_l2": 7.338111589460048e-05,
+                "norm_ratio": 1.0000000055050924,
+                "cosine": 0.9999999973076058,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          },
+          "layers": {
+            "status": "PASS",
+            "modules": {
+              "condition_projected_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "whole_model": {
+                "tensors": 18,
+                "failed_tensors": 0,
+                "max_abs": 3.814697265625e-05,
+                "relative_l2": 4.1469032085569424e-07,
+                "norm_ratio": 0.9999999976795076,
+                "cosine": 0.9999999999999141,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "condition_projected_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_projected_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 6.024492904543877e-09,
+                "relative_l2": 7.054393359747215e-06,
+                "norm_ratio": 0.9999953920754047,
+                "cosine": 0.9999999999857343,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_projected_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_gradient_0": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 1.2951204553246498e-09,
+                "relative_l2": 5.660023596915257e-06,
+                "norm_ratio": 0.9999958399791834,
+                "cosine": 0.9999999999926349,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "condition_raw_gradient_1": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "current_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-06,
+                "relative_l2": 1.7112425641817362e-07,
+                "norm_ratio": 0.9999999954505487,
+                "cosine": 0.9999999999999853,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "elementwise_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 3.814697265625e-05,
+                "relative_l2": 8.783380262553863e-07,
+                "norm_ratio": 0.9999999921624259,
+                "cosine": 0.9999999999996142,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "mean": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 2.384185791015625e-07,
+                "relative_l2": 3.441809261678608e-08,
+                "norm_ratio": 1.0000000007773335,
+                "cosine": 0.9999999999999996,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_credit": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "per_transition_kl": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": null,
+                "norm_ratio": null,
+                "cosine": null,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 1
+              },
+              "per_transition_pg": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 1.6093254089355469e-06,
+                "relative_l2": 3.7780364526226543e-07,
+                "norm_ratio": 0.9999999568117451,
+                "cosine": 0.9999999999999297,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "post_fixed_noise_ode": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 4.76837158203125e-07,
+                "relative_l2": 1.7102880202952586e-07,
+                "norm_ratio": 1.0000000957598714,
+                "cosine": 0.99999999999999,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "post_logprob": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 2.7179718017578125e-05,
+                "relative_l2": 2.0248260281596014e-06,
+                "norm_ratio": 0.9999998234258758,
+                "cosine": 0.9999999999979658,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "std": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 0.0,
+                "relative_l2": 0.0,
+                "norm_ratio": 1.0,
+                "cosine": 1.0,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              },
+              "velocity": {
+                "tensors": 1,
+                "failed_tensors": 0,
+                "max_abs": 1.430511474609375e-06,
+                "relative_l2": 1.191530609142651e-07,
+                "norm_ratio": 1.0000000003916087,
+                "cosine": 0.9999999999999929,
+                "outside_tolerance": 0,
+                "near_zero_tensors": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]
