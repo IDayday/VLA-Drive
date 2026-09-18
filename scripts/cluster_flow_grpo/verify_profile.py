@@ -17,7 +17,7 @@ from starVLA.rl.flow_grpo.audit import source_fingerprints
 from starVLA.rl.flow_grpo.config import resolve_config, config_hash
 from starVLA.rl.flow_grpo.contracts import check_manifest, digest
 from starVLA.rl.flow_grpo.loading import file_sha
-from scripts.cluster_flow_grpo.identity import orchestration_identity
+from scripts.cluster_flow_grpo.identity import orchestration_identity, placement_evidence
 
 
 def verify(short, root, output):
@@ -176,6 +176,7 @@ def verify(short, root, output):
     assert orchestration_identity()==cluster_identity,"verification sources changed during collation"
     bundle={"schema_version":1,"tests":tests,"run_artifact_receipts":receipts,
             "orchestration_identity":cluster_identity,
+            "placement_evidence":placement_evidence(),
             "cluster_cpu_validation":{"path":str((output.parent/"cpu_validation.json").resolve()),
                                       "sha256":file_sha(output.parent/"cpu_validation.json")},
             "limitations":["Historical BF16 chunk1/2 FAIL unchanged; only chunk1.","World16 two-node Socket/NCCL fixed topology; no cross-world exact resume claim.","No RL performance improvement inferred from engineering acceptance."]}

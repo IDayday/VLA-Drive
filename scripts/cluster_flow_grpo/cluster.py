@@ -19,6 +19,10 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 PYTHON = "/root/miniconda3/envs/ddp/bin/python"
+# SSH executes this file directly in a login directory with no PYTHONPATH.
+# Bootstrap the supervisor before base_env configures the actual child process.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
 @contextmanager

@@ -24,6 +24,7 @@ def test_binding_reads_actual_evidence_header_and_rejects_change(tmp_path, monke
     import hashlib
     expected={"schema_version":1,"sha256":"fixture","files":{"observer.py":"digest"}}
     monkeypatch.setattr(identity,"orchestration_identity",lambda:expected)
+    monkeypatch.setattr(identity,"placement_evidence",lambda:{})
     receipt=tmp_path/"cpu.json";receipt.write_text("unit fixture; GPU gates remain separate")
     monkeypatch.setattr(test_release,"validate_cpu_receipt",lambda *a:None)
     bundle=tmp_path/"bundle.json";bundle.write_text(json.dumps({"orchestration_identity":expected,
@@ -34,3 +35,23 @@ def test_binding_reads_actual_evidence_header_and_rejects_change(tmp_path, monke
     bundle.write_text(json.dumps({"orchestration_identity":{"sha256":"other"}}))
     with pytest.raises(ValueError,match="binding"):identity.validate_binding(cfg,expected)
     with pytest.raises(ValueError,match="code or plan changed"):identity.validate_binding(cfg,{"sha256":"changed"})
+
+
+def test_relocation_requires_actual_matching_run_and_all_boundary_results(tmp_path):
+    group={"nodes":[{"host":"replacement","devices":[0]}],"config":"fixture.yaml",
+           "placement_validation":{"spec":"spec.json","control":"control.json","comparison":"comparison.json"}}
+    plan=tmp_path/"configs/cluster_flow_grpo/paired_world16.json";plan.parent.mkdir(parents=True)
+    plan.write_text(json.dumps({"groups":{"fixture":group}}))
+    (tmp_path/"spec.json").write_text(json.dumps({"nodes":group["nodes"],"entry":["--config","fixture.yaml"]}))
+    (tmp_path/"control.json").write_text(json.dumps({"status":"PASS","exit_codes":[0]}))
+    comparison={"status":"PASS","files":{str(i):{"status":"PASS","values":{"tensor":{"allclose":True}}} for i in range(50)}}
+    path=tmp_path/"comparison.json";path.write_text(json.dumps(comparison))
+    assert len(identity.placement_evidence(tmp_path))==3
+    comparison["files"]["7"]["values"]["tensor"]["allclose"]=False;path.write_text(json.dumps(comparison))
+    with pytest.raises(ValueError,match="boundary"):identity.placement_evidence(tmp_path)
+    comparison["files"]["7"]["values"]["tensor"]["allclose"]=True;path.write_text(json.dumps(comparison))
+    (tmp_path/"control.json").write_text(json.dumps({"status":"PASS","exit_codes":[1]}))
+    with pytest.raises(ValueError,match="execution"):identity.placement_evidence(tmp_path)
+    (tmp_path/"control.json").write_text(json.dumps({"status":"PASS","exit_codes":[0]}))
+    (tmp_path/"spec.json").write_text(json.dumps({"nodes":[{"host":"wrong"}],"entry":["--config","fixture.yaml"]}))
+    with pytest.raises(ValueError,match="allocated"):identity.placement_evidence(tmp_path)

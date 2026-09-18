@@ -33,6 +33,35 @@ def configure_release(root=None):
     return identity,directory
 
 
+def placement_evidence(root=None):
+    """Validate explicitly requested hardware relocations before publication/use.
+
+    The original profile gates remain required. A replacement node additionally
+    needs an actual completed two-update run and an exact native boundary check.
+    """
+    root=Path(root or ROOT)
+    plan=json.loads((root/"configs/cluster_flow_grpo/paired_world16.json").read_text())
+    receipts={}
+    for variant,group in plan["groups"].items():
+        relocation=group.get("placement_validation")
+        if not relocation:continue
+        loaded={}
+        for kind,relative in relocation.items():
+            path=root/relative;raw=path.read_bytes();loaded[kind]=json.loads(raw)
+            receipts[str(path.resolve())]=hashlib.sha256(raw).hexdigest()
+        spec,control,comparison=(loaded[k] for k in ("spec","control","comparison"))
+        if spec["nodes"]!=group["nodes"] or spec["entry"][spec["entry"].index("--config")+1]!=group["config"]:
+            raise ValueError("relocation does not match the allocated nodes/config")
+        if control.get("status")!="PASS" or control.get("exit_codes")!=[0]*len(group["nodes"]):
+            raise ValueError("relocation execution failed")
+        files=comparison.get("files",{})
+        if (comparison.get("status")!="PASS" or len(files)!=50 or
+            any(f.get("status")!="PASS" or not f.get("values") or
+                any(v.get("allclose") is not True for v in f["values"].values()) for f in files.values())):
+            raise ValueError("relocation exact boundary comparison failed/incomplete")
+    return receipts
+
+
 def validate_binding(cfg, expected):
     if orchestration_identity()!=expected:
         raise ValueError("cluster/verification code or plan changed; qualification must be republished")
@@ -42,6 +71,8 @@ def validate_binding(cfg, expected):
         bundle=json.loads(Path(path).read_text())
         if bundle.get("orchestration_identity")!=expected:
             raise ValueError("native release lacks the matching cluster/verification source binding")
+        if bundle.get("placement_evidence",{})!=placement_evidence():
+            raise ValueError("relocation evidence changed")
         from scripts.cluster_flow_grpo.test_release import validate_cpu_receipt
         receipt=bundle["cluster_cpu_validation"]
         if hashlib.sha256(Path(receipt["path"]).read_bytes()).hexdigest()!=receipt["sha256"]:

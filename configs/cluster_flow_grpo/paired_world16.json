@@ -156,7 +156,7 @@
           ]
         },
         {
-          "host": "training-rl-zt2",
+          "host": "training-rl-zt4",
           "devices": [
             0,
             1,
@@ -303,6 +303,11 @@
       "master_port": 29686,
       "reusable_evaluations": {
         "sft/rl_dev/42": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/frozen_visual_evaluation/sft_rl_dev_seed42"
+      },
+      "placement_validation": {
+        "spec": "runs/resource_reallocation_v2/f16_relocated_spec.json",
+        "control": "runs/resource_reallocation_v2/f16_relocated_control/result.json",
+        "comparison": "runs/resource_reallocation_v2/f16_relocation_comparison.json"
       }
     },
     "unfrozen_visual": {

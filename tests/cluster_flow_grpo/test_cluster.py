@@ -23,6 +23,19 @@ def test_multinode_command_keeps_actual_world_and_entry():
     assert "--standalone" not in command
 
 
+def test_direct_remote_style_supervisor_without_pythonpath(tmp_path):
+    import os
+    import subprocess
+    spec={"job_id":"ssh_environment_fixture","nodes":[{"host":"local","devices":[0]}],
+          "direct_command":[sys.executable,"-c","raise SystemExit(0)"],
+          "control_dir":str(tmp_path/"control"),"timeout_seconds":10}
+    path=tmp_path/"spec.json";path.write_text(json.dumps(spec))
+    env=os.environ.copy();env.pop("PYTHONPATH",None)
+    subprocess.run([sys.executable,str(Path(cluster.__file__).resolve()),"supervise",str(path)],
+                   cwd=tmp_path,env=env,check=True,timeout=15)
+    assert json.loads((tmp_path/"control/node0.json").read_text())["exit_code"]==0
+
+
 @pytest.mark.parametrize("exit_code", [0, 7])
 def test_real_local_supervision_records_child_exit(tmp_path, exit_code):
     spec = {"job_id": "cpu_fixture", "nodes": [{"host": "local", "devices": [0]}],
