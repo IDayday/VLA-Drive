@@ -1,0 +1,161 @@
+[
+  {
+    "pre_update_ratio_min": 0.9803431034088135,
+    "pre_update_ratio_max": 1.021996021270752,
+    "pre_update_ratio_mean": 0.9999635502230376,
+    "pre_update_ratio_clip_fraction": 0.00078125,
+    "pre_update_ratio_count": 2560.0,
+    "pre_update_ratio_quantiles": {
+      "0.0": 0.9803431034088135,
+      "0.01": 0.993673329949379,
+      "0.5": 0.9999992847442627,
+      "0.99": 1.0056936168670654,
+      "1.0": 1.021996021270752
+    },
+    "loss": 0.0005359479923754407,
+    "grpo": 9.573966508469312e-08,
+    "reference": 6.824851249120911e-05,
+    "sft": 0.005331308406312019,
+    "old_policy_drift": 1.7925628119142e-06,
+    "reward": 0.9700220255181193,
+    "reward_zero_fraction": 0.0,
+    "all_zero_groups": 0.0,
+    "all_equal_groups": 0.625,
+    "scene_count": 16.0,
+    "reward_group_std_quantiles": {
+      "0.0": 0.0,
+      "0.01": 0.0,
+      "0.5": 0.0,
+      "0.99": 0.03014601364444938,
+      "1.0": 0.03458020638713947
+    },
+    "advantage_absolute_mean": 0.27870128084759926,
+    "advantage_second_moment": 0.3746655666462724,
+    "advantage_group_mean_abs_max": 1.1641532182693481e-08,
+    "advantage_nonzero_group_fraction": 0.375,
+    "candidate_pair_ade_scene_median_m": 0.1182636340869922,
+    "candidate_pair_fde_scene_median_m": 0.12220410408653404,
+    "candidate_xy_effective_rank": 2.6977495957795505,
+    "reward_group_span_quantiles": {
+      "0.0": 0.0,
+      "0.01": 0.0,
+      "0.5": 0.0,
+      "0.99": 0.1246391505002975,
+      "1.0": 0.1428571343421936
+    },
+    "candidate_count": 256.0,
+    "replay_scene_count": 16.0,
+    "sft_component/action_loss": 0.005331308406312019,
+    "sft_component/rgb_loss": 0.0,
+    "sft_component/gs_loss": 0.0,
+    "sft_component/reward_loss": 0.0,
+    "reward_component/no_at_fault_collisions": 1.0,
+    "reward_component/drivable_area_compliance": 1.0,
+    "reward_component/driving_direction_compliance": 1.0,
+    "reward_component/traffic_light_compliance": 1.0,
+    "reward_component/ego_progress": 0.917624172596637,
+    "reward_component/time_to_collision_within_bound": 1.0,
+    "reward_component/lane_keeping": 0.99609375,
+    "reward_component/history_comfort": 1.0,
+    "reward_component/pdm_score": 0.9560711330702275,
+    "reward_component/score": 0.9700220259273704,
+    "post_update_probe_ratio_min": 0.9696598649024963,
+    "post_update_probe_ratio_max": 1.015162706375122,
+    "post_update_probe_ratio_mean": 0.9999326634453609,
+    "post_update_probe_ratio_clip_fraction": 0.00078125,
+    "post_update_probe_ratio_count": 2560.0,
+    "post_update_probe_ratio_quantiles": {
+      "0.0": 0.9696598649024963,
+      "0.01": 0.9933089536428451,
+      "0.5": 0.9999937415122986,
+      "0.99": 1.005781831741333,
+      "1.0": 1.015162706375122
+    },
+    "update": 2,
+    "policy_version": 0,
+    "inner_epoch": 1,
+    "loss_coefficients": {
+      "grpo": 1.0,
+      "reference": 0.039875,
+      "sft": 0.1
+    },
+    "denoising_credit": {
+      "discount": 1.0,
+      "normalization": "raw_discount",
+      "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+    },
+    "lr": [
+      7.731958762886599e-09,
+      7.731958762886599e-09,
+      7.731958762886599e-09
+    ],
+    "lr_used": [
+      5.154639175257733e-09,
+      5.154639175257733e-09,
+      5.154639175257733e-09
+    ],
+    "scheduler_completed_updates": 2,
+    "pre_clip_grad_norm": 0.6231173276901245,
+    "clip_scale": 1.0,
+    "post_clip_grad_norm": null,
+    "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+    "phase_wall_seconds_max": {
+      "actor_forward": 18.31888084113598,
+      "backward_optimizer": 40.02768951281905,
+      "optimizer_gradient_observer_nested": 0.47520807944238186,
+      "post_update_probe": 12.259484114125371,
+      "scene_metrics": 0.05535014346241951
+    },
+    "peak_gpu_gib_by_rank": [
+      22.79203462600708,
+      22.790002822875977,
+      22.78971576690674,
+      22.791404247283936,
+      22.793903350830078,
+      22.79015350341797,
+      22.792036533355713,
+      23.06375026702881
+    ],
+    "peak_gpu_gib_max": 23.06375026702881,
+    "reward_errors": 0,
+    "stability": {
+      "reference_coefficient_used": 0.039875,
+      "reference_coefficient_next": 0.039750390625,
+      "measured_pre_update_reference_kl": 6.824851249120911e-05,
+      "units": "scene mean of dimension-mean conditional transition KL",
+      "controller": {
+        "schema": 1,
+        "spec": {
+          "target": 0.02,
+          "horizon_scenes": 1024,
+          "min_coefficient": 0.01,
+          "max_coefficient": 1.0
+        },
+        "value": 0.039750390625,
+        "updates": 2
+      }
+    },
+    "post_update_probe_status": "COMPLETE",
+    "post_update_probe_source": "explicit_no_grad_forward",
+    "previous_update_probe": {
+      "policy_update": 1,
+      "policy_version": 0,
+      "source": "pre_update_ratios_on_the_same_complete_behavior_chain",
+      "candidate_scope": "all candidates and valid transitions; no subsampling",
+      "metrics": {
+        "post_update_probe_ratio_min": 0.9803431034088135,
+        "post_update_probe_ratio_max": 1.021996021270752,
+        "post_update_probe_ratio_mean": 0.9999635502230376,
+        "post_update_probe_ratio_clip_fraction": 0.00078125,
+        "post_update_probe_ratio_count": 2560.0,
+        "post_update_probe_ratio_quantiles": {
+          "0.0": 0.9803431034088135,
+          "0.01": 0.993673329949379,
+          "0.5": 0.9999992847442627,
+          "0.99": 1.0056936168670654,
+          "1.0": 1.021996021270752
+        }
+      }
+    }
+  }
+]
