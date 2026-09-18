@@ -183,7 +183,10 @@ def run(spec_path, cancel_event=None):
     spec_path = Path(spec_path).resolve()
     spec = json.loads(spec_path.read_text())
     sizes = {len(n["devices"]) for n in spec["nodes"]}
-    if not sizes or 0 in sizes:
+    cpu_only = spec.get("cpu_only", False)
+    if cpu_only and (len(spec["nodes"]) != 1 or sizes != {0} or not spec.get("direct_command")):
+        raise ValueError("CPU-only supervision requires one direct-command node with no GPU slots")
+    if not sizes or (0 in sizes and not cpu_only):
         raise ValueError("nonempty rank counts required on each node")
     occupied = set()
     for node in spec["nodes"]:

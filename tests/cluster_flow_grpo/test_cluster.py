@@ -83,6 +83,19 @@ def test_no_duplicate_gpu_slot(tmp_path):
         cluster.run(path)
 
 
+def test_real_cpu_only_supervision_hides_gpus_without_claiming_a_slot(tmp_path):
+    spec={"job_id":"cpu_only_fixture", "cpu_only":True,
+          "nodes":[{"host":"local","devices":[]}],
+          "direct_command":[sys.executable,"-c","import os; assert os.environ['CUDA_VISIBLE_DEVICES'] == ''"],
+          "control_dir":str(tmp_path/'control'),"timeout_seconds":10}
+    path=tmp_path/'spec.json';path.write_text(json.dumps(spec))
+    assert cluster.run(path)['status']=='PASS'
+    spec.pop('cpu_only');path.write_text(json.dumps(spec))
+    with pytest.raises(ValueError,match='nonempty'):cluster.run(path)
+    spec['cpu_only']=True;spec.pop('direct_command');path.write_text(json.dumps(spec))
+    with pytest.raises(ValueError,match='CPU-only'):cluster.run(path)
+
+
 def test_pair_plan_preserves_equal_global_batch_and_exclusive_slots():
     from scripts.cluster_flow_grpo.paired import validate_plan
     plan={"groups":{v:{"nodes":[{"host":h,"devices":list(range(8))} for h in hosts]}

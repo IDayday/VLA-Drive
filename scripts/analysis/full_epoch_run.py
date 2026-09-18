@@ -134,7 +134,7 @@ def evaluate_policy(spec,label,checkpoint,cancel):
                      '--workers','8','--output',str(v1)]
             # CPU scoring on the evaluation host, using only the project's own
             # trusted raw scenes/caches. No GPU claim or additional inference.
-            cpu_job={'job_id':str(v1),'nodes':[{'host':common['slots'][0]['host'],'devices':[],
+            cpu_job={'job_id':str(v1),'cpu_only':True,'nodes':[{'host':common['slots'][0]['host'],'devices':[],
                        'cpu_affinity':list(range(64,96))}], 'direct_command':command,
                      'control_dir':str(v1)+f'_control_{time.time_ns()}',
                      'timeout_seconds':21600,'environment':{'CUDA_VISIBLE_DEVICES':''}}
