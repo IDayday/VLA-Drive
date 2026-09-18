@@ -312,9 +312,11 @@
         "sft/rl_dev/42": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/frozen_visual_evaluation/sft_rl_dev_seed42"
       },
       "placement_validation": {
-        "spec": "runs/resource_reallocation_v3/f16_split_resume_spec.json",
-        "control": "runs/resource_reallocation_v3/f16_split_resume_control/result.json",
-        "comparison": "runs/resource_reallocation_v3/f16_split_resume_comparison.json"
+        "spec": "runs/resource_reallocation_v3/f16_split_cont_spec.json",
+        "control": "runs/resource_reallocation_v3/f16_split_cont_control/result.json",
+        "comparison": "runs/resource_reallocation_v3/f16_within_layout_resume_comparison.json",
+        "repeat_comparison": "runs/resource_reallocation_v3/f16_within_layout_repeat_comparison.json",
+        "prior_layout_comparison": "runs/resource_reallocation_v3/f16_split_resume_comparison.json"
       },
       "resume_layout": {
         "source_nodes": [
@@ -916,5 +918,9 @@
     "training-rl-zt2": {
       "max_gpus": 4
     }
+  },
+  "asset_verification_receipt": {
+    "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v3/asset_reuse_receipt.json",
+    "sha256": "32216e421702aa597fad8de6f7507064d58f39ac83d30d950ecceb43689e1631"
   }
 }

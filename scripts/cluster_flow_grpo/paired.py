@@ -74,6 +74,10 @@ def main():
                    help="Validate and archive a placement-only change; requires --resume and GPU evidence")
     a = p.parse_args()
     plan = json.loads(Path(a.plan).read_text())
+    if plan.get("asset_verification_receipt"):
+        from scripts.cluster_flow_grpo.assets import install_receipt
+        receipt = plan["asset_verification_receipt"]
+        install_receipt(receipt["path"], receipt["sha256"])
     world = validate_plan(plan)
     cluster_identity,_=configure_release()
     os.environ.update(WORLD_SIZE=str(world), FLASH_ATTENTION_DETERMINISTIC="1",
@@ -152,6 +156,7 @@ def main():
                         layout["source_nodes"], group["nodes"], cfg)
                 suffix = f"{variant}_to{target}_{time.time_ns()}"
                 spec = {"job_id": suffix, "nodes": group["nodes"],
+                    "asset_verification_receipt": plan.get("asset_verification_receipt"),
                     "master_addr": group["master_addr"], "master_port": group["master_port"],
                     "control_dir": str(root/(suffix+".control")),
                     "require_idle_gpus": True,

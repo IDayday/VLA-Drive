@@ -68,13 +68,20 @@ def command_for(spec, node_rank):
         if len(spec["nodes"]) != 1:
             raise ValueError("direct commands require one supervisor")
         return list(spec["direct_command"])
+    entry = list(spec["entry"])
+    if spec.get("asset_verification_receipt"):
+        if entry[:2] != ["-m", "starVLA.rl.flow_grpo.cli"] or "train" not in entry:
+            raise ValueError("verified asset reuse only wraps the native train CLI")
+        receipt = spec["asset_verification_receipt"]
+        entry = ["-m", "scripts.cluster_flow_grpo.assets", "--receipt", receipt["path"],
+                 "--sha256", receipt["sha256"], "--module", entry[1], *entry[2:]]
     return [
         PYTHON, "-m", "torch.distributed.run",
         "--nnodes", str(len(spec["nodes"])),
         "--nproc-per-node", str(len(node["devices"])),
         "--node-rank", str(node_rank), "--master-addr", spec["master_addr"],
         "--master-port", str(spec["master_port"]),
-        "--max-restarts=0", "--monitor-interval=1", *spec["entry"],
+        "--max-restarts=0", "--monitor-interval=1", *entry,
     ]
 
 

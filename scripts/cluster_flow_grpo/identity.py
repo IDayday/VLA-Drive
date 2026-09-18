@@ -54,11 +54,13 @@ def placement_evidence(root=None):
             raise ValueError("relocation does not match the allocated nodes/config")
         if control.get("status")!="PASS" or control.get("exit_codes")!=[0]*len(group["nodes"]):
             raise ValueError("relocation execution failed")
-        files=comparison.get("files",{})
-        if (comparison.get("status")!="PASS" or len(files)!=50 or
-            any(f.get("status")!="PASS" or not f.get("values") or
-                any(v.get("allclose") is not True for v in f["values"].values()) for f in files.values())):
-            raise ValueError("relocation exact boundary comparison failed/incomplete")
+        for kind in ("comparison", "repeat_comparison"):
+            if kind not in loaded:continue
+            measured=loaded[kind];files=measured.get("files",{})
+            if (measured.get("status")!="PASS" or len(files)!=50 or
+                any(f.get("status")!="PASS" or not f.get("values") or
+                    any(v.get("allclose") is not True for v in f["values"].values()) for f in files.values())):
+                raise ValueError("relocation exact boundary comparison failed/incomplete: "+kind)
     return receipts
 
 

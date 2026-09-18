@@ -122,6 +122,11 @@ def migrate_descriptor(root, descriptor, cluster_identity):
         raise ValueError("deployment migration cannot change actor executable")
     before, after = deepcopy(old["plan"]), deepcopy(descriptor["plan"])
     after.pop("resource_limits", None); before.pop("resource_limits", None)
+    reuse = after.pop("asset_verification_receipt", None)
+    before.pop("asset_verification_receipt", None)
+    if reuse:
+        from scripts.cluster_flow_grpo.assets import install_receipt
+        install_receipt(reuse["path"], reuse["sha256"])
     for variant, group in after["groups"].items():
         original = before["groups"][variant]
         layout = group.pop("resume_layout", None)
