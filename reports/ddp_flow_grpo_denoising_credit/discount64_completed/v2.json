@@ -1,0 +1,107 @@
+{
+  "scope": "fixed full dev1696/16logs seed42; gamma0.6 raw discount; no Navtest",
+  "results": {
+    "sft": {
+      "scenes": 1696,
+      "logs": 16,
+      "mean_paired_delta": 0.0,
+      "log_bootstrap_95ci": [
+        0.0,
+        0.0
+      ],
+      "zero_to_nonzero": 0,
+      "nonzero_to_zero": 0,
+      "high_score_degraded": 0,
+      "high_score_threshold": 0.9,
+      "bootstrap_unit": "log",
+      "bootstrap_seed": 42,
+      "causal_scope": "F initialization; joint Flow-GRPO + reference + action-SFT, not isolated RL causal effect",
+      "epdms": 0.9362947686109894,
+      "components": {
+        "ego_progress": 0.8680476646054921,
+        "time_to_collision_within_bound": 1.0,
+        "lane_keeping": 0.995872641509434,
+        "history_comfort": 0.9811320754716981,
+        "two_frame_extended_comfort": 0.9025928521373511,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.9911556603773585,
+        "driving_direction_compliance": 1.0,
+        "traffic_light_compliance": 1.0
+      },
+      "single_scene_v2": 0.9413369937992434,
+      "arithmetic_decomposition": {
+        "two_frame_comfort_at_current_others": 0.0,
+        "others_at_sft_comfort": 0.0,
+        "not_causal": true
+      }
+    },
+    "step32": {
+      "scenes": 1696,
+      "logs": 16,
+      "mean_paired_delta": 0.0023539635861258915,
+      "log_bootstrap_95ci": [
+        -0.002669660234518472,
+        0.008102463085510448
+      ],
+      "zero_to_nonzero": 7,
+      "nonzero_to_zero": 12,
+      "high_score_degraded": 48,
+      "high_score_threshold": 0.9,
+      "bootstrap_unit": "log",
+      "bootstrap_seed": 42,
+      "causal_scope": "F initialization; joint Flow-GRPO + reference + action-SFT, not isolated RL causal effect",
+      "epdms": 0.9386487321971153,
+      "components": {
+        "ego_progress": 0.8934481849261213,
+        "time_to_collision_within_bound": 0.9964622641509434,
+        "lane_keeping": 0.9946933962264151,
+        "history_comfort": 0.9764150943396226,
+        "two_frame_extended_comfort": 0.8941836019621584,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.9893867924528302,
+        "driving_direction_compliance": 1.0,
+        "traffic_light_compliance": 0.9988207547169812
+      },
+      "single_scene_v2": 0.9453844356607684,
+      "arithmetic_decomposition": {
+        "two_frame_comfort_at_current_others": -0.0008844339622641195,
+        "others_at_sft_comfort": 0.0032383975483900596,
+        "not_causal": true
+      }
+    },
+    "step64": {
+      "scenes": 1696,
+      "logs": 16,
+      "mean_paired_delta": -0.006538130856412902,
+      "log_bootstrap_95ci": [
+        -0.019993909713864177,
+        0.00907320183992317
+      ],
+      "zero_to_nonzero": 10,
+      "nonzero_to_zero": 38,
+      "high_score_degraded": 100,
+      "high_score_threshold": 0.9,
+      "bootstrap_unit": "log",
+      "bootstrap_seed": 42,
+      "causal_scope": "F initialization; joint Flow-GRPO + reference + action-SFT, not isolated RL causal effect",
+      "epdms": 0.9297566377545765,
+      "components": {
+        "ego_progress": 0.9138774773282718,
+        "time_to_collision_within_bound": 0.9946933962264151,
+        "lane_keeping": 0.9941037735849056,
+        "history_comfort": 0.9752358490566038,
+        "two_frame_extended_comfort": 0.8780658724597057,
+        "no_at_fault_collisions": 1.0,
+        "drivable_area_compliance": 0.9823113207547169,
+        "driving_direction_compliance": 1.0,
+        "traffic_light_compliance": 0.9923349056603774
+      },
+      "single_scene_v2": 0.938931282276197,
+      "arithmetic_decomposition": {
+        "two_frame_comfort_at_current_others": -0.0026533018867924696,
+        "others_at_sft_comfort": -0.003884828969620391,
+        "not_causal": true
+      }
+    }
+  }
+}
