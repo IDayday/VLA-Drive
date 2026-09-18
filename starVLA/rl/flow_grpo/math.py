@@ -89,9 +89,12 @@ class Transition:
         return self.mean + self.std * correlate(standard_normal, self.temporal_correlation)
 
 
-def transition(x, velocity, t, dt, *, noise_level, first_dt, temporal_correlation=0.0):
+def transition(x, velocity, t, dt, *, noise_level, first_dt, temporal_correlation=0.0,
+               transition_mode="flow_sde"):
     from .temporal_noise import validate_correlation, correlate
     validate_correlation(temporal_correlation)
+    if transition_mode not in ("flow_sde", "euler_gaussian"):
+        raise ValueError("unknown flow transition_mode")
     x, velocity = probability_tensor(x), probability_tensor(velocity)
     t = torch.as_tensor(t, dtype=x.dtype, device=x.device)
     dt = torch.as_tensor(dt, dtype=x.dtype, device=x.device)
@@ -108,6 +111,13 @@ def transition(x, velocity, t, dt, *, noise_level, first_dt, temporal_correlatio
         dt = dt.unsqueeze(-1)
     if noise_level == 0:
         return Transition(x + velocity * dt, torch.zeros_like(t), torch.zeros_like(t))
+    if transition_mode == "euler_gaussian":
+        # Deliberate discrete Gaussian exploration, inspired by ReinFlow's
+        # noisy Euler policy. Fixed diffusion amplitude, NOT its learned noise
+        # network and NOT claimed to preserve the SFT flow marginals.
+        # noise_level remains a diffusion coefficient: std = eta * sqrt(dt).
+        g = torch.full_like(t, noise_level)
+        return Transition(x + velocity * dt, g * dt.sqrt(), g, temporal_correlation)
     sigma = 1 - t
     # Exactly the upstream sigma==1 replacement: denominator 1-sigmas[1].
     denominator = torch.where(t == 0, first_dt, t)

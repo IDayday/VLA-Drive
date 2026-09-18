@@ -130,6 +130,8 @@ def resolve_config(
         raise ValueError("training requires positive transition noise")
     from .temporal_noise import validate_correlation
     validate_correlation(cfg["sampling"].get("temporal_noise_correlation", 0.0))
+    if cfg["sampling"].get("transition_mode", "flow_sde") not in ("flow_sde", "euler_gaussian"):
+        raise ValueError("unknown transition_mode")
     if cfg["sampling"]["transition_chunk_size"] != 1:
         raise ValueError("transition_chunk_size must be 1; every step is processed")
     if cfg["algorithm"]["advantage_std_unbiased"]:

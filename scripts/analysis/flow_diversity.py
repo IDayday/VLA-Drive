@@ -36,6 +36,7 @@ def main():
     p.add_argument("--output", required=True)
     p.add_argument("--noise-levels", nargs="+", type=float, default=[.05, .1, .2, .3])
     p.add_argument("--temporal-correlations", nargs="+", type=float, default=[0.0])
+    p.add_argument("--transition-modes", nargs="+", choices=["flow_sde", "euler_gaussian"], default=["flow_sde"])
     p.add_argument("--seed", type=int, default=42)
     a = p.parse_args()
     if any(n <= 0 for n in a.noise_levels) or len(a.noise_levels) != len(set(a.noise_levels)):
@@ -45,6 +46,8 @@ def main():
         validate_correlation(rho)
     if len(a.temporal_correlations) != len(set(a.temporal_correlations)):
         p.error("unique temporal correlations required")
+    if len(a.transition_modes) != len(set(a.transition_modes)):
+        p.error("unique transition modes required")
     cfg, sft = resolve_config(a.config)
     if cfg["checkpoint_contract"]["variant"] != "frozen_visual":
         p.error("this experiment is F-only")
@@ -63,6 +66,7 @@ def main():
         "tokens": tokens, "tokens_sha256": file_sha(a.tokens), "source": source_fingerprints(),
         "script_sha256": file_sha(__file__), "group_size": 16, "noise_levels": a.noise_levels,
         "temporal_correlations": a.temporal_correlations,
+        "transition_modes": a.transition_modes,
         "reward_protocol": reward_metadata(Path("navsim").resolve()), "candidate_chunk_size": 1,
         "dtype": "BF16 model; inherited FP32 action kernel", "num_steps": cfg["sampling"]["num_steps"]}
     publish(root/"identity.json", identity)
@@ -82,9 +86,10 @@ def main():
             settings = {}
             initial = None
             with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
-                for noise, rho in [(n, r) for n in a.noise_levels for r in a.temporal_correlations]:
+                for noise, rho, mode in [(n, r, m) for n in a.noise_levels
+                                        for r in a.temporal_correlations for m in a.transition_modes]:
                     spec = SamplingSpec(group_size=16, num_steps=cfg["sampling"]["num_steps"], noise_level=noise,
-                                        temporal_noise_correlation=rho)
+                                        temporal_noise_correlation=rho, transition_mode=mode)
                     rollout = sample_chain(policy, observation, spec, 0, seed, {"diversity_only": True})
                     if initial is None:
                         initial = rollout.chain[:, :, 0].clone()
@@ -103,9 +108,10 @@ def main():
                                                 act_norm=int(sft.datasets.vla_data.act_norm))[0]
                     scores = service.score([token], physical[None])[0]
                     chain = rollout.chain[0].cpu().numpy()
-                    name = f"sde_{noise}" + (f"_rho{rho}" if rho else "")
+                    name = (f"sde_{noise}" if mode == "flow_sde" else f"{mode}_{noise}") + (f"_rho{rho}" if rho else "")
                     settings[name] = {"scores": [asdict(s) for s in scores], "logratio_error": max_ratio_error,
                         "temporal_noise_correlation": rho,
+                        "transition_mode": mode,
                         "g16": trajectory_diversity(physical, [s.score for s in scores], chain),
                         "g8_prefix": trajectory_diversity(physical[:8], [s.score for s in scores[:8]], chain[:8])}
                     artifact[name] = physical

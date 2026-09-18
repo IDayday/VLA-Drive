@@ -29,8 +29,9 @@ def summarize(manifest_path, directories, output):
     if set(scenes) != set(manifest["tokens"]):
         raise ValueError("missing/extra predeclared scenes")
     rows, summary = [], {}
-    settings = ["ode", *[f"sde_{n}" + (f"_rho{rho}" if rho else "")
-        for n in manifest["noise_levels"] for rho in manifest.get("temporal_correlations", [0.0])]]
+    settings = ["ode", *[(f"sde_{n}" if mode == "flow_sde" else f"{mode}_{n}") + (f"_rho{rho}" if rho else "")
+        for n in manifest["noise_levels"] for rho in manifest.get("temporal_correlations", [0.0])
+        for mode in manifest.get("transition_modes", ["flow_sde"])]]
     for setting in settings:
         summary[setting] = {}
         for group in ("g8_prefix", "g16"):

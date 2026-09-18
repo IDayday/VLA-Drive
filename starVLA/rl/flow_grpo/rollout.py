@@ -14,10 +14,13 @@ class SamplingSpec:
     candidate_chunk_size: int = 1
     transition_chunk_size: int = 1
     temporal_noise_correlation: float = 0.0
+    transition_mode: str = "flow_sde"
 
     def __post_init__(self):
         from .temporal_noise import validate_correlation
         validate_correlation(self.temporal_noise_correlation)
+        if self.transition_mode not in ("flow_sde", "euler_gaussian"):
+            raise ValueError("unknown transition_mode")
         if (
             min(self.group_size, self.candidate_chunk_size, self.transition_chunk_size)
             < 1
@@ -145,6 +148,7 @@ def sample_chain(policy, observation, spec, policy_version, seed, provenance):
                 noise_level=spec.noise_level,
                 first_dt=times[1],
                 temporal_correlation=spec.temporal_noise_correlation,
+                transition_mode=spec.transition_mode,
             )
             means.append(dist.mean.reshape(b, n, *xt.shape[1:]))
             std = dist.std
@@ -220,6 +224,7 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
                 noise_level=rollout.spec.noise_level,
                 first_dt=rollout.times[1],
                 temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
+                transition_mode=getattr(rollout.spec, "transition_mode", "flow_sde"),
             )
             step_means.append(dist.mean.reshape(b, n, h, d))
             step_logs.append(dist.logprob(xn).reshape(b, n, h, d))

@@ -59,6 +59,7 @@ def calibrate(cfg, sft, output):
                     num_steps=cfg["sampling"]["num_steps"],
                     noise_level=noise,
                     temporal_noise_correlation=cfg["sampling"].get("temporal_noise_correlation", 0.0),
+                    transition_mode=cfg["sampling"].get("transition_mode", "flow_sde"),
                 )
                 with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
                     rollout = sample_chain(

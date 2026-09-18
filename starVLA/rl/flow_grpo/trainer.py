@@ -286,6 +286,7 @@ def _run(cfg, sft, resume=None):
         candidate_chunk_size=cfg["sampling"]["candidate_chunk_size"],
         transition_chunk_size=cfg["sampling"]["transition_chunk_size"],
         temporal_noise_correlation=cfg["sampling"].get("temporal_noise_correlation", 0.0),
+        transition_mode=cfg["sampling"].get("transition_mode", "flow_sde"),
     )
     update = version = 0
     pending = None

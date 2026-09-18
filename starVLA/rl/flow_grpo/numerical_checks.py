@@ -33,6 +33,7 @@ def precision_gate(policy, observation, rollout):
             noise_level=rollout.spec.noise_level,
             first_dt=rollout.times[1],
             temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
+            transition_mode=getattr(rollout.spec, "transition_mode", "flow_sde"),
         )
         d64 = transition(
             x.double(),
@@ -42,6 +43,7 @@ def precision_gate(policy, observation, rollout):
             noise_level=rollout.spec.noise_level,
             first_dt=rollout.times[1].double(),
             temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
+            transition_mode=getattr(rollout.spec, "transition_mode", "flow_sde"),
         )
         # Independent torch.distributions oracle; no low-precision log/exp.
         p32 = d32.logprob(next_x)

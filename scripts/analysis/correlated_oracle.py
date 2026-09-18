@@ -75,7 +75,8 @@ def main():
     seed = int.from_bytes(hashlib.sha256(f"42:{token}".encode()).digest()[:8], "little") % (2**63-1)
     for rho in (0., .8):
         for noise in (.1, .2):
-            spec = SamplingSpec(group_size=16, noise_level=noise, temporal_noise_correlation=rho)
+            spec = SamplingSpec(group_size=16, noise_level=noise, temporal_noise_correlation=rho,
+                                transition_mode=cfg["sampling"].get("transition_mode", "flow_sde"))
             with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
                 rollout = sample_chain(policy, observation, spec, 0, seed, {})
 

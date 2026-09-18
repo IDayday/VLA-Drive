@@ -90,9 +90,10 @@ class TinyHead(nn.Module):
         return self.weight*x+condition.mean(-1, keepdim=True)
 
 
-def test_actual_rollout_recompute_saved_chain_chunking_and_vlm_gradient():
+@pytest.mark.parametrize("mode", ["flow_sde", "euler_gaussian"])
+def test_actual_rollout_recompute_saved_chain_chunking_and_vlm_gradient(mode):
     policy = TinyPolicy()
-    spec = SamplingSpec(group_size=16, temporal_noise_correlation=.8)
+    spec = SamplingSpec(group_size=16, temporal_noise_correlation=.8, transition_mode=mode)
     observation = SimpleNamespace(tokens=("fixed",))
     rollout = sample_chain(policy, observation, spec, 0, 42, {})
     before = rollout.chain.clone()
@@ -124,6 +125,23 @@ def test_correlation_cannot_enter_formal_training_or_mask_varying_std():
     mean = torch.randn(2, 8, 4)
     with pytest.raises(ValueError, match="waypoint-independent"):
         gaussian_logprob(mean, mean, torch.rand_like(mean)+.1, .8)
+
+
+def test_noisy_euler_has_explicit_diffusion_and_joint_density_at_every_step():
+    x, v, noise = [torch.randn(2, 8, 4, dtype=torch.float64) for _ in range(3)]
+    for step in range(10):
+        result = transition(x, v, step/10, .1, noise_level=.1, first_dt=.1,
+                            temporal_correlation=.8, transition_mode="euler_gaussian")
+        torch.testing.assert_close(result.mean, x+.1*v, atol=0, rtol=0)
+        torch.testing.assert_close(result.std, torch.full_like(result.std, .1*.1**.5), atol=0, rtol=0)
+        samples = result.sample(noise)
+        oracle = torch.distributions.MultivariateNormal(result.mean.transpose(-1, -2),
+                   covariance_matrix=independent_covariance(8, .8, .1*.1**.5))
+        torch.testing.assert_close(result.logprob(samples).sum((-1, -2)),
+                                   oracle.log_prob(samples.transpose(-1, -2)).sum(-1), atol=1e-10, rtol=1e-12)
+    with pytest.raises(ValueError, match="experimental"):
+        enforce_training_budget({"runtime": {"run_mode": "formal", "max_updates": 8},
+                                 "sampling": {"transition_mode": "euler_gaussian"}})
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable")

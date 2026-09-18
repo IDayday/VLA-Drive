@@ -19,6 +19,7 @@ def main():
     p.add_argument("--manifest", required=True)
     p.add_argument("--shards", nargs="+", required=True)
     p.add_argument("--output", required=True)
+    p.add_argument("--settings", nargs="+", default=["ode", "sde_0.1", "sde_0.3"])
     a = p.parse_args()
     manifest = json.loads(Path(a.manifest).read_text())
     output = Path(a.output)
@@ -62,10 +63,10 @@ def main():
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     # First four manifest scenes, chosen before scoring. No favorable example selection.
-    fig, axes = plt.subplots(4, 3, figsize=(13, 11), sharex=True)
+    fig, axes = plt.subplots(4, len(a.settings), figsize=(4.3*len(a.settings), 11), sharex=True, squeeze=False)
     for row, token in enumerate(manifest["tokens"][:4]):
         with np.load(banks[token], allow_pickle=False) as data:
-            for col, setting in enumerate(["ode", "sde_0.1", "sde_0.3"]):
+            for col, setting in enumerate(a.settings):
                 xy = data[setting][..., :2].astype(np.float64)
                 dx = xy[..., 0]-xy[..., 0].mean(0)
                 for candidate in dx:

@@ -240,6 +240,7 @@ def run_diagnostics(cfg, sft, output, gradients=True):
         num_steps=cfg["sampling"]["num_steps"],
         noise_level=cfg["sampling"]["noise_level"],
         temporal_noise_correlation=cfg["sampling"].get("temporal_noise_correlation", 0.0),
+        transition_mode=cfg["sampling"].get("transition_mode", "flow_sde"),
         candidate_chunk_size=cfg["sampling"]["candidate_chunk_size"],
     )
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
@@ -520,6 +521,7 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                     dist = transition(
                         xt, v, 0.0, 0.1, noise_level=spec.noise_level, first_dt=0.1,
                         temporal_correlation=spec.temporal_noise_correlation,
+                        transition_mode=spec.transition_mode,
                     )
                     loss = -dist.logprob(xn).mean()
                 loss.backward()

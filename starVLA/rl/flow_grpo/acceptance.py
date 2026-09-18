@@ -288,7 +288,8 @@ def enforce_training_budget(cfg, context=None, *, record=None):
     validate_scope(runtime)
     mode = runtime.get("run_mode", "diagnostic")
     maximum = runtime["max_updates"]
-    if cfg["sampling"].get("temporal_noise_correlation", 0.0) and mode != "diagnostic":
+    if (cfg["sampling"].get("temporal_noise_correlation", 0.0)
+            or cfg["sampling"].get("transition_mode", "flow_sde") != "flow_sde") and mode != "diagnostic":
         raise ValueError("correlated exploration is experimental and restricted to bounded diagnostics")
     if mode == "diagnostic":
         if maximum > 8:
