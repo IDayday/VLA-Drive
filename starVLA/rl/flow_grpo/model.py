@@ -4,6 +4,7 @@ import torch
 from torch import nn
 from .rollout import sample_chain, evaluate_transitions
 from .math import reduce_dimensions, conditional_kl, clipped_surrogate
+from .credit import transition_credit_weights
 
 
 def make_reference(policy):
@@ -95,7 +96,11 @@ class FlowGRPOActor(nn.Module):
         per_scene_count = valid.sum((1, 2))
         if (per_scene_count == 0).any():
             raise ValueError("scene has no valid transitions")
-        grpo = (pg * valid).sum((1, 2)) / per_scene_count
+        credit = transition_credit_weights(
+            valid, cfg["algorithm"].get("denoising_discount", 1.0), dtype=pg.dtype,
+            normalization=cfg["algorithm"].get("denoising_credit_normalization", "raw_discount"),
+        )
+        grpo = (pg * credit).sum((1, 2)) / per_scene_count
         reference = (kl * valid).sum((1, 2)) / per_scene_count
         # Each replay scene exactly once. Original losses retain internal masks
         # and weights (including depth*0.1), independent of candidate/time counts.
@@ -139,6 +144,7 @@ class FlowGRPOActor(nn.Module):
                 **stats,
                 "current_logprob": current,
                 "per_transition_pg": pg,
+                "per_transition_credit": credit,
                 "per_transition_kl": kl,
             }
         return result

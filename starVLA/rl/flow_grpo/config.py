@@ -142,6 +142,10 @@ def resolve_config(
         raise ValueError("unknown advantage_normalization")
     if cfg["algorithm"]["inner_epochs"] < 1:
         raise ValueError("invalid inner_epochs")
+    from .credit import validate_discount
+    validate_discount(cfg["algorithm"].get("denoising_discount", 1.0))
+    if cfg["algorithm"].get("denoising_credit_normalization", "raw_discount") not in ("raw_discount", "scene_mean_one"):
+        raise ValueError("unknown denoising credit normalization")
     if cfg["runtime"]["deepspeed_stage"] not in (0, 1, 2):
         raise ValueError("validated backends are torch DDP and ZeRO 1/2")
     if cfg["algorithm"]["logprob_reduction"] not in (

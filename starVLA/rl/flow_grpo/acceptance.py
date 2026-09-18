@@ -288,6 +288,11 @@ def enforce_training_budget(cfg, context=None, *, record=None):
     validate_scope(runtime)
     mode = runtime.get("run_mode", "diagnostic")
     maximum = runtime["max_updates"]
+    from .credit import validate_discount
+    discount = cfg.get("algorithm", {}).get("denoising_discount", 1.0)
+    validate_discount(discount)
+    if discount != 1.0 and mode != "diagnostic":
+        raise ValueError("denoising credit is experimental and restricted to bounded diagnostics")
     if (cfg["sampling"].get("temporal_noise_correlation", 0.0)
             or cfg["sampling"].get("transition_mode", "flow_sde") != "flow_sde") and mode != "diagnostic":
         raise ValueError("correlated exploration is experimental and restricted to bounded diagnostics")

@@ -228,10 +228,13 @@ def _run(cfg, sft, resume=None):
                 )
 
             def probe(engine):
-                return save_full_optimizer_gradients(
+                started = time.monotonic()
+                result = save_full_optimizer_gradients(
                     engine, output / "optimizer_gradients",
                     save_tensors=runtime.get("diagnostic_optimizer_gradients", False),
                 )
+                engine.flow_gradient_observer_seconds = time.monotonic() - started
+                return result
 
         accelerator.deepspeed_engine_wrapped = CheckedDeepSpeedBackward(
             actor, monitor, accelerator.device, boundary_probe=probe
@@ -365,6 +368,7 @@ def _run(cfg, sft, resume=None):
     try:
         while update < maximum:
             t0 = time.monotonic()
+            behavior_phases = {}
             buffers = []
             start_inner = 0
             if pending is not None:
@@ -373,6 +377,7 @@ def _run(cfg, sft, resume=None):
                 start_inner = pending["next_inner"]
                 pending = None
             else:
+                phase_start = time.monotonic()
                 scenes = synchronized_call(
                     lambda: train_stream.take(runtime["accumulation_steps"]),
                     accelerator.device,
@@ -381,6 +386,7 @@ def _run(cfg, sft, resume=None):
                     lambda: replay_stream.take(runtime["accumulation_steps"]),
                     accelerator.device,
                 )
+                behavior_phases["data_fetch"] = time.monotonic() - phase_start
                 # Entire behavior batch is sampled before ANY optimizer update.
                 for i, scene in enumerate(scenes):
                     observation = prepare_policy_observation([scene])
@@ -395,6 +401,7 @@ def _run(cfg, sft, resume=None):
                             train_stream.cursor - len(scenes) + i
                         ) * accelerator.num_processes + accelerator.process_index
                         seed = runtime["seed"] + global_position * 1000003
+                    phase_start = time.monotonic()
                     with torch.no_grad(), accelerator.autocast():
                         rollout = actor(
                             mode="rollout",
@@ -404,21 +411,25 @@ def _run(cfg, sft, resume=None):
                             seed=seed,
                             provenance=provenance,
                         )
+                    behavior_phases["actor_rollout"] = behavior_phases.get("actor_rollout", 0.) + time.monotonic() - phase_start
                     physical = deal_action_1225(
                         rollout.raw_final_action.cpu().numpy(),
                         act_norm=int(sft.datasets.vla_data.act_norm),
                     )
                     rollout.physical_trajectories = physical
+                    phase_start = time.monotonic()
                     records = synchronized_call(
                         lambda: service.score(observation.tokens, physical),
                         accelerator.device,
                     )
+                    behavior_phases["official_reward"] = behavior_phases.get("official_reward", 0.) + time.monotonic() - phase_start
                     rollout.score_records = records
                     rewards = torch.tensor(
                         [[r.score for r in row] for row in records],
                         device=accelerator.device,
                     )
                     rollout.rewards = rewards
+                    phase_start = time.monotonic()
                     if runtime["reference_offload"]:
                         reference.to(accelerator.device)
                     with torch.no_grad(), accelerator.autocast():
@@ -432,11 +443,16 @@ def _run(cfg, sft, resume=None):
                     rollout.reference_std = stats["std"].detach()
                     if runtime["reference_offload"]:
                         reference.to("cpu")
+                    behavior_phases["reference"] = behavior_phases.get("reference", 0.) + time.monotonic() - phase_start
                     buffers.append(rollout)
                 assign_behavior_advantages(buffers, cfg["algorithm"], accelerator.device)
             rollout_seconds = time.monotonic() - t0
             old_fingerprints = [behavior_digest(r) for r in buffers]
             for inner in range(start_inner, cfg["algorithm"]["inner_epochs"]):
+                # Behavioral costs are charged only once when its chain is made.
+                # Wall spans include launch/wait/implicit CUDA synchronization;
+                # they are NOT kernel-only GPU profiler measurements.
+                phases = dict(behavior_phases) if inner == start_inner else {}
                 metrics = Metrics()
                 pre_norm = None
                 t1 = time.monotonic()
@@ -448,10 +464,13 @@ def _run(cfg, sft, resume=None):
                         )
                     with accelerator.accumulate(actor):
                         batch = to_device([replay[i]], accelerator.device)
+                        phase_start = time.monotonic()
                         with accelerator.autocast():
                             result = actor(mode="update", rollout=rollout, replay=batch)
+                        phases["actor_forward"] = phases.get("actor_forward", 0.) + time.monotonic() - phase_start
                         # One equally weighted scene per microbatch; Accelerate/DS
                         # owns the 1/accum scaling, never G*K copies of replay.
+                        phase_start = time.monotonic()
                         accelerator.backward(selected_loss(result, runtime, update))
                         if not runtime["deepspeed_stage"]:
                             monitor.assert_finite_collective(accelerator.device)
@@ -465,9 +484,12 @@ def _run(cfg, sft, resume=None):
                         optimizer.step()
                         scheduler.step()
                         optimizer.zero_grad()
+                        phases["backward_optimizer"] = phases.get("backward_optimizer", 0.) + time.monotonic() - phase_start
+                        phase_start = time.monotonic()
                         metrics.update_scene(
                             result, rollout, cfg["algorithm"]["ppo_clip_range"]
                         )
+                        phases["scene_metrics"] = phases.get("scene_metrics", 0.) + time.monotonic() - phase_start
                         del result
                 update += 1
                 if runtime["deepspeed_stage"] and actor.global_steps != update:
@@ -475,6 +497,7 @@ def _run(cfg, sft, resume=None):
                         f"optimizer update mismatch: engine={actor.global_steps}, trainer={update}"
                     )
                 # Probe exactly the behavior chain after this optimizer update.
+                phase_start = time.monotonic()
                 with torch.no_grad(), accelerator.autocast():
                     for rollout in buffers:
                         stats = actor(
@@ -494,6 +517,10 @@ def _run(cfg, sft, resume=None):
                             ],
                             cfg["algorithm"]["ppo_clip_range"],
                         )
+                phases["post_update_probe"] = time.monotonic() - phase_start
+                if hasattr(actor, "flow_gradient_observer_seconds"):
+                    # Nested inside backward_optimizer; do not add it twice.
+                    phases["optimizer_gradient_observer_nested"] = actor.flow_gradient_observer_seconds
                 if old_fingerprints != [behavior_digest(r) for r in buffers]:
                     raise RuntimeError(
                         "behavior chain / old log-prob / advantages mutated"
@@ -525,12 +552,19 @@ def _run(cfg, sft, resume=None):
                     rollout_score_reference_seconds=rollout_seconds,
                     update_seconds=time.monotonic() - t1,
                     peak_gpu_gib=torch.cuda.max_memory_allocated() / 2**30,
+                    phase_wall_seconds=phases,
+                    phase_wall_scope="host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
                     loss_coefficients={
                         "grpo": 1.0,
                         "reference": cfg["algorithm"]["reference_kl_coefficient"],
                         "sft": cfg["retention"]["original_sft_coefficient"],
                     },
                     diagnostic_loss_scope=runtime.get("diagnostic_loss_scope"),
+                    denoising_credit={
+                        "discount": cfg["algorithm"].get("denoising_discount", 1.0),
+                        "normalization": cfg["algorithm"].get("denoising_credit_normalization", "raw_discount"),
+                        "applies_to": "grpo_only; reference and SFT coefficients unchanged",
+                    },
                     lr=[g["lr"] for g in optimizer.param_groups],
                     reward_errors=service.errors,
                     dtype_before_step=getattr(actor, "flow_pre_step_dtype", None),
@@ -566,6 +600,7 @@ def _run(cfg, sft, resume=None):
                                 "policy_version",
                                 "inner_epoch",
                                 "loss_coefficients",
+                                "denoising_credit",
                                 "lr",
                             )
                         }
@@ -581,6 +616,11 @@ def _run(cfg, sft, resume=None):
                         )
                     global_row["grad_norm_status"] = row["grad_norm_status"]
                     global_row["ranks"] = [r["row"] for r in rank_rows]
+                    phase_keys = {key for r in rank_rows for key in r["row"]["phase_wall_seconds"]}
+                    global_row["phase_wall_seconds_max"] = {
+                        key: max(r["row"]["phase_wall_seconds"].get(key, 0.) for r in rank_rows)
+                        for key in sorted(phase_keys)
+                    }
                     global_row["peak_gpu_gib_by_rank"] = [
                         r["row"]["peak_gpu_gib"] for r in rank_rows
                     ]
@@ -596,6 +636,7 @@ def _run(cfg, sft, resume=None):
                 rank0_call(write_global_log, accelerator.device)
                 complete_batch = inner + 1 == cfg["algorithm"]["inner_epochs"]
                 if update % runtime["save_every"] == 0 or update >= maximum:
+                    checkpoint_start = time.monotonic()
                     synchronized_call(check_immutable, accelerator.device)
                     saved_pending = (
                         None
@@ -617,6 +658,15 @@ def _run(cfg, sft, resume=None):
                         version + int(complete_batch),
                         [train_stream, replay_stream],
                         pending=saved_pending,
+                    )
+                    checkpoint_seconds = time.monotonic() - checkpoint_start
+                    synchronized_call(
+                        lambda: append_json(
+                            output / f"checkpoint_timing_rank{accelerator.process_index}.jsonl",
+                            {"update": update, "seconds": checkpoint_seconds,
+                             "scope": "immutable audit and complete checkpoint publication; host wall time"},
+                        ),
+                        accelerator.device,
                     )
                 if update >= maximum:
                     break
