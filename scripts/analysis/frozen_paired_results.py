@@ -16,7 +16,10 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--group-label", default="G16 / group")
     parser.add_argument("--batch-label", default="G16 / global batch")
+    parser.add_argument("--updates", type=int, default=8)
     args = parser.parse_args()
+    if args.updates < 1:
+        parser.error("updates must be positive")
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=False)
     sources, results = {}, {}
@@ -35,7 +38,7 @@ def main():
             merged, row = paired_scores(comparison, current)
             merged.to_csv(out / (protocol + "_" + arm + "_paired.csv"), index=False)
             # Override the generic F/U wording: every model here starts from F.
-            row["causal_scope"] = "fixed F-SFT, seed42, eight updates; not a long-training or Navtest claim"
+            row["causal_scope"] = f"fixed F-SFT, seed42, {args.updates} updates; bounded research, not Navtest"
             row.update(baseline=float(comparison.score.mean()), trained=float(current.score.mean()))
             components = [key for key in ("no_at_fault_collisions", "drivable_area_compliance",
                 "ego_progress", "time_to_collision_within_bound", "comfort", "lane_keeping",
@@ -46,6 +49,7 @@ def main():
             result[arm] = row
         results[protocol] = result
     report = {"status": "COMPLETE", "scope": "1696 fixed dev scenes, 16 logs; single inference seed42",
+              "optimizer_updates": args.updates,
               "labels": {"group": args.group_label, "batch": args.batch_label},
               "sources": sources, "results": results}
     (out / "paired_results.json").write_text(json.dumps(report, indent=2, allow_nan=False))
@@ -64,7 +68,7 @@ def main():
         ax.axhline(0, color="black", linewidth=.7)
         ax.set_ylabel("Paired change from own F-SFT (points)")
         ax.set_title(name)
-    fig.suptitle("Eight updates; 1696 dev scenes; seed42; 95% whole-log bootstrap")
+    fig.suptitle(f"{args.updates} updates; 1696 dev scenes; seed42; 95% whole-log bootstrap")
     fig.tight_layout()
     fig.savefig(out / "paired_deltas.png", dpi=170)
     plt.close(fig)
