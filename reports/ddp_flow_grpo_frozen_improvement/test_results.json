@@ -25,5 +25,19 @@
     "exit_code": 0,
     "passed": 14,
     "scope": "asset reuse, six new source-rebind cases; not GPU acceptance"
+  },
+  "clean_worktree_targeted": {
+    "code_commit": "b6adf9a774b8c9eb1b1950ebd0169a5ad777fbe0",
+    "worktree": "/mnt/project/DriveDreamer-Policy-frozen-clean",
+    "exit_code": 0,
+    "passed": 44,
+    "cuda_visible_devices": "0",
+    "tests": [
+      "tests/flow_grpo/test_advantages.py",
+      "tests/flow_grpo/test_diversity.py",
+      "tests/cluster_flow_grpo/test_pipeline.py",
+      "tests/cluster_flow_grpo/test_asset_reuse.py"
+    ],
+    "scope": "utility, real Gloo and CUDA arithmetic; not full actor qualification"
   }
 }

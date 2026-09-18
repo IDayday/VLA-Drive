@@ -160,6 +160,9 @@ isolate its causal mechanism. No default switch was made on these scores.
   exit0. Targeted arithmetic/pipeline/diversity tests with CUDA:30 PASS, exit0.
   Asset-rebind targeted suite:14 PASS, exit0. These suites overlap; counts are not
   added into a fictitious unique total. Initial200 PASS/1 FAIL/2 SKIP remains saved.
+  Clean detached worktree at `b6adf9a774b8c9eb1b1950ebd0169a5ad777fbe0`:
+  all44 targeted advantage/diversity/pipeline/asset tests PASS, exit0, with CUDA0
+  available. This verifies the checked-in source without inherited workspace edits.
 - Full CPU Qwen FP32/source ODE oracle was not repeated: this edit leaves the model,
   velocity and Gaussian transition math unchanged. Historical CUDA oracle results
   are not relabeled as a new G16 qualification. No CPU test closes BF16 chunk1/2 FAIL.
