@@ -1,0 +1,14 @@
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/miniconda3/envs/ddp/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/mnt/project/DriveDreamer-Policy-perf/scripts/analysis/checkpoint_efficiency.py", line 129, in <module>
+    if __name__=='__main__':main()
+  File "/mnt/project/DriveDreamer-Policy-perf/scripts/analysis/checkpoint_efficiency.py", line 123, in main
+    result=compare(Path(args.on),Path(args.off),args.difference);result['observer_sha256']=file_sha(__file__)
+  File "/mnt/project/DriveDreamer-Policy-perf/scripts/analysis/checkpoint_efficiency.py", line 87, in compare
+    rows[name]=compare_tree({'gradient':a},{'gradient':b})['gradient']
+KeyError: 'gradient'

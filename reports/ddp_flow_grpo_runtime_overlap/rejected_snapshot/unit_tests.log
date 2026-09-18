@@ -1,0 +1,30 @@
+..F.                                                                     [100%]
+=================================== FAILURES ===================================
+______ test_restores_on_forward_exception_and_preserves_parameter_aliases ______
+
+    def test_restores_on_forward_exception_and_preserves_parameter_aliases():
+        head=Head().eval();head.alias=head.linear
+        before={n:id(p) for n,p in head.named_parameters(remove_duplicate=False)}
+        with torch.no_grad(),pytest.raises(RuntimeError):
+            with inference_velocity_snapshot(head) as call:call(torch.ones(1,3),None,torch.ones(1,4))
+>       assert before=={n:id(p) for n,p in head.named_parameters(remove_duplicate=False)}
+E       AssertionError: assert {'alias.bias'...86905264, ...} == {'alias.bias'...80411280, ...}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'linear.bias': 140595204802976} != {'linear.bias': 140595180831264}
+E         {'linear.weight': 140595186905264} != {'linear.weight': 140595180411280}
+E         {'alias.weight': 140595186905264} != {'alias.weight': 140595180411280}
+E         {'alias.bias': 140595204802976} != {'alias.bias': 140595180831264}
+E         Use -v to get more diff
+
+tests/flow_grpo/test_inference_cache.py:49: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/flow_grpo/test_inference_cache.py::test_restores_on_forward_exception_and_preserves_parameter_aliases
+1 failed, 3 passed, 1 warning in 1.71s
