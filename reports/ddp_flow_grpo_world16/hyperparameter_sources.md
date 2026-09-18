@@ -14,6 +14,7 @@ Reference: `yifan123/flow_grpo` commit `879042cf5707f8b90daa98d147d7deac2317c5da
 | Gradient norm clip | 1 | 1 | Source recipe |
 | Group size | 24 | 8 | User's paired protocol |
 | Train/evaluation generation steps | 10 / 40 | 10 / 10 | Original checkpoint steps retained |
+| Fraction of generation steps used for RL loss | 0.99 (the SD3 script floors10×0.99 to9) | 1.0 (all10 transitions) | Fixed full-chain protocol |
 | Noise level | 0.7 | 0.1 | User's paired protocol |
 | PPO clip | 1e-4 | 0.02 | User's paired protocol; not paper-optimized for DDP |
 | Inner epochs per behavior batch | 1 | 2 | User's paired protocol; old probabilities and chain retained |

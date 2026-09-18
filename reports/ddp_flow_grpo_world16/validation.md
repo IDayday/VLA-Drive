@@ -1,3 +1,5 @@
+> 2026-09-18 capped deployment: the current plan is F=local8+rl-zt4 GPUs0–5+rl-zt2 GPUs5/6; U=vla-zt2 eight+vla-zt3 eight. Both keep world16/global16 and resume their original update100. The source-bound release is `b8ec9631c70116e3f851b071f774df8ed4ad4d2a325c0faa0b8bf14ed1333cd9`, with71 CPU tests and exact fixed-layout repeat/resume across50 state files. The8+8 versus8+6+2 cross-layout bitwise comparison FAILED and remains retained. READY applies to the qualified fixed layouts, not cross-layout bitwise equality. Per user request, repeated full-corpus checks now explicitly reuse this job's completed verification. See [deployment report](deployment_8_6_2.md), [parameter sources](hyperparameter_sources.md), and [step100 paired results](world16_step100_paired.json).
+
 # World16 paired training qualification and resource allocation
 
 This report records the resource expansion requested on2026-09-17/18. It does
