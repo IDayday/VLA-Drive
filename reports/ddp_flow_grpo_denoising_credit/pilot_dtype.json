@@ -1,0 +1,2706 @@
+{
+  "ranks": [
+    {
+      "pre_update_ratio_min": 0.9751681685447693,
+      "pre_update_ratio_max": 1.0109167098999023,
+      "pre_update_ratio_mean": 0.9999329786747694,
+      "pre_update_ratio_clip_fraction": 0.003125,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9751681685447693,
+        "0.01": 0.9920015466213227,
+        "0.5": 0.9999718964099884,
+        "0.99": 1.0082419264316558,
+        "1.0": 1.0109167098999023
+      },
+      "loss": 2.3361717467196286e-05,
+      "grpo": -0.00014994441880844533,
+      "reference": 0.00012200712080812082,
+      "sft": 0.0017208606004714966,
+      "old_policy_drift": 3.6511610796097217e-06,
+      "reward": 0.8941102661192417,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.5,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.0,
+        "0.01": 1.2280024413372597e-05,
+        "0.5": 0.0006140012206686298,
+        "0.99": 0.0012157224169238872,
+        "1.0": 0.0012280024413372597
+      },
+      "advantage_absolute_mean": 0.4166925232857466,
+      "advantage_second_moment": 0.4991866759569112,
+      "advantage_group_mean_abs_max": 7.450580596923828e-09,
+      "advantage_nonzero_group_fraction": 0.5,
+      "candidate_pair_ade_scene_median_m": 0.1329290736144677,
+      "candidate_pair_fde_scene_median_m": 0.1561582032408409,
+      "candidate_xy_effective_rank": 2.7458076975641084,
+      "reward_group_span_quantiles": {
+        "0.0": 0.0,
+        "0.01": 3.954827785491943e-05,
+        "0.5": 0.0019774138927459717,
+        "0.99": 0.003915279507637024,
+        "1.0": 0.003954827785491943
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.0017208606004714966,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.9035087351493277,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 0.5,
+      "reward_component/pdm_score": 0.8941102625533315,
+      "reward_component/score": 0.8941102625533315,
+      "post_update_probe_ratio_min": 0.9551371335983276,
+      "post_update_probe_ratio_max": 1.026666283607483,
+      "post_update_probe_ratio_mean": 0.9987915070727468,
+      "post_update_probe_ratio_clip_fraction": 0.05,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9551371335983276,
+        "0.01": 0.9641605252027512,
+        "0.5": 0.9998464286327362,
+        "0.99": 1.0206804835796357,
+        "1.0": 1.026666283607483
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.3974146842956543,
+        "qwen_vl_interface": 0.8849894404411316,
+        "action_input_model": 0.37358593940734863
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 0,
+      "device": {
+        "type": "cuda",
+        "index": 0,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "5cff8f1badd2b158f6cc9d7f365553502b207f1f757cf4df17d52c0b676fe938",
+        "97f5bd97222363c6bbbb6286f1b32a98461743b0a1b1974f458aea438f0286ec"
+      ],
+      "scene_tokens": [
+        [
+          "e87a8b541c235da3"
+        ],
+        [
+          "8f236f0c4d8a5e13"
+        ]
+      ],
+      "replay_tokens": [
+        "c1520ef1a27d52b9",
+        "f531eac9322b5421"
+      ],
+      "rollout_score_reference_seconds": 34.36285021342337,
+      "update_seconds": 92.26084641180933,
+      "peak_gpu_gib": 22.79112958908081,
+      "phase_wall_seconds": {
+        "actor_forward": 20.347189366817474,
+        "backward_optimizer": 56.895967196673155,
+        "scene_metrics": 0.24423292092978954,
+        "post_update_probe": 14.473800208419561,
+        "optimizer_gradient_observer_nested": 14.468675538897514
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.987525463104248,
+      "pre_update_ratio_max": 1.0076026916503906,
+      "pre_update_ratio_mean": 0.9998579833656549,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.987525463104248,
+        "0.01": 0.9910940134525299,
+        "0.5": 0.99998739361763,
+        "0.99": 1.0047824943065644,
+        "1.0": 1.0076026916503906
+      },
+      "loss": -3.5238335840404034e-05,
+      "grpo": -0.0002637118159327656,
+      "reference": 6.326352740870789e-05,
+      "sft": 0.0022784085595048964,
+      "old_policy_drift": 1.9525949191967484e-06,
+      "reward": 0.9215951040387154,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.5,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.0,
+        "0.01": 3.936471445805746e-05,
+        "0.5": 0.001968235722902873,
+        "0.99": 0.0038971067313476886,
+        "1.0": 0.003936471445805746
+      },
+      "advantage_absolute_mean": 0.44128571706824005,
+      "advantage_second_moment": 0.4997460657690041,
+      "advantage_group_mean_abs_max": 2.3283064365386963e-09,
+      "advantage_nonzero_group_fraction": 0.5,
+      "candidate_pair_ade_scene_median_m": 0.12154999648314022,
+      "candidate_pair_fde_scene_median_m": 0.15301671857972138,
+      "candidate_xy_effective_rank": 2.544295135117927,
+      "reward_group_span_quantiles": {
+        "0.0": 0.0,
+        "0.01": 0.00011374235153198242,
+        "0.5": 0.005687117576599121,
+        "0.99": 0.01126049280166626,
+        "1.0": 0.011374235153198242
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.0022784085595048964,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.7804662788199787,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.9215950995785637,
+      "reward_component/score": 0.9215950995785637,
+      "post_update_probe_ratio_min": 0.8799049258232117,
+      "post_update_probe_ratio_max": 1.0391945838928223,
+      "post_update_probe_ratio_mean": 0.9968543119728566,
+      "post_update_probe_ratio_clip_fraction": 0.05625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.8799049258232117,
+        "0.01": 0.9058566784858704,
+        "0.5": 0.9999296367168427,
+        "0.99": 1.0102704739570618,
+        "1.0": 1.0391945838928223
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.5793455839157104,
+        "qwen_vl_interface": 2.4634721279144287,
+        "action_input_model": 1.0562448501586914
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 1,
+      "device": {
+        "type": "cuda",
+        "index": 1,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "74c683bbc536b0ada0140a22eb1b0a163a0f865afd92d7fc83c68bb1ed957c74",
+        "cdd57af5d368292158554aa0bd2e8c37a859eeb787b9431b28ba4caaaa96bf6f"
+      ],
+      "scene_tokens": [
+        [
+          "42d697d42b1f519e"
+        ],
+        [
+          "73d62b6566645185"
+        ]
+      ],
+      "replay_tokens": [
+        "134277c24ea55175",
+        "c3b6a02252005d14"
+      ],
+      "rollout_score_reference_seconds": 34.36294955946505,
+      "update_seconds": 92.06434033624828,
+      "peak_gpu_gib": 22.790080070495605,
+      "phase_wall_seconds": {
+        "actor_forward": 20.060998456552625,
+        "backward_optimizer": 57.19199086166918,
+        "scene_metrics": 0.27026095427572727,
+        "post_update_probe": 14.184280667454004,
+        "optimizer_gradient_observer_nested": 14.468459228053689
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.9914505481719971,
+      "pre_update_ratio_max": 1.0109388828277588,
+      "pre_update_ratio_mean": 0.9999929126352072,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9914505481719971,
+        "0.01": 0.9936337411403656,
+        "0.5": 0.9999854266643524,
+        "0.99": 1.0070068502426148,
+        "1.0": 1.0109388828277588
+      },
+      "loss": -0.00015006463218014687,
+      "grpo": -0.00029532387998187914,
+      "reference": 3.848676533380058e-05,
+      "sft": 0.0014487436274066567,
+      "old_policy_drift": 1.3637498455176812e-06,
+      "reward": 0.8992131128907204,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.0,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.0018237758275777075,
+        "0.01": 0.001849707259775924,
+        "0.5": 0.0031203474374885396,
+        "0.99": 0.0043909876152011555,
+        "1.0": 0.004416919047399372
+      },
+      "advantage_absolute_mean": 0.8156252061598934,
+      "advantage_second_moment": 0.9992258362944773,
+      "advantage_group_mean_abs_max": 5.9371814131736755e-09,
+      "advantage_nonzero_group_fraction": 1.0,
+      "candidate_pair_ade_scene_median_m": 0.1087993191061008,
+      "candidate_pair_fde_scene_median_m": 0.10195688618189515,
+      "candidate_xy_effective_rank": 2.8447032758561814,
+      "reward_group_span_quantiles": {
+        "0.0": 0.0062986016273498535,
+        "0.01": 0.00641317069530487,
+        "0.5": 0.012027055025100708,
+        "0.99": 0.017640939354896544,
+        "1.0": 0.017755508422851562
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.0014487436274066567,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.7177967236251978,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.8992131155804279,
+      "reward_component/score": 0.8992131155804279,
+      "post_update_probe_ratio_min": 0.9771865010261536,
+      "post_update_probe_ratio_max": 1.026326298713684,
+      "post_update_probe_ratio_mean": 0.9999726163223386,
+      "post_update_probe_ratio_clip_fraction": 0.00625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9771865010261536,
+        "0.01": 0.9859115457534791,
+        "0.5": 0.999988853931427,
+        "0.99": 1.0107302284240722,
+        "1.0": 1.026326298713684
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.3058842420578003,
+        "qwen_vl_interface": 1.0066503286361694,
+        "action_input_model": 0.19050472974777222
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 2,
+      "device": {
+        "type": "cuda",
+        "index": 2,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "912e510dbf8f9f43e7ae2ada03ea3d12d914f5b010967ce9bc1b7134af1103ba",
+        "89761b3804932189cbdd336f07a49ba56f254e3448160c1a0359a974a77e4934"
+      ],
+      "scene_tokens": [
+        [
+          "bb5f20fda4de545b"
+        ],
+        [
+          "94cb5f0d6b055e3f"
+        ]
+      ],
+      "replay_tokens": [
+        "7d3fe16e16ab5e7c",
+        "cdaf7d91f94e55f9"
+      ],
+      "rollout_score_reference_seconds": 34.36297444999218,
+      "update_seconds": 92.48663252964616,
+      "peak_gpu_gib": 22.792734146118164,
+      "phase_wall_seconds": {
+        "actor_forward": 20.663649443536997,
+        "backward_optimizer": 56.55014336667955,
+        "scene_metrics": 0.24171085841953754,
+        "post_update_probe": 14.645947394892573,
+        "optimizer_gradient_observer_nested": 14.46864340826869
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.9694558382034302,
+      "pre_update_ratio_max": 1.0151407718658447,
+      "pre_update_ratio_mean": 0.9998531019315123,
+      "pre_update_ratio_clip_fraction": 0.009375,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9694558382034302,
+        "0.01": 0.9841628104448319,
+        "0.5": 1.0000232458114624,
+        "0.99": 1.010253392457962,
+        "1.0": 1.0151407718658447
+      },
+      "loss": 0.0003803795589192305,
+      "grpo": 0.0,
+      "reference": 0.00022656591045233654,
+      "sft": 0.0037811389192938805,
+      "old_policy_drift": 8.131881367501315e-06,
+      "reward": 1.0,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 1.0,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.0,
+        "0.01": 0.0,
+        "0.5": 0.0,
+        "0.99": 0.0,
+        "1.0": 0.0
+      },
+      "advantage_absolute_mean": 0.0,
+      "advantage_second_moment": 0.0,
+      "advantage_group_mean_abs_max": 0.0,
+      "advantage_nonzero_group_fraction": 0.0,
+      "candidate_pair_ade_scene_median_m": 0.12621356172388307,
+      "candidate_pair_fde_scene_median_m": 0.13604708398779986,
+      "candidate_xy_effective_rank": 3.0602548849726117,
+      "reward_group_span_quantiles": {
+        "0.0": 0.0,
+        "0.01": 0.0,
+        "0.5": 0.0,
+        "0.99": 0.0,
+        "1.0": 0.0
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.0037811389192938805,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 1.0,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 1.0,
+      "reward_component/score": 1.0,
+      "post_update_probe_ratio_min": 0.9568577408790588,
+      "post_update_probe_ratio_max": 1.0275696516036987,
+      "post_update_probe_ratio_mean": 0.9995649360120297,
+      "post_update_probe_ratio_clip_fraction": 0.00625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9568577408790588,
+        "0.01": 0.9842707347869873,
+        "0.5": 0.9999760985374451,
+        "0.99": 1.0074367344379425,
+        "1.0": 1.0275696516036987
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 0.09200003743171692,
+        "qwen_vl_interface": 0.1091703400015831,
+        "action_input_model": 0.04374420642852783
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 3,
+      "device": {
+        "type": "cuda",
+        "index": 3,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "ea74e47b24f0b9ccc8c8a10f175ae9ec98916ee6e369cbcbea7dc7fef679892a",
+        "e47840a12e9ccb9b95931a2332ea90c58b98c7b0649b7bd6ad5e444823415e9c"
+      ],
+      "scene_tokens": [
+        [
+          "712aff316b885108"
+        ],
+        [
+          "0953217e49dc5cc6"
+        ]
+      ],
+      "replay_tokens": [
+        "648f4d9bd2025d2d",
+        "f3f5944d41e05b9e"
+      ],
+      "rollout_score_reference_seconds": 34.36292344890535,
+      "update_seconds": 91.88875038176775,
+      "peak_gpu_gib": 22.790890216827393,
+      "phase_wall_seconds": {
+        "actor_forward": 19.98701637983322,
+        "backward_optimizer": 57.25653273425996,
+        "scene_metrics": 0.24711565114557743,
+        "post_update_probe": 14.045295359566808,
+        "optimizer_gradient_observer_nested": 14.46122682467103
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.9845588207244873,
+      "pre_update_ratio_max": 1.011003017425537,
+      "pre_update_ratio_mean": 0.9998580165207386,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9845588207244873,
+        "0.01": 0.9891864567995071,
+        "0.5": 0.9999949336051941,
+        "0.99": 1.007897334098816,
+        "1.0": 1.011003017425537
+      },
+      "loss": -0.00010229648614767939,
+      "grpo": -0.00023180246353149414,
+      "reference": 8.919402171159163e-05,
+      "sft": 0.0012861402938142419,
+      "old_policy_drift": 3.3674094241264997e-06,
+      "reward": 0.9380994830280542,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.5,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.0,
+        "0.01": 1.6688792394080856e-05,
+        "0.5": 0.0008344396197040427,
+        "0.99": 0.0016521904470140046,
+        "1.0": 0.0016688792394080854
+      },
+      "advantage_absolute_mean": 0.3618012015358545,
+      "advantage_second_moment": 0.4994013141006217,
+      "advantage_group_mean_abs_max": 5.471520125865936e-09,
+      "advantage_nonzero_group_fraction": 0.5,
+      "candidate_pair_ade_scene_median_m": 0.1202725858588537,
+      "candidate_pair_fde_scene_median_m": 0.12172033085646936,
+      "candidate_xy_effective_rank": 2.6304528863236127,
+      "reward_group_span_quantiles": {
+        "0.0": 0.0,
+        "0.01": 7.248103618621826e-05,
+        "0.5": 0.003624051809310913,
+        "0.99": 0.007175622582435608,
+        "1.0": 0.007248103618621826
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.0012861402938142419,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.8266785464548932,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.9380994808767474,
+      "reward_component/score": 0.9380994808767474,
+      "post_update_probe_ratio_min": 0.9471670389175415,
+      "post_update_probe_ratio_max": 1.0335140228271484,
+      "post_update_probe_ratio_mean": 0.9996134942397475,
+      "post_update_probe_ratio_clip_fraction": 0.015625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9471670389175415,
+        "0.01": 0.9783999013900757,
+        "0.5": 0.9999482333660126,
+        "0.99": 1.019006803035736,
+        "1.0": 1.0335140228271484
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.7373982667922974,
+        "qwen_vl_interface": 1.2345420122146606,
+        "action_input_model": 0.36781156063079834
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 4,
+      "device": {
+        "type": "cuda",
+        "index": 4,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "2bb2fb804eaaac054296535d354c93b056315e0eb4775d27455d57368ab2187b",
+        "7096dfeb93e53b5722ccb574b4c70d525cfbce3fb92ca07f82ab33abecb1a873"
+      ],
+      "scene_tokens": [
+        [
+          "aac2bf99f1ba57a2"
+        ],
+        [
+          "90e1c9cebdc85f29"
+        ]
+      ],
+      "replay_tokens": [
+        "6c22b8eedd1b5bed",
+        "49d9d5937e5254b4"
+      ],
+      "rollout_score_reference_seconds": 34.36288867890835,
+      "update_seconds": 91.81312954425812,
+      "peak_gpu_gib": 22.790419101715088,
+      "phase_wall_seconds": {
+        "actor_forward": 20.44663476012647,
+        "backward_optimizer": 56.76648527570069,
+        "scene_metrics": 0.270209189504385,
+        "post_update_probe": 13.991541549563408,
+        "optimizer_gradient_observer_nested": 14.458859868347645
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.9842125177383423,
+      "pre_update_ratio_max": 1.0158741474151611,
+      "pre_update_ratio_mean": 0.9998657602816821,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9842125177383423,
+        "0.01": 0.985544530749321,
+        "0.5": 0.9999582767486572,
+        "0.99": 1.0096033358573913,
+        "1.0": 1.0158741474151611
+      },
+      "loss": 0.0004733573405246716,
+      "grpo": -0.0001624103576887137,
+      "reference": 0.00015838610124774277,
+      "sft": 0.006341838103253394,
+      "old_policy_drift": 5.383461764862929e-06,
+      "reward": 0.9324419368058443,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.0,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.0013117218995166156,
+        "0.01": 0.0013137472546806352,
+        "0.5": 0.0014129896577175967,
+        "0.99": 0.0015122320607545581,
+        "1.0": 0.0015142574159185778
+      },
+      "advantage_absolute_mean": 0.7963824411854148,
+      "advantage_second_moment": 0.9985787995922439,
+      "advantage_group_mean_abs_max": 9.778887033462524e-09,
+      "advantage_nonzero_group_fraction": 1.0,
+      "candidate_pair_ade_scene_median_m": 0.1323962817165545,
+      "candidate_pair_fde_scene_median_m": 0.12699262492730326,
+      "candidate_xy_effective_rank": 2.4566992183426413,
+      "reward_group_span_quantiles": {
+        "0.0": 0.004964709281921387,
+        "0.01": 0.004970824718475342,
+        "0.5": 0.005270481109619141,
+        "0.99": 0.005570137500762939,
+        "1.0": 0.0055762529373168945
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.006341838103253394,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.8108374282888535,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.9324419386745907,
+      "reward_component/score": 0.9324419386745907,
+      "post_update_probe_ratio_min": 0.9496326446533203,
+      "post_update_probe_ratio_max": 1.0567055940628052,
+      "post_update_probe_ratio_mean": 0.9992856748402119,
+      "post_update_probe_ratio_clip_fraction": 0.040625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9496326446533203,
+        "0.01": 0.9658168143033982,
+        "0.5": 0.9999708235263824,
+        "0.99": 1.0211273002624512,
+        "1.0": 1.0567055940628052
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 2.5914793014526367,
+        "qwen_vl_interface": 1.3229737281799316,
+        "action_input_model": 0.14555257558822632
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 5,
+      "device": {
+        "type": "cuda",
+        "index": 5,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "2582bd714a32b52a81344d22ea2b5626b5758aeadc7d228fed94fa048c9625d2",
+        "02b63f8646a0e4ac8ea96829442be5daa717640ed6834e8685ccee1f939d95fc"
+      ],
+      "scene_tokens": [
+        [
+          "e532ed8463d658eb"
+        ],
+        [
+          "3905ad40c3d5528c"
+        ]
+      ],
+      "replay_tokens": [
+        "301b71e36f765534",
+        "7f82891713c656fb"
+      ],
+      "rollout_score_reference_seconds": 34.36290662549436,
+      "update_seconds": 92.34074660204351,
+      "peak_gpu_gib": 22.78927755355835,
+      "phase_wall_seconds": {
+        "actor_forward": 21.094727093353868,
+        "backward_optimizer": 56.12300016917288,
+        "scene_metrics": 0.2664917819201946,
+        "post_update_probe": 14.546498412266374,
+        "optimizer_gradient_observer_nested": 14.465025622397661
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.9916843771934509,
+      "pre_update_ratio_max": 1.0115889310836792,
+      "pre_update_ratio_mean": 0.999997890740633,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9916843771934509,
+        "0.01": 0.9926508897542954,
+        "0.5": 1.0000223517417908,
+        "0.99": 1.0052891337871552,
+        "1.0": 1.0115889310836792
+      },
+      "loss": 0.0007037393079372123,
+      "grpo": -0.000302465254208073,
+      "reference": 6.286521966103464e-05,
+      "sft": 0.010055758757516742,
+      "old_policy_drift": 1.5065745658793261e-06,
+      "reward": 0.8429894465953112,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.0,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.002084960055807955,
+        "0.01": 0.0021346957220143613,
+        "0.5": 0.004571743366128268,
+        "0.99": 0.007008791010242175,
+        "1.0": 0.007058526676448581
+      },
+      "advantage_absolute_mean": 0.8328013594727963,
+      "advantage_second_moment": 0.9993790691564636,
+      "advantage_group_mean_abs_max": 1.1641532182693481e-08,
+      "advantage_nonzero_group_fraction": 1.0,
+      "candidate_pair_ade_scene_median_m": 0.10422644329740552,
+      "candidate_pair_fde_scene_median_m": 0.11205076046769818,
+      "candidate_xy_effective_rank": 3.1227982567619144,
+      "reward_group_span_quantiles": {
+        "0.0": 0.00716012716293335,
+        "0.01": 0.007320971488952637,
+        "0.5": 0.015202343463897705,
+        "0.99": 0.023083715438842772,
+        "1.0": 0.02324455976486206
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.010055758757516742,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.5603704465319301,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.842989445189975,
+      "reward_component/score": 0.842989445189975,
+      "post_update_probe_ratio_min": 0.9774132370948792,
+      "post_update_probe_ratio_max": 1.0315065383911133,
+      "post_update_probe_ratio_mean": 0.9998987725004553,
+      "post_update_probe_ratio_clip_fraction": 0.015625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9774132370948792,
+        "0.01": 0.9829547119140625,
+        "0.5": 1.0000285506248474,
+        "0.99": 1.0155217576026916,
+        "1.0": 1.0315065383911133
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 1.4134591817855835,
+        "qwen_vl_interface": 1.5142320394515991,
+        "action_input_model": 0.2249741554260254
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 6,
+      "device": {
+        "type": "cuda",
+        "index": 6,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "b35ab66a96f2fe5b105bb59548b2ad06e427e50bfab854854d86f0618675ca9b",
+        "1def00ee522becc827f6ec8de9c4467f0990a3dc6cf806140567db46b1412e30"
+      ],
+      "scene_tokens": [
+        [
+          "e55c88f3c34858a2"
+        ],
+        [
+          "775e57f0770159ca"
+        ]
+      ],
+      "replay_tokens": [
+        "d6a56878b8835b3b",
+        "ff3bba0dd7d25848"
+      ],
+      "rollout_score_reference_seconds": 34.363025246188045,
+      "update_seconds": 92.45969126746058,
+      "peak_gpu_gib": 22.78870725631714,
+      "phase_wall_seconds": {
+        "actor_forward": 20.761713322252035,
+        "backward_optimizer": 56.47997197881341,
+        "scene_metrics": 0.24060994572937489,
+        "post_update_probe": 14.665290867909789,
+        "optimizer_gradient_observer_nested": 14.465069688856602
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    },
+    {
+      "pre_update_ratio_min": 0.9822060465812683,
+      "pre_update_ratio_max": 1.0160564184188843,
+      "pre_update_ratio_mean": 0.9999222820624709,
+      "pre_update_ratio_clip_fraction": 0.0,
+      "pre_update_ratio_count": 320.0,
+      "pre_update_ratio_quantiles": {
+        "0.0": 0.9822060465812683,
+        "0.01": 0.9900577622652054,
+        "0.5": 0.9999814033508301,
+        "0.99": 1.0086082303524018,
+        "1.0": 1.0160564184188843
+      },
+      "loss": -0.00033590062230359763,
+      "grpo": -0.0004722952871816233,
+      "reference": 0.00010486594692338258,
+      "sft": 0.0013534601894207299,
+      "old_policy_drift": 3.6096017719033923e-06,
+      "reward": 0.9596773125231266,
+      "reward_zero_fraction": 0.0,
+      "all_zero_groups": 0.0,
+      "all_equal_groups": 0.0,
+      "scene_count": 2.0,
+      "reward_group_std_quantiles": {
+        "0.0": 0.001643958735616104,
+        "0.01": 0.0016505767936820846,
+        "0.5": 0.0019748616389151253,
+        "0.99": 0.002299146484148166,
+        "1.0": 0.0023057645422141465
+      },
+      "advantage_absolute_mean": 0.7958369183761533,
+      "advantage_second_moment": 0.9989588532275893,
+      "advantage_group_mean_abs_max": 1.4028046280145645e-08,
+      "advantage_nonzero_group_fraction": 1.0,
+      "candidate_pair_ade_scene_median_m": 0.10906151297611275,
+      "candidate_pair_fde_scene_median_m": 0.1319576226435995,
+      "candidate_xy_effective_rank": 2.582545946770085,
+      "reward_group_span_quantiles": {
+        "0.0": 0.007170140743255615,
+        "0.01": 0.007170650362968445,
+        "0.5": 0.007195621728897095,
+        "0.99": 0.0072205930948257445,
+        "1.0": 0.007221102714538574
+      },
+      "candidate_count": 32.0,
+      "replay_scene_count": 2.0,
+      "sft_component/action_loss": 0.0013534601894207299,
+      "sft_component/rgb_loss": 0.0,
+      "sft_component/gs_loss": 0.0,
+      "sft_component/reward_loss": 0.0,
+      "reward_component/no_at_fault_collisions": 1.0,
+      "reward_component/drivable_area_compliance": 1.0,
+      "reward_component/driving_direction_compliance": 1.0,
+      "reward_component/traffic_light_compliance": 1.0,
+      "reward_component/ego_progress": 0.8870964681932952,
+      "reward_component/time_to_collision_within_bound": 1.0,
+      "reward_component/lane_keeping": 1.0,
+      "reward_component/history_comfort": 1.0,
+      "reward_component/pdm_score": 0.8882487386404625,
+      "reward_component/score": 0.9596773100690339,
+      "post_update_probe_ratio_min": 0.9524984955787659,
+      "post_update_probe_ratio_max": 1.0335862636566162,
+      "post_update_probe_ratio_mean": 0.9991244960576295,
+      "post_update_probe_ratio_clip_fraction": 0.040625,
+      "post_update_probe_ratio_count": 320.0,
+      "post_update_probe_ratio_quantiles": {
+        "0.0": 0.9524984955787659,
+        "0.01": 0.9637752866744995,
+        "0.5": 0.9998874664306641,
+        "0.99": 1.0192410111427308,
+        "1.0": 1.0335862636566162
+      },
+      "local_backward_contribution_l2": {
+        "action_model": 2.8661253452301025,
+        "qwen_vl_interface": 1.5210477113723755,
+        "action_input_model": 0.24154974520206451
+      },
+      "gradient_tensors": 672,
+      "gradient_hook_scope": "local sum of squared backward contributions; not optimizer gradient norm",
+      "module_parameter_probe_delta_l2": {
+        "qwen_vl_interface": 2.429267806292046e-05,
+        "action_input_model": 5.394796517066425e-06,
+        "action_model": 3.953971463488415e-05
+      },
+      "parameter_probe_values": 10740,
+      "pre_clip_grad_norm": 1.0410187244415283,
+      "clip_scale": 0.9605965924771176,
+      "post_clip_grad_norm": null,
+      "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+      "update": 2,
+      "policy_version": 0,
+      "inner_epoch": 1,
+      "rank": 7,
+      "device": {
+        "type": "cuda",
+        "index": 7,
+        "name": "NVIDIA A800-SXM4-80GB"
+      },
+      "behavior_sha256": [
+        "b682fac84d373b8775d5b7f338a05fa9056329773a505989329e71ca4a4f975b",
+        "7bcdf324a5dbe95aced5ec8613ff94cd2c6ba0a21176448c1a8ef4c1f9bbac2a"
+      ],
+      "scene_tokens": [
+        [
+          "61482ca313e75ffe"
+        ],
+        [
+          "9b3576f6f23650b9"
+        ]
+      ],
+      "replay_tokens": [
+        "8f4a4a46cb785f04",
+        "ab85a7c4b299506f"
+      ],
+      "rollout_score_reference_seconds": 34.36284907348454,
+      "update_seconds": 92.4904846008867,
+      "peak_gpu_gib": 23.06382179260254,
+      "phase_wall_seconds": {
+        "actor_forward": 21.12928026728332,
+        "backward_optimizer": 56.116769252344966,
+        "scene_metrics": 0.2434135004878044,
+        "post_update_probe": 14.694236727431417,
+        "optimizer_gradient_observer_nested": 14.462418183684349
+      },
+      "phase_wall_scope": "host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
+      "loss_coefficients": {
+        "grpo": 1.0,
+        "reference": 0.01,
+        "sft": 0.1
+      },
+      "diagnostic_loss_scope": null,
+      "denoising_credit": {
+        "discount": 0.6,
+        "normalization": "raw_discount",
+        "applies_to": "grpo_only; reference and SFT coefficients unchanged"
+      },
+      "lr": [
+        1.0000000000000002e-06,
+        1.0000000000000002e-06,
+        1.0000000000000002e-06
+      ],
+      "reward_errors": 0,
+      "dtype_before_step": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "activation_dtypes": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "dtype": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      }
+    }
+  ]
+}

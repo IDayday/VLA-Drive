@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "scope": "paired F-only64, both start original frozen-visual step100000; research, not production release",
+  "control_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/research64_control",
+  "evaluate_updates": [
+    32,
+    64
+  ],
+  "primary_checkpoint": 64,
+  "exploratory_checkpoint": 32,
+  "training_seed": 42,
+  "evaluation_seed": 42,
+  "group_size": 16,
+  "inner_epochs": 2,
+  "global_scene_batch": 16,
+  "fresh_scene_rollouts_per_arm": 512,
+  "fresh_candidates_per_arm": 8192,
+  "replay_exposures_per_arm": 1024,
+  "dev_scenes": 1696,
+  "dev_logs": 16,
+  "navtest_used": false,
+  "selection": "report both checkpoints and both recipes, no early score selection or candidate/seed replacement",
+  "only_algorithm_difference": "denoising_discount=1.0 versus0.6, raw weights on GRPO; reference and SFT coefficients unchanged",
+  "note": "raw discount changes aggregate surrogate weighting relative to reference/SFT; do not claim purely causal temporal direction effect",
+  "arms": {
+    "uniform": {
+      "config": "configs/flow_grpo/frozen_research_g16_uniform64.yaml",
+      "train_spec": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/f_uniform64_spec.json",
+      "run": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/f_uniform64",
+      "evaluation": {
+        "root": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/evaluation64",
+        "tokens": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dev_tokens.json",
+        "data_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset",
+        "metric_cache": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/metric_cache_navtrain_v2",
+        "slots": [
+          {
+            "host": "training-rl-zt4",
+            "gpu": 0,
+            "cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "require_idle": true
+          },
+          {
+            "host": "training-rl-zt4",
+            "gpu": 1,
+            "cpu_affinity": [
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31
+            ],
+            "require_idle": true
+          },
+          {
+            "host": "training-rl-zt4",
+            "gpu": 2,
+            "cpu_affinity": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47
+            ],
+            "require_idle": true
+          },
+          {
+            "host": "training-rl-zt4",
+            "gpu": 3,
+            "cpu_affinity": [
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63
+            ],
+            "require_idle": true
+          }
+        ]
+      }
+    },
+    "discount": {
+      "config": "configs/flow_grpo/frozen_research_g16_discount64.yaml",
+      "train_spec": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/f_discount64_spec.json",
+      "run": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/f_discount64",
+      "evaluation": {
+        "root": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/evaluation64",
+        "tokens": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dev_tokens.json",
+        "data_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/dataset",
+        "metric_cache": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/metric_cache_navtrain_v2",
+        "slots": [
+          {
+            "host": "training-rl-zt2",
+            "gpu": 0,
+            "cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "require_idle": true
+          },
+          {
+            "host": "training-rl-zt2",
+            "gpu": 1,
+            "cpu_affinity": [
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31
+            ],
+            "require_idle": true
+          },
+          {
+            "host": "training-rl-zt2",
+            "gpu": 2,
+            "cpu_affinity": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47
+            ],
+            "require_idle": true
+          },
+          {
+            "host": "training-rl-zt2",
+            "gpu": 3,
+            "cpu_affinity": [
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63
+            ],
+            "require_idle": true
+          }
+        ]
+      }
+    }
+  },
+  "results_root": "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/research64_results",
+  "v1_inputs": {
+    "raw_logs": "/mnt/project/DriveDreamer-Policy/navsim_raw/navsim_logs/trainval",
+    "maps": "/mnt/navsim/maps",
+    "cache_root": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_dev_pdms_v1/metric_cache",
+    "scene_csv": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_world16/frozen_visual_evaluation/step200_rl_dev_seed42/original_protocol_scores.csv"
+  },
+  "baseline": {
+    "v1": "/mnt/project/DriveDreamer-Policy-paired/runs/frozen_rl_research/v1_g8_eval/frozen_visual_sft.csv",
+    "v2": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/frozen_visual_evaluation/sft_rl_dev_seed42/original_protocol_scores.csv"
+  },
+  "resource_reason": "local host acquired unrelated ReCogDrive inference; not stopped; use idle vla-zt2 and pressure-released vla-zt3 for training. rl-zt4/rl-zt2 four evaluation GPUs each after verified pressure cleanup."
+}
