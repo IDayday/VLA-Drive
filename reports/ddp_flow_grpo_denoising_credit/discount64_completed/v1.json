@@ -1,0 +1,41 @@
+{
+  "scenes": 1696,
+  "logs": 16,
+  "mean_paired_delta": -0.011284001173587865,
+  "log_bootstrap_95ci": [
+    -0.024941018480278142,
+    0.005925163608163859
+  ],
+  "zero_to_nonzero": 10,
+  "nonzero_to_zero": 25,
+  "high_score_degraded": 101,
+  "high_score_threshold": 0.9,
+  "bootstrap_unit": "log",
+  "bootstrap_seed": 42,
+  "causal_scope": "joint Flow-GRPO + reference + action-SFT, not isolated RL effect",
+  "scope": "1696 fixed development scenes /16logs; seed42; F raw gamma0.6 step64; not Navtest",
+  "baseline": 0.934826724640784,
+  "trained": 0.9235427234671962,
+  "components": {
+    "ego_progress": {
+      "baseline": 0.8570275353642969,
+      "trained": 0.8961015929250445
+    },
+    "time_to_collision_within_bound": {
+      "baseline": 0.9988207547169812,
+      "trained": 0.9457547169811321
+    },
+    "comfort": {
+      "baseline": 0.9988207547169812,
+      "trained": 0.9970518867924528
+    },
+    "drivable_area_compliance": {
+      "baseline": 0.9911556603773585,
+      "trained": 0.9823113207547169
+    },
+    "no_at_fault_collisions": {
+      "baseline": 1.0,
+      "trained": 1.0
+    }
+  }
+}
