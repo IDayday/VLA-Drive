@@ -1,0 +1,43 @@
+{
+  "job_id": "full_epoch_source_cuda_oracle",
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [
+        0
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "starVLA.rl.flow_grpo.cli",
+    "diagnose",
+    "--config",
+    "configs/flow_grpo/frozen_full_navtrain_epoch1.yaml",
+    "--output-dir",
+    "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/source_oracle",
+    "--skip-gradients"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-full-navtrain/runs/full_navtrain_epoch1/source_oracle_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 1000
+}

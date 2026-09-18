@@ -1,0 +1,120 @@
+[
+  {
+    "pre_update_ratio_min": 1.0,
+    "pre_update_ratio_max": 1.0,
+    "loss": 0.0005320300610947015,
+    "grpo": 0.0,
+    "reference": 0.0,
+    "sft": 0.0053203005736577325,
+    "all_equal_groups": 0.625,
+    "scene_count": 16.0,
+    "advantage_nonzero_group_fraction": 0.375,
+    "candidate_count": 256.0,
+    "replay_scene_count": 16.0,
+    "update": 1,
+    "policy_version": 0,
+    "inner_epoch": 0,
+    "lr": [
+      5.154639175257733e-09,
+      5.154639175257733e-09,
+      5.154639175257733e-09
+    ],
+    "lr_used": [
+      2.5773195876288665e-09,
+      2.5773195876288665e-09,
+      2.5773195876288665e-09
+    ],
+    "scheduler_completed_updates": 1,
+    "pre_clip_grad_norm": 0.624528706073761,
+    "clip_scale": 1.0,
+    "post_clip_grad_norm": null,
+    "phase_wall_seconds_max": {
+      "actor_forward": 17.994019739329815,
+      "actor_rollout": 12.990137768909335,
+      "backward_optimizer": 40.70121486671269,
+      "data_fetch": 1.01979623362422,
+      "official_reward_nested": 8.780772678554058,
+      "official_reward_remaining_wait": 0.9950933251529932,
+      "optimizer_gradient_observer_nested": 0.48009227588772774,
+      "post_update_probe": 0.00011215172708034515,
+      "reference": 13.33939153328538,
+      "scene_metrics": 0.05761244334280491,
+      "score_reference_total": 14.3351837862283
+    },
+    "peak_gpu_gib_max": 20.98208999633789,
+    "stability": {
+      "reference_coefficient_used": 0.04,
+      "reference_coefficient_next": 0.039875,
+      "measured_pre_update_reference_kl": 0.0,
+      "units": "scene mean of dimension-mean conditional transition KL",
+      "controller": {
+        "schema": 1,
+        "spec": {
+          "target": 0.02,
+          "horizon_scenes": 1024,
+          "min_coefficient": 0.01,
+          "max_coefficient": 1.0
+        },
+        "value": 0.039875,
+        "updates": 1
+      }
+    }
+  },
+  {
+    "pre_update_ratio_min": 0.9803431034088135,
+    "pre_update_ratio_max": 1.021996021270752,
+    "loss": 0.0005359479923754407,
+    "grpo": 9.573966508469312e-08,
+    "reference": 6.824851249120911e-05,
+    "sft": 0.005331308406312019,
+    "all_equal_groups": 0.625,
+    "scene_count": 16.0,
+    "advantage_nonzero_group_fraction": 0.375,
+    "candidate_count": 256.0,
+    "replay_scene_count": 16.0,
+    "post_update_probe_ratio_min": 0.9696598649024963,
+    "post_update_probe_ratio_max": 1.015162706375122,
+    "update": 2,
+    "policy_version": 0,
+    "inner_epoch": 1,
+    "lr": [
+      7.731958762886599e-09,
+      7.731958762886599e-09,
+      7.731958762886599e-09
+    ],
+    "lr_used": [
+      5.154639175257733e-09,
+      5.154639175257733e-09,
+      5.154639175257733e-09
+    ],
+    "scheduler_completed_updates": 2,
+    "pre_clip_grad_norm": 0.6231173276901245,
+    "clip_scale": 1.0,
+    "post_clip_grad_norm": null,
+    "phase_wall_seconds_max": {
+      "actor_forward": 17.951751925051212,
+      "backward_optimizer": 39.473476339131594,
+      "optimizer_gradient_observer_nested": 0.47878677770495415,
+      "post_update_probe": 12.585930479690433,
+      "scene_metrics": 0.06315342336893082
+    },
+    "peak_gpu_gib_max": 23.06004238128662,
+    "stability": {
+      "reference_coefficient_used": 0.039875,
+      "reference_coefficient_next": 0.039750390625,
+      "measured_pre_update_reference_kl": 6.824851249120911e-05,
+      "units": "scene mean of dimension-mean conditional transition KL",
+      "controller": {
+        "schema": 1,
+        "spec": {
+          "target": 0.02,
+          "horizon_scenes": 1024,
+          "min_coefficient": 0.01,
+          "max_coefficient": 1.0
+        },
+        "value": 0.039750390625,
+        "updates": 2
+      }
+    }
+  }
+]

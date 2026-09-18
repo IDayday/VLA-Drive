@@ -5,6 +5,7 @@ are reported separately; a scoring I/O failure does not terminate valid training
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import subprocess
@@ -13,12 +14,23 @@ import time
 from scripts.cluster_flow_grpo.cluster import run, write_json, exclusive_controller, ROOT, PYTHON, base_env
 
 
+@contextmanager
+def owned_pool(cancel):
+    pool=ThreadPoolExecutor(max_workers=2)
+    try:yield pool
+    finally:
+        # Set cancellation BEFORE joining workers, including KeyboardInterrupt.
+        # cluster.run terminates only its recorded remote process groups.
+        cancel.set()
+        pool.shutdown(wait=True,cancel_futures=True)
+
+
 def orchestrate(spec, train, evaluate, *, poll_seconds=5):
     """Production control flow, injectable only at real subprocess boundaries."""
     root=Path(spec['control_dir']);root.mkdir(parents=True,exist_ok=True)
     state={'status':'RUNNING','started':time.time(),'training':None,'evaluations':{}}
     cancel=threading.Event()
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    with owned_pool(cancel) as pool:
         training=pool.submit(train,cancel)
         baseline=pool.submit(evaluate,'sft',spec['baseline_checkpoint'],cancel)
         # CPU polling only of OUR active training. No GPU availability waiter.

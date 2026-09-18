@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "budget": {
+    "unique_scenes": 103288,
+    "global_scene_batch": 16,
+    "behavior_batches": 6456,
+    "optimizer_updates": 12912,
+    "fresh_scene_exposures": 103296,
+    "padding_repeats": 8,
+    "candidate_trajectories": 1652736,
+    "sft_replay_exposures": 206592,
+    "padding": "deterministic cyclic SceneStream; final partial batch continues next seeded permutation"
+  },
+  "train_filter_sha256": "5f3c406a06c961e75d69d33bc127acd5704a3a440a7186bfa2212493ecf9fc01",
+  "test_filter_sha256": "46a60ff79c4bee40da8a6234c7dde2f4e77fac882cf332445427dc5bbeffa6e2",
+  "source_asset_publication": "/mnt/project/DriveDreamer-Policy-paired/runs/paired_full_assets_v1/published_v2",
+  "train_logs": 1192,
+  "navtest_scenes": 12146,
+  "evaluation_seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "primary_checkpoint": 12912,
+  "selection": "fixed last after one data epoch; navtest never used for stopping or checkpoint selection",
+  "baseline": "original F frozen_visual step100000; not the previous 64-update policy",
+  "historical_rl_dev": "all 1696 formerly held-out scenes now enter training; not a held-out dev set"
+}
