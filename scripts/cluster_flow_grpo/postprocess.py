@@ -36,7 +36,7 @@ def main():
     execute("adam_oracle_final",["scripts/cluster_flow_grpo/optimizer_evidence.py","adam","--run",str(continuous),"--output",str(root/(prefix+"_adam_oracle_final.json"))])
     for kind in ("repeat","resume"):
         wait(prefix+"_"+kind)
-        execute(kind+"_comparison",["scripts/flow_grpo/compare_boundaries.py","--continuous",str(continuous/"checkpoints/update_000002"),
+        execute(kind+"_comparison",["scripts/cluster_flow_grpo/boundary_evidence.py","--continuous",str(continuous/"checkpoints/update_000002"),
                 "--resumed",str(root/(prefix+"_"+kind)/"checkpoints/update_000002"),"--output",str(root/(prefix+"_"+kind+"_comparison.json"))])
     for kind in ("full","resume"):
         boundary=(continuous if kind=="full" else root/(prefix+"_resume"))/"checkpoints/update_000002"

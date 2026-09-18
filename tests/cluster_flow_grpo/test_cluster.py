@@ -195,3 +195,31 @@ def test_diagnostic_queue_inherits_bounded_multinode_timeout(tmp_path, monkeypat
         assert "runtime.accumulation_steps=1" in spec["entry"]
         assert spec["timeout_seconds"]==2400
         assert spec["entry"][spec["entry"].index("--max-updates")+1]=="1"
+
+
+@pytest.mark.parametrize("change", [None, "value", "dtype"])
+def test_fast_boundary_observer_keeps_native_exact_checks(tmp_path, change):
+    import torch
+    from scripts.cluster_flow_grpo.boundary_evidence import compare
+    from scripts.flow_grpo import compare_boundaries as native
+    dirs=[tmp_path/"left",tmp_path/"right"]
+    for i,root in enumerate(dirs):
+        root.mkdir();(root/"COMPLETE").write_text("complete")
+        (root/"trainer_state.json").write_text(json.dumps({"update":2,"world_size":16}))
+        (root/"rl_config.json").write_text(json.dumps({"runtime":{}}))
+        value=torch.arange(10,dtype=torch.float32)
+        if i and change=="value":value[3]+=1
+        if i and change=="dtype":value=value.double()
+        torch.save({"model":value,"rng":np.arange(3),"pending":{"inner_epoch":1}},root/"state.pt")
+    expected=tmp_path/"native.json";actual=tmp_path/"fast.json"
+    before=native.tensor_comparison
+    if change:
+        with pytest.raises(AssertionError):native.compare_boundaries(*dirs,expected)
+        with pytest.raises(AssertionError):compare(*dirs,actual)
+    else:
+        native.compare_boundaries(*dirs,expected);compare(*dirs,actual)
+    assert native.tensor_comparison is before
+    a,b=[json.loads(p.read_text()) for p in [expected,actual]]
+    assert a["status"]==b["status"]
+    for key,row in a["files"]["state.pt"]["values"].items():
+        assert row["allclose"]==b["files"]["state.pt"]["values"][key]["allclose"]

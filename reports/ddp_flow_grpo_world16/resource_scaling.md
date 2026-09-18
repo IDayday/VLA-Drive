@@ -109,6 +109,19 @@ deadlines remain bounded. All120-second attempts stay in
 `runs/resource_reallocation_v2`, including continuous/repeat/resume, without
 claiming the old configuration hash qualifies the new one.
 
+The read-only boundary observer now avoids float64 error histograms for tensors
+already confirmed finite and exactly equal. It retains the native comparator's
+independent dtype/equality/nonidentical, metadata, shard inventory and RNG
+checks; unequal tensors still use the original exhaustive statistics. On the
+actual U16 continuous/repeat boundaries its50 files and28,757 entries agreed
+with the original observer (both exit0/PASS). This is an observer optimization,
+not a relaxed numerical tolerance or a training-code change. Its15 CPU tests
+include unchanged, changed-value and changed-dtype comparisons through the real
+native boundary function. The v2 qualification runs auxiliary bounded checks
+alongside repeat/resume on owned GPUs, with separate process ports and outputs;
+formal runs retain exclusive GPU checks. Each bounded actor used about21GiB in
+the prior measured runs, below the80GiB device capacity even with two actors.
+
 ## Current entry points
 
 All commands run from `/mnt/project/DriveDreamer-Policy-paired` with
