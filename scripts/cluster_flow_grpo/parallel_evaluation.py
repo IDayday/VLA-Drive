@@ -152,7 +152,7 @@ def merge_results(root, identity, tokens, shards, split, complete, checkpoint,
 
 
 def evaluate_parallel(config, checkpoint, output, split, tokens_file, data_root,
-                      metric_cache, seed, slots, executor=None):
+                      metric_cache, seed, slots, executor=None, cancel_event=None):
     # The parent computes exactly the numerical identity used by the CLI child.
     os.environ.setdefault("FLASH_ATTENTION_DETERMINISTIC", "1")
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
@@ -182,6 +182,8 @@ def evaluate_parallel(config, checkpoint, output, split, tokens_file, data_root,
     write_json(plan_path, plan)
 
     def execute_slot(i):
+        if cancel_event is not None and cancel_event.is_set():
+            raise RuntimeError("evaluation cancelled")
         selected = assignments[i]
         token_path = shard_root / f"tokens_{i}.json"
         write_json(token_path, selected)
@@ -200,7 +202,8 @@ def evaluate_parallel(config, checkpoint, output, split, tokens_file, data_root,
             if executor:
                 executor(command, slots[i], shard_root / f"shard_{i}.log")
             else:
-                run_evaluator(command, slots[i], shard_root / f"shard_{i}.log")
+                run_evaluator(command, slots[i], shard_root / f"shard_{i}.log",
+                              cancel_event=cancel_event)
         if completed_evaluation(dest, sid, selected) is None:
             raise RuntimeError("evaluation worker exited without complete publication")
         return dest, sid, selected
@@ -215,7 +218,7 @@ def evaluate_parallel(config, checkpoint, output, split, tokens_file, data_root,
     return evaluation_transaction(output, identity, tokens, execute)
 
 
-def run_evaluator(command, slot, log):
+def run_evaluator(command, slot, log, cancel_event=None):
     from scripts.cluster_flow_grpo.cluster import run
     affinity = slot.get("cpu_affinity", list(range(int(slot["gpu"])*8, int(slot["gpu"])*8+8)))
     log = Path(log)
@@ -224,11 +227,12 @@ def run_evaluator(command, slot, log):
     spec = {"job_id": str(log), "nodes": [{"host": slot["host"],
             "devices": [slot["gpu"]], "cpu_affinity": affinity}],
             "direct_command": command, "control_dir": str(log)+".control",
+            "require_idle_gpus": slot.get("require_idle", False),
             "timeout_seconds": 14400}
     spec_path = Path(str(log)+".spec.json")
     write_json(spec_path, spec)
     write_json(log, {"supervision": str(log)+".control"})
-    return run(spec_path)
+    return run(spec_path, cancel_event=cancel_event)
 
 
 if __name__ == "__main__":

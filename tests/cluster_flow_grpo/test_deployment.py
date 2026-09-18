@@ -158,3 +158,19 @@ def test_deployment_descriptor_migration_requires_unchanged_recipe_and_gpu_gate(
         deployment.migrate_descriptor(tmp_path,new,{})
         assert called and json.loads((tmp_path/"cluster_identity.json").read_text())==new
         assert len(list((tmp_path/"deployment_history").glob("*/previous_identity.json")))==1
+
+
+def test_scheduling_migration_keeps_historical_rng_layout_and_recipe(tmp_path,monkeypatch):
+    from scripts.cluster_flow_grpo import identity
+    from starVLA.rl.flow_grpo import config,acceptance
+    plan={"groups":{v:{"config":v,"nodes":[{"host":v,"devices":[0,1]}],
+                       "resume_layout":{"source_nodes":nodes([4]),"through_update":100}}
+                    for v in ["frozen_visual","unfrozen_visual"]}}
+    old={"training_executable_sha256":"native","plan":plan}
+    (tmp_path/"cluster_identity.json").write_text(json.dumps(old))
+    new=deepcopy(old);new["plan"]["async_evaluation"]={"slots":[{"host":"eval","gpu":0}]}
+    monkeypatch.setattr(config,"resolve_config",lambda _:({},None))
+    monkeypatch.setattr(acceptance,"enforce_training_budget",lambda *a:None)
+    monkeypatch.setattr(identity,"validate_binding",lambda *a:None)
+    deployment.migrate_descriptor(tmp_path,new,{})
+    assert json.loads((tmp_path/"cluster_identity.json").read_text())==new

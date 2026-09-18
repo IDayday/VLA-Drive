@@ -122,6 +122,12 @@ def migrate_descriptor(root, descriptor, cluster_identity):
         raise ValueError("deployment migration cannot change actor executable")
     before, after = deepcopy(old["plan"]), deepcopy(descriptor["plan"])
     after.pop("resource_limits", None); before.pop("resource_limits", None)
+    # Scheduling-only migration: fixed save/eval targets, recipes and native
+    # checkpoint semantics stay unchanged. The new source still needs release.
+    before.pop("async_evaluation", None); after.pop("async_evaluation", None)
+    from scripts.cluster_flow_grpo.paired import validate_plan
+    if "async_evaluation" in descriptor["plan"]:
+        validate_plan(descriptor["plan"])
     reuse = after.pop("asset_verification_receipt", None)
     before.pop("asset_verification_receipt", None)
     if reuse:
@@ -130,6 +136,7 @@ def migrate_descriptor(root, descriptor, cluster_identity):
     for variant, group in after["groups"].items():
         original = before["groups"][variant]
         layout = group.pop("resume_layout", None)
+        original.pop("resume_layout", None)
         if group["nodes"] != original["nodes"]:
             if not layout or layout["source_nodes"] != original["nodes"]:
                 raise ValueError("migration lacks matching source topology")
@@ -148,7 +155,7 @@ def migrate_descriptor(root, descriptor, cluster_identity):
     archive.mkdir(parents=True)
     atomic_json(archive/"previous_identity.json", old)
     atomic_json(archive/"migration.json", {"new_identity": descriptor,
-        "scope": "placement only; native actor/config/world unchanged; original checkpoints preserved"})
+        "scope": "placement/scheduling only; native actor/config/world unchanged; original checkpoints preserved"})
     atomic_json(root/"cluster_identity.json", descriptor)
 
 

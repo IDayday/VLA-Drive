@@ -20,6 +20,7 @@ from scripts.cluster_flow_grpo.identity import configure_release, validate_bindi
 from starVLA.rl.flow_grpo.acceptance import acceptance_context, enforce_training_budget, executable_identity
 from starVLA.rl.flow_grpo.config import resolve_config
 from starVLA.rl.flow_grpo.checkpoint import validate_checkpoint, validate_export
+from starVLA.rl.flow_grpo.checkpoint import export_checkpoint
 from starVLA.rl.flow_grpo.orchestration import advance_target
 from starVLA.rl.flow_grpo.reproducibility import configure_numerics, resume_assets, training_provenance
 from starVLA.rl.flow_grpo.loading import file_sha
@@ -41,6 +42,12 @@ def validate_plan(plan):
         raise ValueError("equal world sizes dividing fixed global16 required")
     if len(all_slots) != len(set(all_slots)):
         raise ValueError("paired GPU allocations overlap")
+    background = plan.get("async_evaluation")
+    if background:
+        slots = [(s["host"], s["gpu"]) for s in background["slots"]]
+        if not slots or len(set(slots)) != len(slots) or set(slots) & set(all_slots):
+            raise ValueError("asynchronous evaluation requires disjoint explicit GPU slots")
+        all_slots.extend(slots)
     for host, limit in plan.get("resource_limits", {}).items():
         devices = {gpu for machine, gpu in all_slots if machine == host}
         if len(devices) > limit["max_gpus"] or devices & set(limit.get("reserved_devices", [])):
@@ -72,8 +79,12 @@ def main():
     p.add_argument("--resume", action="store_true")
     p.add_argument("--migrate-deployment", action="store_true",
                    help="Validate and archive a placement-only change; requires --resume and GPU evidence")
+    p.add_argument("--adopt-running", help="SHA-bound specs of this experiment's already supervised jobs")
     a = p.parse_args()
     plan = json.loads(Path(a.plan).read_text())
+    adopted = json.loads(Path(a.adopt_running).read_text()) if a.adopt_running else {}
+    if adopted and (not a.resume or not plan.get("async_evaluation") or set(adopted) != set(plan["groups"])):
+        raise ValueError("live adoption requires an explicit asynchronous paired resume")
     if plan.get("asset_verification_receipt"):
         from scripts.cluster_flow_grpo.assets import install_receipt
         receipt = plan["asset_verification_receipt"]
@@ -100,6 +111,7 @@ def main():
         root.mkdir(parents=True)
         write_json(root/"cluster_identity.json", descriptor)
     cancelled = threading.Event()
+    evaluation_lock = threading.Lock()
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, lambda *args: cancelled.set())
 
@@ -118,6 +130,7 @@ def main():
             eval_root = root/(variant+"_evaluation")
             eval_root.mkdir(exist_ok=True)
             slots = [{"host": node["host"], "gpu": gpu} for node in group["nodes"] for gpu in node["devices"]]
+            background = plan.get("async_evaluation")
             dev = str(Path(cfg["paths"]["split_manifest"]).parent/"dev_tokens.json")
             locations = {}
             checkpoint_locations = {}
@@ -135,15 +148,23 @@ def main():
                 key=(str(Path(checkpoint).resolve()),split,seed)
                 with locations_lock:
                     dest=checkpoint_locations.get(key,dest)
-                report = evaluate_parallel(group["config"], checkpoint, dest, split, tokens,
-                    cfg["paths"]["data_root"], cache, seed, eval_slots or slots)
+                if background and eval_slots is None:
+                    # One shared evaluation allocation serves both variants.
+                    # Complete checkpoints queue; native training never waits
+                    # for this lock. Final evaluations reuse released train GPUs.
+                    with evaluation_lock:
+                        report = evaluate_parallel(group["config"], checkpoint, dest, split, tokens,
+                            cfg["paths"]["data_root"], cache, seed, background["slots"],
+                            cancel_event=cancelled)
+                else:
+                    report = evaluate_parallel(group["config"], checkpoint, dest, split, tokens,
+                        cfg["paths"]["data_root"], cache, seed, eval_slots or slots)
                 with locations_lock:
                     locations[(label,split,seed)] = dest
                     checkpoint_locations[key]=dest
                     write_json(eval_root/"locations.json", {"/".join(map(str,k)):str(v) for k,v in locations.items()})
                 return report
 
-            evaluate(cfg["sft_checkpoint"], "sft", "rl_dev", 42)
             best = None
             def train(resume, target):
                 if cancelled.is_set():
@@ -160,7 +181,8 @@ def main():
                     "master_addr": group["master_addr"], "master_port": group["master_port"],
                     "control_dir": str(root/(suffix+".control")),
                     "require_idle_gpus": True,
-                    "environment": group.get("environment", {}), "timeout_seconds": 28800,
+                    "environment": group.get("environment", {}),
+                    "timeout_seconds": background.get("training_timeout_seconds", 172800) if background else 28800,
                     "warm_files": group.get("warm_files", []),
                     "entry": ["-m", "starVLA.rl.flow_grpo.cli", "train", "--config", group["config"],
                         "--output-dir", str(run), "--max-updates", str(target)] +
@@ -171,6 +193,10 @@ def main():
 
             def export(checkpoint, target):
                 dest = run/f"export_update{target}"
+                if background:
+                    # The native export reads CPU tensors from an immutable
+                    # publication; it neither loads a GPU policy nor uses ranks.
+                    return export_checkpoint(checkpoint, dest)
                 if not validate_export(checkpoint,dest):
                     run_evaluator([PYTHON,"-m","starVLA.rl.flow_grpo.cli","export",
                         "--checkpoint",str(checkpoint),"--output-dir",str(dest)],slots[0],
@@ -179,17 +205,35 @@ def main():
                     raise RuntimeError("export did not complete")
                 return dest
 
-            for target in [100]+list(range(200,2001,200)):
-                cp, exported, result = advance_target(run,target,
-                    validate=lambda path:validate_checkpoint(path,cfg,provenance,world),
-                    train=train,export=export,
-                    evaluate=lambda export,update:evaluate(export,f"step{update}","rl_dev",42))
+            def record_result(cp, exported, target, result):
+                nonlocal best
                 if not result["complete_split"]:
                     raise ValueError("incomplete dev evaluation cannot select best")
                 if target % 200 == 0 and (best is None or result["epdms"]>best["epdms"]):
                     best={"update":target,"epdms":result["epdms"],"checkpoint":str(cp),"export":str(exported)}
                 write_json(run/"selection.json",{"best":best,"last_evaluated_update":target,
                     "rule":"max full dev seed42 EPDMS every200; earliest tie; no navtest"})
+            targets = [100]+list(range(200,2001,200))
+            if background:
+                from scripts.cluster_flow_grpo.pipeline import continuous_pipeline
+                from scripts.cluster_flow_grpo.adoption import wait_existing
+                continuous_pipeline(run, targets,
+                    validate=lambda path:validate_checkpoint(path,cfg,provenance,world),
+                    train=train, export=export,
+                    evaluate=lambda export,update:evaluate(export,f"step{update}","rl_dev",42),
+                    baseline=lambda:evaluate(cfg["sft_checkpoint"],"sft","rl_dev",42),
+                    on_result=record_result, cancelled=cancelled,
+                    adopt=(lambda:wait_existing(adopted[variant], group, run, 2000, cancelled))
+                        if variant in adopted else None,
+                    poll_seconds=background.get("poll_seconds", 5))
+            else:
+                evaluate(cfg["sft_checkpoint"], "sft", "rl_dev", 42)
+                for target in targets:
+                    cp, exported, result = advance_target(run,target,
+                        validate=lambda path:validate_checkpoint(path,cfg,provenance,world),
+                        train=train,export=export,
+                        evaluate=lambda export,update:evaluate(export,f"step{update}","rl_dev",42))
+                    record_result(cp, exported, target, result)
             for split in ("rl_dev","navtest"):
                 evaluate_seeds(evaluate,cfg["sft_checkpoint"],"sft",split,slots)
                 for label, checkpoint in [("last",run/"export_update2000"),("best",Path(best["export"]))]:
