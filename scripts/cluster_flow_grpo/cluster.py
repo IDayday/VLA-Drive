@@ -176,8 +176,8 @@ def run(spec_path, cancel_event=None):
     spec_path = Path(spec_path).resolve()
     spec = json.loads(spec_path.read_text())
     sizes = {len(n["devices"]) for n in spec["nodes"]}
-    if len(sizes) != 1 or not sizes or 0 in sizes:
-        raise ValueError("equal nonempty rank counts required on each node")
+    if not sizes or 0 in sizes:
+        raise ValueError("nonempty rank counts required on each node")
     occupied = set()
     for node in spec["nodes"]:
         for device in node["devices"]:

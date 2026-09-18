@@ -33,14 +33,18 @@ def validate_plan(plan):
     for variant in ("frozen_visual", "unfrozen_visual"):
         group = plan["groups"][variant]
         sizes = {len(n["devices"]) for n in group["nodes"]}
-        if len(sizes) != 1 or 0 in sizes:
-            raise ValueError("each group requires equal nonempty node sizes")
+        if not sizes or 0 in sizes:
+            raise ValueError("each group requires nonempty node sizes")
         slots = [(n["host"], gpu) for n in group["nodes"] for gpu in n["devices"]]
         all_slots.extend(slots); worlds.append(len(slots))
     if worlds[0] != worlds[1] or 16 % worlds[0]:
         raise ValueError("equal world sizes dividing fixed global16 required")
     if len(all_slots) != len(set(all_slots)):
         raise ValueError("paired GPU allocations overlap")
+    for host, limit in plan.get("resource_limits", {}).items():
+        devices = {gpu for machine, gpu in all_slots if machine == host}
+        if len(devices) > limit["max_gpus"] or devices & set(limit.get("reserved_devices", [])):
+            raise ValueError(f"GPU allocation violates user resource limit: {host}")
     return worlds[0]
 
 
@@ -66,6 +70,8 @@ def main():
     p = argparse.ArgumentParser(__doc__)
     p.add_argument("--plan", required=True)
     p.add_argument("--resume", action="store_true")
+    p.add_argument("--migrate-deployment", action="store_true",
+                   help="Validate and archive a placement-only change; requires --resume and GPU evidence")
     a = p.parse_args()
     plan = json.loads(Path(a.plan).read_text())
     world = validate_plan(plan)
@@ -81,7 +87,11 @@ def main():
         if not a.resume:
             raise FileExistsError("existing run requires explicit --resume")
         if json.loads((root/"cluster_identity.json").read_text()) != descriptor:
-            raise ValueError("cluster plan/code changed; explicit new validated run required")
+            if not a.migrate_deployment:
+                raise ValueError("cluster plan/code changed; explicit validated deployment migration required")
+            from scripts.cluster_flow_grpo.deployment import migrate_descriptor
+            with exclusive_controller(root):
+                migrate_descriptor(root, descriptor, cluster_identity)
     else:
         root.mkdir(parents=True)
         write_json(root/"cluster_identity.json", descriptor)
@@ -135,6 +145,11 @@ def main():
                 if cancelled.is_set():
                     raise RuntimeError("paired experiment cancelled")
                 validate_binding(cfg,cluster_identity)
+                layout = group.get("resume_layout")
+                if resume and layout and int(Path(resume).name.split("_")[-1]) <= layout["through_update"]:
+                    from scripts.cluster_flow_grpo.deployment import project_checkpoint
+                    resume = project_checkpoint(resume, run/"deployment_rng"/Path(resume).name,
+                        layout["source_nodes"], group["nodes"], cfg)
                 suffix = f"{variant}_to{target}_{time.time_ns()}"
                 spec = {"job_id": suffix, "nodes": group["nodes"],
                     "master_addr": group["master_addr"], "master_port": group["master_port"],
