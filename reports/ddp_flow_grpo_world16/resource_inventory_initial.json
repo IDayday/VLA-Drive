@@ -1,0 +1,106 @@
+{
+  "utc": null,
+  "scope": "read-only live SSH inventory before stopping verified pressure scripts",
+  "probes": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "zt-vla2",
+        "chunk_id": "761402",
+        "wall_time_seconds": 3.435e-06,
+        "exit_code": 255,
+        "original_token_count": 24,
+        "output": "ssh: Could not resolve hostname zt-vla2-ssh.vla.svc.cluster.local: Name or service not known\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-zt",
+        "chunk_id": "0c2354",
+        "wall_time_seconds": 4.55e-06,
+        "exit_code": 255,
+        "original_token_count": 25,
+        "output": "ssh: Could not resolve hostname training-zt-ssh.vla.svc.cluster.local: Name or service not known\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-vla-zt2",
+        "chunk_id": "f3da25",
+        "wall_time_seconds": 0.247969143,
+        "exit_code": 0,
+        "original_token_count": 1084,
+        "output": "training-vla-zt2-worker-0\n128\n               total        used        free      shared  buff/cache   available\nMem:         1031179       95799      850784       12771       84595      917043\n0, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 47 %\n1, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n2, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n3, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n4, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n5, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n6, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n7, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n2109193, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109197, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109190, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109192, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109200, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109191, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109189, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n2109194, /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python, 77328 MiB\n    PID    PPID    PGID     ELAPSED %CPU COMMAND\n2109190 2109131 2109131  4-09:29:03 88.3 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109189 2109135 2109135  4-09:29:03 88.2 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109197 2109130 2109130  4-09:29:03 88.2 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109193 2109129 2109129  4-09:29:03 88.1 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109192 2109132 2109132  4-09:29:03 87.9 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109191 2109134 2109134  4-09:29:03 87.7 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109194 2109136 2109136  4-09:29:03 87.4 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2109200 2109133 2109133  4-09:29:03 87.4 /mnt/project/DriveVLA-M0-stage2/reproduction_diagnostics/envs/navsim_py39_exact/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n3654407 2387288 2387278    07:32:20  7.0 /root/.vscode-server/bin/bf9252a2fb45be6893dd8870c0bf37e2e1766d61/node --dns-result-order=ipv4first /root/.vscode-server/bin/bf9252a2fb45be6893dd8870c0bf37e2e1766d61/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=true\n2667412 2843311 2667412 21-20:09:22  3.0 /root/miniconda3/envs/navsim/bin/python3.10 /root/miniconda3/envs/navsim/bin/nvitop\n  72548   72523   72548 110-15:41:42 2.9 /root/miniconda3/envs/navsim/bin/python /root/miniconda3/envs/navsim/bin/nvitop\n3205076 3205055 3205055 28-21:45:03  0.3 /usr/local/lib/codex-npm/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex\n2843310       1 2843310 82-08:31:38  0.1 tmux new -s gpu\nSHARED_RUN_VISIBLE\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-vla-zt3",
+        "chunk_id": "b28eb5",
+        "wall_time_seconds": 0.781155713,
+        "exit_code": 0,
+        "original_token_count": 847,
+        "output": "training-vla-zt3-worker-0\n128\n               total        used        free      shared  buff/cache   available\nMem:         1031179      172610      464569        4261      393998      848558\n0, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n1, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 55 %\n2, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 98 %\n3, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n4, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 44 %\n5, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n6, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n7, NVIDIA A800-SXM4-80GB, 77337 MiB, 81920 MiB, 100 %\n2275790, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2276079, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2279600, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2276146, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2276094, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2275817, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2275912, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n2277369, /root/miniconda3/envs/navsim/bin/python, 77328 MiB\n    PID    PPID    PGID     ELAPSED %CPU COMMAND\n2276079 2168418 2168418  4-09:29:14 87.3 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2276094 2168804 2168804  4-09:29:14 86.9 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2275790 2168297 2168297  4-09:29:14 86.7 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2275912 2169098 2169098  4-09:29:14 86.7 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2276146 2168660 2168660  4-09:29:14 86.7 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2279600 2168518 2168518  4-09:29:14 86.7 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2275817 2168938 2168938  4-09:29:14 86.5 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n2277369 2169238 2169238  4-09:29:14 86.5 /root/miniconda3/envs/navsim/bin/python -B -c from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=45, pipe_handle=47) --multiprocessing-fork\n 167451  147062  147062 13-16:39:44 69.1 /opt/node/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex --disable apps\n2387524 2364096 2364096 13-14:29:18 68.9 /opt/node/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex\n      1       0       1 13-17:14:50  8.1 /bin/bash -c while true; do echo hello; sleep 10; done\n 181066 1895384  181066 12-00:01:46  2.9 /root/miniconda3/envs/navsim/bin/python /root/miniconda3/envs/navsim/bin/nvitop\n1349932 1349892 1349892       00:01  1.0 bash -lc : >/dev/tcp/127.0.0.1/7890\nSHARED_RUN_VISIBLE\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-ad",
+        "chunk_id": "ff01b0",
+        "wall_time_seconds": 1.59e-06,
+        "exit_code": 255,
+        "original_token_count": 25,
+        "output": "ssh: Could not resolve hostname training-ad-ssh.vla.svc.cluster.local: Name or service not known\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-rl-zt",
+        "chunk_id": "540034",
+        "wall_time_seconds": 3.033e-06,
+        "exit_code": 255,
+        "original_token_count": 23,
+        "output": "ssh: connect to host training-rl-zt-ssh.vla.svc.cluster.local port 22: Connection refused\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-rl-zt2",
+        "chunk_id": "955141",
+        "wall_time_seconds": 0.110838996,
+        "exit_code": 0,
+        "original_token_count": 511,
+        "output": "training-rl-zt2-worker-0\n128\n               total        used        free      shared  buff/cache   available\nMem:         1031176      219771      693619        3964      117785      801782\n0, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n1, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n2, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n3, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n4, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n5, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n6, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n7, NVIDIA A800-SXM4-80GB, 0 MiB, 81920 MiB, 0 %\n    PID    PPID    PGID     ELAPSED %CPU COMMAND\n 716347    9149  716347  9-05:11:54  4.3 /root/miniconda3/envs/navsim/bin/python /root/miniconda3/envs/navsim/bin/nvitop\n      1       0       1 10-17:17:45  0.0 /bin/bash -c while true; do echo hello; sleep 10; done\n     74       1      74 10-17:13:26  0.0 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups\n   4487       1    4487 10-17:00:43  0.0 tmux -u new-session -d -s codex -n codex -c /mnt/project /usr/local/bin/cdx-codex\n   4488    4487    4488 10-17:00:43  0.0 /usr/local/lib/codex/codex --disable apps\n   9149    4487    9149 10-14:45:51  0.0 -bash\n2282082      74 2282082    10:50:47  0.0 sshd: root\n2312025       1       1       00:06  0.0 sleep 10\n2312026      74 2312026       00:00  0.0 sshd: root@notty\n2312037 2312026 2312037       00:00  0.0 bash -c hostname; nproc; free -m | head -2; nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader; nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader; ps -eo pid,ppid,pgid,etime,pcpu,args --sort=-pcpu | head -14; test -x /root/miniconda3/envs/ddp/bin/python && echo DDP_ENV_PRESENT; test -e /mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/controller.pid && echo SHARED_RUN_VISIBLE\n2312044 2312037 2312037       00:00  0.0 ps -eo pid,ppid,pgid,etime,pcpu,args --sort=-pcpu\n2312045 2312037 2312037       00:00  0.0 head -14\nDDP_ENV_PRESENT\nSHARED_RUN_VISIBLE\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-rl-zt3",
+        "chunk_id": "9136cb",
+        "wall_time_seconds": 2.066e-06,
+        "exit_code": 255,
+        "original_token_count": 25,
+        "output": "ssh: connect to host training-rl-zt3-ssh.world-model.svc.cluster.local port 22: Connection refused\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "host": "training-rl-zt4",
+        "chunk_id": "413d30",
+        "wall_time_seconds": 0.1507266,
+        "exit_code": 0,
+        "original_token_count": 532,
+        "output": "training-rl-zt4-worker-0\n128\n               total        used        free      shared  buff/cache   available\nMem:         1031179      441087      404975        2549      185115      579302\n0, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n1, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n2, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n3, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n4, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n5, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n6, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n7, NVIDIA A800-SXM4-80GB, 36979 MiB, 81920 MiB, 100 %\n    PID    PPID    PGID     ELAPSED %CPU COMMAND\n2982257    3100 2982257 13-20:08:55  2.2 /root/miniconda3/envs/navsim/bin/python /root/miniconda3/envs/navsim/bin/nvitop\n      1       0       1 22-15:23:54  0.0 /bin/bash -c while true; do echo hello; sleep 10; done\n    100       1     100 22-15:14:56  0.0 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups\n   3099       1    3099 22-14:41:19  0.0 tmux new -s gpu\n   3100    3099    3100 22-14:41:19  0.0 -bash\n 135359     100  135359    10:50:47  0.0 sshd: root\n 156818 1637525 1637523       00:17  0.0 sleep 30\n 156831     100  156831       00:00  0.0 sshd: root@notty\n 156842  156831  156842       00:00  0.0 bash -c hostname; nproc; free -m | head -2; nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader; nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader; ps -eo pid,ppid,pgid,etime,pcpu,args --sort=-pcpu | head -14; test -x /root/miniconda3/envs/ddp/bin/python && echo DDP_ENV_PRESENT; test -e /mnt/project/DriveDreamer-Policy-paired/runs/paired_full_navtrain_v3/controller.pid && echo SHARED_RUN_VISIBLE\n 156850       1       1       00:00  0.0 sleep 10\n 156852  156842  156842       00:00  0.0 ps -eo pid,ppid,pgid,etime,pcpu,args --sort=-pcpu\n 156853  156842  156842       00:00  0.0 head -14\n1637525       1 1637523 15-08:08:57  0.0 bash /mnt/project/DriveVLA-M0-m0-scorer-representation/local_stage2/watch_no_vqa_e35_risk_cv_wave12_remote.sh\nSHARED_RUN_VISIBLE\n"
+      }
+    }
+  ],
+  "time_note": "Probed during2026-09-17 around23:11UTC; exact per-probe timestamp was not retained."
+}
