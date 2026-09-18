@@ -270,3 +270,73 @@ Quality conclusion: **insufficient evidence** until the new paired budget and
 complete five-seed official evaluations finish. Historical chunk>=2 remains
 unsupported. Historical failures are unchanged; no seed/sample selection or
 reward change was used to obtain release.
+
+The score-corrected sampler reference remains the locked Flow-GRPO commit
+`879042cf5707f8b90daa98d147d7deac2317c5da` in `reference_lock.json`.
+Full asset publication stays `ASSETS_READY_ONLY`; it is not the GPU release.
+
+The following are existing native audit/evaluation entries. Choose a new output
+directory, or allow the evaluator to validate/reuse an identical completed
+transaction. Do not start these GPU commands on occupied training devices.
+
+```bash
+export FLASH_ATTENTION_DETERMINISTIC=1 CUBLAS_WORKSPACE_CONFIG=:4096:8
+WORLD_SIZE=16 $PY -m starVLA.rl.flow_grpo.cli preflight \
+  --config configs/flow_grpo/paired_world16_frozen_visual.yaml \
+  --max-updates 2 --output-dir reports/manual_world16_preflight \
+  --set runtime.run_mode=diagnostic
+
+# Explicit original-protocol dev inputs, here using the F SFT baseline.
+$PY -m starVLA.rl.flow_grpo.cli evaluate \
+  --config configs/flow_grpo/paired_world16_frozen_visual.yaml \
+  --checkpoint /mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-checkpoints-v1/frozen_visual \
+  --split rl_dev --tokens runs/paired_full_assets_v1/dev_tokens.json \
+  --data-root runs/paired_full_assets_v1/dataset \
+  --metric-cache runs/paired_full_assets_v1/metric_cache_navtrain_v2 \
+  --seed 42 --metric-protocol navsim_v2_official_one_stage \
+  --output-dir runs/manual_f_sft_dev_seed42
+
+# Same protocol on complete navtest; this never enables navtest training reward.
+$PY -m starVLA.rl.flow_grpo.cli evaluate \
+  --config configs/flow_grpo/paired_world16_frozen_visual.yaml \
+  --checkpoint /mnt/project/DriveDreamer-Policy-flow-grpo/artifacts/action-only-checkpoints-v1/frozen_visual \
+  --split navtest --tokens /mnt/project/DriveDreamer-Policy/test_meta.json \
+  --data-root runs/paired_full_assets_v1/dataset \
+  --metric-cache runs/metric_cache_navtest_v2 \
+  --seed 42 --metric-protocol navsim_v2_official_one_stage \
+  --output-dir runs/manual_f_sft_navtest_seed42
+```
+
+The actual paired controller already schedules all five seeds42–46 and both
+SFT/last/best checkpoints; these manual single-seed examples do not replace it.
+
+## Observed live training (snapshot, not completed budget)
+
+Snapshot UTC: `2026-09-18T03:16:47.107005+00:00`. Both variants performed real optimizer updates;
+the controller remains active.
+
+| Variant | Completed updates | Mean warm update | Mean fresh rollout | Amortized seconds/update | Reward errors |
+|---|---:|---:|---:|---:|---:|
+|frozen_visual|11|25.742s|8.381s|29.932s|0|
+|unfrozen_visual|5|27.796s|9.306s|32.449s|0|
+
+The actual first two global losses, rewards, ratios, reference KL and pre/post
+clip norms exactly match the corresponding accepted full-world16 diagnostic
+runs. All16 ranks reuse the same behavior hash across the two inner epochs.
+This is observed production startup consistency, not a final performance claim.
+Full small summaries and hashes are in `live_training_snapshot.json`.
+
+The early throughput gives roughly18–20 hours for the2000-update training
+budget in parallel, and an initial estimate of24–30 hours including checkpoint
+I/O, scheduled restarts, dev and full five-seed navtest evaluations. This is a
+projection from initial real updates, not a completion guarantee or a measured
+full-run duration. Compared with the old~86seconds/update, the amortized compute
+rate improved by roughly2.6–2.9×. Initialization/checkpoint/evaluation overhead
+is excluded from that speed ratio and included only in the broader ETA range.
+
+The32 GPUs are actively assigned to this experiment. Training outputs remain
+on shared storage; completed diagnostic state is copied to the named local
+archive with byte verification. `diagnostic_archive.jsonl` is a stable link to
+the live per-file receipt under the run directory, so background copy progress
+does not mutate tracked report content. The live copy is separate from training
+and does not issue acceptance or alter any model tensor.

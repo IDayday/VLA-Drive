@@ -1,5 +1,13 @@
 # Installed ZeRO-2 FP32 partition validation
 
+> Live-run update,2026-09-18: the world4 runs documented here were preserved at
+> complete update100 and stopped after their dev evaluations. The current paired
+> experiment restarts both original SFT initializations on world16, with separate
+> measured acceptance and outputs. See
+> [world16 validation](../ddp_flow_grpo_world16/validation.md). Historical results
+> and the candidate-chunk1/2 FAIL below are unchanged.
+
+
 This is a new validation series, not a revision of the historical BF16
 candidate-chunk 1/2 failure. Engineering status is **READY_FOR_THIS_PROFILE**
 for the fixed profile below: both sets of17 semantic gates passed and both
