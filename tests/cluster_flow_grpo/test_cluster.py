@@ -172,3 +172,26 @@ def test_actual_numeric_optimizer_shards_support_sixteen_ranks():
     assert ordered_shards(sorted(paths))==paths
     with pytest.raises(ValueError,match="missing/duplicate"):ordered_shards(paths[:10]+paths[11:])
     with pytest.raises(ValueError,match="missing/duplicate"):ordered_shards(paths+[paths[0]])
+
+
+def test_diagnostic_queue_inherits_bounded_multinode_timeout(tmp_path, monkeypatch):
+    from scripts.cluster_flow_grpo import diagnostics
+    control=tmp_path/"u16_full_cont_control";control.mkdir()
+    (control/"result.json").write_text(json.dumps({"status":"PASS"}))
+    base={"job_id":"u16_full_cont","control_dir":str(control),"timeout_seconds":2400,
+          "entry":["train","--config","production.yaml"],"nodes":[]}
+    path=tmp_path/"base.json";path.write_text(json.dumps(base))
+    monkeypatch.setattr(diagnostics,"resolve_config",lambda _:({"runtime":{"process_group_timeout":600}},None))
+    calls=[]
+    def execute(path):
+        calls.append(json.loads(Path(path).read_text()))
+        return {"status":"PASS"}
+    monkeypatch.setattr(diagnostics,"run",execute)
+    monkeypatch.setattr(sys,"argv",["diagnostics","--base-spec",str(path),"--steps","scale","rl_only"])
+    diagnostics.main()
+    assert len(calls)==2
+    for spec in calls:
+        assert "runtime.process_group_timeout=600" in spec["entry"]
+        assert "runtime.accumulation_steps=1" in spec["entry"]
+        assert spec["timeout_seconds"]==2400
+        assert spec["entry"][spec["entry"].index("--max-updates")+1]=="1"

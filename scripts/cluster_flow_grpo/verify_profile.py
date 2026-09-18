@@ -180,5 +180,5 @@ def verify(short, root, output):
 
 if __name__=="__main__":
     p=argparse.ArgumentParser(__doc__);p.add_argument("--variant",choices=["f","u"],required=True)
-    p.add_argument("--root",default="runs/resource_reallocation_v1");p.add_argument("--output",required=True)
+    p.add_argument("--root",default="runs/resource_reallocation_v2");p.add_argument("--output",required=True)
     a=p.parse_args();verify(a.variant,a.root,a.output)

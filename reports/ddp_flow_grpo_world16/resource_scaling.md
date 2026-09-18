@@ -97,6 +97,18 @@ world1/4 comparison scripts: lexical filenames order rank10 before rank2.
 It validates contiguous numeric ranks and retains the existing Adam and1%
 scaling criteria. The historical BF16 candidate chunk1/2 failure remains FAIL.
 
+At00:13/00:15 UTC on September18, U's scaling initialization and F's repeat
+initialization also exceeded the original120-second control-group deadline.
+Both stopped before any optimizer update. Prewarming alone is therefore not
+a reliable startup fix. The existing `runtime.process_group_timeout` is now
+explicitly600 seconds for both world16 configurations and their bounded
+ancillary diagnostics. This changes an operational deadline, not a numerical
+tolerance. The outer diagnostic2400-second and formal-segment28800-second
+deadlines remain bounded. All120-second attempts stay in
+`runs/resource_reallocation_v1`; the complete recipe is being requalified in
+`runs/resource_reallocation_v2`, including continuous/repeat/resume, without
+claiming the old configuration hash qualifies the new one.
+
 ## Current entry points
 
 All commands run from `/mnt/project/DriveDreamer-Policy-paired` with

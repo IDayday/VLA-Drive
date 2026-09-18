@@ -11,7 +11,7 @@ from scripts.cluster_flow_grpo.parallel_evaluation import run_evaluator
 
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument("--variant",choices=["f","u"],required=True)
-    p.add_argument("--root",default="runs/resource_reallocation_v1");p.add_argument("--gpu",type=int,required=True)
+    p.add_argument("--root",default="runs/resource_reallocation_v2");p.add_argument("--gpu",type=int,required=True)
     a=p.parse_args();root=Path(a.root).resolve();prefix=a.variant+"16"
     variant="frozen_visual" if a.variant=="f" else "unfrozen_visual"
     pointer=root/(prefix+"_continuous_attempt.json")
