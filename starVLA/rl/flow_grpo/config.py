@@ -18,6 +18,11 @@ def resolve_config(
         raise ValueError("overlap_reward_reference must be boolean")
     if overlap and cfg["runtime"].get("run_mode", "diagnostic") != "diagnostic":
         raise ValueError("reward/reference overlap is experimental: bounded diagnostics only")
+    reuse = cfg["runtime"].get("reuse_inner_probe", False)
+    if not isinstance(reuse, bool):
+        raise ValueError("reuse_inner_probe must be boolean")
+    if reuse and cfg["runtime"].get("run_mode", "diagnostic") != "diagnostic":
+        raise ValueError("inner probe reuse is experimental: bounded diagnostics only")
     if sft_checkpoint:
         cfg["sft_checkpoint"] = str(Path(sft_checkpoint).resolve())
     if max_updates is not None:

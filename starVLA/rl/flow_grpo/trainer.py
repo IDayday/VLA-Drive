@@ -50,6 +50,7 @@ from .metrics import Metrics
 from .reproducibility import configure_numerics, resume_assets
 from .acceptance import enforce_training_budget, acceptance_context
 from .math import reduce_dimensions
+from .probe_reuse import defer_probe, decorate_probe_row
 
 
 def make_accelerator(cfg):
@@ -504,10 +505,16 @@ def _run(cfg, sft, resume=None):
                     raise RuntimeError(
                         f"optimizer update mismatch: engine={actor.global_steps}, trainer={update}"
                     )
-                # Probe exactly the behavior chain after this optimizer update.
+                # The next inner forward observes this same full chain at the
+                # updated policy. Publish its measurements with an explicit
+                # previous-update identity; never relabel unmeasured values.
+                reuse_probe = runtime.get("reuse_inner_probe", False)
+                deferred_probe = defer_probe(
+                    reuse_probe, inner, cfg["algorithm"]["inner_epochs"], update, maximum
+                )
                 phase_start = time.monotonic()
                 with torch.no_grad(), accelerator.autocast():
-                    for rollout in buffers:
+                    for rollout in ([] if deferred_probe else buffers):
                         stats = actor(
                             mode="transitions",
                             observation=rollout.observation,
@@ -581,6 +588,7 @@ def _run(cfg, sft, resume=None):
                         policy, actor if runtime["deepspeed_stage"] else None
                     ),
                 )
+                decorate_probe_row(row, reuse_probe, deferred_probe)
                 synchronized_call(
                     lambda: append_json(
                         output / f"training_rank{accelerator.process_index}.jsonl", row
@@ -638,6 +646,7 @@ def _run(cfg, sft, resume=None):
                     global_row["reward_errors"] = sum(
                         r["row"]["reward_errors"] for r in rank_rows
                     )
+                    decorate_probe_row(global_row, reuse_probe, deferred_probe)
                     append_json(output / "training.jsonl", global_row)
                     accelerator.print(json.dumps(global_row))
 

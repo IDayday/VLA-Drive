@@ -59,9 +59,10 @@ def compare_tree(a, b):
 
 def compare(left, right, difference='activation_checkpointing'):
     cfg = [json.loads((p/'rl_config.json').read_text()) for p in (left, right)]
-    expected = {'activation_checkpointing': [True, False], 'overlap_reward_reference': [False, True]}
+    expected = {'activation_checkpointing': [True, False], 'overlap_reward_reference': [False, True], 'reuse_inner_probe': [False, True]}
     if difference not in expected or [c['runtime'].get(difference, False) for c in cfg] != expected[difference]:
         raise ValueError('incorrect declared runtime comparison')
+    cfg[0]['runtime'][difference] = cfg[0]['runtime'].get(difference,False)
     cfg[1]['runtime'][difference] = cfg[0]['runtime'][difference]
     if config_hash(cfg[0]) != config_hash(cfg[1]):
         raise ValueError('configuration differs beyond declared runtime flag and allowed output/budget settings')
@@ -76,6 +77,13 @@ def compare(left, right, difference='activation_checkpointing'):
     report = {'status':'PASS', 'scope':difference+' only, two native BF16/ZeRO2 updates, zero tolerance; not chunk acceptance',
               'world_size': world,
               'initial_bank':bank, 'gradients':{}, 'boundaries':{}, 'runs':{}}
+    if difference == 'reuse_inner_probe':
+        old,new=[[json.loads(line) for line in (p/'training.jsonl').read_text().splitlines()] for p in (left,right)]
+        expected_probe={k:v for k,v in old[0].items() if k.startswith('post_update_probe_ratio')}
+        observed=new[1]['previous_update_probe']
+        equal=observed['policy_update']==1 and observed['metrics']==expected_probe
+        report['reused_full_probe']={'equal':equal,'expected':expected_probe,'observed':observed}
+        if not equal:report['status']='FAIL'
     for update in (1,2):
         folders=[p/f'optimizer_gradients/update_{update:06d}/rank_0' for p in (left,right)]
         manifests=[json.loads((p/'manifest.json').read_text()) for p in folders]
@@ -116,7 +124,7 @@ def main():
     parser=argparse.ArgumentParser(__doc__)
     parser.add_argument('--on',required=True);parser.add_argument('--off',required=True)
     parser.add_argument('--output',required=True)
-    parser.add_argument('--difference',choices=['activation_checkpointing','overlap_reward_reference'],default='activation_checkpointing')
+    parser.add_argument('--difference',choices=['activation_checkpointing','overlap_reward_reference','reuse_inner_probe'],default='activation_checkpointing')
     args=parser.parse_args();torch.set_num_threads(4)
     out=Path(args.output)
     if out.exists():raise FileExistsError(out)
