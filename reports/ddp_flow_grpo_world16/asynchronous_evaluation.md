@@ -60,3 +60,25 @@ PYTHONPATH=$PWD/navsim:$PWD /root/miniconda3/envs/ddp/bin/python -m scripts.clus
 `--adopt-running` is only for an intentional controller handover with existing
 supervised jobs; it takes a JSON mapping from each variant to `spec` and its
 SHA256. Ordinary resume uses native latest-complete checkpoint selection.
+
+Live handover completed at approximately06:51 UTC. Controller PID1341050 replaced
+only PID1331113 and its identified idle compiler children; all five existing
+native torchrun supervisors and their training process groups were retained.
+`async_handover_receipt.json` records exact identities and signals' targets.
+Both training logs continued increasing after replacement, with reward_errors0.
+`async_live_handover.json` records the measured updates and unchanged native PIDs.
+The first actual sidecar evaluation at400 is pending; CPU concurrency tests must
+not be described as a completed real GPU overlap benchmark.
+
+Code commit1668316, source-bound release65c007375ca44e201b55f02f2a26186f9a43f10ca07b9da21008a0b6ff988271.
+Both native17-gate records reuse unchanged actual GPU evidence, plus the new
+88-test control regression. An additional17 affected tests passed in a clean
+detached worktree at1668316, exit0; its JUnit file is `async_clean_checkout.xml`.
+No full-data verification scan, model-path change or new GPU numerical claim
+was introduced by this deployment.
+
+The new controller log is `runs/asynchronous_evaluation_v1/controller.log`.
+Per-variant `continuous_training.json`, `artifact_activity.json`,
+`orchestration_progress.json` and `selection.json` separate training, export,
+evaluation and best-selection progress. During adoption, the already-running
+segment's original `*_to400_*.control/node*.json` remains the live worker status.
