@@ -84,7 +84,7 @@ def compare(left, right, difference='activation_checkpointing'):
         rows={}
         for name in entries[0]:
             a,b=[torch.load(p/e[name]['file'],map_location='cpu',weights_only=True) for p,e in zip(folders,entries)]
-            rows[name]=compare_tree({'gradient':a},{'gradient':b})['gradient']
+            rows[name]=compare_tree({'gradient':a},{'gradient':b})['/gradient']
         report['gradients'][str(update)]=rows
         boundaries=[p/f'checkpoints/update_{update:06d}' for p in (left,right)]
         if not all((p/'COMPLETE').is_file() for p in boundaries):raise ValueError('incomplete boundary')
