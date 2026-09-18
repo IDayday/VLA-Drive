@@ -125,7 +125,7 @@ class FlowGRPOActor(nn.Module):
         sft = sum(components.values())
         total = (
             grpo.mean()
-            + cfg["algorithm"]["reference_kl_coefficient"] * reference.mean()
+            + kwargs.get("reference_coefficient", cfg["algorithm"]["reference_kl_coefficient"]) * reference.mean()
             + cfg["retention"]["original_sft_coefficient"] * sft
         )
         if not torch.isfinite(total):

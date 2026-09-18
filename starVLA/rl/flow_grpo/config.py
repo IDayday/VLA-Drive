@@ -16,12 +16,12 @@ def resolve_config(
     overlap = cfg["runtime"].get("overlap_reward_reference", False)
     if not isinstance(overlap, bool):
         raise ValueError("overlap_reward_reference must be boolean")
-    if overlap and cfg["runtime"].get("run_mode", "diagnostic") != "diagnostic":
+    if overlap and cfg["runtime"].get("run_mode", "diagnostic") not in ("diagnostic", "full_navtrain_epoch"):
         raise ValueError("reward/reference overlap is experimental: bounded diagnostics only")
     reuse = cfg["runtime"].get("reuse_inner_probe", False)
     if not isinstance(reuse, bool):
         raise ValueError("reuse_inner_probe must be boolean")
-    if reuse and cfg["runtime"].get("run_mode", "diagnostic") != "diagnostic":
+    if reuse and cfg["runtime"].get("run_mode", "diagnostic") not in ("diagnostic", "full_navtrain_epoch"):
         raise ValueError("inner probe reuse is experimental: bounded diagnostics only")
     if sft_checkpoint:
         cfg["sft_checkpoint"] = str(Path(sft_checkpoint).resolve())
@@ -123,6 +123,10 @@ def resolve_config(
         raise ValueError("original SFT replay cannot be disabled")
     if cfg["algorithm"]["reference_kl_coefficient"] <= 0:
         raise ValueError("full reference required")
+    from .stability import validate_schedule, ReferenceKLController
+    validate_schedule(cfg["optimizer"].get("schedule"))
+    if cfg["algorithm"].get("adaptive_reference_kl"):
+        ReferenceKLController(cfg["algorithm"]["reference_kl_coefficient"], cfg["algorithm"]["adaptive_reference_kl"])
     if (
         cfg["sampling"]["train_step_fraction"] != 1
         or cfg["sampling"]["raw_noise_clipping"]
@@ -219,7 +223,7 @@ def split_tokens(cfg):
     if manifest_path:
         manifest = json.loads(Path(manifest_path).read_text())
         train, dev = manifest["train_tokens"], manifest["dev_tokens"]
-        if set(train) & set(dev) or set(train + dev) != set(tokens):
+        if len(train + dev) != len(set(train + dev)) or set(train + dev) != set(tokens):
             raise ValueError("split manifest differs from available train tokens")
         if set(train + dev) & test:
             raise ValueError("navtest leakage")

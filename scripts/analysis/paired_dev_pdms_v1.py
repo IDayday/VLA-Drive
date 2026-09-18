@@ -108,6 +108,10 @@ def main():
     if not 1 <= a.workers <= 16:
         p.error("CPU workers must be in [1,16]")
     spec = json.loads(Path(a.spec).read_text())
+    seed = int(spec.get("seed", 42))
+    split = spec.get("split", "rl_dev")
+    if split not in ("rl_dev", "navtest"):
+        raise ValueError("explicit evaluation split required")
     os.environ["NUPLAN_MAPS_ROOT"] = spec["maps"]
     os.environ["NUPLAN_MAP_VERSION"] = "nuplan-maps-v1.0"
     output = Path(a.output)
@@ -120,16 +124,17 @@ def main():
     for label, directory in spec["evaluations"].items():
         root = Path(directory)
         report = json.loads((root/"evaluation.json").read_text())
-        if not (root/"COMPLETE").is_file() or report["status"] != "COMPLETE" or report["seed"] != 42:
-            raise ValueError("requires completed seed42 ODE predictions")
+        if (not (root/"COMPLETE").is_file() or report["status"] != "COMPLETE"
+                or report["seed"] != seed or report.get("split", report.get("identity",{}).get("split")) != split):
+            raise ValueError("requires completed ODE predictions with matching seed/split")
         with np.load(root/"trajectories.npz", allow_pickle=False) as data:
             found = data["tokens"].tolist()
             if len(found) != len(set(found)) or set(found) != set(tokens):
                 raise ValueError("predictions differ from the fixed dev token set")
         inputs[label] = {"path":str(root), "trajectory_sha256":sha(root/"trajectories.npz"),
                          "checkpoint_sha256":report["identity"]["checkpoint_sha256"]}
-    identity = {"protocol":"NAVSIM_v1.1_PDMScorer_default", "scope":"fixed_rl_dev_not_navtest",
-        "scene_count":len(tokens), "logs":int(table.log_name.nunique()), "seed":42,
+    identity = {"protocol":"NAVSIM_v1.1_PDMScorer_default", "scope":"fixed_"+split,
+        "scene_count":len(tokens), "logs":int(table.log_name.nunique()), "seed":seed,
         "inputs":inputs,"spec":spec,"script_sha256":sha(__file__),
         "scorer_sources":{str(f.relative_to(V1)):sha(f) for f in sorted((V1/"navsim").rglob("*.py"))},
         "sampling":{"scored_poses":40,"scored_interval":.1,"prediction_poses":8,"prediction_interval":.5},

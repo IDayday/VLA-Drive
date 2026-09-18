@@ -25,7 +25,11 @@ def verify_export(cfg, sft, checkpoint, exported, output):
             else "legacy"
         ),
     )
-    _, tokens = split_tokens(cfg)
+    train, tokens = split_tokens(cfg)
+    # Full-data runs have no held-out navtrain split. This is an interface
+    # equivalence diagnostic, not a performance evaluation or navtest selection.
+    if not tokens:
+        tokens = train[:1]
     sample = KeyedDataset(sft)[(tokens[0], cfg["runtime"]["seed"])]
 
     def prediction():

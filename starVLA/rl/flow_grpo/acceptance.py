@@ -291,6 +291,9 @@ def enforce_training_budget(cfg, context=None, *, record=None):
     from .credit import validate_discount
     discount = cfg.get("algorithm", {}).get("denoising_discount", 1.0)
     validate_discount(discount)
+    if mode == "full_navtrain_epoch":
+        from .full_epoch import enforce_full_epoch
+        return enforce_full_epoch(cfg, context)
     if mode == "bounded_research":
         from .research_budget import enforce_research
         return enforce_research(cfg, context)

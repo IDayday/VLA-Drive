@@ -85,6 +85,9 @@ def make_accelerator(cfg):
         plugin = DeepSpeedPlugin(hf_ds_config=ds)
     return Accelerator(
         mixed_precision="bf16",
+        # SceneStream already supplies global-batch semantics. A schedule step
+        # is one optimizer update, never world_size steps or one per microbatch.
+        step_scheduler_with_optimizer=False,
         deepspeed_plugin=plugin,
         gradient_accumulation_plugin=GradientAccumulationPlugin(
             num_steps=accum, sync_with_dataloader=False, sync_each_batch=True
@@ -205,10 +208,19 @@ def _run(cfg, sft, resume=None):
         eps=optcfg.eps,
         weight_decay=optcfg.weight_decay,
     )
-    # Fixed LR preserves max_updates-independent exact resume; SFT group LR ratios
-    # and AdamW hyperparameters are inherited. Scheduler state remains explicit.
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step: 1.0)
+    from .stability import lr_multiplier, ReferenceKLController
+    schedule = cfg["optimizer"].get("schedule")
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step: lr_multiplier(step, schedule))
     actor, optimizer, scheduler = accelerator.prepare(actor, optimizer, scheduler)
+    # Accelerate 1.5.2 keeps LambdaLR outside the DeepSpeed engine. Assert the
+    # ownership rather than allowing a future wrapper to step it twice.
+    if runtime["deepspeed_stage"] and actor.lr_scheduler is not None:
+        raise RuntimeError("expected externally stepped LambdaLR")
+    kl_controller = None
+    if cfg["algorithm"].get("adaptive_reference_kl"):
+        kl_controller = ReferenceKLController(cfg["algorithm"]["reference_kl_coefficient"],
+                                             cfg["algorithm"]["adaptive_reference_kl"])
+        accelerator.register_for_checkpointing(kl_controller)
     from .zero2_precision import PROFILE, install_fp32_partitions
 
     if runtime.get("numerical_profile") == PROFILE:
@@ -306,6 +318,10 @@ def _run(cfg, sft, resume=None):
         update, version, pending = resume_boundary(
             resume, accelerator, actor, cfg, provenance, [train_stream, replay_stream]
         )
+    if kl_controller is not None and kl_controller.updates != update:
+        raise ValueError("KL controller resume boundary differs from optimizer")
+    if schedule is not None and scheduler.state_dict()["last_epoch"] != update:
+        raise ValueError("LR schedule resume boundary differs from optimizer")
     from infer import deal_action_1225
 
     accelerator.print(
@@ -458,6 +474,9 @@ def _run(cfg, sft, resume=None):
             rollout_seconds = time.monotonic() - t0
             old_fingerprints = [behavior_digest(r) for r in buffers]
             for inner in range(start_inner, cfg["algorithm"]["inner_epochs"]):
+                reference_coefficient = (kl_controller.value if kl_controller is not None
+                                         else cfg["algorithm"]["reference_kl_coefficient"])
+                lr_used = [g["lr"] for g in optimizer.param_groups]
                 # Behavioral costs are charged only once when its chain is made.
                 # Wall spans include launch/wait/implicit CUDA synchronization;
                 # they are NOT kernel-only GPU profiler measurements.
@@ -475,7 +494,8 @@ def _run(cfg, sft, resume=None):
                         batch = to_device([replay[i]], accelerator.device)
                         phase_start = time.monotonic()
                         with accelerator.autocast():
-                            result = actor(mode="update", rollout=rollout, replay=batch)
+                            result = actor(mode="update", rollout=rollout, replay=batch,
+                                           reference_coefficient=reference_coefficient)
                         phases["actor_forward"] = phases.get("actor_forward", 0.) + time.monotonic() - phase_start
                         # One equally weighted scene per microbatch; Accelerate/DS
                         # owns the 1/accum scaling, never G*K copies of replay.
@@ -491,7 +511,6 @@ def _run(cfg, sft, resume=None):
                                 actor.parameters(), cfg["optimizer"]["max_grad_norm"]
                             )
                         optimizer.step()
-                        scheduler.step()
                         optimizer.zero_grad()
                         phases["backward_optimizer"] = phases.get("backward_optimizer", 0.) + time.monotonic() - phase_start
                         phase_start = time.monotonic()
@@ -501,6 +520,9 @@ def _run(cfg, sft, resume=None):
                         phases["scene_metrics"] = phases.get("scene_metrics", 0.) + time.monotonic() - phase_start
                         del result
                 update += 1
+                scheduler.step()
+                if scheduler.state_dict()["last_epoch"] != update:
+                    raise RuntimeError("scheduler did not advance exactly one optimizer update")
                 if runtime["deepspeed_stage"] and actor.global_steps != update:
                     raise RuntimeError(
                         f"optimizer update mismatch: engine={actor.global_steps}, trainer={update}"
@@ -571,7 +593,7 @@ def _run(cfg, sft, resume=None):
                     phase_wall_scope="host spans including waiting/implicit CUDA sync; not kernel time; behavior charged only at first inner epoch",
                     loss_coefficients={
                         "grpo": 1.0,
-                        "reference": cfg["algorithm"]["reference_kl_coefficient"],
+                        "reference": reference_coefficient,
                         "sft": cfg["retention"]["original_sft_coefficient"],
                     },
                     diagnostic_loss_scope=runtime.get("diagnostic_loss_scope"),
@@ -581,6 +603,8 @@ def _run(cfg, sft, resume=None):
                         "applies_to": "grpo_only; reference and SFT coefficients unchanged",
                     },
                     lr=[g["lr"] for g in optimizer.param_groups],
+                    lr_used=lr_used,
+                    scheduler_completed_updates=scheduler.state_dict()["last_epoch"],
                     reward_errors=service.errors,
                     dtype_before_step=getattr(actor, "flow_pre_step_dtype", None),
                     activation_dtypes=dict(activation_dtypes.values),
@@ -603,6 +627,19 @@ def _run(cfg, sft, resume=None):
                 else:
                     rank_rows = [{"row": row, "metrics": metrics.state}]
 
+                stability = None
+                if kl_controller is not None:
+                    observed = Metrics()
+                    for item in rank_rows:
+                        observed.merge(Metrics(item["metrics"]))
+                    observed = observed.result()
+                    next_beta = kl_controller.advance(update, observed["reference"], observed["scene_count"])
+                    stability = {"reference_coefficient_used": reference_coefficient,
+                                 "reference_coefficient_next": next_beta,
+                                 "measured_pre_update_reference_kl": observed["reference"],
+                                 "units": "scene mean of dimension-mean conditional transition KL",
+                                 "controller": kl_controller.state_dict()}
+
                 def write_global_log():
                     merged = Metrics()
                     for item in rank_rows:
@@ -618,6 +655,8 @@ def _run(cfg, sft, resume=None):
                                 "loss_coefficients",
                                 "denoising_credit",
                                 "lr",
+                                "lr_used",
+                                "scheduler_completed_updates",
                             )
                         }
                     )
@@ -646,6 +685,7 @@ def _run(cfg, sft, resume=None):
                     global_row["reward_errors"] = sum(
                         r["row"]["reward_errors"] for r in rank_rows
                     )
+                    global_row["stability"] = stability
                     decorate_probe_row(global_row, reuse_probe, deferred_probe)
                     append_json(output / "training.jsonl", global_row)
                     accelerator.print(json.dumps(global_row))

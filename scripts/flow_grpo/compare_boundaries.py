@@ -96,6 +96,9 @@ def compare_boundaries(left, right, output):
         raise ValueError("state shard inventory differs or is empty")
     report = {
         "scope": "all stored model/optimizer/scheduler/rank RNG/pending tensors, exact zero tolerance",
+        "boundaries": {"continuous": str(left.resolve()), "resumed": str(right.resolve()),
+                       "config_hash": config_hash(a),
+                       "trainer_state": json.loads((left / "trainer_state.json").read_text())},
         "files": {},
         "status": "PASS",
     }
