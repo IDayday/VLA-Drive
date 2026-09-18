@@ -43,6 +43,24 @@ def validate_plan(plan):
     return worlds[0]
 
 
+def evaluate_seeds(evaluate, checkpoint, label, split, slots, seeds=EVALUATION_SEEDS):
+    """Parallel dev seeds on disjoint GPU groups; keep at least4 GPUs per seed.
+
+    The dev split's largest complete log already limits one evaluation to556
+    scenes on its slowest worker. Independent seeds can use the remaining GPUs
+    without splitting a log or changing token-keyed inference randomness.
+    Navtest keeps the whole allocation for its much larger scene set.
+    """
+    workers=max(1,min(4,len(slots)//4)) if split=="rl_dev" else 1
+    assignments=[slots[i::workers] for i in range(workers)]
+    def worker(index):
+        return [(seed,evaluate(checkpoint,label,split,seed,eval_slots=assignments[index]))
+                for seed in seeds[index::workers]]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        results=dict(row for batch in pool.map(worker,range(workers)) for row in batch)
+    return [results[seed] for seed in seeds]
+
+
 def main():
     p = argparse.ArgumentParser(__doc__)
     p.add_argument("--plan", required=True)
@@ -85,8 +103,10 @@ def main():
             slots = [{"host": node["host"], "gpu": gpu} for node in group["nodes"] for gpu in node["devices"]]
             dev = str(Path(cfg["paths"]["split_manifest"]).parent/"dev_tokens.json")
             locations = {}
+            checkpoint_locations = {}
+            locations_lock = threading.Lock()
 
-            def evaluate(checkpoint, label, split, seed):
+            def evaluate(checkpoint, label, split, seed, eval_slots=None):
                 if cancelled.is_set():
                     raise RuntimeError("paired experiment cancelled")
                 tokens = dev if split == "rl_dev" else cfg["paths"]["test_list"]
@@ -95,10 +115,15 @@ def main():
                 reused = group.get("reusable_evaluations", {}).get(f"{label}/{split}/{seed}")
                 if reused:
                     dest = Path(reused)
+                key=(str(Path(checkpoint).resolve()),split,seed)
+                with locations_lock:
+                    dest=checkpoint_locations.get(key,dest)
                 report = evaluate_parallel(group["config"], checkpoint, dest, split, tokens,
-                    cfg["paths"]["data_root"], cache, seed, slots)
-                locations[(label,split,seed)] = dest
-                write_json(eval_root/"locations.json", {"/".join(map(str,k)):str(v) for k,v in locations.items()})
+                    cfg["paths"]["data_root"], cache, seed, eval_slots or slots)
+                with locations_lock:
+                    locations[(label,split,seed)] = dest
+                    checkpoint_locations[key]=dest
+                    write_json(eval_root/"locations.json", {"/".join(map(str,k)):str(v) for k,v in locations.items()})
                 return report
 
             evaluate(cfg["sft_checkpoint"], "sft", "rl_dev", 42)
@@ -142,12 +167,11 @@ def main():
                 write_json(run/"selection.json",{"best":best,"last_evaluated_update":target,
                     "rule":"max full dev seed42 EPDMS every200; earliest tie; no navtest"})
             for split in ("rl_dev","navtest"):
-                for seed in EVALUATION_SEEDS:
-                    evaluate(cfg["sft_checkpoint"],"sft",split,seed)
+                evaluate_seeds(evaluate,cfg["sft_checkpoint"],"sft",split,slots)
                 for label, checkpoint in [("last",run/"export_update2000"),("best",Path(best["export"]))]:
                     comparisons=[]
-                    for seed in EVALUATION_SEEDS:
-                        result=evaluate(checkpoint,label,split,seed)
+                    results=evaluate_seeds(evaluate,checkpoint,label,split,slots)
+                    for seed,result in zip(EVALUATION_SEEDS,results):
                         if not result["complete_split"]:
                             raise ValueError("partial final evaluation")
                         left=locations[("sft",split,seed)];right=locations[(label,split,seed)]

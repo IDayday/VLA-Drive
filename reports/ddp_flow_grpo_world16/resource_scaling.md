@@ -122,6 +122,16 @@ alongside repeat/resume on owned GPUs, with separate process ports and outputs;
 formal runs retain exclusive GPU checks. Each bounded actor used about21GiB in
 the prior measured runs, below the80GiB device capacity even with two actors.
 
+The final five-seed dev schedule assigns four disjoint four-GPU groups to
+independent seeds. Each evaluator still owns complete logs; navtest retains
+all16 GPUs per request. This addresses the556-scene dev log bottleneck without
+changing any prediction. The actual controller also revalidates/reuses an
+already-completed evaluation of the same checkpoint/split/seed across
+step/last/best labels, so `best==last` does not repeat model inference. Threaded
+location publication is serialized. The16 CPU control tests verify complete
+fixed-seed coverage and disjoint GPU allocations; they are not a claim that
+the final five-seed model evaluations have already run.
+
 ## Current entry points
 
 All commands run from `/mnt/project/DriveDreamer-Policy-paired` with

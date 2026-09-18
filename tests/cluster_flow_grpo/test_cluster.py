@@ -223,3 +223,26 @@ def test_fast_boundary_observer_keeps_native_exact_checks(tmp_path, change):
     assert a["status"]==b["status"]
     for key,row in a["files"]["state.pt"]["values"].items():
         assert row["allclose"]==b["files"]["state.pt"]["values"][key]["allclose"]
+
+
+def test_final_dev_seed_schedule_uses_disjoint_gpus_and_all_fixed_seeds():
+    import threading
+    from scripts.cluster_flow_grpo.paired import evaluate_seeds
+    slots=[{"host":str(i//8),"gpu":i%8} for i in range(16)]
+    barrier=threading.Barrier(4);lock=threading.Lock();active=set();calls=[]
+    def evaluate(checkpoint,label,split,seed,eval_slots):
+        chosen={(s["host"],s["gpu"]) for s in eval_slots}
+        assert len(chosen)==4
+        with lock:
+            assert not active & chosen
+            active.update(chosen);calls.append(seed)
+        if seed<46:barrier.wait(timeout=5)
+        with lock:active.difference_update(chosen)
+        return seed
+    assert evaluate_seeds(evaluate,"checkpoint","sft","rl_dev",slots)==[42,43,44,45,46]
+    assert sorted(calls)==[42,43,44,45,46]
+    calls=[]
+    def navtest(checkpoint,label,split,seed,eval_slots):
+        assert eval_slots==slots;calls.append(seed);return seed
+    assert evaluate_seeds(navtest,"checkpoint","last","navtest",slots)==[42,43,44,45,46]
+    assert calls==[42,43,44,45,46]
