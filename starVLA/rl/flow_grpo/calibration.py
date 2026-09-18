@@ -58,6 +58,7 @@ def calibrate(cfg, sft, output):
                     group_size=cfg["sampling"]["group_size"],
                     num_steps=cfg["sampling"]["num_steps"],
                     noise_level=noise,
+                    temporal_noise_correlation=cfg["sampling"].get("temporal_noise_correlation", 0.0),
                 )
                 with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
                     rollout = sample_chain(

@@ -31,28 +31,45 @@ def reduce_dimensions(values, mask=None, reduction="flow_grpo_dimension_mean"):
     return total / count if reduction == "flow_grpo_dimension_mean" else total
 
 
-def gaussian_logprob(value, mean, std):
+def gaussian_logprob(value, mean, std, temporal_correlation=0.0):
     value, mean, std = map(probability_tensor, (value, mean, std))
     if not torch.isfinite(std).all() or (std <= 0).any():
         raise ValueError(
             "Gaussian transitions require positive finite std; ODE is evaluation-only"
         )
+    residual = (value.detach() - mean) / std
+    log_diagonal = 0
+    if temporal_correlation:
+        from .temporal_noise import shared_horizon_std, whiten, matrices
+        shared_horizon_std(std, mean)
+        residual = whiten(residual, temporal_correlation)
+        log_diagonal = matrices(mean, temporal_correlation)[1].diagonal().log()[:, None]
+    # Entries are Cholesky-factor contributions when correlated, NOT marginal
+    # per-waypoint probabilities. Their sum is the joint H*D Gaussian density.
     return (
-        -0.5 * ((value.detach() - mean) / std).square()
+        -0.5 * residual.square()
         - std.log()
+        - log_diagonal
         - 0.5 * math.log(2 * math.pi)
     )
 
 
-def conditional_kl(mean, std, ref_mean, ref_std):
+def conditional_kl(mean, std, ref_mean, ref_std, temporal_correlation=0.0):
     mean, std, ref_mean, ref_std = map(
         probability_tensor, (mean, std, ref_mean.detach(), ref_std.detach())
     )
     if (std <= 0).any() or (ref_std <= 0).any():
         raise ValueError("KL is undefined for deterministic transitions")
+    delta = mean - ref_mean
+    if temporal_correlation:
+        from .temporal_noise import shared_horizon_std, whiten
+        shared_horizon_std(std, mean)
+        shared_horizon_std(ref_std, mean)
+        # Current and reference share the SAME fixed correlation covariance.
+        delta = whiten(delta, temporal_correlation)
     return (
         (ref_std / std).log()
-        + (std.square() + (mean - ref_mean).square()) / (2 * ref_std.square())
+        + (std.square() + delta.square()) / (2 * ref_std.square())
         - 0.5
     )
 
@@ -62,12 +79,19 @@ class Transition:
     mean: torch.Tensor
     std: torch.Tensor
     diffusion: torch.Tensor
+    temporal_correlation: float = 0.0
 
     def logprob(self, x_next):
-        return gaussian_logprob(x_next, self.mean, self.std)
+        return gaussian_logprob(x_next, self.mean, self.std, self.temporal_correlation)
+
+    def sample(self, standard_normal):
+        from .temporal_noise import correlate
+        return self.mean + self.std * correlate(standard_normal, self.temporal_correlation)
 
 
-def transition(x, velocity, t, dt, *, noise_level, first_dt):
+def transition(x, velocity, t, dt, *, noise_level, first_dt, temporal_correlation=0.0):
+    from .temporal_noise import validate_correlation, correlate
+    validate_correlation(temporal_correlation)
     x, velocity = probability_tensor(x), probability_tensor(velocity)
     t = torch.as_tensor(t, dtype=x.dtype, device=x.device)
     dt = torch.as_tensor(dt, dtype=x.dtype, device=x.device)
@@ -92,7 +116,14 @@ def transition(x, velocity, t, dt, *, noise_level, first_dt):
         x * (1 - g.square() / (2 * sigma) * dt)
         + velocity * (1 + g.square() * t / (2 * sigma)) * dt
     )
-    return Transition(mean, g * dt.sqrt(), g)
+    if temporal_correlation:
+        # score_t = (t*v_t - x)/(1-t), from the original isotropic linear
+        # interpolant. b_t = v_t + .5*g_t^2*Q*score_t, diffusion g_t*L.
+        # No Q^{-1} here: p_t and its score still refer to that SAME SFT path.
+        mean = x + velocity * dt + .5 * g.square() * dt * correlate(
+            (t * velocity - x) / sigma, temporal_correlation, covariance=True
+        )
+    return Transition(mean, g * dt.sqrt(), g, temporal_correlation)
 
 
 def centered_group_rewards(rewards, valid=None):

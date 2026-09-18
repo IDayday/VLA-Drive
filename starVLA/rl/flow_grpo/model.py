@@ -86,6 +86,7 @@ class FlowGRPOActor(nn.Module):
                 stats["std"],
                 rollout.reference_mean,
                 rollout.reference_std,
+                temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
             ),
             rollout.dimension_mask,
             rollout.spec.reduction,

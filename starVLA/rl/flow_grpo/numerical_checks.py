@@ -32,6 +32,7 @@ def precision_gate(policy, observation, rollout):
             dt,
             noise_level=rollout.spec.noise_level,
             first_dt=rollout.times[1],
+            temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
         )
         d64 = transition(
             x.double(),
@@ -40,10 +41,21 @@ def precision_gate(policy, observation, rollout):
             dt.double(),
             noise_level=rollout.spec.noise_level,
             first_dt=rollout.times[1].double(),
+            temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
         )
         # Independent torch.distributions oracle; no low-precision log/exp.
         p32 = d32.logprob(next_x)
         p64 = torch.distributions.Normal(d64.mean, d64.std).log_prob(next_x.double())
+        rho = getattr(rollout.spec, "temporal_noise_correlation", 0.0)
+        if rho:
+            # Independent AR(1) conditional-Normal oracle; no production
+            # covariance construction, whitening or density function reused.
+            residual = next_x.double() - d64.mean
+            conditional_mean = torch.cat((d64.mean[..., :1, :],
+                d64.mean[..., 1:, :] + rho * residual[..., :-1, :]), dim=-2)
+            conditional_std = torch.ones_like(d64.mean) * d64.std
+            conditional_std[..., 1:, :] *= (1 - rho**2)**.5
+            p64 = torch.distributions.Normal(conditional_mean, conditional_std).log_prob(next_x.double())
         old = reduce_dimensions(rollout.old_elementwise_logprob[:, 0, step])
         r32 = (reduce_dimensions(p32) - old).exp()
         r64 = (reduce_dimensions(p64) - old.double()).exp()
@@ -66,7 +78,7 @@ def precision_gate(policy, observation, rollout):
             )
     return dict(
         network="real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
-        math="production FP32 vs FP64 torch Normal; ratio gradient w.r.t. network velocity",
+        math="production FP32 vs independent FP64 torch Normal/AR(1) conditionals; ratio gradient w.r.t. velocity",
         atol=2e-5,
         rtol=1e-4,
         maximum_absolute_difference=maxima,

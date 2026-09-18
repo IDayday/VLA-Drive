@@ -35,10 +35,16 @@ def main():
     p.add_argument("--tokens", required=True)
     p.add_argument("--output", required=True)
     p.add_argument("--noise-levels", nargs="+", type=float, default=[.05, .1, .2, .3])
+    p.add_argument("--temporal-correlations", nargs="+", type=float, default=[0.0])
     p.add_argument("--seed", type=int, default=42)
     a = p.parse_args()
     if any(n <= 0 for n in a.noise_levels) or len(a.noise_levels) != len(set(a.noise_levels)):
         p.error("positive unique SDE noise levels required")
+    from starVLA.rl.flow_grpo.temporal_noise import validate_correlation
+    for rho in a.temporal_correlations:
+        validate_correlation(rho)
+    if len(a.temporal_correlations) != len(set(a.temporal_correlations)):
+        p.error("unique temporal correlations required")
     cfg, sft = resolve_config(a.config)
     if cfg["checkpoint_contract"]["variant"] != "frozen_visual":
         p.error("this experiment is F-only")
@@ -56,6 +62,7 @@ def main():
         "checkpoint_sha256": cfg["checkpoint_contract"]["sha256"], "seed": a.seed,
         "tokens": tokens, "tokens_sha256": file_sha(a.tokens), "source": source_fingerprints(),
         "script_sha256": file_sha(__file__), "group_size": 16, "noise_levels": a.noise_levels,
+        "temporal_correlations": a.temporal_correlations,
         "reward_protocol": reward_metadata(Path("navsim").resolve()), "candidate_chunk_size": 1,
         "dtype": "BF16 model; inherited FP32 action kernel", "num_steps": cfg["sampling"]["num_steps"]}
     publish(root/"identity.json", identity)
@@ -75,8 +82,9 @@ def main():
             settings = {}
             initial = None
             with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
-                for noise in a.noise_levels:
-                    spec = SamplingSpec(group_size=16, num_steps=cfg["sampling"]["num_steps"], noise_level=noise)
+                for noise, rho in [(n, r) for n in a.noise_levels for r in a.temporal_correlations]:
+                    spec = SamplingSpec(group_size=16, num_steps=cfg["sampling"]["num_steps"], noise_level=noise,
+                                        temporal_noise_correlation=rho)
                     rollout = sample_chain(policy, observation, spec, 0, seed, {"diversity_only": True})
                     if initial is None:
                         initial = rollout.chain[:, :, 0].clone()
@@ -84,7 +92,7 @@ def main():
                         raise AssertionError("initial noises differ across SDE settings")
                     # Every shard checks a real fixed-chain ratio, not synthetic probabilities.
                     max_ratio_error = None
-                    if token == tokens[0] and noise == .1:
+                    if token == tokens[0]:
                         current = evaluate_transitions(policy, observation, rollout)
                         drift = reduce_dimensions(current["elementwise_logprob"])-rollout.old_logprob
                         max_ratio_error = float(drift.abs().max())
@@ -95,8 +103,9 @@ def main():
                                                 act_norm=int(sft.datasets.vla_data.act_norm))[0]
                     scores = service.score([token], physical[None])[0]
                     chain = rollout.chain[0].cpu().numpy()
-                    name = f"sde_{noise}"
+                    name = f"sde_{noise}" + (f"_rho{rho}" if rho else "")
                     settings[name] = {"scores": [asdict(s) for s in scores], "logratio_error": max_ratio_error,
+                        "temporal_noise_correlation": rho,
                         "g16": trajectory_diversity(physical, [s.score for s in scores], chain),
                         "g8_prefix": trajectory_diversity(physical[:8], [s.score for s in scores[:8]], chain[:8])}
                     artifact[name] = physical

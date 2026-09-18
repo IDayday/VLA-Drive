@@ -285,6 +285,7 @@ def _run(cfg, sft, resume=None):
         reduction=cfg["algorithm"]["logprob_reduction"],
         candidate_chunk_size=cfg["sampling"]["candidate_chunk_size"],
         transition_chunk_size=cfg["sampling"]["transition_chunk_size"],
+        temporal_noise_correlation=cfg["sampling"].get("temporal_noise_correlation", 0.0),
     )
     update = version = 0
     pending = None

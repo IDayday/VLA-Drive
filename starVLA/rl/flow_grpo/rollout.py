@@ -13,8 +13,11 @@ class SamplingSpec:
     reduction: str = "flow_grpo_dimension_mean"
     candidate_chunk_size: int = 1
     transition_chunk_size: int = 1
+    temporal_noise_correlation: float = 0.0
 
     def __post_init__(self):
+        from .temporal_noise import validate_correlation
+        validate_correlation(self.temporal_noise_correlation)
         if (
             min(self.group_size, self.candidate_chunk_size, self.transition_chunk_size)
             < 1
@@ -80,6 +83,8 @@ class RolloutBatch:
             raise ValueError("duplicate group ids")
         if self.spec.noise_level == 0:
             raise ValueError("ODE rollout cannot enter a policy update")
+        if getattr(self.spec, "temporal_noise_correlation", 0) and not self.dimension_mask.all():
+            raise ValueError("correlated Gaussian cannot mask Cholesky coordinates as action dimensions")
 
 
 def velocity(policy, x, bucket, condition, checkpoint=False):
@@ -139,15 +144,16 @@ def sample_chain(policy, observation, spec, policy_version, seed, provenance):
                 times[step + 1] - times[step],
                 noise_level=spec.noise_level,
                 first_dt=times[1],
+                temporal_correlation=spec.temporal_noise_correlation,
             )
             means.append(dist.mean.reshape(b, n, *xt.shape[1:]))
             std = dist.std
         mean = torch.cat(means, 1)
         noise = torch.randn(x.shape, device=x.device, generator=generator)
-        x = mean + std * noise
-        from .math import gaussian_logprob
-
-        logs.append(gaussian_logprob(x, mean, std))
+        from .math import Transition
+        distribution = Transition(mean, std, dist.diffusion, spec.temporal_noise_correlation)
+        x = distribution.sample(noise)
+        logs.append(distribution.logprob(x))
         chain.append(x)
     result = RolloutBatch(
         observation,
@@ -213,6 +219,7 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
                 rollout.times[step + 1] - rollout.times[step],
                 noise_level=rollout.spec.noise_level,
                 first_dt=rollout.times[1],
+                temporal_correlation=getattr(rollout.spec, "temporal_noise_correlation", 0.0),
             )
             step_means.append(dist.mean.reshape(b, n, h, d))
             step_logs.append(dist.logprob(xn).reshape(b, n, h, d))

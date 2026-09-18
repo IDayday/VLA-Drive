@@ -238,6 +238,8 @@ def run_diagnostics(cfg, sft, output, gradients=True):
     spec = SamplingSpec(
         group_size=cfg["sampling"]["group_size"],
         num_steps=cfg["sampling"]["num_steps"],
+        noise_level=cfg["sampling"]["noise_level"],
+        temporal_noise_correlation=cfg["sampling"].get("temporal_noise_correlation", 0.0),
         candidate_chunk_size=cfg["sampling"]["candidate_chunk_size"],
     )
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
@@ -266,7 +268,7 @@ def run_diagnostics(cfg, sft, output, gradients=True):
     def reference_gate():
         with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
             current = evaluate_transitions(policy, observation, rollout)
-        kl = conditional_kl(current["mean"], current["std"], ref["mean"], ref["std"])
+        kl = conditional_kl(current["mean"], current["std"], ref["mean"], ref["std"], spec.temporal_noise_correlation)
         torch.testing.assert_close(kl, torch.zeros_like(kl), atol=1e-7, rtol=0)
         return {"max_kl": float(kl.max())}
 
@@ -341,7 +343,7 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                 independent = evaluate_transitions(reference, observation, rollout)
             torch.testing.assert_close(independent["mean"], ref["mean"], atol=0, rtol=0)
             kl = conditional_kl(
-                changed["mean"], changed["std"], ref["mean"], ref["std"]
+                changed["mean"], changed["std"], ref["mean"], ref["std"], spec.temporal_noise_correlation
             ).mean()
             assert kl > 0, (
                 f"{label} perturbation did not change full policy distribution"
@@ -438,7 +440,7 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                         )[0].mean()
                         kl = reduce_dimensions(
                             conditional_kl(
-                                cur["mean"], cur["std"], ref["mean"], ref["std"]
+                                cur["mean"], cur["std"], ref["mean"], ref["std"], spec.temporal_noise_correlation
                             )
                         ).mean()
                     if source in ("auxiliary", "sft", "total"):
@@ -516,7 +518,8 @@ def run_diagnostics(cfg, sft, output, gradients=True):
                     bucket = torch.zeros(1, device="cuda", dtype=torch.long)
                     v = velocity(policy, xt, bucket, cond, checkpoint=enabled)
                     dist = transition(
-                        xt, v, 0.0, 0.1, noise_level=spec.noise_level, first_dt=0.1
+                        xt, v, 0.0, 0.1, noise_level=spec.noise_level, first_dt=0.1,
+                        temporal_correlation=spec.temporal_noise_correlation,
                     )
                     loss = -dist.logprob(xn).mean()
                 loss.backward()
