@@ -1,0 +1,43 @@
+{
+  "job_id": "euler_oracle",
+  "nodes": [
+    {
+      "host": "local",
+      "devices": [
+        4
+      ],
+      "cpu_affinity": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.correlated_oracle",
+    "--config",
+    "configs/flow_grpo/frozen_research_g16_euler_correlated.yaml",
+    "--manifest",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/manifest.json",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/euler_oracle"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/euler_oracle_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 1200
+}

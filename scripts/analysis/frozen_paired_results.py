@@ -14,6 +14,8 @@ def main():
         for protocol in ("v1", "v2"):
             parser.add_argument(f"--{arm}-{protocol}", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--group-label", default="G16 / group")
+    parser.add_argument("--batch-label", default="G16 / global batch")
     args = parser.parse_args()
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=False)
@@ -44,6 +46,7 @@ def main():
             result[arm] = row
         results[protocol] = result
     report = {"status": "COMPLETE", "scope": "1696 fixed dev scenes, 16 logs; single inference seed42",
+              "labels": {"group": args.group_label, "batch": args.batch_label},
               "sources": sources, "results": results}
     (out / "paired_results.json").write_text(json.dumps(report, indent=2, allow_nan=False))
     import matplotlib
@@ -57,7 +60,7 @@ def main():
         ax.bar(range(2), means, color=["#3274a1", "#e1812c"], alpha=.85)
         ax.errorbar(range(2), means, yerr=np.stack([means - intervals[:, 0], intervals[:, 1] - means]),
                     fmt="none", color="black", capsize=5)
-        ax.set_xticks(range(2), ["G16 / group", "G16 / global batch"])
+        ax.set_xticks(range(2), [args.group_label, args.batch_label])
         ax.axhline(0, color="black", linewidth=.7)
         ax.set_ylabel("Paired change from own F-SFT (points)")
         ax.set_title(name)

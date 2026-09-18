@@ -1,0 +1,49 @@
+{
+  "job_id": "correlation_calibration2",
+  "nodes": [
+    {
+      "host": "local",
+      "devices": [
+        2
+      ],
+      "cpu_affinity": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.flow_diversity",
+    "--config",
+    "configs/flow_grpo/frozen_research_g16_group.yaml",
+    "--tokens",
+    "runs/frozen_rl_research/diversity_tokens2.json",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/calibration_shard2",
+    "--noise-levels",
+    ".1",
+    ".2",
+    "--temporal-correlations",
+    "0",
+    ".8"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/calibration_control2",
+  "require_idle_gpus": true,
+  "timeout_seconds": 2400
+}

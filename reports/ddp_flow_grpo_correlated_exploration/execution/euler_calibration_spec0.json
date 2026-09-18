@@ -1,0 +1,50 @@
+{
+  "job_id": "euler_calibration0",
+  "nodes": [
+    {
+      "host": "training-vla-zt2",
+      "devices": [
+        0
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.flow_diversity",
+    "--config",
+    "configs/flow_grpo/frozen_research_g16_group.yaml",
+    "--tokens",
+    "runs/frozen_rl_research/diversity_tokens0.json",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/euler_calibration_shard0",
+    "--noise-levels",
+    ".1",
+    "--temporal-correlations",
+    ".8",
+    "--transition-modes",
+    "flow_sde",
+    "euler_gaussian"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/euler_calibration_control0",
+  "require_idle_gpus": true,
+  "timeout_seconds": 2400
+}

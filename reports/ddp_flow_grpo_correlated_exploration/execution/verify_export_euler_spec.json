@@ -1,0 +1,46 @@
+{
+  "job_id": "verify_export_euler",
+  "nodes": [
+    {
+      "host": "training-vla-zt2",
+      "devices": [
+        1
+      ],
+      "cpu_affinity": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "starVLA.rl.flow_grpo.cli",
+    "verify-export",
+    "--config",
+    "configs/flow_grpo/frozen_research_g16_euler_correlated.yaml",
+    "--checkpoint",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/f_euler_correlated8/checkpoints/update_000008",
+    "--export-dir",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/f_euler_correlated8/export_update8",
+    "--output-dir",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/verify_export_euler"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-paired/runs/correlated_exploration/verify_export_euler_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 900
+}

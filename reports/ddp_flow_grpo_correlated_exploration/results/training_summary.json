@@ -1,0 +1,3356 @@
+{
+  "scope": "three bounded F-only runs, unchanged actor contract; not production acceptance",
+  "runs": {
+    "independent_flow": {
+      "scope": "bounded real-model observations; not production acceptance or RL-only proof",
+      "path": "runs/frozen_rl_research/f_g16_group",
+      "optimizer_updates": 8,
+      "fresh_scenes": 64.0,
+      "fresh_candidates": 1024.0,
+      "replay_scene_exposures": 128.0,
+      "trainable_numel": 2233120260,
+      "contract_sha256": "6fe6da3e69f9ed86b7654a97f3742d9a1d7ae045bb89bfef5b1f0bcb273f110b",
+      "execution_context": {
+        "executable_sha256": "989aed14a6a0e8c9aec200936b7603ba56ba200e7f71797eaf192f53f8cdfca4",
+        "config_sha256": "5c3e6cac26990660acb514864129602a1f14bccc038f8c18cfe99e47dab3cd2d",
+        "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+        "resume_identity": {
+          "processor": {
+            "files": {
+              "added_custom_token_id_map.json": "0f6be79fac86913063eecf5df1d7609352f76564bbae8382b81f87ea32e9fa01",
+              "added_tokens.json": "46a9bce388ebf552817489217ef97c55a01c14d1021fc29d103f0093256980e8",
+              "chat_template.jinja": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4",
+              "config.json": "a13700a7ff995289cde777a52eaabe948b5709f02a7814c353670ae91a0efad5",
+              "generation_config.json": "7940a14042d126a31694c75bd8a020b668745a11867a394f19e9d26b5eccf2de",
+              "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+              "preprocessor_config.json": "93585062a80db5e8ca038efc7726a3e6411d9db948472d81d63c6303993be8c5",
+              "special_tokens_map.json": "814b6e59a674198d6eb0aba44ae56f76d5e59cdbf727011008c9fd7640e8bb57",
+              "tokenizer.json": "b89449efa6625da27637e990df0ebd452a6c361ae2847884a0188dd290da64ee",
+              "tokenizer_config.json": "ccbba5f846277c6983b364084822211749adaa6034502b374ec2d6c9e8ee4ad9",
+              "video_preprocessor_config.json": "59c5c9eb52182eb14c06ffb10ca9effd29adce5f238a95de23ca14a38dbd2cb1",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "sha256": "7e13bdb5ff27bd29bca3eaac59ee65ffbeb46364ae78dd436bb36db920d31d4d"
+          },
+          "numerics": {
+            "profile": "bf16_zero2_fp32_partition_v2",
+            "model_dtype": "bfloat16",
+            "probability_dtype": "float32",
+            "qwen_autocast": "bfloat16",
+            "action_history_projector_autocast": "cuda_float32_torch2.5",
+            "gradient_accumulation_dtype": "float32",
+            "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+            "communication_dtype": "float32",
+            "attention_backend": "flash_attention_2",
+            "deterministic": true,
+            "cudnn_deterministic": true,
+            "cudnn_benchmark": false,
+            "matmul_tf32": false,
+            "cudnn_tf32": false,
+            "bf16_reduced_precision_reduction": false,
+            "float32_matmul_precision": "highest",
+            "flash_deterministic": "1",
+            "cublas_workspace": ":4096:8",
+            "activation_checkpointing": true,
+            "zero_stage": 2,
+            "optimizer_offload": false,
+            "candidate_chunk": 1,
+            "transition_chunk": 1
+          },
+          "dependencies": {
+            "torch": "2.5.1+cu124",
+            "transformers": "4.57.0",
+            "accelerate": "1.5.2",
+            "deepspeed": "0.16.9",
+            "diffusers": "0.35.2",
+            "flash-attn": "2.7.4.post1",
+            "numpy": "1.26.4",
+            "scipy": "1.11.4",
+            "tokenizers": "0.22.1",
+            "pillow": "10.1.0",
+            "torchvision": "0.20.1+cu124",
+            "triton": "3.1.0",
+            "omegaconf": "2.3.0",
+            "hydra-core": "1.3.2",
+            "shapely": "2.1.2"
+          },
+          "backend_source_sha256": {
+            "torch/amp/autocast_mode.py": "f5fa06c15d3caba9c7ea1b694d883bbb25a58b25dad72a80e25af0266d12b4c6",
+            "torch/nn/utils/clip_grad.py": "a0cc48b76d4f3efb7a4266eb8e4c25a5dfad4972b609a9d56c4c3fe58afe28c9",
+            "deepspeed/runtime/engine.py": "88db49f4970ad38101946467c69abc07b67f4454d4411eea1dbc13ed9c2f460d",
+            "deepspeed/runtime/config.py": "34c94040b3c2291d6c5d26e8b89b91929c4a1d64048624249e9178bfc13dc48f",
+            "deepspeed/runtime/zero/stage_1_and_2.py": "7e03bb5b2c923b2291ed28b663b1b605aa1384f68aa23b5744951183cc42fef6",
+            "accelerate/accelerator.py": "452d351815c45382b5b105223c30829fcc02740ffa25d6641e7d8dc5f0c06555",
+            "accelerate/utils/deepspeed.py": "418217bf92f01d7c3bc01145a3eedad2df3a31bc0d01f89e26490168b180eb02"
+          },
+          "data_metric_manifest": "04a0e93c1ea44902a4f73bf6973b236442ec5c8815ce6155c186a4d98254f420",
+          "train_tokens_file": "b1278ec613611037cf5649d70368a9d8b8b6c52dd4e11d0070e07c797805b0ed",
+          "test_tokens_file": "e05968c1ded485316bc16905f6a238b25fffede3ff1a7de2f6c1538b624b532e"
+        },
+        "world_size": 8
+      },
+      "training_sha256": "5c8c61eb540a01dff0f967cd76879f460be08c3fb6c767265f7737e6a3447a66",
+      "fixed_behavior_reuse": "PASS",
+      "immutable": [
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank0.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank1.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank2.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank3.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank4.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank5.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank6.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/frozen_rl_research/f_g16_group/immutable_update000008_rank7.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        }
+      ],
+      "observed_dtype_rank0": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "observed_activation_dtype_rank0": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "rows": [
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.00035262254596091225,
+          "grpo": 2.0489097224407615e-09,
+          "reference": 0.0,
+          "sft": 0.0035262049532320816,
+          "old_policy_drift": 0.0,
+          "reward": 0.9238589548040181,
+          "reward_zero_fraction": 0.0,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0016644160814968723,
+            "0.99": 0.008574512249865107,
+            "1.0": 0.00914256998027225
+          },
+          "advantage_absolute_mean": 0.5559208582963038,
+          "advantage_second_moment": 0.6869407981348588,
+          "advantage_group_mean_abs_max": 9.313225746154785e-09,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.1315413014603261,
+          "candidate_pair_fde_scene_median_m": 0.1320047481341508,
+          "candidate_xy_effective_rank": 5.400187159217842,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006161481142044067,
+            "0.99": 0.03297911286354065,
+            "1.0": 0.035233259201049805
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0035262049532320816,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 1.0,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8118050731325486,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.9375,
+          "reward_component/pdm_score": 0.9149303832616246,
+          "reward_component/score": 0.923858954690196,
+          "post_update_probe_ratio_min": 0.9693441987037659,
+          "post_update_probe_ratio_max": 1.0336123704910278,
+          "post_update_probe_ratio_mean": 0.9998055189615116,
+          "post_update_probe_ratio_clip_fraction": 0.00546875,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9693441987037659,
+            "0.01": 0.9858151412010193,
+            "0.5": 0.9999988079071045,
+            "0.99": 1.0098570346832276,
+            "1.0": 1.0336123704910278
+          },
+          "update": 1,
+          "policy_version": 0,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.0889803171157837,
+          "clip_scale": 0.9182893997194969,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            20.71072292327881,
+            20.71118450164795,
+            20.711397171020508,
+            20.709530353546143,
+            20.71298837661743,
+            20.71134662628174,
+            20.706881999969482,
+            20.984042167663574
+          ],
+          "peak_gpu_gib_max": 20.984042167663574,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 68.19185784459114
+        },
+        {
+          "pre_update_ratio_min": 0.9693441987037659,
+          "pre_update_ratio_max": 1.0336123704910278,
+          "pre_update_ratio_mean": 0.9998055189615116,
+          "pre_update_ratio_clip_fraction": 0.00546875,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9693441987037659,
+            "0.01": 0.9858151412010193,
+            "0.5": 0.9999988079071045,
+            "0.99": 1.0098570346832276,
+            "1.0": 1.0336123704910278
+          },
+          "loss": 0.0001452918118047819,
+          "grpo": -0.0002078716624964727,
+          "reference": 0.00019204864489097417,
+          "sft": 0.0035124298301525414,
+          "old_policy_drift": 6.313889747628677e-06,
+          "reward": 0.9238589548040181,
+          "reward_zero_fraction": 0.0,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0016644160814968723,
+            "0.99": 0.008574512249865107,
+            "1.0": 0.00914256998027225
+          },
+          "advantage_absolute_mean": 0.5559208582963038,
+          "advantage_second_moment": 0.6869407981348588,
+          "advantage_group_mean_abs_max": 9.313225746154785e-09,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.1315413014603261,
+          "candidate_pair_fde_scene_median_m": 0.1320047481341508,
+          "candidate_xy_effective_rank": 5.400187159217842,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006161481142044067,
+            "0.99": 0.03297911286354065,
+            "1.0": 0.035233259201049805
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0035124298301525414,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 1.0,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8118050731325486,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.9375,
+          "reward_component/pdm_score": 0.9149303832616246,
+          "reward_component/score": 0.923858954690196,
+          "post_update_probe_ratio_min": 0.9151767492294312,
+          "post_update_probe_ratio_max": 1.0410324335098267,
+          "post_update_probe_ratio_mean": 0.9993609472410754,
+          "post_update_probe_ratio_clip_fraction": 0.021484375,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9151767492294312,
+            "0.01": 0.9717159342765808,
+            "0.5": 0.99998340010643,
+            "0.99": 1.0150576984882353,
+            "1.0": 1.0410324335098267
+          },
+          "update": 2,
+          "policy_version": 0,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.0633127689361572,
+          "clip_scale": 0.9404561750389987,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79105281829834,
+            22.790003299713135,
+            22.792657375335693,
+            22.790813446044922,
+            22.790342330932617,
+            22.78920078277588,
+            22.787653923034668,
+            23.063820362091064
+          ],
+          "peak_gpu_gib_max": 23.063820362091064,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.88997511379421
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.00047721066175654414,
+          "grpo": -2.6077032477811457e-09,
+          "reference": 0.000253630101269664,
+          "sft": 0.004746769547637086,
+          "old_policy_drift": 0.0,
+          "reward": 0.9601149575319141,
+          "reward_zero_fraction": 0.0,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.5,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0005875146114617156,
+            "0.99": 0.11928678097696858,
+            "1.0": 0.1393972800734543
+          },
+          "advantage_absolute_mean": 0.4137675164383836,
+          "advantage_second_moment": 0.4994762435127331,
+          "advantage_group_mean_abs_max": 1.4901161193847656e-08,
+          "advantage_nonzero_group_fraction": 0.5,
+          "candidate_pair_ade_scene_median_m": 0.12976428754924269,
+          "candidate_pair_fde_scene_median_m": 0.1316453559221336,
+          "candidate_xy_effective_rank": 4.968291239260909,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.001796036958694458,
+            "0.99": 0.30643891394138323,
+            "1.0": 0.3571428656578064
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.004746769547637086,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 1.0,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.9000406341479561,
+          "reward_component/time_to_collision_within_bound": 0.98828125,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.7726149586242701,
+          "reward_component/score": 0.9601149586242701,
+          "post_update_probe_ratio_min": 0.9690160751342773,
+          "post_update_probe_ratio_max": 1.0397299528121948,
+          "post_update_probe_ratio_mean": 0.9999455912504345,
+          "post_update_probe_ratio_clip_fraction": 0.0046875,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9690160751342773,
+            "0.01": 0.988056972026825,
+            "0.5": 1.000003159046173,
+            "0.99": 1.0100229430198668,
+            "1.0": 1.0397299528121948
+          },
+          "update": 3,
+          "policy_version": 1,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.9469699263572693,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79105281829834,
+            22.790003299713135,
+            22.792657375335693,
+            22.790813446044922,
+            22.790342330932617,
+            22.78920078277588,
+            22.787653923034668,
+            23.063820362091064
+          ],
+          "peak_gpu_gib_max": 23.063820362091064,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.55481253005564
+        },
+        {
+          "pre_update_ratio_min": 0.9690160751342773,
+          "pre_update_ratio_max": 1.0397299528121948,
+          "pre_update_ratio_mean": 0.9999455912504345,
+          "pre_update_ratio_clip_fraction": 0.0046875,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9690160751342773,
+            "0.01": 0.988056972026825,
+            "0.5": 1.000003159046173,
+            "0.99": 1.0100229430198668,
+            "1.0": 1.0397299528121948
+          },
+          "loss": 0.00039209831857078825,
+          "grpo": -8.675586605022545e-05,
+          "reference": 0.00025917051289070514,
+          "sft": 0.00476262459778809,
+          "old_policy_drift": 5.121425217304715e-06,
+          "reward": 0.9601149575319141,
+          "reward_zero_fraction": 0.0,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.5,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0005875146114617156,
+            "0.99": 0.11928678097696858,
+            "1.0": 0.1393972800734543
+          },
+          "advantage_absolute_mean": 0.4137675164383836,
+          "advantage_second_moment": 0.4994762435127331,
+          "advantage_group_mean_abs_max": 1.4901161193847656e-08,
+          "advantage_nonzero_group_fraction": 0.5,
+          "candidate_pair_ade_scene_median_m": 0.12976428754924269,
+          "candidate_pair_fde_scene_median_m": 0.1316453559221336,
+          "candidate_xy_effective_rank": 4.968291239260909,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.001796036958694458,
+            "0.99": 0.30643891394138323,
+            "1.0": 0.3571428656578064
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.00476262459778809,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 1.0,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.9000406341479561,
+          "reward_component/time_to_collision_within_bound": 0.98828125,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.7726149586242701,
+          "reward_component/score": 0.9601149586242701,
+          "post_update_probe_ratio_min": 0.9029629826545715,
+          "post_update_probe_ratio_max": 1.064697027206421,
+          "post_update_probe_ratio_mean": 0.9992513951379806,
+          "post_update_probe_ratio_clip_fraction": 0.041796875,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9029629826545715,
+            "0.01": 0.96390016913414,
+            "0.5": 0.9999711513519287,
+            "0.99": 1.023085834980011,
+            "1.0": 1.064697027206421
+          },
+          "update": 4,
+          "policy_version": 1,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.8790656328201294,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79105281829834,
+            22.790003299713135,
+            22.792657375335693,
+            22.790813446044922,
+            22.790342330932617,
+            22.78920078277588,
+            22.787653923034668,
+            23.063820362091064
+          ],
+          "peak_gpu_gib_max": 23.063820362091064,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 66.89960180222988
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0005712205465897569,
+          "grpo": -1.3038516377683607e-09,
+          "reference": 0.0009386016699863831,
+          "sft": 0.005618358114588773,
+          "old_policy_drift": 0.0,
+          "reward": 0.926473580300808,
+          "reward_zero_fraction": 0.0078125,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.25,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0019475788158694648,
+            "0.99": 0.27546680812156066,
+            "1.0": 0.322929185623203
+          },
+          "advantage_absolute_mean": 0.5992761591041926,
+          "advantage_second_moment": 0.7493485785672428,
+          "advantage_group_mean_abs_max": 1.1175870895385742e-08,
+          "advantage_nonzero_group_fraction": 0.75,
+          "candidate_pair_ade_scene_median_m": 0.12359056238178558,
+          "candidate_pair_fde_scene_median_m": 0.12332782668055182,
+          "candidate_xy_effective_rank": 5.233557105183674,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006824880838394165,
+            "0.99": 0.8368906944990154,
+            "1.0": 0.9795129299163818
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.005618358114588773,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.9921875,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8155502428673864,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.8461164374911884,
+          "reward_component/score": 0.9264735803483313,
+          "post_update_probe_ratio_min": 0.9406405687332153,
+          "post_update_probe_ratio_max": 1.0613685846328735,
+          "post_update_probe_ratio_mean": 0.9997184871695936,
+          "post_update_probe_ratio_clip_fraction": 0.016796875,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9406405687332153,
+            "0.01": 0.9801399010419846,
+            "0.5": 0.9999995529651642,
+            "0.99": 1.0159850120544434,
+            "1.0": 1.0613685846328735
+          },
+          "update": 5,
+          "policy_version": 2,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.0038301944732666,
+          "clip_scale": 0.9961834275579802,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79105281829834,
+            22.790003299713135,
+            22.792657375335693,
+            22.790813446044922,
+            22.790342330932617,
+            22.78920078277588,
+            22.787653923034668,
+            23.063820362091064
+          ],
+          "peak_gpu_gib_max": 23.063820362091064,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.73330283351243
+        },
+        {
+          "pre_update_ratio_min": 0.9406405687332153,
+          "pre_update_ratio_max": 1.0613685846328735,
+          "pre_update_ratio_mean": 0.9997184871695936,
+          "pre_update_ratio_clip_fraction": 0.016796875,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9406405687332153,
+            "0.01": 0.9801399010419846,
+            "0.5": 0.9999995529651642,
+            "0.99": 1.0159850120544434,
+            "1.0": 1.0613685846328735
+          },
+          "loss": 0.00018719412310019834,
+          "grpo": -0.00038318224187605665,
+          "reference": 0.001825443217967404,
+          "sft": 0.005521219231013674,
+          "old_policy_drift": 1.437555340232672e-05,
+          "reward": 0.926473580300808,
+          "reward_zero_fraction": 0.0078125,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.25,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0019475788158694648,
+            "0.99": 0.27546680812156066,
+            "1.0": 0.322929185623203
+          },
+          "advantage_absolute_mean": 0.5992761591041926,
+          "advantage_second_moment": 0.7493485785672428,
+          "advantage_group_mean_abs_max": 1.1175870895385742e-08,
+          "advantage_nonzero_group_fraction": 0.75,
+          "candidate_pair_ade_scene_median_m": 0.12359056238178558,
+          "candidate_pair_fde_scene_median_m": 0.12332782668055182,
+          "candidate_xy_effective_rank": 5.233557105183674,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006824880838394165,
+            "0.99": 0.8368906944990154,
+            "1.0": 0.9795129299163818
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.005521219231013674,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.9921875,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8155502428673864,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.8461164374911884,
+          "reward_component/score": 0.9264735803483313,
+          "post_update_probe_ratio_min": 0.9268283843994141,
+          "post_update_probe_ratio_max": 1.0457853078842163,
+          "post_update_probe_ratio_mean": 0.999494500271976,
+          "post_update_probe_ratio_clip_fraction": 0.02890625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9268283843994141,
+            "0.01": 0.9704980474710464,
+            "0.5": 0.9999992251396179,
+            "0.99": 1.019054980278015,
+            "1.0": 1.0457853078842163
+          },
+          "update": 6,
+          "policy_version": 2,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.6345680356025696,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791053295135498,
+            22.790003776550293,
+            22.79265785217285,
+            22.79081392288208,
+            22.790342807769775,
+            22.789201259613037,
+            22.787654399871826,
+            23.063820838928223
+          ],
+          "peak_gpu_gib_max": 23.063820838928223,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.53096416033804
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0002680451380001614,
+          "grpo": 0.0,
+          "reference": 0.0024148930206138175,
+          "sft": 0.0024389620302827097,
+          "old_policy_drift": 0.0,
+          "reward": 0.9239185529295355,
+          "reward_zero_fraction": 0.00390625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.001517878214211771,
+            "0.99": 0.17736879992178936,
+            "1.0": 0.20748125275082407
+          },
+          "advantage_absolute_mean": 0.5224744599945552,
+          "advantage_second_moment": 0.6868666589255221,
+          "advantage_group_mean_abs_max": 9.313225746154785e-09,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.13180187861073334,
+          "candidate_pair_fde_scene_median_m": 0.14260683292568258,
+          "candidate_xy_effective_rank": 4.688805153452184,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006195068359375,
+            "0.99": 0.7321855425834652,
+            "1.0": 0.8571428656578064
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0024389620302827097,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.99609375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8713469454706295,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.8125,
+          "reward_component/pdm_score": 0.9060614090966534,
+          "reward_component/score": 0.9239185519537962,
+          "post_update_probe_ratio_min": 0.9476915001869202,
+          "post_update_probe_ratio_max": 1.0466071367263794,
+          "post_update_probe_ratio_mean": 0.9995571229141206,
+          "post_update_probe_ratio_clip_fraction": 0.0140625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9476915001869202,
+            "0.01": 0.9794287657737732,
+            "0.5": 0.999992847442627,
+            "0.99": 1.0115472710132598,
+            "1.0": 1.0466071367263794
+          },
+          "update": 7,
+          "policy_version": 3,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.050191044807434,
+          "clip_scale": 0.9522067939329731,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791053295135498,
+            22.790003776550293,
+            22.79265785217285,
+            22.79081392288208,
+            22.790342807769775,
+            22.789201259613037,
+            22.787654399871826,
+            23.063820838928223
+          ],
+          "peak_gpu_gib_max": 23.063820838928223,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.8116626702249
+        },
+        {
+          "pre_update_ratio_min": 0.9476915001869202,
+          "pre_update_ratio_max": 1.0466071367263794,
+          "pre_update_ratio_mean": 0.9995571229141206,
+          "pre_update_ratio_clip_fraction": 0.0140625,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9476915001869202,
+            "0.01": 0.9794287657737732,
+            "0.5": 0.999992847442627,
+            "0.99": 1.0115472710132598,
+            "1.0": 1.0466071367263794
+          },
+          "loss": 0.00025665241719252663,
+          "grpo": -1.722835202144779e-05,
+          "reference": 0.0030526449263561517,
+          "sft": 0.002433543140796246,
+          "old_policy_drift": 1.1467594360231071e-05,
+          "reward": 0.9239185529295355,
+          "reward_zero_fraction": 0.00390625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.001517878214211771,
+            "0.99": 0.17736879992178936,
+            "1.0": 0.20748125275082407
+          },
+          "advantage_absolute_mean": 0.5224744599945552,
+          "advantage_second_moment": 0.6868666589255221,
+          "advantage_group_mean_abs_max": 9.313225746154785e-09,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.13180187861073334,
+          "candidate_pair_fde_scene_median_m": 0.14260683292568258,
+          "candidate_xy_effective_rank": 4.688805153452184,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006195068359375,
+            "0.99": 0.7321855425834652,
+            "1.0": 0.8571428656578064
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.002433543140796246,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.99609375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8713469454706295,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.8125,
+          "reward_component/pdm_score": 0.9060614090966534,
+          "reward_component/score": 0.9239185519537962,
+          "post_update_probe_ratio_min": 0.9128897190093994,
+          "post_update_probe_ratio_max": 1.0676265954971313,
+          "post_update_probe_ratio_mean": 0.9988021438941359,
+          "post_update_probe_ratio_clip_fraction": 0.0375,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9128897190093994,
+            "0.01": 0.9594983398914337,
+            "0.5": 0.9999522864818573,
+            "0.99": 1.0183717823028564,
+            "1.0": 1.0676265954971313
+          },
+          "update": 8,
+          "policy_version": 3,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.972543478012085,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791053295135498,
+            22.790003776550293,
+            22.79265785217285,
+            22.79081392288208,
+            22.790342807769775,
+            22.789201259613037,
+            22.787654399871826,
+            23.063820838928223
+          ],
+          "peak_gpu_gib_max": 23.063820838928223,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.4031458068639
+        }
+      ]
+    },
+    "correlated_flow": {
+      "scope": "bounded real-model observations; not production acceptance or RL-only proof",
+      "path": "runs/correlated_exploration/f_correlated8",
+      "optimizer_updates": 8,
+      "fresh_scenes": 64.0,
+      "fresh_candidates": 1024.0,
+      "replay_scene_exposures": 128.0,
+      "trainable_numel": 2233120260,
+      "contract_sha256": "6fe6da3e69f9ed86b7654a97f3742d9a1d7ae045bb89bfef5b1f0bcb273f110b",
+      "execution_context": {
+        "executable_sha256": "1d2669e4d8cc83da59cb8c4c3fd2f2bdb1c9e15db691fa75321bbd777f3f3179",
+        "config_sha256": "3360cd3e89a1b305957daa7351c9a346857b07af080adf9728030524bf16fbba",
+        "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+        "resume_identity": {
+          "processor": {
+            "files": {
+              "added_custom_token_id_map.json": "0f6be79fac86913063eecf5df1d7609352f76564bbae8382b81f87ea32e9fa01",
+              "added_tokens.json": "46a9bce388ebf552817489217ef97c55a01c14d1021fc29d103f0093256980e8",
+              "chat_template.jinja": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4",
+              "config.json": "a13700a7ff995289cde777a52eaabe948b5709f02a7814c353670ae91a0efad5",
+              "generation_config.json": "7940a14042d126a31694c75bd8a020b668745a11867a394f19e9d26b5eccf2de",
+              "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+              "preprocessor_config.json": "93585062a80db5e8ca038efc7726a3e6411d9db948472d81d63c6303993be8c5",
+              "special_tokens_map.json": "814b6e59a674198d6eb0aba44ae56f76d5e59cdbf727011008c9fd7640e8bb57",
+              "tokenizer.json": "b89449efa6625da27637e990df0ebd452a6c361ae2847884a0188dd290da64ee",
+              "tokenizer_config.json": "ccbba5f846277c6983b364084822211749adaa6034502b374ec2d6c9e8ee4ad9",
+              "video_preprocessor_config.json": "59c5c9eb52182eb14c06ffb10ca9effd29adce5f238a95de23ca14a38dbd2cb1",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "sha256": "7e13bdb5ff27bd29bca3eaac59ee65ffbeb46364ae78dd436bb36db920d31d4d"
+          },
+          "numerics": {
+            "profile": "bf16_zero2_fp32_partition_v2",
+            "model_dtype": "bfloat16",
+            "probability_dtype": "float32",
+            "qwen_autocast": "bfloat16",
+            "action_history_projector_autocast": "cuda_float32_torch2.5",
+            "gradient_accumulation_dtype": "float32",
+            "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+            "communication_dtype": "float32",
+            "attention_backend": "flash_attention_2",
+            "deterministic": true,
+            "cudnn_deterministic": true,
+            "cudnn_benchmark": false,
+            "matmul_tf32": false,
+            "cudnn_tf32": false,
+            "bf16_reduced_precision_reduction": false,
+            "float32_matmul_precision": "highest",
+            "flash_deterministic": "1",
+            "cublas_workspace": ":4096:8",
+            "activation_checkpointing": true,
+            "zero_stage": 2,
+            "optimizer_offload": false,
+            "candidate_chunk": 1,
+            "transition_chunk": 1
+          },
+          "dependencies": {
+            "torch": "2.5.1+cu124",
+            "transformers": "4.57.0",
+            "accelerate": "1.5.2",
+            "deepspeed": "0.16.9",
+            "diffusers": "0.35.2",
+            "flash-attn": "2.7.4.post1",
+            "numpy": "1.26.4",
+            "scipy": "1.11.4",
+            "tokenizers": "0.22.1",
+            "pillow": "10.1.0",
+            "torchvision": "0.20.1+cu124",
+            "triton": "3.1.0",
+            "omegaconf": "2.3.0",
+            "hydra-core": "1.3.2",
+            "shapely": "2.1.2"
+          },
+          "backend_source_sha256": {
+            "torch/amp/autocast_mode.py": "f5fa06c15d3caba9c7ea1b694d883bbb25a58b25dad72a80e25af0266d12b4c6",
+            "torch/nn/utils/clip_grad.py": "a0cc48b76d4f3efb7a4266eb8e4c25a5dfad4972b609a9d56c4c3fe58afe28c9",
+            "deepspeed/runtime/engine.py": "88db49f4970ad38101946467c69abc07b67f4454d4411eea1dbc13ed9c2f460d",
+            "deepspeed/runtime/config.py": "34c94040b3c2291d6c5d26e8b89b91929c4a1d64048624249e9178bfc13dc48f",
+            "deepspeed/runtime/zero/stage_1_and_2.py": "7e03bb5b2c923b2291ed28b663b1b605aa1384f68aa23b5744951183cc42fef6",
+            "accelerate/accelerator.py": "452d351815c45382b5b105223c30829fcc02740ffa25d6641e7d8dc5f0c06555",
+            "accelerate/utils/deepspeed.py": "418217bf92f01d7c3bc01145a3eedad2df3a31bc0d01f89e26490168b180eb02"
+          },
+          "data_metric_manifest": "04a0e93c1ea44902a4f73bf6973b236442ec5c8815ce6155c186a4d98254f420",
+          "train_tokens_file": "b1278ec613611037cf5649d70368a9d8b8b6c52dd4e11d0070e07c797805b0ed",
+          "test_tokens_file": "e05968c1ded485316bc16905f6a238b25fffede3ff1a7de2f6c1538b624b532e"
+        },
+        "world_size": 8
+      },
+      "training_sha256": "e84e5cea6cd5d1b1de452dbc6023935fb5213f0ed38a3005d7a15b7e32dba97a",
+      "fixed_behavior_reuse": "PASS",
+      "immutable": [
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank0.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank1.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank2.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank3.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank4.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank5.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank6.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_correlated8/immutable_update000008_rank7.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        }
+      ],
+      "observed_dtype_rank0": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "observed_activation_dtype_rank0": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "rows": [
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0003526245936882333,
+          "grpo": 4.097819389370372e-09,
+          "reference": 0.0,
+          "sft": 0.0035262049532320816,
+          "old_policy_drift": 0.0,
+          "reward": 0.9235158327501267,
+          "reward_zero_fraction": 0.0,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0015791080757673408,
+            "0.99": 0.006662285532091199,
+            "1.0": 0.007058526676448581
+          },
+          "advantage_absolute_mean": 0.5575531708855124,
+          "advantage_second_moment": 0.6868095767621639,
+          "advantage_group_mean_abs_max": 1.4028046280145645e-08,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.11943109684706478,
+          "candidate_pair_fde_scene_median_m": 0.12998752886066595,
+          "candidate_xy_effective_rank": 2.7484446627136356,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.005937427282333374,
+            "0.99": 0.022421202063560484,
+            "1.0": 0.02324455976486206
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0035262049532320816,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 1.0,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8108443283829346,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.9375,
+          "reward_component/pdm_score": 0.9145872601367623,
+          "reward_component/score": 0.9235158315653337,
+          "post_update_probe_ratio_min": 0.9626208543777466,
+          "post_update_probe_ratio_max": 1.0259082317352295,
+          "post_update_probe_ratio_mean": 0.9997826874721796,
+          "post_update_probe_ratio_clip_fraction": 0.004296875,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9626208543777466,
+            "0.01": 0.9858286988735199,
+            "0.5": 0.9999770224094391,
+            "0.99": 1.0084328353404999,
+            "1.0": 1.0259082317352295
+          },
+          "update": 1,
+          "policy_version": 0,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.1301487684249878,
+          "clip_scale": 0.884838477110544,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            20.71079921722412,
+            20.71126079559326,
+            20.71147346496582,
+            20.709606647491455,
+            20.713064670562744,
+            20.71142292022705,
+            20.709887981414795,
+            20.98208999633789
+          ],
+          "peak_gpu_gib_max": 20.98208999633789,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 72.11631502211094
+        },
+        {
+          "pre_update_ratio_min": 0.9626208543777466,
+          "pre_update_ratio_max": 1.0259082317352295,
+          "pre_update_ratio_mean": 0.9997826874721796,
+          "pre_update_ratio_clip_fraction": 0.004296875,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9626208543777466,
+            "0.01": 0.9858286988735199,
+            "0.5": 0.9999770224094391,
+            "0.99": 1.0084328353404999,
+            "1.0": 1.0259082317352295
+          },
+          "loss": 7.634841404069448e-05,
+          "grpo": -0.0002779114975055563,
+          "reference": 0.00013895380845951877,
+          "sft": 0.0035287036444060504,
+          "old_policy_drift": 5.018540731769467e-06,
+          "reward": 0.9235158327501267,
+          "reward_zero_fraction": 0.0,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0015791080757673408,
+            "0.99": 0.006662285532091199,
+            "1.0": 0.007058526676448581
+          },
+          "advantage_absolute_mean": 0.5575531708855124,
+          "advantage_second_moment": 0.6868095767621639,
+          "advantage_group_mean_abs_max": 1.4028046280145645e-08,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.11943109684706478,
+          "candidate_pair_fde_scene_median_m": 0.12998752886066595,
+          "candidate_xy_effective_rank": 2.7484446627136356,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.005937427282333374,
+            "0.99": 0.022421202063560484,
+            "1.0": 0.02324455976486206
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0035287036444060504,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 1.0,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8108443283829346,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.9375,
+          "reward_component/pdm_score": 0.9145872601367623,
+          "reward_component/score": 0.9235158315653337,
+          "post_update_probe_ratio_min": 0.9163177609443665,
+          "post_update_probe_ratio_max": 1.0335135459899902,
+          "post_update_probe_ratio_mean": 0.9994088263018057,
+          "post_update_probe_ratio_clip_fraction": 0.024609375,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9163177609443665,
+            "0.01": 0.9751428627967834,
+            "0.5": 0.9999603927135468,
+            "0.99": 1.015794435739517,
+            "1.0": 1.0335135459899902
+          },
+          "update": 2,
+          "policy_version": 0,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.030043601989746,
+          "clip_scale": 0.9708317465751399,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791129112243652,
+            22.790079593658447,
+            22.792733669281006,
+            22.790889739990234,
+            22.79139518737793,
+            22.78927707672119,
+            22.78870677947998,
+            23.05991506576538
+          ],
+          "peak_gpu_gib_max": 23.05991506576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 70.07965718954802
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0004785912929037295,
+          "grpo": 3.5390258640299876e-09,
+          "reference": 0.00023044549106998602,
+          "sft": 0.0047628328611608595,
+          "old_policy_drift": 0.0,
+          "reward": 0.9591878317296505,
+          "reward_zero_fraction": 0.00390625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.5,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.00046129995139571804,
+            "0.99": 0.20032486926748058,
+            "1.0": 0.22042034210612269
+          },
+          "advantage_absolute_mean": 0.37427613801992266,
+          "advantage_second_moment": 0.4994767468979081,
+          "advantage_group_mean_abs_max": 1.30385160446167e-08,
+          "advantage_nonzero_group_fraction": 0.5,
+          "candidate_pair_ade_scene_median_m": 0.12044893604933748,
+          "candidate_pair_fde_scene_median_m": 0.1311712040620992,
+          "candidate_xy_effective_rank": 2.7482924506158533,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0018084347248077393,
+            "0.99": 0.8303765147924421,
+            "1.0": 0.9138883352279663
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0047628328611608595,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.99609375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8996135651812317,
+          "reward_component/time_to_collision_within_bound": 0.99609375,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.7716878310482463,
+          "reward_component/score": 0.9591878310482465,
+          "post_update_probe_ratio_min": 0.9715180993080139,
+          "post_update_probe_ratio_max": 1.029703974723816,
+          "post_update_probe_ratio_mean": 0.9998877339996397,
+          "post_update_probe_ratio_clip_fraction": 0.006640625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9715180993080139,
+            "0.01": 0.9878130149841309,
+            "0.5": 1.0000041127204895,
+            "0.99": 1.0098758244514465,
+            "1.0": 1.029703974723816
+          },
+          "update": 3,
+          "policy_version": 1,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.9830573797225952,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791129112243652,
+            22.790079593658447,
+            22.792733669281006,
+            22.790889739990234,
+            22.79139518737793,
+            22.78927707672119,
+            22.78870677947998,
+            23.05991506576538
+          ],
+          "peak_gpu_gib_max": 23.05991506576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 70.29531210847199
+        },
+        {
+          "pre_update_ratio_min": 0.9715180993080139,
+          "pre_update_ratio_max": 1.029703974723816,
+          "pre_update_ratio_mean": 0.9998877339996397,
+          "pre_update_ratio_clip_fraction": 0.006640625,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9715180993080139,
+            "0.01": 0.9878130149841309,
+            "0.5": 1.0000041127204895,
+            "0.99": 1.0098758244514465,
+            "1.0": 1.029703974723816
+          },
+          "loss": 0.00032000820829125587,
+          "grpo": -0.00015594307637911697,
+          "reference": 0.0002515792034500919,
+          "sft": 0.0047343548576463945,
+          "old_policy_drift": 5.750325742526901e-06,
+          "reward": 0.9591878317296505,
+          "reward_zero_fraction": 0.00390625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.5,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.00046129995139571804,
+            "0.99": 0.20032486926748058,
+            "1.0": 0.22042034210612269
+          },
+          "advantage_absolute_mean": 0.37427613801992266,
+          "advantage_second_moment": 0.4994767468979081,
+          "advantage_group_mean_abs_max": 1.30385160446167e-08,
+          "advantage_nonzero_group_fraction": 0.5,
+          "candidate_pair_ade_scene_median_m": 0.12044893604933748,
+          "candidate_pair_fde_scene_median_m": 0.1311712040620992,
+          "candidate_xy_effective_rank": 2.7482924506158533,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0018084347248077393,
+            "0.99": 0.8303765147924421,
+            "1.0": 0.9138883352279663
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0047343548576463945,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.99609375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8996135651812317,
+          "reward_component/time_to_collision_within_bound": 0.99609375,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.7716878310482463,
+          "reward_component/score": 0.9591878310482465,
+          "post_update_probe_ratio_min": 0.8926670551300049,
+          "post_update_probe_ratio_max": 1.082439661026001,
+          "post_update_probe_ratio_mean": 0.998976691160351,
+          "post_update_probe_ratio_clip_fraction": 0.0390625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.8926670551300049,
+            "0.01": 0.9601072931289673,
+            "0.5": 0.9999692738056183,
+            "0.99": 1.0180462837219237,
+            "1.0": 1.082439661026001
+          },
+          "update": 4,
+          "policy_version": 1,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.9303447604179382,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791129112243652,
+            22.790079593658447,
+            22.792733669281006,
+            22.790889739990234,
+            22.79139518737793,
+            22.78927707672119,
+            22.78870677947998,
+            23.05991506576538
+          ],
+          "peak_gpu_gib_max": 23.05991506576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 70.61571888253093
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0005652335703416611,
+          "grpo": 2.6077032616589335e-09,
+          "reference": 0.0009297820761275943,
+          "sft": 0.0055593314245925285,
+          "old_policy_drift": 0.0,
+          "reward": 0.9180691263172776,
+          "reward_zero_fraction": 0.015625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.1875,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.001642929032930577,
+            "0.99": 0.3644434202193467,
+            "1.0": 0.4226545756015011
+          },
+          "advantage_absolute_mean": 0.6357346191489341,
+          "advantage_second_moment": 0.8117345690505028,
+          "advantage_group_mean_abs_max": 1.696753315627575e-08,
+          "advantage_nonzero_group_fraction": 0.8125,
+          "candidate_pair_ade_scene_median_m": 0.11805270973072192,
+          "candidate_pair_fde_scene_median_m": 0.12433226824041105,
+          "candidate_xy_effective_rank": 2.944757304631786,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006095409393310547,
+            "0.99": 0.8547169148921964,
+            "1.0": 0.9803392291069031
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0055593314245925285,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.984375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8149143785634468,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 0.984375,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.8377119829394031,
+          "reward_component/score": 0.9180691257965459,
+          "post_update_probe_ratio_min": 0.9641149044036865,
+          "post_update_probe_ratio_max": 1.0512367486953735,
+          "post_update_probe_ratio_mean": 0.9998720118775963,
+          "post_update_probe_ratio_clip_fraction": 0.008984375,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9641149044036865,
+            "0.01": 0.9839229208230972,
+            "0.5": 0.9999934732913971,
+            "0.99": 1.013274961709976,
+            "1.0": 1.0512367486953735
+          },
+          "update": 5,
+          "policy_version": 2,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.3518873453140259,
+          "clip_scale": 0.7397060589110361,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.791129112243652,
+            22.790079593658447,
+            22.792733669281006,
+            22.790889739990234,
+            22.79139518737793,
+            22.78927707672119,
+            22.78870677947998,
+            23.05991506576538
+          ],
+          "peak_gpu_gib_max": 23.05991506576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 70.48828850314021
+        },
+        {
+          "pre_update_ratio_min": 0.9641149044036865,
+          "pre_update_ratio_max": 1.0512367486953735,
+          "pre_update_ratio_mean": 0.9998720118775963,
+          "pre_update_ratio_clip_fraction": 0.008984375,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9641149044036865,
+            "0.01": 0.9839229208230972,
+            "0.5": 0.9999934732913971,
+            "0.99": 1.013274961709976,
+            "1.0": 1.0512367486953735
+          },
+          "loss": 0.00013021429595028167,
+          "grpo": -0.00043306816360200173,
+          "reference": 0.0018365820251347031,
+          "sft": 0.005449166226753732,
+          "old_policy_drift": 8.495072170294076e-06,
+          "reward": 0.9180691263172776,
+          "reward_zero_fraction": 0.015625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.1875,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.001642929032930577,
+            "0.99": 0.3644434202193467,
+            "1.0": 0.4226545756015011
+          },
+          "advantage_absolute_mean": 0.6357346191489341,
+          "advantage_second_moment": 0.8117345690505028,
+          "advantage_group_mean_abs_max": 1.696753315627575e-08,
+          "advantage_nonzero_group_fraction": 0.8125,
+          "candidate_pair_ade_scene_median_m": 0.11805270973072192,
+          "candidate_pair_fde_scene_median_m": 0.12433226824041105,
+          "candidate_xy_effective_rank": 2.944757304631786,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.006095409393310547,
+            "0.99": 0.8547169148921964,
+            "1.0": 0.9803392291069031
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.005449166226753732,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.984375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8149143785634468,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 0.984375,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.8377119829394031,
+          "reward_component/score": 0.9180691257965459,
+          "post_update_probe_ratio_min": 0.9352949261665344,
+          "post_update_probe_ratio_max": 1.0598068237304688,
+          "post_update_probe_ratio_mean": 0.9995656209765003,
+          "post_update_probe_ratio_clip_fraction": 0.02890625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9352949261665344,
+            "0.01": 0.9714745593070984,
+            "0.5": 0.9999822974205017,
+            "0.99": 1.021899584531784,
+            "1.0": 1.0598068237304688
+          },
+          "update": 6,
+          "policy_version": 2,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.9089100956916809,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79112958908081,
+            22.790080070495605,
+            22.792734146118164,
+            22.790890216827393,
+            22.791395664215088,
+            22.78927755355835,
+            22.78870725631714,
+            23.05991554260254
+          ],
+          "peak_gpu_gib_max": 23.05991554260254,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 70.19937074184418
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.00026381760744698113,
+          "grpo": 3.7252903539730653e-10,
+          "reference": 0.0021543946750171017,
+          "sft": 0.002422732832201291,
+          "old_policy_drift": 0.0,
+          "reward": 0.9136242154054344,
+          "reward_zero_fraction": 0.015625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0013646807963875415,
+            "0.99": 0.31966079763143834,
+            "1.0": 0.33455346752340426
+          },
+          "advantage_absolute_mean": 0.5204325911126944,
+          "advantage_second_moment": 0.6867743924636608,
+          "advantage_group_mean_abs_max": 1.3649696484208107e-08,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.12399188797159282,
+          "candidate_pair_fde_scene_median_m": 0.14227621020025552,
+          "candidate_xy_effective_rank": 2.440124194090942,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.004840672016143799,
+            "0.99": 0.9581107437610625,
+            "1.0": 0.9759286046028137
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.002422732832201291,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.984375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8718883497921751,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.8125,
+          "reward_component/pdm_score": 0.8957670714474618,
+          "reward_component/score": 0.9136242143046047,
+          "post_update_probe_ratio_min": 0.9586660861968994,
+          "post_update_probe_ratio_max": 1.025168538093567,
+          "post_update_probe_ratio_mean": 0.9998920624842867,
+          "post_update_probe_ratio_clip_fraction": 0.002734375,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9586660861968994,
+            "0.01": 0.988427083492279,
+            "0.5": 0.9999968111515045,
+            "0.99": 1.0087847781181336,
+            "1.0": 1.025168538093567
+          },
+          "update": 7,
+          "policy_version": 3,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.335471272468567,
+          "clip_scale": 0.7487987737488103,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79112958908081,
+            22.790080070495605,
+            22.792734146118164,
+            22.790890216827393,
+            22.791395664215088,
+            22.78927755355835,
+            22.78870725631714,
+            23.05991554260254
+          ],
+          "peak_gpu_gib_max": 23.05991554260254,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 70.32710172049701
+        },
+        {
+          "pre_update_ratio_min": 0.9586660861968994,
+          "pre_update_ratio_max": 1.025168538093567,
+          "pre_update_ratio_mean": 0.9998920624842867,
+          "pre_update_ratio_clip_fraction": 0.002734375,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9586660861968994,
+            "0.01": 0.988427083492279,
+            "0.5": 0.9999968111515045,
+            "0.99": 1.0087847781181336,
+            "1.0": 1.025168538093567
+          },
+          "loss": -1.776999852154404e-06,
+          "grpo": -0.00027369447252567625,
+          "reference": 0.002728568018937949,
+          "sft": 0.002446317819703836,
+          "old_policy_drift": 4.854277978973837e-06,
+          "reward": 0.9136242154054344,
+          "reward_zero_fraction": 0.015625,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.3125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0013646807963875415,
+            "0.99": 0.31966079763143834,
+            "1.0": 0.33455346752340426
+          },
+          "advantage_absolute_mean": 0.5204325911126944,
+          "advantage_second_moment": 0.6867743924636608,
+          "advantage_group_mean_abs_max": 1.3649696484208107e-08,
+          "advantage_nonzero_group_fraction": 0.6875,
+          "candidate_pair_ade_scene_median_m": 0.12399188797159282,
+          "candidate_pair_fde_scene_median_m": 0.14227621020025552,
+          "candidate_xy_effective_rank": 2.440124194090942,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.004840672016143799,
+            "0.99": 0.9581107437610625,
+            "1.0": 0.9759286046028137
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.002446317819703836,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.984375,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8718883497921751,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 1.0,
+          "reward_component/history_comfort": 0.8125,
+          "reward_component/pdm_score": 0.8957670714474618,
+          "reward_component/score": 0.9136242143046047,
+          "post_update_probe_ratio_min": 0.8167698979377747,
+          "post_update_probe_ratio_max": 1.07764732837677,
+          "post_update_probe_ratio_mean": 0.9978826032485812,
+          "post_update_probe_ratio_clip_fraction": 0.057421875,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.8167698979377747,
+            "0.01": 0.9357773512601852,
+            "0.5": 0.9998897910118103,
+            "0.99": 1.0211983335018158,
+            "1.0": 1.07764732837677
+          },
+          "update": 8,
+          "policy_version": 3,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 1.154932975769043,
+          "clip_scale": 0.8658503611291927,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79112958908081,
+            22.790080070495605,
+            22.792734146118164,
+            22.790890216827393,
+            22.791395664215088,
+            22.78927755355835,
+            22.78870725631714,
+            23.05991554260254
+          ],
+          "peak_gpu_gib_max": 23.05991554260254,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 69.99449351616204
+        }
+      ]
+    },
+    "correlated_euler": {
+      "scope": "bounded real-model observations; not production acceptance or RL-only proof",
+      "path": "runs/correlated_exploration/f_euler_correlated8",
+      "optimizer_updates": 8,
+      "fresh_scenes": 64.0,
+      "fresh_candidates": 1024.0,
+      "replay_scene_exposures": 128.0,
+      "trainable_numel": 2233120260,
+      "contract_sha256": "6fe6da3e69f9ed86b7654a97f3742d9a1d7ae045bb89bfef5b1f0bcb273f110b",
+      "execution_context": {
+        "executable_sha256": "1d2669e4d8cc83da59cb8c4c3fd2f2bdb1c9e15db691fa75321bbd777f3f3179",
+        "config_sha256": "f41be61f3cef70a5cbd5a422129209bd169d6aecd4bffaa1c0ed37f9b79b6071",
+        "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+        "resume_identity": {
+          "processor": {
+            "files": {
+              "added_custom_token_id_map.json": "0f6be79fac86913063eecf5df1d7609352f76564bbae8382b81f87ea32e9fa01",
+              "added_tokens.json": "46a9bce388ebf552817489217ef97c55a01c14d1021fc29d103f0093256980e8",
+              "chat_template.jinja": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4",
+              "config.json": "a13700a7ff995289cde777a52eaabe948b5709f02a7814c353670ae91a0efad5",
+              "generation_config.json": "7940a14042d126a31694c75bd8a020b668745a11867a394f19e9d26b5eccf2de",
+              "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+              "preprocessor_config.json": "93585062a80db5e8ca038efc7726a3e6411d9db948472d81d63c6303993be8c5",
+              "special_tokens_map.json": "814b6e59a674198d6eb0aba44ae56f76d5e59cdbf727011008c9fd7640e8bb57",
+              "tokenizer.json": "b89449efa6625da27637e990df0ebd452a6c361ae2847884a0188dd290da64ee",
+              "tokenizer_config.json": "ccbba5f846277c6983b364084822211749adaa6034502b374ec2d6c9e8ee4ad9",
+              "video_preprocessor_config.json": "59c5c9eb52182eb14c06ffb10ca9effd29adce5f238a95de23ca14a38dbd2cb1",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "sha256": "7e13bdb5ff27bd29bca3eaac59ee65ffbeb46364ae78dd436bb36db920d31d4d"
+          },
+          "numerics": {
+            "profile": "bf16_zero2_fp32_partition_v2",
+            "model_dtype": "bfloat16",
+            "probability_dtype": "float32",
+            "qwen_autocast": "bfloat16",
+            "action_history_projector_autocast": "cuda_float32_torch2.5",
+            "gradient_accumulation_dtype": "float32",
+            "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+            "communication_dtype": "float32",
+            "attention_backend": "flash_attention_2",
+            "deterministic": true,
+            "cudnn_deterministic": true,
+            "cudnn_benchmark": false,
+            "matmul_tf32": false,
+            "cudnn_tf32": false,
+            "bf16_reduced_precision_reduction": false,
+            "float32_matmul_precision": "highest",
+            "flash_deterministic": "1",
+            "cublas_workspace": ":4096:8",
+            "activation_checkpointing": true,
+            "zero_stage": 2,
+            "optimizer_offload": false,
+            "candidate_chunk": 1,
+            "transition_chunk": 1
+          },
+          "dependencies": {
+            "torch": "2.5.1+cu124",
+            "transformers": "4.57.0",
+            "accelerate": "1.5.2",
+            "deepspeed": "0.16.9",
+            "diffusers": "0.35.2",
+            "flash-attn": "2.7.4.post1",
+            "numpy": "1.26.4",
+            "scipy": "1.11.4",
+            "tokenizers": "0.22.1",
+            "pillow": "10.1.0",
+            "torchvision": "0.20.1+cu124",
+            "triton": "3.1.0",
+            "omegaconf": "2.3.0",
+            "hydra-core": "1.3.2",
+            "shapely": "2.1.2"
+          },
+          "backend_source_sha256": {
+            "torch/amp/autocast_mode.py": "f5fa06c15d3caba9c7ea1b694d883bbb25a58b25dad72a80e25af0266d12b4c6",
+            "torch/nn/utils/clip_grad.py": "a0cc48b76d4f3efb7a4266eb8e4c25a5dfad4972b609a9d56c4c3fe58afe28c9",
+            "deepspeed/runtime/engine.py": "88db49f4970ad38101946467c69abc07b67f4454d4411eea1dbc13ed9c2f460d",
+            "deepspeed/runtime/config.py": "34c94040b3c2291d6c5d26e8b89b91929c4a1d64048624249e9178bfc13dc48f",
+            "deepspeed/runtime/zero/stage_1_and_2.py": "7e03bb5b2c923b2291ed28b663b1b605aa1384f68aa23b5744951183cc42fef6",
+            "accelerate/accelerator.py": "452d351815c45382b5b105223c30829fcc02740ffa25d6641e7d8dc5f0c06555",
+            "accelerate/utils/deepspeed.py": "418217bf92f01d7c3bc01145a3eedad2df3a31bc0d01f89e26490168b180eb02"
+          },
+          "data_metric_manifest": "04a0e93c1ea44902a4f73bf6973b236442ec5c8815ce6155c186a4d98254f420",
+          "train_tokens_file": "b1278ec613611037cf5649d70368a9d8b8b6c52dd4e11d0070e07c797805b0ed",
+          "test_tokens_file": "e05968c1ded485316bc16905f6a238b25fffede3ff1a7de2f6c1538b624b532e"
+        },
+        "world_size": 8
+      },
+      "training_sha256": "9dacbe0ac8920f8b289411e9192df15fe62828a0e04a86e68a24e9fa1d5ed6e7",
+      "fixed_behavior_reuse": "PASS",
+      "immutable": [
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank0.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank1.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank2.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank3.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank4.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank5.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank6.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        },
+        {
+          "path": "runs/correlated_exploration/f_euler_correlated8/immutable_update000008_rank7.json",
+          "sha256": "6360d6f586a4928d849966a6f7e367db61b7fa4f5c7a1f4391a58039e9c3280f"
+        }
+      ],
+      "observed_dtype_rank0": {
+        "parameters": {
+          "torch.bfloat16": 988
+        },
+        "gradients": {},
+        "parameter_grad_accum": {},
+        "communication_buffers": [
+          "torch.float32"
+        ],
+        "accumulation_dtype": "torch.float32",
+        "communication_dtype": "torch.float32",
+        "partition_buffers": [],
+        "master_weights": [
+          "torch.float32",
+          "torch.float32",
+          "torch.float32"
+        ],
+        "optimizer_states": {
+          "torch.float32": 9
+        }
+      },
+      "observed_activation_dtype_rank0": {
+        "qwen_vl_interface.model.visual": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_input_model": {
+          "input": [
+            "torch.float32"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "qwen_vl_interface.model.model.language_model": {
+          "input": [],
+          "output": [
+            "torch.bfloat16"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.qwen_proj": {
+          "input": [
+            "torch.bfloat16"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.action_encoder": {
+          "input": [
+            "torch.float32",
+            "torch.int64"
+          ],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        },
+        "action_model.model": {
+          "input": [],
+          "output": [
+            "torch.float32"
+          ],
+          "parameter": [
+            "torch.bfloat16"
+          ]
+        }
+      },
+      "rows": [
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0003526229206727294,
+          "grpo": 2.4214387439602802e-09,
+          "reference": 0.0,
+          "sft": 0.0035262049532320816,
+          "old_policy_drift": 0.0,
+          "reward": 0.8674608755391091,
+          "reward_zero_fraction": 0.05859375,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.25,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.016065579012997898,
+            "0.99": 0.44737101367730164,
+            "1.0": 0.4595086441030305
+          },
+          "advantage_absolute_mean": 0.565019398167351,
+          "advantage_second_moment": 0.7498819650381051,
+          "advantage_group_mean_abs_max": 1.862645149230957e-08,
+          "advantage_nonzero_group_fraction": 0.75,
+          "candidate_pair_ade_scene_median_m": 0.3190912955302213,
+          "candidate_pair_fde_scene_median_m": 0.3129202329960458,
+          "candidate_xy_effective_rank": 2.488094492869613,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.05899426341056824,
+            "0.99": 0.9877724707126617,
+            "1.0": 1.0
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0035262049532320816,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.94140625,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8102374234304477,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 0.98046875,
+          "reward_component/history_comfort": 0.9375,
+          "reward_component/pdm_score": 0.8613224830915016,
+          "reward_component/score": 0.8674608759486445,
+          "post_update_probe_ratio_min": 0.9859521389007568,
+          "post_update_probe_ratio_max": 1.01138436794281,
+          "post_update_probe_ratio_mean": 0.9999532513786107,
+          "post_update_probe_ratio_clip_fraction": 0.0,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9859521389007568,
+            "0.01": 0.995133290886879,
+            "0.5": 1.0000030994415283,
+            "0.99": 1.0036738336086273,
+            "1.0": 1.01138436794281
+          },
+          "update": 1,
+          "policy_version": 0,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.460246741771698,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            20.71064853668213,
+            20.71111011505127,
+            20.711322784423828,
+            20.709455966949463,
+            20.712913990020752,
+            20.70834255218506,
+            20.709737300872803,
+            20.98404312133789
+          ],
+          "peak_gpu_gib_max": 20.98404312133789,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 68.13532845489681
+        },
+        {
+          "pre_update_ratio_min": 0.9859521389007568,
+          "pre_update_ratio_max": 1.01138436794281,
+          "pre_update_ratio_mean": 0.9999532513786107,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9859521389007568,
+            "0.01": 0.995133290886879,
+            "0.5": 1.0000030994415283,
+            "0.99": 1.0036738336086273,
+            "1.0": 1.01138436794281
+          },
+          "loss": 0.0002540643772590556,
+          "grpo": -9.510759218755993e-05,
+          "reference": 2.939054833461796e-05,
+          "sft": 0.0034887805704784114,
+          "old_policy_drift": 9.299882606117471e-07,
+          "reward": 0.8674608755391091,
+          "reward_zero_fraction": 0.05859375,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.25,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.016065579012997898,
+            "0.99": 0.44737101367730164,
+            "1.0": 0.4595086441030305
+          },
+          "advantage_absolute_mean": 0.565019398167351,
+          "advantage_second_moment": 0.7498819650381051,
+          "advantage_group_mean_abs_max": 1.862645149230957e-08,
+          "advantage_nonzero_group_fraction": 0.75,
+          "candidate_pair_ade_scene_median_m": 0.3190912955302213,
+          "candidate_pair_fde_scene_median_m": 0.3129202329960458,
+          "candidate_xy_effective_rank": 2.488094492869613,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.05899426341056824,
+            "0.99": 0.9877724707126617,
+            "1.0": 1.0
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0034887805704784114,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.94140625,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8102374234304477,
+          "reward_component/time_to_collision_within_bound": 1.0,
+          "reward_component/lane_keeping": 0.98046875,
+          "reward_component/history_comfort": 0.9375,
+          "reward_component/pdm_score": 0.8613224830915016,
+          "reward_component/score": 0.8674608759486445,
+          "post_update_probe_ratio_min": 0.9768056869506836,
+          "post_update_probe_ratio_max": 1.0174254179000854,
+          "post_update_probe_ratio_mean": 0.9998712621396407,
+          "post_update_probe_ratio_clip_fraction": 0.00078125,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9768056869506836,
+            "0.01": 0.9925189650058747,
+            "0.5": 0.9999957084655762,
+            "0.99": 1.0063025319576264,
+            "1.0": 1.0174254179000854
+          },
+          "update": 2,
+          "policy_version": 0,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.45955368876457214,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097843170166,
+            22.789928913116455,
+            22.792582988739014,
+            22.790739059448242,
+            22.790267944335938,
+            22.787684440612793,
+            22.78855609893799,
+            23.06382131576538
+          ],
+          "peak_gpu_gib_max": 23.06382131576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 66.9303440451622
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0004666706367970619,
+          "grpo": -1.1175871061919196e-09,
+          "reference": 4.2313286542139394e-05,
+          "sft": 0.00466248627344612,
+          "old_policy_drift": 0.0,
+          "reward": 0.900953980628401,
+          "reward_zero_fraction": 0.05859375,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.5,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0022176935675320463,
+            "0.99": 0.39642868907739764,
+            "1.0": 0.3967732733364577
+          },
+          "advantage_absolute_mean": 0.3878812918035237,
+          "advantage_second_moment": 0.499965986403255,
+          "advantage_group_mean_abs_max": 1.4901161193847656e-08,
+          "advantage_nonzero_group_fraction": 0.5,
+          "candidate_pair_ade_scene_median_m": 0.31681066193285734,
+          "candidate_pair_fde_scene_median_m": 0.3206053122065743,
+          "candidate_xy_effective_rank": 2.69973765798707,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.008081436157226562,
+            "0.99": 0.9810840040445328,
+            "1.0": 0.9921424388885498
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.00466248627344612,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.94140625,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.900402442551897,
+          "reward_component/time_to_collision_within_bound": 0.9765625,
+          "reward_component/lane_keeping": 0.96875,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.71345398106192,
+          "reward_component/score": 0.90095398106192,
+          "post_update_probe_ratio_min": 0.9896472096443176,
+          "post_update_probe_ratio_max": 1.0100466012954712,
+          "post_update_probe_ratio_mean": 1.0000114855822175,
+          "post_update_probe_ratio_clip_fraction": 0.0,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9896472096443176,
+            "0.01": 0.9959848088026046,
+            "0.5": 0.999997615814209,
+            "0.99": 1.0039154410362243,
+            "1.0": 1.0100466012954712
+          },
+          "update": 3,
+          "policy_version": 1,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.37110891938209534,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097843170166,
+            22.789928913116455,
+            22.792582988739014,
+            22.790739059448242,
+            22.790267944335938,
+            22.787684440612793,
+            22.78855609893799,
+            23.06382131576538
+          ],
+          "peak_gpu_gib_max": 23.06382131576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 68.05487188696861
+        },
+        {
+          "pre_update_ratio_min": 0.9896472096443176,
+          "pre_update_ratio_max": 1.0100466012954712,
+          "pre_update_ratio_mean": 1.0000114855822175,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9896472096443176,
+            "0.01": 0.9959848088026046,
+            "0.5": 0.999997615814209,
+            "0.99": 1.0039154410362243,
+            "1.0": 1.0100466012954712
+          },
+          "loss": 0.0004011915689261514,
+          "grpo": -6.203800398907333e-05,
+          "reference": 5.477919916074825e-05,
+          "sft": 0.004626817808457417,
+          "old_policy_drift": 8.296494687837219e-07,
+          "reward": 0.900953980628401,
+          "reward_zero_fraction": 0.05859375,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.5,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.0022176935675320463,
+            "0.99": 0.39642868907739764,
+            "1.0": 0.3967732733364577
+          },
+          "advantage_absolute_mean": 0.3878812918035237,
+          "advantage_second_moment": 0.499965986403255,
+          "advantage_group_mean_abs_max": 1.4901161193847656e-08,
+          "advantage_nonzero_group_fraction": 0.5,
+          "candidate_pair_ade_scene_median_m": 0.31681066193285734,
+          "candidate_pair_fde_scene_median_m": 0.3206053122065743,
+          "candidate_xy_effective_rank": 2.69973765798707,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.008081436157226562,
+            "0.99": 0.9810840040445328,
+            "1.0": 0.9921424388885498
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.004626817808457417,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 1.0,
+          "reward_component/drivable_area_compliance": 0.94140625,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.900402442551897,
+          "reward_component/time_to_collision_within_bound": 0.9765625,
+          "reward_component/lane_keeping": 0.96875,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.71345398106192,
+          "reward_component/score": 0.90095398106192,
+          "post_update_probe_ratio_min": 0.9811264276504517,
+          "post_update_probe_ratio_max": 1.0196216106414795,
+          "post_update_probe_ratio_mean": 0.9999641420319676,
+          "post_update_probe_ratio_clip_fraction": 0.0,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9811264276504517,
+            "0.01": 0.9925316768884659,
+            "0.5": 1.0000112056732178,
+            "0.99": 1.0064184868335724,
+            "1.0": 1.0196216106414795
+          },
+          "update": 4,
+          "policy_version": 1,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.3734312951564789,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097843170166,
+            22.789928913116455,
+            22.792582988739014,
+            22.790739059448242,
+            22.790267944335938,
+            22.787684440612793,
+            22.78855609893799,
+            23.06382131576538
+          ],
+          "peak_gpu_gib_max": 23.06382131576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.13438556529582
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0005563936574617401,
+          "grpo": 7.0780516447932484e-09,
+          "reference": 0.0001166222045867471,
+          "sft": 0.005552203343540896,
+          "old_policy_drift": 0.0,
+          "reward": 0.8458597279386595,
+          "reward_zero_fraction": 0.078125,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.0625,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0004431479546223804,
+            "0.5": 0.07142318665884007,
+            "0.99": 0.469995965816807,
+            "1.0": 0.4841098826997369
+          },
+          "advantage_absolute_mean": 0.6773611305288796,
+          "advantage_second_moment": 0.9373909842678095,
+          "advantage_group_mean_abs_max": 2.2351741790771484e-08,
+          "advantage_nonzero_group_fraction": 0.9375,
+          "candidate_pair_ade_scene_median_m": 0.3110772955746324,
+          "candidate_pair_fde_scene_median_m": 0.31460102789733907,
+          "candidate_xy_effective_rank": 2.618049368467473,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0016458481550216675,
+            "0.5": 0.26597408950328827,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.005552203343540896,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 0.990234375,
+          "reward_component/drivable_area_compliance": 0.921875,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.813172872785551,
+          "reward_component/time_to_collision_within_bound": 0.99609375,
+          "reward_component/lane_keeping": 0.9453125,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.7677347278900335,
+          "reward_component/score": 0.8458597278900335,
+          "post_update_probe_ratio_min": 0.979640781879425,
+          "post_update_probe_ratio_max": 1.0103464126586914,
+          "post_update_probe_ratio_mean": 0.9999645359115675,
+          "post_update_probe_ratio_clip_fraction": 0.000390625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.979640781879425,
+            "0.01": 0.9944581133127213,
+            "0.5": 1.0000048875808716,
+            "0.99": 1.0049657642841339,
+            "1.0": 1.0103464126586914
+          },
+          "update": 5,
+          "policy_version": 2,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.4544817805290222,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097843170166,
+            22.789928913116455,
+            22.792582988739014,
+            22.790739059448242,
+            22.790267944335938,
+            22.787684440612793,
+            22.78855609893799,
+            23.06382131576538
+          ],
+          "peak_gpu_gib_max": 23.06382131576538,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.2427779044956
+        },
+        {
+          "pre_update_ratio_min": 0.979640781879425,
+          "pre_update_ratio_max": 1.0103464126586914,
+          "pre_update_ratio_mean": 0.9999645359115675,
+          "pre_update_ratio_clip_fraction": 0.000390625,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.979640781879425,
+            "0.01": 0.9944581133127213,
+            "0.5": 1.0000048875808716,
+            "0.99": 1.0049657642841339,
+            "1.0": 1.0103464126586914
+          },
+          "loss": 0.00037078387549627223,
+          "grpo": -0.00017915666094125982,
+          "reference": 0.0002510896392777795,
+          "sft": 0.005474296431202674,
+          "old_policy_drift": 1.6831055596244759e-06,
+          "reward": 0.8458597279386595,
+          "reward_zero_fraction": 0.078125,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.0625,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0004431479546223804,
+            "0.5": 0.07142318665884007,
+            "0.99": 0.469995965816807,
+            "1.0": 0.4841098826997369
+          },
+          "advantage_absolute_mean": 0.6773611305288796,
+          "advantage_second_moment": 0.9373909842678095,
+          "advantage_group_mean_abs_max": 2.2351741790771484e-08,
+          "advantage_nonzero_group_fraction": 0.9375,
+          "candidate_pair_ade_scene_median_m": 0.3110772955746324,
+          "candidate_pair_fde_scene_median_m": 0.31460102789733907,
+          "candidate_xy_effective_rank": 2.618049368467473,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0016458481550216675,
+            "0.5": 0.26597408950328827,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.005474296431202674,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 0.990234375,
+          "reward_component/drivable_area_compliance": 0.921875,
+          "reward_component/driving_direction_compliance": 1.0,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.813172872785551,
+          "reward_component/time_to_collision_within_bound": 0.99609375,
+          "reward_component/lane_keeping": 0.9453125,
+          "reward_component/history_comfort": 1.0,
+          "reward_component/pdm_score": 0.7677347278900335,
+          "reward_component/score": 0.8458597278900335,
+          "post_update_probe_ratio_min": 0.9783201813697815,
+          "post_update_probe_ratio_max": 1.0173019170761108,
+          "post_update_probe_ratio_mean": 0.9999597329180687,
+          "post_update_probe_ratio_clip_fraction": 0.000390625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9783201813697815,
+            "0.01": 0.9915303486585617,
+            "0.5": 1.0000394582748413,
+            "0.99": 1.0075756454467772,
+            "1.0": 1.0173019170761108
+          },
+          "update": 6,
+          "policy_version": 2,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.43779104948043823,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097890853882,
+            22.789929389953613,
+            22.792583465576172,
+            22.7907395362854,
+            22.790268421173096,
+            22.78768491744995,
+            22.788556575775146,
+            23.06382179260254
+          ],
+          "peak_gpu_gib_max": 23.06382179260254,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.77603659033775
+        },
+        {
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "pre_update_ratio_mean": 1.0,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 1.0,
+            "0.01": 1.0,
+            "0.5": 1.0,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "loss": 0.0002418610511085717,
+          "grpo": 2.048909764074125e-09,
+          "reference": 0.0003329346009195433,
+          "sft": 0.0023852965532569215,
+          "old_policy_drift": 0.0,
+          "reward": 0.8460175845539197,
+          "reward_zero_fraction": 0.07421875,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.030269599521289433,
+            "0.99": 0.44767524072659903,
+            "1.0": 0.4502627475797249
+          },
+          "advantage_absolute_mean": 0.7015016112673038,
+          "advantage_second_moment": 0.8748135733307059,
+          "advantage_group_mean_abs_max": 1.30385160446167e-08,
+          "advantage_nonzero_group_fraction": 0.875,
+          "candidate_pair_ade_scene_median_m": 0.31490049769576745,
+          "candidate_pair_fde_scene_median_m": 0.3291068843546742,
+          "candidate_xy_effective_rank": 2.3653030894183273,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.10127758979797363,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0023852965532569215,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 0.99609375,
+          "reward_component/drivable_area_compliance": 0.9453125,
+          "reward_component/driving_direction_compliance": 0.978515625,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8696078617883871,
+          "reward_component/time_to_collision_within_bound": 0.98828125,
+          "reward_component/lane_keeping": 0.96484375,
+          "reward_component/history_comfort": 0.81640625,
+          "reward_component/pdm_score": 0.8292765115707886,
+          "reward_component/score": 0.84601758299936,
+          "post_update_probe_ratio_min": 0.9862292408943176,
+          "post_update_probe_ratio_max": 1.0114854574203491,
+          "post_update_probe_ratio_mean": 0.999978072848171,
+          "post_update_probe_ratio_clip_fraction": 0.0,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.9862292408943176,
+            "0.01": 0.9953355294466019,
+            "0.5": 1.00001060962677,
+            "0.99": 1.0038090658187866,
+            "1.0": 1.0114854574203491
+          },
+          "update": 7,
+          "policy_version": 3,
+          "inner_epoch": 0,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.7043033838272095,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097890853882,
+            22.789929389953613,
+            22.792583465576172,
+            22.7907395362854,
+            22.790268421173096,
+            22.78768491744995,
+            22.788556575775146,
+            23.06382179260254
+          ],
+          "peak_gpu_gib_max": 23.06382179260254,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.37562022730708
+        },
+        {
+          "pre_update_ratio_min": 0.9862292408943176,
+          "pre_update_ratio_max": 1.0114854574203491,
+          "pre_update_ratio_mean": 0.999978072848171,
+          "pre_update_ratio_clip_fraction": 0.0,
+          "pre_update_ratio_count": 2560.0,
+          "pre_update_ratio_quantiles": {
+            "0.0": 0.9862292408943176,
+            "0.01": 0.9953355294466019,
+            "0.5": 1.00001060962677,
+            "0.99": 1.0038090658187866,
+            "1.0": 1.0114854574203491
+          },
+          "loss": 7.89687885571766e-05,
+          "grpo": -0.00015986710900506296,
+          "reference": 0.0004177694754616823,
+          "sft": 0.0023465820086130407,
+          "old_policy_drift": 9.309988549810466e-07,
+          "reward": 0.8460175845539197,
+          "reward_zero_fraction": 0.07421875,
+          "all_zero_groups": 0.0,
+          "all_equal_groups": 0.125,
+          "scene_count": 16.0,
+          "reward_group_std_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.030269599521289433,
+            "0.99": 0.44767524072659903,
+            "1.0": 0.4502627475797249
+          },
+          "advantage_absolute_mean": 0.7015016112673038,
+          "advantage_second_moment": 0.8748135733307059,
+          "advantage_group_mean_abs_max": 1.30385160446167e-08,
+          "advantage_nonzero_group_fraction": 0.875,
+          "candidate_pair_ade_scene_median_m": 0.31490049769576745,
+          "candidate_pair_fde_scene_median_m": 0.3291068843546742,
+          "candidate_xy_effective_rank": 2.3653030894183273,
+          "reward_group_span_quantiles": {
+            "0.0": 0.0,
+            "0.01": 0.0,
+            "0.5": 0.10127758979797363,
+            "0.99": 1.0,
+            "1.0": 1.0
+          },
+          "candidate_count": 256.0,
+          "replay_scene_count": 16.0,
+          "sft_component/action_loss": 0.0023465820086130407,
+          "sft_component/rgb_loss": 0.0,
+          "sft_component/gs_loss": 0.0,
+          "sft_component/reward_loss": 0.0,
+          "reward_component/no_at_fault_collisions": 0.99609375,
+          "reward_component/drivable_area_compliance": 0.9453125,
+          "reward_component/driving_direction_compliance": 0.978515625,
+          "reward_component/traffic_light_compliance": 1.0,
+          "reward_component/ego_progress": 0.8696078617883871,
+          "reward_component/time_to_collision_within_bound": 0.98828125,
+          "reward_component/lane_keeping": 0.96484375,
+          "reward_component/history_comfort": 0.81640625,
+          "reward_component/pdm_score": 0.8292765115707886,
+          "reward_component/score": 0.84601758299936,
+          "post_update_probe_ratio_min": 0.979531466960907,
+          "post_update_probe_ratio_max": 1.0194587707519531,
+          "post_update_probe_ratio_mean": 0.9999283511657268,
+          "post_update_probe_ratio_clip_fraction": 0.000390625,
+          "post_update_probe_ratio_count": 2560.0,
+          "post_update_probe_ratio_quantiles": {
+            "0.0": 0.979531466960907,
+            "0.01": 0.9915669524669647,
+            "0.5": 0.9999809563159943,
+            "0.99": 1.0071984219551087,
+            "1.0": 1.0194587707519531
+          },
+          "update": 8,
+          "policy_version": 3,
+          "inner_epoch": 1,
+          "loss_coefficients": {
+            "grpo": 1.0,
+            "reference": 0.01,
+            "sft": 0.1
+          },
+          "lr": [
+            1.0000000000000002e-06,
+            1.0000000000000002e-06,
+            1.0000000000000002e-06
+          ],
+          "pre_clip_grad_norm": 0.7045257091522217,
+          "clip_scale": 1.0,
+          "post_clip_grad_norm": null,
+          "grad_norm_status": "pre: backend global norm; scale: backend formula; post: unavailable",
+          "peak_gpu_gib_by_rank": [
+            22.79097890853882,
+            22.789929389953613,
+            22.792583465576172,
+            22.7907395362854,
+            22.790268421173096,
+            22.78768491744995,
+            22.788556575775146,
+            23.06382179260254
+          ],
+          "peak_gpu_gib_max": 23.06382179260254,
+          "reward_errors": 0,
+          "gradient_tensors_per_rank": [
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672,
+            672
+          ],
+          "max_update_seconds": 67.7114071752876
+        }
+      ]
+    }
+  }
+}

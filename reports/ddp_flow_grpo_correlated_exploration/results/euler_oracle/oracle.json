@@ -1,0 +1,120 @@
+{
+  "scope": "real F-SFT CUDA oracle; no optimizer update",
+  "tests": {
+    "source_ode_sft_cuda": {
+      "status": "PASS",
+      "result": {
+        "ode_max_abs": 0.0,
+        "sft_old": {
+          "action_loss": 0.007333132438361645,
+          "rgb_loss": 0.0,
+          "gs_loss": 0.0,
+          "reward_loss": 0.0
+        },
+        "sft_new": {
+          "action_loss": 0.007333132438361645,
+          "rgb_loss": 0.0,
+          "gs_loss": 0.0,
+          "reward_loss": 0.0
+        }
+      }
+    },
+    "rho0.0_noise0.1": {
+      "status": "PASS",
+      "result": {
+        "logratio_max_abs": 0.0,
+        "kl_max_abs": 0.0,
+        "independent_fp64_probability": {
+          "network": "real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
+          "math": "production FP32 vs independent FP64 torch Normal/AR(1) conditionals; ratio gradient w.r.t. velocity",
+          "atol": 2e-05,
+          "rtol": 0.0001,
+          "maximum_absolute_difference": {
+            "mean": 1.1660524990020349e-07,
+            "std": 2.96504459179614e-09,
+            "logprob": 4.113267895622386e-06,
+            "ratio": 3.4251188907319374e-07,
+            "velocity_gradient": 3.651888347971921e-07
+          }
+        }
+      }
+    },
+    "rho0.0_noise0.2": {
+      "status": "PASS",
+      "result": {
+        "logratio_max_abs": 0.0,
+        "kl_max_abs": 0.0,
+        "independent_fp64_probability": {
+          "network": "real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
+          "math": "production FP32 vs independent FP64 torch Normal/AR(1) conditionals; ratio gradient w.r.t. velocity",
+          "atol": 2e-05,
+          "rtol": 0.0001,
+          "maximum_absolute_difference": {
+            "mean": 1.0816567286298095e-07,
+            "std": 5.93008918359228e-09,
+            "logprob": 1.8802709580434396e-06,
+            "ratio": 2.0729498872995578e-07,
+            "velocity_gradient": 8.754710551645006e-08
+          }
+        }
+      }
+    },
+    "rho0.8_noise0.1": {
+      "status": "PASS",
+      "result": {
+        "logratio_max_abs": 0.0,
+        "kl_max_abs": 0.0,
+        "independent_fp64_probability": {
+          "network": "real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
+          "math": "production FP32 vs independent FP64 torch Normal/AR(1) conditionals; ratio gradient w.r.t. velocity",
+          "atol": 2e-05,
+          "rtol": 0.0001,
+          "maximum_absolute_difference": {
+            "mean": 1.1795175502982147e-07,
+            "std": 2.96504459179614e-09,
+            "logprob": 1.014121752085373e-05,
+            "ratio": 8.299408937872954e-07,
+            "velocity_gradient": 1.795833165479932e-06
+          }
+        }
+      }
+    },
+    "rho0.8_noise0.2": {
+      "status": "PASS",
+      "result": {
+        "logratio_max_abs": 0.0,
+        "kl_max_abs": 0.0,
+        "independent_fp64_probability": {
+          "network": "real checkpoint BF16 Qwen/DiT weights; original action-head autocast convention",
+          "math": "production FP32 vs independent FP64 torch Normal/AR(1) conditionals; ratio gradient w.r.t. velocity",
+          "atol": 2e-05,
+          "rtol": 0.0001,
+          "maximum_absolute_difference": {
+            "mean": 1.2253141079554553e-07,
+            "std": 5.93008918359228e-09,
+            "logprob": 4.458257773620744e-06,
+            "ratio": 4.5773031986939827e-07,
+            "velocity_gradient": 4.893578748055294e-07
+          }
+        }
+      }
+    }
+  },
+  "token": "cf6df734e86157fa",
+  "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+  "views": [
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ],
+    [
+      1024,
+      576
+    ]
+  ],
+  "status": "PASS"
+}
