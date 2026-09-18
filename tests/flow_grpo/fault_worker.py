@@ -89,6 +89,23 @@ def main():
                     raise ValueError("injected rank1 official scoring error")
 
             synchronized_call(scoring, "cpu")
+        elif case == "reward_overlap":
+            from concurrent.futures import ThreadPoolExecutor
+            from starVLA.rl.flow_grpo.overlap import score_with_reference
+
+            def scoring():
+                if rank == 1:
+                    raise ValueError("injected rank1 asynchronous official scoring error")
+                return []
+
+            def reference():
+                value = torch.tensor(float(rank))
+                dist.all_reduce(value)
+                assert value.item() == 1.
+                return value
+
+            with ThreadPoolExecutor(1) as executor:
+                score_with_reference(scoring, reference, "cpu", executor)
         elif case == "rank_exit":
             if rank == 1:
                 (out / "rank1.json").write_text(

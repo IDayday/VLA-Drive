@@ -199,6 +199,9 @@ class RewardService:
         cache_dir=None,
         threads=1,
     ):
+        from threading import Lock
+        self._close_lock = Lock()
+        self._closed = False
         if split not in ("train", "validation"):
             raise ValueError(
                 "RL reward accepts only train/validation; navtest is forbidden"
@@ -232,6 +235,10 @@ class RewardService:
         self.calls = 0
 
     def score(self, tokens, trajectories):
+        with self._close_lock:
+            if self._closed:
+                raise RuntimeError("reward service is closed")
+            pool = self.pool
         trajectories = np.asarray(trajectories)
         if any(t not in self.allowed for t in tokens):
             raise ValueError("scene outside declared reward split")
@@ -257,8 +264,12 @@ class RewardService:
                 cached[i] = [
                     ScoreResult(**x) for x in json.loads(path.read_text())["results"]
                 ]
-            elif self.pool:
-                futures[i] = self.pool.submit(worker_score, (token, group))
+            elif pool:
+                # Prevent spawning new children after fatal cleanup takes ownership.
+                with self._close_lock:
+                    if self._closed:
+                        raise RuntimeError("reward service closed during submission")
+                    futures[i] = pool.submit(worker_score, (token, group))
         results = []
         try:
             deadline = time.monotonic() + self.timeout
@@ -269,7 +280,7 @@ class RewardService:
                         futures[i].result(
                             timeout=max(0.01, deadline - time.monotonic())
                         )
-                        if self.pool
+                        if pool
                         else [
                             self.serial.score(token, x, j) for j, x in enumerate(group)
                         ]
@@ -295,10 +306,13 @@ class RewardService:
             raise
 
     def close(self, abort=False):
-        if self.pool:
+        with self._close_lock:
+            self._closed = True
+            pool, self.pool = self.pool, None
+        if pool:
             if abort:
                 # Only our own bounded scoring children; never external jobs.
-                processes = list((self.pool._processes or {}).values())
+                processes = list((pool._processes or {}).values())
                 for process in processes:
                     process.terminate()
                 deadline = time.monotonic() + 2
@@ -306,5 +320,4 @@ class RewardService:
                     process.join(timeout=max(0, deadline - time.monotonic()))
                     if process.is_alive():
                         process.kill()
-            self.pool.shutdown(wait=not abort, cancel_futures=True)
-            self.pool = None
+            pool.shutdown(wait=not abort, cancel_futures=True)

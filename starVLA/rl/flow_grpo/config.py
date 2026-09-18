@@ -13,6 +13,11 @@ def resolve_config(
         OmegaConf.merge(OmegaConf.load(path), OmegaConf.from_dotlist(overrides or [])),
         resolve=True,
     )
+    overlap = cfg["runtime"].get("overlap_reward_reference", False)
+    if not isinstance(overlap, bool):
+        raise ValueError("overlap_reward_reference must be boolean")
+    if overlap and cfg["runtime"].get("run_mode", "diagnostic") != "diagnostic":
+        raise ValueError("reward/reference overlap is experimental: bounded diagnostics only")
     if sft_checkpoint:
         cfg["sft_checkpoint"] = str(Path(sft_checkpoint).resolve())
     if max_updates is not None:

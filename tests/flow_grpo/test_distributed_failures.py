@@ -14,6 +14,7 @@ import pytest
         "checkpoint_mkdir",
         "rank0_write",
         "reward_failure",
+        "reward_overlap",
         "rank_exit",
     ],
 )

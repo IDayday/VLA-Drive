@@ -57,21 +57,24 @@ def compare_tree(a, b):
     return result
 
 
-def compare(left, right):
+def compare(left, right, difference='activation_checkpointing'):
     cfg = [json.loads((p/'rl_config.json').read_text()) for p in (left, right)]
-    if [c['runtime']['activation_checkpointing'] for c in cfg] != [True, False]:
-        raise ValueError('requires checkpointing on versus off in this order')
-    cfg[1]['runtime']['activation_checkpointing'] = True
+    expected = {'activation_checkpointing': [True, False], 'overlap_reward_reference': [False, True]}
+    if difference not in expected or [c['runtime'].get(difference, False) for c in cfg] != expected[difference]:
+        raise ValueError('incorrect declared runtime comparison')
+    cfg[1]['runtime'][difference] = cfg[0]['runtime'][difference]
     if config_hash(cfg[0]) != config_hash(cfg[1]):
-        raise ValueError('configuration differs beyond checkpointing and allowed output/budget settings')
-    bank = initial_bank_equal(left, right, 8)
+        raise ValueError('configuration differs beyond declared runtime flag and allowed output/budget settings')
+    world = len(json.loads((left/'training.jsonl').read_text().splitlines()[0])['ranks'])
+    bank = initial_bank_equal(left, right, world)
     bank.pop('advantages_excluded')
-    for rank in range(8):
+    for rank in range(world):
         a,b=[torch.load(p/f'rollout_rank{rank}_v0.pt',map_location='cpu',weights_only=False) for p in (left,right)]
         if any(not torch.equal(x.advantages,y.advantages) for x,y in zip(a,b)):
             raise ValueError('initial advantages differ')
     bank['advantages_equal'] = True
-    report = {'status':'PASS', 'scope':'checkpointing-only, two native BF16/ZeRO2 updates, zero tolerance; not chunk acceptance',
+    report = {'status':'PASS', 'scope':difference+' only, two native BF16/ZeRO2 updates, zero tolerance; not chunk acceptance',
+              'world_size': world,
               'initial_bank':bank, 'gradients':{}, 'boundaries':{}, 'runs':{}}
     for update in (1,2):
         folders=[p/f'optimizer_gradients/update_{update:06d}/rank_0' for p in (left,right)]
@@ -81,12 +84,12 @@ def compare(left, right):
         rows={}
         for name in entries[0]:
             a,b=[torch.load(p/e[name]['file'],map_location='cpu',weights_only=True) for p,e in zip(folders,entries)]
-            rows[name]=tensor_stats(a,b)
+            rows[name]=compare_tree({'gradient':a},{'gradient':b})['gradient']
         report['gradients'][str(update)]=rows
         boundaries=[p/f'checkpoints/update_{update:06d}' for p in (left,right)]
         if not all((p/'COMPLETE').is_file() for p in boundaries):raise ValueError('incomplete boundary')
         files=[{str(x.relative_to(p)) for x in p.glob('*/*.pt')} for p in boundaries]
-        if files[0]!=files[1] or len(files[0])!=9:raise ValueError('model/optimizer inventory mismatch')
+        if files[0]!=files[1] or len(files[0])!=world+1:raise ValueError('model/optimizer inventory mismatch')
         states={}
         for name in sorted(files[0]):
             a,b=[torch.load(p/name,map_location='cpu',weights_only=False,mmap=True) for p in boundaries]
@@ -95,7 +98,7 @@ def compare(left, right):
         report['boundaries'][str(update)]=states
         if not all(v['equal'] for v in rows.values()) or not all(v['equal'] for f in states.values() for v in f.values()):
             report['status']='FAIL'
-    for label,path in [('on',left),('off',right)]:
+    for label,path in [('baseline',left),('candidate',right)]:
         run=summarize(path)
         timings=[]
         for row in run['rows']:
@@ -113,10 +116,11 @@ def main():
     parser=argparse.ArgumentParser(__doc__)
     parser.add_argument('--on',required=True);parser.add_argument('--off',required=True)
     parser.add_argument('--output',required=True)
+    parser.add_argument('--difference',choices=['activation_checkpointing','overlap_reward_reference'],default='activation_checkpointing')
     args=parser.parse_args();torch.set_num_threads(4)
     out=Path(args.output)
     if out.exists():raise FileExistsError(out)
-    result=compare(Path(args.on),Path(args.off));result['observer_sha256']=file_sha(__file__)
+    result=compare(Path(args.on),Path(args.off),args.difference);result['observer_sha256']=file_sha(__file__)
     out.write_text(json.dumps(result,indent=2,allow_nan=False))
     print(json.dumps({'status':result['status'],'runs':result['runs']}))
     if result['status']!='PASS':raise SystemExit(1)

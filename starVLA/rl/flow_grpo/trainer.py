@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 import torch
 from accelerate import Accelerator, DeepSpeedPlugin
@@ -365,6 +366,10 @@ def _run(cfg, sft, resume=None):
             raise RuntimeError("reference/frozen parameters changed during training")
 
     failed = True
+    score_executor = (
+        ThreadPoolExecutor(max_workers=1, thread_name_prefix="official-reward")
+        if runtime.get("overlap_reward_reference", False) else None
+    )
     try:
         while update < maximum:
             t0 = time.monotonic()
@@ -417,33 +422,36 @@ def _run(cfg, sft, resume=None):
                         act_norm=int(sft.datasets.vla_data.act_norm),
                     )
                     rollout.physical_trajectories = physical
-                    phase_start = time.monotonic()
-                    records = synchronized_call(
+                    from .overlap import score_with_reference
+
+                    def reference_statistics():
+                        if runtime["reference_offload"]:
+                            reference.to(accelerator.device)
+                        with torch.no_grad(), accelerator.autocast():
+                            statistics = synchronized_call(
+                                lambda: evaluate_transitions(reference, observation, rollout),
+                                accelerator.device,
+                            )
+                        if runtime["reference_offload"]:
+                            reference.to("cpu")
+                        return statistics
+
+                    records, stats, score_phases = score_with_reference(
                         lambda: service.score(observation.tokens, physical),
+                        reference_statistics,
                         accelerator.device,
+                        executor=score_executor,
                     )
-                    behavior_phases["official_reward"] = behavior_phases.get("official_reward", 0.) + time.monotonic() - phase_start
+                    for name, elapsed in score_phases.items():
+                        behavior_phases[name] = behavior_phases.get(name, 0.) + elapsed
                     rollout.score_records = records
                     rewards = torch.tensor(
                         [[r.score for r in row] for row in records],
                         device=accelerator.device,
                     )
                     rollout.rewards = rewards
-                    phase_start = time.monotonic()
-                    if runtime["reference_offload"]:
-                        reference.to(accelerator.device)
-                    with torch.no_grad(), accelerator.autocast():
-                        stats = synchronized_call(
-                            lambda: evaluate_transitions(
-                                reference, observation, rollout
-                            ),
-                            accelerator.device,
-                        )
                     rollout.reference_mean = stats["mean"].detach()
                     rollout.reference_std = stats["std"].detach()
-                    if runtime["reference_offload"]:
-                        reference.to("cpu")
-                    behavior_phases["reference"] = behavior_phases.get("reference", 0.) + time.monotonic() - phase_start
                     buffers.append(rollout)
                 assign_behavior_advantages(buffers, cfg["algorithm"], accelerator.device)
             rollout_seconds = time.monotonic() - t0
@@ -698,6 +706,8 @@ def _run(cfg, sft, resume=None):
         raise
     finally:
         service.close(abort=failed)
+        if score_executor is not None:
+            score_executor.shutdown(wait=True, cancel_futures=True)
         monitor.close()
         activation_dtypes.close()
         if communication_monitor is not None:
