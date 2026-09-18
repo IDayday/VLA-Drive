@@ -291,6 +291,9 @@ def enforce_training_budget(cfg, context=None, *, record=None):
     from .credit import validate_discount
     discount = cfg.get("algorithm", {}).get("denoising_discount", 1.0)
     validate_discount(discount)
+    if mode == "bounded_research":
+        from .research_budget import enforce_research
+        return enforce_research(cfg, context)
     if discount != 1.0 and mode != "diagnostic":
         raise ValueError("denoising credit is experimental and restricted to bounded diagnostics")
     if (cfg["sampling"].get("temporal_noise_correlation", 0.0)
