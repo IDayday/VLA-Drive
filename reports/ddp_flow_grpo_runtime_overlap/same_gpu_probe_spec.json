@@ -1,0 +1,43 @@
+{
+  "job_id": "reward_overlap_same_gpu",
+  "nodes": [
+    {
+      "host": "training-rl-zt4",
+      "devices": [
+        4
+      ],
+      "cpu_affinity": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.reward_overlap_probe",
+    "--config",
+    "configs/flow_grpo/frozen_research_g16_flow_credit.yaml",
+    "--bank",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/denoising_credit/checkpoint_on_attempt2",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-perf/runs/reward_overlap/same_gpu_probe"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-perf/runs/reward_overlap/same_gpu_probe_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 600
+}

@@ -86,14 +86,18 @@ def compare(left, right, difference='activation_checkpointing'):
             a,b=[torch.load(p/e[name]['file'],map_location='cpu',weights_only=True) for p,e in zip(folders,entries)]
             rows[name]=compare_tree({'gradient':a},{'gradient':b})['/gradient']
         report['gradients'][str(update)]=rows
+        print('compared gradients',update,len(rows),flush=True)
         boundaries=[p/f'checkpoints/update_{update:06d}' for p in (left,right)]
         if not all((p/'COMPLETE').is_file() for p in boundaries):raise ValueError('incomplete boundary')
         files=[{str(x.relative_to(p)) for x in p.glob('*/*.pt')} for p in boundaries]
         if files[0]!=files[1] or len(files[0])!=world+1:raise ValueError('model/optimizer inventory mismatch')
         states={}
         for name in sorted(files[0]):
-            a,b=[torch.load(p/name,map_location='cpu',weights_only=False,mmap=True) for p in boundaries]
+            # Sequential reads avoid tiny mmap page faults on the shared Lustre
+            # filesystem. Only one pair of shards is resident at a time.
+            a,b=[torch.load(p/name,map_location='cpu',weights_only=False,mmap=False) for p in boundaries]
             states[name]=compare_tree(a,b)
+            print('compared boundary',update,name,flush=True)
             del a,b
         report['boundaries'][str(update)]=states
         if not all(v['equal'] for v in rows.values()) or not all(v['equal'] for f in states.values() for v in f.values()):

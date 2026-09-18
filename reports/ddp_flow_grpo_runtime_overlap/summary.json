@@ -1,0 +1,154 @@
+{
+  "status": "PASS",
+  "world_size": 4,
+  "scope": "overlap_reward_reference only, two native BF16/ZeRO2 updates, zero tolerance; not chunk acceptance",
+  "gradient_tensor_equality": {
+    "1": {
+      "compared": 672,
+      "unequal": 0
+    },
+    "2": {
+      "compared": 672,
+      "unequal": 0
+    }
+  },
+  "initial_bank": {
+    "status": "PASS",
+    "scope": "first behavior batch, before policy updates",
+    "compared_microbatches": 16,
+    "fields": [
+      "group_ids",
+      "chain",
+      "old_elementwise_logprob",
+      "old_logprob",
+      "rewards",
+      "times",
+      "reference_mean",
+      "reference_std",
+      "dimension_mask",
+      "transition_mask",
+      "noise_seed",
+      "candidate_ids"
+    ],
+    "advantages_equal": true
+  },
+  "runs": {
+    "baseline": {
+      "path": "runs/reward_overlap/serial",
+      "fixed_behavior_reuse": "PASS",
+      "trainable_numel": 2233120260,
+      "immutable": [
+        {
+          "path": "runs/reward_overlap/serial/immutable_update000002_rank0.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        },
+        {
+          "path": "runs/reward_overlap/serial/immutable_update000002_rank1.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        },
+        {
+          "path": "runs/reward_overlap/serial/immutable_update000002_rank2.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        },
+        {
+          "path": "runs/reward_overlap/serial/immutable_update000002_rank3.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        }
+      ],
+      "timings": [
+        {
+          "update": 1,
+          "update_seconds": 146.0330053307116,
+          "observer_nested_seconds": 11.389970423653722,
+          "phases_max": {
+            "actor_forward": 34.85879900120199,
+            "actor_rollout": 24.477317484095693,
+            "backward_optimizer": 87.18731097877026,
+            "data_fetch": 1.0846479777246714,
+            "official_reward": 12.601762298494577,
+            "optimizer_gradient_observer_nested": 11.389970423653722,
+            "post_update_probe": 24.255406128242612,
+            "reference": 23.70770257525146,
+            "scene_metrics": 0.09186973236501217,
+            "score_reference_total": 36.30949229001999
+          },
+          "peak_gpu_gib": 23.581541538238525
+        },
+        {
+          "update": 2,
+          "update_seconds": 146.6485752761364,
+          "observer_nested_seconds": 11.545975636690855,
+          "phases_max": {
+            "actor_forward": 35.265853663906455,
+            "backward_optimizer": 87.19780134782195,
+            "optimizer_gradient_observer_nested": 11.545975636690855,
+            "post_update_probe": 24.499993417412043,
+            "scene_metrics": 0.09648412466049194
+          },
+          "peak_gpu_gib": 27.743542194366455
+        }
+      ],
+      "training_sha256": "0a3ff5481a00c75dd94421ed7d40f7b88e90e158b6e2b70a77129c11799c3191"
+    },
+    "candidate": {
+      "path": "runs/reward_overlap/overlap",
+      "fixed_behavior_reuse": "PASS",
+      "trainable_numel": 2233120260,
+      "immutable": [
+        {
+          "path": "runs/reward_overlap/overlap/immutable_update000002_rank0.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        },
+        {
+          "path": "runs/reward_overlap/overlap/immutable_update000002_rank1.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        },
+        {
+          "path": "runs/reward_overlap/overlap/immutable_update000002_rank2.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        },
+        {
+          "path": "runs/reward_overlap/overlap/immutable_update000002_rank3.json",
+          "sha256": "6fce033cd113744ab375395221a3f12cccdc33188ff15590596130febb96419f"
+        }
+      ],
+      "timings": [
+        {
+          "update": 1,
+          "update_seconds": 147.02629210427403,
+          "observer_nested_seconds": 10.64588463678956,
+          "phases_max": {
+            "actor_forward": 35.881631940603256,
+            "actor_rollout": 24.4903505127877,
+            "backward_optimizer": 87.91839679144323,
+            "data_fetch": 1.0969973970204592,
+            "official_reward_nested": 11.116598635911942,
+            "official_reward_remaining_wait": 0.9406017605215311,
+            "optimizer_gradient_observer_nested": 10.64588463678956,
+            "post_update_probe": 24.610126258805394,
+            "reference": 25.308690778911114,
+            "scene_metrics": 0.08623484894633293,
+            "score_reference_total": 26.24976260587573
+          },
+          "peak_gpu_gib": 23.577635288238525
+        },
+        {
+          "update": 2,
+          "update_seconds": 146.8908282313496,
+          "observer_nested_seconds": 10.99436111934483,
+          "phases_max": {
+            "actor_forward": 35.426581928506494,
+            "backward_optimizer": 87.88975617289543,
+            "optimizer_gradient_observer_nested": 10.99436111934483,
+            "post_update_probe": 24.541057866066694,
+            "scene_metrics": 0.09902293980121613
+          },
+          "peak_gpu_gib": 27.73473024368286
+        }
+      ],
+      "training_sha256": "24c15f087852b592c297c9a07bf8bcfd4277695b5b9e778904bf463ac9c24cf4"
+    }
+  },
+  "exact_resume": "PASS",
+  "production_release": "NOT_READY; this new scheduler is diagnostic-only"
+}
