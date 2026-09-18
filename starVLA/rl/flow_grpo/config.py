@@ -132,6 +132,10 @@ def resolve_config(
         raise ValueError("transition_chunk_size must be 1; every step is processed")
     if cfg["algorithm"]["advantage_std_unbiased"]:
         raise ValueError("group population std required")
+    from .advantages import MODES
+
+    if cfg["algorithm"].get("advantage_normalization", "group") not in MODES:
+        raise ValueError("unknown advantage_normalization")
     if cfg["algorithm"]["inner_epochs"] < 1:
         raise ValueError("invalid inner_epochs")
     if cfg["runtime"]["deepspeed_stage"] not in (0, 1, 2):

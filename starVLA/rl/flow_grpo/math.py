@@ -95,7 +95,14 @@ def transition(x, velocity, t, dt, *, noise_level, first_dt):
     return Transition(mean, g * dt.sqrt(), g)
 
 
-def group_advantages(rewards, valid=None, epsilon=1e-6, clip=5.0):
+def centered_group_rewards(rewards, valid=None):
+    """Stable, per-scene centering, including exactly constant nonbinary groups.
+
+    Reward tensors are tiny. FP64 here prevents the mean-rounding residual from
+    being amplified by 1/(std+epsilon); network/probability dtypes are unchanged.
+    Subtract an observed value first so a constant group is exactly zero even
+    when its size is not a power of two. Invalid entries never enter moments.
+    """
     if rewards.ndim != 2:
         raise ValueError(
             "rewards must be [scene, candidate], never rank-flattened groups"
@@ -103,14 +110,26 @@ def group_advantages(rewards, valid=None, epsilon=1e-6, clip=5.0):
     valid = (
         torch.ones_like(rewards, dtype=torch.bool) if valid is None else valid.bool()
     )
+    if valid.shape != rewards.shape or rewards.shape[1] == 0:
+        raise ValueError("invalid reward mask or empty candidate axis")
     if not torch.isfinite(rewards[valid]).all():
         raise FloatingPointError("nonfinite valid reward")
+    values = torch.where(valid, rewards.double(), 0)
+    anchor = values.gather(1, valid.to(torch.int64).argmax(1, keepdim=True))
     n = valid.sum(1, keepdim=True)
-    mean = torch.where(valid, rewards, 0).sum(1, keepdim=True) / n.clamp_min(1)
-    delta = torch.where(valid, rewards - mean, 0)
+    shifted = torch.where(valid, values - anchor, 0)
+    mean = shifted.sum(1, keepdim=True) / n.clamp_min(1)
+    delta = torch.where(valid, shifted - mean, 0)
     std = (delta.square().sum(1, keepdim=True) / n.clamp_min(1)).sqrt()
+    return delta, std, valid
+
+
+def group_advantages(rewards, valid=None, epsilon=1e-6, clip=5.0):
+    if not math.isfinite(epsilon) or epsilon <= 0 or not math.isfinite(clip) or clip <= 0:
+        raise ValueError("positive finite advantage epsilon and clip required")
+    delta, std, valid = centered_group_rewards(rewards, valid)
     adv = torch.where(valid & (std > 0), delta / (std + epsilon), 0)
-    return adv.clamp(-clip, clip).detach()
+    return adv.clamp(-clip, clip).to(probability_tensor(rewards).dtype).detach()
 
 
 def clipped_surrogate(current, old, advantages, clip=0.02):

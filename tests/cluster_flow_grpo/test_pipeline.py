@@ -96,6 +96,32 @@ def test_complete_checkpoint_mutation_is_rejected(tmp_path):
             baseline=baseline,cancelled=threading.Event(),poll_seconds=.001)
 
 
+def test_original_producer_error_visible_before_future_done(tmp_path, monkeypatch):
+    import time
+    import scripts.cluster_flow_grpo.pipeline as pipeline
+    original = pipeline.atomic_json
+    failing = threading.Event()
+
+    def slow_failure_report(path, content):
+        if content.get("status") == "FAIL":
+            failing.set()
+            time.sleep(.05)  # Consumer observes cancel while future is not done.
+        return original(path, content)
+
+    monkeypatch.setattr(pipeline, "atomic_json", slow_failure_report)
+
+    def train(*args):
+        raise ValueError("specific producer failure")
+
+    def baseline():
+        assert failing.wait(3)
+
+    with pytest.raises(ValueError, match="specific producer failure"):
+        pipeline.continuous_pipeline(tmp_path, [100], validate=validator, train=train,
+            export=lambda cp, u: cp, evaluate=lambda *args: {}, on_result=lambda *args: None,
+            baseline=baseline, cancelled=threading.Event(), poll_seconds=.001)
+
+
 def test_async_gpu_accounting_includes_eval_and_reserved_devices():
     plan={"groups":{v:{"nodes":[{"host":h,"devices":[0,1]}]}
                     for v,h in [("frozen_visual","F"),("unfrozen_visual","U")]},

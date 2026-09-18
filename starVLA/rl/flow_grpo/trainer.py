@@ -34,7 +34,7 @@ from .loading import load_policy, enable_checkpointing
 from .model import FlowGRPOActor, make_reference
 from .observation import prepare_policy_observation
 from .rollout import SamplingSpec, evaluate_transitions
-from .math import group_advantages
+from .advantages import assign_behavior_advantages
 from .reward import RewardService
 from .monitor import (
     GradientMonitor,
@@ -417,11 +417,6 @@ def _run(cfg, sft, resume=None):
                         device=accelerator.device,
                     )
                     rollout.rewards = rewards
-                    rollout.advantages = group_advantages(
-                        rewards,
-                        epsilon=cfg["algorithm"]["advantage_epsilon"],
-                        clip=cfg["algorithm"]["advantage_clip"],
-                    )
                     if runtime["reference_offload"]:
                         reference.to(accelerator.device)
                     with torch.no_grad(), accelerator.autocast():
@@ -436,6 +431,7 @@ def _run(cfg, sft, resume=None):
                     if runtime["reference_offload"]:
                         reference.to("cpu")
                     buffers.append(rollout)
+                assign_behavior_advantages(buffers, cfg["algorithm"], accelerator.device)
             rollout_seconds = time.monotonic() - t0
             old_fingerprints = [behavior_digest(r) for r in buffers]
             for inner in range(start_inner, cfg["algorithm"]["inner_epochs"]):

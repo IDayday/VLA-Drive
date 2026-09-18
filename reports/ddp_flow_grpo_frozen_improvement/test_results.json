@@ -1,0 +1,24 @@
+{
+  "initial_targeted": {
+    "exit_code": 0,
+    "passed": 69
+  },
+  "initial_complete_cpu": {
+    "exit_code": 1,
+    "passed": 200,
+    "failed": 1,
+    "skipped": 2,
+    "failure": "producer cancellation race hides original error; historical log retained"
+  },
+  "after_fix_complete_cpu": {
+    "exit_code": 0,
+    "passed": 203,
+    "skipped": 2,
+    "skip_reason": "CUDA arithmetic tests; explicitly CUDA_VISIBLE_DEVICES empty"
+  },
+  "after_fix_targeted_with_cuda": {
+    "exit_code": 0,
+    "passed": 30,
+    "scope": "pipeline, diversity, advantage CPU/Gloo/CUDA; not a full actor performance gate"
+  }
+}

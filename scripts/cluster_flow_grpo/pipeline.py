@@ -24,6 +24,17 @@ def continuous_pipeline(run, targets, *, validate, train, export, evaluate,
     maximum = targets[-1]
     checked = {}
     validation_lock = threading.Lock()
+    producer_errors = []
+
+    def cancelled_error(producer):
+        # The producer sets cancellation before its future becomes done. Keep
+        # the original failure visible during that interval (including slow I/O
+        # while publishing the failure report), not a generic cancellation.
+        if producer_errors:
+            raise producer_errors[0]
+        if producer.done():
+            producer.result()
+        raise RuntimeError("paired pipeline cancelled")
 
     def validated(path):
         # Cache a full validation only while every file's stat identity remains
@@ -66,6 +77,7 @@ def continuous_pipeline(run, targets, *, validate, train, export, evaluate,
                 "status": "COMPLETE", "target_update": maximum,
                 "latest_complete_update": max(complete)})
         except BaseException as exc:
+            producer_errors.append(exc)
             cancelled.set()
             atomic_json(run/"continuous_training.json", {"status": "FAIL", "error": str(exc)})
             raise
@@ -83,13 +95,9 @@ def continuous_pipeline(run, targets, *, validate, train, export, evaluate,
                         producer.result()
                         raise RuntimeError(f"missing required checkpoint {target}")
                     if cancelled.wait(poll_seconds):
-                        if producer.done():
-                            producer.result()
-                        raise RuntimeError("paired pipeline cancelled")
+                        cancelled_error(producer)
                 if cancelled.is_set():
-                    if producer.done():
-                        producer.result()
-                    raise RuntimeError("paired pipeline cancelled")
+                    cancelled_error(producer)
                 validated(checkpoint)
                 atomic_json(run/"artifact_activity.json", {
                     "stage": "cpu_export", "update": target, "time": time.time()})

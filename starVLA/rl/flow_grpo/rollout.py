@@ -51,6 +51,7 @@ class RolloutBatch:
     score_records: object = None
     reference_mean: torch.Tensor | None = None
     reference_std: torch.Tensor | None = None
+    advantage_statistics: dict | None = None
 
     @property
     def old_logprob(self):

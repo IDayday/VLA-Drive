@@ -1,0 +1,183 @@
+.........................ss............................................. [ 35%]
+........................................................................ [ 70%]
+.........................................................F.              [100%]
+=================================== FAILURES ===================================
+________________ test_complete_checkpoint_mutation_is_rejected _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-1537/test_complete_checkpoint_mutat0')
+
+    def test_complete_checkpoint_mutation_is_rejected(tmp_path):
+        published=publish(tmp_path,100)
+        def baseline():
+            # Mutation after the consumer's native validation, before the producer
+            # validates final completion, is exercised via the evaluate callback.
+            pass
+        finish=threading.Event()
+        def train(resume,target):
+            assert finish.wait(3);publish(tmp_path,200)
+        def evaluate(cp,u):
+            if u==100:
+                (published/"trainer_state.json").write_text('{"update": 999}')
+                finish.set()
+            return {}
+        with pytest.raises(ValueError,match="checkpoint changed"):
+>           continuous_pipeline(tmp_path,[100,200],validate=validator,train=train,
+                export=lambda cp,u:cp,evaluate=evaluate,on_result=lambda *a:None,
+                baseline=baseline,cancelled=threading.Event(),poll_seconds=.001)
+
+tests/cluster_flow_grpo/test_pipeline.py:94: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+run = PosixPath('/tmp/pytest-of-root/pytest-1537/test_complete_checkpoint_mutat0')
+targets = [100, 200]
+
+    def continuous_pipeline(run, targets, *, validate, train, export, evaluate,
+                            on_result, baseline, cancelled, adopt=None, poll_seconds=2):
+        run = Path(run)
+        run.mkdir(parents=True, exist_ok=True)
+        targets = list(targets)
+        if not targets or targets != sorted(set(targets)):
+            raise ValueError("unique ascending evaluation targets required")
+        maximum = targets[-1]
+        checked = {}
+        validation_lock = threading.Lock()
+    
+        def validated(path):
+            # Cache a full validation only while every file's stat identity remains
+            # unchanged. New/changed publications still use the native validator.
+            path = Path(path)
+            with validation_lock:
+                fingerprint = tuple((str(p.relative_to(path)), p.stat().st_ino,
+                    p.stat().st_size, p.stat().st_mtime_ns, p.stat().st_ctime_ns)
+                    for p in sorted(path.rglob("*")) if p.is_file())
+                prior = checked.get(path)
+                if prior:
+                    if prior[0] != fingerprint:
+                        raise ValueError(f"completed checkpoint changed: {path}")
+                    return prior[1]
+                state = validate(path)
+                checked[path] = (fingerprint, state)
+                return state
+    
+        def produce():
+            try:
+                if adopt:
+                    adopt()
+                complete, incomplete = checkpoint_inventory(run, validated)
+                latest = max(complete, default=0)
+                if latest > maximum:
+                    raise ValueError("checkpoint exceeds the fixed training budget")
+                if any(t < latest and t not in complete for t in targets):
+                    raise ValueError("missing historical evaluation checkpoint; cannot replay updates")
+                atomic_json(run/"continuous_training.json", {
+                    "status": "RUNNING" if latest < maximum else "COMPLETE",
+                    "resume_update": latest, "target_update": maximum})
+                if latest < maximum:
+                    for path in incomplete:
+                        preserve_attempt(path)
+                    train(complete.get(latest), maximum)
+                complete, _ = checkpoint_inventory(run, validated)
+                if maximum not in complete:
+                    raise RuntimeError("training exited without the final complete checkpoint")
+                atomic_json(run/"continuous_training.json", {
+                    "status": "COMPLETE", "target_update": maximum,
+                    "latest_complete_update": max(complete)})
+            except BaseException as exc:
+                cancelled.set()
+                atomic_json(run/"continuous_training.json", {"status": "FAIL", "error": str(exc)})
+                raise
+    
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            producer = pool.submit(produce)
+            try:
+                # Baseline identity checks/evaluation also run alongside training.
+                baseline()
+                progress = {"mode": "asynchronous", "exports": {}, "dev_evaluations": {}}
+                for target in targets:
+                    checkpoint = run/"checkpoints"/f"update_{target:06d}"
+                    while not (checkpoint/"COMPLETE").is_file():
+                        if producer.done():
+                            producer.result()
+                            raise RuntimeError(f"missing required checkpoint {target}")
+                        if cancelled.wait(poll_seconds):
+                            if producer.done():
+                                producer.result()
+                            raise RuntimeError("paired pipeline cancelled")
+                    if cancelled.is_set():
+                        if producer.done():
+                            producer.result()
+>                       raise RuntimeError("paired pipeline cancelled")
+E                       RuntimeError: paired pipeline cancelled
+
+scripts/cluster_flow_grpo/pipeline.py:92: RuntimeError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+    check_for_updates()
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:22: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/dist/wan_xfuser.py:113: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:44: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:56: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d.py:135: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:103: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_audio_injector.py:114: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /mnt/project/DriveDreamer-Policy-paired/starVLA/model/modules/video_model/videox_fun/models/wan_transformer3d_s2v.py:55: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+    @amp.autocast(enabled=False)
+
+tests/flow_grpo/test_action_config.py::test_inactive_sft_losses_keep_source_fp32_with_bf16_condition
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/amp/autocast_mode.py:266: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling
+    warnings.warn(
+
+tests/flow_grpo/test_adjacent_evaluation_real.py::test_real_adjacent_frames_and_missing_comfort_weight
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+tests/flow_grpo/test_adjacent_evaluation_real.py::test_real_adjacent_frames_and_missing_comfort_weight
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: Deprecated call to `pkg_resources.declare_namespace('lightning_fabric')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/flow_grpo/test_adjacent_evaluation_real.py::test_real_adjacent_frames_and_missing_comfort_weight
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/pytorch_lightning/__init__.py:37: Deprecated call to `pkg_resources.declare_namespace('pytorch_lightning')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/flow_grpo/test_adjacent_evaluation_real.py: 572 warnings
+tests/flow_grpo/test_reward_real.py: 3456 warnings
+  /mnt/project/DriveDreamer-Policy-paired/navsim/navsim/planning/simulation/planner/pdm_planner/observation/pdm_occupancy_map.py:209: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+    output[i] = shapely.vectorized.contains(polygon, flattened_points[:, 0], flattened_points[:, 1])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cluster_flow_grpo/test_pipeline.py::test_complete_checkpoint_mutation_is_rejected
+1 failed, 200 passed, 2 skipped, 4044 warnings in 178.18s (0:02:58)

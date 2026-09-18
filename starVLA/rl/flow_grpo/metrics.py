@@ -97,6 +97,26 @@ class Metrics:
             len(reward),
         )
         self.add("scene_count", "count", len(reward))
+        advantage = rollout.advantages.detach().double()
+        self.add("reward_group_std_quantiles", "quantile", reward.std(1, unbiased=False).tolist())
+        self.add("advantage_absolute_mean", "mean", advantage.abs().sum(), advantage.numel())
+        self.add("advantage_second_moment", "mean", advantage.square().sum(), advantage.numel())
+        self.add("advantage_group_mean_abs_max", "max", advantage.mean(1).abs().max())
+        self.add("advantage_nonzero_group_fraction", "fraction",
+                 (advantage.abs().max(1).values > 0).sum(), len(advantage))
+        statistics = getattr(rollout, "advantage_statistics", None) or {}
+        if "global_reward_std" in statistics:
+            self.add("behavior_global_reward_std", "mean", statistics["global_reward_std"])
+            self.add("behavior_global_candidate_count", "mean", statistics["global_candidate_count"])
+        if getattr(rollout, "physical_trajectories", None) is not None:
+            from .diversity import trajectory_diversity
+
+            for physical, scores in zip(rollout.physical_trajectories, reward.cpu().numpy()):
+                d = trajectory_diversity(physical, scores)
+                self.add("candidate_pair_ade_scene_median_m", "mean", d["pair_ade_m"]["0.5"])
+                self.add("candidate_pair_fde_scene_median_m", "mean", d["pair_fde_m"]["0.5"])
+                self.add("candidate_xy_effective_rank", "mean", d["xy_covariance_effective_rank"])
+                self.add("reward_group_span_quantiles", "quantile", [d["reward_span"]])
         self.add("candidate_count", "count", reward.numel())
         self.add("replay_scene_count", "count", 1)
         for key, value in result["components"].items():
