@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "CPU control flow; no GPU or RL performance certification",
+  "exit_code": 0,
+  "prepare_exit_code": 0,
+  "command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/cluster_flow_grpo",
+    "tests/flow_grpo/test_evaluation_transactions.py",
+    "tests/flow_grpo/test_orchestration_resume.py",
+    "tests/flow_grpo/test_paired_evaluation.py",
+    "tests/flow_grpo/test_adjacent_evaluation_real.py",
+    "--junitxml",
+    "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/6ebc42d293969bf2e36ef2c1b31d05ad19268201e746593b68597d2d53d7c862/cpu_attempt_1789695698026678354/pytest.xml"
+  ],
+  "cwd": "/mnt/project/DriveDreamer-Policy-scale-clean",
+  "started": 1789695698.027327,
+  "finished": 1789695735.1519766,
+  "orchestration_identity": {
+    "schema_version": 1,
+    "sha256": "6ebc42d293969bf2e36ef2c1b31d05ad19268201e746593b68597d2d53d7c862",
+    "files": {
+      "configs/cluster_flow_grpo/paired_world16.json": "f750510ed0087f9c1d1464f8f8358dea3923525371082c6ba68fb62795f9a9b1",
+      "scripts/cluster_flow_grpo/boundary_evidence.py": "50cb4811c9b41c61448fbfaff675a19a05e986959370cdaa9080b82c3a1b6dc9",
+      "scripts/cluster_flow_grpo/cluster.py": "d7cfa1b586a750e7e972c827a8324d58b19b5500a681cb0cc89ee0ac031bd84b",
+      "scripts/cluster_flow_grpo/compare_parallel.py": "d03f6438b49de144e137be379983dc64ee536d97de7492c8abf3baf0ba893d3c",
+      "scripts/cluster_flow_grpo/diagnostics.py": "49056a179a5c944a3fad09177d664dbc954765f271afdc014253bfa8c6f70da9",
+      "scripts/cluster_flow_grpo/identity.py": "6b443ae8e3e5746159efd3e8dcb042a33b2f0fb8372bfd3029118110ab431ba9",
+      "scripts/cluster_flow_grpo/nccl_probe.py": "4559a7170848492b40c116a4a2813ab9e24447d20391ca6ba15c8811ed0e05bc",
+      "scripts/cluster_flow_grpo/optimizer_evidence.py": "918d9fef6e16333eec4dee428dca35401499f8c601880168443dd668f09f0738",
+      "scripts/cluster_flow_grpo/paired.py": "89629bca2e43789e504514a27069940dd00d739ddbd3fac99687a3c1f5e4bbc9",
+      "scripts/cluster_flow_grpo/parallel_evaluation.py": "74b9d9cfcdc2c4dcc005b453f6c706aea364bac4876b04d0728d37faec38d86b",
+      "scripts/cluster_flow_grpo/postprocess.py": "84021fac4c41290d173da5f38331e721e3f47f539280021abf1945037cf5a766",
+      "scripts/cluster_flow_grpo/release.py": "c08a79227ef1db0e75119804ad03c78e191ea5b45245aac9f5e083323c7082a5",
+      "scripts/cluster_flow_grpo/test_release.py": "7be5fc28040ab43c34524c6f9e16b4ff99b9b0a4bc9a3376d02a28d59d0f03be",
+      "scripts/cluster_flow_grpo/verify_profile.py": "711045dce6f366b4e7866f6ac0175cb7988b150a287d5412fd50b89fa27a831c",
+      "tests/cluster_flow_grpo/test_cluster.py": "2e879c011100827c3b17dd527936668968c491e8d924b3872c36dd3f32b7054e",
+      "tests/cluster_flow_grpo/test_identity.py": "2ba1c773304d5b29730a353815094ff0fa9e6bed296b0e0b063bea018bd65682",
+      "tests/cluster_flow_grpo/test_paired_main.py": "5ff7f8c65842289ff5a3f54816ca62c46bc150a1675d95656f140fe902fbe828"
+    }
+  },
+  "native_executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+  "git_sha": "e7481daf18a980f9ef6a5490b78a03c833f15a3d",
+  "junit": {
+    "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/6ebc42d293969bf2e36ef2c1b31d05ad19268201e746593b68597d2d53d7c862/cpu_attempt_1789695698026678354/pytest.xml",
+    "sha256": "60096e038f63bb540fd3cb66a89d9705f21d9ee7032522f97a3c4b5d84f4c73d"
+  }
+}

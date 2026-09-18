@@ -1,0 +1,2760 @@
+{
+  "schema_version": 1,
+  "tests": [
+    {
+      "schema_version": 1,
+      "test_id": "fp32_chunk_mathematics",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "/root/miniconda3/envs/ddp/bin/python runs/production_acceptance_v3/verify_release_measurements.py u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "a0de4665335bed3261591a4c421bca69e957e5ef7c3e71d42405b441dc257930",
+        "kind": "assertions over completed real executions; this verifier performs no model inference or updates"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "fixed_noise_equal",
+          "gradients_equal",
+          "optimizer_updates_equal"
+        ],
+        "note": "Actual CUDA FP32 mathematical group results only. Native root NOT_READY/production_gate NOT_RUN is intentionally retained: this experiment never certifies BF16 production. Diagnostic signed advantages are not official-reward gradient evidence. Reused unchanged component evidence. This is not a world16 model execution."
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "float32",
+        "backend": "pytorch",
+        "world_size": 1,
+        "devices": [
+          {
+            "name": "NVIDIA A800-SXM4-80GB",
+            "capability": [
+              8,
+              0
+            ]
+          }
+        ]
+      },
+      "results": {
+        "gradients_equal": true,
+        "optimizer_updates_equal": true,
+        "fixed_noise_equal": true,
+        "chunks": [
+          1,
+          2
+        ],
+        "groups": [
+          2,
+          8
+        ],
+        "num_steps": 10
+      },
+      "artifacts": {
+        "mathematical_measurements": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_fp32_math_final/numerical_report.json",
+          "sha256": "4b222fba1e7f0662325dc1459138df22b229568c5769328ea4fb525383180372"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "source_ode_sft_oracle",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "/root/miniconda3/envs/ddp/bin/python runs/production_acceptance_v3/verify_release_measurements.py u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "a0de4665335bed3261591a4c421bca69e957e5ef7c3e71d42405b441dc257930",
+        "kind": "assertions over completed real executions; this verifier performs no model inference or updates"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "source_ode_equal",
+          "source_sft_loss_equal"
+        ],
+        "note": " Reused unchanged component evidence. This is not a world16 model execution."
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "pytorch",
+        "world_size": 1,
+        "devices": [
+          {
+            "name": "NVIDIA A800-SXM4-80GB",
+            "capability": [
+              8,
+              0
+            ]
+          }
+        ]
+      },
+      "results": {
+        "source_ode_equal": true,
+        "source_sft_loss_equal": true
+      },
+      "artifacts": {
+        "original_source_cuda_oracle": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_oracle_final/real_integration.json",
+          "sha256": "20b5cb2b6c774f8e3a200fed20f35d8a5b54195c73c52e7863ca2a64a75e7581"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "distributed_faults",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "/root/miniconda3/envs/ddp/bin/python runs/production_acceptance_v3/verify_release_measurements.py u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "a0de4665335bed3261591a4c421bca69e957e5ef7c3e71d42405b441dc257930",
+        "kind": "assertions over completed real executions; this verifier performs no model inference or updates"
+      },
+      "checkpoint": null,
+      "scope": {
+        "kind": "model_independent",
+        "checks": [
+          "checkpoint_mkdir",
+          "output_conflict",
+          "rank0_write",
+          "rank_exit",
+          "reward_failure"
+        ],
+        "note": "All specified real production-function tests were collected and passed in the clean3fe checkout,157 total,no skips; CPU control-flow/official-cache protocol evidence only. Distributed cases launch real two-process torchrun/Gloo and assert bounded nonzero child exits. Reused unchanged component evidence. This is not a world16 model execution."
+      },
+      "observed_profile": {
+        "device_type": "cpu",
+        "precision": "mixed_test_fixtures",
+        "backend": "torchrun_gloo",
+        "world_size": 2,
+        "devices": [
+          {
+            "type": "cpu",
+            "rank": 0
+          },
+          {
+            "type": "cpu",
+            "rank": 1
+          }
+        ]
+      },
+      "results": {
+        "rank0_write": true,
+        "rank_exit": true,
+        "checkpoint_mkdir": true,
+        "output_conflict": true,
+        "reward_failure": true
+      },
+      "artifacts": {
+        "clean_pytest_log": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_final_cpu.log",
+          "sha256": "afb28dcbbe48c699fe4533a862d774565d8a71ee7b9688b0db6c8b566038a942"
+        },
+        "collected_tests": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_test_inventory.log",
+          "sha256": "948d2efc705357c24ce2a2407c01b35c3d69c8b734e5fbe6d26fe508f645b2b2"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "global_metrics",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "/root/miniconda3/envs/ddp/bin/python runs/production_acceptance_v3/verify_release_measurements.py u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "a0de4665335bed3261591a4c421bca69e957e5ef7c3e71d42405b441dc257930",
+        "kind": "assertions over completed real executions; this verifier performs no model inference or updates"
+      },
+      "checkpoint": null,
+      "scope": {
+        "kind": "model_independent",
+        "checks": [
+          "counts",
+          "global_min_max",
+          "global_quantiles",
+          "weighted_fraction"
+        ],
+        "note": "All specified real production-function tests were collected and passed in the clean3fe checkout,157 total,no skips; CPU control-flow/official-cache protocol evidence only. Distributed cases launch real two-process torchrun/Gloo and assert bounded nonzero child exits. Reused unchanged component evidence. This is not a world16 model execution."
+      },
+      "observed_profile": {
+        "device_type": "cpu",
+        "precision": "mixed_test_fixtures",
+        "backend": "torchrun_gloo",
+        "world_size": 2,
+        "devices": [
+          {
+            "type": "cpu",
+            "rank": 0
+          },
+          {
+            "type": "cpu",
+            "rank": 1
+          }
+        ]
+      },
+      "results": {
+        "global_min_max": true,
+        "global_quantiles": true,
+        "weighted_fraction": true,
+        "counts": true
+      },
+      "artifacts": {
+        "clean_pytest_log": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_final_cpu.log",
+          "sha256": "afb28dcbbe48c699fe4533a862d774565d8a71ee7b9688b0db6c8b566038a942"
+        },
+        "collected_tests": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_test_inventory.log",
+          "sha256": "948d2efc705357c24ce2a2407c01b35c3d69c8b734e5fbe6d26fe508f645b2b2"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "evaluation_protocol",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "/root/miniconda3/envs/ddp/bin/python runs/production_acceptance_v3/verify_release_measurements.py u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "a0de4665335bed3261591a4c421bca69e957e5ef7c3e71d42405b441dc257930",
+        "kind": "assertions over completed real executions; this verifier performs no model inference or updates"
+      },
+      "checkpoint": null,
+      "scope": {
+        "kind": "model_independent",
+        "checks": [
+          "adjacent_aggregation",
+          "evaluation_transaction",
+          "official_reward",
+          "token_noise"
+        ],
+        "note": "All specified real production-function tests were collected and passed in the clean3fe checkout,157 total,no skips; CPU control-flow/official-cache protocol evidence only. Distributed cases launch real two-process torchrun/Gloo and assert bounded nonzero child exits. Reused unchanged component evidence. This is not a world16 model execution."
+      },
+      "observed_profile": {
+        "device_type": "cpu",
+        "precision": "mixed_test_fixtures",
+        "backend": "pytest",
+        "world_size": 1,
+        "devices": [
+          {
+            "type": "cpu",
+            "rank": 0
+          }
+        ]
+      },
+      "results": {
+        "adjacent_aggregation": true,
+        "token_noise": true,
+        "evaluation_transaction": true,
+        "official_reward": true
+      },
+      "artifacts": {
+        "clean_pytest_log": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_final_cpu.log",
+          "sha256": "afb28dcbbe48c699fe4533a862d774565d8a71ee7b9688b0db6c8b566038a942"
+        },
+        "collected_tests": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_test_inventory.log",
+          "sha256": "948d2efc705357c24ce2a2407c01b35c3d69c8b734e5fbe6d26fe508f645b2b2"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "clean_checkout",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "/root/miniconda3/envs/ddp/bin/python runs/production_acceptance_v3/verify_release_measurements.py u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "a0de4665335bed3261591a4c421bca69e957e5ef7c3e71d42405b441dc257930",
+        "kind": "assertions over completed real executions; this verifier performs no model inference or updates"
+      },
+      "checkpoint": null,
+      "scope": {
+        "kind": "model_independent",
+        "checks": [
+          "clean_prepare",
+          "regression"
+        ],
+        "note": "All specified real production-function tests were collected and passed in the clean3fe checkout,157 total,no skips; CPU control-flow/official-cache protocol evidence only. Distributed cases launch real two-process torchrun/Gloo and assert bounded nonzero child exits. Reused unchanged component evidence. This is not a world16 model execution."
+      },
+      "observed_profile": {
+        "device_type": "cpu",
+        "precision": "mixed_test_fixtures",
+        "backend": "pytest",
+        "world_size": 1,
+        "devices": [
+          {
+            "type": "cpu",
+            "rank": 0
+          }
+        ]
+      },
+      "results": {
+        "regression": true,
+        "clean_prepare": true
+      },
+      "artifacts": {
+        "clean_pytest_log": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_final_cpu.log",
+          "sha256": "afb28dcbbe48c699fe4533a862d774565d8a71ee7b9688b0db6c8b566038a942"
+        },
+        "collected_tests": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/clean_test_inventory.log",
+          "sha256": "948d2efc705357c24ce2a2407c01b35c3d69c8b734e5fbe6d26fe508f645b2b2"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "parameter_contract",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "name_shape_alias_groups_equal",
+          "visual_optimizer_excluded"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "name_shape_alias_groups_equal": true,
+        "visual_optimizer_excluded": true
+      },
+      "artifacts": {
+        "current": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/actor_parameter_manifest.json",
+          "sha256": "6e1fae777a910fc1f89690773902db45f69b1aeb25df31c4f6f8e4d8af2946dd"
+        },
+        "peer": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_full_cont/actor_parameter_manifest.json",
+          "sha256": "6fe6da3e69f9ed86b7654a97f3742d9a1d7ae045bb89bfef5b1f0bcb273f110b"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "own_visual_unchanged",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "own_visual_equal_initial",
+          "reference_unchanged"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "own_visual_equal_initial": true,
+        "reference_unchanged": true
+      },
+      "artifacts": {
+        "all_rank_tensor_hashes": [
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank0.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank1.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank2.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank3.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank4.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank5.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank6.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank7.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank8.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank9.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank10.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank11.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank12.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank13.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank14.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank15.json",
+            "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank0.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank1.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank2.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank3.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank4.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank5.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank6.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank7.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank8.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank9.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank10.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank11.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank12.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank13.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank14.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank15.json",
+            "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+          }
+        ],
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "rl_sft_reference_gradients",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "reference_loss_current_gradient",
+          "rl_full_parameter_coverage",
+          "sft_coverage",
+          "visual_reference_no_grad"
+        ],
+        "note": "Actual world16 branch-isolation runs on the prior fixed calibration split; official rewards, all equal groups retained. Full-assets joint target execution is separately measured."
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "rl_full_parameter_coverage": true,
+        "sft_coverage": true,
+        "reference_loss_current_gradient": true,
+        "visual_reference_no_grad": true,
+        "official_nonzero_advantage_groups": 9
+      },
+      "artifacts": {
+        "actual_all_rank_optimizer_gradients": [
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_0/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_1/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_2/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_3/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_4/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_5/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_6/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_7/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_8/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_9/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_10/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_11/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_12/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_13/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_14/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_15/manifest.json",
+            "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_0/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_1/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_2/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_3/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_4/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_5/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_6/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_7/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_8/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_9/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_10/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_11/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_12/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_13/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_14/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_15/manifest.json",
+            "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_0/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_1/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_2/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_3/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_4/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_5/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_6/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_7/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_8/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_9/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_10/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_11/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_12/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_13/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_14/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          },
+          {
+            "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_15/manifest.json",
+            "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+          }
+        ],
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "production_optimizer_update",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "finite",
+          "forward_weights_changed",
+          "optimizer_update_comparison"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "optimizer_update_comparison": true,
+        "forward_weights_changed": true,
+        "finite": true,
+        "optimizer_updates": 1
+      },
+      "artifacts": {
+        "independent_cuda_adam": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_adam_oracle_final.json",
+          "sha256": "d7f6da5ea053d6cef970f895751c60870e9bf4e59bae92bf6b9e9c9c40d22018"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "exact_resume",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "optimizer_equal",
+          "rng_cursor_equal",
+          "same_chain_equal",
+          "weights_equal"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "weights_equal": true,
+        "optimizer_equal": true,
+        "rng_cursor_equal": true,
+        "same_chain_equal": true,
+        "optimizer_updates": 2
+      },
+      "artifacts": {
+        "same_world_inner_boundary_resume": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_comparison.json",
+          "sha256": "67371b541eb83c685cc1ed2524b53035c82d9a4656c089448e2d11285daa14ac"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "production_repeat",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "repeat_equal"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "repeat_equal": true
+      },
+      "artifacts": {
+        "independent_repeat": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_repeat_comparison.json",
+          "sha256": "67371b541eb83c685cc1ed2524b53035c82d9a4656c089448e2d11285daa14ac"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "fixed_noise_ode",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "fixed_chain_equal",
+          "fixed_noise_equal"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "fixed_chain_equal": true,
+        "fixed_noise_equal": true
+      },
+      "artifacts": {
+        "fixed_noise_original_interface": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_ode/export_equivalence.json",
+          "sha256": "792d4f4c7fe896ffc1937592321b06720f770ec12f819d6c27d0f651faa707c2"
+        },
+        "full_boundary": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_comparison.json",
+          "sha256": "67371b541eb83c685cc1ed2524b53035c82d9a4656c089448e2d11285daa14ac"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "distributed_update_scaling",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "single_multi_update_scaling_equal"
+        ],
+        "note": "Same global16 and calibration scenes; inherited1% relative-L2 criterion unchanged."
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "single_multi_update_scaling_equal": true,
+        "compared_world_sizes": [
+          1,
+          16
+        ]
+      },
+      "artifacts": {
+        "actual_unclipped_moments": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_scaling_comparison.json",
+          "sha256": "d71ec027051514caf974c0817b9781bc4dc60e282cd8c611e17ed25914509f16"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "checkpointing_accumulation",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "accumulation_equal",
+          "checkpointing_equal"
+        ],
+        "note": "Recomputation uses the unchanged original CUDA world1 ON/OFF exact tensor check. New world1/16 scaling covers the actual production accumulation layout; checkpointing remains ON."
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "checkpointing_equal": true,
+        "accumulation_equal": true
+      },
+      "artifacts": {
+        "unchanged_cuda_world1_checkpoint_recomputation": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_checkpointing_comparison.json",
+          "sha256": "644ed0a8cf38c1c4b189b1231d815d56406d9bcf4f409df260bd7ddfc527ef85"
+        },
+        "world1_accum16_vs_world16_accum1": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_scaling_comparison.json",
+          "sha256": "d71ec027051514caf974c0817b9781bc4dc60e282cd8c611e17ed25914509f16"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    },
+    {
+      "schema_version": 1,
+      "test_id": "export_original_protocol",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "export_weights_equal",
+          "original_inference_equal"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "pytorch",
+        "world_size": 1,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ]
+      },
+      "results": {
+        "export_weights_equal": true,
+        "original_inference_equal": true
+      },
+      "artifacts": {
+        "original_interface": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_export_check/export_equivalence.json",
+          "sha256": "6fef956e1f7fba5a0c631220714eaa3d7b7bd7deb7df180cb35ccea69351a217"
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "test_id": "inner_epochs_2",
+      "status": "PASS",
+      "execution": {
+        "completed": true,
+        "exit_code": 0,
+        "command": "python /mnt/project/DriveDreamer-Policy-paired/scripts/cluster_flow_grpo/verify_profile.py --variant u",
+        "executable_sha256": "854dbc2ecb67fb28a235ccc7238729f7560a7ccafead08d9f5307a626152153c",
+        "verification_script_sha256": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+        "kind": "read-only assertions over completed real executions"
+      },
+      "checkpoint": {
+        "sha256": "72e626e152a357ec9c478c4b253500599301b38b87758e0aebfa486ff3be21cc",
+        "variant": "unfrozen_visual"
+      },
+      "scope": {
+        "kind": "full_model",
+        "checks": [
+          "advantages_unchanged",
+          "inner_boundary_resume_equal",
+          "old_chain_unchanged",
+          "policy_changed"
+        ],
+        "note": ""
+      },
+      "observed_profile": {
+        "device_type": "cuda",
+        "precision": "bfloat16",
+        "backend": "deepspeed",
+        "world_size": 16,
+        "devices": [
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 0,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 1,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 2,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 3,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 4,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 5,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 6,
+            "name": "NVIDIA A800-SXM4-80GB"
+          },
+          {
+            "type": "cuda",
+            "index": 7,
+            "name": "NVIDIA A800-SXM4-80GB"
+          }
+        ],
+        "zero_stage": 2,
+        "candidate_chunk": 1,
+        "transition_chunk": 1,
+        "activation_checkpointing": true,
+        "optimizer_offload": false,
+        "attention_backend": "sdpa"
+      },
+      "results": {
+        "old_chain_unchanged": true,
+        "advantages_unchanged": true,
+        "policy_changed": true,
+        "inner_boundary_resume_equal": true,
+        "optimizer_updates": 2
+      },
+      "artifacts": {
+        "resume": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_comparison.json",
+          "sha256": "67371b541eb83c685cc1ed2524b53035c82d9a4656c089448e2d11285daa14ac"
+        },
+        "training_log": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/training.jsonl",
+          "sha256": "3c7fd7fd293a08b5ba9074f5c16c4ace4da5e75b34e93a09f92071b3933e002c"
+        },
+        "dtype_inventory": {
+          "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/unfrozen_visual_observed_dtype.json",
+          "sha256": "991bca7ba331cdefbadd0486c4e923cfe5470b9c47065c5ae8adc79d1748acbc"
+        }
+      },
+      "declared_profile": {
+        "profile": "bf16_zero2_fp32_partition_v2",
+        "model_dtype": "bfloat16",
+        "probability_dtype": "float32",
+        "qwen_autocast": "bfloat16",
+        "action_history_projector_autocast": "cuda_float32_torch2.5",
+        "gradient_accumulation_dtype": "float32",
+        "partition_dtype_correction": "deepspeed_0.16.9_partition_list_v1",
+        "communication_dtype": "float32",
+        "attention_backend": "sdpa",
+        "deterministic": true,
+        "cudnn_deterministic": true,
+        "cudnn_benchmark": false,
+        "matmul_tf32": false,
+        "cudnn_tf32": false,
+        "bf16_reduced_precision_reduction": false,
+        "float32_matmul_precision": "highest",
+        "flash_deterministic": "1",
+        "cublas_workspace": ":4096:8",
+        "activation_checkpointing": true,
+        "zero_stage": 2,
+        "optimizer_offload": false,
+        "candidate_chunk": 1,
+        "transition_chunk": 1
+      },
+      "config_sha256": "c9e3c586ba9222ccdb960342292089e9406609dbbcac7c08da983ec799f80005",
+      "resume_identity_sha256": "bda744af3019dbc8b55c8c79b706f44cd7176a1cbe466eea8bd334da942a4d0a"
+    }
+  ],
+  "run_artifact_receipts": {
+    "runs/resource_reallocation_v2/u16_full_cont/source_environment_20260918T003116.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/source_environment_20260918T003116.json",
+      "sha256": "051827a2c06482c2f31d2a0215f3d3d5041de39f519b0d24b209636272240740"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont_control/result.json",
+      "sha256": "afb5901f8b1af1ac486e36470263502fb31122cfc694057ef0ae06f4b5f6dd46"
+    },
+    "runs/resource_reallocation_v2/u16_repeat_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_repeat_control/result.json",
+      "sha256": "afc3465cfef9272ff73200a2011469e6800dfa88e5af2e4652556a57781fb0b7"
+    },
+    "runs/resource_reallocation_v2/u16_repeat/source_environment_20260918T005444.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_repeat/source_environment_20260918T005444.json",
+      "sha256": "c0fcae8ac9f61ed91fef5857e4ce26311c1d61535ff9b97e8d168976be4e0873"
+    },
+    "runs/resource_reallocation_v2/u16_resume_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_control/result.json",
+      "sha256": "c0f3153ae95646d9a9ace27f2751ab9b73f4bc560ec3ba88f76e10d7ea3a88b0"
+    },
+    "runs/resource_reallocation_v2/u16_resume/source_environment_20260918T011532.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume/source_environment_20260918T011532.json",
+      "sha256": "6271690eaf84a98709d39ab3743e674c842ed46fc9410f3741771899ead65d82"
+    },
+    "runs/resource_reallocation_v2/u16_scale_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_scale_control/result.json",
+      "sha256": "271664d95d97c063a6b14b240fe9eb95a2ca8d18dfdbf24a411bc156f30281fb"
+    },
+    "runs/resource_reallocation_v2/u16_scale/source_environment_20260918T004317.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_scale/source_environment_20260918T004317.json",
+      "sha256": "82ef60f831da2bcc457f252a527ce0f744566beed5190351819451dd19171683"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only_control/result.json",
+      "sha256": "10911a79047eaad4c951169d4be71079543640ee5e83df7293a17c2a42cb3e82"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/source_environment_20260918T005203.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/source_environment_20260918T005203.json",
+      "sha256": "f9c5def4c7204c39f43e420a41b1d89d7b810fb19c544fa2af007bc1f8ceed0d"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only_control/result.json",
+      "sha256": "25133df86e37e77c8334dd779f1ca7f74debfb86f1c4d32de19a87f075f3a310"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/source_environment_20260918T005928.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/source_environment_20260918T005928.json",
+      "sha256": "fd093bfc496d73609412b70be15b931c1f656f8b29a9aea5fcd9c3ce8304e9f4"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only_control/result.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only_control/result.json",
+      "sha256": "dfd293b763170dfe1b73081cf3d9f7f5efb0fbd2f9b9e6ddd51f6bfc734ba3fb"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/source_environment_20260918T010608.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/source_environment_20260918T010608.json",
+      "sha256": "a5df4f217788d1a2792760eee494468e92be3c97a1bcbe040d1dea317d4d5368"
+    },
+    "reports/ddp_flow_grpo_production_v3/unfrozen_visual_evidence.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_production_v3/unfrozen_visual_evidence.json",
+      "sha256": "1b1a77708273d8339b6697828c01403c56bfe548dc74b9cb3d56d9e0cf4ba03a"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/actor_parameter_manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/actor_parameter_manifest.json",
+      "sha256": "6e1fae777a910fc1f89690773902db45f69b1aeb25df31c4f6f8e4d8af2946dd"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/source_sft_parameter_manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/source_sft_parameter_manifest.json",
+      "sha256": "0ede96a9e33f02c7cdd9ea8e2b9c2cf8ce172606005ba0faf8f368911306e964"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/parameter_contract_exceptions.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/parameter_contract_exceptions.json",
+      "sha256": "2b24997031d1e7f109109d76631efb227163f79e6979327275163896367b1337"
+    },
+    "runs/resource_reallocation_v2/f16_full_cont/actor_parameter_manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_full_cont/actor_parameter_manifest.json",
+      "sha256": "6fe6da3e69f9ed86b7654a97f3742d9a1d7ae045bb89bfef5b1f0bcb273f110b"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank0.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank0.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank1.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank1.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank2.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank2.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank3.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank3.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank4.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank4.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank5.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank5.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank6.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank6.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank7.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank7.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank8.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank8.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank9.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank9.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank10.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank10.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank11.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank11.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank12.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank12.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank13.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank13.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank14.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank14.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank15.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000001_rank15.json",
+      "sha256": "51c8cb38718d94ab5f8579e9c2d6dae99d5af8040e2bea977a4c3f82528e0448"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank0.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank0.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank1.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank1.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank2.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank2.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank3.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank3.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank4.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank4.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank5.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank5.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank6.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank6.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank7.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank7.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank8.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank8.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank9.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank9.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank10.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank10.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank11.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank11.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank12.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank12.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank13.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank13.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank14.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank14.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank15.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/immutable_update000002_rank15.json",
+      "sha256": "16f9f076981da2eb861d37e95a81dbc6a282bcac90fe5c2632080e6e33ec721c"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_0/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_0/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_1/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_1/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_2/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_2/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_3/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_3/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_4/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_4/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_5/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_5/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_6/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_6/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_7/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_7/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_8/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_8/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_9/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_9/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_10/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_10/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_11/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_11/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_12/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_12/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_13/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_13/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_14/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_14/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_15/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_rl_only/optimizer_gradients/update_000001/rank_15/manifest.json",
+      "sha256": "6a791fda060f80d967549bb571d7a4440844eed66da4e821cdf8f7aa6727e3bb"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_0/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_0/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_1/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_1/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_2/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_2/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_3/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_3/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_4/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_4/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_5/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_5/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_6/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_6/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_7/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_7/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_8/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_8/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_9/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_9/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_10/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_10/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_11/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_11/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_12/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_12/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_13/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_13/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_14/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_14/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_15/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_sft_only/optimizer_gradients/update_000001/rank_15/manifest.json",
+      "sha256": "c717ef70ad1faa66d9db3aedd5c85ce841bb88b20f6d3f98505501107ea48cd1"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_0/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_0/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_1/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_1/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_2/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_2/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_3/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_3/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_4/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_4/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_5/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_5/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_6/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_6/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_7/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_7/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_8/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_8/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_9/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_9/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_10/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_10/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_11/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_11/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_12/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_12/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_13/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_13/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_14/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_14/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_15/manifest.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_ref_only/optimizer_gradients/update_000002/rank_15/manifest.json",
+      "sha256": "2b10dc34de357a2762927bb180a7bf0e456d5e33e7cdca58f094141f23db6f1d"
+    },
+    "runs/resource_reallocation_v2/u16_adam_oracle_final.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_adam_oracle_final.json",
+      "sha256": "d7f6da5ea053d6cef970f895751c60870e9bf4e59bae92bf6b9e9c9c40d22018"
+    },
+    "runs/resource_reallocation_v2/u16_resume_comparison.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_comparison.json",
+      "sha256": "67371b541eb83c685cc1ed2524b53035c82d9a4656c089448e2d11285daa14ac"
+    },
+    "runs/resource_reallocation_v2/u16_repeat_comparison.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_repeat_comparison.json",
+      "sha256": "67371b541eb83c685cc1ed2524b53035c82d9a4656c089448e2d11285daa14ac"
+    },
+    "runs/resource_reallocation_v2/u16_resume_ode/export_equivalence.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_ode/export_equivalence.json",
+      "sha256": "792d4f4c7fe896ffc1937592321b06720f770ec12f819d6c27d0f651faa707c2"
+    },
+    "runs/resource_reallocation_v2/u16_scaling_comparison.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_scaling_comparison.json",
+      "sha256": "d71ec027051514caf974c0817b9781bc4dc60e282cd8c611e17ed25914509f16"
+    },
+    "runs/production_acceptance_v3/u_checkpointing_comparison.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/production_acceptance_v3/u_checkpointing_comparison.json",
+      "sha256": "644ed0a8cf38c1c4b189b1231d815d56406d9bcf4f409df260bd7ddfc527ef85"
+    },
+    "runs/resource_reallocation_v2/u16_export_check/export_equivalence.json": {
+      "path": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_export_check/export_equivalence.json",
+      "sha256": "6fef956e1f7fba5a0c631220714eaa3d7b7bd7deb7df180cb35ccea69351a217"
+    }
+  },
+  "orchestration_identity": {
+    "schema_version": 1,
+    "sha256": "d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770",
+    "files": {
+      "configs/cluster_flow_grpo/paired_world16.json": "921733364889873e4b6dfc6e13da728a2af2851c500e252b0efadd79920b6907",
+      "scripts/cluster_flow_grpo/boundary_evidence.py": "50cb4811c9b41c61448fbfaff675a19a05e986959370cdaa9080b82c3a1b6dc9",
+      "scripts/cluster_flow_grpo/cluster.py": "2e0cd109f64bf9d28d8acca8cd73ebeb5f6cf53af1f1904e6236bd41c066dbb5",
+      "scripts/cluster_flow_grpo/compare_parallel.py": "d03f6438b49de144e137be379983dc64ee536d97de7492c8abf3baf0ba893d3c",
+      "scripts/cluster_flow_grpo/diagnostics.py": "49056a179a5c944a3fad09177d664dbc954765f271afdc014253bfa8c6f70da9",
+      "scripts/cluster_flow_grpo/identity.py": "0df030e4a59bbafefcf6091f69ac48ed58c1402927b129c3b774f962ac23fe69",
+      "scripts/cluster_flow_grpo/nccl_probe.py": "4559a7170848492b40c116a4a2813ab9e24447d20391ca6ba15c8811ed0e05bc",
+      "scripts/cluster_flow_grpo/optimizer_evidence.py": "918d9fef6e16333eec4dee428dca35401499f8c601880168443dd668f09f0738",
+      "scripts/cluster_flow_grpo/paired.py": "89629bca2e43789e504514a27069940dd00d739ddbd3fac99687a3c1f5e4bbc9",
+      "scripts/cluster_flow_grpo/parallel_evaluation.py": "74b9d9cfcdc2c4dcc005b453f6c706aea364bac4876b04d0728d37faec38d86b",
+      "scripts/cluster_flow_grpo/postprocess.py": "84021fac4c41290d173da5f38331e721e3f47f539280021abf1945037cf5a766",
+      "scripts/cluster_flow_grpo/release.py": "c08a79227ef1db0e75119804ad03c78e191ea5b45245aac9f5e083323c7082a5",
+      "scripts/cluster_flow_grpo/test_release.py": "7be5fc28040ab43c34524c6f9e16b4ff99b9b0a4bc9a3376d02a28d59d0f03be",
+      "scripts/cluster_flow_grpo/verify_profile.py": "42db672aed6b100492a1718143eac948a1c919c1b3e9c7c5cf1b9de46ca39c38",
+      "tests/cluster_flow_grpo/test_cluster.py": "de59a57e816c7bf23eb47bfcf450ee959af3b2fa2e83512422f613905dd308f0",
+      "tests/cluster_flow_grpo/test_identity.py": "a858ff158a7a4828c513b4ecd83cf620418f8a67095275d06881d4150823390a",
+      "tests/cluster_flow_grpo/test_paired_main.py": "5ff7f8c65842289ff5a3f54816ca62c46bc150a1675d95656f140fe902fbe828"
+    }
+  },
+  "placement_evidence": {
+    "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_relocated_spec.json": "f8b68b7314b8a4bc600953a8eeee202962e9c458d91eebd8e041d3cb0802df36",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_relocated_control/result.json": "bffb7e1b4eebce0d58399face480c98cb738beb32d6f18b1b77aded60d55ac6f",
+    "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_relocation_comparison.json": "a3009859de7686345ab917b15854af7b55a54a03ad7772e7f79147126ff793d7"
+  },
+  "cluster_cpu_validation": {
+    "path": "/mnt/project/DriveDreamer-Policy-paired/reports/ddp_flow_grpo_world16/releases/d62de6bf255797c2945beff5dc93fea782be4ede40db38f9c4f4d7d887bc2770/cpu_validation.json",
+    "sha256": "d6636dd5d1e0bb2ba361c8da56beade7673f494c883ad4e9553afdf178d861fa"
+  },
+  "limitations": [
+    "Historical BF16 chunk1/2 FAIL unchanged; only chunk1.",
+    "World16 two-node Socket/NCCL fixed topology; no cross-world exact resume claim.",
+    "No RL performance improvement inferred from engineering acceptance."
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "scope": "Completed real world16 qualification before operational node relocation; no RL quality claim",
+  "variants": {
+    "frozen_visual": {
+      "cuda_adam": {
+        "status": "PASS",
+        "parameters": 672,
+        "maximum_error": {
+          "exp_avg": 0.0,
+          "exp_avg_sq": 0.0,
+          "master": 0.0
+        },
+        "forward_changed_elements": 34897003
+      },
+      "updates": [
+        {
+          "update": 1,
+          "inner_epoch": 0,
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "post_update_probe_ratio_min": 0.9561009407043457,
+          "post_update_probe_ratio_max": 1.0368417501449585,
+          "pre_clip_grad_norm": 1.3472849130630493,
+          "post_clip_grad_norm": null,
+          "reward_errors": 0,
+          "peak_gpu_gib_max": 19.187121868133545
+        },
+        {
+          "update": 2,
+          "inner_epoch": 1,
+          "pre_update_ratio_min": 0.9561009407043457,
+          "pre_update_ratio_max": 1.0368417501449585,
+          "post_update_probe_ratio_min": 0.9299595355987549,
+          "post_update_probe_ratio_max": 1.0664342641830444,
+          "pre_clip_grad_norm": 1.195163607597351,
+          "post_clip_grad_norm": null,
+          "reward_errors": 0,
+          "peak_gpu_gib_max": 20.229174613952637
+        }
+      ],
+      "resume": {
+        "status": "PASS",
+        "state_files": 50,
+        "state_values": 28731
+      },
+      "repeat": {
+        "status": "PASS",
+        "state_files": 50,
+        "state_values": 28731
+      },
+      "scaling": {
+        "passed": true,
+        "relative_l2_tolerance": 0.01,
+        "left": "runs/production_acceptance_v3/f_scale1/checkpoints/update_000001",
+        "right": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_scale/checkpoints/update_000001",
+        "modules": {
+          "qwen_vl_interface/exp_avg": {
+            "reference_squared_norm": 0.004569218985070691,
+            "difference_squared_norm": 1.3368540618440618e-08,
+            "max_abs": 1.1983327567577362e-05,
+            "numel": 1409410048,
+            "relative_l2": 0.00171049186741403,
+            "pass": true
+          },
+          "qwen_vl_interface/exp_avg_sq": {
+            "reference_squared_norm": 3.008793613860328e-07,
+            "difference_squared_norm": 4.058321000464594e-12,
+            "max_abs": 5.528563633561134e-07,
+            "numel": 1409410048,
+            "relative_l2": 0.0036726284857137017,
+            "pass": true
+          },
+          "action_model/exp_avg": {
+            "reference_squared_norm": 0.008981645971501804,
+            "difference_squared_norm": 2.475940691750154e-08,
+            "max_abs": 5.3729163482785225e-06,
+            "numel": 819503620,
+            "relative_l2": 0.0016603213498161513,
+            "pass": true
+          },
+          "action_model/exp_avg_sq": {
+            "reference_squared_norm": 1.292325523748514e-08,
+            "difference_squared_norm": 1.4231411398918756e-13,
+            "max_abs": 8.84001565282233e-08,
+            "numel": 819503620,
+            "relative_l2": 0.00331847099266895,
+            "pass": true
+          },
+          "action_input_model/exp_avg": {
+            "reference_squared_norm": 0.00018629330471900675,
+            "difference_squared_norm": 5.049929281001593e-10,
+            "max_abs": 1.5225959941744804e-06,
+            "numel": 4206592,
+            "relative_l2": 0.001646432857884824,
+            "pass": true
+          },
+          "action_input_model/exp_avg_sq": {
+            "reference_squared_norm": 2.4406726706421183e-10,
+            "difference_squared_norm": 2.6268207679264142e-15,
+            "max_abs": 8.366896508960053e-09,
+            "numel": 4206592,
+            "relative_l2": 0.003280654168851867,
+            "pass": true
+          }
+        },
+        "analysis_source_sha256": "918d9fef6e16333eec4dee428dca35401499f8c601880168443dd668f09f0738"
+      },
+      "export_check": {
+        "status": "TESTED",
+        "checkpoint": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_full_cont/checkpoints/update_000002",
+        "exported": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_full_export",
+        "original_evaluator": "infer.VLAAgent",
+        "tensors_identical": 989,
+        "scene": "015173513fc25684",
+        "output_max_abs": 0.0,
+        "protocol": "same original inference dtype, seed, observation, and ODE steps"
+      },
+      "resume_ode": {
+        "status": "TESTED",
+        "checkpoint": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_full_cont/checkpoints/update_000002",
+        "exported": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/f16_resume_export",
+        "original_evaluator": "infer.VLAAgent",
+        "tensors_identical": 989,
+        "scene": "015173513fc25684",
+        "output_max_abs": 0.0,
+        "protocol": "same original inference dtype, seed, observation, and ODE steps"
+      },
+      "official_nonzero_advantage_groups": 9
+    },
+    "unfrozen_visual": {
+      "cuda_adam": {
+        "status": "PASS",
+        "parameters": 672,
+        "maximum_error": {
+          "exp_avg": 0.0,
+          "exp_avg_sq": 0.0,
+          "master": 0.0
+        },
+        "forward_changed_elements": 34947431
+      },
+      "updates": [
+        {
+          "update": 1,
+          "inner_epoch": 0,
+          "pre_update_ratio_min": 1.0,
+          "pre_update_ratio_max": 1.0,
+          "post_update_probe_ratio_min": 0.9652500152587891,
+          "post_update_probe_ratio_max": 1.015496850013733,
+          "pre_clip_grad_norm": 1.370922565460205,
+          "post_clip_grad_norm": null,
+          "reward_errors": 0,
+          "peak_gpu_gib_max": 19.19809055328369
+        },
+        {
+          "update": 2,
+          "inner_epoch": 1,
+          "pre_update_ratio_min": 0.9652500152587891,
+          "pre_update_ratio_max": 1.015496850013733,
+          "post_update_probe_ratio_min": 0.9123161435127258,
+          "post_update_probe_ratio_max": 1.0719945430755615,
+          "pre_clip_grad_norm": 1.0702664852142334,
+          "post_clip_grad_norm": null,
+          "reward_errors": 0,
+          "peak_gpu_gib_max": 20.238811016082764
+        }
+      ],
+      "resume": {
+        "status": "PASS",
+        "state_files": 50,
+        "state_values": 28757
+      },
+      "repeat": {
+        "status": "PASS",
+        "state_files": 50,
+        "state_values": 28757
+      },
+      "scaling": {
+        "passed": true,
+        "relative_l2_tolerance": 0.01,
+        "left": "runs/production_acceptance_v3/u_scale1/checkpoints/update_000001",
+        "right": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_scale/checkpoints/update_000001",
+        "modules": {
+          "action_model/exp_avg": {
+            "reference_squared_norm": 0.011954815617151874,
+            "difference_squared_norm": 3.279901381697926e-08,
+            "max_abs": 5.458015948534012e-06,
+            "numel": 819503620,
+            "relative_l2": 0.0016563760861349468,
+            "pass": true
+          },
+          "action_model/exp_avg_sq": {
+            "reference_squared_norm": 2.657606825230655e-08,
+            "difference_squared_norm": 2.883834102434566e-13,
+            "max_abs": 1.0741496225818992e-07,
+            "numel": 819503620,
+            "relative_l2": 0.003294122696796344,
+            "pass": true
+          },
+          "qwen_vl_interface/exp_avg": {
+            "reference_squared_norm": 0.0032407550633867257,
+            "difference_squared_norm": 9.10640136449659e-09,
+            "max_abs": 1.0916497558355331e-05,
+            "numel": 1409410048,
+            "relative_l2": 0.0016762943832722044,
+            "pass": true
+          },
+          "qwen_vl_interface/exp_avg_sq": {
+            "reference_squared_norm": 1.4338453355158914e-07,
+            "difference_squared_norm": 1.5358058633855499e-12,
+            "max_abs": 3.880268195644021e-07,
+            "numel": 1409410048,
+            "relative_l2": 0.003272781463516342,
+            "pass": true
+          },
+          "action_input_model/exp_avg": {
+            "reference_squared_norm": 0.00041266695017039707,
+            "difference_squared_norm": 1.1160657584118808e-09,
+            "max_abs": 1.5035620890557766e-06,
+            "numel": 4206592,
+            "relative_l2": 0.0016445422967872176,
+            "pass": true
+          },
+          "action_input_model/exp_avg_sq": {
+            "reference_squared_norm": 5.533536639605375e-10,
+            "difference_squared_norm": 5.55465412147554e-15,
+            "max_abs": 9.419181878911331e-09,
+            "numel": 4206592,
+            "relative_l2": 0.0031683059703386143,
+            "pass": true
+          }
+        },
+        "analysis_source_sha256": "918d9fef6e16333eec4dee428dca35401499f8c601880168443dd668f09f0738"
+      },
+      "export_check": {
+        "status": "TESTED",
+        "checkpoint": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/checkpoints/update_000002",
+        "exported": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_export",
+        "original_evaluator": "infer.VLAAgent",
+        "tensors_identical": 995,
+        "scene": "015173513fc25684",
+        "output_max_abs": 0.0,
+        "protocol": "same original inference dtype, seed, observation, and ODE steps"
+      },
+      "resume_ode": {
+        "status": "TESTED",
+        "checkpoint": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_full_cont/checkpoints/update_000002",
+        "exported": "/mnt/project/DriveDreamer-Policy-paired/runs/resource_reallocation_v2/u16_resume_export",
+        "original_evaluator": "infer.VLAAgent",
+        "tensors_identical": 995,
+        "scene": "015173513fc25684",
+        "output_max_abs": 0.0,
+        "protocol": "same original inference dtype, seed, observation, and ODE steps"
+      },
+      "official_nonzero_advantage_groups": 9
+    }
+  }
+}
