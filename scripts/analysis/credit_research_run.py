@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 import threading
 import time
-from scripts.cluster_flow_grpo.cluster import run, write_json, exclusive_controller
+import subprocess
+from scripts.cluster_flow_grpo.cluster import run, write_json, exclusive_controller, ROOT, PYTHON, base_env
 
 
 def orchestrate(spec, train, evaluate, *, pause=time.sleep):
@@ -83,7 +84,32 @@ def main():
     slots=[(s['host'],s['gpu']) for a in spec['arms'].values() for s in a['evaluation']['slots']]
     if len(slots)!=8 or len(set(slots))!=8:raise ValueError('each arm needs four distinct evaluation slots')
     with exclusive_controller(spec['control_dir']):
-        print(json.dumps(orchestrate(spec,lambda p,c:run(p,cancel_event=c),evaluate_arm)))
+        result=orchestrate(spec,lambda p,c:run(p,cancel_event=c),evaluate_arm)
+        reports={}
+        for update in spec['evaluate_updates']:
+            root=Path(spec['results_root']);root.mkdir(parents=True,exist_ok=True)
+            v1= root/f'v1_step{update}'
+            v1_spec={**spec['v1_inputs'],'evaluations':{
+                label:str(Path(arm['evaluation']['root'])/f'{label}_{update}')
+                for label,arm in spec['arms'].items()}}
+            v1_spec_path=root/f'v1_step{update}_spec.json';write_json(v1_spec_path,v1_spec)
+            env=base_env();env.update(CUDA_VISIBLE_DEVICES='',PYTHONPATH=f'{ROOT}/navsim_v1.1/navsim:{ROOT}')
+            with (root/f'v1_step{update}.log').open('x') as stream:
+                subprocess.run([PYTHON,'-m','scripts.analysis.paired_dev_pdms_v1','--spec',str(v1_spec_path),
+                    '--workers','8','--output',str(v1)],env=env,cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,check=True,timeout=3600)
+            report=root/f'paired_step{update}'
+            command=[PYTHON,'-m','scripts.analysis.frozen_paired_results','--sft-v1',spec['baseline']['v1'],
+                '--sft-v2',spec['baseline']['v2'],'--group-v1',str(v1/'uniform.csv'),
+                '--batch-v1',str(v1/'discount.csv'),'--output',str(report),'--updates',str(update),
+                '--group-label','uniform step credit','--batch-label','gamma0.6 raw step credit']
+            for flag,label in [('group','uniform'),('batch','discount')]:
+                command += ['--'+flag+'-v2',str(Path(spec['arms'][label]['evaluation']['root'])/f'{label}_{update}'/'original_protocol_scores.csv')]
+            with (root/f'paired_step{update}.log').open('x') as stream:
+                subprocess.run(command,env=base_env(),cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,check=True,timeout=600)
+            reports[str(update)]=str(report/'paired_results.json')
+        result['paired_performance_reports']=reports
+        write_json(Path(spec['control_dir'])/'performance_result.json',result)
+        print(json.dumps(result))
 
 
 if __name__=='__main__':main()
