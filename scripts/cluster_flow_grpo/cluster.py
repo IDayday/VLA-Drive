@@ -5,6 +5,8 @@ Each remote supervisor owns exactly one process group and records its exit.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -17,6 +19,21 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 PYTHON = "/root/miniconda3/envs/ddp/bin/python"
+
+
+@contextmanager
+def exclusive_controller(root):
+    """Reject a second controller; never wait behind a live experiment."""
+    root=Path(root);root.mkdir(parents=True,exist_ok=True)
+    with (root/"controller.lock").open("a+") as stream:
+        try:
+            fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise RuntimeError(f"experiment controller already active: {root}") from exc
+        stream.seek(0);stream.truncate()
+        json.dump({"pid":os.getpid(),"host":socket.gethostname(),"started":time.time()},stream)
+        stream.flush()
+        yield
 
 
 def write_json(path, value):

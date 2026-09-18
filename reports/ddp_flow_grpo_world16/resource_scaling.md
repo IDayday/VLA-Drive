@@ -132,6 +132,15 @@ location publication is serialized. The16 CPU control tests verify complete
 fixed-seed coverage and disjoint GPU allocations; they are not a claim that
 the final five-seed model evaluations have already run.
 
+The actual paired CLI is also covered end-to-end by injected CPU executors:
+both complete budgets, all fixed seeds, best/last reuse and a complete restart
+exercise the native checkpoint planner and evaluation transactions. No training
+or inference is duplicated on that restart. A nonblocking controller lock rejects
+a second live launcher for the same output directory instead of starting another
+training job or waiting silently. The18 new CPU tests include a real competing
+process and reacquisition after release. These fixtures are control-flow evidence,
+not model updates or performance results.
+
 ## Current entry points
 
 All commands run from `/mnt/project/DriveDreamer-Policy-paired` with

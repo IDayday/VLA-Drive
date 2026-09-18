@@ -246,3 +246,12 @@ def test_final_dev_seed_schedule_uses_disjoint_gpus_and_all_fixed_seeds():
         assert eval_slots==slots;calls.append(seed);return seed
     assert evaluate_seeds(navtest,"checkpoint","last","navtest",slots)==[42,43,44,45,46]
     assert calls==[42,43,44,45,46]
+
+
+def test_controller_lock_rejects_real_second_process_then_allows_restart(tmp_path):
+    import subprocess
+    code="from scripts.cluster_flow_grpo.cluster import exclusive_controller\nwith exclusive_controller("+repr(str(tmp_path))+"): pass"
+    with cluster.exclusive_controller(tmp_path):
+        result=subprocess.run([sys.executable,"-c",code],capture_output=True,text=True,timeout=10)
+        assert result.returncode!=0 and "controller already active" in result.stderr
+    subprocess.run([sys.executable,"-c",code],check=True,timeout=10)

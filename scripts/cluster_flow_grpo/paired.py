@@ -14,7 +14,7 @@ import threading
 import time
 import numpy as np
 import pandas as pd
-from scripts.cluster_flow_grpo.cluster import run as cluster_run, PYTHON, ROOT, write_json
+from scripts.cluster_flow_grpo.cluster import run as cluster_run, PYTHON, ROOT, write_json, exclusive_controller
 from scripts.cluster_flow_grpo.parallel_evaluation import evaluate_parallel, run_evaluator
 from starVLA.rl.flow_grpo.acceptance import acceptance_context, enforce_training_budget, executable_identity
 from starVLA.rl.flow_grpo.config import resolve_config
@@ -188,7 +188,7 @@ def main():
             write_json(root/(variant+"_failure.json"),{"time":time.time(),"error":str(exc)})
             raise
 
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    with exclusive_controller(root), ThreadPoolExecutor(max_workers=2) as pool:
         futures = [pool.submit(variant_run, variant) for variant in plan["groups"]]
         for future in futures:
             future.result()
