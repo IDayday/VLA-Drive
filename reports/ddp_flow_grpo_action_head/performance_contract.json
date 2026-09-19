@@ -1,0 +1,25 @@
+{
+  "priority": "RL improvement over original F SFT before throughput",
+  "initialization": "original frozen_visual step100000; never old full-parameter RL update100",
+  "trainable_policy": "complete original action_model parameter-object set intersected with SFT trainables",
+  "trainable_tensors": 359,
+  "trainable_numel": 819503620,
+  "frozen": "all parameters outside action_model, including own visual, Qwen language, history encoder and embeddings",
+  "lora": "disabled; no untested parameter-efficiency restriction in main experiment",
+  "primary_metrics": [
+    "official NAVSIM v1 PDMS",
+    "official NAVSIM v2 one-stage EPDMS"
+  ],
+  "comparison": "paired RL minus original F SFT; same full navtest12146 tokens, original single-candidate10-step ODE, seeds42..46, stable token noise",
+  "reporting": "report both means and per-seed variation, log-bootstrap paired95% intervals, nonzero-to-zero and high-score regressions; no best-seed selection",
+  "performance_claim_rule": "Improvement in both mean metrics; evidence of a reliable improvement additionally requires paired confidence intervals that exclude zero. Otherwise report mixed/insufficient evidence. Engineering PASS is not RL improvement.",
+  "training_data": "full official103288 navtrain scenes; no curriculum, zero-score filtering or teacher candidates",
+  "budget": {
+    "global_scene_batch": 16,
+    "group_size": 16,
+    "num_steps": 10,
+    "inner_epochs": 2,
+    "optimizer_updates": 12912
+  },
+  "selection": "no navtest learning-rate/noise/seed/checkpoint selection"
+}

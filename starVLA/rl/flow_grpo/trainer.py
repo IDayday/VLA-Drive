@@ -114,6 +114,16 @@ def _run(cfg, sft, resume=None):
     initialize_control_group(runtime.get("asset_verification_timeout", 1800))
     configure_numerics()
     assets = rank0_result(lambda: resume_assets(cfg, sft), accelerator.device)
+    feature_store = None
+    if cfg.get("frozen_feature_cache"):
+        from .action_head_policy import FrozenFeatureStore, feature_identity
+        feature_contract = rank0_result(lambda: feature_identity(cfg, sft), accelerator.device)
+        assets["frozen_feature_cache"] = feature_contract
+        feature_store = synchronized_call(
+            lambda: FrozenFeatureStore(cfg["frozen_feature_cache"]["root"], feature_contract,
+                                      readonly=cfg["frozen_feature_cache"].get("readonly", False)),
+            accelerator.device,
+        )
     initialize_control_group(runtime.get("process_group_timeout", 120))
     rank0_call(
         lambda: enforce_training_budget(cfg, acceptance_context(cfg, assets)),
@@ -166,6 +176,9 @@ def _run(cfg, sft, resume=None):
     groups = optimizer_groups(policy, sft, cfg["optimizer"]["initial_lr_multiplier"])
     source_manifest = parameter_manifest(policy, groups)
     allowed_freezes = apply_rl_freezes(policy, cfg)
+    if cfg["trainable_policy"] == "action_head":
+        from .action_head_policy import freeze_for_action_head
+        allowed_freezes = tuple(sorted(set(allowed_freezes) | set(freeze_for_action_head(policy))))
     groups = optimizer_groups(policy, sft, cfg["optimizer"]["initial_lr_multiplier"])
     manifest = parameter_manifest(policy, groups)
     check_manifest(source_manifest, manifest, allowed_freezes)
@@ -184,6 +197,7 @@ def _run(cfg, sft, resume=None):
             json.dumps(
                 {
                     "user_authorized_rl_freezes": cfg.get("rl_freeze_modules", []),
+                    "trainable_policy": cfg["trainable_policy"],
                     "authorized_frozen_parameter_names": allowed_freezes,
                     "sft_trainable_numel": source_manifest["trainable_numel"],
                     "actor_trainable_numel": manifest["trainable_numel"],
@@ -196,6 +210,14 @@ def _run(cfg, sft, resume=None):
     dtype_before = dtype_inventory(policy)
     # Clone BEFORE wrapping checkpoint methods or DeepSpeed conversion.
     reference = make_reference(policy).to("cpu")
+    if feature_store is not None:
+        from .action_head_policy import install_frozen_features, CachedKeyedDataset
+        # Source checkpoint/encoder are identical and immutable. Each model still
+        # uses its OWN trainable/fixed qwen_proj and complete action head.
+        install_frozen_features(policy, feature_store)
+        install_frozen_features(reference, feature_store)
+        cached_dataset = CachedKeyedDataset(dataset, feature_store, policy.encode_policy_features)
+        train_stream.dataset = replay_stream.dataset = cached_dataset
     enable_checkpointing(policy, runtime["activation_checkpointing"])
     from .velocity_graph import configure_velocity_graph
     configure_velocity_graph(policy, runtime.get("velocity_cuda_graph", False))
@@ -328,7 +350,7 @@ def _run(cfg, sft, resume=None):
     from infer import deal_action_1225
 
     accelerator.print(
-        f"Flow-GRPO full SFT: {manifest['trainable_numel']:,} trainable parameters; start={update}, stop={maximum}"
+        f"Flow-GRPO {cfg['trainable_policy']}: {manifest['trainable_numel']:,} trainable parameters; start={update}, stop={maximum}"
     )
     optimizer.zero_grad()
     parameter_probe = ParameterProbe(policy)

@@ -58,9 +58,10 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         for key, value in fields.items():
             if cfg[section].get(key) != value:
                 raise ValueError("full epoch registered recipe mismatch: " + section + "." + key)
+    action_head = cfg.get("trainable_policy") == "action_head"
     if (cfg["checkpoint_contract"]["variant"] != "frozen_visual"
             or cfg["checkpoint_contract"]["sha256"] != "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4"
-            or cfg.get("lora") != "disabled" or cfg.get("trainable_policy") != "inherit_sft"
+            or cfg.get("lora") != "disabled" or cfg.get("trainable_policy") not in ("inherit_sft", "action_head")
             or cfg.get("rl_freeze_modules") != ["qwen_vl_interface.model.visual"]
             or cfg["sampling"].get("transition_mode", "flow_sde") != "flow_sde"):
         raise ValueError("full epoch source/model contract changed")
@@ -77,6 +78,8 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         return
     if record.get("context") != context:
         raise ValueError("full epoch source/config/asset/world identity changed")
+    if action_head:
+        validate_action_head_evidence(record.get("action_head_cache"), cfg, context)
     if runtime.get("velocity_cuda_graph", False):
         validate_velocity_graph_evidence(record.get("velocity_graph"), cfg)
     pilot_context = artifact(record["pilot_context"])
@@ -122,8 +125,8 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         if row.get("stability", {}).get("controller", {}).get("updates") != row["update"]:
             raise ValueError("pilot KL feedback did not count actual updates")
         for rank in ranks:
-            if rank.get("device", {}).get("type") != "cuda" or rank.get("gradient_tensors") != 672:
-                raise ValueError("pilot requires actual full-parameter GPU gradients")
+            if rank.get("device", {}).get("type") != "cuda" or rank.get("gradient_tensors") != (359 if action_head else 672):
+                raise ValueError("pilot requires actual contracted GPU gradients")
     if rows[0].get("pre_update_ratio_min", 0) < .999 or rows[0].get("pre_update_ratio_max", 2) > 1.001:
         raise ValueError("pilot initial ratio mismatch")
     if rows[0].get("advantage_nonzero_group_fraction", 0) <= 0:
@@ -168,3 +171,36 @@ def validate_velocity_graph_evidence(pointer, cfg):
             if set(check) != {"velocity", "mean", "std", "elementwise_logprob"} or any(
                     row.get("equal") is not True or row.get("max_abs") != 0 for row in check.values()):
                 raise ValueError("velocity graph real transition mismatch")
+
+
+def validate_action_head_evidence(pointer, cfg, context):
+    if not pointer or not cfg.get("frozen_feature_cache"):
+        raise ValueError("action-head epoch requires its own cached-prefix CUDA proof")
+    proof = artifact(pointer)
+    if (proof.get("status") != "PASS" or proof.get("device_type") != "cuda"
+            or proof.get("checkpoint_sha256") != cfg["checkpoint_contract"]["sha256"]
+            or proof.get("config_hash") != config_hash(cfg)
+            or proof.get("executable_sha256") != context["executable_sha256"]
+            or proof.get("script_sha256") != file_sha("scripts/analysis/action_head_cache_probe.py")
+            or proof.get("trainable_numel") != 819503620
+            or len(proof.get("trainable_names", [])) != 359
+            or not all(n.startswith("action_model.") for n in proof["trainable_names"])
+            or proof.get("prefix_matches_own_reference") is not True
+            or proof.get("reference_no_grad") is not True):
+        raise ValueError("action-head cache/gradient proof does not match actual profile")
+    rows = proof.get("scenes", [])
+    if len(rows) != 4 or len({r.get("token") for r in rows}) != 4:
+        raise ValueError("fixed real-scene cache comparison incomplete")
+    if rows[0].get("source_sft_max_abs", float('inf')) > 2e-6 or rows[0].get("source_ode_max_abs", float('inf')) > 2e-5:
+        raise ValueError("cached action-head source oracle failed")
+    if not any(r.get("official_reward_nonzero_advantage") for r in rows):
+        raise ValueError("fixed cache probe has no official RL signal")
+    for row in rows:
+        if (any(row.get(k) is not True for k in ("condition_equal", "chain_equal", "old_equal", "frozen_no_grad"))
+                or set(row.get("gradients", {})) != set(proof["trainable_names"])
+                or any(g.get("equal") is not True for g in row["gradients"].values())
+                or set(row.get("transitions_equal", {})) != {"velocity", "mean", "std", "elementwise_logprob"}
+                or any(v is not True for v in row["transitions_equal"].values())
+                or set(row.get("sft_equal", {})) != {"action_loss", "rgb_loss", "gs_loss", "reward_loss"}
+                or any(v is not True for v in row["sft_equal"].values())):
+            raise ValueError("cached action-head tensor/gradient equivalence failed")

@@ -36,6 +36,8 @@ def register(config, root):
             'exact_resume':pointer(root/'exact_resume.json')}
     if cfg["runtime"].get("velocity_cuda_graph", False):
         record["velocity_graph"]=pointer(root/"graph_probe/probe.json")
+    if cfg["trainable_policy"] == "action_head":
+        record["action_head_cache"] = pointer(root/"cache_probe/probe.json")
     enforce_full_epoch(cfg,context,record=record)
     dest=Path(cfg['runtime']['epoch_evidence'])
     if dest.exists() and json.loads(dest.read_text())!=record:

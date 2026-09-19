@@ -121,8 +121,15 @@ def resolve_config(
             for k in ["sft_feature_output", "policy_feature_output"]
         ):
             raise ValueError("action-only checkpoints require normalized Qwen features")
-    if cfg["trainable_policy"] != "inherit_sft" or cfg["lora"] != "disabled":
-        raise ValueError("SFT parameter inheritance is mandatory")
+    if cfg["trainable_policy"] not in ("inherit_sft", "action_head") or cfg["lora"] != "disabled":
+        raise ValueError("unsupported trainable policy contract")
+    if cfg["trainable_policy"] == "action_head":
+        if cfg["checkpoint_contract"]["origin"] != "action_only_release":
+            raise ValueError("action-head RL requires the audited action-only checkpoint")
+        if cfg["runtime"]["data_workers"] != 0:
+            raise ValueError("GPU feature misses must execute in the owning training process")
+    if cfg.get("frozen_feature_cache") and cfg["trainable_policy"] != "action_head":
+        raise ValueError("trainable encoder features cannot be cached")
     if (
         not cfg["retention"]["original_sft_enabled"]
         or cfg["retention"]["original_sft_coefficient"] <= 0
