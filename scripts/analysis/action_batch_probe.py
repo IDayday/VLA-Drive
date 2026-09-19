@@ -37,13 +37,16 @@ def main():
     p.add_argument('--config', required=True); p.add_argument('--bank', required=True)
     p.add_argument('--output', required=True)
     p.add_argument('--head-storage', choices=['bf16', 'fp32'], default='bf16')
+    p.add_argument('--preserve-bf16-time-input', action='store_true',
+                   help='FP32 leaf-gradient oracle retaining the source timestep input quantization')
     p.add_argument('--mode', choices=['serial_on', 'serial_off', 'candidate16_off', 'flat160_off', 'flat160_on'], required=True)
     a = p.parse_args(); cfg, sft = resolve_config(a.config); configure_numerics()
     out = Path(a.output); out.mkdir(parents=True, exist_ok=False)
     report = dict(status='RUNNING', mode=a.mode, scope=__doc__, device=torch.cuda.get_device_name(),
                   torch_version=torch.__version__, script_sha256=file_sha(__file__),
                   checkpoint_sha256=cfg['checkpoint_contract']['sha256'],
-                  head_storage=a.head_storage, scenes=[])
+                  head_storage=a.head_storage,
+                  preserve_bf16_time_input=a.preserve_bf16_time_input, scenes=[])
     atomic_json(out/'report.json', report)
     # Match the trainer/precompute identity timing: model construction adds
     # resolved defaults to the SFT OmegaConf object.
@@ -52,6 +55,14 @@ def main():
     freeze_for_action_head(policy)
     # Preserve source BF16 values exactly, but remove BF16 leaf accumulation.
     if a.head_storage == 'fp32': policy.action_model.float()
+    if a.preserve_bf16_time_input:
+        if a.head_storage != 'fp32': raise ValueError('oracle requires FP32 leaves')
+        # The source TimestepEncoder explicitly casts the sinusoid to parameter
+        # dtype before its FP32-autocast MLP. Hold those VALUES fixed while moving
+        # trainable leaves to FP32, so this isolates backward accumulation instead
+        # of also changing the timestep embedding input. Diagnostic only.
+        policy.action_model.model.timestep_encoder.time_proj.register_forward_hook(
+            lambda module, inputs, output: output.to(torch.bfloat16))
     install_frozen_features(policy, store)
     trainable = {n: p for n, p in policy.named_parameters() if p.requires_grad}
     report['trainable_tensors'] = len(trainable)

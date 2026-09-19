@@ -1,5 +1,6 @@
 """Real CUDA cached/uncached head contract and source-oracle comparisons."""
 import argparse
+from dataclasses import replace
 import json
 from pathlib import Path
 import time
@@ -21,6 +22,23 @@ from starVLA.rl.flow_grpo.source_oracle import action_only_source
 from starVLA.rl.flow_grpo.acceptance import executable_identity
 from starVLA.rl.flow_grpo.transactions import atomic_json
 from starVLA.rl.flow_grpo.contracts import tensor_hashes
+
+
+def restore_current_images(chain, example):
+    """Hydrate cache-only observations for the uncached oracle, never resample.
+
+    The token, instruction and ego history must agree with the saved behavior.
+    Only deployment observations are reconstructed; future labels are excluded.
+    The resulting regenerated chain must still match the saved chain exactly.
+    """
+    observation = prepare_policy_observation([example])
+    old = chain.observation
+    if (observation.tokens != old.tokens or observation.instructions != old.instructions
+            or len(observation.states) != len(old.states)
+            or any(not np.array_equal(a, b) for a, b in zip(observation.states, old.states))
+            or not all(observation.images)):
+        raise ValueError('raw/current observation differs from saved behavior')
+    return replace(chain, observation=observation)
 
 
 def main():
@@ -46,10 +64,11 @@ def main():
     for rank in range(4):
         chain = to_device(torch.load(Path(a.bank)/f'rollout_rank{rank}_v0.pt', map_location='cpu', weights_only=False)[0], 'cuda')
         example = dataset[(chain.observation.tokens[0], 42)]
+        chain = restore_current_images(chain, example)
         row = {'token': example['token'], 'official_reward_nonzero_advantage': bool(chain.advantages.abs().max()>0)}
         policy.encode_policy_features = original
         with torch.no_grad(), torch.autocast('cuda', dtype=torch.bfloat16):
-            expected = evaluate_transitions(policy, chain.observation, chain)
+            expected = evaluate_transitions(policy, chain.observation, chain, layout=cfg['runtime'].get('transition_evaluation', 'serial'))
             condition = policy.encode_policy_condition(chain.observation)
             state = capture_rng(policy)
             loss = policy.compute_sft_losses([example])
@@ -65,7 +84,7 @@ def main():
         def backward():
             policy.zero_grad(set_to_none=True)
             with torch.autocast('cuda', dtype=torch.bfloat16):
-                stats = evaluate_transitions(policy, chain.observation, chain, checkpoint=True)
+                stats = evaluate_transitions(policy, chain.observation, chain, checkpoint=cfg['runtime']['activation_checkpointing'], layout=cfg['runtime'].get('transition_evaluation', 'serial'))
                 current = reduce_dimensions(stats['elementwise_logprob'], chain.dimension_mask, chain.spec.reduction)
                 pg,_ = clipped_surrogate(current, chain.old_logprob, chain.advantages[:,:,None], cfg['algorithm']['ppo_clip_range'])
                 objective = (pg*chain.transition_mask).sum()/chain.transition_mask.sum()
@@ -77,7 +96,7 @@ def main():
         policy.encode_policy_features([example])  # populate with original replay labels
         with torch.no_grad(), torch.autocast('cuda', dtype=torch.bfloat16):
             cached_condition = policy.encode_policy_condition(chain.observation)
-            actual = evaluate_transitions(policy, chain.observation, chain)
+            actual = evaluate_transitions(policy, chain.observation, chain, layout=cfg['runtime'].get('transition_evaluation', 'serial'))
             restore_rng(state, policy); cached_loss = policy.compute_sft_losses([example])
             generated = sample_chain(policy, chain.observation, chain.spec, 0, chain.noise_seed, chain.provenance)
         row['condition_equal'] = torch.equal(condition, cached_condition)
