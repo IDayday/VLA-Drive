@@ -283,7 +283,9 @@ def acceptance_context(cfg, resume_identity):
 
 def enforce_training_budget(cfg, context=None, *, record=None):
     from .diagnostic_loss import validate_scope
+    from .config import validate_transition_layout
 
+    validate_transition_layout(cfg)
     runtime = cfg["runtime"]
     validate_scope(runtime)
     mode = runtime.get("run_mode", "diagnostic")

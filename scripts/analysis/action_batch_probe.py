@@ -27,48 +27,31 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 
 def flat_transitions(policy, chain, checkpoint):
-    """Flatten only saved transition data; never parallelize ODE time evolution."""
-    condition = policy.encode_policy_condition(chain.observation)
-    b, g, kp, h, d = chain.chain.shape
-    k = kp - 1
-    x = chain.chain[:, :, :-1].detach().reshape(b*g*k, h, d)
-    buckets = torch.tensor([int(j/k*policy.action_model.num_timestep_buckets)
-                            for j in range(k)], device=x.device)
-    buckets = buckets[None, None].expand(b, g, -1).reshape(-1)
-    cond = condition[:, None, None].expand(b, g, k, -1, -1).reshape(b*g*k, *condition.shape[1:])
-    v = velocity(policy, x, buckets, cond, checkpoint).reshape(b, g, k, h, d)
-    means, stds, logs = [], [], []
-    # Preserve the existing probability implementation / time endpoint rules.
-    for j in range(k):
-        xt = chain.chain[:, :, j].detach().reshape(b*g, h, d)
-        xn = chain.chain[:, :, j+1].detach().reshape(b*g, h, d)
-        dist = transition(xt, v[:, :, j].reshape(b*g, h, d), chain.times[j],
-                          chain.times[j+1]-chain.times[j], noise_level=chain.spec.noise_level,
-                          first_dt=chain.times[1], temporal_correlation=chain.spec.temporal_noise_correlation,
-                          transition_mode=chain.spec.transition_mode)
-        means.append(dist.mean.reshape(b, g, h, d))
-        stds.append(torch.broadcast_to(dist.std, xt.shape).reshape(b, g, h, d))
-        logs.append(dist.logprob(xn).reshape(b, g, h, d))
-    return dict(velocity=v, mean=torch.stack(means, 2), std=torch.stack(stds, 2),
-                elementwise_logprob=torch.stack(logs, 2))
+    """Use the actual trainer implementation, not a parallel probe algorithm."""
+    return evaluate_transitions(policy, chain.observation, chain, checkpoint,
+                                layout="flat_saved_chain")
 
 
 def main():
     p = argparse.ArgumentParser(__doc__)
     p.add_argument('--config', required=True); p.add_argument('--bank', required=True)
     p.add_argument('--output', required=True)
+    p.add_argument('--head-storage', choices=['bf16', 'fp32'], default='bf16')
     p.add_argument('--mode', choices=['serial_on', 'serial_off', 'candidate16_off', 'flat160_off', 'flat160_on'], required=True)
     a = p.parse_args(); cfg, sft = resolve_config(a.config); configure_numerics()
     out = Path(a.output); out.mkdir(parents=True, exist_ok=False)
     report = dict(status='RUNNING', mode=a.mode, scope=__doc__, device=torch.cuda.get_device_name(),
                   torch_version=torch.__version__, script_sha256=file_sha(__file__),
-                  checkpoint_sha256=cfg['checkpoint_contract']['sha256'], scenes=[])
+                  checkpoint_sha256=cfg['checkpoint_contract']['sha256'],
+                  head_storage=a.head_storage, scenes=[])
     atomic_json(out/'report.json', report)
     # Match the trainer/precompute identity timing: model construction adds
     # resolved defaults to the SFT OmegaConf object.
     store = FrozenFeatureStore(cfg['frozen_feature_cache']['root'], feature_identity(cfg, sft))
     policy = load_policy(cfg, sft).cuda().bfloat16().eval()
     freeze_for_action_head(policy)
+    # Preserve source BF16 values exactly, but remove BF16 leaf accumulation.
+    if a.head_storage == 'fp32': policy.action_model.float()
     install_frozen_features(policy, store)
     trainable = {n: p for n, p in policy.named_parameters() if p.requires_grad}
     report['trainable_tensors'] = len(trainable)

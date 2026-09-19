@@ -471,7 +471,8 @@ def _run(cfg, sft, resume=None):
                             reference.to(accelerator.device)
                         with torch.no_grad(), accelerator.autocast():
                             statistics = synchronized_call(
-                                lambda: evaluate_transitions(reference, observation, rollout),
+                                lambda: evaluate_transitions(reference, observation, rollout,
+                                    layout=runtime.get("transition_evaluation", "serial")),
                                 accelerator.device,
                             )
                         if runtime["reference_offload"]:

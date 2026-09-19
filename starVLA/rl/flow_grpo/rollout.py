@@ -90,8 +90,8 @@ class RolloutBatch:
             raise ValueError("correlated Gaussian cannot mask Cholesky coordinates as action dimensions")
 
 
-def velocity(policy, x, bucket, condition, checkpoint=False):
-    if getattr(policy, "_flow_velocity_graph_enabled", False) and not torch.is_grad_enabled():
+def velocity(policy, x, bucket, condition, checkpoint=False, *, use_graph=True):
+    if use_graph and getattr(policy, "_flow_velocity_graph_enabled", False) and not torch.is_grad_enabled():
         from .velocity_graph import graph_velocity
         return graph_velocity(policy, x, bucket, condition)
     head = policy.action_model
@@ -183,7 +183,7 @@ def sample_chain(policy, observation, spec, policy_version, seed, provenance):
     return result
 
 
-def evaluate_transitions(policy, observation, rollout, checkpoint=False):
+def evaluate_transitions(policy, observation, rollout, checkpoint=False, layout="serial"):
     """One fresh VLM graph per scene, shared by chunked fixed G*K transitions."""
     rollout.validate()
     condition = policy.encode_policy_condition(observation)
@@ -193,6 +193,10 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
         and not condition.requires_grad
     ):
         raise RuntimeError("current condition is detached from trainable VLM")
+    if layout == "flat_saved_chain":
+        return _flat_saved_transitions(policy, condition, rollout, checkpoint)
+    if layout != "serial":
+        raise ValueError(f"unknown transition evaluation layout: {layout}")
     b, g, kp, h, d = rollout.chain.shape
     k = kp - 1
     means = []
@@ -242,3 +246,41 @@ def evaluate_transitions(policy, observation, rollout, checkpoint=False):
         "std": torch.stack(stds, 2),
         "elementwise_logprob": torch.stack(logps, 2),
     }
+
+
+def _flat_saved_transitions(policy, condition, rollout, checkpoint):
+    """Batch fixed (scene,candidate,time) inputs; sampling remains sequential.
+
+    This changes the GEMM/backward layout, not the objective or sampling spec.
+    The trainer restricts this layout to bounded diagnostics until qualified.
+    Keep probability evaluation identical to the serial implementation, including
+    its endpoint convention and correlated covariance. No candidate is resampled.
+    """
+    b, g, kp, h, d = rollout.chain.shape
+    k = kp - 1
+    x = rollout.chain[:, :, :-1].detach().reshape(b * g * k, h, d)
+    buckets = torch.tensor(
+        [int(j / k * policy.action_model.num_timestep_buckets) for j in range(k)],
+        device=x.device, dtype=torch.long,
+    )[None, None].expand(b, g, k).reshape(-1)
+    cond = condition[:, None, None].expand(b, g, k, *condition.shape[1:])
+    cond = cond.reshape(b * g * k, *condition.shape[1:])
+    # The existing no-grad graph is bound to the rollout's candidate=1 shape.
+    # Do not reuse it for B*G*K or silently invalidate the rollout graph.
+    v = velocity(policy, x, buckets, cond, checkpoint, use_graph=False).reshape(b, g, k, h, d)
+    means, stds, logs = [], [], []
+    for j in range(k):
+        xt = rollout.chain[:, :, j].detach().reshape(b * g, h, d)
+        xn = rollout.chain[:, :, j + 1].detach().reshape(b * g, h, d)
+        dist = transition(
+            xt, v[:, :, j].reshape(b * g, h, d), rollout.times[j],
+            rollout.times[j + 1] - rollout.times[j],
+            noise_level=rollout.spec.noise_level, first_dt=rollout.times[1],
+            temporal_correlation=rollout.spec.temporal_noise_correlation,
+            transition_mode=rollout.spec.transition_mode,
+        )
+        means.append(dist.mean.reshape(b, g, h, d))
+        stds.append(torch.broadcast_to(dist.std, xt.shape).reshape(b, g, h, d))
+        logs.append(dist.logprob(xn).reshape(b, g, h, d))
+    return {"velocity": v, "mean": torch.stack(means, 2),
+            "std": torch.stack(stds, 2), "elementwise_logprob": torch.stack(logs, 2)}

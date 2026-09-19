@@ -6,6 +6,20 @@ from omegaconf import OmegaConf
 from .contracts import digest
 
 
+def validate_transition_layout(cfg):
+    runtime = cfg["runtime"]
+    layout = runtime.get("transition_evaluation", "serial")
+    if layout not in ("serial", "flat_saved_chain"):
+        raise ValueError("unknown transition_evaluation layout")
+    if layout != "serial":
+        if runtime.get("run_mode", "diagnostic") != "diagnostic":
+            raise ValueError("flat_saved_chain is NOT_READY: bounded diagnostics only")
+        if cfg.get("trainable_policy") != "action_head":
+            raise ValueError("flat_saved_chain currently requires the action-head contract")
+        if runtime.get("max_updates") is None or runtime["max_updates"] > 8:
+            raise ValueError("flat_saved_chain diagnostics are bounded to 8 updates")
+
+
 def resolve_config(
     path, sft_checkpoint=None, max_updates=None, output_dir=None, overrides=None
 ):
@@ -36,6 +50,7 @@ def resolve_config(
         cfg["runtime"]["max_updates"] = int(max_updates)
     if output_dir:
         cfg["runtime"]["output_dir"] = str(Path(output_dir).resolve())
+    validate_transition_layout(cfg)
     if cfg["paths"].get("asset_publication"):
         from .asset_publication import verify_publication
 

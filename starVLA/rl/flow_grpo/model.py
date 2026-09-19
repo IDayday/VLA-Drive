@@ -57,7 +57,7 @@ class FlowGRPOActor(nn.Module):
             with torch.no_grad():
                 return sample_chain(self.policy, **kwargs)
         if mode == "transitions":
-            return evaluate_transitions(self.policy, **kwargs)
+            return evaluate_transitions(self.policy, layout=self.rl_config["runtime"].get("transition_evaluation", "serial"), **kwargs)
         if mode == "sft":
             return self.policy.compute_sft_losses(**kwargs)
         if mode != "update":
@@ -69,6 +69,7 @@ class FlowGRPOActor(nn.Module):
             rollout.observation,
             rollout,
             checkpoint=cfg["runtime"]["activation_checkpointing"],
+            layout=cfg["runtime"].get("transition_evaluation", "serial"),
         )
         current = reduce_dimensions(
             stats["elementwise_logprob"], rollout.dimension_mask, rollout.spec.reduction
