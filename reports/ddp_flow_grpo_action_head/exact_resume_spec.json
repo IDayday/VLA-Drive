@@ -1,0 +1,63 @@
+{
+  "job_id": "F_action_head_exact_inner_resume",
+  "cpu_only": true,
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.cluster_flow_grpo.boundary_evidence",
+    "--continuous",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/pilot/checkpoints/update_000002",
+    "--resumed",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/resumed/checkpoints/update_000002",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/exact_resume.json",
+    "--cpu-threads",
+    "8",
+    "--streaming-load"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/exact_resume_control",
+  "timeout_seconds": 900,
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": ""
+  }
+}

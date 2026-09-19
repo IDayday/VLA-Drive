@@ -1,0 +1,2246 @@
+{
+  "engineering": "READY_FOR_THIS_PROFILE",
+  "performance": "INSUFFICIENT_EVIDENCE",
+  "execution_commit": "2e7d0220287d394dcc7d36d1076548ae2949ab31",
+  "executable_sha256": "02d7a7287feaf5730086457160eb05bf6e7a4fdf3d437267e535af41219e8e4d",
+  "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+  "config_hash": "dc4b99b0b4edf292afde3d61f58f808979d27e899d48a3a0e9d5e06a4d32cebd",
+  "trainable_tensors": 359,
+  "trainable_numel": 819503620,
+  "cache_probe": {
+    "status": "PASS",
+    "source_sft_max_abs": 0.0,
+    "source_ode_max_abs": 0.0,
+    "fixed_scenes": 4,
+    "scenes_with_official_nonzero_advantage": 2,
+    "all359_rl_gradients_exact_each_scene": true
+  },
+  "pilot": {
+    "status": "PASS",
+    "world_size": 16,
+    "updates": 2,
+    "first_ratio_min": 1.0,
+    "first_ratio_max": 1.0,
+    "second_ratio_min": 0.9999966621398926,
+    "second_ratio_max": 1.0000050067901611,
+    "official_nonzero_group_fraction": 0.375,
+    "candidate_pair_ade_scene_median_m": 0.11826363408699221,
+    "actual_dtype_by_rank": [
+      {
+        "rank": 0,
+        "device": {
+          "type": "cuda",
+          "index": 0,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 1,
+        "device": {
+          "type": "cuda",
+          "index": 1,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 2,
+        "device": {
+          "type": "cuda",
+          "index": 2,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 3,
+        "device": {
+          "type": "cuda",
+          "index": 3,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 4,
+        "device": {
+          "type": "cuda",
+          "index": 4,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 5,
+        "device": {
+          "type": "cuda",
+          "index": 5,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 6,
+        "device": {
+          "type": "cuda",
+          "index": 6,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 7,
+        "device": {
+          "type": "cuda",
+          "index": 7,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 8,
+        "device": {
+          "type": "cuda",
+          "index": 0,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 9,
+        "device": {
+          "type": "cuda",
+          "index": 1,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 10,
+        "device": {
+          "type": "cuda",
+          "index": 2,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 11,
+        "device": {
+          "type": "cuda",
+          "index": 3,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 12,
+        "device": {
+          "type": "cuda",
+          "index": 4,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 13,
+        "device": {
+          "type": "cuda",
+          "index": 5,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 14,
+        "device": {
+          "type": "cuda",
+          "index": 6,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      },
+      {
+        "rank": 15,
+        "device": {
+          "type": "cuda",
+          "index": 7,
+          "name": "NVIDIA A800-SXM4-80GB"
+        },
+        "gradient_tensors": 359,
+        "dtype": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "dtype_before_step": {
+          "parameters": {
+            "torch.bfloat16": 988
+          },
+          "gradients": {},
+          "parameter_grad_accum": {},
+          "communication_buffers": [
+            "torch.float32"
+          ],
+          "accumulation_dtype": "torch.float32",
+          "communication_dtype": "torch.float32",
+          "partition_buffers": [
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32",
+            "torch.float32"
+          ],
+          "master_weights": [
+            "torch.float32"
+          ],
+          "optimizer_states": {
+            "torch.float32": 3
+          }
+        },
+        "activation_dtypes": {
+          "qwen_vl_interface.model.visual": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_input_model": {
+            "input": [
+              "torch.float32"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "qwen_vl_interface.model.model.language_model": {
+            "input": [],
+            "output": [
+              "torch.bfloat16"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.qwen_proj": {
+            "input": [
+              "torch.bfloat16"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.action_encoder": {
+            "input": [
+              "torch.float32",
+              "torch.int64"
+            ],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          },
+          "action_model.model": {
+            "input": [],
+            "output": [
+              "torch.float32"
+            ],
+            "parameter": [
+              "torch.bfloat16"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "adam": {
+    "status": "PASS",
+    "tensors": 359,
+    "observer": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/adam.json"
+  },
+  "original_export": {
+    "status": "TESTED",
+    "checkpoint": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/pilot/checkpoints/update_000002",
+    "exported": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/exported2",
+    "original_evaluator": "infer.VLAAgent",
+    "tensors_identical": 989,
+    "scene": "cf6df734e86157fa",
+    "output_max_abs": 0.0,
+    "protocol": "same original inference dtype, seed, observation, and ODE steps"
+  },
+  "historical_chunk1_2": "FAIL unchanged; only candidate_chunk_size=1 supported by this scope",
+  "failed_cache_probe": "FAIL retained: source oracle called legacy inference mode; all cache/gradient comparisons were exact; observer corrected without kernel/tolerance/scenario changes",
+  "scope": "Registered single-F action-head16GPU full-data experiment; BF16 ZeRO2 FP32 partitions/communication; G16 K10 candidate/transition chunks1; not other topology, U, LoRA or chunk>=2",
+  "exact_resume": {
+    "status": "PASS",
+    "files": 51,
+    "comparison": "exact model, optimizer, RNG, pending behavior and stream state; zero tolerances"
+  },
+  "release": {
+    "path": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/epoch_evidence.json",
+    "status": "AUTHORIZED_FULL_DATA_EXPERIMENT"
+  },
+  "experiment": {
+    "pid": 1695985,
+    "spec": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/experiment_spec.json",
+    "scope": "one full navtrain epoch; original F initialization; fixed last versus SFT full navtest five seeds"
+  }
+}

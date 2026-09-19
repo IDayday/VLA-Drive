@@ -1,0 +1,46 @@
+{
+  "job_id": "F_action_head_original_export",
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [
+        0
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  ],
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "starVLA.rl.flow_grpo.cli",
+    "verify-export",
+    "--config",
+    "configs/flow_grpo/frozen_action_head_epoch1.yaml",
+    "--checkpoint",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/pilot/checkpoints/update_000002",
+    "--export-dir",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/exported2",
+    "--output-dir",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/export_check"
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/export_check_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 600
+}

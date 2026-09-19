@@ -1,0 +1,59 @@
+{
+  "job_id": "F_action_head_cache_oracle_optimized",
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [
+        0
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ]
+    }
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/cache_probe_optimized_control",
+  "timeout_seconds": 3600,
+  "require_idle_gpus": true,
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.action_head_cache_probe",
+    "--config",
+    "configs/flow_grpo/frozen_action_head_epoch1.yaml",
+    "--bank",
+    "/mnt/project/DriveDreamer-Policy-epoch-speed/runs/epoch_speed/world16/pilot",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/cache_probe"
+  ]
+}
