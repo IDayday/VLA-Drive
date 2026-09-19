@@ -1,0 +1,107 @@
+{
+  "status": "EXPERIMENTAL_NOT_READY",
+  "scope": "Real A800 two fixed official-reward G16 K10 chains, two repeats each; action RL+reference forward/backward only. No optimizer, replay, distributed reductions or new sampling.",
+  "cpu_packing_tests": {
+    "passed": 8,
+    "exit_code": 0
+  },
+  "native_source_unchanged": true,
+  "production_training": "unchanged and running",
+  "historical_chunk1_2": "FAIL unchanged",
+  "measurements": {
+    "serial_on": {
+      "status": "MEASURED_NOT_QUALIFIED",
+      "seconds_mean": 25.713678697124124,
+      "seconds_range": [
+        25.507606433704495,
+        25.944419242441654
+      ],
+      "peak_allocated_gib": 10.139978408813477
+    },
+    "serial_off": {
+      "status": "OOM",
+      "seconds_mean": null,
+      "seconds_range": null,
+      "peak_allocated_gib": 76.27269792556763
+    },
+    "candidate16_off": {
+      "status": "MEASURED_NOT_QUALIFIED",
+      "seconds_mean": 1.9174458659254014,
+      "seconds_range": [
+        1.8350110836327076,
+        1.999580917879939
+      ],
+      "peak_allocated_gib": 38.957435607910156
+    },
+    "flat160_off": {
+      "status": "MEASURED_NOT_QUALIFIED",
+      "seconds_mean": 0.5188886155374348,
+      "seconds_range": [
+        0.4920215252786875,
+        0.5881916601210833
+      ],
+      "peak_allocated_gib": 11.756125450134277
+    },
+    "flat160_on": {
+      "status": "MEASURED_NOT_QUALIFIED",
+      "seconds_mean": 0.616664201952517,
+      "seconds_range": [
+        0.5284989643841982,
+        0.7255508843809366
+      ],
+      "peak_allocated_gib": 11.741518020629883
+    }
+  },
+  "gradient_comparison": {
+    "candidate16_off_rank1": {
+      "status": "FAIL",
+      "tensors": 359,
+      "failed_tensors": 196,
+      "max_abs": 0.00244140625,
+      "relative_l2": 0.01781829423348982,
+      "norm_ratio": 0.9998418320361315,
+      "cosine": 0.9998412415933627,
+      "outside_tolerance": 8459417,
+      "near_zero_tensors": 0
+    },
+    "flat160_off_rank1": {
+      "status": "FAIL",
+      "tensors": 359,
+      "failed_tensors": 193,
+      "max_abs": 0.001953125,
+      "relative_l2": 0.017215199913801823,
+      "norm_ratio": 0.9998948305211555,
+      "cosine": 0.9998518083910394,
+      "outside_tolerance": 8179767,
+      "near_zero_tensors": 0
+    },
+    "candidate16_off_rank2": {
+      "status": "FAIL",
+      "tensors": 359,
+      "failed_tensors": 241,
+      "max_abs": 0.00390625,
+      "relative_l2": 0.0175868492196623,
+      "norm_ratio": 1.0001823340402898,
+      "cosine": 0.9998453961796528,
+      "outside_tolerance": 10252148,
+      "near_zero_tensors": 0
+    },
+    "flat160_off_rank2": {
+      "status": "FAIL",
+      "tensors": 359,
+      "failed_tensors": 232,
+      "max_abs": 0.00390625,
+      "relative_l2": 0.016992421581338676,
+      "norm_ratio": 1.0001647197677386,
+      "cosine": 0.999855666145341,
+      "outside_tolerance": 9957854,
+      "near_zero_tensors": 0
+    }
+  },
+  "same_layout_checkpoint_comparison": {
+    "status": "PASS",
+    "scenes": 2,
+    "gradient_tensors_per_scene": 359,
+    "scope": "same flat160 layout, ordinary PyTorch BF16 leaf gradients; no native optimizer acceptance"
+  }
+}

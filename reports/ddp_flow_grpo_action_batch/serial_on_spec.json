@@ -1,0 +1,61 @@
+{
+  "job_id": "F_action_compute_serial_on",
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [
+        0
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ]
+    }
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/compute_probe_v2/serial_on_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 900,
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.action_batch_probe",
+    "--config",
+    "configs/flow_grpo/frozen_action_head_epoch1.yaml",
+    "--bank",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/pilot",
+    "--mode",
+    "serial_on",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/compute_probe_v2/serial_on"
+  ]
+}

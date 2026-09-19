@@ -1,0 +1,61 @@
+{
+  "job_id": "F_action_compute_flat160_off",
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [
+        3
+      ],
+      "cpu_affinity": [
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127
+      ]
+    }
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/compute_probe_v2/flat160_off_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 900,
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.action_batch_probe",
+    "--config",
+    "configs/flow_grpo/frozen_action_head_epoch1.yaml",
+    "--bank",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/pilot",
+    "--mode",
+    "flat160_off",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/compute_probe_v2/flat160_off"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "status": "MEASURED_NOT_QUALIFIED",
+  "mode": "flat160_off",
+  "scope": "Isolated real-head throughput/memory probe, never a production release.\n\nTwo predeclared official-reward chains, no optimizer updates or resampling.\nKeep original BF16 storage / FP32 velocity arithmetic. Gradients here use native\nPyTorch BF16 leaf accumulation, NOT the production ZeRO FP32 partition pathway.\nBatch layout changes therefore need a separate native optimizer qualification.\n",
+  "device": "NVIDIA A800-SXM4-80GB",
+  "torch_version": "2.5.1+cu124",
+  "script_sha256": "f7dde9834c8abe9061e309b9645de2276715eb27cb8ebd6fda4774f521d7b7d2",
+  "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+  "scenes": [
+    {
+      "rank": 1,
+      "tokens": [
+        "9af404aaec0457a1"
+      ],
+      "official_nonzero_advantage": true,
+      "repeats": [
+        {
+          "forward_seconds": 0.3252367954701185,
+          "total_seconds": 0.5881916601210833,
+          "peak_allocated_gib": 11.756125450134277,
+          "peak_reserved_gib": 12.71484375,
+          "loss": 5.960464477539063e-08,
+          "ratio_min": 0.9999921917915344,
+          "ratio_max": 1.0000042915344238,
+          "gradient_tensors": 359,
+          "gradient_finite": true
+        },
+        {
+          "forward_seconds": 0.25830419175326824,
+          "total_seconds": 0.49830103665590286,
+          "peak_allocated_gib": 11.756125450134277,
+          "peak_reserved_gib": 12.71484375,
+          "loss": 5.960464477539063e-08,
+          "ratio_min": 0.9999921917915344,
+          "ratio_max": 1.0000042915344238,
+          "gradient_tensors": 359,
+          "gradient_finite": true
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "tokens": [
+        "26c4627d624f5f96"
+      ],
+      "official_nonzero_advantage": true,
+      "repeats": [
+        {
+          "forward_seconds": 0.25217011757194996,
+          "total_seconds": 0.4920215252786875,
+          "peak_allocated_gib": 11.756125450134277,
+          "peak_reserved_gib": 12.712890625,
+          "loss": 1.2516974834397843e-07,
+          "ratio_min": 0.9999943375587463,
+          "ratio_max": 1.000004529953003,
+          "gradient_tensors": 359,
+          "gradient_finite": true
+        },
+        {
+          "forward_seconds": 0.257445864379406,
+          "total_seconds": 0.49704024009406567,
+          "peak_allocated_gib": 11.756125450134277,
+          "peak_reserved_gib": 12.712890625,
+          "loss": 1.2516974834397843e-07,
+          "ratio_min": 0.9999943375587463,
+          "ratio_max": 1.000004529953003,
+          "gradient_tensors": 359,
+          "gradient_finite": true
+        }
+      ]
+    }
+  ],
+  "trainable_tensors": 359,
+  "trainable_numel": 819503620
+}

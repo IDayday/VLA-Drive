@@ -1,0 +1,26 @@
+{
+  "status": "OOM",
+  "mode": "serial_off",
+  "scope": "Isolated real-head throughput/memory probe, never a production release.\n\nTwo predeclared official-reward chains, no optimizer updates or resampling.\nKeep original BF16 storage / FP32 velocity arithmetic. Gradients here use native\nPyTorch BF16 leaf accumulation, NOT the production ZeRO FP32 partition pathway.\nBatch layout changes therefore need a separate native optimizer qualification.\n",
+  "device": "NVIDIA A800-SXM4-80GB",
+  "torch_version": "2.5.1+cu124",
+  "script_sha256": "f7dde9834c8abe9061e309b9645de2276715eb27cb8ebd6fda4774f521d7b7d2",
+  "checkpoint_sha256": "9a26685aa3838a2e1b89ab2d92997664afde4b259fed6683851f42781ad16eb4",
+  "scenes": [
+    {
+      "rank": 1,
+      "tokens": [
+        "9af404aaec0457a1"
+      ],
+      "official_nonzero_advantage": true,
+      "repeats": [],
+      "oom": {
+        "error": "CUDA out of memory. Tried to allocate 36.00 MiB. GPU 0 has a total capacity of 79.32 GiB of which 19.00 MiB is free. Process 2156747 has 79.29 GiB memory in use. Of the allocated memory 76.27 GiB is allocated by PyTorch, and 2.38 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "seconds": 1.9016688466072083,
+        "peak_allocated_gib": 76.27269792556763
+      }
+    }
+  ],
+  "trainable_tensors": 359,
+  "trainable_numel": 819503620
+}

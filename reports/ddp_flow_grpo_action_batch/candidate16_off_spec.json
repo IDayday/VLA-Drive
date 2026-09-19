@@ -1,0 +1,61 @@
+{
+  "job_id": "F_action_compute_candidate16_off",
+  "nodes": [
+    {
+      "host": "training-rl-zt2",
+      "devices": [
+        2
+      ],
+      "cpu_affinity": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ]
+    }
+  ],
+  "control_dir": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/compute_probe_v2/candidate16_off_control",
+  "require_idle_gpus": true,
+  "timeout_seconds": 900,
+  "direct_command": [
+    "/root/miniconda3/envs/ddp/bin/python",
+    "-m",
+    "scripts.analysis.action_batch_probe",
+    "--config",
+    "configs/flow_grpo/frozen_action_head_epoch1.yaml",
+    "--bank",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/pilot",
+    "--mode",
+    "candidate16_off",
+    "--output",
+    "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/compute_probe_v2/candidate16_off"
+  ]
+}
