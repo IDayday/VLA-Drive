@@ -48,6 +48,29 @@ def load_boundary(path):
     return metadata,shards
 
 
+def update_learning_rate(training_row, options, group, cfg):
+    """A saved optimizer already contains NEXT update's scheduled LR."""
+    schedule = cfg.get("optimizer", {}).get("schedule")
+    if "lr_used" not in training_row:
+        if schedule:
+            raise ValueError("scheduled Adam oracle requires measured lr_used")
+        return options["lr"]
+    used = float(training_row["lr_used"][group])
+    if not math.isfinite(used) or used < 0:
+        raise ValueError("invalid measured update LR")
+    if schedule:
+        from starVLA.rl.flow_grpo.stability import lr_multiplier
+        initial = options["initial_lr"]
+        update = training_row["update"]
+        expected = initial * lr_multiplier(update - 1, schedule)
+        saved_next = initial * lr_multiplier(update, schedule)
+        if used != expected or options["lr"] != saved_next:
+            raise ValueError("measured/saved LR differs from registered scheduler")
+    elif used != options["lr"]:
+        raise ValueError("constant LR differs from saved optimizer")
+    return used
+
+
 def adam(root):
     root=Path(root)
     cfg=json.loads((root/"rl_config.json").read_text())
@@ -56,8 +79,8 @@ def adam(root):
     source=source.get("module",source)
     folder=root/"optimizer_gradients/update_000001/rank_0"
     gradients={r["name"]:r for r in json.loads((folder/"manifest.json").read_text())["parameters"]}
-    row=json.loads((root/"training_rank0.jsonl").read_text().splitlines()[0])
-    norm=torch.tensor(row["pre_clip_grad_norm"],device="cuda",dtype=torch.float32)
+    training_row=json.loads((root/"training_rank0.jsonl").read_text().splitlines()[0])
+    norm=torch.tensor(training_row["pre_clip_grad_norm"],device="cuda",dtype=torch.float32)
     limit=cfg["optimizer"]["max_grad_norm"]
     scale=1/torch.clamp((norm+1e-6)/limit,min=1) if limit>0 else torch.ones_like(norm)
     result={"status":"PASS","world_size":len(shards),"numeric_rank_order":list(range(len(shards))),
@@ -65,6 +88,8 @@ def adam(root):
     for group,shapes in enumerate(metadata["param_shapes"]):
         bases=[s["base_optimizer_state"] for s in shards]
         options=bases[0]["param_groups"][group]
+        used_lr=update_learning_rate(training_row,options,group,cfg)
+        result.setdefault("learning_rates",[]).append({"group":group,"used":used_lr,"saved_next":options["lr"]})
         ids=[b["param_groups"][group]["params"][0] for b in bases]
         states=[b["state"][i] for b,i in zip(bases,ids)]
         if any(int(s["step"])!=1 for s in states):raise ValueError("requires first Adam update")
@@ -78,7 +103,7 @@ def adam(root):
             gradient=torch.load(folder/info["file"],map_location="cuda",weights_only=True).flatten()
             initial=source[key].to(device="cuda",dtype=torch.bfloat16).float().flatten()
             p=torch.nn.Parameter(initial.clone());p.grad=gradient*scale
-            optimizer=torch.optim.AdamW([p],lr=options["lr"],betas=options["betas"],eps=options["eps"],
+            optimizer=torch.optim.AdamW([p],lr=used_lr,betas=options["betas"],eps=options["eps"],
                                        weight_decay=options["weight_decay"],foreach=True)
             optimizer.step()
             expected={"master":p.detach(),**{k:optimizer.state[p][k] for k in ("exp_avg","exp_avg_sq")}}

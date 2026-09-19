@@ -1,0 +1,45 @@
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_adam_oracle_uses_performed_update_lr_not_saved_next_lr __________
+
+    def test_adam_oracle_uses_performed_update_lr_not_saved_next_lr():
+        cfg={'optimizer':{'schedule':{'type':'warmup_cosine','total_updates':100,'warmup_updates':10,'min_lr_ratio':.1}}}
+>       assert update_learning_rate({'update':1,'lr_used':[.01]}, {'initial_lr':.1,'lr':.02},0,cfg)==.01
+
+tests/cluster_flow_grpo/test_optimizer_schedule_evidence.py:7: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+training_row = {'lr_used': [0.01], 'update': 1}
+options = {'initial_lr': 0.1, 'lr': 0.02}, group = 0
+cfg = {'optimizer': {'schedule': {'min_lr_ratio': 0.1, 'total_updates': 100, 'type': 'warmup_cosine', 'warmup_updates': 10}}}
+
+    def update_learning_rate(training_row, options, group, cfg):
+        """A saved optimizer already contains NEXT update's scheduled LR."""
+        schedule = cfg.get("optimizer", {}).get("schedule")
+        if "lr_used" not in training_row:
+            if schedule:
+                raise ValueError("scheduled Adam oracle requires measured lr_used")
+            return options["lr"]
+        used = float(training_row["lr_used"][group])
+        if not math.isfinite(used) or used < 0:
+            raise ValueError("invalid measured update LR")
+        if schedule:
+            from starVLA.rl.flow_grpo.stability import lr_multiplier
+            initial = options["initial_lr"]
+            update = training_row["update"]
+            expected = initial * lr_multiplier(update - 1, schedule)
+            saved_next = initial * lr_multiplier(update, schedule)
+            if used != expected or options["lr"] != saved_next:
+>               raise ValueError("measured/saved LR differs from registered scheduler")
+E               ValueError: measured/saved LR differs from registered scheduler
+
+scripts/cluster_flow_grpo/optimizer_evidence.py:68: ValueError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cluster_flow_grpo/test_optimizer_schedule_evidence.py::test_adam_oracle_uses_performed_update_lr_not_saved_next_lr
+1 failed, 2 passed, 1 warning in 1.20s
