@@ -1,0 +1,63 @@
+{
+  "timestamp_utc": "2026-09-19T06:20:37.607788+00:00",
+  "scope": "Read-only production log comparison; different scenes, not a controlled paired performance benchmark. No training algorithm/config changes.",
+  "runs": {
+    "full": {
+      "log": "/mnt/project/DriveDreamer-Policy-epoch-speed/runs/epoch_speed/world16/train/training.jsonl",
+      "update_window": [
+        81,
+        100
+      ],
+      "trainable_numel": 2233120260,
+      "mean_seconds_per_update_including_amortized_behavior": 49.82174283321947,
+      "peak_allocated_gib": 20.324592113494873,
+      "mean_phase_rank_max_wall_seconds": {
+        "actor_forward": 12.37905165757984,
+        "actor_rollout": 1.4542254825122654,
+        "backward_optimizer": 36.558968427404764,
+        "data_fetch": 0.1897271130234003,
+        "official_reward_nested": 1.3477987946011125,
+        "official_reward_remaining_wait": 0.005752154067158699,
+        "post_update_probe": 1.4930798328481614,
+        "reference": 1.6428972982801497,
+        "scene_metrics": 0.005298730451613665,
+        "score_reference_total": 1.6486244631931186
+      }
+    },
+    "action_head": {
+      "log": "/mnt/project/DriveDreamer-Policy-action-rl/runs/action_head/world16/train/training.jsonl",
+      "update_window": [
+        280,
+        299
+      ],
+      "trainable_numel": 819503620,
+      "mean_seconds_per_update_including_amortized_behavior": 40.10528550334275,
+      "peak_allocated_gib": 16.411619186401367,
+      "mean_phase_rank_max_wall_seconds": {
+        "actor_forward": 10.315811608731746,
+        "actor_rollout": 1.3206664571538567,
+        "backward_optimizer": 27.982247759401798,
+        "data_fetch": 0.021245917677879332,
+        "official_reward_nested": 1.1723053513094783,
+        "official_reward_remaining_wait": 0.0037674326449632645,
+        "post_update_probe": 1.3584780402481555,
+        "reference": 1.5040223628282547,
+        "scene_metrics": 0.004969235695898533,
+        "score_reference_total": 1.5077641140669584
+      }
+    }
+  },
+  "phase_caveat": "Host spans include CUDA launch/wait/synchronization. Per-phase rank maxima need not come from the same rank, overlap or nest, and must not be summed as a kernel profile.",
+  "mechanisms": {
+    "shared_condition": "Frozen condition cache removes a small number of per-scene encoder executions; action network is still evaluated for every candidate and transition.",
+    "serial_action_transitions_per_scene_per_update": 160,
+    "candidate_chunk_size": 1,
+    "transition_chunk_size": 1,
+    "per_rank_scene_microbatch": 1,
+    "activation_checkpointing": "Each grad-enabled velocity call uses non-reentrant checkpoint; backward recomputes the action call.",
+    "precision": "BF16 parameter storage; CUDA FP32 autocast in velocity, action history/projector profile; FP32 accumulation/communication/master/moments; TF32 disabled. BF16 storage is not evidence that action compute uses BF16.",
+    "precision_source": "starVLA/rl/flow_grpo/rollout.py:93; starVLA/rl/flow_grpo/reproducibility.py:numerical_profile/configure_numerics",
+    "historical_chunk1_2": "FAIL unchanged; batching is not enabled based on these timing observations."
+  },
+  "documentation_correction": "README formerly generalized forward activations as BF16. Actual dtype evidence and numerical profile already recorded action FP32. README corrected without modifying original evidence, active training configuration or the model."
+}

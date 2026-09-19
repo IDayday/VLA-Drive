@@ -75,7 +75,10 @@ controller below:
 - Vendored source SFT and original10-step ODE oracle: max absolute error0.
 - Native16GPU pilot: two updates on one fixed behavior batch; all359 gradient
   tensors observed on every rank. Actual accumulation, communication, partition
-  buffers and Adam states are FP32; forward parameters/activations are BF16.
+  buffers and Adam states are FP32. Parameters are stored as BF16, but the
+  inherited action velocity kernel explicitly uses CUDA FP32 autocast; its
+  observed action-module inputs/outputs include FP32. This is not an entirely
+  BF16 forward path. See `throughput_diagnosis.json` for the clarification.
 - First pre-update ratio is exactly1. Second pre-update range is
   [0.9999966621, 1.0000050068]. Official nonzero-advantage fraction is6/16.
   This warmup diagnostic is a correctness result, not evidence of reward gain.
