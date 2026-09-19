@@ -54,6 +54,9 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
                     "noise_seed_schedule":"global_scene_v1", "overlap_reward_reference":True,
                     "reuse_inner_probe":True},
     }
+    flat = runtime.get("transition_evaluation", "serial") == "flat_saved_chain"
+    if flat:
+        required["runtime"]["activation_checkpointing"] = False
     for section, fields in required.items():
         for key, value in fields.items():
             if cfg[section].get(key) != value:
@@ -80,6 +83,9 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         raise ValueError("full epoch source/config/asset/world identity changed")
     if action_head:
         validate_action_head_evidence(record.get("action_head_cache"), cfg, context)
+    if flat:
+        from .batch_profile import validate_batch_profile
+        validate_batch_profile(record.get("transition_batch"), cfg, context)
     if runtime.get("velocity_cuda_graph", False):
         validate_velocity_graph_evidence(record.get("velocity_graph"), cfg)
     pilot_context = artifact(record["pilot_context"])
@@ -91,7 +97,9 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         raise ValueError("pilot recipe differs from full epoch")
     for key in ("pilot_control", "resume_control"):
         control = artifact(record[key])
-        if control.get("status") != "PASS" or control.get("exit_codes") != [0] * (world // 8):
+        launch = record.get(key.replace("_control", "_launch"))
+        peers = launch_peer_count(artifact(launch), world) if launch else world // 8
+        if control.get("status") != "PASS" or control.get("exit_codes") != [0] * peers:
             raise ValueError("native target topology run did not finish: " + key)
     comparison = artifact(record["exact_resume"])
     files = comparison.get("files", {})
@@ -146,6 +154,18 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
                 or proof.get("status") != "TESTED" or proof.get("end_update") != 2
                 or any(proof["changed"].values()) or proof["before"] != proof["after"]):
             raise ValueError("own visual/reference immutability failed")
+
+
+def launch_peer_count(spec, world):
+    """Bind actual topology, including two four-GPU nodes for an eight-rank run."""
+    nodes = spec.get("nodes", [])
+    slots = [(n.get("host"), d) for n in nodes for d in n.get("devices", [])]
+    if (not nodes or any(not n.get("devices") for n in nodes)
+            or len(slots) != world or len(set(slots)) != world
+            or any(type(d) is not int or d < 0 or not host for host, d in slots)
+            or spec.get("entry", [])[:3] != ["-m", "starVLA.rl.flow_grpo.cli", "train"]):
+        raise ValueError("native pilot launch topology does not match target world")
+    return len(nodes)
 
 
 def validate_velocity_graph_evidence(pointer, cfg):

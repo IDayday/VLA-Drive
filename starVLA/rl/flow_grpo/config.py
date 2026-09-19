@@ -12,12 +12,14 @@ def validate_transition_layout(cfg):
     if layout not in ("serial", "flat_saved_chain"):
         raise ValueError("unknown transition_evaluation layout")
     if layout != "serial":
-        if runtime.get("run_mode", "diagnostic") != "diagnostic":
-            raise ValueError("flat_saved_chain is NOT_READY: bounded diagnostics only")
         if cfg.get("trainable_policy") != "action_head":
             raise ValueError("flat_saved_chain currently requires the action-head contract")
-        if runtime.get("max_updates") is None or runtime["max_updates"] > 8:
-            raise ValueError("flat_saved_chain diagnostics are bounded to 8 updates")
+        mode = runtime.get("run_mode", "diagnostic")
+        if mode == "diagnostic":
+            if runtime.get("max_updates") is None or runtime["max_updates"] > 8:
+                raise ValueError("flat_saved_chain diagnostics are bounded to 8 updates")
+        elif mode != "full_navtrain_epoch" or not runtime.get("batch_profile_evidence"):
+            raise ValueError("flat_saved_chain is NOT_READY: qualified full-epoch evidence required")
 
 
 def resolve_config(

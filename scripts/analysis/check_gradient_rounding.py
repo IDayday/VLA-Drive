@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import torch
 from starVLA.rl.flow_grpo.transactions import atomic_json
+from starVLA.rl.flow_grpo.loading import file_sha
 
 
 def main():
@@ -18,7 +19,8 @@ def main():
     torch.set_num_threads(4)
     meta=json.loads((Path(a.oracle)/'report.json').read_text())
     if meta.get('head_storage')!='fp32' or not meta.get('preserve_bf16_time_input'):raise ValueError('wrong oracle')
-    result={'status':'PASS','scope':__doc__,'scenes':{}}
+    result={'status':'PASS','scope':__doc__,'scenes':{},
+            'input_runs': {k:file_sha(Path(root)/'report.json') for k,root in [('oracle',a.oracle),('actual',a.actual)]}}
     for scene in (1,2):
         ref,actual=[torch.load(Path(x)/f'stats_rank{scene}.pt',weights_only=True) for x in (a.oracle,a.actual)]
         equal=set(ref)==set(actual) and all(torch.equal(v,actual[k]) for k,v in ref.items())

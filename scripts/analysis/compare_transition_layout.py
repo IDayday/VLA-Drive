@@ -22,6 +22,9 @@ def main():
             name = f'{kind}_rank{rank}.pt'
             left, right = [torch.load(Path(root)/name, weights_only=True, mmap=True) for root in (a.left, a.right)]
             report = compare_named(left, right)
+            report['input_runs'] = {side: file_sha(Path(root)/'report.json')
+                                    for side, root in (('left', a.left), ('right', a.right))}
+            report['scene_position'] = rank
             atomic_json(out/f'{kind}_rank{rank}.json', report)
             row[kind] = {'status': report['status'], 'modules': report['modules']}
             if report['status'] != 'PASS': result['status'] = 'FAIL'

@@ -47,6 +47,8 @@ def main():
                   checkpoint_sha256=cfg['checkpoint_contract']['sha256'],
                   head_storage=a.head_storage,
                   preserve_bf16_time_input=a.preserve_bf16_time_input, scenes=[])
+    from starVLA.rl.flow_grpo.batch_profile import kernel_identity
+    report.update(kernels=kernel_identity(), device_type='cuda')
     atomic_json(out/'report.json', report)
     # Match the trainer/precompute identity timing: model construction adds
     # resolved defaults to the SFT OmegaConf object.
@@ -65,6 +67,7 @@ def main():
             lambda module, inputs, output: output.to(torch.bfloat16))
     install_frozen_features(policy, store)
     trainable = {n: p for n, p in policy.named_parameters() if p.requires_grad}
+    report['observed_head_dtypes'] = sorted({str(p.dtype) for p in trainable.values()})
     report['trainable_tensors'] = len(trainable)
     report['trainable_numel'] = sum(p.numel() for p in trainable.values())
     checkpoint = a.mode.endswith('_on')

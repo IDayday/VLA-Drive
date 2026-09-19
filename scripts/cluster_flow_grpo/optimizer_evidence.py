@@ -85,6 +85,9 @@ def adam(root):
     scale=1/torch.clamp((norm+1e-6)/limit,min=1) if limit>0 else torch.ones_like(norm)
     result={"status":"PASS","world_size":len(shards),"numeric_rank_order":list(range(len(shards))),
             "master_bound_eps":8,"moment_relative_bound":4e-6,"clip_scale":float(scale),"parameters":{}}
+    from starVLA.rl.flow_grpo.config import config_hash
+    result.update(run=str(root.resolve()), config_hash=config_hash(cfg),
+                  execution_context=json.loads((root/"execution_context.json").read_text()))
     for group,shapes in enumerate(metadata["param_shapes"]):
         bases=[s["base_optimizer_state"] for s in shards]
         options=bases[0]["param_groups"][group]
