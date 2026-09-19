@@ -94,3 +94,54 @@ def test_full_epoch_does_not_bypass_gpu_proofs(tmp_path,monkeypatch,change):
     record['pilot_training']=put('training.jsonl',rows,True)
     if change!='missing_evidence':save(cfg,record)
     with pytest.raises(ValueError):enforce_training_budget(cfg,ctx)
+
+
+def test_world16_requires_its_own_complete_gpu_and_resume_evidence(tmp_path,monkeypatch):
+    cfg,ctx,record,rows,put=fixture(tmp_path,monkeypatch)
+    monkeypatch.setenv('WORLD_SIZE','16');cfg['runtime']['accumulation_steps']=1
+    save(cfg,record)
+    # Old world8 artifacts never release the expanded topology.
+    with pytest.raises(ValueError):enforce_training_budget(cfg,ctx)
+    ctx['world_size']=16;ctx['config_sha256']=config_hash(cfg)
+    record.update(context=ctx,pilot_context=put('pilot/execution_context.json',ctx),
+                  resume_context=put('resume/execution_context.json',ctx),
+                  pilot_config=put('config.json',cfg),
+                  pilot_control=put('control16.json',{'status':'PASS','exit_codes':[0,0]}),
+                  resume_control=put('resume16.json',{'status':'PASS','exit_codes':[0,0]}))
+    for row in rows:
+        row['ranks'] += [dict(copy.deepcopy(r),rank=r['rank']+8) for r in row['ranks']]
+    record['pilot_training']=put('training16.jsonl',rows,True)
+    record['pilot_dtype']=put('dtype16.json',{'ranks':rows[-1]['ranks']})
+    for r in range(8,16):
+        proof=json.loads(Path(record['pilot_immutable'][r-8]['path']).read_text())
+        record['pilot_immutable'].append(put(f'immutable_update000002_rank{r}.json',proof))
+    comparison=json.loads(Path(record['exact_resume']['path']).read_text())
+    comparison['boundaries']['trainer_state']['world_size']=16
+    comparison['boundaries']['config_hash']=config_hash(cfg)
+    for r in range(8,16):
+        for name in (f'rank_{r}.pt',f'random_states_{r}.pkl',f'pytorch_model/bf16_zero_pp_rank_{r}_mp_rank_00_optim_states.pt'):
+            comparison['files'][name]={'status':'PASS','values':{'test_only':{'allclose':True}}}
+    record['exact_resume']=put('compare16.json',comparison)
+    save(cfg,record);enforce_training_budget(cfg,ctx)
+    # A missing rank or failed peer cannot be hidden behind the summary.
+    rows[1]['ranks'].pop()
+    record['pilot_training']=put('missing_rank.jsonl',rows,True);save(cfg,record)
+    with pytest.raises(ValueError,match='rank coverage'):enforce_training_budget(cfg,ctx)
+
+
+def test_graph_needs_semantic_real_chain_evidence(tmp_path,monkeypatch):
+    from starVLA.rl.flow_grpo.full_epoch import validate_velocity_graph_evidence
+    cfg,ctx,record,rows,put=fixture(tmp_path,monkeypatch)
+    with pytest.raises(ValueError):validate_velocity_graph_evidence(None,cfg)
+    report={'status':'PASS','device_type':'cuda','checkpoint_sha256':cfg['checkpoint_contract']['sha256'],
+            'kernel_sha256':file_sha('starVLA/rl/flow_grpo/velocity_graph.py'),
+            'script_sha256':file_sha('scripts/analysis/cuda_velocity_probe.py'),
+            'live_weight_equal':True,'capture_rng_unchanged':True,
+            'scenes':[{'tokens':[str(i)],'chain_equal':True,'old_equal':True,
+                       'checks':[{k:{'equal':True,'max_abs':0.0} for k in ('velocity','mean','std','elementwise_logprob')} for _ in range(4)]} for i in range(4)]}
+    validate_velocity_graph_evidence(put('graph.json',report),cfg)
+    for change in ('status','device_type','kernel_sha256','live_weight_equal','capture_rng_unchanged'):
+        bad=copy.deepcopy(report);bad[change]='BAD'
+        with pytest.raises(ValueError):validate_velocity_graph_evidence(put('bad.json',bad),cfg)
+    report['scenes'][2]['checks'][1]['velocity']['max_abs']=1e-8
+    with pytest.raises(ValueError):validate_velocity_graph_evidence(put('bad.json',report),cfg)

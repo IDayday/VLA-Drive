@@ -13,6 +13,13 @@ def resolve_config(
         OmegaConf.merge(OmegaConf.load(path), OmegaConf.from_dotlist(overrides or [])),
         resolve=True,
     )
+    graph = cfg["runtime"].get("velocity_cuda_graph", False)
+    if type(graph) is not bool:
+        raise ValueError("velocity_cuda_graph must be bool")
+    if graph and (cfg["runtime"].get("reference_offload") or cfg["sampling"]["candidate_chunk_size"] != 1):
+        raise ValueError("velocity CUDA graph requires persistent reference and candidate_chunk=1")
+    if graph and cfg["runtime"].get("run_mode", "diagnostic") not in ("diagnostic", "full_navtrain_epoch"):
+        raise ValueError("velocity CUDA graph requires separately qualified full-epoch evidence")
     overlap = cfg["runtime"].get("overlap_reward_reference", False)
     if not isinstance(overlap, bool):
         raise ValueError("overlap_reward_reference must be boolean")

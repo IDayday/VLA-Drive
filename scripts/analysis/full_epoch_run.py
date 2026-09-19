@@ -76,14 +76,15 @@ def train_epoch(spec,cancel):
     from starVLA.rl.flow_grpo.reproducibility import training_provenance
     from starVLA.rl.flow_grpo.acceptance import acceptance_context,enforce_training_budget
     import os
-    os.environ['WORLD_SIZE']='8'
     cfg,sft=resolve_config(spec['config'])
+    world=16 // cfg['runtime']['accumulation_steps']
+    os.environ['WORLD_SIZE']=str(world)
     context=json.loads(Path(cfg['runtime']['epoch_evidence']).read_text())['context']
     current=acceptance_context(cfg,context['resume_identity'])
     enforce_training_budget(cfg,current)
     provenance=training_provenance(cfg,sft,current['resume_identity'])
     output=Path(cfg['runtime']['output_dir'])
-    validate=lambda p:validate_checkpoint(p,cfg,provenance,8)
+    validate=lambda p:validate_checkpoint(p,cfg,provenance,world)
     complete,incomplete=checkpoint_inventory(output,validate)
     target=cfg['runtime']['max_updates']
     if complete and max(complete)>target:raise ValueError('checkpoint beyond registered epoch budget')

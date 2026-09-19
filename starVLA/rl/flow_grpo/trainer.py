@@ -197,6 +197,9 @@ def _run(cfg, sft, resume=None):
     # Clone BEFORE wrapping checkpoint methods or DeepSpeed conversion.
     reference = make_reference(policy).to("cpu")
     enable_checkpointing(policy, runtime["activation_checkpointing"])
+    from .velocity_graph import configure_velocity_graph
+    configure_velocity_graph(policy, runtime.get("velocity_cuda_graph", False))
+    configure_velocity_graph(reference, runtime.get("velocity_cuda_graph", False))
     monitor = GradientMonitor(policy)
     actor = FlowGRPOActor(policy, cfg)
     check_manifest(manifest, parameter_manifest(actor.policy, groups))

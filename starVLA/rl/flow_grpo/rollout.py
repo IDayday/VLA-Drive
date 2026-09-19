@@ -91,6 +91,9 @@ class RolloutBatch:
 
 
 def velocity(policy, x, bucket, condition, checkpoint=False):
+    if getattr(policy, "_flow_velocity_graph_enabled", False) and not torch.is_grad_enabled():
+        from .velocity_graph import graph_velocity
+        return graph_velocity(policy, x, bucket, condition)
     head = policy.action_model
     # Follow the head parameter dtype. Probability tensors stay FP32 outside the network.
     fn = head.predict_velocity

@@ -12,8 +12,9 @@ from starVLA.rl.flow_grpo.transactions import atomic_json
 
 def register(config, root):
     root=Path(root).resolve()
-    os.environ['WORLD_SIZE']='8'
     cfg,_=resolve_config(config)
+    world=16 // cfg["runtime"]["accumulation_steps"]
+    os.environ["WORLD_SIZE"]=str(world)
     def pointer(path):return {'path':str(path),'sha256':file_sha(path)}
     pilot=root/'pilot';resumed=root/'resumed'
     context=json.loads((pilot/'execution_context.json').read_text())
@@ -31,8 +32,10 @@ def register(config, root):
             'pilot_control':pointer(root/'pilot_control/result.json'),
             'resume_control':pointer(root/'resumed_control/result.json'),
             'pilot_training':pointer(pilot/'training.jsonl'),'pilot_dtype':pointer(dtype),
-            'pilot_immutable':[pointer(pilot/f'immutable_update000002_rank{r}.json') for r in range(8)],
+            'pilot_immutable':[pointer(pilot/f'immutable_update000002_rank{r}.json') for r in range(world)],
             'exact_resume':pointer(root/'exact_resume.json')}
+    if cfg["runtime"].get("velocity_cuda_graph", False):
+        record["velocity_graph"]=pointer(root/"graph_probe/probe.json")
     enforce_full_epoch(cfg,context,record=record)
     dest=Path(cfg['runtime']['epoch_evidence'])
     if dest.exists() and json.loads(dest.read_text())!=record:

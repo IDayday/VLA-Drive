@@ -26,8 +26,9 @@ def epoch_budget(scenes, global_batch=16, inner_epochs=2, group_size=16):
 def enforce_full_epoch(cfg, context=None, *, record=None):
     from .acceptance import validate_observed_dtypes
     runtime = cfg["runtime"]
-    if int(os.getenv("WORLD_SIZE", "1")) != 8 or runtime["accumulation_steps"] != 2:
-        raise ValueError("full epoch requires validated single-host world8/global16")
+    world = int(os.getenv("WORLD_SIZE", "1"))
+    if world not in (8, 16) or runtime["accumulation_steps"] * world != 16:
+        raise ValueError("full epoch requires world8/accum2 or world16/accum1, global16")
     train, dev = split_tokens(cfg)
     official = OmegaConf.load("navsim/navsim/planning/script/config/common/train_test_split/scene_filter/navtrain.yaml")
     if dev or len(train) != 103288 or set(train) != set(official.tokens):
@@ -76,6 +77,8 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         return
     if record.get("context") != context:
         raise ValueError("full epoch source/config/asset/world identity changed")
+    if runtime.get("velocity_cuda_graph", False):
+        validate_velocity_graph_evidence(record.get("velocity_graph"), cfg)
     pilot_context = artifact(record["pilot_context"])
     if pilot_context != context:
         raise ValueError("pilot differs from full epoch context")
@@ -85,14 +88,14 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         raise ValueError("pilot recipe differs from full epoch")
     for key in ("pilot_control", "resume_control"):
         control = artifact(record[key])
-        if control.get("status") != "PASS" or control.get("exit_codes") != [0]:
-            raise ValueError("native single-host run did not finish: " + key)
+        if control.get("status") != "PASS" or control.get("exit_codes") != [0] * (world // 8):
+            raise ValueError("native target topology run did not finish: " + key)
     comparison = artifact(record["exact_resume"])
     files = comparison.get("files", {})
     required_files = {"scheduler.bin", "custom_checkpoint_0.pkl", "pytorch_model/mp_rank_00_model_states.pt"}
-    required_files.update(f"rank_{rank}.pt" for rank in range(8))
-    required_files.update(f"pytorch_model/bf16_zero_pp_rank_{rank}_mp_rank_00_optim_states.pt" for rank in range(8))
-    if (comparison.get("status") != "PASS" or len(files) < 26
+    required_files.update(f"rank_{rank}.pt" for rank in range(world))
+    required_files.update(f"pytorch_model/bf16_zero_pp_rank_{rank}_mp_rank_00_optim_states.pt" for rank in range(world))
+    if (comparison.get("status") != "PASS" or len(files) < 3 * world + 3
             or not required_files <= files.keys()
             or any(v.get("status") != "PASS" or not v.get("values")
                    or any(x.get("allclose") is not True for x in v["values"].values()) for v in files.values())):
@@ -101,7 +104,7 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
     state = binding.get("trainer_state", {})
     if (not binding.get("continuous") or not binding.get("resumed")
             or binding.get("config_hash") != config_hash(cfg) or state.get("update") != 2
-            or state.get("world_size") != 8
+            or state.get("world_size") != world
             or Path(binding.get("continuous", "")).parents[1] != Path(record["pilot_context"]["path"]).parent
             or Path(binding.get("resumed", "")).parents[1] != Path(record["resume_context"]["path"]).parent):
         raise ValueError("exact resume report is detached from pilot")
@@ -110,7 +113,7 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
         raise ValueError("pilot must execute both fixed behavior inner epochs")
     for row in rows:
         ranks = row.get("ranks", [])
-        if sorted(r.get("rank", -1) for r in ranks) != list(range(8)):
+        if sorted(r.get("rank", -1) for r in ranks) != list(range(world)):
             raise ValueError("pilot rank coverage incomplete")
         if row.get("scene_count") != 16 or row.get("candidate_count") != 256:
             raise ValueError("pilot scene/candidate scope differs")
@@ -128,11 +131,11 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
     for a, b in zip(rows[0]["ranks"], rows[1]["ranks"]):
         if any(a[k] != b[k] for k in ("behavior_sha256", "scene_tokens", "replay_tokens")):
             raise ValueError("pilot fixed behavior was not reused")
-    validate_observed_dtypes(record["pilot_dtype"], 8)
+    validate_observed_dtypes(record["pilot_dtype"], world)
     if digest(artifact(record["pilot_dtype"])["ranks"]) != digest(rows[-1]["ranks"]):
         raise ValueError("pilot dtype evidence is detached")
     immutable = record.get("pilot_immutable", [])
-    if len(immutable) != 8:
+    if len(immutable) != world:
         raise ValueError("missing immutable rank proofs")
     for rank, pointer in enumerate(immutable):
         proof = artifact(pointer)
@@ -140,3 +143,28 @@ def enforce_full_epoch(cfg, context=None, *, record=None):
                 or proof.get("status") != "TESTED" or proof.get("end_update") != 2
                 or any(proof["changed"].values()) or proof["before"] != proof["after"]):
             raise ValueError("own visual/reference immutability failed")
+
+
+def validate_velocity_graph_evidence(pointer, cfg):
+    if not pointer:
+        raise ValueError("velocity graph requires real fixed-chain CUDA comparison")
+    report = artifact(pointer)
+    if (report.get("status") != "PASS" or report.get("device_type") != "cuda"
+            or report.get("checkpoint_sha256") != cfg["checkpoint_contract"]["sha256"]
+            or report.get("kernel_sha256") != file_sha("starVLA/rl/flow_grpo/velocity_graph.py")
+            or report.get("script_sha256") != file_sha("scripts/analysis/cuda_velocity_probe.py")
+            or report.get("live_weight_equal") is not True
+            or report.get("capture_rng_unchanged") is not True):
+        raise ValueError("velocity graph CUDA evidence/source/live-weight/RNG mismatch")
+    scenes = report.get("scenes", [])
+    if len(scenes) != 4 or len({tuple(s.get("tokens", [])) for s in scenes}) != 4:
+        raise ValueError("velocity graph fixed four-scene coverage missing")
+    for scene in scenes:
+        if scene.get("chain_equal") is not True or scene.get("old_equal") is not True:
+            raise ValueError("velocity graph changed real behavior chain")
+        if len(scene.get("checks", [])) != 4:
+            raise ValueError("velocity graph repeated comparison missing")
+        for check in scene["checks"]:
+            if set(check) != {"velocity", "mean", "std", "elementwise_logprob"} or any(
+                    row.get("equal") is not True or row.get("max_abs") != 0 for row in check.values()):
+                raise ValueError("velocity graph real transition mismatch")
