@@ -1,0 +1,57 @@
+{
+  "recorded_utc": "2026-09-19T00:56:44.959264+00:00",
+  "status": "RUNNING",
+  "scope": "Short observed window; per-rank host timings, behavior charged once per two inner updates. Excludes process startup, checkpoints, and final evaluation. Not a completed epoch runtime or performance result.",
+  "actual_actor_commit": "236f81303bbeff87fb36e64042d3d93003554016",
+  "native_source_digest": "081f22e2545b70f180172ff16b1a8329eb558f131323124be593d943b8529673",
+  "latest_logged_update": 8,
+  "world_size": 16,
+  "train_hosts": [
+    "training-vla-zt2",
+    "training-vla-zt3"
+  ],
+  "gpus_per_host": 8,
+  "gpu_type": "NVIDIA A800-SXM4-80GB",
+  "cpu_affinity_each_host": "0-127",
+  "omp_mkl_blas_threads": 1,
+  "reward_workers_per_rank": 1,
+  "controller_pid": 1673753,
+  "torchrun_pids": [
+    294539,
+    1880330
+  ],
+  "pairs": [
+    {
+      "updates": [
+        5,
+        6
+      ],
+      "update_seconds_max": [
+        39.67081601731479,
+        43.22932156175375
+      ],
+      "behavior_seconds_max_charged_once": 6.531202035024762,
+      "seconds_per_update": 44.71566980704665
+    },
+    {
+      "updates": [
+        7,
+        8
+      ],
+      "update_seconds_max": [
+        44.836860010400414,
+        53.212478863075376
+      ],
+      "behavior_seconds_max_charged_once": 6.590181164443493,
+      "seconds_per_update": 52.31976001895964
+    }
+  ],
+  "mean_seconds_per_update": 48.51771491300315,
+  "old_mean_seconds_per_update": 74.6365115,
+  "observed_speedup": 1.5383352582418675,
+  "projected_compute_days_12912_updates": 7.250702950887693,
+  "reward_errors_all_observed_rows": 0,
+  "peak_gpu_gib_max": 20.324592113494873,
+  "initial_resume": "/mnt/project/DriveDreamer-Policy-epoch-speed/runs/epoch_speed/world16/pilot/checkpoints/update_000002",
+  "historical_failures": "Unchanged; no chunk>=2 release or performance-improvement claim"
+}
