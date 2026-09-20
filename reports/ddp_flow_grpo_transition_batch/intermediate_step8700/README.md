@@ -1,7 +1,37 @@
 # Requested interim full-navtest evaluation
 
-Status at launch: **RUNNING; no RL score available yet**. This records an actual
-job, not a claimed completed evaluation or a change in the training recipe.
+Status: **COMPLETE**. All12146 scenes from136 logs were scored, all eight GPU
+workers exited0, and the official CPU scorer exited0. Elapsed evaluation time
+was1872seconds (31.2minutes), including result merging and baseline comparison.
+This is the fixed step8700/seed42 interim result, not the final five-seed result.
+
+| Metric (100-point scale) | Own SFT | RL step8700 | Paired delta | Log-bootstrap95% CI of delta |
+|---|---:|---:|---:|---:|
+| Official v1.1 PDMS | 88.8644 | 89.0109 | +0.1465 | [-0.0671,+0.3525] |
+| Official v2 one-stage EPDMS | 88.2378 | 88.5025 | +0.2647 | [+0.0615,+0.4527] |
+
+Both means improve slightly. The PDMS interval includes0; this run does not
+establish a statistically clear PDMS gain. The EPDMS interval is positive for
+this paired single-seed evaluation. Neither result establishes stability across
+inference seeds or a broad improvement in all driving criteria.
+
+The gain is primarily progress: the v1 ego-progress component increases1.099
+points, while no-at-fault-collision compliance declines0.272points and the v1
+TTC component declines0.757points. In v2, progress increases1.231points and TTC
+declines0.231points. Component changes are descriptive and not an additive
+decomposition of the nonlinear aggregate metric.
+
+PDMS zero-score scenes increase578→595:39 recover from zero,56 become zero.
+EPDMS zero-score scenes increase602→624:39 recover,61 become zero. Thus improved
+mean scores coexist with regressions that require attention. We have not changed
+training, chosen a new recipe or selected a checkpoint based on these navtest
+observations. The predeclared one-epoch run continues.
+
+[result.json](result.json) contains paired statistics and confidence intervals;
+[components.json](components.json) contains all available component means and
+zero-score counts. [completed_evidence/index.json](completed_evidence/index.json)
+indexes compressed complete SFT/RL score CSVs, per-scene paired CSVs and official
+completion receipts with hashes. Historical launch-time snapshots are retained.
 
 The checkpoint is the latest COMPLETE seen at the initial request snapshot,
 2026-09-20 00:34:56 UTC: `train/checkpoints/update_008700`. It was fixed before

@@ -1,0 +1,54 @@
+{
+  "status": "COMPLETE",
+  "checkpoint": "/mnt/project/DriveDreamer-Policy-action-batch/runs/action_batch/qualified_w8_single/train/checkpoints/update_008700",
+  "update": 8700,
+  "seed": 42,
+  "scene_count": 12146,
+  "scope": "interim single-seed full-navtest; not final five-seed result",
+  "checkpoint_sha256": "91aac9666c08576ef1d29816459d860278a2752abe64f83ef4d89b080c43641b",
+  "results": {
+    "PDMS_v1": {
+      "scenes": 12146,
+      "logs": 136,
+      "mean_paired_delta": 0.00146487191537578,
+      "log_bootstrap_95ci": [
+        -0.0006707869974089405,
+        0.003524740860441279
+      ],
+      "zero_to_nonzero": 39,
+      "nonzero_to_zero": 56,
+      "high_score_degraded": 121,
+      "high_score_threshold": 0.9,
+      "bootstrap_unit": "log",
+      "bootstrap_seed": 42,
+      "causal_scope": "each initialization relative to its own SFT; different SFT step counts do not isolate visual training causality",
+      "sft_mean": 0.8886436998476598,
+      "rl_mean": 0.8901085717630355,
+      "wins": 7722,
+      "losses": 159,
+      "ties": 4265
+    },
+    "EPDMS_v2": {
+      "scenes": 12146,
+      "logs": 136,
+      "mean_paired_delta": 0.002647357929833454,
+      "log_bootstrap_95ci": [
+        0.0006154607705045865,
+        0.004527338849082265
+      ],
+      "zero_to_nonzero": 39,
+      "nonzero_to_zero": 61,
+      "high_score_degraded": 242,
+      "high_score_threshold": 0.9,
+      "bootstrap_unit": "log",
+      "bootstrap_seed": 42,
+      "causal_scope": "each initialization relative to its own SFT; different SFT step counts do not isolate visual training causality",
+      "sft_mean": 0.8823780219885501,
+      "rl_mean": 0.8850253799183835,
+      "wins": 7433,
+      "losses": 287,
+      "ties": 4426
+    }
+  },
+  "seconds": 1872.0044610500336
+}
