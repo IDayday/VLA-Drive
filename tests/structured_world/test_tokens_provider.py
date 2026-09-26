@@ -16,6 +16,8 @@ def test_token_validation_and_native_positions():
     assert out[0].tolist()==[[0,11,12,0,0,13,14]]
     torch.testing.assert_close(out[3][:,:,:3],p[:,:,:3])
     assert out[-1].tolist()==[[5,6]]
+    for invalid in [[[3,99]],[[4,3]],[[3,3]]]:
+        with pytest.raises(ValueError):insert_world_tokens(ids,e,torch.ones(1,5),p,torch.tensor(invalid),torch.randn(1,2,4),0)
 
 
 def test_real_geometric_projection_has_image_gradient_and_contract_checks():

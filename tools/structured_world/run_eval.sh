@@ -10,4 +10,4 @@ if [[ "$variant" != A0 ]]; then extra+=(--delta "$WORLD_ARTIFACTS/$run_id/checkp
 exec "$WORLD_PYTHON" -u tools/structured_world/evaluate.py --checkpoint "$BASE_CHECKPOINT" --vlm "$BASE_VLM" \
  --data-root "$WORLD_ARTIFACTS/dataset_v1" --manifest "$WORLD_ARTIFACTS/dev_tokens.json" \
  --target-cache "${WORLD_DEV_TARGET_CACHE:-$WORLD_ARTIFACTS/targets_v6_dev_full}" --config "configs/structured_world_v1/$variant.yaml" \
- --output "$WORLD_ARTIFACTS/$output" "${extra[@]}"
+ --output "$WORLD_ARTIFACTS/$output" --shard "${4:-0}" --shards "${5:-1}" "${extra[@]}"

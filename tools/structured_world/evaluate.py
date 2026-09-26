@@ -79,13 +79,13 @@ def diagnostics(pred,target):
 def main():
     p=argparse.ArgumentParser()
     for name in ['checkpoint','vlm','data-root','manifest','target-cache','config','output']:p.add_argument('--'+name,required=True)
-    p.add_argument('--delta');p.add_argument('--limit',type=int);p.add_argument('--seed',type=int,default=20260926)
+    p.add_argument('--split',choices=['train','test','mini'],default='train');p.add_argument('--skip-world-diagnostics',action='store_true');p.add_argument('--delta');p.add_argument('--limit',type=int);p.add_argument('--seed',type=int,default=20260926)
     p.add_argument('--shard',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     a=p.parse_args();seed_all(42)
     agent=load_baseline(a.checkpoint,a.vlm);cfg=yaml.safe_load(Path(a.config).read_text())
     policy=StructuredWorldPolicy(agent.model,cfg).cuda().eval();policy.requires_grad_(False)
     if a.delta:load_delta(policy,a.delta)
-    ds=load_dataset(agent,a.manifest,a.data_root,a.limit)
+    ds=load_dataset(agent,a.manifest,a.data_root,a.limit,split=a.split)
     out=Path(a.output);(out/'predictions').mkdir(parents=True,exist_ok=True)
     from infer import deal_action_1225
     from omegaconf import OmegaConf
@@ -108,9 +108,10 @@ def main():
                 pred={k:v[0].float() for k,v in result['world_prediction'].items()}
                 arrays.update({k:v.cpu().numpy() for k,v in pred.items()})
                 # Supervision is loaded only after deployment inference has completed.
-                from starVLA.model.modules.structured_world.contracts import WorldTargets
-                values=torch.load(Path(a.target_cache)/'targets'/f'{token}.pt',map_location='cuda',weights_only=True)
-                record.update(diagnostics(pred,WorldTargets(**values)))
+                if not a.skip_world_diagnostics:
+                    from starVLA.model.modules.structured_world.contracts import WorldTargets
+                    values=torch.load(Path(a.target_cache)/'targets'/f'{token}.pt',map_location='cuda',weights_only=True)
+                    record.update(diagnostics(pred,WorldTargets(**values)))
             np.savez(out/'predictions'/f'{token}.npz',**arrays)
         except Exception as error:
             if not any(r['status']=='failed' for r in records):

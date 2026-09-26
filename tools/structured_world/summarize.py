@@ -29,10 +29,11 @@ def main():
   result={'run':run,'scenes':n,'failed':sum(r['status']!='ok' for r in rows),'PDMS_percent':sum(float(r.get('score',0)) for r in rows)/n*100,'zero_fraction':sum(float(r.get('score',0))==0 for r in rows)/n}
   for metric in ['no_at_fault_collisions','drivable_area_compliance','ego_progress','time_to_collision_within_bound','comfort','driving_direction_compliance']:
    result[metric]=sum(float(r.get(metric) or 0) for r in rows)/n
+  diagnostic_lookup={}
   world=root/f'{run}_dev/diagnostics_v6.csv'
   if not world.exists():world=root/f'{run}_dev/scenes_0.csv'
   if world.exists():
-   diagnostics=list(read(world).values())
+   diagnostic_lookup=read(world);diagnostics=list(diagnostic_lookup.values())
    total=lambda key:sum(float(r.get(key) or 0) for r in diagnostics)
    result['mean_inference_seconds']=total('latency_seconds')/len(diagnostics)
    ratio=lambda numerator,denominator:total(numerator)/total(denominator) if total(denominator)>0 else None
@@ -51,11 +52,11 @@ def main():
     for key in list(result):
      if key in ['gt_targets','false_positives'] or any(x in key for x in ['recall','motion_','centre_error','yaw_error']):result[key]=None
   summary.append(result)
-  for row in rows:all_rows.append(dict(row,run=run))
+  for row in rows:all_rows.append(dict(row,run=run,**{'world_'+k:v for k,v in diagnostic_lookup.get(row['token'],{}).items() if k!='token'}))
  pairs={}
  for run in a.runs:
   if run!='A0' and 'A0' in banks:pairs[run+'__vs__A0']=compare(banks[run],banks['A0'])
- for first,second in [('C_seed42','B_seed42'),('C_seed43','B_seed43'),('E_seed42','D_seed42'),('A2_seed42','A1_seed42'),('E_adapter_support_v6_seed42','E_support_v6_seed42')]:
+ for first,second in [('C_seed42','B_seed42'),('C_seed43','B_seed43'),('E_seed42','D_seed42'),('A2_seed42','A1_seed42'),('E_adapter_support_v6_seed42','E_support_v6_seed42'),('E_support_v6_seed42','C_support_v6_seed42')]:
   if first in banks and second in banks:pairs[first+'__vs__'+second]=compare(banks[first],banks[second])
  for filename,rows in [('summary.csv',summary),('scene_metrics.csv',all_rows)]:
   keys=sorted(set(k for r in rows for k in r))

@@ -1,0 +1,169 @@
+{
+  "fp32_baseline_parity.json": {
+    "status": "PASS",
+    "token": "2b0deb39ff8355ec",
+    "compute": "FP32, nested legacy CUDA autocast disabled only in isolated test process",
+    "intermediate_max_abs": 0.0,
+    "intermediate_atol": 1e-05,
+    "intermediate_rtol": 1e-05,
+    "world_disabled_prediction_exact": true
+  },
+  "policy_regressions_v4.json": {
+    "tolerances": {
+      "bf16_hidden": {
+        "atol": 0.02,
+        "rtol": 0.02
+      },
+      "fp32_hidden": {
+        "atol": 1e-05,
+        "rtol": 1e-05
+      }
+    },
+    "checks": {
+      "shared_original_condition": {
+        "legacy_dtype": "torch.bfloat16",
+        "new_dtype": "torch.bfloat16",
+        "max_abs": 0.0,
+        "status": "PASS"
+      },
+      "target_independence": "PASS",
+      "padding": {
+        "status": "PASS",
+        "max_abs": 0.0
+      },
+      "new_modules_save_load": "PASS",
+      "visual_unfreeze": {
+        "status": "PASS",
+        "gradient_norm": 9.340721101194275,
+        "parameter_max_update": 6.103515625e-05
+      }
+    }
+  },
+  "bev_policy_regressions_v6.json": {
+    "provider_latency_seconds": {
+      "mean": 0.004042586497962475,
+      "median": 0.0040434133261442184,
+      "measurements": 20,
+      "scope": "online provider including CNN/calibration/projection/fusion, current RGB tensors already on GPU; BF16"
+    },
+    "status": "PASS",
+    "online_cached_external_action_max_abs": 0,
+    "current_only_without_target_loading": true,
+    "target_directory_physically_absent": true,
+    "missing_unexpected_weights_rejected": true,
+    "rejected": [
+      "future_time",
+      "calibration",
+      "schema_version",
+      "sensor_contract",
+      "scene_token"
+    ],
+    "real_two_scene_repeat_alignment": true,
+    "repeats": 8,
+    "zero_gate_gradient": 1.0214046239852905,
+    "opened_adapter_branch_gradient": 0.6373030109682003
+  },
+  "ddp_accumulation_equivalence.json": {
+    "status": "PASS",
+    "device": "2 real CUDA GPUs NCCL",
+    "empty_rank": 0,
+    "max_abs_gradient_difference": 3.725290298461914e-09,
+    "accumulation_max_abs_gradient_difference": 1.4901161193847656e-08,
+    "scope": "world heads/loss reduction; not full Qwen DDP or exact resume"
+  },
+  "single_process_resume.json": {
+    "status": "PASS",
+    "continuous_steps": 4,
+    "split_steps": [
+      2,
+      2
+    ],
+    "max_parameter_difference": 0.0,
+    "sampler_equal": true,
+    "rng_equal": true,
+    "compute": "deterministic math attention, actual CUDA; restart across two Python processes",
+    "delta_key_count": 59,
+    "optimizer_all_equal": true,
+    "scheduler_all_equal": true,
+    "rng_all_equal": true
+  },
+  "provider_resume.json": {
+    "status": "FAIL_NUMERICAL_CONTINUATION_TOLERANCE",
+    "actual_GPU_restart": true,
+    "continuous_steps": 4,
+    "split_steps": [
+      2,
+      2
+    ],
+    "max_parameter_difference": 6.211921572685242e-06,
+    "predeclared_atol": 1e-06,
+    "tolerance_was_not_relaxed": true,
+    "scope": "provider adaptation only; CUDA grid_sample backward nondeterministic; full frozen-provider policy inference and deterministic Qwen/DiT resume pass separately",
+    "bitwise_continuation_supported": false,
+    "no_corruption_evidence": "strict provider/head/optimizer state load completed; mismatch arises after resumed optimization"
+  },
+  "provider_resume_deterministic.json": {
+    "status": "PASS",
+    "actual_GPU_CNN_training_and_restart": true,
+    "geometry_resampler": "CPU deterministic backward; autograd device transfers; frozen deployment GPU unchanged",
+    "continuous_steps": 4,
+    "split_steps": [
+      2,
+      2
+    ],
+    "max_parameter_difference": 0.0,
+    "declared_atol": 0,
+    "order_equal": true,
+    "scope": "--deterministic only; original fast CUDA continuation failure retained"
+  },
+  "real_ddp_resume_v4/rank0.json": {
+    "rank": 0,
+    "first_loss": 0.0,
+    "second_loss": 0.0,
+    "resumed_loss": 0.0,
+    "max_parameter_difference": 0.0,
+    "query_gradient_difference": 0.0,
+    "deterministic_math_attention": true,
+    "empty_target_rank": true,
+    "status": "PASS",
+    "resume_boundary": "serialized per-rank state/RNG, reconstructed DDP model and optimizer, same 2-GPU topology; no mid-step support"
+  },
+  "real_ddp_resume_v4/rank1.json": {
+    "rank": 1,
+    "first_loss": 6.184284210205078,
+    "second_loss": 5.426400184631348,
+    "resumed_loss": 5.426400184631348,
+    "max_parameter_difference": 0.0,
+    "query_gradient_difference": 0.0,
+    "deterministic_math_attention": true,
+    "empty_target_rank": false,
+    "status": "PASS",
+    "resume_boundary": "serialized per-rank state/RNG, reconstructed DDP model and optimizer, same 2-GPU topology; no mid-step support"
+  },
+  "real_ddp_joint_resume/rank0.json": {
+    "joint_action_trained": true,
+    "rank": 0,
+    "first_loss": 0.051237333565950394,
+    "second_loss": 0.7960355281829834,
+    "resumed_loss": 0.7960355281829834,
+    "max_parameter_difference": 0.0,
+    "query_gradient_difference": 0.0,
+    "deterministic_math_attention": true,
+    "empty_target_rank": true,
+    "status": "PASS",
+    "resume_boundary": "serialized per-rank state/RNG, reconstructed DDP model and optimizer, same 2-GPU topology; no mid-step support"
+  },
+  "real_ddp_joint_resume/rank1.json": {
+    "joint_action_trained": true,
+    "rank": 1,
+    "first_loss": 6.204762935638428,
+    "second_loss": 6.025912284851074,
+    "resumed_loss": 6.025912284851074,
+    "max_parameter_difference": 0.0,
+    "query_gradient_difference": 0.0,
+    "deterministic_math_attention": true,
+    "empty_target_rank": false,
+    "status": "PASS",
+    "resume_boundary": "serialized per-rank state/RNG, reconstructed DDP model and optimizer, same 2-GPU topology; no mid-step support"
+  }
+}

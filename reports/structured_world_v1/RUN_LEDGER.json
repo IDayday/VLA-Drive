@@ -1,0 +1,1699 @@
+{
+  "cap": 12000,
+  "consumed": 11639,
+  "remaining": 361,
+  "runs": [
+    {
+      "run": "overfit_box",
+      "reserved": 200,
+      "consumed": 0,
+      "status": "aborted_before_training",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/DriveDreamer-Policy/navtrain_meta.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v2_64",
+        "config": "configs/structured_world_v1/overfit_box.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_box",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "overfit_box",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 200,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "resume": null,
+        "save_every": 50
+      },
+      "interpretation": "see run status and geometry correction report",
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/DriveDreamer-Policy/navtrain_meta.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v2_64 --config configs/structured_world_v1/overfit_box.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/overfit_box --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id overfit_box --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 200 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --save-every 50"
+    },
+    {
+      "run": "overfit_box_clean",
+      "reserved": 200,
+      "consumed": 200,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/overfit_box.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_box_clean",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "overfit_box_clean",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 200,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "resume": null,
+        "save_every": 50
+      },
+      "interpretation": "INVALID normalized hidden path; charged, excluded from main scientific comparison",
+      "parameters": {
+        "total": 3818689700,
+        "trainable": 3787296
+      },
+      "cost": {
+        "elapsed_training_seconds": 83.73119317926466,
+        "optimizer_steps": 200,
+        "samples_per_second": 2.3885960823681223,
+        "peak_allocated_GPU_bytes": 15948539392,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 2.0,
+        "box": 0.21225300431251526,
+        "motion": 0.9320610761642456
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.5,
+        "box": 0.24231261014938354,
+        "motion": 0.5368043184280396
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/overfit_box.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/overfit_box_clean --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id overfit_box_clean --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 200 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --save-every 50"
+    },
+    {
+      "run": "overfit_motion",
+      "reserved": 200,
+      "consumed": 200,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/overfit_motion.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_motion",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "overfit_motion",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 200,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "resume": null,
+        "initialize_world": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_box_clean/checkpoint.pt",
+        "provider_checkpoint": null,
+        "save_every": 50
+      },
+      "interpretation": "INVALID normalized hidden path; charged, excluded from main scientific comparison",
+      "parameters": {
+        "total": 3818689700,
+        "trainable": 3787296
+      },
+      "cost": {
+        "elapsed_training_seconds": 87.36780921928585,
+        "optimizer_steps": 200,
+        "samples_per_second": 2.2891726573802123,
+        "peak_allocated_GPU_bytes": 15948539392,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.6015625,
+        "box": 0.1372467279434204,
+        "motion": 0.8661054372787476
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.9140625,
+        "box": 0.17244909703731537,
+        "motion": 0.24628466367721558
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/overfit_motion.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/overfit_motion --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id overfit_motion --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 200 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --initialize-world /mnt/project/structured-world-v1-artifacts/20260926/overfit_box_clean/checkpoint.pt --save-every 50"
+    },
+    {
+      "run": "provider_adapt",
+      "reserved": 400,
+      "consumed": 400,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/provider_adapt.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/provider_adapt",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "provider_adapt",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 400,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100
+      },
+      "interpretation": "INVALID normalized hidden path; charged, excluded from main scientific comparison",
+      "parameters": {
+        "total": 3818313700,
+        "trainable": 3411296
+      },
+      "cost": {
+        "elapsed_training_seconds": 168.37432127445936,
+        "optimizer_steps": 400,
+        "samples_per_second": 2.3756591680507984,
+        "peak_allocated_GPU_bytes": 16179972608,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 2.0625,
+        "box": 0.17282162606716156,
+        "motion": 0.9370930790901184
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.96484375,
+        "box": 0.10530427098274231,
+        "motion": 0.4709126949310303
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "provider",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/provider_adapt.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/provider_adapt --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id provider_adapt --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 400 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --save-every 100"
+    },
+    {
+      "run": "repair1_box",
+      "reserved": 200,
+      "consumed": 200,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/overfit_box.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/repair1_box",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "repair1_box",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 200,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 50
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818689700,
+        "trainable": 3787296
+      },
+      "cost": {
+        "elapsed_training_seconds": 85.12859915755689,
+        "optimizer_steps": 200,
+        "samples_per_second": 2.349386715853716,
+        "peak_allocated_GPU_bytes": 15724467712,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 0.0,
+        "cls": 2.171875,
+        "box": 0.1943867951631546,
+        "motion": 0.9336498975753784
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.232421875,
+        "box": 0.21160706877708435,
+        "motion": 0.5283442139625549
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/overfit_box.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/repair1_box --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id repair1_box --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 200 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --save-every 50"
+    },
+    {
+      "run": "repair1_provider",
+      "reserved": 400,
+      "consumed": 400,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/provider_adapt.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/repair1_provider",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "repair1_provider",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 400,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818313700,
+        "trainable": 3411296
+      },
+      "cost": {
+        "elapsed_training_seconds": 169.526046378538,
+        "optimizer_steps": 400,
+        "samples_per_second": 2.3595194281050604,
+        "peak_allocated_GPU_bytes": 15955223040,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 2.0625,
+        "box": 0.16841183602809906,
+        "motion": 0.9298696517944336
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.9765625,
+        "box": 0.10619354248046875,
+        "motion": 0.4615161418914795
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "provider",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/provider_adapt.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/repair1_provider --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id repair1_provider --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 400 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --save-every 100"
+    },
+    {
+      "run": "A1_seed42",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/A1.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/A1_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "A1_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 819503620
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 568.8994534127414,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.757779857233386,
+        "peak_allocated_GPU_bytes": 24227522560,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 0.001896221307106316
+      },
+      "last_logged_losses": {
+        "ego": 0.0027882750146090984
+      },
+      "gradient_groups_seen": [
+        "action"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/A1.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/A1_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id A1_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "A2_seed42",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/A2.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/A2_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "A2_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 823299108
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 670.9577060453594,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.490406907901876,
+        "peak_allocated_GPU_bytes": 25548204032,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 1.7081246376037598,
+        "cls": 2.0982143878936768,
+        "box": 0.16368886828422546,
+        "motion": 0.8473722338676453
+      },
+      "last_logged_losses": {
+        "ego": 0.0042313868179917336,
+        "cls": 2.0267856121063232,
+        "box": 0.17682811617851257,
+        "motion": 0.0
+      },
+      "gradient_groups_seen": [
+        "action",
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/A2.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/A2_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id A2_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "C_seed42",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/C.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/C_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "C_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 823299108
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 669.226241376251,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.4942629833873804,
+        "peak_allocated_GPU_bytes": 25548204032,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 1.7081246376037598,
+        "cls": 2.0982143878936768,
+        "box": 0.16368886828422546,
+        "motion": 0.8473722338676453
+      },
+      "last_logged_losses": {
+        "ego": 0.0047903587110340595,
+        "cls": 0.8046875,
+        "box": 0.07189329713582993,
+        "motion": 0.0
+      },
+      "gradient_groups_seen": [
+        "action",
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/C.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/C_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id C_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "B_seed42",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/B.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/B_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "B_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 823299108
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 669.2225381750613,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.4942712520217167,
+        "peak_allocated_GPU_bytes": 25548204032,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 1.7081246376037598,
+        "cls": 2.0982143878936768,
+        "box": 0.16368886828422546,
+        "motion": 0.8473722338676453
+      },
+      "last_logged_losses": {
+        "ego": 0.005217841826379299,
+        "cls": 0.86328125,
+        "box": 0.054030198603868484,
+        "motion": 0.0
+      },
+      "gradient_groups_seen": [
+        "action",
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/B.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/B_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id B_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "repair1_motion",
+      "reserved": 200,
+      "consumed": 200,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/overfit_motion.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/repair1_motion",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "repair1_motion",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 200,
+        "limit": 64,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": "/mnt/project/structured-world-v1-artifacts/20260926/repair1_box/checkpoint.pt",
+        "provider_checkpoint": null,
+        "save_every": 50,
+        "stop_after": null
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818689700,
+        "trainable": 3787296
+      },
+      "cost": {
+        "elapsed_training_seconds": 83.74228404089808,
+        "optimizer_steps": 200,
+        "samples_per_second": 2.388279735746447,
+        "peak_allocated_GPU_bytes": 15724467712,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.80078125,
+        "box": 0.13413706421852112,
+        "motion": 0.8552745580673218
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 0.5703125,
+        "box": 0.1680055856704712,
+        "motion": 0.231736421585083
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/overfit_motion.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/repair1_motion --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id repair1_motion --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 200 --limit 64 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --initialize-world /mnt/project/structured-world-v1-artifacts/20260926/repair1_box/checkpoint.pt --save-every 50"
+    },
+    {
+      "run": "real_ddp_resume",
+      "reserved": 3,
+      "consumed": 1,
+      "status": "failed_ddp_unused_position_parameters",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/real_ddp_resume",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json"
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "real_ddp_resume_v2",
+      "reserved": 3,
+      "consumed": 3,
+      "status": "failed_resume_parity",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/real_ddp_resume_v2",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json"
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "provider_dense_isolation",
+      "reserved": 600,
+      "consumed": 600,
+      "status": "complete",
+      "metadata": {
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "sensor_root": "/mnt/navsim/trainval_sensor_blobs/trainval",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "steps": 600
+      },
+      "interpretation": "see run status and geometry correction report",
+      "cost": {
+        "elapsed_training_seconds": 94.77248396165669,
+        "optimizer_steps": 600,
+        "samples_per_second": 6.330951505320359,
+        "peak_allocated_GPU_bytes": 0,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "loss": 1.5707327127456665
+      },
+      "last_logged_losses": {
+        "loss": 1.4733041524887085
+      },
+      "gradient_groups_seen": []
+    },
+    {
+      "run": "real_ddp_resume_v3",
+      "reserved": 3,
+      "consumed": 3,
+      "status": "failed_fast_attention_bitwise_resume",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/real_ddp_resume_v3",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json"
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "real_ddp_resume_v4",
+      "reserved": 3,
+      "consumed": 3,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/real_ddp_resume_v4",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json"
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "resume_reference",
+      "reserved": 4,
+      "consumed": 4,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/overfit_box.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/resume_reference",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "resume_reference",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 4,
+        "limit": 2,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 2,
+        "stop_after": null,
+        "deterministic": true
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818689700,
+        "trainable": 3787296
+      },
+      "cost": {
+        "elapsed_training_seconds": 5.245926192030311,
+        "optimizer_steps": 4,
+        "samples_per_second": 0.7624964312454223,
+        "peak_allocated_GPU_bytes": 24198999552,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 2.1458332538604736,
+        "box": 0.22512264549732208,
+        "motion": 0.721186101436615
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 1.4791666269302368,
+        "box": 0.21194781363010406,
+        "motion": 0.7185388207435608
+      },
+      "gradient_groups_seen": [
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/overfit_box.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/resume_reference --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id resume_reference --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 4 --limit 2 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 2 --deterministic"
+    },
+    {
+      "run": "resume_split",
+      "reserved": 4,
+      "consumed": 4,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/DriveDreamer-Policy/navsim_dataset",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64",
+        "config": "configs/structured_world_v1/overfit_box.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/resume_split",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "resume_split",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 4,
+        "limit": 2,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 2,
+        "stop_after": 2,
+        "deterministic": true
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818689700,
+        "trainable": 3787296
+      },
+      "parameter_updates": {
+        "world_tokens": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "reader": {
+          "optimizer_parameter_tensors": 47,
+          "changed_probe_tensors": 43
+        },
+        "world_shared_head": {
+          "optimizer_parameter_tensors": 4,
+          "changed_probe_tensors": 4
+        },
+        "classification_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "bbox_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "motion_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        }
+      },
+      "cost": {
+        "elapsed_training_seconds": 2.5344073325395584,
+        "optimizer_steps": 4,
+        "samples_per_second": 1.578278261999767,
+        "peak_allocated_GPU_bytes": 24198999552,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": -0.0,
+        "cls": 2.1458332538604736,
+        "box": 0.22512264549732208,
+        "motion": 0.721186101436615
+      },
+      "last_logged_losses": {
+        "ego": -0.0,
+        "cls": 1.4791666269302368,
+        "box": 0.21194781363010406,
+        "motion": 0.7185388207435608
+      },
+      "gradient_groups_seen": [
+        "bbox_head",
+        "classification_head",
+        "heads",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/DriveDreamer-Policy/navsim_dataset --manifest /mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v3_overfit64 --config configs/structured_world_v1/overfit_box.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/resume_split --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id resume_split --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 4 --limit 2 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 2 --stop-after 2 --deterministic"
+    },
+    {
+      "run": "D_seed42",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/D.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/D_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "D_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": "/mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt",
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818321892,
+        "trainable": 822791204
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 676.45590066351,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.4782929663546993,
+        "peak_allocated_GPU_bytes": 25538421248,
+        "includes_frozen_provider": true
+      },
+      "first_logged_losses": {
+        "ego": 1.6056528091430664,
+        "cls": 2.017857074737549,
+        "box": 0.15897805988788605,
+        "motion": 0.8513297438621521
+      },
+      "last_logged_losses": {
+        "ego": 0.004622578155249357,
+        "cls": 0.90234375,
+        "box": 0.08049130439758301,
+        "motion": 0.0
+      },
+      "gradient_groups_seen": [
+        "action",
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/D.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/D_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id D_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --provider-checkpoint /mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt --save-every 100"
+    },
+    {
+      "run": "E_seed42",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/E.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/E_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "E_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": "/mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt",
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818321892,
+        "trainable": 822791204
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 676.0170414447784,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.4792526499965262,
+        "peak_allocated_GPU_bytes": 25538421248,
+        "includes_frozen_provider": true
+      },
+      "first_logged_losses": {
+        "ego": 1.6056528091430664,
+        "cls": 2.017857074737549,
+        "box": 0.15897805988788605,
+        "motion": 0.8513297438621521
+      },
+      "last_logged_losses": {
+        "ego": 0.0047859204933047295,
+        "cls": 0.796875,
+        "box": 0.05857310816645622,
+        "motion": 0.0
+      },
+      "gradient_groups_seen": [
+        "action",
+        "heads",
+        "reader"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/E.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/E_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id E_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --provider-checkpoint /mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt --save-every 100"
+    },
+    {
+      "run": "C_seed43",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/C.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/C_seed43",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "C_seed43",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 43,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 823299108
+      },
+      "parameter_updates": {
+        "action": {
+          "optimizer_parameter_tensors": 359,
+          "changed_probe_tensors": 359
+        },
+        "world_tokens": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "reader": {
+          "optimizer_parameter_tensors": 47,
+          "changed_probe_tensors": 43
+        },
+        "world_shared_head": {
+          "optimizer_parameter_tensors": 4,
+          "changed_probe_tensors": 4
+        },
+        "classification_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "bbox_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "motion_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        }
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 667.118451775983,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.4989841719080466,
+        "peak_allocated_GPU_bytes": 25548203520,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 0.16318058967590332,
+        "cls": 2.2926828861236572,
+        "box": 0.16662746667861938,
+        "motion": 0.8484874367713928
+      },
+      "last_logged_losses": {
+        "ego": 0.003227814333513379,
+        "cls": 0.73828125,
+        "box": 0.060891300439834595,
+        "motion": 0.5336847305297852
+      },
+      "gradient_groups_seen": [
+        "action",
+        "bbox_head",
+        "classification_head",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/C.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/C_seed43 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id C_seed43 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 43 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "B_seed43",
+      "reserved": 1000,
+      "consumed": 1000,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/B.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/B_seed43",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "B_seed43",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 43,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "historical FOV supervision",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 823299108
+      },
+      "parameter_updates": {
+        "action": {
+          "optimizer_parameter_tensors": 359,
+          "changed_probe_tensors": 359
+        },
+        "world_tokens": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "reader": {
+          "optimizer_parameter_tensors": 47,
+          "changed_probe_tensors": 43
+        },
+        "world_shared_head": {
+          "optimizer_parameter_tensors": 4,
+          "changed_probe_tensors": 4
+        },
+        "classification_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "bbox_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "motion_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        }
+      },
+      "source_provenance": {
+        "source_base_commit": "24abb47",
+        "source_status": "uncommitted follow-up policy/provider/tool changes during bounded campaign; exact import-time source hashes were not captured",
+        "final_integrated_implementation": "a430b66",
+        "limitation": "Do not claim these runs had a pristine commit. Immutable checkpoint/config/manifest/logs retained. Subsequent corrected runs use a recorded commit.",
+        "target_contract": "targets_v4_train8192"
+      },
+      "cost": {
+        "elapsed_training_seconds": 667.1510468926281,
+        "optimizer_steps": 1000,
+        "samples_per_second": 1.4989109357733512,
+        "peak_allocated_GPU_bytes": 25548203520,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 0.16318058967590332,
+        "cls": 2.2926828861236572,
+        "box": 0.16662746667861938,
+        "motion": 0.8484874367713928
+      },
+      "last_logged_losses": {
+        "ego": 0.002743564546108246,
+        "cls": 0.7265625,
+        "box": 0.06552495807409286,
+        "motion": 0.3628345727920532
+      },
+      "gradient_groups_seen": [
+        "action",
+        "bbox_head",
+        "classification_head",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/B.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/B_seed43 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id B_seed43 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 43 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "E_adapter_seed42",
+      "reserved": 1000,
+      "consumed": 201,
+      "status": "stopped_label_support_correction",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192",
+        "config": "configs/structured_world_v1/E_adapter.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/E_adapter_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "E_adapter_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 1000,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": "/mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt",
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3835111397,
+        "trainable": 839580709
+      },
+      "cost": {
+        "elapsed_training_seconds": 139.41581836529076,
+        "optimizer_steps": 201,
+        "samples_per_second": 1.4417302308791766,
+        "peak_allocated_GPU_bytes": 25808118272,
+        "includes_frozen_provider": true
+      },
+      "first_logged_losses": {
+        "ego": 1.6056528091430664,
+        "cls": 2.017857074737549,
+        "box": 0.15897805988788605,
+        "motion": 0.8513297438621521
+      },
+      "last_logged_losses": {
+        "ego": 0.02885274961590767,
+        "cls": 0.51171875,
+        "box": 0.154191792011261,
+        "motion": 0.5794758200645447
+      },
+      "gradient_groups_seen": [
+        "action",
+        "adapter_attention",
+        "adapter_gate",
+        "bbox_head",
+        "classification_head",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v4_train8192 --config configs/structured_world_v1/E_adapter.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/E_adapter_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id E_adapter_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 1000 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --provider-checkpoint /mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt --save-every 100"
+    },
+    {
+      "run": "visual_unfreeze_update",
+      "reserved": 1,
+      "consumed": 1,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/policy_regressions_v4.json",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json"
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "E_adapter_support_v6_seed42",
+      "reserved": 400,
+      "consumed": 400,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "config": "configs/structured_world_v1/E_adapter.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/E_adapter_support_v6_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "E_adapter_support_v6_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 400,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": "/mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt",
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3835111397,
+        "trainable": 839580709
+      },
+      "parameter_updates": {
+        "action": {
+          "optimizer_parameter_tensors": 359,
+          "changed_probe_tensors": 359
+        },
+        "world_tokens": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "reader": {
+          "optimizer_parameter_tensors": 47,
+          "changed_probe_tensors": 47
+        },
+        "world_shared_head": {
+          "optimizer_parameter_tensors": 4,
+          "changed_probe_tensors": 4
+        },
+        "classification_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "bbox_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "motion_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "adapter_gate": {
+          "optimizer_parameter_tensors": 1,
+          "changed_probe_tensors": 1
+        },
+        "adapter_attention": {
+          "optimizer_parameter_tensors": 6,
+          "changed_probe_tensors": 6
+        }
+      },
+      "source_provenance": {
+        "source_commit": "a430b66",
+        "source_status": "committed source; only untracked local depth checkpoint symlink",
+        "target_contract": "targets_v6_train8192",
+        "steps": 400,
+        "seed": 42,
+        "run_kind": "post-audit geometry-corrected bounded confirmation; no hyperparameter change"
+      },
+      "cost": {
+        "elapsed_training_seconds": 266.2314055059105,
+        "optimizer_steps": 400,
+        "samples_per_second": 1.502452346821719,
+        "peak_allocated_GPU_bytes": 25808118272,
+        "includes_frozen_provider": true
+      },
+      "first_logged_losses": {
+        "ego": 1.6056528091430664,
+        "cls": 2.017857074737549,
+        "box": 0.15897805988788605,
+        "motion": 0.8513297438621521
+      },
+      "last_logged_losses": {
+        "ego": 0.08951012790203094,
+        "cls": 1.0390625,
+        "box": 0.1349768042564392,
+        "motion": 0.46208614110946655
+      },
+      "gradient_groups_seen": [
+        "action",
+        "adapter_attention",
+        "adapter_gate",
+        "bbox_head",
+        "classification_head",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192 --config configs/structured_world_v1/E_adapter.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/E_adapter_support_v6_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id E_adapter_support_v6_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 400 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --provider-checkpoint /mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt --save-every 100"
+    },
+    {
+      "run": "E_support_v6_seed42",
+      "reserved": 400,
+      "consumed": 400,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "config": "configs/structured_world_v1/E.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/E_support_v6_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "E_support_v6_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 400,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": "/mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt",
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818321892,
+        "trainable": 822791204
+      },
+      "parameter_updates": {
+        "action": {
+          "optimizer_parameter_tensors": 359,
+          "changed_probe_tensors": 359
+        },
+        "world_tokens": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "reader": {
+          "optimizer_parameter_tensors": 47,
+          "changed_probe_tensors": 47
+        },
+        "world_shared_head": {
+          "optimizer_parameter_tensors": 4,
+          "changed_probe_tensors": 4
+        },
+        "classification_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "bbox_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "motion_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        }
+      },
+      "source_provenance": {
+        "source_commit": "a430b66",
+        "source_status": "committed source; only untracked local depth checkpoint symlink",
+        "target_contract": "targets_v6_train8192",
+        "steps": 400,
+        "seed": 42,
+        "run_kind": "post-audit geometry-corrected bounded confirmation; no hyperparameter change"
+      },
+      "cost": {
+        "elapsed_training_seconds": 266.3136732466519,
+        "optimizer_steps": 400,
+        "samples_per_second": 1.5019882198445431,
+        "peak_allocated_GPU_bytes": 25538421248,
+        "includes_frozen_provider": true
+      },
+      "first_logged_losses": {
+        "ego": 1.6056528091430664,
+        "cls": 2.017857074737549,
+        "box": 0.15897805988788605,
+        "motion": 0.8513297438621521
+      },
+      "last_logged_losses": {
+        "ego": 0.046636831015348434,
+        "cls": 1.078125,
+        "box": 0.120304174721241,
+        "motion": 0.4386983811855316
+      },
+      "gradient_groups_seen": [
+        "action",
+        "bbox_head",
+        "classification_head",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192 --config configs/structured_world_v1/E.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/E_support_v6_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id E_support_v6_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 400 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --provider-checkpoint /mnt/project/structured-world-v1-artifacts/20260926/provider_dense_isolation/checkpoint.pt --save-every 100"
+    },
+    {
+      "run": "C_support_v6_seed42",
+      "reserved": 400,
+      "consumed": 400,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "config": "configs/structured_world_v1/C.yaml",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/C_support_v6_seed42",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "C_support_v6_seed42",
+        "base_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "steps": 400,
+        "limit": 8192,
+        "batch_size": 1,
+        "seed": 42,
+        "lr": 0.0001,
+        "action_lr": 1e-05,
+        "resume": null,
+        "initialize_world": null,
+        "provider_checkpoint": null,
+        "save_every": 100,
+        "stop_after": null,
+        "deterministic": false
+      },
+      "interpretation": "see run status and geometry correction report",
+      "parameters": {
+        "total": 3818697892,
+        "trainable": 823299108
+      },
+      "parameter_updates": {
+        "action": {
+          "optimizer_parameter_tensors": 359,
+          "changed_probe_tensors": 359
+        },
+        "world_tokens": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "reader": {
+          "optimizer_parameter_tensors": 47,
+          "changed_probe_tensors": 43
+        },
+        "world_shared_head": {
+          "optimizer_parameter_tensors": 4,
+          "changed_probe_tensors": 4
+        },
+        "classification_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "bbox_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        },
+        "motion_head": {
+          "optimizer_parameter_tensors": 2,
+          "changed_probe_tensors": 2
+        }
+      },
+      "source_provenance": {
+        "source_commit": "a430b66",
+        "source_status": "committed source; only untracked local depth checkpoint symlink",
+        "target_contract": "targets_v6_train8192",
+        "steps": 400,
+        "seed": 42,
+        "run_kind": "post-audit geometry-corrected bounded confirmation; no hyperparameter change"
+      },
+      "cost": {
+        "elapsed_training_seconds": 266.2059983238578,
+        "optimizer_steps": 400,
+        "samples_per_second": 1.5025957435916701,
+        "peak_allocated_GPU_bytes": 25548204032,
+        "includes_frozen_provider": false
+      },
+      "first_logged_losses": {
+        "ego": 1.7081246376037598,
+        "cls": 2.0982143878936768,
+        "box": 0.16368886828422546,
+        "motion": 0.8473722338676453
+      },
+      "last_logged_losses": {
+        "ego": 0.049950987100601196,
+        "cls": 1.0390625,
+        "box": 0.140610471367836,
+        "motion": 0.5343382358551025
+      },
+      "gradient_groups_seen": [
+        "action",
+        "bbox_head",
+        "classification_head",
+        "motion_head",
+        "reader",
+        "world_shared_head",
+        "world_tokens"
+      ],
+      "original_training_command": "python tools/structured_world/train.py --checkpoint /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy --vlm /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 --manifest /mnt/project/structured-world-v1-artifacts/20260926/train_tokens.json --target-cache /mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192 --config configs/structured_world_v1/C.yaml --output /mnt/project/structured-world-v1-artifacts/20260926/C_support_v6_seed42 --ledger /mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json --run-id C_support_v6_seed42 --base-sha256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f --steps 400 --limit 8192 --batch-size 1 --seed 42 --lr 0.0001 --action-lr 1e-05 --save-every 100"
+    },
+    {
+      "run": "provider_resume_reference",
+      "reserved": 4,
+      "consumed": 4,
+      "status": "complete",
+      "metadata": {
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "sensor_root": "/mnt/navsim/trainval_sensor_blobs/trainval",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_reference",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "steps": 4,
+        "run_id": "provider_resume_reference",
+        "resume": null,
+        "stop_after": null,
+        "save_every": 2
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "provider_resume_split",
+      "reserved": 4,
+      "consumed": 4,
+      "status": "complete",
+      "metadata": {
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "sensor_root": "/mnt/navsim/trainval_sensor_blobs/trainval",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_split",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "steps": 4,
+        "run_id": "provider_resume_split",
+        "resume": null,
+        "stop_after": 2,
+        "save_every": 2
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "provider_resume_deterministic_reference",
+      "reserved": 4,
+      "consumed": 4,
+      "status": "complete",
+      "metadata": {
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "sensor_root": "/mnt/navsim/trainval_sensor_blobs/trainval",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_deterministic_reference",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "steps": 4,
+        "run_id": "provider_resume_deterministic_reference",
+        "resume": null,
+        "stop_after": null,
+        "save_every": 2,
+        "deterministic": true
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "provider_resume_deterministic_split",
+      "reserved": 4,
+      "consumed": 4,
+      "status": "complete",
+      "metadata": {
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "sensor_root": "/mnt/navsim/trainval_sensor_blobs/trainval",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/provider_resume_deterministic_split",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "steps": 4,
+        "run_id": "provider_resume_deterministic_split",
+        "resume": null,
+        "stop_after": 2,
+        "save_every": 2,
+        "deterministic": true
+      },
+      "interpretation": "see run status and geometry correction report"
+    },
+    {
+      "run": "real_ddp_joint_resume",
+      "reserved": 3,
+      "consumed": 3,
+      "status": "complete",
+      "metadata": {
+        "checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+        "vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-WorldAction",
+        "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+        "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+        "target_cache": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192",
+        "output": "/mnt/project/structured-world-v1-artifacts/20260926/real_ddp_joint_resume",
+        "ledger": "/mnt/project/structured-world-v1-artifacts/20260926/budget_ledger.json",
+        "run_id": "real_ddp_joint_resume",
+        "joint_action": true
+      },
+      "interpretation": "see run status and geometry correction report"
+    }
+  ]
+}

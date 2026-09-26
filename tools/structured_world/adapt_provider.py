@@ -65,22 +65,42 @@ def evaluate(provider,head,tokens,root,sensors):
 def main():
  p=argparse.ArgumentParser()
  for n in ['manifest','target-cache','sensor-root','output','ledger']:p.add_argument('--'+n,required=True)
- p.add_argument('--steps',type=int,default=600);a=p.parse_args();reserve(a.ledger,'provider_dense_isolation',a.steps,vars(a));torch.manual_seed(42);random.seed(42)
+ p.add_argument('--steps',type=int,default=600);p.add_argument('--run-id',default='provider_dense_isolation');p.add_argument('--resume');p.add_argument('--stop-after',type=int);p.add_argument('--save-every',type=int,default=100);p.add_argument('--deterministic',action='store_true')
+ a=p.parse_args()
+ if a.steps>1000:raise ValueError('Provider adaptation per-run budget exceeded')
+ if not a.resume:reserve(a.ledger,a.run_id,a.steps,vars(a))
+ torch.manual_seed(42);random.seed(42);np.random.seed(42)
+ if a.deterministic:torch.use_deterministic_algorithms(True)
  tokens=json.loads(Path(a.manifest).read_text());root=Path(a.target_cache);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
  provider=GeometricBEVProvider().cuda();head=DenseHead().cuda();optimizer=torch.optim.AdamW(list(provider.parameters())+list(head.parameters()),lr=3e-4)
- before=evaluate(provider,head,tokens,root,a.sensor_root);(out/'before.json').write_text(json.dumps(before,indent=2))
- order=list(tokens);random.shuffle(order);start=time.perf_counter()
- for step in range(a.steps):
+ order=list(tokens);random.shuffle(order);first=0
+ def save(step):
+  payload={'delta':{'provider.'+k:v.detach().cpu() for k,v in provider.state_dict().items()},'world_config':{'bev_channels':64},'dense_head':head.state_dict(),'optimizer':optimizer.state_dict(),'steps':step,'planned_steps':a.steps,'order':order,'arguments':vars(a),'rng':{'python':random.getstate(),'numpy':np.random.get_state(),'torch':torch.get_rng_state(),'cuda':torch.cuda.get_rng_state_all()},'scope':'Current box/class training only; dense auxiliary head excluded from deployment','provider_metadata':provider.metadata(),'resume_boundary':'optimizer boundary; exact continuation requires --deterministic (CPU geometry resampler during provider training), identical software/topology' ,'manifest_sha256':__import__('hashlib').sha256(Path(a.manifest).read_bytes()).hexdigest(),'target_audit_sha256':__import__('hashlib').sha256((root/'audit.json').read_bytes()).hexdigest()}
+  tmp=out/'checkpoint.tmp';torch.save(payload,tmp);tmp.replace(out/'checkpoint.pt')
+ if a.resume:
+  saved=torch.load(a.resume,map_location='cpu',weights_only=False)
+  for key in ['steps','manifest','target_cache','run_id','deterministic']:
+   if saved['arguments'][key]!=getattr(a,key):raise ValueError('Provider resume contract mismatch: '+key)
+  for key,path in [('manifest_sha256',Path(a.manifest)),('target_audit_sha256',root/'audit.json')]:
+   if saved[key]!=__import__('hashlib').sha256(path.read_bytes()).hexdigest():raise ValueError('Provider resume data changed')
+  provider.load_state_dict({k.removeprefix('provider.'):v for k,v in saved['delta'].items()},strict=True);head.load_state_dict(saved['dense_head'],strict=True);optimizer.load_state_dict(saved['optimizer'])
+  first=saved['steps'];order=saved['order'];random.setstate(saved['rng']['python']);np.random.set_state(saved['rng']['numpy']);torch.set_rng_state(saved['rng']['torch']);torch.cuda.set_rng_state_all(saved['rng']['cuda'])
+ else:
+  before=evaluate(provider,head,tokens,root,a.sensor_root);(out/'before.json').write_text(json.dumps(before,indent=2))
+ start=time.perf_counter()
+ for step in range(first,a.steps):
   if step and step%len(order)==0:random.shuffle(order)
   token=order[step%len(order)];inputs,_=current_observation(root/'observations'/f'{token}.npz',a.sensor_root,'cuda');target=torch.load(root/'targets'/f'{token}.pt',map_location='cuda',weights_only=True)
   f,_,support,_=provider(inputs);logits,raw=head(f,provider.grid_shape);heat,reg,occupied,collisions=dense_targets(target,provider)
-  loss,cls,box,_=objective(logits[0],raw[0],heat,reg,occupied,support[0]);optimizer.zero_grad(set_to_none=True);loss.backward();torch.nn.utils.clip_grad_norm_(list(provider.parameters())+list(head.parameters()),5.,error_if_nonfinite=True);optimizer.step();record(a.ledger,'provider_dense_isolation',step+1)
+  loss,cls,box,_=objective(logits[0],raw[0],heat,reg,occupied,support[0]);optimizer.zero_grad(set_to_none=True);loss.backward();torch.nn.utils.clip_grad_norm_(list(provider.parameters())+list(head.parameters()),5.,error_if_nonfinite=True);optimizer.step();record(a.ledger,a.run_id,step+1)
+  if (step+1)%a.save_every==0 or step+1==a.steps or step+1==a.stop_after:save(step+1)
+  if step+1==a.stop_after:return
   if (step+1)%20==0:
    row={'step':step+1,'loss':float(loss.detach()),'classification':float(cls.detach()),'box':float(box.detach()),'cell_collisions':collisions,'elapsed_seconds':time.perf_counter()-start}
    print(json.dumps(row),flush=True)
    with (out/'train.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
  after=evaluate(provider,head,tokens,root,a.sensor_root);(out/'after.json').write_text(json.dumps(after,indent=2))
- state={'delta':{'provider.'+k:v.detach().cpu() for k,v in provider.state_dict().items()},'world_config':{'bev_channels':64},'dense_head':head.state_dict(),'optimizer':optimizer.state_dict(),'steps':a.steps,'scope':'Current box/class training only; dense auxiliary head excluded from deployment','provider_metadata':provider.metadata()}
- torch.save(state,out/'checkpoint.pt');record(a.ledger,'provider_dense_isolation',a.steps,'complete')
- print(json.dumps({'before_recall':before['recall_2m_class_correct'],'after_recall':after['recall_2m_class_correct']}))
+ record(a.ledger,a.run_id,a.steps,'complete')
+ print(json.dumps({'after_recall':after['recall_2m_class_correct']}))
+
 if __name__=='__main__':main()

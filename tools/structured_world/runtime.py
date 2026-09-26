@@ -29,11 +29,11 @@ def load_baseline(checkpoint,vlm,device='cuda'):
     return agent
 
 
-def load_dataset(agent,manifest,data_root,limit=None):
+def load_dataset(agent,manifest,data_root,limit=None,split="train"):
     from infer import NavSimDataset
     cfg=copy.deepcopy(agent.model_config)
     cfg.datasets.video_data.load_2d_data=0;cfg.datasets.gs_data.load_3d_data=0;cfg.w_depth=0;cfg.enable_image_aug=0
-    return NavSimDataset(manifest,split='train',video_data_cfg=cfg.datasets.video_data,gs_data_cfg=cfg.datasets.gs_data,
+    return NavSimDataset(manifest,split=split,video_data_cfg=cfg.datasets.video_data,gs_data_cfg=cfg.datasets.gs_data,
                          reward_data_cfg=cfg.datasets.reward_data,ver_1225=cfg.ver_1225,dataset_cfg=cfg.datasets.vla_data,
                          all_cfg=cfg,data_root=data_root,max_samples=limit)
 

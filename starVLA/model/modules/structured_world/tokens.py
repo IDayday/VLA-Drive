@@ -15,6 +15,12 @@ def insert_world_tokens(ids, embeddings, mask, positions, action_positions, worl
     """Insert continuous text-type queries before actions; preserve native visual grids."""
     b,l,h = embeddings.shape
     n = world.shape[1]
+    if action_positions.ndim!=2 or action_positions.shape[0]!=b or action_positions.shape[1]==0:
+        raise ValueError('Invalid action token position shape')
+    if ((action_positions<0)|(action_positions>=l)).any() or (action_positions[:,1:]<=action_positions[:,:-1]).any():
+        raise ValueError('Action positions must be ordered, unique and in bounds')
+    if not mask.gather(1,action_positions).bool().all():
+        raise ValueError('Action token points into padding')
     new_ids=[];new_embeddings=[];new_masks=[];new_positions=[];world_positions=[]
     for i in range(b):
         at = int(action_positions[i,0])

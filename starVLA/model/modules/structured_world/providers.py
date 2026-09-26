@@ -72,7 +72,14 @@ class GeometricBEVProvider(nn.Module):
         # Pixel-centre grid convention, align_corners=False.
         grid = (pixels+.5) / pixels.new_tensor([w,h]) * 2-1
         grid = grid.masked_fill(~valid[...,None],2.)
-        sampled = F.grid_sample(feature,grid.reshape(b*v,-1,1,2).to(feature.dtype),align_corners=False)
+        sample_grid=grid.reshape(b*v,-1,1,2).to(feature.dtype)
+        if torch.are_deterministic_algorithms_enabled() and feature.requires_grad:
+            # CUDA grid_sample backward uses atomic accumulation. Exact provider
+            # adaptation uses the deterministic CPU resampler, retaining autograd
+            # across device transfers; frozen deployment remains on the GPU.
+            sampled=F.grid_sample(feature.float().cpu(),sample_grid.float().cpu(),align_corners=False).to(feature.device,dtype=feature.dtype)
+        else:
+            sampled=F.grid_sample(feature,sample_grid,align_corners=False)
         sampled = sampled.reshape(b,v,self.channels,-1,len(self.heights))
         support = valid.reshape(b,v,-1,len(self.heights))
         count = support.sum((1,3))
