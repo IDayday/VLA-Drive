@@ -33,3 +33,20 @@ Checkpoints save every new parameter/buffer, trainable original parameters, conf
 No trajectory VAE, multi-agent diffusion, new scorer, RL, routing, future RGB objective or counterfactual intervention model was added.
 
 Disabling world after joint action training does not restore the original strategy: restore the original base/action checkpoint to recover original predictions.
+
+
+```mermaid
+flowchart LR
+ I[Current three-front RGB] --> V[Native Qwen vision]
+ I --> P[Optional calibrated BEV]
+ V -->|image-only variants| R[Scene/agent Reader]
+ P -->|BEV variants| R
+ V -->|original image tokens| Q[Frozen Qwen, gradients to inputs]
+ N[Navigation and ego history/state] --> Q
+ R -->|fixed continuous tokens| Q
+ Q --> H[Post-Qwen box and motion heads]
+ Q --> A[Original action queries and FM DiT]
+ H --> L[Matched masked world losses]
+ T[Separate current/future annotations] -. supervision only .-> L
+ A --> E[Ego trajectory]
+```

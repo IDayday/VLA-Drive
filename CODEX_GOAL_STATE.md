@@ -1,23 +1,21 @@
 # Structured world V1 goal state
 
-Objective: reports/structured_world_v1/OBJECTIVE.md. Active; engineering PARTIAL pending final regressions/report; research INCONCLUSIVE pending matched planning results.
+Status: bounded implementation/experiments complete. engineering_status=READY; research_status=INCONCLUSIVE.
+Objective: reports/structured_world_v1/OBJECTIVE.md. Final evidence: reports/structured_world_v1/FINAL_REPORT.md and STATUS.json.
 
-- Branch: feature/structured-world-v1-20260926; latest implementation checkpoint a430b66; final reporting/tool changes in progress.
-- Baseline code 0ecd2ae; released DriveDreamer-Policy checkpoint SHA256 9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f. Three front current cameras; original prompt, one candidate, no scorer.
-- Artifacts: /mnt/project/structured-world-v1-artifacts/20260926 (shared local/training-vla-zt2).
-- Budget authoritative budget_ledger.json: 11620 consumed after corrected C/E/adapter400 each; provider resume validation8 reserved; <=12000. Both repair rounds used; no more hyperparameter searches.
-- Historical A1/A2/B/C/D/E seed42 and B/C seed43:1000 steps and1696 dev inference complete, zero failures. Final target FOV correction affects83/8192 scene track sets; original matrix retained/labeled. Old adapter stopped at201 steps. Corrected C/E/adapter each400 steps and1696 dev inference complete, zero failures; CPU PDM scoring now running. Provider resume validation8 total steps active. Do not duplicate jobs.
-- A0 complete1696 dev, zero failures, PDMS93.1445749%. Evaluation uses full-GT targets_v5_dev_full; train targets_v4_train8192.
-- Current targets_v6_train8192 and targets_v6_dev_full; all current-code default launchers use these. Train8192 and dev1696/16logs disjoint by log. Base exposure unknown/potentially seen. Original dirty workspaces preserved.
-- Corrected pre-norm Qwen path; disabled original exact, FP32 hidden exact, target independence, singleton padding, visual gradients, real two-GPU empty-rank loss equivalence, real Qwen DDP deterministic resume and separate-process single-GPU resume passed. Cache online/offline/external BF16 exact.
-- Real calibrated multi-plane camera-only BEV trained from scratch; provider_dense_isolation weights used D/E. Training64 class-correct2m recall2.1%; underfit, not a validated pretrained BEV prior. Two repairs and all failed updates charged. No planning-negative conclusion from provider weakness.
-- Original paused placeholder groups: local3845595 GPUs0–3; remote2816956 GPUs0–7. Original local GPU4–7 task untouched. Restore only after our jobs finish and checking device claimants.
+- Branch feature/structured-world-v1-20260926. Latest valid implementation commit 4ed9bbfe709e920c59e4c14f09272e565f2a7665; final evidence is committed separately. Final branch HEAD is reported in the delivery message and verified against origin.
+- Baseline source0ecd2ae1f616844641a6d94cfafb50e0f32c26fe; checkpoint SHA2569445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f. Three current front cameras, one candidate, original DiT, no scorer.
+- Artifact root /mnt/project/structured-world-v1-artifacts/20260926. Locked budget ledger contains11639/12000 consumed optimizer steps,361 remaining; no further training planned. Both hyperparameter/convergence repair rounds exhausted. Correctness fixes and actual GPU update tests are charged.
+- Historical A1/A2/B/C/D/E seed42 and B/C seed43 each1000 steps; corrected C/E/adapter each400 steps. A0 and all11 trained variants evaluated on the same1696 scenes:20352 score rows,0 failures. Old adapter stopped at201 steps and excluded from comparison.
+- FOV polynomial foldback corrected; current caches targets_v6_train8192 and targets_v6_dev_full. Historical v4/v5 remain immutable and explicitly labeled; no silent replacement of old training results. All perception diagnostics use full corrected dev GT.
+- Actual BEV geometry and external/cache/online path pass complete-policy parity. Eight CPU tests, FP32/disabled/target-independence/padding/vision-update tests, strict checkpoint keys, real2-GPU empty-rank/accumulation and joint Qwen/world/DiT resume pass. Fast provider continuation failure retained; explicit deterministic CPU geometry backward plus actual GPU CNN training passes exact4 vs2+2 continuation.
+- Final provider is from-scratch, weak (22/1043 current train targets matched); no pretrained BEVDet claim. Corrected planning C90.7067/E90.4992/adapter91.2704, baseline93.1446. Paired intervals cross0; no promoted model. Navtest NOT_RUN.
+- Original dirty workspaces/data/checkpoints untouched. All experiment GPU jobs finished. Local0-3 and remote0-7 placeholder scripts restored; original local4-7 job untouched. See RESOURCE_RESTORATION.json.
 
-## Next commands/actions
-1. Source /mnt/project/structured-world-v1-artifacts/20260926/campaign.env; read ledger and *_dev/manifest_0.json before launching anything.
-2. Score completed immutable predictions with tools/structured_world/score_pdms.py (existing compact-cache adapter, 16 CPU workers); finish adapter then evaluate it with run_eval.sh E_adapter E_adapter_seed42.
-3. Complete full-policy BEV cache/adapter/repeat regressions; final32+ real visualizations; aggregate paired log-cluster intervals and all scene CSVs.
-4. Package unchanged processor/base config for existing runs; write architecture, audits, commands, exact resume boundary, final report, quickstart. Stage commits, push only task branch and verify remote SHA.
-5. Restore placeholders, update this state and conclude only after required deliverables are complete. No navtest model selection.
+## Recovery / reproduction
 
-Next: finish corrected PDMS, aggregate12 runs with full paired scene CSVs; collect_evidence.py; render corrected64 figures; final report and commit/push; restore paused placeholders after GPU validation completes. Core corrected source a430b66, no further training/search planned beyond provider resume test.
+cd /mnt/project/VLA-Drive-structured-world-v1-20260926
+source /mnt/project/structured-world-v1-artifacts/20260926/campaign.env
+"$WORLD_PYTHON" tools/structured_world/resume_run.py --checkpoint "$WORLD_ARTIFACTS/C_support_v6_seed42/checkpoint.pt"
+
+This is tested and returns already_complete without new steps. Do not repeat existing runs or exceed reservations. Full commands and NOT_RUN boundaries: docs/STRUCTURED_WORLD_V1_QUICKSTART.md. A future full corrected matrix requires a new bounded plan; do not spend navtest for tuning.
