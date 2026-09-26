@@ -28,6 +28,13 @@ def world_losses(prediction, targets):
         xy = pred['boxes'][...,:2].detach()
         lo, hi = target.supervision_bounds[:2], target.supervision_bounds[2:]
         supervised = ((xy >= lo) & (xy <= hi)).all(-1)
+        if target.supervision_grid is not None:
+            grid = target.supervision_grid
+            cell = ((xy - lo) / target.supervision_resolution).floor().long()
+            in_grid = (cell >= 0).all(-1) & (cell[:,0] < grid.shape[0]) & (cell[:,1] < grid.shape[1])
+            safe = cell.clamp_min(0)
+            supported = grid[safe[:,0].clamp_max(grid.shape[0]-1),safe[:,1].clamp_max(grid.shape[1]-1)]
+            supervised &= in_grid & supported
         # Overflow means unmatched slots cannot safely receive no-object labels.
         if target.overflow:
             supervised[:] = False

@@ -7,7 +7,7 @@ from .geometry import future_track_positions
 CLASSES = ('vehicle','pedestrian','bicycle','traffic_cone','barrier','czone_sign','generic_object')
 
 
-def make_targets(current, future, capacity=32, bounds=(1.,-20.,50.,20.), steps=8):
+def make_targets(current, future, capacity=32, bounds=(1.,-20.,50.,20.), steps=8, current_eligibility=None):
     anns = current.get('anns')
     present = anns is not None
     raw = np.asarray(anns['gt_boxes'] if present else np.empty((0,7)),dtype=np.float32)
@@ -21,6 +21,8 @@ def make_targets(current, future, capacity=32, bounds=(1.,-20.,50.,20.), steps=8
     unknown = set(names) - set(CLASSES)
     if unknown:
         raise ValueError(f'Unknown annotation classes: {unknown}')
+    if current_eligibility is not None:
+        valid &= np.asarray(current_eligibility,dtype=bool)
     selected = np.where(valid)[0]
     # Current range then track ID: deterministic overflow policy, no future information.
     selected = sorted(selected,key=lambda i:(float(np.linalg.norm(raw[i,:2])),tracks[i]))

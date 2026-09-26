@@ -99,7 +99,8 @@ class StructuredWorldPolicy(nn.Module):
             conditions,prediction = self.encode_conditions(examples,model_inputs,include_world=self.world_enabled)
         actions = torch.as_tensor(np.array([e['action'] for e in examples]),device=conditions.device,dtype=torch.float32)
         repeats = self.baseline.config.framework.action_model.get('repeated_diffusion_steps',1)
-        loss = self.baseline.action_model(conditions.repeat(repeats,1,1),actions.repeat(repeats,1,1),None)
+        loss = self.baseline.action_model(conditions.repeat(repeats,1,1),actions.repeat(repeats,1,1),None) if self.world_config.get('lambda_ego',1.) else conditions.sum()*0.
+        loss = loss * self.world_config.get('lambda_ego',1.)
         losses = {'ego':loss}
         if prediction is not None and targets is not None:
             terms,_ = world_losses(prediction,targets)

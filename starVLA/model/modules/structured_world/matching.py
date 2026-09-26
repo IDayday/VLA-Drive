@@ -13,6 +13,7 @@ def match_current(prediction, target, centre_scale=20.):
     boxes = target.current_boxes[indices]
     pred = prediction['boxes']
     mask = target.box_valid_mask[indices]
+    boxes = boxes.masked_fill(~mask.bool(),0.)
     diff = (pred[:,None] - boxes[None]).abs()
     scale = pred.new_tensor([centre_scale]*3 + [5.]*3 + [1.]*2)
     cost = (diff / scale * mask[None]).sum(-1)

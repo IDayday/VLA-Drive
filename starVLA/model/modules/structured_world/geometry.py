@@ -39,3 +39,21 @@ def future_track_positions(current_tracks, frames, ego_t0_to_global, steps=8):
                 xy[n,t] = centres[by_track[track], :2]
                 valid[n,t] = True
     return xy, valid
+
+
+def geometric_fov(points, intrinsics, camera_to_ego, distortion, image_size=(1024,576)):
+    """Union of calibrated camera frusta, Brown-Conrady distortion; not occlusion."""
+    points = np.asarray(points,dtype=np.float64)
+    visible = np.zeros(points.shape[:-1],dtype=bool)
+    for k,ext,d in zip(intrinsics,camera_to_ego,distortion):
+        camera = transform_points(points,np.linalg.inv(ext))
+        z = camera[...,2]
+        x,y = (camera[...,:2]/np.maximum(z[...,None],1e-6)).T
+        r2 = np.minimum(x*x+y*y,1e4)
+        k1,k2,p1,p2,k3 = d
+        radial = 1+k1*r2+k2*r2*r2+k3*r2*r2*r2
+        xd = x*radial+2*p1*x*y+p2*(r2+2*x*x)
+        yd = y*radial+p1*(r2+2*y*y)+2*p2*x*y
+        uv = np.stack([xd,yd,np.ones_like(xd)],-1) @ k.T
+        visible |= (z>.1)&(uv[...,0]>=0)&(uv[...,0]<image_size[0])&(uv[...,1]>=0)&(uv[...,1]<image_size[1])
+    return visible

@@ -48,6 +48,8 @@ class WorldTargets:
     # No-object supervision is valid only for predicted centres inside this region.
     supervision_bounds: torch.Tensor  # xmin,ymin,xmax,ymax
     overflow: int = 0
+    supervision_grid: Optional[torch.Tensor] = None  # X,Y calibrated FOV support
+    supervision_resolution: float = 1.
 
 @dataclass
 class WorldMemory:

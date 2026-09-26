@@ -1,0 +1,17 @@
+enabled: true
+provider: geometric_bev
+scene_tokens: 64
+agent_tokens: 32
+reader_dim: 256
+bev_channels: 64
+hidden_mode: prenorm
+vision_trainable: false
+freeze_provider: true
+train_action: true
+lambda_ego: 1.0
+lambda_cls: 1.0
+lambda_box: 1.0
+lambda_motion: 1.0
+action_adapter: false
+historical_auxiliary_losses: false
+qwen_lora: false
