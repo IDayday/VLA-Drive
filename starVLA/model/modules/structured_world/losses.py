@@ -14,7 +14,7 @@ def global_mean(numerator, count):
     return numerator * world_size / denominator.clamp_min(1)
 
 
-def world_losses(prediction, targets):
+def world_losses(prediction, targets, return_sums=False):
     zero = sum(x.sum()*0 for x in prediction.values())
     cls_sum, box_sum, motion_sum = zero, zero, zero
     cls_count = box_count = motion_count = 0
@@ -56,6 +56,17 @@ def world_losses(prediction, targets):
             error = F.smooth_l1_loss(pred['future_xy'][rows]/20.,gt_future/20.,reduction='none').sum(-1)
             motion_sum = motion_sum + error[valid].sum()
             motion_count += int(valid.sum())
+    sums={'cls':cls_sum,'box':box_sum,'motion':motion_sum}
+    counts={'cls':cls_count,'box':box_count,'motion':motion_count}
+    if return_sums:
+        return (sums,counts),matches
     # All ranks perform exactly these three collectives, including empty ranks.
-    return {'cls':global_mean(cls_sum,cls_count), 'box':global_mean(box_sum,box_count),
-            'motion':global_mean(motion_sum,motion_count)}, matches
+    return normalize_accumulated_world_losses([(sums,counts)]),matches
+
+
+def normalize_accumulated_world_losses(microbatches):
+    # Accumulate numerators AND denominators, not per-microbatch means.
+    # Retains microbatch graphs until backward; callers must budget memory accordingly.
+    return {name:global_mean(sum(sums[name] for sums,_ in microbatches),
+                             sum(counts[name] for _,counts in microbatches))
+            for name in ('cls','box','motion')}

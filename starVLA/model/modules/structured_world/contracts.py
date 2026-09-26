@@ -19,6 +19,7 @@ class ModelInputs:
     navigation: Optional[torch.Tensor] = None
     distortion: Optional[torch.Tensor] = None  # B,V,5 OpenCV coefficients
     optional_current_feature_cache: Optional[Mapping] = None
+    scene_tokens: Optional[Tuple[str, ...]] = None
 
     def validate(self, allowed_cameras):
         b, v, c, h, w = self.current_images.shape

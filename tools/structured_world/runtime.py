@@ -48,7 +48,7 @@ def load_world_batch(examples,cache_root,device='cuda',load_targets=True):
     tensor=lambda name:torch.as_tensor(np.stack([o[name] for o in observations]),device=device,dtype=torch.float32)
     images=torch.as_tensor(np.stack([[np.asarray(im,dtype=np.float32)/255. for im in e['image']] for e in examples]),device=device).permute(0,1,4,2,3).contiguous()
     times=torch.tensor([int(o['timestamp']) for o in observations],device=device,dtype=torch.int64)
-    inputs=ModelInputs(images,tensor('intrinsics'),tensor('extrinsics'),tensor('image_transforms'),tuple(observations[0]['camera_names'].tolist()),times[:,None].expand(-1,3),times,distortion=tensor('distortion'))
+    inputs=ModelInputs(images,tensor('intrinsics'),tensor('extrinsics'),tensor('image_transforms'),tuple(observations[0]['camera_names'].tolist()),times[:,None].expand(-1,3),times,distortion=tensor('distortion'),scene_tokens=tuple(e['token'] for e in examples))
     targets=[]
     if load_targets:
         for e in examples:

@@ -89,6 +89,9 @@ def main():
                 record.update(diagnostics(pred,WorldTargets(**values)))
             np.savez(out/'predictions'/f'{token}.npz',**arrays)
         except Exception as error:
+            if not any(r['status']=='failed' for r in records):
+                import traceback
+                traceback.print_exc()
             record.update(status='failed',error=repr(error))
         records.append(record)
         with (out/f'progress_{a.shard}.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')

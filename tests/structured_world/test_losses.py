@@ -41,3 +41,22 @@ def test_reader_and_zero_gate_gradient():
     memory = reader(torch.randn(2,5,16))
     adapter(a,memory.agent_memory).square().sum().backward()
     assert reader.queries.grad.abs().sum() > 0
+
+
+def test_unequal_microbatch_accumulation_matches_full_batch():
+    from starVLA.model.modules.structured_world.losses import normalize_accumulated_world_losses
+    torch.manual_seed(4)
+    head=AgentHeads(16)
+    x=torch.randn(2,32,16)
+    targets=[make_targets(frame([],[]),[]),make_targets(frame([[5,0,0,4,2,1,0],[8,2,0,4,2,1,0]],['v','w']),[])]
+    losses,_=world_losses(head(x),targets)
+    sum(losses.values()).backward()
+    expected=[p.grad.clone() for p in head.parameters()]
+    head.zero_grad()
+    accum=[]
+    for i in range(2):
+        sums,_=world_losses(head(x[i:i+1]),targets[i:i+1],return_sums=True)
+        accum.append(sums)
+    sum(normalize_accumulated_world_losses(accum).values()).backward()
+    for param,reference in zip(head.parameters(),expected):
+        torch.testing.assert_close(param.grad,reference,atol=1e-7,rtol=1e-5)

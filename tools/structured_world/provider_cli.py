@@ -20,6 +20,7 @@ def load_provider(weights,device):
 
 
 def current_observation(path,sensor_root,device):
+    scene_token=Path(path).stem
     with np.load(path,allow_pickle=False) as record:
         d={k:record[k] for k in record.files}
     allowed={'intrinsics','extrinsics','image_transforms','distortion','timestamp','camera_names','image_paths','schema_version'}
@@ -37,7 +38,7 @@ def current_observation(path,sensor_root,device):
             images.append(np.asarray(image.resize((1024,576),Image.Resampling.LANCZOS),dtype=np.float32)/255.)
     tensor=lambda x:torch.as_tensor(x,device=device,dtype=torch.float32).unsqueeze(0)
     time=torch.tensor([int(d['timestamp'])],device=device,dtype=torch.int64)
-    inputs=ModelInputs(tensor(np.array(images)).permute(0,1,4,2,3).contiguous(),tensor(d['intrinsics']),tensor(d['extrinsics']),tensor(d['image_transforms']),tuple(d['camera_names'].tolist()),time[:,None].expand(-1,len(images)),time,distortion=tensor(d['distortion']))
+    inputs=ModelInputs(tensor(np.array(images)).permute(0,1,4,2,3).contiguous(),tensor(d['intrinsics']),tensor(d['extrinsics']),tensor(d['image_transforms']),tuple(d['camera_names'].tolist()),time[:,None].expand(-1,len(images)),time,distortion=tensor(d['distortion']),scene_tokens=(scene_token,))
     return inputs,digests
 
 
@@ -53,7 +54,7 @@ def main():
         with torch.no_grad():f,xyz,support,meta=provider(inputs)
         meta=dict(meta,scene_token=path.stem,decision_time=int(inputs.decision_time[0]),provider_weights_sha256=identity,
                   provider_source_sha256=hashlib.sha256(Path(__import__(provider.__module__,fromlist=['__file__']).__file__).read_bytes()).hexdigest(),
-                  image_sha256=digests,image_transforms=inputs.image_transforms.cpu().tolist(),dtype=str(f.dtype))
+                  input_tensor_sha256=hashlib.sha256(inputs.current_images.detach().cpu().contiguous().numpy().tobytes()).hexdigest(),image_sha256=digests,image_transforms=inputs.image_transforms.cpu().tolist(),dtype=str(f.dtype))
         torch.save({'metadata':meta,'features':f.cpu(),'coordinates':xyz.cpu(),'observation_support':support.cpu()},out/(path.stem+'.pt'))
     print(json.dumps({'completed':len(paths),'provider_weights_sha256':identity}))
 

@@ -1,0 +1,14 @@
+{
+  "round": 1,
+  "fault_hypothesis": "Transformers output capture replaces final language hidden state with normalized output, unlike the outer legacy LM output; new path was conditioning on the wrong representation.",
+  "evidence": "policy_regressions.json: max_abs condition difference 392.09423828125; policy_regressions_v2.json after final-norm-input tap: 0.0",
+  "change": "Explicit differentiable pre-final-norm tap; restore original action-head autocast FP32 context/noise dtype; singleton scene encoding removes native BF16 batch-padding kernel variability.",
+  "affected_runs": [
+    "overfit_box_clean (200)",
+    "overfit_motion (200)",
+    "provider_adapt (400)"
+  ],
+  "budget_consumed_not_erased": 800,
+  "validity": "Engineering/debug only; do not use these checkpoints in core comparisons. No core pilot launched.",
+  "repair_plan": "Fresh correct-path 200 bbox + 200 motion and 400 provider adaptation; same fixed training split. Core pilots remain from original base."
+}

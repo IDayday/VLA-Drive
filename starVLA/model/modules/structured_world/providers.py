@@ -41,6 +41,8 @@ class GeometricBEVProvider(nn.Module):
         if not isinstance(inputs,ModelInputs):
             raise TypeError('Provider requires whitelisted ModelInputs, never Scene/WorldTargets')
         inputs.validate(self.cameras)
+        if inputs.optional_current_feature_cache is not None:
+            return self.read_cache(inputs)
         b,v,_,h,w = inputs.current_images.shape
         image = inputs.current_images.reshape(b*v,3,h,w)
         feature = self.encoder(image).reshape(b,v,self.channels,-1)
@@ -75,6 +77,39 @@ class GeometricBEVProvider(nn.Module):
         bev = self.fuse(pooled.reshape(b,self.channels,*self.grid_shape))
         features = bev.flatten(2).transpose(1,2)
         return features, self.coordinates[None].expand(b,-1,-1), count>0, self.metadata()
+
+    def bind_cache_identity(self):
+        if any(p.requires_grad for p in self.parameters()):
+            raise ValueError('Feature caching requires a frozen provider')
+        self.cache_weight_identity = state_fingerprint(self)
+
+    def read_cache(self, inputs):
+        if any(p.requires_grad for p in self.parameters()) or not hasattr(self,'cache_weight_identity'):
+            raise ValueError('Bind frozen provider identity before using its cache')
+        if inputs.current_images.shape[0] != 1 or not inputs.scene_tokens:
+            raise ValueError('Cached provider requests require a single explicit scene token')
+        payload=inputs.optional_current_feature_cache
+        meta=payload.get('metadata',{})
+        expected=self.metadata()
+        # JSON roundtrip normalizes grid tuples saved by external services.
+        for key,value in expected.items():
+            if json.dumps(meta.get(key),sort_keys=True) != json.dumps(value,sort_keys=True):
+                raise ValueError(f'Provider cache metadata mismatch: {key}')
+        checks={'provider_weights_sha256':self.cache_weight_identity,
+                'scene_token':inputs.scene_tokens[0], 'decision_time':int(inputs.decision_time[0]),
+                'input_tensor_sha256':hashlib.sha256(inputs.current_images.detach().cpu().contiguous().numpy().tobytes()).hexdigest(),
+                'image_transforms':inputs.image_transforms.cpu().tolist()}
+        from pathlib import Path
+        checks['provider_source_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        for key,value in checks.items():
+            if meta.get(key)!=value:raise ValueError(f'Provider cache identity mismatch: {key}')
+        f,xyz,support=validate_feature_cache(payload,meta)
+        if f.shape!=(1,len(self.coordinates),self.channels) or xyz.shape!=(1,len(self.coordinates),3) or support.shape!=f.shape[:2]:
+            raise ValueError('Provider cache tensor shape mismatch')
+        if str(f.dtype)!=meta.get('dtype'):raise ValueError('Provider cache dtype mismatch')
+        if not torch.equal(xyz.cpu(),self.coordinates[None].cpu()):raise ValueError('Provider cache grid coordinate mismatch')
+        device=inputs.current_images.device
+        return f.to(device),xyz.to(device),support.to(device),meta
 
     @staticmethod
     def encoder_output_shape(h,w):

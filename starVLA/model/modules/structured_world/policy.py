@@ -1,5 +1,6 @@
 """Opt-in QwenOFT composition. Disabled inference calls the original method exactly."""
 from contextlib import nullcontext
+from dataclasses import fields, replace
 import numpy as np
 import torch
 from torch import nn
@@ -26,6 +27,24 @@ class StructuredWorldPolicy(nn.Module):
         self.adapter = WorldToActionAdapter(dim) if config.get('action_adapter',False) else None
 
     def encode_conditions(self, examples, model_inputs=None, include_world=True):
+        # Qwen BF16 native batching changes attention/vision kernel rounding with
+        # padding. Encode each scene independently so another scene cannot alter
+        # its condition. The action expert still consumes the assembled batch.
+        if len(examples)>1:
+            conditions=[];predictions=[]
+            for i,example in enumerate(examples):
+                single_inputs=None
+                if model_inputs is not None:
+                    updates={}
+                    for field in fields(model_inputs):
+                        value=getattr(model_inputs,field.name)
+                        if torch.is_tensor(value):updates[field.name]=value[i:i+1]
+                    if model_inputs.scene_tokens is not None:updates['scene_tokens']=model_inputs.scene_tokens[i:i+1]
+                    if model_inputs.optional_current_feature_cache is not None:raise ValueError('Use singleton cached feature requests')
+                    single_inputs=replace(model_inputs,**updates)
+                c,p=self.encode_conditions([example],single_inputs,include_world)
+                conditions.append(c);predictions.append(p)
+            return torch.cat(conditions,0),({k:torch.cat([p[k] for p in predictions],0) for k in predictions[0]} if include_world else None)
         base = self.baseline
         if any(e.get('qwen_feature_cache') is not None for e in examples):
             raise ValueError('World path requires live Qwen features; legacy cache identity is insufficient')
@@ -79,11 +98,19 @@ class StructuredWorldPolicy(nn.Module):
             ids,embeds,mask,rope,world_positions,action_positions = insert_world_tokens(
                 ids,embeds,mask,rope,action_positions,world,int(tok.pad_token_id))
             image_mask = ids == model.config.image_token_id
-        outputs = model.model.language_model(input_ids=None,inputs_embeds=embeds,attention_mask=mask,position_ids=rope,
-                                            visual_pos_masks=image_mask,deepstack_visual_embeds=[x.to(embeds.dtype) for x in deepstack],
-                                            use_cache=False,output_hidden_states=True)
-        # Released checkpoint consumes the legacy hidden_states[-1] (pre-final-norm).
-        hidden = outputs.hidden_states[-1] if self.world_config.get('hidden_mode','prenorm') == 'prenorm' else outputs.last_hidden_state
+        # Transformers' direct-language output capture replaces its final captured state
+        # with post-norm output; the outer legacy LM capture does not. Tap the actual
+        # norm input instead of relying on ambiguous hidden_states[-1] semantics.
+        captured=[]
+        handle=model.model.language_model.norm.register_forward_pre_hook(lambda module,args: captured.append(args[0]))
+        try:
+            outputs = model.model.language_model(input_ids=None,inputs_embeds=embeds,attention_mask=mask,position_ids=rope,
+                                                visual_pos_masks=image_mask,deepstack_visual_embeds=[x.to(embeds.dtype) for x in deepstack],
+                                                use_cache=False,output_hidden_states=False)
+        finally:
+            handle.remove()
+        if len(captured)!=1:raise RuntimeError('Expected one Qwen final norm invocation')
+        hidden = captured[0] if self.world_config.get('hidden_mode','prenorm') == 'prenorm' else outputs.last_hidden_state
         actions = hidden.gather(1,action_positions[...,None].expand(-1,-1,hidden.shape[-1]))
         world_prediction = None
         if include_world:
@@ -99,7 +126,8 @@ class StructuredWorldPolicy(nn.Module):
             conditions,prediction = self.encode_conditions(examples,model_inputs,include_world=self.world_enabled)
         actions = torch.as_tensor(np.array([e['action'] for e in examples]),device=conditions.device,dtype=torch.float32)
         repeats = self.baseline.config.framework.action_model.get('repeated_diffusion_steps',1)
-        loss = self.baseline.action_model(conditions.repeat(repeats,1,1),actions.repeat(repeats,1,1),None) if self.world_config.get('lambda_ego',1.) else conditions.sum()*0.
+        with torch.autocast('cuda',dtype=torch.float32):
+            loss = self.baseline.action_model(conditions.repeat(repeats,1,1),actions.repeat(repeats,1,1),None) if self.world_config.get('lambda_ego',1.) else conditions.sum()*0.
         loss = loss * self.world_config.get('lambda_ego',1.)
         losses = {'ego':loss}
         if prediction is not None and targets is not None:
@@ -115,5 +143,6 @@ class StructuredWorldPolicy(nn.Module):
             return self.baseline.predict_action_infer_1d(examples)
         with torch.autocast('cuda',dtype=torch.bfloat16):
             conditions,prediction = self.encode_conditions(examples,model_inputs)
-        actions = self.baseline.action_model.predict_action(conditions)
+        with torch.autocast('cuda',dtype=torch.float32):
+            actions = self.baseline.action_model.predict_action(conditions)
         return {'normalized_actions':actions.cpu().numpy(),'world_prediction':prediction}

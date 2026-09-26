@@ -22,14 +22,15 @@ def checkpoint(policy,optimizer,scheduler,step,order,position,args):
             'scheduler':scheduler.state_dict(),'step':step,'order':order,'position':position,
             'rng':{'python':random.getstate(),'numpy':np.random.get_state(),'torch':torch.get_rng_state(),'cuda':torch.cuda.get_rng_state_all()},
             'arguments':vars(args),'resume_boundary':'single-process, optimizer step, no prefetch/no accumulation',
-            'base_sha256':args.base_sha256}
+            'base_sha256':args.base_sha256,'manifest_sha256':__import__('hashlib').sha256(Path(args.manifest).read_bytes()).hexdigest(),
+            'target_audit_sha256':__import__('hashlib').sha256((Path(args.target_cache)/'audit.json').read_bytes()).hexdigest()}
 
 
 def main():
     p=argparse.ArgumentParser()
     for name in ['checkpoint','vlm','data-root','manifest','target-cache','config','output','ledger','run-id','base-sha256']:p.add_argument('--'+name,required=True)
     p.add_argument('--steps',type=int,default=200);p.add_argument('--limit',type=int,default=64);p.add_argument('--batch-size',type=int,default=1)
-    p.add_argument('--seed',type=int,default=42);p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--resume');p.add_argument('--initialize-world');p.add_argument('--provider-checkpoint');p.add_argument('--save-every',type=int,default=100)
+    p.add_argument('--seed',type=int,default=42);p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--action-lr',type=float,default=1e-5);p.add_argument('--resume');p.add_argument('--initialize-world');p.add_argument('--provider-checkpoint');p.add_argument('--save-every',type=int,default=100);p.add_argument('--stop-after',type=int)
     a=p.parse_args();cfg=yaml.safe_load(Path(a.config).read_text())
     if a.limit>8192 or a.steps>1000:raise ValueError('Pilot per-run budget limit exceeded')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
@@ -56,12 +57,19 @@ def main():
     if cfg.get('train_action',False):policy.baseline.action_model.train()
     ds=load_dataset(agent,a.manifest,a.data_root,a.limit)
     params=[p for p in policy.parameters() if p.requires_grad]
-    optimizer=torch.optim.AdamW(params,lr=a.lr,weight_decay=.01)
+    action_params=[p for n,p in policy.named_parameters() if p.requires_grad and n.startswith('baseline.action_model.')]
+    world_params=[p for n,p in policy.named_parameters() if p.requires_grad and not n.startswith('baseline.action_model.')]
+    optimizer=torch.optim.AdamW([{'params':world_params,'lr':a.lr},{'params':action_params,'lr':a.action_lr}],weight_decay=.01)
     scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,lambda step:1.)
     order=list(range(len(ds)));random.shuffle(order);position=0;start=0
     if a.resume:
         saved=torch.load(a.resume,map_location='cpu',weights_only=False)
         if saved['base_sha256']!=a.base_sha256 or saved['world_config']!=cfg:raise ValueError('Resume identity mismatch')
+        for key in ['manifest','target_cache','batch_size','limit','seed','lr','action_lr','steps']:
+            if saved['arguments'][key]!=getattr(a,key):raise ValueError(f'Resume run contract mismatch: {key}')
+        import hashlib
+        if saved['manifest_sha256']!=hashlib.sha256(Path(a.manifest).read_bytes()).hexdigest():raise ValueError('Changed sample manifest')
+        if saved['target_audit_sha256']!=hashlib.sha256((Path(a.target_cache)/'audit.json').read_bytes()).hexdigest():raise ValueError('Changed target contract')
         expected=checkpoint(policy,optimizer,scheduler,0,[],0,a)['delta_keys']
         if saved['delta_keys']!=expected or set(saved['delta'])!=set(expected):raise ValueError('Resume delta keys mismatch')
         state=policy.state_dict()
@@ -96,9 +104,11 @@ def main():
              'elapsed_seconds':time.perf_counter()-begin,'tokens':[e['token'] for e in examples]}
         with (out/'train.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
         if (step+1)%10==0:print(json.dumps(row),flush=True)
-        if (step+1)%a.save_every==0 or step+1==a.steps:
+        if (step+1)%a.save_every==0 or step+1==a.steps or step+1==a.stop_after:
             payload=checkpoint(policy,optimizer,scheduler,step+1,order,position,a)
             tmp=out/'checkpoint.tmp';torch.save(payload,tmp);tmp.replace(out/'checkpoint.pt')
+        if step+1==a.stop_after:
+            return
     record(a.ledger,a.run_id,a.steps,'complete')
 
 if __name__=='__main__':main()

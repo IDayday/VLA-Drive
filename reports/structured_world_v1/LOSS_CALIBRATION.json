@@ -1,0 +1,47 @@
+{
+  "records": [
+    {
+      "token": "2b0deb39ff8355ec",
+      "losses": {
+        "cls": 2.1477272510528564,
+        "box": 0.1387706696987152,
+        "motion": 0.5794325470924377,
+        "ego": 0.005247323773801327
+      },
+      "shared_query_gradient_norms": {
+        "cls": 0.6821936368942261,
+        "box": 0.2893633544445038,
+        "motion": 0.14994342625141144,
+        "ego": 0.03404691815376282
+      }
+    },
+    {
+      "token": "0cfb822f546b53f3",
+      "losses": {
+        "cls": 2.2291667461395264,
+        "box": 0.21263837814331055,
+        "motion": 0.7333312034606934,
+        "ego": 0.003837465774267912
+      },
+      "shared_query_gradient_norms": {
+        "cls": 2.411372423171997,
+        "box": 0.6088117957115173,
+        "motion": 0.05587054416537285,
+        "ego": 0.07852092385292053
+      }
+    }
+  ],
+  "median_gradient_norms": {
+    "ego": 0.056283921003341675,
+    "cls": 1.5467830300331116,
+    "box": 0.44908757507801056,
+    "motion": 0.10290698520839214
+  },
+  "weights": {
+    "cls": 0.1,
+    "box": 0.1,
+    "motion": 0.1
+  },
+  "rule": "Each auxiliary aims at 0.1x median ego shared-query gradient, clipped [0.1,10]; one training-only calibration; no test selection",
+  "optimizer_steps": 0
+}
