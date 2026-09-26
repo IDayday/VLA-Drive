@@ -44,10 +44,10 @@ def objective(logits,raw,heat,reg,occupied,support):
 
 
 @torch.no_grad()
-def evaluate(provider,head,tokens,root,sensors):
+def evaluate(provider,head,tokens,root,sensors,device="cuda"):
  results=[]
  for token in tokens:
-  inputs,_=current_observation(root/'observations'/f'{token}.npz',sensors,'cuda');target=torch.load(root/'targets'/f'{token}.pt',map_location='cuda',weights_only=True)
+  inputs,_=current_observation(root/'observations'/f'{token}.npz',sensors,device);target=torch.load(root/'targets'/f'{token}.pt',map_location=device,weights_only=True)
   f,coords,support,_=provider(inputs);logits,raw=head(f,provider.grid_shape);scores,classes=logits[0].sigmoid().max(-1)
   maxima=F.max_pool2d(scores.reshape(1,1,*provider.grid_shape),3,stride=1,padding=1).flatten();scores=scores.masked_fill((scores<maxima)|~support[0],0.)
   selected=torch.argsort(scores,descending=True)[:64];selected=selected[scores[selected]>.2]
