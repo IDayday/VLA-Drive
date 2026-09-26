@@ -1,0 +1,31 @@
+schema_version: 1
+optimizer_step_cap: 12000
+steps_consumed: 0
+real_overfit:
+  max_scenes: 64
+  max_steps: 1000
+pilot:
+  max_training_scenes: 8192
+  max_steps_per_variant: 1000
+  training_seeds: [42]
+  variants: [A1, A2, B, C, D, E]
+additional_seed:
+  max_paired_comparisons: 1
+  seeds: [43]
+repair:
+  max_rounds: 2
+  require_logged_failure_hypothesis: true
+accounting:
+  includes: [overfit, provider_adaptation, warmup, pilot, repair_rerun, additional_seed, adapter]
+  charge_actual_optimizer_steps: true
+  reserve_before_launch: true
+  no_automatic_cap_increase: true
+resources:
+  allowed_hosts: [local, training-vla-zt2]
+  placeholder_gpu_scripts_may_be_paused: true
+  preempt_other_training: false
+evaluation:
+  seed: 20260926
+  prefer_existing_development_manifest: true
+  split_by_complete_log: true
+  navtest_for_selection: false
