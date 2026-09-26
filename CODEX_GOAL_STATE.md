@@ -1,14 +1,14 @@
 # Structured world V1 goal state
 
 Full objective: reports/structured_world_v1/OBJECTIVE.md (all sections retained).
-Status: active, P0 baseline discovery; no experiment has been launched.
+Status: active, P0 real baseline replay passed; P1 modules and integration under test.
 Engineering: PARTIAL. Research: NOT_RUN.
 
 ## Authoritative state
 - Isolated branch: feature/structured-world-v1-20260926.
 - Candidate source baseline: 0ecd2ae, recovered stable QwenOFT training implementation.
 - Candidate weights: local DriveDreamer-Policy released pytorch_model.pt.
-- Baseline selection remains provisional until strict key audit and real replay.
+- Released baseline loads with zero missing keys and no unexpected keys except explicitly disabled Wan. Four real training scenes replayed with finite outputs; full manifest pending.
 - Agent-query reference 9dd6b71 is available locally; not merged.
 - Original /mnt/project/DriveVLA-M0 and DriveDreamer-Policy dirty worktrees untouched.
 - Allowed hosts: local and training-vla-zt2. Only identified placeholder GPU jobs may be paused.
@@ -21,5 +21,5 @@ Engineering: PARTIAL. Research: NOT_RUN.
 4. Integrate Reader/post-Qwen heads and camera-only geometric BEV provider.
 5. Execute objective P0–P4 and all twelve scoped tests within execution_budget.yaml.
 
-No current hard blocker. A GPU replay has not yet been run.
-Latest valid source commit: 0ecd2ae (task commits pending).
+No current hard blocker. Original GPU replay completed. Real world-token gradient smoke is running (artifact world_smoke.log). Six focused CPU tests pass; GPU/DDP/resume and experiments remain outstanding.
+Baseline source: 0ecd2ae. First task commit: f0bbe48. No optimizer steps consumed yet.
