@@ -65,7 +65,7 @@ BEV特征确实进入Reader→Qwen→action queries；在线、离线缓存、Ex
 - 单进程跨Python重启4步与2＋2：参数、optimizer、scheduler、随机状态和采样位置一致。
 - 快速CUDA provider适配续训曾超过预声明1e−6容差（实测6.21e−6），失败记录保留。修复为显式`--deterministic`模式：训练时CPU确定性几何重采样保留跨设备autograd，GPU CNN继续训练，部署仍走GPU。真实4步与2＋2参数差0。Fast模式不宣称bitwise续训；不放宽原容差。
 
-总计 **11639/12000 optimizer steps**，余361；包括失败、两轮收敛/超参排障、几何正确性修正、201步中断adapter和全部GPU更新测试。两轮超参数修复已用完；此后只做坐标/恢复正确性修复，未继续调loss权重或搜索测试成绩。初始归一化hidden语义错误的800步已计费并排除科学比较。没有OOM的新主实验，旧任务的OOM不属于本次证据。原工作区、原数据/缓存/检查点保持不变。
+总计 **11639/12000 optimizer steps**，余361；包括失败、两轮收敛/超参排障、几何正确性修正、201步中断adapter和全部GPU更新测试。两轮超参数修复已用完；此后只做坐标/恢复正确性修复，未继续调loss权重或搜索测试成绩。初始归一化hidden语义错误的800步已计费并排除科学比较。早期PDM兼容性smoke曾64/64失败；修复compact-cache类加载后64/64完成，但其旧调试策略分数不进入主矩阵。两次完整记录均保留，见artifact索引。没有OOM的新主实验，旧任务的OOM不属于本次证据。原工作区、原数据/缓存/检查点保持不变。
 
 工程READY依据是修正后真实端到端训练/推理、真实BEV、严格边界及关键GPU回归已完成，不是以loss下降代替科学结论。详细记录见 [VALIDATION.json](VALIDATION.json)、[RUN_LEDGER.json](RUN_LEDGER.json)、[GEOMETRY_CORRECTION.json](GEOMETRY_CORRECTION.json)、[ARCHITECTURE_AND_GRADIENTS.md](ARCHITECTURE_AND_GRADIENTS.md)。
 
@@ -77,6 +77,7 @@ BEV特征确实进入Reader→Qwen→action queries；在线、离线缓存、Ex
 - [完整配对差值CSV：28832行](/mnt/project/structured-world-v1-artifacts/20260926/final_metrics/paired_scenes.csv)
 - [汇总指标](SUMMARY.json) 与 [全部配对区间](PAIRED_COMPARISONS.json)。
 - [64个修正后真实场景图索引](/mnt/project/structured-world-v1-artifacts/20260926/visualizations_C_support_v6_seed42/index.json)：空目标3、缺失future41、静止48、转弯17、交汇6、离开当前FOV/ROI34；类别为明确的几何启发式标记，可重叠。这是事后诊断选图，未筛正式输入/评测样本。图像含当前框投影、ego(t0)框、同track future、mask、slot匹配。
+- [64张真实场景图完整ZIP](/mnt/project/structured-world-v1-artifacts/20260926/visualizations_C_support_v6_seed42.zip)。
 - 权重、全部目标/特征缓存、图像与场景CSV留在授权存储，不推Git；[ARTIFACT_INDEX.json](ARTIFACT_INDEX.json)记录位置/校验。代码、配置、聚合指标、命令和小型证据进入本任务分支。
 
 NOT_RUN：完整v6 A0/A1/A2/B/C/D/E 1000步重跑、视觉解冻大矩阵、LoRA训练、BEVDet依赖安装/公共权重引入、最终navtest。未选出可晋级模型，因此不消耗navtest用于选择或调参。轻量provider的低适配能力不能解释为“BEV注入无效”。正式checkpoint没有复用跨场景错配BEV；该类OOD干预不作因果证明。

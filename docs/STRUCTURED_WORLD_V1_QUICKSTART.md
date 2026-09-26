@@ -114,3 +114,15 @@ CUDA_VISIBLE_DEVICES=0 "$WORLD_PYTHON" tools/structured_world/evaluate.py \
 These test-split commands are supplied but **not empirically validated in this campaign**. They are not a substitute for the actual complete development evaluations.
 
 Provider adaptation also saves strict provider/head/optimizer/random/sampling state and accepts `--resume` (same run ID/data/steps). Its fast CUDA grid-sample backward is not bitwise deterministic. Start with `--deterministic` and `CUBLAS_WORKSPACE_CONFIG=:4096:8` for tested exact continuation: only the differentiable geometry resampler moves to CPU during adaptation; GPU CNN training and frozen GPU deployment remain intact. Legacy provider checkpoints without the newly recorded resume contract cannot be silently resumed.
+
+
+## Provider adaptation command record
+
+The following600-step fast-mode adaptation was actually executed on the historical64-scene training cache. It is a command record, not an instruction to reuse the already-completed run ID or exceed the ledger. The final v6 perception audit uses `evaluate_provider.py` with the corrected cache and does no updates.
+
+```bash
+"$WORLD_PYTHON" tools/structured_world/adapt_provider.py  --manifest "$WORLD_ARTIFACTS/overfit_tokens.json"  --target-cache "$WORLD_ARTIFACTS/targets_v3_overfit64"  --sensor-root "$SENSOR_ROOT" --output "$WORLD_ARTIFACTS/provider_dense_isolation"  --ledger "$WORLD_ARTIFACTS/budget_ledger.json" --steps 600
+"$WORLD_PYTHON" tools/structured_world/evaluate_provider.py  --weights "$WORLD_ARTIFACTS/provider_dense_isolation/checkpoint.pt"  --manifest "$WORLD_ARTIFACTS/overfit_tokens.json"  --target-cache "$WORLD_ARTIFACTS/targets_v6_train8192" --sensor-root "$SENSOR_ROOT"  --output "$WORLD_ARTIFACTS/provider_perception_v6.json" --device cpu
+```
+
+A fresh600-step adaptation on v6 was **NOT_RUN**. To run it in a future bounded campaign, use a fresh output/run ID (`--run-id`), the corrected cache, and `--deterministic` if exact continuation is required. Do not silently treat the historical provider as one trained on corrected targets.
