@@ -31,7 +31,7 @@ class GeometricBEVProvider(nn.Module):
         self.fuse = nn.Sequential(nn.Conv2d(channels,channels,3,padding=1),nn.GELU(),nn.Conv2d(channels,channels,3,padding=1))
 
     def metadata(self):
-        return {'schema_version':SCHEMA_VERSION,'provider':'calibrated_multiplane_v1',
+        return {'schema_version':SCHEMA_VERSION,'provider':'calibrated_multiplane_v2',
                 'sensor_contract':{'cameras':list(self.cameras),'time':'current_only'},
                 'coordinates':'ego_t0_x_forward_y_left_z_up_metres','extrinsics':'camera_to_ego',
                 'grid':{'bounds':self.bounds,'resolution':self.resolution,'shape':self.grid_shape,'heights':self.heights},
@@ -56,16 +56,19 @@ class GeometricBEVProvider(nn.Module):
         camera = torch.einsum('bvij,nj->bvni',transform[...,:3,:3],points.float()) + transform[...,:3,3].unsqueeze(-2)
         z = camera[...,2]
         normalized = camera[...,:2] / z.clamp_min(1e-6)[...,None]
+        distortion_valid = torch.ones_like(z,dtype=torch.bool)
         if inputs.distortion is not None:
             coeff = inputs.distortion.float()
             k1,k2,p1,p2,k3 = [coeff[...,i,None] for i in range(5)]
             x,y = normalized.unbind(-1)
             r2 = (x*x+y*y).clamp_max(1e4)
             radial = 1+k1*r2+k2*r2.square()+k3*r2.pow(3)
+            # Do not fold off-axis rays back through the nonphysical polynomial branch.
+            distortion_valid = (radial>0) & ((1+3*k1*r2+5*k2*r2.square()+7*k3*r2.pow(3))>0)
             normalized = torch.stack([x*radial+2*p1*x*y+p2*(r2+2*x*x), y*radial+p1*(r2+2*y*y)+2*p2*x*y],-1)
         homogeneous = torch.cat([normalized,torch.ones_like(z[...,None])],-1)
         pixels = torch.einsum('bvij,bvnj->bvni',inputs.camera_intrinsics.float(),homogeneous)[...,:2]
-        valid = (z > .1) & (pixels[...,0]>=0) & (pixels[...,0]<w) & (pixels[...,1]>=0) & (pixels[...,1]<h)
+        valid = distortion_valid & (z > .1) & (pixels[...,0]>=0) & (pixels[...,0]<w) & (pixels[...,1]>=0) & (pixels[...,1]<h)
         # Pixel-centre grid convention, align_corners=False.
         grid = (pixels+.5) / pixels.new_tensor([w,h]) * 2-1
         grid = grid.masked_fill(~valid[...,None],2.)
@@ -91,6 +94,8 @@ class GeometricBEVProvider(nn.Module):
         payload=inputs.optional_current_feature_cache
         meta=payload.get('metadata',{})
         expected=self.metadata()
+        allowed_metadata=set(expected)|{'scene_token','decision_time','provider_weights_sha256','provider_source_sha256','input_tensor_sha256','image_sha256','image_transforms','dtype','calibration_sha256'}
+        if set(meta)!=allowed_metadata:raise ValueError('Provider cache metadata field whitelist mismatch')
         # JSON roundtrip normalizes grid tuples saved by external services.
         for key,value in expected.items():
             if json.dumps(meta.get(key),sort_keys=True) != json.dumps(value,sort_keys=True):
@@ -98,7 +103,8 @@ class GeometricBEVProvider(nn.Module):
         checks={'provider_weights_sha256':self.cache_weight_identity,
                 'scene_token':inputs.scene_tokens[0], 'decision_time':int(inputs.decision_time[0]),
                 'input_tensor_sha256':hashlib.sha256(inputs.current_images.detach().cpu().contiguous().numpy().tobytes()).hexdigest(),
-                'image_transforms':inputs.image_transforms.cpu().tolist()}
+                'image_transforms':inputs.image_transforms.cpu().tolist(),
+                'calibration_sha256':calibration_fingerprint(inputs)}
         from pathlib import Path
         checks['provider_source_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         for key,value in checks.items():
@@ -107,6 +113,9 @@ class GeometricBEVProvider(nn.Module):
         if f.shape!=(1,len(self.coordinates),self.channels) or xyz.shape!=(1,len(self.coordinates),3) or support.shape!=f.shape[:2]:
             raise ValueError('Provider cache tensor shape mismatch')
         if str(f.dtype)!=meta.get('dtype'):raise ValueError('Provider cache dtype mismatch')
+        expected_dtype=torch.get_autocast_dtype('cuda') if inputs.current_images.is_cuda and torch.is_autocast_enabled() else next(self.parameters()).dtype
+        if f.dtype!=expected_dtype:raise ValueError('Provider cache compute precision mismatch')
+        if support.dtype!=torch.bool:raise ValueError('Observation support must be a binary FOV mask')
         if not torch.equal(xyz.cpu(),self.coordinates[None].cpu()):raise ValueError('Provider cache grid coordinate mismatch')
         device=inputs.current_images.device
         return f.to(device),xyz.to(device),support.to(device),meta
@@ -134,4 +143,59 @@ def state_fingerprint(module):
     for name, value in sorted(module.state_dict().items()):
         digest.update(name.encode())
         digest.update(value.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes())
+    return digest.hexdigest()
+
+
+class ExternalBEVFeatures(nn.Module):
+    """Strict tensor/service boundary for an independently executed current-camera BEV.
+
+    The producer signature is configuration, including code/weights/grid/dtype.
+    This class does not pretend to generate features; absent features are an error.
+    Use provider_cli.py to supply reproducible real geometric features, or pin an
+    independently deployed provider's signature with the same sensor contract.
+    """
+    def __init__(self, signature):
+        super().__init__()
+        required={'schema_version','provider','sensor_contract','coordinates','extrinsics','grid',
+                  'feature_dimension','support_semantics','provider_weights_sha256','provider_source_sha256','dtype'}
+        if set(signature)!=required:raise ValueError('Incomplete external provider signature')
+        self.signature=dict(signature)
+        self.channels=int(signature['feature_dimension'])
+        self.cameras=tuple(signature['sensor_contract']['cameras'])
+        if signature['sensor_contract'].get('time')!='current_only':raise ValueError('External provider must be current-camera only')
+        if not signature['provider_weights_sha256'] or not signature['provider_source_sha256']:raise ValueError('External provider identity required')
+
+    def forward(self, inputs):
+        if not isinstance(inputs,ModelInputs):raise TypeError('External provider accepts ModelInputs only')
+        inputs.validate(self.cameras)
+        if inputs.optional_current_feature_cache is None:raise ValueError('No external feature payload; run the pinned provider first')
+        if inputs.current_images.shape[0]!=1 or not inputs.scene_tokens:raise ValueError('Use explicit singleton external requests')
+        payload=inputs.optional_current_feature_cache;meta=payload.get('metadata',{})
+        dynamic={'scene_token','decision_time','input_tensor_sha256','image_sha256','image_transforms','calibration_sha256'}
+        if set(meta)!=set(self.signature)|dynamic:raise ValueError('External metadata whitelist mismatch')
+        for key,value in self.signature.items():
+            if json.dumps(meta[key],sort_keys=True)!=json.dumps(value,sort_keys=True):raise ValueError(f'External identity mismatch: {key}')
+        if meta['scene_token']!=inputs.scene_tokens[0] or meta['decision_time']!=int(inputs.decision_time[0]):raise ValueError('External scene/time mismatch')
+        fingerprint=hashlib.sha256(inputs.current_images.detach().cpu().contiguous().numpy().tobytes()).hexdigest()
+        if meta['input_tensor_sha256']!=fingerprint or meta['image_transforms']!=inputs.image_transforms.cpu().tolist() or meta['calibration_sha256']!=calibration_fingerprint(inputs):raise ValueError('External image/augmentation mismatch')
+        f,xyz,support=validate_feature_cache(payload,meta)
+        if f.ndim!=3 or f.shape[0]!=1 or f.shape[-1]!=self.channels or xyz.shape!=(*f.shape[:2],3) or support.shape!=f.shape[:2]:raise ValueError('External feature shape mismatch')
+        if support.dtype!=torch.bool or str(f.dtype)!=self.signature['dtype']:raise ValueError('External dtype mismatch')
+        if f.shape[1]!=int(np_product(self.signature['grid']['shape'])):raise ValueError('External BEV grid size mismatch')
+        device=inputs.current_images.device
+        return f.to(device),xyz.to(device),support.to(device),meta
+
+
+def np_product(values):
+    result=1
+    for value in values:result*=int(value)
+    return result
+
+
+def calibration_fingerprint(inputs):
+    digest=hashlib.sha256()
+    for name in ('camera_intrinsics','camera_extrinsics','image_transforms','distortion'):
+        value=getattr(inputs,name)
+        digest.update(name.encode())
+        if value is not None: digest.update(value.detach().cpu().contiguous().numpy().tobytes())
     return digest.hexdigest()

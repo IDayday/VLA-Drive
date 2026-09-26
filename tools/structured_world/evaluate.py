@@ -19,7 +19,11 @@ def load_delta(policy,path):
     delta=saved['delta'];state=policy.state_dict()
     if sorted(delta)!=saved['delta_keys']:raise ValueError('Checkpoint key manifest mismatch')
     required={k for k in state if not k.startswith('baseline.')}
-    if not required<=set(delta) or not set(delta)<=set(state):raise ValueError('Missing world or unexpected checkpoint keys')
+    if policy.world_config.get('train_action',False):
+        required.update('baseline.action_model.'+n for n,_ in policy.baseline.action_model.named_parameters())
+    if policy.world_config.get('vision_trainable',False):
+        required.update('baseline.qwen_vl_interface.model.model.visual.'+n for n,_ in policy.baseline.qwen_vl_interface.model.model.visual.named_parameters())
+    if set(delta)!=required or not set(delta)<=set(state):raise ValueError('Missing critical or unexpected checkpoint keys')
     with torch.no_grad():
         for k,value in delta.items():
             if value.shape!=state[k].shape:raise ValueError(f'Checkpoint shape mismatch: {k}')
@@ -31,7 +35,13 @@ def diagnostics(pred,target):
     rows,cols=match_current(pred,target)
     eligible=target.current_supervision_mask.bool()
     gt_count=int(eligible.sum())+target.overflow
-    exists=pred['logits'].argmax(-1)!=pred['logits'].shape[-1]-1
+    xy=pred['boxes'][:,:2]
+    lo,hi=target.supervision_bounds[:2],target.supervision_bounds[2:]
+    supported=((xy>=lo)&(xy<=hi)).all(-1)
+    if target.supervision_grid is not None:
+        grid=target.supervision_grid;cell=((xy-lo)/target.supervision_resolution).floor().long()
+        supported &= grid[cell[:,0].clamp(0,grid.shape[0]-1),cell[:,1].clamp(0,grid.shape[1]-1)]
+    exists=(pred['logits'].argmax(-1)!=pred['logits'].shape[-1]-1)&supported
     distance=torch.linalg.vector_norm(pred['boxes'][rows,:2]-target.current_boxes[cols,:2],dim=-1)
     detected=exists[rows] & (distance<2.)
     good_rows,good_cols=rows[detected],cols[detected]
@@ -49,6 +59,20 @@ def diagnostics(pred,target):
         result['end_to_end_motion_targets']=int(mask.any(-1).sum())
         # FDE uses the requested terminal horizon, not an earlier convenient visible point.
         result['fde_sum']=float(errors[:,-1][mask[:,-1]].sum());result['fde_targets']=int(mask[:,-1].sum())
+    result['gt_motion_points']=int(target.future_valid_mask[target.current_supervision_mask].sum())
+    result['gt_motion_instances']=int(target.future_valid_mask[target.current_supervision_mask].any(-1).sum())
+    result['class_correct_detection_targets']=int((pred['logits'][good_rows].argmax(-1)==target.current_classes[good_cols]).sum())
+    result['ignored_predicted_centres']=int((~supported).sum())
+    amask=target.future_valid_mask[cols]
+    aerror=torch.linalg.vector_norm(pred['future_xy'][rows]-target.future_xy_in_ego_t0[cols],dim=-1)
+    result['assignment_motion_ade_sum']=float(aerror[amask].sum())
+    result['assignment_motion_points']=int(amask.sum())
+    result['assignment_motion_fde_sum']=float(aerror[:,-1][amask[:,-1]].sum())
+    result['assignment_motion_fde_targets']=int(amask[:,-1].sum())
+    ranges=torch.linalg.vector_norm(target.current_boxes[:,:2],dim=-1)
+    for name,low,high in [('near',0,10),('middle',10,30),('far',30,float('inf'))]:
+        group=(ranges>=low)&(ranges<high)&target.current_supervision_mask
+        result[name+'_gt']=int(group.sum());result[name+'_detected']=int(group[good_cols].sum())
     return result
 
 

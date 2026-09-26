@@ -13,6 +13,15 @@ from budget import reserve,record
 from starVLA.model.modules.structured_world.policy import StructuredWorldPolicy
 
 
+def gradient_group(name):
+    if name.startswith('baseline.action_model.'):return 'action'
+    if '.visual.' in name:return 'vision'
+    if name in ['reader.queries','reader.types']:return 'world_tokens'
+    for prefix,group in [('heads.box.','bbox_head'),('heads.motion.','motion_head'),('heads.classifier.','classification_head'),('heads.shared.','world_shared_head'),('adapter.gate','adapter_gate'),('adapter.','adapter_attention')]:
+        if name.startswith(prefix):return group
+    return name.split('.')[0]
+
+
 def checkpoint(policy,optimizer,scheduler,step,order,position,args):
     # Frozen original parameters are restored from the strict-audited base checkpoint.
     names={n for n,p in policy.named_parameters() if p.requires_grad}
@@ -21,7 +30,7 @@ def checkpoint(policy,optimizer,scheduler,step,order,position,args):
             'delta_keys':sorted(names),'world_config':policy.world_config,'optimizer':optimizer.state_dict(),
             'scheduler':scheduler.state_dict(),'step':step,'order':order,'position':position,
             'rng':{'python':random.getstate(),'numpy':np.random.get_state(),'torch':torch.get_rng_state(),'cuda':torch.cuda.get_rng_state_all()},
-            'arguments':vars(args),'resume_boundary':'single-process, optimizer step, no prefetch/no accumulation',
+            'arguments':vars(args),'resume_boundary':'single-process, optimizer step, no prefetch/no accumulation; bitwise updates require --deterministic/math attention and identical topology',
             'base_sha256':args.base_sha256,'manifest_sha256':__import__('hashlib').sha256(Path(args.manifest).read_bytes()).hexdigest(),
             'target_audit_sha256':__import__('hashlib').sha256((Path(args.target_cache)/'audit.json').read_bytes()).hexdigest()}
 
@@ -30,12 +39,15 @@ def main():
     p=argparse.ArgumentParser()
     for name in ['checkpoint','vlm','data-root','manifest','target-cache','config','output','ledger','run-id','base-sha256']:p.add_argument('--'+name,required=True)
     p.add_argument('--steps',type=int,default=200);p.add_argument('--limit',type=int,default=64);p.add_argument('--batch-size',type=int,default=1)
-    p.add_argument('--seed',type=int,default=42);p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--action-lr',type=float,default=1e-5);p.add_argument('--resume');p.add_argument('--initialize-world');p.add_argument('--provider-checkpoint');p.add_argument('--save-every',type=int,default=100);p.add_argument('--stop-after',type=int)
+    p.add_argument('--seed',type=int,default=42);p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--action-lr',type=float,default=1e-5);p.add_argument('--resume');p.add_argument('--initialize-world');p.add_argument('--provider-checkpoint');p.add_argument('--save-every',type=int,default=100);p.add_argument('--stop-after',type=int);p.add_argument('--deterministic',action='store_true')
     a=p.parse_args();cfg=yaml.safe_load(Path(a.config).read_text())
     if a.limit>8192 or a.steps>1000:raise ValueError('Pilot per-run budget limit exceeded')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     if not a.resume:reserve(a.ledger,a.run_id,a.steps,vars(a))
     seed_all(a.seed);torch.backends.cuda.matmul.allow_tf32=False
+    if a.deterministic:
+        torch.use_deterministic_algorithms(True)
+        torch.backends.cuda.enable_flash_sdp(False);torch.backends.cuda.enable_mem_efficient_sdp(False);torch.backends.cuda.enable_math_sdp(True)
     agent=load_baseline(a.checkpoint,a.vlm);agent.model.requires_grad_(False)
     policy=StructuredWorldPolicy(agent.model,cfg).cuda()
     if not policy.world_enabled:
@@ -55,6 +67,9 @@ def main():
     # Keep baseline dropout behavior identical across all continued-training variants.
     policy.train();policy.baseline.eval()
     if cfg.get('train_action',False):policy.baseline.action_model.train()
+    agent.model.qwen_vl_interface.processor.save_pretrained(out/'processor')
+    from omegaconf import OmegaConf
+    OmegaConf.save(agent.model_config,out/'base_config.yaml')
     ds=load_dataset(agent,a.manifest,a.data_root,a.limit)
     params=[p for p in policy.parameters() if p.requires_grad]
     action_params=[p for n,p in policy.named_parameters() if p.requires_grad and n.startswith('baseline.action_model.')]
@@ -79,6 +94,7 @@ def main():
         optimizer.load_state_dict(saved['optimizer']);scheduler.load_state_dict(saved['scheduler'])
         start=saved['step'];order=saved['order'];position=saved['position']
         random.setstate(saved['rng']['python']);np.random.set_state(saved['rng']['numpy']);torch.set_rng_state(saved['rng']['torch']);torch.cuda.set_rng_state_all(saved['rng']['cuda'])
+    initial_probe={n:p.detach().flatten()[:8].cpu().clone() for n,p in policy.named_parameters() if p.requires_grad}
     counts={'total':sum(p.numel() for p in policy.parameters()),'trainable':sum(p.numel() for p in params)}
     (out/'parameters.json').write_text(json.dumps(counts,indent=2))
     torch.cuda.reset_peak_memory_stats();begin=time.perf_counter()
@@ -95,7 +111,7 @@ def main():
         grad={}
         for name,param in policy.named_parameters():
             if param.grad is not None:
-                group='action' if name.startswith('baseline.action_model') else name.split('.')[0]
+                group=gradient_group(name)
                 grad[group]=grad.get(group,0.)+float(param.grad.float().square().sum())
         torch.nn.utils.clip_grad_norm_(params,1.,error_if_nonfinite=True)
         optimizer.step();scheduler.step();record(a.ledger,a.run_id,step+1)
@@ -109,6 +125,13 @@ def main():
             tmp=out/'checkpoint.tmp';torch.save(payload,tmp);tmp.replace(out/'checkpoint.pt')
         if step+1==a.stop_after:
             return
+    updates={}
+    for name,param in policy.named_parameters():
+        if name in initial_probe:
+            group=gradient_group(name);entry=updates.setdefault(group,{'optimizer_parameter_tensors':0,'changed_probe_tensors':0})
+            entry['optimizer_parameter_tensors']+=1
+            entry['changed_probe_tensors']+=int(not torch.equal(initial_probe[name],param.detach().flatten()[:8].cpu()))
+    (out/'parameter_updates.json').write_text(json.dumps(updates,indent=2))
     record(a.ledger,a.run_id,a.steps,'complete')
 
 if __name__=='__main__':main()

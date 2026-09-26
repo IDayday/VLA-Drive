@@ -11,7 +11,6 @@ following concepts independently using PyTorch. Existing Qwen3-VL is retained.
 | HuangJunJie2017/BEVDet | 26144be7c11c2972a8930d6ddd6471b8ea900d13 | configs/bevdet/bevdet-r50.py; mmdet3d/models/necks/view_transformer.py; README.md | Apache-2.0 | Single-frame camera geometry and grid definitions. Current R50 config uses six nuScenes cameras; our sensor contract remains three current front cameras. |
 | QwenLM/Qwen-Drive-1.0 | 28091c1532e869bc7aee91fc0aef6b3e6fd0b2e0 | README.md, LICENSE | Apache-2.0 | Organization reference only; no Qwen3.5 migration. |
 
-BEVDet availability audit so far: ddp environment has no mmcv/mmdet/mmdet3d;
-public README points R50 weights to Baidu. Separate dependency/checkpoint
-investigation remains pending. The implemented calibrated multi-height provider
+BEVDet availability audit: ddp environment has no mmcv/mmdet/mmdet3d;
+public README points R50 weights to Baidu. The fetched weight landing page requires an interactive Baidu extraction-code flow; no compatible downloaded checkpoint was found locally. An isolated BEVDet/MMCV install and weight import were NOT_RUN in this bounded campaign. We used the explicitly permitted calibrated lightweight fallback, avoiding a six-camera or temporal input expansion. The implemented calibrated multi-height provider
 is an explicitly unpretrained lightweight model, not external pretrained BEVDet.

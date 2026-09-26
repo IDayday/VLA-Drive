@@ -32,7 +32,15 @@
     ],
     "ego_history": "original state encoding"
   },
-  "normalization": "original checkpoint config and navsim_dataset.py; detailed extraction pending",
+  "normalization": {
+    "ver_1225": 1,
+    "act_norm": 1,
+    "ego_action": "[(ego_t0_x-10.172484)/8.805105,(ego_t0_y-0.360762)/2.277741,sin(dyaw),cos(dyaw)]",
+    "state": "current minus preceding ego pose, x/y standardized with the same constants, sin/cos wrapped heading delta",
+    "world": "xyz,length,width,height metres,sin/cos yaw; future xy metres in fixed ego(t0)",
+    "world_loss_scales": "fixed engineering constants 20m centre/motion and 5m size; no development/test fit",
+    "augmentation": "disabled; centre crop then Lanczos1024x576"
+  },
   "trajectory": {
     "steps": 8,
     "step_seconds": 0.5,
@@ -47,12 +55,19 @@
   },
   "qwen_forward_mode": "legacy prenorm hidden_states[-1]",
   "scorer": null,
-  "evaluator_version": "PENDING fixed development evaluation setup",
+  "evaluator_version": {
+    "protocol": "NAVSIM v1 PDMS",
+    "source_sha": "6e96cf7321b134c42c2cf0fbbc315cd61c925b11",
+    "pdm_score_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "compact_training_cache_adapter_sha256": "51fd89cd80d773b647b9258d1c52b93889924db3948f82b8c958407d219fe339",
+    "cache_progress": "fixed official PDM progress; unchanged original validated adapter"
+  },
   "seed": 20260926,
   "data_split": {
     "replay": "first four navtrain_meta.json entries",
-    "development": "PENDING existing manifest search; never navtest selection",
-    "base_checkpoint_saw_development": "UNKNOWN, must not claim unseen"
+    "development": "existing1696 scenes/16 complete logs; split_manifest sha256 1eef553afcf0896674c109b40853e81c2c2acb04e4dee48973c57952e717b46d",
+    "base_checkpoint_saw_development": "UNKNOWN; existing manifest sft_unseen=false; potentially seen",
+    "incremental_training": "8192 scenes from original10000 intersect existing train split; no dev log overlap"
   },
   "replay": {
     "samples": [
@@ -2078,5 +2093,14 @@
     "exact_array_equal": true,
     "new_query_gradient_norm": 4.551035404205322,
     "frozen_qwen_gradients": false
+  },
+  "precision": {
+    "Qwen": "BF16",
+    "action": "original autocast CUDA float32 context retaining BF16 condition/noise semantics",
+    "FP32_regression": "separate actual GPU intermediate comparison, exact0",
+    "bf16_tolerance_declared": {
+      "atol": 0.02,
+      "rtol": 0.02
+    }
   }
 }

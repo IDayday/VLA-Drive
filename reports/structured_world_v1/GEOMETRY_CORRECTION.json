@@ -1,0 +1,13 @@
+{
+  "fault": "Brown-Conrady polynomial folds back outside monotonic radial domain; label FOV used only UV bounds, while provider had monotonic guard",
+  "discovered_after": "core1000-step pilots and seed43 training; adapter stopped at201 updates",
+  "grid_audit": {
+    "unique_calibrations": 21,
+    "changed_union_grid_cells": 54
+  },
+  "fix": "require positive radial scale and derivative in target FOV; regenerate immutable v6 train/dev caches; future frame lidar2ego composed explicitly",
+  "not_hyperparameter_search": true,
+  "historical_results": "preserved and marked old-support; planning trajectories immutable; corrected-dev perception remeasured",
+  "remaining_plan": "C_support_v6_seed42 400; E_support_v6_seed42 400; E_adapter_support_v6_seed42 400; same original base, seed42, frozen original loss weights; no additional search",
+  "budget_after_correction_training": 11620
+}

@@ -19,6 +19,7 @@ Note: How to add special tokens to Qwen2.5:
   or /starVLA/model/modules/vlm/tools/add_qwen_special_tokens/README.md （adpat a little code)
   
 """
+import os
 from typing import List
 from tqdm import tqdm
 from typing import List, Optional, Tuple
@@ -246,6 +247,12 @@ class Qwenvl_OFT(baseframework):
         if self.w_depth:
             depth_ppd_path = 'starVLA/model/modules/depth_model/configs/train_finetune.yaml'
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
+            # Optional path override; the original relative paths remain the default.
+            if os.environ.get('DEPTH_MODEL_CKPTS'):
+                from pathlib import Path
+                for key in ('semantics_pth','ckpt_path'):
+                    old=self.depth_ppd_cfg.model.pipeline.config[key]
+                    self.depth_ppd_cfg.model.pipeline.config[key]=str(Path(os.environ['DEPTH_MODEL_CKPTS'])/Path(old).name)
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
             missing, unexpected = self.gs_model.load_state_dict(torch.load(self.depth_ppd_cfg.model.pipeline.config.ckpt_path, map_location='cpu'), strict=False)
             print(f'[PPD] missing keys: {len(missing)} {missing[:8]}')
@@ -282,7 +289,7 @@ class Qwenvl_OFT(baseframework):
 
     @staticmethod
     def _find_token_positions(input_ids, token_ids):
-        """Find ordered special-token positions without Python/CUDA scalar syncs."""
+        """Validate exactly one occurrence of each ordered special token."""
         from starVLA.model.modules.structured_world.tokens import token_positions
         return token_positions(input_ids, token_ids)
 

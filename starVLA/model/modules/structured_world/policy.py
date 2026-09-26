@@ -7,7 +7,7 @@ from torch import nn
 from .scene_agent_reader import SceneAgentReader
 from .agent_heads import AgentHeads
 from .action_adapter import WorldToActionAdapter
-from .providers import GeometricBEVProvider
+from .providers import GeometricBEVProvider, ExternalBEVFeatures
 from .tokens import token_positions, insert_world_tokens
 from .losses import world_losses
 
@@ -19,12 +19,30 @@ class StructuredWorldPolicy(nn.Module):
         self.world_config = dict(config)
         self.world_enabled = bool(config.get('enabled',False))
         dim = baseline.qwen_vl_interface.model.get_input_embeddings().embedding_dim
-        self.provider = GeometricBEVProvider(channels=config.get('bev_channels',64)) if config.get('provider','qwen') == 'geometric_bev' else None
-        self.reader = SceneAgentReader(self.provider.channels if self.provider else dim,dim,
-                                      dim=config.get('reader_dim',256),scene_tokens=config.get('scene_tokens',64),
-                                      agent_tokens=config.get('agent_tokens',32))
+        # Keep common modules and the post-initialization RNG stream identical
+        # across image/BEV variants. Only the differently shaped input projection
+        # gets a separate initialization; frozen provider weights are loaded later.
+        reader_args=dict(dim=config.get('reader_dim',256),scene_tokens=config.get('scene_tokens',64),
+                         agent_tokens=config.get('agent_tokens',32))
+        with torch.random.fork_rng(devices=[]):
+            kind=config.get('provider','qwen')
+            if kind=='geometric_bev':self.provider=GeometricBEVProvider(channels=config.get('bev_channels',64))
+            elif kind=='external_bev':self.provider=ExternalBEVFeatures(config['external_provider_signature'])
+            elif kind=='qwen':self.provider=None
+            else:raise ValueError(f'Unknown world feature provider: {kind}')
+        common_reader = SceneAgentReader(dim,dim,**reader_args)
+        if self.provider is None:
+            self.reader = common_reader
+        else:
+            with torch.random.fork_rng(devices=[]):
+                self.reader = SceneAgentReader(self.provider.channels,dim,**reader_args)
+            common=common_reader.state_dict();state=self.reader.state_dict()
+            for name,value in state.items():
+                if value.shape==common[name].shape:value.copy_(common[name])
+                elif name!='project.weight':raise ValueError(f'Unexpected cross-provider shape difference: {name}')
         self.heads = AgentHeads(dim,steps=baseline.config.framework.action_model.action_horizon)
-        self.adapter = WorldToActionAdapter(dim) if config.get('action_adapter',False) else None
+        with torch.random.fork_rng(devices=[]):
+            self.adapter = WorldToActionAdapter(dim) if config.get('action_adapter',False) else None
 
     def encode_conditions(self, examples, model_inputs=None, include_world=True):
         # Qwen BF16 native batching changes attention/vision kernel rounding with
@@ -121,9 +139,14 @@ class StructuredWorldPolicy(nn.Module):
         return actions,world_prediction
 
     def forward(self, examples, model_inputs=None, targets=None):
+        if not self.world_enabled and self.world_config.get('historical_auxiliary_losses',True):
+            return self.baseline(examples=examples)
+        if self.world_enabled and self.world_config.get('historical_auxiliary_losses',False):
+            raise ValueError('World research path requires explicit historical_auxiliary_losses=false; use the original baseline for its full auxiliary training path')
         # A1 intentionally disables historical auxiliary losses while retaining prompt/modules.
         with torch.autocast('cuda',dtype=torch.bfloat16):
-            conditions,prediction = self.encode_conditions(examples,model_inputs,include_world=self.world_enabled)
+            current=[{k:e[k] for k in ('image','lang','state','token') if k in e} for e in examples]
+            conditions,prediction = self.encode_conditions(current,model_inputs,include_world=self.world_enabled)
         actions = torch.as_tensor(np.array([e['action'] for e in examples]),device=conditions.device,dtype=torch.float32)
         repeats = self.baseline.config.framework.action_model.get('repeated_diffusion_steps',1)
         with torch.autocast('cuda',dtype=torch.float32):

@@ -33,7 +33,7 @@ def future_track_positions(current_tracks, frames, ego_t0_to_global, steps=8):
         if len(tracks) != len(set(tracks)):
             raise ValueError('Duplicate track ID in future frame')
         by_track = {track: i for i, track in enumerate(tracks)}
-        centres = transform_points(anns['gt_boxes'][:, :3], global_to_t0 @ frame['ego2global'])
+        centres = transform_points(anns['gt_boxes'][:, :3], global_to_t0 @ frame['ego2global'] @ frame.get('lidar2ego',np.eye(4)))
         for n, track in enumerate(current_tracks):
             if track in by_track and np.isfinite(centres[by_track[track], :2]).all():
                 xy[n,t] = centres[by_track[track], :2]
@@ -55,5 +55,6 @@ def geometric_fov(points, intrinsics, camera_to_ego, distortion, image_size=(102
         xd = x*radial+2*p1*x*y+p2*(r2+2*x*x)
         yd = y*radial+p1*(r2+2*y*y)+2*p2*x*y
         uv = np.stack([xd,yd,np.ones_like(xd)],-1) @ k.T
-        visible |= (z>.1)&(uv[...,0]>=0)&(uv[...,0]<image_size[0])&(uv[...,1]>=0)&(uv[...,1]<image_size[1])
+        derivative = 1+3*k1*r2+5*k2*r2*r2+7*k3*r2*r2*r2
+        visible |= (z>.1)&(radial>0)&(derivative>0)&(uv[...,0]>=0)&(uv[...,0]<image_size[0])&(uv[...,1]>=0)&(uv[...,1]<image_size[1])
     return visible

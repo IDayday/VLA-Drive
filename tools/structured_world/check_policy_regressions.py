@@ -11,7 +11,7 @@ from starVLA.model.modules.structured_world.policy import StructuredWorldPolicy
 def main():
     p=argparse.ArgumentParser()
     for n in ['checkpoint','vlm','data-root','manifest','output']:p.add_argument('--'+n,required=True)
-    a=p.parse_args();seed_all(42)
+    p.add_argument('--ledger');a=p.parse_args();seed_all(42)
     agent=load_baseline(a.checkpoint,a.vlm);agent.model.requires_grad_(False)
     ds=load_dataset(agent,a.manifest,a.data_root,2);samples=[ds[i] for i in range(2)]
     policy=StructuredWorldPolicy(agent.model,{'enabled':True,'agent_tokens':64}).cuda().eval()
@@ -61,6 +61,16 @@ def main():
     loss.backward()
     norm=sum(float(p.grad.float().square().sum()) for p in visual.parameters() if p.grad is not None)**.5
     report['checks']['visual_unfreeze']={'status':'PASS' if norm>0 else 'FAIL','gradient_norm':norm}
+    if a.ledger:
+        from budget import reserve,record
+        reserve(a.ledger,'visual_unfreeze_update',1,vars(a))
+        parameter=next(p for p in visual.parameters() if p.grad is not None and float(p.grad.abs().max())>0)
+        before=parameter.detach().clone()
+        optimizer=torch.optim.SGD(visual.parameters(),lr=.001)
+        optimizer.step();record(a.ledger,'visual_unfreeze_update',1,status='complete')
+        changed=float((parameter-before).abs().max())
+        assert changed>0
+        report['checks']['visual_unfreeze']['parameter_max_update']=changed
     Path(a.output).write_text(json.dumps(report,indent=2));print(json.dumps(report))
 
 if __name__=='__main__':main()

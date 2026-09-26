@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 import torch
 from starVLA.model.modules.structured_world.contracts import ModelInputs
-from starVLA.model.modules.structured_world.providers import GeometricBEVProvider,state_fingerprint
+from starVLA.model.modules.structured_world.providers import GeometricBEVProvider,state_fingerprint,calibration_fingerprint
 
 
 def load_provider(weights,device):
@@ -45,16 +45,17 @@ def current_observation(path,sensor_root,device):
 def main():
     p=argparse.ArgumentParser()
     for name in ['observations','sensor-root','weights','output']:p.add_argument('--'+name,required=True)
-    p.add_argument('--device',default='cuda');p.add_argument('--token',help='single current request; omit to extract directory')
+    p.add_argument('--device',default='cuda');p.add_argument('--precision',choices=['bf16','fp32'],default='bf16');p.add_argument('--token',help='single current request; omit to extract directory')
     a=p.parse_args();provider=load_provider(a.weights,a.device);identity=state_fingerprint(provider)
     paths=[Path(a.observations)/(a.token+'.npz')] if a.token else sorted(Path(a.observations).glob('*.npz'))
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     for path in paths:
         inputs,digests=current_observation(path,a.sensor_root,a.device)
-        with torch.no_grad():f,xyz,support,meta=provider(inputs)
+        with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16,enabled=a.precision=='bf16' and a.device.startswith('cuda')):
+            f,xyz,support,meta=provider(inputs)
         meta=dict(meta,scene_token=path.stem,decision_time=int(inputs.decision_time[0]),provider_weights_sha256=identity,
                   provider_source_sha256=hashlib.sha256(Path(__import__(provider.__module__,fromlist=['__file__']).__file__).read_bytes()).hexdigest(),
-                  input_tensor_sha256=hashlib.sha256(inputs.current_images.detach().cpu().contiguous().numpy().tobytes()).hexdigest(),image_sha256=digests,image_transforms=inputs.image_transforms.cpu().tolist(),dtype=str(f.dtype))
+                  input_tensor_sha256=hashlib.sha256(inputs.current_images.detach().cpu().contiguous().numpy().tobytes()).hexdigest(),image_sha256=digests,image_transforms=inputs.image_transforms.cpu().tolist(),dtype=str(f.dtype),calibration_sha256=calibration_fingerprint(inputs))
         torch.save({'metadata':meta,'features':f.cpu(),'coordinates':xyz.cpu(),'observation_support':support.cpu()},out/(path.stem+'.pt'))
     print(json.dumps({'completed':len(paths),'provider_weights_sha256':identity}))
 

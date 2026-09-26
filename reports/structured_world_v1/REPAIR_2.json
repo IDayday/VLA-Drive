@@ -1,0 +1,15 @@
+{
+  "round": 2,
+  "hypothesis": "The Qwen slot readout collapses spatial predictions under the small perception-only budget; falling auxiliary loss alone does not verify BEV perception. A spatially indexed dense readout separates provider learnability from slow slot assignment.",
+  "evidence": {
+    "repair1_provider_train_scenes": 64,
+    "gt_targets": 1044,
+    "class_agnostic_current_match_recall_2m": 0.0,
+    "observation": "predicted centres cluster around x 5-7 m, y 1 m"
+  },
+  "experiment": "Fresh calibrated provider plus lightweight dense class/box head; 600 optimizer steps, lr 3e-4, same 64 training scenes, no future labels; evaluate fixed 0.2 score threshold/class-correct 2 m match before and after.",
+  "geometry_fix": "Reject nonpositive radial scale or nonmonotonic Brown-Conrady polynomial branch, which can otherwise fold off-axis rays into the image. Provider metadata now calibrated_multiplane_v2.",
+  "core_models": "No slot architecture change. D/E use the same final provider weights; dense auxiliary head not deployed.",
+  "remaining_hyperparameter_repair_rounds": 0,
+  "selection_data": "training only; no development or navtest adaptation"
+}

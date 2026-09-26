@@ -22,3 +22,11 @@ def test_crop_projection():
     new, affine = crop_resize_intrinsics(k,(1920,1080),(1024,576))
     p = np.array([.2,.1,1.])
     np.testing.assert_allclose(new @ p, affine @ (k @ p))
+
+
+def test_distortion_foldback_is_not_observation_support():
+    from starVLA.model.modules.structured_world.geometry import geometric_fov
+    points=np.array([[0.,0.,1.],[np.sqrt(2),0.,1.]])
+    k=np.array([[[1.,0.,512.],[0.,1.,288.],[0.,0.,1.]]])
+    support=geometric_fov(points,k,np.eye(4)[None],np.array([[-1.,0.,0.,0.,0.]]))
+    assert support.tolist()==[True,False]
