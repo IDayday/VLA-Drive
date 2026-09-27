@@ -1,0 +1,87 @@
+{
+  "ranks": [
+    {
+      "identity": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/joint_ddp_graph_check",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "joint_ddp_graph_check"
+        },
+        "code_sha": "0366b029dab334b9cb1a7f2bf097189c4983e997",
+        "rank": 0,
+        "gradient_atol": 1e-05,
+        "gradient_rtol": 2e-05,
+        "microbatches_per_rank": 2,
+        "logical_optimizer_updates_charged_to_rank0": 3,
+        "rank1_agent_labels": "intentionally empty, ego retained"
+      },
+      "checks": {
+        "gradient_equivalence": true,
+        "model_resume_exact": true,
+        "optimizer_resume_exact": true,
+        "rng_resume_exact": true
+      },
+      "gradient_max_absolute_delta": 4.76837158203125e-07,
+      "global_counts": {
+        "ego": 64,
+        "agents": 478
+      },
+      "rank_counts": {
+        "ego": 32,
+        "agents": 478
+      },
+      "peak_gpu_bytes": 201129472,
+      "scope": "Real cached image conditions and real future labels; graph module only, not full distributed Qwen/DiT training.",
+      "status": "PASS"
+    },
+    {
+      "identity": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/joint_ddp_graph_check",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "joint_ddp_graph_check"
+        },
+        "code_sha": "0366b029dab334b9cb1a7f2bf097189c4983e997",
+        "rank": 1,
+        "gradient_atol": 1e-05,
+        "gradient_rtol": 2e-05,
+        "microbatches_per_rank": 2,
+        "logical_optimizer_updates_charged_to_rank0": 3,
+        "rank1_agent_labels": "intentionally empty, ego retained"
+      },
+      "checks": {
+        "gradient_equivalence": true,
+        "model_resume_exact": true,
+        "optimizer_resume_exact": true,
+        "rng_resume_exact": true
+      },
+      "gradient_max_absolute_delta": 4.76837158203125e-07,
+      "global_counts": {
+        "ego": 64,
+        "agents": 478
+      },
+      "rank_counts": {
+        "ego": 32,
+        "agents": 0
+      },
+      "peak_gpu_bytes": 201129472,
+      "scope": "Real cached image conditions and real future labels; graph module only, not full distributed Qwen/DiT training.",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "optimizer_updates_charged": 3,
+  "allocated_GPUs": [
+    2,
+    3
+  ],
+  "production_training_scope": "Independent single-GPU matched trials; this validates graph DDP losses, accumulation and resume, not a production multi-GPU full-Qwen trainer."
+}

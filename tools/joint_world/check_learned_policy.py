@@ -68,7 +68,7 @@ def main():
         if not 1 <= len(expected) <= 32 or len(ds) != len(expected): raise ValueError('Bounded explicit scene manifest required')
         records = {r['token']: r for r in manifest['records']}; rows = []
         from infer import deal_action_1225
-        for raw in ds:
+        for index, raw in enumerate(ds):
             if not record(a.ledger, a.run_id, 0): raise RuntimeError('Budget reached')
             e = {k: raw[k] for k in ['image', 'lang', 'state', 'token']}; token = e['token']
             path = Path(a.cache)/(token+'.pt')
@@ -109,6 +109,18 @@ def main():
                 row.update(learned_bev_gate=float(policy.bev_fusion.gate),
                     blank_bev_joint_max_delta_m=float((online['joint_trajectories_xy']-blank['joint_trajectories_xy']).abs().max()),
                     blank_bev_ego_xy_max_delta_m=float(np.abs(decode(x)[:,:2]-decode(blank['normalized_actions'])[:,:2]).max()))
+                if len(expected)>1:
+                    # Explicit OOD diagnostic after valid inference; never modify
+                    # the formal cache or its metadata/identity checks.
+                    donor=expected[(index+1)%len(expected)]
+                    other=store[donor]['features'].cuda()
+                    hook=policy.bev_encoder.register_forward_pre_hook(lambda m, values: (other, *values[1:]))
+                    try:
+                        seed_all(value); mismatched=policy.predict_action([e], inputs)
+                    finally: hook.remove()
+                    row.update(cross_scene_bev_donor=donor,
+                        mismatched_bev_joint_max_delta_m=float((online['joint_trajectories_xy']-mismatched['joint_trajectories_xy']).abs().max()),
+                        mismatched_bev_ego_xy_max_delta_m=float(np.abs(decode(x)[:,:2]-decode(mismatched['normalized_actions'])[:,:2]).max()))
             rows.append(row); print(json.dumps(row), flush=True)
         passed = all(all(v for k,v in r.items() if k.endswith('within_tolerance') or k.startswith(('target_poison_', 'strict_restore_'))) for r in rows)
         report = {'identity': identity, 'scenes': rows, 'status': 'PASS' if passed else 'FAIL',
