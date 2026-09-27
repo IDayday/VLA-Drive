@@ -5,6 +5,7 @@ from starVLA.model.modules.joint_world.flow import JointTrajectoryFlow,training_
 from starVLA.model.modules.joint_world.local_graph import LocalInteractionGraph
 from starVLA.model.modules.joint_world.local_masks import task_masks,stable_noise
 from starVLA.model.modules.structured_world.action_adapter import WorldToActionAdapter
+from tools.local_interaction_mask_v2.build_interaction_subsets import classify
 
 
 def graph(n=4,active_n=3,chain=True):
@@ -14,6 +15,13 @@ def graph(n=4,active_n=3,chain=True):
         for i in range(active_n-1):edge[:,i,i+1]=edge[:,i+1,i]=True
     return LocalInteractionGraph(source,active,active.clone(),active.clone(),edge,torch.zeros(1,n,n,8),
         active.float(),active.float(),torch.full((1,4),-2),torch.zeros(1,4,dtype=torch.bool),[[]],[[]],[[]],[[]],[{}]).validate()
+
+
+def test_interaction_analysis_group_requires_a_neighbor_relation():
+    chain=graph();assert classify(chain)['interaction_proxy'].item()
+    chain.edge_mask[:,1,2]=chain.edge_mask[:,2,1]=False
+    assert not classify(chain)['interaction_proxy'].item()
+    assert classify(graph(active_n=1))['ego_only'].item()
 
 
 def setup(n=4,active_n=3,layers=2):

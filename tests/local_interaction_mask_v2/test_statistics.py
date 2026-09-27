@@ -1,5 +1,6 @@
 import pytest
-from tools.local_interaction_mask_v2.compare_pdms import compare,METRICS
+import json
+from tools.local_interaction_mask_v2.compare_pdms import compare,METRICS,compare_subsets,verified_pair
 from tools.local_interaction_mask_v2.merge_scores import merge_population
 
 
@@ -29,3 +30,28 @@ def test_partition_merge_requires_full_population_and_retains_failure():
     with pytest.raises(ValueError,match='Missing'):merge_population(index,[first])
     with pytest.raises(ValueError,match='token/log'):
         merge_population(index,[first,{'b':dict(second['b'],log='wrong')}])
+
+
+def test_current_subset_keeps_failed_scenes_and_full_population():
+    base={str(i):dict(token=str(i),log=str(i),status='ok',**{key:.5 for key in METRICS}) for i in range(2)}
+    model={key:dict(value) for key,value in base.items()};model['0']['status']='failed'
+    registry={'rules':{'interaction_proxy':'current graph','empty':'none'},
+              'rows':[dict(token=str(i),log=str(i),interaction_proxy=i==0,empty=False) for i in range(2)]}
+    result=compare_subsets(model,base,registry)
+    assert result['interaction_proxy']['scenes']==1
+    assert result['interaction_proxy']['failed_first']==1 and not result['interaction_proxy']['valid']
+    assert result['empty']['status']=='EMPTY'
+    registry['rows'].pop()
+    with pytest.raises(ValueError,match='population'):compare_subsets(model,base,registry)
+
+
+def test_paired_benchmark_requires_same_evaluator_and_current_policy(tmp_path):
+    paths=[]
+    for name in ('A0','MASK'):
+        path=tmp_path/name;path.mkdir();paths.append(path/'scenes.csv')
+        (path/'summary.json').write_text(json.dumps({'evaluator_identity':{'source':'official'},
+            'export_identity':{'foundation_sha256':'public','current_identity':'shared','variant':name,'bridge_sha256':name}}))
+    verified_pair(*paths)
+    data=json.loads(paths[1].with_name('summary.json').read_text());data['export_identity']['foundation_sha256']='different'
+    paths[1].with_name('summary.json').write_text(json.dumps(data))
+    with pytest.raises(ValueError,match='foundation'):verified_pair(*paths)

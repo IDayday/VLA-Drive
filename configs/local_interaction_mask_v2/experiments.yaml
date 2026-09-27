@@ -42,3 +42,12 @@ evaluation:
   precision: native_Qwen_BF16_conditions_and_noise_draws_then_original_DiT_FP32
   inference_batch: 16
   baseline_context: A0_has_shared_current_perception_auxiliary_training_and_is_not_paper_action_only_ablation
+
+analysis_groups:
+  frozen_before_PDMS: true
+  inputs: shared_frozen_current_relation_graph_only
+  interaction_proxy: at_least2_active_neighbors_and_at_least1_nonself_neighbor_edge
+  ego_only: no_active_non_ego_trajectory_node
+  risk_context_present: at_least1_B_entity
+  full_population_remains_primary: true
+  entry: tools.local_interaction_mask_v2.build_interaction_subsets

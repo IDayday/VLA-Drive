@@ -51,13 +51,42 @@ def compare(first,second,bootstrap=10000,seed=20260926):
     return result,rows
 
 
+def verified_pair(first_path,second_path):
+    summaries=[json.loads(Path(path).with_name('summary.json').read_text()) for path in (first_path,second_path)]
+    if summaries[0]['evaluator_identity']!=summaries[1]['evaluator_identity']:
+        raise ValueError('Paired official evaluator/protocol/index differs')
+    exports=[summary['export_identity'] for summary in summaries]
+    common=[{key:value for key,value in export.items() if key not in ('variant','bridge_sha256')} for export in exports]
+    if common[0]!=common[1]:raise ValueError('Paired foundation/current cache/source/sampling protocol differs')
+    return exports[0]
+
+
+def compare_subsets(first,second,registry):
+    groups={row['token']:row for row in registry['rows']}
+    if len(groups)!=len(registry['rows']) or set(groups)!=set(first):raise ValueError('Subset full population differs')
+    if any(groups[token]['log']!=row['log'] for token,row in first.items()):raise ValueError('Subset log identities differ')
+    result={}
+    for name in registry['rules']:
+        tokens=[token for token,row in groups.items() if row[name]]
+        result[name]=(compare({token:first[token] for token in tokens},{token:second[token] for token in tokens})[0]
+                      if tokens else {'scenes':0,'status':'EMPTY','metrics':{}})
+    return result
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('first','baseline','output'):p.add_argument('--'+k,required=True)
-    p.add_argument('--navtest',action='store_true');a=p.parse_args()
+    p.add_argument('--navtest',action='store_true');p.add_argument('--subsets');a=p.parse_args()
+    export=verified_pair(a.first,a.baseline)
     first,second=read(a.first),read(a.baseline);result,rows=compare(first,second)
     if a.navtest and (result['scenes']!=12146 or result['logs']!=136):raise ValueError('Incomplete Navtest comparison')
     result['input_csv_sha256']={k:hashlib.sha256(Path(v).read_bytes()).hexdigest() for k,v in [('first',a.first),('baseline',a.baseline)]}
+    if a.subsets:
+        registry=json.loads(Path(a.subsets).read_text())
+        if registry['current_identity']!=export['current_identity'] or registry['current_manifest_sha256']!=export['current_manifest_sha256']:
+            raise ValueError('Subset registry uses a different current observation cache')
+        result['analysis_groups']=compare_subsets(first,second,registry)
+        result['subset_rules']=registry['rules'];result['subset_registry_sha256']=hashlib.sha256(Path(a.subsets).read_bytes()).hexdigest()
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
     (out/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
     with (out/'scenes.csv').open('w') as f:w=csv.DictWriter(f,list(rows[0]));w.writeheader();w.writerows(rows)
