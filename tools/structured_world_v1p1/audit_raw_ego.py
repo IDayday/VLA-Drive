@@ -3,6 +3,7 @@ import argparse,csv,hashlib,json,pickle,subprocess
 from collections import defaultdict
 from pathlib import Path
 import numpy as np
+from pyquaternion import Quaternion
 
 
 def main():
@@ -22,12 +23,13 @@ def main():
    if len(window)!=12:raise ValueError('Incomplete ego supervision horizon')
    poses=np.asarray(raw['glo_status']['global_poses'])[:12]
    transforms=np.stack([f['ego2global'] for f in window]);xy=transforms[:,:2,3]
-   yaw=np.arctan2(transforms[:,1,0],transforms[:,0,0]);err=np.arctan2(np.sin(poses[:,2]-yaw),np.cos(poses[:,2]-yaw))
+   # NAVSIM Scene uses Quaternion.yaw_pitch_roll[0], not Euler ZYX from the rotation matrix.
+   yaw=np.array([Quaternion(f['ego2global_rotation']).yaw_pitch_roll[0] for f in window]);err=np.arctan2(np.sin(poses[:,2]-yaw),np.cos(poses[:,2]-yaw))
    times=np.array([f['timestamp'] for f in window]);dt=np.diff(times)/1e6
    image_match=all(Path(raw['glo_images'][cam.lower()]['image_paths'][3]).name==Path(window[3]['cams'][cam]['data_path']).name for cam in ['CAM_F0','CAM_L0','CAM_R0'])
    rows.append({'token':token,'xy_error_m':float(abs(poses[:,:2]-xy).max()),'yaw_error_rad':float(abs(err).max()),'interval_min_s':float(dt.min()),'interval_max_s':float(dt.max()),'current_token_match':window[3]['token']==token,'current_images_match':image_match})
  with (out/'raw_ego.csv').open('w') as f:w=csv.DictWriter(f,list(rows[0]));w.writeheader();w.writerows(rows)
- report={'code_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'scenes':len(rows),'raw_log_hashes':log_hashes,'max_xy_error_m':max(r['xy_error_m'] for r in rows),'max_yaw_error_rad':max(r['yaw_error_rad'] for r in rows),'interval_min_s':min(r['interval_min_s'] for r in rows),'interval_max_s':max(r['interval_max_s'] for r in rows),'current_images_and_time_match':all(r['current_token_match'] and r['current_images_match'] for r in rows)}
+ report={'code_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'scenes':len(rows),'raw_log_hashes':log_hashes,'yaw_reference':'NAVSIM Scene.from_scene_dict_list: pyquaternion Quaternion.yaw_pitch_roll[0]','max_xy_error_m':max(r['xy_error_m'] for r in rows),'max_yaw_error_rad':max(r['yaw_error_rad'] for r in rows),'interval_min_s':min(r['interval_min_s'] for r in rows),'interval_max_s':max(r['interval_max_s'] for r in rows),'current_images_and_time_match':all(r['current_token_match'] and r['current_images_match'] for r in rows)}
  report['status']='PASS' if report['max_xy_error_m']<1e-4 and report['max_yaw_error_rad']<1e-5 and report['current_images_and_time_match'] and report['interval_min_s']>.49 and report['interval_max_s']<.51 else 'FAIL'
  (out/'RAW_EGO_AUDIT.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
  if report['status']!='PASS':raise AssertionError('Raw ego contract mismatch')
