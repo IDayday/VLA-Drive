@@ -45,3 +45,15 @@ If a supervisor has EXITED, resume its exact worker command from supervisor.json
 ## Queued final preparation
 
 Source40363d4 immutable worktree /mnt/project/VLA-Drive-local-v2-runs-finalprep. Artifact final_feature_preparation.json defines all paths/caps,9GPUh downstream reserve, expected24foundationpasses. Remote train launcher704755 waits for foundation completion, then freezes finalparent→train/holdout current→16pass sharedhead→refreshedtrain/holdout. Local evaluation launcher waits for the same frozenparent→Navtest/devcurrent→sameheadrefresh. Check actual PIDs and formal_public_epoch24/pipeline_{train,evaluation}/status.json; wait does not allocate CUDA. Both roles have bounded4hour dependency deadlines. Do not duplicate. P1_common_track_identity_check failed before inference due supervisor-directory incompatibility; sourcebc0adce repaired it and the actual64scene/59log same-model comparison now completes with0failures,43matched tracks, all paired deltas0. Engineering identity check only. Local queued feature launcher PID883196; remote704755.
+
+## Latest operational update
+
+Verified origin a75044fa12bbf7bf4c96eac7e3f4e92f235dd956; current task-statistics/report update still to commit. Shared final-feature code remains40363d4 in immutable runs-finalprep; local waiting PID883196 and remote waiting704755 are alive. Their GPU children have NOT started. Do not update that live source worktree.
+
+Official development full metric-cache regeneration runs locally, launcher885062, immutable runs-metriccache sourcea75044f, CPU8workers, outputs official_dev_metric_v2. First4scene/4log smoke completed0fail. Original remote smoke official_dev_metric_smoke_v1 failed4/4 because official Scene imports NUPLAN_MAPS_ROOT before the explicit constructor map argument; failed artifacts preserved, noGPU cost. Source fix now sets map-root before official imports. Existing QDS train caches cover only175/1696devtokens and contain a different richer schema; do not substitute them. Formal dev scoring should use the new official_dev_metric_v2/cache_index.json only after1696/16logs finish0fail.
+
+CPU environment discovery: remote navsim is Python3.10/Scipy1.11.4/Shapely2.1.2; validated local navsim is Python3.9/Scipy1.13.1/Shapely2.0.7. Use the LOCAL validated environment for official full-cache generation and all formal CPU scoring (bounded aggregate workers), unless a separately validated identical environment is installed remotely. Both GPUs hosts remain in use as planned. Never merge scorer shards with different numeric dependency identities.
+
+Graph trainer now additionally logs per-actual-task scene/hidden-actor/valid-actor/ego-coordinate/neighbor-coordinate/empty-scene counts. This is label-side logging only; no graph, mask, loss or RNG change. Targeted metric/accounting tests4passed; prior fullrelatedsuite58passed. Use the final committed training source, not the older prepare-only worktree, for P2.
+
+Latest live foundation progress: {"step": 4981, "epoch": 21, "offset": 6176, "presentations": 159140}; campaign 27.303/48GPUh.

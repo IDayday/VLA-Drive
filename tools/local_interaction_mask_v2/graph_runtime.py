@@ -64,6 +64,23 @@ def batch_current(samples,device='cuda'):
     return current
 
 
+def task_supervision_statistics(graph, hidden, valid, tasks):
+    """Label-side accounting only; never changes graph, mask sampling or loss."""
+    eligible = graph.active_actor_mask & graph.predictable_actor_mask
+    selected = valid & (hidden & eligible)[..., None]
+    result = {}
+    for code, name in enumerate(('all_hidden', 'ego_hidden', 'neighbor_hidden')):
+        take = tasks['actual'] == code
+        supervision = selected[take]
+        result[name] = {'scenes': int(take.sum()), 'hidden_actors': int((hidden[take] & eligible[take]).sum()),
+            'actors_with_any_label': int(supervision.any(-1).sum()),
+            'valid_xy_coordinates': int(supervision.sum())*2,
+            'ego_xy_coordinates': int(supervision[:, :1].sum())*2,
+            'neighbor_xy_coordinates': int(supervision[:, 1:].sum())*2,
+            'scenes_without_valid_hidden_target': int((~supervision.flatten(1).any(-1)).sum())}
+    return result
+
+
 def trajectory_metrics(pred,truth,valid,current_xy,target_current_xy):
     truth=torch.where(valid[...,None],truth,0.)
     prediction=torch.where(valid[...,None],pred,0.)

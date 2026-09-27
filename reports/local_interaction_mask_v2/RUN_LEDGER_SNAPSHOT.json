@@ -1,8 +1,8 @@
 {
   "campaign": "local-interaction-mask-v2-20260927",
   "gpu_hour_cap": 48,
-  "gpu_hours": 25.18393662982512,
-  "optimizer_steps": 6057,
+  "gpu_hours": 27.303248827987204,
+  "optimizer_steps": 6558,
   "runs": [
     {
       "id": "public_origin_check_50b57ab",
@@ -1137,8 +1137,8 @@
     },
     {
       "id": "public_foundation_continued_epoch8_to24_local8",
-      "optimizer_steps": 2656,
-      "gpu_hours": 11.49067337089111,
+      "optimizer_steps": 3157,
+      "gpu_hours": 13.604950842327515,
       "status": "running",
       "metadata": {
         "code_sha": "0937532ee709d5c2a224615f7ceff813ee8a7981",
@@ -1193,7 +1193,7 @@
       "gpu_count": 8,
       "pid": 862274,
       "host": "training-vla-zt-worker-0",
-      "heartbeat": 1790507125.7396169,
+      "heartbeat": 1790508077.164479,
       "cuda_visible_devices": "0,1,2,3,4,5,6,7",
       "max_gpu_hours": 16.0
     },
@@ -2039,6 +2039,90 @@
       "heartbeat": 1790505887.3721135,
       "cuda_visible_devices": "0,1,2,3",
       "max_gpu_hours": 0.7
+    },
+    {
+      "id": "P1_common_track_identity_check",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0011228853464126587,
+      "status": "failed",
+      "metadata": {
+        "code_sha": "40363d413405c0f322424a18b26295601f9139d5",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.local_interaction_mask_v2.compare_graphs",
+          "--first-checkpoint",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/graph/checkpoint.pt",
+          "--baseline-checkpoint",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/graph/checkpoint.pt",
+          "--first-cache",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/holdout_refined",
+          "--baseline-cache",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/holdout_refined",
+          "--targets",
+          "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "--meta-root",
+          "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+          "--index",
+          "configs/local_interaction_mask_v2/splits/holdout_index.json",
+          "--same-graph",
+          "--output",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/common_track_identity_check"
+        ],
+        "supervisor_sha256": "e4c5670a3829944d90a76a5a75359695ee51936f394835196f3a54b60c86c81a",
+        "initial_step": 0,
+        "cwd": "/mnt/project/VLA-Drive-local-v2-runs-finalprep",
+        "output": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/common_track_identity_check",
+        "max_gpu_hours": 0.08
+      },
+      "gpu_count": 1,
+      "pid": 704835,
+      "host": "training-vla-zt2-worker-0",
+      "heartbeat": 1790507368.2058148,
+      "cuda_visible_devices": "0",
+      "max_gpu_hours": 0.08
+    },
+    {
+      "id": "P1_common_track_identity_check_v2",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.003911840849452549,
+      "status": "complete",
+      "metadata": {
+        "code_sha": "bc0adce24f756a5c6cd8288e400f02430afa3bda",
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-m",
+          "tools.local_interaction_mask_v2.compare_graphs",
+          "--first-checkpoint",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/graph/checkpoint.pt",
+          "--baseline-checkpoint",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/graph/checkpoint.pt",
+          "--first-cache",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/holdout_refined",
+          "--baseline-cache",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/holdout_refined",
+          "--targets",
+          "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "--meta-root",
+          "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+          "--index",
+          "configs/local_interaction_mask_v2/splits/holdout_index.json",
+          "--same-graph",
+          "--output",
+          "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/common_track_identity_check_v2"
+        ],
+        "supervisor_sha256": "e4c5670a3829944d90a76a5a75359695ee51936f394835196f3a54b60c86c81a",
+        "initial_step": 0,
+        "cwd": "/mnt/project/VLA-Drive-local-v2-runs-comparison",
+        "output": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/P1_public_epoch8_engineering/fp32_head_pipeline/common_track_identity_check_v2",
+        "max_gpu_hours": 0.08
+      },
+      "gpu_count": 1,
+      "pid": 704875,
+      "host": "training-vla-zt2-worker-0",
+      "heartbeat": 1790507467.0307364,
+      "cuda_visible_devices": "0",
+      "max_gpu_hours": 0.08
     }
   ],
   "old_campaign_charge": 0,

@@ -9,7 +9,7 @@ import subprocess
 import time
 import numpy as np
 import torch
-from tools.local_interaction_mask_v2.graph_runtime import LocalCorpus,batch_current,evaluate_graph,summarize,cached_worker_init
+from tools.local_interaction_mask_v2.graph_runtime import LocalCorpus,batch_current,evaluate_graph,summarize,cached_worker_init,task_supervision_statistics
 from tools.local_interaction_mask_v2.foundation import rng_state,restore_rng,collate
 from tools.local_interaction_mask_v2.train_foundation import atomic_json
 from starVLA.model.modules.joint_world.flow import JointTrajectoryFlow,training_loss_sums
@@ -84,6 +84,7 @@ def main():
                  'loss':float(loss.detach()),'loss_components':{k:float(sums[k].detach())/max(counts[k],1) for k in sums},'supervised_coordinates':counts,
                  'task_nominal':torch.bincount(tasks['nominal'],minlength=3).tolist(),'task_actual':torch.bincount(tasks['actual'],minlength=3).tolist(),
                  'fallbacks':int(tasks['fallback'].sum()),'tasks_without_valid_hidden_target':int((~selection.flatten(1).any(-1)).sum()),
+                 'supervision_by_actual_task':task_supervision_statistics(graph,hidden,valid,tasks),
                  'eligible_neighbors':int(graph.predictable_actor_mask[:,1:].sum()),'matched_neighbors':sum(s['mapping']['selected_with_accepted_association'] for s in samples),
                  'hidden_actors':int(hidden.sum()),'lr':opt.param_groups[0]['lr'],'gradient_before_clip':norm,'seconds':time.monotonic()-start,'peak_gpu_bytes':torch.cuda.max_memory_allocated()}
             with (out/'train.jsonl').open('a') as f:f.write(json.dumps(row)+'\n')

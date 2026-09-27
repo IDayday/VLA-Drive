@@ -2,6 +2,23 @@ import torch
 from tools.local_interaction_mask_v2.graph_runtime import trajectory_metrics
 from tools.local_interaction_mask_v2.compare_graphs import common_track_slots
 from tools.local_interaction_mask_v2.audit_graphs import role_coverage
+from tools.local_interaction_mask_v2.graph_runtime import task_supervision_statistics
+from types import SimpleNamespace
+
+
+def test_task_accounting_exposes_empty_neighbor_supervision():
+    graph = SimpleNamespace(active_actor_mask=torch.tensor([[1,1],[1,1],[1,1]], dtype=torch.bool),
+                            predictable_actor_mask=torch.ones(3,2,dtype=torch.bool))
+    hidden=torch.tensor([[1,1],[1,0],[0,1]],dtype=torch.bool)
+    valid=torch.ones(3,2,8,dtype=torch.bool);valid[2,1]=False
+    tasks={'actual':torch.tensor([0,1,2])}
+    result=task_supervision_statistics(graph,hidden,valid,tasks)
+    assert result['all_hidden']['valid_xy_coordinates']==32
+    assert result['ego_hidden']['ego_xy_coordinates']==16
+    assert result['neighbor_hidden']['scenes']==1
+    assert result['neighbor_hidden']['hidden_actors']==1
+    assert result['neighbor_hidden']['valid_xy_coordinates']==0
+    assert result['neighbor_hidden']['scenes_without_valid_hidden_target']==1
 
 
 def test_static_group_uses_true_current_centre_not_detection_error():
