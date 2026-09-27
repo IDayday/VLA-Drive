@@ -17,6 +17,25 @@ extended_graph_phase:
   schedule: warmup_cosine
   conclusion_if_unstable_at_cap: INCONCLUSIVE
   rationale: User requested adequate convergence; increase data coverage and duration under the existing combined cap.
+planner_transfer_phase:
+  variants: [randommask_frozen_graph, allmask_frozen_graph]
+  initialization: corresponding fixed epoch8 graph checkpoint, fresh identical bridge seed42
+  train_scenes: 7284
+  epochs_per_variant: 4
+  batch_size: 16
+  updates_per_variant: 1821
+  trainable: [graph_to_world, action_attention_adapter]
+  frozen: [Qwen, vision, world_reader, current_heads, joint_graph, original_DiT]
+  fixed_evaluation_epochs: [0, 1, 2, 4]
+  development_planning: original1696 scenes, one candidate, seed20260926,10FM steps
+bev_transfer_followup:
+  status: CURRENT_FEATURE_EXTRACTION_RUNNING_TRAINER_NOT_YET_IMPLEMENTED
+  planned_pair: [with_semantic_motion_tasks, without_semantic_motion_tasks]
+  planned_max_updates_per_variant: 1821
+  additional_budget_requires_check: true
+  initialization: same frozen randommask epoch8 graph and fresh matched BEV branch/bridge
+  auxiliary_targets: current_occupancy, tracked_displacement, pair_geometry
+  no_pdms_labels: true
 maximum_repair_rounds: 2
 navtest_selection: false
 pdms_training: false

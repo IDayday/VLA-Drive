@@ -1,0 +1,155 @@
+{
+  "research_status": "INCONCLUSIVE",
+  "planning_status": "NOT_EVALUATED_HERE",
+  "variants": {
+    "randommask": {
+      "run_status": "complete",
+      "optimizer_steps": 3642,
+      "planned_steps": 3642,
+      "sample_presentations": 58272,
+      "unique_scenes_seen": 7284,
+      "effective_epochs": 8.0,
+      "source_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+      "peak_gpu_bytes": 514926080,
+      "note": "Train prediction diagnostics use fixed first64 training scenes, not a whole-training-set mean."
+    },
+    "allmask": {
+      "run_status": "complete",
+      "optimizer_steps": 3642,
+      "planned_steps": 3642,
+      "sample_presentations": 58272,
+      "unique_scenes_seen": 7284,
+      "effective_epochs": 8.0,
+      "source_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+      "peak_gpu_bytes": 514926080,
+      "note": "Train prediction diagnostics use fixed first64 training scenes, not a whole-training-set mean."
+    }
+  },
+  "paired_holdout": {
+    "456": {
+      "scenes": 64,
+      "logs": 59,
+      "bootstrap_repeats": 2000,
+      "seed": 20260927,
+      "metrics": {
+        "ego_ADE": {
+          "masked_minus_control": 0.3508772924542427,
+          "log_cluster_percentile_95": [
+            0.01944935352040025,
+            0.6757322294481338
+          ],
+          "resamples_with_valid_denominator": 2000
+        },
+        "agent_ADE": {
+          "masked_minus_control": 0.04876994187629594,
+          "log_cluster_percentile_95": [
+            -0.16204054788518338,
+            0.2676604720855467
+          ],
+          "resamples_with_valid_denominator": 2000
+        }
+      },
+      "limitation": "One training seed; scene/log uncertainty is not cross-training-seed stability."
+    },
+    "911": {
+      "scenes": 64,
+      "logs": 59,
+      "bootstrap_repeats": 2000,
+      "seed": 20260927,
+      "metrics": {
+        "ego_ADE": {
+          "masked_minus_control": -0.30496285669505596,
+          "log_cluster_percentile_95": [
+            -0.5342998919428372,
+            -0.08755420235856898
+          ],
+          "resamples_with_valid_denominator": 2000
+        },
+        "agent_ADE": {
+          "masked_minus_control": -0.47983727928864256,
+          "log_cluster_percentile_95": [
+            -0.7206607987573727,
+            -0.30283637112503725
+          ],
+          "resamples_with_valid_denominator": 2000
+        }
+      },
+      "limitation": "One training seed; scene/log uncertainty is not cross-training-seed stability."
+    },
+    "1821": {
+      "scenes": 64,
+      "logs": 59,
+      "bootstrap_repeats": 2000,
+      "seed": 20260927,
+      "metrics": {
+        "ego_ADE": {
+          "masked_minus_control": 0.41314233653247356,
+          "log_cluster_percentile_95": [
+            0.23186791641496574,
+            0.6154162012978279
+          ],
+          "resamples_with_valid_denominator": 2000
+        },
+        "agent_ADE": {
+          "masked_minus_control": 0.06608893717433163,
+          "log_cluster_percentile_95": [
+            -0.11756906234719387,
+            0.18472622028484975
+          ],
+          "resamples_with_valid_denominator": 2000
+        }
+      },
+      "limitation": "One training seed; scene/log uncertainty is not cross-training-seed stability."
+    },
+    "2732": {
+      "scenes": 64,
+      "logs": 59,
+      "bootstrap_repeats": 2000,
+      "seed": 20260927,
+      "metrics": {
+        "ego_ADE": {
+          "masked_minus_control": 0.07578988024033606,
+          "log_cluster_percentile_95": [
+            0.007390832114815571,
+            0.14870863619113914
+          ],
+          "resamples_with_valid_denominator": 2000
+        },
+        "agent_ADE": {
+          "masked_minus_control": -0.12743523468393791,
+          "log_cluster_percentile_95": [
+            -0.28854206917470815,
+            -6.895564214406915e-05
+          ],
+          "resamples_with_valid_denominator": 2000
+        }
+      },
+      "limitation": "One training seed; scene/log uncertainty is not cross-training-seed stability."
+    },
+    "3642": {
+      "scenes": 64,
+      "logs": 59,
+      "bootstrap_repeats": 2000,
+      "seed": 20260927,
+      "metrics": {
+        "ego_ADE": {
+          "masked_minus_control": 0.15106983156874776,
+          "log_cluster_percentile_95": [
+            0.0969567674705211,
+            0.20296812513991005
+          ],
+          "resamples_with_valid_denominator": 2000
+        },
+        "agent_ADE": {
+          "masked_minus_control": -0.14875024155138886,
+          "log_cluster_percentile_95": [
+            -0.32208781077036075,
+            -0.02431423962794716
+          ],
+          "resamples_with_valid_denominator": 2000
+        }
+      },
+      "limitation": "One training seed; scene/log uncertainty is not cross-training-seed stability."
+    }
+  }
+}

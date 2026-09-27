@@ -1,0 +1,25 @@
+{
+  "source_code_sha": "ab2834db5081dcaee4f62de653368a4dae332de8",
+  "comparison": "realGPU4 uninterrupted vs2+2 resumed;frozen originalDiT and graph,bridge training;64scenes,batch16,onepass",
+  "bitwise_exact": {
+    "model": false,
+    "optimizer": false,
+    "scheduler": true,
+    "step": true,
+    "order": true,
+    "position": true,
+    "presentations": true,
+    "seen": true,
+    "rng": false
+  },
+  "optimizer_updates_charged": 8,
+  "scope": "same code and CUDA topology on local A800; no general cross-device guarantee",
+  "artifacts": [
+    "/mnt/project/joint-world-artifacts/20260927/planner_resume_direct4",
+    "/mnt/project/joint-world-artifacts/20260927/planner_resume_split4"
+  ],
+  "status": "FAIL",
+  "cause": "Late dataset/decode imports changed Python RNG after resume; tiny nondeterministic attention gradients also differed.",
+  "maximum_model_absolute_difference": 4.656612873077393e-10,
+  "remedy": "Eager imports before seeding/restoring; deterministic CUDA algorithms and same-device repeat. All8 updates remain charged."
+}

@@ -1,0 +1,49 @@
+{
+  "identity": {
+    "arguments": {
+      "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+      "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+      "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+      "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+      "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+      "output": "/mnt/project/joint-world-artifacts/20260927/cached_planner_check",
+      "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+      "run_id": "cached_planner_check"
+    },
+    "code_sha": "ab2834db5081dcaee4f62de653368a4dae332de8"
+  },
+  "checks": {
+    "released_dataset_action_exact": true,
+    "gate0_original_DiT_exact": true,
+    "poisoned_targets_prediction_exact": true,
+    "first_gate_gradient_nonzero": true,
+    "second_projection_gradient_nonzero": true,
+    "frozen_modules_no_gradient": true,
+    "independent_restore_action_exact": true,
+    "independent_restore_joint_exact": true
+  },
+  "gradients": [
+    {
+      "step": 1,
+      "loss": 0.0004784537304658443,
+      "gate_grad": 8.824426913633943e-06,
+      "projection_grad": 0.0,
+      "frozen_graph_no_grad": true,
+      "frozen_head_no_grad": true
+    },
+    {
+      "step": 2,
+      "loss": 0.0006241476512514055,
+      "gate_grad": 7.911834472906776e-06,
+      "projection_grad": 1.476754185603113e-08,
+      "frozen_graph_no_grad": true,
+      "frozen_head_no_grad": true
+    }
+  ],
+  "updates": 2,
+  "original_head_parameters": 819503620,
+  "trainable_bridge_parameters": 17053697,
+  "peak_gpu_bytes": 3717500928,
+  "status": "PASS",
+  "scope": "One real scene,2 updates; transfer runner engineering only"
+}

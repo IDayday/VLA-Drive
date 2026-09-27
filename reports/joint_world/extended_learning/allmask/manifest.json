@@ -1,0 +1,38 @@
+{
+  "arguments": {
+    "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+    "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+    "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+    "config": "configs/joint_world/image_graph_residual.json",
+    "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284",
+    "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+    "run_id": "extended_allmask7284",
+    "epochs": 8,
+    "batch": 16,
+    "all_hidden_probability": 1.0,
+    "seed": 42,
+    "resident": 256,
+    "resume": null,
+    "stop_after": null
+  },
+  "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+  "config": {
+    "dim": 128,
+    "heads": 4,
+    "layers": 2,
+    "scale_m": 20.0,
+    "sampling_steps": 10,
+    "sampling_seed": 2037,
+    "all_hidden_probability": 0.5,
+    "trajectory_mode": "current_residual",
+    "agent_scale_m": 5.0
+  },
+  "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+  "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+  "unique_scenes": 7284,
+  "planned_presentations": 58272,
+  "max_steps": 3642,
+  "schedule": "linear warmup min(200,10%) then cosine to10% initial lr1e-4",
+  "pdms_training": false,
+  "frozen_upstream": true
+}

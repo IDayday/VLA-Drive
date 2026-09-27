@@ -1,16 +1,49 @@
 {
   "engineering_status": "PARTIAL",
   "research_status": "INCONCLUSIVE",
-  "interaction_status": "INCONCLUSIVE_ONE_SEED_SMALL_TRAIN_AND_HOLDOUT",
-  "planning_status": "NOT_RUN",
-  "bev_status": "REAL_TASK_TRAINING_AND_ONLINE_GRAPH_DIT_CONNECTIVITY_VERIFIED",
-  "combined_optimizer_steps": 7218,
-  "combined_gpu_hours_snapshot": 2.5292896916468948,
+  "planning_status": "MATCHED_BRIDGE_TRAINING_RUNNING_NO_PDMS_YET",
+  "bev_status": "SMALL_TASK_PROBE_AND_ONLINE_PATH_VERIFIED_LARGE_CURRENT_FEATURE_EXTRACTION_RUNNING",
+  "combined_optimizer_steps": 14867,
+  "combined_gpu_hours_snapshot": 3.6568488609128535,
   "goal_complete": false,
+  "snapshot_utc": "2026-09-27T05:31:52.361061+00:00",
   "running_experiments": [
-    "extended_conditions_shard2",
-    "extended_conditions_shard1",
-    "extended_conditions_shard0"
+    {
+      "id": "bev_corpus7284_shard0",
+      "optimizer_steps": 0,
+      "reserved_steps": 0,
+      "pid": 745016
+    },
+    {
+      "id": "bev_corpus7284_shard1_retry",
+      "optimizer_steps": 0,
+      "reserved_steps": 0,
+      "pid": 747244
+    },
+    {
+      "id": "planner_randommask7284",
+      "optimizer_steps": 237,
+      "reserved_steps": 1821,
+      "pid": 747279
+    },
+    {
+      "id": "planner_allmask7284",
+      "optimizer_steps": 110,
+      "reserved_steps": 1821,
+      "pid": 747743
+    }
   ],
-  "snapshot_utc": "2026-09-27T05:06:50.920572+00:00"
+  "completed_extended_graph_pair": {
+    "scenes_per_variant": 7284,
+    "updates_per_variant": 3642,
+    "presentations_per_variant": 58272,
+    "passes_per_variant": 8,
+    "scene_failures": 0,
+    "motion_point_coverage_holdout": 0.11461103723404255
+  },
+  "next_required": [
+    "Finish matched image-graph to DiT bridge trials and1696 paired PDMS",
+    "Train BEV semantic/motion branch with planning transfer and matched control",
+    "Interaction-context diagnostics, final evidence/status and bounded seed decision"
+  ]
 }

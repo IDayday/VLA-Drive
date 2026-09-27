@@ -1,7 +1,7 @@
 {
   "run_id": "masked-trajectory-world-20260927",
-  "optimizer_steps": 7218,
-  "gpu_hours": 2.5292896916468948,
+  "optimizer_steps": 14867,
+  "gpu_hours": 3.6568488609128535,
   "step_cap": 24000,
   "gpu_hour_cap": 48,
   "repair_rounds": [
@@ -731,8 +731,8 @@
     {
       "id": "extended_conditions_shard2",
       "optimizer_steps": 0,
-      "gpu_hours": 0.22345065785778898,
-      "status": "running",
+      "gpu_hours": 0.22865090992715628,
+      "status": "complete",
       "reserved_steps": 0,
       "metadata": {
         "schema_version": 1,
@@ -771,14 +771,14 @@
         "frozen_upstream": true,
         "targets_loaded": false
       },
-      "heartbeat": 1790485610.8821476,
+      "heartbeat": 1790485629.603055,
       "pid": 726977
     },
     {
       "id": "extended_conditions_shard1",
       "optimizer_steps": 0,
-      "gpu_hours": 0.22337662524647178,
-      "status": "running",
+      "gpu_hours": 0.22907365136676364,
+      "status": "complete",
       "reserved_steps": 0,
       "metadata": {
         "schema_version": 1,
@@ -817,14 +817,14 @@
         "frozen_upstream": true,
         "targets_loaded": false
       },
-      "heartbeat": 1790485610.6197429,
+      "heartbeat": 1790485631.129037,
       "pid": 726966
     },
     {
       "id": "extended_conditions_shard0",
       "optimizer_steps": 0,
-      "gpu_hours": 0.2234332643614877,
-      "status": "running",
+      "gpu_hours": 0.22772843579451268,
+      "status": "complete",
       "reserved_steps": 0,
       "metadata": {
         "schema_version": 1,
@@ -863,7 +863,7 @@
         "frozen_upstream": true,
         "targets_loaded": false
       },
-      "heartbeat": 1790485610.827584,
+      "heartbeat": 1790485626.2902012,
       "pid": 726958
     },
     {
@@ -986,6 +986,832 @@
       },
       "heartbeat": 1790485505.9176445,
       "pid": 733760
+    },
+    {
+      "id": "extended_randommask7284",
+      "optimizer_steps": 3642,
+      "gpu_hours": 0.3068263747957019,
+      "status": "complete",
+      "reserved_steps": 3642,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+          "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_randommask7284",
+          "epochs": 8,
+          "batch": 16,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "resident": 256,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+        "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+        "unique_scenes": 7284,
+        "planned_presentations": 58272,
+        "max_steps": 3642,
+        "schedule": "linear warmup min(200,10%) then cosine to10% initial lr1e-4",
+        "pdms_training": false,
+        "frozen_upstream": true
+      },
+      "heartbeat": 1790486857.0406702,
+      "pid": 735943
+    },
+    {
+      "id": "extended_allmask7284",
+      "optimizer_steps": 3642,
+      "gpu_hours": 0.30682760960525907,
+      "status": "complete",
+      "reserved_steps": 3642,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+          "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_allmask7284",
+          "epochs": 8,
+          "batch": 16,
+          "all_hidden_probability": 1.0,
+          "seed": 42,
+          "resident": 256,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+        "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+        "unique_scenes": 7284,
+        "planned_presentations": 58272,
+        "max_steps": 3642,
+        "schedule": "linear warmup min(200,10%) then cosine to10% initial lr1e-4",
+        "pdms_training": false,
+        "frozen_upstream": true
+      },
+      "heartbeat": 1790486857.0495565,
+      "pid": 735970
+    },
+    {
+      "id": "development_conditions_shard0",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.08836242808236025,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph_residual.json",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/development_conditions/dev_shard0.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/development_conditions/conditions_shard0",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "development_conditions_shard0",
+          "limit": null
+        },
+        "manifest_sha256": "36fa06ed269fdc087d5f8df69a1db73308679f3a7a913b851762b8134d3b5942",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790486155.4145963,
+      "pid": 737085
+    },
+    {
+      "id": "development_conditions_shard1",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0879148245520061,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph_residual.json",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/development_conditions/dev_shard1.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/development_conditions/conditions_shard1",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "development_conditions_shard1",
+          "limit": null
+        },
+        "manifest_sha256": "b3bd974bf93f3fe3581756a87ea280357e20eadb92ce1b5c2861dfa72c94e9f3",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790486154.894319,
+      "pid": 737102
+    },
+    {
+      "id": "cached_planner_check",
+      "optimizer_steps": 2,
+      "gpu_hours": 0.00785525295469496,
+      "status": "complete",
+      "reserved_steps": 2,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/cached_planner_check",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "cached_planner_check"
+        },
+        "code_sha": "ab2834db5081dcaee4f62de653368a4dae332de8"
+      },
+      "heartbeat": 1790486230.8190567,
+      "pid": 740555
+    },
+    {
+      "id": "extended_randommask_holdout_step456",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0008140965965059069,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_456.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_randommask_holdout_step456",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_randommask_holdout_step456"
+        },
+        "checkpoint_sha256": "2d809ab7b32a5167af698d59adec6994db3653a92af738169f52c70483dafa16",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 456
+      },
+      "heartbeat": 1790486230.9874547,
+      "pid": 740806
+    },
+    {
+      "id": "extended_randommask_holdout_step911",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0007567550076378717,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_911.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_randommask_holdout_step911",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_randommask_holdout_step911"
+        },
+        "checkpoint_sha256": "22da0b05b620368162715b87e5689f1f871045741b2e90c1b6a084ba4276f4ea",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 911
+      },
+      "heartbeat": 1790486235.8095367,
+      "pid": 740876
+    },
+    {
+      "id": "extended_allmask_holdout_step456",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0007658960421880086,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_456.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask_holdout_step456",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_allmask_holdout_step456"
+        },
+        "checkpoint_sha256": "63bacf9bda9217fa1e87a56016bcf8a817d4258cdaf3edb3cd5bcc8159aaee3c",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 456
+      },
+      "heartbeat": 1790486240.5726726,
+      "pid": 740923
+    },
+    {
+      "id": "extended_allmask_holdout_step911",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0007487146721945868,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_911.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask_holdout_step911",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_allmask_holdout_step911"
+        },
+        "checkpoint_sha256": "3ee9aa0b5b3d142b482741f2fa8706e9cf03dc6cca210a2b7b62e7351369015f",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 911
+      },
+      "heartbeat": 1790486245.2859037,
+      "pid": 740974
+    },
+    {
+      "id": "planner_resume_direct4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.013191091087129382,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_resume_direct4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_resume_direct4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "ab2834db5081dcaee4f62de653368a4dae332de8",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "0e388cc1de12519551bdbe736fe725b73c453d1ccd12da73dd77789a67feb897",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world and gated action attention only",
+        "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
+      },
+      "heartbeat": 1790486312.3692303,
+      "pid": 741167
+    },
+    {
+      "id": "planner_resume_split4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.019699099593692357,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_resume_split4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_resume_split4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": "/mnt/project/joint-world-artifacts/20260927/planner_resume_split4/checkpoint_2.pt",
+          "stop_after": null
+        },
+        "code_sha": "ab2834db5081dcaee4f62de653368a4dae332de8",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "0e388cc1de12519551bdbe736fe725b73c453d1ccd12da73dd77789a67feb897",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world and gated action attention only",
+        "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
+      },
+      "heartbeat": 1790486385.732495,
+      "pid": 741931
+    },
+    {
+      "id": "extended_randommask_holdout_step1821",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0008483307891421848,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_1821.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_randommask_holdout_step1821",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_randommask_holdout_step1821"
+        },
+        "checkpoint_sha256": "7e4cae98dc2bdd6188b3517f49556fed15c7a8eab5ac34b71169808591f5e76d",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 1821
+      },
+      "heartbeat": 1790486353.7789617,
+      "pid": 741966
+    },
+    {
+      "id": "extended_allmask_holdout_step1821",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0008105197880003187,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_1821.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask_holdout_step1821",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_allmask_holdout_step1821"
+        },
+        "checkpoint_sha256": "605e5a6eab7baaad28ce56e583213bf2ed37f6aab2f33e99ed318dc682c83c18",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 1821
+      },
+      "heartbeat": 1790486358.9217277,
+      "pid": 742024
+    },
+    {
+      "id": "extended_randommask_holdout_step2732",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0007680148548550076,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_2732.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_randommask_holdout_step2732",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_randommask_holdout_step2732"
+        },
+        "checkpoint_sha256": "d6dbc3334c97ef2583cb1ede3438359ae1e6c9bcacc9fa114ef33a0fdd8f152d",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 2732
+      },
+      "heartbeat": 1790486657.1725361,
+      "pid": 744665
+    },
+    {
+      "id": "planner_deterministic_direct4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.01997394131289588,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_deterministic_direct4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_deterministic_direct4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "0e388cc1de12519551bdbe736fe725b73c453d1ccd12da73dd77789a67feb897",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world and gated action attention only",
+        "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
+      },
+      "heartbeat": 1790486729.112155,
+      "pid": 744642
+    },
+    {
+      "id": "extended_allmask_holdout_step2732",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.000774655474556817,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_2732.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask_holdout_step2732",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_allmask_holdout_step2732"
+        },
+        "checkpoint_sha256": "d14e61dd024a0dfa73fdcaf7ac7a5f4c1ea4e20ce5a7fbb8e6fc4ad1e156e2cb",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 2732
+      },
+      "heartbeat": 1790486662.2483408,
+      "pid": 744728
+    },
+    {
+      "id": "bev_corpus7284_shard0",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.11676308393478395,
+      "status": "running",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "weights": "/mnt/project/DriveDreamer-Policy/depth_model_ckpts/depth_anything_v2_vitl.pth",
+          "weight_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/tokens_shard0.json",
+          "observations": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets/observations",
+          "sensor_root": "/",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/features_shard0",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_corpus7284_shard0"
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "manifest_sha256": "0a3de4b20bbc537ceaa68edd6c191a2eae501d87a2ca4b8e92e5388fd10c925f"
+      },
+      "heartbeat": 1790487112.2907376,
+      "pid": 745016
+    },
+    {
+      "id": "planner_deterministic_split4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.025095825129085116,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_deterministic_split4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_deterministic_split4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": "/mnt/project/joint-world-artifacts/20260927/planner_deterministic_split4/checkpoint_2.pt",
+          "stop_after": null
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "0e388cc1de12519551bdbe736fe725b73c453d1ccd12da73dd77789a67feb897",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world and gated action attention only",
+        "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
+      },
+      "heartbeat": 1790486835.7352297,
+      "pid": 745792
+    },
+    {
+      "id": "bev_corpus7284_shard1",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0008374188343683879,
+      "status": "failed",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "weights": "/mnt/project/DriveDreamer-Policy/depth_model_ckpts/depth_anything_v2_vitl.pth",
+          "weight_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e95596a608eb9345",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/tokens_shard1.json",
+          "observations": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets/observations",
+          "sensor_root": "/",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/features_shard1",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_corpus7284_shard1"
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "manifest_sha256": "e438e97de23462241ef3b84a5f2c476944e73962713dc1a9543106036f25834e"
+      },
+      "heartbeat": 1790486889.1206498,
+      "pid": 746741,
+      "failure_note": "CLI transcription shortened the expected SHA256; provider rejected it before feature extraction. Immutable empty attempt retained; correctly identified weights reused in new shard1_retry run."
+    },
+    {
+      "id": "bev_corpus7284_shard1_retry",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.046874815887875065,
+      "status": "running",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "weights": "/mnt/project/DriveDreamer-Policy/depth_model_ckpts/depth_anything_v2_vitl.pth",
+          "weight_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/tokens_shard1.json",
+          "observations": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets/observations",
+          "sensor_root": "/",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/features_shard1_retry",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_corpus7284_shard1_retry"
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "manifest_sha256": "e438e97de23462241ef3b84a5f2c476944e73962713dc1a9543106036f25834e"
+      },
+      "heartbeat": 1790487112.078283,
+      "pid": 747244
+    },
+    {
+      "id": "extended_randommask_holdout_step3642",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0007536686129040189,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_randommask_holdout_step3642",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_randommask_holdout_step3642"
+        },
+        "checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 3642
+      },
+      "heartbeat": 1790486948.6071084,
+      "pid": 747271
+    },
+    {
+      "id": "extended_allmask_holdout_step3642",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.000752791232532925,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_allmask_holdout_step3642",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_allmask_holdout_step3642"
+        },
+        "checkpoint_sha256": "a8c064097eccd6e98f2e53288ef4c06818b6cfe6bc8c9dea0559944b570d07bf",
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 3642
+      },
+      "heartbeat": 1790486953.471828,
+      "pid": 747334
+    },
+    {
+      "id": "planner_randommask7284",
+      "optimizer_steps": 237,
+      "gpu_hours": 0.039196338256200176,
+      "status": "running",
+      "reserved_steps": 1821,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+          "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_randommask7284",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_randommask7284",
+          "epochs": 4,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+        "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+        "graph_checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 1821,
+        "planned_presentations": 29136,
+        "trainable": "graph_to_world and gated action attention only",
+        "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
+      },
+      "heartbeat": 1790487112.3423452,
+      "pid": 747279
+    },
+    {
+      "id": "planner_allmask7284",
+      "optimizer_steps": 110,
+      "gpu_hours": 0.025089998510148794,
+      "status": "running",
+      "reserved_steps": 1821,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+          "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_allmask7284",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_allmask7284",
+          "epochs": 4,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+        "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+        "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+        "graph_checkpoint_sha256": "a8c064097eccd6e98f2e53288ef4c06818b6cfe6bc8c9dea0559944b570d07bf",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 1821,
+        "planned_presentations": 29136,
+        "trainable": "graph_to_world and gated action attention only",
+        "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
+      },
+      "heartbeat": 1790487112.1064188,
+      "pid": 747743
     }
   ]
 }
