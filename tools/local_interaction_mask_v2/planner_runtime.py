@@ -7,6 +7,7 @@ from omegaconf import OmegaConf
 from starVLA.model.modules.action_model.GR00T_ActionHeader import FlowmatchingActionHead
 from starVLA.model.modules.joint_world.public_baseline import sha256
 from starVLA.model.modules.joint_world.local_cache import load_payload, pack_payload
+from starVLA.model.modules.joint_world.local_graph import stack_graphs
 from starVLA.model.modules.joint_world.local_planner import LocalPlanningBridge, predict_local
 
 
@@ -59,6 +60,16 @@ def predict_payload(head, bridge, payload, identity, seed=20260926):
     native = payload['native_actions'].cuda()
     current = pack_payload(payload, identity, 'cuda')
     return predict_local(head, bridge, native, current, [payload['token']], seed)
+
+
+@torch.no_grad()
+def predict_payloads(head, bridge, payloads, identity, seed=20260926):
+    """Batch only fixed-size current features; each scene keeps its own noise stream."""
+    packed=[pack_payload(p,identity) for p in payloads]
+    current={k:torch.cat([c[k] for c in packed]).cuda() for k in ('actor_features','context','context_mask','current_xy','existence')}
+    current['local_graph']=stack_graphs([c['local_graph'] for c in packed],'cuda')
+    native=torch.cat([p['native_actions'] for p in payloads]).cuda()
+    return predict_local(head,bridge,native,current,[p['token'] for p in payloads],seed)
 
 
 def decode_actions(actions):

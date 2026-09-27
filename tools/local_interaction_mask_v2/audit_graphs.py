@@ -16,6 +16,7 @@ from starVLA.model.modules.structured_world.contracts import WorldTargets
 from starVLA.model.modules.structured_world.geometry import geometric_fov
 from starVLA.model.modules.structured_world.targets import CLASSES
 from tools.local_interaction_mask_v2.data import load_current_cache,current_metadata_from_training_pickle,observation_from_files
+from starVLA.model.modules.joint_world.local_cache import load_payload,validate_payload
 
 
 @lru_cache(maxsize=2)
@@ -27,16 +28,23 @@ def raw_log(path):
 def worker(payload):
     record,a,manifest,config=payload;token=record['token']
     try:
-        cache=load_current_cache(a['cache'],record,manifest,purpose=a['purpose'])
+        new_format=manifest['identity'].get('kind')=='local_current_graph_v2'
+        cache=(load_payload(a['cache'],record,manifest) if new_format else
+               load_current_cache(a['cache'],record,manifest,purpose=a['purpose']))
         current=current_metadata_from_training_pickle(Path(a['meta_root'])/(token+'.pkl'),token)
         observation,_=observation_from_files(Path(a['observations'])/(token+'.npz'),current,verify_transform=True)
-        boxes=cache['current_boxes'][0].float();logits=cache['current_logits'][0].float()
+        prediction=cache['current_prediction'] if new_format else {'boxes':cache['current_boxes'],'logits':cache['current_logits']}
+        boxes=prediction['boxes'][0].float();logits=prediction['logits'][0].float()
         graph=build_local_graph(boxes.numpy(),logits.numpy(),observation,config)
+        if new_format:
+            frozen=validate_payload(cache,manifest['identity'],token)
+            if not torch.equal(frozen.source_slot_ids,graph.source_slot_ids) or not torch.equal(frozen.edge_mask,graph.edge_mask):
+                raise ValueError('Online rebuilt graph differs from immutable current cache')
         # Graph is FIXED and persisted before opening any target/annotation file.
         out=Path(a['output']);torch.save(graph.tensor_state(),out/'graphs'/(token+'.pt'))
         target=WorldTargets(**torch.load(Path(a['targets'])/'targets'/(token+'.pt'),weights_only=True))
-        prediction={'boxes':boxes[None],'logits':logits[None]}
-        _,valid,associations=local_targets(prediction,graph,[target],torch.zeros(1,8,2))
+        prediction={k:v.float() for k,v in prediction.items()}
+        _,valid,associations=local_targets(prediction,graph,[target],torch.zeros(1,8,2),config['match_max_distance_m'],config['match_require_class'])
         association=associations[0];nodes=graph.node_records[0];provenance=graph.graph_provenance[0]
         with np.load(Path(a['observations'])/(token+'.npz')) as z:log=Path(str(z['image_paths'][0])).parts[-3]
         frame=raw_log(str(Path(a['raw_log_root'])/(log+'.pkl')))[token]
@@ -63,6 +71,16 @@ def worker(payload):
             'raw_geometric_supported_targets':int(support.sum()),'raw_current_relevance_proxy_targets':int(relevant.sum()),
             'raw_supported_relevant_targets':int((support&relevant).sum()),'retained_supported_relevant_targets':int((selected&support&relevant).sum()),
             'excluded_supported_relevant_targets':int((~selected&support&relevant).sum())}
+        distance=np.linalg.norm(raw[:,:2],axis=-1)
+        groups={**{'class_'+name:classes==i for i,name in enumerate(CLASSES)},
+            'distance_0_10':distance<10,'distance_10_30':(distance>=10)&(distance<30),
+            'distance_30_50':(distance>=30)&(distance<50),'distance_50_plus':distance>=50,
+            'geometric_supported':support,'not_geometric_supported':~support}
+        for name,take in groups.items():
+            row['coverage_'+name+'_all']=int(take.sum())
+            row['coverage_'+name+'_retained']=int((take&selected).sum())
+            row['coverage_'+name+'_supported_relevant']=int((take&support&relevant).sum())
+            row['coverage_'+name+'_retained_supported_relevant']=int((take&selected&support&relevant).sum())
         (out/'nodes'/(token+'.json')).write_text(json.dumps({'nodes':nodes,'graph_provenance':provenance,'association_LABEL_SIDE_ONLY':association,
             'raw_gt_after_graph_only':{'boxes':encoded.tolist(),'classes':classes.tolist(),'tracks':tracks,'supported':support.tolist(),'current_relevance_proxy':relevant.tolist(),
             'retained':selected.tolist()},'row':row},indent=2)+'\n')
@@ -79,7 +97,7 @@ def visualize(token,a):
     out=Path(a['output']);data=json.loads((out/'nodes'/(token+'.json')).read_text())
     graph=LocalInteractionGraph(**torch.load(out/'graphs'/(token+'.pt'),weights_only=True))
     cache=torch.load(Path(a['cache'])/(token+'.pt'),weights_only=True)
-    boxes=cache['current_boxes'][0].float().numpy()
+    boxes=(cache['current_prediction']['boxes'] if 'current_prediction' in cache else cache['current_boxes'])[0].float().numpy()
     current=current_metadata_from_training_pickle(Path(a['meta_root'])/(token+'.pkl'),token)
     obs,images=observation_from_files(Path(a['observations'])/(token+'.npz'),current,load_images=True)
     fig=plt.figure(figsize=(20,11));grid=fig.add_gridspec(3,4);palette={'A':'limegreen','B':'orange','C':'deepskyblue','D':'gray'}
@@ -116,7 +134,7 @@ def visualize(token,a):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('cache','meta-root','observations','targets','raw-log-root','selector','output'):p.add_argument('--'+k,required=True)
-    p.add_argument('--purpose',choices=['historical_engineering_audit','formal_public_origin'],default='formal_public_origin')
+    p.add_argument('--purpose',choices=['historical_engineering_audit','public_engineering_audit','formal_public_origin'],default='formal_public_origin')
     p.add_argument('--workers',type=int,default=6);p.add_argument('--limit',type=int);a=vars(p.parse_args());out=Path(a['output']);out.mkdir(parents=True,exist_ok=False)
     for name in ('graphs','nodes','visualizations'):(out/name).mkdir()
     manifest=json.loads((Path(a['cache'])/'manifest.json').read_text());config=json.loads(Path(a['selector']).read_text());records=manifest['records'][:a['limit']]
@@ -131,6 +149,7 @@ def main():
         'formal_algorithm_evidence':a['purpose']=='formal_public_origin'}
     for key in ('raw_all_targets','roi_cached_targets','raw_geometric_supported_targets','raw_current_relevance_proxy_targets','raw_supported_relevant_targets','retained_supported_relevant_targets','excluded_supported_relevant_targets','local_matched','local_valid_future_points','filtered_associations'):
         summary[key]=sum(r[key] for r in good)
+    summary['coverage_groups']={k:sum(r[k] for r in good) for k in (good[0] if good else {}) if k.startswith('coverage_')}
     for key in ('active_nodes','group_B','group_C','group_D','second_hop','old_mask_probability_any_future','reliable_proxy_slots'):
         v=[r[key] for r in good];summary[key]={'mean':float(np.mean(v)),'quantiles':np.quantile(v,[0,.25,.5,.75,1]).tolist()} if v else None
     chosen=[r['token'] for r in good[:16]]
