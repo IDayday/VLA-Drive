@@ -3,7 +3,7 @@ import argparse,csv,json
 from pathlib import Path
 import numpy as np
 import torch
-from evaluate import diagnostics
+from starVLA.model.modules.structured_world.legacy_metrics import legacy_diagnostics as diagnostics
 from starVLA.model.modules.structured_world.contracts import WorldTargets
 from starVLA.model.modules.structured_world.geometry import geometric_fov
 from starVLA.model.modules.structured_world.matching import match_current

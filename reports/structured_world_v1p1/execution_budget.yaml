@@ -1,0 +1,23 @@
+schema_version: 1
+run_id: structured-world-v1p1-20260927
+baseline_sha: 393c53bbd685c77694d342496a0b5cd7aa1ae735
+optimizer_step_cap: 24000
+gpu_hour_cap: 48
+stop_training_at_either_cap: true
+repair_round_cap: 2
+small_set_steps_per_variant_cap: 1000
+small_set_sizes: [16, 64]
+preferred_global_batch: 8
+pretrain_scenes: 8192
+pretrain_min_effective_epochs: 4
+planning_variants: [P_CAPACITY, P_CURRENT, P_FUTURE]
+evaluation_scenes: 1696
+evaluation_noise_seed: 20260926
+navtest_for_selection: false
+charge_failed_runs_and_update_tests: true
+old_campaign_steps_sealed: 11639
+old_campaign_budget_not_reused: true
+resources:
+  allowed_hosts: [local, training-vla-zt2]
+  pause_identified_placeholder_only: true
+  preempt_other_tasks: false
