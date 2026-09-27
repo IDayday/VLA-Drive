@@ -33,7 +33,7 @@ The official evaluator sources were independently fetched and compared: NAVSIM's
 
 ## Actually run checks
 
-The following test command passed50 related tests at source815f7c2:
+The following test command passed58 related tests including the current GT-anchor and role-coverage repairs:
 
 ```bash
 python -m pytest -q tests/local_interaction_mask_v2 tests/joint_world tests/structured_world_v1p1
@@ -77,7 +77,7 @@ Start only through the bounded supervisor, with17GPU-hours reserved for this run
 
 The original8pass two-point holdout stop fired despite7–9% training-loss reductions over6→8passes. `EXPERIMENT_DECISIONS.md` records the correction: continue the immutable epoch8checkpoint to16, optionally24 using training and holdout curves, retaining the original16epoch scheduler floor. This is a documented stopping-rule repair, not a convergence claim. Use the same command with a new output, `--continue-from "$EPOCH8_CHECKPOINT" --epochs 24 --initial-epochs 16 --extension-use-training-loss`; the continuation supervisor cap is16GPU-hours. Actual cross-host recovery passed, but BF16 arithmetic is not guaranteed bitwise identical.
 
-## Current perception repair (generalization pilot pending)
+## Current perception repair (pilot complete; formal stage pending)
 
 A500update64training-scene fixed-feature fitting check improved current detection recall25.3%→79.0% and precision10.0%→64.3%. This is not generalization or planning evidence. The declared next check uses all7284training scenes and the independent64scene/59log holdout,8passes, best holdout currentF1 including epoch0. It reuses the existing heads, preserving graph thresholds and fullslot matching. Only if it improves will the same recipe be applied for at most16passes after the final foundation freezes; all comparison arms share the chosen head.
 
@@ -89,9 +89,9 @@ python -m tools.local_interaction_mask_v2.train_current_heads \
   --epochs 8 --schedule-epochs 16 --batch 64 --lr 0.001 --workers 2
 ```
 
-The `selected.pt` file is a separate, strictly parent-bound current head. Future labels are erased. The original post-Qwen BF16 input dtype is restored from lossless float32 cache storage before head training/inference. `extract_current` and `check_online` accept `--perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt"`; online `load_foundation` must receive the same argument. A missing/different override is rejected by `PublicLocalPolicy`.
+The `selected.pt` file is a separate, strictly parent-bound current head. Future labels are erased. The original post-Qwen BF16 input dtype is restored from lossless float32 cache storage before head training/inference. `extract_current` and `check_online` accept `--perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt"`; online `load_foundation` must receive the same argument. A missing/different override or language-precision identity is rejected by `PublicLocalPolicy`.
 
-To reuse immutable current features without another Qwen pass, run `refresh_current_heads --cache "$TRAIN_CURRENT_CACHE" --perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt" --dataset "$CURRENT_DATA_SPEC" --output "$NEW_CURRENT_CACHE"`. It verifies all source payload hashes/current observation identities, reproduces the head at native precision, and writes a fresh cache with the head hash. It opens no targets. Actual online/cache validation remains required before promotion. These new refinement commands are implemented but NOT_RUN at this documentation stage.
+To reuse immutable current features without another Qwen pass, run `refresh_current_heads --cache "$TRAIN_CURRENT_CACHE" --perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt" --dataset "$CURRENT_DATA_SPEC" --output "$NEW_CURRENT_CACHE"`. It verifies all source payload hashes/current observation identities, reproduces the head at native precision, and writes a fresh cache with the head hash. It opens no targets. This path has been run on64train+64holdout scenes, followed by actual graph/bridge training and12online comparisons. Cache/online, visual-cache bypass, target poison, native-prefix and gate-zero differences are zero. Batch4vs singleton maximum xy difference is9.18e-5m. The initial absolute-only1e-5normalized-action criterion failed and is retained; the declared amended criterion is componentwise atol1e-5+rtol1e-5 plus1mm xy bound, before formal comparisons. No claim is made of identicalPDMS across arbitrary inference batches.
 
 The7284scene8pass current-head pilot has now completed: independent holdoutF1 .164847→.213918, recall .239279→.297079, precision .125735→.167133. These are native-adapter epoch8features and remain diagnostic, not final pipeline/planning results. The64scene head pause/resume check restores parameters/loss/RNG/selection exactly. Formal refinement will be trained anew on the final foundation and repaired language numerics below.
 
@@ -158,3 +158,11 @@ Two independent8GPU torchrun exporters can use `--shards 16 --shard-offset 0` an
 Read `CODEX_GOAL_STATE.md` and the live ledger before launching anything. Do not duplicate active jobs. Training checkpoints save optimizer/scheduler, sampling offset, presentation counts, Python/NumPy/Torch/CUDA RNG, and separate graph mask/time RNG. Resume with the same pinned source/data/config, add `--resume`, and use a new supervisor run ID with `--initial-step` equal to the checkpoint's saved step. A new segment charges only new updates and wall time. Epoch extension may change only the registered terminal epoch, preserving the original scheduler horizon. Batch/topology changes are not claimed to provide exact resume.
 
 Current local recovery command, only after the recorded supervisor has exited, is the exact worker command in `public_foundation_continued_epoch8_to24_local8/supervisor.json` with `--resume` (retaining its `--continue-from` parent), wrapped in a new bounded supervisor segment. Model selection and publication await complete evidence; do not turn short-run loss decreases into an algorithmic PDMS claim.
+
+## Final feature preparation on two authorized hosts
+
+`prepare_final_features --spec "$PREPARATION_SPEC" --role train` and the same command with `--role evaluation` can run on independent8GPU hosts. The JSON specification supplies the ledger, foundation run/status, expected freeze epoch, public Qwen, visual cache, all four current-data specifications and target roots, selector/graph configuration, output root, per-stage extraction/refresh caps and reserved remaining GPU hours. This entry point waits without allocating CUDA for the foundation supervisor to finish, freezes and hashes its final checkpoint, then prepares disjoint splits. The train role fits the registered16pass shared current head; both roles refresh their caches with the selected head. Every GPU subprocess runs under the existing budget supervisor and refuses occupied devices. A failed or paused stage requires explicit recovery; it is not silently restarted. Pipeline actual completion must be checked in `pipeline_train/status.json` and `pipeline_evaluation/status.json`; at implementation time the final pipeline is queued, not completed.
+
+`compare_graphs --first-checkpoint "$MASK" --baseline-checkpoint "$ALL" --first-cache "$CACHE" --baseline-cache "$CACHE" --targets "$TARGETS" --meta-root "$META" --index "$TOKEN_LOG_INDEX" --same-graph --output "$COMPARISON"` evaluates all-hidden completion on common matched tracks and checks common labels, graph identity and sampling recipe. Omit `--same-graph` only for the separately labeled nearest comparison, retaining the full and common-cohort coverage counts. Dynamic/static groups use matched GT current centres; target coordinates never enter the model input allowlist.
+
+The7284scene nativeepoch8 graph audit and its current-head-refined counterpart are complete with zero failed scenes and32private figures each. Their expected uniform eligible-neighbor task valid-label rates are6.88% and8.31%. This severe sparsity is explicit; current geometric support and detection confidence do not establish reliable association. The final parent/head must be audited again. Role-specific coverage CSVs distinguish motion targets from static/unknown B risk context and keep the complete raw denominator. No threshold was changed after the small training-only score diagnostic.

@@ -1,45 +1,43 @@
 # Local interaction mask V2 — ACTIVE
 
-Worktree /mnt/project/VLA-Drive-local-interaction-mask-v2-20260927, branch feature/local-interaction-mask-v2-20260927. Start227e781dd54f623b12b41bd7f2d2a7b302e0a014. Binding OBJECTIVE.md and USER_STEERING.md under reports/local_interaction_mask_v2. Preserve old workspaces/data/checkpoints, failed artifacts and immutable live run code. Latest completed source9a15df9; origin verified0937532 before current stage. No formal scientific conclusion yet.
+Worktree: /mnt/project/VLA-Drive-local-interaction-mask-v2-20260927
+Branch: feature/local-interaction-mask-v2-20260927
+Starting commit: 227e781dd54f623b12b41bd7f2d2a7b302e0a014
+Last verified origin commit: 44f315728006ac1b6bdfd2f1c0cc255166b04fd1 (this stage is not committed yet).
+Binding instructions: reports/local_interaction_mask_v2/OBJECTIVE.md and USER_STEERING.md. Preserve previous workspaces, artifacts, failed runs and immutable live code. No formal scientific conclusion yet.
 
 ## Binding protocol
 
-Public-only Qwen/Qwen3-VL-2B-Instruct revision89644892e4d85e24eaac8bacfd4f463576704203, all public files byte verified. Fresh originalDiT/history/Reader/current heads plus common languageQ/V LoRA rank8alpha16 and driving embeddings. Public pretrained tensors/vision fixed. Historical private weights/caches are not formal model inputs. One training seed42. Current F0/L0/R0 only, original8x0.5s ego action encoding, one candidate,10FM steps, no scorer. Final endpoint complete12146scene/136log Navtest v1PDMS, no test tuning. Train7284/978logs, holdout64/59logs, dev1696/16logs; log-disjoint verified. Public pretraining exposure UNKNOWN. This subset pilot is not the published100k-scene/100k-update recipe.
+Public Qwen/Qwen3-VL-2B-Instruct, revision89644892e4d85e24eaac8bacfd4f463576704203, byte-verified public files. Fresh original DiT/history/Reader/current heads, common language Q/V rank8alpha16 LoRA and driving embeddings. Original Qwen tensors/vision fixed. No private driving weights. Single training seed42; current F0/L0/R0,8x0.5s ego actions, one candidate,10FM steps, no scorer. Public pretraining exposure UNKNOWN. Train7284/978logs, holdout64/59logs, dev1696/16logs, full Navtest12146/136logs: exact disjoint public token/log manifests committed. Navtest is the final planning endpoint, never used for tuning. This finite subset campaign is not the published100k-scene/100k-update DriveDreamer-Policy reproduction. Shared A0 has current perception auxiliary training; it is not that paper's action-only ablation.
 
-## Active jobs and budget
+## Live runs and resources
 
-Local0–7: public_foundation_continued_epoch8_to24_local8, supervisor862274, source0937532 at /mnt/project/VLA-Drive-local-v2-runs-foundation24. Parent immutable public_foundation_epoch8/checkpoint.pt at step1824. Continue same optimizer/RNG/scheduler/data/batch32 to16passes, optional24 per documented training+holdout curve rule. Max16GPUh for continuation, total48GPUh campaign. Do not launch duplicates. Original3972cab foundation completed8passes; its premature two-point stop decision is preserved, not called convergence. Current progress snapshot: {
-  "step": 2699,
-  "epoch": 11,
-  "offset": 6112,
-  "presentations": 86236
-}
+Artifact root: /mnt/project/local-interaction-mask-v2-artifacts/20260927
+Ledger: budget_ledger.json, independent48GPU-hour cap. Latest snapshot 25.184/48GPUh; read live before new jobs. Includes loading, failures, repair and extraction.
+Local0–7: supervisor862274, public_foundation_continued_epoch8_to24_local8, source0937532 in /mnt/project/VLA-Drive-local-v2-runs-foundation24. Immutable epoch8parent, optimizer/RNG/scheduler/data/batch32 preserved. Epoch16 extended to24 using registered training/holdout changes; noPDMS. Continuation cap16GPUh. Latest progress {"step": 4480, "epoch": 19, "offset": 4736, "presentations": 143132}. Do not duplicate/restart/mutate this active run.
+Remote training-vla-zt2: all P1 jobs completed;8GPUs verified idle before this update. Check again before allocation. Both hosts8A80080GB. Cross-host16GPU was slower (3.153s/update vs8GPU1.719); use hosts independently. Only explicitly authorized gpu_stress.py occupancy paused; restore commands in artifact resource_actions.json when done. No unrelated tasks stopped.
 
-Remote training-vla-zt2 GPUs0–7: launcher698023 runs epoch8current feature extraction for7284train then64holdout, code0937532; outputs P1_public_epoch8_engineering/current_train and current_holdout. Max1.5+.2GPUh. This is the declared current-head optimization repair generalization check; not the main graph comparison. Probe head training not launched yet. Read ledger/status before following work.
+## Completed evidence and remaining limitations
 
-Artifact root /mnt/project/local-interaction-mask-v2-artifacts/20260927. Latest ledger snapshot16.4456/48GPUh includes all failed jobs and loading. Phase reservations3audit+29foundation/features+4graphs+9planningNavtest+3diagnostics. Only authorized gpu_stress.py occupancy was paused; restore commands in resource_actions.json when no longer needed. Do not stop unrelated jobs. Both hosts8A80080GB. Measured samebatch32:8GPU1.719s/update vs16crosshost3.153s/update (Socket,noIB), so use hosts independently.
+-58 related tests passed. Real full-Qwen2GPU empty-annotation rank/resume, commonLoRA8GPU gradients, graph exact pause/resume and head exact pause/resume recorded. Original DiT gate0 error0. Public vision cache7348train/holdout+1696dev+12146test complete. Navtest current_v3 records complete; original failed_v2 retained.
+-Foundation original8pass premature two-point stop preserved and corrected: training losses were still falling. Continue8→16→24, original16epoch scheduler floor after16. Epoch16 extension report committed with this stage. Reaching24 does not prove convergence.
+-P1 current-head fitting64TRAINscenes: recall25.3%→79.0%, precision10.0%→64.3%; fitting-only. Full7284scene8pass current-head generalization pilot: holdoutF1 .164847→.213918, recall .239279→.297079, precision .125735→.167133; selectedepoch8. Native-adapter epoch8 diagnostic only. Final head must train anew on final FP32-adapter current features, max16passes/batch64/lr1e-3, same head for all controls, holdoutF1 including epoch0 selection, max.8GPUh.
+-Full native epoch8 original/refined audits:7284each,0fail,32private figures each. Local accepted matches4903→5666; supported/relevant motion-class GT coverage3036/26365→3445/26365. B static/unknown risk associations3958/28046→6415/28046; risk context is not trajectory coverage. Expected uniform eligible-neighbor task validity6.88%→8.31%; severe supervision sparsity, cannot claim graph sufficient. First64TRAIN current-score threshold diagnostic cannot repair this without heavy coverage loss; NO selector/matcher change. Recheck final parent/head, explicitly retain invalid task rates.
+-Trained native BF16 LoRA prefix shape changed actual DiT trajectory by .08165m; erased same-shape tail gives0, so numerical rounding, not leakage. Small language LoRA FP32 inference repairs native/append prefix to exact0 on64train+64holdout. Original QwenBF16/DiTFP32 retained. This is an explicit inference numerical change from training. All formal controls must use --language-adapter-precision fp32 and new caches/heads; identity binds precision and code.
+-P1 FP32 head→graph→bridge→online pipeline completed.12mode×scene cache/online, visual bypass, target poison, native-prefix and gate0 errors0. Absolute-only1e-5 batch tolerance failed at1.29938e-5, failure preserved; preregistered mixed atol1e-5+rtol1e-5 plus1mmxy check passes with max9.1764e-5m. Same formal batch membership/noise across models; no arbitrarybatch PDMS invariance claim. These architecture tests reuse one engineering graph, not ALL/MASK research results.
+-New metric repair: GT current centre, not predicted detection centre, defines dynamic/static groups. GT anchor excluded from model input allowlist. Common-track graph comparison added; real GPU execution still pending. Role-specific coverage and expected mask supervision exported from full saved audits without rebuilding inputs.
+-Portable raw licensed NAVSIM preparation:4real scenes/4logs labels/calibration/ego targets exact, speed error<2e-7. Public split IDs, dependency versions and original lightweight action decoder committed.128actual old exports decoder exact. Fresh clean install NOT_RUN.
+-Official evaluator: NAVSIM branch v1.1 commit3e8291bfa89ff247231e0227778840cd0a036896, nuPlan e9241677997dd86bfc0bcd44817ab04fe631405b, artifacts/reference_sources. Prior enclosing repo SHAs are not official upstream commits. Direct4synthetic-plan subfactors exact; not learned-model PDMS. Formal scorer records complete source trees/numerical versions; use official clones and navsim Python3.9.
 
-## Completed engineering evidence
+## Next commands and completion conditions
 
-51 related tests passed before current stage; new strict-head tests added. Full realQwen2GPU emptyannotationrank +resume; commonLoRA8GPU gradients; publicvision cache7348train/holdout+1696dev+12146test allcomplete,0roundtriperror. Navtestcurrent records v3complete0fail; badrootv2 retained. Original0stepBF16/FP32 failure and graph FD-exhaustion failure both preserved/charged and fixed.
+1. Commit/push this metric/coverage evidence stage, verify remote SHA. Stage a bounded final-feature pipeline against a new immutable source worktree; it must wait for foundation supervisor completion, freeze/hash its checkpoint, then use both hosts for final FP32-adapter features.
+2. Extract finaltrain/holdout/dev/Navtest features, train shared existing current head up to16passes, refresh all caches. Audit final graph full population and32figures, assess supervision sparsity without GT-dependent selection.
+3. Matched ALL/MASK graphs16passes, extend BOTH to32 only via registered world holdout rule; nearest at matching length if budget. Run common-track completion/stationary/conditional/related-vs-weak diagnostics. Track actual masked-task valid coordinates and empty rates.
+4. Equal CURRENT/ALL/MASK bridges8→16 matched by training-domain holdout, upstream/DiT fixed. Final online/cache checks. Freeze four models before full1696dev and12146Navtest asynchronousGPU/officialCPU scoring, complete CSV/submetrics/failures/paired log-cluster intervals. Actual DiT vs graph ego reported separately. No current learned-model Navtest score exists.
+5. Deliver GRAPH_VALIDITY, LOCAL_COMPLETION, INTERACTION_DEPENDENCE, DEPLOYABLE_PLANNING with convergence/coverage/budget limits, portable commands, ledger/CSVs and verified feature-branch push. No weights/raw/private visuals uploaded. Goal stays ACTIVE while required work remains.
 
-P1 epoch2 fixed64training scenes: graph pause3→resume16 exact parameters/loss; CURRENT bridge difference at most1.2e-7 crossGPU (notbitexact); actual originalDiTgate0 error0.12mode×scene online/cache/visualbypass/targetpoison checks0; batch4vs1 max4.03e-6 within declared1e-5. ALL/MASK share one diagnostic graph here, not a research comparison. Batched16originalDiT export64scenes0fail. Crosshost foundation continuation456→458 restores optimizer/RNG/sampler; firstforwardexact, nextlossmaxdifference.000698 from BF16 crosshost arithmetic. No bitexact claim. New trained native/append-tail assertion implemented but notyetexecuted.
-
-Official CPU v1PDMS wrapper smoke over4artificial stationary plans exactlymatches directfunction/subfactors/resume. Not learnedmodel scoring. No learnedmodel Navtest score yet.
-
-P0 historical7284scene audit0fail32privatefigures:606028rawGT,54411supported/relevant,1200retainedmatches. P1 publicepoch2audit64/64,32privatefigures:25/407localnodes matched. Epoch8audit64/64,32figures:36/611nodes accepted by original fullslot matching,25/456raw supported/relevant proxies retained. Do not hide low coverage.
-
-P1 fixed existingcurrent-head training on frozenepoch8features:500updates,64TRAINscenes, recall25.3%→79.0%, precision10.0%→64.3%. This is fitting-only evidence, not generalization/planning. Report P1_FIXED_CURRENT_HEAD_PROBE.json. Current generalization repair registered before launch:7284train, fixed64holdout, batch64,lr1e-3,8passes/16schedule; select best currentF1 including epoch0. If it improves, apply same recipe up to16passes after final foundation freeze; no epoch8head transplantation to later features. Same head for all controls. Selector/fullslot matcher unchanged; futurelabels erased. New strict override/cache/online integration is under test.
-
-## Next concrete work
-
-1. Finish/test/commit current-head refinement stage; source-pinned remote pilot after current_train/current_holdout complete. Verify actual save/resume and online/cache head parity; reject wrong-parent head. Record holdout gain/failure. No endless repair search.
-2. Finish publicfoundation16/optional24, freeze shared parent/head. Extract actualfinaltrain/holdout/dev/Navtest currentfeatures; fullpopulation coverage audit and32real figures. Public-current provider and core graph code already implemented; no new BEV/scorer/encoder.
-3. Main ALL/MASK graph16passes matched, extend BOTH to32 per worldholdout12→16 rule; nearest control. Sameinit/order/features/labels, single seed. Run completion/stationary/conditional/related-vs-weak removal diagnostics.
-4. Equalcapacity CURRENT/ALL/MASK bridges, upstream includingDiT frozen,8→16matched according toholdout rule. Freeze comparison models, actualDiT vsgraph joint diagnostics, full1696dev and12146Navtest asynchronousGPU/officialCPU. Preserve allsubmetrics/failedrows/full denominator, pairedlog-cluster intervals. Testscores never select models.
-5. Publish4required statuses, actualresults/limits, portable publicrecipe, commands/ledger/CSVs and stagecommits. Push only thisfeaturebranch, verifyremoteSHA, no weights/cache/privateimages. Markgoalcomplete only on actual completedwork or finitebudget-end delivery, not while mainwork remains.
-
-Live status command:
+Inspect live progress:
 `python -c 'from pathlib import Path; print(Path("/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_continued_epoch8_to24_local8/progress.json").read_text())'`
 
-Resume only after recorded supervisor exits: same immutable cwd and workercommand from that run's supervisor.json plus --resume, NEW supervisor runID and --initial-step equal savedstep; preserve --continue-from parent. Do not mutate live pinned code or duplicate activejobs.
+If a supervisor has EXITED, resume its exact worker command from supervisor.json using the same immutable cwd, append --resume, preserve --continue-from parent, new supervisor runID and --initial-step savedstep. Never duplicate a live run. Nearest unequal training length cannot establish a relation benefit; no seed43 runs.

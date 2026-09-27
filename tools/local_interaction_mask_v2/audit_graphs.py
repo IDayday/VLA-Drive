@@ -25,6 +25,23 @@ def raw_log(path):
     return {frame['token']:frame for frame in frames}
 
 
+def role_coverage(association,nodes,tracks,classes,support,relevant,predictable_classes):
+    """Current GT audit only: distinguish trajectory coverage from risk-context coverage."""
+    groups={node['source_slot_id']:node['group'] for node in nodes}
+    trajectory={row['track_id'] for row in association['assignments'] if row['used_for_local_loss']}
+    risk={row['track_id'] for row in association['assignments'] if row['association_accepted'] and groups[row['source_slot']]=='B'}
+    retained=np.asarray([track in trajectory for track in tracks],dtype=bool)
+    context=np.asarray([track in risk for track in tracks],dtype=bool)
+    supported_relevant=np.asarray(support,dtype=bool)&np.asarray(relevant,dtype=bool)
+    motion_class=np.isin(classes,predictable_classes)
+    return {'raw_motion_class_supported_relevant_targets':int((supported_relevant&motion_class).sum()),
+        'retained_motion_class_supported_relevant_targets':int((supported_relevant&motion_class&retained).sum()),
+        'raw_context_class_supported_relevant_targets':int((supported_relevant&~motion_class).sum()),
+        'retained_context_class_in_risk_memory_targets':int((supported_relevant&~motion_class&context).sum()),
+        'all_class_accepted_risk_context_targets':int(context.sum()),
+        'all_class_supported_relevant_trajectory_or_risk_targets':int((supported_relevant&(retained|context)).sum())}
+
+
 def worker(payload):
     record,a,manifest,config=payload;token=record['token']
     try:
@@ -71,6 +88,7 @@ def worker(payload):
             'raw_geometric_supported_targets':int(support.sum()),'raw_current_relevance_proxy_targets':int(relevant.sum()),
             'raw_supported_relevant_targets':int((support&relevant).sum()),'retained_supported_relevant_targets':int((selected&support&relevant).sum()),
             'excluded_supported_relevant_targets':int((~selected&support&relevant).sum())}
+        row.update(role_coverage(association,nodes,tracks,classes,support,relevant,config['predictable_classes']))
         distance=np.linalg.norm(raw[:,:2],axis=-1)
         groups={**{'class_'+name:classes==i for i,name in enumerate(CLASSES)},
             'distance_0_10':distance<10,'distance_10_30':(distance>=10)&(distance<30),
@@ -149,6 +167,11 @@ def main():
         'formal_algorithm_evidence':a['purpose']=='formal_public_origin'}
     for key in ('raw_all_targets','roi_cached_targets','raw_geometric_supported_targets','raw_current_relevance_proxy_targets','raw_supported_relevant_targets','retained_supported_relevant_targets','excluded_supported_relevant_targets','local_matched','local_valid_future_points','filtered_associations'):
         summary[key]=sum(r[key] for r in good)
+    for key in ('raw_motion_class_supported_relevant_targets','retained_motion_class_supported_relevant_targets',
+                'raw_context_class_supported_relevant_targets','retained_context_class_in_risk_memory_targets',
+                'all_class_accepted_risk_context_targets','all_class_supported_relevant_trajectory_or_risk_targets'):
+        summary[key]=sum(r[key] for r in good)
+    summary['role_coverage_note']='Static/unknown GT classes are not trajectory targets; report their accepted current associations to B risk memory separately. Image context is always retained, but is not called instance recall.'
     summary['coverage_groups']={k:sum(r[k] for r in good) for k in (good[0] if good else {}) if k.startswith('coverage_')}
     for key in ('active_nodes','group_B','group_C','group_D','second_hop','old_mask_probability_any_future','reliable_proxy_slots'):
         v=[r[key] for r in good];summary[key]={'mean':float(np.mean(v)),'quantiles':np.quantile(v,[0,.25,.5,.75,1]).tolist()} if v else None

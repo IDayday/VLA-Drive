@@ -26,7 +26,7 @@ training:
   main_initialization: same_seed_fresh_graph
   schedule: linear_warmup_200_then_cosine_over_preregistered32epoch_horizon
   extension_rule: At16passes, extend BOTH variants using the single fixed seed42 to32 if either model's mean of ego and matched-neighbor holdoutADE changes by >2percent from12 to16passes OR either component remains worse than its stationary reference. NoPDMS consulted. Missing neighborhood metric triggers insufficient-evidence review, not fabricated convergence.
-  secondary: G_NEAREST_MASK_seed42_16passes_after_main_pair_reserved
+  secondary: G_NEAREST_MASK_seed42_same_final16or32passes_as_main_pair_after_core_budget_reserved; if_shortened_report_unmatched_budget_and_no_relation_attribution
 planner:
   variants: [A0, CURRENT_MEMORY, G_LOCAL_ALL, G_LOCAL_MASK]
   main_pair_seeds: [42]
