@@ -81,7 +81,7 @@ def main():
         completed=2 if rank==0 else 0;record(a.ledger,run,completed)
         expected_rng=(torch.get_rng_state(),torch.cuda.get_rng_state())
         clone=LossModule(current['context'].shape[-1],cfg).cuda()
-        restored=torch.load(out/f'rank{rank}_checkpoint.pt',map_location='cuda',weights_only=False)
+        restored=torch.load(out/f'rank{rank}_checkpoint.pt',map_location='cpu',weights_only=False)
         clone.load_state_dict(restored['model'],strict=True);other=DDP(clone,device_ids=[rank],broadcast_buffers=False)
         other_opt=torch.optim.AdamW(clone.parameters(),lr=1e-4);other_opt.load_state_dict(restored['optimizer'])
         torch.set_rng_state(restored['cpu_rng'].cpu());torch.cuda.set_rng_state(restored['cuda_rng'].cpu())
