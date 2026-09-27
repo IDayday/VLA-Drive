@@ -72,6 +72,8 @@ def main():
             _,support,obj=prediction_filters(pred,target);ids=torch.where(support&obj)[0];gt=torch.where(target.current_supervision_mask)[0]
             r,c=match_geometry(pred['boxes'][ids,:2],target.current_boxes[gt,:2]);rows,cols=ids[r],gt[c]
         boxes=target.current_boxes.numpy()
+        _,pred_support,pred_object=prediction_filters(pred,target)
+        displayed_slots=torch.where(pred_support&pred_object)[0].tolist()
         fig=plt.figure(figsize=(18,10));grid=fig.add_gridspec(2,3);axes=[fig.add_subplot(grid[0,i]) for i in range(3)]
         for v,ax in enumerate(axes):
             with Image.open(Path(a.sensor_root)/str(obs['image_paths'][v])) as im:
@@ -85,10 +87,21 @@ def main():
                 uv,valid=project(corners(box),obs['intrinsics'][v],obs['extrinsics'][v],obs['distortion'][v])
                 for i,j in [(0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)]:
                     if valid[i] and valid[j]:ax.plot(uv[[i,j],0],uv[[i,j],1],color='lime',linewidth=.7)
-            ax.set(xlim=(0,1024),ylim=(576,0),title=str(obs['camera_names'][v]));ax.axis('off')
+            for slot in displayed_slots:
+                uv,valid=project(corners(arrays['boxes'][slot]),obs['intrinsics'][v],obs['extrinsics'][v],obs['distortion'][v])
+                for i,j in [(0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)]:
+                    if valid[i] and valid[j]:ax.plot(uv[[i,j],0],uv[[i,j],1],color='cyan',linewidth=.5,linestyle='--')
+            ax.set(xlim=(0,1024),ylim=(576,0),title=str(obs['camera_names'][v])+' | GT green / prediction cyan');ax.axis('off')
         bev=fig.add_subplot(grid[1,:2]);table=fig.add_subplot(grid[1,2]);table.axis('off');lines=[]
         for gt in set(range(len(boxes)))-set(cols.tolist()):
             poly=corners(boxes[gt])[[0,1,2,3,0],:2];bev.plot(poly[:,1],poly[:,0],color='gray',linewidth=.6)
+            xy=target.future_xy_in_ego_t0[gt].numpy().copy();mask=target.future_valid_mask[gt].numpy();xy[~mask]=np.nan
+            bev.plot(xy[:,1],xy[:,0],'.-',color='gray',linewidth=.5,markersize=2)
+            lines.append('unmatched -> '+target.track_ids[gt][-8:]+'   '+''.join('1' if x else '0' for x in mask))
+        for slot in set(displayed_slots)-set(rows.tolist()):
+            poly=corners(arrays['boxes'][slot])[[0,1,2,3,0],:2]
+            bev.plot(poly[:,1],poly[:,0],'--',color='orange',linewidth=.6)
+            xy=arrays['future_xy'][slot];bev.plot(xy[:,1],xy[:,0],':',color='orange',linewidth=.5)
         for slot,gt in zip(rows.tolist(),cols.tolist()):
             color=plt.cm.tab20(gt%20)
             for box,style in [(boxes[gt],'-'),(arrays['boxes'][slot],'--')]:
@@ -104,7 +117,7 @@ def main():
             ego=arrays['joint_ego_xy'];bev.plot(ego[:,1],ego[:,0],'--',color='purple',linewidth=1,label='Joint graph ego (auxiliary)')
         if 'ego_trajectory' in arrays:bev.legend(fontsize=7,loc='lower left')
         bev.plot(0,0,'k^');bev.set(xlabel='ego(t0) y [m], left',ylabel='ego(t0) x [m], forward',xlim=(22,-22),ylim=(-2,55),title='GT box solid / predicted box dashed; GT future solid / prediction dotted');bev.set_aspect('equal');bev.grid(alpha=.2)
-        table.text(0,1,'slot -> track suffix / future valid mask\n'+'\n'.join(lines[:64]),va='top',family='monospace',fontsize=5.5)
+        table.text(0,1,f'Geometric matches: {len(rows)} / GT: {len(boxes)}\nPredictions: {len(displayed_slots)}\nUnmatched: GT gray / prediction orange\nslot -> track suffix / future valid mask\n'+'\n'.join(lines[:64]),va='top',family='monospace',fontsize=5.5)
         category=categories(target)
         fig.suptitle(f'{token} | t0={int(obs["timestamp"])} | GT={len(boxes)}, overflow={target.overflow}');fig.tight_layout();fig.savefig(out/f'{token}.png',dpi=110);plt.close(fig)
         records.append({'token':token,'file':str(out/f'{token}.png'),'categories':category,'matched_slots':len(rows)})
