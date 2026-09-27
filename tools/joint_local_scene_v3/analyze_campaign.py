@@ -177,7 +177,12 @@ def harvest(root,out):
                         if vals:ax.plot([r['step']/(228 if phase.startswith('formal') else 1) for r in vals],[r.get('ADE_m',np.nan) for r in vals],style,color=color,marker='.',label=name+' '+split)
                 ax.set_title(prefix+' '+actor);ax.set_xlabel('complete data traversals' if phase.startswith('formal') else 'optimizer updates');ax.set_ylabel('xy ADE [m]');ax.grid(alpha=.3);ax.legend(fontsize=7)
             fig.suptitle(phase+' | conditional ego excludes queries with no other valid future')
-            fig.tight_layout();fig.savefig(out/('learning_curves_'+phase+'.png'));plt.close(fig)
+            fig.tight_layout();fig.savefig(out/('learning_curves_'+phase+'.png'))
+            for ax,(prefix,actor) in zip(axes.flat,[(p,a) for p in ('all_hidden','conditional') for a in ('ego','neighbor')]):
+                vals=[r['ADE_m'] for r in curves if r['run'] in names and r['step']>0 and r['prefix']==prefix and r['actor']==actor and r.get('ADE_m') is not None]
+                if vals:ax.set_ylim(0,max(vals)*1.1)
+            fig.suptitle(phase+' | post-initialization vertical scale; full initialization shown in companion plot')
+            fig.tight_layout();fig.savefig(out/('learning_curves_'+phase+'_postinit.png'));plt.close(fig)
             fig,ax=plt.subplots(figsize=(10,5))
             for name in names:
                 logs=[json.loads(x) for x in (root/name/'train.jsonl').read_text().splitlines()];window=min(32,len(logs));loss=np.convolve([r['weighted_loss'] for r in logs],np.ones(window)/window,mode='valid')
