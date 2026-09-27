@@ -1,0 +1,58 @@
+{
+  "model_config": {
+    "dim": 384,
+    "heads": 6,
+    "layers": 6,
+    "steps": 8,
+    "condition_dim": 2048,
+    "xy_scale": 20.0
+  },
+  "parameters_total": 21107912,
+  "visual_projection_parameters": 790912,
+  "mechanism_trainable_parameters": 20317000,
+  "cuda_training_or_inference_run": false,
+  "optimizer_steps": 0,
+  "scope": "untrained implementation review",
+  "corpora": {
+    "train": {
+      "summary": {
+        "raw_current_objects": 150039,
+        "current_supervised_objects": 150039,
+        "selected_neighbors": 81494,
+        "selected_with_future": 80071,
+        "valid_neighbor_xy_coordinates": 1216976,
+        "all_current_future_xy_coordinates": 2239804,
+        "current_unobserved_selected": 0,
+        "scenes": 7284,
+        "ego_only_scenes": 372,
+        "neighbor_task_available_scenes": 6889,
+        "failed": 0
+      },
+      "identity_sha256": "f100bc0e4e13aba55fd1e7437bf91e2310195d75509872197ca236bcc26136ed",
+      "manifest_sha256": "4af5155ae9ed6b67896ef5f0c107d0c3749cd675f1c569d64144294cb108628f",
+      "path": "/mnt/project/joint-local-scene-v3-artifacts/20260927/annotated_train_v1",
+      "first_sample_contract_verified": true,
+      "denominator_scope": "Existing WorldTargets ROI/FOV cache, NOT full raw-log actor population"
+    },
+    "holdout": {
+      "summary": {
+        "raw_current_objects": 1609,
+        "current_supervised_objects": 1609,
+        "selected_neighbors": 792,
+        "selected_with_future": 782,
+        "valid_neighbor_xy_coordinates": 11824,
+        "all_current_future_xy_coordinates": 24064,
+        "current_unobserved_selected": 0,
+        "scenes": 64,
+        "ego_only_scenes": 1,
+        "neighbor_task_available_scenes": 63,
+        "failed": 0
+      },
+      "identity_sha256": "d4a5cd4eb73c1978530537c9622518e52567a6a9427468ee0a41957e38c57611",
+      "manifest_sha256": "32b4b187ddc69f3e53f844fb04d028565e700550cf72d4c673ff6275f499eba4",
+      "path": "/mnt/project/joint-local-scene-v3-artifacts/20260927/annotated_holdout_v1",
+      "first_sample_contract_verified": true,
+      "denominator_scope": "Existing WorldTargets ROI/FOV cache, NOT full raw-log actor population"
+    }
+  }
+}

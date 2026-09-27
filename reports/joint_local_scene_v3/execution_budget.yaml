@@ -1,0 +1,20 @@
+campaign: joint-local-scene-v3-20260927
+base_commit: f662266c379c5d163b88f2fc733274ad871dfec1
+legacy_v2: sealed_paused_step1887
+# New finite execution envelope, not a borrowed epoch/step convergence rule.
+independent_gpu_hour_cap: 48
+reservations_gpu_hours:
+  structured_data_model_checks_and_matched_mechanism: 6
+  visual_current_motion_and_three_core_variants: 34
+  locked_full_navtest_and_reports: 6
+  explicit_hypothesis_repairs: 2
+training_seed: 42
+sampling_seed: 20260927
+additional_seed: not_planned
+resources: [local, training-vla-zt2]
+stop_unrelated_jobs: false
+private_driving_initialization: forbidden
+allowed_initialization: [verified_public_Qwen, documented_public_origin_foundation]
+model_selection: training_domain_holdout_then_freeze_before_navtest
+schedule_policy: benchmark_effective_exposure_and_learning_curves_then_register_matched_finite_runs
+repair_rounds_max: 2
