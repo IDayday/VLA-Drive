@@ -1,0 +1,82 @@
+{
+  "request": "User explicitly pauses development and requests design/ideas/results handoff and push. Stop only campaign-owned work.",
+  "time_UTC": "2026-09-27 13:57:16 UTC",
+  "controllers": [
+    {
+      "pid": 899209,
+      "script": "continue_main_phases_v2.py",
+      "prior_state": {
+        "status": "waiting",
+        "runs": [
+          "P_CURRENT",
+          "P_LOCAL_ALL",
+          "P_LOCAL_MASK"
+        ],
+        "epochs": 16,
+        "pid": 899209,
+        "reads_PDMS": false
+      },
+      "action": "SIGTERM waiting campaign controller"
+    },
+    {
+      "pid": 899233,
+      "script": "evaluate_final_locked_v2.py",
+      "prior_state": {
+        "status": "waiting",
+        "for": "completed preregistered graph/planner training schedules",
+        "pid": 899233
+      },
+      "action": "SIGTERM waiting campaign controller"
+    },
+    {
+      "pid": 900708,
+      "script": "report_final_locked_v2.py",
+      "prior_state": {
+        "status": "waiting",
+        "for": "completed three matched planning bridges",
+        "pid": 900708,
+        "source_sha": "228c0b1d698ab410c6e804a146eeb271a156203c",
+        "training_or_model_selection": false
+      },
+      "action": "SIGTERM waiting campaign controller"
+    }
+  ],
+  "training_stop_requests": [
+    {
+      "run_id": "formal_public_epoch24_P_CURRENT_e16",
+      "supervisor_pid": 904230,
+      "output": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_CURRENT",
+      "prior_progress": {
+        "step": 1886,
+        "epoch": 8,
+        "offset": 1984,
+        "presentations": 60256
+      },
+      "mechanism": "cooperative STOP_REQUESTED at optimizer boundary"
+    },
+    {
+      "run_id": "formal_public_epoch24_P_LOCAL_ALL_e16",
+      "supervisor_pid": 904242,
+      "output": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_ALL",
+      "prior_progress": {
+        "step": 1886,
+        "epoch": 8,
+        "offset": 1984,
+        "presentations": 60256
+      },
+      "mechanism": "cooperative STOP_REQUESTED at optimizer boundary"
+    },
+    {
+      "run_id": "formal_public_epoch24_P_LOCAL_MASK_e16",
+      "supervisor_pid": 904254,
+      "output": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_MASK",
+      "prior_progress": {
+        "step": 1886,
+        "epoch": 8,
+        "offset": 1984,
+        "presentations": 60256
+      },
+      "mechanism": "cooperative STOP_REQUESTED at optimizer boundary"
+    }
+  ]
+}

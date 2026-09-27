@@ -1,0 +1,59 @@
+{
+  "status": "HISTORICAL_MATCHED_EPOCH8_ONLY",
+  "scope": "Actual executed DiT imitation errors on 64 training-domain holdout scenes / 59 disjoint logs; NOT Navtest and NOT PDMS",
+  "training_scenes": 7284,
+  "seed": 42,
+  "global_batch": 32,
+  "completed_epochs": 8,
+  "optimizer_steps": 1824,
+  "training_presentations": 58272,
+  "source_sha": "955097588152912eeaca72eeb4ee9f736e40b530",
+  "scenes": 64,
+  "failed_by_variant": {
+    "P_CURRENT": 0,
+    "P_LOCAL_ALL": 0,
+    "P_LOCAL_MASK": 0
+  },
+  "runs": {
+    "P_CURRENT": {
+      "scenes": 64,
+      "failed": 0,
+      "ego_ADE_m": 6.68845447525382,
+      "ego_FDE_m": 9.69830329879187,
+      "gate": 0.003950207959860563,
+      "scope": "Actual DiT imitation error on training-domain holdout, not PDMS"
+    },
+    "P_LOCAL_ALL": {
+      "scenes": 64,
+      "failed": 0,
+      "ego_ADE_m": 6.64593219012022,
+      "ego_FDE_m": 9.55009519867599,
+      "gate": 0.006937162484973669,
+      "scope": "Actual DiT imitation error on training-domain holdout, not PDMS"
+    },
+    "P_LOCAL_MASK": {
+      "scenes": 64,
+      "failed": 0,
+      "ego_ADE_m": 6.708071472123265,
+      "ego_FDE_m": 9.6277613802813,
+      "gate": 0.005305388011038303,
+      "scope": "Actual DiT imitation error on training-domain holdout, not PDMS"
+    }
+  },
+  "source_file_sha256": {
+    "P_CURRENT": {
+      "holdout_8.json": "ceb5cc2096ea33fe85e8c2a065860ea6bca4962f376fca365ec0f9f5defbb692",
+      "holdout_8.csv": "98e13d68de1310765dda888199b3e7fb81af1d81e5fb7912dea405aa7e48dd04"
+    },
+    "P_LOCAL_ALL": {
+      "holdout_8.json": "01421f42550a833fd330573905e7887639ac4f50a0ec6a9f6dd4fcd7ac1a0c0e",
+      "holdout_8.csv": "8790b9138857cba0d7001bac43ab8bbb226f52fb2fe0a4fdc0881872858a8a84"
+    },
+    "P_LOCAL_MASK": {
+      "holdout_8.json": "2ab84976404a08b8cee7a65dee0fef4a55607fd15148513cda735c80930e8fe9",
+      "holdout_8.csv": "83060efe8eb4d3d09a4467d9c417d747447a781ddb2fed178440aa5647e45444"
+    }
+  },
+  "checkpoint_note": "Rolling checkpoints advanced to optimizer step1887 before user pause. These epoch8 metrics describe step1824, not the saved paused checkpoint. No checkpoint is fabricated for the old metrics.",
+  "new_inference_performed": false
+}

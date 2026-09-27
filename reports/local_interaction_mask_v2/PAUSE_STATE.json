@@ -1,0 +1,311 @@
+{
+  "status": "PAUSED_BY_USER",
+  "verified_UTC": "2026-09-27T14:02:10.543541+00:00",
+  "reason": "User requested pausing development, organizing current design and ideas, and pushing to repository.",
+  "automatic_resume": false,
+  "checkpoint_validation": "CPU deserialization, required state keys and progress/ledger agreement; no new training or inference",
+  "gpu_hours_used": 38.45416863918297,
+  "gpu_hour_cap": 48,
+  "gpu_hours_remaining": 9.545831360817033,
+  "running_ledger_jobs": 0,
+  "checkpoints": {
+    "P_CURRENT": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_CURRENT/checkpoint.pt",
+      "sha256": "e4f6f521fa23d4066eaad092f5f7a92ee24f007feec35600de66781d263411e0",
+      "bytes": 208010658,
+      "status": {
+        "status": "paused",
+        "step": 1887,
+        "epochs": 8,
+        "presentations": 60288
+      },
+      "progress": {
+        "step": 1887,
+        "epoch": 8,
+        "offset": 2016,
+        "presentations": 60288
+      },
+      "state_keys": [
+        "identity",
+        "model",
+        "optimizer",
+        "scheduler",
+        "step",
+        "epoch",
+        "offset",
+        "presentations",
+        "seen",
+        "rng",
+        "resume_boundary"
+      ],
+      "rng_keys": [
+        "python",
+        "numpy",
+        "torch",
+        "cuda"
+      ],
+      "resume_boundary": "optimizer step, same code/data/device topology; frozen DiT remains eval",
+      "source_sha": "955097588152912eeaca72eeb4ee9f736e40b530",
+      "source_worktree": "/mnt/project/VLA-Drive-local-v2-runs-main",
+      "resume_command_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.local_interaction_mask_v2.train_planner",
+        "--cache",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/train_refined",
+        "--targets",
+        "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+        "--meta-root",
+        "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+        "--foundation",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/foundation/checkpoint.pt",
+        "--holdout",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/relation_holdout.json",
+        "--graph-config",
+        "configs/local_interaction_mask_v2/graph.json",
+        "--mode",
+        "current",
+        "--seed",
+        "42",
+        "--epochs",
+        "16",
+        "--schedule-epochs",
+        "16",
+        "--batch",
+        "32",
+        "--workers",
+        "2",
+        "--output",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_CURRENT",
+        "--resume"
+      ],
+      "cuda_visible_devices": "0",
+      "stop_file": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_CURRENT/STOP_REQUESTED",
+      "last_completed_epoch_holdout": {
+        "scenes": 64,
+        "failed": 0,
+        "ego_ADE_m": 6.68845447525382,
+        "ego_FDE_m": 9.69830329879187,
+        "gate": 0.003950207959860563,
+        "scope": "Actual DiT imitation error on training-domain holdout, not PDMS"
+      }
+    },
+    "P_LOCAL_ALL": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_ALL/checkpoint.pt",
+      "sha256": "4fa85a451dd7b1fd0b0d338d6a7232bdb4cb45367fdd3bcdceb5164e0911ffdb",
+      "bytes": 211836860,
+      "status": {
+        "status": "paused",
+        "step": 1887,
+        "epochs": 8,
+        "presentations": 60288
+      },
+      "progress": {
+        "step": 1887,
+        "epoch": 8,
+        "offset": 2016,
+        "presentations": 60288
+      },
+      "state_keys": [
+        "identity",
+        "model",
+        "optimizer",
+        "scheduler",
+        "step",
+        "epoch",
+        "offset",
+        "presentations",
+        "seen",
+        "rng",
+        "resume_boundary"
+      ],
+      "rng_keys": [
+        "python",
+        "numpy",
+        "torch",
+        "cuda"
+      ],
+      "resume_boundary": "optimizer step, same code/data/device topology; frozen DiT remains eval",
+      "source_sha": "955097588152912eeaca72eeb4ee9f736e40b530",
+      "source_worktree": "/mnt/project/VLA-Drive-local-v2-runs-main",
+      "resume_command_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.local_interaction_mask_v2.train_planner",
+        "--cache",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/train_refined",
+        "--targets",
+        "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+        "--meta-root",
+        "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+        "--foundation",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/foundation/checkpoint.pt",
+        "--holdout",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/relation_holdout.json",
+        "--graph-config",
+        "configs/local_interaction_mask_v2/graph.json",
+        "--mode",
+        "all",
+        "--seed",
+        "42",
+        "--epochs",
+        "16",
+        "--schedule-epochs",
+        "16",
+        "--batch",
+        "32",
+        "--workers",
+        "2",
+        "--output",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_ALL",
+        "--graph-checkpoint",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/G_LOCAL_ALL/checkpoint.pt",
+        "--resume"
+      ],
+      "cuda_visible_devices": "1",
+      "stop_file": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_ALL/STOP_REQUESTED",
+      "last_completed_epoch_holdout": {
+        "scenes": 64,
+        "failed": 0,
+        "ego_ADE_m": 6.64593219012022,
+        "ego_FDE_m": 9.55009519867599,
+        "gate": 0.006937162484973669,
+        "scope": "Actual DiT imitation error on training-domain holdout, not PDMS"
+      }
+    },
+    "P_LOCAL_MASK": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_MASK/checkpoint.pt",
+      "sha256": "052c430811145564aefea76c3d0e3ff98acb4d7aff4e54c37b90397338755646",
+      "bytes": 211836860,
+      "status": {
+        "status": "paused",
+        "step": 1887,
+        "epochs": 8,
+        "presentations": 60288
+      },
+      "progress": {
+        "step": 1887,
+        "epoch": 8,
+        "offset": 2016,
+        "presentations": 60288
+      },
+      "state_keys": [
+        "identity",
+        "model",
+        "optimizer",
+        "scheduler",
+        "step",
+        "epoch",
+        "offset",
+        "presentations",
+        "seen",
+        "rng",
+        "resume_boundary"
+      ],
+      "rng_keys": [
+        "python",
+        "numpy",
+        "torch",
+        "cuda"
+      ],
+      "resume_boundary": "optimizer step, same code/data/device topology; frozen DiT remains eval",
+      "source_sha": "955097588152912eeaca72eeb4ee9f736e40b530",
+      "source_worktree": "/mnt/project/VLA-Drive-local-v2-runs-main",
+      "resume_command_argv": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.local_interaction_mask_v2.train_planner",
+        "--cache",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/train_refined",
+        "--targets",
+        "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+        "--meta-root",
+        "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+        "--foundation",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/foundation/checkpoint.pt",
+        "--holdout",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/relation_holdout.json",
+        "--graph-config",
+        "configs/local_interaction_mask_v2/graph.json",
+        "--mode",
+        "mask",
+        "--seed",
+        "42",
+        "--epochs",
+        "16",
+        "--schedule-epochs",
+        "16",
+        "--batch",
+        "32",
+        "--workers",
+        "2",
+        "--output",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_MASK",
+        "--graph-checkpoint",
+        "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/G_LOCAL_MASK/checkpoint.pt",
+        "--resume"
+      ],
+      "cuda_visible_devices": "2",
+      "stop_file": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/P_LOCAL_MASK/STOP_REQUESTED",
+      "last_completed_epoch_holdout": {
+        "scenes": 64,
+        "failed": 0,
+        "ego_ADE_m": 6.708071472123265,
+        "ego_FDE_m": 9.6277613802813,
+        "gate": 0.005305388011038303,
+        "scope": "Actual DiT imitation error on training-domain holdout, not PDMS"
+      }
+    }
+  },
+  "controllers": {
+    "training": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/main_phase_controller.json",
+      "state": {
+        "status": "paused_by_user",
+        "prior_state": {
+          "status": "waiting",
+          "runs": [
+            "P_CURRENT",
+            "P_LOCAL_ALL",
+            "P_LOCAL_MASK"
+          ],
+          "epochs": 16,
+          "pid": 899209,
+          "reads_PDMS": false
+        },
+        "resume_requires_explicit_new_user_instruction": true,
+        "controller_pid": 899209
+      }
+    },
+    "evaluation": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/evaluation_v2/status.json",
+      "state": {
+        "status": "paused_by_user",
+        "prior_state": {
+          "status": "waiting",
+          "for": "completed preregistered graph/planner training schedules",
+          "pid": 899233
+        },
+        "resume_requires_explicit_new_user_instruction": true,
+        "controller_pid": 899233
+      }
+    },
+    "reporting": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/final_reporting_v2/status.json",
+      "state": {
+        "status": "paused_by_user",
+        "prior_state": {
+          "status": "waiting",
+          "for": "completed three matched planning bridges",
+          "pid": 900708,
+          "source_sha": "228c0b1d698ab410c6e804a146eeb271a156203c",
+          "training_or_model_selection": false
+        },
+        "resume_requires_explicit_new_user_instruction": true,
+        "controller_pid": 900708
+      }
+    }
+  },
+  "formal_learned_model_PDMS": "NOT_RUN",
+  "model_lock": "NOT_CREATED"
+}
