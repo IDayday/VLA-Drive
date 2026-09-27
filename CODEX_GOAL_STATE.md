@@ -3,7 +3,7 @@
 Branch: feature/local-interaction-mask-v2-20260927
 Worktree: /mnt/project/VLA-Drive-local-interaction-mask-v2-20260927
 Start: 227e781dd54f623b12b41bd7f2d2a7b302e0a014
-Latest verified remote: 228c0b1d698ab410c6e804a146eeb271a156203c.
+Latest verified remote: a73d5458d7988bd50d7d50155db393be05c5024a.
 Binding task: reports/local_interaction_mask_v2/OBJECTIVE.md + USER_STEERING.md.
 Artifact root: /mnt/project/local-interaction-mask-v2-artifacts/20260927
 Final stage: formal_public_epoch24. Active evaluation output: evaluation_v2.
@@ -57,4 +57,6 @@ Official reference_sources NAVSIMv1.1 branchSHA3e8291bfa89ff247231e0227778840cd0
 Live inspection command:
 `python -c 'from pathlib import Path; print(Path("/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/evaluation_v2/status.json").read_text())'`
 
-CPU-only final reporting controller900304: report_final_locked.py, pinnedsource228c0b1 in /mnt/project/VLA-Drive-local-v2-runs-reporting. It waits for allthreebridges, builds final_reporting_v1/planner_learning_curves, then waits completeevaluation_v2 and runs full dev/Navtest combine_results plus ALL/MASK actualDiT-vs-internalgraph geometry. No training/modelselection. State final_reporting_v1/status.json; do not duplicate these reports. Latestgraphs27passes, nearest23. Architecture and20requirement evidence index now documented; finalscientificreports stillpending.
+CPU-only final reporting controller900708: report_final_locked_v2.py, pinnedsource228c0b1 in /mnt/project/VLA-Drive-local-v2-runs-reporting. It waits for allthreebridges, builds final_reporting_v2/planner_learning_curves, then waits completeevaluation_v2 and runs full dev/Navtest combine_results plus ALL/MASK actualDiT-vs-internalgraph geometry. No training/modelselection. State final_reporting_v2/status.json; do not duplicate these reports. Latestgraphs27passes, nearest23. Architecture and20requirement evidence index now documented; finalscientificreports stillpending.
+
+Reporter900304 was replaced BEFORE any report child started: geometry requires eachbank/variant/predictions, nottheparentvariantdirectory. V2waiter900708 fixespath andchecks completegeometrypopulation; originalscript/replacedstate retained. NoGPU/model/optimizer change. FINAL_REPORTING_CONTROLLER_V2.json recordsrevision.
