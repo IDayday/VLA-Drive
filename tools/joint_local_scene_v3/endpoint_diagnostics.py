@@ -3,13 +3,14 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 import numpy as np
 import torch
 from tools.joint_local_scene_v3.budget import BudgetRun,atomic_json
 from tools.joint_local_scene_v3.data import AnnotatedCorpus
 from tools.joint_local_scene_v3.runtime import build_queries,batch_scenes,evaluation_noise,target_metrics
-from tools.joint_local_scene_v3.train_mechanism import deterministic_settings
+from tools.joint_local_scene_v3.train_mechanism import deterministic_settings,code_identity
 from starVLA.model.modules.joint_scene.flow import JointSceneFlow,execution_from_joint
 
 RELATION_RULE={'peer_role':'non-ego traffic actor, distinct from target','strong':'closest peer within15m of current target centre','weak':'different peer at least5m farther than strong; complete-xy-point count differs by<=1; minimize count difference then maximize distance','removed_actors_per_condition':1,'selection_uses_target_future_values':False,'NOT_APPLICABLE':'No valid strong/weak pair; keep query in denominator'}
@@ -48,6 +49,8 @@ def visualize(s,pred,path):
     fig,ax=plt.subplots(figsize=(10,8));g=s.graph;b=g.boxes[0].numpy();v=s.feature_valid[0,:,:,:2].all(-1).numpy();y=s.future[0].numpy();active=g.active_actor_mask[0].numpy()
     context=g.context_boxes[0,g.context_mask[0]].numpy();ax.scatter(context[:,0],context[:,1],c='orange',marker='x',alpha=.4,label='current context')
     for i in np.where(active)[0]:
+        for j in np.where(active)[0]:
+            if j>i and bool(g.edge_mask[0,i,j]):ax.plot(b[[i,j],0],b[[i,j],1],color='gray',alpha=.18,linewidth=.6)
         color='black' if i==0 else plt.get_cmap('tab20')(i%20)
         yaw=np.arctan2(b[i,6],b[i,7]);rot=np.array([[np.cos(yaw),-np.sin(yaw)],[np.sin(yaw),np.cos(yaw)]])
         corners=np.array([[-1,-1],[-1,1],[1,1],[1,-1]])*b[i,3:5]/2
@@ -62,9 +65,10 @@ def main():
     p=argparse.ArgumentParser()
     for name in ('data','checkpoint','output','ledger','run-id'):p.add_argument('--'+name,required=True)
     p.add_argument('--seed',type=int,default=20260927);p.add_argument('--samples',type=int,default=8);p.add_argument('--protocol',required=True);a=p.parse_args();out=Path(a.output)
+    if a.samples<1 or a.seed<0:raise ValueError('Invalid sampling protocol')
     if out.exists() and any(out.iterdir()):raise FileExistsError('New diagnostics output required')
     out.mkdir(parents=True,exist_ok=True)
-    checkpoint=Path(a.checkpoint);identity={'checkpoint_sha256':hashlib.sha256(checkpoint.read_bytes()).hexdigest(),'module_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'output':str(out.resolve()),'seed':a.seed,'samples':a.samples,'protocol_sha256':hashlib.sha256(Path(a.protocol).read_bytes()).hexdigest()}
+    checkpoint=Path(a.checkpoint);identity={'checkpoint_sha256':hashlib.sha256(checkpoint.read_bytes()).hexdigest(),'module_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'output':str(out.resolve()),'seed':a.seed,'samples':a.samples,'protocol_sha256':hashlib.sha256(Path(a.protocol).read_bytes()).hexdigest(),'analysis_source':code_identity(),'CUDA_VISIBLE_DEVICES':os.environ.get('CUDA_VISIBLE_DEVICES'),'precision':'float32 deterministic math attention TF32off','data_identity':json.loads((Path(a.data)/'manifest.json').read_text())['identity_sha256']}
     with BudgetRun(a.ledger,a.run_id,identity,1) as budget:
         deterministic_settings();saved=torch.load(checkpoint,map_location='cpu',weights_only=False);cfg=saved['identity']['config']
         corpus=AnnotatedCorpus(a.data);queries=build_queries(corpus);protocol=relation_queries(corpus,queries)
@@ -90,7 +94,7 @@ def main():
                         for j,q in enumerate(chunk):
                             if not torch.isfinite(joint[j]).all():raise ValueError('Nonfinite condition-ablation sample')
                             slot=q['slot'];metric=target_metrics(joint[j,slot],y[j,slot],v[j,slot],g.boxes[j,slot])
-                            batch_rows[j][name+'_ADE_m']=metric['xy_ADE_m'];batch_rows[j][name+'_error_sum_m']=metric['xy_error_sum_m']
+                            batch_rows[j]['dynamic']=metric['dynamic'];batch_rows[j][name+'_ADE_m']=metric['xy_ADE_m'];batch_rows[j][name+'_error_sum_m']=metric['xy_error_sum_m']
                     except (RuntimeError,ValueError) as exc:
                         for row in batch_rows:row.update(status='failed',error=str(exc))
                 for row in batch_rows:
@@ -105,6 +109,7 @@ def main():
                 noises=torch.cat([evaluation_noise([scene],a.seed+k) for scene,(i,k) in zip(scenes,chunk)])
                 sample=model.sample(noises,g,sampling_steps=cfg['sampling_steps'])
                 if not torch.isfinite(sample).all():raise ValueError('Nonfinite K-sample output')
+                if sample[:,1:,:,2:].count_nonzero():raise ValueError('Unmodeled neighbor yaw changed')
                 for j,(i,k) in enumerate(chunk):bank[i][k]=sample[j].cpu()
             for i in range(len(corpus)):
                 budget.check();s=corpus[i];g=s.graph;y=s.future;v=s.feature_valid
@@ -126,7 +131,7 @@ def main():
                 if i in plot_indices:visualize(s,samples[0].numpy(),out/f'private_scene_{i}.png')
             torch.save(bank,out/'private_joint_samples.pt')
         hook.remove();write_csv(out/'condition_queries.csv',rows);write_csv(out/'k_scenes.csv',kscenes);write_csv(out/'k_queries.csv',kqueries)
-        summary={'complete':True,'expected_queries':len(protocol['queries']),'applicable':sum(r['status']=='ok' for r in rows),'not_applicable':sum(r['status']=='NOT_APPLICABLE' for r in rows),'failed':sum(r['status']=='failed' for r in rows),'samples':a.samples,'real_optimizer_updates':0,'scope':'GT-current structured mechanism; privileged future ablations are diagnostics, not causal proof or PDMS','identity':identity}
+        summary={'complete':True,'expected_queries':len(protocol['queries']),'applicable':sum(r['status']=='ok' for r in rows),'not_applicable':sum(r['status']=='NOT_APPLICABLE' for r in rows),'failed':sum(r['status']=='failed' for r in rows),'samples':a.samples,'real_optimizer_updates':0,'neighbor_yaw_nonzero':0,'training_source':saved['identity']['source'],'scope':'GT-current structured mechanism; privileged future ablations are diagnostics, not causal proof or PDMS','identity':identity}
         atomic_json(out/'summary.json',summary);print(json.dumps(summary,indent=2))
         if summary['failed']:raise RuntimeError('Diagnostic failures retained')
 
