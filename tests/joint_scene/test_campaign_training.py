@@ -48,3 +48,16 @@ def test_relation_ablation_selection_does_not_read_hidden_future_values():
     for row in first['queries']:
         if row['status']=='applicable':
             assert row['strong_actor']!=row['weak_actor'] and row['strong_actor']!=row['slot'] and row['weak_actor']!=row['slot']
+
+
+def test_paired_uncertainty_uses_logs_and_rejects_changed_targets():
+    from tools.joint_local_scene_v3.analyze_campaign import paired
+    first=[];second=[]
+    for i,(log,delta) in enumerate([('a',-2),('a',-2),('b',2)]):
+        row={'query_id':str(i),'slot':0,'token':str(i),'log':log,'status':'ok','valid_xy_points':2,'valid_timesteps':'[0,1]','all_hidden_xy_error_sum_m':20.}
+        first.append(row);second.append(dict(row,all_hidden_xy_error_sum_m=20.+delta*2))
+    report,_=paired(first,second,'all_hidden','ego')
+    assert report['queries']==3 and report['logs']==2 and report['ci95_m']==[-2.,2.]
+    assert abs(report['MASK_minus_ALL_m']+2/3)<1e-10
+    second[0]['valid_xy_points']=1
+    with pytest.raises(ValueError,match='mismatched'):paired(first,second,'all_hidden','ego')

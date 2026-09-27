@@ -75,30 +75,43 @@ def main():
         rows=[];kscenes=[];kqueries=[]
         plot_indices=sorted(range(len(corpus)),key=lambda i:hashlib.sha256(corpus.records[i]['token'].encode()).digest())[:8]
         with torch.no_grad():
-            for i in range(len(corpus)):
-                budget.check();s=corpus[i];g,y,v=batch_scenes([s],'cuda');noise=evaluation_noise([s],a.seed)
-                for query in [q for q in protocol['queries'] if q['scene_index']==i]:
-                    budget.check();row=dict(query)
-                    if row['status']=='applicable':
-                        try:
-                            known=v.clone();known[:,row['slot']]=False
-                            for name,removed in [('correct',None),('remove_strong',row['strong_actor']),('remove_weak',row['weak_actor'])]:
-                                km=known.clone()
-                                if removed is not None:km[:,removed]=False
-                                joint=model.sample_conditional(noise,g,y,km,sampling_steps=cfg['sampling_steps'])
-                                if not torch.isfinite(joint).all():raise ValueError('Nonfinite condition-ablation sample')
-                                metric=target_metrics(joint[0,row['slot']],y[0,row['slot']],v[0,row['slot']],g.boxes[0,row['slot']])
-                                row[name+'_ADE_m']=metric['xy_ADE_m'];row[name+'_error_sum_m']=metric['xy_error_sum_m']
-                            row.update(status='ok',strong_minus_correct_m=row['remove_strong_ADE_m']-row['correct_ADE_m'],weak_minus_correct_m=row['remove_weak_ADE_m']-row['correct_ADE_m'],strong_minus_weak_m=row['remove_strong_ADE_m']-row['remove_weak_ADE_m'])
-                        except (RuntimeError,ValueError) as exc:row.update(status='failed',error=str(exc))
+            applicable=[q for q in protocol['queries'] if q['status']=='applicable']
+            for start in range(0,len(applicable),16):
+                budget.check();chunk=applicable[start:start+16];scenes=[corpus[q['scene_index']] for q in chunk];g,y,v=batch_scenes(scenes,'cuda');noise=evaluation_noise(scenes,a.seed)
+                masks=v.clone()
+                for j,q in enumerate(chunk):masks[j,q['slot']]=False
+                batch_rows=[dict(q,status='ok') for q in chunk]
+                for name,field in [('correct',None),('remove_strong','strong_actor'),('remove_weak','weak_actor')]:
+                    budget.check();known=masks.clone()
+                    if field is not None:
+                        for j,q in enumerate(chunk):known[j,q[field]]=False
+                    try:
+                        joint=model.sample_conditional(noise,g,y,known,sampling_steps=cfg['sampling_steps'])
+                        for j,q in enumerate(chunk):
+                            if not torch.isfinite(joint[j]).all():raise ValueError('Nonfinite condition-ablation sample')
+                            slot=q['slot'];metric=target_metrics(joint[j,slot],y[j,slot],v[j,slot],g.boxes[j,slot])
+                            batch_rows[j][name+'_ADE_m']=metric['xy_ADE_m'];batch_rows[j][name+'_error_sum_m']=metric['xy_error_sum_m']
+                    except (RuntimeError,ValueError) as exc:
+                        for row in batch_rows:row.update(status='failed',error=str(exc))
+                for row in batch_rows:
+                    if row['status']=='ok':row.update(strong_minus_correct_m=row['remove_strong_ADE_m']-row['correct_ADE_m'],weak_minus_correct_m=row['remove_weak_ADE_m']-row['correct_ADE_m'],strong_minus_weak_m=row['remove_strong_ADE_m']-row['remove_weak_ADE_m'])
                     rows.append(row);append(out/'condition_progress.jsonl',row)
-                joints=[];valid=v[0,:,:,:2].all(-1);truth=torch.where(v,y,0.)[0,:,:,:2]
-                scene_rows=[]
-                for k in range(a.samples):
-                    budget.check();joint=model.sample(evaluation_noise([s],a.seed+k),g,sampling_steps=cfg['sampling_steps'])[0]
-                    if not torch.isfinite(joint).all():raise ValueError('Nonfinite K-sample output')
-                    joints.append(joint.cpu());error=(joint[...,:2]-truth).norm(dim=-1)
-                    active=g.active_actor_mask[0];pair=valid[:,None]&valid[None,:]&torch.triu(torch.ones(len(valid),len(valid),device='cuda',dtype=torch.bool),diagonal=1)[...,None]
+            for q in protocol['queries']:
+                if q['status']=='NOT_APPLICABLE':rows.append(dict(q));append(out/'condition_progress.jsonl',q)
+            bank={i:[None]*a.samples for i in range(len(corpus))}
+            jobs=[(i,k) for i in range(len(corpus)) for k in range(a.samples)]
+            for start in range(0,len(jobs),16):
+                budget.check();chunk=jobs[start:start+16];scenes=[corpus[i] for i,k in chunk];g,_,_=batch_scenes(scenes,'cuda')
+                noises=torch.cat([evaluation_noise([scene],a.seed+k) for scene,(i,k) in zip(scenes,chunk)])
+                sample=model.sample(noises,g,sampling_steps=cfg['sampling_steps'])
+                if not torch.isfinite(sample).all():raise ValueError('Nonfinite K-sample output')
+                for j,(i,k) in enumerate(chunk):bank[i][k]=sample[j].cpu()
+            for i in range(len(corpus)):
+                budget.check();s=corpus[i];g=s.graph;y=s.future;v=s.feature_valid
+                valid=v[0,:,:,:2].all(-1);truth=torch.where(v,y,0.)[0,:,:,:2];scene_rows=[];samples=torch.stack(bank[i])
+                for k,joint in enumerate(samples):
+                    error=(joint[...,:2]-truth).norm(dim=-1);active=g.active_actor_mask[0]
+                    pair=valid[:,None]&valid[None,:]&torch.triu(torch.ones(len(valid),len(valid),dtype=torch.bool),diagonal=1)[...,None]
                     relative_error=((joint[:,None,:,:2]-joint[None,:,:,:2])-(truth[:,None]-truth[None,:])).norm(dim=-1)
                     distance=(joint[1:,:,:2]-joint[0,None,:,:2]).norm(dim=-1)
                     scene_row={'token':s.token,'log':s.log,'k':k,'seed':a.seed+k,'joint_error_sum_m':float(error[valid].sum()),'joint_valid_points':int(valid.sum()),'joint_relative_error_sum_m':float(relative_error[pair].sum()),'joint_relative_valid_points':int(pair.sum()),'same_joint_ego_neighbor_min_distance_m':float(distance[active[1:]].min()) if active[1:].any() else None,'execution_ego_xy_difference_m':float((execution_from_joint(joint[None])['executed_ego_xyyaw'][0,:,:2]-joint[0,:,:2]).abs().max())}
@@ -106,12 +119,12 @@ def main():
                     for q in [q for q in queries['queries'] if q['scene_index']==i]:
                         slot=q['slot'];metric=target_metrics(joint[slot],y[0,slot],v[0,slot],g.boxes[0,slot],g.ego_state[0,1:3] if slot==0 else None)
                         item=dict(q,k=k,seed=a.seed+k,**{key:val for key,val in metric.items() if key not in q});kqueries.append(item);append(out/'kquery_progress.jsonl',item)
-                samples=torch.stack(joints);diversity=(samples[:,None,...,:2]-samples[None,...,:2]).norm(dim=-1)
-                upper=torch.triu(torch.ones(a.samples,a.samples,dtype=torch.bool),diagonal=1)
+                diversity=(samples[:,None,...,:2]-samples[None,...,:2]).norm(dim=-1);upper=torch.triu(torch.ones(a.samples,a.samples,dtype=torch.bool),diagonal=1)
                 oracle=min(range(a.samples),key=lambda k:scene_rows[k]['joint_error_sum_m'])
-                diag={'token':s.token,'log':s.log,'joint_oracle_k':oracle,'oracle_non_deployment':True,'joint_oracle_ADE_m':scene_rows[oracle]['joint_error_sum_m']/scene_rows[oracle]['joint_valid_points'],'mean_pair_sample_distance_m':float(diversity[upper][:,valid.cpu()].mean()) if a.samples>1 else None}
+                diag={'token':s.token,'log':s.log,'joint_oracle_k':oracle,'oracle_non_deployment':True,'joint_oracle_ADE_m':scene_rows[oracle]['joint_error_sum_m']/scene_rows[oracle]['joint_valid_points'],'mean_pair_sample_distance_m':float(diversity[upper][:,valid].mean()) if a.samples>1 else None}
                 append(out/'joint_diversity_oracle.jsonl',diag)
                 if i in plot_indices:visualize(s,samples[0].numpy(),out/f'private_scene_{i}.png')
+            torch.save(bank,out/'private_joint_samples.pt')
         hook.remove();write_csv(out/'condition_queries.csv',rows);write_csv(out/'k_scenes.csv',kscenes);write_csv(out/'k_queries.csv',kqueries)
         summary={'complete':True,'expected_queries':len(protocol['queries']),'applicable':sum(r['status']=='ok' for r in rows),'not_applicable':sum(r['status']=='NOT_APPLICABLE' for r in rows),'failed':sum(r['status']=='failed' for r in rows),'samples':a.samples,'real_optimizer_updates':0,'scope':'GT-current structured mechanism; privileged future ablations are diagnostics, not causal proof or PDMS','identity':identity}
         atomic_json(out/'summary.json',summary);print(json.dumps(summary,indent=2))

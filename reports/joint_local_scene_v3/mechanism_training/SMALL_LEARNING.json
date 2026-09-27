@@ -1,0 +1,64 @@
+{
+  "phase": "small64_learning",
+  "real_updates": 1024,
+  "next": "fresh seed42 full pair",
+  "small_weights_reused": false,
+  "models": {
+    "all": {
+      "updates": 512,
+      "presentations": 8192,
+      "loss_first32": 2.5505474768579006,
+      "loss_last32": 0.21944794000592083,
+      "train0": {
+        "all_hidden_ego": 31.195274144411087,
+        "all_hidden_neighbor": 28.808850922097697,
+        "conditional_ego": 31.69979217204642,
+        "conditional_neighbor": 29.001908424589878
+      },
+      "train512": {
+        "all_hidden_ego": 1.471420794725418,
+        "all_hidden_neighbor": 3.92904486152961,
+        "conditional_ego": 1.3629747033119202,
+        "conditional_neighbor": 3.770865200249425
+      },
+      "holdout512": {
+        "all_hidden_ego": 2.738047957420349,
+        "all_hidden_neighbor": 4.330872073070571,
+        "conditional_ego": 2.3466878075932347,
+        "conditional_neighbor": 4.176785046193643
+      },
+      "condition_update_max": 0.0,
+      "interaction_gradient_observed": true,
+      "neighbor_yaw_coordinates": 0
+    },
+    "mask": {
+      "updates": 512,
+      "presentations": 8192,
+      "loss_first32": 2.634722925722599,
+      "loss_last32": 0.26459486363455653,
+      "train0": {
+        "all_hidden_ego": 31.195274144411087,
+        "all_hidden_neighbor": 28.808850922097697,
+        "conditional_ego": 31.69979217204642,
+        "conditional_neighbor": 29.001908424589878
+      },
+      "train512": {
+        "all_hidden_ego": 1.8834177176468074,
+        "all_hidden_neighbor": 4.373040782458678,
+        "conditional_ego": 1.8006424548778128,
+        "conditional_neighbor": 4.189589608776975
+      },
+      "holdout512": {
+        "all_hidden_ego": 2.845428534783423,
+        "all_hidden_neighbor": 4.401495701446782,
+        "conditional_ego": 2.4845349996588952,
+        "conditional_neighbor": 4.124760708330433
+      },
+      "condition_update_max": 0.0,
+      "interaction_gradient_observed": true,
+      "neighbor_yaw_coordinates": 0
+    }
+  },
+  "initial_parameters_identical": true,
+  "conclusion": "Both learn basic joint motion; small-set512 is not a convergence or positive-transfer claim. Proceed with unchanged registered full pair."
+}
