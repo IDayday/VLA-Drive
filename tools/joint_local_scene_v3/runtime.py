@@ -1,8 +1,12 @@
-"""Batched structured-mechanism evaluation, with complete denominators."""
+"""Fixed same-target completion queries, separate from all-hidden scene results."""
 import hashlib
+import json
+import math
+from pathlib import Path
 import torch
 from starVLA.model.modules.joint_scene.contracts import stack_graphs
 from starVLA.model.modules.joint_scene.flow import execution_from_joint
+from starVLA.model.modules.joint_scene.masks import xy_point_valid
 
 
 def batch_scenes(scenes,device='cuda'):
@@ -17,73 +21,130 @@ def evaluation_noise(scenes,seed,device='cuda'):
     return torch.cat(rows).to(device)
 
 
-def metric_sums(prediction,truth,valid,current,ego_velocity):
-    truth=torch.where(valid,truth,0.);xy_valid=valid[...,:2].all(-1)
-    error=(prediction[...,:2]-truth[...,:2]).norm(dim=-1)
-    stationary=(current[:,:,None,:2]-truth[...,:2]).norm(dim=-1)
-    moving=((truth[...,:2]-current[:,:,None,:2]).norm(dim=-1).masked_fill(~xy_valid,0.).amax(-1)>=1.)&xy_valid.any(-1)
-    result={}
-    for name,sl in [('ego',slice(0,1)),('neighbor',slice(1,None))]:
-        for group,selection in [('all',xy_valid[:,sl]),('dynamic',xy_valid[:,sl]&moving[:,sl,None]),('static',xy_valid[:,sl]&~moving[:,sl,None])]:
-            key=name+'_'+group;d=error[:,sl];base=stationary[:,sl]
-            result.update({key+'_error_sum':float(d[selection].sum()),key+'_points':int(selection.sum()),key+'_stationary_sum':float(base[selection].sum()),
-                key+'_fde_sum':float(d[:,:,-1][selection[:,:,-1]].sum()),key+'_fde_count':int(selection[:,:,-1].sum())})
-    time=torch.arange(1,prediction.shape[2]+1,device=prediction.device)*.5
-    cv=ego_velocity[:,None,:]*time[None,:,None]
-    cv_error=(cv-truth[:,0,:,:2]).norm(dim=-1)
-    result['ego_cv_error_sum']=float(cv_error[xy_valid[:,0]].sum());result['ego_cv_points']=int(xy_valid[:,0].sum())
-    result['neighbor_cv_available']=False
+def build_queries(corpus):
+    """Enumerate all labeled local actors BEFORE model access; future masks are diagnostic-only."""
+    rows=[];population={'scenes':len(corpus),'source_current_objects':0,'selected_neighbors':0,'neighbors_with_xy_labels':0,'source_population_available':True}
+    identities=[]
+    for i in range(len(corpus)):
+        s=corpus[i];s.validate();g=s.graph;v=xy_point_valid(s.feature_valid)[0]
+        source=s.metadata.get('source_current_objects')
+        if source is None:population['source_population_available']=False
+        else:population['source_current_objects']+=source
+        population['selected_neighbors']+=int(g.active_actor_mask[:,1:].sum());population['neighbors_with_xy_labels']+=int(v[1:].any(-1).sum())
+        identities.append({'token':s.token,'source_indices':g.source_indices.tolist(),'modeled':g.modeled_state_mask.tolist(),'graph_schema':g.schema_version,'selection':g.selection_metadata})
+        for slot in torch.where(g.active_actor_mask[0]&v.any(-1))[0].tolist():
+            valid_steps=torch.where(v[slot])[0].tolist();source_index=int(g.source_indices[0,slot])
+            rows.append({'query_id':f'{s.token}:{source_index}','scene_index':i,'token':s.token,'log':s.log,'slot':slot,'source_index':source_index,
+                'target_class':int(g.classes[0,slot]),'current_distance_m':float(g.boxes[0,slot,:2].norm()),'valid_timesteps':valid_steps,
+                'valid_xy_points':len(valid_steps),'final_time_valid':bool(v[slot,-1]),'context_objects':int(g.context_mask.sum()),
+                'known_other_xy_points':int(v.sum()-v[slot].sum()),'graph_origin':g.origin})
+    if not rows:raise ValueError('No valid evaluation queries')
+    payload={'schema_version':1,'query_rule':'enumerate_every_active_actor_with_at_least_one_complete_xy_label','queries':rows,'population':population,
+        'corpus_identity':getattr(corpus,'manifest',{}).get('identity_sha256'),'graph_identity_sha256':hashlib.sha256(json.dumps(identities,sort_keys=True).encode()).hexdigest(),
+        'scope':'GT-future-conditioned completion diagnostic; not deployment planning'}
+    payload['sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    return payload
+
+
+def validate_queries(corpus,manifest):
+    rebuilt=build_queries(corpus)
+    if manifest!=rebuilt:raise ValueError('Query list, graph identity, corpus, or valid-point population changed')
+    return manifest
+
+
+def target_metrics(pred,truth,valid,current_box,ego_velocity=None,dt=.5):
+    points=valid[...,:2].all(-1)
+    if not points.any():raise ValueError('No complete xy target points')
+    if not torch.isfinite(pred).all() or not torch.isfinite(truth[valid]).all():raise ValueError('Nonfinite prediction/valid target')
+    safe=torch.where(valid,truth,0.)
+    error=(pred[...,:2]-safe[...,:2]).norm(dim=-1)
+    stationary=(current_box[:2]-safe[...,:2]).norm(dim=-1)
+    moving=bool((stationary[points]>=1.).any())
+    result={'xy_ADE_m':float(error[points].mean()),'xy_error_sum_m':float(error[points].sum()),'valid_xy_points':int(points.sum()),
+        'xy_FDE_m':float(error[-1]) if points[-1] else None,'final_time_valid':bool(points[-1]),
+        'stationary_ADE_m':float(stationary[points].mean()),'stationary_FDE_m':float(stationary[-1]) if points[-1] else None,
+        'dynamic':moving,'yaw_error_rad':None,'valid_yaw_points':0,'CV_ADE_m':None,'CV_available':ego_velocity is not None}
+    yaw_valid=valid[...,2:].all(-1)
+    if yaw_valid.any():
+        if (pred[...,2:][yaw_valid].norm(dim=-1)<1e-8).any():raise ValueError('Degenerate modeled yaw prediction')
+        py=torch.atan2(pred[...,2],pred[...,3]);ty=torch.atan2(safe[...,2],safe[...,3])
+        angle=torch.atan2(torch.sin(py-ty),torch.cos(py-ty)).abs()
+        result['yaw_error_rad']=float(angle[yaw_valid].mean());result['valid_yaw_points']=int(yaw_valid.sum())
+    if ego_velocity is not None:
+        time=torch.arange(1,len(truth)+1,device=pred.device)*dt
+        cv=current_box[:2]+time[:,None]*ego_velocity
+        result['CV_ADE_m']=float((cv-safe[...,:2]).norm(dim=-1)[points].mean())
     return result
 
 
+def summarize(scene_rows,query_rows,manifest):
+    failed=sum(r['status']!='ok' for r in query_rows);scene_failed=sum(r['status']!='ok' for r in scene_rows)
+    summary={'scope':'structured-current-state checks; conditional rows use privileged future context','population':manifest['population'],
+        'evaluated_queries':len(query_rows),'expected_queries':len(manifest['queries']),'failed_queries':failed,'failed_scenes':scene_failed,
+        'aggregate_valid':not failed and not scene_failed and len(query_rows)==len(manifest['queries']),
+        'query_manifest_sha256':manifest['sha256'],'groups':{}}
+    for actor in ('ego','neighbor'):
+        for motion in ('all','dynamic','static'):
+            rows=[r for r in query_rows if (r['slot']==0)==(actor=='ego') and (motion=='all' or r.get('dynamic')==(motion=='dynamic'))]
+            key=actor+'_'+motion;points=sum(r['valid_xy_points'] for r in rows)
+            row={'queries':len(rows),'valid_xy_points':points,'all_hidden_ADE_m':None,'conditional_ADE_m':None,'conditional_minus_all_hidden_m':None}
+            if summary['aggregate_valid'] and points:
+                row['all_hidden_ADE_m']=sum(r['all_hidden_xy_error_sum_m'] for r in rows)/points
+                row['conditional_ADE_m']=sum(r['conditional_xy_error_sum_m'] for r in rows)/points
+                row['conditional_minus_all_hidden_m']=row['conditional_ADE_m']-row['all_hidden_ADE_m']
+            summary['groups'][key]=row
+    return summary
+
+
 @torch.no_grad()
-def evaluate(model,corpus,seed=20260927,sampling_steps=20,batch=8,limit=None,device='cuda'):
-    prior=model.training;model.eval();rows=[];indices=list(range(len(corpus)))[:limit]
-    for offset in range(0,len(indices),batch):
-        scenes=[corpus[i] for i in indices[offset:offset+batch]];g,y,v=batch_scenes(scenes,device);noise=evaluation_noise(scenes,seed,device)
-        plans={'all_hidden':model.sample(noise,g,sampling_steps=sampling_steps)}
-        known=v.clone();known[:,0]=False
-        plans['ego_hidden']=model.sample_conditional(noise,g,y,known,sampling_steps)
-        # Every scene with at least one labeled neighbor supplies a useful diagnostic task.
-        selected=[];neighbor_known=v.clone();neighbor_valid=torch.zeros_like(v)
-        for i in range(len(scenes)):
-            eligible=torch.where(v[i,1:,:,:2].any((-1,-2)))[0]+1
-            slot=int(eligible[0]) if len(eligible) else -1;selected.append(slot)
-            if slot>=0:neighbor_known[i,slot]=False;neighbor_valid[i,slot]=v[i,slot]
-        plans['neighbor_hidden']=model.sample_conditional(noise,g,y,neighbor_known,sampling_steps)
-        for i,s in enumerate(scenes):
-            row={'token':s.token,'log':s.log,'status':'ok','selected_neighbors':int(g.active_actor_mask[i,1:].sum()),
-                 'neighbors_with_labels':int(v[i,1:,:,:2].any((-1,-2)).sum()),'conditional_neighbor_available':selected[i]>=0,
-                 'scope':'structured_current_GT_state_mechanism_not_camera_PDMS'}
-            for name,p in plans.items():
-                selected_valid=v[i:i+1].clone()
-                if name=='ego_hidden':selected_valid[:,1:]=False
-                elif name=='neighbor_hidden':selected_valid=neighbor_valid[i:i+1]
-                metrics=metric_sums(p[i:i+1],y[i:i+1],selected_valid,g.boxes[i:i+1],g.ego_state[i:i+1,1:3])
-                row.update({name+'_'+k:value for k,value in metrics.items()})
-            result=execution_from_joint(plans['all_hidden'][i:i+1])
-            row['joint_ego_execution_max_error_m']=float((result['executed_ego_xyyaw'][...,:2]-plans['all_hidden'][i:i+1,0,:,:2]).abs().max())
-            # Same sample, same timestamps. Radius-distance proxy, not oriented-box collision.
-            positions=plans['all_hidden'][i,:,:,:2];distance=(positions[0,None]-positions[1:]).norm(dim=-1)
-            active=g.active_actor_mask[i,1:]
-            row['same_sample_min_ego_neighbor_distance_m']=float(distance[active].min()) if active.any() else None
-            rows.append(row)
-    model.train(prior);return rows
-
-
-def summarize(rows):
-    result={'scenes':len(rows),'failed':sum(r['status']!='ok' for r in rows),'scope':'structured_current_GT_state_mechanism_not_camera_PDMS'}
-    for task in ('all_hidden','ego_hidden','neighbor_hidden'):
-        for actor in ('ego','neighbor'):
-            for group in ('all','dynamic','static'):
-                k=f'{task}_{actor}_{group}';count=sum(r[k+'_points'] for r in rows);terminal=sum(r[k+'_fde_count'] for r in rows)
-                result[k+'_ADE_m']=sum(r[k+'_error_sum'] for r in rows)/count if count else None
-                result[k+'_stationary_ADE_m']=sum(r[k+'_stationary_sum'] for r in rows)/count if count else None
-                result[k+'_valid_points']=count;result[k+'_FDE_m']=sum(r[k+'_fde_sum'] for r in rows)/terminal if terminal else None
-        count=sum(r[task+'_ego_cv_points'] for r in rows)
-        result[task+'_ego_CV_ADE_m']=sum(r[task+'_ego_cv_error_sum'] for r in rows)/count if count else None
-    result['neighbor_CV']='NOT_AVAILABLE: no current neighbor velocity in verified target cache'
-    result['selected_neighbors']=sum(r['selected_neighbors'] for r in rows);result['neighbors_with_labels']=sum(r['neighbors_with_labels'] for r in rows)
-    result['conditional_neighbor_scenes']=sum(r['conditional_neighbor_available'] for r in rows)
-    result['execution_max_difference_m']=max(r['joint_ego_execution_max_error_m'] for r in rows)
+def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,device='cuda',output=None):
+    # All identities/queries fixed before any model forward. This is not future-based graph selection.
+    manifest=build_queries(corpus) if query_manifest is None else validate_queries(corpus,query_manifest)
+    if output is not None:
+        output=Path(output);output.mkdir(parents=True,exist_ok=True)
+        frozen=output/'queries.json'
+        if frozen.exists() and json.loads(frozen.read_text())!=manifest:raise ValueError('Refuse overwriting different queries')
+        if not frozen.exists():frozen.write_text(json.dumps(manifest,indent=2)+'\n')
+    prior=model.training;model.eval();scene_rows=[];query_rows=[]
+    try:
+        for i in range(len(corpus)):
+            s=corpus[i];g,y,v=batch_scenes([s],device);noise=evaluation_noise([s],seed,device)
+            queries=[q for q in manifest['queries'] if q['scene_index']==i]
+            scene_row={'token':s.token,'log':s.log,'status':'ok','scope':'all-hidden structured GT current state; not camera planning',
+                'source_current_objects':s.metadata.get('source_current_objects'),'selected_neighbors':int(g.active_actor_mask[:,1:].sum()),'queries':len(queries)}
+            all_hidden=None
+            try:
+                all_hidden=model.sample(noise,g,sampling_steps=sampling_steps)
+                if not torch.isfinite(all_hidden).all():raise ValueError('Nonfinite all-hidden joint sample')
+                execution=execution_from_joint(all_hidden)
+                scene_row['execution_ego_xy_difference_m']=float((execution['executed_ego_xyyaw'][...,:2]-all_hidden[:,0,:,:2]).abs().max())
+                distance=(all_hidden[0,1:,:,:2]-all_hidden[0,0,None,:,:2]).norm(dim=-1)
+                active=g.active_actor_mask[0,1:]
+                scene_row['same_joint_sample_min_distance_m']=float(distance[active].min()) if active.any() else None
+            except (ValueError,RuntimeError) as exc:
+                scene_row.update(status='failed',error=str(exc));all_hidden=None
+            scene_rows.append(scene_row)
+            for query in queries:
+                row=dict(query);row['status']='ok';slot=query['slot']
+                try:
+                    if all_hidden is None:raise ValueError('Scene all-hidden generation failed')
+                    known=v.clone();known[:,slot]=False
+                    conditional=model.sample_conditional(noise,g,known=y,known_mask=known,sampling_steps=sampling_steps)
+                    if not torch.isfinite(conditional).all():raise ValueError('Nonfinite conditional joint sample')
+                    kwargs={'current_box':g.boxes[0,slot],'ego_velocity':g.ego_state[0,1:3] if slot==0 else None}
+                    first=target_metrics(all_hidden[0,slot],y[0,slot],v[0,slot],**kwargs)
+                    second=target_metrics(conditional[0,slot],y[0,slot],v[0,slot],**kwargs)
+                    if first['valid_xy_points']!=query['valid_xy_points'] or second['valid_xy_points']!=first['valid_xy_points']:raise ValueError('Paired target denominator differs')
+                    for prefix,metrics in [('all_hidden',first),('conditional',second)]:row.update({prefix+'_'+k:value for k,value in metrics.items()})
+                    row['dynamic']=first['dynamic'];row['conditional_minus_all_hidden_ADE_m']=second['xy_ADE_m']-first['xy_ADE_m']
+                except (ValueError,RuntimeError) as exc:row.update(status='failed',error=str(exc))
+                query_rows.append(row)
+    finally:model.train(prior)
+    result={'scene_rows':scene_rows,'query_rows':query_rows,'query_manifest':manifest,'summary':summarize(scene_rows,query_rows,manifest)}
+    if output is not None:
+        import csv
+        for name,rows in [('all_hidden_scenes',scene_rows),('conditional_queries',query_rows)]:
+            with (output/(name+'.csv')).open('w',newline='') as stream:
+                writer=csv.DictWriter(stream,fieldnames=sorted(set().union(*(r.keys() for r in rows))),lineterminator='\n');writer.writeheader();writer.writerows(rows)
+        (output/'summary.json').write_text(json.dumps(result['summary'],indent=2,allow_nan=False)+'\n')
     return result

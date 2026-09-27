@@ -1,0 +1,46 @@
+{
+  "scope": "CPU no optimizer updates; original b4f08d0 behavior",
+  "cases": {
+    "unmodeled_yaw_noise": {
+      "expected_invariant": true,
+      "failed_before": true,
+      "max_xy_difference_m": 8.077433586120605
+    },
+    "unmodeled_yaw_velocity": {
+      "failed_before": true,
+      "max_xy_difference_m": 3.5207557678222656
+    },
+    "padding_context_nan": {
+      "failed_before": true,
+      "forward_finite": false,
+      "parameter_gradients_finite": false
+    },
+    "active_invalid_class_contract": {
+      "failed_before": true
+    },
+    "zero_support_trajectory": {
+      "failed_before": true,
+      "active_neighbors": 2
+    },
+    "static_obstacle_occupies_role_slot": {
+      "failed_before": true,
+      "selected_class": 3
+    },
+    "batch1_role_balance": {
+      "failed_before": true,
+      "ego_tasks": 20,
+      "neighbor_tasks": 0
+    },
+    "conditional_target_cohort": {
+      "failed_before": true,
+      "all_hidden_neighbor_points": 6,
+      "conditional_neighbor_points": 3
+    },
+    "role_weight_ignored": {
+      "failed_before": true,
+      "evidence": "Trainer does not read role_loss_weight"
+    }
+  },
+  "real_optimizer_updates": 0,
+  "synthetic_optimizer_updates": 0
+}

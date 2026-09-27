@@ -1,23 +1,13 @@
-# Joint local scene V3 — WAITING_FOR_USER_REVIEW
+# V3 pretraining correction — IN_PROGRESS
 
-Latest user instruction: push the algorithm implementation BEFORE training so the user can inspect it. No V3 training may start before the user's feedback. Do not treat an automatic goal continuation as approval to train.
+User-authorized bounded correction from b4f08d05c0202fb483bc3247cab97abe59694d16. New branch fix/joint-local-scene-v3-pretrain-review-20260927; worktree /mnt/project/VLA-Drive-v3-pretrain-review-20260927.
 
-Branch: feature/joint-local-scene-v3-20260927, based on f662266c379c5d163b88f2fc733274ad871dfec1.
-Worktree: /mnt/project/VLA-Drive-joint-local-scene-v3-20260927.
-Objective: reports/joint_local_scene_v3/OBJECTIVE.md.
-Review entry: reports/joint_local_scene_v3/IMPLEMENTATION_REVIEW.md.
-Artifact root: /mnt/project/joint-local-scene-v3-artifacts/20260927.
+Only CPU tests, necessary GPU forward/backward, <=20 total synthetic optimizer updates and real-data no-update checks/rebuilds. Real optimizer updates MUST remain0. No ALL/MASK effect experiment, no full VLA training, no Navtest, no old V2 restart. End after correction push/review delivery.
 
-Old V2 step1887 checkpoints and controllers remain paused/sealed. No LocalPlanningBridge continuation. Original occupancy remains local4–7 and vla-zt2 0–7; no V3 GPU resources allocated. Unrelated simscale processes untouched.
+Artifact root /mnt/project/v3-pretrain-review-artifacts/20260927. New review ledger caps2GPUh, synthetic20, real0. Existing V3 ledger and annotated_v1 are unchanged. Old V2step1887 sealed.
 
-Implemented: separate current graph / future-label scene contracts; current-only annotated and inference graph builders; a single JointSceneFlow with actor/time/context attention; direct slot0 execution; label-aware balanced role-mask construction; two-forward ALL/MASK training and structured holdout evaluation commands. This is an untrained first-stage implementation, not completed visual deployment.
+Implemented schema4 modeled_state_mask (ego xy+yaw, neighbors xy), safe padding/context before projections, strict active-input validation; decision_local/nearest builders, verified classes0/1/2 trajectory vs3–6context, FOV-only eligibility, navigated corridor and dedup/context overflow audits; cross-call RoleScheduler; fixed same-target query evaluation; strict config/trainer resume and independent budget.
 
-CPU checks:9 targeted tests passed (2.37s); real7284train+64holdout annotated scene files built,0fail. Train selected81494neighbors,80071with future labels,6889scenes with valid neighbor tasks. Holdout792neighbors/782with future,63/64scenes with valid neighbor tasks. Source cache is already ROI/FOV-filtered; raw_current_objects in the summaries denotes objects present in that source cache, not all raw-log objects. Dataset fingerprints and parameter count in PRETRAIN_IMPLEMENTATION_STATE.json.
+Original9 counterexamples reproduced on b4f08d0 with0updates; reports/joint_local_scene_v3/pretrain_review/BEFORE.json.49CPU tests passed, no optimizer in unit suite. Eight real data samples verified source/track/future alignment before full new train7284/holdout64 schema4 rebuild; both complete0fail. Current-only source is prior ROI/FOV-filtered, missing raw population explicit.
 
-Training ledger: new independent48GPUh proposal, used0, optimizer_steps0, runs[]. No model fitting or learned-model scores. Remaining: GPU learning/resume checks, matched mechanism runs, related/weak diagnoses/figures; live visual current+motion+joint training; teacher-to-predicted transition and three visual variants; locked Navtest. Do not claim these are implemented or validated.
-
-Next action: finish implementation-review commit, push ONLY this new branch and verify remote SHA, then wait for user review. Do not resume experiments automatically. Read-only status command:
-
-```bash
-cat /mnt/project/joint-local-scene-v3-artifacts/20260927/budget_ledger.json
-```
+Next: stage source commit, CPU and GPU synthetic4vs2+2 checks (16totalupdates if both), necessary GPU padding/state/gradient and4real no-update checks; finish audit report, push only fix branch, verify remoteSHA and stop. No long experiments.

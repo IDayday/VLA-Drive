@@ -5,7 +5,7 @@ import torch
 from starVLA.model.modules.joint_scene.contracts import stack_graphs
 from starVLA.model.modules.joint_scene.graphs import GraphConfig,build_supervision_graph,build_inference_graph
 from starVLA.model.modules.joint_scene.flow import JointSceneFlow,flow_loss_sums,normalized_loss
-from starVLA.model.modules.joint_scene.masks import role_completion_mask
+from starVLA.model.modules.joint_scene.masks import role_completion_mask,RoleScheduler
 
 
 def graph(neighbors=2):
@@ -37,13 +37,13 @@ def test_future_label_validity_cannot_change_graph_and_low_support_kept():
     assert torch.equal(g.boxes,before.boxes) and torch.equal(g.edge_features,before.edge_features)
     boxes=g.boxes[0,1:];cfg=GraphConfig(max_neighbors=2,primary_neighbors=1,max_context=3)
     low=build_supervision_graph(boxes,g.classes[0,1:],torch.ones(2,dtype=torch.bool),torch.zeros(2),g.ego_state[0],cfg)
-    assert low.active_actor_mask.sum()==3 and low.context_mask.sum()==2
+    assert low.active_actor_mask.sum()==1 and low.context_mask.sum()==2
 
 
 def test_balanced_valid_role_targets_and_ego_only_fallback():
     g=stack_graphs([graph(),graph(),graph(0),graph()]);_,v=labels(graph());v=v.repeat(4,1,1,1)&g.active_actor_mask[:,:,None,None]
     v[0,1,:2]=False # partial trajectories remain eligible
-    hidden,stats=role_completion_mask(v,g.active_actor_mask,torch.Generator().manual_seed(1),torch.tensor([True,False,True,False]))
+    hidden,stats=role_completion_mask(v,g.active_actor_mask,RoleScheduler(1),torch.tensor([True,False,True,False]))
     assert stats['chosen_actor'][0]>0 and stats['ego_only_fallback'].tolist()==[False,False,True,False]
     assert hidden.sum()==4 and (stats['valid_hidden_coordinates']>0).all()
 
@@ -94,13 +94,9 @@ def test_inference_graph_has_no_assignment_acceptance_gate():
     assert result.origin=='predicted_inference' and result.active_actor_mask.sum()==3
 
 
-def test_save_load_exact_joint_sample_and_optimizer_state():
-    m=model();g=graph();y,v=labels(g);optimizer=torch.optim.AdamW(m.parameters(),lr=1e-3)
-    noise=torch.randn_like(y)
-    loss=normalized_loss(*flow_loss_sums(m,y,v,g.active_actor_mask,noise,torch.tensor([.4]),g));loss.backward();optimizer.step()
+def test_save_load_exact_joint_sample():
+    m=model();g=graph();y,v=labels(g);noise=torch.randn_like(y)
     expected=m.sample(noise,g,sampling_steps=2)
-    file=io.BytesIO();torch.save({'model':m.state_dict(),'optimizer':optimizer.state_dict()},file);file.seek(0)
-    state=torch.load(file,weights_only=True);restored=model();restored.load_state_dict(state['model'],strict=True)
-    opt=torch.optim.AdamW(restored.parameters(),lr=1e-3);opt.load_state_dict(state['optimizer'])
+    file=io.BytesIO();torch.save({'model':m.state_dict(),'config':m.config},file);file.seek(0)
+    state=torch.load(file,weights_only=True);restored=JointSceneFlow(**state['config']);restored.load_state_dict(state['model'],strict=True)
     assert torch.equal(expected,restored.sample(noise,g,sampling_steps=2))
-    assert len(opt.state)==len(optimizer.state)>0
