@@ -10,6 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from starVLA.model.modules.structured_world.contracts import WorldTargets
 from starVLA.model.modules.structured_world.matching import match_current
+from starVLA.model.modules.structured_world.metrics import match_geometry,prediction_filters
 
 
 def corners(box):
@@ -53,7 +54,7 @@ def categories(target):
 def main():
     p=argparse.ArgumentParser()
     for n in ['predictions','target-cache','sensor-root','output']:p.add_argument('--'+n,required=True)
-    p.add_argument('--limit',type=int,default=64);a=p.parse_args();out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
+    p.add_argument('--limit',type=int,default=64);p.add_argument('--matching',choices=['legacy','geometry'],default='legacy');a=p.parse_args();out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     cache=Path(a.target_cache);records=[]
     paths=sorted(Path(a.predictions).glob('*.npz'));selected=[];covered=set()
     # Diagnostic figure selection only, after inference; never selects formal model inputs.
@@ -66,7 +67,11 @@ def main():
     for path in selected:
         token=path.stem;arrays=dict(np.load(path));pred={k:torch.from_numpy(arrays[k]) for k in ['logits','boxes','future_xy']}
         target=WorldTargets(**torch.load(cache/'targets'/f'{token}.pt',weights_only=True));obs=dict(np.load(cache/'observations'/f'{token}.npz'))
-        rows,cols=match_current(pred,target);boxes=target.current_boxes.numpy()
+        if a.matching=='legacy':rows,cols=match_current(pred,target)
+        else:
+            _,support,obj=prediction_filters(pred,target);ids=torch.where(support&obj)[0];gt=torch.where(target.current_supervision_mask)[0]
+            r,c=match_geometry(pred['boxes'][ids,:2],target.current_boxes[gt,:2]);rows,cols=ids[r],gt[c]
+        boxes=target.current_boxes.numpy()
         fig=plt.figure(figsize=(18,10));grid=fig.add_gridspec(2,3);axes=[fig.add_subplot(grid[0,i]) for i in range(3)]
         for v,ax in enumerate(axes):
             with Image.open(Path(a.sensor_root)/str(obs['image_paths'][v])) as im:
