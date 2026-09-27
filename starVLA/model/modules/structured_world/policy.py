@@ -8,7 +8,7 @@ from .scene_agent_reader import SceneAgentReader
 from .agent_heads import AgentHeads
 from .action_adapter import WorldToActionAdapter
 from .providers import GeometricBEVProvider, ExternalBEVFeatures
-from .tokens import token_positions, insert_world_tokens
+from .tokens import token_positions, insert_world_tokens, append_world_tokens
 from .losses import world_losses
 
 
@@ -18,6 +18,9 @@ class StructuredWorldPolicy(nn.Module):
         self.baseline = baseline
         self.world_config = dict(config)
         self.world_enabled = bool(config.get('enabled',False))
+        self.token_layout = config.get('token_layout', 'legacy_pre_action')
+        if self.token_layout not in ('legacy_pre_action', 'append_tail'):
+            raise ValueError('Unknown world token layout')
         dim = baseline.qwen_vl_interface.model.get_input_embeddings().embedding_dim
         # Keep common modules and the post-initialization RNG stream identical
         # across image/BEV variants. Only the differently shaped input projection
@@ -113,7 +116,8 @@ class StructuredWorldPolicy(nn.Module):
                     padded[b,:n] = image[offset:offset+n];support[b,:n] = True;offset += n
                 memory = self.reader(padded,support=support)
             world = torch.cat([memory.scene_memory,memory.agent_memory],1)
-            ids,embeds,mask,rope,world_positions,action_positions = insert_world_tokens(
+            inject = append_world_tokens if self.token_layout == 'append_tail' else insert_world_tokens
+            ids,embeds,mask,rope,world_positions,action_positions = inject(
                 ids,embeds,mask,rope,action_positions,world,int(tok.pad_token_id))
             image_mask = ids == model.config.image_token_id
         # Transformers' direct-language output capture replaces its final captured state

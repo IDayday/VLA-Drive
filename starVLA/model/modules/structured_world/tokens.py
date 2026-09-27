@@ -36,3 +36,33 @@ def insert_world_tokens(ids, embeddings, mask, positions, action_positions, worl
         new_positions.append(torch.cat([positions[:,i,:at],pos,suffix],-1))
         world_positions.append(torch.arange(at,at+n,device=ids.device))
     return torch.stack(new_ids),torch.stack(new_embeddings),torch.stack(new_masks),torch.stack(new_positions,1),torch.stack(world_positions),action_positions+n
+
+
+def append_world_tokens(ids, embeddings, mask, positions, action_positions, world, placeholder_id):
+    """Append after the entire native sequence, including its padding.
+
+    Native IDs, embeddings, attention mask, mRoPE and action indices are exactly
+    preserved. World tokens get ordinary monotonically increasing text positions
+    after the largest active native mRoPE coordinate, never native image IDs.
+    """
+    b, length, dim = embeddings.shape
+    if ids.shape != (b,length) or mask.shape != ids.shape or positions.shape != (3,b,length):
+        raise ValueError('Native sequence shapes disagree')
+    if world.ndim != 3 or world.shape[0] != b or world.shape[2] != dim or world.shape[1] == 0:
+        raise ValueError('Invalid world embeddings')
+    if action_positions.ndim != 2 or action_positions.shape[0] != b or action_positions.shape[1] == 0:
+        raise ValueError('Invalid action indices')
+    if ((action_positions < 0) | (action_positions >= length)).any() or (action_positions[:,1:] <= action_positions[:,:-1]).any():
+        raise ValueError('Action indices must be unique, ordered, and native')
+    if not mask.gather(1,action_positions).bool().all() or not mask.bool().any(-1).all():
+        raise ValueError('Action in padding or empty prefix')
+    n = world.shape[1]
+    last = positions.masked_fill(~mask.bool()[None], -1).amax(dim=(0,2))
+    new_rope = last[None,:,None] + 1 + torch.arange(n,device=ids.device)[None,None]
+    new_rope = new_rope.expand(3,-1,-1).to(positions.dtype)
+    return (torch.cat([ids,ids.new_full((b,n),placeholder_id)],1),
+            torch.cat([embeddings,world.to(embeddings.dtype)],1),
+            torch.cat([mask,mask.new_ones((b,n))],1),
+            torch.cat([positions,new_rope],-1),
+            torch.arange(length,length+n,device=ids.device)[None].expand(b,-1),
+            action_positions.clone())
