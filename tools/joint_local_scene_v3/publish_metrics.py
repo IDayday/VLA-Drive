@@ -25,16 +25,23 @@ def main():
             if status['step']!=a.endpoint_updates or status['status'] not in ('paused','complete') or status['presentations']!=7284*(a.endpoint_updates//228):raise ValueError('Not at the common complete-epoch endpoint')
             table=run/f'holdout_{a.endpoint_updates}/conditional_queries.csv';summary=json.loads((table.parent/'summary.json').read_text())
             if not summary['aggregate_valid']:raise ValueError('Cannot publish failed evaluation as complete')
+            model_rows=read_queries(table)
+            query_ids={r['query_id'] for r in model_rows}
+            if len(model_rows)!=summary['expected_queries'] or len(query_ids)!=len(model_rows):raise ValueError('Missing or duplicate endpoint queries')
             identities[name]={'checkpoint':summary['evaluation_identity'],'query_identity':summary['query_manifest_sha256'],'status':status,'local_csv_sha256':hashlib.sha256(table.read_bytes()).hexdigest()}
-            for r in read_queries(table):
+            for r in model_rows:
                 row={k:v for k,v in r.items() if k not in ('token','log','query_id','valid_timesteps','scene_index','source_index','current_distance_m','graph_origin','scope')}
                 row.update(seed=seed,variant='J_'+mode.upper(),step=a.endpoint_updates,scene_id=pseudonym('scene',r['token']),log_id=pseudonym('log',r['log']),query_id=pseudonym('query',r['query_id']),current_distance_bin='0_10' if r['current_distance_m']<=10 else '10_20' if r['current_distance_m']<=20 else '20_50')
                 queries.append(row)
             diagnostic=root/f'diag{seed}_{mode}'
+            if not diagnostic.exists():raise FileNotFoundError('Required endpoint diagnostics missing: '+str(diagnostic))
             if diagnostic.exists():
                 ds=json.loads((diagnostic/'summary.json').read_text())
                 if not ds['complete'] or ds['failed']:raise ValueError('Incomplete diagnostic export')
-                for r in read_queries(diagnostic/'condition_queries.csv'):
+                if ds['identity']['checkpoint_sha256']!=summary['evaluation_identity']['checkpoint_sha256']:raise ValueError('Diagnostic checkpoint differs from endpoint evaluation')
+                diagnostic_rows=read_queries(diagnostic/'condition_queries.csv')
+                if len(diagnostic_rows)!=len(query_ids) or {r['query_id'] for r in diagnostic_rows}!=query_ids:raise ValueError('Diagnostic query denominator mismatch')
+                for r in diagnostic_rows:
                     row={k:v for k,v in r.items() if k not in ('token','log','query_id','valid_timesteps','scene_index','source_index','current_distance_m','strong_distance_m','weak_distance_m','graph_origin','scope')}
                     row.update(seed=seed,variant='J_'+mode.upper(),scene_id=pseudonym('scene',r['token']),log_id=pseudonym('log',r['log']),query_id=pseudonym('query',r['query_id']));dependencies.append(row)
                 if (diagnostic/'analysis.json').exists():shutil.copyfile(diagnostic/'analysis.json',out/(f'diag{seed}_{mode}_summary.json'))
