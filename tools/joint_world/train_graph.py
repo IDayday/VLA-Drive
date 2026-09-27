@@ -118,21 +118,41 @@ def main():
     for key in ['cache', 'targets', 'data-root', 'config', 'output', 'ledger', 'run-id']: p.add_argument('--'+key, required=True)
     p.add_argument('--steps', type=int, default=1000); p.add_argument('--batch', type=int, default=8)
     p.add_argument('--all-hidden-probability', type=float, default=.5); p.add_argument('--seed', type=int, default=42)
+    p.add_argument('--resume'); p.add_argument('--stop-after', type=int)
     a = p.parse_args()
     if not 1 <= a.steps <= 1000: raise ValueError('Isolation phase at most1000 updates')
-    out = Path(a.output); out.mkdir(parents=True, exist_ok=False); cfg = json.loads(Path(a.config).read_text())
+    out = Path(a.output); out.mkdir(parents=True, exist_ok=bool(a.resume)); cfg = json.loads(Path(a.config).read_text())
     seed_all(a.seed); samples, manifest, target_hash = load_samples(a.cache, a.targets, a.data_root, 8)
     if len(samples) > 64: raise ValueError('This in-memory isolation entry is capped at64 scenes')
     identity = {'arguments': vars(a), 'code_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                 'cache_identity': manifest['identity_sha256'], 'labels_fingerprint': target_hash, 'config': cfg,
                 'base_world_seen_training64': True, 'pdms_training': False}
-    start(a.ledger, a.run_id, a.steps, identity); step = 0
+    saved = torch.load(a.resume, map_location='cpu', weights_only=False) if a.resume else None
+    if saved is not None:
+        for key in ['code_sha', 'cache_identity', 'labels_fingerprint', 'config']:
+            if saved['identity'][key] != identity[key]: raise ValueError('Resume identity changed: ' + key)
+        for key in ['steps', 'batch', 'all_hidden_probability', 'seed', 'output', 'run_id']:
+            if saved['identity']['arguments'][key] != vars(a)[key]: raise ValueError('Resume setting changed: ' + key)
+        ledger = json.loads(Path(a.ledger).read_text())
+        previous = next(r for r in ledger['runs'] if r['id'] == a.run_id)
+        if previous['optimizer_steps'] != saved['step'] or previous['status'] == 'running':
+            raise ValueError('Resume requires terminal, exactly accounted checkpoint')
+        if saved['step'] >= a.steps: raise ValueError('Phase already completed')
+    start(a.ledger, a.run_id, a.steps, identity, resume=bool(a.resume)); step = 0
+    completed = 0
     try:
-        model = JointTrajectoryFlow(samples[0]['cache']['context'].shape[-1], **{k: v for k, v in cfg.items() if k in ['dim','heads','layers','scale_m']}).cuda()
+        model = JointTrajectoryFlow(samples[0]['cache']['context'].shape[-1], **{k: v for k, v in cfg.items() if k in ['dim','heads','layers','scale_m','trajectory_mode','agent_scale_m']}).cuda()
         opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=.01)
         order = list(range(len(samples))); random.shuffle(order); position = 0; seen = set(); presentations = 0
-        evaluate(model, samples, out, 0)
-        for step in range(1, a.steps+1):
+        if saved is None:
+            evaluate(model, samples, out, 0)
+        else:
+            model.load_state_dict(saved['model'], strict=True); opt.load_state_dict(saved['optimizer'])
+            step = completed = saved['step']; order = saved['order']; position = saved['position']
+            seen = set(saved['seen']); presentations = saved['presentations']
+            random.setstate(saved['rng']['python']); np.random.set_state(saved['rng']['numpy'])
+            torch.set_rng_state(saved['rng']['torch']); torch.cuda.set_rng_state_all(saved['rng']['cuda'])
+        for step in range(step+1, a.steps+1):
             if not record(a.ledger, a.run_id, step-1): raise RuntimeError('Budget reached')
             batch = []
             for _ in range(a.batch):
@@ -144,23 +164,22 @@ def main():
             sums, counts = training_loss_sums(model, xy, valid, hidden, torch.randn_like(xy), torch.rand(len(batch), device='cuda'), **current)
             loss = sum(sums[k] / max(counts[k], 1) for k in sums)
             if not torch.isfinite(loss): raise FloatingPointError('Nonfinite graph loss')
-            loss.backward(); norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)); opt.step()
+            loss.backward(); norm = float(torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)); opt.step(); completed = step
             presentations += len(batch); seen.update(s['cache']['token'] for s in batch)
             row = {'step':step,'loss':float(loss.detach()),'gradient_before_clip':norm, 'unique_scenes_seen':len(seen),
                    'sample_presentations':presentations,'effective_epochs':presentations/len(samples),'global_batch':a.batch}
             with (out/'train.jsonl').open('a') as f: f.write(json.dumps(row)+'\n')
             record(a.ledger, a.run_id, step)
             if step % 50 == 0: print(json.dumps(row), flush=True)
-            if step in {500, a.steps}:
+            if step in {500, a.steps, a.stop_after}:
                 evaluate(model, samples, out, step)
                 torch.save({'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'identity':identity,
                             'order':order,'position':position,'presentations':presentations,'seen':sorted(seen),
                             'rng':{'python':random.getstate(),'numpy':np.random.get_state(),'torch':torch.get_rng_state(),'cuda':torch.cuda.get_rng_state_all()}},out/f'checkpoint_{step}.pt')
-        (out/'manifest.json').write_text(json.dumps(identity,indent=2)); record(a.ledger,a.run_id,step,'complete')
+            if a.stop_after and step >= a.stop_after: break
+        (out/'manifest.json').write_text(json.dumps(identity,indent=2)); record(a.ledger,a.run_id,completed,'complete' if completed == a.steps else 'paused')
     except BaseException:
-        # Account only committed optimizer updates as recorded by the live ledger.
-        d=json.loads(Path(a.ledger).read_text());actual=next(r for r in d['runs'] if r['id']==a.run_id)['optimizer_steps']
-        record(a.ledger,a.run_id,actual,'failed');raise
+        record(a.ledger,a.run_id,completed,'failed');raise
 
 
 if __name__ == '__main__': main()

@@ -47,11 +47,18 @@ class GraphBlock(nn.Module):
 
 class JointTrajectoryFlow(nn.Module):
     """XY in ego(t0), internally divided by scale_m; slot0 is ego, remaining exchangeable."""
-    def __init__(self, condition_dim, dim=256, heads=8, layers=3, steps=8, scale_m=20.):
+    def __init__(self, condition_dim, dim=256, heads=8, layers=3, steps=8, scale_m=20.,
+                 trajectory_mode='absolute', agent_scale_m=None):
         super().__init__()
         if dim % heads or scale_m <= 0 or steps < 1:
             raise ValueError('Invalid graph dimensions')
         self.steps, self.scale_m = steps, scale_m
+        if trajectory_mode not in ('absolute', 'current_residual'):
+            raise ValueError('Unknown trajectory coordinates')
+        self.trajectory_mode = trajectory_mode
+        self.agent_scale_m = scale_m if agent_scale_m is None else agent_scale_m
+        if self.agent_scale_m <= 0:
+            raise ValueError('Agent scale must be positive')
         self.state = nn.Linear(2, dim)
         self.known = nn.Linear(3, dim)  # masked-clean XY and known indicator
         self.current = nn.Linear(3, dim)  # predicted centre and existence, never GT
@@ -62,6 +69,23 @@ class JointTrajectoryFlow(nn.Module):
         self.horizon_project = nn.Linear(1, dim)
         self.blocks = nn.ModuleList([GraphBlock(dim, heads) for _ in range(layers)])
         self.velocity = nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, 2))
+
+    def _trajectory_coordinates(self, current_xy):
+        # Predicted centres, never target centres; detached to isolate motion gradients.
+        anchor = current_xy.detach()[:, :, None]
+        if self.trajectory_mode == 'absolute':
+            anchor = torch.zeros_like(anchor)
+        scale = current_xy.new_full((1, current_xy.shape[1], 1, 1), self.agent_scale_m)
+        scale[:, 0] = self.scale_m
+        return anchor, scale
+
+    def encode_trajectories(self, xy_metres, current_xy):
+        anchor, scale = self._trajectory_coordinates(current_xy)
+        return (xy_metres - anchor) / scale
+
+    def decode_trajectories(self, normalized, current_xy):
+        anchor, scale = self._trajectory_coordinates(current_xy)
+        return normalized * scale + anchor
 
     def forward(self, noisy, time, actor_features, context, current_xy, existence,
                 known_xy=None, known_mask=None):
@@ -79,7 +103,9 @@ class JointTrajectoryFlow(nn.Module):
             raise ValueError('Known trajectory shape mismatch')
         # Values outside visible context cannot influence anything (even NaNs).
         visible = torch.where(known_mask[..., None], known_xy, torch.zeros_like(known_xy))
-        clean = torch.cat([visible / self.scale_m, known_mask[..., None].to(noisy.dtype)], -1)
+        encoded = self.encode_trajectories(visible, current_xy)
+        encoded = torch.where(known_mask[..., None], encoded, torch.zeros_like(encoded))
+        clean = torch.cat([encoded, known_mask[..., None].to(noisy.dtype)], -1)
         roles = torch.ones(a, device=noisy.device, dtype=torch.long)
         roles[0] = 0
         current = torch.cat([current_xy / self.scale_m, existence[..., None]], -1)
@@ -103,7 +129,7 @@ class JointTrajectoryFlow(nn.Module):
             x = x + velocity / sampling_steps
         # Recompute representation at the sampled endpoint for train/inference agreement.
         _, features = self(x, x.new_ones(x.shape[0]), actor_features, context, current_xy, existence)
-        return x * self.scale_m, features
+        return self.decode_trajectories(x, current_xy), features
 
 
 def training_loss_sums(model, target_xy, valid, hidden, noise, time,
@@ -111,7 +137,7 @@ def training_loss_sums(model, target_xy, valid, hidden, noise, time,
     """Conditional imputation supervision; returned features must NOT condition a planner."""
     if hidden.shape != valid.shape[:2] or noise.shape != target_xy.shape:
         raise ValueError('Training masks/noise shape mismatch')
-    clean = torch.where(valid[..., None], target_xy / model.scale_m, noise)
+    clean = torch.where(valid[..., None], model.encode_trajectories(target_xy, current_xy), noise)
     mixed = (1 - time[:, None, None, None]) * noise + time[:, None, None, None] * clean
     visible = ~hidden[..., None] & valid
     mixed = torch.where(visible[..., None], clean, mixed)

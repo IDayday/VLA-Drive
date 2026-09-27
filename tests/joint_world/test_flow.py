@@ -56,3 +56,28 @@ def test_joint_sample_and_save_restore():
     torch.testing.assert_close(y, z, rtol=0, atol=0)
     torch.testing.assert_close(h, g, rtol=0, atol=0)
     assert y.shape == x.shape and torch.isfinite(y).all()
+
+
+def test_residual_roundtrip_stationary_and_no_centre_gradient():
+    model = JointTrajectoryFlow(12, dim=16, heads=4, layers=1, steps=3,
+                                trajectory_mode='current_residual', agent_scale_m=5.)
+    centres = torch.tensor([[[0., 0.], [24., 7.]]], requires_grad=True)
+    zero = torch.zeros(1, 2, 3, 2, requires_grad=True)
+    static = model.decode_trajectories(zero, centres)
+    torch.testing.assert_close(static, centres.detach()[:, :, None].expand_as(static))
+    future = torch.randn_like(static) * 10
+    torch.testing.assert_close(model.decode_trajectories(model.encode_trajectories(future, centres), centres), future)
+    static.sum().backward()
+    assert centres.grad is None
+    torch.testing.assert_close(zero.grad[:, 0], torch.full_like(zero.grad[:, 0], 20.))
+    torch.testing.assert_close(zero.grad[:, 1], torch.full_like(zero.grad[:, 1], 5.))
+
+
+def test_residual_unknown_future_values_do_not_enter_context():
+    model = JointTrajectoryFlow(12, dim=16, heads=4, layers=1, steps=3,
+                                trajectory_mode='current_residual', agent_scale_m=5.)
+    _, x, current = setup()
+    mask = torch.zeros(2, 4, 3, dtype=torch.bool)
+    a = model(x, torch.ones(2), **current, known_xy=torch.randn_like(x), known_mask=mask)[0]
+    b = model(x, torch.ones(2), **current, known_xy=torch.full_like(x, float('nan')), known_mask=mask)[0]
+    torch.testing.assert_close(a, b, rtol=0, atol=0)

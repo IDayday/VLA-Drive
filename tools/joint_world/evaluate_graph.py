@@ -26,7 +26,7 @@ def main():
               'cache_identity':manifest['identity_sha256'],'labels_fingerprint':fingerprint,'checkpoint_step':saved['step']}
     start(a.ledger,a.run_id,0,identity)
     try:
-        model=JointTrajectoryFlow(samples[0]['cache']['context'].shape[-1],**{k:v for k,v in cfg.items() if k in ['dim','heads','layers','scale_m']}).cuda().eval()
+        model=JointTrajectoryFlow(samples[0]['cache']['context'].shape[-1],**{k:v for k,v in cfg.items() if k in ['dim','heads','layers','scale_m','trajectory_mode','agent_scale_m']}).cuda().eval()
         model.load_state_dict(saved['model'],strict=True)
         evaluate(model,samples,out,saved['step'])
         (out/'manifest.json').write_text(json.dumps(identity,indent=2));record(a.ledger,a.run_id,0,'complete')

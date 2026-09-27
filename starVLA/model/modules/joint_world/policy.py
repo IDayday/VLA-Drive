@@ -17,7 +17,7 @@ class JointTrajectoryPolicy(nn.Module):
         dim = baseline.qwen_vl_interface.model.get_input_embeddings().embedding_dim
         horizon = baseline.config.framework.action_model.action_horizon
         self.graph = JointTrajectoryFlow(dim, steps=horizon, **{
-            key: value for key, value in graph_config.items() if key in ('dim', 'heads', 'layers', 'scale_m')})
+            key: value for key, value in graph_config.items() if key in ('dim', 'heads', 'layers', 'scale_m', 'trajectory_mode', 'agent_scale_m')})
         self.graph_to_world = nn.Linear(graph_config.get('dim', 256), dim)
         self.adapter = WorldToActionAdapter(dim)
 
