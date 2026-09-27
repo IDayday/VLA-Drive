@@ -1,0 +1,476 @@
+{
+  "run_id": "masked-trajectory-world-20260927",
+  "optimizer_steps": 4598,
+  "gpu_hours": 1.794171163174841,
+  "step_cap": 24000,
+  "gpu_hour_cap": 48,
+  "repair_rounds": [],
+  "runs": [
+    {
+      "id": "sealed_prior_v1p1",
+      "status": "complete",
+      "optimizer_steps": 2596,
+      "gpu_hours": 1.6710099072588815
+    },
+    {
+      "id": "real_pipeline_v1",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.012483238577842712,
+      "status": "failed",
+      "reserved_steps": 2,
+      "metadata": {
+        "code_sha": "1e1f560498abf8e921f4887e1099e75a11de09c4",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph.json",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "output": "/mnt/project/joint-world-artifacts/20260927/real_pipeline_v1",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "real_pipeline_v1"
+        },
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5
+        },
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        }
+      },
+      "heartbeat": 1790483409.029733,
+      "pid": 712967
+    },
+    {
+      "id": "real_pipeline_fp32",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.01831317087014516,
+      "status": "failed",
+      "reserved_steps": 2,
+      "metadata": {
+        "code_sha": "86c3a9155ff88dcd6df27a46e6719ddab1eddaf6",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph.json",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "output": "/mnt/project/joint-world-artifacts/20260927/real_pipeline_fp32",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "real_pipeline_fp32"
+        },
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5
+        },
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        }
+      },
+      "heartbeat": 1790483542.5687692,
+      "pid": 714116
+    },
+    {
+      "id": "image_conditions64",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.021415708263715114,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "86c3a9155ff88dcd6df27a46e6719ddab1eddaf6",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph.json",
+          "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/overfit_tokens.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "image_conditions64",
+          "limit": null
+        },
+        "manifest_sha256": "4097bcab8d74fb6c9ddcd25aeda5c30d7bd09ade332ff721358391e07e5e7336",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790483554.0437348,
+      "pid": 714146
+    },
+    {
+      "id": "real_pipeline_parity",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.013059452242321438,
+      "status": "failed",
+      "reserved_steps": 2,
+      "metadata": {
+        "code_sha": "dfe81226c8c03480269fc51e16a4561d36238b06",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph.json",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "output": "/mnt/project/joint-world-artifacts/20260927/real_pipeline_parity",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "real_pipeline_parity"
+        },
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5
+        },
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        }
+      },
+      "heartbeat": 1790483691.4037921,
+      "pid": 715811
+    },
+    {
+      "id": "graph_allmask64",
+      "optimizer_steps": 1000,
+      "gpu_hours": 0.010038042134708838,
+      "status": "complete",
+      "reserved_steps": 1000,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/graph_allmask64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "graph_allmask64",
+          "steps": 1000,
+          "batch": 8,
+          "all_hidden_probability": 1.0,
+          "seed": 42
+        },
+        "code_sha": "dfe81226c8c03480269fc51e16a4561d36238b06",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790483738.9477608,
+      "pid": 716548
+    },
+    {
+      "id": "graph_randommask64",
+      "optimizer_steps": 1000,
+      "gpu_hours": 0.010048182474242315,
+      "status": "complete",
+      "reserved_steps": 1000,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/graph_randommask64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "graph_randommask64",
+          "steps": 1000,
+          "batch": 8,
+          "all_hidden_probability": 0.5,
+          "seed": 42
+        },
+        "code_sha": "dfe81226c8c03480269fc51e16a4561d36238b06",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790483738.987889,
+      "pid": 716540
+    },
+    {
+      "id": "real_pipeline_native_noise",
+      "optimizer_steps": 2,
+      "gpu_hours": 0.015534896585676406,
+      "status": "complete",
+      "reserved_steps": 2,
+      "metadata": {
+        "code_sha": "98966b0826f5c040e1853b04c6f5dd28c4ae8d9e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph.json",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "output": "/mnt/project/joint-world-artifacts/20260927/real_pipeline_native_noise",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "real_pipeline_native_noise"
+        },
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5
+        },
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        }
+      },
+      "heartbeat": 1790483878.7191963,
+      "pid": 717713
+    },
+    {
+      "id": "image_conditions_log_holdout64",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.01820774151219262,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "98966b0826f5c040e1853b04c6f5dd28c4ae8d9e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph.json",
+          "manifest": "/mnt/project/structured-world-v1p1-artifacts/20260927/train_log_holdout64_tokens.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "image_conditions_log_holdout64",
+          "limit": null
+        },
+        "manifest_sha256": "efb255173575a4afa76018cd0fd858024611fd22055cf73d237c7b19353f4891",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790483932.886614,
+      "pid": 718150
+    },
+    {
+      "id": "graph_allmask64_image_conditions64_full_eval",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0010091033246782091,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/graph_allmask64/checkpoint_1000.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/graph_allmask64_image_conditions64_full_eval",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "graph_allmask64_image_conditions64_full_eval"
+        },
+        "checkpoint_sha256": "45dabdd4b6dadc8078899faacc8bbcd47bf65657783abb7c7b33a89ab46ab4fa",
+        "code_sha": "d1a16f1f4a6a62f0901e665a77f25078d5b65c08",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "checkpoint_step": 1000
+      },
+      "heartbeat": 1790483976.0040185,
+      "pid": 719341
+    },
+    {
+      "id": "graph_randommask64_image_conditions64_full_eval",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0010351304213205973,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/graph_randommask64/checkpoint_1000.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/graph_randommask64_image_conditions64_full_eval",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "graph_randommask64_image_conditions64_full_eval"
+        },
+        "checkpoint_sha256": "5e6e8f5267e3f95ccd4cf065e4bef5ba02bc45712720c1b78cb123897daf41f7",
+        "code_sha": "d1a16f1f4a6a62f0901e665a77f25078d5b65c08",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "checkpoint_step": 1000
+      },
+      "heartbeat": 1790483976.1015704,
+      "pid": 719333
+    },
+    {
+      "id": "graph_allmask64_image_conditions_log_holdout64_full_eval",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0009944743580288357,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/graph_allmask64/checkpoint_1000.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/graph_allmask64_image_conditions_log_holdout64_full_eval",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "graph_allmask64_image_conditions_log_holdout64_full_eval"
+        },
+        "checkpoint_sha256": "45dabdd4b6dadc8078899faacc8bbcd47bf65657783abb7c7b33a89ab46ab4fa",
+        "code_sha": "d1a16f1f4a6a62f0901e665a77f25078d5b65c08",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 1000
+      },
+      "heartbeat": 1790483975.9587476,
+      "pid": 719365
+    },
+    {
+      "id": "graph_randommask64_image_conditions_log_holdout64_full_eval",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.001022115151087443,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/graph_randommask64/checkpoint_1000.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/graph_randommask64_image_conditions_log_holdout64_full_eval",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "graph_randommask64_image_conditions_log_holdout64_full_eval"
+        },
+        "checkpoint_sha256": "5e6e8f5267e3f95ccd4cf065e4bef5ba02bc45712720c1b78cb123897daf41f7",
+        "code_sha": "d1a16f1f4a6a62f0901e665a77f25078d5b65c08",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 1000
+      },
+      "heartbeat": 1790483976.0618412,
+      "pid": 719352
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "identity": {
+    "code_sha": "98966b0826f5c040e1853b04c6f5dd28c4ae8d9e",
+    "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+    "arguments": {
+      "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+      "graph_config": "configs/joint_world/image_graph.json",
+      "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+      "output": "/mnt/project/joint-world-artifacts/20260927/real_pipeline_native_noise",
+      "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+      "run_id": "real_pipeline_native_noise"
+    },
+    "graph_config": {
+      "dim": 128,
+      "heads": 4,
+      "layers": 2,
+      "scale_m": 20.0,
+      "sampling_steps": 10,
+      "sampling_seed": 2037,
+      "all_hidden_probability": 0.5
+    },
+    "world_config": {
+      "enabled": true,
+      "provider": "qwen",
+      "token_layout": "append_tail",
+      "head_location": "post_qwen",
+      "reference_heads": true,
+      "agent_tokens": 64,
+      "scene_tokens": 64,
+      "reader_dim": 256,
+      "action_adapter": false,
+      "train_action": false,
+      "vision_trainable": false,
+      "lambda_cls": 1.0,
+      "lambda_box": 1.0,
+      "lambda_motion": 1.0,
+      "lambda_ego": 0.0,
+      "historical_auxiliary_losses": false
+    }
+  },
+  "checks": {
+    "gate0_native_exact": true,
+    "poisoned_action_exact": true,
+    "poisoned_graph_exact": true,
+    "checkpoint_action_exact": true,
+    "checkpoint_joint_exact": true
+  },
+  "gradients": [
+    {
+      "step": 1,
+      "ego_loss": 0.0007244601147249341,
+      "joint_aux_loss": 3.8992648124694824,
+      "gate_ego_gradient": -7.601232937304303e-06,
+      "graph_ego_gradient": 0.0,
+      "gradient_before_clip": 7.601232937304303e-06,
+      "gate": 9.986862278310582e-05,
+      "graph_update_max": 8.940696716308594e-08
+    },
+    {
+      "step": 2,
+      "ego_loss": 0.001184319844469428,
+      "joint_aux_loss": 3.5502243041992188,
+      "gate_ego_gradient": -4.151082976022735e-05,
+      "graph_ego_gradient": 4.770313033475304e-10,
+      "gradient_before_clip": 46.12378692626953,
+      "gate": 0.00017502400442026556,
+      "graph_update_max": 7.450580596923828e-05
+    }
+  ],
+  "token": "2b0deb39ff8355ec",
+  "optimizer_updates": 2,
+  "target_points": 323,
+  "peak_gpu_bytes": 12189556736,
+  "status": "PASS",
+  "limitation": "One real training scene and two update-path checks; not convergence or planning evidence."
+}
