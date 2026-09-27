@@ -1,7 +1,7 @@
 {
   "run_id": "masked-trajectory-world-20260927",
-  "optimizer_steps": 14867,
-  "gpu_hours": 3.6568488609128535,
+  "optimizer_steps": 19150,
+  "gpu_hours": 5.826528960135246,
   "step_cap": 24000,
   "gpu_hour_cap": 48,
   "repair_rounds": [
@@ -1546,8 +1546,8 @@
     {
       "id": "bev_corpus7284_shard0",
       "optimizer_steps": 0,
-      "gpu_hours": 0.11676308393478395,
-      "status": "running",
+      "gpu_hours": 0.406293048328824,
+      "status": "complete",
       "reserved_steps": 0,
       "metadata": {
         "arguments": {
@@ -1563,7 +1563,7 @@
         "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
         "manifest_sha256": "0a3de4b20bbc537ceaa68edd6c191a2eae501d87a2ca4b8e92e5388fd10c925f"
       },
-      "heartbeat": 1790487112.2907376,
+      "heartbeat": 1790488154.5986094,
       "pid": 745016
     },
     {
@@ -1643,8 +1643,8 @@
     {
       "id": "bev_corpus7284_shard1_retry",
       "optimizer_steps": 0,
-      "gpu_hours": 0.046874815887875065,
-      "status": "running",
+      "gpu_hours": 0.4054382134808425,
+      "status": "complete",
       "reserved_steps": 0,
       "metadata": {
         "arguments": {
@@ -1660,7 +1660,7 @@
         "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
         "manifest_sha256": "e438e97de23462241ef3b84a5f2c476944e73962713dc1a9543106036f25834e"
       },
-      "heartbeat": 1790487112.078283,
+      "heartbeat": 1790488402.9065144,
       "pid": 747244
     },
     {
@@ -1715,9 +1715,9 @@
     },
     {
       "id": "planner_randommask7284",
-      "optimizer_steps": 237,
-      "gpu_hours": 0.039196338256200176,
-      "status": "running",
+      "optimizer_steps": 1821,
+      "gpu_hours": 0.2441925054788589,
+      "status": "complete",
       "reserved_steps": 1821,
       "metadata": {
         "arguments": {
@@ -1760,14 +1760,14 @@
         "deterministic_algorithms": true,
         "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
       },
-      "heartbeat": 1790487112.3423452,
+      "heartbeat": 1790487850.3285472,
       "pid": 747279
     },
     {
       "id": "planner_allmask7284",
-      "optimizer_steps": 110,
-      "gpu_hours": 0.025089998510148794,
-      "status": "running",
+      "optimizer_steps": 1821,
+      "gpu_hours": 0.24529389520486222,
+      "status": "complete",
       "reserved_steps": 1821,
       "metadata": {
         "arguments": {
@@ -1810,8 +1810,615 @@
         "deterministic_algorithms": true,
         "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase"
       },
-      "heartbeat": 1790487112.1064188,
+      "heartbeat": 1790487904.840447,
       "pid": 747743
+    },
+    {
+      "id": "planner_reference_parity4",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.006986875202920703,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/parity4",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_reference_parity4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_reference_parity4",
+          "bridge_checkpoint": null,
+          "seed": 20260926,
+          "shard": 0,
+          "shards": 1
+        },
+        "code_sha": "b6e1fa347ce180ccb42d9e4fab19d0ce4ec29645",
+        "cache_identity": "8ac10f70a219a0a17611aa50e2db743555d057bd65c06c6349378cc8221a19c3",
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "bridge_checkpoint_sha256": null,
+        "candidates": 1,
+        "sampling_steps": 10,
+        "scorer": null,
+        "world_targets_opened": false,
+        "latency_scope": "cached current features through joint graph and original DiT; excludes image/Qwen/provider cost"
+      },
+      "heartbeat": 1790487956.4387338,
+      "pid": 755865
+    },
+    {
+      "id": "planner_dev1696_baseline",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.1445698090394336,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_dev1696_baseline",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_dev1696_baseline",
+          "bridge_checkpoint": null,
+          "seed": 20260926,
+          "shard": 0,
+          "shards": 1
+        },
+        "code_sha": "b6e1fa347ce180ccb42d9e4fab19d0ce4ec29645",
+        "cache_identity": "8ac10f70a219a0a17611aa50e2db743555d057bd65c06c6349378cc8221a19c3",
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "bridge_checkpoint_sha256": null,
+        "candidates": 1,
+        "sampling_steps": 10,
+        "scorer": null,
+        "world_targets_opened": false,
+        "latency_scope": "cached current features through joint graph and original DiT; excludes image/Qwen/provider cost"
+      },
+      "heartbeat": 1790488593.6154232,
+      "pid": 757153
+    },
+    {
+      "id": "planner_dev1696_randommask",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.167820717361238,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_dev1696_randommask",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_dev1696_randommask",
+          "bridge_checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_randommask7284/checkpoint_1821.pt",
+          "seed": 20260926,
+          "shard": 0,
+          "shards": 1
+        },
+        "code_sha": "b6e1fa347ce180ccb42d9e4fab19d0ce4ec29645",
+        "cache_identity": "8ac10f70a219a0a17611aa50e2db743555d057bd65c06c6349378cc8221a19c3",
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "bridge_checkpoint_sha256": "0d62eb2aa9092b1c39d72075464520e34e488f5fc40d515e6f6a8f8e41c2b558",
+        "candidates": 1,
+        "sampling_steps": 10,
+        "scorer": null,
+        "world_targets_opened": false,
+        "latency_scope": "cached current features through joint graph and original DiT; excludes image/Qwen/provider cost"
+      },
+      "heartbeat": 1790488678.7390723,
+      "pid": 757180
+    },
+    {
+      "id": "bev_transfer_direct4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.02024483303229014,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_transfer_direct4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_transfer_direct4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null,
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/engineering64_index.json",
+          "bev_tasks": true,
+          "bev_task_weight": 0.1
+        },
+        "code_sha": "b820f4c8099050ca9ca6aafb9596fb5415393c9d",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world,action attention,BEV encoder/fusion; auxiliary heads receive updates only with tasks enabled",
+        "frozen": "Qwen,vision,world Reader/heads,pretrained BEV provider,joint graph parameters,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched BEV semantic/motion task-on/task-off planning transfer with differentiable all-hidden rollout",
+        "bev_enabled": true,
+        "bev_identity": "152f981168b9a2a241d7e39f07b386e055a433bd1b0aae1901cfca8f397bd26f",
+        "bev_task_supervision": true,
+        "bev_task_weight": 0.1,
+        "bev_tasks": [
+          "current_occupancy",
+          "tracked_displacement",
+          "pair_separation",
+          "all_hidden_joint_flow"
+        ]
+      },
+      "heartbeat": 1790488295.0212965,
+      "pid": 758513
+    },
+    {
+      "id": "bev_transfer_split4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.026704504423671296,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_transfer_split4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_transfer_split4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": "/mnt/project/joint-world-artifacts/20260927/bev_transfer_split4/checkpoint_2.pt",
+          "stop_after": null,
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/engineering64_index.json",
+          "bev_tasks": true,
+          "bev_task_weight": 0.1
+        },
+        "code_sha": "b820f4c8099050ca9ca6aafb9596fb5415393c9d",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world,action attention,BEV encoder/fusion; auxiliary heads receive updates only with tasks enabled",
+        "frozen": "Qwen,vision,world Reader/heads,pretrained BEV provider,joint graph parameters,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched BEV semantic/motion task-on/task-off planning transfer with differentiable all-hidden rollout",
+        "bev_enabled": true,
+        "bev_identity": "152f981168b9a2a241d7e39f07b386e055a433bd1b0aae1901cfca8f397bd26f",
+        "bev_task_supervision": true,
+        "bev_task_weight": 0.1,
+        "bev_tasks": [
+          "current_occupancy",
+          "tracked_displacement",
+          "pair_separation",
+          "all_hidden_joint_flow"
+        ]
+      },
+      "heartbeat": 1790488404.4529295,
+      "pid": 759683
+    },
+    {
+      "id": "bev_transfer_control4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.01984565966659122,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_transfer_control4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_transfer_control4",
+          "epochs": 1,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null,
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/engineering64_index.json",
+          "bev_tasks": false,
+          "bev_task_weight": 0.1
+        },
+        "code_sha": "b820f4c8099050ca9ca6aafb9596fb5415393c9d",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "graph_checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 4,
+        "planned_presentations": 64,
+        "trainable": "graph_to_world,action attention,BEV encoder/fusion; auxiliary heads receive updates only with tasks enabled",
+        "frozen": "Qwen,vision,world Reader/heads,pretrained BEV provider,joint graph parameters,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched BEV semantic/motion task-on/task-off planning transfer with differentiable all-hidden rollout",
+        "bev_enabled": true,
+        "bev_identity": "152f981168b9a2a241d7e39f07b386e055a433bd1b0aae1901cfca8f397bd26f",
+        "bev_task_supervision": false,
+        "bev_task_weight": 0.1
+      },
+      "heartbeat": 1790488482.5605361,
+      "pid": 760141
+    },
+    {
+      "id": "bev_dev1696",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.19046581930584355,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "weights": "/mnt/project/DriveDreamer-Policy/depth_model_ckpts/depth_anything_v2_vitl.pth",
+          "weight_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+          "manifest": "/mnt/project/structured-world-v1-artifacts/20260926/dev_tokens.json",
+          "observations": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_dev_full/observations",
+          "sensor_root": "/",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_dev1696",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_dev1696"
+        },
+        "code_sha": "b820f4c8099050ca9ca6aafb9596fb5415393c9d",
+        "manifest_sha256": "a27e9e5e60a9e9f896e5703d9921c3df6e302e5925b907f8f55c9551c1ffe7ea"
+      },
+      "heartbeat": 1790489271.8564093,
+      "pid": 761752
+    },
+    {
+      "id": "planner_dev1696_allmask",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.17352084139982868,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_dev1696_allmask",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_dev1696_allmask",
+          "bridge_checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_allmask7284/checkpoint_1821.pt",
+          "seed": 20260926,
+          "shard": 0,
+          "shards": 1
+        },
+        "code_sha": "b6e1fa347ce180ccb42d9e4fab19d0ce4ec29645",
+        "cache_identity": "8ac10f70a219a0a17611aa50e2db743555d057bd65c06c6349378cc8221a19c3",
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "bridge_checkpoint_sha256": "0cad8fa893103f717f616a2edbf52209d3cdcc6410083d6c10c29595a6f1d9f1",
+        "candidates": 1,
+        "sampling_steps": 10,
+        "scorer": null,
+        "world_targets_opened": false,
+        "latency_scope": "cached current features through joint graph and original DiT; excludes image/Qwen/provider cost"
+      },
+      "heartbeat": 1790489213.850999,
+      "pid": 761780
+    },
+    {
+      "id": "learned_image_online4",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.01477003342575497,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "bridge_checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_randommask7284/checkpoint_1821.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/development_conditions/parity4_tokens.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/learned_image_online4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "learned_image_online4",
+          "bev_index": null,
+          "bev_config": null,
+          "observations": null,
+          "seed": 20260926
+        },
+        "code_sha": "88b58baa455ed8f1196b4bc5619c7a6a9d9010b1",
+        "bridge_sha256": "0d62eb2aa9092b1c39d72075464520e34e488f5fc40d515e6f6a8f8e41c2b558",
+        "world_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "normalized_action_atol": 1e-05,
+        "normalized_action_rtol": 1e-05,
+        "joint_atol_metres": 0.0001,
+        "inputs": "current three front images, navigation and original state",
+        "WorldTargets_loaded": false,
+        "limitation": "Dataset loader reads the existing metadata container; future/action fields are stripped before policy input."
+      },
+      "heartbeat": 1790488855.7354422,
+      "pid": 763805
+    },
+    {
+      "id": "single_actor_engineering16",
+      "optimizer_steps": 16,
+      "gpu_hours": 0.002901219526926676,
+      "status": "complete",
+      "reserved_steps": 16,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/single_actor_engineering16",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "single_actor_engineering16",
+          "steps": 16,
+          "batch": 8,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "partial_mask_mode": "single_actor",
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "88b58baa455ed8f1196b4bc5619c7a6a9d9010b1",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790488840.532937,
+      "pid": 764123
+    },
+    {
+      "id": "planner_bev_control7284",
+      "optimizer_steps": 480,
+      "gpu_hours": 0.1521602761083181,
+      "status": "running",
+      "reserved_steps": 1821,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+          "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_bev_control7284",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_bev_control7284",
+          "epochs": 4,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null,
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/train_index.json",
+          "bev_tasks": false,
+          "bev_task_weight": 0.1
+        },
+        "code_sha": "b820f4c8099050ca9ca6aafb9596fb5415393c9d",
+        "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+        "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+        "graph_checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 1821,
+        "planned_presentations": 29136,
+        "trainable": "graph_to_world,action attention,BEV encoder/fusion; auxiliary heads receive updates only with tasks enabled",
+        "frozen": "Qwen,vision,world Reader/heads,pretrained BEV provider,joint graph parameters,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched BEV semantic/motion task-on/task-off planning transfer with differentiable all-hidden rollout",
+        "bev_enabled": true,
+        "bev_identity": "b49430bf1fdf796f815789ba06c7e6f045d7b823f34a4f22d7a90c45ee20ead2",
+        "bev_task_supervision": false,
+        "bev_task_weight": 0.1
+      },
+      "heartbeat": 1790489512.8053381,
+      "pid": 765259
+    },
+    {
+      "id": "planner_bev_tasks7284",
+      "optimizer_steps": 480,
+      "gpu_hours": 0.1521744082371392,
+      "status": "running",
+      "reserved_steps": 1821,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+          "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "output": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "planner_bev_tasks7284",
+          "epochs": 4,
+          "batch": 16,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null,
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/train_index.json",
+          "bev_tasks": true,
+          "bev_task_weight": 0.1
+        },
+        "code_sha": "b820f4c8099050ca9ca6aafb9596fb5415393c9d",
+        "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+        "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+        "graph_checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "graph_config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "planned_steps": 1821,
+        "planned_presentations": 29136,
+        "trainable": "graph_to_world,action attention,BEV encoder/fusion; auxiliary heads receive updates only with tasks enabled",
+        "frozen": "Qwen,vision,world Reader/heads,pretrained BEV provider,joint graph parameters,original DiT",
+        "pdms_training": false,
+        "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+        "deterministic_algorithms": true,
+        "purpose": "Matched BEV semantic/motion task-on/task-off planning transfer with differentiable all-hidden rollout",
+        "bev_enabled": true,
+        "bev_identity": "b49430bf1fdf796f815789ba06c7e6f045d7b823f34a4f22d7a90c45ee20ead2",
+        "bev_task_supervision": true,
+        "bev_task_weight": 0.1,
+        "bev_tasks": [
+          "current_occupancy",
+          "tracked_displacement",
+          "pair_separation",
+          "all_hidden_joint_flow"
+        ]
+      },
+      "heartbeat": 1790489512.861982,
+      "pid": 765230
+    },
+    {
+      "id": "context_randommask_holdout64",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0037169100178612593,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/context_randommask_holdout64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "context_randommask_holdout64"
+        },
+        "code_sha": "971ba84277119b3324f4be4cbbdb277505e3197a",
+        "checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+        "scope": "Privileged other-actor future context used only for imputation analysis; NOT deployment score.",
+        "selection": "Ego slot0 and one hash-selected neighbor slot; no target-validity filtering."
+      },
+      "heartbeat": 1790489280.4013186,
+      "pid": 768270
+    },
+    {
+      "id": "context_allmask_holdout64",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0034048431449466296,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/context_allmask_holdout64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "context_allmask_holdout64"
+        },
+        "code_sha": "971ba84277119b3324f4be4cbbdb277505e3197a",
+        "checkpoint_sha256": "a8c064097eccd6e98f2e53288ef4c06818b6cfe6bc8c9dea0559944b570d07bf",
+        "scope": "Privileged other-actor future context used only for imputation analysis; NOT deployment score.",
+        "selection": "Ego slot0 and one hash-selected neighbor slot; no target-validity filtering."
+      },
+      "heartbeat": 1790489294.5565703,
+      "pid": 768474
+    },
+    {
+      "id": "learned_bev_engineering_online4",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.017237412399715848,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "bridge_checkpoint": "/mnt/project/joint-world-artifacts/20260927/bev_transfer_direct4/checkpoint_4.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/bev_online_train4_tokens.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/learned_bev_engineering_online4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "learned_bev_engineering_online4",
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/engineering64_index.json",
+          "bev_config": "configs/joint_world/pretrained_bev_side.json",
+          "observations": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "seed": 20260926
+        },
+        "code_sha": "88b58baa455ed8f1196b4bc5619c7a6a9d9010b1",
+        "bridge_sha256": "4139a3e8234b2237dc1001c00a8acab4da9aaaa27c197eff0ffe9782bd544289",
+        "world_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "normalized_action_atol": 1e-05,
+        "normalized_action_rtol": 1e-05,
+        "joint_atol_metres": 0.0001,
+        "inputs": "current three front images, navigation and original state",
+        "WorldTargets_loaded": false,
+        "limitation": "Dataset loader reads the existing metadata container; future/action fields are stripped before policy input."
+      },
+      "heartbeat": 1790489372.4274335,
+      "pid": 768712
     }
   ]
 }

@@ -1,0 +1,43 @@
+{
+  "arguments": {
+    "cache": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions",
+    "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+    "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+    "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+    "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_allmask7284/checkpoint_3642.pt",
+    "output": "/mnt/project/joint-world-artifacts/20260927/planner_allmask7284",
+    "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+    "run_id": "planner_allmask7284",
+    "epochs": 4,
+    "batch": 16,
+    "seed": 42,
+    "resume": null,
+    "stop_after": null
+  },
+  "code_sha": "7bd89019ca43f0488d3cba752e692e1e1c8f4b19",
+  "cache_identity": "af00a2077d165ae7515977c299c8c5958087de00ba29dc3e017dce24d810bbbd",
+  "label_fingerprint": "3e1f2b5d2395cecebf4d883cdd56f8428c7755d2c3a1fab19b93f160473db34f",
+  "graph_checkpoint_sha256": "a8c064097eccd6e98f2e53288ef4c06818b6cfe6bc8c9dea0559944b570d07bf",
+  "graph_config": {
+    "dim": 128,
+    "heads": 4,
+    "layers": 2,
+    "scale_m": 20.0,
+    "sampling_steps": 10,
+    "sampling_seed": 2037,
+    "all_hidden_probability": 0.5,
+    "trajectory_mode": "current_residual",
+    "agent_scale_m": 5.0
+  },
+  "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+  "planned_steps": 1821,
+  "planned_presentations": 29136,
+  "trainable": "graph_to_world and gated action attention only",
+  "frozen": "Qwen,vision,world Reader/heads,joint graph,original DiT",
+  "pdms_training": false,
+  "graph_condition": "all-hidden current-only rollout, independent noise seed2037",
+  "deterministic_algorithms": true,
+  "purpose": "Matched frozen-representation transfer probe; joint fine-tuning is a separate phase",
+  "trainable_parameters": 17053697,
+  "frozen_DiT_parameters": 819503620
+}

@@ -29,12 +29,12 @@ planner_transfer_phase:
   fixed_evaluation_epochs: [0, 1, 2, 4]
   development_planning: original1696 scenes, one candidate, seed20260926,10FM steps
 bev_transfer_followup:
-  status: CURRENT_FEATURE_EXTRACTION_RUNNING_TRAINER_NOT_YET_IMPLEMENTED
+  status: TRAINER_GPU_VERIFIED_MATCHED_PAIR_RUNNING
   planned_pair: [with_semantic_motion_tasks, without_semantic_motion_tasks]
   planned_max_updates_per_variant: 1821
   additional_budget_requires_check: true
   initialization: same frozen randommask epoch8 graph and fresh matched BEV branch/bridge
-  auxiliary_targets: current_occupancy, tracked_displacement, pair_geometry
+  auxiliary_targets: current_occupancy, tracked_displacement, pair_geometry, all_hidden_joint_flow
   no_pdms_labels: true
 maximum_repair_rounds: 2
 navtest_selection: false

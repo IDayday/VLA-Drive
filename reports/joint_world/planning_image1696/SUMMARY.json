@@ -1,0 +1,110 @@
+{
+  "runs": [
+    {
+      "run": "planner_dev1696_baseline",
+      "scenes": 1696,
+      "failed": 0,
+      "PDMS_percent": 93.14457487854334,
+      "zero_fraction": 0.012382075471698114,
+      "peak_gpu_bytes": 3314969600,
+      "no_at_fault_collisions": 1.0,
+      "drivable_area_compliance": 0.9876179245283019,
+      "ego_progress": 0.8546914951982479,
+      "time_to_collision_within_bound": 0.9988207547169812,
+      "comfort": 0.9982311320754716,
+      "driving_direction_compliance": 0.9890919811320755,
+      "cached_policy_seconds_mean": 0.2722276416409515,
+      "cached_policy_seconds_p95": 0.2793710269033909
+    },
+    {
+      "run": "planner_dev1696_randommask",
+      "scenes": 1696,
+      "failed": 0,
+      "PDMS_percent": 93.32698483003686,
+      "zero_fraction": 0.01061320754716981,
+      "peak_gpu_bytes": 3391451136,
+      "no_at_fault_collisions": 1.0,
+      "drivable_area_compliance": 0.9893867924528302,
+      "ego_progress": 0.8557674472416413,
+      "time_to_collision_within_bound": 0.9994103773584906,
+      "comfort": 0.9988207547169812,
+      "driving_direction_compliance": 0.9890919811320755,
+      "cached_policy_seconds_mean": 0.32405971050183374,
+      "cached_policy_seconds_p95": 0.3308470416814089
+    },
+    {
+      "run": "planner_dev1696_allmask",
+      "scenes": 1696,
+      "failed": 0,
+      "PDMS_percent": 93.21436495413103,
+      "zero_fraction": 0.01179245283018868,
+      "peak_gpu_bytes": 3391451136,
+      "no_at_fault_collisions": 1.0,
+      "drivable_area_compliance": 0.9882075471698113,
+      "ego_progress": 0.8547155136161271,
+      "time_to_collision_within_bound": 0.9994103773584906,
+      "comfort": 0.9988207547169812,
+      "driving_direction_compliance": 0.9890919811320755,
+      "cached_policy_seconds_mean": 0.3332777285524468,
+      "cached_policy_seconds_p95": 0.3381755114533007
+    }
+  ],
+  "paired_comparisons": {
+    "planner_dev1696_randommask__vs__planner_dev1696_baseline": {
+      "scenes": 1696,
+      "logs": 16,
+      "delta_percentage_points": 0.1824099514935598,
+      "log_cluster_CI95_percentage_points": [
+        -0.03395371500759867,
+        0.3847703188734769
+      ],
+      "wins": 353,
+      "losses": 738,
+      "ties": 605,
+      "bootstrap_replicates": 10000,
+      "training_seed_uncertainty": "Not represented by this within-seed log-cluster interval"
+    },
+    "planner_dev1696_allmask__vs__planner_dev1696_baseline": {
+      "scenes": 1696,
+      "logs": 16,
+      "delta_percentage_points": 0.06979007558769117,
+      "log_cluster_CI95_percentage_points": [
+        -0.21205315296203459,
+        0.25603745674831624
+      ],
+      "wins": 381,
+      "losses": 711,
+      "ties": 604,
+      "bootstrap_replicates": 10000,
+      "training_seed_uncertainty": "Not represented by this within-seed log-cluster interval"
+    },
+    "planner_dev1696_randommask__vs__planner_dev1696_allmask": {
+      "scenes": 1696,
+      "logs": 16,
+      "delta_percentage_points": 0.11261987590586862,
+      "log_cluster_CI95_percentage_points": [
+        -0.005172935541977307,
+        0.21983860976230812
+      ],
+      "wins": 392,
+      "losses": 690,
+      "ties": 614,
+      "bootstrap_replicates": 10000,
+      "training_seed_uncertainty": "Not represented by this within-seed log-cluster interval"
+    }
+  },
+  "protocol": {
+    "cache_identity": "8ac10f70a219a0a17611aa50e2db743555d057bd65c06c6349378cc8221a19c3",
+    "original_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+    "candidates": 1,
+    "sampling_steps": 10,
+    "scorer": null,
+    "seed": 20260926,
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "cache_adapter_sha256": "51fd89cd80d773b647b9258d1c52b93889924db3948f82b8c958407d219fe339",
+    "protocol": "NAVSIM v1; validated compact training-cache adapter with fixed official PDM progress; one candidate"
+  },
+  "selection": "Fixed final checkpoints; PDMS never enters training or model selection.",
+  "uncertainty": "Log-cluster intervals describe scene sampling for one training seed, not training-seed stability.",
+  "cost_limit": "Cached policy latency excludes current image/Qwen/BEV provider extraction. See online measurements separately."
+}

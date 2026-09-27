@@ -1,6 +1,6 @@
 # Joint trajectory world model
 
-Current stage: image-conditioned joint flow and prediction-only planner bridge;64-scene pilots and7284-scene8-pass matched graph trials completed, downstream planning trials active. Real BEV task supervision and online BEV→graph→DiT connectivity have now been tested; matched planner training/comparison remain pending. No result below is a PDMS improvement claim.
+Current stage: both7284-scene8-pass graph trials and4-pass image planning-bridge trials are complete. Full1696-scene original-DiT PDMS is93.1446 baseline,93.3270 random masking,93.2144 all-hidden control, zero failures each. Masked-minus-control+0.1126points has log-cluster95%CI[-0.0052,+0.2198]; research remains INCONCLUSIVE. Matched BEV task-on/task-off planning training is running.
 
 ## Environment and tests (executed)
 
@@ -13,7 +13,7 @@ export JOINT_PYTHON=/root/miniconda3/envs/ddp/bin/python
 "$JOINT_PYTHON" -m pytest -q tests/joint_world tests/structured_world_v1p1
 ```
 
-27 tests passed. Covers whole-actor masks, hidden context poisoning including NaN, non-ego permutation equivariance, empty surrounding labels, gradients, graph save/load and previous coordinate/append-tail regressions.
+29 tests passed. Covers whole-actor masks, hidden context poisoning including NaN, non-ego permutation equivariance, empty surrounding labels, gradients, graph save/load and previous coordinate/append-tail regressions.
 
 ## Real GPU path (executed, passes)
 
@@ -80,7 +80,7 @@ This exports all-masked generated trajectories, sceneCSV, all GT object rows and
 
 ## Remaining work
 
-Extended corpus learning curves, interaction-use/context-shuffle diagnostics, uncertainty/multi-seed analysis, matched planning bridge and BEV training, original1696 paired planning evaluation, final resource/latency results and statuses. No navtest tuning or new scorer. New campaign retains the previous combined ceiling of24000 updates/48 GPU-hours; at most2 convergence repair hypotheses.
+Matched BEV planning completion, task/planning evaluation, final cost/latency and seed-budget assessment. Extended graph curves, image planning, context diagnostics and32 real visualizations are complete. No navtest tuning or new scorer. New campaign retains the previous combined ceiling of24000 updates/48 GPU-hours; at most2 convergence repair hypotheses.
 
 ## Longer matched phase and convergence (executed, complete)
 
@@ -133,6 +133,30 @@ DEPTH_MODEL_CKPTS=/mnt/project/DriveDreamer-Policy/depth_model_ckpts \
   --run-id planner_randommask7284 --epochs 4 --batch 16
 ```
 
-Control uses GPU0, replaces randommask with allmask in graph checkpoint/output/run-id. Source/cache/sampling/optimizer budget are otherwise identical. Current code `evaluate_planner.py` exports the originalDiT trajectory from whitelisted current-only cache fields, never opening targets; it is COMPILED, NOT YET GPU-EXECUTED. Original1696 development conditions are ready at `development_conditions/merged1696`. The final separate PDMS comparison is NOT_RUN until those complete outputs are scored.
+Control uses GPU0, replaces randommask with allmask in graph checkpoint/output/run-id. Source/cache/sampling/optimizer budget are otherwise identical. Current code `evaluate_planner.py` exports the originalDiT trajectory from whitelisted current-only cache fields, never opening targets; it has completed all1696 scenes for baseline/masked/control on real GPUs. Original1696 development conditions are ready at `development_conditions/merged1696`. The separate official v1 PDMS comparison is complete in reports/joint_world/planning_image1696/, including components, all scene rows and paired log-cluster intervals. Baseline replay matches archived trajectories and all factors exactly on1696 scenes.
 
-Same7284-scene current BEV extraction is running on GPUs2/3. An initial shard1 CLI SHA transcription was rejected before extraction; ledger preserves its failed cost, corrected shard1_retry is a separate run. The extraction completion marker is extraction.json. Larger BEV task-on/task-off planner training remains NOT_RUN; do not describe the600-step task-only probe or tiny manually gated online effect as a planning gain.
+Same7284-scene current BEV extraction is complete, as is current-only1696 development extraction. An initial shard1 CLI SHA transcription was rejected before extraction; ledger preserves its failed cost, corrected shard1_retry is a separate run. The extraction completion marker is extraction.json. Matched BEV task-on/task-off planner training is running on GPUs0/1 from pinnedb820f4c,1821 updates/4passes each. Both use the same fixed randommask graph, fresh seed42 BEV/bridge, and identical ego RNG; auxiliary task noise has its own saved stream. Do not describe the600-step task-only probe or tiny manually gated online effect as a planning gain.
+
+
+## Verified BEV transfer runner and exact single-actor option
+
+BEVFeatureStore validates current image bytes, calibration, timestamps, sensor contract, feature/grid identity and checksums; CPU residency is bounded to32 scenes. Full training index is `bev_corpus7284/train_index.json`. New BEV encoder/fusion and graph-to-world/DiT adapter train; the pretrained visual provider, Qwen/current heads, graph weights and originalDiT weights remain frozen. Autograd through the frozen graph/DiT reaches the new BEV path. The realGPU4-step continuous vs2+2 resume test is bitwise exact for model/optimizer/scheduler/RNG/sampler; BEV encoder/fusion/interaction gradients are measured, and task-on/off global ego RNG states match. See BEV_TRANSFER_RESUME_CHECK.json.
+
+Executed main pair source: `/mnt/project/VLA-Drive-joint-runs-bev-transfer` atb820f4c. Repeat the image-planner command above with the same randommask graph for BOTH variants, add `--bev-index /mnt/project/joint-world-artifacts/20260927/bev_corpus7284/train_index.json`, and choose new output/run IDs. `--bev-tasks` enables covered current occupancy, tracked displacement, pair separation and auxiliary all-hidden graph FM at fixedweight0.1; omit it for the otherwise identical control. Existing active IDs are `planner_bev_tasks7284` and `planner_bev_control7284`; never relaunch those. Source and exact arguments are stored in manifests/ledger. Evaluation uses `evaluate_planner.py --bev-index <verified-dev-index>` plus the actual bridge checkpoint.
+
+The image bridge, loaded into the actual full Qwen+DiT online policy, exactly matches cached action AND joint trajectories on4 fixed development scenes; label poisoning and strict restore are exact. Learned gates were preserved, not manually increased. See LEARNED_IMAGE_ONLINE_CHECK.json. External BEV in this joint-model phase enters the post-Qwen joint graph and originalDiT adapter; it is NOT injected into Qwen. The inherited image-conditioned world queries still pass through Qwen. Frozen current caches therefore remain valid while the side BEV and planner modules train.
+
+`train_graph.py` and `train_corpus.py` also accept `--partial-mask-mode single_actor`. This hides exactly one entire trajectory in partial-context examples, mixed with the configured all-hidden proportion. It does not use GT count/validity to pick the slot. The previous long paired trials used the defaultBernoulli subset of whole actors; they must not be relabeled as exact-one trials. A16-update64-scene realGPU engineering run of exact-one mode passed, but supplies no convergence or scientific comparison claim. See planner_learning/single_actor_engineering16/.
+
+## Reproduce complete image planning evidence (executed)
+
+```bash
+cd /mnt/project/VLA-Drive-masked-trajectory-world-20260927
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=. /root/miniconda3/envs/ddp/bin/python \
+  tools/joint_world/report_planning.py \
+  --artifacts /mnt/project/joint-world-artifacts/20260927 \
+  --output reports/joint_world/planning_image1696 \
+  --runs planner_dev1696_baseline planner_dev1696_randommask planner_dev1696_allmask
+```
+
+The complete publishedCSV is `reports/joint_world/planning_image1696/scene_metrics.csv`; paired scene/factor deltas are in `paired_scenes.csv`. Fixed final checkpoints were evaluated; PDMS was never used as training labels or to select a checkpoint. This development set may have been seen by the original baseline pretraining (UNKNOWN); incremental train logs do not overlap it. Context diagnostics use other actors' GT futures only in an isolated analysis function and never in a deployed plan. They show sensitivity, not causal identification.32 private real-scene figures are indexed with checksums in VISUALIZATION_INDEX.json; future-derived diagnostic categories are selected only after formal inference.

@@ -1,0 +1,85 @@
+{
+  "identity": {
+    "arguments": {
+      "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+      "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+      "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+      "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+      "output": "/mnt/project/joint-world-artifacts/20260927/context_randommask_holdout64",
+      "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+      "run_id": "context_randommask_holdout64"
+    },
+    "code_sha": "971ba84277119b3324f4be4cbbdb277505e3197a",
+    "checkpoint_sha256": "b005e219c2dcb81095f0f0c8be42d9306ee96e8629275e0fc0b085c9d3f2afd1",
+    "scope": "Privileged other-actor future context used only for imputation analysis; NOT deployment score.",
+    "selection": "Ego slot0 and one hash-selected neighbor slot; no target-validity filtering."
+  },
+  "results": [
+    {
+      "role": "ego",
+      "mode": "true_context",
+      "scenes": 64,
+      "zero_valid_scenes": 0,
+      "valid_points": 512,
+      "ADE_m": 1.2839783346280456,
+      "FDE_m": 1.6500920439139009,
+      "mean_selected_xy_delta_from_true_max_m": 0.0
+    },
+    {
+      "role": "ego",
+      "mode": "blank_context",
+      "scenes": 64,
+      "zero_valid_scenes": 0,
+      "valid_points": 512,
+      "ADE_m": 1.2060613790526986,
+      "FDE_m": 1.4877254604361951,
+      "mean_selected_xy_delta_from_true_max_m": 0.42873177537694573
+    },
+    {
+      "role": "ego",
+      "mode": "cross_scene_context",
+      "scenes": 64,
+      "zero_valid_scenes": 0,
+      "valid_points": 512,
+      "ADE_m": 1.4085054290480912,
+      "FDE_m": 1.7564241564832628,
+      "mean_selected_xy_delta_from_true_max_m": 0.8087080265395343
+    },
+    {
+      "role": "neighbor",
+      "mode": "true_context",
+      "scenes": 64,
+      "zero_valid_scenes": 39,
+      "valid_points": 186,
+      "ADE_m": 10.121878785471763,
+      "FDE_m": 12.248729239339413,
+      "mean_selected_xy_delta_from_true_max_m": 0.0
+    },
+    {
+      "role": "neighbor",
+      "mode": "blank_context",
+      "scenes": 64,
+      "zero_valid_scenes": 39,
+      "valid_points": 186,
+      "ADE_m": 10.589203753779012,
+      "FDE_m": 12.659979094629703,
+      "mean_selected_xy_delta_from_true_max_m": 2.038901570253074
+    },
+    {
+      "role": "neighbor",
+      "mode": "cross_scene_context",
+      "scenes": 64,
+      "zero_valid_scenes": 39,
+      "valid_points": 186,
+      "ADE_m": 11.333019790790415,
+      "FDE_m": 13.449466622394064,
+      "mean_selected_xy_delta_from_true_max_m": 3.4064085111021996
+    }
+  ],
+  "failed": 0,
+  "limitations": [
+    "Uses training Hungarian association, not end-to-end geometric detection coverage.",
+    "Blank/mismatched contexts may be out of distribution; sensitivity does not prove causal interaction understanding.",
+    "Privileged future context is never used in the reported original-DiT PDMS."
+  ]
+}

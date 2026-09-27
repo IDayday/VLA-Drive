@@ -1,36 +1,24 @@
 {
   "engineering_status": "PARTIAL",
   "research_status": "INCONCLUSIVE",
-  "planning_status": "MATCHED_BRIDGE_TRAINING_RUNNING_NO_PDMS_YET",
-  "bev_status": "SMALL_TASK_PROBE_AND_ONLINE_PATH_VERIFIED_LARGE_CURRENT_FEATURE_EXTRACTION_RUNNING",
-  "combined_optimizer_steps": 14867,
-  "combined_gpu_hours_snapshot": 3.6568488609128535,
+  "planning_status": "IMAGE_PAIR_1696_COMPLETE_BEV_PAIR_RUNNING",
+  "bev_status": "CURRENT_TRAIN_AND_DEV_FEATURES_COMPLETE_MATCHED_PLANNING_TRAINING_RUNNING",
+  "combined_optimizer_steps": 19150,
+  "combined_gpu_hours_snapshot": 5.826528960135246,
   "goal_complete": false,
-  "snapshot_utc": "2026-09-27T05:31:52.361061+00:00",
+  "snapshot_utc": "2026-09-27T06:11:52.916992+00:00",
   "running_experiments": [
     {
-      "id": "bev_corpus7284_shard0",
-      "optimizer_steps": 0,
-      "reserved_steps": 0,
-      "pid": 745016
-    },
-    {
-      "id": "bev_corpus7284_shard1_retry",
-      "optimizer_steps": 0,
-      "reserved_steps": 0,
-      "pid": 747244
-    },
-    {
-      "id": "planner_randommask7284",
-      "optimizer_steps": 237,
+      "id": "planner_bev_control7284",
+      "optimizer_steps": 480,
       "reserved_steps": 1821,
-      "pid": 747279
+      "pid": 765259
     },
     {
-      "id": "planner_allmask7284",
-      "optimizer_steps": 110,
+      "id": "planner_bev_tasks7284",
+      "optimizer_steps": 480,
       "reserved_steps": 1821,
-      "pid": 747743
+      "pid": 765230
     }
   ],
   "completed_extended_graph_pair": {
@@ -42,8 +30,8 @@
     "motion_point_coverage_holdout": 0.11461103723404255
   },
   "next_required": [
-    "Finish matched image-graph to DiT bridge trials and1696 paired PDMS",
-    "Train BEV semantic/motion branch with planning transfer and matched control",
-    "Interaction-context diagnostics, final evidence/status and bounded seed decision"
+    "Finish matched BEV task-on/off planner training and final1696 paired planning/task evaluation",
+    "Trained BEV online/cached parity and full cost/evidence report",
+    "Final convergence/seed-budget/status decision; publish tested source and measured evidence"
   ]
 }

@@ -40,7 +40,9 @@ def main():
         summaries.append(result);identities[name]={'inference':identity,'score':score}
         for row in bank.values():all_rows.append(dict(run=name,**row))
         dest=out/name;dest.mkdir(exist_ok=True)
-        for f in ['summary.json','scenes.csv']:shutil.copy2(source/f,dest/f)
+        for f in ['summary.json','scenes.csv']:
+            # Source CSV may use the csv module's default CRLF; publish portable LF.
+            (dest/f).write_text((source/f).read_text())
         shutil.copy2(root/name/'manifest_0.json',dest/'inference_manifest.json')
     pairs={};paired=[]
     if a.reference not in banks:raise ValueError('Missing reference')
@@ -58,6 +60,8 @@ def main():
             for factor in factors:row[factor+'_delta']=float(x.get(factor) or 0)-float(y.get(factor) or 0)
             paired.append(row)
     write_csv(out/'summary.csv',summaries);write_csv(out/'scene_metrics.csv',all_rows);write_csv(out/'paired_scenes.csv',paired)
+    for name in ['summary.csv','scene_metrics.csv','paired_scenes.csv']:
+        path=out/name;path.write_text(path.read_text())
     report={'runs':summaries,'paired_comparisons':pairs,'protocol':protocol,
             'selection':'Fixed final checkpoints; PDMS never enters training or model selection.',
             'uncertainty':'Log-cluster intervals describe scene sampling for one training seed, not training-seed stability.',
