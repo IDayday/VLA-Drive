@@ -12,7 +12,7 @@ P0/P1: complete12-bank20352-row read-only metric re-audit; independent maximum-c
 
 P2 implementation: reference residual heads, fixed-current-reference eligibility, separated GT displacement supervision, pre/post-Qwen head choice, bounded graph accumulation, locked wall-time/step budget, strict resume.14 targeted CPU tests passed. Real300-step checkpoint/target-independence/newgate0 action/serialization test passes. Actual optimizer+sampler resumption has run. Original VLM/vision/DiT all frozen; Reader/queries/project/current/motion heads update.
 
-Matched16 diagnostic final checkpoint300: W_PRE57.6779% recall/35.5658% precision/55.4307% class recall; W_POST61.4232%/41.1028%/58.8015%. Each2400 presentations150 epochs. W_PRE consumed304, with4 interrupted extra updates charged; model300 used for pairing. W_POST phase ended300. Do not resume either16 phase; approved_end_step in ledger. First64 launches stopped at0 updates for conservative budget reconciliation, histories retained. New64 runs each696, combined family W_PRE1000/W_POST996 updates. **Both64 experiments still running, gate80%/50% NOT passed yet.**
+Matched16 diagnostic final checkpoint300: W_PRE57.6779% recall/35.5658% precision/55.4307% class recall; W_POST61.4232%/41.1028%/58.8015%. Each2400 presentations150 epochs. W_PRE consumed304, with4 interrupted extra updates charged; model300 used for pairing. W_POST phase ended300. Do not resume either16 phase; approved_end_step in ledger. First64 launches stopped at0 updates for conservative budget reconciliation, histories retained. New64 runs each696, combined family W_PRE1000/W_POST996 updates. **W_PRE64 completed696 updates; filtered recall49.4727% / precision22.7313%, so gate80%/50% NOT passed. W_POST64 remains running at push snapshot.**
 
 Full capacity999 target cache targets_v6_full128 generated128/128,0 failures; all64 training target fields exactly match originalv6 (zero truncation). Holdout64 selected BEFORE evaluation by complete logs excluding57 overfit logs;59 holdout logs,zero overlap. train_log_holdout64_tokens.json is authoritative. Earlier token-only candidate holdout was never used for adaptation/validation.
 
@@ -22,10 +22,10 @@ Full-GT16 inference exports completed both variants; per-object failures/predict
 
 ## Live jobs — verify before waiting or resuming
 
-- W_POST_64_bounded696_d537401: PID677139, accounted step322, GPU-hours0.3077 (live value will advance).
-- W_PRE_64_bounded696_d537401: PID677138, accounted step627, GPU-hours0.3078 (live value will advance).
+- W_PRE_64_bounded696_d537401: complete, accounted step696 at 2026-09-27T03:52:52.530096+00:00.
+- W_POST_64_bounded696_d537401: running, accounted step433 at 2026-09-27T03:52:52.530096+00:00.
 
-W_PRE64 tool session66235, PID677138, localGPU2. W_POST64 session38157, PID677139, localGPU3. Both terminal target696 steps; eval_every100 and final696. Do not restart while handles/processes live. Other experiment jobs completed:16 training, provider probe, source extraction, trained checkpoint checks, pretrained injection,16 eval, visualisation.
+W_PRE64 tool session66235, PID677138, localGPU2. W_POST64 session38157, PID677139, localGPU3. PRE terminal; POST target696 steps; eval_every100 and final696. Do not restart while handles/processes live. Other experiment jobs completed:16 training, provider probe, source extraction, trained checkpoint checks, pretrained injection,16 eval, visualisation.
 GPU0/1 placeholder restore launched in session46824, log idle_gpu01_restore.log; verify actual PID before pausing. Original local4–7 workers3516985..3516988 untouched. vla-zt2 resources available but unchanged this round. No unrelated tasks stopped.
 
 ## Immediate next work
@@ -34,7 +34,7 @@ GPU0/1 placeholder restore launched in session46824, log idle_gpu01_restore.log;
 2. Once terminal, export full64 predictions, full-GT object CSV and stationary-motion comparison via tools/structured_world_v1p1/evaluate_world.py; use targets_v6_full128. Holdout evaluation only after the learnability gate, as objective requests. Need per-object/full-class failure analysis, dynamic/static ADE/FDE, motion coverage. No unmatched ADE=0.
 3. If learning still insufficient, at most two documented repair rounds remain. Shared-query cls gradients in original64 traces exceed box gradients ~4–10x; do not blindly scale by hundreds. Actual300-step16 residual diversity is nontrivial, so do not simply assert identical-slot collapse. Per-task cosine/assignment churn and actual postclip norm were not fully recorded; add targeted diagnosis before claiming a specific failure cause. No LoRA unless W_PRE has learned and sufficiently trained W_POST fails.
 4. P4 remains NOT_RUN and not yet implemented. Must only proceed after world learnability: independent current-only/current+motion pretraining each>=4×8192 exposures, then only P_CAPACITY/P_CURRENT/P_FUTURE with matched budget/provider/append-tail, frozen original driving model, gate0 step0 fidelity. Do not reuse small-set1000-step cap for long pretraining. Track real scene exposures, complete1696 dev PDMS fixed protocol, compare A0 and control, fixed intermediate/final results, optional shared velocity-field preservation only once if all regress. No navtest tuning, no RL/scorer/fullDiT updates.
-5. Finish reports FOUR separate statuses, run ledger, commands/configs/checkpoint/resume/viz and final requirement-by-requirement audit. Stage commits exist, new branch NOT YET PUSHED; final push only task branch and verify remote SHA.
+5. Finish reports FOUR separate statuses, run ledger, commands/configs/checkpoint/resume/viz and final requirement-by-requirement audit. Stage commits exist, new branch prepared for user-requested push; verify origin SHA with git ls-remote. Snapshot results: reports/structured_world_v1p1/push_snapshot_20260927/MANIFEST.json.
 
 ## Budget and recovery
 
