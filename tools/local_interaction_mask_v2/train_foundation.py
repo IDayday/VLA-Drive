@@ -1,5 +1,6 @@
 """Single-seed public Qwen + fresh original DiT/current Reader training, real DDP."""
 import argparse
+from datetime import timedelta
 import hashlib
 import json
 import math
@@ -30,15 +31,16 @@ def main():
     p.add_argument('--initial-epochs',type=int);p.add_argument('--schedule-epochs',type=int,default=16);p.add_argument('--global-batch',type=int,default=32)
     p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--workers',type=int,default=2);p.add_argument('--stop-after',type=int);p.add_argument('--resume',action='store_true')
-    p.add_argument('--check-empty-rank',action='store_true');p.add_argument('--limit',type=int)
+    p.add_argument('--benchmark',action='store_true');p.add_argument('--check-empty-rank',action='store_true');p.add_argument('--limit',type=int)
     a=p.parse_args();rank=int(os.environ.get('RANK',0));count=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
     torch.cuda.set_device(local)
-    if count>1:dist.init_process_group('nccl')
+    if count>1:dist.init_process_group('nccl',timeout=timedelta(seconds=120))
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     code=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     tokens=json.loads(Path(a.tokens).read_text())
     if a.limit:tokens=tokens[:a.limit]
     if len(set(tokens))!=len(tokens):raise ValueError('Repeated training scene')
+    if a.benchmark and (not a.limit or a.limit>1024 or a.epochs>2):raise ValueError('Throughput benchmark must be small and never a research result')
     if a.check_empty_rank and not a.limit:raise ValueError('Artificial empty annotation rank is a diagnostic only')
     def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
     # Byte identities of every current metadata/calibration and label used by this run.
@@ -100,6 +102,7 @@ def main():
                 'class_filtered_recall':sum(r.get('class_filtered_tp',0) for r in rows)/max(sum(r['gt_targets'] for r in rows),1)})
         set_train_mode(world)
     def save():
+        if a.benchmark:return
         states=[None]*count if rank==0 else None
         state=rng_state()
         if count>1:dist.gather_object(state,states,dst=0)
