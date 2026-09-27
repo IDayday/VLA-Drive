@@ -2,6 +2,7 @@
 import argparse
 from concurrent.futures import ProcessPoolExecutor
 import csv
+import importlib.metadata
 import json
 import multiprocessing
 import os
@@ -12,8 +13,10 @@ import time
 from tools.local_interaction_mask_v2.score_async import digest, python_tree_digest, atomic_json
 
 
-def initialize(devkit):
+def initialize(devkit, map_root):
     sys.path.insert(0, devkit)
+    # Official Scene reads this at import time, before NavSimScenario's explicit argument.
+    os.environ['NUPLAN_MAPS_ROOT'] = map_root
 
 
 def cache_log(task):
@@ -53,17 +56,18 @@ def main():
     index = json.loads(Path(args.index).read_text()); grouped = {}
     if len({row['token'] for row in index}) != len(index): raise ValueError('Duplicate cache population')
     for row in index: grouped.setdefault(row['log'], []).append(row['token'])
-    initialize(args.devkit)
+    initialize(args.devkit, args.map_root)
     import nuplan
     identity = dict(code_sha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         arguments=vars(args), index_sha256=digest(args.index), navsim_python_tree_sha256=python_tree_digest(Path(args.devkit)/'navsim'),
         nuplan_python_tree_sha256=python_tree_digest(Path(nuplan.__file__).parent),
+        python=sys.version, numerical_versions={name:importlib.metadata.version(name) for name in ('numpy','scipy','shapely')},
         raw_log_sha256={log: digest(Path(args.raw_log_root)/(log+'.pkl')) for log in grouped},
         purpose='offline official metric targets only; never a model input', original_caches_modified=False)
     atomic_json(output/'identity.json', identity)
     rows = []; started = time.monotonic()
     with ProcessPoolExecutor(max_workers=args.workers, mp_context=multiprocessing.get_context('spawn'),
-                             initializer=initialize, initargs=(args.devkit,)) as pool:
+                             initializer=initialize, initargs=(args.devkit, args.map_root)) as pool:
         for result in pool.map(cache_log, [(log, tokens, vars(args)) for log, tokens in grouped.items()]):
             rows.extend(result)
             with (output/'progress.jsonl').open('a') as handle:
