@@ -37,6 +37,12 @@ def main():
         policy.world.requires_grad_(False)
         raw = load_dataset(agent, args['manifest'], args['data_root'], 1)[0]
         e = {k: raw[k] for k in ['image', 'lang', 'state', 'token']}
+        captured=[]
+        original_predict=agent.model.action_model.predict_action
+        def capture(condition,*args,**kwargs):
+            captured.append((condition.detach().float().cpu().clone(),str(condition.dtype),hashlib.sha256(torch.cuda.get_rng_state().cpu().numpy().tobytes()).hexdigest()))
+            return original_predict(condition,*args,**kwargs)
+        agent.model.action_model.predict_action=capture
         seed_all(51); native = agent.model.predict_action_infer_1d([e])['normalized_actions']
         seed_all(51); initial = policy.predict_action([e])
         dirty = dict(e, action=np.full((8, 4), 1e9), WorldTargets={'boxes': torch.full((5, 8), float('nan'))}, future_file='/absent/future.png')
@@ -44,6 +50,12 @@ def main():
         checks = {'gate0_native_exact': bool(np.array_equal(native, initial['normalized_actions'])),
                   'poisoned_action_exact': bool(np.array_equal(initial['normalized_actions'], poisoned['normalized_actions'])),
                   'poisoned_graph_exact': torch.equal(initial['joint_trajectories_xy'], poisoned['joint_trajectories_xy'])}
+        parity={'native_dtype':captured[0][1],'joint_dtype':captured[1][1],
+                'condition_max_error':float((captured[0][0]-captured[1][0]).abs().max()),
+                'rng_equal':captured[0][2]==captured[1][2],
+                'action_max_error':float(np.abs(native-initial['normalized_actions']).max())}
+        print(json.dumps({'checks':checks,'parity':parity}),flush=True)
+        (out/'PARITY.json').write_text(json.dumps(parity,indent=2))
         if not all(checks.values()):
             raise AssertionError(checks)
         # Features can be fixed here because every module before the graph is frozen.
