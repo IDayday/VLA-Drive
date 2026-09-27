@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "gpu_hour_cap": 2.0,
+  "update_caps": {
+    "synthetic": 20,
+    "real": 0
+  },
+  "runs": [
+    {
+      "id": "v3_pretrain_gpu_checks",
+      "identity": {
+        "source": {
+          "git_sha": "4de523bdefb99e7490d358754e5c464ecef70686",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+            "tools/joint_local_scene_v3/runtime.py": "60b2152abc3646aa7c3d74a09c7289fe373b0e28dc1a485728bd348d8faf3ec5",
+            "tools/joint_local_scene_v3/train_mechanism.py": "553f084d6a10497e9445658f6879ef1b26f8919a046ff1c3f241b739fbb9aac9",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a"
+          }
+        },
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/gpu_checks_v1",
+        "kind": "GPU checks, no optimizer"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.006729899711079067,
+      "wall_seconds": 24.227638959884644,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 21,
+        "real": 580
+      },
+      "backward_calls": 3,
+      "status": "complete",
+      "pid": 966392,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790525124.2536957,
+      "error": null
+    },
+    {
+      "id": "v3_review_resume_cuda_continuous",
+      "identity": {
+        "source": {
+          "git_sha": "4de523bdefb99e7490d358754e5c464ecef70686",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+            "tools/joint_local_scene_v3/runtime.py": "60b2152abc3646aa7c3d74a09c7289fe373b0e28dc1a485728bd348d8faf3ec5",
+            "tools/joint_local_scene_v3/train_mechanism.py": "553f084d6a10497e9445658f6879ef1b26f8919a046ff1c3f241b739fbb9aac9",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a"
+          }
+        },
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cuda_v1/continuous",
+        "config": {
+          "model": {
+            "dim": 32,
+            "heads": 4,
+            "layers": 2,
+            "steps": 3,
+            "condition_dim": 12,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 2,
+            "primary_neighbors": 1,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 3,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 2,
+          "role_loss_weight": 2.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 1,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Synthetic width12, no VLM in this fixture"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cuda_v1/data",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cuda_v1/data",
+        "mode": "mask",
+        "batch": 2,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 2,
+        "eval_train": false
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.0008476338121626104,
+      "wall_seconds": 3.0514817237854004,
+      "attempted_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 62,
+        "real": 0
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 966413,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790525105.5897844,
+      "error": null
+    },
+    {
+      "id": "v3_review_resume_cpu_continuous",
+      "identity": {
+        "source": {
+          "git_sha": "4de523bdefb99e7490d358754e5c464ecef70686",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+            "tools/joint_local_scene_v3/runtime.py": "60b2152abc3646aa7c3d74a09c7289fe373b0e28dc1a485728bd348d8faf3ec5",
+            "tools/joint_local_scene_v3/train_mechanism.py": "553f084d6a10497e9445658f6879ef1b26f8919a046ff1c3f241b739fbb9aac9",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a"
+          }
+        },
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cpu_v1/continuous",
+        "config": {
+          "model": {
+            "dim": 32,
+            "heads": 4,
+            "layers": 2,
+            "steps": 3,
+            "condition_dim": 12,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 2,
+            "primary_neighbors": 1,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 3,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 2,
+          "role_loss_weight": 2.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 1,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Synthetic width12, no VLM in this fixture"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cpu_v1/data",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cpu_v1/data",
+        "mode": "mask",
+        "batch": 2,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cpu",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 2,
+        "eval_train": false
+      },
+      "gpu_count": 0,
+      "gpu_hours": 0.0,
+      "wall_seconds": 1.505375862121582,
+      "attempted_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 62,
+        "real": 0
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 966417,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790525104.0736718,
+      "error": null
+    },
+    {
+      "id": "v3_review_resume_cpu_resumed",
+      "identity": {
+        "source": {
+          "git_sha": "4de523bdefb99e7490d358754e5c464ecef70686",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+            "tools/joint_local_scene_v3/runtime.py": "60b2152abc3646aa7c3d74a09c7289fe373b0e28dc1a485728bd348d8faf3ec5",
+            "tools/joint_local_scene_v3/train_mechanism.py": "553f084d6a10497e9445658f6879ef1b26f8919a046ff1c3f241b739fbb9aac9",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a"
+          }
+        },
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cpu_v1/resumed",
+        "config": {
+          "model": {
+            "dim": 32,
+            "heads": 4,
+            "layers": 2,
+            "steps": 3,
+            "condition_dim": 12,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 2,
+            "primary_neighbors": 1,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 3,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 2,
+          "role_loss_weight": 2.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 1,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Synthetic width12, no VLM in this fixture"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cpu_v1/data",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cpu_v1/data",
+        "mode": "mask",
+        "batch": 2,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cpu",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 2,
+        "eval_train": false
+      },
+      "gpu_count": 0,
+      "gpu_hours": 0.0,
+      "wall_seconds": 1.5084316730499268,
+      "attempted_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 62,
+        "real": 0
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 966557,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790525114.592406,
+      "error": null
+    },
+    {
+      "id": "v3_review_resume_cuda_resumed",
+      "identity": {
+        "source": {
+          "git_sha": "4de523bdefb99e7490d358754e5c464ecef70686",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+            "tools/joint_local_scene_v3/runtime.py": "60b2152abc3646aa7c3d74a09c7289fe373b0e28dc1a485728bd348d8faf3ec5",
+            "tools/joint_local_scene_v3/train_mechanism.py": "553f084d6a10497e9445658f6879ef1b26f8919a046ff1c3f241b739fbb9aac9",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a"
+          }
+        },
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cuda_v1/resumed",
+        "config": {
+          "model": {
+            "dim": 32,
+            "heads": 4,
+            "layers": 2,
+            "steps": 3,
+            "condition_dim": 12,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 2,
+            "primary_neighbors": 1,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 3,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 2,
+          "role_loss_weight": 2.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 1,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Synthetic width12, no VLM in this fixture"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cuda_v1/data",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/resume_cuda_v1/data",
+        "mode": "mask",
+        "batch": 2,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 2,
+        "eval_train": false
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.001010518670082092,
+      "wall_seconds": 3.6378672122955322,
+      "attempted_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 4,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 62,
+        "real": 0
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 966610,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790525118.4671636,
+      "error": null
+    }
+  ],
+  "gpu_hours": 0.008588052193323769,
+  "optimizer_updates": {
+    "synthetic": 16,
+    "real": 0
+  },
+  "attempted_optimizer_updates": {
+    "synthetic": 16,
+    "real": 0
+  }
+}

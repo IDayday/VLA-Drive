@@ -1,0 +1,74 @@
+{
+  "schema_version": 4,
+  "state_policy": "ego_xy_yaw_neighbors_xy_v1",
+  "graph_config": {
+    "max_neighbors": 16,
+    "primary_neighbors": 8,
+    "radius_m": 50.0,
+    "secondary_radius_m": 25.0,
+    "max_context": 64,
+    "existence_floor": 0.2,
+    "variant": "decision_local",
+    "corridor_half_width_m": 2.0,
+    "unknown_motion_margin_m": 2.0,
+    "turn_radius_m": 12.0,
+    "duplicate_distance_m": 0.6
+  },
+  "token_overlap": 0,
+  "log_overlap": 0,
+  "raw_log_population_available": false,
+  "source_population_filtered": true,
+  "threshold_selection": "Registered before new full cache rebuild and model checks; no holdout-error or PDMS tuning",
+  "splits": {
+    "train": {
+      "identity_sha256": "2735a22301a718ffea4b1abe24d44764f7bde6a57d4dc1f91572971a1f43671c",
+      "data_kind": "real",
+      "horizon_steps": 8,
+      "time_step_s": 0.5,
+      "code_files_sha256": {
+        "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+        "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+        "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+        "starVLA/model/modules/structured_world/targets.py": "546bd3154d3bc5cc1348f255d2eab135a4ef9c31fa9462b072d2d86158035316",
+        "starVLA/model/modules/joint_world/observability.py": "401c616aab6f35fc8d7b8d3852ab3b1f5b23038de6d5575d34a862a428fce3e9"
+      },
+      "source": {
+        "index": "configs/local_interaction_mask_v2/splits/train_index.json",
+        "targets": "/mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets",
+        "meta_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+        "observations": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192/observations",
+        "config": "configs/joint_local_scene_v3/mechanism.json",
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "workers": 8,
+        "limit": null
+      },
+      "scenes": 7284,
+      "logs": 978
+    },
+    "holdout": {
+      "identity_sha256": "5c69e645d992c484defabef04e92af500659774295e8ee02153067899ec4fdca",
+      "data_kind": "real",
+      "horizon_steps": 8,
+      "time_step_s": 0.5,
+      "code_files_sha256": {
+        "tools/joint_local_scene_v3/data.py": "becf50045bd20d3e65ae451fdda6cfbcda64c366cc905ee30fd8f0d9dc0c9dd4",
+        "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+        "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+        "starVLA/model/modules/structured_world/targets.py": "546bd3154d3bc5cc1348f255d2eab135a4ef9c31fa9462b072d2d86158035316",
+        "starVLA/model/modules/joint_world/observability.py": "401c616aab6f35fc8d7b8d3852ab3b1f5b23038de6d5575d34a862a428fce3e9"
+      },
+      "source": {
+        "index": "configs/local_interaction_mask_v2/splits/holdout_index.json",
+        "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+        "meta_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train",
+        "observations": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128/observations",
+        "config": "configs/joint_local_scene_v3/mechanism.json",
+        "output": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "workers": 4,
+        "limit": null
+      },
+      "scenes": 64,
+      "logs": 59
+    }
+  }
+}

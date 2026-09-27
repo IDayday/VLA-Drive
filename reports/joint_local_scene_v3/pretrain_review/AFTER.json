@@ -1,0 +1,150 @@
+{
+  "status": "CORRECTION_COMPLETE_WAITING_REVIEW",
+  "base_sha": "b4f08d05c0202fb483bc3247cab97abe59694d16",
+  "numerical_and_resume_test_code_sha": "4de523bdefb99e7490d358754e5c464ecef70686",
+  "final_code_sha": "4893159c25dc7dfad6f718f8173dd46cb9533295",
+  "branch": "fix/joint-local-scene-v3-pretrain-review-20260927",
+  "cpu_tests": {
+    "passed": 53,
+    "failed": 0,
+    "warnings": 1,
+    "seconds": 3.4,
+    "optimizer_updates": 0
+  },
+  "optimizer_updates": {
+    "synthetic": 16,
+    "real": 0
+  },
+  "attempted_optimizer_updates": {
+    "synthetic": 16,
+    "real": 0
+  },
+  "gpu_hours": 0.008588052193323769,
+  "gpu_hour_cap": 2.0,
+  "all_budget_runs_complete": true,
+  "forward_calls": {
+    "synthetic": 269,
+    "real": 580
+  },
+  "backward_calls": 35,
+  "old_v2": "sealed_step1887_not_resumed",
+  "real_training": "NOT_STARTED",
+  "navtest": "NOT_RUN",
+  "visual_Qwen_integration": "NOT_IMPLEMENTED",
+  "visualizations": {
+    "count": 4,
+    "private_local_only": true,
+    "inspected": "private_scene_2.png",
+    "predicted_neighbor_yaw_shown": false
+  },
+  "notes": [
+    "Final code adds strict per-scene corpus graph/horizon checks, an empty-output rejection and separate all-hidden target CSV/coverage fields after the pinned numerical/resume run. These additions passed final CPU tests. No final-commit GPU/resume rerun was performed.",
+    "Pure forward counts here are budgeted GPU/trainer calls; unit-test and baseline-reproducer forwards are separately reported and not included."
+  ],
+  "role_statistics": {
+    "cpu_continuous": {
+      "status": "complete",
+      "step": 4,
+      "epochs": 2,
+      "presentations": 6,
+      "data_kind": "synthetic",
+      "forward_count": 8,
+      "supervised_coordinates": {
+        "all_hidden_ego_xy": 36,
+        "all_hidden_ego_yaw": 36,
+        "all_hidden_neighbor_xy": 32,
+        "all_hidden_neighbor_yaw": 0,
+        "role_ego_xy": 24,
+        "role_ego_yaw": 24,
+        "role_neighbor_xy": 12,
+        "role_neighbor_yaw": 0
+      },
+      "task_totals": {
+        "neighbor_requested": 3,
+        "neighbor_actual": 2,
+        "ego_only_fallback": 1,
+        "ego_valid_coordinates": 48,
+        "neighbor_valid_coordinates": 12,
+        "nominal_role_tasks": 6
+      }
+    },
+    "cpu_resumed": {
+      "status": "complete",
+      "step": 4,
+      "epochs": 2,
+      "presentations": 6,
+      "data_kind": "synthetic",
+      "forward_count": 8,
+      "supervised_coordinates": {
+        "all_hidden_ego_xy": 36,
+        "all_hidden_ego_yaw": 36,
+        "all_hidden_neighbor_xy": 32,
+        "all_hidden_neighbor_yaw": 0,
+        "role_ego_xy": 24,
+        "role_ego_yaw": 24,
+        "role_neighbor_xy": 12,
+        "role_neighbor_yaw": 0
+      },
+      "task_totals": {
+        "neighbor_requested": 3,
+        "neighbor_actual": 2,
+        "ego_only_fallback": 1,
+        "ego_valid_coordinates": 48,
+        "neighbor_valid_coordinates": 12,
+        "nominal_role_tasks": 6
+      }
+    },
+    "cuda_continuous": {
+      "status": "complete",
+      "step": 4,
+      "epochs": 2,
+      "presentations": 6,
+      "data_kind": "synthetic",
+      "forward_count": 8,
+      "supervised_coordinates": {
+        "all_hidden_ego_xy": 36,
+        "all_hidden_ego_yaw": 36,
+        "all_hidden_neighbor_xy": 32,
+        "all_hidden_neighbor_yaw": 0,
+        "role_ego_xy": 24,
+        "role_ego_yaw": 24,
+        "role_neighbor_xy": 12,
+        "role_neighbor_yaw": 0
+      },
+      "task_totals": {
+        "neighbor_requested": 3,
+        "neighbor_actual": 2,
+        "ego_only_fallback": 1,
+        "ego_valid_coordinates": 48,
+        "neighbor_valid_coordinates": 12,
+        "nominal_role_tasks": 6
+      }
+    },
+    "cuda_resumed": {
+      "status": "complete",
+      "step": 4,
+      "epochs": 2,
+      "presentations": 6,
+      "data_kind": "synthetic",
+      "forward_count": 8,
+      "supervised_coordinates": {
+        "all_hidden_ego_xy": 36,
+        "all_hidden_ego_yaw": 36,
+        "all_hidden_neighbor_xy": 32,
+        "all_hidden_neighbor_yaw": 0,
+        "role_ego_xy": 24,
+        "role_ego_yaw": 24,
+        "role_neighbor_xy": 12,
+        "role_neighbor_yaw": 0
+      },
+      "task_totals": {
+        "neighbor_requested": 3,
+        "neighbor_actual": 2,
+        "ego_only_fallback": 1,
+        "ego_valid_coordinates": 48,
+        "neighbor_valid_coordinates": 12,
+        "nominal_role_tasks": 6
+      }
+    }
+  }
+}
