@@ -3,6 +3,7 @@ import argparse
 from functools import lru_cache
 import json
 import math
+import os
 from pathlib import Path
 import random
 import subprocess
@@ -13,7 +14,7 @@ import torch
 from tools.joint_world.planner_runtime import (CachedCurrentPlanner, ego_action_target,
     file_sha256, graph_noise, load_original_head, predict)
 from tools.joint_world.train_corpus import Corpus
-from tools.joint_world.train_graph import current_batch, load_samples
+from tools.joint_world.train_graph import current_batch
 from tools.structured_world.runtime import seed_all
 from tools.structured_world_v1p1.budget import start, record
 from tools.structured_world_v1p1.reaudit_metrics import write_csv
@@ -39,6 +40,11 @@ def evaluate(head, planner, samples, out, step, act_norm, labels):
 
 
 def main():
+    # Third-party dataset/decode imports can consume Python RNG. Finish them before
+    # seeding or restoring the sampler; never defer them until the first resumed batch.
+    from infer import deal_action_1225
+    os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
+    torch.use_deterministic_algorithms(True)
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['cache','targets','data-root','base-checkpoint','graph-checkpoint','output','ledger','run-id']:
         p.add_argument('--'+key,required=True)
@@ -61,6 +67,7 @@ def main():
               'planned_steps':steps,'planned_presentations':presentations_total,'trainable':'graph_to_world and gated action attention only',
               'frozen':'Qwen,vision,world Reader/heads,joint graph,original DiT','pdms_training':False,
               'graph_condition':'all-hidden current-only rollout, independent noise seed2037',
+              'deterministic_algorithms':True,
               'purpose':'Matched frozen-representation transfer probe; joint fine-tuning is a separate phase'}
     saved=torch.load(a.resume,map_location='cpu',weights_only=False) if a.resume else None
     if saved:
