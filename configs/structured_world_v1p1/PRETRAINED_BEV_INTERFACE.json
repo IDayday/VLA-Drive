@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "provider": "pretrained_visual_bev",
+  "token_layout": "append_tail",
+  "head_location": "post_qwen",
+  "reference_heads": true,
+  "agent_tokens": 64,
+  "scene_tokens": 64,
+  "reader_dim": 256,
+  "action_adapter": true,
+  "train_action": false,
+  "vision_trainable": false,
+  "lambda_cls": 1.0,
+  "lambda_box": 1.0,
+  "lambda_motion": 1.0,
+  "lambda_ego": 0.0,
+  "historical_auxiliary_losses": false,
+  "freeze_provider": true,
+  "pretrained_weights": "${WORLD_PRETRAINED_VISUAL_WEIGHTS}",
+  "pretrained_weights_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345"
+}

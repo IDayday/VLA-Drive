@@ -32,6 +32,10 @@ class StructuredWorldPolicy(nn.Module):
             kind=config.get('provider','qwen')
             if kind=='geometric_bev':self.provider=GeometricBEVProvider(channels=config.get('bev_channels',64))
             elif kind=='external_bev':self.provider=ExternalBEVFeatures(config['external_provider_signature'])
+            elif kind=='pretrained_visual_bev':
+                import os
+                from .pretrained_bev import PretrainedVisualBEVProvider
+                self.provider=PretrainedVisualBEVProvider(os.path.expandvars(config['pretrained_weights']),config['pretrained_weights_sha256'])
             elif kind=='qwen':self.provider=None
             else:raise ValueError(f'Unknown world feature provider: {kind}')
         common_reader = SceneAgentReader(dim,dim,**reader_args)

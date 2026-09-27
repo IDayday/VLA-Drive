@@ -1,6 +1,6 @@
 {
-  "status": "REAL_CURRENT_IMAGE_BEV_EXTRACTED_ADAPTATION_PENDING",
-  "external_prior_status": "NOT_TESTED",
+  "status": "INDEPENDENT_PERCEPTION_TESTED_LOW_RECALL",
+  "external_prior_status": "TESTED_INCONCLUSIVE",
   "candidate": "Depth Anything V2 Large visual backbone + NEW calibrated BEV projection",
   "pretrained_bev_claim": false,
   "repository": "https://github.com/DepthAnything/Depth-Anything-V2",
@@ -20,7 +20,7 @@
     "precision": "BF16 autocast",
     "device": "local A800 80GB"
   },
-  "adaptation_optimizer_steps": 0,
+  "adaptation_optimizer_steps": 600,
   "holdout_result": "NOT_RUN",
   "source_files": [
     "depth_anything_v2/dpt.py",
@@ -34,5 +34,69 @@
     1,
     1960,
     1024
-  ]
+  ],
+  "adaptation_scope": "Frozen pretrained backbone and calibrated projection; trained same-capacity Reader and current bbox/class readout only",
+  "train_scenes": 64,
+  "holdout_scenes": 64,
+  "holdout_disjoint_complete_logs": true,
+  "training_sample_presentations": 4800,
+  "training_effective_epochs": 75,
+  "train_geometry": {
+    "recall_2m": 0.5273250239693192,
+    "precision_2m": 0.27749747729566093,
+    "tp": 550.0,
+    "fp": 1432.0,
+    "centre_error_m": 1.1905126388506455,
+    "yaw_error_rad": 1.0785956184159626,
+    "motion_instance_coverage": 0.5309734513274337,
+    "motion_point_coverage": 0.5331864143116412,
+    "all": {
+      "ADE": 6.3145981178126025,
+      "FDE": 6.997948050498962,
+      "stationary_ADE": 2.1578560071416995,
+      "stationary_FDE": 2.9882518146072323
+    },
+    "dynamic": {
+      "ADE": 9.256458719981085,
+      "FDE": 13.16029665072759,
+      "stationary_ADE": 6.400109423804529,
+      "stationary_FDE": 10.966077086660597
+    },
+    "static": {
+      "ADE": 5.630485458076804,
+      "FDE": 5.600942110835154,
+      "stationary_ADE": 1.1713445577429982,
+      "stationary_FDE": 1.1796768408278073
+    }
+  },
+  "holdout_geometry": {
+    "recall_2m": 0.2367930391547545,
+    "precision_2m": 0.16608544027898867,
+    "tp": 381.0,
+    "fp": 1913.0,
+    "centre_error_m": 1.1917698647719355,
+    "yaw_error_rad": 1.306004248031481,
+    "motion_instance_coverage": 0.23929471032745592,
+    "motion_point_coverage": 0.24409906914893617,
+    "all": {
+      "ADE": 6.562809151534853,
+      "FDE": 8.2281370631406,
+      "stationary_ADE": 2.8560802077695064,
+      "stationary_FDE": 4.440607028527999
+    },
+    "dynamic": {
+      "ADE": 9.577624251747578,
+      "FDE": 14.827667297685847,
+      "stationary_ADE": 6.894807881437923,
+      "stationary_FDE": 12.452717345134884
+    },
+    "static": {
+      "ADE": 5.326778430178711,
+      "FDE": 5.567456857017849,
+      "stationary_ADE": 1.200259973152406,
+      "stationary_FDE": 1.2104281741875433
+    }
+  },
+  "class_correct_train_recall": 0.47459252157238735,
+  "class_correct_holdout_recall": 0.15910503418272218
 }
