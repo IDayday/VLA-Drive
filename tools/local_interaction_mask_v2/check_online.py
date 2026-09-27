@@ -2,6 +2,7 @@
 import argparse
 import json
 from pathlib import Path
+import time
 import torch
 from tools.local_interaction_mask_v2.extract_current import load_foundation
 from tools.local_interaction_mask_v2.data import current_metadata_from_training_pickle,current_example
@@ -34,6 +35,10 @@ def main():
         trained,_=load_bridge(a.current_bridge,corpus.manifest['identity_sha256'],dim)
         graph=torch.load(a.graph_checkpoint,map_location='cpu',weights_only=False)
     checked_checkpoints={}
+    def timed(function):
+        torch.cuda.synchronize();start=time.perf_counter()
+        value=function();torch.cuda.synchronize()
+        return value,time.perf_counter()-start
     spec=json.loads(Path(a.dataset).read_text());rows=[]
     for mode in ('current','all','mask'):
         if a.variants:
@@ -53,14 +58,14 @@ def main():
             example,observation=current_example(Path(spec['observations'])/(token+'.npz'),record)
             original_native=world.baseline.native_conditions([example])
             append_tail_delta=float((original_native-payload['native_actions'].cuda()).abs().max())
-            cached=predict_payload(world.baseline.action_model,bridge,payload,identity)
-            online=policy.predict_action([example],[observation])[0]
+            cached,cached_seconds=timed(lambda:predict_payload(world.baseline.action_model,bridge,payload,identity))
+            online,online_seconds=timed(lambda:policy.predict_action([example],[observation])[0])
             # WorldTargets/action labels are extraneous to the actual deployed API.
             poisoned=dict(example,WorldTargets={'future_xy':float('nan')},actions=float('nan'))
             changed=policy.predict_action([poisoned],[observation])[0]
             visual=world.baseline.current_visual_cache
             world.baseline.current_visual_cache=None
-            uncached=policy.predict_action([example],[observation])[0]
+            uncached,uncached_seconds=timed(lambda:policy.predict_action([example],[observation])[0])
             world.baseline.current_visual_cache=visual
             delta=float((cached['normalized_actions']-online['normalized_actions']).abs().max())
             feature_delta=float((cached['action_conditions']-online['action_conditions']).abs().max())
@@ -79,6 +84,8 @@ def main():
                 cached['normalized_actions'].new_tensor([8.805105,2.277741])).norm(dim=-1).max())
             row={'mode':mode,'token':token,'online_cached_action_max_error':delta,'online_cached_condition_max_error':feature_delta,
                 'online_cached_joint_xy_max_error_m':graph_delta,
+                'cached_graph_DiT_seconds':cached_seconds,'online_with_visual_cache_seconds':online_seconds,
+                'online_current_images_to_DiT_seconds':uncached_seconds,
                 'frozen_visual_cache_action_max_error':vision_delta,'target_poison_action_max_error':target_delta,'gate0_action_max_error':gate_delta,
                 'batch_singleton_action_max_error':batch_delta,'batch_singleton_mixed_tolerance_pass':batch_close,
                 'batch_singleton_xy_max_error_m':physical_batch_delta,'trained_append_tail_native_max_error':append_tail_delta}
@@ -89,6 +96,7 @@ def main():
         if a.variants else 'P1 engineering; ALL/MASK share one diagnostic graph for architecture parity, not comparative research'),
         'checked_checkpoints':checked_checkpoints,'foundation_sha256':identity['foundation_sha256'],
         'current_identity':corpus.manifest['identity_sha256'],
+        'latency_scope':'CUDA-synchronized singleton on the checked training-domain scenes, including first-call effects; current-images timing includes vision/Qwen/Reader/current head/local graph/DiT but excludes disk image decoding',
         'foundation_step':metadata['step'],'rows':rows,'tolerance_action_and_condition':1e-5,'gate_and_target_tolerance':0.,
         'batch_singleton_tolerance':{'atol':1e-5,'rtol':1e-5,'maximum_xy_error_m':1e-3,
             'amendment':'Original absolute-only1e-5 test failed at1.2994e-5; retained as evidence. Mixed FP32 scale tolerance declared before this rerun.',
