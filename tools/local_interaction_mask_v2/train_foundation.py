@@ -86,7 +86,7 @@ def main():
                 seed=int.from_bytes(hashlib.sha256(('20260926:'+s['example']['token']).encode()).digest()[:4],'little')
                 generator=torch.Generator(device='cuda').manual_seed(seed)
                 noise=torch.randn(1,8,4,device='cuda',dtype=c.dtype,generator=generator)
-                action=world.baseline.action_model.predict_action(c.float(),initial_noise=noise)
+                action=world.baseline.action_model.predict_action(c.float(),initial_noise=noise.float())
                 predicted=action[0,:,:2].float()*action.new_tensor([8.805105,2.277741])+action.new_tensor([10.172484,.360762])
                 target=s['ego'][:,:2].cuda()*action.new_tensor([8.805105,2.277741])+action.new_tensor([10.172484,.360762])
                 row={'token':s['example']['token'],'status':'ok','ego_ADE_m':float((predicted-target).norm(dim=-1).mean()),'ego_FDE_m':float((predicted[-1]-target[-1]).norm())}

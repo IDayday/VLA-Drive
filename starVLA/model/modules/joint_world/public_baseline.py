@@ -98,6 +98,6 @@ class PublicQwenBaseline(nn.Module):
         if initial_noise is None:
             initial_noise=torch.randn(len(examples),8,4,device=conditions.device,dtype=conditions.dtype)
         with torch.autocast('cuda',enabled=False):
-            actions=self.action_model.predict_action(conditions.float(),initial_noise=initial_noise)
+            actions=self.action_model.predict_action(conditions.float(),initial_noise=initial_noise.float())
         return {'normalized_actions':actions.cpu().numpy()}
 

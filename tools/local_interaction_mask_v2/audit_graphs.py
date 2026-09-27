@@ -42,7 +42,7 @@ def worker(payload):
         frame=raw_log(str(Path(a['raw_log_root'])/(log+'.pkl')))[token]
         anns=frame['anns'];raw=np.asarray(anns['gt_boxes'],dtype=np.float64);tracks=list(anns['track_tokens'])
         if not np.allclose(frame['lidar2ego'],np.eye(4),atol=1e-6):raise ValueError('Need explicit annotation coordinate adapter')
-        classes=np.array([CLASSES.index(name) for name in anns['gt_names']])
+        classes=np.array([CLASSES.index(name) for name in anns['gt_names']],dtype=np.int64)
         encoded=np.concatenate([raw[:,:6],np.sin(raw[:,6:7]),np.cos(raw[:,6:7])],-1)
         support=geometric_fov(raw[:,:3],observation.intrinsics,observation.camera_to_ego,observation.distortion)
         relevant,_,_,_=corridor_relations(encoded,classes,observation,config)
@@ -120,6 +120,7 @@ def main():
     p.add_argument('--workers',type=int,default=6);p.add_argument('--limit',type=int);a=vars(p.parse_args());out=Path(a['output']);out.mkdir(parents=True,exist_ok=False)
     for name in ('graphs','nodes','visualizations'):(out/name).mkdir()
     manifest=json.loads((Path(a['cache'])/'manifest.json').read_text());config=json.loads(Path(a['selector']).read_text());records=manifest['records'][:a['limit']]
+    manifest={k:v for k,v in manifest.items() if k!='records'}
     with get_context('spawn').Pool(a['workers']) as pool:rows=list(pool.imap(worker,((r,a,manifest,config) for r in records),chunksize=8))
     keys=sorted(set().union(*(r.keys() for r in rows)))
     with (out/'scenes.csv').open('w') as f:w=csv.DictWriter(f,keys);w.writeheader();w.writerows(rows)
