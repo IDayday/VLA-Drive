@@ -1,0 +1,79 @@
+{
+  "scenes": 64,
+  "logs": 59,
+  "failed": 0,
+  "valid": true,
+  "code_sha": "c66e6f86636377c575990598e4f33671e67fb495",
+  "checkpoint_sha256": [
+    "995eb5bfa814e2b427d9a01f391bbc28b5a3a83e0560c6246a662b935ffa10d7",
+    "5de9a5782eb148aaf34df1714c4148f0aabb4a81b5baec656bd5c7098fbbf496"
+  ],
+  "current_manifest_sha256": [
+    "efa5ed61b9c048511e54e302d2e51fd635af1e541c7ce2408a0a0249844e354c",
+    "efa5ed61b9c048511e54e302d2e51fd635af1e541c7ce2408a0a0249844e354c"
+  ],
+  "label_fingerprints": [
+    "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+    "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51"
+  ],
+  "same_graph_required": true,
+  "common_tracks": 54,
+  "interpretation": "Both models evaluated on the same matched GT track/time cohort; coverage is reported separately, not full-target accuracy",
+  "conditioning": "current inputs + all-hidden source-stable noise, no GT future in either sampling forward",
+  "metrics": {
+    "ego": {
+      "valid_points": 512,
+      "FDE_targets": 64,
+      "first_ADE_m": 2.2253459985367954,
+      "first_FDE_m": 4.831751863472164,
+      "baseline_ADE_m": 2.208987206220627,
+      "baseline_FDE_m": 4.8276263773441315,
+      "paired_ADE_delta_m": 0.016358792316168547
+    },
+    "ego_dynamic": {
+      "valid_points": 504,
+      "FDE_targets": 63,
+      "first_ADE_m": 2.1877005360429247,
+      "first_FDE_m": 4.763002512000856,
+      "baseline_ADE_m": 2.1691749058072527,
+      "baseline_FDE_m": 4.753581985594734,
+      "paired_ADE_delta_m": 0.018525630235671997
+    },
+    "ego_static": {
+      "valid_points": 8,
+      "FDE_targets": 1,
+      "first_ADE_m": 4.597010135650635,
+      "first_FDE_m": 9.16296100616455,
+      "baseline_ADE_m": 4.717162132263184,
+      "baseline_FDE_m": 9.492423057556152,
+      "paired_ADE_delta_m": -0.12015199661254883
+    },
+    "agents": {
+      "valid_points": 406,
+      "FDE_targets": 45,
+      "first_ADE_m": 3.9278253992202834,
+      "first_FDE_m": 6.836259786287943,
+      "baseline_ADE_m": 4.002322309710122,
+      "baseline_FDE_m": 6.868749380111694,
+      "paired_ADE_delta_m": -0.07449691048983853
+    },
+    "agents_dynamic": {
+      "valid_points": 222,
+      "FDE_targets": 22,
+      "first_ADE_m": 4.613960042730108,
+      "first_FDE_m": 9.4108824824745,
+      "baseline_ADE_m": 4.547573038049646,
+      "baseline_FDE_m": 9.26390356909145,
+      "paired_ADE_delta_m": 0.06638700468046199
+    },
+    "agents_static": {
+      "valid_points": 184,
+      "FDE_targets": 23,
+      "first_ADE_m": 3.099989046221194,
+      "first_FDE_m": 4.373577221580174,
+      "baseline_ADE_m": 3.344465416410695,
+      "baseline_FDE_m": 4.5777322870233785,
+      "paired_ADE_delta_m": -0.24447637018950097
+    }
+  }
+}
