@@ -17,6 +17,7 @@ import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
+from starVLA.model.modules.action_model.navsim_decode import deal_action_1225
 
 from starVLA.dataloader.navsim_dataset import NavSimDataset, collate_fn
 from starVLA.model.framework.QwenOFT import Qwenvl_OFT
@@ -116,30 +117,6 @@ def smooth_pose_pred(pred: np.ndarray, alpha_xy: float = 0.4, alpha_heading: flo
             out[:, t, 2] /= r
             out[:, t, 3] /= r
     return out
-
-
-def deal_action_1225(pred: np.ndarray, scale_x: float = 4.5912, act_norm: int = 0,
-                     scale_y: Optional[float] = None) -> np.ndarray:
-    """
-    Convert predictions from ver_1225 format to (x, y, heading) poses.
-
-    pred:    (B, H, 4) = [dx, dy, sin(dθ), cos(dθ)]
-    returns: (B, H, 3) = [x, y, θ]
-    """
-    pred = np.asarray(pred)
-    dxdy = pred[..., :2].copy()
-
-    if act_norm == 0:
-        dxdy[..., 0] *= scale_x
-    else:
-        dxdy[..., 0] = dxdy[..., 0] * _X_STD + _X_MEAN
-        dxdy[..., 1] = dxdy[..., 1] * _Y_STD + _Y_MEAN
-
-    if scale_y is not None:
-        dxdy[..., 1] *= scale_y
-
-    theta = wrap_to_pi(np.arctan2(pred[..., 2], pred[..., 3]))
-    return np.concatenate([dxdy, theta[..., None]], axis=-1)
 
 
 def _denorm_action_batch(normed: np.ndarray, q01: np.ndarray, q99: np.ndarray) -> np.ndarray:

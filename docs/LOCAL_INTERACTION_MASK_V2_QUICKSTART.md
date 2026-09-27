@@ -6,6 +6,8 @@ This campaign is active. Formal planning results are not available yet. Its bind
 
 The real GPU runs use Python3.10, PyTorch2.5.1/CUDA12.4 and the repository's Qwen3-VL dependencies in `/root/miniconda3/envs/ddp`. Official CPU NAVSIM scoring runs separately in `/root/miniconda3/envs/navsim` with NAVSIMv1.1 and the nuPlan devkit. No external service is needed. Keep native Qwen BF16 and original DiT FP32; BF16 noise draws are converted to FP32 at the action head boundary. Model loading verifies every public file against `PUBLIC_QWEN_PROVENANCE.json`.
 
+`configs/local_interaction_mask_v2/requirements-gpu.txt` and `requirements-scorer.txt` record the core versions actually used, with Python3.10 and3.9 respectively. Install them in separate environments. The full runtime snapshots are `GPU_ENVIRONMENT.json` and `SCORER_ENVIRONMENT.json`. A fresh clean installation of these lists is NOT_RUN; they are not represented as a solved universal lockfile. This repository bundles the NAVSIMv1.1 source at `navsim_v1.1/navsim`; add it and the separately installed official nuPlan source to the scorer's `PYTHONPATH`. No private driving checkpoint is required.
+
 Set paths for your own licensed NAVSIM installation; every data/model/output location is a CLI argument. `PYTHONPATH` must include this repository and nuPlan. Example shell setup:
 
 ```bash
@@ -15,6 +17,17 @@ export NO_ALBUMENTATIONS_UPDATE=1
 ```
 
 Current data specifications are JSON objects containing `tokens` (path to a JSON token list), `observations` (current calibrated NPZ directory), and either `meta_root` (legacy per-token pickle) or `current_records` (strict current-only per-token JSON). Deployment reads only currentF0/L0/R0 images, their calibrated transforms, navigation and four allowed ego history states. `prepare_current_records` generates Navtest records from the exact metric-cache token/log index without reading annotations or future frames into outputs. WorldTargets and ego futures are opened separately on the loss side.
+
+Exact scene/log manifests are published in `configs/local_interaction_mask_v2/splits/`, containing public dataset identifiers only. For researchers without this workspace's preprocessing files, rebuild from licensed raw NAVSIM logs and sensor images:
+
+```bash
+python -m tools.local_interaction_mask_v2.prepare_training_data \
+  --index configs/local_interaction_mask_v2/splits/train_index.json \
+  --raw-log-root "$NAVSIM_TRAIN_LOGS" --sensor-root "$NAVSIM_TRAIN_SENSORS" \
+  --output "$NEW_TRAIN_DATA"
+```
+
+This new entry point is implemented; its raw-data parity check is pending at this documentation stage. It writes current-only `current_records/observations` separately from `labels/targets` and `labels/ego_meta`. Use the emitted `training_dataset.json` to set foundation/graph label paths, and `current_dataset.json` for deployment feature extraction. Repeat for holdout and dev with their fixed index files. For Navtest use `prepare_current_records` directly, with the Navtest index and test sensor/log roots; no model-input target cache is needed. Existing caches are never overwritten.
 
 ## Actually run checks
 
@@ -78,6 +91,10 @@ The `selected.pt` file is a separate, strictly parent-bound current head. Future
 
 To reuse immutable current features without another Qwen pass, run `refresh_current_heads --cache "$TRAIN_CURRENT_CACHE" --perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt" --dataset "$CURRENT_DATA_SPEC" --output "$NEW_CURRENT_CACHE"`. It verifies all source payload hashes/current observation identities, reproduces the head at native precision, and writes a fresh cache with the head hash. It opens no targets. Actual online/cache validation remains required before promotion. These new refinement commands are implemented but NOT_RUN at this documentation stage.
 
+The7284scene8pass current-head pilot has now completed: independent holdoutF1 .164847→.213918, recall .239279→.297079, precision .125735→.167133. These are native-adapter epoch8features and remain diagnostic, not final pipeline/planning results. The64scene head pause/resume check restores parameters/loss/RNG/selection exactly. Formal refinement will be trained anew on the final foundation and repaired language numerics below.
+
+The trained Qwen prefix check uncovered length-dependent BF16 LoRA matrix rounding: no information leakage from erased tail tokens, but a .08165m actual DiT trajectory difference between native and appended sequence shapes. Explicit FP32 computation ONLY for the small language LoRA repairs this check; original Qwen staysBF16. This changes inference numerics relative to the foundation's BF16-adapter training, and is recorded rather than called identical to that old arithmetic.64real epoch8training scenes now have exact native/append conditions under the repaired path. All formal arms use this same runtime. Add `--language-adapter-precision fp32` to `extract_current` and `check_online`; online `load_foundation` accepts the same named setting. It is included in cache/override identities. Native-precision current caches/heads cannot be reused across this boundary.
+
 ## Main graph and planner commands (formal runs NOT_RUN yet)
 
 Freeze an immutable foundation checkpoint before formal current extraction. Never hash/load a changing rolling checkpoint. The extractor reconstructs all modules strictly using the saved public-origin identity and configuration from its recorded Git commit.
@@ -87,6 +104,7 @@ python -m torch.distributed.run --standalone --nproc_per_node=8 \
   -m tools.local_interaction_mask_v2.extract_current \
   --checkpoint "$FOUNDATION" --public-qwen "$PUBLIC_QWEN" \
   --dataset "$CURRENT_DATA_SPEC" --visual-cache "$VISUAL_CACHE" \
+  --language-adapter-precision fp32 \
   --selector configs/local_interaction_mask_v2/selector_v1.json \
   --graph-config configs/local_interaction_mask_v2/graph.json --output "$CURRENT_CACHE"
 
@@ -130,6 +148,8 @@ python -m tools.local_interaction_mask_v2.score_async \
 ```
 
 Use the appropriate independent Python environments above. Repeat the CPU command for each fixed model. For two-host GPU export pass distinct `--shard`/`--shards`; CPU log partitioning uses `--log-shard`/`--log-shards` with separate output directories. No full result is valid with missing/duplicate tokens, failed rows, changed artifact hashes, or mixed protocols. CSV rows contain official submetrics, proposal/cache hashes and failure messages. Failed scores remain in the denominator as zero and invalidate a benchmark claim.
+
+Two independent8GPU torchrun exporters can use `--shards 16 --shard-offset 0` and `--shards 16 --shard-offset 8`, preserving local process groups while assigning disjoint scene shards. After all CPU log partitions finish, `merge_scores --parts "$PART0" "$PART1" --index "$NAVTEST_CACHE_INDEX" --predictions "$EXPORT_ROOT/A0" --export-shards 16 --benchmark-navtest --output "$MERGED_A0"` checks full populations, common model/source/noise/evaluator identities and proposal provenance before writing one complete scene CSV. `compare_pdms --first "$MERGED_MODEL/scenes.csv" --baseline "$MERGED_A0/scenes.csv" --navtest --output "$PAIRED_REPORT"` reports paired submetrics and log-cluster intervals. The lightweight original decoder is shared with `infer.py`; exact parity was checked against the original source and128previous actual exports.
 
 ## Recovery
 

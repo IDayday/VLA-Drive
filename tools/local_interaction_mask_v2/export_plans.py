@@ -47,7 +47,7 @@ def main():
             if not a.resume or json.loads(ident.read_text())!=identity:raise ValueError('Export identity changed; use fresh directory')
         else:atomic_json(ident,identity)
     # Use the repository's original decoder, including its yaw wrapping.
-    from infer import deal_action_1225
+    from starVLA.model.modules.action_model.navsim_decode import deal_action_1225
     rows={name:[] for name in variants};complete=True
     indices=list(range(shard,len(corpus),shards))
     for offset in range(0,len(indices),a.batch):
