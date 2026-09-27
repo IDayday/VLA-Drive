@@ -102,7 +102,7 @@ class StructuredWorldPolicy(nn.Module):
             else:
                 parts,deepstack = visual_cache.get(examples[0],q,model)
             image = torch.cat(parts,0)
-        embeds = model.get_input_embeddings()(ids)
+        embeds = base.embed_input_tokens(ids) if hasattr(base,'embed_input_tokens') else model.get_input_embeddings()(ids)
         state = torch.as_tensor(np.array([e['state'] for e in examples]),device=ids.device,dtype=torch.float32)[:,0]
         with torch.autocast('cuda', enabled=False):
             states = base.action_input_model(state).to(embeds.dtype)

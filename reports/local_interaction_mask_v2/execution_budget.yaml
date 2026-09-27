@@ -60,9 +60,17 @@ public_foundation:
   schedule: warmup100_updates_then_cosine_over16_epochs_min_factor0.1
   world_losses: [classification, current_box]
   ego_loss: original_FM
-  frozen: [public_Qwen, visual_provider, unused_legacy_motion_head]
-  random_initialization: [original_DiT, ego_history_projector, Reader, current_heads]
+  frozen: [original_public_Qwen_tensors, visual_provider, unused_legacy_motion_head]
+  random_initialization: [original_DiT, ego_history_projector, Reader, current_heads, common_Qwen_rank8_LoRA, driving_token_embeddings]
   extension_rule: Jointly shared foundation may extend8to16 if holdout egoADE or class_filtered_recall changes by >2percent from6to8; noPDMS consulted. Eightpasses alone is not convergence evidence. The16GPUh foundation+features reservation remains binding.
   holdout_frequency_epochs: 1
   main_learning_selection: training-domain64scene59log_holdout_only
   final_Navtest_selection: forbidden
+
+latest_resource_steering:
+  batch_and_epochs_may_be_changed: true
+  basis: measured throughput/memory and training-domain holdout convergence, never Navtest
+  core_pairs_match_conditions: true
+  multiple_training_seeds: false
+  public_language_adaptation: shared_rank8_q_v_LoRA_alpha16_plus_driving_tokens_lr1e-5
+  paper_equivalent_reproduction_claim: false

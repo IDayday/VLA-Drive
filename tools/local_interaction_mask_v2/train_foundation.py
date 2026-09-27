@@ -52,13 +52,18 @@ def main():
     identity={'schema_version':2,'code_sha':code,'arguments':settings,'world_size':count,'data_sha256':datahash.hexdigest(),
         'tokens_sha256':hashlib.sha256(json.dumps(tokens).encode()).hexdigest(),'public_provenance':json.loads(Path(a.provenance).read_text()),
         'private_driving_weights_loaded':False,'exact_resume_boundary':'optimizer step, same code/data/topology/precision, explicit epoch offset and all rank RNG',
-        'trainable':'fresh original DiT, history projector, post-Qwen Reader and current bbox/classification heads; Qwen frozen; unused motion head frozen'}
+        'trainable':'fresh original DiT, history projector, post-Qwen Reader and current bbox/classification heads; public Qwen base/vision frozen; common rank8 language LoRA/new driving token embeddings when configured; unused motion head frozen'}
     if not a.resume and (out/'checkpoint.pt').exists():raise ValueError('Refuse to overwrite existing training run')
     random.seed(a.seed);np.random.seed(a.seed);torch.manual_seed(a.seed);torch.cuda.manual_seed(a.seed)
     world=create_world(a.public_qwen,OmegaConf.load(a.config),identity['public_provenance'],a.seed,a.visual_cache,code)
     objective=FoundationObjective(world)
     params=[p for p in objective.parameters() if p.requires_grad]
-    opt=torch.optim.AdamW(params,lr=a.lr,weight_decay=.01)
+    adapted=list(world.baseline.qwen_adapters.parameters())
+    if world.baseline.driving_token_embeddings is not None:adapted+=list(world.baseline.driving_token_embeddings.parameters())
+    adapted_ids={id(p) for p in adapted}
+    groups=[{'params':[p for p in params if id(p) not in adapted_ids],'lr':a.lr}]
+    if adapted:groups.append({'params':adapted,'lr':1e-5})
+    opt=torch.optim.AdamW(groups,lr=a.lr,weight_decay=.01)
     horizon=math.ceil(len(tokens)/a.global_batch)*a.schedule_epochs
     schedule=torch.optim.lr_scheduler.LambdaLR(opt,lambda s:min((s+1)/100,1)*(.1+.9*.5*(1+math.cos(math.pi*min(s,horizon)/horizon))))
     step=epoch=offset=presentations=0

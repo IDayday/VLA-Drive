@@ -47,7 +47,7 @@ def worker(payload):
         support=geometric_fov(raw[:,:3],observation.intrinsics,observation.camera_to_ego,observation.distortion)
         relevant,_,_,_=corridor_relations(encoded,classes,observation,config)
         chosen={x['track_id'] for x in association['assignments'] if x['used_for_local_loss']}
-        selected=np.array([t in chosen for t in tracks])
+        selected=np.array([t in chosen for t in tracks],dtype=bool)
         if int(selected.sum())!=len(chosen):raise ValueError('GT track association not found in raw current annotations')
         old_valid=sum(x['future_valid_points']>0 for x in association['assignments'])
         row={'token':token,'log':log,'status':'ok','scope':a['purpose'],'navigation':observation.navigation,

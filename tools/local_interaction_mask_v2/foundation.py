@@ -23,7 +23,9 @@ MODULES=('history','DiT','reader','heads')
 
 
 def modules(world):
-    return dict(history=world.baseline.action_input_model,DiT=world.baseline.action_model,reader=world.reader,heads=world.heads)
+    result=dict(history=world.baseline.action_input_model,DiT=world.baseline.action_model,reader=world.reader,heads=world.heads,qwen_adapters=world.baseline.qwen_adapters)
+    if world.baseline.driving_token_embeddings is not None:result['driving_tokens']=world.baseline.driving_token_embeddings
+    return result
 
 
 def create_world(public_path,config,provenance,seed=42,visual_cache=None,code_sha=''):
@@ -44,7 +46,7 @@ def module_state(world):return {name:module.state_dict() for name,module in modu
 
 
 def restore_modules(world,saved):
-    if set(saved)!=set(MODULES):raise ValueError('Missing/unexpected foundation modules')
+    if set(saved)!=set(modules(world)):raise ValueError('Missing/unexpected foundation modules')
     for name,module in modules(world).items():module.load_state_dict(saved[name],strict=True)
 
 

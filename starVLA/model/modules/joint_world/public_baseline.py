@@ -75,11 +75,31 @@ class PublicQwenBaseline(nn.Module):
             self.action_model=FlowmatchingActionHead(self.config) if initialize_head else None
         self.action_input_model=self.action_input_model.cuda().float()
         if self.action_model is not None:self.action_model=self.action_model.cuda().float()
+        adaptation=self.config.get('public_adaptation',{})
+        self.qwen_adapters=nn.ModuleDict()
+        self.driving_token_embeddings=None
+        adaptation_metadata={'rank':0,'trainable_driving_tokens':False}
+        if adaptation.get('lora_rank',0):
+            from .public_adapters import install_language_adapters
+            self.qwen_adapters,adaptation_metadata=install_language_adapters(model,int(adaptation['lora_rank']),int(adaptation.get('lora_alpha',16)),seed+3000)
+        if adaptation.get('train_driving_tokens',False):
+            self.driving_token_embeddings=nn.Embedding.from_pretrained(model.get_input_embeddings().weight[ids].detach().float().clone(),freeze=False)
+            self.register_buffer('driving_token_ids',torch.tensor(ids,device=model.device,dtype=torch.long))
+            adaptation_metadata['trainable_driving_tokens']=True
         self.public_origin={'schema_version':2,'public_repo':PUBLIC_REPO,'public_revision':PUBLIC_REVISION,
                             'public_weights_sha256':PUBLIC_WEIGHTS_SHA256,'initialization_seed':seed,
                             'token_ids':dict(zip(tokens,ids)),'added_embedding_seed':seed+11,'new_module_seed':seed+23,
                             'private_driving_weights_loaded':False,'action_head_initialization':'random_original_architecture',
-                            'public_source_files':provenance['files']}
+                            'public_source_files':provenance['files'],'language_adaptation':adaptation_metadata}
+
+    def embed_input_tokens(self,ids):
+        embedded=self.qwen_vl_interface.model.get_input_embeddings()(ids)
+        if self.driving_token_embeddings is not None:
+            # Fixed token identities, never targets or GT object counts.
+            matched=ids[...,None]==self.driving_token_ids
+            position=matched.any(-1)
+            embedded[position]=self.driving_token_embeddings(matched.long().argmax(-1)[position]).to(embedded.dtype)
+        return embedded
 
     def native_conditions(self,examples):
         from starVLA.model.modules.structured_world.policy import StructuredWorldPolicy

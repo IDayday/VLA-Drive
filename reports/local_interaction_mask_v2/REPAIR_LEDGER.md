@@ -1,3 +1,5 @@
 # Bounded repair ledger
 
 2026-09-27, implementation repair1. The da884fc eight-GPU foundation run failed BEFORE optimizer update during its initial holdout inference: a BF16 initial-noise tensor reached the FP32 original DiT linear layer. The preceding real two-GPU backward/resume test did not exercise holdout sampling. Hypothesis: explicitly casting the already-drawn BF16 noise values to FP32 at the public DiT boundary fixes the dtype mismatch without changing the random draw or its values. Apply to public baseline inference and foundation holdout, then exercise the actual holdout before long training. Preserve failed run, traceback and charged GPU hours. No learning-rate, label, selector or metric change.
+
+CPU audit correction: 50 raw empty-target scenes were retained as failures because NumPy inferred float dtype for an empty selected-track vector before boolean set intersections. Explicit bool dtype fixes the audit reduction. It does not change graph construction, supervision or any prediction. Preserve first audit and rerun into a new directory including all7284 scenes.
