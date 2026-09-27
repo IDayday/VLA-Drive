@@ -13,7 +13,30 @@
   "backbone": "DINOv2 ViT-L fine-tuned for Depth Anything V2; only pretrained.* keys proposed",
   "sensor_contract": "current CAM_F0/L0/R0 only; no depth GT, LiDAR or history input",
   "license_note": "Large weights CC-BY-NC-4.0 per upstream README; repository source Apache-2.0",
-  "training_data_audit": "official release/paper provenance pending detailed extraction",
+  "training_data_audit": {
+    "source": "https://arxiv.org/html/2406.09414v2#A1",
+    "teacher_synthetic_images": 595000,
+    "teacher_datasets": [
+      "BlendedMVS",
+      "Hypersim",
+      "IRS",
+      "TartanAir",
+      "VKITTI2"
+    ],
+    "student_pseudo_labeled_real_images": 62000000,
+    "student_datasets": [
+      "BDD100K",
+      "Google Landmarks",
+      "ImageNet-21K",
+      "LSUN",
+      "Objects365",
+      "Open Images V7",
+      "Places365",
+      "SA-1B"
+    ],
+    "pretraining_navsim_log_overlap": "UNKNOWN; do not claim this prior has never seen development content",
+    "external_pretraining_compute": "Not reproduced and not treated as zero cost; exact upstream GPU-hours not measured here"
+  },
   "deployment_cost": {
     "mean_provider_seconds": 0.24033636889362242,
     "scope": "GPU RGB tensors through actual pretrained backbone and calibrated pooling; excludes image decode",
@@ -98,5 +121,6 @@
     }
   },
   "class_correct_train_recall": 0.47459252157238735,
-  "class_correct_holdout_recall": 0.15910503418272218
+  "class_correct_holdout_recall": 0.15910503418272218,
+  "online_qwen_connectivity": "PASS; see PRETRAINED_INJECTION.json; no planning gain claim"
 }

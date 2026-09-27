@@ -1,0 +1,64 @@
+{
+  "scene": "2b0deb39ff8355ec",
+  "provider_metadata": {
+    "schema_version": 1,
+    "provider": "DAV2_ViTL_visual_plus_new_calibrated_BEV_v1",
+    "sensor_contract": {
+      "cameras": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "time": "current_only"
+    },
+    "coordinates": "ego_t0_x_forward_y_left_z_up_metres",
+    "extrinsics": "camera_to_ego",
+    "grid": {
+      "bounds": [
+        1.0,
+        -20.0,
+        50.0,
+        20.0
+      ],
+      "resolution": 1.0,
+      "shape": [
+        49,
+        40
+      ],
+      "heights": [
+        0.0,
+        1.0,
+        2.0
+      ]
+    },
+    "feature_dimension": 1024,
+    "support_semantics": "geometric_FOV_not_occlusion_or_confidence",
+    "pretrained_bev": false,
+    "backbone_weights_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+    "backbone_source_sha256": "11094453a35528f996c48649afcb00ab161a83ef59880e1d6be1f3782075f2d9",
+    "backbone_internal_resize": "(H//16*14,W//16*14), bicubic align_corners=False",
+    "backbone_normalization": {
+      "mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    },
+    "learned_bev_fusion": false
+  },
+  "all_provider_parameters_frozen": true,
+  "gate0_native_exact": true,
+  "post_qwen_agent_hidden_change_on_zero_features": 64.0,
+  "open_gate_action_change": 0.0008035898208618164,
+  "full_online_policy_seconds": 0.6003974322229624,
+  "target_loading": false,
+  "provider_probe_steps": 600,
+  "optimizer_updates": 0,
+  "interpretation": "Connectivity and native-policy fidelity only. Feature blanking/opening gate are OOD diagnostics, not planning effectiveness or causal proof.",
+  "status": "PASS"
+}

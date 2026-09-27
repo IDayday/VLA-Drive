@@ -1,46 +1,53 @@
 # Structured World V1.1 signal rehabilitation — ACTIVE
 
-Objective: reports/structured_world_v1p1/OBJECTIVE.md (full new attachment).
-Base: 393c53bbd685c77694d342496a0b5cd7aa1ae735.
-Branch: feature/structured-world-v1p1-signal-rehab-20260927.
-Worktree: /mnt/project/VLA-Drive-structured-world-v1p1-20260927.
-New artifacts: /mnt/project/structured-world-v1p1-artifacts/20260927.
-Old artifacts: /mnt/project/structured-world-v1-artifacts/20260926 (immutable).
+Objective: reports/structured_world_v1p1/OBJECTIVE.md (new user attachment). Read it before continuation.
+Base393c53b; isolated branch feature/structured-world-v1p1-signal-rehab-20260927.
+Development worktree /mnt/project/VLA-Drive-structured-world-v1p1-20260927.
+Immutable run-source worktree /mnt/project/VLA-Drive-v1p1-runs-d537401 at d537401c5029d80a84d0a9d3f77e275fe8c7e669. Running small-set experiments use this pinned source, not moving development HEAD.
+New artifacts /mnt/project/structured-world-v1p1-artifacts/20260927; old artifacts /mnt/project/structured-world-v1-artifacts/20260926 remain immutable.
 
 ## Completed
 
-- P0: independent maximum-cardinality-then-distance current matching, strict <2m, optional same-class constraint. Legacy matcher/metrics retained; old reports unchanged. New evaluate.py uses independent metrics, old rediagnose.py explicitly legacy, old summarizer rejects new schema instead of silently reporting wrong numbers.
-- Full12 old banks ×1696 scenes re-audited from NPZ with full v6 targets:20352 rows,0 failures, no VLM/PDM rerun. Figures/sums/fingerprints in METRIC_REAUDIT.*. C_support and adapter have zero objectness-positive predictions, all108544 centres in support; raw recall1.3743/2.1539%. Genuine no-object and localisation collapse alongside old metric defect.
-- Actual64-scene dataset actions decoded through released decoder agree with independent ego(t0) SE2 (max2.65e-6m/2.36e-7rad). Raw time/current cameras/poses checked. Initial audit used matrix ZYX yaw and failed; correct NAVSIM Quaternion.yaw_pitch_roll gives max4.44e-16rad. Failed audit retained; training labels/tolerances unchanged. A1/A0 factor decomposition and39 high-to-zero scenes saved.
-- P1 append_tail implemented, legacy_pre_action default retained. Actual64 real GPU scenes: native prefix embedding/mRoPE/mask/hidden/action and final trajectories EXACT for append_tail and actual gate0 bridge. Legacy untrained insertion shifts up to6.88284m. No optimizer updates.
-- Nine targeted CPU tests pass (metrics, brute-force matching, append positions/padding, gate gradients). Do not repeat old full V1 validation suite.
-- Reports/commands/status/index committed. Latest implementation c2f00248d204a6f10522dce9165516c3189d7b37 (P1 check); later commits contain evidence/summary guard. Determine current HEAD with git.
+P0/P1: complete12-bank20352-row read-only metric re-audit; independent maximum-cardinality geometry/class matching, legacy preserved; actual ego supervision/timing audit; original1696 PDMS untouched. append_tail preserves native prefix/mRoPE/action and trajectories EXACT on64 real scenes with actual gate0 adapter; legacy untrained insertion shifts up to6.88m. Reports METRIC_REAUDIT/INJECTION_SHIFT.
 
-## Next required work (not complete)
+P2 implementation: reference residual heads, fixed-current-reference eligibility, separated GT displacement supervision, pre/post-Qwen head choice, bounded graph accumulation, locked wall-time/step budget, strict resume.14 targeted CPU tests passed. Real300-step checkpoint/target-independence/newgate0 action/serialization test passes. Actual optimizer+sampler resumption has run. Original VLM/vision/DiT all frozen; Reader/queries/project/current/motion heads update.
 
-P2 first: implement and test coordinate references/residual decode, current-reference-based no-object eligibility, displacement-only motion loss, W_PRE/W_POST head readout and real accumulation trainer. Hypotheses in WORLD_LEARNABILITY.md. These are not implemented yet and must not be reported as learned.
-Run matched W_PRE/W_POST first16 then full64 using original overfit_tokens.json and v6 labels. No GT selection/token count. Each variant <=1000 updates, preferred batch8. Freeze original Qwen/vision/DiT; frozen Qwen forward must propagate Reader gradients. No full-Qwen graphs retained over accumulation. Only if W_PRE learns and adequately trained W_POST fails may one LoRA bottleneck probe be added. Engineering target ≥80% geometry recall/≥50% precision on full64; class-correct and failures also report.
-P3: at most one genuine external pretrained feature provider, or explicit NOT_TESTED. Old random CNN is not such a provider.
-P4 gated on world learnability: matched current vs current+motion, each >=4 passes8192 scenes, then P_CAPACITY/P_CURRENT/P_FUTURE with original frozen driving model, zero gate and same exposure. Original1696 dev protocol; no navtest tuning. Include all runs/intermediates, not best checkpoint cherry-picking.
-Required remaining deliverables: WORLD_LEARNABILITY, PROVIDER_AUDIT, PLANNING_PILOT, new trainer/resume/configs/viz, run ledger, final four independent statuses. Final push only new branch and verify SHA.
+Matched16 diagnostic final checkpoint300: W_PRE57.6779% recall/35.5658% precision/55.4307% class recall; W_POST61.4232%/41.1028%/58.8015%. Each2400 presentations150 epochs. W_PRE consumed304, with4 interrupted extra updates charged; model300 used for pairing. W_POST phase ended300. Do not resume either16 phase; approved_end_step in ledger. First64 launches stopped at0 updates for conservative budget reconciliation, histories retained. New64 runs each696, combined family W_PRE1000/W_POST996 updates. **Both64 experiments still running, gate80%/50% NOT passed yet.**
 
-## Budget / resources
+Full capacity999 target cache targets_v6_full128 generated128/128,0 failures; all64 training target fields exactly match originalv6 (zero truncation). Holdout64 selected BEFORE evaluation by complete logs excluding57 overfit logs;59 holdout logs,zero overlap. train_log_holdout64_tokens.json is authoritative. Earlier token-only candidate holdout was never used for adaptation/validation.
 
-New cap24000 optimizer steps AND48 GPU-hours. Used0 steps and0.039005458884769015 GPU-hours (P1 inference charged conservatively). Old11639 steps sealed. New ledger at artifacts/budget_ledger.json; no further jobs live after P1 completed. Both repair rounds available; CPU reference-audit correction is not a failed learning run.
-P1 paused only verified local gpu_stress.py parent168455, its0–3 workers; local4–7 original placeholders untouched. Restored0–3 via same gpu_stress.py command, verified parent663431/workers663535–663538 (session63132); inspect placeholder_restore_verified.log/current nvidia-smi before future pause. Initial detached shell launch failed and was retried; see RESOURCE_STATE.json. No other training task stopped. Local and training-vla-zt2 allowed; inspect real process ownership before use.
+P3 one real external prior: official Depth Anything V2 Large weight hash a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345 verified against HuggingFace LFS. Frozen pretrained visual backbone + NEW calibrated geometric BEV, NOT pretrained BEV.192 cache extractions total (first128 includes unused candidate holdout; second64 proper log holdout). Independent probe trains Reader/current heads600 updates, batch8,64 scenes,75 epochs; backbone frozen. Train recall52.7325% precision27.7497%, log-holdout recall23.6793% precision16.6085%. TESTED_INCONCLUSIVE. Real online prior→Reader→Qwen→adapter→DiT connectivity passed; gate0 native exact, blanking changes world hidden, nonzero gate changes actions. This is connectivity only, no planning benefit. Source, model-specific CC-BY-NC-4.0 weights license, pretraining data and cost in PROVIDER_AUDIT; upstream training compute not treated as zero.
 
-## Recovery commands / paths
+Full-GT16 inference exports completed both variants; per-object failures/predicted NPZ;32 rendered PNGs (same16 scenes×2 variants) with geometric matches. Indexes in artifacts, no private images/data in Git.
+
+## Live jobs — verify before waiting or resuming
+
+- W_POST_64_bounded696_d537401: PID677139, accounted step322, GPU-hours0.3077 (live value will advance).
+- W_PRE_64_bounded696_d537401: PID677138, accounted step627, GPU-hours0.3078 (live value will advance).
+
+W_PRE64 tool session66235, PID677138, localGPU2. W_POST64 session38157, PID677139, localGPU3. Both terminal target696 steps; eval_every100 and final696. Do not restart while handles/processes live. Other experiment jobs completed:16 training, provider probe, source extraction, trained checkpoint checks, pretrained injection,16 eval, visualisation.
+GPU0/1 placeholder restore launched in session46824, log idle_gpu01_restore.log; verify actual PID before pausing. Original local4–7 workers3516985..3516988 untouched. vla-zt2 resources available but unchanged this round. No unrelated tasks stopped.
+
+## Immediate next work
+
+1. Poll actual64 jobs and inspect fixed-step eval files. Do not redraw data, thresholds, tokens or initialization to pass the gate. Peak memory observed13.3GB PRE/17.6GB POST; batch8. Failures/aborted costs retained.
+2. Once terminal, export full64 predictions, full-GT object CSV and stationary-motion comparison via tools/structured_world_v1p1/evaluate_world.py; use targets_v6_full128. Holdout evaluation only after the learnability gate, as objective requests. Need per-object/full-class failure analysis, dynamic/static ADE/FDE, motion coverage. No unmatched ADE=0.
+3. If learning still insufficient, at most two documented repair rounds remain. Shared-query cls gradients in original64 traces exceed box gradients ~4–10x; do not blindly scale by hundreds. Actual300-step16 residual diversity is nontrivial, so do not simply assert identical-slot collapse. Per-task cosine/assignment churn and actual postclip norm were not fully recorded; add targeted diagnosis before claiming a specific failure cause. No LoRA unless W_PRE has learned and sufficiently trained W_POST fails.
+4. P4 remains NOT_RUN and not yet implemented. Must only proceed after world learnability: independent current-only/current+motion pretraining each>=4×8192 exposures, then only P_CAPACITY/P_CURRENT/P_FUTURE with matched budget/provider/append-tail, frozen original driving model, gate0 step0 fidelity. Do not reuse small-set1000-step cap for long pretraining. Track real scene exposures, complete1696 dev PDMS fixed protocol, compare A0 and control, fixed intermediate/final results, optional shared velocity-field preservation only once if all regress. No navtest tuning, no RL/scorer/fullDiT updates.
+5. Finish reports FOUR separate statuses, run ledger, commands/configs/checkpoint/resume/viz and final requirement-by-requirement audit. Stage commits exist, new branch NOT YET PUSHED; final push only task branch and verify remote SHA.
+
+## Budget and recovery
+
+New cap24000 optimizer updates and48 GPU-hours. Authoritative live budget_ledger.json with locks in NEW artifacts; snapshot REPORT RUN_LEDGER is not live. Initial isolation family aggregate cap1000 is explicitly enforced by the planned16+64 counts. Provider600 updates separate, all unsuccessful starts and GPU checks charged. Both convergence repair rounds unused. Old11639 steps sealed.
 
 cd /mnt/project/VLA-Drive-structured-world-v1p1-20260927
 export PYTHONPATH=.:/mnt/project/DriveVLA-M0/nuplan-devkit
 export WORLD_PYTHON=/root/miniconda3/envs/ddp/bin/python
-export DEPTH_MODEL_CKPTS=/mnt/project/DriveDreamer-Policy/depth_model_ckpts
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
-"$WORLD_PYTHON" -m pytest tests/structured_world_v1p1 -q
+export DEPTH_MODEL_CKPTS=/mnt/project/DriveDreamer-Policy/depth_model_ckpts
+export WORLD_PRETRAINED_VISUAL_WEIGHTS=/mnt/project/DriveDreamer-Policy/depth_model_ckpts/depth_anything_v2_vitl.pth
 
-Full executed commands: docs/STRUCTURED_WORLD_V1P1_QUICKSTART.md. Do NOT rerun completed audits into their immutable paths.
-Baseline /mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy; VLM sibling Qwen3-VL-2B-WorldAction.
-Data old artifacts/dataset_v1; manifests old artifacts/{overfit,train,dev}_tokens.json.
-Targets old artifacts/targets_v6_train8192 (capacity64, overflow recorded); full dev old artifacts/targets_v6_dev_full (capacity999). For small-set full-GT diagnostic regenerate independently if capacity64 truncates; never silently delete targets to meet80% goal.
-Raw logs /mnt/project/onevl_navsim_data/navsim_logs/trainval.
-No applicable AGENTS.md in worktree/parents; optional CODEX_GOAL_STRUCTURED_WORLD_V1P1_393c53b.md not found in worktree/attachments.
+Only after verified terminal/accounted checkpoint (never while running):
+CUDA_VISIBLE_DEVICES=2 "$WORLD_PYTHON" tools/structured_world_v1p1/resume_world.py --checkpoint /mnt/project/structured-world-v1p1-artifacts/20260927/W_PRE_64_bounded696_d537401/checkpoint.pt --worktree /mnt/project/VLA-Drive-v1p1-runs-d537401
+
+Wrapper rejects behind-accounting checkpoints and spent approved16 phases. Full executed commands: docs/STRUCTURED_WORLD_V1P1_QUICKSTART.md. Base checkpoint and VLM are /mnt/project/DriveDreamer-Policy/models/{DriveDreamer-Policy,Qwen3-VL-2B-WorldAction}; raw logs /mnt/project/onevl_navsim_data/navsim_logs/trainval. No applicable AGENTS.md found in worktree/parents; optional detailed V1P1 specification not found in attachments/worktree.
