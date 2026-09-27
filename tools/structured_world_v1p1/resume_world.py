@@ -10,6 +10,7 @@ def main():
  sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=a.worktree,text=True).strip()
  if sha!=saved['identity']['code_sha']:raise ValueError('Use run-pinned worktree for identical code')
  ledger=json.loads(Path(original['ledger']).read_text());run=next(r for r in ledger['runs'] if r['id']==original['run_id'])
+ if saved['step']>=run.get('approved_end_step',original['steps']):print('approved_phase_complete');return
  if run['status']=='running':raise ValueError('Run is live or needs process reconciliation; never launch duplicate')
  if run['optimizer_steps']!=saved['step']:raise ValueError('Checkpoint is behind accounted updates; cannot silently replay')
  if saved['step']>=original['steps']:print('already_complete');return
