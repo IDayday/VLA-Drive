@@ -1,7 +1,7 @@
 {
   "run_id": "masked-trajectory-world-20260927",
-  "optimizer_steps": 19150,
-  "gpu_hours": 5.826528960135246,
+  "optimizer_steps": 21677,
+  "gpu_hours": 6.647634127868545,
   "step_cap": 24000,
   "gpu_hour_cap": 48,
   "repair_rounds": [
@@ -2221,8 +2221,8 @@
     },
     {
       "id": "planner_bev_control7284",
-      "optimizer_steps": 480,
-      "gpu_hours": 0.1521602761083181,
+      "optimizer_steps": 1742,
+      "gpu_hours": 0.5053003542290792,
       "status": "running",
       "reserved_steps": 1821,
       "metadata": {
@@ -2273,13 +2273,13 @@
         "bev_task_supervision": false,
         "bev_task_weight": 0.1
       },
-      "heartbeat": 1790489512.8053381,
+      "heartbeat": 1790490784.1096194,
       "pid": 765259
     },
     {
       "id": "planner_bev_tasks7284",
-      "optimizer_steps": 480,
-      "gpu_hours": 0.1521744082371392,
+      "optimizer_steps": 1742,
+      "gpu_hours": 0.5053161385324276,
       "status": "running",
       "reserved_steps": 1821,
       "metadata": {
@@ -2336,7 +2336,7 @@
           "all_hidden_joint_flow"
         ]
       },
-      "heartbeat": 1790489512.861982,
+      "heartbeat": 1790490784.1722112,
       "pid": 765230
     },
     {
@@ -2419,6 +2419,195 @@
       },
       "heartbeat": 1790489372.4274335,
       "pid": 768712
+    },
+    {
+      "id": "bev_tasks_dev_tasks_step456",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.02684416717953152,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284/checkpoint_456.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "targets": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_dev_full",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_dev1696_index.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_tasks_dev_tasks_step456",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_tasks_dev_tasks_step456",
+          "limit": null
+        },
+        "code_sha": "cea37eaf20766eebf367595bf84f3f5c7804f343",
+        "checkpoint_sha256": "0e723b34f5b91afefbe4373044579831d55d0eb5799099fb0c8af997152f2bde",
+        "training_step": 456,
+        "task_supervision": true,
+        "scope": "Oracle current occupied-cell displacement and current occupancy; not actor detection or planning PDMS."
+      },
+      "heartbeat": 1790489669.8458762,
+      "pid": 771149
+    },
+    {
+      "id": "bev_control_dev_tasks_step456",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.026545033653577195,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_control7284/checkpoint_456.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "targets": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_dev_full",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_dev1696_index.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_control_dev_tasks_step456",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_control_dev_tasks_step456",
+          "limit": null
+        },
+        "code_sha": "cea37eaf20766eebf367595bf84f3f5c7804f343",
+        "checkpoint_sha256": "f4176bb3d8e17c10fa015b131672684a311f61895d07037945990c97e2b10a32",
+        "training_step": 456,
+        "task_supervision": false,
+        "scope": "Oracle current occupied-cell displacement and current occupancy; not actor detection or planning PDMS."
+      },
+      "heartbeat": 1790489669.8405268,
+      "pid": 771170
+    },
+    {
+      "id": "bev_tasks_dev_tasks_step911",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.027218632366922135,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284/checkpoint_911.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "targets": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_dev_full",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_dev1696_index.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_tasks_dev_tasks_step911",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_tasks_dev_tasks_step911",
+          "limit": null
+        },
+        "code_sha": "cea37eaf20766eebf367595bf84f3f5c7804f343",
+        "checkpoint_sha256": "7198a74b2cfdaa248bb0a0ea9db80da4362c0fd91d44c7abafffaee92d88db0e",
+        "training_step": 911,
+        "task_supervision": true,
+        "scope": "Oracle current occupied-cell displacement and current occupancy; not actor detection or planning PDMS."
+      },
+      "heartbeat": 1790490071.1913357,
+      "pid": 774752
+    },
+    {
+      "id": "bev_control_dev_tasks_step911",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.02690750824080567,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_control7284/checkpoint_911.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/development_conditions/merged1696",
+          "targets": "/mnt/project/structured-world-v1-artifacts/20260926/targets_v6_dev_full",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_dev1696_index.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_control_dev_tasks_step911",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_control_dev_tasks_step911",
+          "limit": null
+        },
+        "code_sha": "cea37eaf20766eebf367595bf84f3f5c7804f343",
+        "checkpoint_sha256": "38a4ce91eec39836d92dbec721f8eb42af3f04474daca0910dcb334a2b78c6f3",
+        "training_step": 911,
+        "task_supervision": false,
+        "scope": "Oracle current occupied-cell displacement and current occupancy; not actor detection or planning PDMS."
+      },
+      "heartbeat": 1790490071.1976397,
+      "pid": 774762
+    },
+    {
+      "id": "bev_ego_gradient911",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.006278011136584812,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284/checkpoint_911.pt",
+          "previous_checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284/checkpoint_456.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/engineering64_index.json",
+          "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_ego_gradient911",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_ego_gradient911"
+        },
+        "code_sha": "33eb0ad288461acdb4d8e1686f0153b9004bf5a1",
+        "checkpoint_sha256": "7198a74b2cfdaa248bb0a0ea9db80da4362c0fd91d44c7abafffaee92d88db0e",
+        "previous_sha256": "0e723b34f5b91afefbe4373044579831d55d0eb5799099fb0c8af997152f2bde",
+        "optimizer_updates": 0,
+        "loss": "original ego flow matching only; no world/BEV auxiliary labels loaded"
+      },
+      "heartbeat": 1790490177.2380826,
+      "pid": 776369
+    },
+    {
+      "id": "joint_ddp_graph_check_rank0",
+      "optimizer_steps": 3,
+      "gpu_hours": 0.0005357841650644937,
+      "status": "complete",
+      "reserved_steps": 3,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/joint_ddp_graph_check",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "joint_ddp_graph_check"
+        },
+        "code_sha": "0366b029dab334b9cb1a7f2bf097189c4983e997",
+        "rank": 0,
+        "gradient_atol": 1e-05,
+        "gradient_rtol": 2e-05,
+        "microbatches_per_rank": 2,
+        "logical_optimizer_updates_charged_to_rank0": 3,
+        "rank1_agent_labels": "intentionally empty, ego retained"
+      },
+      "heartbeat": 1790490508.8300703,
+      "pid": 779583
+    },
+    {
+      "id": "joint_ddp_graph_check_rank1",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0004925701353285048,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/extended_randommask7284/checkpoint_3642.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/joint_ddp_graph_check",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "joint_ddp_graph_check"
+        },
+        "code_sha": "0366b029dab334b9cb1a7f2bf097189c4983e997",
+        "rank": 1,
+        "gradient_atol": 1e-05,
+        "gradient_rtol": 2e-05,
+        "microbatches_per_rank": 2,
+        "logical_optimizer_updates_charged_to_rank0": 3,
+        "rank1_agent_labels": "intentionally empty, ego retained"
+      },
+      "heartbeat": 1790490508.835893,
+      "pid": 779584
     }
   ]
 }

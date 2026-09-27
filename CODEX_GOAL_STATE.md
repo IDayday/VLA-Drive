@@ -18,3 +18,19 @@ Recreate completed planning report:
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=. /root/miniconda3/envs/ddp/bin/python tools/joint_world/report_planning.py --artifacts /mnt/project/joint-world-artifacts/20260927 --output reports/joint_world/planning_image1696 --runs planner_dev1696_baseline planner_dev1696_randommask planner_dev1696_allmask
 
 Resume only an explicitly paused fully-accounted run from its pinnedsource with exactoriginalidentity plus --resume <same-output>/checkpoint_<step>.pt. Never restart live/completed runs or reduce ledger charges. See run manifests/docs for exactcommands. No Navtest tuning.
+
+
+## Latest continuation — supersedes older ACTIVE list
+
+Source HEAD1eda084 includes real graph two-GPU/NCCL accumulated-gradient/empty-agent-rank check. PASS: maxsingle-vs-DDPgradientdifference4.768e-7, strictmodel/optimizer/RNGresumeexact;3globaloptimizerupdates charged, GPU hours charged tobothranks. Reports DDP_GRAPH_CHECK.json. Production maintraining remains independent singleGPUtrials; no full jointQwenDDPtrainer claim.
+
+BEV maintraining onGPU0/1 stillsourceb820f4c, originalsessions36219/65592, PIDs765230/765259. Step456 and911 taskheads BOTH evaluated onall1696devscenes,0failures. Task-on IoU.134855→.168006 andGT-cellmotionADE5.266427→4.910957m; taskoff~.02956IoU,6.77mADE. Stationary5.380311m. These are not planning scores. Fullcurrentdevindex /mnt/project/joint-world-artifacts/20260927/bev_dev1696_index.json verified. A separate originalego-onlyFMbackward atstep911 provesBEVencodergrad5.142e-5/fusion1.158e-4 whilegraphweightsstayfixed; BEVparams changed456→911. See BEV_EGO_ONLY_GRADIENTS.json.
+
+Automatic bounded evaluation pipelines are ACTIVE, never duplicate:
+- session13872 onGPU2, varianttasks; session50399 onGPU3, variantcontrol. Source /mnt/project/VLA-Drive-joint-runs-cea37ea. Step911taskevalfinished. They waituntilmaintrainingledgercomplete, then export final1696plans as planner_dev1696_bev_tasks/control, score officialPDMS with16CPUworkers, thenevaluate finalstep1821taskheads. Journals bev_eval_pipeline_tasks/control.jsonl recordexactcommands andcompletedstages. They abortonfailed/pausedtraining or2hdeadline. Waitingprocesses allocate noGPU.
+- session88549 waits forGPU0tasks trainterminal thenonlinefinal4check; session45724 similarlyGPU1control. Source /mnt/project/VLA-Drive-joint-runs-final-online at1eda084. Outputs learned_bev_tasks/control_online4_final; checks actualonlinevscheckedcache, poisonedlabels, strictrestore, disabledworld, blankBEV andcrosssceneBEVdiagnostics withlearnedgates. Nooptimizerupdates. Endmarkers LEARNED_POLICY_CHECK.json. Do not confuse earlier4-stepmicrocheckpointonlinePASSwiththese mainfinalchecks.
+- Allpreviousindividualeval/extraction/micro/DDP/gradient/visualizationtoolhandles are terminal. Revised32visualizations complete atjoint_planning_visuals32_full, fullunmatchedGTandpredictionsretained; indexpublished.
+
+Remote verified944eadbab39e4bd910ca943a266d94178178dd5e before subsequentlocal33eb0ad/99ec1c9/0366b02/1eda084. Needpushnewcommits afteractualresults. Updatedconvergence reportandimage curves committed; finalcombinedBEVplanningreport stillpending. Finalprojectedlogicalsteps21835leaves2165, nosecondfull1821×2seedpairfits. NoPDMS-basedextensionorcheckpointselection.
+
+NEXT: pollmain/evaluationpipeline/onlinefinalhandles; onterminalmainrun tools/joint_world/report_transfer_curves.py --artifacts /mnt/project/joint-world-artifacts/20260927 --runs planner_bev_tasks7284 planner_bev_control7284 --output reports/joint_world/bev_transfer_learning/training. Whenfinalscoring/taskheadscomplete, archiveCSV/metrics/manifests andrunreport_planning withallfivevariants. SummarizeBEVtaskcurves, pairedPDMSCI,actuallearnedonlinecost/use, allfailure/NOT_RUN/convergencelimits; writefinalreportandaccuratestatus. Finishonlyaftertheseevidencechecks andpushverifiedSHA. PrimarygoalstillACTIVE.
