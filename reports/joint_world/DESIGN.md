@@ -15,7 +15,7 @@ Baseline: source96ff2ee (V1.1), released Qwen3-VL2B + original Flow-Matching DiT
 
 ## BEV objectives and transfer
 
-Reuse the audited pretrained visual backbone + calibrated current-camera BEV construction as optional input (not a pretrained BEV claim). Supervise spatial support-aware current occupancy, future occupancy/flow and interaction geometry (pair proximity and relative motion), rather than RGB reconstruction. Future/map labels are supervision only. Forecast occupied space and interaction features must be consumed by graph attention and the planner bridge. Missing annotation/unsupported cells must not become free-space negatives. Auxiliary metrics alone cannot establish planning value.
+Reuse the audited pretrained visual backbone + calibrated current-camera BEV construction as optional input (not a pretrained BEV claim). The implemented targets are spatial support-aware current occupancy, tracked future displacement at current occupied cells, and pair closest separation. A separate future occupancy raster/flow predictor was not implemented in this phase. Future/map labels are supervision only. Task-trained BEV memory is consumed by graph attention and the planner bridge; auxiliary head predictions themselves do not score or select a plan. Missing annotation/unsupported cells must not become free-space negatives. Auxiliary metrics alone cannot establish planning value.
 
 ## Evidence and finite budget
 
@@ -36,3 +36,33 @@ The BEV side branch is now an independent current-camera pretrained visual provi
 Task heads supervise covered current occupancy, per-instance future displacement at occupied cells, and unordered-pair closest future separation. The pair head is auxiliary regression only; it is not used to score candidates or select an ego plan. Missing future labels never create free-space negatives; incomplete current box geometry conservatively disables unsupported negatives. The dense motion probe uses GT occupied cells for evaluation and therefore is explicitly not end-to-end forecasting. Actual planning needs independently matched scene/object and PDM evaluation.
 
 Following the user's warning about short runs,1000-step isolation and600-step BEV task probes are engineering checks, not convergence claims. Extended paired training uses7284 log-disjoint scenes,8 complete passes,batch16,3642 updates/variant. Loss and fixed-sample prediction curves at prescribed milestones must be reported; if unstable at the cap, the result remains INCONCLUSIVE. The previous single-seed ordering changed across recipes/checkpoints, so it cannot support a claim that masking helps or fails. The source original8192 excludes all59 holdout logs; no samples selected by quality or scores.
+
+
+## Actual training and gradient boundaries
+
+The completed large image experiment trains the joint graph first (3642updates), then freezes it and trains only the originalDiT conditioning bridge (1821updates). This is a fixed-representation transfer comparison. The small realGPU check additionally verifies ego gradients can reach a trainable graph, but the large result must not be described as joint graph/DiT fine-tuning. OriginalDiT weights never update in this campaign.
+
+In the matched BEV phase, both arms start from the same frozen randommask graph and fresh BEV/bridge initialization. BEV encoder/fusion, graph-to-world projection and action attention are trainable; Qwen, its vision/current worldReader/heads, the pretrained provider, graph weights and originalDiT weights are fixed. Frozen graph/DiT forwards retain autograd into their trainable inputs. The task-on arm adds current occupancy, tracked displacement, pair separation and all-hidden graphFM at fixedweight0.1. That last auxiliary loss opens the BEV fusion gate while the outer action gate starts atzero. Task-off uses the same parameters and architecture; unused auxiliary prediction heads receive no optimizer update. A separately seeded and saved auxiliary RNG keeps original ego noise aligned between arms.
+
+```mermaid
+flowchart LR
+    I[Current F0/L0/R0 images] --> V[Frozen original vision]
+    V --> R[Frozen image-conditioned world queries]
+    V --> Q[Frozen Qwen, original tokens plus world tail]
+    R --> Q
+    Q --> H[Native action conditions]
+    Q --> W[Post-Qwen current scene / actor features]
+    I --> P[Frozen DAV2 visual backbone plus calibrated BEV]
+    P --> B[Trainable spatial BEV encoder]
+    B --> F[Trainable gated actor attention]
+    W --> F
+    F --> G[Frozen joint flow weights, differentiable all-hidden rollout]
+    G --> A[Trainable projection and gated action attention]
+    H --> A
+    A --> D[Original frozen Flow-Matching DiT]
+    D --> E[One ego plan]
+    B -. label-side losses .-> L[Current occupancy / tracked displacement]
+    F -. label-side losses .-> U[Pair separation / all-hidden graph FM]
+```
+
+No future labels feed the solid deployment arrows. The conditional imputation analysis accepts privileged other-actor futures in a separate function; it is never called by the planning entry. Prediction sensitivity to blank/shuffled memory is only a use diagnostic. BEV enters after Qwen in this phase. This differs from a strict WCog implementation and does not implement Game-CoT, joint-policy RL, counterfactual dynamics, trajectoryVAE or candidate scoring.

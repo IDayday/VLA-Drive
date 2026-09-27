@@ -1,0 +1,50 @@
+{
+  "identity": {
+    "arguments": {
+      "checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284/checkpoint_911.pt",
+      "previous_checkpoint": "/mnt/project/joint-world-artifacts/20260927/planner_bev_tasks7284/checkpoint_456.pt",
+      "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+      "bev_index": "/mnt/project/joint-world-artifacts/20260927/bev_corpus7284/engineering64_index.json",
+      "base_checkpoint": "/mnt/project/DriveDreamer-Policy/models/DriveDreamer-Policy",
+      "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+      "output": "/mnt/project/joint-world-artifacts/20260927/bev_ego_gradient911",
+      "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+      "run_id": "bev_ego_gradient911"
+    },
+    "code_sha": "33eb0ad288461acdb4d8e1686f0153b9004bf5a1",
+    "checkpoint_sha256": "7198a74b2cfdaa248bb0a0ea9db80da4362c0fd91d44c7abafffaee92d88db0e",
+    "previous_sha256": "0e723b34f5b91afefbe4373044579831d55d0eb5799099fb0c8af997152f2bde",
+    "optimizer_updates": 0,
+    "loss": "original ego flow matching only; no world/BEV auxiliary labels loaded"
+  },
+  "status": "PASS",
+  "ego_FM_loss": 0.0005630615050904453,
+  "ego_only_gradient_norms": {
+    "graph": 0.0,
+    "graph_to_world": 8.38656269479543e-05,
+    "adapter": 0.01898328587412834,
+    "bev_encoder": 5.1419789087958634e-05,
+    "bev_fusion": 0.00011575633834581822,
+    "interaction_head": 0.0
+  },
+  "parameter_max_changes_between_checkpoints": {
+    "graph": 0.0,
+    "graph_to_world": 0.0081498883664608,
+    "adapter": 0.012645103968679905,
+    "bev_encoder": 0.03064475953578949,
+    "bev_fusion": 0.025831110775470734,
+    "interaction_head": 0.007933832705020905
+  },
+  "tokens": [
+    "2b0deb39ff8355ec",
+    "0cfb822f546b53f3",
+    "fa80b301319f5354",
+    "08b960bfcf3b52cd"
+  ],
+  "from_step": 456,
+  "to_step": 911,
+  "action_gate": -0.016257591545581818,
+  "bev_gate": -0.04313000291585922,
+  "peak_gpu_bytes": 4245097472,
+  "limitation": "Nonzero gradient and parameter changes show a live trainable route, not effective planning improvement."
+}
