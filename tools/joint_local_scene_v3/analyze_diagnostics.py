@@ -1,7 +1,9 @@
 """Aggregate coherent K-samples and paired current-relation condition ablations."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
+import subprocess
 import numpy as np
 from tools.joint_local_scene_v3.analyze_campaign import read_queries,bootstrap,csv_out
 from tools.joint_local_scene_v3.budget import atomic_json
@@ -10,7 +12,7 @@ from tools.joint_local_scene_v3.budget import atomic_json
 def analyze(root):
     summary=json.loads((root/'summary.json').read_text())
     if not summary['complete'] or summary['failed']:raise ValueError('Incomplete/failed endpoint diagnostic')
-    rows=read_queries(root/'condition_queries.csv');result={'scope':summary['scope'],'expected_queries':summary['expected_queries'],'applicable':summary['applicable'],'not_applicable':summary['not_applicable'],'failed':summary['failed'],'conditions':{},'sampling':{}}
+    rows=read_queries(root/'condition_queries.csv');result={'scope':summary['scope'],'expected_queries':summary['expected_queries'],'applicable':summary['applicable'],'not_applicable':summary['not_applicable'],'failed':summary['failed'],'conditions':{},'sampling':{},'identity':{'diagnostic_identity':summary['identity'],'analysis_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'analysis_module_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}}
     for actor in ('ego','neighbor'):
         chosen=[r for r in rows if (r['slot']==0)==(actor=='ego')]
         result['conditions'][actor]={'all_queries':len(chosen),'not_applicable':sum(r['status']=='NOT_APPLICABLE' for r in chosen),'pairs':{}}
@@ -22,6 +24,12 @@ def analyze(root):
             for old,new in [('J_ALL_ADE_m',left+'_ADE_m'),('J_MASK_ADE_m',right+'_ADE_m'),('MASK_minus_ALL_m',right+'_minus_'+left+'_m')]:
                 if old in metric:metric[new]=metric.pop(old)
             result['conditions'][actor]['pairs'][right+'_vs_'+left]=metric
+        # Secondary data-defined sensitivity check; the fixed main query set is unchanged.
+        exact=[r for r in good if r['strong_xy_points']==r['weak_xy_points']]
+        metric=bootstrap([{'log':r['log'],'all_sum':r['remove_weak_error_sum_m'],'mask_sum':r['remove_strong_error_sum_m'],'points':r['valid_xy_points']} for r in exact])
+        for old,new in [('J_ALL_ADE_m','remove_weak_ADE_m'),('J_MASK_ADE_m','remove_strong_ADE_m'),('MASK_minus_ALL_m','remove_strong_minus_remove_weak_m')]:
+            if old in metric:metric[new]=metric.pop(old)
+        result['conditions'][actor]['secondary_exact_point_count_match_strong_vs_weak']=metric
     samples=read_queries(root/'k_queries.csv');ks=sorted({r['k'] for r in samples})
     for actor in ('ego','neighbor'):
         per_seed=[]
