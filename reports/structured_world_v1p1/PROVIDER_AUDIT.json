@@ -1,0 +1,25 @@
+{
+  "status": "SOURCE_VERIFIED_ADAPTATION_NOT_RUN",
+  "external_prior_status": "NOT_TESTED",
+  "candidate": "Depth Anything V2 Large visual backbone + NEW calibrated BEV projection",
+  "pretrained_bev_claim": false,
+  "repository": "https://github.com/DepthAnything/Depth-Anything-V2",
+  "upstream_commit": "a561b849ebae10a6f5ef49e26c83cbbcd36c71bf",
+  "official_weights_repository": "https://huggingface.co/depth-anything/Depth-Anything-V2-Large",
+  "official_weights_revision": "cbbb86a30ce19b5684b7a05155dc7e6cbc7685b9",
+  "weights_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+  "local_hash_matches_official_lfs": true,
+  "local_path": "/mnt/project/DriveDreamer-Policy/depth_model_ckpts/depth_anything_v2_vitl.pth",
+  "backbone": "DINOv2 ViT-L fine-tuned for Depth Anything V2; only pretrained.* keys proposed",
+  "sensor_contract": "current CAM_F0/L0/R0 only; no depth GT, LiDAR or history input",
+  "license_note": "Large weights CC-BY-NC-4.0 per upstream README; repository source Apache-2.0",
+  "training_data_audit": "official release/paper provenance pending detailed extraction",
+  "deployment_cost": "NOT_MEASURED",
+  "adaptation_optimizer_steps": 0,
+  "holdout_result": "NOT_RUN",
+  "source_files": [
+    "depth_anything_v2/dpt.py",
+    "README.md",
+    "LICENSE"
+  ]
+}
