@@ -20,12 +20,13 @@ from tools.joint_local_scene_v3.data import AnnotatedCorpus
 from tools.joint_local_scene_v3.runtime import batch_scenes,evaluate,build_queries,EvaluationBudgetPause
 from tools.joint_local_scene_v3.budget import BudgetRun,atomic_json
 from tools.joint_local_scene_v3.campaign import subset
+from tools.joint_local_scene_v3.batched_evaluation import evaluate_batched
 
 
 CODE_FILES=('starVLA/model/modules/joint_scene/contracts.py','starVLA/model/modules/joint_scene/graphs.py',
     'starVLA/model/modules/joint_scene/masks.py','starVLA/model/modules/joint_scene/flow.py',
     'starVLA/model/modules/joint_world/flow.py','starVLA/model/modules/action_model/flow_matching_head/action_encoder.py',
-    'tools/joint_local_scene_v3/data.py','tools/joint_local_scene_v3/runtime.py','tools/joint_local_scene_v3/train_mechanism.py','tools/joint_local_scene_v3/budget.py','tools/joint_local_scene_v3/campaign.py')
+    'tools/joint_local_scene_v3/data.py','tools/joint_local_scene_v3/runtime.py','tools/joint_local_scene_v3/train_mechanism.py','tools/joint_local_scene_v3/budget.py','tools/joint_local_scene_v3/campaign.py','tools/joint_local_scene_v3/batched_evaluation.py')
 
 
 def code_identity():
@@ -106,7 +107,7 @@ def run(a):
     seed=cfg['training_seed'];source=code_identity();device=torch.device(a.device)
     milestones=sorted(set(int(v) for v in a.eval_milestones.split(','))) if a.eval_milestones else sorted(set([0,a.updates]+list(range(a.eval_every,a.updates+1,a.eval_every))))
     if any(v<0 or v>a.schedule_updates for v in milestones):raise ValueError('Invalid evaluation milestones')
-    schedule={'milestones':milestones,'save_every':a.save_every,'train_subset':a.train_subset,'holdout_subset':a.holdout_subset,'diagnostic_subset':a.diagnostic_subset,'precision':'float32','cuda_visible_devices':os.environ.get('CUDA_VISIBLE_DEVICES')}
+    schedule={'milestones':milestones,'save_every':a.save_every,'train_subset':a.train_subset,'holdout_subset':a.holdout_subset,'diagnostic_subset':a.diagnostic_subset,'precision':'float32','evaluation_batch_size':16,'cuda_visible_devices':os.environ.get('CUDA_VISIBLE_DEVICES')}
     run_identity={'source':source,'output':str(out.resolve()),'config':cfg,'train':str(Path(a.train).resolve()),'holdout':str(Path(a.holdout).resolve()),
         'mode':a.mode,'batch':a.batch,'schedule_updates':a.schedule_updates,'seed':seed,'device':str(device),'deterministic':a.deterministic,'limit':a.limit,'eval_every':a.eval_every,'eval_train':a.eval_train,'execution':schedule}
     with BudgetRun(a.ledger,a.run_id,run_identity,int(device.type=='cuda'),a.resume) as budget:
@@ -177,7 +178,7 @@ def run(a):
                 return {'checkpoint_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'step':step,'identity':identity}
             def assess(tag,binding):
                 for name,corpus in [('holdout',holdout)]+([('train64',diagnostic)] if a.eval_train else []):
-                    report=evaluate(model,corpus,query_manifests[name],cfg['sampling_seed'],cfg['sampling_steps'],device=str(device),output=out/f'{name}_{tag}',budget_check=budget.check,evaluation_identity=binding)
+                    report=evaluate_batched(model,corpus,query_manifests[name],cfg['sampling_seed'],cfg['sampling_steps'],device=str(device),output=out/f'{name}_{tag}',budget_check=budget.check,evaluation_identity=binding)
                     if not report['summary']['aggregate_valid']:raise RuntimeError('Evaluation failure retained in complete query/scene tables')
             paused=False;pause_reason=None
             if not a.resume:

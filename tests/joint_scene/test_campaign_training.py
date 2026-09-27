@@ -26,3 +26,25 @@ def test_diagnostic_eval_requires_fixed_subset_and_save_interval(tmp_path):
     a.diagnostic_subset='fixed64';a.save_every=0
     with pytest.raises(ValueError,match='save_every'):validate_arguments(a)
     a.save_every=100;assert validate_arguments(a)==tmp_path/'out'
+
+
+def test_batched_fixed_queries_preserve_scalar_protocol():
+    from tools.joint_local_scene_v3.batched_evaluation import evaluate_batched
+    m=model();data=corpus();scalar=evaluate(m,data,device='cpu',seed=81,sampling_steps=2)
+    batched=evaluate_batched(m,data,device='cpu',seed=81,sampling_steps=2,batch_size=2)
+    assert scalar['query_manifest']==batched['query_manifest']
+    for a,b in zip(scalar['query_rows'],batched['query_rows']):
+        assert a['query_id']==b['query_id'] and a['valid_xy_points']==b['valid_xy_points']
+        for k in ('all_hidden_xy_ADE_m','conditional_xy_ADE_m'):assert abs(a[k]-b[k])<1e-4
+
+
+def test_relation_ablation_selection_does_not_read_hidden_future_values():
+    from tools.joint_local_scene_v3.endpoint_diagnostics import relation_queries
+    from tools.joint_local_scene_v3.runtime import build_queries
+    data=corpus();q=build_queries(data);first=relation_queries(data,q)
+    data[0].future.fill_(987.)
+    assert relation_queries(data,q)==first
+    assert first['queries'][0]['status']=='applicable'
+    for row in first['queries']:
+        if row['status']=='applicable':
+            assert row['strong_actor']!=row['weak_actor'] and row['strong_actor']!=row['slot'] and row['weak_actor']!=row['slot']

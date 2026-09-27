@@ -10,7 +10,8 @@ from tools.joint_local_scene_v3.budget import BudgetRun,atomic_json
 from tools.joint_local_scene_v3.check_resume import equal
 from tools.joint_local_scene_v3.campaign import subset
 from tools.joint_local_scene_v3.data import AnnotatedCorpus
-from tools.joint_local_scene_v3.runtime import batch_scenes
+from tools.joint_local_scene_v3.runtime import batch_scenes,evaluate
+from tools.joint_local_scene_v3.batched_evaluation import evaluate_batched
 from tools.joint_local_scene_v3.train_mechanism import code_identity,deterministic_settings
 from starVLA.model.modules.joint_scene.flow import JointSceneFlow,flow_loss_sums,normalized_loss,execution_from_joint
 
@@ -18,13 +19,13 @@ from starVLA.model.modules.joint_scene.flow import JointSceneFlow,flow_loss_sums
 def main():
     p=argparse.ArgumentParser()
     for key in ('campaign','train','holdout','config'):p.add_argument('--'+key,required=True)
-    a=p.parse_args();root=Path(a.campaign);out=root/'startup'
+    p.add_argument('--tag',default='startup');a=p.parse_args();root=Path(a.campaign);out=root/a.tag
     if out.exists():raise FileExistsError('Startup already exists')
     out.mkdir();ledger=root/'budget_ledger.json';commands=[]
     env=dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',CUBLAS_WORKSPACE_CONFIG=':4096:8')
     base=[sys.executable,'-m','tools.joint_local_scene_v3.train_mechanism','--train',a.train,'--train-subset',str(root/'train64.json'),'--holdout',a.holdout,'--config',a.config,'--mode','mask','--updates','4','--schedule-updates','4','--batch','16','--eval-milestones','4','--save-every','2','--ledger',str(ledger),'--device','cuda','--deterministic']
     def invoke(name,extra=(),expect_failure=False):
-        cmd=base+['--output',str(out/name),'--run-id','startup_'+name]+list(extra);commands.append(cmd)
+        cmd=base+['--output',str(out/name),'--run-id',a.tag+'_'+name]+list(extra);commands.append(cmd)
         with (out/(name+'.log')).open('a') as log:proc=subprocess.run(cmd,env=env,stdout=log,stderr=subprocess.STDOUT)
         if (proc.returncode!=0)!=expect_failure:raise RuntimeError(f'Unexpected startup exit {proc.returncode}; inspect {name}.log')
     invoke('continuous');invoke('resumed',['--stop-after','2'])
@@ -42,7 +43,7 @@ def main():
     checks['neighbor_yaw_unsupervised']=first['supervised']['all_hidden_neighbor_yaw']==first['supervised']['role_neighbor_yaw']==0
     checks['roles_present']=first['task_totals']['neighbor_actual']>0
     cfg=json.loads(Path(a.config).read_text())
-    with BudgetRun(ledger,'startup_zero_update_checks',{'source':code_identity(),'kind':'actual-model real-data checks','output':str(out/'checks')},1) as budget:
+    with BudgetRun(ledger,a.tag+'_zero_update_checks',{'source':code_identity(),'kind':'actual-model real-data checks','output':str(out/'checks')},1) as budget:
         deterministic_settings();torch.manual_seed(18);torch.cuda.manual_seed_all(18)
         model=JointSceneFlow(**cfg['model']).cuda();model.load_state_dict(first['model'],strict=True);model.condition.requires_grad_(False)
         hook=model.register_forward_pre_hook(lambda *unused:budget.note('real',forwards=1))
@@ -59,6 +60,12 @@ def main():
             checks['known_clamped_every_step']=all(torch.equal(z[known],y[known]) for z in path)
             checks['hidden_truth_no_leak']=torch.equal(completed,model.sample_conditional(noise,g,torch.where(known,y,float('nan')),known,sampling_steps=20))
             execution=execution_from_joint(joint);checks['execution_ego_joint_slot0']=torch.equal(execution['executed_ego_xyyaw'][...,:2],joint[:,0,:,:2])
+        reference=evaluate(model,[data[i] for i in range(2)],seed=77,sampling_steps=20,device='cuda')
+        batched=evaluate_batched(model,[data[i] for i in range(2)],seed=77,sampling_steps=20,device='cuda',batch_size=16)
+        differences=[abs(x[k]-z[k]) for x,z in zip(reference['query_rows'],batched['query_rows']) for k in ('all_hidden_xy_ADE_m','conditional_xy_ADE_m')]
+        checks['batched_evaluation_parity_atol_5e_4_m']=max(differences)<5e-4
+        checks['same_query_manifest']=reference['query_manifest']==batched['query_manifest']
+        atomic_json(out/'batch_parity.json',{'max_ADE_difference_m':max(differences),'declared_absolute_tolerance_m':5e-4,'width':cfg['model']['dim']})
         hook.remove()
     checks={k:bool(v) for k,v in checks.items()}
     report={'status':'PASS' if all(checks.values()) else 'FAIL','checks':checks,'real_optimizer_updates':8,'synthetic_optimizer_updates':0,'real_presentations':first['presentations']+second['presentations'],'model':cfg['model'],'source':code_identity(),'task_totals':first['task_totals'],'supervised':first['supervised'],'commands':commands}

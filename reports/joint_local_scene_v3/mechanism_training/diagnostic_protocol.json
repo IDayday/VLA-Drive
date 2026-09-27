@@ -1,0 +1,17 @@
+{
+  "rule": {
+    "peer_role": "non-ego traffic actor, distinct from target",
+    "strong": "closest peer within15m of current target centre",
+    "weak": "different peer at least5m farther than strong; complete-xy-point count differs by<=1; minimize count difference then maximize distance",
+    "removed_actors_per_condition": 1,
+    "selection_uses_target_future_values": false,
+    "NOT_APPLICABLE": "No valid strong/weak pair; keep query in denominator"
+  },
+  "query_manifest_sha256": "3df95e34c21dbfefae08fb85c36d6a97a3b4d85cae69aeb9508ee8c8d6ab3ed0",
+  "expected_queries": 486,
+  "applicable": 409,
+  "K": 8,
+  "K_seed_rule": "20260927+k, k=0..7; primary k0; whole-joint oracle only, no mixed actor samples",
+  "visualization": "first8 holdout scene tokens sorted by SHA256, sample k0, private local only",
+  "registered_before_endpoint_models": true
+}
