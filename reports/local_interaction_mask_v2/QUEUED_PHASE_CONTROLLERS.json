@@ -44,5 +44,38 @@
   "failure_behavior": "Stop the dependent phase, retain artifacts; no automatic retry or filtering. Verify child PIDs/ledger before recovery.",
   "GPU_export_control": "Independent8GPUhost groups,16totalshards,perhostsupervisorstatus/stop",
   "CPU_scoring": "officiallocalenvironment,4models\u00d78workers,total32; immutable atomic exported trajectories",
-  "model_lock": "All4planningmodels hash-locked only after actual final online/cache checks; no scoring before MODEL_LOCK.json"
+  "model_lock": "All4planningmodels hash-locked only after actual final online/cache checks; no scoring before MODEL_LOCK.json",
+  "active_recovery_launchers": {
+    "main_phase_launcher_v2.json": {
+      "pid": 899209,
+      "cwd": "/mnt/project/VLA-Drive-local-v2-runs-main",
+      "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_main_phases_v2.py",
+      "recovery": "Continue monitoring existing graph32 supervisors; bounded wait for newly spawned supervisor registration."
+    },
+    "final_evaluation_launcher_v2.json": {
+      "pid": 899233,
+      "cwd": "/mnt/project/VLA-Drive-local-v2-runs-evaluation",
+      "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluate_final_locked_v2.py",
+      "recovery": "Original waiter stopped before any CUDA/scoring job. Fresh evaluation_v2 retains the failed original waiter record."
+    },
+    "graph_diagnostic_launcher.json": {
+      "pid": 898556,
+      "cwd": "/mnt/project/VLA-Drive-local-v2-runs-evaluation",
+      "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/diagnose_final_graphs.py"
+    }
+  },
+  "active_recovery_scripts": {
+    "continue_main_phases_v2.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_main_phases_v2.py",
+      "sha256": "fc692f5b5bccdfa0552a8d4ed27c497ce33854d87517c7dee957a100ef724851"
+    },
+    "evaluate_final_locked_v2.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluate_final_locked_v2.py",
+      "sha256": "5ad65e3e4e8802b69b87e7ff69890b5a2b96c4d50597f4a19ad17b1f3aa76070"
+    },
+    "diagnose_final_graphs.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/diagnose_final_graphs.py",
+      "sha256": "34c53873e8e29cb0c582282272170c6b7166c15c5c5bddc84853aa08139510b8"
+    }
+  }
 }

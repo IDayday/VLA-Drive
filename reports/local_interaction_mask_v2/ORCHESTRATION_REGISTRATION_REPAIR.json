@@ -1,0 +1,31 @@
+{
+  "issue": "Controller checked the GPU ledger immediately after spawning the second extension supervisor, before Python imports had reached ledger registration.",
+  "observed_failure": {
+    "status": "failed_needs_review",
+    "error": "ValueError('Expected supervised job missing: formal_public_epoch24_G_LOCAL_MASK_e32')",
+    "pid": 897655,
+    "reads_PDMS": false
+  },
+  "model_jobs_affected": false,
+  "existing_extensions": {
+    "ALL_pid": 717727,
+    "MASK_pid": 717775,
+    "source_sha": "955097588152912eeaca72eeb4ee9f736e40b530",
+    "resume_from_step": 3648
+  },
+  "change": "New controller waits up to120seconds for a launched supervisor with an existing launch record to register. It resumes monitoring the already active graph32jobs; no weight/optimizer/RNG/data-order restart.",
+  "new_main_controller": {
+    "pid": 899209,
+    "cwd": "/mnt/project/VLA-Drive-local-v2-runs-main",
+    "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_main_phases_v2.py",
+    "recovery": "Continue monitoring existing graph32 supervisors; bounded wait for newly spawned supervisor registration."
+  },
+  "new_evaluation_waiter": {
+    "pid": 899233,
+    "cwd": "/mnt/project/VLA-Drive-local-v2-runs-evaluation",
+    "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluate_final_locked_v2.py",
+    "recovery": "Original waiter stopped before any CUDA/scoring job. Fresh evaluation_v2 retains the failed original waiter record."
+  },
+  "old_evaluation": "Original evaluation waiter exited before any GPU or CPU scoring; its failure record is retained in evaluation/status.json. New output is evaluation_v2.",
+  "additional_failed_GPU_hours": 0
+}
