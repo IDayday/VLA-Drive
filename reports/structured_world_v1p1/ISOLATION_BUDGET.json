@@ -1,0 +1,18 @@
+{
+  "interpretation": "Conservatively cap combined16+64 updates per W_PRE/W_POST family at1000, including aborted updates",
+  "W_PRE": {
+    "training16_consumed": 304,
+    "last_evaluated16_checkpoint": 300,
+    "planned64_updates": 696,
+    "total_cap": 1000
+  },
+  "W_POST": {
+    "training16_target": 300,
+    "planned64_updates": 696,
+    "total_cap": 996
+  },
+  "scientific_pairing": "Compare16 at common step300 and64 at common696; W_PRE extra4 interrupted updates remain charged but not a comparison checkpoint",
+  "aborted64_runs": "First launch reserved1000 each but interrupted at0 updates before inference; histories retained",
+  "no_loss_or_architecture_change_for_this_reconciliation": true,
+  "repair_rounds_consumed": 0
+}
