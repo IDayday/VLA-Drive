@@ -35,7 +35,8 @@ def main():
     for i in range(rank,len(records),world):
         if (out/'STOP_REQUESTED').exists():break
         token,spec=records[i]
-        record=current_metadata_from_training_pickle(Path(spec['meta_root'])/(token+'.pkl'),token)
+        record=(json.loads((Path(spec['current_records'])/(token+'.json')).read_text()) if 'current_records' in spec else
+                current_metadata_from_training_pickle(Path(spec['meta_root'])/(token+'.pkl'),token))
         example,observation=current_example(Path(spec['observations'])/(token+'.npz'),record)
         q=base.qwen_vl_interface.build_qwenvl_inputs(images=[example['image']],instructions=[example['lang']])
         with torch.autocast('cuda',dtype=torch.bfloat16),torch.no_grad():
