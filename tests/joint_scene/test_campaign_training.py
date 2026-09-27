@@ -61,3 +61,18 @@ def test_paired_uncertainty_uses_logs_and_rejects_changed_targets():
     assert abs(report['MASK_minus_ALL_m']+2/3)<1e-10
     second[0]['valid_xy_points']=1
     with pytest.raises(ValueError,match='mismatched'):paired(first,second,'all_hidden','ego')
+
+
+def test_completion_effect_pairs_same_targets_and_separates_empty_context():
+    from tools.joint_local_scene_v3.analyze_campaign import completion_effect
+    rows=[]
+    for log,points,known,conditional_sum in [('a',2,8,2.),('b',4,16,4.),('c',8,0,16.)]:
+        rows.append(dict(slot=0,log=log,status='ok',valid_xy_points=points,
+            all_hidden_valid_xy_points=points,conditional_valid_xy_points=points,
+            known_other_xy_points=known,all_hidden_xy_error_sum_m=points*2.,conditional_xy_error_sum_m=conditional_sum))
+    effect=completion_effect(rows,'ego','available')
+    assert effect['queries']==2 and effect['logs']==2 and effect['valid_xy_points']==6
+    assert effect['conditional_minus_all_hidden_m']==-1. and effect['ci95_m']==[-1.,-1.]
+    assert completion_effect(rows,'ego','none')['conditional_minus_all_hidden_m']==0
+    rows[0]['conditional_valid_xy_points']=1
+    with pytest.raises(ValueError,match='mismatched'):completion_effect(rows,'ego','available')

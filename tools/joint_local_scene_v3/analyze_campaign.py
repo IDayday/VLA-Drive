@@ -91,6 +91,17 @@ def primary(rows):
     return {f'{prefix}_{actor}':metrics(select(rows,actor,other='available' if prefix=='conditional' else 'all'),prefix).get('ADE_m') for prefix in ('all_hidden','conditional') for actor in ('ego','neighbor')}
 
 
+def completion_effect(rows,actor,other='available'):
+    """Within-model, same-target effect of supplying other valid futures."""
+    selected=select(rows,actor,other=other)
+    if any(r['status']!='ok' or r['all_hidden_valid_xy_points']!=r['conditional_valid_xy_points'] for r in selected):
+        raise ValueError('Incomplete or mismatched completion comparison')
+    result=bootstrap([{'log':r['log'],'all_sum':r['all_hidden_xy_error_sum_m'],'mask_sum':r['conditional_xy_error_sum_m'],'points':r['valid_xy_points']} for r in selected])
+    for old,new in [('J_ALL_ADE_m','all_hidden_ADE_m'),('J_MASK_ADE_m','conditional_ADE_m'),('MASK_minus_ALL_m','conditional_minus_all_hidden_m')]:
+        if old in result:result[new]=result.pop(old)
+    return result
+
+
 def extension_decision(root):
     evidence={};overfit=[];improving=[]
     for arm in ('all','mask'):
@@ -115,7 +126,7 @@ def csv_out(path,rows):
 
 
 def harvest(root,out):
-    out.mkdir(parents=True,exist_ok=True);curves=[];summaries={};run_stats={}
+    out.mkdir(parents=True,exist_ok=True);curves=[];summaries={};run_stats={};completion={}
     for run in sorted(root.iterdir()):
         if not run.is_dir() or not run.name.startswith(('small_','formal42_','formal43_')):continue
         log=run/'train.jsonl'
@@ -128,12 +139,13 @@ def harvest(root,out):
             summary=json.loads((folder/'summary.json').read_text())
             if not summary['aggregate_valid']:raise ValueError('Incomplete evaluation: '+str(folder))
             rows=read_queries(folder/'conditional_queries.csv');summaries[run.name+'/'+folder.name]=summarize_queries(rows)
+            completion[run.name+'/'+folder.name]={f'{actor}_other_{other}':completion_effect(rows,actor,other) for actor in ('ego','neighbor') for other in ('available','none')}
             split,step=folder.name.rsplit('_',1)
             for prefix in ('all_hidden','conditional'):
                 for actor in ('ego','neighbor'):
                     m=metrics(select(rows,actor,other='available' if prefix=='conditional' else 'all'),prefix)
                     curves.append({'run':run.name,'split':split,'step':int(step),'prefix':prefix,'actor':actor,**m})
-    atomic_json(out/'run_statistics.json',run_stats);atomic_json(out/'milestone_summaries.json',summaries);csv_out(out/'milestone_curves.csv',curves)
+    atomic_json(out/'run_statistics.json',run_stats);atomic_json(out/'milestone_summaries.json',summaries);atomic_json(out/'completion_effects.json',completion);csv_out(out/'milestone_curves.csv',curves)
     pairs={};deltas=[];pairing_checks={}
     for seed in (42,43):
         ra=root/f'formal{seed}_all';rb=root/f'formal{seed}_mask'
@@ -153,14 +165,29 @@ def harvest(root,out):
         import matplotlib
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        fig,axes=plt.subplots(2,2,figsize=(13,9))
-        for ax,(prefix,actor) in zip(axes.flat,[(p,a) for p in ('all_hidden','conditional') for a in ('ego','neighbor')]):
-            for name in run_stats:
-                for split,style in [('holdout','-'),('train64','--')]:
-                    vals=sorted([r for r in curves if r['run']==name and r['split']==split and r['prefix']==prefix and r['actor']==actor],key=lambda r:r['step'])
-                    if vals:ax.plot([r['step'] for r in vals],[r.get('ADE_m',np.nan) for r in vals],style,marker='.',label=name+' '+split)
-            ax.set_title(prefix+' '+actor);ax.set_xlabel('optimizer updates');ax.set_ylabel('xy ADE [m]');ax.grid(alpha=.3);ax.legend(fontsize=6)
-        fig.tight_layout();fig.savefig(out/'learning_curves.png');plt.close(fig)
+        for phase in ('small','formal42','formal43'):
+            names=[name for name in run_stats if name.startswith(phase+'_')]
+            if not names:continue
+            fig,axes=plt.subplots(2,2,figsize=(12,8))
+            for ax,(prefix,actor) in zip(axes.flat,[(p,a) for p in ('all_hidden','conditional') for a in ('ego','neighbor')]):
+                for name in names:
+                    color='tab:blue' if name.endswith('_all') else 'tab:orange'
+                    for split,style in [('holdout','-'),('train64','--')]:
+                        vals=sorted([r for r in curves if r['run']==name and r['split']==split and r['prefix']==prefix and r['actor']==actor],key=lambda r:r['step'])
+                        if vals:ax.plot([r['step']/(228 if phase.startswith('formal') else 1) for r in vals],[r.get('ADE_m',np.nan) for r in vals],style,color=color,marker='.',label=name+' '+split)
+                ax.set_title(prefix+' '+actor);ax.set_xlabel('complete data traversals' if phase.startswith('formal') else 'optimizer updates');ax.set_ylabel('xy ADE [m]');ax.grid(alpha=.3);ax.legend(fontsize=7)
+            fig.suptitle(phase+' | conditional ego excludes queries with no other valid future')
+            fig.tight_layout();fig.savefig(out/('learning_curves_'+phase+'.png'));plt.close(fig)
+            fig,ax=plt.subplots(figsize=(10,5))
+            for name in names:
+                logs=[json.loads(x) for x in (root/name/'train.jsonl').read_text().splitlines()];window=min(32,len(logs));loss=np.convolve([r['weighted_loss'] for r in logs],np.ones(window)/window,mode='valid')
+                ax.plot([r['step'] for r in logs[window-1:]],loss,label=name)
+            ax.set_xlabel('optimizer updates');ax.set_ylabel('32-step mean two-forward objective');ax.set_title('Within-arm learning trend; objectives use different supervision mixtures');ax.grid(alpha=.3);ax.legend();fig.tight_layout();fig.savefig(out/('loss_curve_'+phase+'.png'));plt.close(fig)
+        gradient_rows=[]
+        for name in run_stats:
+            for row in [json.loads(x) for x in (root/name/'train.jsonl').read_text().splitlines()]:
+                for group,grad in row['group_gradient_l2'].items():gradient_rows.append({'run':name,'step':row['step'],'group':group,'gradient_l2':grad,'parameter_update_l2_first128_per_tensor_probe':row['sampled_parameter_update_l2'].get(group)})
+        csv_out(out/'gradient_update_probes.csv',gradient_rows)
     return pairs
 
 
