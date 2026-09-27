@@ -1,0 +1,49 @@
+campaign: local-interaction-mask-v2-20260927
+base_commit: 227e781dd54f623b12b41bd7f2d2a7b302e0a014
+independent_gpu_hour_cap: 48
+legacy_ledgers: sealed_read_only
+optimizer_step_cap: null
+resources:
+  authorized_hosts: [local, training-vla-zt2]
+  initial_local_gpus: [0, 1, 2, 3]
+  stop_other_jobs: false
+priority_reservations_gpu_hours:
+  P0_P1_graph_implementation_audit_and_checks: 3
+  P2_graph_training_and_second_seed: 18
+  P3_planning_transfer_and_evaluation: 20
+  P4_diagnostics_and_failure_reserve: 7
+training:
+  main_pair: [G_LOCAL_ALL, G_LOCAL_MASK]
+  main_seeds: [42, 43]
+  train_scenes: 7284
+  initial_epochs: 16
+  conditional_max_epochs: 32
+  global_batch: 32
+  milestones: [1, 2, 4, 8, 12, 16, 24, 32]
+  main_initialization: same_seed_fresh_graph
+  schedule: linear_warmup_200_then_cosine_over_preregistered32epoch_horizon
+  extension_rule: At16passes, extend BOTH variants and BOTH seeds to32 if either model's mean of ego and matched-neighbor holdoutADE changes by >2percent from12 to16passes OR either component remains worse than its stationary reference. NoPDMS consulted. Missing neighborhood metric triggers insufficient-evidence review, not fabricated convergence.
+  secondary: G_NEAREST_MASK_seed42_16passes_after_main_pair_reserved
+planner:
+  variants: [A0, CURRENT_MEMORY, G_LOCAL_ALL, G_LOCAL_MASK]
+  main_pair_seeds: [42, 43]
+  fixed_max_epochs: 4
+  original_Qwen_and_DiT_frozen: true
+  original_noise_seed: 20260926
+  original_FM_steps: 10
+  candidates: 1
+repair:
+  maximum_rounds: 2
+  hypothesis_before_new_run: true
+selection:
+  calibration: fixed_first64_training_tokens_only
+  freeze_before_main_comparison: true
+  no_dev_PDMS_threshold_tuning: true
+  main_task_proportions: [0.5, 0.25, 0.25]
+navtest: REQUIRED_FINAL_LOCKED_EVALUATION
+public_origin_required: true
+private_foundation_weights_for_formal_runs: false
+public_foundation_training: REQUIRED_BEFORE_GRAPH_MAIN_RUNS
+phase_reservations_status: REPLAN_AFTER_PUBLIC_ORIGIN_COST_BENCHMARK
+# USER_STEERING.md supersedes the initial private-origin phase allocation.
+# Total48GPUh is unchanged; reserve public foundation and completeNavtest before launching main training.

@@ -1,44 +1,19 @@
-# Masked Joint Trajectory World Model — bounded work complete
+# Local interaction mask V2 — ACTIVE
 
-2026-09-27. Engineering READY for the explicitly supported fixed-upstream single-GPU production path; research INCONCLUSIVE. All training, inference, task evaluation, official development PDMS, diagnostics and final reports are complete. No experiment jobs remain. Final branch publication is verified against remote SHA in the delivery response.
+Objective: full attachment reports/local_interaction_mask_v2/OBJECTIVE.md plus binding USER_STEERING.md. Starting227e781, isolated feature/local-interaction-mask-v2-20260927 worktree /mnt/project/VLA-Drive-local-interaction-mask-v2-20260927. Preserve original workspaces, old reports/ledgers/data/weights.
 
-## Workspace and identities
+Critical latest steering: formal algorithm must train reproducibly from PUBLIC Qwen base, not unavailable private driving/Reader/DiT checkpoints. Final planning evidence must be complete NAVTEST, not1696development. Public-origin baseline/head/currentperception must be trained as partof this campaign before localgraph formal comparisons. Old caches only historical engineering audit. No Navtest tuning.
 
-- Development: /mnt/project/VLA-Drive-masked-trajectory-world-20260927
-- Branch: feature/masked-trajectory-world-20260927
-- Remote: git@github.com:IDayday/VLA-Drive.git
-- Latest valid code/results commit before this final documentation: 9a5ad9d. Current exact delivery commit: git rev-parse HEAD.
-- Immutable scientific sources: fed64aa graph training; 7bd8901 image planner transfer; b820f4c BEV transfer; cea37ea final BEV evaluation; 1eda084 final learned online checks.
-- Baseline compatible code0ecd2ae; original training SHA UNKNOWN. Original checkpoint9445f9da…; inherited post-Qwen world checkpointfe9aef18… . Full hashes and six final checkpoint identities: reports/joint_world/FINAL_MANIFEST.json.
-- Original workspaces, raw logs, existing caches and checkpoints were not overwritten. Weights/data/images remain in private artifact directories.
+Implemented (not yet fullgoal complete): observability.py/current calibrated contract, local_graph.py A/B/C/D+rooted relations+twohop+riskcontext+source mapping; local_masks.py50/25/25+fallback+source-IDnoise; local_targets.py filtered fullslot→GT→local matching; flow.py active/edge masks, NaN isolation, public sample_conditional; actionadapter/planner aware of localactive mask. PublicQwenBaseline constructor loads verified publicweights only, initializes original24layerDiT/history/newtokens from seed; realGPUcheck entry added, not yet run.
 
-## Completed evidence
+42 related new+existing tests pass after correcting a test-fixture tensor alias. All newmodules need complete relevant checks, realdataaudit32figures, accumulation/resume and onlineintegration tests. Do not infer actualdata quality or research results from unit tests.
 
-7284 scenes/978 logs, matched graph pair3642updates/8passes each; four planner transfer variants1821updates/4passes each. Fixed milestones retained, no PDMS-based checkpoint selection. Long masked trials use Bernoulli whole-actor subsets plus50%all-hidden, not exact-one masking. Exact-one mode has a16-step real engineering check only.
+PublicQwen local /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct all12files byte-match official Qwen/Qwen3-VL-2B-Instruct revision89644892e4d85e24eaac8bacfd4f463576704203, weight7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0. Report PUBLIC_QWEN_PROVENANCE.json. No private weights admissible in formal public origin. Public basepretraining dataset exposure stillUNKNOWN.
 
-Full1696-scene officialv1 PDMS: baseline93.14457488, randommask93.32698483, allmask93.21436495, BEV taskoff93.31226551, BEV taskon93.19507936. Allfive0failures. Random-minus-control+0.11262points,95%log-clusterCI[-0.00517,+0.21984]; BEV taskon-minus-off−0.11719,CI[-0.32541,−0.00144]. Single seed; no stable positive claim. Complete small-score CSV: reports/joint_world/planning_all1696/scene_metrics.csv (8480 rows). All paired comparisons and proposal hashes retained.
+Independent ledger /mnt/project/local-interaction-mask-v2-artifacts/20260927/budget_ledger.json, cap48GPUh, no oldstepcap. Atthissnapshot0GPUh/0updates. Initial phase reservationneedsreplan afterpublicfoundation benchmark, retaining graph16/32epochs, primarypair2seeds and completeNavtest budget. Do not launchmainrunsbeforefixingthis. LocalGPU0–3 verifiedfree,4–7unrelatedoccupancyuntouched. Remotevla-zt2 permitted butunused.
 
-BEV dense GT-cell motion ADE improves5.2664→4.9110→4.6691m over1/2/4passes; occupancyIoU nonmonotonic. Fullset detectionrecall13.26%, futurepointcoverage13.38%, generatedagentADE5.70–5.84m versusstationary2.38m. Neither stronger auxiliary metrics nor reaching the training cap establishes world-model quality, convergence or planning benefit.
+Data: existing7284/978logtrain,64scene59logdiagnostic,1696/16logdevelopment manifests mustreverify actualtoken/logidentities. Historical currentcache /mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions; fullGTsiblingworld_targets. Raw/current observationmetadata /mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192/observations; metatrain /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1/meta/train. Neverreuse oldprivatecurrent featuresaspublicformal features. Current-only metadata/image adapter added; worldlabelsseparate.
 
-29 related tests pass. Original1696 trajectories and all7 PDMS factors match archived baseline exactly. Actual trained image and BEV policies on4real current-image scenes each pass bitwise cached/online actions and joint trajectories, poisoned-label independence and strict restore. Real GPU continuous/resume checks pass. Real2GPU NCCL graph-module accumulated gradients, unequal/empty-agent-label rank and resume pass; production fullQwen DDP training is NOT implemented/claimed. Real ego-onlyFM reaches trainableBEVencoder/fusion through fixedgraph/DiT.32real diagnostic figures remain private with published hashes. Current/BEV cache malformed-version/sensor/label fields rejected. Full onlineBEV~0.752s,image~0.520s on4scenes, excludespreprocess/model-loading.
+Navtest: raw /mnt/navsim/test_navsim_logs/test has147logs. Firstcandidate metriccache /mnt/project/DriveDreamer-Policy/navsim_exp/metric_cache only205scenes/51logs, NOTcomplete! Continue discovery of validated full12146/136logs cache or generateindependentcachewithofficialv1.1. /mnt/navsim/navsim_dataset/meta/test empty; needcurrent-onlytestrecords from rawallowedframes. Do not call missing partialcache complete or conflatefilesystemtestsplit withfixednavtestfilter.
 
-BEV is frozen pretrained DAV2visualbackbone plus NEW calibrated geometry, not pretrainedBEV; FOVsupport is not occlusion confidence. BEV enters AFTER Qwen, through graph and originalDiT adapter. Only image-conditioned worldqueries go throughQwen. Graph then bridge are trained sequentially; originalQwen/vision/currentheads/DiT and provider remain fixed. NoRL, learnedscorer, candidate selection, futureRGB or PDMS labels.
-
-## Budget and limits
-
-Authoritative ledger: /mnt/project/joint-world-artifacts/20260927/budget_ledger.json, copied to reports/joint_world/RUN_LEDGER.json.
-Final21835/24000optimizerupdates,7.16919871687889/48GPUhours, including sealedV1.1prefix2596updates. EarlierV1campaign is separately sealed; repository-root execution_budget.yaml belongs to that older campaign. Current budget: reports/joint_world/execution_budget.yaml. Remaining2165updates insufficient for another full1821×2seedpair.1of2repairhypotheses used.4failed earlyruns and the repaired RNG comparison failure remain documented and charged.
-
-NOT_RUN: second full training seed pair, long exact-one mask comparison, fullQwen/graph/DiT joint fine-tuning/productionDDP, Navtest. Basepretraining development exposure UNKNOWN. No automatic additional training. Resources used localGPUs0–3 only; unrelatedGPUs4–7 tasks untouched.
-
-## Reports and repeat command
-
-Final self-contained report: reports/joint_world/FINAL_REPORT.md.
-Current status: reports/joint_world/STATUS.json. CSV/completeness/hash audit: reports/joint_world/DELIVERY_CHECK.json.
-Quickstart and full historical commands: docs/JOINT_WORLD_QUICKSTART.md; exact scientific arguments in manifests/ledger.
-
-```bash
-cd /mnt/project/VLA-Drive-masked-trajectory-world-20260927 && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=. /root/miniconda3/envs/ddp/bin/python tools/joint_world/report_planning.py --artifacts /mnt/project/joint-world-artifacts/20260927 --output reports/joint_world/planning_all1696 --runs planner_dev1696_baseline planner_dev1696_randommask planner_dev1696_allmask planner_dev1696_bev_control planner_dev1696_bev_tasks
-```
-
-This re-creates reports without retraining. Do not restart completed runs or reduce ledger charges. Exact resume is limited to explicitly paused, fully accounted runs with pinned code, same hardware/dtype/cache identities and original arguments plus --resume <same-output>/checkpoint_<step>.pt. No activity waits or additional evidence are pending. New scientific work requires its own bounded plan.
+NEXT: commit checkedfoundation; run bounded realpublic-origin one-scene2update cost/parity/gradient check with newledger on freeGPU0; verify labels-free current preprocessing parity. Complete real P0localgraphaudit and32figures (historicalorigin label ifusingoldpredictions). Buildpublic-origin foundation training/extraction pipeline, finish budgetallocation, then primarytwo-seed G_LOCAL_ALL/G_LOCAL_MASK16passes withpre-registeredmatched32extension. PreserveCURRENT_MEMORY/G_NEAREST controls, conditional/relationshipdiagnostics, full1696development and lockedfullNavtest in scope. Finalstatuses GRAPH_VALIDITY/LOCAL_COMPLETION/INTERACTION_DEPENDENCE/DEPLOYABLE_PLANNING require actualevidence. No finalconclusionsyet.

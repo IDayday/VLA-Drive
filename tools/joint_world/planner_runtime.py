@@ -46,7 +46,7 @@ class CachedCurrentPlanner(nn.Module):
     def __init__(self, condition_dim, graph_config, bev_enabled=False):
         super().__init__(); self.graph_config = dict(graph_config)
         self.graph = JointTrajectoryFlow(condition_dim, **{k:v for k,v in graph_config.items()
-            if k in ('dim','heads','layers','scale_m','trajectory_mode','agent_scale_m')})
+            if k in ('dim','heads','layers','scale_m','trajectory_mode','agent_scale_m','edge_feature_dim')})
         self.graph_to_world = nn.Linear(graph_config['dim'], condition_dim)
         self.adapter = WorldToActionAdapter(condition_dim)
         self.bev_enabled=bev_enabled
@@ -66,7 +66,9 @@ class CachedCurrentPlanner(nn.Module):
         with torch.no_grad():
             trajectories, features = self.graph.sample(noise.float(), **current,
                 sampling_steps=self.graph_config.get('sampling_steps',10))
-        condition = self.adapter(native_actions.float(), self.graph_to_world(features.float()))
+        graph=current.get('local_graph');mask=graph.active_actor_mask if graph is not None else None
+        safe=features.float() if mask is None else torch.where(mask[...,None],features.float(),torch.zeros_like(features.float()))
+        condition = self.adapter(native_actions.float(), self.graph_to_world(safe),mask)
         return condition.float(), trajectories
 
 

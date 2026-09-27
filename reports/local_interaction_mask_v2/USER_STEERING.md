@@ -1,0 +1,13 @@
+# Binding steering, 2026-09-27
+
+The user requires a complete independent algorithm reproducible by another researcher using public Qwen base weights and NAVSIM training data. Private driving foundation checkpoints are NOT a formal experimental starting point. Earlier private-foundation improvements do not imply equivalence to training from a public base.
+
+The user also requires final planning conclusions on **Navtest**. The1696scene/16log split is a development set, not final test evidence. Use training-domain validation for calibration/convergence/model selection, then lock models and evaluate complete Navtest with the same one-candidate10-step NAVSIMv1 protocol. Do not tune on Navtest scores. Report negative/uncertain results honestly; no guarantee of an improvement from short or unconverged training.
+
+These instructions supersede the attachment's reuse of private trained foundation weights, original-budget priority assumptions and optional Navtest interpretation. The local-interaction algorithm, full experimental/control scope,16/32-pass graph schedule, main second seed and independent48GPU-hour cap remain in force. The old private cache may ONLY be used for explicitly named historical engineering audits; it cannot produce formal public-origin results.
+
+Public origin verified against actual official file bytes: Qwen/Qwen3-VL-2B-Instruct, revision89644892e4d85e24eaac8bacfd4f463576704203. New action head/history projector, world Reader/current perception and local interaction graph must be initialized by declared seeds and trained by published recipes. A foundation first trained within this campaign may be shared by all controls, provided its full public-to-foundation training is recorded; do not substitute the unavailable old foundation.
+
+A0 therefore means the **new public-origin trained VLA**, with local graph disabled. The old93.14/93.33 development scores stay historical references, never the new main table. Graph/internal-ego predictions and actual executedDiT trajectory remain distinct.
+
+Budget must cover the new foundation training and complete Navtest evaluation before main training begins. First benchmark real public-origin cost, then finalize finite phase reservations; do not consume the entire budget before the required comparison. Any incomplete/unconverged public foundation limits the scientific conclusion and must be reported separately from graph engineering validity.

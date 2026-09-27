@@ -1,0 +1,55 @@
+schema_version: 2
+ver_1225: 1
+act_tok: 8
+w_depth: 0
+enable_image_aug: 0
+framework:
+  name: PublicQwenBaseline
+  qwenvl:
+    base_vlm: Qwen/Qwen3-VL-2B-Instruct
+    attn_implementation: sdpa
+    vl_hidden_dim: 2048
+  action_model:
+    action_model_type: DiT-B
+    hidden_size: 1536
+    add_pos_embed: true
+    max_seq_len: 1024
+    action_dim: 4
+    state_dim: 4
+    future_action_window_size: 8
+    action_horizon: 8
+    past_action_window_size: 0
+    repeated_diffusion_steps: 1
+    noise_beta_alpha: 1.5
+    noise_beta_beta: 1.0
+    noise_s: 0.999
+    num_timestep_buckets: 1000
+    num_inference_timesteps: 10
+    num_target_vision_tokens: 32
+    diffusion_model_cfg:
+      cross_attention_dim: 1536
+      dropout: 0.2
+      final_dropout: true
+      interleave_self_attention: true
+      norm_type: ada_norm
+      num_layers: 24
+      output_dim: 1536
+      positional_embeddings: null
+    mlp_head: 0
+    DiTConfig:
+      num_layers: 24
+      input_embedding_dim: 1536
+      attention_head_dim: 64
+      num_attention_heads: 24
+datasets:
+  vla_data:
+    load_act_data: 1
+    split: train
+    act_norm: 1
+    load_all_data_for_training: true
+  video_data:
+    load_2d_data: 0
+  gs_data:
+    load_3d_data: 0
+  reward_data:
+    load_reward_data: 0
