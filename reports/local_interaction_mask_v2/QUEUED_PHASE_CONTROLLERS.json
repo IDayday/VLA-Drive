@@ -1,0 +1,48 @@
+{
+  "scope": "Local finite campaign orchestration; underlying training/evaluation entry points and configs are in the repository",
+  "scripts": {
+    "continue_main_phases.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_main_phases.py",
+      "sha256": "d1f188c6b970bcc4edbb4720f2db29285f49e9a8c60d5ad25fe7c77e463fd21c"
+    },
+    "continue_nearest.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_nearest.py",
+      "sha256": "e6f6e9075125ec8759beb1fd75f2b0977c34bd894bfed0df1425f2d57c939db8"
+    },
+    "evaluate_final_locked.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluate_final_locked.py",
+      "sha256": "dadea29d60e000d37b2db4453fafc25446db67942c99531ece9d230f27479853"
+    },
+    "launch_prepared_jobs.py": {
+      "path": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/launch_prepared_jobs.py",
+      "sha256": "30219911c21fc94c094a2b5b71407ea35e8bc8308b01c277cdc3bae35956fe09"
+    }
+  },
+  "launchers": {
+    "main_phase_launcher.json": {
+      "pid": 897655,
+      "cwd": "/mnt/project/VLA-Drive-local-v2-runs-main",
+      "source_sha": "955097588152912eeaca72eeb4ee9f736e40b530",
+      "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_main_phases.py"
+    },
+    "nearest_phase_launcher.json": {
+      "pid": 897850,
+      "cwd": "/mnt/project/VLA-Drive-local-v2-runs-main",
+      "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/continue_nearest.py"
+    },
+    "final_evaluation_launcher.json": {
+      "pid": 898051,
+      "cwd": "/mnt/project/VLA-Drive-local-v2-runs-evaluation",
+      "script": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluate_final_locked.py",
+      "script_sha256": "dadea29d60e000d37b2db4453fafc25446db67942c99531ece9d230f27479853",
+      "source_sha": "c66e6f86636377c575990598e4f33671e67fb495",
+      "status_at_launch": "WAITING_FOR_FINAL_MODELS_NO_CUDA"
+    }
+  },
+  "training_scores_allowed_for_decisions": "fixed training-domain holdout only",
+  "Navtest_selection": false,
+  "failure_behavior": "Stop the dependent phase, retain artifacts; no automatic retry or filtering. Verify child PIDs/ledger before recovery.",
+  "GPU_export_control": "Independent8GPUhost groups,16totalshards,perhostsupervisorstatus/stop",
+  "CPU_scoring": "officiallocalenvironment,4models\u00d78workers,total32; immutable atomic exported trajectories",
+  "model_lock": "All4planningmodels hash-locked only after actual final online/cache checks; no scoring before MODEL_LOCK.json"
+}
