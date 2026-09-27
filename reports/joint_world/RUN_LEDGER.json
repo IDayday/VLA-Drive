@@ -1,10 +1,19 @@
 {
   "run_id": "masked-trajectory-world-20260927",
-  "optimizer_steps": 4598,
-  "gpu_hours": 1.794171163174841,
+  "optimizer_steps": 7218,
+  "gpu_hours": 2.5292896916468948,
   "step_cap": 24000,
   "gpu_hour_cap": 48,
-  "repair_rounds": [],
+  "repair_rounds": [
+    {
+      "round": 1,
+      "hypothesis": "Absolute XY and20m agent noise cause unnecessary static drift",
+      "change": "Predicted-centre residual, agent5m/ego20m scale",
+      "planned_updates": 2000,
+      "status": "approved_bounded_plan",
+      "report": "reports/joint_world/REPAIR_1.md"
+    }
+  ],
   "runs": [
     {
       "id": "sealed_prior_v1p1",
@@ -471,6 +480,512 @@
       },
       "heartbeat": 1790483976.0618412,
       "pid": 719352
+    },
+    {
+      "id": "residual_randommask64",
+      "optimizer_steps": 1000,
+      "gpu_hours": 0.010098423096868758,
+      "status": "complete",
+      "reserved_steps": 1000,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "residual_randommask64",
+          "steps": 1000,
+          "batch": 8,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "779dfe1beea6e13dc0c1f4287fe06730fb60cd45",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790484377.8946173,
+      "pid": 722619
+    },
+    {
+      "id": "residual_allmask64",
+      "optimizer_steps": 1000,
+      "gpu_hours": 0.010024228559599977,
+      "status": "complete",
+      "reserved_steps": 1000,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/residual_allmask64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "residual_allmask64",
+          "steps": 1000,
+          "batch": 8,
+          "all_hidden_probability": 1.0,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "779dfe1beea6e13dc0c1f4287fe06730fb60cd45",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790484377.6313305,
+      "pid": 722627
+    },
+    {
+      "id": "resume_split6",
+      "optimizer_steps": 6,
+      "gpu_hours": 0.0029040946563084922,
+      "status": "complete",
+      "reserved_steps": 6,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/resume_split6",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "resume_split6",
+          "steps": 6,
+          "batch": 8,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "resume": "/mnt/project/joint-world-artifacts/20260927/resume_split6/checkpoint_3.pt",
+          "stop_after": null
+        },
+        "code_sha": "779dfe1beea6e13dc0c1f4287fe06730fb60cd45",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790484545.559176,
+      "pid": 724373
+    },
+    {
+      "id": "resume_uninterrupted6",
+      "optimizer_steps": 6,
+      "gpu_hours": 0.0018475873602761162,
+      "status": "complete",
+      "reserved_steps": 6,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/resume_uninterrupted6",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "resume_uninterrupted6",
+          "steps": 6,
+          "batch": 8,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "779dfe1beea6e13dc0c1f4287fe06730fb60cd45",
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "labels_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "base_world_seen_training64": true,
+        "pdms_training": false
+      },
+      "heartbeat": 1790484348.2022793,
+      "pid": 722649
+    },
+    {
+      "id": "residual_randommask64_holdout64",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0009022255076302422,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64_holdout64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "residual_randommask64_holdout64"
+        },
+        "checkpoint_sha256": "0e388cc1de12519551bdbe736fe725b73c453d1ccd12da73dd77789a67feb897",
+        "code_sha": "779dfe1beea6e13dc0c1f4287fe06730fb60cd45",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 1000
+      },
+      "heartbeat": 1790484546.2111487,
+      "pid": 724386
+    },
+    {
+      "id": "residual_allmask64_holdout64",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.0008910988436804878,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "arguments": {
+          "checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_allmask64/checkpoint_1000.pt",
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/residual_allmask64_holdout64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "residual_allmask64_holdout64"
+        },
+        "checkpoint_sha256": "f2915859ba5b2129600d1704261dbdbbb742a8f694e7904ec862f538aafd3045",
+        "code_sha": "779dfe1beea6e13dc0c1f4287fe06730fb60cd45",
+        "cache_identity": "d238662bd7b843af1f9b5a589cfea7f92f12478052af6670fef634e8cf740854",
+        "labels_fingerprint": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+        "checkpoint_step": 1000
+      },
+      "heartbeat": 1790484546.1748686,
+      "pid": 724387
+    },
+    {
+      "id": "bev_tasks_probe64",
+      "optimizer_steps": 600,
+      "gpu_hours": 0.018866481251186822,
+      "status": "complete",
+      "reserved_steps": 600,
+      "metadata": {
+        "arguments": {
+          "train_cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "holdout_cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+          "train_bev": "/mnt/project/structured-world-v1p1-artifacts/20260927/pretrained_bev_128_345d42c",
+          "holdout_bev": "/mnt/project/structured-world-v1p1-artifacts/20260927/pretrained_bev_log_holdout64_dd789c3",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "output": "/mnt/project/joint-world-artifacts/20260927/bev_tasks_probe64",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "bev_tasks_probe64",
+          "steps": 600
+        },
+        "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+        "provider": "frozen pretrained visual backbone + new calibrated BEV",
+        "backbone_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+        "batch": 8,
+        "seed": 42,
+        "labels": "current occupancy / valid future track displacement / pair separation; no PDMS"
+      },
+      "heartbeat": 1790484766.2460568,
+      "pid": 725759
+    },
+    {
+      "id": "extended_conditions_shard2",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.22345065785778898,
+      "status": "running",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph_residual.json",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/extended_training/train_shard2.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_training/conditions_shard2",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_conditions_shard2",
+          "limit": null
+        },
+        "manifest_sha256": "008001aa7392b2cd3b220016a8b10bbc1acfc4a984737cdfc635643ce4ca62bb",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790485610.8821476,
+      "pid": 726977
+    },
+    {
+      "id": "extended_conditions_shard1",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.22337662524647178,
+      "status": "running",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph_residual.json",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/extended_training/train_shard1.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_training/conditions_shard1",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_conditions_shard1",
+          "limit": null
+        },
+        "manifest_sha256": "61951f0a32dbdebefaa062535f9ad56b0bbf2efd8252da33363b0238ccb9d5b1",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790485610.6197429,
+      "pid": 726966
+    },
+    {
+      "id": "extended_conditions_shard0",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.2234332643614877,
+      "status": "running",
+      "reserved_steps": 0,
+      "metadata": {
+        "schema_version": 1,
+        "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+        "world_checkpoint_sha256": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_config": "configs/joint_world/image_graph_residual.json",
+          "manifest": "/mnt/project/joint-world-artifacts/20260927/extended_training/train_shard0.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/extended_training/conditions_shard0",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "extended_conditions_shard0",
+          "limit": null
+        },
+        "manifest_sha256": "4fec0f970ee26fc03c84064a99a94055989781b090c404642caa5bfb76bd1752",
+        "baseline_checkpoint_sha256": "9445f9da577a8e3c6b7c636c60a98d714d602668f9a8033b0891c703bc40210f",
+        "world_config": {
+          "enabled": true,
+          "provider": "qwen",
+          "token_layout": "append_tail",
+          "head_location": "post_qwen",
+          "reference_heads": true,
+          "agent_tokens": 64,
+          "scene_tokens": 64,
+          "reader_dim": 256,
+          "action_adapter": false,
+          "train_action": false,
+          "vision_trainable": false,
+          "lambda_cls": 1.0,
+          "lambda_box": 1.0,
+          "lambda_motion": 1.0,
+          "lambda_ego": 0.0,
+          "historical_auxiliary_losses": false
+        },
+        "sensor_contract": "current CAM_L0 CAM_F0 CAM_R0; no augmentation",
+        "frozen_upstream": true,
+        "targets_loaded": false
+      },
+      "heartbeat": 1790485610.827584,
+      "pid": 726958
+    },
+    {
+      "id": "online_bev_graph_pipeline",
+      "optimizer_steps": 0,
+      "gpu_hours": 0.015084888603952197,
+      "status": "complete",
+      "reserved_steps": 0,
+      "metadata": {
+        "code_sha": "b6200f686418500ff321dd3b50e7af394105acdf",
+        "arguments": {
+          "world_checkpoint": "/mnt/project/structured-world-v1p1-artifacts/20260927/W_POST_64_bounded696_d537401/checkpoint.pt",
+          "graph_checkpoint": "/mnt/project/joint-world-artifacts/20260927/residual_randommask64/checkpoint_1000.pt",
+          "bev_checkpoint": "/mnt/project/joint-world-artifacts/20260927/bev_tasks_probe64/checkpoint_600.pt",
+          "bev_config": "configs/joint_world/pretrained_bev_side.json",
+          "observations": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "output": "/mnt/project/joint-world-artifacts/20260927/online_bev_graph_pipeline",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "online_bev_graph_pipeline"
+        },
+        "checkpoint_hashes": {
+          "world_checkpoint": "fe9aef18e5cd9a9008c538ad166af45fbeb081ed747beaf4f518fdc5e3c3ece4",
+          "graph_checkpoint": "0e388cc1de12519551bdbe736fe725b73c453d1ccd12da73dd77789a67feb897",
+          "bev_checkpoint": "333b41d627021fd7dd3b50fa2446ce644ed40054aedce5bf6f18135ebc872c58"
+        }
+      },
+      "heartbeat": 1790484992.8827188,
+      "pid": 728506
+    },
+    {
+      "id": "corpus_resume_direct4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.0017945320738686457,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/corpus_resume_direct4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "corpus_resume_direct4",
+          "epochs": 1,
+          "batch": 16,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "resident": 256,
+          "resume": null,
+          "stop_after": null
+        },
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "unique_scenes": 64,
+        "planned_presentations": 64,
+        "max_steps": 4,
+        "schedule": "linear warmup min(200,10%) then cosine to10% initial lr1e-4",
+        "pdms_training": false,
+        "frozen_upstream": true
+      },
+      "heartbeat": 1790485454.8753374,
+      "pid": 733187
+    },
+    {
+      "id": "corpus_resume_split4",
+      "optimizer_steps": 4,
+      "gpu_hours": 0.0023563699589835272,
+      "status": "complete",
+      "reserved_steps": 4,
+      "metadata": {
+        "arguments": {
+          "cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+          "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+          "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+          "config": "configs/joint_world/image_graph_residual.json",
+          "output": "/mnt/project/joint-world-artifacts/20260927/corpus_resume_split4",
+          "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+          "run_id": "corpus_resume_split4",
+          "epochs": 1,
+          "batch": 16,
+          "all_hidden_probability": 0.5,
+          "seed": 42,
+          "resident": 256,
+          "resume": "/mnt/project/joint-world-artifacts/20260927/corpus_resume_split4/checkpoint_2.pt",
+          "stop_after": null
+        },
+        "code_sha": "fed64aa6b3a20a241ff1a6d608a9d024edf0ff68",
+        "config": {
+          "dim": 128,
+          "heads": 4,
+          "layers": 2,
+          "scale_m": 20.0,
+          "sampling_steps": 10,
+          "sampling_seed": 2037,
+          "all_hidden_probability": 0.5,
+          "trajectory_mode": "current_residual",
+          "agent_scale_m": 5.0
+        },
+        "cache_identity": "838de10388a29760f925298f82c11a9ada7b50b59b320a5a3c4001a6820b82e8",
+        "label_fingerprint": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+        "unique_scenes": 64,
+        "planned_presentations": 64,
+        "max_steps": 4,
+        "schedule": "linear warmup min(200,10%) then cosine to10% initial lr1e-4",
+        "pdms_training": false,
+        "frozen_upstream": true
+      },
+      "heartbeat": 1790485505.9176445,
+      "pid": 733760
     }
   ]
 }

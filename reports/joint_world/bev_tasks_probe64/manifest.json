@@ -1,0 +1,25 @@
+{
+  "arguments": {
+    "train_cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions64",
+    "holdout_cache": "/mnt/project/joint-world-artifacts/20260927/image_conditions_log_holdout64",
+    "train_bev": "/mnt/project/structured-world-v1p1-artifacts/20260927/pretrained_bev_128_345d42c",
+    "holdout_bev": "/mnt/project/structured-world-v1p1-artifacts/20260927/pretrained_bev_log_holdout64_dd789c3",
+    "targets": "/mnt/project/structured-world-v1p1-artifacts/20260927/targets_v6_full128",
+    "data_root": "/mnt/project/structured-world-v1-artifacts/20260926/dataset_v1",
+    "output": "/mnt/project/joint-world-artifacts/20260927/bev_tasks_probe64",
+    "ledger": "/mnt/project/joint-world-artifacts/20260927/budget_ledger.json",
+    "run_id": "bev_tasks_probe64",
+    "steps": 600
+  },
+  "code_sha": "fac76c16d34c2e028c740c8f3ecf65d8311a5f0e",
+  "provider": "frozen pretrained visual backbone + new calibrated BEV",
+  "backbone_sha256": "a7ea19fa0ed99244e67b624c72b8580b7e9553043245905be58796a608eb9345",
+  "batch": 8,
+  "seed": 42,
+  "labels": "current occupancy / valid future track displacement / pair separation; no PDMS",
+  "train_label_sha256": "485b6b587a01992f6cece2323d1ff08a061e812a0b3254444884e661e72d5aae",
+  "holdout_label_sha256": "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+  "train_bev_sha256": "689dfb94560c4ca874897c18361d68fe3ed10e041572cd8fae554e3138a35278",
+  "holdout_bev_sha256": "60d3b78d818ba293bf759cbbfca1ca8a7f4779ff18e764e70c3cff1b94fcc90b",
+  "trainable_parameters": 814098
+}

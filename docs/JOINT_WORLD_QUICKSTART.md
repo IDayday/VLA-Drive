@@ -1,6 +1,6 @@
 # Joint trajectory world model
 
-Current stage: working image-conditioned joint flow and prediction-only planner bridge;64-scene masked/control pilots completed. BEV task objectives and planning comparison remain pending. No result below is a PDMS improvement claim.
+Current stage: working image-conditioned joint flow and prediction-only planner bridge;64-scene masked/control pilots completed. Real BEV task supervision and online BEV→graph→DiT connectivity have now been tested; matched planner training/comparison remain pending. No result below is a PDMS improvement claim.
 
 ## Environment and tests (executed)
 
@@ -13,7 +13,7 @@ export JOINT_PYTHON=/root/miniconda3/envs/ddp/bin/python
 "$JOINT_PYTHON" -m pytest -q tests/joint_world tests/structured_world_v1p1
 ```
 
-19 tests passed. Covers whole-actor masks, hidden context poisoning including NaN, non-ego permutation equivariance, empty surrounding labels, gradients, graph save/load and previous coordinate/append-tail regressions.
+24 tests passed. Covers whole-actor masks, hidden context poisoning including NaN, non-ego permutation equivariance, empty surrounding labels, gradients, graph save/load and previous coordinate/append-tail regressions.
 
 ## Real GPU path (executed, passes)
 
@@ -58,7 +58,7 @@ CUDA_VISIBLE_DEVICES=1 "$JOINT_PYTHON" tools/joint_world/train_graph.py \
   --run-id graph_randommask64 --steps 1000 --batch 8 --all-hidden-probability 0.5
 ```
 
-Control used GPU2, output/run-id `graph_allmask64`, probability1.0. Both runs are terminal and must not be restarted. Their full optimizer/RNG/order state is saved; a checked resume entry is still pending, and exact continuation has NOT been validated for this new graph runner.
+Control used GPU2, output/run-id `graph_allmask64`, probability1.0. Both runs are terminal and must not be restarted. Their full optimizer/RNG/order state is saved; the later checked resume entry passed a realGPU6 vs3+3 exact-state comparison (source779dfe1). Do not use a different code revision to resume pinned historical runs.
 
 Heldout feature extraction used the same command with the pre-existing complete-log manifest `/mnt/project/structured-world-v1p1-artifacts/20260927/train_log_holdout64_tokens.json`, output/run-id `image_conditions_log_holdout64`. No holdout labels adapt upstream features. There is no overlap with the64 training logs according to the inherited verified split manifest.
 
@@ -80,4 +80,32 @@ This exports all-masked generated trajectories, sceneCSV, all GT object rows and
 
 ## Remaining work
 
-Interaction-use/context-shuffle diagnostics, uncertainty/multi-seed analysis, robust resume, BEV spatial/interaction objectives and actual integration, matched planning bridge training, original1696 paired planning evaluation, resource/latency results, and final statuses. No navtest tuning or new scorer. New campaign retains the previous combined ceiling of24000 updates/48 GPU-hours; at most2 convergence repair hypotheses.
+Extended corpus learning curves, interaction-use/context-shuffle diagnostics, uncertainty/multi-seed analysis, matched planning bridge and BEV training, original1696 paired planning evaluation, final resource/latency results and statuses. No navtest tuning or new scorer. New campaign retains the previous combined ceiling of24000 updates/48 GPU-hours; at most2 convergence repair hypotheses.
+
+## Longer matched phase and convergence (implemented; launch after cache completion)
+
+Use the immutable source worktree `/mnt/project/VLA-Drive-joint-runs-fed64aa`. A realGPU4-step continuous run exactly matches2+2 resumed updates, including scheduler/RNG/order; see CORPUS_RESUME_CHECK.json. This validates the runner, not learning. CPU resident cache is bounded at256 scenes by default; upstream frozen current features are loaded on demand. Original fullGT is retained, including233 raw-log rebuilt over-capacity scenes.
+
+```bash
+cd /mnt/project/VLA-Drive-joint-runs-fed64aa
+"$JOINT_PYTHON" tools/joint_world/prepare_corpus.py \
+  --manifest /mnt/project/joint-world-artifacts/20260927/extended_training/train_tokens.json \
+  --shards /mnt/project/joint-world-artifacts/20260927/extended_training \
+  --original-targets /mnt/project/structured-world-v1-artifacts/20260926/targets_v6_train8192 \
+  --rebuilt-overflow /mnt/project/joint-world-artifacts/20260927/extended_training/full_overflow_targets \
+  --output /mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1
+CUDA_VISIBLE_DEVICES=0 "$JOINT_PYTHON" tools/joint_world/train_corpus.py \
+  --cache /mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/conditions \
+  --targets /mnt/project/joint-world-artifacts/20260927/extended_training/corpus_v1/world_targets \
+  --data-root /mnt/project/structured-world-v1-artifacts/20260926/dataset_v1 \
+  --config configs/joint_world/image_graph_residual.json \
+  --output /mnt/project/joint-world-artifacts/20260927/extended_randommask7284 \
+  --ledger /mnt/project/joint-world-artifacts/20260927/budget_ledger.json \
+  --run-id extended_randommask7284 --epochs 8 --batch 16 --all-hidden-probability 0.5
+```
+
+Control uses another verified free GPU, output/run-id `extended_allmask7284` and probability1.0, otherwise identical. Both start fresh from seed42, not from their small pilots. Each3642 updates covers exactly8 passes/58272 presentations. Fixed milestones0/1/2/4/6/8 passes, with warmup/cosine schedule. Retain all checkpoint metrics rather than selecting a favorable endpoint. Neither small-set1000 steps nor reaching this cap establishes convergence; unstable training or holdout trends remain INCONCLUSIVE.
+
+For an explicitly paused, fully accounted run only, repeat its exact original arguments plus `--resume <same-output>/checkpoint_<step>.pt`. The script refuses identity changes, live/unreconciled runs or already completed phases. Abrupt process death requires budget/step reconciliation before resume; no cross-code/device exactness claim.
+
+Real BEV task probe and online-path results are archived in reports/joint_world/bev_tasks_probe64/ and BEV_PIPELINE.json. Exact executed arguments, source hashes and immutable artifact locations are in their manifests and RUN_LEDGER.json. The online test verifies actual current-image provider cost and label-poison invariance; the manually opened-gate action difference is tiny and is not evidence of better planning.
