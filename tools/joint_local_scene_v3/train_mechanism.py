@@ -81,6 +81,7 @@ def parser():
 
 
 def validate_arguments(a):
+    if not str(a.output).strip():raise ValueError('Nonempty output directory is required')
     if min(a.updates,a.schedule_updates,a.batch,a.eval_every)<1 or a.updates>a.schedule_updates:raise ValueError('Invalid update/schedule/batch/evaluation interval')
     if a.limit is not None and a.limit<1:raise ValueError('Invalid dataset limit')
     if a.stop_after is not None and not 1<=a.stop_after<=a.updates:raise ValueError('Invalid stop boundary')

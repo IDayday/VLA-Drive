@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -30,6 +31,12 @@ def test_fixed_query_cohorts_enumerate_both_neighbors_and_same_valid_points(tmp_
     assert report['summary']['population']['source_current_objects']==4
     assert report['summary']['population']['selected_neighbors']==2
     assert (tmp_path/'queries.json').exists() and (tmp_path/'conditional_queries.csv').exists()
+    assert (tmp_path/'all_hidden_targets.csv').exists()
+    assert all(not any(k.startswith('conditional_') for k in r) for r in report['all_hidden_target_rows'])
+    coverage=report['summary']['groups']['neighbor_all']
+    assert coverage['complete_targets']==1 and coverage['partial_targets']==1
+    assert coverage['xy_label_coverage']==5/6
+    assert not report['summary']['population']['raw_log_population_available']
     for row in report['query_rows']:
         assert row['all_hidden_valid_xy_points']==row['conditional_valid_xy_points']==row['valid_xy_points']
         assert row['all_hidden_CV_available']==(row['slot']==0)
@@ -59,7 +66,7 @@ def test_explicit_role_weight_formula():
     assert sum(x*w for x,w in zip([2.,6.],forward_weights('mask',3)))==5.
 
 
-@pytest.mark.parametrize('key,value',[('updates',0),('schedule_updates',0),('batch',0),('eval_every',0),('limit',0)])
+@pytest.mark.parametrize('key,value',[('updates',0),('schedule_updates',0),('batch',0),('eval_every',0),('limit',0),('output',''),('output','  ')])
 def test_bad_training_arguments_before_updates(tmp_path,key,value):
     args=SimpleNamespace(updates=4,schedule_updates=4,batch=1,eval_every=2,limit=None,stop_after=None,output=str(tmp_path/'new'),resume=False,acknowledge_stop=False)
     setattr(args,key,value)
@@ -96,3 +103,16 @@ def test_track_supervision_mapping_and_hidden_future_cannot_rebuild_graph():
     assert torch.equal(first.graph.boxes,second.graph.boxes) and torch.equal(first.graph.edge_features,second.graph.edge_features)
     assert first.track_ids[1:] == ('track-a','track-b')
     assert torch.equal(first.future[0,1,:,0],torch.full((3,),11.))
+
+
+@pytest.mark.parametrize('field,value',[('graph_config',{'radius_m':99}),('horizon_steps',99)])
+def test_rehashed_manifest_cannot_mislabel_payload_graph_or_horizon(tmp_path,field,value):
+    cfg=config();cfg['model'].update(dim=32,heads=4,layers=1,steps=3,condition_dim=12)
+    root=tmp_path/'data';write_synthetic(root,cfg)
+    path=root/'manifest.json';manifest=json.loads(path.read_text())
+    if field=='graph_config':manifest[field].update(value)
+    else:manifest[field]=value
+    del manifest['identity_sha256']
+    manifest['identity_sha256']=hashlib.sha256(json.dumps(manifest,sort_keys=True).encode()).hexdigest()
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError,match='differs|differ'):AnnotatedCorpus(root)[0]

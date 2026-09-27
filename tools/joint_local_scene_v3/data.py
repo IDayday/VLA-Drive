@@ -120,7 +120,12 @@ class AnnotatedCorpus(torch.utils.data.Dataset):
             c=torch.load(cp,map_location='cpu',weights_only=True);l=torch.load(lp,map_location='cpu',weights_only=True)
             if c['schema_version']!=SCHEMA or l['schema_version']!=SCHEMA or c['token']!=token or l['token']!=token or set(c)!={'schema_version','token','graph','current_record','observation_path'}:raise ValueError('Unexpected current fields')
             graph=LocalSceneGraph(**c['graph'])
+            expected_config=asdict(GraphConfig(**self.manifest['graph_config']).validate())
+            if len(graph.selection_metadata)!=1 or graph.selection_metadata[0].get('graph_config')!=expected_config:
+                raise ValueError('Scene graph rules differ from corpus manifest')
             scene=AnnotatedLocalScene(token,r['log'],graph,l['future'],l['feature_valid'],l['track_ids'],l['metadata']).validate()
+            if scene.future.shape[2]!=self.manifest['horizon_steps']:
+                raise ValueError('Scene label horizon differs from corpus manifest')
             self.memo[i]=scene
         return self.memo[i]
 

@@ -23,11 +23,14 @@ def evaluation_noise(scenes,seed,device='cuda'):
 
 def build_queries(corpus):
     """Enumerate all labeled local actors BEFORE model access; future masks are diagnostic-only."""
-    rows=[];population={'scenes':len(corpus),'source_current_objects':0,'selected_neighbors':0,'neighbors_with_xy_labels':0,'source_population_available':True}
+    rows=[];population={'scenes':len(corpus),'source_current_objects':0,'selected_neighbors':0,'neighbors_with_xy_labels':0,'source_population_available':True,
+        'raw_log_population_available':True,'source_population_filtered':False}
     identities=[]
     for i in range(len(corpus)):
         s=corpus[i];s.validate();g=s.graph;v=xy_point_valid(s.feature_valid)[0]
         source=s.metadata.get('source_current_objects')
+        population['raw_log_population_available'] &= s.metadata.get('raw_log_population_available',False)
+        population['source_population_filtered'] |= s.metadata.get('source_population_filtered',False)
         if source is None:population['source_population_available']=False
         else:population['source_current_objects']+=source
         population['selected_neighbors']+=int(g.active_actor_mask[:,1:].sum());population['neighbors_with_xy_labels']+=int(v[1:].any(-1).sum())
@@ -36,7 +39,8 @@ def build_queries(corpus):
             valid_steps=torch.where(v[slot])[0].tolist();source_index=int(g.source_indices[0,slot])
             rows.append({'query_id':f'{s.token}:{source_index}','scene_index':i,'token':s.token,'log':s.log,'slot':slot,'source_index':source_index,
                 'target_class':int(g.classes[0,slot]),'current_distance_m':float(g.boxes[0,slot,:2].norm()),'valid_timesteps':valid_steps,
-                'valid_xy_points':len(valid_steps),'final_time_valid':bool(v[slot,-1]),'context_objects':int(g.context_mask.sum()),
+                'valid_xy_points':len(valid_steps),'horizon_steps':v.shape[-1],'complete_horizon':bool(v[slot].all()),
+                'final_time_valid':bool(v[slot,-1]),'context_objects':int(g.context_mask.sum()),
                 'known_other_xy_points':int(v.sum()-v[slot].sum()),'graph_origin':g.origin})
     if not rows:raise ValueError('No valid evaluation queries')
     payload={'schema_version':1,'query_rule':'enumerate_every_active_actor_with_at_least_one_complete_xy_label','queries':rows,'population':population,
@@ -87,7 +91,10 @@ def summarize(scene_rows,query_rows,manifest):
         for motion in ('all','dynamic','static'):
             rows=[r for r in query_rows if (r['slot']==0)==(actor=='ego') and (motion=='all' or r.get('dynamic')==(motion=='dynamic'))]
             key=actor+'_'+motion;points=sum(r['valid_xy_points'] for r in rows)
-            row={'queries':len(rows),'valid_xy_points':points,'all_hidden_ADE_m':None,'conditional_ADE_m':None,'conditional_minus_all_hidden_m':None}
+            total_points=sum(r['horizon_steps'] for r in rows)
+            row={'queries':len(rows),'complete_targets':sum(r['complete_horizon'] for r in rows),'partial_targets':sum(not r['complete_horizon'] for r in rows),
+                'valid_xy_points':points,'expected_xy_points':total_points,'xy_label_coverage':points/total_points if total_points else None,
+                'all_hidden_ADE_m':None,'conditional_ADE_m':None,'conditional_minus_all_hidden_m':None}
             if summary['aggregate_valid'] and points:
                 row['all_hidden_ADE_m']=sum(r['all_hidden_xy_error_sum_m'] for r in rows)/points
                 row['conditional_ADE_m']=sum(r['conditional_xy_error_sum_m'] for r in rows)/points
@@ -131,7 +138,8 @@ def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,de
                     known=v.clone();known[:,slot]=False
                     conditional=model.sample_conditional(noise,g,known=y,known_mask=known,sampling_steps=sampling_steps)
                     if not torch.isfinite(conditional).all():raise ValueError('Nonfinite conditional joint sample')
-                    kwargs={'current_box':g.boxes[0,slot],'ego_velocity':g.ego_state[0,1:3] if slot==0 else None}
+                    kwargs={'current_box':g.boxes[0,slot],'ego_velocity':g.ego_state[0,1:3] if slot==0 else None,
+                        'dt':getattr(corpus,'manifest',{}).get('time_step_s',.5)}
                     first=target_metrics(all_hidden[0,slot],y[0,slot],v[0,slot],**kwargs)
                     second=target_metrics(conditional[0,slot],y[0,slot],v[0,slot],**kwargs)
                     if first['valid_xy_points']!=query['valid_xy_points'] or second['valid_xy_points']!=first['valid_xy_points']:raise ValueError('Paired target denominator differs')
@@ -141,9 +149,18 @@ def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,de
                 query_rows.append(row)
     finally:model.train(prior)
     result={'scene_rows':scene_rows,'query_rows':query_rows,'query_manifest':manifest,'summary':summarize(scene_rows,query_rows,manifest)}
+    # A separate target table prevents privileged-future diagnostics being mistaken
+    # for deployment-format all-hidden scores. Query rows retain explicit paired deltas.
+    all_hidden_rows=[]
+    for row in query_rows:
+        item={k:v for k,v in row.items() if not k.startswith(('conditional_','all_hidden_'))}
+        item.update({k.removeprefix('all_hidden_'):v for k,v in row.items() if k.startswith('all_hidden_')})
+        item['scope']='all-hidden structured GT current state; no other-actor future input; not camera planning'
+        all_hidden_rows.append(item)
+    result['all_hidden_target_rows']=all_hidden_rows
     if output is not None:
         import csv
-        for name,rows in [('all_hidden_scenes',scene_rows),('conditional_queries',query_rows)]:
+        for name,rows in [('all_hidden_scenes',scene_rows),('all_hidden_targets',all_hidden_rows),('conditional_queries',query_rows)]:
             with (output/(name+'.csv')).open('w',newline='') as stream:
                 writer=csv.DictWriter(stream,fieldnames=sorted(set().union(*(r.keys() for r in rows))),lineterminator='\n');writer.writeheader();writer.writerows(rows)
         (output/'summary.json').write_text(json.dumps(result['summary'],indent=2,allow_nan=False)+'\n')
