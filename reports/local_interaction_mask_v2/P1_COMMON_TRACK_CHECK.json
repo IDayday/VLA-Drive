@@ -1,0 +1,80 @@
+{
+  "scenes": 64,
+  "logs": 59,
+  "failed": 0,
+  "valid": true,
+  "code_sha": "bc0adce24f756a5c6cd8288e400f02430afa3bda",
+  "checkpoint_sha256": [
+    "d2f18ace00692046289a463f4d230c8bc40f461c6092b88ee9cd5dee740daa06",
+    "d2f18ace00692046289a463f4d230c8bc40f461c6092b88ee9cd5dee740daa06"
+  ],
+  "current_manifest_sha256": [
+    "7edb8425120810883b10750847ac2ea9c134e232c3c6c0e8a0a64197678ba4e0",
+    "7edb8425120810883b10750847ac2ea9c134e232c3c6c0e8a0a64197678ba4e0"
+  ],
+  "label_fingerprints": [
+    "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51",
+    "75dd6db423ba034d764b72e6613d644a1f4e420910cf2e6f348b8cf00435da51"
+  ],
+  "same_graph_required": true,
+  "common_tracks": 43,
+  "interpretation": "Both models evaluated on the same matched GT track/time cohort; coverage is reported separately, not full-target accuracy",
+  "conditioning": "current inputs + all-hidden source-stable noise, no GT future in either sampling forward",
+  "metrics": {
+    "ego": {
+      "valid_points": 512,
+      "FDE_targets": 64,
+      "first_ADE_m": 34.960739225149155,
+      "first_FDE_m": 41.28907719254494,
+      "baseline_ADE_m": 34.960739225149155,
+      "baseline_FDE_m": 41.28907719254494,
+      "paired_ADE_delta_m": 0.0
+    },
+    "ego_dynamic": {
+      "valid_points": 504,
+      "FDE_targets": 63,
+      "first_ADE_m": 35.147428573123996,
+      "first_FDE_m": 41.4730046892923,
+      "baseline_ADE_m": 35.147428573123996,
+      "baseline_FDE_m": 41.4730046892923,
+      "paired_ADE_delta_m": 0.0
+    },
+    "ego_static": {
+      "valid_points": 8,
+      "FDE_targets": 1,
+      "first_ADE_m": 23.199310302734375,
+      "first_FDE_m": 29.701644897460938,
+      "baseline_ADE_m": 23.199310302734375,
+      "baseline_FDE_m": 29.701644897460938,
+      "paired_ADE_delta_m": 0.0
+    },
+    "agents": {
+      "valid_points": 330,
+      "FDE_targets": 39,
+      "first_ADE_m": 10.98148624535763,
+      "first_FDE_m": 15.507874329884848,
+      "baseline_ADE_m": 10.98148624535763,
+      "baseline_FDE_m": 15.507874329884848,
+      "paired_ADE_delta_m": 0.0
+    },
+    "agents_dynamic": {
+      "valid_points": 226,
+      "FDE_targets": 26,
+      "first_ADE_m": 13.146663361946038,
+      "first_FDE_m": 19.89598252223088,
+      "baseline_ADE_m": 13.146663361946038,
+      "baseline_FDE_m": 19.89598252223088,
+      "paired_ADE_delta_m": 0.0
+    },
+    "agents_static": {
+      "valid_points": 104,
+      "FDE_targets": 13,
+      "first_ADE_m": 6.276389818925124,
+      "first_FDE_m": 6.731657871833215,
+      "baseline_ADE_m": 6.276389818925124,
+      "baseline_FDE_m": 6.731657871833215,
+      "paired_ADE_delta_m": 0.0
+    }
+  },
+  "scope": "Engineering identity check: the SAME model appears in both arms. No research gain claim."
+}
