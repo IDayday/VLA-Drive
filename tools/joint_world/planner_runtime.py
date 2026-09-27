@@ -43,15 +43,22 @@ def load_original_head(checkpoint, expected_sha):
 
 class CachedCurrentPlanner(nn.Module):
     """Same module names/rollout as JointTrajectoryPolicy; only fixed upstream is cached."""
-    def __init__(self, condition_dim, graph_config):
+    def __init__(self, condition_dim, graph_config, bev_enabled=False):
         super().__init__(); self.graph_config = dict(graph_config)
         self.graph = JointTrajectoryFlow(condition_dim, **{k:v for k,v in graph_config.items()
             if k in ('dim','heads','layers','scale_m','trajectory_mode','agent_scale_m')})
         self.graph_to_world = nn.Linear(graph_config['dim'], condition_dim)
         self.adapter = WorldToActionAdapter(condition_dim)
+        self.bev_enabled=bev_enabled
+        if bev_enabled:
+            from starVLA.model.modules.joint_world.bev_tasks import TaskBEVEncoder,BEVGraphFusion,InteractionGeometryHead
+            self.bev_encoder=TaskBEVEncoder()
+            self.bev_fusion=BEVGraphFusion(condition_dim)
+            self.interaction_head=InteractionGeometryHead()
 
     # Share the deployment implementation, including precision and all-hidden sampling.
     rollout_condition = JointTrajectoryPolicy.rollout_condition
+    fuse_bev = JointTrajectoryPolicy.fuse_bev
 
     def condition_from_frozen_graph(self, native_actions, current, noise):
         if any(p.requires_grad for p in self.graph.parameters()):
@@ -91,6 +98,9 @@ def ego_action_target(token, data_root, act_norm):
 def predict(head, planner, sample, seed=20260926, disable_graph=False):
     from tools.joint_world.train_graph import current_batch
     cache=sample['cache']; native=cache['native_actions'].cuda(); current=current_batch([sample])
+    if planner.bev_enabled:
+        from tools.joint_world.bev_cache import batch_bev
+        bev=batch_bev([sample]);current,_=planner.fuse_bev(current,bev['features'],bev['coordinates'],bev['observation_support'])
     noise=graph_noise(1,current['actor_features'].shape[1],planner.graph.steps,native.device,
                       planner.graph_config.get('sampling_seed',2037))
     condition, joint, _=planner.rollout_condition(native,current,noise)

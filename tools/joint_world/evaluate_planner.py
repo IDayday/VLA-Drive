@@ -19,6 +19,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['cache','base-checkpoint','output','ledger','run-id']:p.add_argument('--'+key,required=True)
     p.add_argument('--bridge-checkpoint');p.add_argument('--seed',type=int,default=20260926)
+    p.add_argument('--bev-index')
     p.add_argument('--shard',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     a=p.parse_args()
     if not 0<=a.shard<a.shards:raise ValueError('Invalid shard')
@@ -37,12 +38,21 @@ def main():
         from infer import deal_action_1225
         head,config=load_original_head(a.base_checkpoint,upstream['baseline_checkpoint_sha256'])
         planner=None
+        bev_store=None
         if a.bridge_checkpoint:
             saved=torch.load(a.bridge_checkpoint,map_location='cpu',weights_only=False)
             source=json.loads((Path(saved['identity']['arguments']['cache'])/'manifest.json').read_text())['identity']
             for key in ['world_checkpoint_sha256','baseline_checkpoint_sha256','world_config','sensor_contract']:
                 if source[key]!=upstream[key]:raise ValueError('Planner/current-feature identity mismatch: '+key)
-            planner=CachedCurrentPlanner(config.framework.qwenvl.vl_hidden_dim,saved['identity']['graph_config']).cuda().eval()
+            bev_enabled=saved['identity'].get('bev_enabled',False)
+            if bev_enabled:
+                if not a.bev_index:raise ValueError('BEV checkpoint needs verified current feature index')
+                from tools.joint_world.bev_cache import BEVFeatureStore
+                bev_store=BEVFeatureStore(a.bev_index)
+                if not {r['token'] for r in manifest['records']}<=set(bev_store.records):raise ValueError('Missing evaluation BEV')
+                identity['bev_index_sha256']=bev_store.identity_sha256
+            elif a.bev_index:raise ValueError('Unexpected BEV features for image-only model')
+            planner=CachedCurrentPlanner(config.framework.qwenvl.vl_hidden_dim,saved['identity']['graph_config'],bev_enabled=bev_enabled).cuda().eval()
             planner.load_state_dict(saved['model'],strict=True);planner.requires_grad_(False)
         records=manifest['records'][a.shard::a.shards]
         if len({r['token'] for r in manifest['records']})!=len(manifest['records']):raise ValueError('Duplicate scenes')
@@ -58,7 +68,10 @@ def main():
                     raise ValueError('Current-feature schema mismatch')
                 torch.cuda.synchronize();begin=time.perf_counter()
                 with torch.inference_mode():
-                    if planner is not None:actions,joint=predict(head,planner,{'cache':c},a.seed)
+                    if planner is not None:
+                        sample={'cache':c}
+                        if bev_store:sample['bev']=bev_store[token]
+                        actions,joint=predict(head,planner,sample,a.seed)
                     else:
                         native=c['native_actions'].cuda()
                         value=int.from_bytes(hashlib.sha256(f'{a.seed}:{token}'.encode()).digest()[:4],'little')
