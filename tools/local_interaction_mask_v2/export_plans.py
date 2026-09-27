@@ -19,8 +19,10 @@ def main():
     p.add_argument('--seed',type=int,default=20260926)
     p.add_argument('--batch',type=int,default=16)
     p.add_argument('--shard',type=int);p.add_argument('--shards',type=int)
+    p.add_argument('--shard-offset',type=int,default=0,help='Offset local torchrun ranks when exporting across independent hosts')
     p.add_argument('--resume',action='store_true');a=p.parse_args()
-    shard=int(os.environ.get('RANK',0)) if a.shard is None else a.shard
+    if a.shard is not None and a.shard_offset:raise ValueError('Use explicit shard or rank offset, not both')
+    shard=int(os.environ.get('RANK',0))+a.shard_offset if a.shard is None else a.shard
     shards=int(os.environ.get('WORLD_SIZE',1)) if a.shards is None else a.shards
     torch.cuda.set_device(int(os.environ.get('LOCAL_RANK',0)))
     if not 0<=shard<shards or not 1<=a.batch<=128:raise ValueError('Invalid deterministic shard/bounded batch')
