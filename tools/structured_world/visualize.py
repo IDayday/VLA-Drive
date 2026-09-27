@@ -98,6 +98,11 @@ def main():
             pred_xy=arrays['future_xy'][slot];bev.plot(pred_xy[:,1],pred_xy[:,0],':',color=color,linewidth=.6)
             bev.text(boxes[gt,1],boxes[gt,0],str(slot),fontsize=5)
             lines.append(f'{slot:02d} -> {target.track_ids[gt][-8:]}   '+''.join('1' if x else '0' for x in mask))
+        if 'ego_trajectory' in arrays:
+            ego=arrays['ego_trajectory'];bev.plot(ego[:,1],ego[:,0],'-',color='red',linewidth=2,label='Original DiT ego plan')
+        if 'joint_ego_xy' in arrays:
+            ego=arrays['joint_ego_xy'];bev.plot(ego[:,1],ego[:,0],'--',color='purple',linewidth=1,label='Joint graph ego (auxiliary)')
+        if 'ego_trajectory' in arrays:bev.legend(fontsize=7,loc='lower left')
         bev.plot(0,0,'k^');bev.set(xlabel='ego(t0) y [m], left',ylabel='ego(t0) x [m], forward',xlim=(22,-22),ylim=(-2,55),title='GT box solid / predicted box dashed; GT future solid / prediction dotted');bev.set_aspect('equal');bev.grid(alpha=.2)
         table.text(0,1,'slot -> track suffix / future valid mask\n'+'\n'.join(lines[:64]),va='top',family='monospace',fontsize=5.5)
         category=categories(target)
