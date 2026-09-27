@@ -33,6 +33,8 @@ def main():
             payload=corpus[i];token=payload['token']
             record=current_metadata_from_training_pickle(Path(spec['meta_root'])/(token+'.pkl'),token)
             example,observation=current_example(Path(spec['observations'])/(token+'.npz'),record)
+            original_native=world.baseline.native_conditions([example])
+            append_tail_delta=float((original_native-payload['native_actions'].cuda()).abs().max())
             cached=predict_payload(world.baseline.action_model,bridge,payload,identity)
             online=policy.predict_action([example],[observation])[0]
             # WorldTargets/action labels are extraneous to the actual deployed API.
@@ -54,9 +56,9 @@ def main():
             batch_delta=float((cached['normalized_actions'][0]-batch['normalized_actions'][i]).abs().max())
             row={'mode':mode,'token':token,'online_cached_action_max_error':delta,'online_cached_condition_max_error':feature_delta,
                 'frozen_visual_cache_action_max_error':vision_delta,'target_poison_action_max_error':target_delta,'gate0_action_max_error':gate_delta,
-                'batch_singleton_action_max_error':batch_delta}
+                'batch_singleton_action_max_error':batch_delta,'trained_append_tail_native_max_error':append_tail_delta}
             rows.append(row)
-            if delta>1e-5 or feature_delta>1e-5 or vision_delta>1e-5 or batch_delta>1e-5 or target_delta!=0 or gate_delta!=0:
+            if delta>1e-5 or feature_delta>1e-5 or vision_delta>1e-5 or batch_delta>1e-5 or target_delta!=0 or gate_delta!=0 or append_tail_delta!=0:
                 atomic_json(out/'failed.json',row);raise AssertionError('Predeclared online/cache or gate/label parity failed')
     atomic_json(out/'result.json',{'status':'PASS','scope':'P1 engineering; ALL/MASK share one diagnostic graph for architecture parity, not comparative research',
         'foundation_step':metadata['step'],'rows':rows,'tolerance_action_and_condition':1e-5,'gate_and_target_tolerance':0.,

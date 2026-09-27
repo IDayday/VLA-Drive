@@ -104,6 +104,8 @@ def main():
         atomic_json(out/name/f'shard_{shard}.json',{'status':'complete' if complete else 'paused','completed':len(records),
             'failed':failed,'expected':len(range(shard,len(corpus),shards)),'peak_gpu_bytes':torch.cuda.max_memory_allocated()})
     if shards==1:atomic_json(out/'status.json',{'status':'failed' if failures else ('complete' if complete else 'paused'),'failed':failures})
+    # The legacy original decoder import may initialize a distributed group.
+    if torch.distributed.is_initialized():torch.distributed.destroy_process_group()
     if failures:raise RuntimeError('Export failures retained; benchmark incomplete')
 
 
