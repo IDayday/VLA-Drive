@@ -23,7 +23,7 @@ def validate_payload(payload,token):
     if set(payload)!={'metadata','features','coordinates','observation_support'}:raise ValueError('Unexpected BEV cache fields')
     meta=payload['metadata']
     if set(meta)!=META_FIELDS:raise ValueError('BEV metadata whitelist mismatch')
-    for key,value in {'scene_token':token,'sensor_contract':SENSOR,'grid':GRID,'backbone_weights_sha256':WEIGHT_SHA,
+    for key,value in {'schema_version':1,'scene_token':token,'sensor_contract':SENSOR,'grid':GRID,'backbone_weights_sha256':WEIGHT_SHA,
                       'pretrained_bev':False,'coordinates':'ego_t0_x_forward_y_left_z_up_metres',
                       'extrinsics':'camera_to_ego','feature_dimension':1024}.items():
         # Torch metadata preserves tuples while JSON indices use lists; geometry

@@ -64,7 +64,7 @@ def main():
                 if destination.exists():raise FileExistsError('Refusing to overwrite a trajectory')
                 if file_sha256(path)!=row['sha256']:raise ValueError('Changed current features')
                 c=torch.load(path,map_location='cpu',weights_only=True)
-                if set(c)!=CACHE_FIELDS or c['token']!=token or c['identity_sha256']!=row.get('identity_sha256',manifest['identity_sha256']):
+                if set(c)!=CACHE_FIELDS or c['schema_version']!=1 or c['token']!=token or c['identity_sha256']!=row.get('identity_sha256',manifest['identity_sha256']):
                     raise ValueError('Current-feature schema mismatch')
                 torch.cuda.synchronize();begin=time.perf_counter()
                 with torch.inference_mode():

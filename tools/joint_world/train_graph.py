@@ -34,7 +34,7 @@ def load_samples(cache, targets, data_root, steps, records=None, manifest_overri
         token = row['token']; file = Path(cache) / (token + '.pt'); blob = file.read_bytes()
         if hashlib.sha256(blob).hexdigest() != row['sha256']: raise ValueError('Condition cache checksum mismatch')
         c = torch.load(file, map_location='cpu', weights_only=True)
-        if set(c) != CACHE_FIELDS or c['identity_sha256'] != row.get('identity_sha256', manifest['identity_sha256']) or c['token'] != token:
+        if set(c) != CACHE_FIELDS or c['schema_version'] != 1 or c['identity_sha256'] != row.get('identity_sha256', manifest['identity_sha256']) or c['token'] != token:
             raise ValueError('Condition cache contract mismatch')
         target_file = Path(targets) / 'targets' / (token + '.pt')
         t = WorldTargets(**torch.load(target_file, map_location='cpu', weights_only=True))

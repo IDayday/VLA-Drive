@@ -74,7 +74,7 @@ def main():
             path = Path(a.cache)/(token+'.pt')
             if file_sha256(path) != records[token]['sha256']: raise ValueError('Changed current cache')
             c = torch.load(path, map_location='cpu', weights_only=True)
-            if set(c) != CACHE_FIELDS or c['token'] != token: raise ValueError('Wrong current fields')
+            if set(c) != CACHE_FIELDS or c['schema_version'] != 1 or c['token'] != token: raise ValueError('Wrong current fields')
             sample = {'cache': c}
             inputs = None
             if bev_enabled:
