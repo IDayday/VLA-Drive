@@ -35,7 +35,12 @@ def main():
                 'zero_fraction':sum(float(r.get('score') or 0)==0 for r in bank.values())/len(bank),
                 'peak_gpu_bytes':identity['peak_gpu_bytes']}
         for metric in factors[1:]:result[metric]=sum(float(r.get(metric) or 0) for r in bank.values())/len(bank)
-        latency=read(root/name/'scenes_0.csv');values=[float(r['cached_policy_latency_seconds']) for r in latency.values() if r['status']=='ok']
+        latency=read(root/name/'scenes_0.csv')
+        if set(latency)!=set(bank):raise ValueError('Scoring/inference scene sets differ')
+        for token,row in bank.items():
+            if row['status']=='ok' and row['proposal_sha256']!=latency[token]['proposal_sha256']:
+                raise ValueError('Scored trajectory differs from exported trajectory: '+token)
+        values=[float(r['cached_policy_latency_seconds']) for r in latency.values() if r['status']=='ok']
         result.update(cached_policy_seconds_mean=float(np.mean(values)),cached_policy_seconds_p95=float(np.quantile(values,.95)))
         summaries.append(result);identities[name]={'inference':identity,'score':score}
         for row in bank.values():all_rows.append(dict(run=name,**row))
