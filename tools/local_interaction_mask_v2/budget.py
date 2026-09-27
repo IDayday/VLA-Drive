@@ -2,6 +2,7 @@
 import fcntl
 import json
 import os
+import socket
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -28,6 +29,7 @@ class Run:
         self.path,self.id,self.metadata=path,run_id,metadata
         self.gpu_count,self.resume,self.max_hours=gpu_count,resume,max_gpu_hours
         self.step=0
+        self.terminal_status=None
 
     def __enter__(self):
         with locked(self.path) as data:
@@ -41,7 +43,7 @@ class Run:
                 raise ValueError('Resume source/config/budget identity changed')
             self.step=row['optimizer_steps']
             row.update(status='running',metadata=self.metadata,gpu_count=self.gpu_count,pid=os.getpid(),
-                       heartbeat=time.time(),cuda_visible_devices=os.environ.get('CUDA_VISIBLE_DEVICES'),
+                       host=socket.gethostname(),heartbeat=time.time(),cuda_visible_devices=os.environ.get('CUDA_VISIBLE_DEVICES'),
                        max_gpu_hours=self.max_hours)
         return self
 
@@ -51,12 +53,12 @@ class Run:
             self.step=step
         with locked(self.path) as data:
             row=next(r for r in data['runs'] if r['id']==self.id);now=time.time()
-            row['gpu_hours']+=(now-row['heartbeat'])*row['gpu_count']/3600
+            if row['status']=='running':row['gpu_hours']+=(now-row['heartbeat'])*row['gpu_count']/3600
             row.update(heartbeat=now,optimizer_steps=self.step,status=status)
             data['gpu_hours']=total_hours(data);data['optimizer_steps']=sum(r['optimizer_steps'] for r in data['runs'])
             allowed=data['gpu_hours']<data['gpu_hour_cap'] and (self.max_hours is None or row['gpu_hours']<self.max_hours)
         return allowed
 
     def __exit__(self,kind,error,trace):
-        self.update(status='complete' if kind is None else 'failed')
+        self.update(status=(self.terminal_status or 'complete') if kind is None else 'failed')
 

@@ -5,16 +5,19 @@ legacy_ledgers: sealed_read_only
 optimizer_step_cap: null
 resources:
   authorized_hosts: [local, training-vla-zt2]
-  initial_local_gpus: [0, 1, 2, 3]
+  local_gpus: [0, 1, 2, 3, 4, 5, 6, 7]
+  remote_gpus: [0, 1, 2, 3, 4, 5, 6, 7]
+  pause_authorized_gpu_stress_only: true
   stop_other_jobs: false
 priority_reservations_gpu_hours:
   P0_P1_graph_implementation_audit_and_checks: 3
-  P2_graph_training_and_second_seed: 18
-  P3_planning_transfer_and_evaluation: 20
-  P4_diagnostics_and_failure_reserve: 7
+  PUBLIC_foundation_and_current_feature_extraction: 16
+  P2_single_seed_graph_training: 10
+  P3_planning_transfer_and_full_Navtest: 14
+  P4_diagnostics_and_failure_reserve: 5
 training:
   main_pair: [G_LOCAL_ALL, G_LOCAL_MASK]
-  main_seeds: [42, 43]
+  main_seeds: [42]
   train_scenes: 7284
   initial_epochs: 16
   conditional_max_epochs: 32
@@ -22,11 +25,11 @@ training:
   milestones: [1, 2, 4, 8, 12, 16, 24, 32]
   main_initialization: same_seed_fresh_graph
   schedule: linear_warmup_200_then_cosine_over_preregistered32epoch_horizon
-  extension_rule: At16passes, extend BOTH variants and BOTH seeds to32 if either model's mean of ego and matched-neighbor holdoutADE changes by >2percent from12 to16passes OR either component remains worse than its stationary reference. NoPDMS consulted. Missing neighborhood metric triggers insufficient-evidence review, not fabricated convergence.
+  extension_rule: At16passes, extend BOTH variants using the single fixed seed42 to32 if either model's mean of ego and matched-neighbor holdoutADE changes by >2percent from12 to16passes OR either component remains worse than its stationary reference. NoPDMS consulted. Missing neighborhood metric triggers insufficient-evidence review, not fabricated convergence.
   secondary: G_NEAREST_MASK_seed42_16passes_after_main_pair_reserved
 planner:
   variants: [A0, CURRENT_MEMORY, G_LOCAL_ALL, G_LOCAL_MASK]
-  main_pair_seeds: [42, 43]
+  main_pair_seeds: [42]
   fixed_max_epochs: 4
   original_Qwen_and_DiT_frozen: true
   original_noise_seed: 20260926

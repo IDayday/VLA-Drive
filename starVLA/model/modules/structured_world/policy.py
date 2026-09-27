@@ -93,8 +93,14 @@ class StructuredWorldPolicy(nn.Module):
         with torch.no_grad():
             rope,_ = model.model.get_rope_index(input_ids=ids,image_grid_thw=q['image_grid_thw'],attention_mask=mask)
         vision_trainable = self.world_config.get('vision_trainable',False)
+        visual_cache = getattr(base,'current_visual_cache',None)
+        if visual_cache is not None and vision_trainable:
+            raise ValueError('Frozen visual cache cannot bypass trainable visual encoder')
         with nullcontext() if vision_trainable else torch.no_grad():
-            parts,deepstack = model.model.get_image_features(q['pixel_values'],q['image_grid_thw'])
+            if visual_cache is None:
+                parts,deepstack = model.model.get_image_features(q['pixel_values'],q['image_grid_thw'])
+            else:
+                parts,deepstack = visual_cache.get(examples[0],q,model)
             image = torch.cat(parts,0)
         embeds = model.get_input_embeddings()(ids)
         state = torch.as_tensor(np.array([e['state'] for e in examples]),device=ids.device,dtype=torch.float32)[:,0]
