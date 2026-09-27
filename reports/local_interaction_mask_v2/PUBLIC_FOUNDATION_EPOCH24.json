@@ -1,0 +1,141 @@
+{
+  "foundation": {
+    "source": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_continued_epoch8_to24_local8/checkpoint.pt",
+    "sha256": "ac7cfadba298e2980a5c278183ca4a93924e1792fe7a6e4342bb730fafa8a0f4",
+    "training_status": {
+      "status": "complete",
+      "step": 5472,
+      "epochs_completed": 24,
+      "presentations": 174816,
+      "training_seconds": 6972.292291773483
+    },
+    "stage": "shared final foundation, frozen before graph comparisons and Navtest",
+    "Navtest_consulted": false
+  },
+  "training_code_shas": [
+    "3972cabe8470a37b6bf9b8401204329e5622d292",
+    "0937532ee709d5c2a224615f7ceff813ee8a7981"
+  ],
+  "report_code_sha": "9a1f20e21289e72126c40f324b4f421b1794df31",
+  "input_files_sha256": {
+    "/mnt/project/local-interaction-mask-v2-artifacts/20260927/formal_public_epoch24/foundation/manifest.json": "95751f8300776c434ca95bd0e77c1e78459b9d7d3234df17eb3522cb77daa696",
+    "/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_lora8_seed42_local8/manifest.json": "4baf7e7e1fa5faa5601d473c722b17961aca30776316ba2ee7de174eab4f754a",
+    "/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_lora8_seed42_local8/train.jsonl": "255518d371ef2e6c27e94ca7e9f6b4b7d4fc3a332e36eae31766b7e07741e7aa",
+    "/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_continued_epoch8_to24_local8/manifest.json": "bc361945df76c08417298efdb30cbed9d90f80112ff35c6356e71d9bf7e96d5a",
+    "/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_continued_epoch8_to24_local8/train.jsonl": "e556e27a584de626facbead1d8f22b837f0f41bcaf98e447efee83680d16088b"
+  },
+  "unique_scenes": 7284,
+  "optimizer_updates": 5472,
+  "presentations": 174816,
+  "epochs": 24,
+  "seed": 42,
+  "initial_holdout": {
+    "ego_ADE_m": 11.032710500061512,
+    "class_filtered_recall": 0.011808576755748913
+  },
+  "final": {
+    "epoch": 24,
+    "updates": 228,
+    "presentations": 7284,
+    "train_ego_FM": 0.3954506739339843,
+    "train_classification": 0.6971322101195058,
+    "train_current_box": 0.08960655222593886,
+    "holdout_ego_ADE_m": 6.5626793364062905,
+    "holdout_current_class_recall": 0.2896208825357365,
+    "lr_end": 1e-05,
+    "peak_gpu_bytes": 37620767744
+  },
+  "relative_changes_last_two_epochs": {
+    "train_ego_FM": -0.020178796862624446,
+    "train_classification": -0.01515819780129229,
+    "train_current_box": -0.011735093203340374,
+    "holdout_ego_ADE_m": 0.023506713707479785,
+    "holdout_current_class_recall": 0.04954954954954951
+  },
+  "public_origin": {
+    "repo_id": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "license": "apache-2.0",
+    "source_url": "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct",
+    "local_path": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+    "all_checked_files_match_public": true,
+    "files": [
+      {
+        "name": "video_preprocessor_config.json",
+        "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "public_match": true,
+        "bytes": 385
+      },
+      {
+        "name": "config.json",
+        "sha256": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "public_match": true,
+        "bytes": 1505
+      },
+      {
+        "name": "tokenizer.json",
+        "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "public_match": true,
+        "bytes": 7032403
+      },
+      {
+        "name": "preprocessor_config.json",
+        "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "public_match": true,
+        "bytes": 390
+      },
+      {
+        "name": "chat_template.json",
+        "sha256": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "public_match": true,
+        "bytes": 5502
+      },
+      {
+        "name": "generation_config.json",
+        "sha256": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+        "public_match": true,
+        "bytes": 269
+      },
+      {
+        "name": "vocab.json",
+        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "public_match": true,
+        "bytes": 2776833
+      },
+      {
+        "name": "README.md",
+        "sha256": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+        "public_match": true,
+        "bytes": 7136
+      },
+      {
+        "name": "tokenizer_config.json",
+        "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "public_match": true,
+        "bytes": 10868
+      },
+      {
+        "name": "model.safetensors",
+        "sha256": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+        "public_match": true,
+        "bytes": 4255140312
+      },
+      {
+        "name": "merges.txt",
+        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "public_match": true,
+        "bytes": 1671839
+      },
+      {
+        "name": ".gitattributes",
+        "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+        "public_match": true,
+        "bytes": 1519
+      }
+    ],
+    "private_driving_weights_allowed": false
+  },
+  "private_driving_weights_loaded": false,
+  "termination": "Registered24pass finite budget boundary, not a convergence certificate",
+  "scope": "Training-domain curves under the original native-BF16 LoRA training arithmetic; formal frozen inference uses the declared shared FP32-LoRA repair. No planning test metric consulted."
+}
