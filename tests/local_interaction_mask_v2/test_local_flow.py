@@ -124,3 +124,23 @@ def test_gate_zero_and_strict_new_graph_restore():
     assert torch.equal(clone.sample(noise,**current,sampling_steps=2)[0],model.sample(noise,**current,sampling_steps=2)[0])
     old=JointTrajectoryFlow(16,dim=16,heads=2,layers=2,steps=3)
     with pytest.raises(RuntimeError):clone.load_state_dict(old.state_dict(),strict=True)
+
+
+def test_global_valid_normalization_matches_microbatch_accumulation_with_empty_supervision():
+    import copy
+    from starVLA.model.modules.joint_world.local_graph import stack_graphs
+    model,g,current,noise=setup();other=copy.deepcopy(model)
+    repeated={k:v.repeat(3,*([1]*(v.ndim-1))) for k,v in current.items() if k!='local_graph'}
+    repeated['local_graph']=stack_graphs([g,g,g])
+    truth=torch.randn(3,4,3,2);valid=torch.zeros(3,4,3,dtype=torch.bool)
+    valid[0,:3]=True;valid[2,0]=True;valid[2,1,:1]=True
+    truth[~valid]=float('nan');hidden=torch.ones(3,4,dtype=torch.bool)
+    noise=noise.repeat(3,1,1,1);times=torch.tensor([.2,.4,.7])
+    sums,counts=training_loss_sums(model,truth,valid,hidden,noise,times,**repeated)
+    sum(sums[k]/max(counts[k],1) for k in sums).backward()
+    for i in range(3):
+        c={k:v[i:i+1] for k,v in repeated.items() if k!='local_graph'};c['local_graph']=g
+        micro,_=training_loss_sums(other,truth[i:i+1],valid[i:i+1],hidden[i:i+1],noise[i:i+1],times[i:i+1],**c)
+        sum(micro[k]/max(counts[k],1) for k in micro).backward()
+    for (name,p),(_,q) in zip(model.named_parameters(),other.named_parameters()):
+        if p.grad is not None:torch.testing.assert_close(p.grad,q.grad,atol=3e-6,rtol=3e-5,msg=name)
