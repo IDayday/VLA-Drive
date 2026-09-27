@@ -1,5 +1,5 @@
 {
-  "status": "SOURCE_VERIFIED_ADAPTATION_NOT_RUN",
+  "status": "REAL_CURRENT_IMAGE_BEV_EXTRACTED_ADAPTATION_PENDING",
   "external_prior_status": "NOT_TESTED",
   "candidate": "Depth Anything V2 Large visual backbone + NEW calibrated BEV projection",
   "pretrained_bev_claim": false,
@@ -14,12 +14,25 @@
   "sensor_contract": "current CAM_F0/L0/R0 only; no depth GT, LiDAR or history input",
   "license_note": "Large weights CC-BY-NC-4.0 per upstream README; repository source Apache-2.0",
   "training_data_audit": "official release/paper provenance pending detailed extraction",
-  "deployment_cost": "NOT_MEASURED",
+  "deployment_cost": {
+    "mean_provider_seconds": 0.24033636889362242,
+    "scope": "GPU RGB tensors through actual pretrained backbone and calibrated pooling; excludes image decode",
+    "precision": "BF16 autocast",
+    "device": "local A800 80GB"
+  },
   "adaptation_optimizer_steps": 0,
   "holdout_result": "NOT_RUN",
   "source_files": [
     "depth_anything_v2/dpt.py",
     "README.md",
     "LICENSE"
+  ],
+  "cache_scenes": 128,
+  "cache_failures": 0,
+  "cache_path": "/mnt/project/structured-world-v1p1-artifacts/20260927/pretrained_bev_128_345d42c",
+  "cached_feature_shape": [
+    1,
+    1960,
+    1024
   ]
 }

@@ -15,6 +15,11 @@ def global_mean(numerator, count):
 
 
 def world_losses(prediction, targets, return_sums=False):
+    if 'future_displacement' in prediction:
+        from .rehab import reference_loss_sums
+        sums,counts,matches=reference_loss_sums(prediction,targets)
+        if return_sums:return (sums,counts),matches
+        return {k:global_mean(sums[k],counts[k]) for k in sums},matches
     zero = sum(x.sum()*0 for x in prediction.values())
     cls_sum, box_sum, motion_sum = zero, zero, zero
     cls_count = box_count = motion_count = 0

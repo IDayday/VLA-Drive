@@ -46,3 +46,10 @@ def test_accumulation_matches_joint_sum_count_gradient():
         s,c,_=reference_loss_sums(b(x),[t]);sum(s[k]/max(total[k],1.) for k in total).backward()
     for p,q in zip(a.parameters(),b.parameters()):
         if p.grad is not None:torch.testing.assert_close(p.grad,q.grad,atol=2e-6,rtol=2e-5)
+
+
+def test_public_policy_loss_dispatches_displacement_objective():
+    from starVLA.model.modules.structured_world.losses import world_losses
+    _,t=example();h=ReferenceAgentHeads(16,slots=2,classes=2);p=h(torch.randn(1,2,16))
+    sums,counts,_=reference_loss_sums(p,[t]);terms,_=world_losses(p,[t])
+    for k in terms:torch.testing.assert_close(terms[k],sums[k]/max(counts[k],1))
