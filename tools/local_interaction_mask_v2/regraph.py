@@ -19,6 +19,7 @@ def main():
     selector=json.loads(Path(a.selector).read_text());spec=json.loads(Path(a.dataset).read_text())
     identity=cache_identity(old['foundation_sha256'],old['public_origin'],selector,old['graph_config'])
     for key in ('foundation_training','foundation_step'):identity[key]=old[key]
+    if 'perception_override' in old:identity['perception_override']=old['perception_override']
     records=[]
     for record in manifest['records']:
         token=record['token'];payload=load_payload(source,record,manifest)

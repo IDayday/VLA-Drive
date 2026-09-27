@@ -28,7 +28,7 @@ Real runs, with exact commands and immutable source SHAs, are recorded in `RUN_L
 
 - Public source validation and actual full-Qwen2GPU training with an empty-annotation rank, checkpoint pause and resume.
 - Frozen public current-vision extraction:7348train/holdout,1696development,12146Navtest; zero disk-roundtrip error in all shards.
--8GPU public-foundation common rank8Q/V LoRA/driving-token training, Reader/current heads and original fresh DiT. Source3972cab remains pinned for the live main run.
+-8GPU public-foundation common rank8Q/V LoRA/driving-token training, Reader/current heads and original fresh DiT. Source3972cab completed8epochs; the continuation is pinned0937532, preserving optimizer/RNG/scheduler from an immutable epoch8parent.
 -64real-scene cached graph and current-memory bridge checks:128presentations/16updates, interrupted after3updates and resumed. Graph parameters/losses are bitwise identical to uninterrupted execution; planner cross-GPU differences are at most1.2e-7, not bitwise identical. `P1_REAL_RESUME.json` records this engineering test.
 -64real-scene gate-zero comparison yields exactly unchanged original DiT outputs. Four real scenes across CURRENT/ALL/MASK architecture paths also test trained bridge online/cache agreement, frozen visual cache bypass, target poisoning and batch/singleton equivalence. These architecture checks share one diagnostic graph and are not scientific ALL-vs-MASK results.
 - Historical7284scene graph audit and32private visualizations. A separate public epoch2 engineering audit has64scenes and32images. Low early perception/matching coverage is reported, not hidden by local-only metrics.
@@ -59,6 +59,24 @@ python -m torch.distributed.run --standalone --nproc_per_node=8 \
 ```
 
 Start only through the bounded supervisor, with17GPU-hours reserved for this run. Public pretrained tensors/vision are fixed; rank8 languageQ/V LoRA and driving tokens use1e-5, fresh history/DiT/Reader/current heads1e-4. The shared foundation learns egoFM + current classification/box losses. It is therefore not the paper's action-only ablation.7284scenes and a finite pilot are not equivalent to the published100k-scene/100k-update recipe. No earlier private VLA parameters are loaded.
+
+The original8pass two-point holdout stop fired despite7–9% training-loss reductions over6→8passes. `EXPERIMENT_DECISIONS.md` records the correction: continue the immutable epoch8checkpoint to16, optionally24 using training and holdout curves, retaining the original16epoch scheduler floor. This is a documented stopping-rule repair, not a convergence claim. Use the same command with a new output, `--continue-from "$EPOCH8_CHECKPOINT" --epochs 24 --initial-epochs 16 --extension-use-training-loss`; the continuation supervisor cap is16GPU-hours. Actual cross-host recovery passed, but BF16 arithmetic is not guaranteed bitwise identical.
+
+## Current perception repair (generalization pilot pending)
+
+A500update64training-scene fixed-feature fitting check improved current detection recall25.3%→79.0% and precision10.0%→64.3%. This is not generalization or planning evidence. The declared next check uses all7284training scenes and the independent64scene/59log holdout,8passes, best holdout currentF1 including epoch0. It reuses the existing heads, preserving graph thresholds and fullslot matching. Only if it improves will the same recipe be applied for at most16passes after the final foundation freezes; all comparison arms share the chosen head.
+
+```bash
+python -m tools.local_interaction_mask_v2.train_current_heads \
+  --cache "$TRAIN_CURRENT_CACHE" --targets "$TRAIN_WORLD_TARGETS" \
+  --foundation "$FOUNDATION" --holdout-cache "$HOLDOUT_CURRENT_CACHE" \
+  --holdout-targets "$HOLDOUT_WORLD_TARGETS" --output "$CURRENT_HEAD_RUN" \
+  --epochs 8 --schedule-epochs 16 --batch 64 --lr 0.001 --workers 2
+```
+
+The `selected.pt` file is a separate, strictly parent-bound current head. Future labels are erased. The original post-Qwen BF16 input dtype is restored from lossless float32 cache storage before head training/inference. `extract_current` and `check_online` accept `--perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt"`; online `load_foundation` must receive the same argument. A missing/different override is rejected by `PublicLocalPolicy`.
+
+To reuse immutable current features without another Qwen pass, run `refresh_current_heads --cache "$TRAIN_CURRENT_CACHE" --perception-checkpoint "$CURRENT_HEAD_RUN/selected.pt" --dataset "$CURRENT_DATA_SPEC" --output "$NEW_CURRENT_CACHE"`. It verifies all source payload hashes/current observation identities, reproduces the head at native precision, and writes a fresh cache with the head hash. It opens no targets. Actual online/cache validation remains required before promotion. These new refinement commands are implemented but NOT_RUN at this documentation stage.
 
 ## Main graph and planner commands (formal runs NOT_RUN yet)
 
@@ -117,4 +135,4 @@ Use the appropriate independent Python environments above. Repeat the CPU comman
 
 Read `CODEX_GOAL_STATE.md` and the live ledger before launching anything. Do not duplicate active jobs. Training checkpoints save optimizer/scheduler, sampling offset, presentation counts, Python/NumPy/Torch/CUDA RNG, and separate graph mask/time RNG. Resume with the same pinned source/data/config, add `--resume`, and use a new supervisor run ID with `--initial-step` equal to the checkpoint's saved step. A new segment charges only new updates and wall time. Epoch extension may change only the registered terminal epoch, preserving the original scheduler horizon. Batch/topology changes are not claimed to provide exact resume.
 
-Current local recovery command, only after the recorded supervisor has exited, is the exact worker command in `public_foundation_lora8_seed42_local8/supervisor.json` with `--resume`, wrapped in a new bounded supervisor segment. Model selection and publication await complete evidence; do not turn short-run loss decreases into an algorithmic PDMS claim.
+Current local recovery command, only after the recorded supervisor has exited, is the exact worker command in `public_foundation_continued_epoch8_to24_local8/supervisor.json` with `--resume` (retaining its `--continue-from` parent), wrapped in a new bounded supervisor segment. Model selection and publication await complete evidence; do not turn short-run loss decreases into an algorithmic PDMS claim.

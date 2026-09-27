@@ -99,3 +99,19 @@ foundation_stop_rule_repair_after_epoch8:
   repaired_extension_at16: either_holdout_or_weighted_full_epoch_training_component_changes_more_than2percent_from14to16
   no_computational_module_data_LR_or_optimizer_change: true
   Navtest_consulted: false
+
+current_head_optimization_repair:
+  frozen_epoch8_generalization_probe_epochs: 8
+  final_foundation_max_epochs_if_probe_improves: 16
+  global_batch: 64
+  seed: 42
+  optimizer: AdamW_lr0.001_weight_decay0.01
+  schedule: warmup50_cosine16passes_min_factor0.1
+  selection: training_domain_holdout_class_filtered_2m_F1_including_epoch0
+  all_controls_share_selected_head: true
+  future_labels_erased: true
+  selector_and_matching_unchanged: true
+  pilot_extraction_cap_gpu_hours: 1.7
+  pilot_head_training_cap_gpu_hours: 0.5
+  formal_head_training_cap_gpu_hours: 0.8
+  Navtest_consulted: false

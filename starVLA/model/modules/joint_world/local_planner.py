@@ -87,6 +87,10 @@ class PublicLocalPolicy(nn.Module):
         self.world, self.bridge, self.identity = world, bridge, identity
         if any(p.requires_grad for p in world.parameters()):
             raise ValueError('Planning transfer requires a frozen trained foundation')
+        if getattr(world, 'perception_refinement', None) != identity.get('perception_override'):
+            raise ValueError('Online current head differs from the cached planning head')
+        if getattr(world, 'foundation_sha256', None) != identity.get('foundation_sha256'):
+            raise ValueError('Online foundation differs from the cached planning foundation')
 
     @torch.no_grad()
     def predict_action(self, examples, observations, seed=20260926):

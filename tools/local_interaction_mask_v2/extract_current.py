@@ -12,9 +12,10 @@ from tools.local_interaction_mask_v2.foundation import create_world,restore_modu
 from tools.local_interaction_mask_v2.data import current_metadata_from_training_pickle,current_example
 from starVLA.model.modules.joint_world.public_baseline import sha256
 from starVLA.model.modules.joint_world.local_cache import cache_identity,build_payload,pack_payload,signature
+from starVLA.model.modules.joint_world.current_refinement import restore_current_head
 
 
-def load_foundation(path,public_qwen,visual_cache=None):
+def load_foundation(path,public_qwen,visual_cache=None,perception_checkpoint=None):
     saved=torch.load(path,map_location='cpu',weights_only=False,mmap=True)
     identity=saved['identity']
     if identity.get('private_driving_weights_loaded',True):raise ValueError('Private foundation forbidden')
@@ -25,24 +26,30 @@ def load_foundation(path,public_qwen,visual_cache=None):
     else:cfg=OmegaConf.create(cfg)
     world=create_world(public_qwen,cfg,identity['public_provenance'],identity['arguments']['seed'],visual_cache)
     if world.baseline.public_origin!=saved['public_origin']:raise ValueError('Public foundation reconstruction differs')
-    restore_modules(world,saved['modules']);world.eval().requires_grad_(False)
+    restore_modules(world,saved['modules'])
+    world.foundation_sha256=sha256(path)
+    world.perception_refinement=(restore_current_head(world.heads,perception_checkpoint,world.foundation_sha256,saved['public_origin'])
+                                if perception_checkpoint else None)
+    world.eval().requires_grad_(False)
     metadata={'training_identity':identity,'step':saved['step'],'presentations':saved['presentations'],'epoch':saved['epoch'],
-              'public_origin':saved['public_origin']}
+              'public_origin':saved['public_origin'],'foundation_sha256':world.foundation_sha256,
+              'perception_refinement':world.perception_refinement}
     return world,metadata
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('checkpoint','public-qwen','dataset','selector','graph-config','output'):p.add_argument('--'+k,required=True)
-    p.add_argument('--visual-cache');a=p.parse_args()
+    p.add_argument('--visual-cache');p.add_argument('--perception-checkpoint');a=p.parse_args()
     rank=int(os.environ.get('RANK',0));count=int(os.environ.get('WORLD_SIZE',1));torch.cuda.set_device(int(os.environ.get('LOCAL_RANK',0)))
     if count>1:dist.init_process_group('gloo')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
-    world,metadata=load_foundation(a.checkpoint,a.public_qwen,a.visual_cache)
-    checkpoint_hash=sha256(a.checkpoint)
+    world,metadata=load_foundation(a.checkpoint,a.public_qwen,a.visual_cache,a.perception_checkpoint)
+    checkpoint_hash=metadata['foundation_sha256']
     selector=json.loads(Path(a.selector).read_text());graph_config=json.loads(Path(a.graph_config).read_text())
     identity=cache_identity(checkpoint_hash,metadata['public_origin'],selector,graph_config)
     identity['foundation_training']=metadata['training_identity'];identity['foundation_step']=metadata['step']
+    if metadata['perception_refinement'] is not None:identity['perception_override']=metadata['perception_refinement']
     spec=json.loads(Path(a.dataset).read_text());tokens=json.loads(Path(spec['tokens']).read_text())
     records=[];parity=[]
     for token in tokens[rank::count]:

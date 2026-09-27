@@ -1,0 +1,60 @@
+{
+  "scope": "P1 same64training-scene fitting diagnostic; not generalization or planning",
+  "source_sha": "9a15df90387b39962111bf586f0b4918bee25e2b",
+  "manifest": {
+    "scope": "P1 fixed-feature current-head fitting only, no planning claim",
+    "hypothesis": "Current supervised head optimization may be incomplete despite weak early holdout stabilization; isolate it from frozen feature quality",
+    "cache_identity": "3bb080cc3849adeea45bd6d6dd2989d78ef24d3c4dc80f3144412cfeac3f8d20",
+    "foundation_sha256": "93a3fbb67036f7f4eb3fc44d57ce9cde9eb85468e58759d728bcbe51ef974354",
+    "trainable": "existing shared head MLP, classifier and box regressor",
+    "frozen": "all current feature producers and unused motion head",
+    "steps": 500,
+    "batch": 16,
+    "seed": 42,
+    "lr": 0.001,
+    "future_labels_erased": true,
+    "scenes": 64
+  },
+  "checkpoints": {
+    "0": {
+      "scenes": 64,
+      "tp": 264,
+      "fp": 2376,
+      "gt": 1043,
+      "recall": 0.25311601150527324,
+      "precision": 0.1,
+      "centre_error_m": 1.2769854971856782,
+      "scope": "fitting scenes only, no generalization claim"
+    },
+    "100": {
+      "scenes": 64,
+      "tp": 516,
+      "fp": 1346,
+      "gt": 1043,
+      "recall": 0.4947267497603068,
+      "precision": 0.2771213748657358,
+      "centre_error_m": 1.194294160881708,
+      "scope": "fitting scenes only, no generalization claim"
+    },
+    "250": {
+      "scenes": 64,
+      "tp": 632,
+      "fp": 1136,
+      "gt": 1043,
+      "recall": 0.6059443911792906,
+      "precision": 0.3574660633484163,
+      "centre_error_m": 1.144066609112145,
+      "scope": "fitting scenes only, no generalization claim"
+    },
+    "500": {
+      "scenes": 64,
+      "tp": 824,
+      "fp": 457,
+      "gt": 1043,
+      "recall": 0.7900287631831256,
+      "precision": 0.6432474629195941,
+      "centre_error_m": 1.0685764203408679,
+      "scope": "fitting scenes only, no generalization claim"
+    }
+  }
+}
