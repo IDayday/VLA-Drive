@@ -29,7 +29,7 @@ planner_transfer_phase:
   fixed_evaluation_epochs: [0, 1, 2, 4]
   development_planning: original1696 scenes, one candidate, seed20260926,10FM steps
 bev_transfer_followup:
-  status: TRAINER_GPU_VERIFIED_MATCHED_PAIR_RUNNING
+  status: COMPLETE_TRAINING_AND_1696_SCENE_TASK_AND_PLANNING_EVALUATION
   planned_pair: [with_semantic_motion_tasks, without_semantic_motion_tasks]
   planned_max_updates_per_variant: 1821
   additional_budget_requires_check: true
@@ -41,3 +41,11 @@ navtest_selection: false
 pdms_training: false
 scorer: false
 rl: false
+final_accounting:
+  optimizer_steps: 21835
+  gpu_hours: 7.16919871687889
+  unused_optimizer_steps: 2165
+  repair_rounds_used: 1
+  second_full_paired_seed: NOT_RUN_INSUFFICIENT_REMAINING_STEP_BUDGET
+  navtest: NOT_RUN
+  scope: Current joint-world campaign including sealed V1.1 prefix; earlier V1 campaign is separately sealed.
