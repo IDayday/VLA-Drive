@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "sensor_contract": "current CAM_F0 CAM_L0 CAM_R0; center_crop_16_9_resize_1024_576; no augmentation",
+  "predictable_classes": [
+    0,
+    1,
+    2
+  ],
+  "class_names": [
+    "vehicle",
+    "pedestrian",
+    "bicycle",
+    "traffic_cone",
+    "barrier",
+    "czone_sign",
+    "generic_object"
+  ],
+  "max_direct_neighbors": 8,
+  "max_non_ego": 16,
+  "min_existence": 0.45,
+  "risk_min_existence": 0.2,
+  "min_pixel_area": 144,
+  "min_pixel_height": 12,
+  "max_truncation": 0.55,
+  "min_support_views": 1,
+  "duplicate_radius_m": 1.0,
+  "corridor_half_width_m": 2.5,
+  "corridor_uncertainty_slope": 0.06,
+  "ego_horizon_s": 4.0,
+  "min_forward_m": 15.0,
+  "max_forward_m": 50.0,
+  "backward_margin_m": 3.0,
+  "turn_curvature": 0.015,
+  "unknown_neighbor_reach_s": 2.0,
+  "unknown_speed_upper_mps": [
+    15.0,
+    3.0,
+    8.0,
+    0.0,
+    0.0,
+    0.0,
+    3.0
+  ],
+  "following_lateral_m": 3.0,
+  "following_gap_m": 18.0,
+  "neighbor_conflict_radius_m": 12.0,
+  "max_per_relation_initial": 4,
+  "match_max_distance_m": 2.0,
+  "match_require_class": true,
+  "noise_protocol": "sha256_scene_sample_seed_original_source_slot_cpu_float32_v2",
+  "graph_variant": "nearest"
+}

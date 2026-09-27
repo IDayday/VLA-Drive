@@ -1,0 +1,44 @@
+schema_version: 2
+training_seed: 42
+public_origin: Qwen/Qwen3-VL-2B-Instruct
+foundation: shared_public_foundation_after_training_domain_schedule_freeze
+historical_private_features: forbidden_for_formal_comparisons
+graph:
+  common_config: configs/local_interaction_mask_v2/graph.json
+  common_selector: configs/local_interaction_mask_v2/selector_v1.json
+  variants:
+    G_LOCAL_ALL: {mode: all, selector: relations}
+    G_LOCAL_MASK: {mode: mask, selector: relations}
+    G_NEAREST_MASK: {mode: mask, selector: nearest}
+  global_batch: 32
+  initial_epochs: 16
+  conditional_max_epochs: 32
+  schedule_epochs: 32
+  learning_rate: 0.0001
+  extension_decision_entry: tools.local_interaction_mask_v2.convergence
+planner:
+  variants:
+    A0: {bridge: null, graph: null}
+    CURRENT_MEMORY: {bridge: current, graph: null}
+    P_LOCAL_ALL: {bridge: all, graph: G_LOCAL_ALL}
+    P_LOCAL_MASK: {bridge: mask, graph: G_LOCAL_MASK}
+  equal_trainable_modules: [current_projection, graph_to_world, adapter]
+  shared_current_scene_and_risk_context: true
+  frozen: [Qwen, common_Qwen_LoRA, driving_tokens, Reader, current_heads, original_DiT, graph]
+  global_batch: 32
+  initial_epochs: 8
+  conditional_max_epochs: 16
+  schedule_epochs: 16
+  learning_rate: 0.0001
+  extension_rule: Extend all3 learned bridges together if any holdout_DiT_ADE changes by_more_than_2percent between6and8passes; no_PDMS_consulted.
+evaluation:
+  future_GT_in_deployment: false
+  candidates: 1
+  FM_steps: 10
+  graph_seed: 2037
+  ego_seed: 20260926
+  main_endpoint: official_NAVSIM_v1_Navtest_12146scenes_136logs
+  secondary_development: 1696scenes_16logs
+  precision: native_Qwen_BF16_conditions_and_noise_draws_then_original_DiT_FP32
+  inference_batch: 16
+  baseline_context: A0_has_shared_current_perception_auxiliary_training_and_is_not_paper_action_only_ablation

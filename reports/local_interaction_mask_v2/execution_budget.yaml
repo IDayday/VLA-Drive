@@ -11,9 +11,9 @@ resources:
   stop_other_jobs: false
 priority_reservations_gpu_hours:
   P0_P1_graph_implementation_audit_and_checks: 3
-  PUBLIC_foundation_and_current_feature_extraction: 20
-  P2_single_seed_graph_training: 8
-  P3_planning_transfer_and_full_Navtest: 14
+  PUBLIC_foundation_and_current_feature_extraction: 29
+  P2_single_seed_graph_training: 4
+  P3_planning_transfer_and_full_Navtest: 9
   P4_diagnostics_and_failure_reserve: 3
 training:
   main_pair: [G_LOCAL_ALL, G_LOCAL_MASK]
@@ -30,7 +30,10 @@ training:
 planner:
   variants: [A0, CURRENT_MEMORY, G_LOCAL_ALL, G_LOCAL_MASK]
   main_pair_seeds: [42]
-  fixed_max_epochs: 4
+  initial_epochs: 8
+  conditional_max_epochs: 16
+  global_batch: 32
+  extension_rule: Extend all3 learned bridges together if any training-domain holdout DiT ADE changes by more than2percent from6to8passes; noPDMS consulted.
   original_Qwen_and_DiT_frozen: true
   original_noise_seed: 20260926
   original_FM_steps: 10
@@ -62,7 +65,7 @@ public_foundation:
   ego_loss: original_FM
   frozen: [original_public_Qwen_tensors, visual_provider, unused_legacy_motion_head]
   random_initialization: [original_DiT, ego_history_projector, Reader, current_heads, common_Qwen_rank8_LoRA, driving_token_embeddings]
-  extension_rule: Jointly shared foundation may extend8to16 if holdout egoADE or class_filtered_recall changes by >2percent from6to8; noPDMS consulted. Eightpasses alone is not convergence evidence. The20GPUh foundation+features reservation remains binding.
+  extension_rule: Jointly shared foundation may extend8to16 if holdout egoADE or class_filtered_recall changes by >2percent from6to8; noPDMS consulted. Eightpasses alone is not convergence evidence. The29GPUh foundation+features reservation includes a conditional continuation stage to24passes.
   holdout_frequency_epochs: 1
   main_learning_selection: training-domain64scene59log_holdout_only
   final_Navtest_selection: forbidden
@@ -74,3 +77,15 @@ latest_resource_steering:
   multiple_training_seeds: false
   public_language_adaptation: shared_rank8_q_v_LoRA_alpha16_plus_driving_tokens_lr1e-5
   paper_equivalent_reproduction_claim: false
+
+public_foundation_continuation_preregistered_before_epoch16:
+  maximum_total_epochs: 24
+  initial_run_unchanged: true
+  decision: Only_after_initial_run_reaches16passes_compare_holdout14and16_egoADE_and_class_filtered_recall_relative_change
+  trigger: either_relative_change_more_than_2percent_AND_budget_can_reserve9GPUhours_for_all_remaining_core_graph_planning_and_Navtest_work
+  added_stage_max_gpu_hours: 9
+  optimizer_and_rng: preserve_from_immutable_campaign_checkpoint_no_restart
+  learning_rate: retain_original16epoch_cosine_schedule_at_its_floor_after16_no_hyperparameter_search
+  baseline_for_every_main_arm: same_final_frozen_public_foundation
+  reason: actual_small_graph_and_frozen_DiT_bridge_cost_is_far_below_initial_reservations_and_public_foundation_is_still_learning
+  Navtest_consulted: false

@@ -23,6 +23,29 @@ def atomic_json(path,data):
     tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,indent=2)+'\n');tmp.replace(path)
 
 
+def verify_continuation(previous,current):
+    """A declared longer shared foundation stage; never silently relax resume."""
+    for key in ('world_size','data_sha256','tokens_sha256','public_provenance','private_driving_weights_loaded'):
+        if previous[key]!=current[key]:raise ValueError('Foundation continuation mismatch: '+key)
+    ignored={'epochs','initial_epochs','continue_from'}
+    old={k:v for k,v in previous['arguments'].items() if k not in ignored}
+    new={k:v for k,v in current['arguments'].items() if k not in ignored}
+    if old!=new:raise ValueError('Continuation may change terminal epochs only, preserving schedule/optimizer/data/topology')
+    files=['tools/local_interaction_mask_v2/foundation.py','tools/local_interaction_mask_v2/data.py',
+        'starVLA/model/modules/joint_world/public_baseline.py','starVLA/model/modules/joint_world/public_adapters.py',
+        'starVLA/model/modules/joint_world/visual_cache.py','starVLA/model/modules/structured_world/policy.py',
+        'starVLA/model/modules/structured_world/rehab.py','starVLA/model/modules/structured_world/agent_heads.py',
+        'starVLA/model/modules/structured_world/scene_agent_reader.py','starVLA/model/modules/action_model/GR00T_ActionHeader.py',
+        previous['arguments']['config']]
+    checked={}
+    for name in files:
+        before=subprocess.check_output(['git','show',previous['code_sha']+':'+name])
+        after=subprocess.check_output(['git','show',current['code_sha']+':'+name])
+        if before!=after:raise ValueError('Foundation computation changed: '+name)
+        checked[name]=hashlib.sha256(after).hexdigest()
+    return checked
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('public-qwen','config','provenance','tokens','meta-root','observations','targets','output'):
@@ -31,6 +54,7 @@ def main():
     p.add_argument('--initial-epochs',type=int);p.add_argument('--schedule-epochs',type=int,default=16);p.add_argument('--global-batch',type=int,default=32)
     p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--workers',type=int,default=2);p.add_argument('--stop-after',type=int);p.add_argument('--resume',action='store_true')
+    p.add_argument('--continue-from',help='Explicit new stage from this campaign, preserving optimizer/RNG/scheduler and data')
     p.add_argument('--benchmark',action='store_true');p.add_argument('--check-empty-rank',action='store_true');p.add_argument('--limit',type=int)
     a=p.parse_args();rank=int(os.environ.get('RANK',0));count=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
     torch.cuda.set_device(local)
@@ -70,9 +94,19 @@ def main():
     dataset=FoundationDataset(tokens,a.meta_root,a.observations,a.targets)
     if count>1:objective=DDP(objective,device_ids=[local],broadcast_buffers=False,find_unused_parameters=True,gradient_as_bucket_view=True)
     torch.manual_seed(a.seed+1000+rank);torch.cuda.manual_seed(a.seed+1000+rank)
-    if a.resume:
-        saved=torch.load(out/'checkpoint.pt',map_location='cpu',weights_only=False)
-        if saved['identity']!=identity:raise ValueError('Foundation resume source/config/data identity differs')
+    if a.resume or a.continue_from:
+        saved=torch.load(out/'checkpoint.pt' if a.resume else Path(a.continue_from),map_location='cpu',weights_only=False,mmap=True)
+        if a.continue_from and not a.resume:
+            from starVLA.model.modules.joint_world.public_baseline import sha256
+            identity['continuation_verified_files']=verify_continuation(saved['identity'],identity)
+            identity['parent_checkpoint_sha256']=sha256(a.continue_from)
+            identity['parent_step']=saved['step'];identity['parent_epoch']=saved['epoch']
+            if a.epochs<=saved['epoch']:raise ValueError('Continuation must add training exposure')
+        else:
+            for key in ('continuation_verified_files','parent_checkpoint_sha256','parent_step','parent_epoch'):
+                if key in saved['identity']:identity[key]=saved['identity'][key]
+            if saved['identity']!=identity:raise ValueError('Foundation resume source/config/data identity differs')
+        if world.baseline.public_origin!=saved['public_origin']:raise ValueError('Restored public origin differs')
         restore_modules(world,saved['modules']);opt.load_state_dict(saved['optimizer']);schedule.load_state_dict(saved['scheduler'])
         step,epoch,offset,presentations=[saved[k] for k in ('step','epoch','offset','presentations')]
         restore_rng(saved['rng_by_rank'][rank]);del saved
@@ -118,7 +152,7 @@ def main():
             torch.save(payload,out/'checkpoint.tmp');(out/'checkpoint.tmp').replace(out/'checkpoint.pt')
             atomic_json(out/'progress.json',{'step':step,'epoch':epoch,'offset':offset,'presentations':presentations})
         if count>1:dist.barrier()
-    if not a.resume:evaluate('0')
+    if not a.resume:evaluate(str(epoch) if a.continue_from else '0')
     started=time.monotonic();paused=False
     while epoch<a.epochs:
         batches=epoch_batches(len(tokens),a.global_batch,rank,count,a.seed,epoch,offset)
