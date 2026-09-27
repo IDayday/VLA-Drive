@@ -20,12 +20,18 @@ def main():
     p.add_argument('--batch',type=int,default=16)
     p.add_argument('--shard',type=int);p.add_argument('--shards',type=int)
     p.add_argument('--shard-offset',type=int,default=0,help='Offset local torchrun ranks when exporting across independent hosts')
+    p.add_argument('--control-output',help='Separate host-local supervisor status/stop directory when sharing proposal output across hosts')
     p.add_argument('--resume',action='store_true');a=p.parse_args()
     if a.shard is not None and a.shard_offset:raise ValueError('Use explicit shard or rank offset, not both')
     shard=int(os.environ.get('RANK',0))+a.shard_offset if a.shard is None else a.shard
     shards=int(os.environ.get('WORLD_SIZE',1)) if a.shards is None else a.shards
     torch.cuda.set_device(int(os.environ.get('LOCAL_RANK',0)))
     if not 0<=shard<shards or not 1<=a.batch<=128:raise ValueError('Invalid deterministic shard/bounded batch')
+    control=Path(a.control_output) if a.control_output else None
+    if control:
+        control.mkdir(parents=True,exist_ok=True)
+        if int(os.environ.get('WORLD_SIZE',1))>1:
+            torch.distributed.init_process_group('gloo')
     corpus=CurrentOnlyCorpus(a.cache);upstream=corpus.manifest['identity']
     head,config=load_public_head(a.foundation,upstream['foundation_sha256'])
     specs=json.loads(Path(a.variants).read_text())
@@ -51,7 +57,7 @@ def main():
     rows={name:[] for name in variants};complete=True
     indices=list(range(shard,len(corpus),shards))
     for offset in range(0,len(indices),a.batch):
-        if (out/'STOP_REQUESTED').exists():complete=False;break
+        if (out/'STOP_REQUESTED').exists() or (control and (control/'STOP_REQUESTED').exists()):complete=False;break
         batch_indices=indices[offset:offset+a.batch];payloads={};load_errors={}
         for i in batch_indices:
             try:payloads[i]=corpus[i]
@@ -106,6 +112,12 @@ def main():
         atomic_json(out/name/f'shard_{shard}.json',{'status':'complete' if complete else 'paused','completed':len(records),
             'failed':failed,'expected':len(range(shard,len(corpus),shards)),'peak_gpu_bytes':torch.cuda.max_memory_allocated()})
     if shards==1:atomic_json(out/'status.json',{'status':'failed' if failures else ('complete' if complete else 'paused'),'failed':failures})
+    if control:
+        state=torch.tensor([int(not complete),failures],dtype=torch.int64)
+        if torch.distributed.is_initialized():torch.distributed.all_reduce(state)
+        if int(os.environ.get('RANK',0))==0:
+            atomic_json(control/'status.json',{'status':'failed' if state[1] else ('paused' if state[0] else 'complete'),
+                'failed':int(state[1]),'paused_local_shards':int(state[0]),'scope':'this host exporter; merge_scores verifies the full population'})
     # The legacy original decoder import may initialize a distributed group.
     if torch.distributed.is_initialized():torch.distributed.destroy_process_group()
     if failures:raise RuntimeError('Export failures retained; benchmark incomplete')

@@ -8,26 +8,43 @@ from tools.local_interaction_mask_v2.data import current_metadata_from_training_
 from tools.local_interaction_mask_v2.planner_runtime import CurrentOnlyCorpus,load_bridge,predict_payload,predict_payloads
 from tools.local_interaction_mask_v2.train_foundation import atomic_json
 from starVLA.model.modules.joint_world.local_planner import LocalPlanningBridge,PublicLocalPolicy
+from starVLA.model.modules.joint_world.public_baseline import sha256
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    for k in ('foundation','public-qwen','cache','dataset','current-bridge','graph-checkpoint','output'):
+    for k in ('foundation','public-qwen','cache','dataset','output'):
         p.add_argument('--'+k,required=True)
+    p.add_argument('--current-bridge');p.add_argument('--graph-checkpoint')
+    p.add_argument('--variants',help='JSON mapping current/all/mask to their actual trained bridge checkpoints')
     p.add_argument('--visual-cache');p.add_argument('--perception-checkpoint');p.add_argument('--limit',type=int,default=4)
     p.add_argument('--language-adapter-precision',choices=['native','fp32'],default='native');a=p.parse_args()
+    if a.variants:
+        if a.current_bridge or a.graph_checkpoint:p.error('Formal variants cannot be combined with diagnostic weights')
+        paths=json.loads(Path(a.variants).read_text())
+        if set(paths)!={'current','all','mask'} or any(not path for path in paths.values()):
+            p.error('Formal parity requires exactly the three trained bridge paths')
+    elif not a.current_bridge or not a.graph_checkpoint:
+        p.error('Provide formal --variants or both diagnostic checkpoint arguments')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     corpus=CurrentOnlyCorpus(a.cache);identity=corpus.manifest['identity']
     world,metadata=load_foundation(a.foundation,a.public_qwen,a.visual_cache,a.perception_checkpoint,a.language_adapter_precision)
     dim=corpus[0]['native_actions'].shape[-1]
-    trained,_=load_bridge(a.current_bridge,corpus.manifest['identity_sha256'],dim)
-    graph=torch.load(a.graph_checkpoint,map_location='cpu',weights_only=False)
+    if not a.variants:
+        trained,_=load_bridge(a.current_bridge,corpus.manifest['identity_sha256'],dim)
+        graph=torch.load(a.graph_checkpoint,map_location='cpu',weights_only=False)
+    checked_checkpoints={}
     spec=json.loads(Path(a.dataset).read_text());rows=[]
     for mode in ('current','all','mask'):
-        bridge=LocalPlanningBridge(dim,identity['graph_config'],mode).cuda().eval().requires_grad_(False)
-        if bridge.graph is not None:bridge.graph.load_state_dict(graph['model'],strict=True)
-        for name in ('current_projection','graph_to_world','adapter'):
-            getattr(bridge,name).load_state_dict(getattr(trained,name).state_dict(),strict=True)
+        if a.variants:
+            bridge,bridge_identity=load_bridge(paths[mode],corpus.manifest['identity_sha256'],dim)
+            if bridge.mode!=mode:raise ValueError('Formal parity checkpoint has the wrong supervision arm')
+            checked_checkpoints[mode]={'sha256':sha256(paths[mode]),'identity':bridge_identity}
+        else:
+            bridge=LocalPlanningBridge(dim,identity['graph_config'],mode).cuda().eval().requires_grad_(False)
+            if bridge.graph is not None:bridge.graph.load_state_dict(graph['model'],strict=True)
+            for name in ('current_projection','graph_to_world','adapter'):
+                getattr(bridge,name).load_state_dict(getattr(trained,name).state_dict(),strict=True)
         policy=PublicLocalPolicy(world,bridge,identity).eval()
         batch=predict_payloads(world.baseline.action_model,bridge,[corpus[i] for i in range(min(a.limit,len(corpus)))],identity)
         for i in range(min(a.limit,len(corpus))):
@@ -47,6 +64,8 @@ def main():
             world.baseline.current_visual_cache=visual
             delta=float((cached['normalized_actions']-online['normalized_actions']).abs().max())
             feature_delta=float((cached['action_conditions']-online['action_conditions']).abs().max())
+            graph_delta=(float((cached['joint_trajectories_xy']-online['joint_trajectories_xy']).abs().max())
+                         if cached['joint_trajectories_xy'] is not None else 0.)
             vision_delta=float((online['normalized_actions']-uncached['normalized_actions']).abs().max())
             target_delta=float((online['normalized_actions']-changed['normalized_actions']).abs().max())
             previous=bridge.adapter.gate.detach().clone();bridge.adapter.gate.zero_()
@@ -59,13 +78,17 @@ def main():
             physical_batch_delta=float(((cached['normalized_actions'][0,...,:2]-batch['normalized_actions'][i,...,:2])*
                 cached['normalized_actions'].new_tensor([8.805105,2.277741])).norm(dim=-1).max())
             row={'mode':mode,'token':token,'online_cached_action_max_error':delta,'online_cached_condition_max_error':feature_delta,
+                'online_cached_joint_xy_max_error_m':graph_delta,
                 'frozen_visual_cache_action_max_error':vision_delta,'target_poison_action_max_error':target_delta,'gate0_action_max_error':gate_delta,
                 'batch_singleton_action_max_error':batch_delta,'batch_singleton_mixed_tolerance_pass':batch_close,
                 'batch_singleton_xy_max_error_m':physical_batch_delta,'trained_append_tail_native_max_error':append_tail_delta}
             rows.append(row)
-            if delta>1e-5 or feature_delta>1e-5 or vision_delta>1e-5 or not batch_close or physical_batch_delta>1e-3 or target_delta!=0 or gate_delta!=0 or append_tail_delta!=0:
+            if delta>1e-5 or feature_delta>1e-5 or graph_delta>1e-5 or vision_delta>1e-5 or not batch_close or physical_batch_delta>1e-3 or target_delta!=0 or gate_delta!=0 or append_tail_delta!=0:
                 atomic_json(out/'failed.json',row);raise AssertionError('Predeclared online/cache or gate/label parity failed')
-    atomic_json(out/'result.json',{'status':'PASS','scope':'P1 engineering; ALL/MASK share one diagnostic graph for architecture parity, not comparative research',
+    atomic_json(out/'result.json',{'status':'PASS','scope':('Final actual trained CURRENT/ALL/MASK checkpoints; architecture parity, not planning effectiveness'
+        if a.variants else 'P1 engineering; ALL/MASK share one diagnostic graph for architecture parity, not comparative research'),
+        'checked_checkpoints':checked_checkpoints,'foundation_sha256':identity['foundation_sha256'],
+        'current_identity':corpus.manifest['identity_sha256'],
         'foundation_step':metadata['step'],'rows':rows,'tolerance_action_and_condition':1e-5,'gate_and_target_tolerance':0.,
         'batch_singleton_tolerance':{'atol':1e-5,'rtol':1e-5,'maximum_xy_error_m':1e-3,
             'amendment':'Original absolute-only1e-5 test failed at1.2994e-5; retained as evidence. Mixed FP32 scale tolerance declared before this rerun.',
