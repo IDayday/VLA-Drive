@@ -27,7 +27,7 @@ Required remaining deliverables: WORLD_LEARNABILITY, PROVIDER_AUDIT, PLANNING_PI
 ## Budget / resources
 
 New cap24000 optimizer steps AND48 GPU-hours. Used0 steps and0.039005458884769015 GPU-hours (P1 inference charged conservatively). Old11639 steps sealed. New ledger at artifacts/budget_ledger.json; no further jobs live after P1 completed. Both repair rounds available; CPU reference-audit correction is not a failed learning run.
-P1 paused only verified local gpu_stress.py parent168455, its0–3 workers; local4–7 original placeholders untouched. Restored0–3 via same gpu_stress.py command; inspect placeholder_restore.log/current nvidia-smi before future pause. No other training task stopped. Local and training-vla-zt2 allowed; inspect real process ownership before use.
+P1 paused only verified local gpu_stress.py parent168455, its0–3 workers; local4–7 original placeholders untouched. Restored0–3 via same gpu_stress.py command, verified parent663431/workers663535–663538 (session63132); inspect placeholder_restore_verified.log/current nvidia-smi before future pause. Initial detached shell launch failed and was retried; see RESOURCE_STATE.json. No other training task stopped. Local and training-vla-zt2 allowed; inspect real process ownership before use.
 
 ## Recovery commands / paths
 
