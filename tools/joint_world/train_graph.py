@@ -56,12 +56,14 @@ def load_samples(cache, targets, data_root, steps):
 
 @torch.no_grad()
 def evaluate(model, samples, output, step):
-    rows = []; model.eval()
+    rows = []; objects = []; model.eval()
+    banks = output / ('predictions_' + str(step)); banks.mkdir(exist_ok=False)
     for sample in samples:
         c = current_batch([sample]); token = sample['cache']['token']
         generator = torch.Generator(device='cuda').manual_seed(int.from_bytes(hashlib.sha256(token.encode()).digest()[:4], 'little'))
         noise = torch.randn(sample['xy'].shape, device='cuda', generator=generator)
         xy, _ = model.sample(noise, **c, sampling_steps=10); xy = xy.cpu()[0]
+        np.savez(banks / (token + '.npz'), future_xy=xy.numpy(), current_boxes=sample['cache']['current_boxes'][0].numpy(), current_logits=sample['cache']['current_logits'][0].numpy())
         ego_error = (xy[0] - sample['xy'][0, 0]).norm(dim=-1)
         # Evaluation association is independent geometric matching, not the training matcher.
         target = sample['target']; pred = {k: v[0] for k, v in sample['pred'].items()}
@@ -78,6 +80,22 @@ def evaluate(model, samples, output, step):
                      'agent_final_error_sum': float(error[:, -1][final].sum()), 'agent_final_count': int(final.sum()),
                      'stationary_error_sum': float(stationary[valid].sum()),
                      'valid_gt_points': int(target.future_valid_mask[gt].sum())})
+        dynamic = valid[:, -1] & ((target.future_xy_in_ego_t0[g, -1] - target.current_boxes[g, :2]).norm(dim=-1) > 2.)
+        static = valid[:, -1] & ~dynamic
+        for label, select in [('dynamic', dynamic), ('static', static)]:
+            mask = valid & select[:, None]
+            rows[-1][label + '_error_sum'] = float(error[mask].sum())
+            rows[-1][label + '_stationary_error_sum'] = float(stationary[mask].sum())
+            rows[-1][label + '_points'] = int(mask.sum())
+        assigned = {int(col): int(row) for row, col in zip(r, g)}
+        for gi in gt.tolist():
+            slot = assigned.get(gi); vm = target.future_valid_mask[gi]
+            distance = None if slot is None else (xy[slot+1] - target.future_xy_in_ego_t0[gi]).norm(dim=-1)
+            objects.append({'token':token, 'track_id':target.track_ids[gi], 'gt_class':int(target.current_classes[gi]),
+                            'matched_slot':slot, 'detected':slot is not None, 'future_points':int(vm.sum()),
+                            'ADE':None if slot is None or not vm.any() else float(distance[vm].mean()),
+                            'FDE':None if slot is None or not vm[-1] else float(distance[-1])})
+
     points = sum(r['agent_points'] for r in rows); finals = sum(r['agent_final_count'] for r in rows)
     summary = {'step': step, 'scenes': len(rows), 'failed': 0, 'conditioning': 'all_futures_hidden; current image only',
                'ego_ADE': float(np.mean([r['ego_ADE'] for r in rows])), 'ego_FDE': float(np.mean([r['ego_FDE'] for r in rows])),
@@ -86,6 +104,11 @@ def evaluate(model, samples, output, step):
                'stationary_ADE': sum(r['stationary_error_sum'] for r in rows) / points if points else None,
                'motion_point_coverage': points / max(sum(r['valid_gt_points'] for r in rows), 1),
                'limitation': 'Joint graph ego output, not original DiT planning output; no PDMS evaluation.'}
+    for group in ['dynamic', 'static']:
+        count = sum(r[group + '_points'] for r in rows)
+        summary[group] = {'points': count, 'ADE': sum(r[group + '_error_sum'] for r in rows) / count if count else None,
+                          'stationary_ADE': sum(r[group + '_stationary_error_sum'] for r in rows) / count if count else None}
+    write_csv(output / f'objects_{step}.csv', objects)
     write_csv(output / f'eval_{step}.csv', rows); (output / f'eval_{step}.json').write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary), flush=True); model.train()
 
