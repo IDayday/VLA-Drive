@@ -1,37 +1,34 @@
 {
-  "engineering_status": "PARTIAL",
+  "engineering_status": "READY",
+  "engineering_scope": "Verified fixed-upstream current-image/BEV joint graph plus original DiT transfer; production single-GPU runs. Real two-GPU graph check only, not full Qwen joint DDP training.",
   "research_status": "INCONCLUSIVE",
-  "planning_status": "IMAGE_PAIR_1696_COMPLETE_BEV_PAIR_RUNNING",
-  "bev_status": "CURRENT_TRAIN_AND_DEV_FEATURES_COMPLETE_MATCHED_PLANNING_TRAINING_RUNNING",
-  "combined_optimizer_steps": 21677,
-  "combined_gpu_hours_snapshot": 6.647634127868545,
-  "goal_complete": false,
-  "snapshot_utc": "2026-09-27T06:33:04.784682+00:00",
-  "running_experiments": [
-    {
-      "id": "planner_bev_control7284",
-      "optimizer_steps": 1742,
-      "reserved_steps": 1821,
-      "pid": 765259
-    },
-    {
-      "id": "planner_bev_tasks7284",
-      "optimizer_steps": 1742,
-      "reserved_steps": 1821,
-      "pid": 765230
-    }
-  ],
+  "planning_status": "FIVE_VARIANTS_ALL_1696_COMPLETE",
+  "bev_status": "TRAINED_REAL_CURRENT_BEV_ONLINE_CACHED_TASK_AND_PLANNING_COMPLETE",
+  "combined_optimizer_steps": 21835,
+  "combined_gpu_hours": 7.16919871687889,
+  "unused_optimizer_steps": 2165,
+  "bounded_experiments_and_reports_complete": true,
+  "snapshot_utc": "2026-09-27T07:03:30.713464+00:00",
+  "running_experiments": [],
   "completed_extended_graph_pair": {
     "scenes_per_variant": 7284,
     "updates_per_variant": 3642,
     "presentations_per_variant": 58272,
     "passes_per_variant": 8,
-    "scene_failures": 0,
-    "motion_point_coverage_holdout": 0.11461103723404255
+    "scene_failures": 0
   },
-  "next_required": [
-    "Finish matched BEV task-on/off planner training and final1696 paired planning/task evaluation",
-    "Trained BEV online/cached parity and full cost/evidence report",
-    "Final convergence/seed-budget/status decision; publish tested source and measured evidence"
-  ]
+  "completed_transfer_variants": {
+    "variants": 4,
+    "updates_per_variant": 1821,
+    "passes_per_variant": 4
+  },
+  "planning_failures_per_variant": 0,
+  "not_run": [
+    "Second fully matched training seed pair (remaining budget insufficient)",
+    "Long exact-one-actor-mask comparison",
+    "Full Qwen/graph/original DiT joint fine-tuning and production DDP",
+    "Navtest"
+  ],
+  "convergence": "Not established; preserve fixed intermediate/final results, no PDMS-based extension or checkpoint selection.",
+  "evidence": "reports/joint_world/FINAL_REPORT.md"
 }
