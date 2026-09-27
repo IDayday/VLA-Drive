@@ -4,6 +4,7 @@ from concurrent.futures import ProcessPoolExecutor,wait,FIRST_COMPLETED
 import csv
 from dataclasses import asdict
 import hashlib
+import importlib.metadata
 import json
 import lzma
 import multiprocessing
@@ -20,6 +21,13 @@ def digest(path):
     with Path(path).open('rb') as f:
         for data in iter(lambda:f.read(8*1024*1024),b''):h.update(data)
     return h.hexdigest()
+
+
+def python_tree_digest(root):
+    root=Path(root);digest=hashlib.sha256()
+    for path in sorted(root.rglob('*.py')):
+        digest.update(str(path.relative_to(root)).encode()+b'\0'+path.read_bytes())
+    return digest.hexdigest()
 
 
 def initialize(devkit):
@@ -73,10 +81,15 @@ def main():
     if a.benchmark_navtest and (len(index)!=12146 or len(logs)!=136):raise ValueError('Incomplete full Navtest endpoint')
     assigned=set(logs[a.log_shard::a.log_shards]);index=[r for r in index if r['log'] in assigned]
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True);(out/'records').mkdir(exist_ok=True)
+    initialize(a.devkit)
+    import nuplan
     bank=Path(a.predictions);identity={'arguments':vars(a),'index_sha256':digest(a.index),
         'evaluator_sha256':digest(Path(a.devkit)/'navsim/evaluate/pdm_score.py'),
         'simulator_sha256':digest(Path(a.devkit)/'navsim/planning/simulation/planner/pdm_planner/simulation/pdm_simulator.py'),
         'scorer_sha256':digest(Path(a.devkit)/'navsim/planning/simulation/planner/pdm_planner/scoring/pdm_scorer.py'),
+        'navsim_python_tree_sha256':python_tree_digest(Path(a.devkit)/'navsim'),
+        'nuplan_python_tree_sha256':python_tree_digest(Path(nuplan.__file__).parent),
+        'runtime_versions':{name:importlib.metadata.version(name) for name in ('numpy','scipy','shapely')},
         'protocol':'official NAVSIM v1 full reference cache; one predicted trajectory per scene',
         'failure_policy':'retain all requested rows; failures scored zero and invalidate benchmark'}
     ident=out/'identity.json'

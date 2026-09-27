@@ -1,0 +1,69 @@
+{
+  "sources": [
+    {
+      "name": "navsim-v1.1",
+      "official_commit": "3e8291bfa89ff247231e0227778840cd0a036896",
+      "actual_python_files": 95,
+      "official_python_files": 95,
+      "different_files": [
+        {
+          "file": "agents/human_agent.py",
+          "type_annotation_only": false,
+          "used_by_direct_pdm_score": false
+        },
+        {
+          "file": "planning/script/run_pdm_score.py",
+          "type_annotation_only": false,
+          "used_by_direct_pdm_score": false
+        }
+      ],
+      "actual_source_root": "/mnt/project/DriveDreamer-Policy/navsim_v1.1/navsim/navsim",
+      "official_ref": "refs/heads/v1.1 (branch, not the same-named tag)"
+    },
+    {
+      "name": "nuplan-devkit",
+      "official_commit": "e9241677997dd86bfc0bcd44817ab04fe631405b",
+      "actual_python_files": 861,
+      "official_python_files": 861,
+      "different_files": [
+        {
+          "file": "common/geometry/compute.py",
+          "type_annotation_only": true,
+          "used_by_direct_pdm_score": true
+        },
+        {
+          "file": "planning/utils/multithreading/ray_execution.py",
+          "type_annotation_only": false,
+          "used_by_direct_pdm_score": false,
+          "difference_scope": "unused import os and disabled Ray progress bar"
+        },
+        {
+          "file": "planning/utils/multithreading/worker_parallel.py",
+          "type_annotation_only": true,
+          "used_by_direct_pdm_score": false,
+          "difference_scope": "type annotation"
+        },
+        {
+          "file": "planning/utils/multithreading/worker_pool.py",
+          "type_annotation_only": true,
+          "used_by_direct_pdm_score": false,
+          "difference_scope": "type annotation"
+        },
+        {
+          "file": "planning/utils/multithreading/worker_sequential.py",
+          "type_annotation_only": true,
+          "used_by_direct_pdm_score": false,
+          "difference_scope": "type annotation"
+        }
+      ],
+      "actual_source_root": "/mnt/project/DriveVLA-M0/nuplan-devkit/nuplan"
+    }
+  ],
+  "official_source_scoring_selfcheck": {
+    "scenes": 4,
+    "all_factor_max_error_vs_existing_runtime": 0.0,
+    "scope": "artificial stationary trajectories, not algorithm Navtest scores"
+  },
+  "provenance_correction": "9fe1459 and6e96cf7 are enclosing VLA-Drive commits, NOT official NAVSIM/nuPlan commits. Official commits are independently verified above.",
+  "formal_scorer_source_policy": "Official pinned NAVSIMv1.1 and official pinned nuPlan source; full Python trees and numeric dependency versions bound into scoring identities"
+}
