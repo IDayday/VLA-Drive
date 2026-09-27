@@ -9,6 +9,10 @@ from starVLA.model.modules.joint_scene.flow import execution_from_joint
 from starVLA.model.modules.joint_scene.masks import xy_point_valid
 
 
+class EvaluationBudgetPause(RuntimeError):
+    """Already completed rows are saved; the fixed denominator is not shortened."""
+
+
 def batch_scenes(scenes,device='cuda'):
     return stack_graphs([s.graph for s in scenes],device),torch.cat([s.future for s in scenes]).to(device),torch.cat([s.feature_valid for s in scenes]).to(device)
 
@@ -104,7 +108,7 @@ def summarize(scene_rows,query_rows,manifest):
 
 
 @torch.no_grad()
-def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,device='cuda',output=None):
+def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,device='cuda',output=None,budget_check=None,evaluation_identity=None):
     # All identities/queries fixed before any model forward. This is not future-based graph selection.
     manifest=build_queries(corpus) if query_manifest is None else validate_queries(corpus,query_manifest)
     if output is not None:
@@ -112,9 +116,20 @@ def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,de
         frozen=output/'queries.json'
         if frozen.exists() and json.loads(frozen.read_text())!=manifest:raise ValueError('Refuse overwriting different queries')
         if not frozen.exists():frozen.write_text(json.dumps(manifest,indent=2)+'\n')
-    prior=model.training;model.eval();scene_rows=[];query_rows=[]
+        identity_path=output/'evaluation_identity.json'
+        if identity_path.exists() and json.loads(identity_path.read_text())!=evaluation_identity:raise ValueError('Evaluation checkpoint identity changed')
+        if not identity_path.exists():identity_path.write_text(json.dumps(evaluation_identity,indent=2)+'\n')
+    def boundary():
+        if budget_check is not None:
+            try:budget_check()
+            except RuntimeError as exc:raise EvaluationBudgetPause(str(exc)) from exc
+    def progress(kind,row):
+        if output is not None:
+            with (output/(kind+'_progress.jsonl')).open('a') as stream:stream.write(json.dumps(row,allow_nan=False)+'\n')
+    prior=model.training;model.eval();scene_rows=[];query_rows=[];interrupted=None
     try:
         for i in range(len(corpus)):
+            boundary()
             s=corpus[i];g,y,v=batch_scenes([s],device);noise=evaluation_noise([s],seed,device)
             queries=[q for q in manifest['queries'] if q['scene_index']==i]
             scene_row={'token':s.token,'log':s.log,'status':'ok','scope':'all-hidden structured GT current state; not camera planning',
@@ -131,7 +146,9 @@ def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,de
             except (ValueError,RuntimeError) as exc:
                 scene_row.update(status='failed',error=str(exc));all_hidden=None
             scene_rows.append(scene_row)
+            progress('scene',scene_row)
             for query in queries:
+                boundary()
                 row=dict(query);row['status']='ok';slot=query['slot']
                 try:
                     if all_hidden is None:raise ValueError('Scene all-hidden generation failed')
@@ -147,8 +164,14 @@ def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,de
                     row['dynamic']=first['dynamic'];row['conditional_minus_all_hidden_ADE_m']=second['xy_ADE_m']-first['xy_ADE_m']
                 except (ValueError,RuntimeError) as exc:row.update(status='failed',error=str(exc))
                 query_rows.append(row)
+                progress('query',row)
+    except EvaluationBudgetPause as exc:interrupted=str(exc)
     finally:model.train(prior)
     result={'scene_rows':scene_rows,'query_rows':query_rows,'query_manifest':manifest,'summary':summarize(scene_rows,query_rows,manifest)}
+    completed={r['query_id'] for r in query_rows}
+    result['summary'].update(evaluation_identity=evaluation_identity,interrupted=interrupted,
+        missing_query_ids=[q['query_id'] for q in manifest['queries'] if q['query_id'] not in completed])
+    if interrupted:result['summary']['aggregate_valid']=False
     # A separate target table prevents privileged-future diagnostics being mistaken
     # for deployment-format all-hidden scores. Query rows retain explicit paired deltas.
     all_hidden_rows=[]
@@ -164,4 +187,5 @@ def evaluate(model,corpus,query_manifest=None,seed=20260927,sampling_steps=20,de
             with (output/(name+'.csv')).open('w',newline='') as stream:
                 writer=csv.DictWriter(stream,fieldnames=sorted(set().union(*(r.keys() for r in rows))),lineterminator='\n');writer.writeheader();writer.writerows(rows)
         (output/'summary.json').write_text(json.dumps(result['summary'],indent=2,allow_nan=False)+'\n')
+    if interrupted:raise EvaluationBudgetPause(interrupted)
     return result
