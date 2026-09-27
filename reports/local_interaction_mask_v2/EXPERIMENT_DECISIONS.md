@@ -29,3 +29,15 @@ Before any formal PDMS is opened, register a planning interaction-analysis proxy
 Planning bridge extension now has a machine-checked entry: all three controls must complete the same8passes, updates and presentations under identical source/upstream/capacity/labels/schedule. Apply the already registered relative holdout DiT ADE6→8 change>2% rule, jointly extend all three to16 or stop all at8; never use PDMS. The analogous graph decision requires completed, equal16pass runs. These finite rules do not prove convergence.
 
 Posthoc passage ordering uses closest discrete predicted path points within2m, with at least1m start-to-end movement for both actors. Arrival-time difference is quantized to0.5s. Report actualDiT-vs-neighbor and graph-ego-vs-neighbor orders separately, including disagreements on common path encounters. This is a geometric proxy, not measured right-of-way, collision probability or action-intervention dynamics.
+
+## Final shared head and independent control scheduling
+
+The final publicepoch24 frozen-feature current head completed16passes/1824updates, selectedepoch16 on the registered trainingholdout F1: .2060027→.2371396 (recall.3194531,precision.1885547). All train7284/holdout64/dev1696/Navtest12146 refreshed caches completed0fail and share identity428fc9e88b0ebece30a3a3ee3e9caf0bd8a5d195700559fdc0fbf7b6df379bfd. Head checkpointSHA2560c002ffcb58d76bcce4983048ad635068b467988244b34447844f2316dd5c6ae. NoPDMS exists.
+
+To overlap independent work, the CURRENT_MEMORY control may start on localGPU0 while the final full-training graph audit runs on remoteCPU. It requires no learned trajectory graph. ALL/MASK planning bridges still wait for the completed and frozen P2 graph comparison. The registered common8→16 planner schedule, initialization, batch, data, capacity and upstream remain unchanged. Source9550975, initialCURRENTcap1.5GPUh,9GPUh downstream reserve checked before launch. This is scheduling only, not a new model or early model selection.
+
+## Final predicted graph review before P2
+
+Full7284scene audit0fail,32privatefigures. Current-only graph has61894eligible neighbor hypotheses,7285accepted current associations,7240with anyfuture labels. Supported/relevant motionGT4406/26365(16.71%); Bstatic/unknown context7467/28046, explicitly separate. Expected uniformly selected eligible-neighbor task has labels10.82%, still severe sparsity. Visual review includes a16neighbor graph with0accepted current matches; projection support is not real actor recognition. The head improved but did not resolve graph quality.
+
+Proceed with the already registered finite ALL/MASK comparison as a diagnostic under this documented upstream limitation. Do not claim graph quality sufficient, filter scenes, resample by future validity, lower matching thresholds or tune onPDMS. Actual empty tasks and effective coordinates must remain in reports. A null result will be inconclusive about the general masking idea; fullNavtest is still required for any planning claim. Nearest data preparation may complete in parallel with the independent main pair.

@@ -190,7 +190,22 @@
     "batch": 16,
     "scorer": null
   },
-  "shared_current_head": "Separate16pass frozen-feature refinement is RUNNING; its selected identity must be added before formal graph/model lock",
+  "shared_current_head": {
+    "checkpoint_sha256": "0c002ffcb58d76bcce4983048ad635068b467988244b34447844f2316dd5c6ae",
+    "selection": {
+      "epoch": 16,
+      "step": 1824,
+      "holdout_F1": 0.23713956170703576,
+      "criterion": "best current class-filtered2m F1 on fixed training-domain64scene59log holdout, including epoch0",
+      "Navtest_consulted": false
+    },
+    "code_sha": "40363d413405c0f322424a18b26295601f9139d5",
+    "trained_parameters_and_scope": {
+      "trainable": "existing current shared MLP/classifier/box only",
+      "future_labels_erased": true
+    },
+    "report": "FINAL_CURRENT_HEAD.json"
+  },
   "tokenizer_saved_files": {
     "video_preprocessor_config.json": "59c5c9eb52182eb14c06ffb10ca9effd29adce5f238a95de23ca14a38dbd2cb1",
     "tokenizer.json": "086c5b0e8fa90f23ccbd6025c89f1a0aafc4e393cefc8f86ae52974b04d048e6",
