@@ -89,3 +89,13 @@ public_foundation_continuation_preregistered_before_epoch16:
   baseline_for_every_main_arm: same_final_frozen_public_foundation
   reason: actual_small_graph_and_frozen_DiT_bridge_cost_is_far_below_initial_reservations_and_public_foundation_is_still_learning
   Navtest_consulted: false
+
+foundation_stop_rule_repair_after_epoch8:
+  original_rule_result: stopped_at8_holdout_two_point_changes_below2percent
+  retained_original_run_and_decision: true
+  observed_training_loss_changes_epoch6to8: {ego_FM: -0.0897, classification: -0.0712, box: -0.0725}
+  continuation: from_immutable_epoch8_to16_then_optional24
+  continuation_limit_gpu_hours: 16
+  repaired_extension_at16: either_holdout_or_weighted_full_epoch_training_component_changes_more_than2percent_from14to16
+  no_computational_module_data_LR_or_optimizer_change: true
+  Navtest_consulted: false

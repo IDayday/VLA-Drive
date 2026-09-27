@@ -27,7 +27,7 @@ def verify_continuation(previous,current):
     """A declared longer shared foundation stage; never silently relax resume."""
     for key in ('world_size','data_sha256','tokens_sha256','public_provenance','private_driving_weights_loaded'):
         if previous[key]!=current[key]:raise ValueError('Foundation continuation mismatch: '+key)
-    ignored={'epochs','initial_epochs','continue_from'}
+    ignored={'epochs','initial_epochs','continue_from','extension_use_training_loss'}
     old={k:v for k,v in previous['arguments'].items() if k not in ignored}
     new={k:v for k,v in current['arguments'].items() if k not in ignored}
     if old!=new:raise ValueError('Continuation may change terminal epochs only, preserving schedule/optimizer/data/topology')
@@ -55,6 +55,7 @@ def main():
     p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--workers',type=int,default=2);p.add_argument('--stop-after',type=int);p.add_argument('--resume',action='store_true')
     p.add_argument('--continue-from',help='Explicit new stage from this campaign, preserving optimizer/RNG/scheduler and data')
+    p.add_argument('--extension-use-training-loss',action='store_true',help='Registered stopping-rule repair: also inspect weighted epoch training loss changes')
     p.add_argument('--benchmark',action='store_true');p.add_argument('--check-empty-rank',action='store_true');p.add_argument('--limit',type=int)
     a=p.parse_args();rank=int(os.environ.get('RANK',0));count=int(os.environ.get('WORLD_SIZE',1));local=int(os.environ.get('LOCAL_RANK',0))
     torch.cuda.set_device(local)
@@ -188,6 +189,17 @@ def main():
                     if rank==0:
                         earlier=json.loads((out/f'holdout_{epoch-2}.json').read_text());latest=json.loads((out/f'holdout_{epoch}.json').read_text())
                         changes={k:abs(latest[k]-earlier[k])/max(abs(earlier[k]),1e-6) for k in ('ego_ADE_m','class_filtered_recall')}
+                        if a.extension_use_training_loss:
+                            history=[json.loads(line) for line in (out/'train.jsonl').read_text().splitlines()]
+                            means=[]
+                            for endpoint in (epoch-2,epoch):
+                                selected=[row for row in history if (row['presentations']-1)//len(tokens)+1==endpoint]
+                                if not selected:raise ValueError('Training curve endpoint unavailable')
+                                denominators=np.array([row['global_denominators'] for row in selected])
+                                numerators=np.array([row['loss_ego_cls_box'] for row in selected])*denominators
+                                means.append(numerators.sum(0)/denominators.sum(0).clip(1))
+                            changes.update({name:float(abs(means[1][i]-means[0][i])/max(abs(means[0][i]),1e-6))
+                                for i,name in enumerate(('train_ego_FM','train_classification','train_box'))})
                         extend.fill_(int(any(v>.02 for v in changes.values())))
                         atomic_json(out/'extension_decision.json',{'initial_epochs':epoch,'maximum_epochs':a.epochs,'relative_changes':changes,'extend':bool(extend),'PDMS_consulted':False})
                     if count>1:dist.broadcast(extend,0)
