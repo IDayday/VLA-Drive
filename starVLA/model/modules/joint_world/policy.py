@@ -7,7 +7,7 @@ from .flow import JointTrajectoryFlow
 
 
 class JointTrajectoryPolicy(nn.Module):
-    def __init__(self, baseline, world_config, graph_config):
+    def __init__(self, baseline, world_config, graph_config, bev_config=None):
         super().__init__()
         if world_config.get('token_layout') != 'append_tail':
             raise ValueError('Native policy preservation requires append_tail')
@@ -20,8 +20,31 @@ class JointTrajectoryPolicy(nn.Module):
             key: value for key, value in graph_config.items() if key in ('dim', 'heads', 'layers', 'scale_m', 'trajectory_mode', 'agent_scale_m')})
         self.graph_to_world = nn.Linear(graph_config.get('dim', 256), dim)
         self.adapter = WorldToActionAdapter(dim)
+        self.bev_config = dict(bev_config or {})
+        self.bev_provider = self.bev_encoder = self.bev_fusion = self.interaction_head = None
+        if self.bev_config.get('enabled', False):
+            import os
+            from starVLA.model.modules.structured_world.pretrained_bev import PretrainedVisualBEVProvider
+            from .bev_tasks import TaskBEVEncoder, BEVGraphFusion, InteractionGeometryHead
+            if self.world.provider is not None:
+                raise ValueError('BEV side memory currently combines with the original Qwen image path')
+            self.bev_provider = PretrainedVisualBEVProvider(os.path.expandvars(self.bev_config['weights']),
+                                                          self.bev_config['weights_sha256'])
+            self.bev_encoder = TaskBEVEncoder(1024, 128, self.bev_provider.grid_shape, horizon)
+            self.bev_fusion = BEVGraphFusion(dim, 128)
+            self.interaction_head = InteractionGeometryHead(128)
 
-    def encode_current(self, examples, model_inputs=None):
+    def fuse_bev(self, current, features, coordinates, support):
+        if self.bev_encoder is None:
+            raise ValueError('BEV feature path is disabled')
+        with torch.autocast('cuda', enabled=False):
+            prediction = self.bev_encoder(features, coordinates, support)
+            actors, bev_actors = self.bev_fusion(current['actor_features'], current['current_xy'],
+                                                 prediction['memory'], support)
+            prediction['pair_separation'] = self.interaction_head(bev_actors)
+        return dict(current, actor_features=actors), prediction
+
+    def encode_current(self, examples, model_inputs=None, return_bev_aux=False):
         # Explicit whitelist strips actions, WorldTargets and any future metadata.
         current = [{key: e[key] for key in ('image', 'lang', 'state', 'token') if key in e} for e in examples]
         with torch.autocast('cuda', dtype=torch.bfloat16, enabled=next(self.parameters()).is_cuda):
@@ -32,7 +55,17 @@ class JointTrajectoryPolicy(nn.Module):
         xy = torch.cat([pred['boxes'].new_zeros(b, 1, 2), pred['boxes'][..., :2]], 1).detach().float()
         confidence = 1 - pred['logits'].softmax(-1)[..., -1]
         existence = torch.cat([confidence.new_ones(b, 1), confidence], 1).detach().float()
-        return actions, pred, dict(actor_features=actor, context=context, current_xy=xy, existence=existence)
+        current = dict(actor_features=actor, context=context, current_xy=xy, existence=existence)
+        bev_aux = None
+        if self.bev_provider is not None:
+            if model_inputs is None:
+                raise ValueError('BEV requires calibrated current-only ModelInputs')
+            with torch.no_grad(), torch.autocast('cuda', dtype=torch.bfloat16):
+                features, coordinates, support, metadata = self.bev_provider(model_inputs)
+            current, bev_aux = self.fuse_bev(current, features, coordinates, support)
+        if return_bev_aux:
+            return actions, pred, current, bev_aux
+        return actions, pred, current
 
     def rollout_condition(self, native_actions, current, noise):
         with torch.autocast('cuda', enabled=False):
