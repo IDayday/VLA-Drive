@@ -87,8 +87,11 @@ def main():
         torch.save({'identity': identity, 'delta': delta, 'optimizer': opt.state_dict(), 'step': completed}, out / 'checkpoint.pt')
         seed_all(51); before = policy.predict_action([e])
         restore = torch.load(out / 'checkpoint.pt', map_location='cpu', weights_only=False)
-        for name, module in modules.items(): module.load_state_dict(restore['delta'][name], strict=True)
-        seed_all(51); after = policy.predict_action([e])
+        restored = JointTrajectoryPolicy(agent.model, cfg, graph_cfg).cuda().eval()
+        restored_modules = {'reader': restored.world.reader, 'heads': restored.world.heads,
+                            'graph': restored.graph, 'graph_to_world': restored.graph_to_world, 'adapter': restored.adapter}
+        for name, module in restored_modules.items(): module.load_state_dict(restore['delta'][name], strict=True)
+        seed_all(51); after = restored.predict_action([e])
         checks['checkpoint_action_exact'] = bool(np.array_equal(before['normalized_actions'], after['normalized_actions']))
         checks['checkpoint_joint_exact'] = torch.equal(before['joint_trajectories_xy'], after['joint_trajectories_xy'])
         if not all(checks.values()): raise AssertionError(checks)
