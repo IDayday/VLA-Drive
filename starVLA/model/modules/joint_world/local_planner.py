@@ -91,6 +91,8 @@ class PublicLocalPolicy(nn.Module):
             raise ValueError('Online current head differs from the cached planning head')
         if getattr(world, 'foundation_sha256', None) != identity.get('foundation_sha256'):
             raise ValueError('Online foundation differs from the cached planning foundation')
+        if getattr(world, 'language_numerics', None) != identity.get('language_numerics'):
+            raise ValueError('Online language precision differs from cached conditions')
 
     @torch.no_grad()
     def predict_action(self, examples, observations, seed=20260926):

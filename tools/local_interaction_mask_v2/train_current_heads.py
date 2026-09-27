@@ -85,6 +85,7 @@ def main():
         'foundation_sha256':parent_sha,'public_origin':foundation['public_origin'],'current_identity':train.manifest['identity_sha256'],
         'current_feature_manifest_sha256':sha256(Path(a.cache)/'manifest.json'),'labels':train.target_fingerprint,'holdout_labels':holdout.target_fingerprint,
         'holdout_feature_manifest_sha256':sha256(Path(a.holdout_cache)/'manifest.json'),'head_source_files':head_code_digest(),
+        'upstream_language_numerics':train.manifest['identity'].get('language_numerics'),
         'trainable':'existing current shared MLP/classifier/box only','frozen':'Qwen/LoRA/driving tokens/Reader/DiT/history/unused motion head',
         'seed':42,'future_labels_erased':True,'selector_tuning':False,'Navtest_consulted':False,
         'head_input_dtype':'native_Qwen_BF16_recovered_exactly_from_float32_current_feature_storage',

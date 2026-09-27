@@ -14,10 +14,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('foundation','public-qwen','cache','dataset','current-bridge','graph-checkpoint','output'):
         p.add_argument('--'+k,required=True)
-    p.add_argument('--visual-cache');p.add_argument('--perception-checkpoint');p.add_argument('--limit',type=int,default=4);a=p.parse_args()
+    p.add_argument('--visual-cache');p.add_argument('--perception-checkpoint');p.add_argument('--limit',type=int,default=4)
+    p.add_argument('--language-adapter-precision',choices=['native','fp32'],default='native');a=p.parse_args()
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     corpus=CurrentOnlyCorpus(a.cache);identity=corpus.manifest['identity']
-    world,metadata=load_foundation(a.foundation,a.public_qwen,a.visual_cache,a.perception_checkpoint)
+    world,metadata=load_foundation(a.foundation,a.public_qwen,a.visual_cache,a.perception_checkpoint,a.language_adapter_precision)
     dim=corpus[0]['native_actions'].shape[-1]
     trained,_=load_bridge(a.current_bridge,corpus.manifest['identity_sha256'],dim)
     graph=torch.load(a.graph_checkpoint,map_location='cpu',weights_only=False)

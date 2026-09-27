@@ -34,7 +34,7 @@ def main():
         classes=state['classifier.weight'].shape[0]-1, steps=state['motion.weight'].shape[0]//2,
         dim=state['shared.1.weight'].shape[0]).cuda()
     identity['perception_override'] = restore_current_head(head, args.perception_checkpoint,
-        identity['foundation_sha256'], identity['public_origin'])
+        identity['foundation_sha256'], identity['public_origin'], identity.get('language_numerics'))
     head.eval().requires_grad_(False)
     spec = json.loads(Path(args.dataset).read_text())
     tokens = json.loads(Path(spec['tokens']).read_text())

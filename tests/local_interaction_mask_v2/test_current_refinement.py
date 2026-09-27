@@ -22,6 +22,8 @@ def test_refinement_restore_rejects_wrong_features_source_and_missing_weights(tm
     assert len(metadata['checkpoint_sha256']) == 64
     with pytest.raises(ValueError, match='parent foundation'):
         restore_current_head(restored, path, 'other_parent', origin)
+    with pytest.raises(ValueError, match='feature numerics'):
+        restore_current_head(restored, path, 'parent', origin, {'LoRA_compute_dtype': 'FP32'})
     changed = copy.deepcopy(saved); changed['identity']['head_source_files']['rehab.py'] = 'changed'
     torch.save(changed, path)
     with pytest.raises(ValueError, match='implementation'):
@@ -41,3 +43,5 @@ def test_online_policy_requires_same_current_head_and_foundation():
         PublicLocalPolicy(world, None, {'foundation_sha256': 'foundation'})
     with pytest.raises(ValueError, match='foundation'):
         PublicLocalPolicy(world, None, dict(identity, foundation_sha256='other'))
+    with pytest.raises(ValueError, match='language precision'):
+        PublicLocalPolicy(world, None, dict(identity, language_numerics={'LoRA_compute_dtype': 'FP32'}))

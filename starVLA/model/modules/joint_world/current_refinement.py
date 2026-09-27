@@ -17,7 +17,7 @@ def head_code_digest():
     return {name: file_digest(root / name) for name in ('rehab.py', 'agent_heads.py')}
 
 
-def restore_current_head(head, checkpoint, foundation_sha256, public_origin):
+def restore_current_head(head, checkpoint, foundation_sha256, public_origin, language_numerics=None):
     """Labels are never opened. Reject a head trained on different upstream features."""
     saved = torch.load(checkpoint, map_location='cpu', weights_only=False)
     identity = saved['identity']
@@ -29,9 +29,11 @@ def restore_current_head(head, checkpoint, foundation_sha256, public_origin):
         raise ValueError('Current refinement public origin differs')
     if identity.get('head_source_files') != head_code_digest():
         raise ValueError('Current head implementation changed')
+    if identity.get('upstream_language_numerics') != language_numerics:
+        raise ValueError('Current head feature numerics differ')
     if not identity.get('future_labels_erased') or identity.get('Navtest_consulted', True):
         raise ValueError('Current refinement supervision contract differs')
     head.load_state_dict(saved['head'], strict=True)
     return {'checkpoint_sha256': file_digest(checkpoint), 'foundation_sha256': foundation_sha256,
             'epoch': saved['epoch'], 'step': saved['step'], 'selection': identity['selection'],
-            'head_source_files': identity['head_source_files']}
+            'head_source_files': identity['head_source_files'], 'upstream_language_numerics': language_numerics}

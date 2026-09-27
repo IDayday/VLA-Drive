@@ -1,15 +1,33 @@
 """Small common public-language adaptation; original pretrained tensors stay frozen."""
 import math
+import hashlib
+from pathlib import Path
 import torch
 from torch import nn
 
 
 class LowRankDelta(nn.Module):
     def __init__(self,in_features,out_features,rank,alpha):
-        super().__init__();self.scale=alpha/rank
+        super().__init__();self.scale=alpha/rank;self.compute_precision='native'
         self.down=nn.Linear(in_features,rank,bias=False);self.up=nn.Linear(rank,out_features,bias=False)
         nn.init.kaiming_uniform_(self.down.weight,a=math.sqrt(5));nn.init.zeros_(self.up.weight)
-    def forward(self,x):return self.up(self.down(x))*self.scale
+    def forward(self,x):
+        if self.compute_precision=='fp32':
+            with torch.autocast(x.device.type,enabled=False):
+                return self.up(self.down(x.float()))*self.scale
+        return self.up(self.down(x))*self.scale
+
+
+def configure_language_numerics(world,precision='native'):
+    if precision not in ('native','fp32'):raise ValueError('Unknown language adapter precision')
+    for adapter in world.baseline.qwen_adapters.values():
+        if precision=='fp32' and any(p.dtype!=torch.float32 for p in adapter.parameters()):
+            raise ValueError('FP32 adapters require FP32 weights')
+        adapter.compute_precision=precision
+    return None if precision=='native' else {
+        'LoRA_compute_dtype':'FP32','original_Qwen_compute_dtype':'BF16',
+        'adapter_source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        'scope':'shared inference numerics; foundation was trained using native BF16 autocast'}
 
 
 class AdaptedLinear(nn.Module):
