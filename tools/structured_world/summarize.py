@@ -34,6 +34,8 @@ def main():
   if not world.exists():world=root/f'{run}_dev/scenes_0.csv'
   if world.exists():
    diagnostic_lookup=read(world);diagnostics=list(diagnostic_lookup.values())
+   if any('raw_k_tp' in row for row in diagnostics):
+    raise ValueError('V1.1 metric schema requires the independent re-audit summarizer; legacy aggregate names would misreport geometry')
    total=lambda key:sum(float(r.get(key) or 0) for r in diagnostics)
    result['mean_inference_seconds']=total('latency_seconds')/len(diagnostics)
    ratio=lambda numerator,denominator:total(numerator)/total(denominator) if total(denominator)>0 else None
