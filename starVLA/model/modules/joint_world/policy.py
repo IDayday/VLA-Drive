@@ -40,8 +40,9 @@ class JointTrajectoryPolicy(nn.Module):
                 sampling_steps=self.graph_config.get('sampling_steps', 10))
             # No imputation loss/GT-conditioned hidden states can enter this method.
             conditions = self.adapter(native_actions.float(), self.graph_to_world(features.float()))
-        # Preserve native DiT condition dtype; zero gate must reproduce native path.
-        return conditions.to(native_actions.dtype), trajectories, features
+        # Qwen hidden features may be BF16; the released DiT consumes FP32.
+        # Retain the adapter residual in FP32 rather than quantizing it back to BF16.
+        return conditions.float(), trajectories, features
 
     @torch.no_grad()
     def predict_action(self, examples, model_inputs=None, graph_noise=None):
