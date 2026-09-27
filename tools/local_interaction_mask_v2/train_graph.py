@@ -9,7 +9,7 @@ import subprocess
 import time
 import numpy as np
 import torch
-from tools.local_interaction_mask_v2.graph_runtime import LocalCorpus,batch_current,evaluate_graph,summarize
+from tools.local_interaction_mask_v2.graph_runtime import LocalCorpus,batch_current,evaluate_graph,summarize,cached_worker_init
 from tools.local_interaction_mask_v2.foundation import rng_state,restore_rng,collate
 from tools.local_interaction_mask_v2.train_foundation import atomic_json
 from starVLA.model.modules.joint_world.flow import JointTrajectoryFlow,training_loss_sums
@@ -26,6 +26,7 @@ def main():
     if a.batch<1 or a.epochs>a.schedule_epochs:raise ValueError('Invalid finite training plan')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     if (out/'checkpoint.pt').exists() and not a.resume:raise FileExistsError('Use new run or explicit resume')
+    cached_worker_init(0)
     random.seed(a.seed);np.random.seed(a.seed);torch.manual_seed(a.seed);torch.cuda.manual_seed_all(a.seed)
     corpus=LocalCorpus(a.cache,a.targets,a.meta_root)
     spec=json.loads(Path(a.holdout).read_text());holdout=LocalCorpus(spec['cache'],spec['targets'],spec['meta_root'])
@@ -65,6 +66,7 @@ def main():
         order=np.random.default_rng(np.random.SeedSequence([a.seed,epoch])).permutation(len(corpus)).tolist()
         batches=[order[i:i+a.batch] for i in range(offset,len(order),a.batch)]
         loader=torch.utils.data.DataLoader(corpus,batch_sampler=batches,num_workers=a.workers,collate_fn=collate,
+            worker_init_fn=cached_worker_init,prefetch_factor=1 if a.workers else None,
             multiprocessing_context='spawn' if a.workers else None,generator=torch.Generator().manual_seed(a.seed+epoch))
         for samples in loader:
             start=time.monotonic();current=batch_current(samples);graph=current['local_graph']

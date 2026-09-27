@@ -12,6 +12,12 @@ from starVLA.model.modules.structured_world.contracts import WorldTargets
 from tools.local_interaction_mask_v2.foundation import ego_label
 
 
+def cached_worker_init(worker_id):
+    # A local sample contains many small contract tensors. file_descriptor IPC
+    # otherwise exhausts RLIMIT_NOFILE even with bounded resident/prefetch sizes.
+    torch.multiprocessing.set_sharing_strategy('file_system')
+
+
 class LocalCorpus(torch.utils.data.Dataset):
     def __init__(self,cache,targets,meta_root,resident=64):
         self.root=Path(cache);self.targets=Path(targets);self.meta=Path(meta_root);self.resident=resident;self.memo=OrderedDict()
@@ -37,7 +43,9 @@ class LocalCorpus(torch.utils.data.Dataset):
             if target.overflow:raise ValueError('Need full ROI targets')
             action=ego_label(self.meta/(token+'.pkl'))
             ego_xy=(action[:,:2]*torch.tensor([8.805105,2.277741])+torch.tensor([10.172484,.360762]))[None]
-            xy,valid,mapping=local_targets(payload['current_prediction'],current['local_graph'],[target],ego_xy)
+            selector=self.identity['selector']
+            xy,valid,mapping=local_targets(payload['current_prediction'],current['local_graph'],[target],ego_xy,
+                selector['match_max_distance_m'],selector['match_require_class'])
             self.memo[i]={'token':token,'payload':payload,'current':current,'xy':xy,'valid':valid,'mapping':mapping[0],'action':action}
             if len(self.memo)>self.resident:self.memo.popitem(last=False)
         self.memo.move_to_end(i);return self.memo[i]
