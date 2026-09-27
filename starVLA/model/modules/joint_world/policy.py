@@ -59,7 +59,7 @@ class JointTrajectoryPolicy(nn.Module):
         if self.graph_config.get('local_selector') is not None:
             if local_observations is None or len(local_observations)!=b:raise ValueError('Local policy needs current calibrated observations')
             from .local_graph import build_local_graph,stack_graphs,gather_current
-            graphs=[build_local_graph(pred['boxes'][i].detach().cpu().numpy(),pred['logits'][i].detach().cpu().numpy(),
+            graphs=[build_local_graph(pred['boxes'][i].detach().float().cpu().numpy(),pred['logits'][i].detach().float().cpu().numpy(),
                                       local_observations[i],self.graph_config['local_selector']) for i in range(b)]
             current=gather_current(current,stack_graphs(graphs,actor.device))
         bev_aux = None
@@ -103,7 +103,7 @@ class JointTrajectoryPolicy(nn.Module):
         # Match the original BF16 random draw even with an FP32 learned residual.
         ego_noise = torch.randn(len(examples), head.config.action_horizon, head.config.action_dim,
                                 device=native.device, dtype=native.dtype)
-        with torch.autocast('cuda', dtype=torch.float32):
-            actions = head.predict_action(condition, initial_noise=ego_noise)
+        with torch.autocast('cuda', enabled=False):
+            actions = head.predict_action(condition.float(), initial_noise=ego_noise.float())
         return {'normalized_actions': actions.cpu().numpy(), 'joint_trajectories_xy': trajectories,
                 'world_prediction': prediction}

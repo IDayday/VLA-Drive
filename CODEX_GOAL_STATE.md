@@ -33,3 +33,20 @@ Run observation command:
 `python -c 'import json; print(json.load(open("/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_lora8_seed42_local8/progress.json")))'`
 
 Resume requires same immutable run code and full recorded command with --resume, a NEW supervisor run ID and --initial-step from checkpoint, only after original supervisor has exited. Do not launch duplicate training. Latest valid committed source before this state update: dcc22911bf73f3885074844af48466bb3e2077fd. Live training pinned3972cab irrespective of later repository commits.
+
+## Updated stage after source6149cd5
+
+Stage commits70296db,815f7c2,5c874d4,6149cd5 pushed to origin new branch (never merged).50related tests passed, plus new statistics test. RemoteP1 cached graph and CURRENT_MEMORY bridge paused3→resumed16updates on64real training scenes; graph exact parameter/loss equality, bridge cross-GPU max1.2e-7 numerical difference. Full original DiT gate0 error0 on64scenes.12online mode×scene checks: cached/uncachedcurrentvision/targetpoison/gate0 all0; batch4vs1 max4.03e-6 within1e-5 declared tolerance. Public epoch2graph audit64/64 and32privatefigures done; 25matched local neighbors out of407selected,16supported+relevant retained out of456raw proxy targets. This is undertrained engineering evidence only. Do not claim planning benefit.
+
+New train_planner, export_plans (boundedbatch16, atomicNPZ), score_async (boundedCPU workers, officialfull-cache PDMS, resumable rows/allfailures retained), check_online, regraph, convergence and Quickstart implemented. FormalP2/P3/Navtest remains NOT_RUN while foundation trains. Four artificial stationary-plan scoring smoke cases exactlymatch direct officialfunction and resumable output; not learned-model Navtest scoring.
+
+Revised preregistered phase reservations3audit+29publicfoundation/features+4graph+9planningNavtest+3diagnostics=48. Initialmain3972cab jobunchanged. At16compare14/16trainingholdout relativechange>2percent; if triggered and9GPUh remains reserved after extra stage, one explicit continuation to24totalpasses(max9GPUh) is allowed. Original16epochcosine scheduler staysatfloor; no LRsearch.24isceiling,notconvergenceproof. Source6149cd5 has --continue-from with fulloptimizer/RNG/offset and parenthash plus computationalfile parity. Actualremote8GPU continuation456→458tested:firstforwardmatches exactly, BF16backward/crosshost step458loss differsmax0.000698; no bit-exact full-Qwen training guarantee. Do not misreport sampler/RNG recovery asbitwise arithmetic.
+
+Remote P1_batched_export_remote2 source6149cd5 may stillrun; outputP1_public_epoch2_engineering/batched_export (A0/CURRENT_MEMORY64training scenes, notNavtest). Continuationcheck andonlineparity finished. No foundation continuation/main graph run has beenlaunched. Preserveactive original local8GPUfoundation.
+
+Latest progress snapshot: {
+  "step": 1668,
+  "epoch": 7,
+  "offset": 2304,
+  "presentations": 53292
+}; ledger 11.1515/48GPUh. Readlivefilesbefore nextaction.

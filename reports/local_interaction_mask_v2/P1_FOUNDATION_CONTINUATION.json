@@ -1,0 +1,41 @@
+{
+  "scope": "Eight actual GPUs on remote host; public foundation456 to458updates, compared with original uninterrupted local8GPU steps457/458",
+  "rows": [
+    {
+      "step": 457,
+      "loss_max_abs_difference": 0.0,
+      "source_loss_ego_cls_box": [
+        0.6241302639245987,
+        1.1198758756694764,
+        0.15307266566082628
+      ],
+      "continuation_loss_ego_cls_box": [
+        0.6241302639245987,
+        1.1198758756694764,
+        0.15307266566082628
+      ],
+      "lr_equal": true,
+      "presentations_equal": true
+    },
+    {
+      "step": 458,
+      "loss_max_abs_difference": 0.0006980118983790362,
+      "source_loss_ego_cls_box": [
+        0.5274725891649723,
+        1.1065424597077664,
+        0.15811786506012196
+      ],
+      "continuation_loss_ego_cls_box": [
+        0.5276578068733215,
+        1.1072404716061455,
+        0.15828432418007887
+      ],
+      "lr_equal": true,
+      "presentations_equal": true
+    }
+  ],
+  "optimizer_and_scheduler_restored": true,
+  "not_cross_host_bit_exact_claim": true,
+  "status": "RESTORE_AND_FIRST_FORWARD_VALIDATED_NOT_BIT_EXACT_TRAINING",
+  "interpretation": "Step457 forward losses exactly match; BF16 shared-backbone backward differs across hosts, and step458 maximum loss difference is0.000698. Data exposure, LR and checkpoint restoration are preserved. No bit-exact full-Qwen training guarantee is made."
+}

@@ -1,0 +1,30 @@
+{
+  "scope": "EVALUATOR ONLY: four artificial stationary plans on real full Navtest metric caches, no learned-model test or selection",
+  "scenes": 4,
+  "logs": 4,
+  "failed": 0,
+  "parallel_vs_direct_official_max_error": 0.0,
+  "resumable_records_verified": true,
+  "csv_sha256": "6dbb02f9d6d8874afe64cc4bca8556562cb22a03e3e0b4f266d1a8407136f46e",
+  "identity": {
+    "arguments": {
+      "devkit": "/mnt/project/DriveDreamer-Policy/navsim_v1.1/navsim",
+      "index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluator_selfcheck/index4.json",
+      "predictions": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluator_selfcheck/stationary_synthetic",
+      "output": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/evaluator_selfcheck/scoring",
+      "workers": 2,
+      "chunk": 1,
+      "export_shards": 1,
+      "timeout_seconds": 21600,
+      "log_shard": 0,
+      "log_shards": 1,
+      "benchmark_navtest": false
+    },
+    "index_sha256": "37b51f7a1f134a9055b5e5e7b4cb14364de2274d9e98ab429690082c0ca1534f",
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "simulator_sha256": "ae07b533ada10bc37e973e5685a46a7cafc51de8d922ed02add558452ff04807",
+    "scorer_sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211",
+    "protocol": "official NAVSIM v1 full reference cache; one predicted trajectory per scene",
+    "failure_policy": "retain all requested rows; failures scored zero and invalidate benchmark"
+  }
+}
