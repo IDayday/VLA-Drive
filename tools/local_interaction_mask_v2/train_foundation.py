@@ -27,7 +27,7 @@ def main():
     for k in ('public-qwen','config','provenance','tokens','meta-root','observations','targets','output'):
         p.add_argument('--'+k,required=True)
     p.add_argument('--visual-cache');p.add_argument('--holdout');p.add_argument('--epochs',type=int,default=8)
-    p.add_argument('--schedule-epochs',type=int,default=16);p.add_argument('--global-batch',type=int,default=32)
+    p.add_argument('--initial-epochs',type=int);p.add_argument('--schedule-epochs',type=int,default=16);p.add_argument('--global-batch',type=int,default=32)
     p.add_argument('--lr',type=float,default=1e-4);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--workers',type=int,default=2);p.add_argument('--stop-after',type=int);p.add_argument('--resume',action='store_true')
     p.add_argument('--check-empty-rank',action='store_true');p.add_argument('--limit',type=int)
@@ -96,7 +96,8 @@ def main():
         elif rank==0:gathered=[rows]
         if rank==0:
             rows=sum(gathered,[])
-            atomic_json(out/f'holdout_{tag}.json',{'rows':rows,'count':len(rows),'failed':0,'ego_ADE_m':float(np.mean([r['ego_ADE_m'] for r in rows]))})
+            atomic_json(out/f'holdout_{tag}.json',{'rows':rows,'count':len(rows),'failed':0,'ego_ADE_m':float(np.mean([r['ego_ADE_m'] for r in rows])),
+                'class_filtered_recall':sum(r.get('class_filtered_tp',0) for r in rows)/max(sum(r['gt_targets'] for r in rows),1)})
         set_train_mode(world)
     def save():
         states=[None]*count if rank==0 else None
@@ -137,7 +138,22 @@ def main():
             flag=torch.tensor(int((a.stop_after is not None and step>=a.stop_after) or (out/'STOP_REQUESTED').exists()),device='cuda')
             if count>1:dist.all_reduce(flag,op=dist.ReduceOp.MAX)
             paused=bool(flag) and epoch<a.epochs
-            if end_epoch:evaluate(str(epoch))
+            if end_epoch:
+                evaluate(str(epoch))
+                if a.initial_epochs and epoch==a.initial_epochs:
+                    if a.holdout is None:raise ValueError('Foundation extension needs declared holdout')
+                    extend=torch.zeros((),device='cuda',dtype=torch.int)
+                    if rank==0:
+                        earlier=json.loads((out/f'holdout_{epoch-2}.json').read_text());latest=json.loads((out/f'holdout_{epoch}.json').read_text())
+                        changes={k:abs(latest[k]-earlier[k])/max(abs(earlier[k]),1e-6) for k in ('ego_ADE_m','class_filtered_recall')}
+                        extend.fill_(int(any(v>.02 for v in changes.values())))
+                        atomic_json(out/'extension_decision.json',{'initial_epochs':epoch,'maximum_epochs':a.epochs,'relative_changes':changes,'extend':bool(extend),'PDMS_consulted':False})
+                    if count>1:dist.broadcast(extend,0)
+                    if not bool(extend):
+                        save()
+                        if rank==0:atomic_json(out/'status.json',{'status':'complete','step':step,'epochs_completed':epoch,'presentations':presentations,'stopped_by_preregistered_holdout_rule':True})
+                        if count>1:dist.destroy_process_group()
+                        return
             if end_epoch or paused:save()
             if paused or end_epoch:break
         if paused:break

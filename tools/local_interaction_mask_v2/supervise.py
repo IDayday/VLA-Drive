@@ -1,5 +1,6 @@
 """Account a local process group and all assigned GPUs, including startup/failure."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -13,12 +14,12 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('ledger','run-id','output'):p.add_argument('--'+k,required=True)
     p.add_argument('--gpus',type=int,required=True);p.add_argument('--max-gpu-hours',type=float,required=True)
-    p.add_argument('--resume',action='store_true');p.add_argument('command',nargs=argparse.REMAINDER)
+    p.add_argument('--initial-step',type=int,default=0);p.add_argument('--resume',action='store_true');p.add_argument('command',nargs=argparse.REMAINDER)
     a=p.parse_args();command=a.command[1:] if a.command[:1]==['--'] else a.command
     if not command:raise ValueError('Missing executable')
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     identity={'code_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'command':command,
-              'cwd':str(Path.cwd()),'output':str(out.resolve()),'max_gpu_hours':a.max_gpu_hours}
+              'supervisor_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'initial_step':a.initial_step,'cwd':str(Path.cwd()),'output':str(out.resolve()),'max_gpu_hours':a.max_gpu_hours}
     with Run(a.ledger,a.run_id,identity,a.gpus,resume=a.resume,max_gpu_hours=a.max_gpu_hours) as run:
         (out/'supervisor.json').write_text(json.dumps(identity,indent=2)+'\n')
         with (out/'process.log').open('a',buffering=1) as log:
@@ -31,7 +32,7 @@ def main():
             try:
                 while child.poll() is None:
                     progress=out/'progress.json'
-                    step=json.loads(progress.read_text()).get('step',run.step) if progress.exists() else run.step
+                    step=json.loads(progress.read_text()).get('step',run.step+a.initial_step)-a.initial_step if progress.exists() else run.step
                     if not run.update(step) or stop:
                         if requested is None:
                             # Workers observe this boundary request; no signal destroys in-flight save.
@@ -41,7 +42,7 @@ def main():
                             os.killpg(child.pid,signal.SIGTERM)
                     time.sleep(2)
                 progress=out/'progress.json'
-                if progress.exists():run.update(json.loads(progress.read_text()).get('step',run.step))
+                if progress.exists():run.update(json.loads(progress.read_text()).get('step',run.step+a.initial_step)-a.initial_step)
                 if child.returncode:raise RuntimeError(f'Worker process failed with exit {child.returncode}; see {out}/process.log')
                 state=json.loads((out/'status.json').read_text()) if (out/'status.json').exists() else {'status':'complete'}
                 run.terminal_status=state['status']
