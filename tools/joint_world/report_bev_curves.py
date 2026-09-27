@@ -30,9 +30,11 @@ def main():
             destination.mkdir(parents=True, exist_ok=True)
             for name in ("metrics.json", "metrics.csv", "manifest.json"):
                 shutil.copyfile(source / name, destination / name)
+                if name.endswith(".csv"):
+                    (destination / name).write_text((destination / name).read_text())
             rows.append(dict(variant=variant, step=step, passes=passes, **metrics))
     with (output / "task_learning_curves.csv").open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     figure, axes = plt.subplots(1, 3, figsize=(12, 3.5))
