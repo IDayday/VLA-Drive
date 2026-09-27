@@ -1,0 +1,354 @@
+{
+  "scope": "GT-current structured mechanism; privileged future ablations are diagnostics, not causal proof or PDMS",
+  "expected_queries": 486,
+  "applicable": 409,
+  "not_applicable": 77,
+  "failed": 0,
+  "conditions": {
+    "ego": {
+      "all_queries": 64,
+      "not_applicable": 34,
+      "pairs": {
+        "remove_strong_vs_correct": {
+          "queries": 30,
+          "logs": 28,
+          "valid_xy_points": 240,
+          "relative_change_percent": 1.1458559397012014,
+          "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+          "ci95_m": [
+            -0.004079169895628404,
+            0.026127246627182663
+          ],
+          "correct_ADE_m": 1.0344129567344984,
+          "remove_strong_ADE_m": 1.0462658390402795,
+          "remove_strong_minus_correct_m": 0.011852882305781076
+        },
+        "remove_weak_vs_correct": {
+          "queries": 30,
+          "logs": 28,
+          "valid_xy_points": 240,
+          "relative_change_percent": 0.604631195326677,
+          "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+          "ci95_m": [
+            -0.00644215044044414,
+            0.018718722646639527
+          ],
+          "correct_ADE_m": 1.0344129567344984,
+          "remove_weak_ADE_m": 1.0406673401594162,
+          "remove_weak_minus_correct_m": 0.006254383424917798
+        },
+        "remove_strong_vs_remove_weak": {
+          "queries": 30,
+          "logs": 28,
+          "valid_xy_points": 240,
+          "relative_change_percent": 0.5379719978533926,
+          "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+          "ci95_m": [
+            -0.01647355479584343,
+            0.026724092710817084
+          ],
+          "remove_weak_ADE_m": 1.0406673401594162,
+          "remove_strong_ADE_m": 1.0462658390402795,
+          "remove_strong_minus_remove_weak_m": 0.0055984988808632785
+        }
+      },
+      "exact_removed_point_count_matches": 30,
+      "secondary_exact_point_count_match_strong_vs_weak": {
+        "queries": 30,
+        "logs": 28,
+        "valid_xy_points": 240,
+        "relative_change_percent": 0.5379719978533926,
+        "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+        "ci95_m": [
+          -0.01647355479584343,
+          0.026724092710817084
+        ],
+        "remove_weak_ADE_m": 1.0406673401594162,
+        "remove_strong_ADE_m": 1.0462658390402795,
+        "remove_strong_minus_remove_weak_m": 0.0055984988808632785
+      }
+    },
+    "neighbor": {
+      "all_queries": 422,
+      "not_applicable": 43,
+      "pairs": {
+        "remove_strong_vs_correct": {
+          "queries": 379,
+          "logs": 36,
+          "valid_xy_points": 2926,
+          "relative_change_percent": 7.893376333595992,
+          "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+          "ci95_m": [
+            0.054167565690697236,
+            0.30887315382084046
+          ],
+          "correct_ADE_m": 2.1498415712432672,
+          "remove_strong_ADE_m": 2.3195366570375917,
+          "remove_strong_minus_correct_m": 0.16969508579432446
+        },
+        "remove_weak_vs_correct": {
+          "queries": 379,
+          "logs": 36,
+          "valid_xy_points": 2926,
+          "relative_change_percent": -0.7226059286686737,
+          "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+          "ci95_m": [
+            -0.04813505037780135,
+            0.011764128602434476
+          ],
+          "correct_ADE_m": 2.1498415712432672,
+          "remove_weak_ADE_m": 2.1343066885924795,
+          "remove_weak_minus_correct_m": -0.015534882650787729
+        },
+        "remove_strong_vs_remove_weak": {
+          "queries": 379,
+          "logs": 36,
+          "valid_xy_points": 2926,
+          "relative_change_percent": 8.67869502706129,
+          "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+          "ci95_m": [
+            0.06447947990164808,
+            0.32959258588943063
+          ],
+          "remove_weak_ADE_m": 2.1343066885924795,
+          "remove_strong_ADE_m": 2.3195366570375917,
+          "remove_strong_minus_remove_weak_m": 0.1852299684451122
+        }
+      },
+      "exact_removed_point_count_matches": 365,
+      "secondary_exact_point_count_match_strong_vs_weak": {
+        "queries": 365,
+        "logs": 36,
+        "valid_xy_points": 2829,
+        "relative_change_percent": 9.031817917020103,
+        "ci_kind": "paired whole-log bootstrap, not training-seed uncertainty",
+        "ci95_m": [
+          0.0669733700123371,
+          0.3424909453104171
+        ],
+        "remove_weak_ADE_m": 2.114306200715753,
+        "remove_strong_ADE_m": 2.3052664869726653,
+        "remove_strong_minus_remove_weak_m": 0.19096028625691241
+      }
+    }
+  },
+  "sampling": {
+    "ego": {
+      "single_sample_primary_k": 0,
+      "per_sampling_seed": [
+        {
+          "k": 0,
+          "seed": 20260927,
+          "ADE_m": 1.4755070882383734,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 1,
+          "seed": 20260928,
+          "ADE_m": 1.4665410155430436,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 2,
+          "seed": 20260929,
+          "ADE_m": 1.4071989480871707,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 3,
+          "seed": 20260930,
+          "ADE_m": 1.3902326526585966,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 4,
+          "seed": 20260931,
+          "ADE_m": 1.4835285770241171,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 5,
+          "seed": 20260932,
+          "ADE_m": 1.387256470741704,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 6,
+          "seed": 20260933,
+          "ADE_m": 1.505640905816108,
+          "queries": 64,
+          "valid_points": 512
+        },
+        {
+          "k": 7,
+          "seed": 20260934,
+          "ADE_m": 1.443421540549025,
+          "queries": 64,
+          "valid_points": 512
+        }
+      ],
+      "mean_ADE_over_sampling_seeds_m": 1.4449158998322673,
+      "std_ADE_over_sampling_seeds_m": 0.042310755831670085,
+      "not_training_seed_uncertainty": true
+    },
+    "neighbor": {
+      "single_sample_primary_k": 0,
+      "per_sampling_seed": [
+        {
+          "k": 0,
+          "seed": 20260927,
+          "ADE_m": 3.5539911325098603,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 1,
+          "seed": 20260928,
+          "ADE_m": 3.3146296542284834,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 2,
+          "seed": 20260929,
+          "ADE_m": 3.507321839355356,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 3,
+          "seed": 20260930,
+          "ADE_m": 3.178057763647981,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 4,
+          "seed": 20260931,
+          "ADE_m": 3.638067341079509,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 5,
+          "seed": 20260932,
+          "ADE_m": 3.8022409182559187,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 6,
+          "seed": 20260933,
+          "ADE_m": 3.143497314110847,
+          "queries": 422,
+          "valid_points": 3219
+        },
+        {
+          "k": 7,
+          "seed": 20260934,
+          "ADE_m": 3.355759866968487,
+          "queries": 422,
+          "valid_points": 3219
+        }
+      ],
+      "mean_ADE_over_sampling_seeds_m": 3.436695728769555,
+      "std_ADE_over_sampling_seeds_m": 0.21425152236214304,
+      "not_training_seed_uncertainty": true
+    }
+  },
+  "identity": {
+    "diagnostic_identity": {
+      "checkpoint_sha256": "93fb9db63b1b9d5b433e5d6753f6daab417f4c8c62196e0236c7a2e6965191da",
+      "module_sha256": "e3deab058164f5e46335d5afa5ba6513613707cd22fe7055086441cd71ca6984",
+      "output": "/mnt/project/v3-mechanism-artifacts/20260927/diag42_mask",
+      "seed": 20260927,
+      "samples": 8,
+      "protocol_sha256": "3ae0161a9f656b71fb0cff3f94f8931897a2c6a417859662e2ffb2e89f675c81",
+      "analysis_source": {
+        "git_sha": "535e66841994769f7ddc906884fbb39ed3f11a7c",
+        "files_sha256": {
+          "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+          "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+          "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+          "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+          "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+          "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+          "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+          "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+          "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+          "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+          "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+          "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+        }
+      },
+      "CUDA_VISIBLE_DEVICES": "1",
+      "precision": "float32 deterministic math attention TF32off",
+      "data_identity": "5c69e645d992c484defabef04e92af500659774295e8ee02153067899ec4fdca"
+    },
+    "analysis_sha": "535e66841994769f7ddc906884fbb39ed3f11a7c",
+    "analysis_module_sha256": "ec46361f2a38f862c6384495437dc227c494f7eb59ed496762be471f9bae2383"
+  },
+  "joint_consistency": [
+    {
+      "k": 0,
+      "relative_vector_error_m": 4.014581996470456,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 1,
+      "relative_vector_error_m": 3.968251269445178,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 2,
+      "relative_vector_error_m": 4.424286166379755,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 3,
+      "relative_vector_error_m": 3.854407642824778,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 4,
+      "relative_vector_error_m": 4.510857650241743,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 5,
+      "relative_vector_error_m": 4.4884896138784125,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 6,
+      "relative_vector_error_m": 3.8763194049093967,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    },
+    {
+      "k": 7,
+      "relative_vector_error_m": 4.239478152983663,
+      "valid_pair_time_points": 20529,
+      "ego_execution_max_difference_m": 0.0
+    }
+  ],
+  "whole_joint_oracle_and_diversity": {
+    "scene_count": 64,
+    "mean_scene_joint_oracle_ADE_m": 1.6589987055620274,
+    "mean_scene_pair_sample_distance_m": 2.6168678486719728,
+    "oracle_non_deployment": true,
+    "no_per_actor_sample_mixing": true
+  }
+}

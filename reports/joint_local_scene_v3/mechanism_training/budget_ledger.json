@@ -1,0 +1,1418 @@
+{
+  "schema_version": 1,
+  "gpu_hour_cap": 48,
+  "update_caps": {
+    "synthetic": 0,
+    "real": 61464
+  },
+  "runs": [
+    {
+      "id": "startup_continuous",
+      "identity": {
+        "source": {
+          "git_sha": "c4de449b83977a9440bd63f4024fa98021344a59",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "4e34884e4cfffcce54f840783d088cfae9b90821d346152e09c7e36c9df47f0d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/startup/continuous",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 16,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": false,
+        "execution": {
+          "milestones": [
+            4
+          ],
+          "save_every": 2,
+          "train_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "holdout_subset": null,
+          "diagnostic_subset": null,
+          "precision": "float32",
+          "cuda_visible_devices": "0"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.11157500134574007,
+      "wall_seconds": 401.6700048446655,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 11008
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 1052893,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531059.6924918,
+      "error": null
+    },
+    {
+      "id": "startup_resumed",
+      "identity": {
+        "source": {
+          "git_sha": "c4de449b83977a9440bd63f4024fa98021344a59",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "4e34884e4cfffcce54f840783d088cfae9b90821d346152e09c7e36c9df47f0d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/startup/resumed",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 16,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": false,
+        "execution": {
+          "milestones": [
+            4
+          ],
+          "save_every": 2,
+          "train_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "holdout_subset": null,
+          "diagnostic_subset": null,
+          "precision": "float32",
+          "cuda_visible_devices": "0"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.11608864227930711,
+      "wall_seconds": 417.91911220550537,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 11008
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 1056563,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531487.0475347,
+      "error": null
+    },
+    {
+      "id": "startup_batched_continuous",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/startup_batched/continuous",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 16,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": false,
+        "execution": {
+          "milestones": [
+            4
+          ],
+          "save_every": 2,
+          "train_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "holdout_subset": null,
+          "diagnostic_subset": null,
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "1"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.009927598237991329,
+      "wall_seconds": 35.7393536567688,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 708
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 1057016,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531160.5142617,
+      "error": null
+    },
+    {
+      "id": "startup_batched_resumed",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/startup_batched/resumed",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 16,
+        "schedule_updates": 4,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": false,
+        "execution": {
+          "milestones": [
+            4
+          ],
+          "save_every": 2,
+          "train_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "holdout_subset": null,
+          "diagnostic_subset": null,
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "1"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.011583761970202116,
+      "wall_seconds": 41.70154309272766,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 4
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 708
+      },
+      "backward_calls": 8,
+      "status": "complete",
+      "pid": 1057444,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531211.568057,
+      "error": null
+    },
+    {
+      "id": "startup_batched_zero_update_checks",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "kind": "actual-model real-data checks",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/startup_batched/checks"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.004132547908359106,
+      "wall_seconds": 14.877172470092773,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 361
+      },
+      "backward_calls": 1,
+      "status": "complete",
+      "pid": 1056987,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531228.1164203,
+      "error": null
+    },
+    {
+      "id": "small_all",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/small_all",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "all",
+        "batch": 16,
+        "schedule_updates": 512,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": true,
+        "execution": {
+          "milestones": [
+            0,
+            64,
+            128,
+            256,
+            512
+          ],
+          "save_every": 100,
+          "train_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "holdout_subset": null,
+          "diagnostic_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "1"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.11346165729893483,
+      "wall_seconds": 408.4619662761688,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 512
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 512
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 7724
+      },
+      "backward_calls": 1024,
+      "status": "complete",
+      "pid": 1058534,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531694.6578162,
+      "error": null
+    },
+    {
+      "id": "small_mask",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/small_mask",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 16,
+        "schedule_updates": 512,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": true,
+        "execution": {
+          "milestones": [
+            0,
+            64,
+            128,
+            256,
+            512
+          ],
+          "save_every": 100,
+          "train_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "holdout_subset": null,
+          "diagnostic_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "2"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.1128700736496174,
+      "wall_seconds": 406.3322651386261,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 512
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 512
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 7724
+      },
+      "backward_calls": 1024,
+      "status": "complete",
+      "pid": 1058523,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531692.5316648,
+      "error": null
+    },
+    {
+      "id": "startup_zero_update_checks",
+      "identity": {
+        "source": {
+          "git_sha": "c4de449b83977a9440bd63f4024fa98021344a59",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "4e34884e4cfffcce54f840783d088cfae9b90821d346152e09c7e36c9df47f0d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59"
+          }
+        },
+        "kind": "actual-model real-data checks",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/startup/checks"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.0013130048248502944,
+      "wall_seconds": 4.72681736946106,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 81
+      },
+      "backward_calls": 1,
+      "status": "complete",
+      "pid": 1052853,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531493.5904334,
+      "error": null
+    },
+    {
+      "id": "formal42_mask",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/formal42_mask",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 32,
+        "schedule_updates": 14592,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": true,
+        "execution": {
+          "milestones": [
+            0,
+            228,
+            456,
+            912,
+            1824,
+            3648,
+            5472,
+            7296,
+            10944,
+            14592
+          ],
+          "save_every": 100,
+          "train_subset": null,
+          "holdout_subset": null,
+          "diagnostic_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "1"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 1.323032764262661,
+      "wall_seconds": 4762.917951345444,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 42584
+      },
+      "backward_calls": 29184,
+      "status": "complete",
+      "pid": 1078322,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790536590.0753489,
+      "error": null
+    },
+    {
+      "id": "formal42_all",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/formal42_all",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 42,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "all",
+        "batch": 32,
+        "schedule_updates": 14592,
+        "seed": 42,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": true,
+        "execution": {
+          "milestones": [
+            0,
+            228,
+            456,
+            912,
+            1824,
+            3648,
+            5472,
+            7296,
+            10944,
+            14592
+          ],
+          "save_every": 100,
+          "train_subset": null,
+          "holdout_subset": null,
+          "diagnostic_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "0"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 1.2899953209029706,
+      "wall_seconds": 4643.983155250549,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 42584
+      },
+      "backward_calls": 29184,
+      "status": "complete",
+      "pid": 1078321,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790536539.1592815,
+      "error": null
+    },
+    {
+      "id": "small_diag_validation",
+      "identity": {
+        "checkpoint_sha256": "2965c39bf4e03fb7e300f0fac850d50f1518a3f9ff949cd392af6af8c7c006a0",
+        "module_sha256": "d96e9e145d290a142c3d9507603fdb65d7ba7d142177683ddb6cb92459301644",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/small_diag_validation",
+        "seed": 20260927,
+        "samples": 8,
+        "protocol_sha256": "3ae0161a9f656b71fb0cff3f94f8931897a2c6a417859662e2ffb2e89f675c81"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.026566535035769168,
+      "wall_seconds": 95.63952612876892,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 2200
+      },
+      "backward_calls": 0,
+      "status": "complete",
+      "pid": 1064221,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790531974.117988,
+      "error": null
+    },
+    {
+      "id": "diag42_mask",
+      "identity": {
+        "checkpoint_sha256": "93fb9db63b1b9d5b433e5d6753f6daab417f4c8c62196e0236c7a2e6965191da",
+        "module_sha256": "e3deab058164f5e46335d5afa5ba6513613707cd22fe7055086441cd71ca6984",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/diag42_mask",
+        "seed": 20260927,
+        "samples": 8,
+        "protocol_sha256": "3ae0161a9f656b71fb0cff3f94f8931897a2c6a417859662e2ffb2e89f675c81",
+        "analysis_source": {
+          "git_sha": "535e66841994769f7ddc906884fbb39ed3f11a7c",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "CUDA_VISIBLE_DEVICES": "1",
+        "precision": "float32 deterministic math attention TF32off",
+        "data_identity": "5c69e645d992c484defabef04e92af500659774295e8ee02153067899ec4fdca"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.030063800811767592,
+      "wall_seconds": 108.22968292236328,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 2200
+      },
+      "backward_calls": 0,
+      "status": "complete",
+      "pid": 1085490,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790536703.2775922,
+      "error": null
+    },
+    {
+      "id": "diag42_all",
+      "identity": {
+        "checkpoint_sha256": "b6786b667eb20b3bf4ff846b1930c39a2ed02ea99f33f5914edffacbf5048271",
+        "module_sha256": "e3deab058164f5e46335d5afa5ba6513613707cd22fe7055086441cd71ca6984",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/diag42_all",
+        "seed": 20260927,
+        "samples": 8,
+        "protocol_sha256": "3ae0161a9f656b71fb0cff3f94f8931897a2c6a417859662e2ffb2e89f675c81",
+        "analysis_source": {
+          "git_sha": "535e66841994769f7ddc906884fbb39ed3f11a7c",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "CUDA_VISIBLE_DEVICES": "0",
+        "precision": "float32 deterministic math attention TF32off",
+        "data_identity": "5c69e645d992c484defabef04e92af500659774295e8ee02153067899ec4fdca"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.03035329461097718,
+      "wall_seconds": 109.27186059951782,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 2200
+      },
+      "backward_calls": 0,
+      "status": "complete",
+      "pid": 1085489,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790536704.324015,
+      "error": null
+    },
+    {
+      "id": "formal43_all",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/formal43_all",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 43,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "all",
+        "batch": 32,
+        "schedule_updates": 14592,
+        "seed": 43,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": true,
+        "execution": {
+          "milestones": [
+            0,
+            228,
+            456,
+            912,
+            1824,
+            3648,
+            5472,
+            7296,
+            10944,
+            14592
+          ],
+          "save_every": 100,
+          "train_subset": null,
+          "holdout_subset": null,
+          "diagnostic_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "0"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 1.3746524309448944,
+      "wall_seconds": 4948.748751401901,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 42584
+      },
+      "backward_calls": 29184,
+      "status": "complete",
+      "pid": 1099208,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790541725.9491627,
+      "error": null
+    },
+    {
+      "id": "formal43_mask",
+      "identity": {
+        "source": {
+          "git_sha": "6dd1ab3001940d9e22e6615a955308d498316d81",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/formal43_mask",
+        "config": {
+          "model": {
+            "dim": 384,
+            "heads": 6,
+            "layers": 6,
+            "steps": 8,
+            "condition_dim": 2048,
+            "xy_scale": 20.0,
+            "state_policy": "ego_xy_yaw_neighbors_xy_v1"
+          },
+          "graph": {
+            "max_neighbors": 16,
+            "primary_neighbors": 8,
+            "radius_m": 50.0,
+            "secondary_radius_m": 25.0,
+            "max_context": 64,
+            "existence_floor": 0.2,
+            "variant": "decision_local",
+            "corridor_half_width_m": 2.0,
+            "unknown_motion_margin_m": 2.0,
+            "turn_radius_m": 12.0,
+            "duplicate_distance_m": 0.6
+          },
+          "training_seed": 43,
+          "sampling_seed": 20260927,
+          "sampling_steps": 20,
+          "role_loss_weight": 1.0,
+          "forwards_per_batch": 2,
+          "initial_lr": 0.0002,
+          "weight_decay": 0.01,
+          "warmup_steps": 100,
+          "current_neighbor_velocity": "NOT_AVAILABLE; no future-derived CV input",
+          "stage": "structured_current_state_mechanism; not camera planning",
+          "schema_version": 4,
+          "condition_dim_source": "Qwen3-VL-2B-Instruct text_config.hidden_size verified; this numeric width must be rechecked for another VLM"
+        },
+        "train": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_train_v4",
+        "holdout": "/mnt/project/v3-pretrain-review-artifacts/20260927/annotated_holdout_v4",
+        "mode": "mask",
+        "batch": 32,
+        "schedule_updates": 14592,
+        "seed": 43,
+        "device": "cuda",
+        "deterministic": true,
+        "limit": null,
+        "eval_every": 200,
+        "eval_train": true,
+        "execution": {
+          "milestones": [
+            0,
+            228,
+            456,
+            912,
+            1824,
+            3648,
+            5472,
+            7296,
+            10944,
+            14592
+          ],
+          "save_every": 100,
+          "train_subset": null,
+          "holdout_subset": null,
+          "diagnostic_subset": "/mnt/project/v3-mechanism-artifacts/20260927/train64.json",
+          "precision": "float32",
+          "evaluation_batch_size": 16,
+          "cuda_visible_devices": "1"
+        }
+      },
+      "gpu_count": 1,
+      "gpu_hours": 1.4010784705479193,
+      "wall_seconds": 5043.882493972778,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 14592
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 42584
+      },
+      "backward_calls": 29184,
+      "status": "complete",
+      "pid": 1099209,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790541766.669561,
+      "error": null
+    },
+    {
+      "id": "diag43_all",
+      "identity": {
+        "checkpoint_sha256": "81d26259a9053c3d4df9f3bf6047007ede0c48433068be36b4a680a71807ca24",
+        "module_sha256": "e3deab058164f5e46335d5afa5ba6513613707cd22fe7055086441cd71ca6984",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/diag43_all",
+        "seed": 20260927,
+        "samples": 8,
+        "protocol_sha256": "3ae0161a9f656b71fb0cff3f94f8931897a2c6a417859662e2ffb2e89f675c81",
+        "analysis_source": {
+          "git_sha": "b7d97b3122cf7fd1b42b4ee912fe6f522fccda44",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "CUDA_VISIBLE_DEVICES": "0",
+        "precision": "float32 deterministic math attention TF32off",
+        "data_identity": "5c69e645d992c484defabef04e92af500659774295e8ee02153067899ec4fdca"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.027381336159176338,
+      "wall_seconds": 98.57281017303467,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 2200
+      },
+      "backward_calls": 0,
+      "status": "complete",
+      "pid": 1114890,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790541869.8029003,
+      "error": null
+    },
+    {
+      "id": "diag43_mask",
+      "identity": {
+        "checkpoint_sha256": "14ca43921152e0fa48a0c6cb8738a5f49a15523c05ace315e1bda155c8cccd23",
+        "module_sha256": "e3deab058164f5e46335d5afa5ba6513613707cd22fe7055086441cd71ca6984",
+        "output": "/mnt/project/v3-mechanism-artifacts/20260927/diag43_mask",
+        "seed": 20260927,
+        "samples": 8,
+        "protocol_sha256": "3ae0161a9f656b71fb0cff3f94f8931897a2c6a417859662e2ffb2e89f675c81",
+        "analysis_source": {
+          "git_sha": "b7d97b3122cf7fd1b42b4ee912fe6f522fccda44",
+          "files_sha256": {
+            "starVLA/model/modules/joint_scene/contracts.py": "3e187664265a2976c4ffd48912c108a8991d5bb9ed0d81c0cde6173978f4c928",
+            "starVLA/model/modules/joint_scene/graphs.py": "220bdf7971b4fd2d0ae51013aac913e63cf2c0a94074a91747270cc70e773a63",
+            "starVLA/model/modules/joint_scene/masks.py": "f8b2733acfd05f790323a652694771a6b253158c4613403f558bbe8f12925473",
+            "starVLA/model/modules/joint_scene/flow.py": "73bc7d79343de8996f38c15cc724b3e89d75e4e75984e0dec68e4c74bd16b651",
+            "starVLA/model/modules/joint_world/flow.py": "2649469dcde449b3e99d8a62847ef10e9c40dfc61a3909712653bc7f1731a5b8",
+            "starVLA/model/modules/action_model/flow_matching_head/action_encoder.py": "c5ec2088a521e6c3a477bfdcbf191ffc470a3edc8787ebf0ac25d2da4f380cc4",
+            "tools/joint_local_scene_v3/data.py": "99a69b020afac945b6072a4255b8557ad972e658ec752bb9d5d04e9a2dec275e",
+            "tools/joint_local_scene_v3/runtime.py": "95b2e425a27ea362ed0b1aaaba2608e553f053ce6669559741164f0b18c5fac8",
+            "tools/joint_local_scene_v3/train_mechanism.py": "efd3a7d0b21c1fc170b54bd115b1deea98a380706d0e1b51a9775a75ade8a34d",
+            "tools/joint_local_scene_v3/budget.py": "1b4a466c82f2fc19bdb19444341b2d86ddecdef7a18e213b2131c0ed526fe44a",
+            "tools/joint_local_scene_v3/campaign.py": "da10dade54f66c705ff0f20d37bc2b983a3b9938ce43792ce85974da2a556a59",
+            "tools/joint_local_scene_v3/batched_evaluation.py": "373d75dffd667d3534e5e913bdc462ed5421d1f6fc30c0e73174e5107f9ce929"
+          }
+        },
+        "CUDA_VISIBLE_DEVICES": "1",
+        "precision": "float32 deterministic math attention TF32off",
+        "data_identity": "5c69e645d992c484defabef04e92af500659774295e8ee02153067899ec4fdca"
+      },
+      "gpu_count": 1,
+      "gpu_hours": 0.027791295250256896,
+      "wall_seconds": 100.04866290092468,
+      "attempted_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "completed_updates": {
+        "synthetic": 0,
+        "real": 0
+      },
+      "forward_calls": {
+        "synthetic": 0,
+        "real": 2200
+      },
+      "backward_calls": 0,
+      "status": "complete",
+      "pid": 1114891,
+      "host": "training-vla-zt-worker-0",
+      "heartbeat": 1790541871.283344,
+      "error": null
+    }
+  ],
+  "gpu_hours": 6.011867536041396,
+  "optimizer_updates": {
+    "synthetic": 0,
+    "real": 59408
+  },
+  "attempted_optimizer_updates": {
+    "synthetic": 0,
+    "real": 59408
+  }
+}
