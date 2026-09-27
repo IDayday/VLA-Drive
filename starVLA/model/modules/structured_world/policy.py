@@ -151,6 +151,9 @@ class StructuredWorldPolicy(nn.Module):
         if include_world:
             world_hidden = hidden.gather(1,world_positions[...,None].expand(-1,-1,hidden.shape[-1]))
             world_prediction = self.heads(memory.agent_memory if self.head_location=='pre_qwen' else world_hidden[:,self.reader.scene_tokens:])
+            if self.world_config.get('return_world_features',False):
+                world_prediction['agent_features'] = world_hidden[:,self.reader.scene_tokens:]
+                world_prediction['scene_features'] = world_hidden[:,:self.reader.scene_tokens]
             if self.adapter is not None:
                 actions = self.adapter(actions,world_hidden)
         return actions,world_prediction
