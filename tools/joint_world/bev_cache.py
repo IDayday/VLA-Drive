@@ -26,7 +26,9 @@ def validate_payload(payload,token):
     for key,value in {'scene_token':token,'sensor_contract':SENSOR,'grid':GRID,'backbone_weights_sha256':WEIGHT_SHA,
                       'pretrained_bev':False,'coordinates':'ego_t0_x_forward_y_left_z_up_metres',
                       'extrinsics':'camera_to_ego','feature_dimension':1024}.items():
-        if meta[key]!=value:raise ValueError('BEV identity mismatch: '+key)
+        # Torch metadata preserves tuples while JSON indices use lists; geometry
+        # values/keys remain exact after canonical serialization of both forms.
+        if json.dumps(meta[key],sort_keys=True)!=json.dumps(value,sort_keys=True):raise ValueError('BEV identity mismatch: '+key)
     for key,shape in [('features',(1,1960,1024)),('coordinates',(1,1960,3)),('observation_support',(1,1960))]:
         if tuple(payload[key].shape)!=shape or not torch.isfinite(payload[key]).all():raise ValueError('Invalid BEV '+key)
     if payload['observation_support'].dtype!=torch.bool:raise ValueError('BEV support must be boolean')
