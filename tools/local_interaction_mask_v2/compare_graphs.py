@@ -38,7 +38,9 @@ def main():
     for key in ('first-checkpoint', 'baseline-checkpoint', 'first-cache', 'baseline-cache', 'targets', 'meta-root', 'index', 'output'):
         parser.add_argument('--' + key, required=True)
     parser.add_argument('--same-graph', action='store_true', help='Required for the primary ALL/MASK pair')
-    args = parser.parse_args(); output = Path(args.output); output.mkdir(parents=True, exist_ok=False)
+    args = parser.parse_args(); output = Path(args.output); output.mkdir(parents=True, exist_ok=True)
+    if any((output/name).exists() for name in ('scenes.csv', 'summary.json', 'status.json')):
+        raise FileExistsError('Use a fresh graph comparison output; existing supervisor logs are allowed')
     corpora = [LocalCorpus(cache, args.targets, args.meta_root) for cache in (args.first_cache, args.baseline_cache)]
     index = json.loads(Path(args.index).read_text()); logs = {row['token']: row['log'] for row in index}
     if len(logs) != len(index): raise ValueError('Duplicate comparison index')

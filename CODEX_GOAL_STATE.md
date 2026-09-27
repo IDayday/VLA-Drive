@@ -3,7 +3,7 @@
 Worktree: /mnt/project/VLA-Drive-local-interaction-mask-v2-20260927
 Branch: feature/local-interaction-mask-v2-20260927
 Starting commit: 227e781dd54f623b12b41bd7f2d2a7b302e0a014
-Last verified origin commit: 44f315728006ac1b6bdfd2f1c0cc255166b04fd1 (this stage is not committed yet).
+Last verified origin commit: 40363d413405c0f322424a18b26295601f9139d5.
 Binding instructions: reports/local_interaction_mask_v2/OBJECTIVE.md and USER_STEERING.md. Preserve previous workspaces, artifacts, failed runs and immutable live code. No formal scientific conclusion yet.
 
 ## Binding protocol
@@ -41,3 +41,7 @@ Inspect live progress:
 `python -c 'from pathlib import Path; print(Path("/mnt/project/local-interaction-mask-v2-artifacts/20260927/public_foundation_continued_epoch8_to24_local8/progress.json").read_text())'`
 
 If a supervisor has EXITED, resume its exact worker command from supervisor.json using the same immutable cwd, append --resume, preserve --continue-from parent, new supervisor runID and --initial-step savedstep. Never duplicate a live run. Nearest unequal training length cannot establish a relation benefit; no seed43 runs.
+
+## Queued final preparation
+
+Source40363d4 immutable worktree /mnt/project/VLA-Drive-local-v2-runs-finalprep. Artifact final_feature_preparation.json defines all paths/caps,9GPUh downstream reserve, expected24foundationpasses. Remote train launcher704755 waits for foundation completion, then freezes finalparent→train/holdout current→16pass sharedhead→refreshedtrain/holdout. Local evaluation launcher waits for the same frozenparent→Navtest/devcurrent→sameheadrefresh. Check actual PIDs and formal_public_epoch24/pipeline_{train,evaluation}/status.json; wait does not allocate CUDA. Both roles have bounded4hour dependency deadlines. Do not duplicate. P1_common_track_identity_check failed before inference due supervisor-directory incompatibility; new source repair/real rerun pending.
