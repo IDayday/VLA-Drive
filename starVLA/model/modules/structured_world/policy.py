@@ -6,6 +6,7 @@ import torch
 from torch import nn
 from .scene_agent_reader import SceneAgentReader
 from .agent_heads import AgentHeads
+from .rehab import ReferenceAgentHeads
 from .action_adapter import WorldToActionAdapter
 from .providers import GeometricBEVProvider, ExternalBEVFeatures
 from .tokens import token_positions, insert_world_tokens, append_world_tokens
@@ -43,11 +44,17 @@ class StructuredWorldPolicy(nn.Module):
             for name,value in state.items():
                 if value.shape==common[name].shape:value.copy_(common[name])
                 elif name!='project.weight':raise ValueError(f'Unexpected cross-provider shape difference: {name}')
-        self.heads = AgentHeads(dim,steps=baseline.config.framework.action_model.action_horizon)
+        self.head_location = config.get('head_location','post_qwen')
+        if self.head_location not in ('pre_qwen','post_qwen'):raise ValueError('Invalid head readout')
+        if config.get('reference_heads',False):
+            self.heads=ReferenceAgentHeads(dim,slots=reader_args['agent_tokens'],steps=baseline.config.framework.action_model.action_horizon)
+        else:
+            self.heads = AgentHeads(dim,steps=baseline.config.framework.action_model.action_horizon)
         with torch.random.fork_rng(devices=[]):
             self.adapter = WorldToActionAdapter(dim) if config.get('action_adapter',False) else None
 
-    def encode_conditions(self, examples, model_inputs=None, include_world=True):
+    def encode_conditions(self, examples, model_inputs=None, include_world=True, world_only=False):
+        if world_only and (not include_world or len(examples)!=1):raise ValueError("World-only readout requires one enabled scene")
         # Qwen BF16 native batching changes attention/vision kernel rounding with
         # padding. Encode each scene independently so another scene cannot alter
         # its condition. The action expert still consumes the assembled batch.
@@ -106,7 +113,7 @@ class StructuredWorldPolicy(nn.Module):
                 if model_inputs is None:
                     raise ValueError('BEV requires current calibrated ModelInputs')
                 f,coords,support,metadata = self.provider(model_inputs)
-                memory = self.reader(f,coords,support,metadata)
+                memory = self.reader(f,coords,support,metadata,agent_references=getattr(self.heads,'references',None))
             else:
                 lengths = image_mask.sum(-1).tolist()
                 padded = image.new_zeros(len(examples),max(lengths),image.shape[-1])
@@ -114,7 +121,9 @@ class StructuredWorldPolicy(nn.Module):
                 offset = 0
                 for b,n in enumerate(lengths):
                     padded[b,:n] = image[offset:offset+n];support[b,:n] = True;offset += n
-                memory = self.reader(padded,support=support)
+                memory = self.reader(padded,support=support,agent_references=getattr(self.heads,'references',None))
+            if world_only and self.head_location=='pre_qwen':
+                return None,self.heads(memory.agent_memory)
             world = torch.cat([memory.scene_memory,memory.agent_memory],1)
             inject = append_world_tokens if self.token_layout == 'append_tail' else insert_world_tokens
             ids,embeds,mask,rope,world_positions,action_positions = inject(
@@ -137,7 +146,7 @@ class StructuredWorldPolicy(nn.Module):
         world_prediction = None
         if include_world:
             world_hidden = hidden.gather(1,world_positions[...,None].expand(-1,-1,hidden.shape[-1]))
-            world_prediction = self.heads(world_hidden[:,self.reader.scene_tokens:])
+            world_prediction = self.heads(memory.agent_memory if self.head_location=='pre_qwen' else world_hidden[:,self.reader.scene_tokens:])
             if self.adapter is not None:
                 actions = self.adapter(actions,world_hidden)
         return actions,world_prediction

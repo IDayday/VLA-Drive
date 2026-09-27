@@ -17,7 +17,7 @@ class SceneAgentReader(nn.Module):
         # A null observation keeps empty FOV samples finite without fabricated evidence.
         self.null = nn.Parameter(torch.zeros(1,1,dim))
 
-    def forward(self, features, coordinates=None, support=None, metadata=None):
+    def forward(self, features, coordinates=None, support=None, metadata=None, agent_references=None):
         b, n, _ = features.shape
         memory = self.project(features)
         if coordinates is None:
@@ -30,6 +30,10 @@ class SceneAgentReader(nn.Module):
         invalid = torch.cat([~support.bool(),torch.zeros(b,1,device=features.device,dtype=torch.bool)],dim=1)
         types = torch.cat([self.types[0:1].expand(self.scene_tokens,-1),self.types[1:2].expand(self.agent_tokens,-1)])
         queries = (self.queries + types).unsqueeze(0).expand(b,-1,-1)
+        if agent_references is not None:
+            pos=torch.cat([agent_references,torch.zeros_like(agent_references[:,:1])],-1)
+            encoded=self.position(pos.to(memory.dtype)/50.)
+            queries=queries+torch.cat([torch.zeros_like(queries[0,:self.scene_tokens]),encoded],0)[None]
         for layer in self.reader:
             queries = layer(queries, memory, memory_key_padding_mask=invalid)
         output = self.output(queries)
