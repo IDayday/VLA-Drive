@@ -118,6 +118,7 @@ def main():
     for key in ['cache', 'targets', 'data-root', 'config', 'output', 'ledger', 'run-id']: p.add_argument('--'+key, required=True)
     p.add_argument('--steps', type=int, default=1000); p.add_argument('--batch', type=int, default=8)
     p.add_argument('--all-hidden-probability', type=float, default=.5); p.add_argument('--seed', type=int, default=42)
+    p.add_argument('--partial-mask-mode',choices=['bernoulli','single_actor'],default='bernoulli')
     p.add_argument('--resume'); p.add_argument('--stop-after', type=int)
     a = p.parse_args()
     if not 1 <= a.steps <= 1000: raise ValueError('Isolation phase at most1000 updates')
@@ -131,7 +132,7 @@ def main():
     if saved is not None:
         for key in ['code_sha', 'cache_identity', 'labels_fingerprint', 'config']:
             if saved['identity'][key] != identity[key]: raise ValueError('Resume identity changed: ' + key)
-        for key in ['steps', 'batch', 'all_hidden_probability', 'seed', 'output', 'run_id']:
+        for key in ['steps', 'batch', 'all_hidden_probability', 'partial_mask_mode', 'seed', 'output', 'run_id']:
             if saved['identity']['arguments'][key] != vars(a)[key]: raise ValueError('Resume setting changed: ' + key)
         ledger = json.loads(Path(a.ledger).read_text())
         previous = next(r for r in ledger['runs'] if r['id'] == a.run_id)
@@ -159,7 +160,7 @@ def main():
                 if position == len(order): random.shuffle(order); position = 0
                 batch.append(samples[order[position]]); position += 1
             current = current_batch(batch); xy = torch.cat([s['xy'] for s in batch]).cuda(); valid = torch.cat([s['valid'] for s in batch]).cuda()
-            hidden = actor_mask(len(batch), xy.shape[1], 'cuda', all_hidden_probability=a.all_hidden_probability)
+            hidden = actor_mask(len(batch), xy.shape[1], 'cuda', all_hidden_probability=a.all_hidden_probability,partial_mode=a.partial_mask_mode)
             opt.zero_grad(set_to_none=True)
             sums, counts = training_loss_sums(model, xy, valid, hidden, torch.randn_like(xy), torch.rand(len(batch), device='cuda'), **current)
             loss = sum(sums[k] / max(counts[k], 1) for k in sums)

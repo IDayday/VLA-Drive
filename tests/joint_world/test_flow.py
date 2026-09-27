@@ -19,6 +19,16 @@ def test_actor_masks_and_no_future_deployment_signature():
     assert not {'target', 'known_xy', 'valid', 'known_mask'} & set(inspect.signature(JointTrajectoryFlow.sample).parameters)
 
 
+def test_exact_single_actor_mask_and_same_rng_draw_schedule():
+    first=torch.Generator().manual_seed(23);second=torch.Generator().manual_seed(23)
+    one=actor_mask(256,65,'cpu',first,all_hidden_probability=0.,partial_mode='single_actor')
+    actor_mask(256,65,'cpu',second,all_hidden_probability=0.,partial_mode='bernoulli')
+    assert (one.sum(-1)==1).all()
+    assert torch.equal(first.get_state(),second.get_state())
+    mixed=actor_mask(256,65,'cpu',all_hidden_probability=.5,partial_mode='single_actor')
+    assert ((mixed.sum(-1)==1)|(mixed.sum(-1)==65)).all()
+
+
 def test_masked_clean_context_cannot_leak_even_nan():
     m, x, c = setup()
     time = torch.tensor([.2, .7]); mask = torch.zeros(2, 4, 3, dtype=torch.bool)

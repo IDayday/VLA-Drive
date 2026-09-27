@@ -47,6 +47,7 @@ def main():
     for key in ['cache','targets','data-root','config','output','ledger','run-id']:p.add_argument('--'+key,required=True)
     p.add_argument('--epochs',type=int,default=8);p.add_argument('--batch',type=int,default=16)
     p.add_argument('--all-hidden-probability',type=float,default=.5);p.add_argument('--seed',type=int,default=42)
+    p.add_argument('--partial-mask-mode',choices=['bernoulli','single_actor'],default='bernoulli')
     p.add_argument('--resident',type=int,default=256);p.add_argument('--resume');p.add_argument('--stop-after',type=int)
     a=p.parse_args()
     if not 1<=a.epochs<=8 or not 1<=a.batch<=16:raise ValueError('Bounded corpus phase supports at most8 passes,batch16')
@@ -63,7 +64,7 @@ def main():
     if saved is not None:
         for key in ['code_sha','config','cache_identity','label_fingerprint','planned_presentations','max_steps']:
             if saved['identity'][key]!=identity[key]:raise ValueError('Resume identity mismatch: '+key)
-        for key in ['batch','all_hidden_probability','seed','output','run_id']:
+        for key in ['batch','all_hidden_probability','partial_mask_mode','seed','output','run_id']:
             if saved['identity']['arguments'][key]!=vars(a)[key]:raise ValueError('Resume setting mismatch: '+key)
         d=json.loads(Path(a.ledger).read_text());r=next(r for r in d['runs'] if r['id']==a.run_id)
         if r['status']=='running' or r['optimizer_steps']!=saved['step'] or saved['step']>=max_steps:
@@ -94,7 +95,7 @@ def main():
                 if position==len(order):random.shuffle(order);position=0
                 batch.append(ds[order[position]]);position+=1
             current=current_batch(batch);xy=torch.cat([s['xy'] for s in batch]).cuda();valid=torch.cat([s['valid'] for s in batch]).cuda()
-            hidden=actor_mask(len(batch),xy.shape[1],'cuda',all_hidden_probability=a.all_hidden_probability)
+            hidden=actor_mask(len(batch),xy.shape[1],'cuda',all_hidden_probability=a.all_hidden_probability,partial_mode=a.partial_mask_mode)
             opt.zero_grad(set_to_none=True)
             sums,counts=training_loss_sums(model,xy,valid,hidden,torch.randn_like(xy),torch.rand(len(batch),device='cuda'),**current)
             loss=sum(sums[k]/max(counts[k],1) for k in sums)

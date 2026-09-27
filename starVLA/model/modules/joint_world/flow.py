@@ -6,16 +6,20 @@ from torch import nn
 from torch.nn import functional as F
 
 
-def actor_mask(batch, actors, device, generator=None, all_hidden_probability=.5):
+def actor_mask(batch, actors, device, generator=None, all_hidden_probability=.5, partial_mode='bernoulli'):
     """True hides a complete trajectory; sampling never reads GT count/validity."""
     if actors < 1 or not 0 <= all_hidden_probability <= 1:
         raise ValueError('Invalid actor mask configuration')
+    if partial_mode not in ('bernoulli','single_actor'):raise ValueError('Unknown partial actor mask mode')
     hidden = torch.rand(batch, actors, device=device, generator=generator) < .5
     all_hidden = torch.rand(batch, device=device, generator=generator) < all_hidden_probability
     hidden[all_hidden] = True
     # Every scene has at least one reconstruction target, irrespective of GT.
     empty = ~hidden.any(-1)
     selected = torch.randint(actors, (batch,), device=device, generator=generator)
+    if partial_mode=='single_actor':
+        hidden.zero_();hidden.scatter_(1,selected[:,None],True);hidden[all_hidden]=True
+        return hidden
     hidden[empty, selected[empty]] = True
     return hidden
 
