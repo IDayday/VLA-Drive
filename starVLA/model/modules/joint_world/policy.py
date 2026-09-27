@@ -53,7 +53,11 @@ class JointTrajectoryPolicy(nn.Module):
             graph_noise = torch.randn(len(examples), current['actor_features'].shape[1], self.graph.steps, 2,
                                       device=native.device, generator=generator)
         condition, trajectories, _ = self.rollout_condition(native, current, graph_noise)
-        with torch.autocast('cuda', enabled=False):
-            actions = self.world.baseline.action_model.predict_action(condition)
+        head = self.world.baseline.action_model
+        # Match the original BF16 random draw even with an FP32 learned residual.
+        ego_noise = torch.randn(len(examples), head.config.action_horizon, head.config.action_dim,
+                                device=native.device, dtype=native.dtype)
+        with torch.autocast('cuda', dtype=torch.float32):
+            actions = head.predict_action(condition, initial_noise=ego_noise)
         return {'normalized_actions': actions.cpu().numpy(), 'joint_trajectories_xy': trajectories,
                 'world_prediction': prediction}

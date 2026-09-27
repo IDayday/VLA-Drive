@@ -332,15 +332,19 @@ class FlowmatchingActionHead(nn.Module):
         return loss
 
     @torch.no_grad()
-    def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None) -> torch.Tensor:
+    def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None, initial_noise: torch.Tensor = None) -> torch.Tensor:
         # Set initial actions as the sampled noise.
         batch_size = vl_embs.shape[0]
         device = vl_embs.device
-        actions = torch.randn(
-            size=(batch_size, self.config.action_horizon, self.config.action_dim),
-            dtype=vl_embs.dtype,
-            device=device,
-        )
+        shape = (batch_size, self.config.action_horizon, self.config.action_dim)
+        if initial_noise is None:
+            actions = torch.randn(size=shape, dtype=vl_embs.dtype, device=device)
+        else:
+            if tuple(initial_noise.shape) != shape or initial_noise.device != device:
+                raise ValueError("Initial action noise shape/device mismatch")
+            if not initial_noise.is_floating_point() or not torch.isfinite(initial_noise).all():
+                raise ValueError("Initial action noise must be finite and floating point")
+            actions = initial_noise
 
         num_steps = self.num_inference_timesteps
         dt = 1.0 / num_steps
