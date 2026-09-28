@@ -83,6 +83,7 @@ def main():
     import matplotlib.pyplot as plt
     fig,axes=plt.subplots(2,2,figsize=(12,8))
     reports=[]
+    colors={'A':'#1f77b4','B':'#ff7f0e','C':'#2ca02c'}
     for run in a.runs:
         report,rows=summarize(run);reports.append(report)
         atomic_json(out/(report['run_id']+'.json'),{'summary':report,'curve':rows})
@@ -92,7 +93,9 @@ def main():
             values=[(r['update'],r[key]) for r in rows if key in r]
             if not values:continue
             x,y=map(np.array,zip(*values));window=min(16,len(y)) if key!='selected_vehicles' else 1
-            ax.plot(x[window-1:],np.convolve(y,np.ones(window)/window,mode='valid'),label=report['run_id'])
+            ax.plot(x[window-1:],np.convolve(y,np.ones(window)/window,mode='valid'),
+                    label=report['run_id'],color=colors[report['arm']],
+                    linestyle='--' if report['seed']==43 else '-')
             ax.set_title(title);ax.set_xlabel('Optimizer calls (validity recorded in JSON)');ax.grid(alpha=.2)
     handles,labels=axes[0,0].get_legend_handles_labels()
     if handles:fig.legend(handles,labels,loc='lower center',fontsize=7)

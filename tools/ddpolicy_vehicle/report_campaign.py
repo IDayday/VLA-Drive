@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import time
 import numpy as np
 from .prepare_data import atomic_json
@@ -117,8 +118,13 @@ def build_report(plan, controller, output):
                             if interval and interval.get('method'):
                                 interval['method']='vehicle-weighted paired log-cluster percentile bootstrap'
                 if (folder/'paired_scenes.csv').exists():shutil.copyfile(folder/'paired_scenes.csv',out/(folder.name+'_paired_scenes.csv'))
-        curves=Path(controller)/'analysis/training_curves/learning_curves.png'
-        if curves.exists():shutil.copyfile(curves,out/'learning_curves.png')
+        # Regenerate report graphics with this report source. Training source
+        # stays frozen; arm colors must remain stable on panels omitting A.
+        curves=out.with_name(out.name+'_training_curves')
+        subprocess.run([sys.executable,'-m','tools.ddpolicy_vehicle.summarize_training',
+            '--runs',*[str(root/'training'/m['run_id']) for m in plan['models'] if m['run_id'] in selected],
+            '--output',str(curves)],check=True)
+        shutil.copyfile(curves/'learning_curves.png',out/'learning_curves.png')
     atomic_json(out/'REPORT.json',report)
     lines=['# DDP vehicle-only from-scratch campaign', '',
         '**'+('COMPLETE' if report['full_experiment_complete'] else 'INCOMPLETE (see per-run status)')+'**. Snapshot: '+report['snapshot_utc'], '',

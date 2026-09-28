@@ -1,0 +1,346 @@
+{
+  "scope": "64 TRAINING scenes, 60 logs; one training seed and one inference seed; NOT generalization or PDMS evidence",
+  "ego": {
+    "A_vs_B": {
+      "ADE": {
+        "mean": 2.612333543909953,
+        "logs": 60,
+        "ci95": [
+          1.883761551434508,
+          3.3695126985697597
+        ],
+        "method": "scene-weighted paired log-cluster percentile bootstrap",
+        "bootstrap_seed": 9028,
+        "training_seed_variability_included": false
+      },
+      "FDE": {
+        "mean": 2.3974118190753124,
+        "logs": 60,
+        "ci95": [
+          1.1732170661992858,
+          3.820536129184877
+        ],
+        "method": "scene-weighted paired log-cluster percentile bootstrap",
+        "bootstrap_seed": 9028,
+        "training_seed_variability_included": false
+      },
+      "yaw_MAE_rad": {
+        "mean": 0.03872465320681659,
+        "logs": 60,
+        "ci95": [
+          0.026720294771956667,
+          0.05297463938827763
+        ],
+        "method": "scene-weighted paired log-cluster percentile bootstrap",
+        "bootstrap_seed": 9028,
+        "training_seed_variability_included": false
+      }
+    },
+    "B_vs_C": {
+      "ADE": {
+        "mean": 0.35219044533246435,
+        "logs": 60,
+        "ci95": [
+          0.21840967074007062,
+          0.4892420431408415
+        ],
+        "method": "scene-weighted paired log-cluster percentile bootstrap",
+        "bootstrap_seed": 9028,
+        "training_seed_variability_included": false
+      },
+      "FDE": {
+        "mean": 0.4338305276501774,
+        "logs": 60,
+        "ci95": [
+          0.2117661279229027,
+          0.6580480137362703
+        ],
+        "method": "scene-weighted paired log-cluster percentile bootstrap",
+        "bootstrap_seed": 9028,
+        "training_seed_variability_included": false
+      },
+      "yaw_MAE_rad": {
+        "mean": 0.0019210942556076426,
+        "logs": 60,
+        "ci95": [
+          -0.0005961195152030713,
+          0.004514560090647388
+        ],
+        "method": "scene-weighted paired log-cluster percentile bootstrap",
+        "bootstrap_seed": 9028,
+        "training_seed_variability_included": false
+      }
+    }
+  },
+  "vehicles": {
+    "coverage_all_inference_seeds": {
+      "left": {
+        "detected": 14,
+        "selected": 12
+      },
+      "right": {
+        "detected": 11,
+        "selected": 9
+      }
+    },
+    "full_supervised_vehicle_population": 333,
+    "joint_consistency": "Relative-vector error uses ego and neighbor from the SAME sample; center distances are not official collision scores",
+    "metrics": {
+      "head_ADE": {
+        "all": {
+          "common_targets_all_inference_seeds": 9,
+          "left": 7.400912099414402,
+          "right": 7.204645183351305,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -0.8348478681511349,
+              0.39737431870566414
+            ],
+            "logs": 9,
+            "mean": -0.1962669160630968,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "moving": {
+          "common_targets_all_inference_seeds": 4,
+          "left": 13.584121763706207,
+          "right": 13.848053693771362,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              0.08465898036956787,
+              0.5280493497848511
+            ],
+            "logs": 4,
+            "mean": 0.26393193006515503,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "stationary": {
+          "common_targets_all_inference_seeds": 5,
+          "left": 2.454344367980957,
+          "right": 1.8899183750152588,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -1.493429136276245,
+              0.45534934997558596
+            ],
+            "logs": 5,
+            "mean": -0.5644259929656983,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        }
+      },
+      "head_FDE": {
+        "all": {
+          "common_targets_all_inference_seeds": 9,
+          "left": 13.061576194233364,
+          "right": 12.724695513645807,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -0.7710819764269723,
+              0.10181765250033797
+            ],
+            "logs": 9,
+            "mean": -0.3368806805875566,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "moving": {
+          "common_targets_all_inference_seeds": 4,
+          "left": 27.428377747535706,
+          "right": 27.377258837223053,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -0.6587087512016296,
+              0.5399646759033203
+            ],
+            "logs": 4,
+            "mean": -0.05111891031265259,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "stationary": {
+          "common_targets_all_inference_seeds": 5,
+          "left": 1.5681349515914917,
+          "right": 1.0026448547840119,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -1.0821764528751374,
+              0.006976103782653809
+            ],
+            "logs": 5,
+            "mean": -0.5654900968074799,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        }
+      },
+      "joint_ADE": {
+        "all": {
+          "common_targets_all_inference_seeds": 8,
+          "left": 13.475775241851807,
+          "right": 12.050429970026016,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -3.417855441570282,
+              0.5623296082019797
+            ],
+            "logs": 8,
+            "mean": -1.4253452718257904,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "moving": {
+          "common_targets_all_inference_seeds": 3,
+          "left": 15.335471789042154,
+          "right": 15.805537541707357,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -1.2598438262939453,
+              3.3940963745117188
+            ],
+            "logs": 3,
+            "mean": 0.47006575266520184,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "stationary": {
+          "common_targets_all_inference_seeds": 5,
+          "left": 12.359957313537597,
+          "right": 9.797365427017212,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -4.742245626449585,
+              -0.06946315765380859
+            ],
+            "logs": 5,
+            "mean": -2.562591886520386,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        }
+      },
+      "joint_FDE": {
+        "all": {
+          "common_targets_all_inference_seeds": 8,
+          "left": 17.445573389530182,
+          "right": 14.730882287025452,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -4.772246977686882,
+              -0.9415880441665649
+            ],
+            "logs": 8,
+            "mean": -2.7146911025047302,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "moving": {
+          "common_targets_all_inference_seeds": 3,
+          "left": 23.276667912801106,
+          "right": 23.115264892578125,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -0.4666614532470703,
+              0.2896385192871094
+            ],
+            "logs": 3,
+            "mean": -0.16140302022298178,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "stationary": {
+          "common_targets_all_inference_seeds": 5,
+          "left": 13.946916675567627,
+          "right": 9.700252723693847,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -6.284766674041748,
+              -2.2085612297058104
+            ],
+            "logs": 5,
+            "mean": -4.24666395187378,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        }
+      },
+      "joint_relative_vector_ADE": {
+        "all": {
+          "common_targets_all_inference_seeds": 8,
+          "left": 13.770039141178131,
+          "right": 12.354393661022186,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -3.517234683036804,
+              0.7161254733800877
+            ],
+            "logs": 8,
+            "mean": -1.4156454801559448,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "moving": {
+          "common_targets_all_inference_seeds": 3,
+          "left": 15.983221371968588,
+          "right": 16.7210529645284,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -1.18519926071167,
+              3.9931259155273438
+            ],
+            "logs": 3,
+            "mean": 0.7378315925598145,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        },
+        "stationary": {
+          "common_targets_all_inference_seeds": 5,
+          "left": 12.442129802703857,
+          "right": 9.734398078918456,
+          "right_minus_left": {
+            "bootstrap_seed": 9028,
+            "ci95": [
+              -4.908946323394775,
+              -0.1442882537841797
+            ],
+            "logs": 5,
+            "mean": -2.7077317237854004,
+            "method": "vehicle-weighted paired log-cluster percentile bootstrap",
+            "training_seed_variability_included": false
+          }
+        }
+      }
+    },
+    "scope": "Fixed shared GT population; error intersection is selection-conditioned, not full-scene prediction accuracy",
+    "sources": {
+      "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/smallfit_metrics/fixed_B_step512_seed42_vehicles/vehicles.csv": "fdf8dffd3e5d93a743bd67142c7374cd6bb605fe7e674d511aa9ebcc69465603",
+      "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/smallfit_metrics/fixed_C_step512_seed42_vehicles/vehicles.csv": "5507ddaadb638433a810373aab0320c77ebbbee0f6bd7d00de982b315522f50f"
+    }
+  }
+}
