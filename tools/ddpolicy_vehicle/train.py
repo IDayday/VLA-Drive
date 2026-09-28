@@ -29,6 +29,7 @@ def main():
     p.add_argument("--campaign-gpu-hours", type=float)
     p.add_argument("--max-seconds", type=int, default=1800)
     p.add_argument("--startup", action="store_true")
+    p.add_argument("--small-fit", action="store_true", help="Explicit 64-scene learnability diagnostic, never a formal model")
     p.add_argument("--offload-optimizer", action="store_true")
     p.add_argument("--resume", action="store_true")
     p.add_argument("--resume-tag", help="Explicit complete checkpoint when an interrupted write left latest incomplete")
@@ -43,6 +44,7 @@ def main():
     if any(x < 0 or x > a.updates for x in milestones): raise ValueError("Milestones must be within this run")
     if a.startup and (a.updates > 4 or a.max_seconds > 1800):
         raise ValueError("Startup is <=4 real updates and <=1800 seconds; it is not a formal run")
+    if a.small_fit and (a.startup or a.updates > 512): raise ValueError("Small fit is a separate <=512-update diagnostic")
     if not a.startup and (a.campaign_gpu_hours is None or a.campaign_gpu_hours <= 0):
         raise ValueError("Formal training requires the NEW explicitly registered campaign GPU-hour cap")
     import numpy as np
@@ -90,7 +92,7 @@ def main():
                 "tokens_sha256": file_sha256(a.tokens), "vehicle_identity": json.loads((Path(a.vehicle_root)/"identity.json").read_text()),
                 "depth_identity": json.loads((Path(a.depth_root)/"identity.json").read_text()),
                 "world_size": world, "global_batch": a.global_batch, "micro_batch": a.micro_batch,
-                "updates": a.updates, "startup": a.startup, "offload_optimizer": a.offload_optimizer,
+                "updates": a.updates, "startup": a.startup, "small_fit": a.small_fit, "offload_optimizer": a.offload_optimizer,
                 "precision": "DeepSpeed BF16 with FP32 optimizer masters", "arm": cfg.from_scratch.arm}
     identity_sha = identity_hash(identity)
     lock = None
@@ -115,7 +117,8 @@ def main():
     start = entry_start
     status = {"status": "RUNNING", "identity": identity_sha, "source_sha": source_sha,
               "gpu_count": world, "host": socket.gethostname(), "pid": os.getpid(), "start_unix": start,
-              "real_optimizer_updates": 0, "sample_presentations": 0, "kind": "startup_training" if a.startup else "formal_training"}
+              "real_optimizer_updates": 0, "sample_presentations": 0,
+              "kind": "startup_training" if a.startup else "small_fit_diagnostic" if a.small_fit else "formal_training"}
     engine = None; completed = epoch = offset = exposures = 0
     attempt_initial_updates = attempt_initial_exposures = 0
     signal_stop = [False]
@@ -147,6 +150,7 @@ def main():
         ds = DDPVehicleDataset(a.tokens, a.processed_root, a.vehicle_root, a.depth_root, cfg,
                               sensor_roots=json.loads((Path(a.vehicle_root)/"identity.json").read_text()).get("fallback_sensor_root", []))
         if len(ds) < 1: raise ValueError("Empty training manifest")
+        if a.small_fit and len(ds) > 64: raise ValueError("Small-fit diagnostic population exceeds 64 scenes")
         if len(ds) % world: raise ValueError("This fixed split requires an exactly divisible final per-rank tail")
         model = DDPVehicle(cfg, accelerator=SimpleNamespace(process_index=rank, device=torch.device("cuda", local_rank)))
         if rank == 0 and not a.resume:

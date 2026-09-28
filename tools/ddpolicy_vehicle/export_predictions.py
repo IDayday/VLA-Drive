@@ -44,7 +44,7 @@ def main():
                     "scorer": None, "camera_only": True, "gt_future_conditioning": False,
                     "noise_protocol": "ddpolicy-v1 SHA256 token/seed; CPU randn 1x9x8x4; ego slot0"}
         if dataset.metadata.get("split") == "navtest":
-            if not a.final_lock or a.limit or checkpoint["startup"]: raise ValueError("Navtest requires full, formally trained, frozen endpoint")
+            if not a.final_lock or a.limit or checkpoint["startup"] or checkpoint["small_fit"]: raise ValueError("Navtest requires full, formally trained, frozen endpoint")
             lock = json.loads(Path(a.final_lock).read_text())
             if checkpoint["sha256"] not in lock["checkpoint_sha256"] or source != lock["evaluation_source_sha"]:
                 raise ValueError("Model/source was not frozen before Navtest")

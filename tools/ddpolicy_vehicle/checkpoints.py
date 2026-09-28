@@ -20,7 +20,7 @@ def checkpoint_identity(run, tag):
         raise ValueError("Checkpoint lacks model or FP32 optimizer masters")
     record = {"run_identity": identity["sha256"], "training_source_sha": identity["source_sha"],
               "tag": tag, "completed": complete["completed"], "arm": identity["arm"],
-              "startup": identity["startup"], "files": files}
+              "startup": identity["startup"], "small_fit": identity.get("small_fit", False), "files": files}
     return identity, {"sha256": identity_hash(record), **record}
 
 

@@ -21,7 +21,7 @@ def main():
     for entry in selected:
         run, ckpt=checkpoint_identity(entry['run'],entry['tag'])
         key=(run['arm'],int(run['config']['seed']))
-        if key in seen or run['startup']:raise ValueError('Duplicate or startup model cannot enter final table')
+        if key in seen or run['startup'] or run.get('small_fit'):raise ValueError('Duplicate or diagnostic model cannot enter final table')
         seen.add(key)
         status=json.loads((Path(entry['run'])/'status.json').read_text())
         if status['status']!='COMPLETE' or status['real_optimizer_updates']!=100000:
