@@ -69,6 +69,16 @@ python -m tools.foresight.cache_future_latents \
 
 Before encoding, register the already authorized local VAE using `python -m tools.foresight.prepare_flux_identity --root "$VERIFIED_FLUX_ROOT" --output "$VERIFIED_FLUX_IDENTITY"`. The directory must contain the official `vae/config.json` and `vae/diffusion_pytorch_model.safetensors` at revision741f7c3ce8b383c54771c7003378a50191e9efe9. Both are checked against pinned public Git/LFS metadata. An empty file inventory, an arbitrary caller-declared weight hash or a different revision is rejected before loading. This command does not obtain access or download weights. Actual VAE encoding remains NOT_RUN while access is unavailable.
 
+The full timestamp/file audit has run independently of the VAE:101592train and1696dev scenes, zero failures, all with at least one valid future horizon.101344train/1695dev scenes contain all nine future views. Other cases have timestamp gaps, with no scene removed. Available train frames deviate at most16.415ms from their requested horizon, within the registered50ms tolerance. This proves file availability, not image decoding or VAE quality.
+
+```bash
+python -m tools.foresight.audit_future_frames \
+  --split-manifest reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json \
+  --raw-log-root "$RAW_LOG_ROOT" --sensor-root "$SENSOR_ROOT" \
+  --fallback-sensor-root "$FALLBACK_SENSOR_ROOT" --workers 4 \
+  --output "$ART/new_future_availability" --campaign-root "$ART" --run-id new_future_availability
+```
+
 Real-gradient calibration needs both completed, identity-checked target caches. Its single fixed training-only rule measures W and first/last Qwen q-projection gradients, setting each auxiliary's median norm to25%of the main norm; it records all missing/zero-label scenes. This rule is a starting gradient calibration, not a test-score search. Nonzero weights are required by the student trainer for enabled tasks.
 
 ```bash

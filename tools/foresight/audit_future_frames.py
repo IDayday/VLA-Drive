@@ -52,6 +52,8 @@ def main():
     a=p.parse_args()
     if not 1<=a.workers<=16:raise ValueError('Bounded CPU workers must be1..16')
     with metered_run(a.campaign_root,a.run_id,0,{'kind':'future_timestamp_file_availability','real_optimizer_updates':0}) as (meter,_,save):
+        if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze the audit source before recording data identities')
+        source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip();writer_hash=file_sha256(__file__)
         out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
         partition=json.loads(Path(a.split_manifest).read_text());mapping=partition['token_logs'];groups=defaultdict(list)
         train_logs={mapping[t] for t in partition['train_tokens']};dev_logs={mapping[t] for t in partition['dev_tokens']}
@@ -63,15 +65,15 @@ def main():
         rows=[];begin=time.time()
         with ProcessPoolExecutor(max_workers=a.workers) as pool:
             for batch in pool.map(check_log,[(log,scenes,vars(a)) for log,scenes in groups.items()]):
-                rows.extend(batch);meter['inference_scenes']=len(rows);save()
+                rows.extend(batch);meter['checked_scenes']=len(rows);save()
                 atomic_json(out/'progress.json',{'checked':len(rows),'requested':len(expected)})
         lookup={(r['token'],r['split'],r['log']):r for r in rows}
         if set(lookup)!=set(expected):raise ValueError('Audit silently changed scene population')
         rows=[lookup[key] for key in expected];keys=sorted(set().union(*(r.keys() for r in rows)))
         with (out/'scenes.csv').open('w') as stream:
             writer=csv.DictWriter(stream,keys);writer.writeheader();writer.writerows(rows)
-        summary={'schema':'foresight_future_frame_availability_v1','source_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-                 'partition_sha256':file_sha256(a.split_manifest),'writer_sha256':file_sha256(__file__),'scope':'file availability and real timestamps only; VAE/image decode NOT_RUN',
+        summary={'schema':'foresight_future_frame_availability_v1','source_sha':source,
+                 'partition_sha256':file_sha256(a.split_manifest),'writer_sha256':writer_hash,'scope':'file availability and real timestamps only; VAE/image decode NOT_RUN',
                  'horizons_s':[1.,2.,4.],'timestamp_tolerance_s':.05,'views':CAMERAS,'splits':{},'elapsed_seconds':time.time()-begin,
                  'scene_csv_sha256':file_sha256(out/'scenes.csv'),'scene_removal_policy':'none; missing future targets only mask auxiliary loss'}
         for split in ('train','dev'):
