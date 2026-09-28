@@ -27,6 +27,8 @@ Full GT-MAE teacher PID1346936, localGPU0, source d3c05d136949ecc14b1a8312fa12bf
 
 Full command is teacher_full30_launch.json. Resume ONLY after its process is terminal and actual status inspected, using the identical frozen command plus --resume --acknowledge-stop. Never silently restart or duplicate it.
 
+Bounded continuation controller PID1414766 is WAITING_FOR_TEACHER; artifacts/postteacher_v1_launch.json and postteacher_v1_status.json are authoritative. It uses frozen bffeaea2a6c8b4ea0c94809f53b971a7c183b6de from /mnt/project/VLA-Drive-foresight-run-bffeaea. After the existing teacher process exits COMPLETE11910, it freezes by the registered30epoch rule, releases only verified GPU1pressure parent1374704 with matching start ticks, exports fresh ego-hidden dev/train interaction targets and restores pressure. It will NOT start students, select an early teacher or restart a paused teacher. Do not duplicate these exports. A changed GPU1pressure lease causes PAUSED for inspection, not a kill of its replacement. Explicit stop files: campaign STOP_REQUESTED or postteacher_v1_STOP_REQUESTED. The controller waits at most28hours and each export is limited to7200seconds/global6000GPUh. Waiting consumes no GPU allocation.
+
 ## Resources / budget
 
 Existing local and vla-zt2 GPUs authorized; no paid expansion. Idle cards on BOTH hosts must run pressure scripts. Before use verify exact parent command/PID and stop only its pressure process. Every test launcher restores pressure after exit; teacher-completion monitor1358057 does the same forGPU0. Current parent IDs are in gpu_pressure and *_launch.json; re-check /proc because PIDs can be reused. Never stop unrelated workloads. Pressure occupancy is recorded separately from scientific training cost.
