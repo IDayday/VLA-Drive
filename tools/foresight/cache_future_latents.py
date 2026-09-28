@@ -22,9 +22,13 @@ def main():
     p.add_argument('--split',choices=('train','dev'),required=True);p.add_argument('--shard',type=int,default=0)
     p.add_argument('--shards',type=int,default=1);p.add_argument('--short-side',type=int,default=256)
     p.add_argument('--max-seconds',type=float,default=14400);p.add_argument('--resume',action='store_true')
+    p.add_argument('--campaign-gpu-hours',type=float,default=6000)
     a=p.parse_args()
-    if not 0<=a.shard<a.shards or a.short_side<128:raise ValueError('Invalid target encoder allocation')
+    if not 0<=a.shard<a.shards or a.short_side<128 or min(a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Invalid target encoder allocation')
     with metered_run(a.campaign_root,a.run_id,1,{'kind':'future_visual_target_cache','real_optimizer_updates':0}) as (meter,_,save):
+        from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
+        if charged_gpu_hours(Path(a.campaign_root))>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before target encoding')
+        if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze target encoding source first')
         split=json.loads(Path(a.split_manifest).read_text());all_tokens=split[a.split+'_tokens'];logs=split['token_logs']
         if {logs[t] for t in split['train_tokens']}&{logs[t] for t in split['dev_tokens']}:raise ValueError('Cross-log split leakage')
         tokens=all_tokens[a.shard::a.shards]
@@ -47,7 +51,8 @@ def main():
         for log,scene_tokens in groups.items():
             frames=load_trusted(Path(a.raw_log_root)/(log+'.pkl'));where={f['token']:i for i,f in enumerate(frames)}
             for token in scene_tokens:
-                if time.time()-meter['start_unix']>=a.max_seconds:raise TimeoutError('Target-cache budget paused; completed scenes retained')
+                if time.time()-meter['start_unix']>=a.max_seconds or charged_gpu_hours(Path(a.campaign_root))>=a.campaign_gpu_hours:
+                    meter['status']='PAUSED';meter['inference_scenes']=completed;save();return
                 destination=out/'targets'/(token+'.pt')
                 if destination.exists():
                     payload=torch.load(destination,weights_only=True,map_location='cpu')

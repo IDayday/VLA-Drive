@@ -1,26 +1,40 @@
-# DDP shared foresight + GT trajectory MAE — IMPLEMENTING
+# Shared foresight campaign — ACTIVE
 
-New authorized objective: current-camera Action-Only DDP with64 shared W queries; train-only deterministic future FLUX VAE regression and masked GT vehicle trajectory teacher latent regression. Deploy original ego-only DDP action head. No joint actor generator, detector or old driving weights.
+Goal: DDP Action-Only with64shared Wqueries, future FLUX latent supervision and frozen GT vehicle-MAE interaction-latent supervision. Deployment retains W, original ego FM head only. No old driving weights, joint actor generator, online detector, scorer or video/depth generation.
 
+Development worktree: /mnt/project/VLA-Drive-ddp-foresight-20260928
 Branch: feature/ddp-shared-foresight-gtmae-20260928
-Worktree: /mnt/project/VLA-Drive-ddp-foresight-20260928
-Code reference: a68420722891ba690852907f096f57381a81b1af; historical tools remain legacy and are not student modules.
 Artifacts: /mnt/project/ddp-foresight-artifacts/20260928
-Old campaign remains STOPPED. This new campaign must never resume its controller or weights.
-Resources: local and vla-zt2 each8 A80080GB authorized. User requires idle allocated GPUs to run pressure scripts on BOTH hosts. Pressure parents/logs are recorded under artifacts/gpu_pressure; before real work release only the verified relevant pressure parent(s), then restore pressure after work ends. Never stop unrelated real workloads. LocalGPU0 runs the full teacher. Other local GPUs and all vla-zt2 GPUs currently run pressure scripts; this is resource holding, not scientific training expenditure.
+Old experiments/controllers remain sealed. Only this new branch may be pushed; no large artifacts/private images.
 
-Completed: isolated branch; initial source/resource checks; confirmed legacy QwenOFT eagerly imports video/depth and registers unused world tokens — fixing actual Action-Only path.
-Current dependency: official FLUX.1-schnell VAE download is gated401; requested an authorized local path or configured HF access. Do not bypass repository access restrictions or silently change teacher.
-Next: core MAE and foresight modules, focused tests, real vehicle data, full teacher training, VAE targets, student calibration and complete matched campaign. CPU/data/teacher work continues during VAE dependency resolution.
-Real training in THIS campaign: teacher resume check8updates, small-fit512updates, full teacher ongoing; authoritative live updates/exposure in teacher_full30_v1/steps.jsonl. Student preflight0optimizerupdates. Short tests never count as complete training.
-Push this branch after tested code stages; verify remote SHA. Do not upload weights/cache/raw images or private annotations.
+## Actual completed work
 
-## Live stage1 status
+- Independent current/ego train101592scenes/1176logs and dev1696/16logs;0failures, token/log-disjoint. Full raw vehicle-only teacher data prepared with the same ordered split. No student input contains teacher/GT future data.
+- Teacher real continuous4 vs2+2resume passed;8updates total. Teacher64scene small-fit512updates completed with actual learning. These weights are NOT the full teacher initialization.
+- Real public Qwen gradient test: main FM and both auxiliary readouts reach W and language. Auxiliary labels synthetic only in that one plumbing test. Current-input prediction is invariant to poisoned extra target fields and to removing auxiliary heads while retaining W.
+- Real R/A/B/C/D initialization pairing passed: shared language/driving tensors identical; A–D Widentical; no driving weights loaded; caller RNG preserved.
+-20focused CPU tests pass. Actual2GPU NCCL empty-rank and accumulated auxiliary normalization match single-process gradients.
+- Student micro1 real continuous4 vs2+2at087139a passed exact model/optimizer/RNG equality. A batch>1deterministic CUDA indexed-write failure was then reproduced before any optimizer update; fixed using unique-position scatter at56bf61e.
+- At frozen56bf61ec044850e4500a3d550b7205df5451253c: actual Qwen padded batch/current images/DeepStack/mRoPE vs separate FP32 inference passes, ego max difference4.77e-6. Four-GPU global32/micro4 and micro8 each completed4real updates. Micro8 median3.56s/update, rank0peak19.35GB. SAME-source micro8 continuous4 vs2+2also exact for model,4optimizer shards, all rank RNG and data progress.
+- Student startup total20real updates/416presentations; failed batch32v1 had0updates. No formal student run. Startup checkpoint FP32-master export tested on2dev scenes,0failures; no planning claim.
+- Actual results: reports/ddp_shared_foresight/student_preflight and batching_fix. Complete auxiliary evaluation, training-only gradient calibration and registered teacher-freeze tools implemented; real target-dependent execution NOT_RUN.
 
-Initial implementation pushed and verified atd3c05d1. Full teacher data prepared0failures,101592train/1696dev, log-disjoint. Teacher512small-fit COMPLETE; metrics inreports/ddp_shared_foresight/teacher_preflight.8real resume-test updates,512small-fit updates. Full teacher from independent random init RUNNING PID1346936 localGPU0, frozen source/worktree d3c05d136949ecc14b1a8312fa12bf966ae03643 /mnt/project/VLA-Drive-foresight-run-d3c05d1. Run: /mnt/project/ddp-foresight-artifacts/20260928/teacher_full30_v1; exact command teacher_full30_launch.json. DO NOT duplicate or edit frozen source.11910plannedupdates,30epochs. Full teacher resume must use same source, original command plus --resume --acknowledge-stop after checking live status.
+## Live process: DO NOT duplicate
 
-Student GPU preflight v1 FAILED before model construction (environment float conversion),0updates. Fixed at2069df2; v2 COMPLETE: real camera main/visual/interaction gradients reach W and Qwen; poisoned targets do not change encode_current; removing heads preserves ego exactly. Auxiliary targets synthetic only for that gradient test. Real2GPU NCCL empty-rank/gradient-accumulation check PASSED at5153b3c. Student train/dev current+ego data generation running from5153b3c (no GPU). Implementing student optimizer/resume entry next; formal student training NOT_STARTED. FLUX download401 remains unresolved. Old stopped campaign remains sealed.
+Full GT-MAE teacher PID1346936, localGPU0, source d3c05d136949ecc14b1a8312fa12bf966ae03643 in /mnt/project/VLA-Drive-foresight-run-d3c05d1. Fresh random initialization.30epochs/11910updates registered;11910must complete before milestone selection. Read ps plus teacher_full30_v1/steps.jsonl and status.json for actual progress. At last review epoch4was complete; fixed dev summaries through4preserved in teacher_progress. Do not edit this worktree or alter its ledger.
 
-## Student real startup completed
+Full command is teacher_full30_launch.json. Resume ONLY after its process is terminal and actual status inspected, using the identical frozen command plus --resume --acknowledge-stop. Never silently restart or duplicate it.
 
-Frozen source087139aa4df4109e79c29a35b8e4cbdbd47c59d0: student_continuous4_v1 and student_resume4_v1 completed8real optimizer updates total,32scene presentations. Final model, both optimizer partitions and all rank RNG exactly equal (student_resume_comparison_v2.json). All5real generic initialization arms share common tensors; A–D Wsame.14CPU tests passed. Current/ego train/dev data complete101592/1696scenes,0failures. Pressure returned on localGPUs2/3; verified parent PIDs1359960/1359961 at completion, consult /proc before any stop. Full teacher still activeGPU0; pressure monitor1358057 restores that GPU when teacher exits. Next: validate checkpoint export, measure full-batch throughput, complete teacher and actual targets/calibration; FLUX access unresolved. No formal student/Navtest result exists.
+## Resources / budget
+
+Existing local and vla-zt2 GPUs authorized; no paid expansion. Idle cards on BOTH hosts must run pressure scripts. Before use verify exact parent command/PID and stop only its pressure process. Every test launcher restores pressure after exit; teacher-completion monitor1358057 does the same forGPU0. Current parent IDs are in gpu_pressure and *_launch.json; re-check /proc because PIDs can be reused. Never stop unrelated workloads. Pressure occupancy is recorded separately from scientific training cost.
+
+New campaign ceiling6000GPUh; phase limits in execution_budget.yaml. Ledger under artifacts/runs includes loading, failed allocations, tests, teacher training and exports. Read it to compute actual remaining budget; do not use oldcampaign quota. Teacher source has total-run exposure in its resumed attempt records: aggregate exposures from each logical run's authoritative steps, not by summing cumulative attempt exposures.
+
+## Blocking dependency and next work
+
+FLUX.1-schnell official VAE at pinned741f7c3ce8b383c54771c7003378a50191e9efe9 returns gated401. No verified local artifact found on local/vla-zt2. User was asked for an authorized local path/configured HF access; no answer yet. Do not bypass access restrictions or substitute a different visual teacher. Qwen public source is verified.
+
+Continue independent work: full teacher training, complete result/plot/paired-metric tooling, official dev/Navtest export/scoring integration. After full teacher completes, freeze via registered rule and export fresh ego-hidden8x512labels. Once VAE is legally available, validate deterministic scale/shift/reconstruction, cache all horizons, calibrate shared-gradient weights on training data, run matched short fits, then freeze the complete A/B/C/D/R formal plan. Formal training length100000/global32is still provisional, not launched. Use docs/DDP_FORESIGHT_QUICKSTART.md for tested commands and clearly marked NOT_RUNcommands.
+
+No formal A/B/C/D/R checkpoint, full development planning score, Navtest score or positive planning conclusion exists. Keep the goal active; do not present startup tests as the completed experiment.

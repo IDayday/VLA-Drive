@@ -22,3 +22,25 @@ def test_interaction_same_fixed_normalization_and_empty_invalid_target():
     assert interaction_statistics(x,x,True,1e-5)=={'elements':4096,'squared_error':0.}
     assert interaction_statistics(x,torch.full_like(x,float('nan')),False,1e-5)['elements']==0
     with pytest.raises(ValueError):interaction_statistics(x,torch.full_like(x,float('nan')),True,1e-5)
+
+
+def test_gradient_calibration_uses_shared_paths_and_keeps_missing_scenes():
+    from tools.foresight.calibrate_auxiliaries import weight_from_gradients
+    rows=[{'ego_fm':{'norm':4.},'visual':{'norm':2.,'W':1.,'language':1.}},
+          {'ego_fm':{'norm':6.},'visual':{'norm':3.,'W':1.,'language':2.}},
+          {'ego_fm':{'norm':1.},'visual':{'norm':0.,'W':0.,'language':0.}}]
+    result=weight_from_gradients(rows,'visual')
+    assert result['weight']==.5 and result['weighted_shared_gradient_ratio_median']==.25
+    assert result['valid_scenes']==2 and result['missing_or_zero_scenes']==1
+    rows[0]['visual']['language']=0
+    with pytest.raises(ValueError):weight_from_gradients(rows,'visual')
+
+
+def test_teacher_choice_uses_both_registered_metrics_and_fixed_tie_break():
+    from tools.foresight.freeze_teacher import choose_milestone
+    rows=[{'epoch':2,'failures':0,'ego_with_peer_ADE':1.,'vehicle_with_peer_ADE':3.},
+          {'epoch':4,'failures':0,'ego_with_peer_ADE':2.,'vehicle_with_peer_ADE':2.},
+          {'epoch':8,'failures':0,'ego_with_peer_ADE':.5,'vehicle_with_peer_ADE':4.}]
+    assert choose_milestone(rows)['epoch']==4
+    rows[0]['failures']=1
+    with pytest.raises(ValueError):choose_milestone(rows)

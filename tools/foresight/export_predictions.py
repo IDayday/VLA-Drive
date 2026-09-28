@@ -20,10 +20,13 @@ def main():
     p.add_argument('--sampling-seed',type=int,required=True);p.add_argument('--rank',type=int,default=0)
     p.add_argument('--world-size',type=int,default=1);p.add_argument('--limit',type=int,default=0)
     p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--final-lock')
+    p.add_argument('--campaign-gpu-hours',type=float,default=6000)
     a=p.parse_args()
-    if not 0<=a.rank<a.world_size or a.limit<0 or a.max_seconds<=0:raise ValueError('Invalid shard/budget')
+    if not 0<=a.rank<a.world_size or a.limit<0 or min(a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Invalid shard/budget')
     with metered_run(a.campaign_root,a.run_id,1,{'kind':'foresight_current_camera_export','real_optimizer_updates':0}) as (record,_,save):
         source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+        from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
+        if charged_gpu_hours(Path(a.campaign_root))>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before export')
         if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Lock evaluation source first')
         data=ForesightCurrentDataset(a.current_root);training,checkpoint=checkpoint_identity(a.training_run,a.checkpoint_tag)
         protocol={'precision':'FP32','tf32':False,'scorer':None,'candidates_per_scene':1,'sampling_seed':a.sampling_seed,
@@ -49,7 +52,8 @@ def main():
         model=load_student(a.training_run,a.checkpoint_tag,training)
         ids=list(range(min(a.limit or len(data),len(data))))[a.rank::a.world_size];done=failed=0
         for index in ids:
-            if time.time()-record['start_unix']>=a.max_seconds:record['status']='PAUSED';break
+            if time.time()-record['start_unix']>=a.max_seconds or charged_gpu_hours(Path(a.campaign_root))>=a.campaign_gpu_hours:
+                record['status']='PAUSED';break
             scene=data.index[index];token=scene['token'];dest=out/'predictions'/(token+'.npz');meta=dest.with_suffix('.json')
             if meta.exists():
                 row=json.loads(meta.read_text())
