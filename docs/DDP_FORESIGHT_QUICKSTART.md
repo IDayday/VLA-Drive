@@ -100,4 +100,13 @@ python -m tools.foresight.summarize_experiments --registry "$SCORE_REGISTRY" \
 
 The registry is a JSON list with `arm`, `training_seed`, `sampling_seed`, and `score_dir` for each result. Formal groups require the same checkpoint for inference seeds42–46; training seeds remain separate. The analysis preserves failed samples at zero and marks the benchmark invalid, averages inference seeds within scenes, and resamples complete logs for paired intervals. It writes B−A, C−A, D−B, D−C and A−R scene/log CSVs; missing comparisons remain NOT_RUN. A one-log diagnostic produces no confidence interval. `--diagnostic --sampling-seeds 42` is allowed only for a development pipeline check, never for the main table or Navtest.
 
+Offline ego ADE/FDE and yaw errors have also been checked on the same two development exports. This command reads separate GT labels after prediction; it loads no model and does not modify the exported trajectory. Failed rows invalidate their group means instead of disappearing from the denominator.
+
+```bash
+python -m tools.foresight.evaluate_ego --predictions "$PREDICTIONS" \
+  --current-root "$ART/student_dev_v1" --output "$EGO_FIT_REPORT"
+```
+
+The read-only current Navtest cache has12146scenes/136logs, complete current JSON/three-image paths, and no token/log overlap with either train or development. Its token/log population exactly matches the official metric cache. Only current images, navigation and observed ego poses are reused; no old driving prediction or hidden cache is used. This data check did not run a Navtest model. For a locked future Navtest export, `evaluate_ego` accepts `--processed-root` solely on this offline label side.
+
 GPU policy applies to local and vla-zt2: verify and stop only the pressure parents on allocated cards before work; restore pressure after the allocation exits. Current parent/worker identities are in `$ART/gpu_pressure` and job launch JSONs; re-check `/proc` before signalling because PIDs can be reused.

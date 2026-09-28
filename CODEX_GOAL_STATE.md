@@ -20,6 +20,7 @@ Old experiments/controllers remain sealed. Only this new branch may be pushed; n
 - Actual results: reports/ddp_shared_foresight/student_preflight and batching_fix. Complete auxiliary evaluation, training-only gradient calibration and registered teacher-freeze tools implemented; real target-dependent execution NOT_RUN.
 - Official NAVSIMv1.1 CPU scoring passed on2real startup dev exports,0failed. This is only pipeline evidence. Five-inference-seed aggregation and paired log-cluster comparison tools are implemented/tested; full benchmark NOT_RUN. See planning_pipeline.
 - Teacher learning snapshot at2755updates/705040presentations, fixed dev milestones through4: ego-with-peer ADE.888m vs1.040m after peer removal; vehicle3.265m vs5.214m. All7342fixed queries retained,0failures. Teacher GT-conditioned diagnostics are not student planning results. Curves, role fallback and stratified counts in teacher_progress/snapshot_v1.
+- Offline ego ADE/FDE evaluation passed on the same2startup dev predictions,0failures. Pure-current Navtest cache12146scenes/136logs audited read-only: all JSON/three camera files exist, official metric population identical, no train/dev token or log overlap, no old model predictions/features reused. No Navtest model was evaluated. See planning_pipeline/NAVTEST_CURRENT_AUDIT.json.
 
 ## Live process: DO NOT duplicate
 
