@@ -1,4 +1,4 @@
-# Shared foresight campaign — ACTIVE
+# Shared foresight campaign — WAITING_FOR_AUTHORIZED_FLUX; TEACHER_ACTIVE
 
 Goal: DDP Action-Only with64shared Wqueries, future FLUX latent supervision and frozen GT vehicle-MAE interaction-latent supervision. Deployment retains W, original ego FM head only. No old driving weights, joint actor generator, online detector, scorer or video/depth generation.
 
@@ -43,6 +43,17 @@ New campaign ceiling6000GPUh; phase limits in execution_budget.yaml. Ledger unde
 
 FLUX.1-schnell official VAE at pinned741f7c3ce8b383c54771c7003378a50191e9efe9 returns gated401. No verified local artifact found on local/vla-zt2. User was asked for an authorized local path/configured HF access; no answer yet. Do not bypass access restrictions or substitute a different visual teacher. Qwen public source is verified.
 
+External-dependency audit after three consecutive goal turns: the same missing authorized VAE blocks real visual targets, matched auxiliary calibration/short fits and the formal student matrix. Independent code/data checks are complete; the existing full teacher and bounded freeze/export controller remain live. Last direct process verification: teacher1346936 RUNNING, update3611; controller1414766 WAITING_FOR_TEACHER; generic/flux_vae/vae is empty. This is not a claim that teacher training or the full experiment is complete. Goal waiting status must not terminate these jobs or restart them.
+
+To unblock, provide an authorized local directory containing the two pinned VAE files or configure authorized HF access on the server. Register it with the actual command below, then verify real deterministic encoding/reconstruction, create full future caches, calibrate on train data and continue the unchanged complete experiment. If the teacher/controller have finished meanwhile, inspect their status and reuse their completed artifacts; do not duplicate training/exports.
+
+```bash
+cd /mnt/project/VLA-Drive-ddp-foresight-20260928
+/root/miniconda3/envs/ddp/bin/python -m tools.foresight.prepare_flux_identity \
+  --root "$AUTHORIZED_FLUX_ROOT" \
+  --output /mnt/project/ddp-foresight-artifacts/20260928/generic/flux_vae_identity.json
+```
+
 Continue independent work: full teacher training, complete result/plot/paired-metric tooling, official dev/Navtest export/scoring integration. After full teacher completes, freeze via registered rule and export fresh ego-hidden8x512labels. Once VAE is legally available, validate deterministic scale/shift/reconstruction, cache all horizons, calibrate shared-gradient weights on training data, run matched short fits, then freeze the complete A/B/C/D/R formal plan. Formal training length100000/global32is still provisional, not launched. Use docs/DDP_FORESIGHT_QUICKSTART.md for tested commands and clearly marked NOT_RUNcommands.
 
-No formal A/B/C/D/R checkpoint, full development planning score, Navtest score or positive planning conclusion exists. Keep the goal active; do not present startup tests as the completed experiment.
+No formal A/B/C/D/R checkpoint, full development planning score, Navtest score or positive planning conclusion exists. The full objective remains unchanged and unfinished; do not present startup tests as the completed experiment. Resume the goal once the authorized VAE is available, preserving all existing live/completed work.
