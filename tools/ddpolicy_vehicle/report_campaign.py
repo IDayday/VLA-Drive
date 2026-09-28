@@ -7,6 +7,7 @@ push to the explicitly named task branch. Raw data/weights/images stay local.
 import argparse
 import csv
 import datetime
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -89,6 +90,12 @@ def build_report(plan, controller, output):
         for folder in sorted((Path(controller)/'analysis').iterdir()):
             if folder.is_dir() and (folder/'summary.json').exists() and '_vs_' in folder.name:
                 report['paired_results'][folder.name]=read(folder/'summary.json')
+                if folder.name.endswith('_vehicles'):
+                    for metric in report['paired_results'][folder.name]['metrics'].values():
+                        for group in metric.values():
+                            interval=group['right_minus_left']
+                            if interval and interval.get('method'):
+                                interval['method']='vehicle-weighted paired log-cluster percentile bootstrap'
                 if (folder/'paired_scenes.csv').exists():shutil.copyfile(folder/'paired_scenes.csv',out/(folder.name+'_paired_scenes.csv'))
         curves=Path(controller)/'analysis/training_curves/learning_curves.png'
         if curves.exists():shutil.copyfile(curves,out/'learning_curves.png')
@@ -151,7 +158,14 @@ def main():
     for key in ('plan','controller','output'):p.add_argument('--'+key,required=True)
     p.add_argument('--watch',action='store_true');p.add_argument('--publish-repo');p.add_argument('--branch')
     a=p.parse_args();plan=read(a.plan);controller=Path(a.controller)
+    watch_lock=None
     if a.watch:
+        watch_lock=Path(a.output).with_name(Path(a.output).name+'_WATCH.lock').open('a+')
+        fcntl.flock(watch_lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        atomic_json(Path(a.output).with_name(Path(a.output).name+'_observer.json'),
+            {'status':'WATCHING','pid':os.getpid(),'plan_sha256':file_sha256(a.plan),
+             'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+             'behavior':'read only until controller terminates; no GPU allocation; report/push only to explicit task branch'})
         while read(controller/'status.json')['status']=='RUNNING':
             state=read(controller/'status.json')
             try:os.kill(state['pid'],0)
@@ -166,6 +180,10 @@ def main():
         except Exception as error:
             atomic_json(status_path,{'status':'FAILED','error':repr(error),'local_report_preserved':a.output});raise
         atomic_json(status_path,{'status':'COMPLETE',**result})
+    if watch_lock is not None:
+        atomic_json(Path(a.output).with_name(Path(a.output).name+'_observer.json'),
+            {'status':'COMPLETE','pid':os.getpid(),'report':a.output})
+        watch_lock.close()
 
 
 if __name__=='__main__':main()
