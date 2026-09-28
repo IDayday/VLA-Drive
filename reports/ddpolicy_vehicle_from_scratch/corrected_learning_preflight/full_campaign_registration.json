@@ -1,0 +1,105 @@
+{
+  "source_sha": "4f27cbb5b83806331325aa473a01da4fd1738d60",
+  "gpu_hour_cap": 8000,
+  "final_evaluation_reserve_gpu_hours": 300,
+  "sampling_seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "development_tags": [
+    "milestone_025000",
+    "milestone_050000",
+    "milestone_075000",
+    "milestone_100000"
+  ],
+  "plan_sha256": "422e5cbaf777ac03bd59eee397263545b71cbaf8202dad3d9f7613fa6b1f57d9",
+  "models": [
+    {
+      "arm": "A",
+      "seed": 42,
+      "run_id": "formal_A_seed42_001",
+      "config_sha256": "3623ef2c11b0159a2fc8bf8ec60b68377208faee5194edb8e8eb383313f5c2d2",
+      "training_slot": {
+        "gpus": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 42,
+      "run_id": "formal_B_seed42_001",
+      "config_sha256": "677e46682d15ab77775151744b28fc78757d724acf95f97e70bdcac1c466fc6d",
+      "training_slot": {
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 42,
+      "run_id": "formal_C_seed42_001",
+      "config_sha256": "002d9a5d3ee12eb59e6484997b85bd3f979603a2a1732d4ef2bf8cf7ab6d70b5",
+      "training_slot": {
+        "host": "training-vla-zt2",
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 43,
+      "run_id": "formal_B_seed43_001",
+      "config_sha256": "fa9e5f4bc2be32d9d454aa9b38b6091913c63d994027b88dd70e25ebcc4062e6",
+      "training_slot": {
+        "gpus": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 43,
+      "run_id": "formal_C_seed43_001",
+      "config_sha256": "c4284c4e015f95d89cba0807ef91c3b871c799b7cbf8e2b4cd6e92b9bed702e7",
+      "training_slot": {
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    }
+  ],
+  "train_scenes": 101592,
+  "train_logs": 1176,
+  "dev_scenes": 1696,
+  "dev_logs": 16,
+  "updates_per_model": 100000,
+  "global_batch": 32,
+  "schedule": "AdamW1e-5;warmup5000;cosine1e5;floor5e-7",
+  "all_hidden_final_updates": 10000,
+  "full_pass_updates": 3175,
+  "full_pass_last_batch": 24,
+  "scene_presentations_per_model": 3199752,
+  "checkpoint_selection": "highest mean full-dev PDMS over5 fixed inference seeds; tie later checkpoint; common25000/50000/75000/100000grid",
+  "status": "REGISTERED_NOT_STARTED"
+}
