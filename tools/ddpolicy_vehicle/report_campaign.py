@@ -48,6 +48,20 @@ def benchmark_table(root, model, tag, split, seeds, index):
             'mean_zero_scenes':float(np.mean([s['zero_scenes'] for s in samples])), 'samples':samples}
 
 
+def vehicle_table(root, model, tag, split, seeds, scenes):
+    samples=[]
+    for seed in seeds:
+        path=root/'formal_evaluation'/model['run_id']/tag/split/f'vehicles_seed{seed}'/'summary.json'
+        value=read(path)
+        if value['scenes']!=scenes or value['failed_scenes']:
+            raise ValueError('Incomplete/failed vehicle population cannot be summarized')
+        samples.append({'sampling_seed':seed,'summary_sha256':file_sha256(path),**value})
+    for key in ('source_vehicle_population','supervised_targets'):
+        if len({s[key] for s in samples})!=1:raise ValueError('Vehicle population changed across sampling seeds')
+    return {'arm':model['arm'],'training_seed':model['seed'],'checkpoint':tag,'samples':samples,
+            'aggregation':'Per-sampling-seed coverage and conditional errors retained; no averaging across changing matched populations'}
+
+
 def build_report(plan, controller, output):
     root=Path(plan['campaign_root']);out=Path(output);out.mkdir(parents=True,exist_ok=False)
     state=read(Path(controller)/'status.json');models=[]
@@ -76,7 +90,8 @@ def build_report(plan, controller, output):
         'full_experiment_complete':benchmark_complete and all(m['status']=='COMPLETE' and m.get('completed_updates')==100000 for m in models),
         'training_source_sha':plan['source_sha'],'report_source_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         'charged_campaign_gpu_hours':charged_gpu_hours(root),'gpu_hour_cap':plan['gpu_hour_cap'],
-        'models':models,'benchmarks':{},'paired_results':{},'fixed_sampling_seeds':plan['sampling_seeds'],
+        'models':models,'benchmarks':{},'vehicles':{},'development_selection_grid':[],
+        'paired_results':{},'fixed_sampling_seeds':plan['sampling_seeds'],
         'scope':'camera-only; generic pretrained base and random driving modules; single joint ego slot0; no scorer or oracle',
         'training_data':{'train_scenes':101592,'train_logs':1176,'dev_scenes':1696,'dev_logs':16},
         'uncertainty':'Whole-log paired intervals do not represent training-seed variability. Both training seeds, when complete, are reported separately.',
@@ -87,6 +102,11 @@ def build_report(plan, controller, output):
         for split in ('dev','navtest'):
             report['benchmarks'][split]=[benchmark_table(root,m,selected[m['run_id']],split,plan['sampling_seeds'],
                 Path(plan['data']['current_'+split])/'index.json') for m in plan['models'] if m['run_id'] in selected]
+            report['vehicles'][split]=[vehicle_table(root,m,selected[m['run_id']],split,plan['sampling_seeds'],
+                len(read(Path(plan['data']['current_'+split])/'index.json'))) for m in plan['models'] if m['run_id'] in selected]
+        report['development_selection_grid']=[benchmark_table(root,m,tag,'dev',plan['sampling_seeds'],
+            Path(plan['data']['current_dev'])/'index.json') for m in plan['models'] if m['run_id'] in selected
+            for tag in plan['development_tags']]
         for folder in sorted((Path(controller)/'analysis').iterdir()):
             if folder.is_dir() and (folder/'summary.json').exists() and '_vs_' in folder.name:
                 report['paired_results'][folder.name]=read(folder/'summary.json')
@@ -119,7 +139,8 @@ def build_report(plan, controller, output):
             lines.append(f"- {name}: C−B = {delta['mean']*100:.3f} points; log-cluster95% interval = {None if ci is None else [round(x*100,3) for x in ci]}.")
     if not report['primary_benchmark_complete']:lines+=['Full development/Navtest conclusions are **NOT_AVAILABLE**. Existing partial checkpoints and logs remain in the campaign artifacts. Startup/small-fit scores are not substituted.']
     elif not report['full_experiment_complete']:lines+=['The primary benchmark is complete, but the planned second training-seed pair is incomplete. Its real progress/costs are retained above; these results do not establish training-seed stability.']
-    lines+=['', 'Vehicle coverage, stationary/moving results and fixed shared-target comparisons are in `REPORT.json`. Misses remain in coverage denominators; motion error on detected/selected vehicles is conditional on that coverage. Relative ego/vehicle error uses one joint sample. Official safety scoring keeps all object classes.', '',
+    lines+=['', 'Vehicle coverage, stationary/moving results, all registered development milestones and fixed shared-target comparisons are in `REPORT.json`. Per-seed error denominators are retained; different matched target sets are not averaged as if fixed. Misses remain in coverage denominators; motion error on detected/selected vehicles is conditional on that coverage. Relative ego/vehicle error uses one joint sample. Official safety scoring keeps all object classes.', '',
+            'Reaching100000updates does not automatically establish convergence. The complete development checkpoint grid and training curves are retained to assess late gains or overfitting; no post-Navtest recipe adjustment is made.', '',
             report['uncertainty'], '', report['resume_limit'], '',
             'Complete machine-readable evidence and prediction banks are local to the registered campaign artifact root; the uploaded scene tables contain derived official scores and public scene/log identifiers, without sensor data or trajectories.', '',
             'If the controller has actually stopped, resume the same frozen source and plan using:', '', '```bash',
