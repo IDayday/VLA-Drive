@@ -46,8 +46,20 @@ def main():
         record["generic_ppd_load"] = getattr(model, "ppd_generic_load_report", None)
         # Driving modules are locally initialized tensors. Hash them before any
         # backward/optimizer operation; public model files were checked on load.
-        names = ["action_model", "action_input_model", "vehicle_reader", "vehicle_heads"]
+        names = ["action_model", "action_input_model", "vehicle_reader", "vehicle_heads",
+                 "traj_emb", "rgb_act_pre", "gs_traj_emb", "gs_act_pre"]
         initial = {n: module_manifest(getattr(model, n)) for n in names if hasattr(model, n)}
+        from starVLA.model.modules.vehicle_joint.initialization import tensor_hash
+        for name in ("rgb_query", "gs_query", "traj_emb_h0", "gs_traj_emb_h0"):
+            if hasattr(model, name): initial[name] = tensor_hash(getattr(model, name))
+        if hasattr(model, "rgb_model"):
+            initial["rgb_model.qwen_proj_video"] = module_manifest(model.rgb_model.qwen_proj_video)
+        if hasattr(model, "gs_model"):
+            initial["gs_model.dit.qwen_proj"] = module_manifest(model.gs_model.dit.qwen_proj)
+            initial["gs_model.dit.qwen_cross_attn"] = module_manifest(model.gs_model.dit.qwen_cross_attn)
+        initial["qwen_driving_token_embeddings"] = model.qwen_vl_interface.driving_token_initialization
+        if hasattr(model, "vehicle_token_initialization"):
+            initial["qwen_vehicle_token_embeddings"] = model.vehicle_token_initialization
         (out/"driving_initialization.json").write_text(json.dumps(initial, indent=2))
         save()
         torch.manual_seed(42); torch.cuda.manual_seed_all(42)

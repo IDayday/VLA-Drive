@@ -53,6 +53,21 @@ class DDPVehicle(Qwenvl_OFT):
         # Entire original construction has the SAME RNG stream in A/B/C.
         with initialization_seed(int(config.seed)):
             super().__init__(config, accelerator=accelerator)
+        if self.qwen_vl_interface.model.config.hidden_size != config.framework.qwenvl.vl_hidden_dim:
+            raise ValueError("Configured action/Reader conditioning does not match the public VLM")
+        if self.w_depth:
+            allowed = {"dit.qwen_proj.weight", "dit.qwen_proj.bias",
+                       "dit.qwen_cross_attn.in_proj_weight", "dit.qwen_cross_attn.in_proj_bias",
+                       "dit.qwen_cross_attn.out_proj.weight", "dit.qwen_cross_attn.out_proj.bias"}
+            report = self.ppd_generic_load_report
+            unaccounted = [k for k in report["missing"] if k not in allowed and not k.startswith("sem_encoder.pretrained.")]
+            if unaccounted or report["unexpected"]:
+                raise ValueError(f"Unaccounted generic PPD checkpoint keys: {unaccounted}, {report['unexpected']}")
+            if set(k for k in report["missing"] if not k.startswith("sem_encoder.")) != allowed:
+                raise ValueError("Generic PPD must leave ALL new Qwen driving adapters randomly initialized")
+            semantic = self.gs_model.semantic_load_report
+            if semantic["missing"] or semantic["unexpected"]:
+                raise ValueError(f"Unaccounted generic semantic encoder keys: {semantic}")
         self.arm = config.from_scratch.arm
         self.joint_enabled = self.arm != "A"
         self.sources = sources

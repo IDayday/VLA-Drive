@@ -39,7 +39,8 @@ class PixelPerfectDepth(nn.Module):
                 features=256,
                 out_channels=[256, 512, 1024, 1024]
             )
-            self.sem_encoder.load_state_dict(torch.load(self.config.semantics_pth, map_location='cpu'), strict=False)
+            semantic_missing, semantic_unexpected = self.sem_encoder.load_state_dict(torch.load(self.config.semantics_pth, map_location='cpu'), strict=False)
+            self.semantic_load_report = {"missing": list(semantic_missing), "unexpected": list(semantic_unexpected)}
         self.sem_encoder = self.sem_encoder.to(get_device()).eval()
         self.sem_encoder.requires_grad_(False)
 
@@ -176,4 +177,3 @@ class PixelPerfectDepth(nn.Module):
         return {'loss': loss, 'depth': latent_pred+0.5, 'image': batch['image']}
 
         
-
