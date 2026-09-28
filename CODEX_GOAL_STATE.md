@@ -60,3 +60,11 @@ CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -
 ```
 
 If FAILED, inspect the saved error/log before restarting. Do not resume invalid/no-op runs or start duplicate formal trainers. Formal model files, caches, raw data and private images stay outside git. The public official-token partition is now provided as NAVTRAIN_PARTITION.json; derived paired score CSVs may be published as requested results, without trajectories or annotations. Push only this task branch; never merge/force-push.
+
+## GT-completion question: targeted real diagnostic RUNNING
+
+User challenged whether clean neighbor GT is actually visible in role completion. Training code audit confirms it is: C auxiliary clamps other valid GT trajectories, hides the target, and FM-corrupts the target; B auxiliary and camera-only reported evaluation have no clean GT future conditions. Previous all-hidden results do not establish role-completion quality.
+
+A new diagnostic at source ea0398943f1cb2904f1357814bb754a44f64465b, frozen worktree /mnt/project/VLA-Drive-ddpolicy-completion-20260928, evaluates B/C512 on all64fixed ego queries, seed42. Current images fix the graph before any labels load; clean same-track GT neighbors attach via the same current Hungarian assignment. No2m/class training gate is reintroduced. Graph/noise/target stay fixed inside each comparison; ego labels load only AFTER generation. Known values clamp at every Euler step; hidden values are NaN-poisoned. All-hidden output must reproduce the saved reference. No-condition queries remain in the denominator.
+
+Artifact:completion64_v1/{plan.json,launch.json,strata.json,B,C}. GPU: vla-zt2 1 for B,2 for C, both previously idle. SSH PIDs1341622/1341623; GPU worker PIDs2709762/2709761. Bound1800s/arm plus2100s interrupt timeout, zero optimizer updates. These are training-domain GT-conditioned mechanism scores, NEVER deployment/PDMS. Existing formal controller and its4f27cbb5 source are unchanged. New targeted CPU mask/action tests9passed. Do not start duplicate diagnostics.
