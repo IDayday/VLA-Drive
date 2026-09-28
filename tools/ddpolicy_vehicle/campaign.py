@@ -147,6 +147,13 @@ class Campaign:
     def prediction_score(self, job, slot):
         model,tag,split=job
         root=self.root/'formal_evaluation'/model['run_id']/tag/split
+        scratch=Path(self.plan['local_checkpoint_cache'])/(model['run_id']+'_'+tag+'_'+split)
+        # A job owns one small-lived staging directory for all five seeds.
+        # The first seed's completed bank is its stable ownership identity.
+        scratch_owner=root/f'predictions_seed{self.plan["sampling_seeds"][0]}'
+        scratch_slot={**slot,'gpus':[]}
+        self.command([self.plan['python'],'-m','tools.ddpolicy_vehicle.scratch_cache',
+            '--cache',str(scratch),'--predictions',str(scratch_owner)],scratch_slot,'scratch_prepare')
         for seed in self.plan['sampling_seeds']:
             prediction=root/f'predictions_seed{seed}';score=root/f'scores_seed{seed}'
             marker=prediction/'shard_0.json'
@@ -157,7 +164,7 @@ class Campaign:
                     '--training-run',str(self.root/'training'/model['run_id']),'--checkpoint-tag',tag,
                     '--current-root',self.plan['data'][f'current_{split}'],'--output',str(prediction),
                     '--sampling-seed',str(seed),'--campaign-root',str(self.root),'--run-id',run_id,
-                    '--max-seconds','3600','--local-checkpoint-cache',self.plan['local_checkpoint_cache']]
+                    '--max-seconds','3600','--local-checkpoint-cache',str(scratch)]
                 if split=='navtest':args+=['--final-lock',str(self.directory/'final_lock.json')]
                 self.command(args,slot,run_id)
             if json.loads(marker.read_text())['failed']:raise RuntimeError('Failed predictions retained')
@@ -171,6 +178,8 @@ class Campaign:
             expected=1696 if split=='dev' else 12146
             if not summary['valid'] or summary['scenes']!=expected or summary['failed']:
                 raise RuntimeError('Incomplete/invalid full evaluation')
+        self.command([self.plan['python'],'-m','tools.ddpolicy_vehicle.scratch_cache','--cache',str(scratch),
+            '--predictions',str(scratch_owner),'--release'],scratch_slot,'scratch_release')
 
     def parallel(self, jobs, function, phase):
         self.status['phase']=phase;self.save()

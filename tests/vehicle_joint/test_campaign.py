@@ -4,6 +4,7 @@ import csv
 import pytest
 from tools.ddpolicy_vehicle.campaign import validate_allocations, charged_gpu_hours
 from tools.ddpolicy_vehicle.analyse_campaign import common_vehicle_comparison
+from tools.ddpolicy_vehicle.scratch_cache import manage_cache
 
 
 def test_allocations_reject_overlap_unapproved_host_and_foreign_run():
@@ -46,3 +47,16 @@ def test_common_vehicle_errors_do_not_hide_full_population_misses(tmp_path):
     assert value['full_supervised_vehicle_population']==2
     assert value['metrics']['joint_ADE']['all']['common_targets_all_inference_seeds']==1
     assert value['metrics']['joint_ADE']['all']['right_minus_left']['mean']==1
+
+
+def test_only_owned_completed_prediction_copies_can_be_released(tmp_path):
+    cache=tmp_path/'scratch';bank=tmp_path/'predictions';bank.mkdir()
+    manage_cache(cache,bank)
+    (cache/'copy.pt').write_text('exact temporary copy')
+    (bank/'shard_0.json').write_text(json.dumps({'status':'paused','failed':0,'completed':1,'requested':2}))
+    with pytest.raises(ValueError,match='Retain'):manage_cache(cache,bank,True)
+    assert (cache/'copy.pt').exists()
+    with pytest.raises(ValueError,match='ownership'):manage_cache(cache,tmp_path/'foreign',True)
+    (bank/'shard_0.json').write_text(json.dumps({'status':'complete','failed':0,'completed':2,'requested':2}))
+    manage_cache(cache,bank,True)
+    assert not cache.exists()
