@@ -31,12 +31,16 @@ def main():
     p.add_argument("--startup", action="store_true")
     p.add_argument("--offload-optimizer", action="store_true")
     p.add_argument("--resume", action="store_true")
+    p.add_argument("--resume-tag", help="Explicit complete checkpoint when an interrupted write left latest incomplete")
     p.add_argument("--acknowledge-stop", action="store_true")
     p.add_argument("--stop-after", type=int, default=0)
     a = p.parse_args()
     if min(a.global_batch, a.micro_batch, a.updates, a.save_every, a.max_seconds) < 1:
         raise ValueError("Positive training/ledger bounds required")
     if a.stop_after < 0 or a.stop_after > a.updates: raise ValueError("Invalid planned pause boundary")
+    if a.resume_tag and not a.resume: raise ValueError("--resume-tag requires --resume")
+    milestones = set(map(int, a.milestones.split(",")))
+    if any(x < 0 or x > a.updates for x in milestones): raise ValueError("Milestones must be within this run")
     if a.startup and (a.updates > 4 or a.max_seconds > 1800):
         raise ValueError("Startup is <=4 real updates and <=1800 seconds; it is not a formal run")
     if not a.startup and (a.campaign_gpu_hours is None or a.campaign_gpu_hours <= 0):
@@ -113,12 +117,15 @@ def main():
               "gpu_count": world, "host": socket.gethostname(), "pid": os.getpid(), "start_unix": start,
               "real_optimizer_updates": 0, "sample_presentations": 0, "kind": "startup_training" if a.startup else "formal_training"}
     engine = None; completed = epoch = offset = exposures = 0
+    attempt_initial_updates = attempt_initial_exposures = 0
     signal_stop = [False]
     def stop_handler(*_): signal_stop[0] = True
     signal.signal(signal.SIGTERM, stop_handler); signal.signal(signal.SIGINT, stop_handler)
     def save_status():
         if rank != 0: return
         status.update(real_optimizer_updates=completed, sample_presentations=exposures,
+                      attempt_optimizer_updates=completed-attempt_initial_updates,
+                      attempt_sample_presentations=exposures-attempt_initial_exposures,
                       epoch=epoch, batch_offset=offset, end_unix=time.time(),
                       gpu_hours=(time.time()-start)*world/3600)
         atomic_json(run_dir/"status.json", status)
@@ -142,6 +149,16 @@ def main():
         if len(ds) < 1: raise ValueError("Empty training manifest")
         if len(ds) % world: raise ValueError("This fixed split requires an exactly divisible final per-rank tail")
         model = DDPVehicle(cfg, accelerator=SimpleNamespace(process_index=rank, device=torch.device("cuda", local_rank)))
+        if rank == 0 and not a.resume:
+            from starVLA.model.modules.vehicle_joint.initialization import driving_initialization_manifest
+            atomic_json(run_dir/"driving_initialization.json", driving_initialization_manifest(model))
+            atomic_json(run_dir/"parameters.json", {
+                "total": sum(p.numel() for p in model.parameters()),
+                "trainable": sum(p.numel() for p in model.parameters() if p.requires_grad),
+                "generic_sources": {k:{f:v for f,v in source.items() if f != "root"} for k,source in sources.items()},
+                "pretrained_driving_weights_loaded": False,
+                "policy_initialization": "generic public modules plus random driving modules"})
+        dist.barrier()
         ds_config = {"train_micro_batch_size_per_gpu": a.micro_batch, "gradient_accumulation_steps": 1,
                      "train_batch_size": a.micro_batch*world, "bf16": {"enabled": True},
                      "gradient_clipping": 1., "steps_per_print": 1000000,
@@ -158,20 +175,44 @@ def main():
         roles = VehicleRoleScheduler(int(cfg.seed)+7000+rank)
         noise = torch.Generator(device=torch.device("cuda", local_rank)).manual_seed(int(cfg.seed)+9000+rank)
         if a.resume:
-            load_path, state = engine.load_checkpoint(str(run_dir/"checkpoints"), load_module_strict=True,
+            tag = a.resume_tag or (run_dir/"checkpoints/latest").read_text().strip()
+            if Path(tag).name != tag: raise ValueError("Resume tag must be a single directory name")
+            complete = json.loads((run_dir/"checkpoints"/tag/"COMPLETE.json").read_text())
+            if complete["identity"] != identity_sha or complete["tag"] != tag:
+                raise ValueError("Latest checkpoint is incomplete or has changed identity")
+            load_path, state = engine.load_checkpoint(str(run_dir/"checkpoints"), tag=tag, load_module_strict=True,
                 load_optimizer_states=True, load_lr_scheduler_states=True)
             if not load_path or state["identity"] != identity_sha: raise ValueError("Invalid resume checkpoint identity")
             completed, epoch, offset, exposures = (state[k] for k in ("completed", "epoch", "offset", "exposures"))
+            if any(state[k] != complete[k] for k in ("completed", "epoch", "offset", "exposures")):
+                raise ValueError("Checkpoint completion record does not match saved progress")
+            attempt_initial_updates, attempt_initial_exposures = completed, exposures
             rank_state = torch.load(run_dir/"checkpoints"/state["tag"]/f"rng_rank{rank}.pt", weights_only=False, map_location="cpu")
             restore_rng(rank_state, model, noise, roles)
         def checkpoint(tag):
+            destination = run_dir/"checkpoints"/tag
+            if destination.exists(): raise FileExistsError("Immutable checkpoint tag already exists: "+tag)
             state = {"identity": identity_sha, "completed": completed, "epoch": epoch, "offset": offset,
-                     "exposures": exposures, "tag": tag, "scheduler": "fixed horizon formula; no reset"}
+                     "exposures": exposures, "tag": tag, "scheduler": {
+                         "type": "fixed_formula", "completed": completed,
+                         "warmup": int(cfg.trainer.num_warmup_steps), "horizon": int(cfg.trainer.max_train_steps),
+                         "base_lr": float(cfg.trainer.learning_rate.base),
+                         "minimum_lr": float(cfg.trainer.scheduler_specific_kwargs.min_lr)}}
             engine.save_checkpoint(str(run_dir/"checkpoints"), tag=tag, client_state=state)
             torch.save(capture_rng(model, noise, roles), run_dir/"checkpoints"/tag/f"rng_rank{rank}.pt")
             dist.barrier()
-            if rank == 0: atomic_json(run_dir/"checkpoints"/tag/"COMPLETE.json", state)
-        milestones = set(map(int, a.milestones.split(",")))
+            if rank == 0:
+                atomic_json(run_dir/"checkpoints"/tag/"COMPLETE.json", state)
+                if tag.startswith("periodic_"):
+                    # Only this run's obsolete rolling saves are replaceable.
+                    # Milestones, pauses, endpoints and foreign artifacts stay.
+                    import shutil
+                    for old in (run_dir/"checkpoints").glob("periodic_*"):
+                        if old == destination or not (old/"COMPLETE.json").exists(): continue
+                        previous = json.loads((old/"COMPLETE.json").read_text())
+                        if previous["identity"] != identity_sha: raise ValueError("Foreign rolling checkpoint")
+                        if previous["completed"] < completed: shutil.rmtree(old)
+            dist.barrier()
         if 0 in milestones and not a.resume: checkpoint("milestone_000000")
         model.train()
         while completed < a.updates:
@@ -182,13 +223,14 @@ def main():
             if not a.startup and campaign_used() >= a.campaign_gpu_hours: stop = True
             flag = torch.tensor(int(stop), device="cuda"); dist.all_reduce(flag, op=dist.ReduceOp.MAX)
             if flag:
-                checkpoint(f"paused_{completed:06d}"); status["status"] = "PAUSED"; break
+                checkpoint(f"paused_{completed:06d}_{attempt}"); status["status"] = "PAUSED"; break
             ids = global_batches[offset][rank::world]
             warmup, horizon = int(cfg.trainer.num_warmup_steps), int(cfg.trainer.max_train_steps)
             base, minimum = float(cfg.trainer.learning_rate.base), float(cfg.trainer.scheduler_specific_kwargs.min_lr)
             lr = base*(completed+1)/warmup if completed < warmup else minimum+(base-minimum)*.5*(1+math.cos(math.pi*(completed-warmup)/max(1, horizon-warmup)))
             for group in engine.optimizer.param_groups: group["lr"] = lr
             step_start = time.monotonic(); loss_log = {}; coordinate_log = {"ego": 0, "vehicle": 0}
+            graph_log = {"selected_vehicles": 0, "context_vehicles": 0, "ego_only": 0}
             for j in range(0, len(ids), a.micro_batch):
                 part = ids[j:j+a.micro_batch]
                 engine.set_gradient_accumulation_boundary(j+len(part) == len(ids))
@@ -201,18 +243,24 @@ def main():
                 for name, value in output["losses"].items(): loss_log[name] = loss_log.get(name, 0.)+float(value.detach())*weight
                 coordinate_log["ego"] += output["metrics"].get("ego_coordinates", 0)
                 coordinate_log["vehicle"] += output["metrics"].get("vehicle_coordinates", 0)
+                for audit in output["metrics"].get("graphs", []):
+                    graph_log["selected_vehicles"] += audit["selected_vehicles"]
+                    graph_log["context_vehicles"] += audit["context_vehicles"]
+                    graph_log["ego_only"] += audit["ego_only"]
             engine.step()
             completed += 1; offset += 1; exposures += len(global_batches[offset-1])
             row = {"update": completed, "epoch": epoch, "offset": offset, "global_scene_exposure": exposures,
                    "lr": lr, "seconds": time.monotonic()-step_start, "rank": rank, "losses": loss_log,
-                   "coordinates": coordinate_log, "roles": dict(roles.counts),
+                   "coordinates": coordinate_log, "graphs": graph_log, "roles": dict(roles.counts),
                    "peak_allocated_bytes": torch.cuda.max_memory_allocated()}
             with (run_dir/f"train_rank{rank}.jsonl").open("a") as f: f.write(json.dumps(row)+"\n")
             if completed in milestones: checkpoint(f"milestone_{completed:06d}")
-            elif completed % a.save_every == 0: checkpoint("latest")
+            elif completed % a.save_every == 0: checkpoint(f"periodic_{completed:06d}")
             save_status()
         if completed == a.updates:
-            checkpoint(f"endpoint_{completed:06d}"); status["status"] = "COMPLETE"
+            # A milestone at the endpoint is already a complete, immutable save.
+            if completed not in milestones: checkpoint(f"endpoint_{completed:06d}")
+            status["status"] = "COMPLETE"
     except BaseException as error:
         status["status"] = "FAILED"; status["error"] = repr(error)
         raise

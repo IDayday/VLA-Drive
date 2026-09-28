@@ -121,3 +121,21 @@ def add_random_driving_tokens(model, tokenizer, tokens, seed):
 
 def identity_hash(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def driving_initialization_manifest(model):
+    """Hash every new driving module before DeepSpeed casting or updates."""
+    modules = ["action_model", "action_input_model", "vehicle_reader", "vehicle_heads",
+               "traj_emb", "rgb_act_pre", "gs_traj_emb", "gs_act_pre"]
+    result = {name:module_manifest(getattr(model, name)) for name in modules if hasattr(model, name)}
+    for name in ("rgb_query", "gs_query", "traj_emb_h0", "gs_traj_emb_h0"):
+        if hasattr(model, name): result[name] = tensor_hash(getattr(model, name))
+    if hasattr(model, "rgb_model"):
+        result["rgb_model.qwen_proj_video"] = module_manifest(model.rgb_model.qwen_proj_video)
+    if hasattr(model, "gs_model"):
+        for name in ("qwen_proj", "qwen_cross_attn"):
+            result["gs_model.dit."+name] = module_manifest(getattr(model.gs_model.dit, name))
+    result["qwen_driving_token_embeddings"] = model.qwen_vl_interface.driving_token_initialization
+    if hasattr(model, "vehicle_token_initialization"):
+        result["qwen_vehicle_token_embeddings"] = model.vehicle_token_initialization
+    return result
