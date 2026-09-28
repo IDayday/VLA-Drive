@@ -21,17 +21,26 @@ def main():
              'real_optimizer_updates','synthetic_optimizer_updates','inference_scenes','failed','parameters',
              'trainable_parameters','load_seconds','forward_seconds','backward_seconds','gradient_l2','losses',
              'peak_allocated_bytes','peak_reserved_bytes') if k in value}
+        row.setdefault('run_id',path.parent.name)
         end=now if value['status']=='RUNNING' else value.get('end_unix',value['start_unix'])
         row['gpu_hours_at_snapshot']=(end-value['start_unix'])*value['gpu_count']/3600
         row['raw_status_sha256']=file_sha256(path);rows.append(row)
     for path in sorted((root/'training').glob('*/status.json')):
-        value=json.loads(path.read_text());attempts=[]
+        value=json.loads(path.read_text());attempts=[];attempt_calls=[];attempt_exposures=[]
         for attempt in sorted(path.parent.glob('attempt_*.json')):
             item=json.loads(attempt.read_text())
             end=now if item['status']=='RUNNING' else item.get('end_unix',item['start_unix'])
             attempts.append((end-item['start_unix'])*item['gpu_count']/3600)
+            if 'attempt_optimizer_updates' in item:attempt_calls.append(item['attempt_optimizer_updates'])
+            if 'attempt_sample_presentations' in item:attempt_exposures.append(item['attempt_sample_presentations'])
         row={k:value[k] for k in ('kind','status','source_sha','gpu_count','real_optimizer_updates','sample_presentations','epoch','batch_offset')}
         row.update(run_id=path.parent.name,gpu_hours_at_snapshot=sum(attempts),attempts=len(attempts),raw_status_sha256=file_sha256(path));rows.append(row)
+        if attempt_calls and len(attempt_calls)==len(attempts):row['actual_optimizer_calls_in_run']=sum(attempt_calls)
+        if attempt_exposures and len(attempt_exposures)==len(attempts):
+            row['model_progress_scene_presentations']=row['sample_presentations']
+            row['sample_presentations']=sum(attempt_exposures)
+        fork=path.parent/'fork_provenance.json'
+        if fork.exists():row['diagnostic_fork_inherited_updates']=json.loads(fork.read_text())['inherited_updates']
         for log in path.parent.glob('train_rank*.jsonl'):
             # Training log schema contains only aggregate losses/counts/costs.
             values=[json.loads(line) for line in log.read_text().splitlines()]
@@ -42,7 +51,7 @@ def main():
     for path in sorted(root.glob('optimizer_stasis_correction*/validity_overlay.json')):
         for row in json.loads(path.read_text())['runs']:invalid[row['run_id']]=row
     for row in rows:
-        row['recorded_real_optimizer_calls']=row.get('real_optimizer_updates',0)
+        row['recorded_real_optimizer_calls']=row.get('actual_optimizer_calls_in_run',row.get('real_optimizer_updates',0))
         row['verified_effective_real_updates']=None
         if row.get('run_id') in invalid:
             row['verified_effective_real_updates']=invalid[row['run_id']]['effective_parameter_updates']
@@ -58,7 +67,7 @@ def main():
         'recorded_real_optimizer_calls':sum(r.get('recorded_real_optimizer_calls',0) for r in rows),
         'verified_effective_real_updates':sum(r.get('verified_effective_real_updates') or 0 for r in rows),
         'sample_presentations':sum(r.get('sample_presentations',0) for r in rows),
-        'accounting':'one cumulative progress count per run; GPU occupancy summed over attempts, including load/failure/evaluation; RUNNING costs are lower bounds',
+        'accounting':'actual attempt update/exposure deltas when available (diagnostic fork inheritance excluded); GPU occupancy summed over attempts, including load/failure/evaluation; RUNNING costs are lower bounds',
         'formal_training_gpu_hour_cap':8000,'initial_diagnostic_gpu_hour_ceiling':20,'maximum_diagnostic_gpu_hour_ceiling':40})
     for name in ('startup_AB_initialization_comparison.json','startup_BC_initialization_comparison.json',
                  'startup_resume_comparison_initial.json','depth_current_transform_audit.json'):

@@ -34,6 +34,18 @@ Fresh installations need the original repository requirements and the pinned gen
   --output /new/path/formal_configs --seeds 42 43
 ```
 
+The exact ordered train/dev partition is published as `reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json`. Its103288scene identifiers and1192log names were checked against the official NAVSIM repository's pinned Navtrain filter; this file contains partition metadata, not sensor data or annotations. It removes the dependency on the historical experiment's private artifact path. Use it with the actual data builder:
+
+```bash
+"$DDP_PYTHON" -m tools.ddpolicy_vehicle.prepare_data \
+  --split-manifest reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json \
+  --processed-root "$DDP_META" --raw-log-root /path/to/trainval_navsim_logs/trainval \
+  --sensor-root /path/to/trainval_sensor_blobs/trainval \
+  --output /new/path/vehicle_targets_v1 --workers 8
+```
+
+The published manifest preserves the exact population and order. A rebuild gets a new cache identity because its manifest/provenance paths differ; scene labels and split membership must still agree.
+
 Use new output directories. Data builders are `prepare_data`, `prepare_depth`, and `prepare_current`; each exposes paths through `--help`. Label and current-observation outputs are separate. No prediction cache or driving teacher is involved. The current Navtest cache contains only allowed observations, and creating it did not run a model or inspect PDM values.
 
 ## Executed checks and ongoing small fit
@@ -134,3 +146,5 @@ The controller uses fresh run IDs; its24-hour allocation pauses resume only the 
 After all frozen predictions are scored, `analyse_campaign` builds separate label-only raw-log vehicle targets and produces full scene/log pairing, vehicle coverage, and B/C errors on a fixed shared vehicle set. Missed targets remain in coverage denominators. Relative ego/vehicle error uses trajectories from the same joint sample; minimum center distance is only a geometric diagnostic, not official collision scoring. No Navtest label data are read by the camera exporter.
 
 The controller is RUNNING; complete development/Navtest results remain NOT_RUN. `CODEX_GOAL_STATE.md` records live artifact paths and the source distinction. Formal training began while the independent512-step diagnostics finish; their weights never initialize formal models. Actual current-camera state checks and the failed/full versus passing/sampled resume evidence are in `reports/ddpolicy_vehicle_from_scratch/corrected_learning_preflight/`.
+
+A read-only `report_campaign` observer can wait for the controller, gather actual per-run progress/costs, complete official score tables and paired intervals, then push only the task branch using a new detached report worktree and a normal fast-forward push. An incomplete second seed remains explicitly incomplete. It publishes initialization hashes, public-source identities, derived paired scores and the training curve; raw sensor data, prediction banks, model weights and private scene figures remain outside git. A failed push preserves the local report and commit.

@@ -55,4 +55,4 @@ cd /mnt/project/VLA-Drive-ddpolicy-campaign-20260928
 CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m tools.ddpolicy_vehicle.campaign --plan /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_campaign_v1/plan.json --directory /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_campaign_controller_v1 --resume --acknowledge-stop
 ```
 
-If FAILED, inspect the saved error/log before restarting. Do not resume invalid/no-op runs or start duplicate formal trainers. Formal model files, caches, data, private images and scene CSVs stay outside git. Push only this task branch; never merge/force-push.
+If FAILED, inspect the saved error/log before restarting. Do not resume invalid/no-op runs or start duplicate formal trainers. Formal model files, caches, raw data and private images stay outside git. The public official-token partition is now provided as NAVTRAIN_PARTITION.json; derived paired score CSVs may be published as requested results, without trajectories or annotations. Push only this task branch; never merge/force-push.
