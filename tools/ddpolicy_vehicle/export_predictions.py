@@ -22,6 +22,7 @@ def main():
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--max-seconds", type=int, default=1800)
     p.add_argument("--final-lock")
+    p.add_argument("--local-checkpoint-cache", help="Optional allocated local disk for exact copies of this campaign's evaluation checkpoints")
     a = p.parse_args()
     if not 0 <= a.rank < a.world_size or a.limit < 0 or a.max_seconds < 1: raise ValueError("Invalid shard/budget")
     with metered_run(a.campaign_root, a.run_id, 1, {"kind": "camera_prediction_export", "real_optimizer_updates": 0}) as (record, _, save):
@@ -32,7 +33,7 @@ def main():
         from starVLA.dataloader.ddpolicy_current import CurrentCameraDataset
         from starVLA.model.framework.DDPVehicle import DDPVehicle
         from starVLA.model.modules.vehicle_joint.initialization import file_sha256, identity_hash
-        from .checkpoints import checkpoint_identity, scene_noise
+        from .checkpoints import checkpoint_identity, scene_noise, stage_checkpoint
         dataset = CurrentCameraDataset(a.current_root)
         training, checkpoint = checkpoint_identity(a.training_run, a.checkpoint_tag)
         source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
@@ -58,13 +59,16 @@ def main():
             if json.loads(identity_path.read_text()) != identity: raise ValueError("Export resume identity mismatch")
         else: atomic_json(identity_path, identity)
         record.update(checkpoint=checkpoint["sha256"], evaluation_source=source, protocol=protocol); save()
+        checkpoint_root = Path(a.training_run)/"checkpoints"
+        if a.local_checkpoint_cache:
+            checkpoint_root = stage_checkpoint(a.training_run, a.checkpoint_tag, checkpoint, a.local_checkpoint_cache)
         sources = json.loads(Path(cfg.from_scratch.source_manifest).read_text())
         os.environ["DEPTH_MODEL_CKPTS"] = sources["ppd"]["root"]
         cfg.framework.qwenvl.device_map = "cpu"
         model = DDPVehicle(cfg, accelerator=SimpleNamespace(process_index=0, device=torch.device("cpu")))
         # Restore FP32 masters, not a BF16 round-trip of the learned parameters.
         from deepspeed.utils.zero_to_fp32 import get_fp32_state_dict_from_zero_checkpoint
-        state = get_fp32_state_dict_from_zero_checkpoint(str(Path(a.training_run)/"checkpoints"), tag=a.checkpoint_tag)
+        state = get_fp32_state_dict_from_zero_checkpoint(str(checkpoint_root), tag=a.checkpoint_tag)
         model.float(); model.load_state_dict(state, strict=True); del state
         model.to("cuda").eval(); model.inference_fp32 = True
         indices = list(range(min(a.limit or len(dataset), len(dataset))))[a.rank::a.world_size]

@@ -32,3 +32,27 @@ def scene_noise(token, sampling_seed, actors, device):
     # Always generate the same full shape, including Base's unused actor slots.
     value = torch.randn((1, 9, 8, 4), generator=torch.Generator().manual_seed(seed), dtype=torch.float32)
     return value[:, :actors].to(device)
+
+
+def stage_checkpoint(run, tag, checkpoint, cache_root):
+    """Hash-verified local copy avoids tiny mmap reads on network filesystems."""
+    import os
+    import shutil
+    source = Path(run)/"checkpoints"/tag
+    root = Path(cache_root)/checkpoint["sha256"]
+    root.mkdir(parents=True, exist_ok=True)
+    output = root/tag
+    output.mkdir(exist_ok=True)
+    required = {name:sha for name,sha in checkpoint["files"].items() if 'model_states' in name or 'optim_states' in name}
+    missing = [name for name in required if not (output/name).exists()]
+    needed = sum((source/name).stat().st_size for name in missing)
+    if shutil.disk_usage(root).free < needed*1.1: raise OSError("Insufficient local checkpoint staging space")
+    for name, sha in required.items():
+        target = output/name
+        if not target.exists():
+            temp = target.with_suffix(f".{os.getpid()}.tmp")
+            shutil.copyfile(source/name, temp)
+            if file_sha256(temp) != sha: raise ValueError("Checkpoint staging hash mismatch")
+            os.replace(temp, target)
+        elif file_sha256(target) != sha: raise ValueError("Local checkpoint cache changed")
+    return root
