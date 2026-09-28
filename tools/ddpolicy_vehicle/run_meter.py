@@ -25,7 +25,7 @@ def metered_run(root, run_id, gpu_count, details):
     save()
     try:
         yield record, out, save
-        record["status"] = "COMPLETE"
+        if record["status"] == "RUNNING": record["status"] = "COMPLETE"
     except BaseException as error:
         record["status"] = "FAILED"
         record["error"] = repr(error)

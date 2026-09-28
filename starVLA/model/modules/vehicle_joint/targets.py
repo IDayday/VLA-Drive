@@ -23,7 +23,7 @@ def make_vehicle_targets(current, future, capacity=32, bounds=(1., -20., 50., 20
     keep = names == "vehicle"
     vehicle_current = dict(current)
     vehicle_current["anns"] = {"gt_names": names[keep], "gt_boxes": boxes[keep],
-                               "track_tokens": tracks[keep]}
+                               "track_tokens": [str(x) for x in tracks[keep]]}
     eligible = None
     if current_eligibility is not None:
         eligible = np.asarray(current_eligibility)

@@ -77,7 +77,12 @@ class DDPVehicleDataset(Dataset):
         sample["ego_speed"] = float(np.linalg.norm(np.asarray(raw["glo_status"]["velocities"])[3, :2]))
         sample["navigation"] = int(np.asarray(raw["glo_status"]["commands"])[3].argmax())
         if self.training:
-            payload = torch.load(self.vehicle_root/"targets"/(token+".pt"), map_location="cpu", weights_only=True)
+            # Initial v1 records stored np.str_ track audit IDs. Allow only the
+            # narrow NumPy scalar/string constructors, retaining weights_only.
+            with torch.serialization.safe_globals([np.core.multiarray.scalar, np.dtype,
+                                                    type(np.dtype("U16")), np.str_]):
+                payload = torch.load(self.vehicle_root/"targets"/(token+".pt"), map_location="cpu", weights_only=True)
+            payload["targets"]["track_ids"] = tuple(str(x) for x in payload["targets"]["track_ids"])
             if payload["schema"] != SCHEMA or payload["identity"] != self.identity:
                 raise ValueError("Vehicle target identity mismatch")
             sample["vehicle_targets"] = payload["targets"]

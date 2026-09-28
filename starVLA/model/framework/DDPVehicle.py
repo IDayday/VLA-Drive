@@ -23,6 +23,7 @@ from starVLA.model.modules.vehicle_joint.action_head import VehicleJointActionHe
 from starVLA.model.modules.vehicle_joint.graphs import VehicleGraphConfig, select_vehicles
 from starVLA.model.modules.vehicle_joint.initialization import (
     initialization_seed, add_random_driving_tokens, verify_generic_source, file_sha256,
+    validate_pinned_sources,
 )
 
 
@@ -41,6 +42,7 @@ class DDPVehicle(Qwenvl_OFT):
         if config.datasets.reward_data.load_reward_data or config.framework.action_model.mlp_head:
             raise ValueError("Use the original FM action head without reward/scorer")
         sources = json.loads(Path(config.from_scratch.source_manifest).read_text())
+        validate_pinned_sources(sources)
         if config.datasets.video_data.load_2d_data:
             verify_generic_source(config.framework.video_model.model_name, sources["wan"])
         if config.w_depth:
@@ -220,7 +222,16 @@ class DDPVehicle(Qwenvl_OFT):
                 losses["main_fm"] = self.action_model(encoded["action"].repeat(repeat, 1, 1), ego.repeat(repeat, 1, 1))
         else:
             targets = self.move_targets(examples, ego.device)
-            world, matches = world_losses({k:v.float() for k,v in encoded["vehicle_prediction"].items()}, targets)
+            # Per-scene normalization followed by scene mean makes microbatch,
+            # tail and DDP accumulation weighting explicit (no variable-label
+            # denominator silently changes when a global batch is partitioned).
+            per_scene, matches = [], []
+            for i, target in enumerate(targets):
+                (sums, counts), match = world_losses(
+                    {k:v[i:i+1].float() for k,v in encoded["vehicle_prediction"].items()}, [target], return_sums=True)
+                per_scene.append({k:sums[k]/max(1, counts[k]) for k in sums})
+                matches.extend(match)
+            world = {k:torch.stack([d[k] for d in per_scene]).mean() for k in per_scene[0]}
             losses.update({"vehicle_"+k: v for k,v in world.items()})
             boxes, queries, active, source, audits = self.current_graph(encoded, examples)
             labels = ego.new_zeros(len(ego), active.shape[1], 8, 4)

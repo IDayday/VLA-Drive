@@ -16,7 +16,10 @@ def main():
     p.add_argument("--limit", type=int, default=32)
     p.add_argument("--max-seconds", type=int, default=1800)
     p.add_argument("--device", default="cuda")
+    p.add_argument("--rank", type=int, default=0)
+    p.add_argument("--world-size", type=int, default=1)
     a = p.parse_args()
+    if not 0 <= a.rank < a.world_size: raise ValueError("Invalid independent extraction shard")
     with metered_run(a.campaign_root, a.run_id, int(a.device.startswith("cuda")),
                      {"kind": "original_generic_depth_labels", "max_seconds": a.max_seconds}) as (record, run_dir, save):
         started = time.monotonic()
@@ -40,10 +43,12 @@ def main():
         tokens = json.loads(Path(a.tokens).read_text())
         if isinstance(tokens, dict): tokens = tokens["train_tokens"]+tokens.get("dev_tokens", [])
         if a.limit: tokens = tokens[:a.limit]
+        tokens = tokens[a.rank::a.world_size]
         completed = 0
         for token in tokens:
             if time.monotonic()-started >= a.max_seconds:
-                record["incomplete_reason"] = "startup time allocation exhausted"; break
+                record["status"] = "PAUSED"
+                record["incomplete_reason"] = "registered extraction time allocation exhausted"; break
             dst = out/(token+".npz")
             if dst.exists(): continue
             with np.load(Path(a.observation_root)/"observations"/(token+".npz")) as obs:
@@ -60,6 +65,7 @@ def main():
             completed += 1; record["inference_scenes"] = completed; save()
         record["requested_scenes"] = len(tokens)
         record["written_scenes"] = completed
+        record["existing_scenes_in_shard"] = sum((out/(t+".npz")).is_file() for t in tokens)
         print(json.dumps({"written_scenes": completed, "requested_scenes": len(tokens)}), flush=True)
 
 

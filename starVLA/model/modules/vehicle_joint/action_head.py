@@ -103,7 +103,9 @@ class VehicleJointActionHead(FlowmatchingActionHead):
         errors = (pred.float() - (labels-clean_noise).float()).square()
         def average(part):
             weights = valid[:, part]
-            return torch.where(weights, errors[:, part], 0.).sum() / weights.sum().clamp_min(1)
+            numerator = torch.where(weights, errors[:, part], 0.).flatten(1).sum(-1)
+            denominator = weights.flatten(1).sum(-1).clamp_min(1)
+            return (numerator/denominator).mean()
         # Preserve full ego FM magnitude; additional vehicles do not dilute it.
         ego, vehicles = average(slice(0, 1)), average(slice(1, None))
         return ego + vehicles, {"ego_fm": ego.detach(), "vehicle_fm": vehicles.detach(),

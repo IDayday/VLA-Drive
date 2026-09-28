@@ -50,6 +50,18 @@ def verify_generic_source(root, record):
             "files": verified, "generic_pretraining_data_fully_auditable": False}
 
 
+def validate_pinned_sources(sources):
+    """External asset paths may change; the reviewed public revision/hashes may not."""
+    reference = Path(__file__).parents[4] / "reports/ddpolicy_vehicle_from_scratch/GENERIC_SOURCES.json"
+    pinned = json.loads(reference.read_text())
+    if set(sources) != set(pinned):
+        raise ValueError("Generic source module inventory differs from the pinned campaign")
+    for name, expected in pinned.items():
+        actual = {k:v for k,v in sources[name].items() if k != "root"}
+        if actual != expected:
+            raise ValueError(f"Generic source differs from public pinned manifest: {name}")
+
+
 @contextmanager
 def initialization_seed(seed):
     """New modules must not consume the RNG stream used for shared modules."""
