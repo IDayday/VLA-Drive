@@ -255,6 +255,7 @@ class Qwenvl_OFT(baseframework):
                     self.depth_ppd_cfg.model.pipeline.config[key]=str(Path(os.environ['DEPTH_MODEL_CKPTS'])/Path(old).name)
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
             missing, unexpected = self.gs_model.load_state_dict(torch.load(self.depth_ppd_cfg.model.pipeline.config.ckpt_path, map_location='cpu'), strict=False)
+            self.ppd_generic_load_report = {"missing": list(missing), "unexpected": list(unexpected)}
             print(f'[PPD] missing keys: {len(missing)} {missing[:8]}')
             print(f'[PPD] unexpected keys: {len(unexpected)} {unexpected[:8]}')
         

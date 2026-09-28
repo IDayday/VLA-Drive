@@ -15,7 +15,6 @@
 from typing import List
 import numpy as np
 import torch
-from evo.core.trajectory import PosePath3D
 
 from depth_anything_3.utils.geometry import affine_inverse, affine_inverse_np
 
@@ -82,6 +81,7 @@ def _poses_from_ext(ext_ref, ext_est):
 
 
 def _umeyama_sim3_from_paths(pose_ref, pose_est):
+    from evo.core.trajectory import PosePath3D
     path_ref = PosePath3D(poses_se3=pose_ref.copy())
     path_est = PosePath3D(poses_se3=pose_est.copy())
     r, t, s = path_est.align(path_ref, correct_scale=True)

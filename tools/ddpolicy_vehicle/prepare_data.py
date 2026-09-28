@@ -42,6 +42,13 @@ def atomic_json(path, value):
     os.replace(tmp, path)
 
 
+def camera_path(relative, config):
+    for root in [config["sensor_root"], *config.get("fallback_sensor_root", [])]:
+        path = Path(root)/relative
+        if path.is_file(): return path
+    raise FileNotFoundError(f"Camera frame missing from all declared roots: {relative}")
+
+
 def process_log(task):
     log, tokens, config = task
     out = Path(config["output"])
@@ -75,7 +82,7 @@ def process_log(task):
             # frame, never inferred from an adjacent frame or future bbox.
             for cam in CAMERAS:
                 raw_cam = current["cams"][cam]
-                p = Path(config["sensor_root"]) / raw_cam["data_path"]
+                p = camera_path(raw_cam["data_path"], config)
                 expected = meta["glo_images"][cam.lower()]["image_paths"][3]
                 if Path(expected).name != p.name:
                     raise ValueError("Current image timestamp mismatch")
@@ -88,8 +95,7 @@ def process_log(task):
                 distortions.append(raw_cam["distortion"]); paths.append(str(p))
             for frame in frames[i:i + 9]:
                 for cam in CAMERAS:
-                    if not (Path(config["sensor_root"]) / frame["cams"][cam]["data_path"]).is_file():
-                        raise FileNotFoundError("Missing original-recipe current/future camera frame")
+                    camera_path(frame["cams"][cam]["data_path"], config)
             if len(frames[i:i + 9]) != 9:
                 raise ValueError("Insufficient future frames for original video/ego labels")
             boxes = np.asarray(current["anns"]["gt_boxes"]) if current.get("anns") else np.empty((0, 7))
@@ -140,6 +146,7 @@ def main():
     for name in ("split-manifest", "processed-root", "raw-log-root", "sensor-root", "output"):
         p.add_argument("--" + name, required=True)
     p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--fallback-sensor-root", action="append", default=[])
     p.add_argument("--capacity", type=int, default=32)
     p.add_argument("--limit", type=int, default=0, help="0 means full fixed train+dev; nonzero is a separate smoke cache")
     p.add_argument("--resume", action="store_true")
@@ -159,6 +166,7 @@ def main():
               "raw_log_root": str(Path(a.raw_log_root).resolve()),
               "processed_root": str(Path(a.processed_root).resolve()),
               "sensor_root": str(Path(a.sensor_root).resolve()),
+              "fallback_sensor_root": [str(Path(x).resolve()) for x in a.fallback_sensor_root],
               "builder_sha256": file_sha256(__file__),
               "target_code_sha256": file_sha256(Path(__file__).parents[2] / "starVLA/model/modules/vehicle_joint/targets.py")}
     ident = identity_hash(source)
