@@ -56,8 +56,15 @@ def merge_parts(out,bank,index,identity,parts):
     if any(e!=evaluators[0] for e in evaluators):raise ValueError('Mixed official evaluator versions')
     export=identity['export'];export_hash=identity_hash(export)
     for shard in range(export['world_size']):
-        state=json.loads((bank/f'shard_{shard}.json').read_text())
-        if state['status']!='complete' or state['completed']!=len(index[shard::export['world_size']]) or state['identity_sha256']!=export_hash:
+        state_path=bank/f'shard_{shard}.json'
+        # The last scene can be scored just before the GPU writer publishes its
+        # shard completion record. Keep the CPU rows and finish on resume.
+        if not state_path.exists():return None
+        state=json.loads(state_path.read_text())
+        if state['identity_sha256']!=export_hash:
+            raise ValueError('GPU export identity changed')
+        if state['status']=='paused':return None
+        if state['status']!='complete' or state['completed']!=len(index[shard::export['world_size']]):
             raise ValueError('GPU export shard incomplete or changed')
     rows=merge_population(index,groups)
     for row in rows:
@@ -119,6 +126,7 @@ def main():
             code=subprocess.call(cmd,env=env,stdout=log,stderr=subprocess.STDOUT)
         summary=merge_parts(out,bank,index,identity,a.parts)
         if summary:meter.update(inference_scenes=summary['scenes'],failed=summary['failed']);save()
+        elif not code:meter.update(status='PAUSED',reason='Other CPU partitions or GPU completion records pending');save()
         if code or summary and not summary['valid']:raise RuntimeError('Official scoring failed; partial rows and diagnostics retained')
 
 

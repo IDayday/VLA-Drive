@@ -81,4 +81,21 @@ Formal training uses `--scope formal` without `--limit`, the registered common u
 
 Final Navtest export rejects diagnostic checkpoints, a truncated population and absent/changed model/source/data/sampling locks. A final lock must list the exact formally selected checkpoint hashes, evaluator sourceSHA, complete current-data identity/count, inference steps and five sampling seeds42–46. Final official scoring and paired planning results are still NOT_RUN. The exported NPZ contains only the executable ego trajectory; the official scorer must retain the full traffic environment.
 
+## Official CPU scoring and paired analysis
+
+The existing official NAVSIM v1.1 worker has been validated on two real development scenes from the startup export, with zero failed rows. This confirms the pipeline only. It is not a full development result. Use the `navsim` Python environment for CPU scoring; the wrapper loads no driving model and consumes only the exported executable ego trajectory. It can run concurrently with GPU export. Incomplete partitions retain rows and are finalized by the identical command with `--resume`.
+
+```bash
+CUDA_VISIBLE_DEVICES='' python -m tools.foresight.score_pdms \
+  --devkit "$NAVSIM_V1_DEVKIT" --metric-index "$FULL_OFFICIAL_METRIC_INDEX" \
+  --current-index "$ART/student_dev_v1/index.json" --predictions "$PREDICTIONS" \
+  --output "$SCORES" --campaign-root "$ART" --run-id "$SCORE_RUN_ID" --workers 16
+
+# Formal five-seed aggregation is NOT_RUN until all registered models finish.
+python -m tools.foresight.summarize_experiments --registry "$SCORE_REGISTRY" \
+  --output "$PAIRED_REPORT" --split dev
+```
+
+The registry is a JSON list with `arm`, `training_seed`, `sampling_seed`, and `score_dir` for each result. Formal groups require the same checkpoint for inference seeds42–46; training seeds remain separate. The analysis preserves failed samples at zero and marks the benchmark invalid, averages inference seeds within scenes, and resamples complete logs for paired intervals. It writes B−A, C−A, D−B, D−C and A−R scene/log CSVs; missing comparisons remain NOT_RUN. A one-log diagnostic produces no confidence interval. `--diagnostic --sampling-seeds 42` is allowed only for a development pipeline check, never for the main table or Navtest.
+
 GPU policy applies to local and vla-zt2: verify and stop only the pressure parents on allocated cards before work; restore pressure after the allocation exits. Current parent/worker identities are in `$ART/gpu_pressure` and job launch JSONs; re-check `/proc` before signalling because PIDs can be reused.
