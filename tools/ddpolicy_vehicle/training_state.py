@@ -13,7 +13,8 @@ def epoch_batches(size, batch, seed, epoch):
 
 def capture_rng(model, noise, roles):
     state = {"python": random.getstate(), "numpy": np.random.get_state(),
-             "torch": torch.random.get_rng_state(), "cuda": torch.cuda.get_rng_state_all(),
+             "torch": torch.random.get_rng_state(), "cuda_local": torch.cuda.get_rng_state(),
+             "cuda_local_rank": torch.cuda.current_device(),
              "noise": noise.get_state(), "roles": roles.state_dict()}
     if hasattr(model, "rgb_model"):
         wan = model.rgb_model
@@ -26,7 +27,12 @@ def restore_rng(state, model, noise, roles):
     random.setstate(state["python"])
     np.random.set_state(state["numpy"])
     torch.random.set_rng_state(state["torch"])
-    torch.cuda.set_rng_state_all(state["cuda"])
+    if "cuda_local" in state:
+        if state["cuda_local_rank"] != torch.cuda.current_device():
+            raise ValueError("Resume local device identity changed")
+        torch.cuda.set_rng_state(state["cuda_local"])
+    else:
+        torch.cuda.set_rng_state_all(state["cuda"])
     noise.set_state(state["noise"])
     roles.load_state_dict(state["roles"])
     if "wan" in state:
