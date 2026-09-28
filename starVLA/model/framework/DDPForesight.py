@@ -18,7 +18,11 @@ class DDPForesight(Qwenvl_OFT):
         raise ValueError('Use verified generic initialization or an identity-checked THIS-campaign resume')
 
     def __init__(self, config, accelerator=None):
-        self.foresight_config=ForesightConfig(**dict(config.foresight)).validate()
+        options=dict(config.foresight)
+        # Environment-backed OmegaConf values are strings until explicitly typed.
+        for key in ('lambda_vis','lambda_int','normalization_eps'):
+            if key in options: options[key]=float(options[key])
+        self.foresight_config=ForesightConfig(**options).validate()
         if config.get('from_scratch') is None: raise ValueError('Generic source manifest required')
         flags=[config.datasets.video_data.load_2d_data,config.datasets.gs_data.load_3d_data,
                config.datasets.reward_data.load_reward_data,config.get('w_depth',0),
