@@ -1,7 +1,9 @@
 import numpy as np
 import torch
+import pytest
 from tools.ddpolicy_vehicle.evaluate_vehicles import evaluate_scene
 from tools.ddpolicy_vehicle.paired_results import log_bootstrap
+from tools.ddpolicy_vehicle.evaluate_ego import relative_ego_target, trajectory_errors
 
 
 def test_missed_vehicle_stays_in_denominator_and_motion_keeps_same_track():
@@ -25,3 +27,15 @@ def test_cluster_bootstrap_retains_scene_weighting_and_one_log_limit():
     result=log_bootstrap([1.,1.,-1.],['a','a','b'],samples=100)
     assert result['mean']==1/3 and result['logs']==2
     assert log_bootstrap([1.,-1.],['a','a'])['ci95'] is None
+
+
+def test_offline_ego_frame_and_wrapped_heading():
+    poses=np.tile([100.,200.,np.pi/2],(12,1))
+    poses[4:,1] += np.arange(1,9)
+    target=relative_ego_target(poses)
+    np.testing.assert_allclose(target[:,:2],np.column_stack((np.arange(1,9),np.zeros(8))),atol=1e-12)
+    pred=target.copy();pred[:,2]+=2*np.pi
+    assert trajectory_errors(pred,target)['yaw_MAE_rad']==0
+    assert trajectory_errors(np.zeros((8,3)),target)['ADE']==4.5
+    pred[0,0]=np.nan
+    with pytest.raises(ValueError,match='Nonfinite'):trajectory_errors(pred,target)

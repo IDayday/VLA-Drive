@@ -1,0 +1,62 @@
+campaign: ddpolicy_vehicle_joint_from_scratch_20260928
+historical_campaigns: sealed_not_resumed
+formal_gpu_hour_cap: null  # Pending user resource limit; old48 does not carry over.
+temporary_diagnostic_campaign_gpu_hour_cap: 20
+accounting: all_attempts_including_loading_failures_extraction_training_and_evaluation
+formal:
+  status: NOT_RUN
+  primary: [A_seed42, B_seed42, C_seed42]
+  required_second_seed: [B_seed43, C_seed43]
+  optional: [A_seed43]
+  updates_per_run: 100000
+  scheduler_updates: 100000
+  warmup_updates: 5000
+  all_hidden_start: 90000
+  global_batch: 32
+  train_scenes: 101592
+  updates_per_full_pass: 3175
+  final_batch_per_full_pass: 24
+  scene_presentations_per_run: 3199752
+  primary_plus_required_second_seed_update_cap: 500000
+  estimated_training_gpu_hours_five_runs: 7500
+  estimate_scope: extrapolation_from_four_real_8GPU_updates_not_full_training_measurement
+  evaluation_and_io_reserve: not_included_in_7500
+small_fit:
+  source_sha: 5076336f657980d46631657d2d2dfa8c5c007281
+  arms: [A, B, C]
+  seed: 42
+  scenarios: 64
+  represented_logs: 60
+  selection: first64_tokens_of_fixed_train_manifest_before_model_results
+  updates_per_arm: 512
+  update_cap: 1536
+  global_batch: 16
+  micro_batch: 2
+  gpus_per_arm: 2
+  learning_rate: 0.00001
+  warmup_updates: 32
+  scheduler_updates: 512
+  all_hidden_start: 448
+  checkpoint_milestones: [64, 128, 256, 512]
+  diagnostic_only: true
+  may_initialize_formal_models: false
+startup:
+  completed_real_optimizer_updates: 16
+  completed_scene_presentations: 176
+  synthetic_optimizer_updates: 0
+evaluation:
+  navsim: v1.1
+  dev_scenes: 1696
+  dev_logs: 16
+  navtest_scenes: 12146
+  navtest_logs: 136
+  precision: FP32
+  inference_seeds: [42, 43, 44, 45, 46]
+  joint_samples_per_scene_per_seed: 1
+  euler_steps: 10
+  scorer: null
+  oracle_selection: false
+  trajectory_averaging: false
+  paired_uncertainty: whole_log_cluster_bootstrap
+  full_dev_status: NOT_RUN
+  navtest_model_status: NOT_RUN
