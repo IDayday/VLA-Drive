@@ -68,28 +68,30 @@ For a safely PAUSED run, use the **same** code/config/data/world size/run ID and
 
 An earlier Base log omitted ego-coordinate counts. This field is corrected in the fresh runs. The more serious old two-GPU optimizer no-op means those earlier losses are not learning evidence, regardless of their exposure counts.
 
-## Formal training — NOT_RUN
+## Formal training — RUNNING
 
 The original recipe is100000updates, globalbatch32, AdamW1e-5, betas0.9/0.95, eps1e-8, weight decay0.001, warmup5000, cosine floor5e-7. At101592scenes, a pass is3175updates with a24scene final batch.100000updates expose3199752scenes, not exactly3200000. B/C use their final10000updates without the auxiliary task. Formal models restart independently from generic/random initialization, including after a successful small fit.
 
-Eight-GPU startup measured6.6–7.0sec/update after the first update. Five full runs extrapolate to about7500GPU-hours of training; complete evaluation, cold data I/O, failures and reserves are additional. The registered full campaign cap is8000GPU-hours on existing authorized resources, including the diagnostic stage. This default follows the optional budget question receiving no reply; user changes override it. No rented or additional device is included. The command below is **NOT_RUN** while small-fit diagnostics are active; it must not inherit the old48GPU-hours:
+Eight-GPU startup measured6.6–7.0sec/update after the first update. Five full runs extrapolate to about7500GPU-hours of training; complete evaluation, cold data I/O, failures and reserves are additional. The registered full campaign cap is8000GPU-hours on existing authorized resources, including the diagnostic stage. This default follows the optional budget question receiving no reply; user changes override it. No rented or additional device is included. The immutable controller has now started the full campaign at source `4f27cbb5b83806331325aa473a01da4fd1738d60`. C42 is running on vla-zt2GPU4/5/6/7; A42 and B42 start automatically on local0/1/2/3 and4/5/6/7 after the bounded small fits release those devices. Each is a new generic/random initialization. The registered five-run plan uses four GPUs per model, globalbatch32/microbatch4, and a300GPU-hour final-evaluation reserve. A real four-GPU startup measured12.4sec/update and41.56GiB peak; five-run training extrapolates to6889.6GPUh, with workload/loading/evaluation limitations.
+
+Live state and exact launch registration:
 
 ```bash
-export DDP_GPU_HOURS_CAP=8000  # Registered new campaign cap; includes all prior work.
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 "$DDP_PYTHON" -m torch.distributed.run \
-  --standalone --nproc_per_node=8 -m tools.ddpolicy_vehicle.train \
-  --config /new/path/formal_configs/A_seed42.yaml \
-  --processed-root "$DDP_META" \
-  --vehicle-root "$DDP_ARTIFACTS/vehicle_targets_v1_complete" \
-  --depth-root "$DDP_ARTIFACTS/depth_labels_v1" \
-  --tokens "$DDP_ARTIFACTS/vehicle_targets_v1_complete/train_tokens.json" \
-  --campaign-root "$DDP_ARTIFACTS" --run-id formal_A_seed42_001 \
-  --global-batch 32 --micro-batch 4 --updates 100000 --save-every 1000 \
-  --milestones 0,1000,5000,10000,25000,50000,75000,90000,100000 \
-  --campaign-gpu-hours "$DDP_GPU_HOURS_CAP" --max-seconds 86400
+cat "$DDP_ARTIFACTS/formal_campaign_controller_v1/status.json"
+cat "$DDP_ARTIFACTS/formal_campaign_v1/plan.json"
 ```
 
-Run B/C seed42 with their own configurations/IDs, then the matched B/C seed43 pair. A seed43 is optional if resources permit. Stop/resume preserves the100000-step scheduler; a24-hour allocation boundary is a safe pause, not an experiment completion. Only allocated idle GPUs may be used; no other task is stopped.
+Only if the controller is stopped, resume it with the same frozen plan/source. Its exclusive lock rejects a duplicate controller:
+
+```bash
+cd /mnt/project/VLA-Drive-ddpolicy-campaign-20260928
+CUDA_VISIBLE_DEVICES='' "$DDP_PYTHON" -m tools.ddpolicy_vehicle.campaign \
+  --plan "$DDP_ARTIFACTS/formal_campaign_v1/plan.json" \
+  --directory "$DDP_ARTIFACTS/formal_campaign_controller_v1" \
+  --resume --acknowledge-stop
+```
+
+A FAILED status requires inspection of the recorded error before restarting. A24-hour allocation boundary safely saves and resumes the100000-step scheduler. Explicit stop files are preserved. No other task is stopped. The B/C43pair follows the primary trio and development evaluation if the registered budget remains; an unfinished pair is reported explicitly. A43is not planned.
 
 ## Current-camera prediction and evaluation
 
@@ -131,4 +133,4 @@ The controller uses fresh run IDs; its24-hour allocation pauses resume only the 
 
 After all frozen predictions are scored, `analyse_campaign` builds separate label-only raw-log vehicle targets and produces full scene/log pairing, vehicle coverage, and B/C errors on a fixed shared vehicle set. Missed targets remain in coverage denominators. Relative ego/vehicle error uses trajectories from the same joint sample; minimum center distance is only a geometric diagnostic, not official collision scoring. No Navtest label data are read by the camera exporter.
 
-Controller and complete benchmark stages are still NOT_RUN at this commit. The executable plan path and source SHA will be recorded when the small-fit learning check is complete.
+The controller is RUNNING; complete development/Navtest results remain NOT_RUN. `CODEX_GOAL_STATE.md` records live artifact paths and the source distinction. Formal training began while the independent512-step diagnostics finish; their weights never initialize formal models. Actual current-camera state checks and the failed/full versus passing/sampled resume evidence are in `reports/ddpolicy_vehicle_from_scratch/corrected_learning_preflight/`.
