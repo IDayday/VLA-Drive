@@ -107,17 +107,20 @@ class DDPForesight(Qwenvl_OFT):
         losses={'ego_fm':fm};metrics={};cfg=self.foresight_config
         weights=min(1.,(completed_updates+1)/cfg.auxiliary_warmup)
         counts=global_counts or {}
+        if 'ego_scenes' in counts:
+            from torch import distributed as dist
+            world=dist.get_world_size() if dist.is_initialized() else 1
+            losses['ego_fm']=fm*(len(ego)*world/float(counts['ego_scenes']))
         if hasattr(self,'future_head'):
             values=targets['future_latent'].to(device)
             valid=targets['future_valid'].to(device)
             if values.shape[0:3]!=(len(ego),3,3) or valid.shape!=(len(ego),3,3):raise ValueError('Future horizon/view shape')
             # Labels choose only a LOSS task; encode_current was already completed.
-            choices=[]
-            for row in valid.cpu().any(-1):
-                eligible=torch.where(row)[0]
-                pick=int(torch.randint(max(1,len(eligible)),(1,),generator=horizon_generator))
-                choices.append(int(eligible[pick]) if len(eligible) else 0)
-            horizon=torch.tensor(choices,device=device)
+            if 'visual_horizon' in targets:
+                horizon=targets['visual_horizon'].to(device)
+            else:
+                from starVLA.model.modules.foresight.losses import select_horizons
+                horizon=select_horizons(valid.cpu(),horizon_generator).to(device)
             rows=torch.arange(len(ego),device=device)
             with self.amp():prediction=self.future_head(encoded['W'],horizon,(cfg.latent_height,cfg.latent_width))
             mask=valid[rows,horizon,:,None,None,None]

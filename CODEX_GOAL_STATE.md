@@ -14,3 +14,9 @@ Current dependency: official FLUX.1-schnell VAE download is gated401; requested 
 Next: core MAE and foresight modules, focused tests, real vehicle data, full teacher training, VAE targets, student calibration and complete matched campaign. CPU/data/teacher work continues during VAE dependency resolution.
 Real training updates in THIS campaign:0. No results yet. Short tests never count as complete training.
 Push this branch after tested code stages; verify remote SHA. Do not upload weights/cache/raw images or private annotations.
+
+## Live stage1 status
+
+Initial implementation pushed and verified atd3c05d1. Full teacher data prepared0failures,101592train/1696dev, log-disjoint. Teacher512small-fit COMPLETE; metrics inreports/ddp_shared_foresight/teacher_preflight.8real resume-test updates,512small-fit updates. Full teacher from independent random init RUNNING PID1346936 localGPU0, frozen source/worktree d3c05d136949ecc14b1a8312fa12bf966ae03643 /mnt/project/VLA-Drive-foresight-run-d3c05d1. Run: /mnt/project/ddp-foresight-artifacts/20260928/teacher_full30_v1; exact command teacher_full30_launch.json. DO NOT duplicate or edit frozen source.11910plannedupdates,30epochs. Full teacher resume must use same source, original command plus --resume --acknowledge-stop after checking live status.
+
+Student GPU preflight v1 FAILED before model construction (environment float conversion),0updates. Fixed at2069df2; rerun uses newrun ID and frozen source. FLUX download401remains the only known external dependency; teacher and other implementation continue. Old stopped campaign remains sealed.

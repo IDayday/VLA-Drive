@@ -1,0 +1,20 @@
+{
+  "registered_utc": "2026-09-28T16:38:55.948599+00:00",
+  "source_sha": "d3c05d136949ecc14b1a8312fa12bf966ae03643",
+  "data_identity": "9534ed915d11bf677f6fbb9af6216f887fc42175558340769c2187d0433eb31f",
+  "train_scenes": 101592,
+  "dev_scenes": 1696,
+  "epochs": 30,
+  "batch": 256,
+  "seed": 42,
+  "lr": 0.0003,
+  "xy_scale": 20,
+  "extra_companion_mask_probability": 0,
+  "freeze_selection": "After ALL30epochs complete, choose fixed milestone1/2/4/8/16/24/30 minimizing0.5*(ego_with_peer ADE+vehicle_with_peer ADE), tie later. Never use Navtest. Save and report every milestone.",
+  "smallfit_weights_reused": false,
+  "teacher_loss": "valid xy SmoothL1; balanced nominal target ego/neighbor; true ego-only fallback retained",
+  "maximum_optimizer_updates": 11910,
+  "phase_gpu_hour_cap": 48,
+  "finite_reruns_max": 2,
+  "early_stop": "only correctness/user stop/allocation budget; no early quality stop"
+}

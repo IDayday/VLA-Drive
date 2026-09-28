@@ -4,6 +4,17 @@ from torch import distributed as dist
 from torch.nn import functional as F
 
 
+def select_horizons(valid, generator):
+    if valid.ndim!=3 or valid.shape[1:]!=(3,3) or valid.dtype!=torch.bool or valid.device.type!='cpu':
+        raise ValueError('Horizon scheduling requires CPU B,horizon,view booleans')
+    choices=[]
+    for row in valid.any(-1):
+        eligible=torch.where(row)[0]
+        pick=int(torch.randint(max(1,len(eligible)),(1,),generator=generator))
+        choices.append(int(eligible[pick]) if len(eligible) else 0)
+    return torch.tensor(choices,dtype=torch.long)
+
+
 def masked_regression(prediction, target, valid, *, kind='mse', global_count=None):
     if target.shape != prediction.shape or valid.dtype != torch.bool:
         raise ValueError('Regression shape/mask contract')

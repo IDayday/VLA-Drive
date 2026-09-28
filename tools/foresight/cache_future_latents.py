@@ -31,7 +31,7 @@ def main():
         vae_identity=json.loads(Path(a.vae_identity).read_text());vae=FluxTargetEncoder(a.vae_root,vae_identity)
         identity={'schema':'foresight_flux_targets_v1','vae':vae_identity,'split':a.split,'partition_hash':file_sha256(a.split_manifest),
                   'horizons_s':[1.,2.,4.],'timestamp_tolerance_s':.05,'views':CAMERAS,'short_side':a.short_side,
-                  'preprocessing':'natural RGB, aspect-preserving LANCZOS, right/bottom stride padding, range[-1,1]',
+                  'preprocessing':'same DDP16:9 current/future crop; aspect-preserving LANCZOS, right/bottom stride padding, range[-1,1]',
                   'scaling_factor':vae.scale,'shift_factor':vae.shift,'stride':vae.stride,'channels':vae.channels,
                   'posterior':'mode','dtype':'float32_encoder_float16_cache','shards':a.shards,
                   'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}

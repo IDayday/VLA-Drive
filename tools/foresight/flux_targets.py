@@ -31,13 +31,18 @@ class FluxTargetEncoder(nn.Module):
     def preprocess(self,path,short_side=256):
         with Image.open(path) as src:
             image=src.convert('RGB');w,h=image.size
-            ow,oh=round(w*short_side/min(w,h)),round(h*short_side/min(w,h))
+            # Match the student's fixed DDP crop in the raw image coordinate
+            # system, then use the smaller label-encoder resolution.
+            cw,ch=(int(h*16/9),h) if w/h>16/9 else (w,int(w*9/16))
+            crop=((w-cw)//2,(h-ch)//2,(w-cw)//2+cw,(h-ch)//2+ch)
+            image=image.crop(crop)
+            ow,oh=round(cw*short_side/min(cw,ch)),round(ch*short_side/min(cw,ch))
             image=image.resize((ow,oh),Image.Resampling.LANCZOS)
             x=torch.from_numpy(np.array(image,copy=True)).permute(2,0,1).float()/127.5-1
         pw=(-ow)%self.stride;ph=(-oh)%self.stride
         x=F.pad(x,(0,pw,0,ph),mode='replicate')
         return x,{'original_wh':[w,h],'resized_wh':[ow,oh],'pad_right_bottom':[pw,ph],
-                  'input_range':[-1,1],'crop':None,'resize':'PIL_LANCZOS','short_side':short_side}
+                  'input_range':[-1,1],'crop':list(crop),'resize':'PIL_LANCZOS','short_side':short_side}
     @torch.no_grad()
     def encode_images(self,images):
         self.vae.eval();parameter=next(self.vae.parameters())
