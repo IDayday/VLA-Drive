@@ -117,6 +117,7 @@ class DDPVehicle(Qwenvl_OFT):
         return self
 
     def amp(self):
+        if getattr(self, "inference_fp32", False): return nullcontext()
         return torch.autocast("cuda" if next(self.parameters()).is_cuda else "cpu", dtype=torch.bfloat16)
 
     def encode_current(self, examples):

@@ -17,6 +17,7 @@ import time
 
 
 def main():
+    entry_start = time.time()
     p = argparse.ArgumentParser(__doc__)
     for key in ("config", "tokens", "processed-root", "vehicle-root", "depth-root", "campaign-root", "run-id"):
         p.add_argument("--"+key, required=True)
@@ -56,7 +57,11 @@ def main():
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
     rank, world = int(os.environ.get("RANK", 0)), int(os.environ.get("WORLD_SIZE", 1))
     torch.cuda.set_device(local_rank)
-    if world > 1:
+    os.environ.setdefault("LOCAL_RANK", str(local_rank))
+    if dist.is_initialized():
+        if dist.get_rank() != rank or dist.get_world_size() != world:
+            raise ValueError("Existing distributed group does not match launcher identity")
+    elif world > 1:
         dist.init_process_group("nccl")
     else:
         # DeepSpeed requires a process group even for single-GPU CPU offload.
@@ -103,7 +108,7 @@ def main():
     dist.barrier()
     attempt = f"attempt_{time.time_ns()}" if rank == 0 else None
     shared = [attempt]; dist.broadcast_object_list(shared, 0); attempt = shared[0]
-    start = time.time()
+    start = entry_start
     status = {"status": "RUNNING", "identity": identity_sha, "source_sha": source_sha,
               "gpu_count": world, "host": socket.gethostname(), "pid": os.getpid(), "start_unix": start,
               "real_optimizer_updates": 0, "sample_presentations": 0, "kind": "startup_training" if a.startup else "formal_training"}
