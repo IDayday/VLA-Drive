@@ -293,5 +293,6 @@ class DDPVehicle(Qwenvl_OFT):
         if not torch.isfinite(result).all(): raise FloatingPointError("Nonfinite executed ego")
         return {"ego": result, "joint_encoded": joint, "vehicle_xy": vehicles_xy,
                 "active_actor_mask": active, "graph_audit": audit,
+                "modeled_state_mask": modeled_mask(active) if active is not None else torch.ones_like(joint, dtype=torch.bool),
                 "vehicle_prediction": encoded.get("vehicle_prediction"),
                 "selected_query_indices": source if self.joint_enabled else None}

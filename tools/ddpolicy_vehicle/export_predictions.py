@@ -39,10 +39,13 @@ def main():
         source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
         if subprocess.check_output(["git", "status", "--porcelain"]): raise ValueError("Commit evaluation source before export")
         cfg = OmegaConf.create(training["config"])
-        protocol = {"precision": "FP32", "samples_per_scene": 1, "sampling_seed": a.sampling_seed,
+        protocol = {"precision": "FP32", "tf32": False, "samples_per_scene": 1, "sampling_seed": a.sampling_seed,
                     "solver": "original Euler", "steps": int(cfg.framework.action_model.num_inference_timesteps),
                     "scorer": None, "camera_only": True, "gt_future_conditioning": False,
-                    "noise_protocol": "ddpolicy-v1 SHA256 token/seed; CPU randn 1x9x8x4; ego slot0"}
+                    "noise_protocol": "ddpolicy-v1 SHA256 token/seed; CPU randn 1x9x8x4; ego slot0",
+                    "state_contract": {"ego_slot":0,"ego":"original normalized xy and sin/cos yaw",
+                        "vehicle":"xy residual from predicted current center /20; yaw canonical zero and unmodeled",
+                        "coordinate_frame":"ego at current decision time"}}
         if dataset.metadata.get("split") == "navtest":
             if not a.final_lock or a.limit or checkpoint["startup"] or checkpoint["small_fit"]: raise ValueError("Navtest requires full, formally trained, frozen endpoint")
             lock = json.loads(Path(a.final_lock).read_text())
@@ -71,6 +74,9 @@ def main():
         state = get_fp32_state_dict_from_zero_checkpoint(str(checkpoint_root), tag=a.checkpoint_tag)
         model.float(); model.load_state_dict(state, strict=True); del state
         model.to("cuda").eval(); model.inference_fp32 = True
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+        torch.backends.cudnn.benchmark = False
         indices = list(range(min(a.limit or len(dataset), len(dataset))))[a.rank::a.world_size]
         failed = complete = 0
         for index in indices:
@@ -93,7 +99,7 @@ def main():
                 result = model.predict_action([example], initial_noise=noise)
                 torch.cuda.synchronize(); row["inference_seconds"] = time.monotonic()-start
                 arrays = {"trajectory": result["ego"][0].cpu().numpy(), "joint_encoded": result["joint_encoded"][0].float().cpu().numpy()}
-                for key in ("vehicle_xy", "active_actor_mask", "selected_query_indices"):
+                for key in ("vehicle_xy", "active_actor_mask", "modeled_state_mask", "selected_query_indices"):
                     if result[key] is not None: arrays[key] = result[key][0].cpu().numpy()
                 if result["vehicle_prediction"] is not None:
                     arrays.update({"vehicle_"+key:value[0].float().cpu().numpy() for key,value in result["vehicle_prediction"].items()})
