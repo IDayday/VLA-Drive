@@ -35,12 +35,28 @@ def main():
         for log in path.parent.glob('train_rank*.jsonl'):
             # Training log schema contains only aggregate losses/counts/costs.
             values=[json.loads(line) for line in log.read_text().splitlines()]
-            allowed={'update','epoch','offset','global_scene_exposure','lr','seconds','rank','losses','coordinates','graphs','roles','peak_allocated_bytes','tasks','role_counter_scope'}
+            allowed={'update','epoch','offset','global_scene_exposure','lr','seconds','rank','losses','coordinates','graphs','roles','peak_allocated_bytes','tasks','role_counter_scope','optimizer_update'}
             if any(set(v)-allowed for v in values):raise ValueError('Unknown training log fields need privacy review')
             (out/(path.parent.name+'_'+log.name)).write_text(''.join(json.dumps(v)+'\n' for v in values))
+    invalid={}
+    for path in sorted(root.glob('optimizer_stasis_correction*/validity_overlay.json')):
+        for row in json.loads(path.read_text())['runs']:invalid[row['run_id']]=row
+    for row in rows:
+        row['recorded_real_optimizer_calls']=row.get('real_optimizer_updates',0)
+        row['verified_effective_real_updates']=None
+        if row.get('run_id') in invalid:
+            row['verified_effective_real_updates']=invalid[row['run_id']]['effective_parameter_updates']
+            row['training_validity']='INVALID_OPTIMIZER_STASIS; historical call/exposure/cost record preserved'
+        else:
+            path=root/'training'/row.get('run_id','')/'train_rank0.jsonl'
+            if path.exists():
+                values=[json.loads(line) for line in path.read_text().splitlines()]
+                verified=sum(v.get('optimizer_update',{}).get('fp32_master_update_verified',False) for v in values)
+                if verified:row['verified_effective_real_updates']=verified
     atomic_json(out/'RUNS.json',{'snapshot_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'runs':rows,'gpu_hours_at_snapshot':sum(r['gpu_hours_at_snapshot'] for r in rows),
-        'real_optimizer_updates':sum(r.get('real_optimizer_updates',0) for r in rows),
+        'recorded_real_optimizer_calls':sum(r.get('recorded_real_optimizer_calls',0) for r in rows),
+        'verified_effective_real_updates':sum(r.get('verified_effective_real_updates') or 0 for r in rows),
         'sample_presentations':sum(r.get('sample_presentations',0) for r in rows),
         'accounting':'one cumulative progress count per run; GPU occupancy summed over attempts, including load/failure/evaluation; RUNNING costs are lower bounds',
         'formal_training_gpu_hour_cap':8000,'initial_diagnostic_gpu_hour_ceiling':20,'maximum_diagnostic_gpu_hour_ceiling':40})

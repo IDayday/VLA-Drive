@@ -11,3 +11,7 @@ Validation plan: independently initialize a B correction run from the same gener
 Registered diagnostic maximum is40GPU-hours within the new8000GPU-hour whole campaign ceiling, including the original diagnostics, one paired correction, all startup/failure/evaluation costs. While the original20GPU-hour runs are active, only this single128-step correction is started, so their registered limit remains effective. No third recipe or parameter search is registered.
 
 The public summary JSON files in `scale_diagnosis_step64` retain the original train-only ego/vehicle metrics. EgoADE11.516m is a64-step fitting diagnostic, not PDMS, a development result, or evidence of planning gain. There is no valid detected-vehicle ADE denominator yet; missing values are retained rather than reported as zero error.
+
+## Superseding evidence: optimizer stasis
+
+The parameter/momentum check subsequently showed that the two-GPU optimizer calls did not update parameters at all. FusedAdam tensor length metadata overflow is independently reproduced on GPU; see optimizer_stasis/VALIDITY_OVERLAY.json. Consequently the earlier scale diagnosis does NOT establish a learnability defect. The scale20 probe is paused and not selected for formal training. Correct the optimizer first and return all new matched diagnostics to metric_v0 (scale1). Existing metrics remain as evidence of the failed pipeline, not trained predictions.

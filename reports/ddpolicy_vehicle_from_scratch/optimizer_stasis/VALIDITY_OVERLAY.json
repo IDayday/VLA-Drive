@@ -1,0 +1,90 @@
+{
+  "time_utc": "2026-09-28T06:52:17.449489+00:00",
+  "runs": [
+    {
+      "run_id": "small_fit_A_seed42_001",
+      "recorded_optimizer_calls": 179,
+      "sample_presentations": 2864,
+      "effective_parameter_updates": 0,
+      "status": "PAUSED",
+      "cause": "single ZeRO optimizer partition exceeds INT_MAX; FusedAdam tensor length metadata wraps",
+      "historical_status_unchanged": true
+    },
+    {
+      "run_id": "small_fit_B_seed42_001",
+      "recorded_optimizer_calls": 179,
+      "sample_presentations": 2864,
+      "effective_parameter_updates": 0,
+      "status": "PAUSED",
+      "cause": "single ZeRO optimizer partition exceeds INT_MAX; FusedAdam tensor length metadata wraps",
+      "historical_status_unchanged": true
+    },
+    {
+      "run_id": "small_fit_C_seed42_001",
+      "recorded_optimizer_calls": 179,
+      "sample_presentations": 2864,
+      "effective_parameter_updates": 0,
+      "status": "PAUSED",
+      "cause": "single ZeRO optimizer partition exceeds INT_MAX; FusedAdam tensor length metadata wraps",
+      "historical_status_unchanged": true
+    },
+    {
+      "run_id": "small_fit_scale_B_seed42_001",
+      "recorded_optimizer_calls": 34,
+      "sample_presentations": 544,
+      "effective_parameter_updates": 0,
+      "status": "PAUSED",
+      "cause": "single ZeRO optimizer partition exceeds INT_MAX; FusedAdam tensor length metadata wraps",
+      "historical_status_unchanged": true
+    },
+    {
+      "run_id": "startup_B_2gpu_001",
+      "recorded_optimizer_calls": 4,
+      "sample_presentations": 32,
+      "effective_parameter_updates": 0,
+      "status": "COMPLETE",
+      "cause": "single ZeRO optimizer partition exceeds INT_MAX; FusedAdam tensor length metadata wraps",
+      "historical_status_unchanged": true
+    }
+  ],
+  "verified_noop_optimizer_calls": 575,
+  "supersedes_learning_interpretation_of_old_logs": true,
+  "scope": "original ledgers preserved; calls/exposure/GPU cost remain charged; no-op calls are not learning steps",
+  "other_startup_effective_updates": "CPU-offload and8GPU partition sizes do not establish this defect; verify separately",
+  "kernel_counterexample": [
+    {
+      "split_below_int32": false,
+      "parameter_sizes": [
+        2147483904
+      ],
+      "after_first_values": [
+        1.0
+      ],
+      "after_last_values": [
+        1.0
+      ],
+      "exp_avg_first": [
+        0.0
+      ]
+    },
+    {
+      "split_below_int32": true,
+      "parameter_sizes": [
+        1073741952,
+        1073741952
+      ],
+      "after_first_values": [
+        0.9990000128746033,
+        0.9990000128746033
+      ],
+      "after_last_values": [
+        0.9990000128746033,
+        0.9990000128746033
+      ],
+      "exp_avg_first": [
+        0.10000002384185791,
+        0.10000002384185791
+      ]
+    }
+  ]
+}

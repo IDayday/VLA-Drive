@@ -1,4 +1,4 @@
-# DDP vehicle joint from-scratch campaign — SMALL FIT RUNNING
+# DDP vehicle joint from-scratch campaign — OPTIMIZER REPAIR
 
 Branch: feature/ddpolicy-vehicle-joint-from-scratch-20260928
 Reference base: 632cf74c4c7269228d66d569e0c54846b07c95f4
@@ -26,3 +26,5 @@ Read-only progress command:
 Commands: docs/DDPOLICY_VEHICLE_FROM_SCRATCH.md. Evidence: reports/ddpolicy_vehicle_from_scratch/startup_evidence_20260928/. This state is a launch snapshot; refresh after runs finish.
 
 Train-only scale diagnosis: B/update64 camera inference has0/333 detected GT vehicles and zero selected graph actors; all predicted x centers remain within[-0.012,0.184]m. One bounded correction decodes head xy in20m units, retaining graph thresholds/assignment/common parameters. See reports/ddpolicy_vehicle_from_scratch/SMALL_FIT_SCALE_DIAGNOSIS.md. Prepare new B correction run with128-step pause, then matched B/C512 only if actual joint supervision begins. Original runs remain unmodified. Diagnostic maximum40GPUh is included in the full8000GPUh ceiling.
+
+CRITICAL UPDATE: all four active diagnostic runs were cooperatively saved/paused at A179/B179/C179/scale-B34 after64/128 checkpoint comparison proved parameter stasis. Installed DeepSpeed0.16.9 FusedAdam metadata uses int32 tensor sizes; the two-GPU flattened partitions exceed2^31. GPU counterexample: one2147483904-element tensor stays1.0/momentum0, two1073741952-element tensors update to0.9990000129/momentum0.1. Old calls/exposure/cost remain charged; they are NOT effective learning updates. See optimizer_stasis/VALIDITY_OVERLAY.json. New trainer bounds parameter groups to500M elements and verifies actual FP32 master changes every step. The scale hypothesis is superseded; new formal/diagnostic configs revert to scale1. Next: commit bounded-group fix, actual2GPU full-model update+resume checks, then fresh paired camera fits and full100k-step campaign. Do not resume the no-op runs.

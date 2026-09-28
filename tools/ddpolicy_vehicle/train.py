@@ -59,6 +59,7 @@ def main():
     from starVLA.model.framework.DDPVehicle import DDPVehicle
     from .prepare_data import atomic_json
     from .training_state import epoch_batches, capture_rng, restore_rng
+    from .optimizer_safety import bounded_parameter_groups, capture_master_samples, master_update_evidence, MAX_GROUP_ELEMENTS
     import random
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
     rank, world = int(os.environ.get("RANK", 0)), int(os.environ.get("WORLD_SIZE", 1))
@@ -93,6 +94,7 @@ def main():
                 "depth_identity": json.loads((Path(a.depth_root)/"identity.json").read_text()),
                 "world_size": world, "global_batch": a.global_batch, "micro_batch": a.micro_batch,
                 "updates": a.updates, "startup": a.startup, "small_fit": a.small_fit, "offload_optimizer": a.offload_optimizer,
+                "optimizer_grouping": {"version": "bounded_elements_v1", "max_group_elements": MAX_GROUP_ELEMENTS},
                 "precision": "DeepSpeed BF16 with FP32 optimizer masters", "arm": cfg.from_scratch.arm}
     identity_sha = identity_hash(identity)
     lock = None
@@ -174,8 +176,10 @@ def main():
         if a.offload_optimizer:
             ds_config["zero_optimization"]["offload_optimizer"] = {"device": "cpu", "pin_memory": True}
             ds_config["zero_force_ds_cpu_optimizer"] = True
+        parameter_groups, grouping_record = bounded_parameter_groups(model.named_parameters())
+        if rank == 0 and not a.resume: atomic_json(run_dir/"optimizer_groups.json", grouping_record)
         engine, _, _, _ = deepspeed.initialize(model=model,
-            model_parameters=[p for p in model.parameters() if p.requires_grad], config=ds_config)
+            model_parameters=parameter_groups, config=ds_config)
         roles = VehicleRoleScheduler(int(cfg.seed)+7000+rank)
         noise = torch.Generator(device=torch.device("cuda", local_rank)).manual_seed(int(cfg.seed)+9000+rank)
         if a.resume:
@@ -268,12 +272,18 @@ def main():
                     graph_log["selected_vehicles"] += audit["selected_vehicles"]
                     graph_log["context_vehicles"] += audit["context_vehicles"]
                     graph_log["ego_only"] += audit["ego_only"]
+            master_before = capture_master_samples(engine.optimizer)
             engine.step()
+            update_evidence = master_update_evidence(engine.optimizer, master_before, torch.device('cuda',local_rank))
+            norm = float(engine.get_global_grad_norm())
+            if not math.isfinite(norm): raise FloatingPointError('Nonfinite optimizer global gradient norm')
+            update_evidence['global_gradient_norm'] = norm
             completed += 1; offset += 1; exposures += len(global_batches[offset-1])
             row = {"update": completed, "epoch": epoch, "offset": offset, "global_scene_exposure": exposures,
                    "lr": lr, "seconds": time.monotonic()-step_start, "rank": rank, "losses": loss_log,
                    "coordinates": coordinate_log, "graphs": graph_log, "roles": dict(roles.counts),
                    "tasks": task_log, "role_counter_scope": "eligibility scheduler; B applies all-hidden, C applies eligible roles",
+                   "optimizer_update": update_evidence,
                    "peak_allocated_bytes": torch.cuda.max_memory_allocated()}
             with (run_dir/f"train_rank{rank}.jsonl").open("a") as f: f.write(json.dumps(row)+"\n")
             if completed in milestones: checkpoint(f"milestone_{completed:06d}")
