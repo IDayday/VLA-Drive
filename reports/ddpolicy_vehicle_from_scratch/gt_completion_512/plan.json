@@ -1,0 +1,35 @@
+{
+  "scope": "64 fixed TRAIN ego queries, all-hidden versus clean neighbor GT conditioned; diagnostic only",
+  "source_sha": "ea0398943f1cb2904f1357814bb754a44f64465b",
+  "max_seconds_per_arm": 1800,
+  "external_timeout_seconds": 2100,
+  "real_optimizer_updates": 0,
+  "sampling_seed": 42,
+  "B_C_matching": "same ego identities and per-scene noise; own camera-predicted graph within each arm",
+  "runs": [
+    {
+      "arm": "B",
+      "host": "training-vla-zt2",
+      "gpu": 1,
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "training-vla-zt2",
+        "cd /mnt/project/VLA-Drive-ddpolicy-completion-20260928 && env CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NO_ALBUMENTATIONS_UPDATE=1 TOKENIZERS_PARALLELISM=false PYTHONUNBUFFERED=1 timeout --signal=INT 2100 /root/miniconda3/envs/ddp/bin/python -m tools.ddpolicy_vehicle.diagnose_completion --training-run /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/training/small_fit_fixed_B_seed42_001 --checkpoint-tag milestone_000512 --current-root /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/current_smallfit64_v1 --vehicle-root /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/vehicle_targets_v1_complete --processed-root /mnt/navsim/navsim_dataset/meta/train --reference-predictions /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/smallfit_exports/fixed_B_step512_seed42 --output /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/completion64_v1/B --campaign-root /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928 --run-id completion64_B_512_v1 --local-checkpoint-cache /tmp/ddpolicy-smallfit-B512 --sampling-seed 42"
+      ]
+    },
+    {
+      "arm": "C",
+      "host": "training-vla-zt2",
+      "gpu": 2,
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "training-vla-zt2",
+        "cd /mnt/project/VLA-Drive-ddpolicy-completion-20260928 && env CUDA_VISIBLE_DEVICES=2 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NO_ALBUMENTATIONS_UPDATE=1 TOKENIZERS_PARALLELISM=false PYTHONUNBUFFERED=1 timeout --signal=INT 2100 /root/miniconda3/envs/ddp/bin/python -m tools.ddpolicy_vehicle.diagnose_completion --training-run /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/training/small_fit_fixed_C_seed42_001 --checkpoint-tag milestone_000512 --current-root /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/current_smallfit64_v1 --vehicle-root /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/vehicle_targets_v1_complete --processed-root /mnt/navsim/navsim_dataset/meta/train --reference-predictions /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/smallfit_exports/fixed_C_step512_seed42 --output /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/completion64_v1/C --campaign-root /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928 --run-id completion64_C_512_v1 --local-checkpoint-cache /tmp/ddpolicy-smallfit-C512 --sampling-seed 42"
+      ]
+    }
+  ]
+}

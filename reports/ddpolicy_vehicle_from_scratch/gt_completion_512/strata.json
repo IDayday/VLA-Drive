@@ -1,0 +1,15 @@
+{
+  "registered_utc": "2026-09-28T13:26:27.685187+00:00",
+  "groups": {
+    "all": "all64fixed ego queries",
+    "with_other_gt": "known_other_xy_points>0",
+    "without_other_gt": "known_other_xy_points==0",
+    "all_neighbor_points_known": "active_neighbors>0 and known_other_xy_points==8*active_neighbors",
+    "partial_neighbor_points": "0<known_other_xy_points<8*active_neighbors"
+  },
+  "selection_uses_model_error": false,
+  "primary_comparison": "within-model same ego/current graph/noise all-hidden versus GT-conditioned",
+  "B_C_limit": "each model has its own predicted graph; compare availability as well as errors; no direct pure mask mechanism claim from unequal supplied neighbors",
+  "formal_training_changed": false,
+  "diagnostic_is_PDMS": false
+}
