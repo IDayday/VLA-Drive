@@ -26,12 +26,19 @@ def bounded_parameter_groups(named_parameters, maximum=MAX_GROUP_ELEMENTS):
     return groups,records
 
 
+def sample_indices(size, samples, device):
+    if size<1 or samples<1:raise ValueError('Positive master tensor/sample sizes required')
+    count=min(samples,size)
+    # Float32 linspace can round a large final index from size-1 to size.
+    return torch.arange(count,device=device,dtype=torch.int64)*(size-1)//max(1,count-1)
+
+
 def capture_master_samples(optimizer, samples=512):
     captured=[]
     for parameter in optimizer.single_partition_of_fp32_groups:
         if parameter.dtype!=torch.float32 or parameter.numel()>=2**31:
             raise ValueError('Unsafe optimizer partition dtype/extent')
-        indices=torch.linspace(0,parameter.numel()-1,min(samples,parameter.numel()),device=parameter.device).long().unique()
+        indices=sample_indices(parameter.numel(),samples,parameter.device)
         captured.append((indices,parameter.detach()[indices].clone()))
     return captured
 

@@ -1,6 +1,6 @@
 import pytest
 import torch
-from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups, capture_master_samples, master_update_evidence
+from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups, capture_master_samples, master_update_evidence, sample_indices
 
 
 def test_large_parameter_grouping_preserves_every_parameter_once():
@@ -21,3 +21,10 @@ def test_optimizer_noop_rejected_and_real_master_change_recorded():
     optimizer.single_partition_of_fp32_groups[0][0]+=.001
     evidence=master_update_evidence(optimizer,before,'cpu')
     assert evidence['fp32_master_update_verified'] and evidence['sampled_changed_elements']==1
+
+
+def test_large_master_sample_indices_remain_exact_and_in_bounds():
+    for size in (1,155582464,500000000,2**31-1):
+        indices=sample_indices(size,512,'cpu')
+        assert indices[0]==0 and indices[-1]==size-1
+        assert (indices>=0).all() and (indices<size).all()
