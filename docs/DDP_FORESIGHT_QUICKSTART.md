@@ -47,6 +47,8 @@ python -m tools.foresight.export_predictions --training-run "$RUN" --checkpoint-
 
 Full teacher training and freeze selection were registered before launch. `freeze_teacher` rejects incomplete training; it selects only the registered milestones after all30epochs finish. The selected teacher is shared by C/D.
 
+`python -m tools.foresight.summarize_teacher --run "$ART/teacher_full30_v1" --output "$ART/new_teacher_snapshot"` has been tested on the running full-data teacher. It snapshots complete training log records, fixed development milestones, role/fallback counts, static/moving and complete/partial groups, log-cluster intervals and standalone learning curves. Peer removal results remain GT-conditioned mechanism diagnostics.
+
 ```bash
 python -m tools.foresight.freeze_teacher --teacher-run "$ART/teacher_full30_v1" \
   --registration "$ART/teacher_full_registration.json" --output "$ART/frozen_teacher.json"

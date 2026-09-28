@@ -1,0 +1,98 @@
+{
+  "PDMS": 0.24713374735701557,
+  "diagnostic": true,
+  "environment": "official full traffic/route environment; no vehicle-only scoring filter",
+  "evaluator_identity": {
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "failure_policy": "retain all requested rows; failures scored zero and invalidate benchmark",
+    "index_sha256": "6c3e527220635945807d8fd614aa93a21ded271900d7701a21829c32bf28c5f7",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "protocol": "official NAVSIM v1 full reference cache; one predicted trajectory per scene",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "scorer_sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211",
+    "simulator_sha256": "ae07b533ada10bc37e973e5685a46a7cafc51de8d922ed02add558452ff04807"
+  },
+  "evaluator_protocol": "official NAVSIM v1.1, one executed ego trajectory, no learned scorer/oracle",
+  "export_identity": {
+    "checkpoint": {
+      "arm": "A",
+      "completed": 4,
+      "files": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "391e4b9f80af15f44b6b10fd4cd4d42500073c55f48aa951917e33081b45d117",
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "39c48997b87aa5aef0f10ef6b8d872f75bf3e6b8bbfd4f3e495fb82ffaca86ba",
+        "mp_rank_00_model_states.pt": "ea33bfb98910bac8204cb29a95e5ad7a50818fbf48a633f142793bbc624bad9a",
+        "rng_rank0.pt": "6900a734317d8c6a0f9e4a42438aec82ef6d4e64b87ab48345542ebf9b0c360d",
+        "rng_rank1.pt": "a3de697b28a02509ae7a9ea73f18a6d443cc1c8c3c49cc0a3e73e7d762970b3c"
+      },
+      "run_identity": "ddc844372520203c7a23e309f7b8d98907856b34d816e9aad9e43bff9fab535a",
+      "scope": "startup",
+      "sha256": "6b1e4318e42a8287a56017f82f9b04626713c1197a5c1ca05c6a01f8d6d9f79e",
+      "tag": "final_000004",
+      "training_source_sha": "087139aa4df4109e79c29a35b8e4cbdbd47c59d0"
+    },
+    "current_identity": {
+      "cameras": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "current_only": true,
+      "history_images": 0,
+      "identity": "b2a0ae01c2580fe00c3da8d7351b51e940410486b8a3febf18eebb11d6d61d96",
+      "index_sha256": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "schema": "ddpolicy_current_cameras_v1",
+      "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+      "split": "dev",
+      "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+    },
+    "evaluation_source": "05422d216c3e0e759c2458388b75361b4a2ce311",
+    "limit": 2,
+    "protocol": {
+      "W_retained": 64,
+      "auxiliary_heads_removed": true,
+      "candidates_per_scene": 1,
+      "current_views": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "future_conditioning": false,
+      "history_images": 0,
+      "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+      "precision": "FP32",
+      "sampling_seed": 42,
+      "scorer": null,
+      "solver": "original Euler",
+      "steps": 10,
+      "tf32": false,
+      "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+    },
+    "world_size": 1
+  },
+  "failed": 0,
+  "failure_policy": "retain all requested rows, zero on failure, any failure invalidates benchmark",
+  "full_navtest": false,
+  "logs": 1,
+  "metrics": {
+    "comfort": 0.0,
+    "drivable_area_compliance": 0.5,
+    "driving_direction_compliance": 0.75,
+    "ego_progress": 0.0931209936568374,
+    "no_at_fault_collisions": 1.0,
+    "score": 0.24713374735701557,
+    "time_to_collision_within_bound": 1.0
+  },
+  "parts_csv_sha256": {
+    "0": "37765b632a9444fd8475faafd1e33ebd27a022ab6aa442165f59aa4fd210d126"
+  },
+  "scenes": 2,
+  "schema": "foresight_official_pdms_v1",
+  "valid": true,
+  "zero_fraction": 0.5
+}

@@ -22,6 +22,7 @@ def main():
     with metered_run(a.campaign_root,a.run_id,1,{'kind':'interaction_target_export','real_optimizer_updates':0}) as (record,_,save):
         import time
         source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+        if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Lock export source before producing teacher targets')
         teacher_id=json.loads((Path(a.teacher_run)/'identity.json').read_text())
         frozen=json.loads(Path(a.frozen_teacher).read_text())
         if frozen.get('schema')!='foresight_frozen_teacher_v1' or identity_hash({k:v for k,v in frozen.items() if k!='identity'})!=frozen['identity']:

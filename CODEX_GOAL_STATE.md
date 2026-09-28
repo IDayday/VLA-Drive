@@ -13,11 +13,13 @@ Old experiments/controllers remain sealed. Only this new branch may be pushed; n
 - Teacher real continuous4 vs2+2resume passed;8updates total. Teacher64scene small-fit512updates completed with actual learning. These weights are NOT the full teacher initialization.
 - Real public Qwen gradient test: main FM and both auxiliary readouts reach W and language. Auxiliary labels synthetic only in that one plumbing test. Current-input prediction is invariant to poisoned extra target fields and to removing auxiliary heads while retaining W.
 - Real R/A/B/C/D initialization pairing passed: shared language/driving tensors identical; A–D Widentical; no driving weights loaded; caller RNG preserved.
--20focused CPU tests pass. Actual2GPU NCCL empty-rank and accumulated auxiliary normalization match single-process gradients.
+-23focused CPU tests pass. Actual2GPU NCCL empty-rank and accumulated auxiliary normalization match single-process gradients.
 - Student micro1 real continuous4 vs2+2at087139a passed exact model/optimizer/RNG equality. A batch>1deterministic CUDA indexed-write failure was then reproduced before any optimizer update; fixed using unique-position scatter at56bf61e.
 - At frozen56bf61ec044850e4500a3d550b7205df5451253c: actual Qwen padded batch/current images/DeepStack/mRoPE vs separate FP32 inference passes, ego max difference4.77e-6. Four-GPU global32/micro4 and micro8 each completed4real updates. Micro8 median3.56s/update, rank0peak19.35GB. SAME-source micro8 continuous4 vs2+2also exact for model,4optimizer shards, all rank RNG and data progress.
 - Student startup total20real updates/416presentations; failed batch32v1 had0updates. No formal student run. Startup checkpoint FP32-master export tested on2dev scenes,0failures; no planning claim.
 - Actual results: reports/ddp_shared_foresight/student_preflight and batching_fix. Complete auxiliary evaluation, training-only gradient calibration and registered teacher-freeze tools implemented; real target-dependent execution NOT_RUN.
+- Official NAVSIMv1.1 CPU scoring passed on2real startup dev exports,0failed. This is only pipeline evidence. Five-inference-seed aggregation and paired log-cluster comparison tools are implemented/tested; full benchmark NOT_RUN. See planning_pipeline.
+- Teacher learning snapshot at2755updates/705040presentations, fixed dev milestones through4: ego-with-peer ADE.888m vs1.040m after peer removal; vehicle3.265m vs5.214m. All7342fixed queries retained,0failures. Teacher GT-conditioned diagnostics are not student planning results. Curves, role fallback and stratified counts in teacher_progress/snapshot_v1.
 
 ## Live process: DO NOT duplicate
 
