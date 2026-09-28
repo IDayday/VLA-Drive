@@ -44,29 +44,29 @@ CUDA_VISIBLE_DEVICES=7 DDPOLICY_TEST_CUDA=1 "$DDP_PYTHON" \
   -m pytest tests/vehicle_joint/test_cuda_state.py -q
 ```
 
-Actual results:20CPU passed, the explicit CUDA test passed. Full-camera A/B backward gradients are finite; B's vehicle Reader and vehicle heads have nonzero real-scene gradients. A/B shared driving tensors and B/C complete driving tensors hash identically at initialization. Single-,two-,eight-GPU startup training completed16real optimizer updates/176scene presentations in total. Continuous4 and2+2 restore preserve all RNG/progress states; maximum BF16 model-parameter difference was2.98e-8, so this is not a bitwise-resume claim.
+Actual results:25CPU tests passed after the optimizer correction; the separate explicit CUDA RNG test also passed. Full-camera A/B backward gradients are finite; B's vehicle Reader and vehicle heads have nonzero real-scene gradients. A/B shared driving tensors and B/C complete driving tensors hash identically at initialization. The early startup ledger records16optimizer calls/176scene presentations;4two-GPU calls were later proven optimizer no-ops. Historical counters remain preserved with a validity correction overlay. The corrected two-GPU full-model startup has completed4updates with verified FP32-master changes, and its2+2resume comparison restores every RNG/progress state. The new full FP32-master comparison differs by at most4.95e-6 and FAILS the predeclared2e-6+2e-5*abs(reference) tolerance. Earlier CPU-offload diagnostics had a2.98e-8 BF16 parameter difference; that different configuration is not evidence of exact two-GPU resume. A same-parent-checkpoint repeat is running to separate prefix nondeterminism from restoration. No bitwise equivalence is claimed.
 
-The independently registered small fits run in the immutable worktree `/mnt/project/VLA-Drive-ddpolicy-smallfit-20260928`, source `5076336f657980d46631657d2d2dfa8c5c007281`. Each A/B/C uses the same64training scenes, two GPUs, globalbatch16, microbatch2,512updates, lr1e-5, diagnostic warmup32/horizon512, and final64all-hidden. The temporary campaign diagnostic ceiling is20GPU-hours including earlier work. This diagnostic schedule is different from the official100000-step schedule and cannot establish full-training performance. Its checkpoints cannot enter the Navtest exporter or initialize a formal model.
+The first small fits at source5076336 were invalid optimizer no-ops and are sealed. Corrected independent fits use `/mnt/project/VLA-Drive-ddpolicy-optimizerfix2-20260928`, source `4843e4ddf8340ecc8b44a47fc5fc9b688a58e3a8`. Each A/B/C uses the same64training scenes, two GPUs, globalbatch16, microbatch2,512updates, lr1e-5, diagnostic warmup32/horizon512, and final64all-hidden. The bounded diagnostic ceiling is40GPU-hours within the full8000GPU-hour cap, including failed/no-op attempts and the correction. The earlier20GPU-hour registration is preserved as history. This diagnostic schedule is different from the official100000-step schedule and cannot establish full-training performance. Its checkpoints cannot enter the Navtest exporter or initialize a formal model.
 
 The following reproduces one launched command. Replace the run ID for a NEW repeat; do not restart the active run without checking its state:
 
 ```bash
-cd /mnt/project/VLA-Drive-ddpolicy-smallfit-20260928
-CUDA_VISIBLE_DEVICES=2,3 "$DDP_PYTHON" -m torch.distributed.run \
+cd /mnt/project/VLA-Drive-ddpolicy-optimizerfix2-20260928
+CUDA_VISIBLE_DEVICES=4,5 "$DDP_PYTHON" -m torch.distributed.run \
   --standalone --nproc_per_node=2 -m tools.ddpolicy_vehicle.train \
   --config "$DDP_ARTIFACTS/small_fit_v1/B.yaml" \
   --processed-root "$DDP_META" \
   --vehicle-root "$DDP_ARTIFACTS/vehicle_targets_v1_complete" \
   --depth-root "$DDP_ARTIFACTS/depth_labels_v1" \
   --tokens "$DDP_ARTIFACTS/small_fit_v1/tokens.json" \
-  --campaign-root "$DDP_ARTIFACTS" --run-id small_fit_B_seed42_001 \
+  --campaign-root "$DDP_ARTIFACTS" --run-id small_fit_fixed_B_seed42_001 \
   --global-batch 16 --micro-batch 2 --updates 512 --save-every 256 \
-  --milestones 64,128,256,512 --small-fit --campaign-gpu-hours 20 --max-seconds 10800
+  --milestones 64,128,256,512 --small-fit --campaign-gpu-hours 40 --max-seconds 10800
 ```
 
 For a safely PAUSED run, use the **same** code/config/data/world size/run ID and add `--resume --acknowledge-stop`; remove an elapsed `--stop-after` boundary when intentionally continuing. Completed runs cannot be silently extended. An incomplete write cannot become the `latest` pointer. `--resume-tag` can select an explicitly complete saved tag. Periodic saves retain only this run's newest complete periodic checkpoint; milestone, pause and endpoint checkpoints are immutable. Every resume attempt has its own charged GPU time. The old startup ledger's cumulative counters are not summed as if they were incremental updates.
 
-A logging-only omission in the active small-fit source leaves Base's `coordinates.ego` field zero; its actual main-FM supervision is present. Derive Base's count from scene exposures×repeat8×8points×4coordinates. This logging field is corrected for subsequent runs; active training source was not modified.
+An earlier Base log omitted ego-coordinate counts. This field is corrected in the fresh runs. The more serious old two-GPU optimizer no-op means those earlier losses are not learning evidence, regardless of their exposure counts.
 
 ## Formal training — NOT_RUN
 
@@ -83,7 +83,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 "$DDP_PYTHON" -m torch.distributed.run \
   --vehicle-root "$DDP_ARTIFACTS/vehicle_targets_v1_complete" \
   --depth-root "$DDP_ARTIFACTS/depth_labels_v1" \
   --tokens "$DDP_ARTIFACTS/vehicle_targets_v1_complete/train_tokens.json" \
-  --campaign-root "$DDP_ARTIFACTS" --run-id formal_A_seed42 \
+  --campaign-root "$DDP_ARTIFACTS" --run-id formal_A_seed42_001 \
   --global-batch 32 --micro-batch 4 --updates 100000 --save-every 1000 \
   --milestones 0,1000,5000,10000,25000,50000,75000,90000,100000 \
   --campaign-gpu-hours "$DDP_GPU_HOURS_CAP" --max-seconds 86400
@@ -99,7 +99,7 @@ The two-scene dev startup export and official scorer smoke have actually run, wi
 
 ```bash
 "$DDP_PYTHON" -m tools.ddpolicy_vehicle.export_predictions \
-  --training-run "$DDP_ARTIFACTS/training/formal_B_seed42" \
+  --training-run "$DDP_ARTIFACTS/training/formal_B_seed42_001" \
   --checkpoint-tag milestone_100000 --current-root "$DDP_ARTIFACTS/current_dev_v1" \
   --output /new/path/dev_B_seed42_sample42 --sampling-seed 42 \
   --campaign-root "$DDP_ARTIFACTS" --run-id dev_B_seed42_sample42 \
@@ -122,3 +122,13 @@ Training-only auxiliary modules remain loaded in the current exporter for strict
 ## Optimizer validity correction
 
 The early two-GPU logs counted optimizer calls that did not change parameters. Do not use those runs as learning evidence. The installed DeepSpeed0.16.9 FusedAdam header stores tensor sizes as int32; a ZeRO partition above2^31 silently becomes a no-op. GPU reproduction and historical run corrections are in `reports/ddpolicy_vehicle_from_scratch/optimizer_stasis/`. The trainer now bounds same-hyperparameter groups to500million elements and checks actual FP32-master changes on EVERY step before incrementing progress. Earlier raw logs and costs remain preserved. Corrected experiments start afresh; no invalid diagnostic checkpoint is resumed. The provisional xy-scale correction is not selected because its evidence was confounded by this optimizer defect.
+
+## Bounded full campaign controller
+
+`tools.ddpolicy_vehicle.campaign` executes an immutable JSON plan on the existing local/vla-zt2 GPUs, with exclusive run locks, idle-device checks and charged loading/training/evaluation time. It preserves a final-evaluation GPU-hour reserve before starting the optional second pair. Primary A/B/C training and complete development scoring have priority. The common checkpoint grid is25000/50000/75000/100000; selection maximizes mean full-dev PDMS over all five fixed sampling seeds, breaking ties toward the later checkpoint. This rule is fixed before any Navtest output. Training itself always reaches100000updates before a model can enter the final lock.
+
+The controller uses fresh run IDs; its24-hour allocation pauses resume only the same code/config/data identity. Explicit STOP files are preserved and require acknowledgement. It never resumes historic V2/V3 controllers or the invalid optimizer runs. A partial second pair is not presented as a completed seed replication.
+
+After all frozen predictions are scored, `analyse_campaign` builds separate label-only raw-log vehicle targets and produces full scene/log pairing, vehicle coverage, and B/C errors on a fixed shared vehicle set. Missed targets remain in coverage denominators. Relative ego/vehicle error uses trajectories from the same joint sample; minimum center distance is only a geometric diagnostic, not official collision scoring. No Navtest label data are read by the camera exporter.
+
+Controller and complete benchmark stages are still NOT_RUN at this commit. The executable plan path and source SHA will be recorded when the small-fit learning check is complete.

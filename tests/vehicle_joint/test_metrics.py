@@ -39,3 +39,17 @@ def test_offline_ego_frame_and_wrapped_heading():
     assert trajectory_errors(np.zeros((8,3)),target)['ADE']==4.5
     pred[0,0]=np.nan
     with pytest.raises(ValueError,match='Nonfinite'):trajectory_errors(pred,target)
+
+
+def test_joint_relative_error_uses_same_sample_ego_not_independent_best():
+    target=dict(current_boxes=torch.tensor([[5.,0,0,4,2,1,0,1]]),
+        future_xy_in_ego_t0=torch.tensor([[[5.,0]]*8]),future_valid_mask=torch.ones(1,8,dtype=torch.bool),
+        current_supervision_mask=torch.ones(1,dtype=torch.bool),track_ids=['vehicle'])
+    prediction=dict(vehicle_logits=np.array([[5.,-5.]]),vehicle_boxes=np.array([[5.,0,0,4,2,1,0,1]]),
+        vehicle_future_xy=np.array([[[5.,0]]*8]),vehicle_xy=np.array([[[5.,0]]*8]),
+        selected_query_indices=np.array([-1,0]),active_actor_mask=np.array([True,True]),
+        trajectory=np.tile([2.,0,0],(8,1)))
+    rows,_=evaluate_scene(prediction,target,ego_target=np.zeros((8,3)))
+    assert rows[0]['joint_ADE']==0
+    assert rows[0]['joint_relative_vector_ADE']==2
+    assert rows[0]['joint_pair_min_center_distance']==3
