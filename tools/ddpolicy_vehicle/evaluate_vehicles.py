@@ -15,7 +15,7 @@ from .prepare_data import atomic_json
 from starVLA.model.modules.vehicle_joint.initialization import file_sha256
 
 
-def evaluate_scene(prediction, target, *, existence=.2, maximum_center_error=2., ego_target=None):
+def evaluate_scene(prediction, target, *, existence=.2, maximum_center_error=2., ego_target=None, ego_valid=None):
     boxes = target["current_boxes"].numpy()
     xy = target["future_xy_in_ego_t0"].numpy()
     valid = target["future_valid_mask"].numpy().astype(bool)
@@ -61,11 +61,16 @@ def evaluate_scene(prediction, target, *, existence=.2, maximum_center_error=2.,
                         reference=np.asarray(ego_target)
                         if reference.shape!=(8,3) or not np.isfinite(reference).all():
                             raise ValueError('Invalid label-side ego horizon')
-                        relative_prediction=output[points]-prediction['trajectory'][points,:2]
-                        relative_target=xy[gt,points]-reference[points,:2]
-                        row['joint_relative_vector_ADE']=float(np.linalg.norm(relative_prediction-relative_target,axis=-1).mean())
-                        row['joint_pair_min_center_distance']=float(np.linalg.norm(relative_prediction,axis=-1).min())
-                        row['target_pair_min_center_distance']=float(np.linalg.norm(relative_target,axis=-1).min())
+                        mask=np.ones(8,dtype=bool) if ego_valid is None else np.asarray(ego_valid)
+                        if mask.dtype!=np.bool_ or mask.shape!=(8,):raise ValueError('Invalid ego label timing mask')
+                        shared=points[mask[points]]
+                        row['joint_relative_valid_points']=len(shared)
+                        if len(shared):
+                            relative_prediction=output[shared]-prediction['trajectory'][shared,:2]
+                            relative_target=xy[gt,shared]-reference[shared,:2]
+                            row['joint_relative_vector_ADE']=float(np.linalg.norm(relative_prediction-relative_target,axis=-1).mean())
+                            row['joint_pair_min_center_distance']=float(np.linalg.norm(relative_prediction,axis=-1).min())
+                            row['target_pair_min_center_distance']=float(np.linalg.norm(relative_target,axis=-1).min())
         rows.append(row)
     return rows, {"target_vehicles":len(indices), "predicted_vehicles":len(proposals), "detected_vehicles":len(detected),
                   "selected_vehicles":len(selected), "unmatched_candidates_including_unannotated_regions":len(proposals)-len(detected)}
@@ -96,7 +101,8 @@ def main():
             path = bank/"predictions"/(token+".npz")
             if file_sha256(path) != meta["proposal_sha256"]: raise ValueError("Prediction changed")
             with np.load(path) as values: pred = {k:values[k] for k in values.files}
-            current, counts = evaluate_scene(pred, payload["targets"],ego_target=payload.get('ego_future_xyyaw'))
+            current, counts = evaluate_scene(pred, payload["targets"],ego_target=payload.get('ego_future_xyyaw'),
+                ego_valid=payload.get('ego_future_valid_mask'))
         except Exception as error:
             failure = repr(error); current, counts = evaluate_scene(None, payload["targets"])
         for row in current: rows.append({"token":token,"log":scene["log"],"export_failure":failure,**row})

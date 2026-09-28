@@ -53,3 +53,6 @@ def test_joint_relative_error_uses_same_sample_ego_not_independent_best():
     assert rows[0]['joint_ADE']==0
     assert rows[0]['joint_relative_vector_ADE']==2
     assert rows[0]['joint_pair_min_center_distance']==3
+    rows,_=evaluate_scene(prediction,target,ego_target=np.zeros((8,3)),ego_valid=np.zeros(8,dtype=bool))
+    assert rows[0]['joint_ADE']==0 and rows[0]['joint_relative_valid_points']==0
+    assert 'joint_relative_vector_ADE' not in rows[0]

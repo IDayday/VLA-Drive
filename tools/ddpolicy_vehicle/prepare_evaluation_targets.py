@@ -80,14 +80,17 @@ def main():
                         np.asarray(calibration['extrinsics']),np.asarray(calibration['distortion']))
                     target,population=make_vehicle_targets(frame,frames[at+1:at+9],capacity=32,current_eligibility=support)
                     window=frames[at-3:at+9]
-                    if len(window)!=12 or any(abs((f['timestamp']-frame['timestamp'])/1e6-.5*(i-3))>.05 for i,f in enumerate(window)):
-                        raise ValueError('Incomplete regular ego label horizon')
+                    if len(window)!=12:raise ValueError('Incomplete ego label horizon')
+                    offsets=np.asarray([(f['timestamp']-frame['timestamp'])/1e6 for f in window[4:]])
+                    ego_valid=np.abs(offsets-.5*np.arange(1,9))<=.05
                     poses=[[float(f['ego2global_translation'][0]),float(f['ego2global_translation'][1]),
                             Quaternion(*f['ego2global_rotation']).yaw_pitch_roll[0]] for f in window]
                     ego_target=relative_ego_target(poses)
                     mask=np.asarray(anns['gt_names'])=='vehicle' if anns else np.zeros(0,dtype=bool)
                     payload={'schema':metadata['schema'],'identity':identity,'targets':asdict(target),'counts':population,
                         'ego_future_xyyaw':torch.from_numpy(ego_target.astype(np.float32)),
+                        'ego_future_valid_mask':torch.from_numpy(ego_valid),
+                        'future_time_offsets_s':torch.from_numpy(offsets),
                         'source_vehicle_boxes':torch.from_numpy(boxes[mask].copy()),
                         'source_vehicle_support':torch.from_numpy(support[mask].copy())}
                     path=out/'targets'/(token+'.pt');temp=path.with_suffix('.tmp')
