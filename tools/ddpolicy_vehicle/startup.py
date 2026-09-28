@@ -17,6 +17,7 @@ def main():
     p.add_argument("--arm", choices=["A", "B", "C"], default="B")
     p.add_argument("--samples", type=int, default=1)
     p.add_argument("--backward", action="store_true")
+    p.add_argument("--initialization-only", action="store_true", help="Hash the actual full framework without forward, backward or optimizer updates")
     a = p.parse_args()
     with metered_run(a.campaign_root, a.run_id, 1, {"kind": "actual_camera_full_recipe_startup",
             "arm": a.arm, "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
@@ -62,6 +63,9 @@ def main():
             initial["qwen_vehicle_token_embeddings"] = model.vehicle_token_initialization
         (out/"driving_initialization.json").write_text(json.dumps(initial, indent=2))
         save()
+        if a.initialization_only:
+            record["initialization_only"] = True
+            return
         torch.manual_seed(42); torch.cuda.manual_seed_all(42)
         model.train()
         start = time.monotonic()
