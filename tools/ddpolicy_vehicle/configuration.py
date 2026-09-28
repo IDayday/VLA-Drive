@@ -33,3 +33,20 @@ def make_config(asset_root, source_manifest, arm="A", seed=42, device="cuda"):
         "graph_training": "predicted_only_from_start",
     }
     return cfg
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser("Write independent A/B/C configurations from the pinned generic recipe")
+    parser.add_argument("--asset-root", required=True)
+    parser.add_argument("--source-manifest", required=True)
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--seeds", nargs="+", type=int, default=[42, 43])
+    args = parser.parse_args()
+    output = Path(args.output); output.mkdir(parents=True, exist_ok=False)
+    for seed in args.seeds:
+        for arm in ("A", "B", "C"):
+            OmegaConf.save(make_config(args.asset_root, args.source_manifest, arm, seed), output/f"{arm}_seed{seed}.yaml")
+
+
+if __name__ == "__main__": main()
