@@ -14,8 +14,10 @@ def checkpoint_identity(run,tag):
     if complete['identity']!=identity['identity'] or complete['tag']!=tag:raise ValueError('Incomplete/foreign checkpoint')
     files={p.name:file_sha256(p) for p in sorted(folder.glob('*.pt'))}
     if not any('model_states' in k for k in files) or not any('optim_states' in k for k in files):raise ValueError('Missing model or FP32 masters')
+    if identity['config']['framework']['name']!='DDPForesight':raise ValueError('Wrong checkpoint class')
     record={'run_identity':identity['identity'],'training_source_sha':identity['source_sha'],'tag':tag,
-            'completed':complete['completed'],'arm':identity['config']['foresight']['arm'],'scope':identity['scope'],'files':files}
+            'completed':complete['completed'],'arm':identity['config']['foresight']['arm'],'scope':identity['scope'],'files':files,
+            'training_seed':int(identity['config']['seed']),'model_class':'starVLA.model.framework.DDPForesight.DDPForesight'}
     return identity,{'sha256':identity_hash(record),**record}
 
 
