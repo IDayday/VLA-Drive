@@ -66,7 +66,9 @@ def validate_pinned_sources(sources):
 def initialization_seed(seed):
     """New modules must not consume the RNG stream used for shared modules."""
     python_state, numpy_state = random.getstate(), np.random.get_state()
-    devices = list(range(torch.cuda.device_count())) if torch.cuda.is_initialized() else []
+    # One CUDA device per training process. Forking every visible GPU creates
+    # unnecessary contexts on all DDP ranks and consumes their memory.
+    devices = [torch.cuda.current_device()] if torch.cuda.is_initialized() else []
     with torch.random.fork_rng(devices=devices):
         random.seed(seed)
         np.random.seed(seed % (2**32))

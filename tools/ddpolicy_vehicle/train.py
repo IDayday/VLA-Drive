@@ -191,18 +191,23 @@ def main():
             restore_rng(rank_state, model, noise, roles)
         def checkpoint(tag):
             destination = run_dir/"checkpoints"/tag
-            if destination.exists(): raise FileExistsError("Immutable checkpoint tag already exists: "+tag)
+            exists = [destination.exists() if rank == 0 else None]
+            dist.broadcast_object_list(exists, 0)
+            if exists[0]: raise FileExistsError("Immutable checkpoint tag already exists: "+tag)
             state = {"identity": identity_sha, "completed": completed, "epoch": epoch, "offset": offset,
                      "exposures": exposures, "tag": tag, "scheduler": {
                          "type": "fixed_formula", "completed": completed,
                          "warmup": int(cfg.trainer.num_warmup_steps), "horizon": int(cfg.trainer.max_train_steps),
                          "base_lr": float(cfg.trainer.learning_rate.base),
                          "minimum_lr": float(cfg.trainer.scheduler_specific_kwargs.min_lr)}}
-            engine.save_checkpoint(str(run_dir/"checkpoints"), tag=tag, client_state=state)
+            engine.save_checkpoint(str(run_dir/"checkpoints"), tag=tag, client_state=state, save_latest=False)
             torch.save(capture_rng(model, noise, roles), run_dir/"checkpoints"/tag/f"rng_rank{rank}.pt")
             dist.barrier()
             if rank == 0:
                 atomic_json(run_dir/"checkpoints"/tag/"COMPLETE.json", state)
+                pointer = run_dir/"checkpoints"/f"latest.{os.getpid()}.tmp"
+                pointer.write_text(tag+"\n")
+                os.replace(pointer, run_dir/"checkpoints/latest")
                 if tag.startswith("periodic_"):
                     # Only this run's obsolete rolling saves are replaceable.
                     # Milestones, pauses, endpoints and foreign artifacts stay.

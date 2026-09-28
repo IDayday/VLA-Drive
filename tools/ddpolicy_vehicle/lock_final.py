@@ -38,12 +38,16 @@ def main():
                 raise ValueError('Dev evidence belongs to another checkpoint or sampling seed')
             dev.append({'summary_sha256':file_sha256(folder/'summary.json'),'scenes_sha256':file_sha256(folder/'scenes.csv'),'sampling_seed':seed})
         models.append({'arm':key[0],'training_seed':key[1],'checkpoint':ckpt,'dev':dev})
-    if not {('A',42),('B',42),('C',42),('B',43),('C',43)}.issubset(seen):
-        raise ValueError('Primary A/B/C and the requested B/C second training seed are incomplete')
+    if not {('A',42),('B',42),('C',42)}.issubset(seen):
+        raise ValueError('The primary A/B/C comparison is incomplete')
+    if (('B',43) in seen) != (('C',43) in seen):
+        raise ValueError('Do not present a one-sided second-seed comparison')
     atomic_json(a.output,{'evaluation_source_sha':source,'sampling_seeds':a.sampling_seeds,'inference_steps':10,
                          'precision':'FP32','candidate_count':1,'scorer':None,
                          'checkpoint_sha256':[m['checkpoint']['sha256'] for m in models],'models':models,
-                         'selection_sha256':file_sha256(a.selection),'navtest_results_used_for_selection':False})
+                         'selection_sha256':file_sha256(a.selection),'navtest_results_used_for_selection':False,
+                         'second_training_seed':'COMPLETE' if ('B',43) in seen else 'NOT_RUN',
+                         'A_second_training_seed':'COMPLETE' if ('A',43) in seen else 'NOT_RUN'})
 
 
 if __name__=='__main__':main()
