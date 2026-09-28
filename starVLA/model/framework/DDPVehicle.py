@@ -15,7 +15,7 @@ from torch.nn import functional as F
 from starVLA.model.framework.QwenOFT import Qwenvl_OFT
 from starVLA.cache.navsim_feature_cache import append_world_action_tokens
 from starVLA.model.modules.structured_world.contracts import WorldTargets
-from starVLA.model.modules.structured_world.agent_heads import AgentHeads
+from starVLA.model.modules.vehicle_joint.heads import VehicleHeads
 from starVLA.model.modules.structured_world.scene_agent_reader import SceneAgentReader
 from starVLA.model.modules.structured_world.losses import world_losses
 from starVLA.model.modules.structured_world.geometry import geometric_fov
@@ -83,7 +83,8 @@ class DDPVehicle(Qwenvl_OFT):
             with initialization_seed(int(config.seed)+2000):
                 self.vehicle_reader = SceneAgentReader(hidden, hidden, dim=256, scene_tokens=0,
                                                        agent_tokens=config.from_scratch.vehicle_queries)
-                self.vehicle_heads = AgentHeads(hidden, classes=1, steps=8)
+                self.vehicle_heads = VehicleHeads(hidden, steps=8,
+                    xy_scale=float(config.from_scratch.get("vehicle_head_xy_scale", 1.)))
                 # Positive canonical current yaw at initialization; future yaw
                 # remains unmodeled for every vehicle regardless of this head.
                 with torch.no_grad(): self.vehicle_heads.box.bias[7] = 1.
@@ -260,6 +261,10 @@ class DDPVehicle(Qwenvl_OFT):
                 with self.amp():
                     return self.action_model.loss(*conditions, y, v, noise, times, known)
             losses["main_fm"], metrics = fm()
+            metrics["matched_current_vehicles"] = sum(len(rows) for rows, _ in matches)
+            metrics["matched_future_xy_points"] = sum(
+                int(target.future_valid_mask[cols].sum())
+                for target, (_, cols) in zip(targets, matches))
             from starVLA.model.modules.vehicle_joint.masks import auxiliary_due
             if auxiliary_due(completed_updates, self.config.from_scratch.all_hidden_start):
                 if role_scheduler is None: raise ValueError("Auxiliary updates require a resumable independent role scheduler")
@@ -269,6 +274,12 @@ class DDPVehicle(Qwenvl_OFT):
                 losses["role_auxiliary"] = .1*extra
                 metrics["role_tasks"] = tasks
                 metrics["auxiliary_coordinates"] = aux_metrics
+                # B runs the same eligibility scheduler for paired RNG/cadence,
+                # but applies an all-hidden objective, never role completion.
+                metrics["auxiliary_scene_exposure"] = len(examples)
+                metrics["applied_role_scenes"] = sum(
+                    task["role"] != "all_hidden_fallback" for task in tasks) if self.arm == "C" else 0
+                metrics["known_future_coordinates"] = int(rep(known).sum())
             metrics["graphs"] = audits
         return {"loss": sum(losses.values()), "losses": losses, "metrics": metrics}
 

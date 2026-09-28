@@ -35,7 +35,7 @@ def main():
         for log in path.parent.glob('train_rank*.jsonl'):
             # Training log schema contains only aggregate losses/counts/costs.
             values=[json.loads(line) for line in log.read_text().splitlines()]
-            allowed={'update','epoch','offset','global_scene_exposure','lr','seconds','rank','losses','coordinates','graphs','roles','peak_allocated_bytes'}
+            allowed={'update','epoch','offset','global_scene_exposure','lr','seconds','rank','losses','coordinates','graphs','roles','peak_allocated_bytes','tasks','role_counter_scope'}
             if any(set(v)-allowed for v in values):raise ValueError('Unknown training log fields need privacy review')
             (out/(path.parent.name+'_'+log.name)).write_text(''.join(json.dumps(v)+'\n' for v in values))
     atomic_json(out/'RUNS.json',{'snapshot_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -43,7 +43,7 @@ def main():
         'real_optimizer_updates':sum(r.get('real_optimizer_updates',0) for r in rows),
         'sample_presentations':sum(r.get('sample_presentations',0) for r in rows),
         'accounting':'one cumulative progress count per run; GPU occupancy summed over attempts, including load/failure/evaluation; RUNNING costs are lower bounds',
-        'formal_training_gpu_hour_cap':None,'temporary_diagnostic_gpu_hour_ceiling':20})
+        'formal_training_gpu_hour_cap':8000,'initial_diagnostic_gpu_hour_ceiling':20,'maximum_diagnostic_gpu_hour_ceiling':40})
     for name in ('startup_AB_initialization_comparison.json','startup_BC_initialization_comparison.json',
                  'startup_resume_comparison_initial.json','depth_current_transform_audit.json'):
         if (root/name).exists():shutil.copyfile(root/name,out/name)

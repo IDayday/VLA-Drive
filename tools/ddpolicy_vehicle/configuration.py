@@ -30,6 +30,7 @@ def make_config(asset_root, source_manifest, arm="A", seed=42, device="cuda"):
         "vehicle_queries": 32, "gradient_checkpointing": True,
         "all_hidden_start": 90000, "auxiliary_cadence": 4, "auxiliary_weight": .1,
         "vehicle_xy_scale": 20., "graph": {"max_vehicles": 8, "max_context": 16},
+        "vehicle_head_xy_scale": 20.,
         "graph_training": "predicted_only_from_start",
     }
     return cfg

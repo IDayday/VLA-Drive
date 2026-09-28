@@ -238,7 +238,11 @@ def main():
             base, minimum = float(cfg.trainer.learning_rate.base), float(cfg.trainer.scheduler_specific_kwargs.min_lr)
             lr = base*(completed+1)/warmup if completed < warmup else minimum+(base-minimum)*.5*(1+math.cos(math.pi*(completed-warmup)/max(1, horizon-warmup)))
             for group in engine.optimizer.param_groups: group["lr"] = lr
-            step_start = time.monotonic(); loss_log = {}; coordinate_log = {"ego": 0, "vehicle": 0}
+            step_start = time.monotonic(); loss_log = {}; coordinate_log = {"ego": 0, "vehicle": 0,
+                "auxiliary_ego": 0, "auxiliary_vehicle": 0, "known_future": 0,
+                "matched_current_vehicles": 0, "matched_future_xy_points": 0}
+            task_log = {"main_scene_presentations": len(ids), "auxiliary_scene_presentations": 0,
+                        "applied_role_scenes": 0, "fm_repeats": int(cfg.framework.action_model.repeated_diffusion_steps)}
             graph_log = {"selected_vehicles": 0, "context_vehicles": 0, "ego_only": 0}
             for j in range(0, len(ids), a.micro_batch):
                 part = ids[j:j+a.micro_batch]
@@ -252,6 +256,14 @@ def main():
                 for name, value in output["losses"].items(): loss_log[name] = loss_log.get(name, 0.)+float(value.detach())*weight
                 coordinate_log["ego"] += output["metrics"].get("ego_coordinates", 0)
                 coordinate_log["vehicle"] += output["metrics"].get("vehicle_coordinates", 0)
+                auxiliary = output["metrics"].get("auxiliary_coordinates", {})
+                coordinate_log["auxiliary_ego"] += auxiliary.get("ego_coordinates", 0)
+                coordinate_log["auxiliary_vehicle"] += auxiliary.get("vehicle_coordinates", 0)
+                coordinate_log["known_future"] += output["metrics"].get("known_future_coordinates", 0)
+                for key in ("matched_current_vehicles", "matched_future_xy_points"):
+                    coordinate_log[key] += output["metrics"].get(key, 0)
+                task_log["auxiliary_scene_presentations"] += output["metrics"].get("auxiliary_scene_exposure", 0)
+                task_log["applied_role_scenes"] += output["metrics"].get("applied_role_scenes", 0)
                 for audit in output["metrics"].get("graphs", []):
                     graph_log["selected_vehicles"] += audit["selected_vehicles"]
                     graph_log["context_vehicles"] += audit["context_vehicles"]
@@ -261,6 +273,7 @@ def main():
             row = {"update": completed, "epoch": epoch, "offset": offset, "global_scene_exposure": exposures,
                    "lr": lr, "seconds": time.monotonic()-step_start, "rank": rank, "losses": loss_log,
                    "coordinates": coordinate_log, "graphs": graph_log, "roles": dict(roles.counts),
+                   "tasks": task_log, "role_counter_scope": "eligibility scheduler; B applies all-hidden, C applies eligible roles",
                    "peak_allocated_bytes": torch.cuda.max_memory_allocated()}
             with (run_dir/f"train_rank{rank}.jsonl").open("a") as f: f.write(json.dumps(row)+"\n")
             if completed in milestones: checkpoint(f"milestone_{completed:06d}")

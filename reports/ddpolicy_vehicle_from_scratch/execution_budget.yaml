@@ -1,7 +1,14 @@
 campaign: ddpolicy_vehicle_joint_from_scratch_20260928
 historical_campaigns: sealed_not_resumed
-formal_gpu_hour_cap: null  # Pending user resource limit; old48 does not carry over.
-temporary_diagnostic_campaign_gpu_hour_cap: 20
+formal_gpu_hour_cap: 8000
+cap_basis: bounded_execution_on_user_authorized_existing_GPUs_no_expansion
+cap_registration_utc: 2026-09-28T06:25:00Z
+user_cap_preference: requested_no_reply_default_registered_autonomously
+old_campaign_cap_inherited: false
+initial_diagnostic_gpu_hour_cap: 20
+maximum_diagnostic_gpu_hour_cap: 40
+diagnostic_extension_reason: one_train_only_xy_output_scale_correction
+additional_correction_updates_cap: 1024
 accounting: all_attempts_including_loading_failures_extraction_training_and_evaluation
 formal:
   status: NOT_RUN

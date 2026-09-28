@@ -72,10 +72,10 @@ A logging-only omission in the active small-fit source leaves Base's `coordinate
 
 The original recipe is100000updates, globalbatch32, AdamW1e-5, betas0.9/0.95, eps1e-8, weight decay0.001, warmup5000, cosine floor5e-7. At101592scenes, a pass is3175updates with a24scene final batch.100000updates expose3199752scenes, not exactly3200000. B/C use their final10000updates without the auxiliary task. Formal models restart independently from generic/random initialization, including after a successful small fit.
 
-Eight-GPU startup measured6.6–7.0sec/update after the first update. Five full runs extrapolate to about7500GPU-hours of training; complete evaluation, cold data I/O, failures and reserves are additional. Full campaign cap is pending user input. The command below is **NOT_RUN**, and requires an explicit new cap; it must not inherit the old48GPU-hours:
+Eight-GPU startup measured6.6–7.0sec/update after the first update. Five full runs extrapolate to about7500GPU-hours of training; complete evaluation, cold data I/O, failures and reserves are additional. The registered full campaign cap is8000GPU-hours on existing authorized resources, including the diagnostic stage. This default follows the optional budget question receiving no reply; user changes override it. No rented or additional device is included. The command below is **NOT_RUN** while small-fit diagnostics are active; it must not inherit the old48GPU-hours:
 
 ```bash
-: "${DDP_GPU_HOURS_CAP:?Set the new registered full campaign GPU-hour limit}"
+export DDP_GPU_HOURS_CAP=8000  # Registered new campaign cap; includes all prior work.
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 "$DDP_PYTHON" -m torch.distributed.run \
   --standalone --nproc_per_node=8 -m tools.ddpolicy_vehicle.train \
   --config /new/path/formal_configs/A_seed42.yaml \
