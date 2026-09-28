@@ -1,0 +1,150 @@
+{
+  "campaign_root": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928",
+  "worktree": "/mnt/project/VLA-Drive-ddpolicy-campaign-20260928",
+  "source_sha": "4f27cbb5b83806331325aa473a01da4fd1738d60",
+  "models": [
+    {
+      "arm": "A",
+      "seed": 42,
+      "run_id": "formal_A_seed42_001",
+      "config": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_configs_v1/A_seed42.yaml",
+      "config_sha256": "3623ef2c11b0159a2fc8bf8ec60b68377208faee5194edb8e8eb383313f5c2d2",
+      "training_slot": {
+        "gpus": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 42,
+      "run_id": "formal_B_seed42_001",
+      "config": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_configs_v1/B_seed42.yaml",
+      "config_sha256": "677e46682d15ab77775151744b28fc78757d724acf95f97e70bdcac1c466fc6d",
+      "training_slot": {
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 42,
+      "run_id": "formal_C_seed42_001",
+      "config": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_configs_v1/C_seed42.yaml",
+      "config_sha256": "002d9a5d3ee12eb59e6484997b85bd3f979603a2a1732d4ef2bf8cf7ab6d70b5",
+      "training_slot": {
+        "host": "training-vla-zt2",
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "arm": "B",
+      "seed": 43,
+      "run_id": "formal_B_seed43_001",
+      "config": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_configs_v1/B_seed43.yaml",
+      "config_sha256": "fa9e5f4bc2be32d9d454aa9b38b6091913c63d994027b88dd70e25ebcc4062e6",
+      "training_slot": {
+        "gpus": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "arm": "C",
+      "seed": 43,
+      "run_id": "formal_C_seed43_001",
+      "config": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_configs_v1/C_seed43.yaml",
+      "config_sha256": "c4284c4e015f95d89cba0807ef91c3b871c799b7cbf8e2b4cd6e92b9bed702e7",
+      "training_slot": {
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    }
+  ],
+  "python": "/root/miniconda3/envs/ddp/bin/python",
+  "scoring_python": "/root/miniconda3/envs/navsim/bin/python",
+  "gpu_hour_cap": 8000,
+  "final_evaluation_reserve_gpu_hours": 300,
+  "allocation_seconds": 86400,
+  "sampling_seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "evaluation_slots": [
+    {
+      "gpus": [
+        0
+      ]
+    },
+    {
+      "host": "training-vla-zt2",
+      "gpus": [
+        1
+      ]
+    },
+    {
+      "gpus": [
+        1
+      ]
+    },
+    {
+      "host": "training-vla-zt2",
+      "gpus": [
+        2
+      ]
+    },
+    {
+      "gpus": [
+        2
+      ]
+    },
+    {
+      "host": "training-vla-zt2",
+      "gpus": [
+        4
+      ]
+    }
+  ],
+  "development_tags": [
+    "milestone_025000",
+    "milestone_050000",
+    "milestone_075000",
+    "milestone_100000"
+  ],
+  "local_checkpoint_cache": "/tmp/ddpolicy-vehicle-formal-20260928",
+  "devkit": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+  "data": {
+    "processed_root": "/mnt/navsim/navsim_dataset/meta/train",
+    "vehicle_root": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/vehicle_targets_v1_complete",
+    "depth_root": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/depth_labels_v1",
+    "train_tokens": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/vehicle_targets_v1_complete/train_tokens.json",
+    "current_dev": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/current_dev_v1",
+    "current_navtest": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/current_navtest_v1",
+    "metric_dev": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+    "metric_navtest": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+    "raw_dev": "/mnt/navsim/trainval_navsim_logs/trainval",
+    "raw_navtest": "/mnt/navsim/test_navsim_logs/test"
+  }
+}

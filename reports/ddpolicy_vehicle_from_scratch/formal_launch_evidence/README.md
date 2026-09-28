@@ -1,0 +1,9 @@
+# Full-training launch evidence
+
+Snapshot2026-09-28. This is a running experiment, not a completed benchmark. The immutable full plan is plan.json; source4f27cbb5b83806331325aa473a01da4fd1738d60. New report commits do not change training code. Live state is recorded under the artifact root in CODEX_GOAL_STATE.md.
+
+The older execution_budget.yaml and FRAMEWORK_REFERENCE.md are retained historical registrations, including superseded diagnostic sources and NOT_RUN status. The optimizer_stasis correction invalidates575old no-op calls as learning evidence; their costs/exposure remain charged. Fresh corrected512-step diagnostics use4843e4ddf8340ecc8b44a47fc5fc9b688a58e3a8 and formal models restart independently. The historical draft additional-correction sublimit of1024was not updated when all three corrected arms were restarted. The registered three-arm diagnostic is1536effectiveupdates,512above that stale draft sublimit. This bookkeeping inconsistency is disclosed instead of rewriting the old record; the current40GPUh diagnostic and8000GPUh campaign limits remain enforced. All attempts remain visible.
+
+Formal A/B/C42 and B/C43 each register100000updates/globalbatch32. Every3175updates is one full101592-scene pass, retaining the24-scene tail; per-model exposure3199752. Original warmup5000/cosine100000, baseLR1e-5, and final10000all-hidden for B/C remain fixed. A43is not planned within the measured budget. The optional resource-cap question received no reply;8000GPUh is the bounded autonomous existing-resource registration, not a promise to finish or spend it all. No new resources were rented.
+
+The registered development checkpoint grid and five single-sample seeds are fixed before any Navtest output. Full development and Navtest results remain NOT_RUN at this snapshot. Terminal reporting distinguishes a complete primary benchmark from an unfinished secondary pair, keeps all vehicle coverage denominators, and publishes only derived results.
