@@ -10,6 +10,7 @@ from starVLA.model.modules.foresight.config import ForesightConfig
 from starVLA.model.modules.foresight.future_latent_head import FutureLatentHead
 from starVLA.model.modules.foresight.interaction_latent_head import InteractionLatentHead
 from starVLA.model.modules.foresight.losses import masked_regression, interaction_loss
+from starVLA.model.modules.foresight.tokens import replace_query_embeddings
 
 
 class DDPForesight(Qwenvl_OFT):
@@ -80,11 +81,11 @@ class DDPForesight(Qwenvl_OFT):
             embeddings=self.qwen_vl_interface.model.get_input_embeddings()(ids)
             states=torch.as_tensor(np.asarray([e['state'] for e in current]),device=ids.device,dtype=torch.float32)
             if states.shape!=(len(current),1,4) or not torch.isfinite(states).all():raise ValueError('Invalid allowed ego history state')
-            embeddings[rows,slots['history'][:,0]]=self.action_input_model(states[:,0]).to(embeddings.dtype)
+            embeddings=replace_query_embeddings(embeddings,slots['history'],self.action_input_model(states))
             if self.foresight_tokens:
                 if not (slots['history'][:,-1]<slots['foresight'][:,0]).all() or not (slots['foresight'][:,-1]<slots['action'][:,0]).all():
                     raise ValueError('Causal state→W→action token order violated')
-                embeddings[rows[:,None],slots['foresight']]=self.foresight_queries.to(embeddings.dtype)[None]
+                embeddings=replace_query_embeddings(embeddings,slots['foresight'],self.foresight_queries)
             hidden=self._qwen_language_forward(ids,embeddings,attention,positions,visual,deepstack)
         return {'W':hidden[rows[:,None],slots['foresight']] if self.foresight_tokens else hidden[:,:0],
                 'action_queries':hidden[rows[:,None],slots['action']]}
