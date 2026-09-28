@@ -1,0 +1,226 @@
+"""Current-camera DDP student; no teacher/target encoder is instantiated here.
+
+Use torchrun, including --nproc_per_node=1. Complete checkpoints contain model,
+FP32-master optimizer, fixed scheduler identity, all task RNG and exact data
+progress. Auxiliary denominators span the global optimizer batch, not microbatches.
+"""
+import argparse
+from contextlib import nullcontext
+import fcntl
+import json
+import os
+from pathlib import Path
+import random
+import signal
+import socket
+import subprocess
+import time
+import numpy as np
+import torch
+import torch.distributed as dist
+from omegaconf import OmegaConf
+from tools.ddpolicy_vehicle.prepare_data import atomic_json
+from tools.ddpolicy_vehicle.run_meter import metered_run
+from tools.ddpolicy_vehicle.training_state import epoch_batches
+from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
+from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups,capture_master_samples,master_update_evidence,MAX_GROUP_ELEMENTS
+from starVLA.model.modules.vehicle_joint.initialization import identity_hash,module_manifest,tensor_hash
+from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset,collate_training
+from .student_state import capture_rng,restore_rng,optimizer_batch_counts,learning_rate
+
+
+def main():
+    p=argparse.ArgumentParser(__doc__)
+    for key in ('config','data','campaign-root','run-id'):p.add_argument('--'+key,required=True)
+    p.add_argument('--future-root');p.add_argument('--future-identity')
+    p.add_argument('--interaction-root');p.add_argument('--interaction-identity')
+    p.add_argument('--global-batch',type=int,default=32);p.add_argument('--micro-batch',type=int,default=1)
+    p.add_argument('--updates',type=int,required=True);p.add_argument('--schedule-updates',type=int,required=True)
+    p.add_argument('--warmup',type=int,required=True);p.add_argument('--save-every',type=int,default=200)
+    p.add_argument('--milestones',default='0');p.add_argument('--stop-after',type=int,default=0)
+    p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--campaign-gpu-hours',type=float,required=True)
+    p.add_argument('--scope',choices=('startup','small_fit','formal'),required=True)
+    p.add_argument('--limit',type=int,default=0,help='Diagnostic prefix only; formal requires0')
+    p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
+    p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
+    a=p.parse_args()
+    if min(a.global_batch,a.micro_batch,a.updates,a.save_every,a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Positive training/budget settings required')
+    if not 0<=a.warmup<a.schedule_updates or not a.updates<=a.schedule_updates or not 0<=a.stop_after<=a.updates or a.limit<0:raise ValueError('Invalid schedule/progress bounds')
+    if a.scope=='startup' and (a.updates>4 or a.max_seconds>1800):raise ValueError('Startup <=4 updates/1800seconds')
+    if a.scope=='small_fit' and (not 0<a.limit<=64 or a.updates>512):raise ValueError('Small fit <=64scenes/512updates')
+    if a.scope=='formal' and a.limit:raise ValueError('Formal must use full manifest')
+    milestones={int(x) for x in a.milestones.split(',') if x}
+    if any(x<0 or x>a.updates for x in milestones):raise ValueError('Milestone out of range')
+    rank=int(os.environ['RANK']);world=int(os.environ['WORLD_SIZE']);local=int(os.environ['LOCAL_RANK'])
+    torch.cuda.set_device(local);dist.init_process_group('nccl')
+    if a.global_batch%world:raise ValueError('Global batch must divide by world size')
+    attempt=[f'{a.run_id}_attempt_{time.time_ns()}' if rank==0 else None];dist.broadcast_object_list(attempt,0)
+    context=metered_run(a.campaign_root,attempt[0],world,{'kind':'foresight_student_'+a.scope,'run_id_parent':a.run_id}) if rank==0 else nullcontext(({},None,lambda:None))
+    try:
+        with context as (meter,_,save_meter):run(a,milestones,rank,world,attempt[0],meter,save_meter)
+    finally:
+        dist.destroy_process_group()
+
+
+def run(a,milestones,rank,world,attempt,meter,save_meter):
+    begin=time.time();root=Path(a.campaign_root);out=root/'students'/a.run_id
+    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze a clean source before training')
+    source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+    cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
+    need_vis=arm in ('B','D');need_int=arm in ('C','D')
+    if bool(a.future_root)!=need_vis or bool(a.interaction_root)!=need_int:raise ValueError('Auxiliary cache inventory does not match arm')
+    if need_vis and float(cfg.foresight.lambda_vis)<=0 or need_int and float(cfg.foresight.lambda_int)<=0:raise ValueError('Active auxiliary loss requires calibrated nonzero weight')
+    data=ForesightTrainingDataset(a.data,future_root=a.future_root,expected_future=a.future_identity,
+        interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
+    if data.identity['split']!='train' or not (Path(a.data)/'COMPLETE.json').exists():raise ValueError('Only completed training split can update student')
+    size=min(len(data),a.limit) if a.limit else len(data)
+    if size<1 or size%world:raise ValueError('Nonempty split must have divisible final rank tail; no duplicated/dropped scenes')
+    schedule={'horizon':a.schedule_updates,'warmup':a.warmup,'base':float(cfg.trainer.learning_rate.base),
+              'minimum':float(cfg.trainer.scheduler_specific_kwargs.min_lr),'type':'fixed_cosine'}
+    # Explicit CLI schedule is authoritative over inherited example trainer limits.
+    identity={'schema':'foresight_student_training_v1','source_sha':source,'config':OmegaConf.to_container(cfg,resolve=True),
+              'schedule':schedule,'data':data.identity,'ego':data.ego_identity,'future':data.future_identity,'interaction':data.interaction_identity,
+              'selected_index_hash':identity_hash(data.index[:size]),'scene_count':size,'scope':a.scope,
+              'world_size':world,'global_batch':a.global_batch,'micro_batch':a.micro_batch,'updates':a.updates,
+              'precision':'BF16 model, FP32 AdamW master/moments','deterministic':a.deterministic,
+              'offload_optimizer':a.offload_optimizer,'optimizer_max_group_elements':MAX_GROUP_ELEMENTS,
+              'normalization':'global valid elements per optimizer batch; every scene ego loss',
+              'device_names':[torch.cuda.get_device_name(i) for i in range(world)]}
+    signature=identity_hash(identity)
+    lock=None
+    if rank==0:
+        if out.exists() and not a.resume:raise FileExistsError('Run already exists')
+        out.mkdir(parents=True,exist_ok=True);lock=(out/'RUN.lock').open('a+');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        if a.resume:
+            if json.loads((out/'identity.json').read_text())!={'identity':signature,**identity}:raise ValueError('Resume source/config/data/targets/device-count mismatch')
+            if json.loads((out/'status.json').read_text())['status']=='COMPLETE':raise ValueError('Completed run cannot be extended')
+            if not a.acknowledge_stop:raise ValueError('Resume requires explicit stop acknowledgment')
+            if (out/'STOP_REQUESTED').exists():(out/'STOP_REQUESTED').rename(out/('STOP_ACKNOWLEDGED_'+str(time.time_ns())))
+        else:atomic_json(out/'identity.json',{'identity':signature,**identity})
+    dist.barrier()
+    if charged_gpu_hours(root)>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before model loading')
+    random.seed(int(cfg.seed)+rank);np.random.seed(int(cfg.seed)+rank);torch.manual_seed(int(cfg.seed)+rank)
+    torch.set_num_threads(2)
+    if a.deterministic:
+        torch.use_deterministic_algorithms(True);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.benchmark=False
+    from starVLA.model.framework.DDPForesight import DDPForesight
+    model=DDPForesight(cfg)
+    if rank==0 and not a.resume:
+        init={'action':module_manifest(model.action_model),'state':module_manifest(model.action_input_model),
+              'driving_tokens':model.qwen_vl_interface.driving_token_initialization,
+              'W':tensor_hash(model.foresight_queries) if hasattr(model,'foresight_queries') else None,
+              'generic_source_manifest':json.loads(Path(cfg.from_scratch.source_manifest).read_text()),
+              'driving_weights_loaded':False,'future_teacher_in_model':False}
+        atomic_json(out/'initialization.json',init)
+        atomic_json(out/'parameters.json',{'total':sum(p.numel() for p in model.parameters()),
+            'trainable':sum(p.numel() for p in model.parameters() if p.requires_grad),
+            'groups':{key:sum(p.numel() for name,p in model.named_parameters() if name.startswith(key) and p.requires_grad)
+                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','future_head','interaction_head')}})
+    import deepspeed
+    ds_config={'train_micro_batch_size_per_gpu':a.micro_batch,'gradient_accumulation_steps':1,
+               'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':1.,'steps_per_print':1000000,
+               'zero_optimization':{'stage':2,'overlap_comm':True,'contiguous_gradients':True,'reduce_bucket_size':50000000,'allgather_bucket_size':50000000},
+               'optimizer':{'type':'AdamW','params':{'lr':schedule['base'],'betas':list(cfg.trainer.optimizer.betas),
+                    'eps':float(cfg.trainer.optimizer.eps),'weight_decay':float(cfg.trainer.optimizer.weight_decay)}}}
+    if a.offload_optimizer:
+        ds_config['zero_optimization']['offload_optimizer']={'device':'cpu','pin_memory':True};ds_config['zero_force_ds_cpu_optimizer']=True
+    groups,group_records=bounded_parameter_groups(model.named_parameters())
+    if rank==0 and not a.resume:atomic_json(out/'optimizer_groups.json',group_records)
+    engine,_,_,_=deepspeed.initialize(model=model,model_parameters=groups,config=ds_config)
+    generators={key:torch.Generator(device='cpu' if key=='horizon' else torch.device('cuda',torch.cuda.current_device())).manual_seed(int(cfg.seed)+offset+rank)
+                for key,offset in (('noise',9000),('time',10000),('horizon',11000))}
+    completed=epoch=offset=exposure=0;counters={'visual_elements':0,'interaction_elements':0,'horizon_scenes':[0,0,0],'valid_views':[0,0,0]}
+    if a.resume:
+        tag=(out/'checkpoints/latest').read_text().strip()
+        if Path(tag).name!=tag:raise ValueError('Unsafe checkpoint pointer')
+        saved=json.loads((out/'checkpoints'/tag/'COMPLETE.json').read_text())
+        if saved['identity']!=signature:raise ValueError('Incomplete/foreign checkpoint')
+        location,state=engine.load_checkpoint(str(out/'checkpoints'),tag=tag,load_module_strict=True,load_optimizer_states=True)
+        if not location or any(state.get(k)!=v for k,v in saved.items()):raise ValueError('Checkpoint progress mismatch')
+        completed,epoch,offset,exposure=[state[k] for k in ('completed','epoch','offset','exposure')];counters=state['counters']
+        restore_rng(torch.load(out/'checkpoints'/tag/f'rng_rank{rank}.pt',map_location='cpu',weights_only=False),generators)
+    initial_updates=completed;initial_exposure=exposure
+    stopping=[False]
+    def handler(*_):stopping[0]=True
+    signal.signal(signal.SIGINT,handler);signal.signal(signal.SIGTERM,handler)
+    status={'status':'RUNNING','identity':signature,'source_sha':source,'attempt':attempt,'host':socket.gethostname(),'pid':os.getpid()}
+    def write_status():
+        if rank!=0:return
+        status.update(completed=completed,epoch=epoch,offset=offset,exposure=exposure,counters=counters,updated_unix=time.time())
+        atomic_json(out/'status.json',status)
+        meter.update(real_optimizer_updates=completed-initial_updates,total_run_updates=completed,
+                     sample_presentations=exposure-initial_exposure,total_run_exposure=exposure);save_meter()
+    def checkpoint(tag):
+        destination=out/'checkpoints'/tag
+        if destination.exists():raise FileExistsError('Checkpoint tag is immutable')
+        state={'identity':signature,'completed':completed,'epoch':epoch,'offset':offset,'exposure':exposure,
+               'counters':counters,'tag':tag,'scheduler':{**schedule,'completed':completed}}
+        engine.save_checkpoint(str(out/'checkpoints'),tag=tag,client_state=state,save_latest=False)
+        torch.save(capture_rng(generators),destination/f'rng_rank{rank}.pt');dist.barrier()
+        if rank==0:
+            atomic_json(destination/'COMPLETE.json',state)
+            tmp=out/'checkpoints/latest.tmp';tmp.write_text(tag+'\n');tmp.replace(out/'checkpoints/latest')
+            if tag.startswith('periodic_'):
+                import shutil
+                for old in (out/'checkpoints').glob('periodic_*'):
+                    if old==destination or not (old/'COMPLETE.json').exists():continue
+                    if json.loads((old/'COMPLETE.json').read_text())['identity']!=signature:raise ValueError('Foreign checkpoint in rolling-save directory')
+                    shutil.rmtree(old)
+        dist.barrier();write_status()
+    write_status()
+    try:
+        if not a.resume and 0 in milestones:checkpoint('milestone_000000')
+        model.train()
+        while completed<a.updates:
+            batches=epoch_batches(size,a.global_batch,int(cfg.seed),epoch)
+            if offset==len(batches):epoch+=1;offset=0;continue
+            stop=stopping[0] or (out/'STOP_REQUESTED').exists() or time.time()-begin>=a.max_seconds or bool(a.stop_after and completed>=a.stop_after)
+            if rank==0:stop=stop or charged_gpu_hours(root)>=a.campaign_gpu_hours
+            stop_tensor=torch.tensor(int(stop),device='cuda');dist.all_reduce(stop_tensor,op=dist.ReduceOp.MAX)
+            if stop_tensor:
+                status['status']='PAUSED';checkpoint(f'paused_{completed:06d}_{attempt}');meter['status']='PAUSED';break
+            started=time.time();indices=batches[offset][rank::world]
+            observations,targets=collate_training([data[i] for i in indices])
+            counts=optimizer_batch_counts(targets,generators['horizon'],'cuda')
+            lr=learning_rate(completed,schedule['base'],schedule['minimum'],schedule['warmup'],schedule['horizon'])
+            for group in engine.optimizer.param_groups:group['lr']=lr
+            logs={};exposures=torch.zeros(6,device='cuda',dtype=torch.int64)
+            if need_vis:
+                h=targets['visual_horizon'];valid=targets['future_valid'][torch.arange(len(h)),h].sum(-1)
+                for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
+            dist.all_reduce(exposures)
+            for at in range(0,len(indices),a.micro_batch):
+                end=min(len(indices),at+a.micro_batch);boundary=end==len(indices)
+                engine.set_gradient_accumulation_boundary(boundary)
+                output=engine(observations[at:end],{k:v[at:end] for k,v in targets.items()},completed_updates=completed,
+                    noise_generator=generators['noise'],time_generator=generators['time'],horizon_generator=generators['horizon'],global_counts=counts)
+                if not torch.isfinite(output['loss']):raise FloatingPointError('Nonfinite student loss')
+                engine.backward(output['loss'])  # already normalized across ALL microbatches/ranks
+                for key,value in output['losses'].items():logs[key]=logs.get(key,0.)+float(value.detach())
+                for key in ('visual_raw','interaction_raw'):
+                    if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
+                if boundary:before=capture_master_samples(engine.optimizer)
+                engine.step()
+                if boundary:evidence=master_update_evidence(engine.optimizer,before,torch.device('cuda',torch.cuda.current_device()))
+            for key in sorted(logs):
+                value=torch.tensor(logs[key],device='cuda',dtype=torch.float64);dist.all_reduce(value);logs[key]=float(value/world)
+            completed+=1;offset+=1;exposure+=len(batches[offset-1])
+            counters['visual_elements']+=int(counts.get('visual',0));counters['interaction_elements']+=int(counts.get('interaction',0))
+            for k in range(3):counters['horizon_scenes'][k]+=int(exposures[k]);counters['valid_views'][k]+=int(exposures[k+3])
+            if rank==0:
+                row={'update':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'lr':lr,'losses':logs,'counts':counts,
+                     'seconds':time.time()-started,'peak_memory_bytes':torch.cuda.max_memory_allocated(),
+                     'grad_norm':float(engine.get_global_grad_norm()),**evidence}
+                with (out/'steps.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
+            write_status()
+            if completed in milestones:checkpoint(f'milestone_{completed:06d}')
+            elif completed%a.save_every==0:checkpoint(f'periodic_{completed:06d}')
+        else:
+            if offset==len(epoch_batches(size,a.global_batch,int(cfg.seed),epoch)):epoch+=1;offset=0
+            status['status']='COMPLETE';checkpoint(f'final_{completed:06d}');meter['status']='COMPLETE'
+    except BaseException:
+        status['status']='FAILED';write_status();raise
+    finally:write_status()
+
+
+if __name__=='__main__':main()
