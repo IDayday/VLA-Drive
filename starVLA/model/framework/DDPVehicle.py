@@ -224,6 +224,7 @@ class DDPVehicle(Qwenvl_OFT):
         if not self.joint_enabled:
             with self.amp():
                 losses["main_fm"] = self.action_model(encoded["action"].repeat(repeat, 1, 1), ego.repeat(repeat, 1, 1))
+            metrics = {"ego_coordinates": int(ego.numel())*repeat, "vehicle_coordinates": 0}
         else:
             targets = self.move_targets(examples, ego.device)
             # Per-scene normalization followed by scene mean makes microbatch,
