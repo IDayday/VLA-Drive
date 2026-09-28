@@ -99,3 +99,18 @@ def test_checkpointed_dit_and_state_roundtrip():
     restored.load_state_dict(model.state_dict(), strict=True)
     model.eval()
     assert torch.equal(model.sample(*args), restored.sample(*args))
+
+
+def test_role_completion_loss_sees_clean_neighbor_gt_and_noisy_hidden_ego():
+    model,args=fixture()
+    action,query,boxes,active,noise=args
+    valid=modeled_mask(active);target=torch.full_like(noise,7.)
+    known=valid.clone();known[:,0]=False
+    captured=[];original=model.velocity
+    def capture(self,state,*pos,**kw):
+        captured.append(state.detach().clone());return original(state,*pos,**kw)
+    model.velocity=types.MethodType(capture,model)
+    model.loss(action,query,boxes,active,target,valid,noise,torch.tensor([.25]),known)
+    assert torch.equal(captured[0][known],target[known])
+    assert torch.equal(captured[0][:,0],.75*noise[:,0]+.25*target[:,0])
+    assert captured[0][~valid].count_nonzero()==0
