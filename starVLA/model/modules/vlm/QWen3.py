@@ -63,14 +63,33 @@ class _QWen3_VL_Interface(nn.Module):
         model_id = qwenvl_config.get("base_vlm", "Qwen/Qwen3-VL-4B-Instruct")
         attn_implementation = qwenvl_config.get("attn_implementation", "sdpa")
 
+        fresh_config = config.get("from_scratch", None)
+        if fresh_config is not None:
+            import json
+            from pathlib import Path
+            from starVLA.model.modules.vehicle_joint.initialization import verify_generic_source
+            sources = json.loads(Path(fresh_config.source_manifest).read_text())
+            self.generic_source_identity = verify_generic_source(model_id, sources["qwen"])
+
         model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_id,
             attn_implementation=attn_implementation,
             dtype=torch.bfloat16,
-            device_map="cuda",
+            device_map=qwenvl_config.get("device_map", "cuda"),
         )
         processor = AutoProcessor.from_pretrained(model_id)
         processor.tokenizer.padding_side = "left"
+
+        if fresh_config is not None:
+            from starVLA.model.modules.vehicle_joint.initialization import add_random_driving_tokens
+            from starVLA.cache.navsim_feature_cache import (
+                ROBOT_HISTORY_TOKEN, RGB_QUERY_TOKENS, GS_QUERY_TOKENS,
+                REWARD_QUERY_TOKENS, action_query_tokens,
+            )
+            tokens = [ROBOT_HISTORY_TOKEN, *GS_QUERY_TOKENS, *RGB_QUERY_TOKENS,
+                      *action_query_tokens(config.get("act_tok", 8)), *REWARD_QUERY_TOKENS]
+            self.driving_token_initialization = add_random_driving_tokens(
+                model, processor.tokenizer, tokens, int(config.seed) + 1000)
 
         self.model = model
         self.processor = processor
