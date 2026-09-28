@@ -21,14 +21,8 @@ try:
 except NameError:
     pkg_path = None
 
-# Auto-import all framework submodules to trigger registration
-if pkg_path is not None:
-    try:
-        for _, module_name, _ in pkgutil.iter_modules(pkg_path):
-            importlib.import_module(f"{__name__}.{module_name}")
-    except Exception as e:
-        print(f"Warning: Failed to auto-import framework submodules: {e}")
-        
+# Import only the selected framework: Action-Only must not import video/depth.
+
 def build_framework(cfg, accelerator=None):
     """
     Build a framework model from config.
@@ -60,6 +54,13 @@ def build_framework(cfg, accelerator=None):
         return Qwenvl_Vision(cfg)
 
     
+    if cfg.framework.name == "DDPForesight":
+        from .DDPForesight import DDPForesight
+        return DDPForesight(cfg, accelerator)
+
+    # Register a requested custom framework without importing unrelated modules.
+    if cfg.framework.name not in FRAMEWORK_REGISTRY._registry:
+        importlib.import_module(f"{__name__}.{cfg.framework.name}")
     # auto detect from registry
     framework_id = cfg.framework.name
     if framework_id not in FRAMEWORK_REGISTRY._registry:

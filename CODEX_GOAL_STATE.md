@@ -1,72 +1,16 @@
-# DDP vehicle-only from-scratch campaign — FORMAL TRAINING RUNNING
+# DDP shared foresight + GT trajectory MAE — IMPLEMENTING
 
-Branch:feature/ddpolicy-vehicle-joint-from-scratch-20260928
-Reference base:632cf74c4c7269228d66d569e0c54846b07c95f4
-Development:/mnt/project/VLA-Drive-ddpolicy-vehicle-joint-20260928
-Artifacts:/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928
-Frozen FORMAL source:4f27cbb5b83806331325aa473a01da4fd1738d60
-Frozen FORMAL worktree:/mnt/project/VLA-Drive-ddpolicy-campaign-20260928
-Small-fit source:4843e4ddf8340ecc8b44a47fc5fc9b688a58e3a8
-Small-fit worktree:/mnt/project/VLA-Drive-ddpolicy-optimizerfix2-20260928
-Report/viz commits are separate from training provenance; do not change either running worktree.
+New authorized objective: current-camera Action-Only DDP with64 shared W queries; train-only deterministic future FLUX VAE regression and masked GT vehicle trajectory teacher latent regression. Deploy original ego-only DDP action head. No joint actor generator, detector or old driving weights.
 
-## Active controller — DO NOT DUPLICATE
+Branch: feature/ddp-shared-foresight-gtmae-20260928
+Worktree: /mnt/project/VLA-Drive-ddp-foresight-20260928
+Code reference: a68420722891ba690852907f096f57381a81b1af; historical tools remain legacy and are not student modules.
+Artifacts: /mnt/project/ddp-foresight-artifacts/20260928
+Old campaign remains STOPPED. This new campaign must never resume its controller or weights.
+Resources: local8 A80080GB free; vla-zt2 GPUs4–7 free. User additionally permits terminating verified GPU stress scripts when more capacity is needed. Never stop unrelated real workloads.
 
-PID1328493 on training-vla-zt-worker-0. Read the live status before any action.
-Plan:formal_campaign_v1/plan.json
-Plan SHA256:422e5cbaf777ac03bd59eee397263545b71cbaf8202dad3d9f7613fa6b1f57d9
-Controller:formal_campaign_controller_v1/status.json
-Controller log:formal_campaign_controller_v1.stdout.log
-
-Read-only terminal-report observer: PID1338481, frozen source 3e08b7dc19a257df5ac507a0794963e038add7da in /mnt/project/VLA-Drive-ddpolicy-reporting-v3-20260928. Its live record is formal_final_report_v3_observer.json; exact launch is formal_final_report_v3_observer_launch.json. It waits for the controller, then writes formal_final_report_v3 and publishes only this task branch from a new detached worktree, verifying the remote SHA. It launches no training and allocates no GPUs. Do not duplicate it. An incomplete secondary pair remains INCOMPLETE even if the primary benchmark finishes. Publication failure preserves the local report/commit. The original report-only observer was superseded, with its provenance preserved; all training processes remain unchanged. The report includes per-sampling-seed vehicle coverage and the entire fixed development checkpoint grid.
-
-All THREE formal100000-update runs are performing actual full-manifest updates: A42 local0/1/2/3, B42 local4/5/6/7, C42 vla-zt2GPU4/5/6/7. No small-fit weights are reused. Formal A/B shared driving initialization tensors are identical and B/C ALL driving tensors are identical; see formal_initialization_comparison_v1.json. A/B small fits have each completed512effective updates/8192scene presentations, with complete rank logs; C small fit also completed512effective updates; all three endpoint exports and metrics are complete. Actual per-run progress is in the live status files.
-
-Primary A/B/C42 all have fresh generic/random initialization, full101592-scene training, globalbatch32/microbatch4,100000updates, warmup5000/cosine100000, AdamW1e-5, final10000all-hidden for B/C. B/C43 follow as a complete pair, subject to the campaign cap; A43 is not planned. Every full pass3175updates,24-scene tail. Per-run exposure3199752. Head xy scale1 remains fixed. No old driving foundation, Reader, graph, scorer or hidden cache is loaded.
-
-Existing local/vla-zt2 resources only. Remote0/3 belong to other tasks and are untouched. Registered total cap8000GPUh (optional cap preference received no reply; user changes override it);300GPUh held for final evaluation. No rental/expansion. Formal training cap7698GPUh includes all prior campaign cost. Actual4GPU startup measured12.4sec/update and41.56GiB peak; five-run training extrapolation6889.6GPUh, with initial ego-only graphs/cached data. This is not a completion-time guarantee.
-
-Controller behavior:24h allocations safely pause/save and resume the same identity; immutable milestones0/1000/5000/10000/25000/50000/75000/90000/100000, periodic1000. Explicit STOP_REQUESTED is preserved. It will evaluate full dev at the common25000/50000/75000/100000grid, select max mean PDMS over42..46 (later checkpoint on ties), freeze the models/protocol, then run complete Navtest and paired analyses. Temporary evaluation checkpoint copies are task-owned and released after complete scoring; original checkpoints stay intact. No Navtest model predictions exist yet.
-
-## Completed diagnostic runs
-
-All three small_fit_fixed_A/B/C_seed42_001 runs are COMPLETE and have released their GPUs. Each same64training scenes/globalbatch16/microbatch2/512updates; final64all-hidden, fresh initializations. Actual statuses and progress are in training/<run>/status.json. Diagnostic cap40GPUh includes failures, tests, loading and extraction; old20GPUh registration is retained historically. The cap uses the shared ledger, so formal spend also contributes while diagnostics finish.
-
-Real fixed-seed camera inference: at64updates egoADE A7.317/B10.037/C10.707m, all64scenes each,0failures. At128updates B ADE6.276/FDE10.252m and C ADE6.225/FDE9.336m; both detect1/333 under the fixed2m evaluation gate, joint-selected matched0. At256updates A ADE1.438/FDE1.967m, B ADE6.505/FDE9.534m; B detects8/333 with5joint-selected matches. The joint model currently fits worse than Base; retain this unfavorable evidence. These are training diagnostics and poor early detection coverage, not planning or method-gain evidence. Later logs have nonzero joint vehicle supervision and actual C role tasks. C256 export is COMPLETE: ADE6.748/FDE9.211m, detection8/333, joint-selected3; no mask advantage is established. LocalGPU3has been released to formalA. Keep full denominator/miss rows.
-
-Real-output audit:256camera predictions have ego decoded from the SAME joint slot0, max rounding difference2.38e-7; all unmodeled channels exact zero. Private first8scene figures exist at private_figures/B_step128_first8, never push them.
-
-Endpoint diagnostic evaluator is COMPLETE (former PID1333509), finite artifact script finish_smallfit_endpoints_v1.py (SHA256544d2d9c69cf209ada464171ee3ebe6a4a77ae14dcc9eb2d76085830f11c6e01). It waits for512-step checkpoints and remoteGPU1/2 to become idle, exports A/B/C on the same64training scenes, evaluates ego/vehicle metrics, and writes smallfit_learning_fixed_endpoint_v1. It performs zero optimizer updates. Final state:smallfit_endpoint_evaluation_v1/status.json. Do not rerun. All192endpoint exports have0failures. Endpoint egoADE/FDE A0.836/1.129m, B3.448/3.527m, C3.800/3.960m; B detects14/333vehicles and C11/333. Paired C−B egoADE+0.352m, train-log95%interval[+0.218,+0.489]. Common8vehicle jointFDE favors C but coverage is tiny. No overall MASK benefit is established. Public report:reports/ddpolicy_vehicle_from_scratch/train64_endpoint_512/RESULTS.md. Corrected consistently colored curves:smallfit_learning_fixed_endpoint_v2; old plot is retained, not overwritten. The terminal observer regenerates figures from its own report source; formal training remains4f27cbb5 unchanged.
-
-## Critical historical correction — DO NOT RESUME INVALID RUNS
-
-small_fit_A/B/C_seed42_001 stopped at179calls each; small_fit_scale_B_seed42_001 at34; startup_B_2gpu_001 at4. These575calls were optimizer no-ops. Installed DeepSpeed FusedAdam uses int32 tensor-size metadata; one2GPU ZeRO partition exceeded2^31. Real GPU counterexample and exact kernel hashes are recorded. All raw logs/costs/exposures remain intact with optimizer_stasis_correction_v1/validity_overlay.json. The corrected trainer uses same-hyperparameter groups bounded to500M elements and verifies actual FP32-master changes before counting EVERY update. No shared environment was patched. Provisional head scale20 was NOT selected.
-
-Corrected C continuous4 and independent2+2: all RNG states equal, full FP32-master max difference4.95e-6, predeclared tolerance FAILED. Same-parent repeat (startup_fixed_C_sameparent_001) performs only2new updates after2inherited updates; sampled100000FP32 masters max1.18e-6 and all RNG states match. This narrower check is NOT uninterrupted or bitwise equivalence. Preserve the full failed comparison. Current CPU suite30passed/1CUDA-marked skipped; separate real CUDA RNG test previously passed.
-
-## Data and evidence
-
-Trainval103288/1192logs; train101592/1176logs,dev1696/16logs; zero token/log overlap. Navtest12146/136logs is disjoint from trainval. Vehicle targets:vehicle_targets_v1_complete, identity59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423,0failures. Raw log population available; vehicle name filter precedes capacity32. Generic depth covers all103288scenes. Current-only caches:current_dev_v1,current_navtest_v1,current_smallfit64_v1. No annotations/futures enter camera prediction.
-
-Offline evaluation labels: evaluation_vehicle_targets_smallfit_v2 (64/0fail) and evaluation_vehicle_targets_dev_v1 (1696/0fail,8624ROI/FOVvehicles). Core box/track/future labels equal the training cache on64scenes; training-only supervision_grid is not rebuilt. One raw log has a temporal gap; relative ego/vehicle metrics explicitly mask mismatched timestamps. Original-framework ego labels/normalization remain unchanged. The failed earlier eval-label attempt is retained. Navtest label-side generation is deferred until final model lock.
-
-Public evidence:reports/ddpolicy_vehicle_from_scratch/corrected_learning_preflight/RESULTS.md plus JSON records. The registration snapshot says NOT_STARTED because it predates the real launch; live controller/status files are authoritative. Full dev/Navtest scores remain NOT_RUN. Published scores and historical weights do not replace this experiment.
-
-## Resume only if controller actually stopped
-
-```bash
-cd /mnt/project/VLA-Drive-ddpolicy-campaign-20260928
-CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 /root/miniconda3/envs/ddp/bin/python -m tools.ddpolicy_vehicle.campaign --plan /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_campaign_v1/plan.json --directory /mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/formal_campaign_controller_v1 --resume --acknowledge-stop
-```
-
-If FAILED, inspect the saved error/log before restarting. Do not resume invalid/no-op runs or start duplicate formal trainers. Formal model files, caches, raw data and private images stay outside git. The public official-token partition is now provided as NAVTRAIN_PARTITION.json; derived paired score CSVs may be published as requested results, without trajectories or annotations. Push only this task branch; never merge/force-push.
-
-## GT-completion question: targeted real diagnostic COMPLETE
-
-User challenged whether clean neighbor GT is actually visible in role completion. Training code audit confirms it is: C auxiliary clamps other valid GT trajectories, hides the target, and FM-corrupts the target; B auxiliary and camera-only reported evaluation have no clean GT future conditions. Previous all-hidden results do not establish role-completion quality.
-
-A new diagnostic at source ea0398943f1cb2904f1357814bb754a44f64465b, frozen worktree /mnt/project/VLA-Drive-ddpolicy-completion-20260928, evaluates B/C512 on all64fixed ego queries, seed42. Current images fix the graph before any labels load; clean same-track GT neighbors attach via the same current Hungarian assignment. No2m/class training gate is reintroduced. Graph/noise/target stay fixed inside each comparison; ego labels load only AFTER generation. Known values clamp at every Euler step; hidden values are NaN-poisoned. All-hidden output must reproduce the saved reference. No-condition queries remain in the denominator.
-
-Artifact:completion64_v1/{plan.json,launch.json,strata.json,B,C}. GPU: vla-zt2 1 for B,2 for C, both previously idle. SSH PIDs1341622/1341623; GPU worker PIDs2709762/2709761. Bound1800s/arm plus2100s interrupt timeout, zero optimizer updates. These are training-domain GT-conditioned mechanism scores, NEVER deployment/PDMS. Existing formal controller and its4f27cbb5 source are unchanged. New targeted CPU mask/action tests9passed. Do not start duplicate diagnostics.
-
-Completed with64/64ego queries per arm,0failures,0optimizer updates,0.241582GPUh including loading; both diagnostic GPUs released. All-hidden parity is EXACT, known GT is clamped every step, and19no-condition pairs are unchanged. On45queries with other GT, C egoADE worsens3.114241→3.247189m, paired log95%delta[+0.049204,+0.218314]. C has not demonstrated useful ego role completion at512updates. Mean assigned current center error is approximately12.44m; poor vehicle representation and limited role exposure are concrete concerns, not an isolated causal explanation. B/C supplied neighbor populations differ, so within-model paired effects are primary. Report and complete derived query CSVs:reports/ddpolicy_vehicle_from_scratch/gt_completion_512/RESULTS.md. Formal training stays unchanged/running; this is not a Navtest or planning result.
+Completed: isolated branch; initial source/resource checks; confirmed legacy QwenOFT eagerly imports video/depth and registers unused world tokens — fixing actual Action-Only path.
+Current dependency: official FLUX.1-schnell VAE download is gated401; requested an authorized local path or configured HF access. Do not bypass repository access restrictions or silently change teacher.
+Next: core MAE and foresight modules, focused tests, real vehicle data, full teacher training, VAE targets, student calibration and complete matched campaign. CPU/data/teacher work continues during VAE dependency resolution.
+Real training updates in THIS campaign:0. No results yet. Short tests never count as complete training.
+Push this branch after tested code stages; verify remote SHA. Do not upload weights/cache/raw images or private annotations.

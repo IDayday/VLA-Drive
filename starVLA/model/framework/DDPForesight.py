@@ -1,0 +1,146 @@
+"""DDP Action-Only + shared queries. Auxiliary labels never enter encode_current."""
+from contextlib import nullcontext
+import numpy as np
+import torch
+from torch import nn
+from .QwenOFT import Qwenvl_OFT
+from starVLA.cache.navsim_feature_cache import ROBOT_HISTORY_TOKEN, action_query_tokens
+from starVLA.model.modules.vehicle_joint.initialization import initialization_seed, add_random_driving_tokens
+from starVLA.model.modules.foresight.config import ForesightConfig
+from starVLA.model.modules.foresight.future_latent_head import FutureLatentHead
+from starVLA.model.modules.foresight.interaction_latent_head import InteractionLatentHead
+from starVLA.model.modules.foresight.losses import masked_regression, interaction_loss
+
+
+class DDPForesight(Qwenvl_OFT):
+    @classmethod
+    def from_pretrained(cls,*args,**kwargs):
+        raise ValueError('Use verified generic initialization or an identity-checked THIS-campaign resume')
+
+    def __init__(self, config, accelerator=None):
+        self.foresight_config=ForesightConfig(**dict(config.foresight)).validate()
+        if config.get('from_scratch') is None: raise ValueError('Generic source manifest required')
+        flags=[config.datasets.video_data.load_2d_data,config.datasets.gs_data.load_3d_data,
+               config.datasets.reward_data.load_reward_data,config.get('w_depth',0),
+               config.get('w_video_latent',0),config.get('doing_s2',0),config.get('vit_pre',0),
+               config.get('rgb_query_loss',0),config.get('gs_query_loss',0)]
+        if any(flags) or config.framework.action_model.mlp_head:
+            raise ValueError('Action-Only forbids video/depth/reward and alternate driving branches')
+        with initialization_seed(int(config.seed)):
+            super().__init__(config,accelerator=accelerator)
+        hidden=self.qwen_vl_interface.model.config.hidden_size
+        if config.framework.qwenvl.vl_hidden_dim != hidden:
+            raise ValueError('Action conditioning dimension must match actual VLM hidden dimension')
+        self.foresight_tokens=[f'<foresight_{i}>' for i in range(self.foresight_config.num_queries)]
+        tokenizer=self.qwen_vl_interface.processor.tokenizer
+        self._special_token_ids={
+            'history':(tokenizer.convert_tokens_to_ids(ROBOT_HISTORY_TOKEN),),
+            'action':tuple(tokenizer.convert_tokens_to_ids(list(action_query_tokens(self.act_tok))))}
+        if self.foresight_tokens:
+            self.foresight_initialization=add_random_driving_tokens(self.qwen_vl_interface.model,tokenizer,
+                self.foresight_tokens,int(config.seed)+2100)
+            self._special_token_ids['foresight']=tuple(self.foresight_initialization['tokens'].values())
+            with initialization_seed(int(config.seed)+2200):
+                self.foresight_queries=nn.Parameter(torch.randn(len(self.foresight_tokens),hidden)*.02)
+        cfg=self.foresight_config
+        with initialization_seed(int(config.seed)+2300):
+            if cfg.arm in ('B','D'):
+                self.future_head=FutureLatentHead(hidden,cfg.latent_channels,cfg.readout_dim,cfg.readout_layers)
+        with initialization_seed(int(config.seed)+2400):
+            if cfg.arm in ('C','D'):
+                self.interaction_head=InteractionLatentHead(hidden,cfg.readout_dim,layers=cfg.readout_layers)
+        self.qwen_vl_interface.model.model.visual.requires_grad_(False)
+        if cfg.gradient_checkpointing:
+            self.qwen_vl_interface.model.model.language_model.gradient_checkpointing_enable()
+            self.action_model.model.gradient_checkpointing=True
+
+    def train(self,mode=True):
+        super().train(mode)
+        self.qwen_vl_interface.model.model.visual.eval()
+        return self
+
+    def amp(self):
+        if getattr(self,'inference_fp32',False):return nullcontext()
+        return torch.autocast('cuda' if next(self.parameters()).is_cuda else 'cpu',dtype=torch.bfloat16)
+
+    def encode_current(self, observations):
+        # A strict whitelist is rebuilt BEFORE either tokenizer or vision model.
+        # Labels can be deleted/permuted without changing this computation.
+        current=[{k:e[k] for k in ('image','lang','state')} for e in observations]
+        if not current or any(len(e['image'])!=3 for e in current): raise ValueError('Exactly three current front views required')
+        instructions=[e['lang']+' '+ROBOT_HISTORY_TOKEN+''.join(self.foresight_tokens)+
+                      ''.join(self.act_query_tokens) for e in current]
+        ids,attention,positions,slots,visual,deepstack=self._build_qwen_batch(current,instructions)
+        rows=torch.arange(len(current),device=ids.device)
+        with self.amp():
+            embeddings=self.qwen_vl_interface.model.get_input_embeddings()(ids)
+            states=torch.as_tensor(np.asarray([e['state'] for e in current]),device=ids.device,dtype=torch.float32)
+            if states.shape!=(len(current),1,4) or not torch.isfinite(states).all():raise ValueError('Invalid allowed ego history state')
+            embeddings[rows,slots['history'][:,0]]=self.action_input_model(states[:,0]).to(embeddings.dtype)
+            if self.foresight_tokens:
+                if not (slots['history'][:,-1]<slots['foresight'][:,0]).all() or not (slots['foresight'][:,-1]<slots['action'][:,0]).all():
+                    raise ValueError('Causal state→W→action token order violated')
+                embeddings[rows[:,None],slots['foresight']]=self.foresight_queries.to(embeddings.dtype)[None]
+            hidden=self._qwen_language_forward(ids,embeddings,attention,positions,visual,deepstack)
+        return {'W':hidden[rows[:,None],slots['foresight']] if self.foresight_tokens else hidden[:,:0],
+                'action_queries':hidden[rows[:,None],slots['action']]}
+
+    def forward(self, observations, targets, *, completed_updates=0, noise_generator=None,
+                time_generator=None, horizon_generator=None, global_counts=None):
+        encoded=self.encode_current(observations)
+        action=encoded['action_queries'];device=action.device
+        ego=targets['ego'].to(device=device,dtype=torch.float32)
+        if ego.shape!=(len(observations),8,4) or not torch.isfinite(ego).all():raise ValueError('Invalid ego target')
+        repeat=int(self.config.framework.action_model.repeated_diffusion_steps)
+        y=ego.repeat(repeat,1,1)
+        cfg=self.config.framework.action_model
+        if cfg.noise_beta_beta!=1.:raise ValueError('Explicit independent time RNG currently supports original Beta(alpha,1)')
+        noise=torch.randn(y.shape,device=device,dtype=y.dtype,generator=noise_generator)
+        u=torch.rand((len(y),),device=device,generator=time_generator)
+        times=(cfg.noise_s-u.pow(1./cfg.noise_beta_alpha))/cfg.noise_s
+        with self.amp():
+            fm=self.action_model(action.repeat(repeat,1,1),y,noise=noise,times=times)
+        losses={'ego_fm':fm};metrics={};cfg=self.foresight_config
+        weights=min(1.,(completed_updates+1)/cfg.auxiliary_warmup)
+        counts=global_counts or {}
+        if hasattr(self,'future_head'):
+            values=targets['future_latent'].to(device)
+            valid=targets['future_valid'].to(device)
+            if values.shape[0:3]!=(len(ego),3,3) or valid.shape!=(len(ego),3,3):raise ValueError('Future horizon/view shape')
+            # Labels choose only a LOSS task; encode_current was already completed.
+            choices=[]
+            for row in valid.cpu().any(-1):
+                eligible=torch.where(row)[0]
+                pick=int(torch.randint(max(1,len(eligible)),(1,),generator=horizon_generator))
+                choices.append(int(eligible[pick]) if len(eligible) else 0)
+            horizon=torch.tensor(choices,device=device)
+            rows=torch.arange(len(ego),device=device)
+            with self.amp():prediction=self.future_head(encoded['W'],horizon,(cfg.latent_height,cfg.latent_width))
+            mask=valid[rows,horizon,:,None,None,None]
+            if 'future_spatial_valid' in targets:mask=mask & targets['future_spatial_valid'].to(device)
+            loss,count=masked_regression(prediction,values[rows,horizon],mask,global_count=counts.get('visual'))
+            losses['visual']=loss*cfg.lambda_vis*weights
+            metrics.update(visual_raw=loss.detach(),visual_global_elements=count,horizon=horizon.detach())
+        if hasattr(self,'interaction_head'):
+            with self.amp():prediction=self.interaction_head(encoded['W'])
+            loss,count=interaction_loss(prediction,targets['interaction_latent'].to(device),
+                targets['interaction_valid'].to(device),cfg.normalization_eps,counts.get('interaction'))
+            losses['interaction']=loss*cfg.lambda_int*weights
+            metrics.update(interaction_raw=loss.detach(),interaction_global_elements=count)
+        return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
+
+    @torch.no_grad()
+    def predict_action(self,observations,*,sampling_seed=42,initial_noise=None):
+        encoded=self.encode_current(observations)
+        action=encoded['action_queries']
+        if initial_noise is None:
+            generator=torch.Generator(device=action.device).manual_seed(sampling_seed)
+            initial_noise=torch.randn((len(observations),8,4),device=action.device,generator=generator)
+        with self.amp():ego=self.action_model.predict_action(action,initial_noise=initial_noise)
+        from starVLA.dataloader.foresight_dataset import decode_ego
+        return decode_ego(ego.float())
+
+    def strip_auxiliary_heads(self):
+        for name in ('future_head','interaction_head'):
+            if hasattr(self,name):delattr(self,name)
+        return self

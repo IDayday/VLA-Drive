@@ -1,32 +1,33 @@
-schema_version: 1
-optimizer_step_cap: 12000
-steps_consumed_at_last_snapshot: 11639
-live_ledger: ${WORLD_ARTIFACTS}/budget_ledger.json
-real_overfit:
-  max_scenes: 64
-  max_steps: 1000
-pilot:
-  max_training_scenes: 8192
-  max_steps_per_variant: 1000
-  training_seeds: [42]
-  variants: [A1, A2, B, C, D, E]
-additional_seed:
-  max_paired_comparisons: 1
-  seeds: [43]
-repair:
-  max_rounds: 2
-  require_logged_failure_hypothesis: true
-accounting:
-  includes: [overfit, provider_adaptation, warmup, pilot, repair_rerun, additional_seed, adapter]
-  charge_actual_optimizer_steps: true
-  reserve_before_launch: true
-  no_automatic_cap_increase: true
-resources:
-  allowed_hosts: [local, training-vla-zt2]
-  placeholder_gpu_scripts_may_be_paused: true
-  preempt_other_training: false
-evaluation:
-  seed: 20260926
-  prefer_existing_development_manifest: true
-  split_by_complete_log: true
-  navtest_for_selection: false
+campaign: ddp_shared_foresight_gtmae_20260928
+resource_scope: existing_user_authorized_local_and_vla_zt2_only
+external_paid_resources: false
+cumulative_gpu_hour_cap: 6000
+cap_basis: new_campaign_provisional_ceiling_not_inherited_budget_or_completion_claim
+phase_limits_gpu_hours:
+  implementation_teacher_preflight: 24
+  full_teacher: 48
+  target_encoding: 96
+  student_calibration: 48
+  final_evaluation_reserve: 300
+student_plan:
+  primary_seed: 42
+  arms: [R, A, B, C, D]
+  secondary_priority: [B, D, A, C]
+  proposed_global_batch: 32
+  proposed_updates: 100000
+  formal_launch_requires: measured_action_only_throughput_and_frozen_plan
+teacher_plan:
+  dim: 512
+  encoder_layers: 6
+  decoder_layers: 2
+  max_neighbors: 16
+  xy_scale: 20
+  batch: 256
+  epochs: 30
+  learning_rate: 0.0003
+  validation_milestones_epochs: [0, 1, 2, 4, 8, 16, 24, 30]
+  small_fit_max_updates: 1000
+  dropout: 0.0
+  extra_companion_mask_probability: 0.0
+  seed: 42
+budget_counts: [loading, tests, failures, training, caching, evaluation]

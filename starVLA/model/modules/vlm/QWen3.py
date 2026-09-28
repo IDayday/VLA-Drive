@@ -86,8 +86,11 @@ class _QWen3_VL_Interface(nn.Module):
                 ROBOT_HISTORY_TOKEN, RGB_QUERY_TOKENS, GS_QUERY_TOKENS,
                 REWARD_QUERY_TOKENS, action_query_tokens,
             )
-            tokens = [ROBOT_HISTORY_TOKEN, *GS_QUERY_TOKENS, *RGB_QUERY_TOKENS,
-                      *action_query_tokens(config.get("act_tok", 8)), *REWARD_QUERY_TOKENS]
+            if config.get("foresight") is not None:
+                tokens = [ROBOT_HISTORY_TOKEN, *action_query_tokens(config.get("act_tok", 8))]
+            else:
+                tokens = [ROBOT_HISTORY_TOKEN, *GS_QUERY_TOKENS, *RGB_QUERY_TOKENS,
+                          *action_query_tokens(config.get("act_tok", 8)), *REWARD_QUERY_TOKENS]
             self.driving_token_initialization = add_random_driving_tokens(
                 model, processor.tokenizer, tokens, int(config.seed) + 1000)
 

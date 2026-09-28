@@ -45,12 +45,10 @@ from starVLA.model.modules.vlm import get_vlm_model
 # from starVLA.model.modules.action_model.MLP_ActionHeader import get_action_model
 from starVLA.model.modules.action_model.GR00T_ActionHeader import get_action_model, FlowmatchingActionHead, MLP, FlowmatchingRewardHead, get_reward_model
 from starVLA.training.trainer_utils.trainer_tools import resize_images
-from starVLA.model.modules.video_model.wan_i2v_header import WanWorldHead
 import time
 from omegaconf import OmegaConf
 
 ##### depth ppd
-from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
 from starVLA.cache.navsim_feature_cache import (
     GS_QUERY_TOKENS,
     REWARD_QUERY_TOKENS,
@@ -210,6 +208,7 @@ class Qwenvl_OFT(baseframework):
         ## 2d gen
         if self.config.datasets.video_data.load_2d_data:
             if not infer_not_load_wan:
+                from starVLA.model.modules.video_model.wan_i2v_header import WanWorldHead
                 self.rgb_model = WanWorldHead(self.config, accelerator)
 
         if self.config.datasets.video_data.load_2d_data:
@@ -245,6 +244,7 @@ class Qwenvl_OFT(baseframework):
         self.w_depth = OmegaConf.select(self.config, "w_depth", default=0)
 
         if self.w_depth:
+            from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
             depth_ppd_path = 'starVLA/model/modules/depth_model/configs/train_finetune.yaml'
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
             # Optional path override; the original relative paths remain the default.
