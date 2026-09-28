@@ -68,8 +68,11 @@ class DDPVehicle(Qwenvl_OFT):
             if set(k for k in report["missing"] if not k.startswith("sem_encoder.")) != allowed:
                 raise ValueError("Generic PPD must leave ALL new Qwen driving adapters randomly initialized")
             semantic = self.gs_model.semantic_load_report
-            if semantic["missing"] or semantic["unexpected"]:
+            # Original PPD uses DAV2's semantic backbone, whose local class
+            # deliberately has no depth_head. The public DAV2 head is unused.
+            if semantic["missing"] or any(not k.startswith("depth_head.") for k in semantic["unexpected"]):
                 raise ValueError(f"Unaccounted generic semantic encoder keys: {semantic}")
+            self.ppd_generic_load_report["semantic_backbone"] = semantic
         self.arm = config.from_scratch.arm
         self.joint_enabled = self.arm != "A"
         self.sources = sources
