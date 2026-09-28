@@ -67,6 +67,8 @@ python -m tools.foresight.cache_future_latents \
 # Complete all shards and dev separately, retaining missing-frame masks and every ego scene.
 ```
 
+Before encoding, register the already authorized local VAE using `python -m tools.foresight.prepare_flux_identity --root "$VERIFIED_FLUX_ROOT" --output "$VERIFIED_FLUX_IDENTITY"`. The directory must contain the official `vae/config.json` and `vae/diffusion_pytorch_model.safetensors` at revision741f7c3ce8b383c54771c7003378a50191e9efe9. Both are checked against pinned public Git/LFS metadata. An empty file inventory, an arbitrary caller-declared weight hash or a different revision is rejected before loading. This command does not obtain access or download weights. Actual VAE encoding remains NOT_RUN while access is unavailable.
+
 Real-gradient calibration needs both completed, identity-checked target caches. Its single fixed training-only rule measures W and first/last Qwen q-projection gradients, setting each auxiliary's median norm to25%of the main norm; it records all missing/zero-label scenes. This rule is a starting gradient calibration, not a test-score search. Nonzero weights are required by the student trainer for enabled tasks.
 
 ```bash
@@ -82,6 +84,17 @@ Apply the resulting integer VAE geometry and shared nonzero lambda values to the
 Formal training uses `--scope formal` without `--limit`, the registered common update/schedule lengths and seed, and only the relevant explicit cache roots/identities. Independent fresh starts are mandatory. `evaluate_auxiliary_tasks` evaluates every1/2/4shorizon/view and the same-cache copy-current reference; no latent MSE is a PDMS result.
 
 Final Navtest export rejects diagnostic checkpoints, a truncated population and absent/changed model/source/data/sampling locks. A final lock must list the exact formally selected checkpoint hashes, evaluator sourceSHA, complete current-data identity/count, inference steps and five sampling seeds42–46. Final official scoring and paired planning results are still NOT_RUN. The exported NPZ contains only the executable ego trajectory; the official scorer must retain the full traffic environment.
+
+The main checkpoint-selection rule is the common registered complete training endpoint for all arms. The endpoint length is frozen after the matched short fits; this avoids per-arm best-epoch selection. The development set still measures learning quality before final test execution. `lock_navtest` verifies the completed training identities/exposure and exact matching five-run development checkpoints. No lock has been generated for a real model yet.
+
+```bash
+# NOT_RUN: requires completed formal R/A/B/C/D and the complete development report.
+# MODELS is a JSON list of {"training_run": ..., "checkpoint_tag": ...}.
+python -m tools.foresight.lock_navtest --models "$MODELS" \
+  --development-report "$PAIRED_REPORT/summary.json" --current-root "$NAVTEST_CURRENT_ROOT" \
+  --metric-index "$NAVTEST_METRIC_INDEX" --output "$FINAL_LOCK"
+# Execute export_predictions from this same clean, frozen source with --final-lock "$FINAL_LOCK".
+```
 
 ## Official CPU scoring and paired analysis
 

@@ -38,9 +38,8 @@ def main():
         if data.identity['split']=='navtest':
             if not a.final_lock or a.limit or training['scope']!='formal':raise ValueError('Navtest requires a full locked formal model')
             lock=json.loads(Path(a.final_lock).read_text())
-            if checkpoint['sha256'] not in lock['checkpoints'] or source!=lock['evaluation_source_sha']:raise ValueError('Model/evaluation source not locked')
-            if data.identity['identity']!=lock['current_data_identity'] or len(data)!=lock['scene_count']:raise ValueError('Navtest population changed')
-            if a.sampling_seed not in lock['sampling_seeds'] or protocol['steps']!=lock['inference_steps']:raise ValueError('Final sampling protocol changed')
+            from .lock_navtest import validate_lock
+            validate_lock(lock,checkpoint,source,data.identity,len(data),a.sampling_seed,protocol['steps'])
         identity={'checkpoint':checkpoint,'current_identity':data.identity,'evaluation_source':source,'protocol':protocol,
                   'world_size':a.world_size,'limit':a.limit}
         out=Path(a.output);(out/'predictions').mkdir(parents=True,exist_ok=True)

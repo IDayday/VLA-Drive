@@ -1,4 +1,5 @@
 """Frozen deterministic FLUX image VAE, label side only; no diffusion transformer."""
+import hashlib
 import json
 from pathlib import Path
 import numpy as np
@@ -8,19 +9,34 @@ from torch import nn
 from torch.nn import functional as F
 from starVLA.model.modules.vehicle_joint.initialization import file_sha256
 
+FLUX_REPOSITORY='black-forest-labs/FLUX.1-schnell'
+FLUX_REVISION='741f7c3ce8b383c54771c7003378a50191e9efe9'
+FLUX_WEIGHT='vae/diffusion_pytorch_model.safetensors'
+FLUX_WEIGHT_SHA256='f5b59a26851551b67ae1fe58d32e76486e1e812def4696a4bea97f16604d40a3'
+FLUX_CONFIG='vae/config.json'
+FLUX_CONFIG_GIT_BLOB='b43183d0f5f0274bccd8054cd0069fc1d5f64586'
+
+
+def verify_flux_source(root,identity):
+    """Pin to public file metadata, not a caller's arbitrary self-declared hash."""
+    if identity['repository']!=FLUX_REPOSITORY or identity['revision']!=FLUX_REVISION:
+        raise ValueError('Wrong registered generic FLUX source/revision')
+    files=identity['files']
+    if set(files)!={FLUX_CONFIG,FLUX_WEIGHT} or files[FLUX_WEIGHT]!=FLUX_WEIGHT_SHA256:
+        raise ValueError('Both exact registered VAE config and public weight hashes are required')
+    root=Path(root);config=(root/FLUX_CONFIG).read_bytes()
+    git_blob=hashlib.sha1(b'blob '+str(len(config)).encode()+b'\0'+config).hexdigest()
+    if git_blob!=FLUX_CONFIG_GIT_BLOB:raise ValueError('VAE config differs from the pinned public Git blob')
+    for relative,expected in files.items():
+        if file_sha256(root/relative)!=expected:raise ValueError('VAE file differs from registered public identity')
+
 
 class FluxTargetEncoder(nn.Module):
     def __init__(self,root,identity,device='cuda',dtype=torch.float32):
         super().__init__()
-        # A local name is insufficient evidence: require pinned public hashes.
-        if identity['repository']!='black-forest-labs/FLUX.1-schnell' or len(identity['revision'])!=40:
-            raise ValueError('This campaign fixes the authorized generic FLUX.1 image VAE')
-        root=Path(root)
-        for relative,expected in identity['files'].items():
-            path=(root/relative).resolve()
-            if not path.is_relative_to(root.resolve()) or file_sha256(path)!=expected:raise ValueError('VAE source identity mismatch')
+        verify_flux_source(root,identity);root=Path(root)
         from diffusers import AutoencoderKL
-        self.vae=AutoencoderKL.from_pretrained(str(root/'vae'),local_files_only=True,torch_dtype=dtype).to(device)
+        self.vae=AutoencoderKL.from_pretrained(str(root/'vae'),local_files_only=True,use_safetensors=True,torch_dtype=dtype).to(device)
         self.vae.requires_grad_(False).eval()
         self.scale=float(self.vae.config.scaling_factor);self.shift=float(self.vae.config.shift_factor)
         self.stride=2**(len(self.vae.config.block_out_channels)-1)
