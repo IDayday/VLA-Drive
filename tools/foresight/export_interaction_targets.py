@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
+import time
 import torch
 from tools.ddpolicy_vehicle.prepare_data import atomic_json
 from tools.ddpolicy_vehicle.run_meter import metered_run
@@ -28,8 +29,9 @@ def main():
     p.add_argument('--campaign-gpu-hours',type=float,default=6000)
     a=p.parse_args()
     if min(a.batch,a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Positive export batch and budgets required')
-    with metered_run(a.campaign_root,a.run_id,1,{'kind':'interaction_target_export','real_optimizer_updates':0}) as (record,_,save):
-        import time
+    attempt = a.run_id + '_attempt_' + str(time.time_ns())
+    with metered_run(a.campaign_root,attempt,1,{'kind':'interaction_target_export','real_optimizer_updates':0,
+                                           'run_id_parent':a.run_id}) as (record,_,save):
         source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
         if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Lock export source before producing teacher targets')
         teacher_id=json.loads((Path(a.teacher_run)/'identity.json').read_text())

@@ -1,5 +1,7 @@
 # 新服务器重建数据索引与 MAE 交互目标
 
+用户现已选择不上传大型 Release、由新服务器自行生成资产。只有原始 NAVSIM 日志/图片与通用 Qwen/DINO 时，优先使用[从原始数据开始的完整生成命令](DDP_FULL_FORESIGHT_SELF_PREPARE_ZH.md)，新入口不要求旧预处理 pkl。下面保留“复用现有冻结教师”的可选路径和原身份记录。
+
 两者可以在新服务器生成，但依赖不同：数据索引是 CPU 数据准备结果，MAE 交互目标是已训练并冻结的教师在 GPU 上推理导出的标签。克隆本分支可获得全部代码，不能获得不在 Git 中的大权重、GT 数据记录或特征缓存。
 
 **数据索引**记录场景、log、三前视图像和 h=0/1/2/4 秒的时间对应，不是 DINO 特征本身。保持仓库中的固定划分 `reports/ddpolicy_vehicle_from_scratch/NAVTRAIN_PARTITION.json`；本轮实际人口是 101592 训练场景和 1696 开发场景，按 log 隔离，不重新抽划分。
@@ -18,7 +20,7 @@ python -m tools.full_foresight.build_index \
   --output "$ART/dino_index_v1"
 ```
 
-若当前学生数据尚不存在，使用 `tools.foresight.prepare_student_data --help` 中的完整接口分别准备 train/dev。它还需要 `processed-root` 和 `observation-root`；当前相机/标定记录可由 `tools.ddpolicy_vehicle.prepare_data` 构建。不能把 `build_index` 当作从原始日志开始的全部准备流程：它只重排已经核验的物理时间索引。DINO 特征随后通过 `tools.full_foresight.cache_dino_targets` 提取，必须绑定新索引身份；仅有索引仍不能进行完整四任务训练。
+若当前学生数据尚不存在，使用新 `tools.full_foresight.prepare_from_navsim` 入口直接从原始日志/图片同时生成学生数据和教师 GT；完整命令见上面的自生成文档。旧 `tools.foresight.prepare_student_data` 仍保留，其 `processed-root`/`observation-root` 要求不再是新服务器启动前提。`build_index` 只重排已经核验的物理时间索引，DINO 特征随后另外提取；仅有索引仍不能进行完整四任务训练。
 
 **MAE 交互目标**不是周车 GT 坐标文件，而是冻结 GT 车辆轨迹 MAE 在输入端完全遮住 ego 未来、读取其他车辆真实未来之后生成的 **8×512 Z_T**。它是学生 loss 的标签，不是规划输入。导出无需重训教师，不加载旧驾驶学生，也不需要 DINO。
 

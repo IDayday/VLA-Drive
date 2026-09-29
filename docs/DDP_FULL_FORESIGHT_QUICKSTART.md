@@ -14,6 +14,8 @@ Latest user speed priority is active: two standalone8GPU runs (C0 primary, C1 co
 
 ## Verified execution
 
+For a new server with NAVSIM logs/images and generic Qwen/DINO already installed, use the [raw-data self-preparation commands](DDP_FULL_FORESIGHT_SELF_PREPARE_ZH.md). No large Release or GitHub API token is needed. This creates a separate campaign and, without copied teacher weights, trains its own common MAE once.
+
 Use the `ddp` Python environment. Set paths to the actual identity-checked assets; code does not download or accept an arbitrary model in place of the recorded generic checkpoint.
 
 ```bash
