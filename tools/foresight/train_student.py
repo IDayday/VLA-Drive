@@ -217,6 +217,20 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             with (out/'checkpoint_costs.jsonl').open('a') as stream:stream.write(json.dumps({'tag':tag,'seconds':time.time()-checkpoint_start})+'\n')
     write_status()
     io_pool=ThreadPoolExecutor(max_workers=a.loader_workers) if a.loader_workers else None
+    head_events=[];head_hooks=[]
+    if a.scope=='profile':
+        # CUDA events measure readout FORWARD work only. Total optimizer-step
+        # wall time above still includes both backward paths and synchronization.
+        def attach_head(name,module):
+            pending=[]
+            def before(*_):
+                event=torch.cuda.Event(enable_timing=True);event.record();pending.append(event)
+            def after(*_):
+                end=torch.cuda.Event(enable_timing=True);end.record()
+                head_events.append((name,pending.pop(),end))
+            head_hooks.extend([module.register_forward_pre_hook(before),module.register_forward_hook(after)])
+        for name in ('dino_head','interaction_head'):
+            if hasattr(model,name):attach_head(name,getattr(model,name))
     try:
         if not a.resume and 0 in milestones:checkpoint('milestone_000000')
         model.train()
@@ -228,7 +242,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             stop_tensor=torch.tensor(int(stop),device='cuda');dist.all_reduce(stop_tensor,op=dist.ReduceOp.MAX)
             if stop_tensor:
                 status['status']='PAUSED';checkpoint(f'paused_{completed:06d}_{attempt}');meter['status']='PAUSED';break
-            started=time.time();indices=batches[offset][rank::world]
+            started=time.time();head_events.clear();indices=batches[offset][rank::world]
             # map preserves scene order. No augmentation/task RNG runs in workers.
             samples=list(io_pool.map(data.__getitem__,indices)) if io_pool else [data[i] for i in indices]
             observations,targets=collate_training(samples)
@@ -268,6 +282,13 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 counters['future_requests']+=len(batches[offset-1])*int(need_fut)
             for k in range(3):counters['horizon_scenes'][k]+=int(exposures[k]);counters['valid_views'][k]+=int(exposures[k+3])
             torch.cuda.synchronize()
+            readout_times={'current_dino':0.,'future_dino':0.,'interaction':0.};dino_call=0
+            for name,start_event,end_event in head_events:
+                if name=='interaction_head':key='interaction'
+                else:
+                    key='current_dino' if need_cur and (not need_fut or dino_call%2==0) else 'future_dino'
+                    dino_call+=1
+                readout_times[key]+=start_event.elapsed_time(end_event)
             perf=torch.tensor([time.time()-started,data_seconds,torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved(),
                                float(model.last_sequence_lengths.max())],device='cuda',dtype=torch.float64)
             all_perf=[torch.empty_like(perf) for _ in range(world)];dist.all_gather(all_perf,perf)
@@ -276,6 +297,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                      'seconds':time.time()-started,'peak_memory_bytes':torch.cuda.max_memory_allocated(),
                      'grad_norm':float(engine.get_global_grad_norm()),'per_rank_profile':[v.cpu().tolist() for v in all_perf],
                      'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
+                if a.scope=='profile':row['rank0_readout_forward_gpu_ms']=readout_times
                 with (out/'steps.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
             write_status()
             if completed in milestones:checkpoint(f'milestone_{completed:06d}')
@@ -284,8 +306,13 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             if offset==len(epoch_batches(size,a.global_batch,int(cfg.seed),epoch)):epoch+=1;offset=0
             status['status']='COMPLETE';checkpoint(f'final_{completed:06d}');meter['status']='COMPLETE'
             if a.scope=='profile':
+                for hook in head_hooks:hook.remove()
+                head_hooks.clear()
                 model.eval();model.strip_auxiliary_heads();latencies=[]
-                observation=data[0][0]
+                from starVLA.dataloader.foresight_dataset import ForesightCurrentDataset
+                current_data=ForesightCurrentDataset(a.data)
+                current_data.local_image_root=a.local_image_root
+                observation=current_data[0]  # deployment profiling has no target-file dependency
                 for i in range(25):
                     torch.cuda.synchronize();start=time.perf_counter()
                     prediction=model.predict_action([observation],sampling_seed=123)
@@ -297,6 +324,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     except BaseException:
         status['status']='FAILED';write_status();raise
     finally:
+        for hook in head_hooks:hook.remove()
         if io_pool:io_pool.shutdown(wait=True)
         write_status()
 

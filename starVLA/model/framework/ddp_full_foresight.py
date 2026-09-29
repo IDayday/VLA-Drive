@@ -25,5 +25,20 @@ class DDPFullForesight(DDPForesight):
     def query_embeddings(self):
         return self.query_geometry(self.foresight_queries)
 
+    def forward(self, model_inputs, training_targets, **kwargs):
+        cfg = self.foresight_config
+        if getattr(self, '_deployment_only', False):
+            raise RuntimeError('Deployment model cannot silently become a reduced training objective')
+        for name, required in (('dino_head', cfg.enable_current_dino or cfg.enable_future_dino),
+                               ('interaction_head', cfg.enable_interaction)):
+            if hasattr(self, name) != required:
+                raise RuntimeError('Configured training objective/module inventory mismatch: '+name)
+        return super().forward(model_inputs, training_targets, **kwargs)
+
     def forward_train(self, model_inputs, training_targets, **kwargs):
         return self.forward(model_inputs, training_targets, **kwargs)
+
+    def strip_auxiliary_heads(self):
+        super().strip_auxiliary_heads()
+        self._deployment_only = True
+        return self

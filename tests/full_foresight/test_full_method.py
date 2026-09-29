@@ -68,3 +68,16 @@ def test_legacy_current_only_definition_is_not_relabelled_full(monkeypatch):
     old=ForesightConfig(arm='C0',num_queries=144,dino_height=6,dino_width=8,
                        enable_current_dino=True,lambda_cur=1.,auxiliary_warmup=1).validate()
     assert old.is_tradeoff and not old.uses_interaction
+
+
+def test_removed_objective_is_an_error_not_silent_zero(monkeypatch):
+    from starVLA.model.framework.ddp_full_foresight import DDPFullForesight
+    # No fake forward result: exercise the guard before any expensive backbone.
+    model=DDPFullForesight.__new__(DDPFullForesight);torch.nn.Module.__init__(model)
+    model.foresight_config=configuration('C0',monkeypatch)
+    with pytest.raises(RuntimeError,match='inventory'):
+        model.forward_train([], {})
+    model.dino_head=torch.nn.Identity();model.interaction_head=torch.nn.Identity()
+    model.strip_auxiliary_heads()
+    with pytest.raises(RuntimeError,match='Deployment model'):
+        model.forward_train([], {})

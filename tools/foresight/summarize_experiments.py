@@ -79,18 +79,25 @@ def write_csv(path,rows):
         writer=csv.DictWriter(stream,list(rows[0]));writer.writeheader();writer.writerows(rows)
 
 
-def main():
+def main(full_method=False):
     p=argparse.ArgumentParser(__doc__);p.add_argument('--registry',required=True);p.add_argument('--output',required=True)
     p.add_argument('--split',choices=('dev','navtest'),required=True);p.add_argument('--sampling-seeds',default='42,43,44,45,46')
-    p.add_argument('--diagnostic',action='store_true');a=p.parse_args()
+    p.add_argument('--diagnostic',action='store_true')
+    if full_method:
+        p.add_argument('--screen',action='store_true',help='Preregistered single-inference-seed development screen')
+        p.add_argument('--expected-arms',required=True,help='Explicit registered population of candidates/finalists/ablations')
+    a=p.parse_args()
     seeds=tuple(map(int,a.sampling_seeds.split(',')))
     if len(set(seeds))!=len(seeds) or not seeds:raise ValueError('Invalid sampling protocol')
-    if not a.diagnostic and seeds!=(42,43,44,45,46):raise ValueError('Formal protocol is five fixed inference seeds42–46')
+    screen=full_method and a.screen
+    if screen and (a.split!='dev' or seeds!=(42,)):raise ValueError('Screen is development only, fixed inference seed42')
+    if not a.diagnostic and not screen and seeds!=(42,43,44,45,46):raise ValueError('Formal protocol is five fixed inference seeds42–46')
     if a.diagnostic and a.split=='navtest':raise ValueError('No diagnostic Navtest model selection')
     registry=json.loads(Path(a.registry).read_text());groups={};identities={};evaluators=[];contracts=[];sources={}
     for entry in registry:
         arm,train_seed,infer_seed=entry['arm'],int(entry['training_seed']),int(entry['sampling_seed']);key=(arm,train_seed)
-        if arm not in ('R','A','B','C','D'):raise ValueError('Unknown arm')
+        allowed=tuple(f'C{i}' for i in range(6))+('NO_INTERACTION','NO_FUTURE','NO_CURRENT','W_ACTION_ONLY','NATIVE_ACTION_ONLY') if full_method else ('R','A','B','C','D')
+        if arm not in allowed:raise ValueError('Unknown arm')
         folder=Path(entry['score_dir']);summary=json.loads((folder/'summary.json').read_text());export=summary['export_identity'];checkpoint=export['checkpoint']
         if summary['schema']!='foresight_official_pdms_v1' or export['current_identity']['split']!=a.split:raise ValueError('Wrong scoring protocol/split')
         if checkpoint['arm']!=arm or export['protocol']['sampling_seed']!=infer_seed:raise ValueError('Registry does not match scored artifact')
@@ -110,17 +117,25 @@ def main():
     output=Path(a.output);output.mkdir(parents=True,exist_ok=False);collapsed={};report={'schema':'foresight_paired_planning_v1',
         'split':a.split,'diagnostic':a.diagnostic,'registry_sha256':digest(a.registry),'source_csv_sha256':sources,
         'groups':{},'comparisons':{},'missing_comparisons':{},'training_seed_interpretation':'reported separately; inference seeds are not training repeats'}
+    pairs=PAIRS
+    if full_method:
+        import itertools
+        expected=a.expected_arms.split(',')
+        if not expected or len(set(expected))!=len(expected) or any(x not in allowed for x in expected):raise ValueError('Invalid expected full-method matrix')
+        pairs=tuple((first,base) for base,first in itertools.combinations(expected,2))
+        report.update(schema='ddp_full_foresight_planning_v1',screen=screen,expected_arms=expected)
     for key,runs in groups.items():
         rows,summary=collapse_sampling_runs(runs,seeds);collapsed[key]=rows;name=f'{key[0]}_train{key[1]}'
         summary['checkpoint']=identities[key]['checkpoint'];report['groups'][name]=summary;write_csv(output/(name+'_scenes.csv'),rows)
     for train_seed in sorted({seed for _,seed in groups}):
-        for first,base in PAIRS:
+        for first,base in pairs:
             name=f'{first}-{base}_train{train_seed}'
             if (first,train_seed) not in collapsed or (base,train_seed) not in collapsed:
                 report['missing_comparisons'][name]='NOT_RUN';continue
             result,scenes,logs=paired_difference(collapsed[first,train_seed],collapsed[base,train_seed]);report['comparisons'][name]=result
             write_csv(output/(name+'_scenes.csv'),scenes);write_csv(output/(name+'_logs.csv'),logs)
     report['valid']=all(r['valid'] for r in report['groups'].values());report['complete_primary_matrix']=all((arm,42) in groups for arm in ('R','A','B','C','D'))
+    if full_method:report['complete_primary_matrix']=all((arm,42) in groups for arm in expected)
     atomic_json(output/'summary.json',report)
     if not report['valid']:raise RuntimeError('Failed samples retained; paired report is not a valid complete experiment')
 
