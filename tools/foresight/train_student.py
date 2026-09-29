@@ -27,7 +27,7 @@ from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
 from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups,capture_master_samples,master_update_evidence,MAX_GROUP_ELEMENTS
 from starVLA.model.modules.vehicle_joint.initialization import identity_hash,module_manifest,tensor_hash
 from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset,collate_training
-from .student_state import capture_rng,restore_rng,optimizer_batch_counts,learning_rate
+from .student_state import capture_rng,restore_rng,optimizer_batch_counts,learning_rate,validate_rank_batches
 
 
 def main():
@@ -101,7 +101,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     else:data=ForesightTrainingDataset(a.data,**data_kwargs)
     if data.identity['split']!='train' or not (Path(a.data)/'COMPLETE.json').exists():raise ValueError('Only completed training split can update student')
     size=min(len(data),a.limit) if a.limit else len(data)
-    if size<1 or size%world:raise ValueError('Nonempty split must have divisible final rank tail; no duplicated/dropped scenes')
+    validate_rank_batches(size,a.global_batch,world,a.micro_batch)
+    # Global ranks are not host-local CUDA ordinals in a two-server run.
+    device_names=[None]*world
+    dist.all_gather_object(device_names,torch.cuda.get_device_name(torch.cuda.current_device()))
     schedule={'horizon':a.schedule_updates,'warmup':a.warmup,'base':float(cfg.trainer.learning_rate.base),
               'minimum':float(cfg.trainer.scheduler_specific_kwargs.min_lr),'type':'fixed_cosine'}
     # Explicit CLI schedule is authoritative over inherited example trainer limits.
@@ -113,7 +116,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
               'precision':'BF16 model, FP32 AdamW master/moments','deterministic':a.deterministic,
               'offload_optimizer':a.offload_optimizer,'optimizer_max_group_elements':MAX_GROUP_ELEMENTS,
               'normalization':'global valid elements per optimizer batch; every scene ego loss',
-              'device_names':[torch.cuda.get_device_name(i) for i in range(world)]}
+              'device_names':device_names}
     if dino_campaign:identity.update(schema='foresight_dino_student_training_v1',dino=data.dino_identity,
                                     future_sampling='one independent request from fixed1/2/4; no valid-label resampling')
     if tradeoff:identity.update(schema='dino_tradeoff_student_v1',future_sampling='DISABLED',local_images=bool(a.local_image_root),

@@ -6,6 +6,24 @@ from torch import distributed as dist
 from starVLA.model.modules.foresight.losses import select_horizons, request_future_horizons
 
 
+def validate_rank_batches(size, global_batch, world, micro_batch):
+    """Allow unequal final rank sizes only with matching backward call counts.
+
+    E.g. NAVSIM101592, batch32, world16 has a24-scene tail: eight ranks
+    receive2 scenes and eight receive1. With microbatch2 everyone executes one
+    backward, normalized by the true global24. No padding/duplication/drop.
+    """
+    import math
+    if min(size, global_batch, world, micro_batch) < 1 or global_batch % world:
+        raise ValueError('Invalid distributed batch contract')
+    for batch_size in {min(size, global_batch), size % global_batch or global_batch}:
+        counts = [len(range(rank, batch_size, world)) for rank in range(world)]
+        if min(counts) < 1:
+            raise ValueError('Empty rank tail is unsupported; do not drop or duplicate scenes')
+        if len({math.ceil(n / micro_batch) for n in counts}) != 1:
+            raise ValueError('Unequal backward counts; increase common microbatch to cover tail')
+
+
 def capture_rng(generators):
     return {'python':random.getstate(),'numpy':np.random.get_state(),'torch':torch.get_rng_state(),
             'cuda':torch.cuda.get_rng_state(),'generators':{k:g.get_state() for k,g in generators.items()}}
