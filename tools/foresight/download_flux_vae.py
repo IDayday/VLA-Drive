@@ -43,7 +43,7 @@ def download(url,path,size,expected_sha=None):
                 for block in response.iter_content(2**20):
                     if block:stream.write(block)
     if partial.stat().st_size!=size:raise ValueError('Truncated download retained for resume')
-    if expected_sha and file_sha256(partial)!=expected_sha:raise ValueError('Downloaded weight hash differs from canonical BFL VAE')
+    if expected_sha and file_sha256(partial)!=expected_sha:raise ValueError('Downloaded asset differs from expected SHA256')
     partial.replace(path)
 
 

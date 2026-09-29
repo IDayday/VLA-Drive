@@ -59,3 +59,9 @@ cd /mnt/project/VLA-Drive-ddp-foresight-20260928
 ```
 
 No formal A/B/C/D/R checkpoint, full development planning result or Navtest result exists. Full objective remains unfinished; the previous VAE access blocker is resolved.
+
+## Separate requested DINOv3 download — COMPLETE on2026-09-29
+
+DINOv3 ViT-L/16 LVD-1689M, public timm distribution revision30c1109559f65dea34316b0d4842d35c5771fe11. Local artifact generic/dinov3_vitl16_lvd1689m_timm under the same campaign artifact root;1,212,347,640weight bytes, SHA25645172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941. Config, model card, license and provenance saved. This is timm format with documented QKV/RoPE differences from Meta format. It does not replace the registered FLUX target or change the student study.
+
+CPU strict loading passed with no missing/unexpected keys;303,079,424parameters. Real current training image produced finite1x261x1024tokens and1x1024embedding. Repeated output exactly equal, RNG unchanged. No GPU used;0optimizer updates. Evidence and executable downloader/load-check commands: reports/ddp_shared_foresight/dinov3_download. No weight or private image is committed.
