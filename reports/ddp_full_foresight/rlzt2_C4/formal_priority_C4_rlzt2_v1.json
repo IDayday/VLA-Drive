@@ -1,0 +1,1074 @@
+{
+  "additional_host": {
+    "authorization": "User20260929: use rl-zt2 to train C4",
+    "gpu_uuids": [
+      "GPU-f9371c55-5054-e42c-71bf-f1314992af79",
+      "GPU-42e1151c-5d53-6fcc-39a7-6ca10eec54f6",
+      "GPU-72a4835c-963d-0534-e867-0fbdbb2cbdf2",
+      "GPU-659076b8-990e-4ef1-2a38-c2aea273ab0c",
+      "GPU-89896b99-8541-74ca-2e23-cd59843a102a",
+      "GPU-7b4dce95-2581-1a46-2a50-7a1ac5498b5f",
+      "GPU-23c150c4-0b05-986a-bf55-cdd3f4fec999",
+      "GPU-1d07169b-659c-d3b9-43c5-c897e137ab6e"
+    ],
+    "host_alias": "training-rl-zt2",
+    "hostname": "training-rl-zt2-worker-0"
+  },
+  "authorized_hosts": [
+    "local",
+    "training-rl-zt2",
+    "training-vla-zt2"
+  ],
+  "automatic_external_expansion": false,
+  "calibration_sha256": "635ba5d81e0eaf51c7ae299015d1d2fd35e9b34cb4df97652bab36085a490ce8",
+  "config_identities": {
+    "C0": "b9cde63164fe624d54d99319d1a1d70262788d701035d8bd4c1acda9c90e143a",
+    "C1": "0dce4e7209a30a1170d3da7fdfce7100233641da9dad90338a06464a5f97739d",
+    "C2": "b0644682d0686c08e5ed8c2a539345a238e377a0c528f8941f093eb72f1bcbed",
+    "C3": "0abef89cfacdc0438816ebc019939b7818c2ba1b4711bd2dcf04240de99f3deb",
+    "C4": "5f0accf3896eda0ea5807d9b55ee813bfb3176e1138ae31edf43f01fd21a5ab2",
+    "C5": "76fa3bbd01ddeccce26ec868329172d685d0f3e2b45e791e55ad9d290d4b1e7c"
+  },
+  "configs": {
+    "C0": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C0",
+        "auxiliary_warmup": 1000,
+        "candidate": "C0",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C1": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C1",
+        "auxiliary_warmup": 1000,
+        "candidate": "C1",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C2": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C2",
+        "auxiliary_warmup": 1000,
+        "candidate": "C2",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 12,
+        "dino_width": 16,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 576,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C3": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C3",
+        "auxiliary_warmup": 1000,
+        "candidate": "C3",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 9,
+        "dino_width": 12,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 324,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C4": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C4",
+        "auxiliary_warmup": 1000,
+        "candidate": "C4",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C5": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C5",
+        "auxiliary_warmup": 1000,
+        "candidate": "C5",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 12,
+        "dino_width": 16,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 576,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    }
+  },
+  "cost_estimate": "worst measured complete-model optimizer rate times all reserved updates, 35% overhead, plus192GPUh preparation",
+  "created_unix": 1790718013.1194339,
+  "data_identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+  "deterministic": true,
+  "dev_logs": 16,
+  "dev_scenes": 1696,
+  "development_updates": [
+    5000,
+    10000,
+    25000,
+    50000,
+    75000,
+    100000
+  ],
+  "diagnostic_updates": [
+    1,
+    100,
+    500,
+    1000,
+    2000
+  ],
+  "dino_identities": {
+    "C0": "fefb3d3bc78359053e7a552182fcabd57f5024ab7e9a7c22cd7c0bda3597e8d2",
+    "C1": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+    "C2": "6d462e68d28a3371d2b107f8fe0406892d86fef20cf1642b35431e372020d24c",
+    "C3": "c65cc2d589d573b5fa11fbd6581ce4eba9dec49cd0778c453d78e169134bb966",
+    "C4": "172cb809c6b7814d36c48df8401b4c3fa55ceccbc45bd8fd57ba786465702f41",
+    "C5": "86430056aded507b850b40406477f9dd9a4a941784b090600b5c6a6625377c9c"
+  },
+  "dino_index": "141e49f0306c6ae5c57bdc3f2cf5590ce82b889278b489e9d850cf8ba8cc5dc1",
+  "ego_identity": "fc19ba6c31232afb376da55e094732161d8ac7b6e5df6cdfb62e67e902d4cd3f",
+  "estimated_campaign_gpu_hours": 827.9526735884613,
+  "evaluation": {
+    "candidates": 1,
+    "final_sampling_seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "precision": "FP32 masters, TF32 off",
+    "screen_sampling_seeds": [
+      42
+    ],
+    "steps": 10
+  },
+  "generic_sources_sha256": "aec45c54cdaf7e81883cb6d78e07a3bd9ef95007402987844f2c74d017fea8ae",
+  "gpu_hours_cap": 6000.0,
+  "identity": "f382e274dc20b51b3d527c7f026be2f09c897f4d6c553a6f5e502bc442eced5d",
+  "initialization": "verified generic Qwen; independent random driving/query/head streams; profile/startup weights forbidden",
+  "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+  "loader_workers": 4,
+  "measured_cost_scope": "C0/C1/C4 have identical144W/8x6target student shapes; inherited8GPU cost estimate, actual rl-zt2 throughput observed in formal run",
+  "milestones": [
+    0,
+    1,
+    100,
+    500,
+    1000,
+    2000,
+    5000,
+    10000,
+    25000,
+    50000,
+    75000,
+    100000
+  ],
+  "nodes": 1,
+  "old_matrix_status": "C0/C1 remain active; C4 starts independently from generic/random initialization",
+  "parent_registration_sha256": "ed030c55c4fabdf5fe5ee394e0ad46141bfedadd40bcc696a7954a7769907091",
+  "planned_optimizer_updates": 100000,
+  "priority": "User-authorized C4 on rl-zt2; existing C0/C1 continue unchanged",
+  "profile_sha256": "2797087cb25a7d3be4074a2784fd5a409b14d2772698d769d362168a3b25209d",
+  "resource_inventory_sha256": "378863b7188fbad822393565bc6a01b319f59412b74c5e47e8e27655c68a03e7",
+  "runs": {
+    "formal_C4_seed42_rlzt2_v1": {
+      "candidate": "C4",
+      "global_batch": 32,
+      "gpus": 8,
+      "micro_batch": 4,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    }
+  },
+  "save_every": 200,
+  "scene_count": 101592,
+  "scheduler": "common100000-reference cosine with5000warmup; screen is planned PAUSED, never COMPLETE",
+  "schema": "ddp_full_priority_registration_v2",
+  "screen_behavior": "Same100000 schedule and fixed development milestones as C0/C1",
+  "screen_updates": 25000,
+  "secondary_budget": "Remaining C1-C5, second seeds and ablations deferred until main result; no extra resource authorization",
+  "selection": {
+    "engineering_preference": {
+      "PDMS_percentage_point_tolerance": 0.2,
+      "student_cost_saving_fraction": 0.2
+    },
+    "mandatory": "C0",
+    "others": [
+      "best complete-development PDMS",
+      "nondominated quality-cost compromise"
+    ],
+    "ranking_metric": "official dev FP32 single sample seed42, full population; no Navtest selection",
+    "third_when_duplicate": "next nondominated candidate with plausible learning potential"
+  },
+  "status": "FROZEN_BEFORE_SCREENING",
+  "teacher_verification_sha256": "14fd2ae0f9c9f7215ba79c4e62f918865da2820164229b86291472cb5272c7fa",
+  "topology_decision": {
+    "allocation": {
+      "local": "C0 main,8GPUs",
+      "training-vla-zt2": "C1 complete-method companion,8GPUs"
+    },
+    "comparison_complete120steps": false,
+    "comparison_profile_path": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/priority_rejected_16gpu_profile_v2.json",
+    "comparison_profile_sha256": "b8f3ccd5ec53455035ffd1918658d7253cc44b909824ce30fe34bae470f058c5",
+    "decision_uses_model_quality": false,
+    "early_rejection": {
+      "criterion": "Every stable step exceeds2x the completed8GPU mean",
+      "mean_seconds": 6.742427051067352,
+      "minimum_seconds": 6.606482744216919,
+      "reason": "User prioritizes fastest single result; stop clearly slower cross-host cost probe after20warmup+20stable updates",
+      "reference_8gpu_mean_seconds": 1.83217,
+      "stable_updates": [
+        21,
+        40
+      ],
+      "status": "COST_DOMINATED_EARLY_STOP; not a completed120update profile",
+      "time": 1790675397.2054207
+    },
+    "measurement_complete": true,
+    "network": {
+      "NCCL_IB_DISABLE": true,
+      "infiniband_device_nodes_exposed": false,
+      "reported_speed_mbps": 10000,
+      "visible_interface": "eth0"
+    },
+    "objective": "fastest_single_complete_C0",
+    "reason": "16GPU TCP measured slower in every stable step; prioritize two independent8GPU jobs",
+    "remaining_matrix": "Deferred by user speed priority; no method/loss/data change",
+    "selected_measurement": "complete20warmup+100stable4lossprofile",
+    "selected_profile_path": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/priority_selected_8gpu_profile_v2.json",
+    "selected_profile_sha256": "bdb189f4f72227881327b07031d6be8da1be0e8f1a18df1e0a0d3d44d6252d89",
+    "selected_world_size": 8,
+    "single_job_slowdown_16_vs_8": 3.6800225664104853,
+    "timestamp": 1790675411.1105895
+  },
+  "topology_decision_sha256": "2b510ba89c2a39f2c9f7b3740fb50f52165fc53a82b653fcadaf7d0858331855",
+  "train_logs": 1176,
+  "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+  "updates": 100000,
+  "warmup": 5000
+}

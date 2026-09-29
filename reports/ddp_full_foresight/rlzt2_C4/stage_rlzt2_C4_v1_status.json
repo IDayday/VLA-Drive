@@ -1,0 +1,92 @@
+{
+  "end_unix": 1790718226.1329722,
+  "host": "training-rl-zt2-worker-0",
+  "jobs": {
+    "C4_targets": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.dino_tradeoff.stage_targets",
+        "--source",
+        "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1",
+        "--output",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/targets",
+        "--candidate",
+        "C4"
+      ],
+      "exit_code": 0,
+      "log": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/logs/stage_rlzt2_C4_v1_C4_targets.log",
+      "pid": 2883821
+    },
+    "current_dev": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.dino_tradeoff.stage_local",
+        "--source",
+        "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+        "--output",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/student_dev_v1",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/images"
+      ],
+      "exit_code": 0,
+      "log": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/logs/stage_rlzt2_C4_v1_current_dev.log",
+      "pid": 2883818
+    },
+    "current_train": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.dino_tradeoff.stage_local",
+        "--source",
+        "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1",
+        "--output",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/student_train_v1",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/images"
+      ],
+      "exit_code": 0,
+      "log": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/logs/stage_rlzt2_C4_v1_current_train.log",
+      "pid": 2883817
+    },
+    "interaction_dev": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.full_foresight.stage_interaction",
+        "--source",
+        "/mnt/project/ddp-foresight-artifacts/20260928/interaction_dev_v1",
+        "--output",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/interaction_dev_v1",
+        "--workers",
+        "4"
+      ],
+      "exit_code": 0,
+      "log": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/logs/stage_rlzt2_C4_v1_interaction_dev.log",
+      "pid": 2883820
+    },
+    "interaction_train": {
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-m",
+        "tools.full_foresight.stage_interaction",
+        "--source",
+        "/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1",
+        "--output",
+        "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4/interaction_train_v1",
+        "--workers",
+        "8"
+      ],
+      "exit_code": 0,
+      "log": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/logs/stage_rlzt2_C4_v1_interaction_train.log",
+      "pid": 2883819
+    }
+  },
+  "local_root": "/var/tmp/ddp-full-foresight-20260929-rlzt2-c4",
+  "pid": 2883810,
+  "source_sha": "9e5fc08774f2e7f59c2dcb6c1248d0639ccce00c",
+  "start_unix": 1790717705.2134001,
+  "status": "COMPLETE",
+  "teacher_policy": "same frozen teacher and byte-identical targets; no training or export"
+}
