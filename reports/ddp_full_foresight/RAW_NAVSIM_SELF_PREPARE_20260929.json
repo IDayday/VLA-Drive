@@ -1,0 +1,142 @@
+{
+  "passed": true,
+  "source_sha": "1f73f5aa84b40006968799616917c92f96739e89",
+  "real_scenes": 8,
+  "raw_logs": 5,
+  "current_exact_scenes": 8,
+  "ego_label_max_abs": 0.0,
+  "teacher_records_exact_scenes": 8,
+  "audit_exact_scenes": 8,
+  "record_hashes_after_resume_unchanged": true,
+  "raw_preparation_and_resume_both_COMPLETE": true,
+  "no_processed_scene_pkls_required": true,
+  "whole_manifest_population": {
+    "scenes": {
+      "train": 101592,
+      "dev": 1696
+    },
+    "logs": {
+      "train": 1176,
+      "dev": 16
+    }
+  },
+  "new_asset_identity": "87c2585b37e9f557f2c4ad805fde18f7b796c58d9fe5e8e1a8994ad3f19b3c3b",
+  "cpu_tests": {
+    "passed": 13,
+    "warnings": 1
+  },
+  "gpu_hours": 0,
+  "real_optimizer_updates": 0,
+  "synthetic_optimizer_updates": 0,
+  "teacher_training_newserver": "NOT_RUN",
+  "newserver_full_asset_generation": "NOT_RUN",
+  "newserver_connection_used": false,
+  "large_release_created": false,
+  "private_data_or_weights_uploaded": false,
+  "comparison_rows": [
+    {
+      "split": "train",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "train",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "train",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "train",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "dev",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "dev",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "dev",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    },
+    {
+      "split": "dev",
+      "current_exact": true,
+      "ego_max_abs": 0.0,
+      "teacher_record_exact": true,
+      "teacher_audit_exact": true
+    }
+  ],
+  "meter_attempts": [
+    {
+      "run_id": "raw_cpu_smoke_v1_attempt_1790713673202280602",
+      "status": "COMPLETE",
+      "wall_seconds": 0.2875394821166992,
+      "gpu_hours": 0.0
+    },
+    {
+      "run_id": "raw_cpu_smoke_v1_attempt_1790713721124958528",
+      "status": "COMPLETE",
+      "wall_seconds": 0.09935951232910156,
+      "gpu_hours": 0.0
+    }
+  ],
+  "dino_index": {
+    "passed": true,
+    "scenes": {
+      "dev": 4,
+      "train": 4
+    },
+    "unique_images": 96,
+    "horizons_s": [
+      0.0,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "all_current_refs_exist": true,
+    "future_timestamp_tolerance_s": 0.05
+  },
+  "generic_qwen_offline_hash_verification": "PASSED; existing weights, no download",
+  "teacher_registration_cli": {
+    "scope": "8-scene CPU smoke only; no teacher training",
+    "maximum_updates": 30
+  },
+  "generation_cli_help_checks": {
+    "tools.full_foresight.prepare_from_navsim": "PASSED",
+    "tools.full_foresight.register_generic_qwen": "PASSED",
+    "tools.foresight.register_teacher": "PASSED",
+    "tools.foresight.train_trajectory_mae": "PASSED",
+    "tools.foresight.export_interaction_targets": "PASSED",
+    "tools.full_foresight.cache_dino_targets": "PASSED"
+  },
+  "smoke_partition_sha256": "377fa36bdbb146004b555e6e666dcfc7bcf42ac011df314ca08d5f4828f0021c",
+  "split_manifest_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+  "validation_scope": "8 real NAVSIM scenes and CPU contracts; no claim of new full teacher/student training",
+  "reproduction": "Create explicit first4 train/first4 dev smoke manifest preserving token_logs, then use prepare_from_navsim; exact same command plus --resume; prepare_dinov3_index and build_index; TeacherDataset load. Official population remains101592/1696.",
+  "user_asset_delivery": "Self-generate on new server; no Release or GitHub API token"
+}
