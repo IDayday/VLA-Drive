@@ -74,8 +74,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
     from starVLA.model.modules.foresight.tradeoff import CANDIDATES
-    tradeoff=arm in CANDIDATES
-    dino_campaign=arm.startswith('W_') or arm=='R_NATIVE' or tradeoff
+    full_method=bool(cfg.foresight.get('full_algorithm',False))
+    tradeoff=arm in CANDIDATES and not full_method
+    dino_campaign=full_method or arm.startswith('W_') or arm=='R_NATIVE' or tradeoff
     need_cur=bool(cfg.foresight.get('enable_current_dino',False));need_fut=bool(cfg.foresight.get('enable_future_dino',False))
     need_vis=arm in ('B','D');need_int=bool(cfg.foresight.get('enable_interaction',False)) if dino_campaign else arm in ('C','D')
     if bool(a.future_root)!=need_vis or bool(a.interaction_root)!=need_int:raise ValueError('Auxiliary cache inventory does not match arm')
@@ -83,7 +84,12 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     if bool(a.dino_root)!=(need_cur or need_fut):raise ValueError('DINO label inventory does not match arm')
     if need_cur and float(cfg.foresight.lambda_cur)<=0 or need_fut and float(cfg.foresight.lambda_fut)<=0:raise ValueError('Active DINO weights must be positive')
     data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
-    if tradeoff:
+    if full_method:
+        from starVLA.dataloader.full_foresight_dataset import FullForesightDataset
+        data=FullForesightDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
+            candidate=cfg.foresight.candidate,current=need_cur,future=need_fut,
+            allow_partial=a.scope!='formal',image_root=a.local_image_root,**data_kwargs)
+    elif tradeoff:
         from starVLA.dataloader.tradeoff_dataset import TradeoffDataset
         data=TradeoffDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
             candidate=arm,allow_partial=a.scope!='formal',image_root=a.local_image_root,**data_kwargs)
@@ -111,6 +117,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                                     future_sampling='one independent request from fixed1/2/4; no valid-label resampling')
     if tradeoff:identity.update(schema='dino_tradeoff_student_v1',future_sampling='DISABLED',local_images=bool(a.local_image_root),
         candidate=CANDIDATES[arm].record(),attention='native causal; state→3view reasoning blocks→action; reasoning retained at deployment')
+    if full_method:identity.update(schema='ddp_full_foresight_student_v1',local_images=bool(a.local_image_root),
+        candidate=CANDIDATES[cfg.foresight.candidate].record(),
+        attention='native causal; current→view,row,column W→action; W retained at deployment',
+        auxiliary_frequency='one current and one requested future per original scene; valid MAE once; Qwen once')
     signature=identity_hash(identity)
     lock=None
     if rank==0:
@@ -128,8 +138,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     torch.set_num_threads(2)
     if a.deterministic:
         torch.use_deterministic_algorithms(True);torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.benchmark=False
-    from starVLA.model.framework.DDPForesight import DDPForesight
-    model=DDPForesight(cfg)
+    from starVLA.model.framework import build_framework
+    model=build_framework(cfg)
     if rank==0 and not a.resume:
         init={'action':module_manifest(model.action_model),'state':module_manifest(model.action_input_model),
               'driving_tokens':model.qwen_vl_interface.driving_token_initialization,
@@ -137,10 +147,15 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
               'generic_source_manifest':json.loads(Path(cfg.from_scratch.source_manifest).read_text()),
               'driving_weights_loaded':False,'future_teacher_in_model':False}
         atomic_json(out/'initialization.json',init)
+        if full_method:
+            atomic_json(out/'auxiliary_initialization.json',{
+                name:module_manifest(getattr(model,name)) for name in ('query_geometry','dino_head','interaction_head')
+                if hasattr(model,name)})
+        model.qwen_vl_interface.processor.save_pretrained(str(out/'tokenizer'))
         atomic_json(out/'parameters.json',{'total':sum(p.numel() for p in model.parameters()),
             'trainable':sum(p.numel() for p in model.parameters() if p.requires_grad),
             'groups':{key:sum(p.numel() for name,p in model.named_parameters() if name.startswith(key) and p.requires_grad)
-                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','future_head','dino_head','interaction_head')}})
+                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','query_geometry','future_head','dino_head','interaction_head')}})
     import deepspeed
     ds_config={'train_micro_batch_size_per_gpu':a.micro_batch,'gradient_accumulation_steps':1,
                'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':1.,'steps_per_print':1000000,
@@ -269,7 +284,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             if offset==len(epoch_batches(size,a.global_batch,int(cfg.seed),epoch)):epoch+=1;offset=0
             status['status']='COMPLETE';checkpoint(f'final_{completed:06d}');meter['status']='COMPLETE'
             if a.scope=='profile':
-                model.eval();latencies=[]
+                model.eval();model.strip_auxiliary_heads();latencies=[]
                 observation=data[0][0]
                 for i in range(25):
                     torch.cuda.synchronize();start=time.perf_counter()

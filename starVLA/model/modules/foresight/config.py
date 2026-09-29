@@ -25,21 +25,56 @@ class ForesightConfig:
     dino_width: int = 29
     lambda_cur: float = 0.
     lambda_fut: float = 0.
+    full_algorithm: bool = False
+    candidate: str = ''
+    ablation: str = 'FULL'
 
     @property
     def is_tradeoff(self):
         from .tradeoff import CANDIDATES
-        return self.arm in CANDIDATES
+        return self.arm in CANDIDATES and not self.full_algorithm
 
     @property
     def is_dino(self):
-        return self.arm.startswith('W_') or self.arm == 'R_NATIVE' or self.is_tradeoff
+        return self.full_algorithm or self.arm.startswith('W_') or self.arm == 'R_NATIVE' or self.is_tradeoff
 
     @property
     def uses_interaction(self):
         return self.enable_interaction if self.is_dino else self.arm in ('C','D')
 
     def validate(self):
+        if self.full_algorithm:
+            from .tradeoff import CANDIDATES
+            definitions = {'FULL': (True, True, True), 'NO_INTERACTION': (True, True, False),
+                'NO_FUTURE': (True, False, True), 'NO_CURRENT': (False, True, True),
+                'W_ACTION_ONLY': (False, False, False), 'NATIVE_ACTION_ONLY': (False, False, False)}
+            if self.candidate not in CANDIDATES or self.ablation not in definitions:
+                raise ValueError('Unknown full-method candidate/ablation')
+            c = CANDIDATES[self.candidate]
+            expected_arm = self.candidate if self.ablation == 'FULL' else self.ablation
+            if self.arm != expected_arm:
+                raise ValueError('Full-method name and supervision declaration disagree')
+            enabled = (self.enable_current_dino, self.enable_future_dino, self.enable_interaction)
+            if enabled != definitions[self.ablation]:
+                raise ValueError('Full-method supervision cannot silently change')
+            queries = 0 if self.ablation == 'NATIVE_ACTION_ONLY' else c.num_queries
+            if (self.num_queries, self.dino_height, self.dino_width, self.dino_feature_dim) != (queries, *c.grid_hw, 1024):
+                raise ValueError('Full-method query/grid mismatch')
+            if (self.readout_dim, self.readout_layers) != (512, 2):
+                raise ValueError('Shared two-layer 512-dimensional readout required')
+            if self.current_horizon_s != 0 or tuple(self.future_horizons_s) != (1., 2., 4.):
+                raise ValueError('Physical horizon contract')
+            weights = (self.lambda_cur, self.lambda_fut, self.lambda_int)
+            if self.lambda_vis or self.auxiliary_warmup < 1 or self.normalization_eps <= 0:
+                raise ValueError('Invalid full-method normalization/warmup')
+            import math
+            if any(not math.isfinite(w) or (w <= 0 if active else w != 0) for w, active in zip(weights, enabled)):
+                raise ValueError('Every enabled task requires a finite positive weight')
+            if self.enable_current_dino and self.lambda_cur != 1.:
+                raise ValueError('Current DINO weight is fixed at 1.0')
+            return self
+        if self.candidate or self.ablation != 'FULL':
+            raise ValueError('Full-method fields on a legacy configuration')
         if self.is_tradeoff:
             from .tradeoff import CANDIDATES
             c=CANDIDATES[self.arm]

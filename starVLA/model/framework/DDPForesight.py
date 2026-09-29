@@ -75,6 +75,9 @@ class DDPForesight(Qwenvl_OFT):
         if getattr(self,'inference_fp32',False):return nullcontext()
         return torch.autocast('cuda' if next(self.parameters()).is_cuda else 'cpu',dtype=torch.bfloat16)
 
+    def query_embeddings(self):
+        return self.foresight_queries
+
     def encode_current(self, observations):
         # A strict whitelist is rebuilt BEFORE either tokenizer or vision model.
         # Labels can be deleted/permuted without changing this computation.
@@ -93,7 +96,7 @@ class DDPForesight(Qwenvl_OFT):
             if self.foresight_tokens:
                 if not (slots['history'][:,-1]<slots['foresight'][:,0]).all() or not (slots['foresight'][:,-1]<slots['action'][:,0]).all():
                     raise ValueError('Causal state→W→action token order violated')
-                embeddings=replace_query_embeddings(embeddings,slots['foresight'],self.foresight_queries)
+                embeddings=replace_query_embeddings(embeddings,slots['foresight'],self.query_embeddings())
             hidden=self._qwen_language_forward(ids,embeddings,attention,positions,visual,deepstack)
         return {'W':hidden[rows[:,None],slots['foresight']] if self.foresight_tokens else hidden[:,:0],
                 'action_queries':hidden[rows[:,None],slots['action']]}
@@ -166,8 +169,10 @@ class DDPForesight(Qwenvl_OFT):
                     raise ValueError('DINO target/grid contract')
                 with self.amp(): prediction=self.dino_head(encoded['W'],seconds,(cfg.dino_height,cfg.dino_width))
                 loss,count=masked_regression(prediction,values.to(device),mask.to(device)[:,:,None],global_count=counts.get(task))
-                losses[task]=loss*weight*weights
+                task_warmup = 1. if cfg.full_algorithm and task == 'current_dino' else weights
+                losses[task]=loss*weight*task_warmup
                 metrics.update({task+'_raw':loss.detach(),task+'_global_elements':count})
+                metrics[task+'_effective_weight']=weight*task_warmup
         return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
 
     @torch.no_grad()

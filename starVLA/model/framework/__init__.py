@@ -57,6 +57,9 @@ def build_framework(cfg, accelerator=None):
     if cfg.framework.name == "DDPForesight":
         from .DDPForesight import DDPForesight
         return DDPForesight(cfg, accelerator)
+    if cfg.framework.name == "DDPFullForesight":
+        from .ddp_full_foresight import DDPFullForesight
+        return DDPFullForesight(cfg, accelerator)
 
     # Register a requested custom framework without importing unrelated modules.
     if cfg.framework.name not in FRAMEWORK_REGISTRY._registry:

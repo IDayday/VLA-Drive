@@ -1,0 +1,19 @@
+{
+  "schema": "ddp_full_foresight_budget_v1",
+  "created_utc": "2026-09-29T04:58:46.757823+00:00",
+  "phase": "P0-P4 full implementation, teacher verification, target extraction and complete-model profiling",
+  "gpu_hours_cap": 192,
+  "authorized_hosts": [
+    "local",
+    "training-vla-zt2"
+  ],
+  "gpus_per_host": 8,
+  "gpu_model": "A800-SXM4-80GB, 81920MiB verified",
+  "formal_effect_budget": "NOT_REGISTERED until full model throughput measured; no formal effect run permitted yet",
+  "formal_schedule_reference_updates": 100000,
+  "screen_fraction": 0.25,
+  "scope": "new campaign, old ledgers immutable",
+  "teacher_reuse_cost": "report historical actual teacher/export cost once; new checks charged here",
+  "profile": "20 warmup +100 measured optimizer updates, full four losses, global32, original repeat8",
+  "safety": "only identified gpu_stress.py pressure parents may be released; restore idle resources; no unrelated process termination"
+}
