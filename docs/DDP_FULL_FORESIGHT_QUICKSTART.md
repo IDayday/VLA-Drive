@@ -4,6 +4,8 @@ Use `configs/foresight_resolution/c0.yaml` through `c5.yaml`. These all train eg
 
 For a concise Chinese record of all six configurations, their token counts, shared recipe and actual training entry points, see [C0–C5 配置记录](DDP_FULL_FORESIGHT_CONFIGURATIONS_ZH.md).
 
+For rebuilding the physical-time data index and frozen MAE interaction targets on another server, see [新服务器重建说明](DDP_FULL_FORESIGHT_REBUILD_TARGETS_ZH.md). Teacher weights/GT records remain external assets; a git clone alone does not contain them.
+
 The implementation and real gradient/resume evidence were pushed before the full-model cost runs. Training source is an immutable worktree; this document and analysis tools may have a later report commit. Generic Qwen/DINO provenance, real teacher provenance and validation are in `reports/ddp_full_foresight`. No old driving policy initializes a student.
 
 Latest user speed priority is active: two standalone8GPU runs (C0 primary, C1 companion), all16authorized cards. Actual16GPU socket training was3.68x slower than8GPU; that probe was safely stopped after41updates and is not labeled a complete profile. Both fresh formal runs continue to100000 with fixed milestone evaluation, without waiting at25000 for the remaining matrix. Training source is `d1d4085`, controller `fb474a7`. See [FAST_MAIN_20260929](../reports/ddp_full_foresight/FAST_MAIN_20260929.md) for frozen registrations, live commands and guarded resume. The earlier four-GPU queues below are historical and paused; do not restart them.

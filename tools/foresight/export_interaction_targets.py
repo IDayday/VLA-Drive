@@ -11,6 +11,15 @@ from starVLA.model.modules.trajectory_mae.model import TrajectoryMAE
 from .teacher_runtime import TeacherDataset,inputs
 
 
+def save_target(path, payload):
+    """Atomically save one latent without retaining its entire inference batch."""
+    path = Path(path)
+    compact = {**payload, 'latent': payload['latent'].detach().clone()}
+    temporary = path.with_suffix('.tmp')
+    torch.save(compact, temporary)
+    temporary.replace(path)
+
+
 def main():
     p=argparse.ArgumentParser(__doc__)
     for key in ('data','teacher-run','checkpoint','frozen-teacher','output','campaign-root','run-id'):p.add_argument('--'+key,required=True)
@@ -71,7 +80,7 @@ def main():
                     old=torch.load(path,weights_only=True)
                     if old['identity']!=identity['identity'] or not torch.equal(old['latent'],z[i]):raise ValueError('Non-deterministic/existing target mismatch')
                 else:
-                    tmp=path.with_suffix('.tmp');torch.save(payload,tmp);tmp.replace(path)
+                    save_target(path, payload)
             record['inference_scenes']=start+len(indices);save()
         atomic_json(out/'COMPLETE.json',{'scenes':len(data),'identity':identity['identity'],'failed':0})
 
