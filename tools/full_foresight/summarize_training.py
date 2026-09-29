@@ -64,8 +64,8 @@ def atomic_json(path, value):
     temp.replace(path)
 
 
-def summarize(root, out, plots=True):
-    registration = json.loads((root / 'formal_registration_v1.json').read_text())
+def summarize(root, out, plots=True, registration_path=None):
+    registration = json.loads((Path(registration_path) if registration_path else root / 'formal_registration_v1.json').read_text())
     calibration = json.loads((root / 'four_loss_calibration_v1.json').read_text())
     out.mkdir(parents=True, exist_ok=True)
     now = time.time()
@@ -148,12 +148,13 @@ def main():
     p.add_argument('--watch-seconds', type=int, default=0)
     p.add_argument('--interval', type=int, default=60)
     p.add_argument('--no-plots', action='store_true')
+    p.add_argument('--registration', type=Path)
     a = p.parse_args()
     if a.watch_seconds < 0 or a.interval < 10:
         raise ValueError('Bounded watch and interval>=10 required')
     deadline = time.monotonic() + a.watch_seconds
     while True:
-        result = summarize(a.campaign_root, a.output, plots=not a.no_plots)
+        result = summarize(a.campaign_root, a.output, plots=not a.no_plots, registration_path=a.registration)
         print(json.dumps({k: {f: v.get(f) for f in ('status', 'completed', 'checks', 'full_weight_observed')} for k, v in result['runs'].items()}), flush=True)
         if result['failed_checks']:
             raise RuntimeError('Actual formal-run discrepancy; report retained, training not modified')
