@@ -15,6 +15,7 @@ import signal
 import socket
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -35,6 +36,7 @@ def main():
     p.add_argument('--future-root');p.add_argument('--future-identity')
     p.add_argument('--dino-root');p.add_argument('--dino-index');p.add_argument('--dino-identity')
     p.add_argument('--local-image-root')
+    p.add_argument('--loader-workers',type=int,default=0)
     p.add_argument('--interaction-root');p.add_argument('--interaction-identity')
     p.add_argument('--global-batch',type=int,default=32);p.add_argument('--micro-batch',type=int,default=1)
     p.add_argument('--updates',type=int,required=True);p.add_argument('--schedule-updates',type=int,required=True)
@@ -51,6 +53,7 @@ def main():
     if a.scope=='startup' and (a.updates>4 or a.max_seconds>1800):raise ValueError('Startup <=4 updates/1800seconds')
     if a.scope=='small_fit' and (not 0<a.limit<=64 or a.updates>512):raise ValueError('Small fit <=64scenes/512updates')
     if a.scope=='formal' and a.limit:raise ValueError('Formal must use full manifest')
+    if not 0<=a.loader_workers<=8:raise ValueError('Bounded per-rank I/O workers required')
     if a.scope=='profile' and (a.updates>120 or not a.limit or a.max_seconds>14400):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
     milestones={int(x) for x in a.milestones.split(',') if x}
     if any(x<0 or x>a.updates for x in milestones):raise ValueError('Milestone out of range')
@@ -99,6 +102,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
               'schedule':schedule,'data':data.identity,'ego':data.ego_identity,'future':data.future_identity,'interaction':data.interaction_identity,
               'selected_index_hash':identity_hash(data.index[:size]),'scene_count':size,'scope':a.scope,
               'world_size':world,'global_batch':a.global_batch,'micro_batch':a.micro_batch,'updates':a.updates,
+              'loader_workers':a.loader_workers,
               'precision':'BF16 model, FP32 AdamW master/moments','deterministic':a.deterministic,
               'offload_optimizer':a.offload_optimizer,'optimizer_max_group_elements':MAX_GROUP_ELEMENTS,
               'normalization':'global valid elements per optimizer batch; every scene ego loss',
@@ -193,6 +197,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         if rank==0:
             with (out/'checkpoint_costs.jsonl').open('a') as stream:stream.write(json.dumps({'tag':tag,'seconds':time.time()-checkpoint_start})+'\n')
     write_status()
+    io_pool=ThreadPoolExecutor(max_workers=a.loader_workers) if a.loader_workers else None
     try:
         if not a.resume and 0 in milestones:checkpoint('milestone_000000')
         model.train()
@@ -205,7 +210,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             if stop_tensor:
                 status['status']='PAUSED';checkpoint(f'paused_{completed:06d}_{attempt}');meter['status']='PAUSED';break
             started=time.time();indices=batches[offset][rank::world]
-            observations,targets=collate_training([data[i] for i in indices])
+            # map preserves scene order. No augmentation/task RNG runs in workers.
+            samples=list(io_pool.map(data.__getitem__,indices)) if io_pool else [data[i] for i in indices]
+            observations,targets=collate_training(samples)
             data_seconds=time.time()-started
             torch.cuda.reset_peak_memory_stats()
             counts=optimizer_batch_counts(targets,generators['horizon'],'cuda')
@@ -270,7 +277,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 if rank==0:atomic_json(out/'inference_profile.json',{'batch':1,'warmup':5,'measured':20,'per_rank_seconds':gathered,'includes_teacher':False,'reasoning_retained':True,'includes_rgb_loading':False})
     except BaseException:
         status['status']='FAILED';write_status();raise
-    finally:write_status()
+    finally:
+        if io_pool:io_pool.shutdown(wait=True)
+        write_status()
 
 
 if __name__=='__main__':main()
