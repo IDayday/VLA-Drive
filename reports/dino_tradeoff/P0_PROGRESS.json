@@ -1,0 +1,254 @@
+{
+  "baseline_is_new": true,
+  "historical8941": "UNVERIFIED; user explicitly requested own implementation",
+  "population": {
+    "dev": {
+      "logs": 16,
+      "scenes": 1696
+    },
+    "train": {
+      "logs": 1176,
+      "scenes": 101592
+    }
+  },
+  "p0_target_prefix": {
+    "C0": {
+      "candidate": {
+        "grid_hw": [
+          6,
+          8
+        ],
+        "height": 96,
+        "name": "C0",
+        "native_hw": [
+          6,
+          8
+        ],
+        "num_queries": 144,
+        "pool": 1,
+        "tokens_per_view": 48,
+        "width": 128
+      },
+      "actual_teacher_tensor_chw": [
+        3,
+        96,
+        128
+      ],
+      "cache_identity": "47bad3c57e85fd9fbf278dcd2f17d03a86469a24b803aa78f8ff6a16187c9ac2",
+      "prefix_images": 11520,
+      "prefix_cache_bytes": 1133045760,
+      "full_cache_tensor_bytes": 30460870656,
+      "max_fp16_quantization_error": 0.0014233589172363281
+    },
+    "C1": {
+      "candidate": {
+        "grid_hw": [
+          6,
+          8
+        ],
+        "height": 192,
+        "name": "C1",
+        "native_hw": [
+          12,
+          16
+        ],
+        "num_queries": 144,
+        "pool": 2,
+        "tokens_per_view": 48,
+        "width": 256
+      },
+      "actual_teacher_tensor_chw": [
+        3,
+        192,
+        256
+      ],
+      "cache_identity": "b88b2b0fdf05b51bf629167c8444a3360a31c74cef436cf2349b1074a358052c",
+      "prefix_images": 11520,
+      "prefix_cache_bytes": 1133045760,
+      "full_cache_tensor_bytes": 30460870656,
+      "max_fp16_quantization_error": 0.0009765625
+    },
+    "C2": {
+      "candidate": {
+        "grid_hw": [
+          12,
+          16
+        ],
+        "height": 192,
+        "name": "C2",
+        "native_hw": [
+          12,
+          16
+        ],
+        "num_queries": 576,
+        "pool": 1,
+        "tokens_per_view": 192,
+        "width": 256
+      },
+      "actual_teacher_tensor_chw": [
+        3,
+        192,
+        256
+      ],
+      "cache_identity": "fcc55c5c3e9d756cbedb99fa9bee2715b942ae26683bcff39a08b9a60cf937eb",
+      "prefix_images": 11520,
+      "prefix_cache_bytes": 4532091840,
+      "full_cache_tensor_bytes": 121843482624,
+      "max_fp16_quantization_error": 0.0018768310546875
+    },
+    "C3": {
+      "candidate": {
+        "grid_hw": [
+          9,
+          12
+        ],
+        "height": 288,
+        "name": "C3",
+        "native_hw": [
+          18,
+          24
+        ],
+        "num_queries": 324,
+        "pool": 2,
+        "tokens_per_view": 108,
+        "width": 384
+      },
+      "actual_teacher_tensor_chw": [
+        3,
+        288,
+        384
+      ],
+      "cache_identity": "3b9c16c044ede766f1db8bd1ff51222edbbe54ebbb8f8860fb841a9b94c4e234",
+      "prefix_images": 11520,
+      "prefix_cache_bytes": 2549315520,
+      "full_cache_tensor_bytes": 68536958976,
+      "max_fp16_quantization_error": 0.0010628700256347656
+    },
+    "C4": {
+      "candidate": {
+        "grid_hw": [
+          6,
+          8
+        ],
+        "height": 384,
+        "name": "C4",
+        "native_hw": [
+          24,
+          32
+        ],
+        "num_queries": 144,
+        "pool": 4,
+        "tokens_per_view": 48,
+        "width": 512
+      },
+      "actual_teacher_tensor_chw": [
+        3,
+        384,
+        512
+      ],
+      "cache_identity": "c436361035df44261b3805e47945b1e52425476799a3091e0f49f756dc3e8102",
+      "prefix_images": 11520,
+      "prefix_cache_bytes": 1133045760,
+      "full_cache_tensor_bytes": 30460870656,
+      "max_fp16_quantization_error": 0.0009765625
+    },
+    "C5": {
+      "candidate": {
+        "grid_hw": [
+          12,
+          16
+        ],
+        "height": 384,
+        "name": "C5",
+        "native_hw": [
+          24,
+          32
+        ],
+        "num_queries": 576,
+        "pool": 2,
+        "tokens_per_view": 192,
+        "width": 512
+      },
+      "actual_teacher_tensor_chw": [
+        3,
+        384,
+        512
+      ],
+      "cache_identity": "264cb892a5bc98aaf2ff865717bbf64c14c72eb09ad52cb81cfb53ab0b81c201",
+      "prefix_images": 11520,
+      "prefix_cache_bytes": 4532091840,
+      "full_cache_tensor_bytes": 121843482624,
+      "max_fp16_quantization_error": 0.0018663406372070312
+    }
+  },
+  "gpu_gradient_check": {
+    "action_hidden_query_perturbation_max_abs": 65.5,
+    "arm": "C0",
+    "gradients": {
+      "current": {
+        "loss": 2.901149034500122,
+        "qwen_layer0_q": 15.246683120727539,
+        "reasoning_queries": 49.3358039855957
+      },
+      "ego": {
+        "loss": 1.1481332778930664,
+        "qwen_layer0_q": 1.9649323225021362,
+        "reasoning_queries": 4.25858211517334
+      }
+    },
+    "labels_do_not_change_encoded_current": true,
+    "passed": true,
+    "peak_allocated_bytes": 17187406848,
+    "qwen_processor": {
+      "_processor_class": "Qwen3VLProcessor",
+      "crop_size": null,
+      "data_format": "channels_first",
+      "default_to_square": true,
+      "device": null,
+      "disable_grouping": null,
+      "do_center_crop": null,
+      "do_convert_rgb": true,
+      "do_normalize": true,
+      "do_pad": null,
+      "do_rescale": true,
+      "do_resize": true,
+      "image_mean": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "image_processor_type": "Qwen2VLImageProcessorFast",
+      "image_std": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "input_data_format": null,
+      "max_pixels": null,
+      "merge_size": 2,
+      "min_pixels": null,
+      "pad_size": null,
+      "patch_size": 16,
+      "resample": 3,
+      "rescale_factor": 0.00392156862745098,
+      "return_tensors": null,
+      "size": {
+        "longest_edge": 16777216,
+        "shortest_edge": 65536
+      },
+      "temporal_patch_size": 2
+    },
+    "real_RGB_and_DINO_targets": true,
+    "real_optimizer_updates": 0,
+    "reasoning_initialization_hash": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+    "reasoning_retained": true,
+    "sequence_lengths": [
+      1930
+    ],
+    "source_sha": "e878fce2f7a013a7076637a586d205ed38c36f0b",
+    "strip_projection_preserves_ego_exactly": true
+  },
+  "formal_effect_runs": "NOT_STARTED",
+  "PDMS": "NOT_RUN",
+  "next": "cross-host full-model startup and stable4/8GPU profiles"
+}
