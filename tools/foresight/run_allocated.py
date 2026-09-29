@@ -57,7 +57,7 @@ def main():
             'pressure_parents_released':sorted(parents),'started_unix':time.time(),'status':'STARTING'}
     atomic_json(out,record);child=None
     def stop(*_):
-        if child is not None and child.poll() is None:child.send_signal(signal.SIGTERM)
+        if child is not None and child.poll() is None:os.killpg(child.pid,signal.SIGTERM)
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     try:
         for pid in parents:
@@ -68,10 +68,15 @@ def main():
             if time.time()>deadline:raise RuntimeError('Pressure did not release allocated cards')
             time.sleep(.5)
         env=dict(os.environ,CUDA_VISIBLE_DEVICES=','.join(map(str,sorted(gpus))),OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='1',PYTHONUNBUFFERED='1')
-        child=subprocess.Popen(command,cwd=a.worktree,env=env)
+        child=subprocess.Popen(command,cwd=a.worktree,env=env,start_new_session=True)
         record.update(pid=child.pid,status='RUNNING');atomic_json(out,record)
         code=child.wait();record.update(exit_code=code,status='COMPLETE' if code==0 else 'FAILED')
     finally:
+        # A distributed supervisor may exit before its workers release CUDA.
+        # Never restore pressure on top of a draining training process.
+        if child is not None:
+            deadline=time.time()+60
+            while any(g in gpus for g,_,_ in occupants(script)) and time.time()<deadline:time.sleep(.5)
         restored=[]
         for gpu in sorted(gpus):
             if any(g==gpu for g,_,_ in occupants(script)):continue
@@ -79,6 +84,11 @@ def main():
                 proc=subprocess.Popen([a.pressure_python,'-u',str(script),'--gpus','0','--memory-gb','64','--status-interval','60'],
                     env=dict(os.environ,CUDA_VISIBLE_DEVICES=str(gpu)),stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
             restored.append({'gpu':gpu,'parent_pid':proc.pid})
+        deadline=time.time()+30
+        while restored and time.time()<deadline:
+            visible={g for g,_,parent in occupants(script) if parent in {r['parent_pid'] for r in restored}}
+            if visible=={r['gpu'] for r in restored}:break
+            time.sleep(.5)
         record.update(restored_pressure=restored,ended_unix=time.time());atomic_json(out,record)
     if record.get('exit_code',1):raise SystemExit(record.get('exit_code',1))
 

@@ -12,5 +12,7 @@ def main():
  env=dict(os.environ,FORESIGHT_QWEN=a.qwen,FORESIGHT_SOURCES=a.sources,TOKENIZERS_PARALLELISM='false',OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='1',PYTHONUNBUFFERED='1')
  cmd=['/root/miniconda3/envs/ddp/bin/python','-m','torch.distributed.run','--nproc_per_node',str(a.gpus),'--master_port',str(a.master_port),'-m','tools.foresight.train_student','--config',f'configs/dino_tradeoff/{a.candidate}.yaml','--data',str(local/'student_train_v1'),'--local-image-root',str(local/'images'),'--dino-root',str(targets),'--dino-index',a.index,'--dino-identity',ident['identity'],'--campaign-root',a.campaign_root,'--run-id',a.run_id,'--global-batch','32','--micro-batch',str(a.micro_batch),'--updates',str(a.updates),'--schedule-updates','100000','--warmup','5000','--save-every','60','--milestones','0','--max-seconds','1800' if a.updates==4 else '14400','--campaign-gpu-hours','96','--scope','startup' if a.updates==4 else 'profile','--limit','3840']
  cmd[0]=sys.executable;cmd.extend(['--loader-workers',str(a.loader_workers)])
- raise SystemExit(subprocess.call(cmd,env=env))
+ # Become torchrun: an allocation stop must reach the distributed supervisor,
+ # not strand its grandchildren behind a terminated Python launcher.
+ os.execvpe(cmd[0],cmd,env)
 if __name__=='__main__':main()
