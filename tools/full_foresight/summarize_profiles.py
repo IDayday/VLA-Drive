@@ -77,9 +77,18 @@ def summarize(run, population=None):
     if (run / 'inference_profile.json').exists():
         inference = read(run / 'inference_profile.json')
         times = np.asarray(inference['per_rank_seconds'])
-        result['deployment'] = {'batch1_p50_s': float(np.median(times)), 'batch1_p95_s': float(np.percentile(times, 95)),
+        result['bf16_training_model_timing'] = {'batch1_p50_s': float(np.median(times)), 'batch1_p95_s': float(np.percentile(times, 95)),
                                 'W_retained': inference['reasoning_retained'], 'teachers': False,
-                                'readout_heads': False, 'RGB_loading_included': inference['includes_rgb_loading']}
+                                'readout_heads': False, 'RGB_loading_included': inference['includes_rgb_loading'],
+                                'precision_protocol':inference.get('precision_protocol',{
+                                    'parameter_source':'live BF16 training parameters; not reconstructed FP32 masters',
+                                    'weight_dtype':'BF16 (DeepSpeed BF16 model)',
+                                    'compute_policy':'BF16 autocast; original FP32 action integration',
+                                    'matmul_tf32':False if identity['deterministic'] else 'UNRECORDED',
+                                    'cudnn_tf32':'UNRECORDED in historical timing',
+                                    'loading_path':'in-memory DeepSpeed model after training',
+                                    'provenance':'recovered from immutable training source; original timing file preserved'}),
+                                'quality_pairing':'Not a FP32 deployment point; no BF16 PDMS measured'}
     if (run / 'checkpoint_costs.jsonl').exists():
         result['checkpoint_costs'] = lines(run / 'checkpoint_costs.jsonl')
     result['task_counters'] = status.get('counters', {})

@@ -49,6 +49,8 @@ def main():
         signature=identity_hash(identity);record.update(checkpoint=checkpoint['sha256'],protocol=protocol);save()
         torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
         model=load_student(a.training_run,a.checkpoint_tag,training)
+        if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('Formal export requires FP32 parameters')
+        atomic_json(out/f'loading_rank_{a.rank}.json',model.deployment_precision)
         ids=list(range(min(a.limit or len(data),len(data))))[a.rank::a.world_size];done=failed=0
         for index in ids:
             if time.time()-record['start_unix']>=a.max_seconds or charged_gpu_hours(Path(a.campaign_root))>=a.campaign_gpu_hours:

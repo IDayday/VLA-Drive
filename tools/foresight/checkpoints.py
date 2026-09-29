@@ -45,4 +45,7 @@ def load_student(run,tag,identity,device='cuda',precision='fp32',strip=True):
     model.to(device).eval();model.inference_fp32=precision=='fp32'
     if precision=='bf16':model.bfloat16()
     elif precision!='fp32':raise ValueError('Unknown evaluation precision')
+    from .deployment_precision import describe
+    model.deployment_precision=describe(model,'FP32 optimizer master tensors; cast only when explicitly requested',
+        'tools.foresight.checkpoints.load_student / DeepSpeed zero_to_fp32, strict=True')
     return model

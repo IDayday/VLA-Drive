@@ -10,7 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 from tools.ddpolicy_vehicle.prepare_data import atomic_json
-from starVLA.model.modules.vehicle_joint.initialization import file_sha256
+from starVLA.model.modules.vehicle_joint.initialization import file_sha256,identity_hash
 
 
 def main():
@@ -49,6 +49,13 @@ def main():
             raise ValueError('Unregistered formal run/configuration')
         if reg['status']!='FROZEN_BEFORE_SCREENING' or a.campaign_gpu_hours>reg['gpu_hours_cap']:
             raise ValueError('Formal budget not frozen')
+        if reg['training_source_sha']!=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip():raise ValueError('Formal source changed')
+        if di['identity']!=reg['dino_identities'][a.candidate] or ii['identity']!=reg['interaction_identity'] or file_sha256(a.sources)!=reg['generic_sources_sha256']:raise ValueError('Registered sources/targets changed')
+        if json.loads((Path(a.data)/'identity.json').read_text())['identity']!=reg['data_identity'] or json.loads((Path(a.index)/'identity.json').read_text())['identity']!=reg['dino_index']:raise ValueError('Formal data identity changed')
+        if a.warmup!=reg['warmup'] or a.save_every!=reg['save_every'] or a.loader_workers!=reg['loader_workers'] or a.deterministic!=reg['deterministic'] or sorted(map(int,a.milestones.split(',')))!=reg['milestones']:raise ValueError('Registered optimizer/observation schedule changed')
+        if a.stop_after and a.stop_after not in reg['development_updates']:raise ValueError('Unregistered planned pause')
+        stage=json.loads((Path(a.data)/'local_stage.json').read_text());replica=json.loads((targets/'local_replica.json').read_text())
+        if stage['scenes']!=reg['scene_count'] or stage['source_identity']!=reg['data_identity'] or replica['images']!=di['image_count'] or replica['identity']!=di['identity']:raise ValueError('Formal requires complete local assets, never a profile prefix')
     env=dict(os.environ,FORESIGHT_QWEN=a.qwen,FORESIGHT_SOURCES=a.sources,
         FULL_LAMBDA_FUT=str(cal['lambda_fut']),FULL_LAMBDA_INT=str(cal['lambda_int']),
         TOKENIZERS_PARALLELISM='false',OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='1',PYTHONUNBUFFERED='1')
@@ -58,6 +65,7 @@ def main():
     for k in ('FORESIGHT_QWEN','FORESIGHT_SOURCES','FULL_LAMBDA_FUT','FULL_LAMBDA_INT'):os.environ[k]=env[k]
     cfg=OmegaConf.load(f'configs/foresight_resolution/{a.candidate.lower()}.yaml');cfg.seed=a.seed
     config=OmegaConf.to_container(cfg,resolve=True);directory=Path(a.campaign_root)/'run_configs';directory.mkdir(exist_ok=True)
+    if a.scope=='formal' and identity_hash(config)!=reg['config_identities'][a.candidate]:raise ValueError('Formal configuration changed')
     config_path=directory/(a.run_id+'.json')
     if config_path.exists():
         if json.loads(config_path.read_text())!=config:raise ValueError('Existing run config differs')
@@ -71,6 +79,7 @@ def main():
         cmd.extend(['--'+key.replace('_','-'),str(getattr(a,key))])
     for flag in ('resume','acknowledge_stop','deterministic'):
         if getattr(a,flag):cmd.append('--'+flag.replace('_','-'))
+    if a.registration:cmd.extend(['--registration',a.registration])
     os.execvpe(cmd[0],cmd,env)
 
 if __name__=='__main__':main()

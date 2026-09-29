@@ -47,6 +47,7 @@ def main():
     p.add_argument('--limit',type=int,default=0,help='Diagnostic prefix only; formal requires0')
     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
     p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
+    p.add_argument('--registration')
     a=p.parse_args()
     if min(a.global_batch,a.micro_batch,a.updates,a.save_every,a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Positive training/budget settings required')
     if not 0<=a.warmup<a.schedule_updates or not a.updates<=a.schedule_updates or not 0<=a.stop_after<=a.updates or a.limit<0:raise ValueError('Invalid schedule/progress bounds')
@@ -121,6 +122,12 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         candidate=CANDIDATES[cfg.foresight.candidate].record(),
         attention='native causal; current→view,row,column W→action; W retained at deployment',
         auxiliary_frequency='one current and one requested future per original scene; valid MAE once; Qwen once')
+    if full_method and a.scope=='formal':
+        from starVLA.model.modules.vehicle_joint.initialization import file_sha256
+        if not a.registration:raise ValueError('Full formal registration required')
+        registered=json.loads(Path(a.registration).read_text())
+        if registered['training_source_sha']!=source or registered['scene_count']!=size:raise ValueError('Registration source/population changed')
+        identity['registration_sha256']=file_sha256(a.registration)
     signature=identity_hash(identity)
     lock=None
     if rank==0:
@@ -198,9 +205,17 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     def checkpoint(tag):
         checkpoint_start=time.time()
         destination=out/'checkpoints'/tag
-        if destination.exists():raise FileExistsError('Checkpoint tag is immutable')
         state={'identity':signature,'completed':completed,'epoch':epoch,'offset':offset,'exposure':exposure,
                'counters':counters,'tag':tag,'scheduler':{**schedule,'completed':completed}}
+        latest=out/'checkpoints/latest'
+        if tag.startswith(('paused_','final_')) and latest.exists():
+            previous=out/'checkpoints'/latest.read_text().strip()/'COMPLETE.json'
+            saved=json.loads(previous.read_text())
+            if {k:v for k,v in saved.items() if k!='tag'}=={k:v for k,v in state.items() if k!='tag'}:
+                # A just-saved immutable milestone is already a complete recovery
+                # point. Do not duplicate every model/optimizer shard for the pause.
+                dist.barrier();write_status();return
+        if destination.exists():raise FileExistsError('Checkpoint tag is immutable')
         engine.save_checkpoint(str(out/'checkpoints'),tag=tag,client_state=state,save_latest=False)
         torch.save(capture_rng(generators),destination/f'rng_rank{rank}.pt');dist.barrier()
         if rank==0:
@@ -270,8 +285,34 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw'):
                     if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
                 if boundary:before=capture_master_samples(engine.optimizer)
+                observe = full_method and a.scope=='formal' and boundary and (completed+1 in {1,100,500,1000,2000} | milestones)
+                if observe:
+                    from tools.full_foresight.training_observation import before_step,after_step
+                    observation_before=before_step(model)
                 engine.step()
                 if boundary:evidence=master_update_evidence(engine.optimizer,before,torch.device('cuda',torch.cuda.current_device()))
+                if observe:evidence['shared_parameter_observation']=after_step(model,observation_before)
+            if observe:
+                # Read-only training-domain trajectory diagnostic; preserve every
+                # training RNG and mode. This BF16 diagnostic is never official PDMS.
+                saved_rng=capture_rng(generators);model.eval()
+                try:
+                    from tools.foresight.checkpoints import scene_noise
+                    from starVLA.dataloader.foresight_dataset import decode_ego
+                    with torch.inference_mode():
+                        prediction=model.predict_action(observations[:1],initial_noise=scene_noise(observations[0]['token'],42,'cuda'))
+                        truth=decode_ego(targets['ego'][:1].cuda().float())
+                        distance=(prediction[...,:2]-truth[...,:2]).norm(dim=-1)
+                        yaw=prediction[...,2]-truth[...,2]
+                        yaw=torch.atan2(yaw.sin(),yaw.cos()).abs()
+                        quality=torch.stack((distance.mean(),distance[:,-1].mean(),yaw.mean()))
+                        if not torch.isfinite(quality).all():raise FloatingPointError('Invalid in-run ego diagnostic')
+                        dist.all_reduce(quality);quality/=world
+                    evidence['ego_training_diagnostic']={'ADE_m':float(quality[0]),'FDE_m':float(quality[1]),
+                        'yaw_abs_rad':float(quality[2]),'scenes':world,'sampling_seed':42,
+                        'protocol':'live BF16, first current scene per rank in this fixed training batch; not PDMS'}
+                finally:
+                    model.train();restore_rng(saved_rng,generators)
             for key in sorted(logs):
                 value=torch.tensor(logs[key],device='cuda',dtype=torch.float64);dist.all_reduce(value);logs[key]=float(value/world)
             completed+=1;offset+=1;exposure+=len(batches[offset-1])
@@ -298,6 +339,14 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                      'grad_norm':float(engine.get_global_grad_norm()),'per_rank_profile':[v.cpu().tolist() for v in all_perf],
                      'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
                 if a.scope=='profile':row['rank0_readout_forward_gpu_ms']=readout_times
+                if full_method:
+                    fcfg=model.foresight_config;warm=min(1.,completed/fcfg.auxiliary_warmup)
+                    row['effective_weights']={'ego_fm':1.,'current_dino':fcfg.lambda_cur if need_cur else 0.,
+                        'future_dino':fcfg.lambda_fut*warm if need_fut else 0.,'interaction':fcfg.lambda_int*warm if need_int else 0.}
+                    row['raw_losses']={'ego_fm':logs['ego_fm'],**{k:logs.get(k+'_raw') for k in ('current_dino','future_dino','interaction')}}
+                    row['horizon_scene_requests']=exposures[:3].cpu().tolist();row['horizon_valid_views']=exposures[3:].cpu().tolist()
+                    row['valid_patches']={k:int(counts.get(k,0))//fcfg.dino_feature_dim for k in ('current_dino','future_dino')}
+                    row['valid_interaction_scenes']=int(counts.get('interaction',0))//int(np.prod(targets['interaction_latent'].shape[1:])) if need_int else 0
                 with (out/'steps.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
             write_status()
             if completed in milestones:checkpoint(f'milestone_{completed:06d}')
@@ -320,7 +369,12 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                     if not torch.isfinite(prediction).all():raise FloatingPointError('Invalid profile prediction')
                     if i>=5:latencies.append(time.perf_counter()-start)
                 gathered=[None]*world;dist.all_gather_object(gathered,latencies)
-                if rank==0:atomic_json(out/'inference_profile.json',{'batch':1,'warmup':5,'measured':20,'per_rank_seconds':gathered,'includes_teacher':False,'reasoning_retained':True,'includes_rgb_loading':False})
+                if rank==0:
+                    from tools.foresight.deployment_precision import describe
+                    atomic_json(out/'inference_profile.json',{'batch':1,'warmup':5,'measured':20,'per_rank_seconds':gathered,
+                        'includes_teacher':False,'reasoning_retained':True,'includes_rgb_loading':False,
+                        'precision_protocol':describe(model,'live BF16 training parameters; not reconstructed FP32 masters','in-memory DeepSpeed model after training'),
+                        'quality_pairing':'BF16 timing only; must not pair with FP32 PDMS'})
     except BaseException:
         status['status']='FAILED';write_status();raise
     finally:
