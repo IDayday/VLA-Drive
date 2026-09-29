@@ -25,7 +25,7 @@ class TradeoffDataset(DINOTrainingDataset):
   self.dino_scenes=json.loads(path.read_text());self.dino_identity=ident;self._checked_chunks=set()
   if [r['token'] for r in self.dino_scenes]!=[r['token'] for r in self.index]:raise ValueError('Scene order mismatch')
   # Parent read_image uses explicit grid/feature metadata, without a teacher import.
-  self.dino_identity={**ident,'grid_hw':c.grid_hw}
+  self.dino_identity={**ident,'grid_hw':list(c.grid_hw)}
  def __getitem__(self,i):
   observation,targets=ForesightTrainingDataset.__getitem__(self,i)
   pairs=[self.read_image(v) for v in self.dino_scenes[i]['images']]
