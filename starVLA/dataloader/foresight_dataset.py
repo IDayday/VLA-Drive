@@ -20,7 +20,7 @@ def decode_ego(encoded):
     return torch.cat((xy,torch.atan2(encoded[...,2],encoded[...,3])[...,None]),-1)
 
 
-def current_observation(record):
+def current_observation(record, image_root=None):
     required={'token','image_paths','global_pose_history','navigation'}
     if not required.issubset(record):raise ValueError('Missing current observation fields')
     poses=np.asarray(record['global_pose_history'],dtype=np.float64)
@@ -34,6 +34,9 @@ def current_observation(record):
     if len(record['image_paths'])!=3:raise ValueError('Expected front,left-front,right-front')
     images=[]
     for path in record['image_paths']:
+        if image_root is not None:
+            import hashlib
+            path=Path(image_root)/(hashlib.sha256(path.encode()).hexdigest()+'.jpg')
         with Image.open(path) as src:
             img=src.convert('RGB');w,h=img.size
             if w/h>16/9:
@@ -57,7 +60,7 @@ class ForesightCurrentDataset(Dataset):
     def __getitem__(self,i):
         r=json.loads((self.root/'current'/(self.index[i]['token']+'.json')).read_text())
         if r['identity']!=self.identity['identity']:raise ValueError('Current record identity mismatch')
-        return current_observation(r)
+        return current_observation(r,getattr(self,'local_image_root',None))
 
 
 class ForesightTrainingDataset(ForesightCurrentDataset):

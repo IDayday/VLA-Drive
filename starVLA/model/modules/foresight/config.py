@@ -27,14 +27,30 @@ class ForesightConfig:
     lambda_fut: float = 0.
 
     @property
+    def is_tradeoff(self):
+        from .tradeoff import CANDIDATES
+        return self.arm in CANDIDATES
+
+    @property
     def is_dino(self):
-        return self.arm.startswith('W_') or self.arm == 'R_NATIVE'
+        return self.arm.startswith('W_') or self.arm == 'R_NATIVE' or self.is_tradeoff
 
     @property
     def uses_interaction(self):
         return self.enable_interaction if self.is_dino else self.arm in ('C','D')
 
     def validate(self):
+        if self.is_tradeoff:
+            from .tradeoff import CANDIDATES
+            c=CANDIDATES[self.arm]
+            if (self.num_queries,self.dino_height,self.dino_width,self.dino_feature_dim)!=(c.num_queries,*c.grid_hw,1024):
+                raise ValueError('Registered tradeoff query/grid mismatch')
+            if not self.enable_current_dino or self.enable_future_dino or self.enable_interaction:
+                raise ValueError('Tradeoff permits current alignment only')
+            if (self.lambda_cur,self.lambda_fut,self.lambda_int,self.lambda_vis,self.auxiliary_warmup)!=(1.,0.,0.,0.,1):
+                raise ValueError('Tradeoff current MSE weight is exactly1, without auxiliary warmup')
+            if self.current_horizon_s!=0:raise ValueError('Current decision time required')
+            return self
         if self.is_dino:
             definitions = {'R_NATIVE':(False,False,False), 'W_ONLY':(False,False,False),
                 'W_CUR':(True,False,False), 'W_FUT':(False,True,False), 'W_CUR_FUT':(True,True,False),

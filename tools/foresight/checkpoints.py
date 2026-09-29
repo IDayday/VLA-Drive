@@ -7,7 +7,7 @@ from starVLA.model.modules.vehicle_joint.initialization import identity_hash,fil
 
 def checkpoint_identity(run,tag):
     run=Path(run);identity=json.loads((run/'identity.json').read_text())
-    if identity.get('schema')!='foresight_student_training_v1' or identity_hash({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']:
+    if identity.get('schema') not in ('foresight_student_training_v1','foresight_dino_student_training_v1','dino_tradeoff_student_v1') or identity_hash({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']:
         raise ValueError('Foreign or changed student identity')
     if Path(tag).name!=tag:raise ValueError('Checkpoint tag must be a directory name')
     folder=run/'checkpoints'/tag;complete=json.loads((folder/'COMPLETE.json').read_text())

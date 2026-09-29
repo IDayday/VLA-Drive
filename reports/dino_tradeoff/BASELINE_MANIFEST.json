@@ -1,0 +1,20 @@
+{
+  "historical_8941": {"status": "UNVERIFIED", "source": "user reported 89.41 DINO / 89.14 FLUX; exact implementation is not on these hosts", "search": "stopped at explicit user instruction", "used_as_result_or_initialization": false},
+  "baseline": "new reproducible C0, not a reproduction of 89.41",
+  "generic_vlm": {"repository": "Qwen/Qwen3-VL-2B-Instruct", "revision": "89644892e4d85e24eaac8bacfd4f463576704203", "weights_sha256": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0"},
+  "dino": {"repository": "timm/vit_large_patch16_dinov3.lvd1689m", "revision": "30c1109559f65dea34316b0d4842d35c5771fe11", "weights_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941", "wrapper": "timm 1.0.20", "features": "last post-norm dense patches; exclude model.num_prefix_tokens, no extra L2", "teacher_precision": "FP32, TF32 disabled", "teacher_training": false},
+  "qwen_rgb": "CAM_F0,CAM_L0,CAM_R0 at decision time, full16:9 source resized1024x576 Lanczos, then unchanged Qwen processor",
+  "teacher_rgb": "same original full source field, direct bicubic anisotropic resize to specified4:3 dimensions; ImageNet RGB normalization once; no crop/padding",
+  "target_pooling": "after encoding, separate each view, average nonoverlapping2D blocks, row-major flatten",
+  "tokens": "current prompt/images, one ego-history token,3 view-major reasoning blocks,8 action tokens; old video/depth/reward suffix removed",
+  "attention": "Qwen native causal SDPA; action reads all preceding reasoning tokens; no custom bidirectional mask",
+  "deployment": "retain all reasoning tokens; remove projection head and offline DINO encoder; execute original ego FM output",
+  "head": "same tokenwise Linear(actual VLM hidden,1024), no spatial cross-attention decoder",
+  "loss": "ego FM +1.0*current DINO MSE, FP32 valid-element mean; no auxiliary warmup; no future/interaction tasks",
+  "initialization": "generic VLM only; ego action/state modules, driving token rows, reasoning queries and projection randomly initialized; isolated new-module RNG",
+  "fm": "original DiT-B24layers width1536,8futurepoints x4, repeat8, Beta(1.5,1), noise_s0.999,10 inference steps,one candidate,no scorer",
+  "precision": "BF16 student, FP32 AdamW masters/moments and loss",
+  "global_batch": 32,
+  "formal_length": "PENDING measured P0 throughput and finite budget registration; original config100000 updates,5000warmup is reference",
+  "scope": "current-only tradeoff; future/GT-MAE matrix not launched"
+}

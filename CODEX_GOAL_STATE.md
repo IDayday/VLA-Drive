@@ -1,11 +1,16 @@
-# Current/future DINOv3 + GT-MAE campaign — ACTIVE IMPLEMENTATION
+# Current campaign: current DINO resolution/token tradeoff
 
-User instruction2026-09-29 supersedes the FLUX campaign. New worktree /mnt/project/VLA-Drive-ddp-dinov3-20260929; branch feature/ddp-current-future-dinov3-gtmae-20260929; base3832ab6c387065b2875f162b4442c1e555733c07. New artifact root /mnt/project/ddp-dinov3-artifacts/20260929. Prior workspace and evidence preserved; see INHERITED_STATE.md. Do not resume old controllers or driving checkpoints.
+User explicitly superseded the current/future/interaction matrix. No future or GT-MAE training in this campaign. User instructed not to search for historical89.41: implement a new reproducible baseline.
 
-Current student uses original DDP ego FM,64 shared W, one physical-time DINO readout for0/1/2/4seconds and one interaction readout. DINO and GT-MAE are targets only. Current and future independently normalized; each scene requests one future horizon irrespective of missing labels. No FLUX in new formal path.
+Branch: experiment/dino-resolution-token-tradeoff-20260929
+Base source: aed176c0bba6c5f698162f91b43793f25457a30e
+Artifact root: /mnt/project/dino-tradeoff-artifacts/20260929
 
-Assets to verify/reuse: generic Qwen2B revision89644892e4d85e24eaac8bacfd4f463576704203; downloaded generic timm DINOv3 L/16 revision30c1109559f65dea34316b0d4842d35c5771fe11; full GT-MAE milestone030 hash9730278f9c920de649536dec108226ac9d7f27430e265e8befac19896d58336c,11910updates; old pure current/ego and interaction train/dev caches. No compatible DINO training/cache result found yet; original user DINO recipe UNVERIFIED. Fallback must be explicit.
+Implemented C0-C5 configurations, direct original-RGB4:3 teacher preprocessing, post-encoder per-view pooling, tokenwise head, current-only strict dataset, local byte-preserving input staging, full-student profile instrumentation, pressure-allocation PID-race fix.41 relevant CPU tests pass. New full current index verified against every actual student decision record. Historical89.41 remains UNVERIFIED and is not an initialization/result.
 
-Authorized existing local and training-vla-zt2 GPUs only. Recheck pressure parent/worker identities before use; stop only verified pressure scripts for allocation, restore after exit. Other tasks untouched. New independent budget registered in execution_budget.yaml, formal plan frozen after measured throughput and train-only gradient calibration. No formal students or Navtest results yet.
+Next: freeze source, GPU teacher geometry/quantization and cache first3840training scenes for all six configs, stage inputs/targets on each local NVMe. Real full-student C0/C5 cross-host preflight, then20+100update profiles4GPU/8GPU and samehost2x4. Register formal P1/P2 budget using measurements; train full population, dev and locked Navtest. No formal student run started yet; no PDMS conclusion.
 
-Next: implement encoder/cache, physical-time head and separate losses; verify teacher identities; focused CPU and real GPU checks; cache targets; short fits/calibration; complete matched full-data training and dev/Navtest. Real updates in THIS campaign currently0.
+Budget: new P0 cap96GPUh including failed/loading/extraction/profile work; full effect budget not yet registered. Old campaign budgets and negative evidence unchanged. Use append-only run meter. Restore idle pressure resources. Do not edit immutable run worktrees.
+
+Reproduce CPU checks:
+`/root/miniconda3/envs/ddp/bin/python -m pytest -q tests/dino_tradeoff tests/foresight`

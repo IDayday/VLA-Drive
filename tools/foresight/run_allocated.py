@@ -14,11 +14,13 @@ from tools.ddpolicy_vehicle.prepare_data import atomic_json
 def pressure_parent(pid, script):
     for _ in range(16):
         proc=Path(f'/proc/{pid}')
-        if not proc.exists():return None
-        args=proc.joinpath('cmdline').read_bytes().decode().split('\0')
-        cwd=proc.joinpath('cwd').resolve()
-        if any(x and Path(x).name==script.name and (cwd/x).resolve()==script for x in args):return pid
-        pid=int(proc.joinpath('stat').read_text().split(') ',1)[1].split()[1])
+        try:
+            args=proc.joinpath('cmdline').read_bytes().decode().split('\0')
+            cwd=proc.joinpath('cwd').resolve(strict=True)
+            if any(x and Path(x).name==script.name and (cwd/x).resolve()==script for x in args):return pid
+            pid=int(proc.joinpath('stat').read_text().split(') ',1)[1].split()[1])
+        except (FileNotFoundError,ProcessLookupError):
+            return None  # another allocation may have just released this worker
         if pid<=1:return None
     return None
 
@@ -27,7 +29,12 @@ def occupants(script):
     ids=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid','--format=csv,noheader'],text=True)
     uuid={v.strip():int(k.strip()) for k,v in (line.split(',') for line in ids.splitlines())}
     rows=subprocess.check_output(['nvidia-smi','--query-compute-apps=gpu_uuid,pid','--format=csv,noheader'],text=True)
-    return [(uuid[u.strip()],int(p.strip()),pressure_parent(int(p.strip()),script)) for u,p in (line.split(',') for line in rows.splitlines())]
+    result=[]
+    for u,p in (line.split(',') for line in rows.splitlines()):
+        pid=int(p.strip());parent=pressure_parent(pid,script)
+        if parent is None and not Path(f'/proc/{pid}').exists():continue
+        result.append((uuid[u.strip()],pid,parent))
+    return result
 
 
 def main():
@@ -36,6 +43,7 @@ def main():
     p.add_argument('command',nargs=argparse.REMAINDER);a=p.parse_args()
     command=a.command[1:] if a.command and a.command[0]=='--' else a.command
     if not command:raise ValueError('Missing workload command')
+    if not (Path(a.worktree)/'.git').exists():raise ValueError('Worktree checkout is not ready')
     gpus={int(x) for x in a.gpus.split(',')};script=Path(a.pressure_script).resolve();out=Path(a.record)
     out.parent.mkdir(parents=True,exist_ok=True)
     if out.exists():raise FileExistsError('New allocation record required')
@@ -66,6 +74,7 @@ def main():
     finally:
         restored=[]
         for gpu in sorted(gpus):
+            if any(g==gpu for g,_,_ in occupants(script)):continue
             with out.with_name(out.stem+f'_pressure_gpu{gpu}.log').open('a') as log:
                 proc=subprocess.Popen([a.pressure_python,'-u',str(script),'--gpus','0','--memory-gb','64','--status-interval','60'],
                     env=dict(os.environ,CUDA_VISIBLE_DEVICES=str(gpu)),stdout=log,stderr=subprocess.STDOUT,start_new_session=True)

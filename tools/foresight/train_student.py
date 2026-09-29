@@ -34,13 +34,14 @@ def main():
     for key in ('config','data','campaign-root','run-id'):p.add_argument('--'+key,required=True)
     p.add_argument('--future-root');p.add_argument('--future-identity')
     p.add_argument('--dino-root');p.add_argument('--dino-index');p.add_argument('--dino-identity')
+    p.add_argument('--local-image-root')
     p.add_argument('--interaction-root');p.add_argument('--interaction-identity')
     p.add_argument('--global-batch',type=int,default=32);p.add_argument('--micro-batch',type=int,default=1)
     p.add_argument('--updates',type=int,required=True);p.add_argument('--schedule-updates',type=int,required=True)
     p.add_argument('--warmup',type=int,required=True);p.add_argument('--save-every',type=int,default=200)
     p.add_argument('--milestones',default='0');p.add_argument('--stop-after',type=int,default=0)
     p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--campaign-gpu-hours',type=float,required=True)
-    p.add_argument('--scope',choices=('startup','small_fit','formal'),required=True)
+    p.add_argument('--scope',choices=('startup','small_fit','profile','formal'),required=True)
     p.add_argument('--limit',type=int,default=0,help='Diagnostic prefix only; formal requires0')
     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
     p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
@@ -50,6 +51,7 @@ def main():
     if a.scope=='startup' and (a.updates>4 or a.max_seconds>1800):raise ValueError('Startup <=4 updates/1800seconds')
     if a.scope=='small_fit' and (not 0<a.limit<=64 or a.updates>512):raise ValueError('Small fit <=64scenes/512updates')
     if a.scope=='formal' and a.limit:raise ValueError('Formal must use full manifest')
+    if a.scope=='profile' and (a.updates>120 or not a.limit or a.max_seconds>14400):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
     milestones={int(x) for x in a.milestones.split(',') if x}
     if any(x<0 or x>a.updates for x in milestones):raise ValueError('Milestone out of range')
     rank=int(os.environ['RANK']);world=int(os.environ['WORLD_SIZE']);local=int(os.environ['LOCAL_RANK'])
@@ -68,7 +70,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze a clean source before training')
     source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
-    dino_campaign=arm.startswith('W_') or arm=='R_NATIVE'
+    from starVLA.model.modules.foresight.tradeoff import CANDIDATES
+    tradeoff=arm in CANDIDATES
+    dino_campaign=arm.startswith('W_') or arm=='R_NATIVE' or tradeoff
     need_cur=bool(cfg.foresight.get('enable_current_dino',False));need_fut=bool(cfg.foresight.get('enable_future_dino',False))
     need_vis=arm in ('B','D');need_int=bool(cfg.foresight.get('enable_interaction',False)) if dino_campaign else arm in ('C','D')
     if bool(a.future_root)!=need_vis or bool(a.interaction_root)!=need_int:raise ValueError('Auxiliary cache inventory does not match arm')
@@ -76,7 +80,11 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     if bool(a.dino_root)!=(need_cur or need_fut):raise ValueError('DINO label inventory does not match arm')
     if need_cur and float(cfg.foresight.lambda_cur)<=0 or need_fut and float(cfg.foresight.lambda_fut)<=0:raise ValueError('Active DINO weights must be positive')
     data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
-    if dino_campaign:
+    if tradeoff:
+        from starVLA.dataloader.tradeoff_dataset import TradeoffDataset
+        data=TradeoffDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
+            candidate=arm,allow_partial=a.scope!='formal',image_root=a.local_image_root,**data_kwargs)
+    elif dino_campaign:
         from starVLA.dataloader.dino_foresight_dataset import DINOTrainingDataset
         data=DINOTrainingDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
             current=need_cur,future=need_fut,allow_partial=a.scope!='formal',**data_kwargs)
@@ -97,6 +105,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
               'device_names':[torch.cuda.get_device_name(i) for i in range(world)]}
     if dino_campaign:identity.update(schema='foresight_dino_student_training_v1',dino=data.dino_identity,
                                     future_sampling='one independent request from fixed1/2/4; no valid-label resampling')
+    if tradeoff:identity.update(schema='dino_tradeoff_student_v1',future_sampling='DISABLED',local_images=bool(a.local_image_root),
+        candidate=CANDIDATES[arm].record(),attention='native causal; state→3view reasoning blocks→action; reasoning retained at deployment')
     signature=identity_hash(identity)
     lock=None
     if rank==0:
@@ -163,6 +173,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         meter.update(real_optimizer_updates=completed-initial_updates,total_run_updates=completed,
                      sample_presentations=exposure-initial_exposure,total_run_exposure=exposure);save_meter()
     def checkpoint(tag):
+        checkpoint_start=time.time()
         destination=out/'checkpoints'/tag
         if destination.exists():raise FileExistsError('Checkpoint tag is immutable')
         state={'identity':signature,'completed':completed,'epoch':epoch,'offset':offset,'exposure':exposure,
@@ -179,6 +190,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                     if json.loads((old/'COMPLETE.json').read_text())['identity']!=signature:raise ValueError('Foreign checkpoint in rolling-save directory')
                     shutil.rmtree(old)
         dist.barrier();write_status()
+        if rank==0:
+            with (out/'checkpoint_costs.jsonl').open('a') as stream:stream.write(json.dumps({'tag':tag,'seconds':time.time()-checkpoint_start})+'\n')
     write_status()
     try:
         if not a.resume and 0 in milestones:checkpoint('milestone_000000')
@@ -193,6 +206,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 status['status']='PAUSED';checkpoint(f'paused_{completed:06d}_{attempt}');meter['status']='PAUSED';break
             started=time.time();indices=batches[offset][rank::world]
             observations,targets=collate_training([data[i] for i in indices])
+            data_seconds=time.time()-started
+            torch.cuda.reset_peak_memory_stats()
             counts=optimizer_batch_counts(targets,generators['horizon'],'cuda')
             lr=learning_rate(completed,schedule['base'],schedule['minimum'],schedule['warmup'],schedule['horizon'])
             for group in engine.optimizer.param_groups:group['lr']=lr
@@ -226,10 +241,15 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 counters['current_requests']+=len(batches[offset-1])*int(need_cur)
                 counters['future_requests']+=len(batches[offset-1])*int(need_fut)
             for k in range(3):counters['horizon_scenes'][k]+=int(exposures[k]);counters['valid_views'][k]+=int(exposures[k+3])
+            torch.cuda.synchronize()
+            perf=torch.tensor([time.time()-started,data_seconds,torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved(),
+                               float(model.last_sequence_lengths.max())],device='cuda',dtype=torch.float64)
+            all_perf=[torch.empty_like(perf) for _ in range(world)];dist.all_gather(all_perf,perf)
             if rank==0:
                 row={'update':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'lr':lr,'losses':logs,'counts':counts,
                      'seconds':time.time()-started,'peak_memory_bytes':torch.cuda.max_memory_allocated(),
-                     'grad_norm':float(engine.get_global_grad_norm()),**evidence}
+                     'grad_norm':float(engine.get_global_grad_norm()),'per_rank_profile':[v.cpu().tolist() for v in all_perf],
+                     'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
                 with (out/'steps.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
             write_status()
             if completed in milestones:checkpoint(f'milestone_{completed:06d}')
@@ -237,6 +257,17 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         else:
             if offset==len(epoch_batches(size,a.global_batch,int(cfg.seed),epoch)):epoch+=1;offset=0
             status['status']='COMPLETE';checkpoint(f'final_{completed:06d}');meter['status']='COMPLETE'
+            if a.scope=='profile':
+                model.eval();latencies=[]
+                observation=data[0][0]
+                for i in range(25):
+                    torch.cuda.synchronize();start=time.perf_counter()
+                    prediction=model.predict_action([observation],sampling_seed=123)
+                    torch.cuda.synchronize()
+                    if not torch.isfinite(prediction).all():raise FloatingPointError('Invalid profile prediction')
+                    if i>=5:latencies.append(time.perf_counter()-start)
+                gathered=[None]*world;dist.all_gather_object(gathered,latencies)
+                if rank==0:atomic_json(out/'inference_profile.json',{'batch':1,'warmup':5,'measured':20,'per_rank_seconds':gathered,'includes_teacher':False,'reasoning_retained':True,'includes_rgb_loading':False})
     except BaseException:
         status['status']='FAILED';write_status();raise
     finally:write_status()

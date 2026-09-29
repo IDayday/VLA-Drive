@@ -53,7 +53,11 @@ class DDPForesight(Qwenvl_OFT):
             if cfg.arm in ('B','D'):
                 self.future_head=FutureLatentHead(hidden,cfg.latent_channels,cfg.readout_dim,cfg.readout_layers)
             if cfg.enable_current_dino or cfg.enable_future_dino:
-                self.dino_head=DINOFeatureHead(hidden,cfg.dino_feature_dim,cfg.readout_dim,cfg.readout_layers)
+                if cfg.is_tradeoff:
+                    from starVLA.model.modules.foresight.tradeoff import TokenProjectionHead
+                    self.dino_head=TokenProjectionHead(hidden,cfg.dino_feature_dim)
+                else:
+                    self.dino_head=DINOFeatureHead(hidden,cfg.dino_feature_dim,cfg.readout_dim,cfg.readout_layers)
         with initialization_seed(int(config.seed)+2400):
             if cfg.uses_interaction:
                 self.interaction_head=InteractionLatentHead(hidden,cfg.readout_dim,layers=cfg.readout_layers)
@@ -79,6 +83,7 @@ class DDPForesight(Qwenvl_OFT):
         instructions=[e['lang']+' '+ROBOT_HISTORY_TOKEN+''.join(self.foresight_tokens)+
                       ''.join(self.act_query_tokens) for e in current]
         ids,attention,positions,slots,visual,deepstack=self._build_qwen_batch(current,instructions)
+        self.last_sequence_lengths=attention.sum(-1).detach()
         rows=torch.arange(len(current),device=ids.device)
         with self.amp():
             embeddings=self.qwen_vl_interface.model.get_input_embeddings()(ids)

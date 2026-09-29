@@ -1,0 +1,32 @@
+campaign: dino-resolution-token-tradeoff-20260929
+resources:
+  hosts: [local, training-vla-zt2]
+  gpus_per_host: 8
+  gpu: NVIDIA A800-SXM4-80GB
+  may_release: verified_user_pressure_scripts_only
+  restore_pressure_after_work: true
+p0:
+  cumulative_gpu_hours_cap: 96
+  includes: [source_loading, teacher_extraction, failed_attempts, optimizer_profiles, inference_profiles]
+  warmup_optimizer_steps: 20
+  measured_optimizer_steps: 100
+  weights_discarded_for_formal_initialization: true
+  global_batch: 32
+  precision: BF16_with_FP32_AdamW_masters
+  student_modes: [4gpu_single, 2x4gpu_concurrent, 8gpu_single]
+  cross_host_preflight: [C0, C5]
+  initial_cache_prefix_scenes: 3840
+  max_worker_hours: 4
+  local_free_disk_reserve_GiB: 100
+formal_budget:
+  status: NOT_REGISTERED_UNTIL_P0_MEASURED
+  auto_start_without_registered_plan: false
+selection:
+  primary: paired_dev_PDMS_and_safety_at_common_exposure
+  engineer_preference_pdms_points: 0.2
+  engineer_preference_cost_reduction: 0.20
+  statistical_equivalence_claim_from_preference: false
+  finalists: [C0, strongest_dev_candidate, cost_effect_candidate]
+  screen_fraction: 0.25
+  full_schedule_from_first_step: true
+  same_budget_checkpoint: last_registered_checkpoint_within_budget
