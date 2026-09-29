@@ -1,0 +1,2259 @@
+{
+  "authorized_hosts": [
+    "local",
+    "training-vla-zt2"
+  ],
+  "automatic_external_expansion": false,
+  "calibration_sha256": "635ba5d81e0eaf51c7ae299015d1d2fd35e9b34cb4df97652bab36085a490ce8",
+  "config_identities": {
+    "C0": "b9cde63164fe624d54d99319d1a1d70262788d701035d8bd4c1acda9c90e143a",
+    "C1": "0dce4e7209a30a1170d3da7fdfce7100233641da9dad90338a06464a5f97739d",
+    "C2": "b0644682d0686c08e5ed8c2a539345a238e377a0c528f8941f093eb72f1bcbed",
+    "C3": "0abef89cfacdc0438816ebc019939b7818c2ba1b4711bd2dcf04240de99f3deb",
+    "C4": "5f0accf3896eda0ea5807d9b55ee813bfb3176e1138ae31edf43f01fd21a5ab2",
+    "C5": "76fa3bbd01ddeccce26ec868329172d685d0f3e2b45e791e55ad9d290d4b1e7c"
+  },
+  "configs": {
+    "C0": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C0",
+        "auxiliary_warmup": 1000,
+        "candidate": "C0",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C1": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C1",
+        "auxiliary_warmup": 1000,
+        "candidate": "C1",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C2": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C2",
+        "auxiliary_warmup": 1000,
+        "candidate": "C2",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 12,
+        "dino_width": 16,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 576,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C3": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C3",
+        "auxiliary_warmup": 1000,
+        "candidate": "C3",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 9,
+        "dino_width": 12,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 324,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C4": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C4",
+        "auxiliary_warmup": 1000,
+        "candidate": "C4",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "C5": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C5",
+        "auxiliary_warmup": 1000,
+        "candidate": "C5",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 12,
+        "dino_width": 16,
+        "enable_current_dino": true,
+        "enable_future_dino": true,
+        "enable_interaction": true,
+        "full_algorithm": true,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": "0.9794244300709714",
+        "lambda_int": "0.8328945981862067",
+        "num_queries": 576,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "name": "DDPFullForesight",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "qwenact",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 4,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    }
+  },
+  "cost_estimate": "worst measured complete-model optimizer rate times all reserved updates, 35% overhead, plus192GPUh preparation",
+  "created_unix": 1790672681.6733994,
+  "data_identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+  "deterministic": true,
+  "dev_logs": 16,
+  "dev_scenes": 1696,
+  "development_updates": [
+    5000,
+    10000,
+    25000,
+    50000,
+    75000,
+    100000
+  ],
+  "diagnostic_updates": [
+    1,
+    100,
+    500,
+    1000,
+    2000
+  ],
+  "dino_identities": {
+    "C0": "fefb3d3bc78359053e7a552182fcabd57f5024ab7e9a7c22cd7c0bda3597e8d2",
+    "C1": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+    "C2": "6d462e68d28a3371d2b107f8fe0406892d86fef20cf1642b35431e372020d24c",
+    "C3": "c65cc2d589d573b5fa11fbd6581ce4eba9dec49cd0778c453d78e169134bb966",
+    "C4": "172cb809c6b7814d36c48df8401b4c3fa55ceccbc45bd8fd57ba786465702f41",
+    "C5": "86430056aded507b850b40406477f9dd9a4a941784b090600b5c6a6625377c9c"
+  },
+  "dino_index": "141e49f0306c6ae5c57bdc3f2cf5590ce82b889278b489e9d850cf8ba8cc5dc1",
+  "ego_identity": "fc19ba6c31232afb376da55e094732161d8ac7b6e5df6cdfb62e67e902d4cd3f",
+  "estimated_campaign_gpu_hours": 5698.663101464511,
+  "evaluation": {
+    "candidates": 1,
+    "final_sampling_seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "precision": "FP32 masters, TF32 off",
+    "screen_sampling_seeds": [
+      42
+    ],
+    "steps": 10
+  },
+  "generic_sources_sha256": "aec45c54cdaf7e81883cb6d78e07a3bd9ef95007402987844f2c74d017fea8ae",
+  "gpu_hours_cap": 6000.0,
+  "identity": "a9b39ca3e803a11414d85c722cbdf23260afc1fc1859bdbc9d05347327a0a956",
+  "initialization": "verified generic Qwen; independent random driving/query/head streams; profile/startup weights forbidden",
+  "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+  "loader_workers": 4,
+  "milestones": [
+    0,
+    1,
+    100,
+    500,
+    1000,
+    2000,
+    5000,
+    10000,
+    25000,
+    50000,
+    75000,
+    100000
+  ],
+  "planned_optimizer_updates": 975000,
+  "profile_sha256": "2797087cb25a7d3be4074a2784fd5a409b14d2772698d769d362168a3b25209d",
+  "runs": {
+    "formal_C0_seed42_v1": {
+      "candidate": "C0",
+      "global_batch": 32,
+      "gpus": 4,
+      "micro_batch": 8,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    },
+    "formal_C1_seed42_v1": {
+      "candidate": "C1",
+      "global_batch": 32,
+      "gpus": 4,
+      "micro_batch": 8,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    },
+    "formal_C2_seed42_v1": {
+      "candidate": "C2",
+      "global_batch": 32,
+      "gpus": 4,
+      "micro_batch": 8,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    },
+    "formal_C3_seed42_v1": {
+      "candidate": "C3",
+      "global_batch": 32,
+      "gpus": 4,
+      "micro_batch": 8,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    },
+    "formal_C4_seed42_v1": {
+      "candidate": "C4",
+      "global_batch": 32,
+      "gpus": 4,
+      "micro_batch": 8,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    },
+    "formal_C5_seed42_v1": {
+      "candidate": "C5",
+      "global_batch": 32,
+      "gpus": 4,
+      "micro_batch": 8,
+      "schedule_updates": 100000,
+      "seed": 42,
+      "updates": 100000
+    }
+  },
+  "save_every": 200,
+  "scene_count": 101592,
+  "scheduler": "common100000-reference cosine with5000warmup; screen is planned PAUSED, never COMPLETE",
+  "schema": "ddp_full_formal_registration_v1",
+  "screen_updates": 25000,
+  "secondary_budget": "three full finalist seed43 runs, then NO_CURRENT/NO_FUTURE/NO_INTERACTION at selected size; no profile-weight reuse",
+  "selection": {
+    "engineering_preference": {
+      "PDMS_percentage_point_tolerance": 0.2,
+      "student_cost_saving_fraction": 0.2
+    },
+    "mandatory": "C0",
+    "others": [
+      "best complete-development PDMS",
+      "nondominated quality-cost compromise"
+    ],
+    "ranking_metric": "official dev FP32 single sample seed42, full population; no Navtest selection",
+    "third_when_duplicate": "next nondominated candidate with plausible learning potential"
+  },
+  "status": "FROZEN_BEFORE_SCREENING",
+  "teacher_verification_sha256": "14fd2ae0f9c9f7215ba79c4e62f918865da2820164229b86291472cb5272c7fa",
+  "topology_decision": {
+    "actual_concurrency_checked": true,
+    "created_unix": 1790672661.3985076,
+    "cross_host_checked": true,
+    "cross_host_same_prefix_first4": {
+      "C0": {
+        "local": {
+          "rows": [
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790671180.1649282,
+              "epoch": 0,
+              "exposure": 32,
+              "fp32_master_update_verified": true,
+              "grad_norm": 11.093802452087402,
+              "losses": {
+                "current_dino": 0.5416971743106842,
+                "current_dino_raw": 0.5416971743106842,
+                "ego_fm": 1.897651344537735,
+                "future_dino": 0.0005314976733643562,
+                "future_dino_raw": 0.5426632612943649,
+                "interaction": 0.0016672047204338014,
+                "interaction_raw": 2.0016993582248688
+              },
+              "lr": 2e-09,
+              "maximum_sampled_change": 3.725290298461914e-09,
+              "offset": 1,
+              "peak_memory_bytes": 15692187136,
+              "per_rank_profile": [
+                [
+                  3.5435149669647217,
+                  0.35039544105529785,
+                  15692187136.0,
+                  20547895296.0,
+                  1930.0
+                ],
+                [
+                  3.5437281131744385,
+                  0.38434696197509766,
+                  15766112256.0,
+                  20721958912.0,
+                  1930.0
+                ],
+                [
+                  3.5436580181121826,
+                  0.3791770935058594,
+                  15845343744.0,
+                  20317208576.0,
+                  1930.0
+                ],
+                [
+                  3.543649435043335,
+                  0.33380627632141113,
+                  15362934784.0,
+                  19832766464.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 6.276800155639648,
+                "future_dino": 3.864703893661499,
+                "interaction": 4.409728050231934
+              },
+              "sampled_changed_elements": 10020,
+              "seconds": 3.5440797805786133,
+              "update": 1
+            },
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790671183.2556198,
+              "epoch": 0,
+              "exposure": 64,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.231586456298828,
+              "losses": {
+                "current_dino": 0.5446942299604416,
+                "current_dino_raw": 0.5446942299604416,
+                "ego_fm": 1.7825393378734589,
+                "future_dino": 0.0010690833732951432,
+                "future_dino_raw": 0.5457711964845657,
+                "interaction": 0.0033402518020011485,
+                "interaction_raw": 2.0052066445350647
+              },
+              "lr": 4e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 2,
+              "peak_memory_bytes": 19598331392,
+              "per_rank_profile": [
+                [
+                  3.0693695545196533,
+                  0.34980082511901855,
+                  19598331392.0,
+                  22435332096.0,
+                  1930.0
+                ],
+                [
+                  3.0693929195404053,
+                  0.34064650535583496,
+                  19672256512.0,
+                  22512926720.0,
+                  1930.0
+                ],
+                [
+                  3.0693798065185547,
+                  0.35213589668273926,
+                  19751488000.0,
+                  21512585216.0,
+                  1930.0
+                ],
+                [
+                  3.0693774223327637,
+                  0.39811253547668457,
+                  19269078528.0,
+                  21028143104.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 3.895872116088867,
+                "future_dino": 3.840224027633667,
+                "interaction": 3.1177918910980225
+              },
+              "sampled_changed_elements": 10309,
+              "seconds": 3.0699009895324707,
+              "update": 2
+            },
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 61440.0
+              },
+              "ended_unix": 1790671186.2789176,
+              "epoch": 0,
+              "exposure": 96,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.088125228881836,
+              "losses": {
+                "current_dino": 0.5433053374290466,
+                "current_dino_raw": 0.5433053374290466,
+                "ego_fm": 1.7705585956573486,
+                "future_dino": 0.0016006524383556098,
+                "future_dino_raw": 0.5447595417499542,
+                "interaction": 0.004992557573132217,
+                "interaction_raw": 1.9980749189853668
+              },
+              "lr": 6.000000000000001e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 3,
+              "peak_memory_bytes": 19598331392,
+              "per_rank_profile": [
+                [
+                  3.0116117000579834,
+                  0.34190940856933594,
+                  19598331392.0,
+                  22435332096.0,
+                  1930.0
+                ],
+                [
+                  3.0116357803344727,
+                  0.3366215229034424,
+                  19672256512.0,
+                  22512926720.0,
+                  1930.0
+                ],
+                [
+                  3.011620283126831,
+                  0.3395223617553711,
+                  19751488000.0,
+                  21512585216.0,
+                  1930.0
+                ],
+                [
+                  3.0116071701049805,
+                  0.30768513679504395,
+                  19269078528.0,
+                  21028143104.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 4.046048164367676,
+                "future_dino": 4.005792140960693,
+                "interaction": 3.206399917602539
+              },
+              "sampled_changed_elements": 10534,
+              "seconds": 3.012146472930908,
+              "update": 3
+            },
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 90112.0
+              },
+              "ended_unix": 1790671189.3979273,
+              "epoch": 0,
+              "exposure": 128,
+              "fp32_master_update_verified": true,
+              "grad_norm": 11.010017395019531,
+              "losses": {
+                "current_dino": 0.5418263226747513,
+                "current_dino_raw": 0.5418263226747513,
+                "ego_fm": 1.7256571650505066,
+                "future_dino": 0.0021268624695949256,
+                "future_dino_raw": 0.542885810136795,
+                "interaction": 0.006691119400784373,
+                "interaction_raw": 2.0083930492401123
+              },
+              "lr": 8e-09,
+              "maximum_sampled_change": 1.4901161193847656e-08,
+              "offset": 4,
+              "peak_memory_bytes": 19598331392,
+              "per_rank_profile": [
+                [
+                  3.0886638164520264,
+                  0.4066009521484375,
+                  19598331392.0,
+                  22435332096.0,
+                  1930.0
+                ],
+                [
+                  3.0886950492858887,
+                  0.40264344215393066,
+                  19672256512.0,
+                  22512926720.0,
+                  1930.0
+                ],
+                [
+                  3.088700294494629,
+                  0.3989417552947998,
+                  19751488000.0,
+                  21512585216.0,
+                  1930.0
+                ],
+                [
+                  3.0886614322662354,
+                  0.3063697814941406,
+                  19269078528.0,
+                  21028143104.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 4.048863887786865,
+                "future_dino": 3.9617919921875,
+                "interaction": 3.254271984100342
+              },
+              "sampled_changed_elements": 10633,
+              "seconds": 3.0892868041992188,
+              "update": 4
+            }
+          ],
+          "run": "p0_local_single4_593a9fd_C0"
+        },
+        "vla-zt2": {
+          "rows": [
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790672081.9673686,
+              "epoch": 0,
+              "exposure": 32,
+              "fp32_master_update_verified": true,
+              "grad_norm": 11.093802452087402,
+              "losses": {
+                "current_dino": 0.5416971743106842,
+                "current_dino_raw": 0.5416971743106842,
+                "ego_fm": 1.897651344537735,
+                "future_dino": 0.0005314976733643562,
+                "future_dino_raw": 0.5426632612943649,
+                "interaction": 0.0016672047204338014,
+                "interaction_raw": 2.0016993582248688
+              },
+              "lr": 2e-09,
+              "maximum_sampled_change": 3.725290298461914e-09,
+              "offset": 1,
+              "peak_memory_bytes": 15692187136,
+              "per_rank_profile": [
+                [
+                  3.6061089038848877,
+                  0.45325350761413574,
+                  15692187136.0,
+                  20547895296.0,
+                  1930.0
+                ],
+                [
+                  3.606297492980957,
+                  0.4177546501159668,
+                  15766112256.0,
+                  20627587072.0,
+                  1930.0
+                ],
+                [
+                  3.606278896331787,
+                  0.44167304039001465,
+                  15845343744.0,
+                  20317208576.0,
+                  1930.0
+                ],
+                [
+                  3.6062705516815186,
+                  0.4480874538421631,
+                  15362934784.0,
+                  19738394624.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10020,
+              "seconds": 3.6067185401916504,
+              "update": 1
+            },
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790672085.0784457,
+              "epoch": 0,
+              "exposure": 64,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.231586456298828,
+              "losses": {
+                "current_dino": 0.5446942299604416,
+                "current_dino_raw": 0.5446942299604416,
+                "ego_fm": 1.7825393378734589,
+                "future_dino": 0.0010690833732951432,
+                "future_dino_raw": 0.5457711964845657,
+                "interaction": 0.0033402518020011485,
+                "interaction_raw": 2.0052066445350647
+              },
+              "lr": 4e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 2,
+              "peak_memory_bytes": 19598331392,
+              "per_rank_profile": [
+                [
+                  3.096250057220459,
+                  0.350691556930542,
+                  19598331392.0,
+                  22433234944.0,
+                  1930.0
+                ],
+                [
+                  3.0962414741516113,
+                  0.34721899032592773,
+                  19672256512.0,
+                  22517121024.0,
+                  1930.0
+                ],
+                [
+                  3.0962491035461426,
+                  0.3566761016845703,
+                  19751488000.0,
+                  21512585216.0,
+                  1930.0
+                ],
+                [
+                  3.0962636470794678,
+                  0.40320539474487305,
+                  19269078528.0,
+                  21032337408.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10309,
+              "seconds": 3.096871852874756,
+              "update": 2
+            },
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 61440.0
+              },
+              "ended_unix": 1790672088.1758986,
+              "epoch": 0,
+              "exposure": 96,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.088125228881836,
+              "losses": {
+                "current_dino": 0.5433053374290466,
+                "current_dino_raw": 0.5433053374290466,
+                "ego_fm": 1.7705585956573486,
+                "future_dino": 0.0016006524383556098,
+                "future_dino_raw": 0.5447595417499542,
+                "interaction": 0.004992557573132217,
+                "interaction_raw": 1.9980749189853668
+              },
+              "lr": 6.000000000000001e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 3,
+              "peak_memory_bytes": 19598331392,
+              "per_rank_profile": [
+                [
+                  3.087742805480957,
+                  0.35435914993286133,
+                  19598331392.0,
+                  22433234944.0,
+                  1930.0
+                ],
+                [
+                  3.0878262519836426,
+                  0.3550717830657959,
+                  19672256512.0,
+                  22617784320.0,
+                  1930.0
+                ],
+                [
+                  3.087754726409912,
+                  0.3550539016723633,
+                  19751488000.0,
+                  21512585216.0,
+                  1930.0
+                ],
+                [
+                  3.087749481201172,
+                  0.3679239749908447,
+                  19269078528.0,
+                  21133000704.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10534,
+              "seconds": 3.0884456634521484,
+              "update": 3
+            },
+            {
+              "counts": {
+                "current_dino": 4718592.0,
+                "ego_scenes": 32.0,
+                "future_dino": 4718592.0,
+                "interaction": 90112.0
+              },
+              "ended_unix": 1790672091.3136256,
+              "epoch": 0,
+              "exposure": 128,
+              "fp32_master_update_verified": true,
+              "grad_norm": 11.010017395019531,
+              "losses": {
+                "current_dino": 0.5418263226747513,
+                "current_dino_raw": 0.5418263226747513,
+                "ego_fm": 1.7256571650505066,
+                "future_dino": 0.0021268624695949256,
+                "future_dino_raw": 0.542885810136795,
+                "interaction": 0.006691119400784373,
+                "interaction_raw": 2.0083930492401123
+              },
+              "lr": 8e-09,
+              "maximum_sampled_change": 1.4901161193847656e-08,
+              "offset": 4,
+              "peak_memory_bytes": 19598331392,
+              "per_rank_profile": [
+                [
+                  3.1278810501098633,
+                  0.3650858402252197,
+                  19598331392.0,
+                  22533898240.0,
+                  1930.0
+                ],
+                [
+                  3.127885580062866,
+                  0.3708627223968506,
+                  19672256512.0,
+                  22617784320.0,
+                  1930.0
+                ],
+                [
+                  3.12789249420166,
+                  0.3491823673248291,
+                  19751488000.0,
+                  21512585216.0,
+                  1930.0
+                ],
+                [
+                  3.127892255783081,
+                  0.34978413581848145,
+                  19269078528.0,
+                  21133000704.0,
+                  1930.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10633,
+              "seconds": 3.1285462379455566,
+              "update": 4
+            }
+          ],
+          "run": "p0_zt2_startup4_593a9fd_C0"
+        }
+      },
+      "C5": {
+        "local": {
+          "rows": [
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790671737.8513572,
+              "epoch": 0,
+              "exposure": 32,
+              "fp32_master_update_verified": true,
+              "grad_norm": 11.128405570983887,
+              "losses": {
+                "current_dino": 0.5218205600976944,
+                "current_dino_raw": 0.5218205600976944,
+                "ego_fm": 1.8927478790283203,
+                "future_dino": 0.0005117249238537624,
+                "future_dino_raw": 0.5224751085042953,
+                "interaction": 0.0016653776983730495,
+                "interaction_raw": 1.9995057880878448
+              },
+              "lr": 2e-09,
+              "maximum_sampled_change": 3.725290298461914e-09,
+              "offset": 1,
+              "peak_memory_bytes": 15704071680,
+              "per_rank_profile": [
+                [
+                  4.2691991329193115,
+                  0.61419677734375,
+                  15704071680.0,
+                  21514682368.0,
+                  2362.0
+                ],
+                [
+                  4.269350528717041,
+                  0.6365764141082764,
+                  15776764928.0,
+                  21594374144.0,
+                  2362.0
+                ],
+                [
+                  4.269356727600098,
+                  0.6364192962646484,
+                  15856456704.0,
+                  21187526656.0,
+                  2362.0
+                ],
+                [
+                  4.269369840621948,
+                  0.6173052787780762,
+                  15372015104.0,
+                  20703084544.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 6.250271797180176,
+                "future_dino": 3.9028480052948,
+                "interaction": 7.06876802444458
+              },
+              "sampled_changed_elements": 9999,
+              "seconds": 4.269757032394409,
+              "update": 1
+            },
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790671741.5687177,
+              "epoch": 0,
+              "exposure": 64,
+              "fp32_master_update_verified": true,
+              "grad_norm": 9.947083473205566,
+              "losses": {
+                "current_dino": 0.5224658399820328,
+                "current_dino_raw": 0.5224658399820328,
+                "ego_fm": 1.7769746780395508,
+                "future_dino": 0.0010246133897453547,
+                "future_dino_raw": 0.5230691283941269,
+                "interaction": 0.003336795314680785,
+                "interaction_raw": 2.0031315684318542
+              },
+              "lr": 4e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 2,
+              "peak_memory_bytes": 20515776000,
+              "per_rank_profile": [
+                [
+                  3.703317165374756,
+                  0.6339371204376221,
+                  20515776000.0,
+                  23441965056.0,
+                  2362.0
+                ],
+                [
+                  3.7033376693725586,
+                  0.6393759250640869,
+                  20588469248.0,
+                  23530045440.0,
+                  2362.0
+                ],
+                [
+                  3.7033588886260986,
+                  0.6510350704193115,
+                  20668947456.0,
+                  22764584960.0,
+                  2362.0
+                ],
+                [
+                  3.7033660411834717,
+                  0.6534550189971924,
+                  20184505344.0,
+                  22280142848.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 4.005280017852783,
+                "future_dino": 3.9447999000549316,
+                "interaction": 3.2247679233551025
+              },
+              "sampled_changed_elements": 10248,
+              "seconds": 3.7038891315460205,
+              "update": 2
+            },
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 61440.0
+              },
+              "ended_unix": 1790671745.295953,
+              "epoch": 0,
+              "exposure": 96,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.004590034484863,
+              "losses": {
+                "current_dino": 0.5212628543376923,
+                "current_dino_raw": 0.5212628543376923,
+                "ego_fm": 1.7666372656822205,
+                "future_dino": 0.0015350898902397603,
+                "future_dino_raw": 0.5224462747573853,
+                "interaction": 0.0049871321534737945,
+                "interaction_raw": 1.9959036111831665
+              },
+              "lr": 6.000000000000001e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 3,
+              "peak_memory_bytes": 20515776000,
+              "per_rank_profile": [
+                [
+                  3.712517499923706,
+                  0.653599739074707,
+                  20515776000.0,
+                  23544725504.0,
+                  2362.0
+                ],
+                [
+                  3.712545156478882,
+                  0.6355619430541992,
+                  20588469248.0,
+                  23532142592.0,
+                  2362.0
+                ],
+                [
+                  3.7125566005706787,
+                  0.6291730403900146,
+                  20668947456.0,
+                  22766682112.0,
+                  2362.0
+                ],
+                [
+                  3.7125449180603027,
+                  0.6413283348083496,
+                  20184505344.0,
+                  22282240000.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 3.942528009414673,
+                "future_dino": 3.906559944152832,
+                "interaction": 3.215424060821533
+              },
+              "sampled_changed_elements": 10478,
+              "seconds": 3.713057041168213,
+              "update": 3
+            },
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 90112.0
+              },
+              "ended_unix": 1790671749.0515308,
+              "epoch": 0,
+              "exposure": 128,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.507736206054688,
+              "losses": {
+                "current_dino": 0.520940899848938,
+                "current_dino_raw": 0.520940899848938,
+                "ego_fm": 1.7199665009975433,
+                "future_dino": 0.0020435904734767973,
+                "future_dino_raw": 0.5216304361820221,
+                "interaction": 0.0066856578923761845,
+                "interaction_raw": 2.0067537128925323
+              },
+              "lr": 8e-09,
+              "maximum_sampled_change": 1.4901161193847656e-08,
+              "offset": 4,
+              "peak_memory_bytes": 20515776000,
+              "per_rank_profile": [
+                [
+                  3.7413482666015625,
+                  0.6688778400421143,
+                  20515776000.0,
+                  23544725504.0,
+                  2362.0
+                ],
+                [
+                  3.7413699626922607,
+                  0.6616113185882568,
+                  20588469248.0,
+                  23632805888.0,
+                  2362.0
+                ],
+                [
+                  3.7413783073425293,
+                  0.6367294788360596,
+                  20669733888.0,
+                  22867345408.0,
+                  2362.0
+                ],
+                [
+                  3.741395950317383,
+                  0.6372048854827881,
+                  20185291776.0,
+                  22282240000.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "rank0_readout_forward_gpu_ms": {
+                "current_dino": 4.015679836273193,
+                "future_dino": 3.942336082458496,
+                "interaction": 3.302112102508545
+              },
+              "sampled_changed_elements": 10606,
+              "seconds": 3.7419321537017822,
+              "update": 4
+            }
+          ],
+          "run": "p0_local_single4_593a9fd_C5"
+        },
+        "vla-zt2": {
+          "rows": [
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790672238.4080703,
+              "epoch": 0,
+              "exposure": 32,
+              "fp32_master_update_verified": true,
+              "grad_norm": 11.128405570983887,
+              "losses": {
+                "current_dino": 0.5218205600976944,
+                "current_dino_raw": 0.5218205600976944,
+                "ego_fm": 1.8927478790283203,
+                "future_dino": 0.0005117249238537624,
+                "future_dino_raw": 0.5224751085042953,
+                "interaction": 0.0016653776983730495,
+                "interaction_raw": 1.9995057880878448
+              },
+              "lr": 2e-09,
+              "maximum_sampled_change": 3.725290298461914e-09,
+              "offset": 1,
+              "peak_memory_bytes": 15704071680,
+              "per_rank_profile": [
+                [
+                  4.142696142196655,
+                  0.6491270065307617,
+                  15704071680.0,
+                  21609054208.0,
+                  2362.0
+                ],
+                [
+                  4.142797470092773,
+                  0.6442403793334961,
+                  15776764928.0,
+                  21688745984.0,
+                  2362.0
+                ],
+                [
+                  4.142808198928833,
+                  0.4540848731994629,
+                  15856456704.0,
+                  21281898496.0,
+                  2362.0
+                ],
+                [
+                  4.142808198928833,
+                  0.6544849872589111,
+                  15372015104.0,
+                  20703084544.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 9999,
+              "seconds": 4.143418788909912,
+              "update": 1
+            },
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 94208.0
+              },
+              "ended_unix": 1790672242.1179938,
+              "epoch": 0,
+              "exposure": 64,
+              "fp32_master_update_verified": true,
+              "grad_norm": 9.947083473205566,
+              "losses": {
+                "current_dino": 0.5224658399820328,
+                "current_dino_raw": 0.5224658399820328,
+                "ego_fm": 1.7769746780395508,
+                "future_dino": 0.0010246133897453547,
+                "future_dino_raw": 0.5230691283941269,
+                "interaction": 0.003336795314680785,
+                "interaction_raw": 2.0031315684318542
+              },
+              "lr": 4e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 2,
+              "peak_memory_bytes": 20515776000,
+              "per_rank_profile": [
+                [
+                  3.6882996559143066,
+                  0.6462869644165039,
+                  20515776000.0,
+                  23437770752.0,
+                  2362.0
+                ],
+                [
+                  3.688321352005005,
+                  0.6173067092895508,
+                  20588469248.0,
+                  23525851136.0,
+                  2362.0
+                ],
+                [
+                  3.688359260559082,
+                  0.4806945323944092,
+                  20668947456.0,
+                  22760390656.0,
+                  2362.0
+                ],
+                [
+                  3.6883280277252197,
+                  0.6139321327209473,
+                  20184505344.0,
+                  22280142848.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10248,
+              "seconds": 3.688861608505249,
+              "update": 2
+            },
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 61440.0
+              },
+              "ended_unix": 1790672245.845353,
+              "epoch": 0,
+              "exposure": 96,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.004590034484863,
+              "losses": {
+                "current_dino": 0.5212628543376923,
+                "current_dino_raw": 0.5212628543376923,
+                "ego_fm": 1.7666372656822205,
+                "future_dino": 0.0015350898902397603,
+                "future_dino_raw": 0.5224462747573853,
+                "interaction": 0.0049871321534737945,
+                "interaction_raw": 1.9959036111831665
+              },
+              "lr": 6.000000000000001e-09,
+              "maximum_sampled_change": 7.450580596923828e-09,
+              "offset": 3,
+              "peak_memory_bytes": 20515776000,
+              "per_rank_profile": [
+                [
+                  3.7086825370788574,
+                  0.6616115570068359,
+                  20515776000.0,
+                  23439867904.0,
+                  2362.0
+                ],
+                [
+                  3.7086987495422363,
+                  0.6301264762878418,
+                  20588469248.0,
+                  23527948288.0,
+                  2362.0
+                ],
+                [
+                  3.7087390422821045,
+                  0.4710195064544678,
+                  20668947456.0,
+                  22762487808.0,
+                  2362.0
+                ],
+                [
+                  3.7087209224700928,
+                  0.6336486339569092,
+                  20184505344.0,
+                  22282240000.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10478,
+              "seconds": 3.7092106342315674,
+              "update": 3
+            },
+            {
+              "counts": {
+                "current_dino": 18874368.0,
+                "ego_scenes": 32.0,
+                "future_dino": 18874368.0,
+                "interaction": 90112.0
+              },
+              "ended_unix": 1790672249.6032257,
+              "epoch": 0,
+              "exposure": 128,
+              "fp32_master_update_verified": true,
+              "grad_norm": 10.507736206054688,
+              "losses": {
+                "current_dino": 0.520940899848938,
+                "current_dino_raw": 0.520940899848938,
+                "ego_fm": 1.7199665009975433,
+                "future_dino": 0.0020435904734767973,
+                "future_dino_raw": 0.5216304361820221,
+                "interaction": 0.0066856578923761845,
+                "interaction_raw": 2.0067537128925323
+              },
+              "lr": 8e-09,
+              "maximum_sampled_change": 1.4901161193847656e-08,
+              "offset": 4,
+              "peak_memory_bytes": 20515776000,
+              "per_rank_profile": [
+                [
+                  3.7492988109588623,
+                  0.6557276248931885,
+                  20515776000.0,
+                  23439867904.0,
+                  2362.0
+                ],
+                [
+                  3.7493138313293457,
+                  0.6125233173370361,
+                  20588469248.0,
+                  23527948288.0,
+                  2362.0
+                ],
+                [
+                  3.74934720993042,
+                  0.45067596435546875,
+                  20669733888.0,
+                  22762487808.0,
+                  2362.0
+                ],
+                [
+                  3.7493155002593994,
+                  0.6236660480499268,
+                  20185291776.0,
+                  22282240000.0,
+                  2362.0
+                ]
+              ],
+              "profile_fields": [
+                "total_step_seconds",
+                "data_seconds",
+                "peak_allocated_bytes",
+                "peak_reserved_bytes",
+                "max_sequence_length"
+              ],
+              "sampled_changed_elements": 10606,
+              "seconds": 3.7498462200164795,
+              "update": 4
+            }
+          ],
+          "run": "p0_zt2_startup4_593a9fd_C5"
+        }
+      }
+    },
+    "global_batch": 32,
+    "gpus_per_student": 4,
+    "measured_overlap": {
+      "boundary_policy": "only whole measured batches in common overlap; conservative",
+      "completed_scenes_per_job": [
+        2368,
+        2048
+      ],
+      "jobs": [
+        "p0_local_paired4_593a9fd_C0",
+        "p0_local_paired4_593a9fd_C5"
+      ],
+      "queue": "local_paired4_593a9fd.json",
+      "queue_status": "COMPLETE",
+      "samples_per_s": 17.971529070910023,
+      "seconds": 245.72199630737305,
+      "valid": true
+    },
+    "model": "all four losses; frozen offline targets; same precision and FM repeat",
+    "profile_sha256": "2797087cb25a7d3be4074a2784fd5a409b14d2772698d769d362168a3b25209d",
+    "reason": "Measured 2x4 overlap aggregate throughput exceeds single8 mixed-candidate throughput, lower GPU-hours per update; per-card allocated <20GiB. Short cross-host same-prefix check, not a steady-state claim.",
+    "schema": "full_four_loss_topology_decision_v1",
+    "single8_sequential_mix_samples_per_s": 16.028216903196576,
+    "slots": [
+      {
+        "candidates": [
+          "C0",
+          "C4"
+        ],
+        "gpus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "host": "local"
+      },
+      {
+        "candidates": [
+          "C3"
+        ],
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "host": "local"
+      },
+      {
+        "candidates": [
+          "C5",
+          "C2"
+        ],
+        "gpus": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "host": "training-vla-zt2"
+      },
+      {
+        "candidates": [
+          "C1"
+        ],
+        "gpus": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "host": "training-vla-zt2"
+      }
+    ],
+    "source_profile": "593a9fd86a7f30472ae745ee11f28bd4c00ba389"
+  },
+  "train_logs": 1176,
+  "training_source_sha": "a0928de63e78f30388dfc5e51a672b90414dbd76",
+  "updates": 100000,
+  "warmup": 5000
+}

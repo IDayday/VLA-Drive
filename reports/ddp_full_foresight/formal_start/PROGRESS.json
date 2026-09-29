@@ -1,0 +1,640 @@
+{
+  "snapshot_unix": 1790673272.3884192,
+  "training_source": "a0928de63e78f30388dfc5e51a672b90414dbd76",
+  "observations": {
+    "C0": {
+      "status": {
+        "attempt": "formal_C0_seed42_v1_attempt_1790672739532696402",
+        "completed": 147,
+        "counters": {
+          "current_dino_elements": 693633024,
+          "current_requests": 4704,
+          "future_dino_elements": 692895744,
+          "future_requests": 4704,
+          "horizon_scenes": [
+            1565,
+            1595,
+            1544
+          ],
+          "interaction_elements": 12701696,
+          "valid_views": [
+            4689,
+            4776,
+            4632
+          ],
+          "visual_elements": 0
+        },
+        "epoch": 0,
+        "exposure": 4704,
+        "host": "training-vla-zt-worker-0",
+        "identity": "857380449c1d62c34d1aeca91703644030e4a4147647042290a99c506cfc79da",
+        "offset": 147,
+        "pid": 2248338,
+        "source_sha": "a0928de63e78f30388dfc5e51a672b90414dbd76",
+        "status": "RUNNING",
+        "updated_unix": 1790673271.8359554
+      },
+      "observations": [
+        {
+          "update": 1,
+          "epoch": 0,
+          "offset": 1,
+          "exposure": 32,
+          "lr": 2e-09,
+          "losses": {
+            "ego_fm": 1.9723968803882599,
+            "interaction": 0.0016637546359561384,
+            "current_dino": 0.5420324504375458,
+            "future_dino": 0.0005326861864887178,
+            "interaction_raw": 1.9975571036338806,
+            "current_dino_raw": 0.5420324504375458,
+            "future_dino_raw": 0.5438767522573471
+          },
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_dino": 4718592.0,
+            "interaction": 65536.0
+          },
+          "ended_unix": 1790672787.9420009,
+          "seconds": 4.089878797531128,
+          "peak_memory_bytes": 15727129600,
+          "grad_norm": 10.620186805725098,
+          "per_rank_profile": [
+            [
+              4.089284420013428,
+              0.363039493560791,
+              15727129600.0,
+              20635975680.0,
+              1930.0
+            ],
+            [
+              4.089496374130249,
+              0.35191798210144043,
+              15801054720.0,
+              20715667456.0,
+              1930.0
+            ],
+            [
+              4.089490652084351,
+              0.3511087894439697,
+              15880286208.0,
+              20317208576.0,
+              1930.0
+            ],
+            [
+              4.089542388916016,
+              0.3557093143463135,
+              15397877248.0,
+              19738394624.0,
+              1930.0
+            ]
+          ],
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "sampled_changed_elements": 9986,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "fp32_master_update_verified": true,
+          "shared_parameter_observation": {
+            "action_decoder": {
+              "gradient_norm": 3.7627885341644287,
+              "gradient_nonzero": 6140,
+              "gradient_dtype": "torch.float32",
+              "elements": 6144,
+              "update_norm": 1.4805313242050033e-07,
+              "changed_elements": 6140,
+              "max_abs_update": 2.0954757928848267e-09
+            },
+            "W": {
+              "gradient_norm": 1.1013647317886353,
+              "gradient_nonzero": 294839,
+              "gradient_dtype": "torch.float32",
+              "elements": 294912,
+              "update_norm": 1.1871460401380318e-06,
+              "changed_elements": 294252,
+              "max_abs_update": 3.725290298461914e-09
+            },
+            "Qwen_first_q": {
+              "gradient_norm": 0.6911430954933167,
+              "gradient_nonzero": 4193325,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 4.987262855138397e-06,
+              "changed_elements": 3930958,
+              "max_abs_update": 3.725290298461914e-09
+            },
+            "Qwen_last_q": {
+              "gradient_norm": 0.05022069811820984,
+              "gradient_nonzero": 4193446,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 3.8862422115926165e-06,
+              "changed_elements": 3186055,
+              "max_abs_update": 3.725290298461914e-09
+            }
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 12.027081489562988,
+            "FDE_m": 20.211992263793945,
+            "yaw_abs_rad": 1.890297770500183,
+            "scenes": 4,
+            "sampling_seed": 42,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS"
+          },
+          "effective_weights": {
+            "ego_fm": 1.0,
+            "current_dino": 1.0,
+            "future_dino": 0.0009794244300709715,
+            "interaction": 0.0008328945981862068
+          },
+          "raw_losses": {
+            "ego_fm": 1.9723968803882599,
+            "current_dino": 0.5420324504375458,
+            "future_dino": 0.5438767522573471,
+            "interaction": 1.9975571036338806
+          },
+          "horizon_scene_requests": [
+            9,
+            14,
+            9
+          ],
+          "horizon_valid_views": [
+            27,
+            42,
+            27
+          ],
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 4608
+          },
+          "valid_interaction_scenes": 16
+        },
+        {
+          "update": 100,
+          "epoch": 0,
+          "offset": 100,
+          "exposure": 3200,
+          "lr": 2e-07,
+          "losses": {
+            "ego_fm": 1.5699144005775452,
+            "interaction": 0.16665813326835632,
+            "current_dino": 0.5249968320131302,
+            "future_dino": 0.05137581843882799,
+            "interaction_raw": 2.0009509921073914,
+            "current_dino_raw": 0.5249968320131302,
+            "future_dino_raw": 0.524551123380661
+          },
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_dino": 4718592.0,
+            "interaction": 69632.0
+          },
+          "ended_unix": 1790673110.24768,
+          "seconds": 3.5688061714172363,
+          "peak_memory_bytes": 19633284096,
+          "grad_norm": 6.598752021789551,
+          "per_rank_profile": [
+            [
+              3.56821870803833,
+              0.41028761863708496,
+              19633284096.0,
+              22714253312.0,
+              1930.0
+            ],
+            [
+              3.5682523250579834,
+              0.3212733268737793,
+              19707209216.0,
+              22798139392.0,
+              1930.0
+            ],
+            [
+              3.568262815475464,
+              0.3264296054840088,
+              19786448384.0,
+              21703426048.0,
+              1930.0
+            ],
+            [
+              3.5684030055999756,
+              0.3274061679840088,
+              19304038912.0,
+              21424504832.0,
+              1930.0
+            ]
+          ],
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "sampled_changed_elements": 10906,
+          "maximum_sampled_change": 2.3096799850463867e-07,
+          "fp32_master_update_verified": true,
+          "shared_parameter_observation": {
+            "action_decoder": {
+              "gradient_norm": 2.2108168601989746,
+              "gradient_nonzero": 6139,
+              "gradient_dtype": "torch.float32",
+              "elements": 6144,
+              "update_norm": 8.725077350391075e-06,
+              "changed_elements": 6105,
+              "max_abs_update": 2.2817403078079224e-07
+            },
+            "W": {
+              "gradient_norm": 0.5752125382423401,
+              "gradient_nonzero": 294832,
+              "gradient_dtype": "torch.float32",
+              "elements": 294912,
+              "update_norm": 8.762109791859984e-05,
+              "changed_elements": 294463,
+              "max_abs_update": 2.3096799850463867e-07
+            },
+            "Qwen_first_q": {
+              "gradient_norm": 0.30078476667404175,
+              "gradient_nonzero": 4192712,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 0.00029454907053150237,
+              "changed_elements": 4180337,
+              "max_abs_update": 2.384185791015625e-07
+            },
+            "Qwen_last_q": {
+              "gradient_norm": 0.028318168595433235,
+              "gradient_nonzero": 4193631,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 0.0003349257167428732,
+              "changed_elements": 4186211,
+              "max_abs_update": 2.384185791015625e-07
+            }
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 12.399333953857422,
+            "FDE_m": 25.43748664855957,
+            "yaw_abs_rad": 1.2962546348571777,
+            "scenes": 4,
+            "sampling_seed": 42,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS"
+          },
+          "effective_weights": {
+            "ego_fm": 1.0,
+            "current_dino": 1.0,
+            "future_dino": 0.09794244300709715,
+            "interaction": 0.08328945981862068
+          },
+          "raw_losses": {
+            "ego_fm": 1.5699144005775452,
+            "current_dino": 0.5249968320131302,
+            "future_dino": 0.524551123380661,
+            "interaction": 2.0009509921073914
+          },
+          "horizon_scene_requests": [
+            13,
+            13,
+            6
+          ],
+          "horizon_valid_views": [
+            39,
+            39,
+            18
+          ],
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 4608
+          },
+          "valid_interaction_scenes": 17
+        }
+      ]
+    },
+    "C1": {
+      "status": {
+        "attempt": "formal_C1_seed42_v1_attempt_1790672758091705180",
+        "completed": 142,
+        "counters": {
+          "current_dino_elements": 670040064,
+          "current_requests": 4544,
+          "future_dino_elements": 669302784,
+          "future_requests": 4544,
+          "horizon_scenes": [
+            1515,
+            1531,
+            1498
+          ],
+          "interaction_elements": 12247040,
+          "valid_views": [
+            4539,
+            4584,
+            4494
+          ],
+          "visual_elements": 0
+        },
+        "epoch": 0,
+        "exposure": 4544,
+        "host": "training-vla-zt2-worker-0",
+        "identity": "8a1f332fc78aa73f22e1cb4ecac28605f11eba75dd5c834e461bb82aa49c0ca6",
+        "offset": 142,
+        "pid": 3628154,
+        "source_sha": "a0928de63e78f30388dfc5e51a672b90414dbd76",
+        "status": "RUNNING",
+        "updated_unix": 1790673271.326008
+      },
+      "observations": [
+        {
+          "update": 1,
+          "epoch": 0,
+          "offset": 1,
+          "exposure": 32,
+          "lr": 2e-09,
+          "losses": {
+            "ego_fm": 1.9723968803882599,
+            "interaction": 0.0016637546359561384,
+            "current_dino": 0.5195568799972534,
+            "future_dino": 0.0005108263867441565,
+            "interaction_raw": 1.9975571036338806,
+            "current_dino_raw": 0.5195568799972534,
+            "future_dino_raw": 0.5215577036142349
+          },
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_dino": 4718592.0,
+            "interaction": 65536.0
+          },
+          "ended_unix": 1790672807.135557,
+          "seconds": 3.9810385704040527,
+          "peak_memory_bytes": 15727129600,
+          "grad_norm": 10.622337341308594,
+          "per_rank_profile": [
+            [
+              3.9804916381835938,
+              0.3481333255767822,
+              15727129600.0,
+              20547895296.0,
+              1930.0
+            ],
+            [
+              3.980604410171509,
+              0.35259485244750977,
+              15801054720.0,
+              20713570304.0,
+              1930.0
+            ],
+            [
+              3.9808244705200195,
+              0.3605234622955322,
+              15880286208.0,
+              20317208576.0,
+              1930.0
+            ],
+            [
+              3.980638027191162,
+              0.3620436191558838,
+              15397877248.0,
+              19826475008.0,
+              1930.0
+            ]
+          ],
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "sampled_changed_elements": 9990,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "fp32_master_update_verified": true,
+          "shared_parameter_observation": {
+            "action_decoder": {
+              "gradient_norm": 3.7627885341644287,
+              "gradient_nonzero": 6140,
+              "gradient_dtype": "torch.float32",
+              "elements": 6144,
+              "update_norm": 1.4805313242050033e-07,
+              "changed_elements": 6140,
+              "max_abs_update": 2.0954757928848267e-09
+            },
+            "W": {
+              "gradient_norm": 1.0944634675979614,
+              "gradient_nonzero": 294852,
+              "gradient_dtype": "torch.float32",
+              "elements": 294912,
+              "update_norm": 1.1871086371684214e-06,
+              "changed_elements": 294259,
+              "max_abs_update": 3.725290298461914e-09
+            },
+            "Qwen_first_q": {
+              "gradient_norm": 0.6874890923500061,
+              "gradient_nonzero": 4193338,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 4.9874042815645225e-06,
+              "changed_elements": 3931120,
+              "max_abs_update": 3.725290298461914e-09
+            },
+            "Qwen_last_q": {
+              "gradient_norm": 0.05056717246770859,
+              "gradient_nonzero": 4193459,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 3.88968601328088e-06,
+              "changed_elements": 3188199,
+              "max_abs_update": 3.725290298461914e-09
+            }
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 12.0271635055542,
+            "FDE_m": 20.21158218383789,
+            "yaw_abs_rad": 1.890262246131897,
+            "scenes": 4,
+            "sampling_seed": 42,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS"
+          },
+          "effective_weights": {
+            "ego_fm": 1.0,
+            "current_dino": 1.0,
+            "future_dino": 0.0009794244300709715,
+            "interaction": 0.0008328945981862068
+          },
+          "raw_losses": {
+            "ego_fm": 1.9723968803882599,
+            "current_dino": 0.5195568799972534,
+            "future_dino": 0.5215577036142349,
+            "interaction": 1.9975571036338806
+          },
+          "horizon_scene_requests": [
+            9,
+            14,
+            9
+          ],
+          "horizon_valid_views": [
+            27,
+            42,
+            27
+          ],
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 4608
+          },
+          "valid_interaction_scenes": 16
+        },
+        {
+          "update": 100,
+          "epoch": 0,
+          "offset": 100,
+          "exposure": 3200,
+          "lr": 2e-07,
+          "losses": {
+            "ego_fm": 1.569979190826416,
+            "interaction": 0.1666487492620945,
+            "current_dino": 0.501805990934372,
+            "future_dino": 0.049192906357347965,
+            "interaction_raw": 2.0008383095264435,
+            "current_dino_raw": 0.501805990934372,
+            "future_dino_raw": 0.5022634267807007
+          },
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_dino": 4718592.0,
+            "interaction": 69632.0
+          },
+          "ended_unix": 1790673126.4959292,
+          "seconds": 3.573054790496826,
+          "peak_memory_bytes": 19633284096,
+          "grad_norm": 6.631209373474121,
+          "per_rank_profile": [
+            [
+              3.572453260421753,
+              0.32643890380859375,
+              19633284096.0,
+              22825402368.0,
+              1930.0
+            ],
+            [
+              3.572467565536499,
+              0.31678080558776855,
+              19707209216.0,
+              22896705536.0,
+              1930.0
+            ],
+            [
+              3.572502613067627,
+              0.37933969497680664,
+              19786448384.0,
+              21703426048.0,
+              1930.0
+            ],
+            [
+              3.57248592376709,
+              0.37749338150024414,
+              19304038912.0,
+              21313355776.0,
+              1930.0
+            ]
+          ],
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "sampled_changed_elements": 10905,
+          "maximum_sampled_change": 2.3096799850463867e-07,
+          "fp32_master_update_verified": true,
+          "shared_parameter_observation": {
+            "action_decoder": {
+              "gradient_norm": 2.2105350494384766,
+              "gradient_nonzero": 6139,
+              "gradient_dtype": "torch.float32",
+              "elements": 6144,
+              "update_norm": 8.735803021409083e-06,
+              "changed_elements": 6107,
+              "max_abs_update": 2.2817403078079224e-07
+            },
+            "W": {
+              "gradient_norm": 0.6194556355476379,
+              "gradient_nonzero": 294833,
+              "gradient_dtype": "torch.float32",
+              "elements": 294912,
+              "update_norm": 8.782700751908123e-05,
+              "changed_elements": 294458,
+              "max_abs_update": 2.3096799850463867e-07
+            },
+            "Qwen_first_q": {
+              "gradient_norm": 0.33600959181785583,
+              "gradient_nonzero": 4192979,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 0.00029646282200701535,
+              "changed_elements": 4180618,
+              "max_abs_update": 2.384185791015625e-07
+            },
+            "Qwen_last_q": {
+              "gradient_norm": 0.028412936255335808,
+              "gradient_nonzero": 4193671,
+              "gradient_dtype": "torch.float32",
+              "elements": 4194304,
+              "update_norm": 0.0003345292352605611,
+              "changed_elements": 4186270,
+              "max_abs_update": 2.384185791015625e-07
+            }
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 12.400676727294922,
+            "FDE_m": 25.44139862060547,
+            "yaw_abs_rad": 1.2953623533248901,
+            "scenes": 4,
+            "sampling_seed": 42,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS"
+          },
+          "effective_weights": {
+            "ego_fm": 1.0,
+            "current_dino": 1.0,
+            "future_dino": 0.09794244300709715,
+            "interaction": 0.08328945981862068
+          },
+          "raw_losses": {
+            "ego_fm": 1.569979190826416,
+            "current_dino": 0.501805990934372,
+            "future_dino": 0.5022634267807007,
+            "interaction": 2.0008383095264435
+          },
+          "horizon_scene_requests": [
+            13,
+            13,
+            6
+          ],
+          "horizon_valid_views": [
+            39,
+            39,
+            18
+          ],
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 4608
+          },
+          "valid_interaction_scenes": 17
+        }
+      ]
+    }
+  },
+  "pending": {
+    "C3": "full local staging; bounded automatic handoff configured",
+    "C5": "full zt2 local staging; bounded automatic handoff configured",
+    "C2": "queued after C5 screening",
+    "C4": "queued after C0 screening"
+  },
+  "official_formal_dev_PDMS": "NOT_RUN",
+  "full_weight_1000_stability": "NOT_YET_OBSERVED"
+}
