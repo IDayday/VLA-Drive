@@ -1,0 +1,81 @@
+{
+  "RNG_preserved": true,
+  "device": "cpu",
+  "feature_norm_mean": 8.699051856994629,
+  "fp16_max_abs": 0.0009708404541015625,
+  "fp16_mse": 3.1867932737128513e-09,
+  "recipe": {
+    "config_sha256": "a71f705b0074e173540d0bdbd3aa940fa8d7d3c6c7f020a683004c46ca605b24",
+    "extra_norm": "none",
+    "feature": "last_block_post_norm_dense_patch",
+    "feature_dim": 1024,
+    "forward_source_sha256": "2cfb3a5938be4c8598d6d1670fdc9249ff8bf03f2045df0dee497c4862a844f7",
+    "implementation_sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8",
+    "interpolation": "PIL bicubic antialias",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "original_user_recipe": "UNVERIFIED; explicit fallback",
+    "padding": "right/bottom normalized zero; fully contained patches only",
+    "patch_size": [
+      16,
+      16
+    ],
+    "pooling": "none",
+    "precision": "FP32 model/input/output; TF32 disabled; FP16 storage",
+    "prefix_tokens_excluded": 5,
+    "repository": "timm/vit_large_patch16_dinov3.lvd1689m",
+    "revision": "30c1109559f65dea34316b0d4842d35c5771fe11",
+    "rope": "timm default FP32 periods",
+    "schema": "dinov3_dense_target_recipe_v1",
+    "short_side": 256,
+    "source_rgb_range": "original full16:9 field, same as DDP",
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "timm": "1.0.20",
+    "torch": "2.5.1+cu124",
+    "weight_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941"
+  },
+  "repeated_exact": true,
+  "seconds": 9.964048147201538,
+  "shape": [
+    1,
+    1024,
+    16,
+    29
+  ],
+  "status": "PASS",
+  "teacher_frozen_eval": true,
+  "transform": {
+    "crop_xyxy": [
+      0,
+      0,
+      1920,
+      1080
+    ],
+    "grid_hw": [
+      16,
+      29
+    ],
+    "original_wh": [
+      1920,
+      1080
+    ],
+    "padding_ltrb": [
+      0,
+      0,
+      9,
+      0
+    ],
+    "resized_wh": [
+      455,
+      256
+    ]
+  },
+  "valid_patches": 448
+}

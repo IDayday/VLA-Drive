@@ -4,6 +4,13 @@ from torch import distributed as dist
 from torch.nn import functional as F
 
 
+def request_future_horizons(batch_size, generator):
+    """One request per scene from fixed1/2/4s; no resampling for missing labels."""
+    if batch_size < 0:
+        raise ValueError('Invalid batch size')
+    return torch.randint(3, (batch_size,), generator=generator, device='cpu')
+
+
 def select_horizons(valid, generator):
     if valid.ndim!=3 or valid.shape[1:]!=(3,3) or valid.dtype!=torch.bool or valid.device.type!='cpu':
         raise ValueError('Horizon scheduling requires CPU B,horizon,view booleans')

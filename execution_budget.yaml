@@ -1,34 +1,23 @@
-campaign: ddp_shared_foresight_gtmae_20260928
-resource_scope: existing_user_authorized_local_and_vla_zt2_only
+campaign: ddp_current_future_dinov3_gtmae_20260929
+resource_scope: existing_authorized_local_and_training_vla_zt2_only
 external_paid_resources: false
 cumulative_gpu_hour_cap: 6000
-cap_basis: new_campaign_provisional_ceiling_not_inherited_budget_or_completion_claim
+cap_basis: new_independent_ceiling_for_seven_primary_and_three_priority_secondary_runs_pending_actual_throughput
 phase_limits_gpu_hours:
-  implementation_teacher_preflight: 24
-  full_teacher: 48
+  correctness_and_calibration: 48
   target_encoding: 96
-  student_calibration: 48
-  final_evaluation_reserve: 300
+  small_fit: 48
+  final_evaluation_reserve: 400
+teacher: reuse_only_after_identity_verification_original_cost_reported_separately
 student_plan:
   primary_seed: 42
-  arms: [R, A, B, C, D]
-  secondary_priority: [B, D, A, C]
+  priority: [W_ONLY, W_CUR_FUT, W_FUT_INT, W_FULL, W_CUR, W_FUT, R_NATIVE]
+  secondary_seed: 43
+  secondary_priority: [W_FULL, W_CUR_FUT, W_FUT_INT]
   proposed_global_batch: 32
   proposed_updates: 100000
-  main_checkpoint_selection: common_registered_complete_training_endpoint
-  formal_launch_requires: measured_action_only_throughput_and_frozen_plan
-teacher_plan:
-  dim: 512
-  encoder_layers: 6
-  decoder_layers: 2
-  max_neighbors: 16
-  xy_scale: 20
-  batch: 256
-  epochs: 30
-  learning_rate: 0.0003
-  validation_milestones_epochs: [0, 1, 2, 4, 8, 16, 24, 30]
-  small_fit_max_updates: 1000
-  dropout: 0.0
-  extra_companion_mask_probability: 0.0
-  seed: 42
-budget_counts: [loading, tests, failures, training, caching, evaluation]
+  proposed_warmup_updates: 5000
+  checkpoint_milestones: [25000, 50000, 75000, 100000]
+  main_selection: common_complete_endpoint_before_any_navtest
+  formal_launch_requires: measured_full_model_throughput_and_frozen_gradient_calibrated_plan
+budget_counts: [loading, tests, failures, caching, training, evaluation]

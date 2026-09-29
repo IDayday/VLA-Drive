@@ -3,7 +3,7 @@ import random
 import numpy as np
 import torch
 from torch import distributed as dist
-from starVLA.model.modules.foresight.losses import select_horizons
+from starVLA.model.modules.foresight.losses import select_horizons, request_future_horizons
 
 
 def capture_rng(generators):
@@ -26,6 +26,17 @@ def optimizer_batch_counts(targets,horizon_generator,device):
     the optimizer's gradient average. No further microbatch averaging is valid.
     """
     counts={'ego_scenes':len(targets['ego'])}
+    for task in ('current_dino','future_dino'):
+        if task not in targets: continue
+        values, valid = targets[task], targets[task+'_valid']
+        if valid.dtype!=torch.bool:raise ValueError('DINO spatial validity must be boolean')
+        if task=='future_dino':
+            if values.ndim!=6 or values.shape[1:3]!=(3,3):raise ValueError('DINO future layout')
+            selected=request_future_horizons(len(values),horizon_generator)
+            targets['dino_horizon']=selected
+            values=values[torch.arange(len(values)),selected];valid=valid[torch.arange(len(valid)),selected]
+        if values.ndim!=5 or valid.shape!=values.shape[:2]+values.shape[-2:]:raise ValueError('DINO grid/mask layout')
+        counts[task]=int(valid.sum())*values.shape[2]
     if 'future_latent' in targets:
         values,valid=targets['future_latent'],targets['future_valid']
         if values.ndim!=6 or values.shape[:3]!=valid.shape:raise ValueError('Future batch layout')

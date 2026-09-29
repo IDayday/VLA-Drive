@@ -8,6 +8,7 @@ from starVLA.cache.navsim_feature_cache import ROBOT_HISTORY_TOKEN, action_query
 from starVLA.model.modules.vehicle_joint.initialization import initialization_seed, add_random_driving_tokens
 from starVLA.model.modules.foresight.config import ForesightConfig
 from starVLA.model.modules.foresight.future_latent_head import FutureLatentHead
+from starVLA.model.modules.foresight.dino_feature_head import DINOFeatureHead
 from starVLA.model.modules.foresight.interaction_latent_head import InteractionLatentHead
 from starVLA.model.modules.foresight.losses import masked_regression, interaction_loss
 from starVLA.model.modules.foresight.tokens import replace_query_embeddings
@@ -21,7 +22,7 @@ class DDPForesight(Qwenvl_OFT):
     def __init__(self, config, accelerator=None):
         options=dict(config.foresight)
         # Environment-backed OmegaConf values are strings until explicitly typed.
-        for key in ('lambda_vis','lambda_int','normalization_eps'):
+        for key in ('lambda_vis','lambda_int','lambda_cur','lambda_fut','normalization_eps'):
             if key in options: options[key]=float(options[key])
         self.foresight_config=ForesightConfig(**options).validate()
         if config.get('from_scratch') is None: raise ValueError('Generic source manifest required')
@@ -51,8 +52,10 @@ class DDPForesight(Qwenvl_OFT):
         with initialization_seed(int(config.seed)+2300):
             if cfg.arm in ('B','D'):
                 self.future_head=FutureLatentHead(hidden,cfg.latent_channels,cfg.readout_dim,cfg.readout_layers)
+            if cfg.enable_current_dino or cfg.enable_future_dino:
+                self.dino_head=DINOFeatureHead(hidden,cfg.dino_feature_dim,cfg.readout_dim,cfg.readout_layers)
         with initialization_seed(int(config.seed)+2400):
-            if cfg.arm in ('C','D'):
+            if cfg.uses_interaction:
                 self.interaction_head=InteractionLatentHead(hidden,cfg.readout_dim,layers=cfg.readout_layers)
         self.qwen_vl_interface.model.model.visual.requires_grad_(False)
         if cfg.gradient_checkpointing:
@@ -135,6 +138,31 @@ class DDPForesight(Qwenvl_OFT):
                 targets['interaction_valid'].to(device),cfg.normalization_eps,counts.get('interaction'))
             losses['interaction']=loss*cfg.lambda_int*weights
             metrics.update(interaction_raw=loss.detach(),interaction_global_elements=count)
+        if hasattr(self,'dino_head'):
+            from starVLA.model.modules.foresight.losses import request_future_horizons
+            # Physical seconds keep old future IDs0/1/2 mapped to1/2/4, even with h=0.
+            if cfg.enable_future_dino:
+                horizon=targets.get('dino_horizon')
+                if horizon is None: horizon=request_future_horizons(len(ego),horizon_generator)
+                if horizon.shape!=(len(ego),) or horizon.dtype!=torch.long or ((horizon<0)|(horizon>2)).any():
+                    raise ValueError('Invalid requested future horizon')
+            for task,enabled,weight in [('current_dino',cfg.enable_current_dino,cfg.lambda_cur),
+                                        ('future_dino',cfg.enable_future_dino,cfg.lambda_fut)]:
+                if not enabled: continue
+                values=targets[task];mask=targets[task+'_valid']
+                if task=='future_dino':
+                    rows=torch.arange(len(ego),device=values.device);selection=horizon.to(values.device)
+                    values=values[rows,selection];mask=mask[rows,selection]
+                    seconds=torch.tensor(cfg.future_horizons_s,device=device)[horizon.to(device)]
+                    metrics['dino_horizon']=horizon.detach()
+                else: seconds=torch.zeros(len(ego),device=device)
+                expected=(len(ego),3,cfg.dino_feature_dim,cfg.dino_height,cfg.dino_width)
+                if values.shape!=expected or mask.shape!=(len(ego),3,cfg.dino_height,cfg.dino_width):
+                    raise ValueError('DINO target/grid contract')
+                with self.amp(): prediction=self.dino_head(encoded['W'],seconds,(cfg.dino_height,cfg.dino_width))
+                loss,count=masked_regression(prediction,values.to(device),mask.to(device)[:,:,None],global_count=counts.get(task))
+                losses[task]=loss*weight*weights
+                metrics.update({task+'_raw':loss.detach(),task+'_global_elements':count})
         return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
 
     @torch.no_grad()
@@ -149,6 +177,6 @@ class DDPForesight(Qwenvl_OFT):
         return decode_ego(ego.float())
 
     def strip_auxiliary_heads(self):
-        for name in ('future_head','interaction_head'):
+        for name in ('future_head','dino_head','interaction_head'):
             if hasattr(self,name):delattr(self,name)
         return self

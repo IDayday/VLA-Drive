@@ -1,0 +1,214 @@
+{
+  "status": "VERIFIED_REUSABLE",
+  "frozen_teacher": {
+    "all_milestones": [
+      {
+        "completed": 397,
+        "ego_with_peer_ADE": 1.1816221781990996,
+        "epoch": 1,
+        "failures": 0,
+        "metrics_sha256": "2a5dfc7633da1308750355202e2d5de797138cdf93ac65419f80503f87ea7a10",
+        "query_csv_sha256": "c881bd90760d15f52f5d2ccf7f03964e729b7f9a8b3f574eb3df7999a076ce77",
+        "vehicle_with_peer_ADE": 4.277058082171843
+      },
+      {
+        "completed": 794,
+        "ego_with_peer_ADE": 0.9736621537807488,
+        "epoch": 2,
+        "failures": 0,
+        "metrics_sha256": "0f9d48ed91e9a22a411ad767e9d685f8ae556d54b15cb8beb756653ddca2929c",
+        "query_csv_sha256": "6e0c1666a465ee14487e95e66c75752e608ce29153134f5b783e342291369c99",
+        "vehicle_with_peer_ADE": 3.8217991761364414
+      },
+      {
+        "completed": 1588,
+        "ego_with_peer_ADE": 0.8877903152787328,
+        "epoch": 4,
+        "failures": 0,
+        "metrics_sha256": "cbc36315b2a967f99f825cde0419fc4aa5712ae8d0e4ffe76975e5474ee2b391",
+        "query_csv_sha256": "170db06f3bbb6c4ce34b64bf7944347428d66911febb33d92e662293c8739218",
+        "vehicle_with_peer_ADE": 3.265101312968142
+      },
+      {
+        "completed": 3176,
+        "ego_with_peer_ADE": 0.8075718889148168,
+        "epoch": 8,
+        "failures": 0,
+        "metrics_sha256": "f6b79b5a7f9edaa2ba2a1a1e28691249e0c92eb79971cf6401127bed74fd5c6d",
+        "query_csv_sha256": "ee275c2cc3a77b4789a0029720b3f71a980fd62ee1b7be08281bb1ce4280b527",
+        "vehicle_with_peer_ADE": 2.7504360142882796
+      },
+      {
+        "completed": 6352,
+        "ego_with_peer_ADE": 0.6826755559975273,
+        "epoch": 16,
+        "failures": 0,
+        "metrics_sha256": "ff1ad0f863782d22b6aee132d505ebd6f4e80540d9624667c49c7beefa77080b",
+        "query_csv_sha256": "5608a001032fc1b52fb9aa7d0f130a6db1aef46d1595051960c7da1189d43c1c",
+        "vehicle_with_peer_ADE": 2.1770992725520135
+      },
+      {
+        "completed": 9528,
+        "ego_with_peer_ADE": 0.6006669469920617,
+        "epoch": 24,
+        "failures": 0,
+        "metrics_sha256": "3574620d575bb6053540cdc923f40804e8287dcc63508fb10b8a0e33e65876e8",
+        "query_csv_sha256": "7ac23b9ee5f47d3b14f39fc70d7d47f4c8dd68155a594b0f95b2f23686104cd8",
+        "vehicle_with_peer_ADE": 1.9513106897454862
+      },
+      {
+        "completed": 11910,
+        "ego_with_peer_ADE": 0.5654269243659955,
+        "epoch": 30,
+        "failures": 0,
+        "metrics_sha256": "7757b5340cf9d7119d9ec7d71d7dfc37b138f967859c383b1e3bfc4e9b65a00f",
+        "query_csv_sha256": "c7bc400b5f6132a553326dbb0feab0d96c71180c2139c0b9be9b1d8e74dac682",
+        "vehicle_with_peer_ADE": 1.8375816680523962
+      }
+    ],
+    "checkpoint": "milestone_030.pt",
+    "checkpoint_sha256": "9730278f9c920de649536dec108226ac9d7f27430e265e8befac19896d58336c",
+    "data_identity": "9534ed915d11bf677f6fbb9af6216f887fc42175558340769c2187d0433eb31f",
+    "ego_export_policy": "fresh encoder, all ego future masked before encoding; no reuse of full-GT hidden",
+    "full_training_completed": 11910,
+    "identity": "594e5a396b6438aaeb7e573267f13581eb969117aa56f820799870af09584418",
+    "registration_sha256": "c8d7deaa4b5537640a3fd442cd47e0866f8e7d13052d6ae5c4fd065b3597211a",
+    "schema": "foresight_frozen_teacher_v1",
+    "selected": {
+      "completed": 11910,
+      "ego_with_peer_ADE": 0.5654269243659955,
+      "epoch": 30,
+      "failures": 0,
+      "metrics_sha256": "7757b5340cf9d7119d9ec7d71d7dfc37b138f967859c383b1e3bfc4e9b65a00f",
+      "query_csv_sha256": "c7bc400b5f6132a553326dbb0feab0d96c71180c2139c0b9be9b1d8e74dac682",
+      "vehicle_with_peer_ADE": 1.8375816680523962
+    },
+    "selection": "minimum0.5*(ego_with_peer_ADE+vehicle_with_peer_ADE), equal score chooses later fixed epoch",
+    "source_sha": "bffeaea2a6c8b4ea0c94809f53b971a7c183b6de",
+    "student_target": "raw8x512ego-time latent; nonaffine LayerNorm eps1e-5 in loss",
+    "teacher_run_identity": "0acfb46f29d96acab8fa000cd685db32a7742c699ce3b79a5fe6fb1ccdd9a02d",
+    "teacher_source_sha": "d3c05d136949ecc14b1a8312fa12bf966ae03643",
+    "trainable_after_freeze": false
+  },
+  "checkpoint_sha256_verified": true,
+  "new_teacher_updates": 0,
+  "student_checkpoint_reuse": false,
+  "splits": {
+    "train": {
+      "current_identity": {
+        "cameras": [
+          "CAM_F0",
+          "CAM_L0",
+          "CAM_R0"
+        ],
+        "current_only": true,
+        "history_images": 0,
+        "identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+        "index_sha256": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+        "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+        "schema": "ddpolicy_current_cameras_v1",
+        "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+        "split": "train",
+        "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+      },
+      "interaction_identity": {
+        "coordinate_frame": "ego_t0",
+        "data_identity": "9534ed915d11bf677f6fbb9af6216f887fc42175558340769c2187d0433eb31f",
+        "ego_mask": "all ego future removed before every encoding; fresh masked encoder forward",
+        "frozen_teacher_identity": "594e5a396b6438aaeb7e573267f13581eb969117aa56f820799870af09584418",
+        "graph": {
+          "corridor_half_width_m": 2.0,
+          "existence_floor": 0.2,
+          "max_context": 0,
+          "max_vehicles": 16,
+          "neighbor_radius_m": 15.0,
+          "radius_m": 50.0,
+          "turn_radius_m": 12.0,
+          "unknown_motion_margin_m": 2.0
+        },
+        "identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+        "index_hash": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+        "normalization": "raw teacher Z; fixed nonaffine LayerNorm eps1e-5 on BOTH sides at loss",
+        "query_order_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ],
+        "schema": "foresight_interaction_latent_v1",
+        "source_sha": "bffeaea2a6c8b4ea0c94809f53b971a7c183b6de",
+        "split": "train",
+        "teacher_checkpoint_sha256": "9730278f9c920de649536dec108226ac9d7f27430e265e8befac19896d58336c",
+        "teacher_completed_updates": 11910,
+        "teacher_identity": "0acfb46f29d96acab8fa000cd685db32a7742c699ce3b79a5fe6fb1ccdd9a02d"
+      },
+      "complete": {
+        "failed": 0,
+        "identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+        "scenes": 101592
+      }
+    },
+    "dev": {
+      "current_identity": {
+        "cameras": [
+          "CAM_F0",
+          "CAM_L0",
+          "CAM_R0"
+        ],
+        "current_only": true,
+        "history_images": 0,
+        "identity": "b2a0ae01c2580fe00c3da8d7351b51e940410486b8a3febf18eebb11d6d61d96",
+        "index_sha256": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+        "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+        "schema": "ddpolicy_current_cameras_v1",
+        "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+        "split": "dev",
+        "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+      },
+      "interaction_identity": {
+        "coordinate_frame": "ego_t0",
+        "data_identity": "9534ed915d11bf677f6fbb9af6216f887fc42175558340769c2187d0433eb31f",
+        "ego_mask": "all ego future removed before every encoding; fresh masked encoder forward",
+        "frozen_teacher_identity": "594e5a396b6438aaeb7e573267f13581eb969117aa56f820799870af09584418",
+        "graph": {
+          "corridor_half_width_m": 2.0,
+          "existence_floor": 0.2,
+          "max_context": 0,
+          "max_vehicles": 16,
+          "neighbor_radius_m": 15.0,
+          "radius_m": 50.0,
+          "turn_radius_m": 12.0,
+          "unknown_motion_margin_m": 2.0
+        },
+        "identity": "6cda0349749b09f8fe6b62d1f977d8dbab8f3a8a178432047081468ece331502",
+        "index_hash": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+        "normalization": "raw teacher Z; fixed nonaffine LayerNorm eps1e-5 on BOTH sides at loss",
+        "query_order_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ],
+        "schema": "foresight_interaction_latent_v1",
+        "source_sha": "bffeaea2a6c8b4ea0c94809f53b971a7c183b6de",
+        "split": "dev",
+        "teacher_checkpoint_sha256": "9730278f9c920de649536dec108226ac9d7f27430e265e8befac19896d58336c",
+        "teacher_completed_updates": 11910,
+        "teacher_identity": "0acfb46f29d96acab8fa000cd685db32a7742c699ce3b79a5fe6fb1ccdd9a02d"
+      },
+      "complete": {
+        "failed": 0,
+        "identity": "6cda0349749b09f8fe6b62d1f977d8dbab8f3a8a178432047081468ece331502",
+        "scenes": 1696
+      }
+    }
+  }
+}

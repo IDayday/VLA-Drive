@@ -33,6 +33,7 @@ def main():
     p=argparse.ArgumentParser(__doc__)
     for key in ('config','data','campaign-root','run-id'):p.add_argument('--'+key,required=True)
     p.add_argument('--future-root');p.add_argument('--future-identity')
+    p.add_argument('--dino-root');p.add_argument('--dino-index');p.add_argument('--dino-identity')
     p.add_argument('--interaction-root');p.add_argument('--interaction-identity')
     p.add_argument('--global-batch',type=int,default=32);p.add_argument('--micro-batch',type=int,default=1)
     p.add_argument('--updates',type=int,required=True);p.add_argument('--schedule-updates',type=int,required=True)
@@ -67,11 +68,19 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze a clean source before training')
     source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
-    need_vis=arm in ('B','D');need_int=arm in ('C','D')
+    dino_campaign=arm.startswith('W_') or arm=='R_NATIVE'
+    need_cur=bool(cfg.foresight.get('enable_current_dino',False));need_fut=bool(cfg.foresight.get('enable_future_dino',False))
+    need_vis=arm in ('B','D');need_int=bool(cfg.foresight.get('enable_interaction',False)) if dino_campaign else arm in ('C','D')
     if bool(a.future_root)!=need_vis or bool(a.interaction_root)!=need_int:raise ValueError('Auxiliary cache inventory does not match arm')
     if need_vis and float(cfg.foresight.lambda_vis)<=0 or need_int and float(cfg.foresight.lambda_int)<=0:raise ValueError('Active auxiliary loss requires calibrated nonzero weight')
-    data=ForesightTrainingDataset(a.data,future_root=a.future_root,expected_future=a.future_identity,
-        interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
+    if bool(a.dino_root)!=(need_cur or need_fut):raise ValueError('DINO label inventory does not match arm')
+    if need_cur and float(cfg.foresight.lambda_cur)<=0 or need_fut and float(cfg.foresight.lambda_fut)<=0:raise ValueError('Active DINO weights must be positive')
+    data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
+    if dino_campaign:
+        from starVLA.dataloader.dino_foresight_dataset import DINOTrainingDataset
+        data=DINOTrainingDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
+            current=need_cur,future=need_fut,allow_partial=a.scope!='formal',**data_kwargs)
+    else:data=ForesightTrainingDataset(a.data,**data_kwargs)
     if data.identity['split']!='train' or not (Path(a.data)/'COMPLETE.json').exists():raise ValueError('Only completed training split can update student')
     size=min(len(data),a.limit) if a.limit else len(data)
     if size<1 or size%world:raise ValueError('Nonempty split must have divisible final rank tail; no duplicated/dropped scenes')
@@ -86,6 +95,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
               'offload_optimizer':a.offload_optimizer,'optimizer_max_group_elements':MAX_GROUP_ELEMENTS,
               'normalization':'global valid elements per optimizer batch; every scene ego loss',
               'device_names':[torch.cuda.get_device_name(i) for i in range(world)]}
+    if dino_campaign:identity.update(schema='foresight_dino_student_training_v1',dino=data.dino_identity,
+                                    future_sampling='one independent request from fixed1/2/4; no valid-label resampling')
     signature=identity_hash(identity)
     lock=None
     if rank==0:
@@ -115,7 +126,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         atomic_json(out/'parameters.json',{'total':sum(p.numel() for p in model.parameters()),
             'trainable':sum(p.numel() for p in model.parameters() if p.requires_grad),
             'groups':{key:sum(p.numel() for name,p in model.named_parameters() if name.startswith(key) and p.requires_grad)
-                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','future_head','interaction_head')}})
+                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','future_head','dino_head','interaction_head')}})
     import deepspeed
     ds_config={'train_micro_batch_size_per_gpu':a.micro_batch,'gradient_accumulation_steps':1,
                'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':1.,'steps_per_print':1000000,
@@ -130,6 +141,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     generators={key:torch.Generator(device='cpu' if key=='horizon' else torch.device('cuda',torch.cuda.current_device())).manual_seed(int(cfg.seed)+offset+rank)
                 for key,offset in (('noise',9000),('time',10000),('horizon',11000))}
     completed=epoch=offset=exposure=0;counters={'visual_elements':0,'interaction_elements':0,'horizon_scenes':[0,0,0],'valid_views':[0,0,0]}
+    if dino_campaign:counters.update(current_dino_elements=0,future_dino_elements=0,current_requests=0,future_requests=0)
     if a.resume:
         tag=(out/'checkpoints/latest').read_text().strip()
         if Path(tag).name!=tag:raise ValueError('Unsafe checkpoint pointer')
@@ -188,6 +200,9 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             if need_vis:
                 h=targets['visual_horizon'];valid=targets['future_valid'][torch.arange(len(h)),h].sum(-1)
                 for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
+            if need_fut:
+                h=targets['dino_horizon'];valid=targets['future_dino_valid'][torch.arange(len(h)),h].flatten(2).any(-1).sum(-1)
+                for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
             dist.all_reduce(exposures)
             for at in range(0,len(indices),a.micro_batch):
                 end=min(len(indices),at+a.micro_batch);boundary=end==len(indices)
@@ -197,7 +212,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 if not torch.isfinite(output['loss']):raise FloatingPointError('Nonfinite student loss')
                 engine.backward(output['loss'])  # already normalized across ALL microbatches/ranks
                 for key,value in output['losses'].items():logs[key]=logs.get(key,0.)+float(value.detach())
-                for key in ('visual_raw','interaction_raw'):
+                for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw'):
                     if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
                 if boundary:before=capture_master_samples(engine.optimizer)
                 engine.step()
@@ -206,6 +221,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 value=torch.tensor(logs[key],device='cuda',dtype=torch.float64);dist.all_reduce(value);logs[key]=float(value/world)
             completed+=1;offset+=1;exposure+=len(batches[offset-1])
             counters['visual_elements']+=int(counts.get('visual',0));counters['interaction_elements']+=int(counts.get('interaction',0))
+            if dino_campaign:
+                for task in ('current_dino','future_dino'):counters[task+'_elements']+=int(counts.get(task,0))
+                counters['current_requests']+=len(batches[offset-1])*int(need_cur)
+                counters['future_requests']+=len(batches[offset-1])*int(need_fut)
             for k in range(3):counters['horizon_scenes'][k]+=int(exposures[k]);counters['valid_views'][k]+=int(exposures[k+3])
             if rank==0:
                 row={'update':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'lr':lr,'losses':logs,'counts':counts,
