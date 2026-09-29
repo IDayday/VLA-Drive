@@ -10,7 +10,19 @@ export FORESIGHT_SOURCES="$ART/generic/sources.json"
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 ```
 
-Actual evidence is under `reports/ddp_shared_foresight/student_preflight` and `batching_fix`. CPU tests, real generic initialization pairing, main/auxiliary shared gradients, target poison invariance, auxiliary-head removal, two-rank global normalization, two-rank real optimizer resume and four-rank batch32 training have run. Teacher full training remains active from its separate frozen sourced3c05d1. Formal A/B/C/D/R and Navtest have not run. FLUX official access currently returns401; no alternate teacher is substituted.
+Actual evidence is under `reports/ddp_shared_foresight/student_preflight` and `batching_fix`. CPU tests, real generic initialization pairing, main/auxiliary shared gradients, target poison invariance, auxiliary-head removal, two-rank global normalization, two-rank real optimizer resume and four-rank batch32 training have run. Teacher full training completed30epochs at frozen sourced3c05d1; the registered freeze and dev/train interaction exports also completed. Formal A/B/C/D/R and Navtest have not run. The exact registered FLUX VAE is now available from the Diffusers team's public standalone distribution; its config and weight hashes are identical to the pinned BFL artifacts.
+
+## Reproducible public VAE download — tested
+
+The BFL download entry requires authentication. The Diffusers team distributes the byte-identical standalone VAE publicly, so no token is needed for this command. Both the immutable public revision and the canonical BFL config/weight hashes are verified. Existing different files are rejected; partial downloads can be resumed.
+
+```bash
+python -m tools.foresight.download_flux_vae \
+  --root "$ART/generic/flux_vae" \
+  --identity-output "$ART/generic/flux_vae_identity.json"
+```
+
+The model is in `$ART/generic/flux_vae/vae`; use the parent as `--vae-root` for this campaign. `reports/ddp_shared_foresight/vae_download` records actual download and CPU load checks.
 
 ## Already tested commands
 
@@ -43,7 +55,7 @@ python -m tools.foresight.export_predictions --training-run "$RUN" --checkpoint-
   --limit 2 --max-seconds 1800
 ```
 
-## Subsequent commands — NOT_RUN until dependencies complete
+## Target preparation and subsequent stages
 
 Full teacher training and freeze selection were registered before launch. `freeze_teacher` rejects incomplete training; it selects only the registered milestones after all30epochs finish. The selected teacher is shared by C/D.
 
@@ -67,7 +79,7 @@ python -m tools.foresight.cache_future_latents \
 # Complete all shards and dev separately, retaining missing-frame masks and every ego scene.
 ```
 
-Before encoding, register the already authorized local VAE using `python -m tools.foresight.prepare_flux_identity --root "$VERIFIED_FLUX_ROOT" --output "$VERIFIED_FLUX_IDENTITY"`. The directory must contain the official `vae/config.json` and `vae/diffusion_pytorch_model.safetensors` at revision741f7c3ce8b383c54771c7003378a50191e9efe9. Both are checked against pinned public Git/LFS metadata. An empty file inventory, an arbitrary caller-declared weight hash or a different revision is rejected before loading. This command does not obtain access or download weights. Actual VAE encoding remains NOT_RUN while access is unavailable.
+Before encoding, register the already authorized local VAE using `python -m tools.foresight.prepare_flux_identity --root "$VERIFIED_FLUX_ROOT" --output "$VERIFIED_FLUX_IDENTITY"`. The directory must contain the official `vae/config.json` and `vae/diffusion_pytorch_model.safetensors` at revision741f7c3ce8b383c54771c7003378a50191e9efe9. Both are checked against pinned public Git/LFS metadata. An empty file inventory, an arbitrary caller-declared weight hash or a different revision is rejected before loading. This command does not obtain access or download weights. Actual CPU encoding/decoding on three real current images has now passed; full target caching remains NOT_RUN.
 
 The full timestamp/file audit has run independently of the VAE:101592train and1696dev scenes, zero failures, all with at least one valid future horizon.101344train/1695dev scenes contain all nine future views. Other cases have timestamp gaps, with no scene removed. Available train frames deviate at most16.415ms from their requested horizon, within the registered50ms tolerance. This proves file availability, not image decoding or VAE quality.
 

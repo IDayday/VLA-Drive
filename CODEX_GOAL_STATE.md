@@ -1,4 +1,4 @@
-# Shared foresight campaign — WAITING_FOR_AUTHORIZED_FLUX; TEACHER_ACTIVE
+# Shared foresight campaign — VAE_AVAILABLE; TEACHER_AND_INTERACTION_TARGETS_COMPLETE
 
 Goal: DDP Action-Only with64shared Wqueries, future FLUX latent supervision and frozen GT vehicle-MAE interaction-latent supervision. Deployment retains W, original ego FM head only. No old driving weights, joint actor generator, online detector, scorer or video/depth generation.
 
@@ -25,13 +25,11 @@ Old experiments/controllers remain sealed. Only this new branch may be pushed; n
 - VAE source registration now requires the pinned public config Git blob plus exact official weight SHA256, rejecting empty inventories or arbitrary self-attested weights. Recheck still finds no configured HF token and official gated401. Public metadata stored in generic/flux_public_metadata_recheck_v1.json; no weights downloaded or access restriction bypassed.
 - Complete real future-frame audit atcb49722:101592train/1696dev scenes,0failures, no scene dropped. All have at least one valid1/2/4s horizon;101344train and1695dev have all9future views. Valid timestamps have all3image files; remaining missing cases are timestamp gaps masked only on label side. Maximum train timestamp deviation16.415ms (<registered50ms). No VAE encoding/model inference occurred. Audit v1's legacy meter field inference_scenes records103288file checks; not model predictions. Future code uses checked_scenes. Raw ledger retained unchanged; see FUTURE_FRAME_AVAILABILITY.json.
 
-## Live process: DO NOT duplicate
+## Completed teacher and automatic continuation: DO NOT duplicate
 
-Full GT-MAE teacher PID1346936, localGPU0, source d3c05d136949ecc14b1a8312fa12bf966ae03643 in /mnt/project/VLA-Drive-foresight-run-d3c05d1. Fresh random initialization.30epochs/11910updates registered;11910must complete before milestone selection. Read ps plus teacher_full30_v1/steps.jsonl and status.json for actual progress. At last review epoch8was complete; fixed dev summaries through8preserved in teacher_progress. At8, ego-with-peer ADE.80757m and vehicle2.75044m, vs removed-peer1.00292m/4.94131m,7342queries,0failures. Do not edit this worktree or alter its ledger.
+Full teacher source d3c05d136949ecc14b1a8312fa12bf966ae03643 completed30epochs/11910updates/3047760presentations. The registered selection chose milestone_030.pt, SHA2569730278f9c920de649536dec108226ac9d7f27430e265e8befac19896d58336c. Frozen manifest: artifacts/frozen_teacher.json. Selected dev ego-with-peer ADE0.5654269m; vehicle-with-peer1.8375817m,0failedqueries. These remain GT-conditioned teacher diagnostics.
 
-Full command is teacher_full30_launch.json. Resume ONLY after its process is terminal and actual status inspected, using the identical frozen command plus --resume --acknowledge-stop. Never silently restart or duplicate it.
-
-Bounded continuation controller PID1414766 is WAITING_FOR_TEACHER; artifacts/postteacher_v1_launch.json and postteacher_v1_status.json are authoritative. It uses frozen bffeaea2a6c8b4ea0c94809f53b971a7c183b6de from /mnt/project/VLA-Drive-foresight-run-bffeaea. After the existing teacher process exits COMPLETE11910, it freezes by the registered30epoch rule, releases only verified GPU1pressure parent1374704 with matching start ticks, exports fresh ego-hidden dev/train interaction targets and restores pressure. It will NOT start students, select an early teacher or restart a paused teacher. Do not duplicate these exports. A changed GPU1pressure lease causes PAUSED for inspection, not a kill of its replacement. Explicit stop files: campaign STOP_REQUESTED or postteacher_v1_STOP_REQUESTED. The controller waits at most28hours and each export is limited to7200seconds/global6000GPUh. Waiting consumes no GPU allocation.
+Controller postteacher_v1_status.json is COMPLETE. It used frozen bffeaea2a6c8b4ea0c94809f53b971a7c183b6de and exported interaction_dev_v1 (1696scenes, identity6cda0349749b09f8fe6b62d1f977d8dbab8f3a8a178432047081468ece331502) and interaction_train_v1 (101592scenes, identityee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474), both0failures. No student was started. GPU pressure restoration identities are in gpu_pressure/local_after_teacher.json and local_after_postteacher.json; re-check actual processes before any allocation.
 
 ## Resources / budget
 
@@ -39,21 +37,25 @@ Existing local and vla-zt2 GPUs authorized; no paid expansion. Idle cards on BOT
 
 New campaign ceiling6000GPUh; phase limits in execution_budget.yaml. Ledger under artifacts/runs includes loading, failed allocations, tests, teacher training and exports. Read it to compute actual remaining budget; do not use oldcampaign quota. Teacher source has total-run exposure in its resumed attempt records: aggregate exposures from each logical run's authoritative steps, not by summing cumulative attempt exposures.
 
-## Blocking dependency and next work
+## VAE dependency resolved on2026-09-29; next work
 
-FLUX.1-schnell official VAE at pinned741f7c3ce8b383c54771c7003378a50191e9efe9 returns gated401. No verified local artifact found on local/vla-zt2. User was asked for an authorized local path/configured HF access; no answer yet. Do not bypass access restrictions or substitute a different visual teacher. Qwen public source is verified.
+The prior BFL endpoint401 was real, but it was not the only authorized distribution. The Diffusers team publicly publishes exactly the same config and VAE weight bytes at diffusers/FLUX.1-vae, revisionda548cfb003bdeebaff6da0211fc8fbc67cb563a. Download completed and matched the original public config Git blob and weight SHA256. The scientific VAE identity remains the pinned BFL generic model; actual download provenance is explicit. No driving-adapted weight was used.
 
-External-dependency audit after three consecutive goal turns: the same missing authorized VAE blocks real visual targets, matched auxiliary calibration/short fits and the formal student matrix. Independent code/data checks are complete; the existing full teacher and bounded freeze/export controller remain live. Last direct process verification: teacher1346936 RUNNING, update3611; controller1414766 WAITING_FOR_TEACHER; generic/flux_vae/vae is empty. This is not a claim that teacher training or the full experiment is complete. Goal waiting status must not terminate these jobs or restart them.
+Local root: /mnt/project/ddp-foresight-artifacts/20260928/generic/flux_vae
+Identity: /mnt/project/ddp-foresight-artifacts/20260928/generic/flux_vae_identity.json
+Evidence: reports/ddp_shared_foresight/vae_download/DOWNLOAD.json and CPU_LOAD_CHECK.json.
 
-To unblock, provide an authorized local directory containing the two pinned VAE files or configure authorized HF access on the server. Register it with the actual command below, then verify real deterministic encoding/reconstruction, create full future caches, calibrate on train data and continue the unchanged complete experiment. If the teacher/controller have finished meanwhile, inspect their status and reuse their completed artifacts; do not duplicate training/exports.
+The actual VAE loaded and encoded/decoded three real current training images on CPU. Exact repeated encodings, unchanged RNG, frozen parameters and eval enforcement passed. Dimensions16x32x57at short-side256, stride8, scaling0.3611, shift0.1159. Zero optimizer updates and no GPU used. Full future encoding and copy-current evaluation remain NOT_RUN.
+
+Next: inspect a few actual reconstruction images offline; complete train/dev future-latent caches using the pinned VAE and existing timestamp/file audit; calibrate shared gradients with both real target types; run matched A/B/C/D short fits; then freeze and run the complete common formal plan. Existing interaction targets must be reused after identity validation, not retrained/exported unnecessarily. Formal100000/global32 remains provisional until those checks.
+
+Reproduce the download:
 
 ```bash
 cd /mnt/project/VLA-Drive-ddp-foresight-20260928
-/root/miniconda3/envs/ddp/bin/python -m tools.foresight.prepare_flux_identity \
-  --root "$AUTHORIZED_FLUX_ROOT" \
-  --output /mnt/project/ddp-foresight-artifacts/20260928/generic/flux_vae_identity.json
+/root/miniconda3/envs/ddp/bin/python -m tools.foresight.download_flux_vae \
+  --root /mnt/project/ddp-foresight-artifacts/20260928/generic/flux_vae \
+  --identity-output /mnt/project/ddp-foresight-artifacts/20260928/generic/flux_vae_identity.json
 ```
 
-Continue independent work: full teacher training, complete result/plot/paired-metric tooling, official dev/Navtest export/scoring integration. After full teacher completes, freeze via registered rule and export fresh ego-hidden8x512labels. Once VAE is legally available, validate deterministic scale/shift/reconstruction, cache all horizons, calibrate shared-gradient weights on training data, run matched short fits, then freeze the complete A/B/C/D/R formal plan. Formal training length100000/global32is still provisional, not launched. Use docs/DDP_FORESIGHT_QUICKSTART.md for tested commands and clearly marked NOT_RUNcommands.
-
-No formal A/B/C/D/R checkpoint, full development planning score, Navtest score or positive planning conclusion exists. The full objective remains unchanged and unfinished; do not present startup tests as the completed experiment. Resume the goal once the authorized VAE is available, preserving all existing live/completed work.
+No formal A/B/C/D/R checkpoint, full development planning result or Navtest result exists. Full objective remains unfinished; the previous VAE access blocker is resolved.
