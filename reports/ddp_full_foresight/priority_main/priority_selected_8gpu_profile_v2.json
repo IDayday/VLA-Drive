@@ -1,0 +1,112 @@
+{
+  "all_four_losses": true,
+  "bf16_training_model_timing": {
+    "RGB_loading_included": false,
+    "W_retained": true,
+    "batch1_p50_s": 0.4786527184769511,
+    "batch1_p95_s": 0.49083591569215057,
+    "precision_protocol": {
+      "compute_policy": "BF16 autocast; original FP32 action integration",
+      "cudnn_tf32": "UNRECORDED in historical timing",
+      "loading_path": "in-memory DeepSpeed model after training",
+      "matmul_tf32": false,
+      "parameter_source": "live BF16 training parameters; not reconstructed FP32 masters",
+      "provenance": "recovered from immutable training source; original timing file preserved",
+      "weight_dtype": "BF16 (DeepSpeed BF16 model)"
+    },
+    "quality_pairing": "Not a FP32 deployment point; no BF16 PDMS measured",
+    "readout_heads": false,
+    "teachers": false
+  },
+  "candidate": "C0",
+  "checkpoint_costs": [
+    {
+      "seconds": 8.621731519699097,
+      "tag": "milestone_000000"
+    },
+    {
+      "seconds": 11.639355421066284,
+      "tag": "periodic_000100"
+    },
+    {
+      "seconds": 11.879693269729614,
+      "tag": "final_000120"
+    }
+  ],
+  "data_wait_p50_s": 0.24221444129943848,
+  "effective_accumulation": 1.0,
+  "full_training_population": 101592,
+  "global_batch": 32,
+  "head_timing_scope": "forward CUDA events only; total step includes all backward and optimizer work",
+  "mean_step_s": 1.8321700286865235,
+  "measured_steps": 100,
+  "measurement_complete": true,
+  "micro_batch": 4,
+  "optimizer_gpu_hours_per_1000_updates": 4.071488952636718,
+  "optimizer_gpu_hours_per_epoch_estimate": 12.926977424621581,
+  "per_batch_rank_max_sequence_minmax": [
+    1930,
+    1930
+  ],
+  "per_rank_peak_allocated_bytes": [
+    13232632320.0,
+    13289346048.0,
+    13304573952.0,
+    13274985984.0,
+    13287585792.0,
+    13381530112.0,
+    12828101632.0,
+    12741898752.0
+  ],
+  "per_rank_peak_reserved_bytes": [
+    15099494400.0,
+    15158214656.0,
+    15172894720.0,
+    15143534592.0,
+    15156117504.0,
+    15531507712.0,
+    14696841216.0,
+    14969470976.0
+  ],
+  "profile_only_not_planning_evidence": true,
+  "rank0_head_forward_ms": {
+    "current_dino": {
+      "p50": 4.0850560665130615,
+      "p95": 4.22680630683899
+    },
+    "future_dino": {
+      "p50": 4.000319957733154,
+      "p95": 4.097393465042114
+    },
+    "interaction": {
+      "p50": 3.2569119930267334,
+      "p95": 3.389604723453522
+    }
+  },
+  "run": "p0_zt2_single8_593a9fd_C0",
+  "samples_per_s": 17.465627916062296,
+  "source_sha": "593a9fd86a7f30472ae745ee11f28bd4c00ba389",
+  "status": "COMPLETE",
+  "step_p50_s": 1.8117092847824097,
+  "step_p95_s": 2.0329278469085694,
+  "sum_rank_peak_allocated_bytes": 105340654592,
+  "task_counters": {
+    "current_dino_elements": 566231040,
+    "current_requests": 3840,
+    "future_dino_elements": 565788672,
+    "future_requests": 3840,
+    "horizon_scenes": [
+      1292,
+      1290,
+      1258
+    ],
+    "interaction_elements": 10231808,
+    "valid_views": [
+      3876,
+      3867,
+      3768
+    ],
+    "visual_elements": 0
+  },
+  "world_size": 8
+}

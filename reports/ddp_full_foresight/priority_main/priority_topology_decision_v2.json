@@ -1,0 +1,39 @@
+{
+  "allocation": {
+    "local": "C0 main,8GPUs",
+    "training-vla-zt2": "C1 complete-method companion,8GPUs"
+  },
+  "comparison_complete120steps": false,
+  "comparison_profile_path": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/priority_rejected_16gpu_profile_v2.json",
+  "comparison_profile_sha256": "b8f3ccd5ec53455035ffd1918658d7253cc44b909824ce30fe34bae470f058c5",
+  "decision_uses_model_quality": false,
+  "early_rejection": {
+    "criterion": "Every stable step exceeds2x the completed8GPU mean",
+    "mean_seconds": 6.742427051067352,
+    "minimum_seconds": 6.606482744216919,
+    "reason": "User prioritizes fastest single result; stop clearly slower cross-host cost probe after20warmup+20stable updates",
+    "reference_8gpu_mean_seconds": 1.83217,
+    "stable_updates": [
+      21,
+      40
+    ],
+    "status": "COST_DOMINATED_EARLY_STOP; not a completed120update profile",
+    "time": 1790675397.2054207
+  },
+  "measurement_complete": true,
+  "network": {
+    "NCCL_IB_DISABLE": true,
+    "infiniband_device_nodes_exposed": false,
+    "reported_speed_mbps": 10000,
+    "visible_interface": "eth0"
+  },
+  "objective": "fastest_single_complete_C0",
+  "reason": "16GPU TCP measured slower in every stable step; prioritize two independent8GPU jobs",
+  "remaining_matrix": "Deferred by user speed priority; no method/loss/data change",
+  "selected_measurement": "complete20warmup+100stable4lossprofile",
+  "selected_profile_path": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/priority_selected_8gpu_profile_v2.json",
+  "selected_profile_sha256": "bdb189f4f72227881327b07031d6be8da1be0e8f1a18df1e0a0d3d44d6252d89",
+  "selected_world_size": 8,
+  "single_job_slowdown_16_vs_8": 3.6800225664104853,
+  "timestamp": 1790675411.1105895
+}
