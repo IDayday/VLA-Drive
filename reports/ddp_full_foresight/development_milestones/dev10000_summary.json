@@ -1,0 +1,209 @@
+{
+  "comparisons": {
+    "C1-C0_train42": {
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "logs": 16,
+      "losses": 683,
+      "metrics": {
+        "comfort": {
+          "baseline": 0.9964622641509434,
+          "delta": 0.0011792452830188679,
+          "first": 0.9976415094339622,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0035741734271921583
+          ]
+        },
+        "drivable_area_compliance": {
+          "baseline": 0.9292452830188679,
+          "delta": 0.0023584905660377358,
+          "first": 0.9316037735849056,
+          "log_cluster_95_interval": [
+            -0.009794425928660887,
+            0.016902004410099515
+          ]
+        },
+        "driving_direction_compliance": {
+          "baseline": 0.9840801886792453,
+          "delta": 0.000884433962264151,
+          "first": 0.9849646226415094,
+          "log_cluster_95_interval": [
+            -0.0015394444465528627,
+            0.0026455026455026454
+          ]
+        },
+        "ego_progress": {
+          "baseline": 0.7998488302242241,
+          "delta": -0.01111069504751422,
+          "first": 0.7887381351767101,
+          "log_cluster_95_interval": [
+            -0.023972846015040638,
+            0.0010277934182964324
+          ]
+        },
+        "no_at_fault_collisions": {
+          "baseline": 0.9755306603773585,
+          "delta": -0.001474056603773585,
+          "first": 0.9740566037735849,
+          "log_cluster_95_interval": [
+            -0.005640380153547665,
+            0.004302956857147795
+          ]
+        },
+        "score": {
+          "baseline": 0.8420007449505186,
+          "delta": 0.0024908575729906597,
+          "first": 0.8444916025235091,
+          "log_cluster_95_interval": [
+            -0.009746753553918304,
+            0.017149526411637202
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "baseline": 0.9257075471698113,
+          "delta": 0.01061320754716981,
+          "first": 0.9363207547169812,
+          "log_cluster_95_interval": [
+            0.004703631999103501,
+            0.018893410924091195
+          ]
+        }
+      },
+      "scenes": 1696,
+      "ties": 631,
+      "valid": true,
+      "wins": 382
+    }
+  },
+  "complete_primary_matrix": true,
+  "diagnostic": false,
+  "expected_arms": [
+    "C0",
+    "C1"
+  ],
+  "groups": {
+    "C0_train42": {
+      "PDMS_per_sampling_seed": {
+        "42": 0.8420007449505184
+      },
+      "all_sampling_runs_zero_scene_fraction": 0.09198113207547169,
+      "checkpoint": {
+        "arm": "C0",
+        "completed": 10000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "f84beacb9c77912ed883242a873f0e7723094284507a2bcc61d3a98b5ca47f6a",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "340935a625690fa1da24955a8f74d331fa3a1ce5e7881becbaef2dd9b577e76b",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "782c7536543d38b57b969bad17f05b23904d81fda17243fe8152a5ff180c6693",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "621bab71d775209a91cf048617a48423b85d719869dc5fb9622307b198cf06af",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "5f14b5d6aa22a9fec70ae5c2679d628404b9d696561def6216768bd501f58f8f",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "a70ddc1177f7b9e66e8fa8697aa6d74eaf802526177081416673f38e9421b82f",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "b45c247b533a8fa45dfa4d48f84256ed87d6d4224b2e8fbe2e9c080c30fcd2aa",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "11a944bc89e6c63a1e55536eab35ce33a47d0ac44ba593a87686e5334a05d63d",
+          "mp_rank_00_model_states.pt": "71711249cc23d41e038d9331351f0cc0f4f8552fbb853b18ce39ea6589252039",
+          "rng_rank0.pt": "a28a5b1eb832bb4e1c852327682ea8b15e0b04475920b73535ed482d660d7fe8",
+          "rng_rank1.pt": "e0d15aac94f0758e889b5ee2a28e757ec7163471889a2a6d890354fbf7d25539",
+          "rng_rank2.pt": "14b8cbd4df275602cb808cfbdebf09d2c27fb40c7b8e29ae15962459d9e79f89",
+          "rng_rank3.pt": "3805040c729a400226f0003d0a6ae6546d0a9832031fed4ded6ea88c9fe23a10",
+          "rng_rank4.pt": "f3a45a3e2a2a44bc65d46ac4a2b6c6ca307047c718462396f286c7503ba64d63",
+          "rng_rank5.pt": "7a57b3a2f370cb29bd8693db72954dbc05f606fcf6f7250363e412092bb7528e",
+          "rng_rank6.pt": "b9ed04e1b0624d0ea846f4756fc671a08c7bd2794e68e577f2cf8245065dd996",
+          "rng_rank7.pt": "c744ade524363a2d5cdcfa2f0e0c759f539ffca4a64ca018cfd2147ef3a04ff2"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "e66fb3a150d835184dff2ed5bc5d98e45b2097ce070b3f6454cdc7c1fb60779c",
+        "scope": "formal",
+        "sha256": "54205b8342bb7f7a1e6b989d7515e88e278b56d3d6a4d73de47e2a7638f275be",
+        "tag": "milestone_010000",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "failed_samples": 0,
+      "failed_scenes": 0,
+      "logs": 16,
+      "metrics": {
+        "comfort": 0.9964622641509434,
+        "drivable_area_compliance": 0.9292452830188679,
+        "driving_direction_compliance": 0.9840801886792453,
+        "ego_progress": 0.7998488302242247,
+        "no_at_fault_collisions": 0.9755306603773585,
+        "score": 0.8420007449505184,
+        "time_to_collision_within_bound": 0.9257075471698113
+      },
+      "sampling_seed_population_PDMS_std": null,
+      "sampling_seeds": [
+        42
+      ],
+      "scenes": 1696,
+      "valid": true,
+      "zero_sample_fraction": 0.09198113207547169
+    },
+    "C1_train42": {
+      "PDMS_per_sampling_seed": {
+        "42": 0.8444916025235079
+      },
+      "all_sampling_runs_zero_scene_fraction": 0.08903301886792453,
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 10000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "27d952edfd90f4727f6d34a22e78614a87994a2e2a53ad2b9b7c16ea2cf6fd6c",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "1cc65f321f9dd3815bcd17e8112014e2baab963f2a240d95601b234e62e1f051",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "299b57d737f68fee4f1ec377ac465fc5b0d1c1dc8b8246b9dc0a111440159b40",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "c4386ccbdf0aff52dc8155124755fa48c1ab0ea48223a353be7eeb66c2c0c94c",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "569166fb41729590bf8ab166d0297eada2f164032d906f0d377a66d9d094b01f",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "9c8ef3eb7547810706a7e6d38815aeda6e050d24bc8340cfc8b5ac671c151fbe",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "dac92e05329d1b6c351e0b3a6d24c9b8e5534f37d01b2d7f75ad527604c58c49",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "d6b59d0687fa8fbaeeb6a33caad1f504c5e875d4aa9ea03516b32e665088c6fc",
+          "mp_rank_00_model_states.pt": "f72aa3b8b43799ee40abe486e4ff323d2e44f9665eb6556a6cee67fb0a1e231a",
+          "rng_rank0.pt": "a28a5b1eb832bb4e1c852327682ea8b15e0b04475920b73535ed482d660d7fe8",
+          "rng_rank1.pt": "e0d15aac94f0758e889b5ee2a28e757ec7163471889a2a6d890354fbf7d25539",
+          "rng_rank2.pt": "14b8cbd4df275602cb808cfbdebf09d2c27fb40c7b8e29ae15962459d9e79f89",
+          "rng_rank3.pt": "3805040c729a400226f0003d0a6ae6546d0a9832031fed4ded6ea88c9fe23a10",
+          "rng_rank4.pt": "f3a45a3e2a2a44bc65d46ac4a2b6c6ca307047c718462396f286c7503ba64d63",
+          "rng_rank5.pt": "7a57b3a2f370cb29bd8693db72954dbc05f606fcf6f7250363e412092bb7528e",
+          "rng_rank6.pt": "b9ed04e1b0624d0ea846f4756fc671a08c7bd2794e68e577f2cf8245065dd996",
+          "rng_rank7.pt": "c744ade524363a2d5cdcfa2f0e0c759f539ffca4a64ca018cfd2147ef3a04ff2"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "68503d6f2017dbe84d69dbebce662db8958d841bcd94764b67d1e25253607113",
+        "scope": "formal",
+        "sha256": "1e640def02048b2d88a5939a3725af7a0671fae12b972e48fa01ede43b419784",
+        "tag": "milestone_010000",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "failed_samples": 0,
+      "failed_scenes": 0,
+      "logs": 16,
+      "metrics": {
+        "comfort": 0.9976415094339622,
+        "drivable_area_compliance": 0.9316037735849056,
+        "driving_direction_compliance": 0.9849646226415094,
+        "ego_progress": 0.7887381351767101,
+        "no_at_fault_collisions": 0.9740566037735849,
+        "score": 0.8444916025235079,
+        "time_to_collision_within_bound": 0.9363207547169812
+      },
+      "sampling_seed_population_PDMS_std": null,
+      "sampling_seeds": [
+        42
+      ],
+      "scenes": 1696,
+      "valid": true,
+      "zero_sample_fraction": 0.08903301886792453
+    }
+  },
+  "missing_comparisons": {},
+  "registry_sha256": "c7bd607dda7b24729b683fdfeee4719ce2eb6466e8bed285c83c0751e67830ac",
+  "schema": "ddp_full_foresight_planning_v1",
+  "screen": true,
+  "source_csv_sha256": {
+    "/mnt/project/ddp-full-foresight-study-artifacts/20260929/scores/formal_C0_seed42_priority_v2_dev10000_seed42/scenes.csv": "e7823be27b9ea10df3aeddb9d398a0f575620e90ec903c5285bd170d3ed3634d",
+    "/mnt/project/ddp-full-foresight-study-artifacts/20260929/scores_canonical_env_v1/formal_C1_seed42_priority_v2_dev10000_seed42/scenes.csv": "cde5dccd57d1f4bebb8b48b55981d9615ff4ca9c3a724fe528cafb590271ce9f"
+  },
+  "split": "dev",
+  "training_seed_interpretation": "reported separately; inference seeds are not training repeats",
+  "valid": true
+}

@@ -1,0 +1,112 @@
+{
+  "PDMS": 0.8420007449505178,
+  "diagnostic": false,
+  "environment": "official full traffic/route environment; no vehicle-only scoring filter",
+  "evaluator_identity": {
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "failure_policy": "retain all requested rows; failures scored zero and invalidate benchmark",
+    "index_sha256": "0f2892601b9122e5d70db7dffb514df33a25562b5041fca0a7381fbcd67377c6",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "protocol": "official NAVSIM v1 full reference cache; one predicted trajectory per scene",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "scorer_sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211",
+    "simulator_sha256": "ae07b533ada10bc37e973e5685a46a7cafc51de8d922ed02add558452ff04807"
+  },
+  "evaluator_protocol": "official NAVSIM v1.1, one executed ego trajectory, no learned scorer/oracle",
+  "export_identity": {
+    "checkpoint": {
+      "arm": "C0",
+      "completed": 10000,
+      "files": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "f84beacb9c77912ed883242a873f0e7723094284507a2bcc61d3a98b5ca47f6a",
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "340935a625690fa1da24955a8f74d331fa3a1ce5e7881becbaef2dd9b577e76b",
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "782c7536543d38b57b969bad17f05b23904d81fda17243fe8152a5ff180c6693",
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "621bab71d775209a91cf048617a48423b85d719869dc5fb9622307b198cf06af",
+        "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "5f14b5d6aa22a9fec70ae5c2679d628404b9d696561def6216768bd501f58f8f",
+        "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "a70ddc1177f7b9e66e8fa8697aa6d74eaf802526177081416673f38e9421b82f",
+        "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "b45c247b533a8fa45dfa4d48f84256ed87d6d4224b2e8fbe2e9c080c30fcd2aa",
+        "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "11a944bc89e6c63a1e55536eab35ce33a47d0ac44ba593a87686e5334a05d63d",
+        "mp_rank_00_model_states.pt": "71711249cc23d41e038d9331351f0cc0f4f8552fbb853b18ce39ea6589252039",
+        "rng_rank0.pt": "a28a5b1eb832bb4e1c852327682ea8b15e0b04475920b73535ed482d660d7fe8",
+        "rng_rank1.pt": "e0d15aac94f0758e889b5ee2a28e757ec7163471889a2a6d890354fbf7d25539",
+        "rng_rank2.pt": "14b8cbd4df275602cb808cfbdebf09d2c27fb40c7b8e29ae15962459d9e79f89",
+        "rng_rank3.pt": "3805040c729a400226f0003d0a6ae6546d0a9832031fed4ded6ea88c9fe23a10",
+        "rng_rank4.pt": "f3a45a3e2a2a44bc65d46ac4a2b6c6ca307047c718462396f286c7503ba64d63",
+        "rng_rank5.pt": "7a57b3a2f370cb29bd8693db72954dbc05f606fcf6f7250363e412092bb7528e",
+        "rng_rank6.pt": "b9ed04e1b0624d0ea846f4756fc671a08c7bd2794e68e577f2cf8245065dd996",
+        "rng_rank7.pt": "c744ade524363a2d5cdcfa2f0e0c759f539ffca4a64ca018cfd2147ef3a04ff2"
+      },
+      "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+      "run_identity": "e66fb3a150d835184dff2ed5bc5d98e45b2097ce070b3f6454cdc7c1fb60779c",
+      "scope": "formal",
+      "sha256": "54205b8342bb7f7a1e6b989d7515e88e278b56d3d6a4d73de47e2a7638f275be",
+      "tag": "milestone_010000",
+      "training_seed": 42,
+      "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+    },
+    "current_identity": {
+      "cameras": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "current_only": true,
+      "history_images": 0,
+      "identity": "b2a0ae01c2580fe00c3da8d7351b51e940410486b8a3febf18eebb11d6d61d96",
+      "index_sha256": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "schema": "ddpolicy_current_cameras_v1",
+      "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+      "split": "dev",
+      "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+    },
+    "evaluation_source": "fb474a72a4be278bae805ddb0e22f26bae073111",
+    "limit": 0,
+    "protocol": {
+      "W_retained": 144,
+      "auxiliary_heads_removed": true,
+      "candidates_per_scene": 1,
+      "current_views": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "future_conditioning": false,
+      "history_images": 0,
+      "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+      "precision": "FP32",
+      "sampling_seed": 42,
+      "scorer": null,
+      "solver": "original Euler",
+      "steps": 10,
+      "tf32": false,
+      "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+    },
+    "world_size": 8
+  },
+  "failed": 0,
+  "failure_policy": "retain all requested rows, zero on failure, any failure invalidates benchmark",
+  "full_navtest": false,
+  "logs": 16,
+  "metrics": {
+    "comfort": 0.9964622641509434,
+    "drivable_area_compliance": 0.9292452830188679,
+    "driving_direction_compliance": 0.9840801886792453,
+    "ego_progress": 0.7998488302242234,
+    "no_at_fault_collisions": 0.9755306603773585,
+    "score": 0.8420007449505178,
+    "time_to_collision_within_bound": 0.9257075471698113
+  },
+  "parts_csv_sha256": {
+    "0": "e7823be27b9ea10df3aeddb9d398a0f575620e90ec903c5285bd170d3ed3634d"
+  },
+  "scenes": 1696,
+  "schema": "foresight_official_pdms_v1",
+  "valid": true,
+  "zero_fraction": 0.09198113207547169
+}
