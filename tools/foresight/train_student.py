@@ -152,6 +152,10 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     groups,group_records=bounded_parameter_groups(model.named_parameters())
     if rank==0 and not a.resume:atomic_json(out/'optimizer_groups.json',group_records)
     engine,_,_,_=deepspeed.initialize(model=model,model_parameters=groups,config=ds_config)
+    initial_memory=torch.tensor([torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved()],device='cuda',dtype=torch.int64)
+    initial_memory_rows=[torch.empty_like(initial_memory) for _ in range(world)]
+    dist.all_gather(initial_memory_rows,initial_memory)
+    if rank==0 and not a.resume:atomic_json(out/'startup_memory.json',{'per_rank_allocated_reserved_bytes':[v.cpu().tolist() for v in initial_memory_rows]})
     generators={key:torch.Generator(device='cpu' if key=='horizon' else torch.device('cuda',torch.cuda.current_device())).manual_seed(int(cfg.seed)+offset+rank)
                 for key,offset in (('noise',9000),('time',10000),('horizon',11000))}
     completed=epoch=offset=exposure=0;counters={'visual_elements':0,'interaction_elements':0,'horizon_scenes':[0,0,0],'valid_views':[0,0,0]}
@@ -253,7 +257,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                                float(model.last_sequence_lengths.max())],device='cuda',dtype=torch.float64)
             all_perf=[torch.empty_like(perf) for _ in range(world)];dist.all_gather(all_perf,perf)
             if rank==0:
-                row={'update':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'lr':lr,'losses':logs,'counts':counts,
+                row={'update':completed,'epoch':epoch,'offset':offset,'exposure':exposure,'lr':lr,'losses':logs,'counts':counts,'ended_unix':time.time(),
                      'seconds':time.time()-started,'peak_memory_bytes':torch.cuda.max_memory_allocated(),
                      'grad_norm':float(engine.get_global_grad_norm()),'per_rank_profile':[v.cpu().tolist() for v in all_perf],
                      'profile_fields':['total_step_seconds','data_seconds','peak_allocated_bytes','peak_reserved_bytes','max_sequence_length'],**evidence}
