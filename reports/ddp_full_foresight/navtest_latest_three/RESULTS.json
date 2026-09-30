@@ -1,0 +1,403 @@
+{
+  "status": "COMPLETE",
+  "groups": {
+    "C0": {
+      "checkpoint_update": 51400,
+      "scene_exposure": 1644672,
+      "checkpoint": {
+        "arm": "C0",
+        "completed": 51400,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "2b050f35dc3a78a8fc41b2225832b03ff57ed53052f56ab20eb55c5aa3402385",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "723a11d43a392a83abd1787c83a43ddaf655bca6a09ab7befec6e5d432b36b0f",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "756a81c840b8fda9e3c0ef2bb1918aaec3a6329f1a30e82a0440dafb08cd7969",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "d7477cc5b3375113aa776c0bb3339d9b2b45aef64580ab7ffc5d78cd0995bfc6",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "4a32c46be0f939b8044a711a8ee431fffe7cc5345149244e8224dc653f168c32",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "c3f53f01987774ac267e5dfcf1eb3bfbe218eadd19c2e29fe2707a4638b882bb",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "ceb3f6310960a76b298509fbc1bb44dafa5787edab8f19560d220c43cfa101f5",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "9417240842c7103bf13d616a8e4c8cc680319632f07d9f88f7757fb14a3ccbfd",
+          "mp_rank_00_model_states.pt": "d6d50ec3538f280854c3deedcb227c3a55b2fbb46e36b63f1758f472a182dbdf",
+          "rng_rank0.pt": "1c9bc3c16f90fdd020a2dbe5f173038db7430ee64071e29f7ca3c2730959e1e4",
+          "rng_rank1.pt": "a07b9aef9ec8a4b732564f24806fc2478a2f102e87095e988c2af61b0f821bc4",
+          "rng_rank2.pt": "176daabe0bb076f41e749dd15d4c8105c922a497a8c2ca33a975a104486c0526",
+          "rng_rank3.pt": "93ce23b2626b827fe58d328decbc0f7798df8be9c034c72280f70ac81d7330aa",
+          "rng_rank4.pt": "2f2d8263249765a0ce8fe20f8a7e31663cd1d3e03da632ae1a1a57d159a8245b",
+          "rng_rank5.pt": "a5e34623cd1e5d01676135bdc821b34c3672cf6f9d3780e465a71cee55d70bb6",
+          "rng_rank6.pt": "a0b48e4a029c9c938415353f6c9d3ac94fdf2e7e06e359bbc0ddad0019f3f98b",
+          "rng_rank7.pt": "8ee6ee4e6198ba7ef149e59bd7065ae8704d0b86dcacd97ec7fc390d7425a5c3"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "e66fb3a150d835184dff2ed5bc5d98e45b2097ce070b3f6454cdc7c1fb60779c",
+        "scope": "formal",
+        "sha256": "af523e1156a16704d501dc5abe4258dbb96a1f7e23d64ba1e47131fe8cab824f",
+        "tag": "periodic_051400",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "PDMS_points": 88.32691575409375,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 96.31154289478017,
+        "driving_direction_compliance": 98.19693726329656,
+        "ego_progress": 82.83295545641651,
+        "no_at_fault_collisions": 98.25045282397498,
+        "score": 88.32691575409375,
+        "time_to_collision_within_bound": 94.78017454305945
+      },
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 651,
+      "zero_fraction": 0.05359789231022559,
+      "ego_fit": {
+        "ADE": 0.8997415764468284,
+        "FDE": 1.925338705224646,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.025508499453258136,
+        "yaw_endpoint_rad": 0.044238209468270506
+      },
+      "progression": {
+        "baseline_update": 31600,
+        "baseline_PDMS_points": 87.60005802242556,
+        "PDMS_delta_points": 0.7268577316679536,
+        "paired_log_95_points": [
+          0.20266079456302838,
+          1.2897713192254268
+        ]
+      },
+      "shared_gpu_process_hours": 7.749224115742576,
+      "export_wall_minutes": 58.51734271446864,
+      "peak_allocated_GiB": 11.95595645904541,
+      "peak_reserved_GiB": 12.373046875,
+      "complete_csv_sha256": "2dd3a67c42645afdf55975fdad128cea806b0838b1f0d361fb7af41cd8107464",
+      "protocol": {
+        "W_retained": 144,
+        "auxiliary_heads_removed": true,
+        "candidates_per_scene": 1,
+        "current_views": [
+          "CAM_F0",
+          "CAM_L0",
+          "CAM_R0"
+        ],
+        "evaluation_purpose": "user_requested_fixed_checkpoint",
+        "future_conditioning": false,
+        "history_images": 0,
+        "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+        "precision": "FP32",
+        "sampling_seed": 42,
+        "scorer": null,
+        "solver": "original Euler",
+        "steps": 10,
+        "tf32": false,
+        "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+      }
+    },
+    "C1": {
+      "checkpoint_update": 51400,
+      "scene_exposure": 1644672,
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 51400,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "7793ef50c69661f7ff18adfde096b2627e35260d0a842c891100ce661753e088",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "4204d0772741b62b19835f84fab9839bffd5eb943eeb553f441fcc7519b570f0",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "2716be2aa91f6bb424e9cfa2dee00b2d5f0df968b3613ed6689653d33af90458",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "6cfe6b339dc2ae0dab0ed9bc860eed14772a565fae601ce0adc67e5d7df61483",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "688014258749f9095585abfa55b732c7751176fa8435d704649a3ff06a34cca4",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "f9e875cbf49248c900f0611e08d48bb9ed1352998d082f076c35cec70d32e5b9",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "a5c17ce83c88ae334af268e036b7cdba8b8f67c7655ff7ad424823a861199d74",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "33bbad6d6a9ecec60d26f3725983fac28b06295826a8f671e91b42b82850f8fb",
+          "mp_rank_00_model_states.pt": "3cc8ade69ae18ef4798f964dba8997659952b5faa4000d5f947ba3cd2bd76bca",
+          "rng_rank0.pt": "1c9bc3c16f90fdd020a2dbe5f173038db7430ee64071e29f7ca3c2730959e1e4",
+          "rng_rank1.pt": "a07b9aef9ec8a4b732564f24806fc2478a2f102e87095e988c2af61b0f821bc4",
+          "rng_rank2.pt": "176daabe0bb076f41e749dd15d4c8105c922a497a8c2ca33a975a104486c0526",
+          "rng_rank3.pt": "93ce23b2626b827fe58d328decbc0f7798df8be9c034c72280f70ac81d7330aa",
+          "rng_rank4.pt": "2f2d8263249765a0ce8fe20f8a7e31663cd1d3e03da632ae1a1a57d159a8245b",
+          "rng_rank5.pt": "a5e34623cd1e5d01676135bdc821b34c3672cf6f9d3780e465a71cee55d70bb6",
+          "rng_rank6.pt": "a0b48e4a029c9c938415353f6c9d3ac94fdf2e7e06e359bbc0ddad0019f3f98b",
+          "rng_rank7.pt": "8ee6ee4e6198ba7ef149e59bd7065ae8704d0b86dcacd97ec7fc390d7425a5c3"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "68503d6f2017dbe84d69dbebce662db8958d841bcd94764b67d1e25253607113",
+        "scope": "formal",
+        "sha256": "bbd5b34ca8cbf41155ac77b73cfbe4a25350530eb5f91494b68b6fd51e283b96",
+        "tag": "periodic_051400",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "PDMS_points": 88.18479914451532,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 96.32800922114276,
+        "driving_direction_compliance": 98.16812119216203,
+        "ego_progress": 82.7721698212213,
+        "no_at_fault_collisions": 98.09813930512102,
+        "score": 88.18479914451532,
+        "time_to_collision_within_bound": 94.4096821999012
+      },
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 664,
+      "zero_fraction": 0.05466820352379384,
+      "ego_fit": {
+        "ADE": 0.8974590478200487,
+        "FDE": 1.9093547709976386,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.02559725233521948,
+        "yaw_endpoint_rad": 0.044001030386230024
+      },
+      "progression": {
+        "baseline_update": 31600,
+        "baseline_PDMS_points": 87.1887025308592,
+        "PDMS_delta_points": 0.9960966136557746,
+        "paired_log_95_points": [
+          0.314589142173307,
+          1.754758255043703
+        ]
+      },
+      "shared_gpu_process_hours": 7.731025658316082,
+      "export_wall_minutes": 58.461462712287904,
+      "peak_allocated_GiB": 11.95595645904541,
+      "peak_reserved_GiB": 12.373046875,
+      "complete_csv_sha256": "79d52742deab6e1fa71db39626f97dd7b976b4521bdc5760b47d3207e9234dc3",
+      "protocol": {
+        "W_retained": 144,
+        "auxiliary_heads_removed": true,
+        "candidates_per_scene": 1,
+        "current_views": [
+          "CAM_F0",
+          "CAM_L0",
+          "CAM_R0"
+        ],
+        "evaluation_purpose": "user_requested_fixed_checkpoint",
+        "future_conditioning": false,
+        "history_images": 0,
+        "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+        "precision": "FP32",
+        "sampling_seed": 42,
+        "scorer": null,
+        "solver": "original Euler",
+        "steps": 10,
+        "tf32": false,
+        "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+      }
+    },
+    "C4": {
+      "checkpoint_update": 26000,
+      "scene_exposure": 831936,
+      "checkpoint": {
+        "arm": "C4",
+        "completed": 26000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "270b70b148f26227d337664dc7e4097c57c049f2efcb4608390c00612299d0c3",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "20334c3d1af68cf96ecc0380b0c43ac664ff28973c8dd2948ece3361c4be9b22",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "11d08b72960208ccdccf5eb8bae157c0b85aff66b121f2915de735ede25ab04d",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "bbc9c67a7ec9419c48547bf35c2bd0c2db6a9ffb3c230df419aa80291afb94cc",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "36571a22cfac95cd8ea819f086976944bd35816d49bbcae704a67e3a2b3be2dc",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "2af0de0fb85dab0489016ac4deab94732f3489c051b7dca5bbec795be9ac137d",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "232e3f663a7e9d97971ab967092a4e6e10b4f6edda0d004668e4daf74c9023d6",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "9d7aa52be69cca34a4659502af0fc31f8f3b371dd214513fcd52c5e633be87b8",
+          "mp_rank_00_model_states.pt": "2dd6732493d5333c30d8d9c692fd129262634425c9c10c34141dba4584ddb40d",
+          "rng_rank0.pt": "ef777ed32a280be0f7c6683007f8deb9f0682d77a9d901cc6318c978d1061eac",
+          "rng_rank1.pt": "90b721fc6f6c1d5202777a491682c2bd90cd542076251a331267cae4b3382e52",
+          "rng_rank2.pt": "3df7919109ed6973c6caf01207399245bf41972eb012e5040649926a09c0164d",
+          "rng_rank3.pt": "07a80ab3c131aa4c8fe090675667f88155084f714a9b04f18039ae5735deddcb",
+          "rng_rank4.pt": "17048c9bb1b204568b573370126e13bcc5c70ead6fd96b7b85e0c4a369578f99",
+          "rng_rank5.pt": "d2f78841218fa616b78367a88683643c2b3f47b695dd35cdf2cf48b231324252",
+          "rng_rank6.pt": "705d9cc1adc084fbee69c090f779beaad37dbfcb2d77dbdb650832ed816d1f50",
+          "rng_rank7.pt": "52b43d63b47e7829c8aa25ae6434998acdc095f44b9d87c1411e763fddb18d5d"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "32c4da87c32a145179a6bc4ce09bc8d4985a1ee7eddbbdbdee5fbfdf4a00556c",
+        "scope": "formal",
+        "sha256": "fc74872c881b894cf4969455171ca98036c5b4879beb3d65e01a40b420cb6610",
+        "tag": "periodic_026000",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "PDMS_points": 86.70897291613801,
+      "metrics_points": {
+        "comfort": 99.97530051045612,
+        "drivable_area_compliance": 94.8295735221472,
+        "driving_direction_compliance": 98.09813930512102,
+        "ego_progress": 80.88454809291031,
+        "no_at_fault_collisions": 98.3574839453318,
+        "score": 86.70897291613801,
+        "time_to_collision_within_bound": 94.6978429112465
+      },
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 803,
+      "zero_fraction": 0.06611230034579285,
+      "ego_fit": {
+        "ADE": 0.9774740595028758,
+        "FDE": 2.065994304334821,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.029222079163252066,
+        "yaw_endpoint_rad": 0.05090480052231943
+      },
+      "progression": {
+        "baseline_update": 18400,
+        "baseline_PDMS_points": 82.80023522648632,
+        "PDMS_delta_points": 3.9087376896512613,
+        "paired_log_95_points": [
+          3.058872415923301,
+          4.776217028304652
+        ]
+      },
+      "shared_gpu_process_hours": 7.710848586559296,
+      "export_wall_minutes": 58.78256287177404,
+      "peak_allocated_GiB": 11.95595645904541,
+      "peak_reserved_GiB": 12.373046875,
+      "complete_csv_sha256": "ffbad2937cdbb6254896ff86e6d2e4c217f9f84d5c57391247e57db980242d2f",
+      "protocol": {
+        "W_retained": 144,
+        "auxiliary_heads_removed": true,
+        "candidates_per_scene": 1,
+        "current_views": [
+          "CAM_F0",
+          "CAM_L0",
+          "CAM_R0"
+        ],
+        "evaluation_purpose": "user_requested_fixed_checkpoint",
+        "future_conditioning": false,
+        "history_images": 0,
+        "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+        "precision": "FP32",
+        "sampling_seed": 42,
+        "scorer": null,
+        "solver": "original Euler",
+        "steps": 10,
+        "tf32": false,
+        "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+      }
+    }
+  },
+  "scenes_per_model": 12146,
+  "logs": 136,
+  "total_evaluated_scene_checkpoint_rows": 36438,
+  "failed": 0,
+  "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+  "evaluation_source_sha": "46a6a8096ba6a7a90ddb18fae52c31c207f277b1",
+  "paired_C1_minus_C0": {
+    "bootstrap_draws": 10000,
+    "bootstrap_seed": 20260928,
+    "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+    "logs": 136,
+    "losses": 4233,
+    "metrics": {
+      "comfort": {
+        "baseline": 0.9999176683681871,
+        "delta": 0.0,
+        "first": 0.9999176683681871,
+        "log_cluster_95_interval": [
+          0.0,
+          0.0
+        ]
+      },
+      "drivable_area_compliance": {
+        "baseline": 0.9631154289478018,
+        "delta": 0.00016466326362588507,
+        "first": 0.9632800922114276,
+        "log_cluster_95_interval": [
+          -0.0029161728165187834,
+          0.0032177597229866147
+        ]
+      },
+      "driving_direction_compliance": {
+        "baseline": 0.9819693726329656,
+        "delta": -0.0002881607113452989,
+        "first": 0.9816812119216203,
+        "log_cluster_95_interval": [
+          -0.0014298843976633905,
+          0.0008522238803999724
+        ]
+      },
+      "ego_progress": {
+        "baseline": 0.8283295545641634,
+        "delta": -0.0006078563519482464,
+        "first": 0.8277216982122152,
+        "log_cluster_95_interval": [
+          -0.003640261165079984,
+          0.002431097744805497
+        ]
+      },
+      "no_at_fault_collisions": {
+        "baseline": 0.9825045282397498,
+        "delta": -0.0015231351885394368,
+        "first": 0.9809813930512102,
+        "log_cluster_95_interval": [
+          -0.00341727732197551,
+          0.00045667105665573514
+        ]
+      },
+      "score": {
+        "baseline": 0.8832691575409349,
+        "delta": -0.001421166095785433,
+        "first": 0.8818479914451497,
+        "log_cluster_95_interval": [
+          -0.004429131063615024,
+          0.0017818020430404498
+        ]
+      },
+      "time_to_collision_within_bound": {
+        "baseline": 0.9478017454305945,
+        "delta": -0.003704923431582414,
+        "first": 0.944096821999012,
+        "log_cluster_95_interval": [
+          -0.006783360668003692,
+          -0.0006235448439248702
+        ]
+      }
+    },
+    "scenes": 12146,
+    "ties": 4014,
+    "valid": true,
+    "wins": 3899
+  },
+  "C4_comparison_scope": "Different training length:26000 versus51400; not matched-endpoint configuration selection",
+  "training_seed": 42,
+  "sampling_seed": 42,
+  "evaluation_purpose": "user_requested_fixed_checkpoint",
+  "final_five_run_comparison": false,
+  "evaluator_identity": {
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "failure_policy": "retain all requested rows; failures scored zero and invalidate benchmark",
+    "index_sha256": "129857f904f7a06371839f83a6d7e4de843b17e536e10b686e9fbfb024f2497c",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "protocol": "official NAVSIM v1 full reference cache; one predicted trajectory per scene",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "scorer_sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211",
+    "simulator_sha256": "ae07b533ada10bc37e973e5685a46a7cafc51de8d922ed02add558452ff04807"
+  },
+  "cost": {
+    "shared_gpu_process_hours": 23.191098360617957,
+    "cost_scope": "sum of24 co-located exporter process-hours, includes loading; not additional exclusive physical occupancy or standalone latency",
+    "exporters": 24,
+    "canonical_cpu_workers": 48,
+    "teacher_retraining": false,
+    "dino_extraction_rerun": false,
+    "evaluation_optimizer_updates": 0
+  },
+  "official_cache_hash_matches_every_row": true,
+  "combined_csv_sha256": "d8c42cf26529819bd65a94f9f02f3435d5da676e2cbce0dcee55c430deef82b8"
+}

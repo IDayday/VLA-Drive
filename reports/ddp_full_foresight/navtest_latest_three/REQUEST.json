@@ -1,0 +1,44 @@
+{
+  "status": "COMPLETE",
+  "request": "三组实验最新的权重测一下navtest",
+  "snapshot_utc": "2026-09-30T14:55:55.581264+00:00",
+  "models": [
+    {
+      "arm": "C0",
+      "training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930/frozen_students/formal_C0_seed42_priority_v2",
+      "checkpoint_tag": "periodic_051400",
+      "completed": 51400,
+      "exposure": 1644672,
+      "original_training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/students/formal_C0_seed42_priority_v2"
+    },
+    {
+      "arm": "C1",
+      "training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930/frozen_students/formal_C1_seed42_priority_v2",
+      "checkpoint_tag": "periodic_051400",
+      "completed": 51400,
+      "exposure": 1644672,
+      "original_training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/students/formal_C1_seed42_priority_v2"
+    },
+    {
+      "arm": "C4",
+      "training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930/frozen_students/formal_C4_seed42_rlzt2_v1",
+      "checkpoint_tag": "periodic_026000",
+      "completed": 26000,
+      "exposure": 831936,
+      "original_training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/students/formal_C4_seed42_rlzt2_v1"
+    }
+  ],
+  "training_paused": false,
+  "replaces_pending_40000_request": true,
+  "comparison_scope": "Latest snapshot per run; C4 has a different training length, not a matched-endpoint resolution comparison",
+  "evaluation_source_sha": "46a6a8096ba6a7a90ddb18fae52c31c207f277b1",
+  "lock_identities": {
+    "C0_C1": "11f0cee689555922ef2c90047e4621fbd50a2ac01e86ebecfabca34c5179d980",
+    "C4": "5cdf7ea3c110481346f41aaec1edcf4b3d228a6d30e0573624e8904298fc11a5"
+  },
+  "started_unix": 1790780728.9684448,
+  "exporters": 24,
+  "cpu_workers": 48,
+  "gpu_sharing": true,
+  "completed_utc": "2026-09-30T16:07:23.817296+00:00"
+}
