@@ -1,0 +1,122 @@
+{
+  "PDMS": 0.828002352264863,
+  "checkpoint_probe": true,
+  "diagnostic": false,
+  "environment": "official full traffic/route environment; no vehicle-only scoring filter",
+  "evaluation_purpose": "user_requested_fixed_checkpoint",
+  "evaluator_identity": {
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "failure_policy": "retain all requested rows; failures scored zero and invalidate benchmark",
+    "index_sha256": "129857f904f7a06371839f83a6d7e4de843b17e536e10b686e9fbfb024f2497c",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "protocol": "official NAVSIM v1 full reference cache; one predicted trajectory per scene",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "scorer_sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211",
+    "simulator_sha256": "ae07b533ada10bc37e973e5685a46a7cafc51de8d922ed02add558452ff04807"
+  },
+  "evaluator_protocol": "official NAVSIM v1.1, one executed ego trajectory, no learned scorer/oracle",
+  "export_identity": {
+    "checkpoint": {
+      "arm": "C4",
+      "completed": 18400,
+      "files": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "febb0b0d2fb70d141c75e27d9b22300b9a11b31086f89867e6119e957e958f04",
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "b77241d0938110ed539f8b31419d81d9467e9ca24bf85c5bb36e2b54c73844f0",
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "806d7ebacd7a4e7ad47b10a20894a058028f3ad6d25345f2c5f2fb32f9b35c99",
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "7d08891e42d6a3f003316a4e67d4fd90312ec07ec5cecf0172a3fa047dcb211f",
+        "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "97123d6fb5e3d7f7f943f261882c6cccda964de7955dab8aa1ec2c061382a638",
+        "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "cd447094795eeccc6fb98306b9bd1d7fee6297d7b0514de9664530febbb9e2c0",
+        "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "cfee8189f22daef9da2982265e6519f77e46583afe969d6a283410fa1a658abe",
+        "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "f72481e4cdf50252df95c45143175b733661841503f962908fce35927a300952",
+        "mp_rank_00_model_states.pt": "af96ac188b652e4b08617c9998339d30d92f2bc57ffd6fd536216a01330b9554",
+        "rng_rank0.pt": "b7c53b58d8d8e42bb27743ae7ec5a34a7a44328e5231a12f700c3dd360fc1bc0",
+        "rng_rank1.pt": "21226cc18f411819b865fd2d373d6ff4bc1c07a4631c5476528b7443f9a15dd0",
+        "rng_rank2.pt": "1f9d30e1f4af9bff51372d243610dac2646c231f86d830fd65e4bdd271589481",
+        "rng_rank3.pt": "c1ef54c5b2f380e4099cae01c8d665a97c70d294d88ee1655496fb9cb87f4d8d",
+        "rng_rank4.pt": "a9dd70dc684031174fe019741ebcee1af4968b99b5d42c0092e451ebf81552fb",
+        "rng_rank5.pt": "c0a6d7799e783de07c9d95046856bcb4c83ea7b5ab29548c8baee2b198b20b29",
+        "rng_rank6.pt": "83b8134a66e2f181d8d5d83dce1b0db35a14ab13d76c09d1e075855482d46b99",
+        "rng_rank7.pt": "558f671e935b9213089941539b6450bf038c8954bee7d2df32ebd1191edefee3"
+      },
+      "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+      "run_identity": "32c4da87c32a145179a6bc4ce09bc8d4985a1ee7eddbbdbdee5fbfdf4a00556c",
+      "scope": "formal",
+      "sha256": "7a9c72e06f35d941517cfe6618c63291ae1e434f97d5592b45413377a02d4645",
+      "tag": "periodic_018400",
+      "training_seed": 42,
+      "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+    },
+    "current_identity": {
+      "annotations_in_cache": false,
+      "cameras": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "fallback_sensor_root": [],
+      "future_in_cache": false,
+      "history_images": 0,
+      "history_poses": 4,
+      "identity": "44ba2878112ec0c51a8998db4fe1096e4e965904934dead7a101c29c43821cdb",
+      "image_size": [
+        1024,
+        576
+      ],
+      "index_sha256": "93093612d4560a228635db6323cf7d1b84aa93ff36b8013b6753337c6c5ce7e8",
+      "raw_log_root": "/mnt/navsim/test_navsim_logs/test",
+      "schema": "ddpolicy_current_cameras_v1",
+      "sensor_root": "/mnt/navsim/test_sensor_blobs/test",
+      "split": "navtest",
+      "writer_sha256": "6b26a7e6c4dd91ade22a29946a366174d431a0a15375f9a4c03247b9c7963874"
+    },
+    "evaluation_source": "40c121a363fec6c88bda637e8655553e79422b82",
+    "limit": 0,
+    "protocol": {
+      "W_retained": 144,
+      "auxiliary_heads_removed": true,
+      "candidates_per_scene": 1,
+      "current_views": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "evaluation_purpose": "user_requested_fixed_checkpoint",
+      "future_conditioning": false,
+      "history_images": 0,
+      "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+      "precision": "FP32",
+      "sampling_seed": 42,
+      "scorer": null,
+      "solver": "original Euler",
+      "steps": 10,
+      "tf32": false,
+      "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+    },
+    "world_size": 8
+  },
+  "failed": 0,
+  "failure_policy": "retain all requested rows, zero on failure, any failure invalidates benchmark",
+  "full_navtest": true,
+  "logs": 136,
+  "metrics": {
+    "comfort": 0.9994236785773094,
+    "drivable_area_compliance": 0.925489873209287,
+    "driving_direction_compliance": 0.9758768318788078,
+    "ego_progress": 0.7911211461462163,
+    "no_at_fault_collisions": 0.9639799110818377,
+    "score": 0.828002352264863,
+    "time_to_collision_within_bound": 0.9066359295241232
+  },
+  "parts_csv_sha256": {
+    "0": "40f4d22af8baf26cde7178387f70a8e555bd79625eaee50d1003b00ca51ca437"
+  },
+  "scenes": 12146,
+  "schema": "foresight_official_pdms_v1",
+  "valid": true,
+  "zero_fraction": 0.10752511114770295
+}
