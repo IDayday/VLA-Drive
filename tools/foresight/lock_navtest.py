@@ -37,8 +37,15 @@ def validate_models(models,development):
 
 
 def validate_lock(lock,checkpoint,source,current,scene_count,sampling_seed,steps):
-    if lock.get('schema')!='foresight_navtest_lock_v1' or identity_hash({k:v for k,v in lock.items() if k!='identity'})!=lock['identity']:
+    schemas=('foresight_navtest_lock_v1','foresight_navtest_checkpoint_probe_lock_v1')
+    if lock.get('schema') not in schemas or identity_hash({k:v for k,v in lock.items() if k!='identity'})!=lock['identity']:
         raise ValueError('Invalid final Navtest lock')
+    if lock['schema']=='foresight_navtest_checkpoint_probe_lock_v1':
+        if (lock.get('evaluation_purpose')!='user_requested_fixed_checkpoint' or
+                checkpoint['scope']!='formal' or checkpoint['completed']!=lock['requested_update'] or
+                lock.get('precision')!='FP32' or lock.get('candidates_per_scene')!=1 or
+                lock.get('learned_scorer') is not None or scene_count!=12146 or lock['log_count']!=136):
+            raise ValueError('Checkpoint probe differs from the explicit frozen request')
     if checkpoint['sha256'] not in lock['checkpoints'] or lock['checkpoint_records'][checkpoint['sha256']]!=checkpoint:
         raise ValueError('Final checkpoint differs from completed development selection')
     if source!=lock['evaluation_source_sha']:raise ValueError('Final evaluation source changed')

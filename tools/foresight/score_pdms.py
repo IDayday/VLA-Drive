@@ -83,6 +83,8 @@ def merge_parts(out,bank,index,identity,parts):
              'export_identity':export,'evaluator_identity':evaluators[0],'parts_csv_sha256':csv_hashes,
              'full_navtest':export['current_identity']['split']=='navtest' and not export['limit'],
              'diagnostic':export['checkpoint']['scope']!='formal' or bool(export['limit']),
+             'evaluation_purpose':export['protocol'].get('evaluation_purpose','registered_development'),
+             'checkpoint_probe':export['protocol'].get('evaluation_purpose')=='user_requested_fixed_checkpoint',
              'failure_policy':'retain all requested rows, zero on failure, any failure invalidates benchmark',
              'environment':'official full traffic/route environment; no vehicle-only scoring filter',
              'evaluator_protocol':'official NAVSIM v1.1, one executed ego trajectory, no learned scorer/oracle'}

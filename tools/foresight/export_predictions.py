@@ -21,8 +21,10 @@ def main():
     p.add_argument('--world-size',type=int,default=1);p.add_argument('--limit',type=int,default=0)
     p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--final-lock')
     p.add_argument('--campaign-gpu-hours',type=float,default=6000)
+    p.add_argument('--gpu-memory-fraction',type=float,default=1.0,
+                   help='Allocator cap for sharing a GPU with a separately running trainer')
     a=p.parse_args()
-    if not 0<=a.rank<a.world_size or a.limit<0 or min(a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Invalid shard/budget')
+    if not 0<=a.rank<a.world_size or a.limit<0 or min(a.max_seconds,a.campaign_gpu_hours)<=0 or not 0<a.gpu_memory_fraction<=1:raise ValueError('Invalid shard/budget')
     with metered_run(a.campaign_root,a.run_id,1,{'kind':'foresight_current_camera_export','real_optimizer_updates':0}) as (record,_,save):
         source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
         from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
@@ -40,6 +42,7 @@ def main():
             lock=json.loads(Path(a.final_lock).read_text())
             from .lock_navtest import validate_lock
             validate_lock(lock,checkpoint,source,data.identity,len(data),a.sampling_seed,protocol['steps'])
+            protocol['evaluation_purpose']=lock.get('evaluation_purpose','final_locked_model')
         identity={'checkpoint':checkpoint,'current_identity':data.identity,'evaluation_source':source,'protocol':protocol,
                   'world_size':a.world_size,'limit':a.limit}
         out=Path(a.output);(out/'predictions').mkdir(parents=True,exist_ok=True)
@@ -48,6 +51,7 @@ def main():
         else:atomic_json(out/'identity.json',identity)
         signature=identity_hash(identity);record.update(checkpoint=checkpoint['sha256'],protocol=protocol);save()
         torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
+        torch.cuda.set_per_process_memory_fraction(a.gpu_memory_fraction)
         model=load_student(a.training_run,a.checkpoint_tag,training)
         if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('Formal export requires FP32 parameters')
         atomic_json(out/f'loading_rank_{a.rank}.json',model.deployment_precision)
@@ -72,7 +76,11 @@ def main():
                 with temp.open('wb') as stream:np.savez_compressed(stream,trajectory=trajectory.cpu().numpy())
                 temp.replace(dest);row['proposal_sha256']=file_sha256(dest)
             except Exception as error:row.update(status='failed',error=repr(error));failed+=1
-            atomic_json(meta,row);done+=1;record.update(inference_scenes=done,failed=failed);save()
+            atomic_json(meta,row);done+=1
+            record.update(inference_scenes=done,failed=failed,
+                          peak_allocated_bytes=torch.cuda.max_memory_allocated(),
+                          peak_reserved_bytes=torch.cuda.max_memory_reserved(),
+                          gpu_memory_fraction=a.gpu_memory_fraction);save()
         atomic_json(out/f'shard_{a.rank}.json',{'status':'complete' if done==len(ids) else 'paused','requested':len(ids),
                     'completed':done,'failed':failed,'identity_sha256':signature})
         record.update(inference_scenes=done,failed=failed)
