@@ -45,3 +45,20 @@ def test_probe_lock_binds_source_checkpoint_population_seed():
         with pytest.raises(ValueError):validate_lock(lock,checkpoint,source,current,n,seed,10)
     bad=copy.deepcopy(lock);bad['requested_update']=10000;bad['identity']=identity_hash({k:v for k,v in bad.items() if k!='identity'})
     with pytest.raises(ValueError):validate_lock(bad,checkpoint,'code',current,12146,42,10)
+
+
+@pytest.mark.parametrize('fault',[None,'run_identity','training_source_sha','newer'])
+def test_prior_development_evidence_is_explicit_and_same_run(fault):
+    identity,checkpoints,report=fixture()
+    for c in checkpoints:
+        c.update(run_identity=c['arm']+'-run',training_source_sha='source',model_class='DDPFullForesight')
+    later=copy.deepcopy(checkpoints)
+    for c in later:c.update(completed=31600,sha256=c['sha256']+'-later',tag='periodic_031600')
+    with pytest.raises(ValueError):validate_probe([(identity,c) for c in later],report,31600)
+    if fault in ('run_identity','training_source_sha'):later[0][fault]='foreign'
+    if fault=='newer':report['groups']['C0_train42']['checkpoint']['completed']=32000
+    if fault:
+        with pytest.raises(ValueError):validate_probe([(identity,c) for c in later],report,31600,True)
+    else:
+        records,_,_=validate_probe([(identity,c) for c in later],report,31600,True)
+        assert records==later
