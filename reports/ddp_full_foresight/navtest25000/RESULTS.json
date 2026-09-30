@@ -1,0 +1,515 @@
+{
+  "schema": "ddp_full_foresight_navtest25k_results_v1",
+  "status": "COMPLETE",
+  "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+  "evaluation_source_sha": "4c09e749d37714e276f4d69dbe569951ce7eda69",
+  "analysis_source_sha": "38174ea6dd1c69066d7d9559cd711735905e3a35",
+  "completed_update": 25000,
+  "scenes_per_model": 12146,
+  "logs": 136,
+  "training_seed": 42,
+  "inference_seeds": [
+    42
+  ],
+  "final100k_five_run_protocol": false,
+  "training_paused": false,
+  "GPU_export_real_optimizer_updates": 0,
+  "CPU_scoring_real_optimizer_updates": 0,
+  "models": {
+    "C0": {
+      "PDMS_points": 84.85142505204092,
+      "submetrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 93.07590976453153,
+        "driving_direction_compliance": 98.02815741808003,
+        "ego_progress": 79.41487638968096,
+        "no_at_fault_collisions": 98.29573522147209,
+        "score": 84.85142505204092,
+        "time_to_collision_within_bound": 94.13798781491849
+      },
+      "zero_count": 1031,
+      "zero_percent": 8.488391239914375,
+      "failed": 0,
+      "ego_fit": {
+        "failed": 0,
+        "groups": {
+          "all": {
+            "ADE": 1.0541704266617722,
+            "FDE": 2.1843244828966317,
+            "failed": 0,
+            "scenes": 12146,
+            "stationary_ADE": 11.28490146369712,
+            "stationary_FDE": 19.9392717540922,
+            "valid": true,
+            "yaw_MAE_rad": 0.02917123355702792,
+            "yaw_endpoint_rad": 0.048950526507600935
+          },
+          "moving": {
+            "ADE": 1.0576482571531731,
+            "FDE": 2.193396957194209,
+            "failed": 0,
+            "scenes": 12066,
+            "stationary_ADE": 11.357937447290189,
+            "stationary_FDE": 20.06976703446571,
+            "valid": true,
+            "yaw_MAE_rad": 0.02924463816935362,
+            "yaw_endpoint_rad": 0.0490579109349751
+          },
+          "stationary": {
+            "ADE": 0.529626642796242,
+            "FDE": 0.8159685469645087,
+            "failed": 0,
+            "scenes": 80,
+            "stationary_ADE": 0.2692492382725474,
+            "stationary_FDE": 0.2573210917577954,
+            "valid": true,
+            "yaw_MAE_rad": 0.018099982903004217,
+            "yaw_endpoint_rad": 0.032754270248894525
+          }
+        },
+        "logs": 136,
+        "scenes": 12146,
+        "scope": "ego-only label-side trajectory fit, not PDMS",
+        "valid": true
+      },
+      "checkpoint": {
+        "arm": "C0",
+        "completed": 25000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "5e73f824e952dea8fe4435a67e6d93fcfabcea9103b25a019bc54e54069fe7dc",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "67624a900681d488badd9d9ae052a74d3e49c3afb695ca719d24411d8c684300",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "2841f22b852f7c7b82bdfe6b097ba68b347e2a374e6015bc6e4f5a13019359ee",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "59b716ca19290d50c90cdb5fb3c5ffac7db62cd536130842d8a5dcb74c949e9b",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "5c54e38fd07b98ce30ef17661bc05eb141eb68d12fa26fb57c0f8e9ca64ef755",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "a83d899c5288b696a58e6c1ecd874692eb58ab2cd4b378d7e6a96e299406ba92",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "9e670e169c22d9b317148cce9008f72886f2f3d011f324546ca10ab2a5ec3c97",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "6cef8fb545b391e5332fec84bebfcbd758dd6702688ada40d1f077fed13558b7",
+          "mp_rank_00_model_states.pt": "54d657f50466d33836160179014df245f571cd4da8153e546fc4467da9d7f8b8",
+          "rng_rank0.pt": "0dd44fca0712f9c9c6b7a13cd7a4faa4e9a3daed5263e6616dc4e54580dca21d",
+          "rng_rank1.pt": "68bda5da636030991e535b919f7a5e6eb9fd337aa632de1d8ece195052c55040",
+          "rng_rank2.pt": "6515c3eb7efa7d94d6ee820c8db93c72ddd9fdaa7fdaad4805a5f3e784317131",
+          "rng_rank3.pt": "a378424dc9f04770280ee944fbb6f4a22756a22f541889f02895e6f86503f676",
+          "rng_rank4.pt": "7f1dfb33b7994694a1aa7802af80f9aaddda0432088d3e37eead10819cf53f38",
+          "rng_rank5.pt": "024d60a828a627e540eb2d1658d6fd3e37b4dad2463ec11a4c4c17e72f30f8f2",
+          "rng_rank6.pt": "6c27055843e37d42eb45c8b110c881b2d39be4b76707c6776cdb333e47e9676b",
+          "rng_rank7.pt": "22482a480588d454633c4cf5243ec256c479844ae746ada24597b39a560d405b"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "e66fb3a150d835184dff2ed5bc5d98e45b2097ce070b3f6454cdc7c1fb60779c",
+        "scope": "formal",
+        "sha256": "30f233d749581d6643ed9e2491e4e7e936896acfb30113399ce1f2f374a660a0",
+        "tag": "milestone_025000",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "deployment_precision": {
+        "W_retained": 144,
+        "auxiliary_heads_removed": true,
+        "compute_policy": "FP32, autocast disabled",
+        "cudnn_tf32": false,
+        "loading_path": "tools.foresight.checkpoints.load_student / DeepSpeed zero_to_fp32, strict=True",
+        "matmul_tf32": false,
+        "parameter_dtype_elements": {
+          "torch.float32": 2951547396
+        },
+        "parameter_source": "FP32 optimizer master tensors; cast only when explicitly requested"
+      },
+      "co_located_inference_seconds_p50": 2.214783408679068,
+      "co_located_inference_seconds_p95": 2.4419234371744096
+    },
+    "C1": {
+      "PDMS_points": 85.30625291084338,
+      "submetrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 93.63576486085954,
+        "driving_direction_compliance": 98.18047093693397,
+        "ego_progress": 79.02294777696436,
+        "no_at_fault_collisions": 98.38630001646632,
+        "score": 85.30625291084338,
+        "time_to_collision_within_bound": 94.8460398485098
+      },
+      "zero_count": 951,
+      "zero_percent": 7.829738185410835,
+      "failed": 0,
+      "ego_fit": {
+        "failed": 0,
+        "groups": {
+          "all": {
+            "ADE": 1.0242308383185204,
+            "FDE": 2.1372258437040554,
+            "failed": 0,
+            "scenes": 12146,
+            "stationary_ADE": 11.28490146369712,
+            "stationary_FDE": 19.9392717540922,
+            "valid": true,
+            "yaw_MAE_rad": 0.0291769126725388,
+            "yaw_endpoint_rad": 0.04940359933390855
+          },
+          "moving": {
+            "ADE": 1.0275865955795762,
+            "FDE": 2.1460762964333937,
+            "failed": 0,
+            "scenes": 12066,
+            "stationary_ADE": 11.357937447290189,
+            "stationary_FDE": 20.06976703446571,
+            "valid": true,
+            "yaw_MAE_rad": 0.029257198116638346,
+            "yaw_endpoint_rad": 0.04952706512428125
+          },
+          "stationary": {
+            "ADE": 0.5180987494198035,
+            "FDE": 0.8023563108015663,
+            "failed": 0,
+            "scenes": 80,
+            "stationary_ADE": 0.2692492382725474,
+            "stationary_FDE": 0.2573210917577954,
+            "valid": true,
+            "yaw_MAE_rad": 0.017067860566225168,
+            "yaw_endpoint_rad": 0.030781871500948643
+          }
+        },
+        "logs": 136,
+        "scenes": 12146,
+        "scope": "ego-only label-side trajectory fit, not PDMS",
+        "valid": true
+      },
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 25000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "76472dcceac40aab3774a6fb4318679e559ee36ab0b472b3821dd222ccbf9e81",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "1b7deb24310a01802c529abc59c03aa758581be68b6b0d147e2559d63b7bff61",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "5298dc361dee7e895e2cd6b765fac2c2dab634ab36c6b7ff3c42d4b33aa0f06d",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "fceeb9f64cc60666d4154118c8600a88f4dd9f3d77b3558a09a9644c851c7e41",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "f58cdcfead26ae3c628029c5edfb6cdc6c9da7419c773097661aa035f75bf54a",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "ceba940a00b3a12e747aafec3710fa6900998a5197c909ae806c8f86c3b8e11f",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "9a100d93d040d15f3fe899c5ac16754e4a361a89811cae045aa56725c7a0943a",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "21b20075303130c0187e62a3b6e166cb42169b3ced55308b16b6054d01423951",
+          "mp_rank_00_model_states.pt": "ee599f22c240d643668c5c272a931fb4a2b08d343ca34b8918bdfa7a0504a962",
+          "rng_rank0.pt": "0dd44fca0712f9c9c6b7a13cd7a4faa4e9a3daed5263e6616dc4e54580dca21d",
+          "rng_rank1.pt": "68bda5da636030991e535b919f7a5e6eb9fd337aa632de1d8ece195052c55040",
+          "rng_rank2.pt": "6515c3eb7efa7d94d6ee820c8db93c72ddd9fdaa7fdaad4805a5f3e784317131",
+          "rng_rank3.pt": "a378424dc9f04770280ee944fbb6f4a22756a22f541889f02895e6f86503f676",
+          "rng_rank4.pt": "7f1dfb33b7994694a1aa7802af80f9aaddda0432088d3e37eead10819cf53f38",
+          "rng_rank5.pt": "024d60a828a627e540eb2d1658d6fd3e37b4dad2463ec11a4c4c17e72f30f8f2",
+          "rng_rank6.pt": "6c27055843e37d42eb45c8b110c881b2d39be4b76707c6776cdb333e47e9676b",
+          "rng_rank7.pt": "22482a480588d454633c4cf5243ec256c479844ae746ada24597b39a560d405b"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "68503d6f2017dbe84d69dbebce662db8958d841bcd94764b67d1e25253607113",
+        "scope": "formal",
+        "sha256": "a1c42a8edb9f1321f3bac012ebc0049bbcdf7b9af9e986bc9aaf82bc40c68b91",
+        "tag": "milestone_025000",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "deployment_precision": {
+        "W_retained": 144,
+        "auxiliary_heads_removed": true,
+        "compute_policy": "FP32, autocast disabled",
+        "cudnn_tf32": false,
+        "loading_path": "tools.foresight.checkpoints.load_student / DeepSpeed zero_to_fp32, strict=True",
+        "matmul_tf32": false,
+        "parameter_dtype_elements": {
+          "torch.float32": 2951547396
+        },
+        "parameter_source": "FP32 optimizer master tensors; cast only when explicitly requested"
+      },
+      "co_located_inference_seconds_p50": 2.198518238030374,
+      "co_located_inference_seconds_p95": 2.4284001691266894
+    }
+  },
+  "cost": {
+    "C0": {
+      "export_shared_GPU_process_hours": 7.966422627435791,
+      "shards": 12,
+      "export_wall_seconds_min": 2327.444726705551,
+      "export_wall_seconds_max": 2425.841969013214,
+      "max_allocated_GiB": 11.95595645904541,
+      "max_reserved_GiB": 12.373046875,
+      "CPU_scoring": {
+        "run_id": "navtest25k_C0_seed42_score_v2",
+        "host": "training-vla-zt-worker-0",
+        "pid": 2339054,
+        "start_unix": 1790730312.7654543,
+        "start_utc": "2026-09-30T01:05:12.765469+00:00",
+        "gpu_count": 0,
+        "cuda_visible_devices": "",
+        "status": "COMPLETE",
+        "real_optimizer_updates": 0,
+        "synthetic_optimizer_updates": 0,
+        "inference_scenes": 12146,
+        "kind": "official_CPU_PDMS",
+        "failed": 0,
+        "end_unix": 1790732681.150919,
+        "wall_seconds": 2368.385464668274,
+        "gpu_hours": 0.0
+      }
+    },
+    "C1": {
+      "export_shared_GPU_process_hours": 7.8777258967691,
+      "shards": 12,
+      "export_wall_seconds_min": 2334.0130004882812,
+      "export_wall_seconds_max": 2401.9925520420074,
+      "max_allocated_GiB": 11.95595645904541,
+      "max_reserved_GiB": 12.373046875,
+      "CPU_scoring": {
+        "run_id": "navtest25k_C1_seed42_score_v2",
+        "host": "training-vla-zt-worker-0",
+        "pid": 2339055,
+        "start_unix": 1790730312.765843,
+        "start_utc": "2026-09-30T01:05:12.765854+00:00",
+        "gpu_count": 0,
+        "cuda_visible_devices": "",
+        "status": "COMPLETE",
+        "real_optimizer_updates": 0,
+        "synthetic_optimizer_updates": 0,
+        "inference_scenes": 12146,
+        "kind": "official_CPU_PDMS",
+        "failed": 0,
+        "end_unix": 1790732656.8868682,
+        "wall_seconds": 2344.121025323868,
+        "gpu_hours": 0.0
+      }
+    },
+    "preserved_topology_probe_shared_GPU_process_hours": 0.28169331431388855,
+    "main_export_shared_GPU_process_hours": 15.844148524204892,
+    "scope": "Exporter process walltime times one shared GPU. These are conservative process-hours on GPUs concurrently running training; do not add them to training hours as exclusive physical GPU occupancy. CPU scoring separately recorded; no new teacher/cache extraction GPU work."
+  },
+  "training_snapshot": {
+    "formal_C0_seed42_priority_v2": {
+      "status": "RUNNING",
+      "completed": 28200,
+      "exposure": 902336
+    },
+    "formal_C1_seed42_priority_v2": {
+      "status": "RUNNING",
+      "completed": 28207,
+      "exposure": 902560
+    },
+    "formal_C4_seed42_rlzt2_v1": {
+      "status": "RUNNING",
+      "completed": 6268,
+      "exposure": 200568
+    }
+  },
+  "paired_comparison": {
+    "bootstrap_draws": 10000,
+    "bootstrap_seed": 20260928,
+    "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+    "logs": 136,
+    "losses": 5314,
+    "metrics": {
+      "comfort": {
+        "baseline": 0.9999176683681871,
+        "delta": 0.0,
+        "first": 0.9999176683681871,
+        "log_cluster_95_interval": [
+          0.0,
+          0.0
+        ]
+      },
+      "drivable_area_compliance": {
+        "baseline": 0.9307590976453153,
+        "delta": 0.005598550963280092,
+        "first": 0.9363576486085954,
+        "log_cluster_95_interval": [
+          0.0004474904310921478,
+          0.01089687913750709
+        ]
+      },
+      "driving_direction_compliance": {
+        "baseline": 0.9802815741808003,
+        "delta": 0.0015231351885394368,
+        "first": 0.9818047093693397,
+        "log_cluster_95_interval": [
+          0.0002825696963289636,
+          0.002828365312484471
+        ]
+      },
+      "ego_progress": {
+        "baseline": 0.7941487638968131,
+        "delta": -0.003919286127170155,
+        "first": 0.7902294777696429,
+        "log_cluster_95_interval": [
+          -0.008779549719912537,
+          0.0007862504089533142
+        ]
+      },
+      "no_at_fault_collisions": {
+        "baseline": 0.9829573522147209,
+        "delta": 0.0009056479499423678,
+        "first": 0.9838630001646632,
+        "log_cluster_95_interval": [
+          -0.0015377544002200582,
+          0.0032888023201258438
+        ]
+      },
+      "score": {
+        "baseline": 0.8485142505204072,
+        "delta": 0.0045482785880207105,
+        "first": 0.8530625291084282,
+        "log_cluster_95_interval": [
+          -0.0008376117182509107,
+          0.00985566174487691
+        ]
+      },
+      "time_to_collision_within_bound": {
+        "baseline": 0.9413798781491849,
+        "delta": 0.007080520335913058,
+        "first": 0.948460398485098,
+        "log_cluster_95_interval": [
+          0.0027358523336839,
+          0.011487651945333608
+        ]
+      }
+    },
+    "scenes": 12146,
+    "ties": 3907,
+    "valid": true,
+    "wins": 2925
+  },
+  "cache_audit": {
+    "passed": true,
+    "snapshot_scenes": 12146,
+    "snapshot_logs": 136,
+    "cache_bytes": 3163842720,
+    "metric_index_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+    "cache_snapshot_sha256": "eced38b7a8868d64e38cb26f9cedfaaf1f5d91b67fe6fa5405ab31d13279796b",
+    "navsim_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "audit_script_sha256": "dcef26035048f99e2e10b9d93656f887b50fd26e23cbf1942120e6b5138be8e6",
+    "records": [
+      {
+        "token": "5ea36cebd2575b16",
+        "log": "2021.08.30.14.54.34_veh-40_00439_00835",
+        "status": "ok",
+        "metrics": {
+          "no_at_fault_collisions": 1.0,
+          "drivable_area_compliance": 1.0,
+          "ego_progress": 1.0,
+          "time_to_collision_within_bound": 0.0,
+          "comfort": 1.0,
+          "driving_direction_compliance": 1.0,
+          "score": 0.5833333333333334
+        },
+        "max_worker_difference": 0.0,
+        "map_dtype": "float64",
+        "max_if_quantized_error_m": 0.2499710824340582,
+        "state_shape": [
+          2,
+          41,
+          11
+        ],
+        "call_order": [
+          "ego_area",
+          "collision",
+          "DAC",
+          "progress"
+        ],
+        "reference_raw_progress": 10.915869005072182,
+        "metric_cache_sha256": "53e4ba86ea319fa76bfd1a4137526cabd3b18d04619482985b5b9e4b04182a46"
+      },
+      {
+        "token": "05ee09cb75205555",
+        "log": "2021.06.03.13.55.17_veh-35_02866_03582",
+        "status": "ok",
+        "metrics": {
+          "no_at_fault_collisions": 1.0,
+          "drivable_area_compliance": 1.0,
+          "ego_progress": 0.9992485023400093,
+          "time_to_collision_within_bound": 1.0,
+          "comfort": 1.0,
+          "driving_direction_compliance": 1.0,
+          "score": 0.9996868759750038
+        },
+        "max_worker_difference": 0.0,
+        "map_dtype": "float64",
+        "max_if_quantized_error_m": 0.12497431831434369,
+        "state_shape": [
+          2,
+          41,
+          11
+        ],
+        "call_order": [
+          "ego_area",
+          "collision",
+          "DAC",
+          "progress"
+        ],
+        "reference_raw_progress": 9.50018323041012,
+        "metric_cache_sha256": "969f0edd64be66cca060d2581d2cb74de5a04431d2cf12d88e2da908e0cc8701"
+      },
+      {
+        "token": "f51a75fadd695f06",
+        "log": "2021.10.06.08.16.17_veh-52_01949_02501",
+        "status": "ok",
+        "metrics": {
+          "no_at_fault_collisions": 1.0,
+          "drivable_area_compliance": 1.0,
+          "ego_progress": 0.9973350307861124,
+          "time_to_collision_within_bound": 1.0,
+          "comfort": 1.0,
+          "driving_direction_compliance": 1.0,
+          "score": 0.9988895961608802
+        },
+        "max_worker_difference": 0.0,
+        "map_dtype": "float64",
+        "max_if_quantized_error_m": 0.015622515231370926,
+        "state_shape": [
+          2,
+          41,
+          11
+        ],
+        "call_order": [
+          "ego_area",
+          "collision",
+          "DAC",
+          "progress"
+        ],
+        "reference_raw_progress": 27.904687908965638,
+        "metric_cache_sha256": "c25795f8bee9e1a750106d66cade139b28abb600500777b3d6a1d9def0674689"
+      },
+      {
+        "token": "458ab847ffa957e8",
+        "log": "2021.09.16.13.53.10_veh-42_00180_00342",
+        "status": "ok",
+        "metrics": {
+          "no_at_fault_collisions": 1.0,
+          "drivable_area_compliance": 1.0,
+          "ego_progress": 0.998745407824699,
+          "time_to_collision_within_bound": 1.0,
+          "comfort": 1.0,
+          "driving_direction_compliance": 0.0,
+          "score": 0.9994772532602912
+        },
+        "max_worker_difference": 0.0,
+        "map_dtype": "float64",
+        "max_if_quantized_error_m": 0.24963609129190445,
+        "state_shape": [
+          2,
+          41,
+          11
+        ],
+        "call_order": [
+          "ego_area",
+          "collision",
+          "DAC",
+          "progress"
+        ],
+        "reference_raw_progress": 39.38639866692651,
+        "metric_cache_sha256": "2f725b48295d3665f703cdc306595c87811b28a09335f416be0d98d11564d86e"
+      }
+    ],
+    "scope": "Full cache hash snapshot plus four fixed distinct-log reference-vs-worker tests; not public-checkpoint reproduction or full GT replay",
+    "protocol": "NAVSIM v1.1 full non-quantized map; reference plus one ego; corrected reference progress; 40x0.1s; full 51-frame observations"
+  },
+  "ego_label_audit": {
+    "scenes": 12146,
+    "logs": 136,
+    "source_identity_sha256": "2d8a2e381e6fc926249374dce7f87a14444869fc1ebc372037dd29d0dd88e4e0",
+    "official_nominal_interval_s": 0.5,
+    "actual_timestamp_max_deviation_s": 0.500764,
+    "scenes_exceeding0_05s_deviation": 36,
+    "policy": "Original official8successive-keyframe ego supervision; no scene filtered or retimed; actual timestamp deviations retained in audit. Not the physical-time DINO indexing policy. Labels read only after predictions."
+  }
+}

@@ -1,3 +1,5 @@
+LATEST COMPLETED REQUEST: C0/C1 milestone25000 fullNavtest,12146scenes/136logs each,0failures. C0PDMS84.8514250520,C1PDMS85.3062529108. C1−C0+0.4548278588points, log95%[−0.0837611718,+0.9855661745]; no resolved overall winner. FP32 optimizer masters,TF32off,seed42,10FMsteps,oneego/no scorer. All24inference shards and both CPU scorers completed; scene/cache hashes checked, ego-fit succeeded, complete scene/submetric CSVs prepared. Training C0/C1/C4 remains RUNNING. No Navtest-based recipe/model selection. Reports: reports/ddp_full_foresight/NAVTEST_25000_20260930.md and navtest25000/RESULTS.json. User requested no continual monitoring; do not keep polling the trainers after delivering this result. Earlier state snapshots below are retained historical evidence.
+
 # Active request: C0/C1 checkpoint25000 complete Navtest evaluation
 
 Branch: experiment/ddp-full-foresight-navtest25k-20260930. Evaluation source4c09e749d37714e276f4d69dbe569951ce7eda69 is immutable and remote-verified. Training source d1d4085 and all C0/C1/C4 controllers remain running without modification. User explicitly authorizes inference sharing GPUs with training.
