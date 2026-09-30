@@ -1,3 +1,15 @@
+# Active request: C0/C1 checkpoint25000 complete Navtest evaluation
+
+Branch: experiment/ddp-full-foresight-navtest25k-20260930. Evaluation source4c09e749d37714e276f4d69dbe569951ce7eda69 is immutable and remote-verified. Training source d1d4085 and all C0/C1/C4 controllers remain running without modification. User explicitly authorizes inference sharing GPUs with training.
+
+Artifacts: /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest25k_20260930. Checkpoint lock dd4746bcec411f06544d68a77854b158adf5484e27d5e4e5b9192d0edacda0ca binds both25k models, all12146Navtest scenes/136logs, FP32 masters, TF32off, seed42,10FMsteps, one ego/no scorer. Fixed-checkpoint measurement is separate from final100k/five-run comparison; no test-driven recipe or model selection.
+
+RUNNING: 24 capped exporter processes (one on every authorized local/vla-zt2/rl-zt2 GPU),12shards per model; two16-worker canonical CPU scorers. Only verified owned pressure processes and earlier own evaluation probe processes were signaled; trainers were never paused. Four fixed Navtest reference/worker cases pass with0 submetric difference; all12146cache files hashed, originalmaps retained. Initial audit helper signature failure is preserved externally, corrected before scoring. Original8-worker topology probe retains58predictions per model and partial scores.
+
+Next: finish all GPU shards and CPU scores, compare complete populations with tools.full_foresight.summarize_checkpoint_navtest, save all scene submetrics and paired log bootstrap, push only this branch and compact evidence. Do not duplicate active exporters. See reports/ddp_full_foresight/NAVTEST_25000_20260930.md.
+
+---
+
 # Active campaign: full DDP foresight + vehicle GT-MAE resolution study
 
 Branch: feature/ddp-full-foresight-rlzt2-c4-20260929
