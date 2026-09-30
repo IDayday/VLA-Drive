@@ -1,0 +1,209 @@
+{
+  "comparisons": {
+    "C1-C0": {
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "logs": 136,
+      "losses": 2628,
+      "metrics": {
+        "comfort": {
+          "baseline": 0.9999176683681871,
+          "delta": 0.0,
+          "first": 0.9999176683681871,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "drivable_area_compliance": {
+          "baseline": 0.9575992096163346,
+          "delta": -0.005269224436028322,
+          "first": 0.9523299851803063,
+          "log_cluster_95_interval": [
+            -0.010576708179739443,
+            -0.0005328742364372027
+          ]
+        },
+        "driving_direction_compliance": {
+          "baseline": 0.9795405894944837,
+          "delta": -0.0006586530545035403,
+          "first": 0.9788819364399802,
+          "log_cluster_95_interval": [
+            -0.0021418466115697274,
+            0.0007197178723902807
+          ]
+        },
+        "ego_progress": {
+          "baseline": 0.8089833899957685,
+          "delta": 0.004386612871166925,
+          "first": 0.8133700028669354,
+          "log_cluster_95_interval": [
+            4.735873866298022e-06,
+            0.008452287080677093
+          ]
+        },
+        "no_at_fault_collisions": {
+          "baseline": 0.9861271200395192,
+          "delta": -0.004075415774740655,
+          "first": 0.9820517042647785,
+          "log_cluster_95_interval": [
+            -0.0061111261540048485,
+            -0.002199150688419049
+          ]
+        },
+        "score": {
+          "baseline": 0.8760005802242555,
+          "delta": -0.004113554915663644,
+          "first": 0.871887025308592,
+          "log_cluster_95_interval": [
+            -0.008905438296400548,
+            0.00024252859799038545
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "baseline": 0.9562819035073276,
+          "delta": -0.007080520335913058,
+          "first": 0.9492013831714144,
+          "log_cluster_95_interval": [
+            -0.010667739543561195,
+            -0.0036071034139730043
+          ]
+        }
+      },
+      "scenes": 12146,
+      "ties": 3712,
+      "valid": true,
+      "wins": 5806
+    }
+  },
+  "evaluation_purpose": "user_requested_fixed_checkpoint",
+  "final_endpoint_comparison": false,
+  "groups": {
+    "C0": {
+      "PDMS_per_sampling_seed": {
+        "42": 0.8760005802242515
+      },
+      "all_sampling_runs_zero_scene_fraction": 0.05524452494648444,
+      "checkpoint": {
+        "arm": "C0",
+        "completed": 31600,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "1bffbc21e904fa38754fae7e22b759d3f72058c65ce669165292a062b4a3bed7",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "21cc9f27e43dcca104d79f40c49a118ea9f58a9d5eb5b789f5f7245e4acba581",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "f5665d5fe8c3db440b53f1d9e0c92f1cfd488412433caa6eacdd44193db4691b",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "55fa5796a5db6b6fc1d3bbe338d9f2eb0855356d049fc3563cacfe6e0dcde57a",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "d9c8a49407275cb8cf97ce5b107aae81055ab5a84bd23d76783af55ce20aa28a",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "3b4dff7e326c421de32d22d6cce915676ec55fb532229b5fa0eaca43751db720",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "6cbe12c7e05441c5650f2bfbe2174a4c80da195895f4e6d0d0e18189e88e7216",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "345d441eee2277f0bed78b48cd53957d3276ef41985c901ae7a77bfea5f12c86",
+          "mp_rank_00_model_states.pt": "c584d40d7fc395f1bf4e420800de81f9d676a34b209806a431c1460162b6e593",
+          "rng_rank0.pt": "e24b9a9b04e6d04417bda7373a2b8c2d9294983d802f702c6a1621c537c7834b",
+          "rng_rank1.pt": "9b55f716c089ec07e879507a7b7f0c8576f2aa4697e7a0d45630c5a3a3f74586",
+          "rng_rank2.pt": "f1741cc1bc522cb866988df315dad80e256b89448e5ac59e1f0cefe63ae54aca",
+          "rng_rank3.pt": "29d5285a7e7581f02d99b161f22edc2132932502a61f9d9f9dff7edd27b9eec4",
+          "rng_rank4.pt": "97c5d18334e99244108cf6a68da52ec8cad9d5eb0ea937c3701cbe4e3ad55551",
+          "rng_rank5.pt": "e24922492f0940fd6189ef87ea0e01b87462b416cd12e6fbea08fe713fa52856",
+          "rng_rank6.pt": "9861c165927fbf1b8af1980186e27ff64f4506acd408711d53fbc3aa5e7586cd",
+          "rng_rank7.pt": "85a54c8bd391e80b6878692593c11032948df88008bdf3a72403ecf1a3064c00"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "e66fb3a150d835184dff2ed5bc5d98e45b2097ce070b3f6454cdc7c1fb60779c",
+        "scope": "formal",
+        "sha256": "778b9601660553b46999fbb22ca489584ad1a73e2265d261510bebd8d240cc20",
+        "tag": "periodic_031600",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "failed_samples": 0,
+      "failed_scenes": 0,
+      "logs": 136,
+      "metrics": {
+        "comfort": 0.9999176683681871,
+        "drivable_area_compliance": 0.9575992096163346,
+        "driving_direction_compliance": 0.9795405894944837,
+        "ego_progress": 0.8089833899957658,
+        "no_at_fault_collisions": 0.9861271200395192,
+        "score": 0.8760005802242515,
+        "time_to_collision_within_bound": 0.9562819035073276
+      },
+      "sampling_seed_population_PDMS_std": null,
+      "sampling_seeds": [
+        42
+      ],
+      "scenes": 12146,
+      "valid": true,
+      "zero_sample_fraction": 0.05524452494648444
+    },
+    "C1": {
+      "PDMS_per_sampling_seed": {
+        "42": 0.8718870253085895
+      },
+      "all_sampling_runs_zero_scene_fraction": 0.06413634118228223,
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 31600,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "b464989dae9fb04d3d9828c357a8cc93d202cb49f3c1ac54c26facc5f38556b4",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "7ded02c75208fe136eb6383d01f548e34acc99a68a70b735c15a60e6bcab19dc",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "7f8158bae77ad0c8d281c2d9070e29697a684ca8b1fc987165dc07fce9ced023",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "c240bfee031968134a4db23d27f8906d5114d96c32b8b23f1bee68f386c7b719",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "26fd415e76b421124c2aaf8bb92972f4c24c59e8b81e8d4fa91eebae62d12fcd",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "ace71180be9fa2a22b965412a1a8d44fc300ad379d9ef9fa23185319cb76b070",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "482ad13ed04a36b4759eaa4fd0c5db21ee93c2d5792ffaea377cdd35fc6572f1",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "96380b37738ef22145a783bede5c4bb890816eb834198777774252b932804225",
+          "mp_rank_00_model_states.pt": "257bded0788e0ee8c326b62c6bb93385ba13bc32f6e807f2fb71bb793919ed4c",
+          "rng_rank0.pt": "e24b9a9b04e6d04417bda7373a2b8c2d9294983d802f702c6a1621c537c7834b",
+          "rng_rank1.pt": "9b55f716c089ec07e879507a7b7f0c8576f2aa4697e7a0d45630c5a3a3f74586",
+          "rng_rank2.pt": "f1741cc1bc522cb866988df315dad80e256b89448e5ac59e1f0cefe63ae54aca",
+          "rng_rank3.pt": "29d5285a7e7581f02d99b161f22edc2132932502a61f9d9f9dff7edd27b9eec4",
+          "rng_rank4.pt": "97c5d18334e99244108cf6a68da52ec8cad9d5eb0ea937c3701cbe4e3ad55551",
+          "rng_rank5.pt": "e24922492f0940fd6189ef87ea0e01b87462b416cd12e6fbea08fe713fa52856",
+          "rng_rank6.pt": "9861c165927fbf1b8af1980186e27ff64f4506acd408711d53fbc3aa5e7586cd",
+          "rng_rank7.pt": "85a54c8bd391e80b6878692593c11032948df88008bdf3a72403ecf1a3064c00"
+        },
+        "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight",
+        "run_identity": "68503d6f2017dbe84d69dbebce662db8958d841bcd94764b67d1e25253607113",
+        "scope": "formal",
+        "sha256": "ec0138a2dc1a6ef490e7e3d194d7103466454bd0ef9b3a5d2447d24f0fb6fbba",
+        "tag": "periodic_031600",
+        "training_seed": 42,
+        "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623"
+      },
+      "failed_samples": 0,
+      "failed_scenes": 0,
+      "logs": 136,
+      "metrics": {
+        "comfort": 0.9999176683681871,
+        "drivable_area_compliance": 0.9523299851803063,
+        "driving_direction_compliance": 0.9788819364399802,
+        "ego_progress": 0.8133700028669367,
+        "no_at_fault_collisions": 0.9820517042647785,
+        "score": 0.8718870253085895,
+        "time_to_collision_within_bound": 0.9492013831714144
+      },
+      "sampling_seed_population_PDMS_std": null,
+      "sampling_seeds": [
+        42
+      ],
+      "scenes": 12146,
+      "valid": true,
+      "zero_sample_fraction": 0.06413634118228223
+    }
+  },
+  "lock_identity": "e4fc5b4fc87366d46093683b87b7a6248aa97862136eb36e39b9bd5d05c3dda9",
+  "requested_update": 31600,
+  "sampling_seeds": [
+    42
+  ],
+  "schema": "ddp_full_foresight_checkpoint_probe_planning_v1",
+  "source_csv_sha256": {
+    "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest30k_20260930/C0_scores_v1/scenes.csv": "ad7ba191f4bc2f4d60e59774721156fa99453d0a0c942048afb2ae8b856e2947",
+    "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest30k_20260930/C1_scores_v1/scenes.csv": "31f496b746ab375555bce9cf9a69e17415aec5e1fb67e8df3cff04722bf1c532"
+  },
+  "split": "navtest",
+  "training_seeds": [
+    42
+  ],
+  "valid": true
+}
