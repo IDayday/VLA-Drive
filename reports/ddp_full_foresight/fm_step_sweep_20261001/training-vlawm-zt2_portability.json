@@ -1,0 +1,47 @@
+{
+  "status": "COMPLETE",
+  "hostname": "training-vlawm-zt2-worker-0",
+  "device": "NVIDIA A800-SXM4-80GB",
+  "validation_source": "d1db09f1ce30fe7ea03466c8eca9639537fa2dca",
+  "sampling_source": "771c802021e24d7ad3c3ff4f77c6de3824669edd",
+  "checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+  "torch": "2.5.1+cu124",
+  "transformers": "4.57.0",
+  "cuda": "12.4",
+  "precision": {
+    "parameter_source": "FP32 optimizer master tensors; cast only when explicitly requested",
+    "loading_path": "tools.foresight.checkpoints.load_student / DeepSpeed zero_to_fp32, strict=True",
+    "parameter_dtype_elements": {
+      "torch.float32": 2951547396
+    },
+    "compute_policy": "FP32, autocast disabled",
+    "matmul_tf32": false,
+    "cudnn_tf32": false,
+    "auxiliary_heads_removed": true,
+    "W_retained": 144
+  },
+  "scenes": [
+    {
+      "token": "7bacd3cec5df553f",
+      "max_original10_difference": 0.0,
+      "standard_vs_reuse_bitwise_equal": true
+    },
+    {
+      "token": "cce49307530e5b60",
+      "max_original10_difference": 0.0,
+      "standard_vs_reuse_bitwise_equal": true
+    },
+    {
+      "token": "7be2f6436ce95042",
+      "max_original10_difference": 0.0,
+      "standard_vs_reuse_bitwise_equal": true
+    },
+    {
+      "token": "ab94d64d31ea5435",
+      "max_original10_difference": 0.0,
+      "standard_vs_reuse_bitwise_equal": true
+    }
+  ],
+  "real_optimizer_updates": 0,
+  "pressure_management": "existing verified pressure controller automatically yields and restores; no signals sent"
+}
