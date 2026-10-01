@@ -24,3 +24,5 @@
 “—”表示没有该步数完整结果；不能把31,600/51,400/66,200重标成30k/50k/65k。C4更新数不同，不能拿不同训练长度直接判定尺寸优劣。所有Navtest使用相同FP32 master、TF32off、seed42、10步FM、单ego、完整原始精度官方缓存协议；没有scorer/oracle或在线DINO/GT教师。
 
 [包含分项与来源hash的历史汇总CSV](navtest_latest_three_v2/HISTORICAL_RESULTS.csv)。[最新完整逐场景CSV](navtest_latest_three_v2/ALL_COMPLETE.csv)。原有报告/完整CSV继续保留，新汇总不覆盖旧证据。
+
+[仅Navtest的历史汇总CSV：11次完整评测，含全部分项、零分数与实际checkpoint步数](navtest_latest_three_v2/NAVTEST_HISTORY.csv)。
