@@ -52,7 +52,7 @@ def task_id(registration, key, attempt):
     return f'navtest_auto_{registration["identity"][:12]}_{key}_seed42_a{attempt}'
 
 
-def release_owned_pressure(config, model, job):
+def release_owned_pressure(config, model, job, reason='User-authorized exact-milestone Navtest GPU sharing'):
     """Only exact ledger/cmdline/env/log/UID/process-group verified parents."""
     result_path = Path(job) / 'pressure_releases.json'
     records = read(result_path) if result_path.exists() else []
@@ -84,7 +84,7 @@ def release_owned_pressure(config, model, job):
                 records.append({'pid': pid, 'gpu': gpu, 'host': socket.gethostname(),
                                 'ledger': str(path), 'verified_cmdline': args,
                                 'verified_log': str(actual), 'unix': time.time(),
-                                'reason': 'User-authorized exact-milestone Navtest GPU sharing'})
+                                'reason': reason})
                 atomic(result_path, records)
             except (FileNotFoundError, ProcessLookupError):
                 continue
