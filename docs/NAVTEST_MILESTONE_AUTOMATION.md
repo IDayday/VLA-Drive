@@ -11,7 +11,7 @@
 使用已提交且干净的独立源码目录。配置所有路径、主机和预算均在外部 JSON 中登记；注册后 config 身份、源码和资产 hash 不可变。启动示例（本机真实路径）：
 
 ```bash
-cd /mnt/project/VLA-Drive-navtest-milestones-run-SOURCE_SHA
+cd /mnt/project/VLA-Drive-navtest-milestones-run-693a1a9
 /usr/bin/python3 -m tools.full_foresight.navtest_milestones register \
   --config /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/config.json \
   --output /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json
@@ -22,7 +22,7 @@ cd /mnt/project/VLA-Drive-navtest-milestones-run-SOURCE_SHA
   --registration /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json
 ```
 
-`SOURCE_SHA` 在部署报告中换成实际短 SHA；后台的实际 argv、PID 和完整工作目录记录于外部 `launch.json`。断线或重启观察器后，用同一条 `watch` 命令恢复。flock、独立 run ID 和进程 argv 校验防止重复观察器或同组重叠任务；已经完成的结果不重算。`--once` 仅执行一次调度扫描。
+训练未变；部署源码固定为 `693a1a967fb1304e34551d07a347b13e526eb4d6`。后台的实际 argv、PID 和完整工作目录记录于外部 `launch.json`。断线或重启观察器后，用同一条 `watch` 命令恢复。flock、独立 run ID 和进程 argv 校验防止重复观察器或同组重叠任务；已经完成的结果不重算。`--once` 仅执行一次调度扫描。
 
 输出均在外部 artifact 根目录：
 

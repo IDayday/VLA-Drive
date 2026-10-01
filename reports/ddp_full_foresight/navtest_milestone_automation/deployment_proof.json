@@ -1,0 +1,126 @@
+{
+  "schema": "navtest_milestone_deployment_v1",
+  "source": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+  "registration": "b66b1badc73e19b5ad99c13ba30a5ed09c9572234c495fca8b1079350cd2cb52",
+  "created_unix": 1790817505.7195435,
+  "observer_launch": {
+    "pid": 2451267,
+    "command": [
+      "/usr/bin/python3",
+      "-u",
+      "-m",
+      "tools.full_foresight.navtest_milestones",
+      "watch",
+      "--registration",
+      "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json"
+    ],
+    "cwd": "/mnt/project/VLA-Drive-navtest-milestones-run-693a1a9",
+    "hostname": "training-vla-zt-worker-0",
+    "source_sha": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+    "registration": "b66b1badc73e19b5ad99c13ba30a5ed09c9572234c495fca8b1079350cd2cb52",
+    "started_unix": 1790817408.1024833
+  },
+  "observer_status": {
+    "status": "RUNNING",
+    "pid": 2451267,
+    "registration": "b66b1badc73e19b5ad99c13ba30a5ed09c9572234c495fca8b1079350cd2cb52",
+    "source": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+    "started_unix": 1790817365.7196007,
+    "updated_unix": 1790817498.919217,
+    "active_models": [],
+    "completed_tasks": 0,
+    "total_tasks": 12,
+    "evaluation_gpu_process_hours": 0.0,
+    "training_modified": false,
+    "tasks": {
+      "C0_070000": "WAITING",
+      "C0_080000": "WAITING",
+      "C0_090000": "WAITING",
+      "C0_100000": "WAITING",
+      "C1_070000": "WAITING",
+      "C1_080000": "WAITING",
+      "C1_090000": "WAITING",
+      "C1_100000": "WAITING",
+      "C4_070000": "WAITING",
+      "C4_080000": "WAITING",
+      "C4_090000": "WAITING",
+      "C4_100000": "WAITING"
+    }
+  },
+  "preflight": [
+    {
+      "host": "training-vla-zt-worker-0",
+      "source": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+      "gpu_headroom": true,
+      "GPU_count": 8,
+      "optimizer_updates": 0,
+      "processes_launched": 0,
+      "arm": "C0",
+      "command": [
+        "/usr/bin/python3",
+        "-u",
+        "-m",
+        "tools.full_foresight.navtest_milestones",
+        "export-group",
+        "--registration",
+        "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json",
+        "--task",
+        "C0_070000",
+        "--preflight"
+      ],
+      "checked_unix": 1790817503.6857126
+    },
+    {
+      "host": "training-vla-zt2-worker-0",
+      "source": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+      "gpu_headroom": true,
+      "GPU_count": 8,
+      "optimizer_updates": 0,
+      "processes_launched": 0,
+      "arm": "C1",
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=15",
+        "training-vla-zt2",
+        "cd /mnt/project/VLA-Drive-navtest-milestones-run-693a1a9 && exec /usr/bin/python3 -u -m tools.full_foresight.navtest_milestones export-group --registration /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json --task C1_070000 --preflight"
+      ],
+      "checked_unix": 1790817504.59816
+    },
+    {
+      "host": "training-rl-zt2-worker-0",
+      "source": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+      "gpu_headroom": true,
+      "GPU_count": 8,
+      "optimizer_updates": 0,
+      "processes_launched": 0,
+      "arm": "C4",
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=15",
+        "training-rl-zt2",
+        "cd /mnt/project/VLA-Drive-navtest-milestones-run-693a1a9 && exec /usr/bin/python3 -u -m tools.full_foresight.navtest_milestones export-group --registration /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json --task C4_070000 --preflight"
+      ],
+      "checked_unix": 1790817505.528001
+    }
+  ],
+  "cpu_tests": 28,
+  "duplicate_observer_rejected": true,
+  "training_progress_snapshot": {
+    "C0": 68962,
+    "C1": 69064,
+    "C4": 42982
+  },
+  "training_source_unchanged": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+  "controller_modified": false,
+  "metric_protocol": "FP32/TF32off/seed42/Euler10/singleego/no_scorer/full_original_v1_cache/12146scenes/136logs",
+  "disk_free_GiB": 6551.916728973389,
+  "retained_checkpoint_max_GiB_estimate": 419,
+  "expected_gpu_process_hours_estimate": 93,
+  "future_results_pending": true
+}

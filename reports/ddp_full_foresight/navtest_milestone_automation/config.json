@@ -1,0 +1,77 @@
+{
+  "schema": "ddp_navtest_milestone_schedule_v1",
+  "evaluation_source_sha": "693a1a967fb1304e34551d07a347b13e526eb4d6",
+  "source_worktree": "/mnt/project/VLA-Drive-navtest-milestones-run-693a1a9",
+  "artifact_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001",
+  "campaign_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929",
+  "campaign_gpu_hours": 6000,
+  "evaluation_gpu_hours": 150,
+  "updates": [
+    70000,
+    80000,
+    90000,
+    100000
+  ],
+  "models": [
+    {
+      "arm": "C0",
+      "training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/students/formal_C0_seed42_priority_v2",
+      "run_identity": "e66fb3a150d835184dff2ed5bc5d98e45b2097ce070b3f6454cdc7c1fb60779c",
+      "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+      "host": "local",
+      "hostname": "training-vla-zt-worker-0",
+      "development_report": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/canonical_evaluation_v1/dev50000_paired/summary.json"
+    },
+    {
+      "arm": "C1",
+      "training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/students/formal_C1_seed42_priority_v2",
+      "run_identity": "68503d6f2017dbe84d69dbebce662db8958d841bcd94764b67d1e25253607113",
+      "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+      "host": "training-vla-zt2",
+      "hostname": "training-vla-zt2-worker-0",
+      "development_report": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/canonical_evaluation_v1/dev50000_paired/summary.json"
+    },
+    {
+      "arm": "C4",
+      "training_run": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/students/formal_C4_seed42_rlzt2_v1",
+      "run_identity": "32c4da87c32a145179a6bc4ce09bc8d4985a1ee7eddbbdbdee5fbfdf4a00556c",
+      "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+      "host": "training-rl-zt2",
+      "hostname": "training-rl-zt2-worker-0",
+      "development_report": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930/C4/dev25000_evidence/summary.json"
+    }
+  ],
+  "current_root": "/mnt/project/ddpolicy-vehicle-joint-artifacts/20260928/current_navtest_v1",
+  "metric_index": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+  "devkit": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+  "cache_snapshot": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930_v2/cache_snapshot.csv",
+  "cache_audit": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930_v2/cache_audit.json",
+  "ego_labels": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest25k_20260930/offline_ego_labels_v1",
+  "inference_python": "/root/miniconda3/envs/ddp/bin/python",
+  "scoring_python": "/root/miniconda3/envs/navsim/bin/python",
+  "worker_python": "/usr/bin/python3",
+  "sampling_seed": 42,
+  "gpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "cpu_workers": 16,
+  "gpu_memory_fraction": 0.45,
+  "minimum_free_mib": 20000,
+  "poll_seconds": 10,
+  "task_timeout_seconds": 21600,
+  "watch_timeout_seconds": 259200,
+  "pressure_script": "/mnt/project/gpu_stress.py",
+  "pressure_python": "/root/miniconda3/envs/navsim/bin/python",
+  "baseline_scores": {
+    "C0": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930_v2/C0_scores_v1",
+    "C1": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930_v2/C1_scores_v1",
+    "C4": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_latest_three_20260930_v2/C4_scores_v1"
+  }
+}

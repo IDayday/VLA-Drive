@@ -9,3 +9,23 @@
 代码发布后，从固定干净 detached worktree 建立真实不可变注册并启动后台。实际 source SHA、远端 SHA、注册 identity、三主机 preflight、PID / argv 和启动状态将追加为单独部署证据。此刻尚未到目标 update，不宣称未来 12 项评分已完成。此前 Navtest 结果完整保留。
 
 使用及恢复见 `docs/NAVTEST_MILESTONE_AUTOMATION.md`。
+
+## 实际部署
+
+代码源码：`693a1a967fb1304e34551d07a347b13e526eb4d6`，已推送并核对远端 SHA。后台使用独立干净 `/mnt/project/VLA-Drive-navtest-milestones-run-693a1a9`，报告工作区不参与正在运行的源码。
+
+真实冻结注册：`b66b1badc73e19b5ad99c13ba30a5ed09c9572234c495fca8b1079350cd2cb52`；后台 PID `2451267`，状态 RUNNING，12 项 WAITING。三台授权主机（local / training-vla-zt2 / training-rl-zt2）真实 preflight 均通过，0 GPU 工作负载、0 optimizer updates。另一个实际观察器启动被 flock 拒绝，未产生重复任务。
+
+外部根目录：`/mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001`。注册、argv、PID、状态、日志与结果均持久化。每项结果写 `jobs/C0_070000/complete.csv` 等，完成后自动更新 `SUMMARY.csv`。完整固定 70k/80k/90k/100k 任务未到步数，尚无这些权重的新评分；不要将历史 replay 分数当成新结果。
+
+新 finalizer 已对历史 C0 66200 的真实完整结果进行只读回放：12146 行、0 失败，重新生成分项/轨迹误差 CSV 与同 run 51400→66200 配对汇总，PDMS 精确保持 88.63932710917449。输入链接只读，不重新推理、不重新评分、不训练。
+
+真实后台恢复命令：
+
+```bash
+cd /mnt/project/VLA-Drive-navtest-milestones-run-693a1a9
+/usr/bin/python3 -u -m tools.full_foresight.navtest_milestones watch \
+  --registration /mnt/project/ddp-full-foresight-study-artifacts/20260929/navtest_milestones_20261001/registration.json
+```
+
+正在运行时无需执行恢复命令；重复启动会被拒绝。部署证据及精确配置见同目录 `navtest_milestone_automation/`。原训练源码、控制器、权重及历史报告均保留。
