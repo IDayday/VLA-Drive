@@ -6,7 +6,7 @@ import torch
 
 from starVLA.dataloader.foresight_dataset import decode_ego
 from starVLA.model.modules.action_model.GR00T_ActionHeader import FlowmatchingActionHead
-from tools.full_foresight.fm_step_sweep import sample_encoded, validate_steps, STEPS
+from tools.full_foresight.fm_step_sweep import sample_encoded, validate_steps, STEPS, signature
 
 
 class EchoEncoder(torch.nn.Module):
@@ -79,3 +79,9 @@ def test_repeated_scans_do_not_chain_the_previous_solution():
     sample_encoded(model,encoded,noise,1)
     repeated=sample_encoded(model,encoded,noise,30)
     assert torch.equal(first,repeated)
+
+
+def test_export_signature_uses_official_scorer_canonical_json():
+    from tools.foresight.score_pdms import identity_hash
+    value={'protocol':{'steps':10,'precision':'FP32'},'world_size':16}
+    assert signature(value)==identity_hash(value)

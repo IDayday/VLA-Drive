@@ -7,6 +7,7 @@ use tools.foresight.score_pdms and the canonical unmodified NAVSIM v1 caches.
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import csv
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -15,11 +16,17 @@ import socket
 import subprocess
 import time
 
-from .navtest_schedule import atomic, lease, read, sha, signature, source_identity
+from .navtest_schedule import atomic, lease, read, sha, source_identity
 from .navtest_milestones import environment, release_owned_pressure, restore_owned_pressure
 
 MODULE = 'tools.full_foresight.fm_step_sweep'
 STEPS = [1, 2, 3, 5, 8, 10, 15, 20, 30]
+
+
+def signature(value):
+    # The GPU/official scorer contract uses compact JSON, whereas the older
+    # observer's internal registration signature uses whitespace separators.
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
 def validate_steps(steps):

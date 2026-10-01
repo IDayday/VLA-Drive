@@ -55,7 +55,7 @@ Targeted CPU verification:
 $INFERENCE_PYTHON -m pytest -q tests/full_foresight/test_fm_step_sweep.py
 ```
 
-18 tests pass: the real action-head Euler loop, time bucket schedule, noise
+19 tests pass: the real action-head Euler loop, time bucket schedule, noise
 independence, unchanged parameters, exact 10-step path and default restoration
 on exceptions. Real GPU/official-score results belong to the run evidence;
 CPU tests alone are not evidence of PDMS or real checkpoint parity.
