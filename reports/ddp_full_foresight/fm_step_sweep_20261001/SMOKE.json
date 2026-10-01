@@ -1,0 +1,48 @@
+{
+  "status": "COMPLETE",
+  "scenes": 4,
+  "original10_parity": [
+    {
+      "token": "7bacd3cec5df553f",
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "token": "cce49307530e5b60",
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "token": "7be2f6436ce95042",
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "token": "ab94d64d31ea5435",
+      "maximum_absolute_difference": 0.0
+    }
+  ],
+  "shared_condition_vs_standard": "bitwise identical for every tested N",
+  "weight_updates": 0,
+  "steps": [
+    1,
+    2,
+    3,
+    5,
+    8,
+    10,
+    15,
+    20,
+    30
+  ],
+  "checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+  "precision": {
+    "parameter_source": "FP32 optimizer master tensors; cast only when explicitly requested",
+    "loading_path": "tools.foresight.checkpoints.load_student / DeepSpeed zero_to_fp32, strict=True",
+    "parameter_dtype_elements": {
+      "torch.float32": 2951547396
+    },
+    "compute_policy": "FP32, autocast disabled",
+    "matmul_tf32": false,
+    "cudnn_tf32": false,
+    "auxiliary_heads_removed": true,
+    "W_retained": 144
+  }
+}
