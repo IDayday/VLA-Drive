@@ -59,3 +59,27 @@ $INFERENCE_PYTHON -m pytest -q tests/full_foresight/test_fm_step_sweep.py
 independence, unchanged parameters, exact 10-step path and default restoration
 on exceptions. Real GPU/official-score results belong to the run evidence;
 CPU tests alone are not evidence of PDMS or real checkpoint parity.
+
+The completed C1@100k measurement is recorded in
+[the result report](../reports/ddp_full_foresight/FM_STEP_SWEEP_RESULTS_20261002.md).
+It contains all nine full Navtest scores, ego errors and separate FP32 timings.
+The new 10-step metric factors match the archived evaluation exactly.
+
+The controller now performs a canonical final CPU merge after all GPU completion
+markers exist. A scoring process can legitimately finish its rows before those
+markers and return success with a PAUSED summary; success alone is insufficient.
+For already complete prediction/score parts, the merge can be invoked separately:
+
+```bash
+/usr/bin/python3 -m tools.full_foresight.fm_step_sweep merge \
+  --registration "$SWEEP_ROOT/registration.json" --attempt 2
+/usr/bin/python3 -m tools.full_foresight.fm_step_sweep summarize \
+  --registration "$SWEEP_ROOT/registration.json"
+```
+
+The merge uses the existing official score adapter and never generates trajectories
+or recalculates scores. The actual recovered campaign retains its original sampler
+source and preserves its initial controller failure alongside the complete results.
+Offline `tools.full_foresight.postprocess_fm_steps --registration ...` adds ego
+ADE/FDE/yaw and a complete per-scene CSV using the existing evaluator; it has no GPU
+or model dependency. Its completed population is 109,314 scene/step rows.

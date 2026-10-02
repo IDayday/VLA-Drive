@@ -1,0 +1,1417 @@
+{
+  "schema": "ddp_fm_step_sweep_results_v1",
+  "registration": "e518076e3da33dde313194bc93835c4c14c15d1b60a33f1e8fd54fef6c43421d",
+  "checkpoint": {
+    "sha256": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+    "run_identity": "68503d6f2017dbe84d69dbebce662db8958d841bcd94764b67d1e25253607113",
+    "training_source_sha": "d1d40854299b9599b2accc382bcfc4b676dd7623",
+    "tag": "milestone_100000",
+    "completed": 100000,
+    "arm": "C1",
+    "scope": "formal",
+    "files": {
+      "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "1ae148aaf04c1e488044a0dca42f84c2a43c4ef2031ec80926be16f01290bfb3",
+      "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "2f9760b6eece9075164ddd2784df2699b5cbf393cfb90dae48f04e22582a410e",
+      "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "32c752b0384091179f5fe65c850f187b20c182521e1496104449846e573793da",
+      "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "702cce844a228211a2f1335a8c852101ff81885868e0cabc5dabaf7b705c61e3",
+      "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "a1df6ddb2ca56d92cbd843c59178287cda64794b086f62504c72c486ef5f37a3",
+      "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "539d5e18c1307de7eb2c5a821ffff1730cf2642bfced568e6e95c6b4cddd3df9",
+      "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "ba36aee1e1b2c99eba8528ae4ece157a2cabb8d8879b0a18ac8a9bb15cbb78a5",
+      "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "ff06b0ba31cbfb29087fe4b5b26067a574cc9816c47b6e86dbbd135ab9227d3f",
+      "mp_rank_00_model_states.pt": "76aff54843cd100fbfd9f5274d0c320a2b8808dc6a53972bd6305469ddd1656d",
+      "rng_rank0.pt": "4b4b020a71964e57a5cf219b3df7897f947fd38c733c5be605529aaa30797ad4",
+      "rng_rank1.pt": "a83dae7c66da6edf373a3b21e922c5741f6284fe91bd861d116629f9e9e57349",
+      "rng_rank2.pt": "5ceadc573da3450afc74e10d3e5d7acab675de2ff9f0e4208f64d492a033c4d8",
+      "rng_rank3.pt": "fcdcced8f006eccbb9dca96f0beb77b58a7d923b5dc6e43e480fdc343a1ce550",
+      "rng_rank4.pt": "049a393984352c5a8a2623745f771c54ad0aa8b3e2959453cf07cdb3d6f21c15",
+      "rng_rank5.pt": "43254061759aa4dfdb6924bbfa09e73eb1966e0fc30cc7a3cbc59834f98476d7",
+      "rng_rank6.pt": "cae8245b40117aed7447becd87519575dadefdaf8925a45df7212c1948414a91",
+      "rng_rank7.pt": "4dc1dc709853d6a81732b8560e10af1952e85c5f0d4157271bccd50d846510a6"
+    },
+    "training_seed": 42,
+    "model_class": "starVLA.model.framework.ddp_full_foresight.DDPFullForesight"
+  },
+  "rows": [
+    {
+      "steps": 1,
+      "dt": 1.0,
+      "PDMS": 88.17804147293951,
+      "delta_PDMS_vs10": -1.061494102098215,
+      "zero_scenes": 673,
+      "failed": 0,
+      "comfort": 99.91766836818707,
+      "drivable_area_compliance": 96.23744442614853,
+      "driving_direction_compliance": 98.3657171085131,
+      "ego_progress": 82.96877494101406,
+      "no_at_fault_collisions": 98.09813930512102,
+      "score": 88.17804147293951,
+      "time_to_collision_within_bound": 94.38498271035732,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 0.9509886689484119,
+      "p95_seconds": 0.962972508277744,
+      "all_scenes_solver_p50_seconds": 0.028964060358703136,
+      "ADE": 0.9042274568625539,
+      "FDE": 1.8487789795458611,
+      "yaw_MAE_rad": 0.029143096310411207,
+      "yaw_endpoint_rad": 0.04685479750800303,
+      "delta_log95_lower_points": -1.3898021115307377,
+      "delta_log95_upper_points": -0.7506089384487024
+    },
+    {
+      "steps": 2,
+      "dt": 0.5,
+      "PDMS": 89.13788055198486,
+      "delta_PDMS_vs10": -0.10165502305287122,
+      "zero_scenes": 561,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.01136176519019,
+      "driving_direction_compliance": 98.37806685328503,
+      "ego_progress": 83.50663778879986,
+      "no_at_fault_collisions": 98.23810307920303,
+      "score": 89.13788055198486,
+      "time_to_collision_within_bound": 95.01893627531697,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 0.9743547523394227,
+      "p95_seconds": 0.98228920083493,
+      "all_scenes_solver_p50_seconds": 0.05447408091276884,
+      "ADE": 0.8715563478645654,
+      "FDE": 1.8354570262818453,
+      "yaw_MAE_rad": 0.02507316518264047,
+      "yaw_endpoint_rad": 0.042056883101907326,
+      "delta_log95_lower_points": -0.2966216195964525,
+      "delta_log95_upper_points": 0.08904087216016976
+    },
+    {
+      "steps": 3,
+      "dt": 0.3333333333333333,
+      "PDMS": 89.25727930425255,
+      "delta_PDMS_vs10": 0.017743729214814152,
+      "zero_scenes": 543,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.1513255392722,
+      "driving_direction_compliance": 98.36983369010373,
+      "ego_progress": 83.4544020137982,
+      "no_at_fault_collisions": 98.25456940556562,
+      "score": 89.25727930425255,
+      "time_to_collision_within_bound": 95.15890004939898,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.0044871661812067,
+      "p95_seconds": 1.0161235196515919,
+      "all_scenes_solver_p50_seconds": 0.08084502909332514,
+      "ADE": 0.860547985463965,
+      "FDE": 1.831254223687779,
+      "yaw_MAE_rad": 0.024199385212246464,
+      "yaw_endpoint_rad": 0.0409956872582734,
+      "delta_log95_lower_points": -0.12624439946990648,
+      "delta_log95_upper_points": 0.1617195142513665
+    },
+    {
+      "steps": 5,
+      "dt": 0.2,
+      "PDMS": 89.21746393458623,
+      "delta_PDMS_vs10": -0.022071640451493124,
+      "zero_scenes": 543,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.16779186563478,
+      "driving_direction_compliance": 98.3492507821505,
+      "ego_progress": 83.40001881651573,
+      "no_at_fault_collisions": 98.23810307920303,
+      "score": 89.21746393458623,
+      "time_to_collision_within_bound": 95.10126790712991,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.0548006892204285,
+      "p95_seconds": 1.067035327013582,
+      "all_scenes_solver_p50_seconds": 0.13388226367533207,
+      "ADE": 0.8570114481863487,
+      "FDE": 1.8299111759434952,
+      "yaw_MAE_rad": 0.02383551809274282,
+      "yaw_endpoint_rad": 0.04058981778703646,
+      "delta_log95_lower_points": -0.13302726774095014,
+      "delta_log95_upper_points": 0.09412004079588239
+    },
+    {
+      "steps": 8,
+      "dt": 0.125,
+      "PDMS": 89.31019873745811,
+      "delta_PDMS_vs10": 0.07066316242037018,
+      "zero_scenes": 529,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.2830561501729,
+      "driving_direction_compliance": 98.34513420055985,
+      "ego_progress": 83.47425534814604,
+      "no_at_fault_collisions": 98.23810307920303,
+      "score": 89.31019873745811,
+      "time_to_collision_within_bound": 95.1342005598551,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.137745757587254,
+      "p95_seconds": 1.1520262328907847,
+      "all_scenes_solver_p50_seconds": 0.21321246773004532,
+      "ADE": 0.8542930786447686,
+      "FDE": 1.8287373104619107,
+      "yaw_MAE_rad": 0.023611198749163266,
+      "yaw_endpoint_rad": 0.040436275621881596,
+      "delta_log95_lower_points": -0.00687864413672289,
+      "delta_log95_upper_points": 0.15882434020213002
+    },
+    {
+      "steps": 10,
+      "dt": 0.1,
+      "PDMS": 89.23953557503773,
+      "delta_PDMS_vs10": 0.0,
+      "zero_scenes": 540,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.22542400790384,
+      "driving_direction_compliance": 98.34513420055985,
+      "ego_progress": 83.40676536511026,
+      "no_at_fault_collisions": 98.21340358965914,
+      "score": 89.23953557503773,
+      "time_to_collision_within_bound": 95.11773423349251,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.1882443558424711,
+      "p95_seconds": 1.206856702361256,
+      "all_scenes_solver_p50_seconds": 0.266532713547349,
+      "ADE": 0.8541240895855754,
+      "FDE": 1.8289683911838592,
+      "yaw_MAE_rad": 0.02354898162525551,
+      "yaw_endpoint_rad": 0.04041018473033513,
+      "delta_log95_lower_points": 0.0,
+      "delta_log95_upper_points": 0.0
+    },
+    {
+      "steps": 15,
+      "dt": 0.06666666666666667,
+      "PDMS": 89.27010375724844,
+      "delta_PDMS_vs10": 0.030568182210699568,
+      "zero_scenes": 537,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.2665898238103,
+      "driving_direction_compliance": 98.34513420055985,
+      "ego_progress": 83.40438527555366,
+      "no_at_fault_collisions": 98.19693726329656,
+      "score": 89.27010375724844,
+      "time_to_collision_within_bound": 95.14243372303639,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.3231489825993776,
+      "p95_seconds": 1.3446089368313552,
+      "all_scenes_solver_p50_seconds": 0.39864093996584415,
+      "ADE": 0.8541960202385367,
+      "FDE": 1.8310259572943481,
+      "yaw_MAE_rad": 0.02353679610591876,
+      "yaw_endpoint_rad": 0.040458140697433,
+      "delta_log95_lower_points": -0.030920504529501947,
+      "delta_log95_upper_points": 0.09908559147198966
+    },
+    {
+      "steps": 20,
+      "dt": 0.05,
+      "PDMS": 89.26317124823655,
+      "delta_PDMS_vs10": 0.02363567319881854,
+      "zero_scenes": 540,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.23365717108513,
+      "driving_direction_compliance": 98.35336736374116,
+      "ego_progress": 83.38940278673559,
+      "no_at_fault_collisions": 98.19693726329656,
+      "score": 89.26317124823655,
+      "time_to_collision_within_bound": 95.17536637576157,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.4595600282773376,
+      "p95_seconds": 1.4787306747399271,
+      "all_scenes_solver_p50_seconds": 0.5316595705226064,
+      "ADE": 0.8539743816809923,
+      "FDE": 1.8303146631370752,
+      "yaw_MAE_rad": 0.02352534040294461,
+      "yaw_endpoint_rad": 0.04043592952134354,
+      "delta_log95_lower_points": -0.03991428522749183,
+      "delta_log95_upper_points": 0.09725774540010237
+    },
+    {
+      "steps": 30,
+      "dt": 0.03333333333333333,
+      "PDMS": 89.20204051860424,
+      "delta_PDMS_vs10": -0.037495056433489715,
+      "zero_scenes": 542,
+      "failed": 0,
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.22542400790384,
+      "driving_direction_compliance": 98.3574839453318,
+      "ego_progress": 83.3603864688819,
+      "no_at_fault_collisions": 98.18458751852461,
+      "score": 89.20204051860424,
+      "time_to_collision_within_bound": 95.06833525440474,
+      "standalone_scenes": 64,
+      "precision": "FP32",
+      "tf32": false,
+      "batch": 1,
+      "includes": "current encode + original Euler + decode; excludes image I/O/model loading",
+      "p50_seconds": 1.7295242417603731,
+      "p95_seconds": 1.7651235318742693,
+      "all_scenes_solver_p50_seconds": 0.796767040155828,
+      "ADE": 0.8546688663968117,
+      "FDE": 1.832037942497996,
+      "yaw_MAE_rad": 0.02364160187930593,
+      "yaw_endpoint_rad": 0.04063351437855539,
+      "delta_log95_lower_points": -0.15833131903780073,
+      "delta_log95_upper_points": 0.07956431179806425
+    }
+  ],
+  "paired_vs10": {
+    "1": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8817804147294,
+          "baseline": 0.8923953557503727,
+          "paired_delta": -0.010614941020972622,
+          "log_cluster_95_interval": [
+            -0.013898021115307376,
+            -0.0075060893844870235
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9809813930512102,
+          "baseline": 0.9821340358965914,
+          "paired_delta": -0.0011526428453811955,
+          "log_cluster_95_interval": [
+            -0.0023591452249981677,
+            0.0
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9623744442614852,
+          "baseline": 0.9722542400790384,
+          "paired_delta": -0.009879795817553104,
+          "log_cluster_95_interval": [
+            -0.01294980509705978,
+            -0.007032403673030757
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8296877494101418,
+          "baseline": 0.8340676536511021,
+          "paired_delta": -0.004379904240960286,
+          "log_cluster_95_interval": [
+            -0.007447170398926187,
+            -0.0014890705172569251
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9438498271035732,
+          "baseline": 0.9511773423349251,
+          "paired_delta": -0.007327515231351885,
+          "log_cluster_95_interval": [
+            -0.009812025238203065,
+            -0.00495039838532148
+          ]
+        },
+        "comfort": {
+          "first": 0.9991766836818706,
+          "baseline": 0.9999176683681871,
+          "paired_delta": -0.0007409846863164828,
+          "log_cluster_95_interval": [
+            -0.0012690355329949238,
+            -0.00025175600430376834
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.983657171085131,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.00020582907953235632,
+          "log_cluster_95_interval": [
+            -0.0004661915801989647,
+            0.0009190430292114235
+          ]
+        }
+      },
+      "wins": 5814,
+      "losses": 2116,
+      "ties": 4216,
+      "first_zero_fraction": 0.05540918821011032,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 88.17804147294001,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": -1.0614941020972621
+    },
+    "2": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.891378805519846,
+          "baseline": 0.8923953557503727,
+          "paired_delta": -0.0010165502305264679,
+          "log_cluster_95_interval": [
+            -0.0029662161959645252,
+            0.0008904087216016975
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9823810307920303,
+          "baseline": 0.9821340358965914,
+          "paired_delta": 0.0002469948954388276,
+          "log_cluster_95_interval": [
+            -0.000301497371732818,
+            0.0008165548344624154
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9701136176519018,
+          "baseline": 0.9722542400790384,
+          "paired_delta": -0.002140622427136506,
+          "log_cluster_95_interval": [
+            -0.0041236126056714475,
+            -0.00022237555123267604
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8350663778880019,
+          "baseline": 0.8340676536511021,
+          "paired_delta": 0.0009987242368997731,
+          "log_cluster_95_interval": [
+            -0.0008791392686433358,
+            0.0028219900895661504
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9501893627531698,
+          "baseline": 0.9511773423349251,
+          "paired_delta": -0.0009879795817553103,
+          "log_cluster_95_interval": [
+            -0.0023323829309512554,
+            0.0002598105559917198
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9837806685328503,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.00032932652725177014,
+          "log_cluster_95_interval": [
+            -0.0002647649293500095,
+            0.0009473926622571107
+          ]
+        }
+      },
+      "wins": 5516,
+      "losses": 2302,
+      "ties": 4328,
+      "first_zero_fraction": 0.04618804544706076,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.13788055198461,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": -0.10165502305264679
+    },
+    "3": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8925727930425283,
+          "baseline": 0.8923953557503727,
+          "paired_delta": 0.00017743729215576856,
+          "log_cluster_95_interval": [
+            -0.001262443994699065,
+            0.0016171951425136648
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9825456940556562,
+          "baseline": 0.9821340358965914,
+          "paired_delta": 0.00041165815906471265,
+          "log_cluster_95_interval": [
+            -4.253708533950293e-05,
+            0.0008982841765215754
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9715132553927219,
+          "baseline": 0.9722542400790384,
+          "paired_delta": -0.0007409846863164828,
+          "log_cluster_95_interval": [
+            -0.002185177305566108,
+            0.0007542777108377479
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8345440201379837,
+          "baseline": 0.8340676536511021,
+          "paired_delta": 0.00047636648688154396,
+          "log_cluster_95_interval": [
+            -0.0008675205084481913,
+            0.0018225884735026982
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9515890004939898,
+          "baseline": 0.9511773423349251,
+          "paired_delta": 0.00041165815906471265,
+          "log_cluster_95_interval": [
+            -0.000605974060061202,
+            0.0013923950573161892
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9836983369010374,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.0002469948954388276,
+          "log_cluster_95_interval": [
+            -0.0001504705927941974,
+            0.0006586219063789271
+          ]
+        }
+      },
+      "wins": 4360,
+      "losses": 3420,
+      "ties": 4366,
+      "first_zero_fraction": 0.044706076074427795,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.25727930425283,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": 0.017743729215576855
+    },
+    "5": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8921746393458614,
+          "baseline": 0.8923953557503727,
+          "paired_delta": -0.00022071640451134606,
+          "log_cluster_95_interval": [
+            -0.0013302726774095015,
+            0.0009412004079588238
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9823810307920303,
+          "baseline": 0.9821340358965914,
+          "paired_delta": 0.0002469948954388276,
+          "log_cluster_95_interval": [
+            -0.00014901741663465013,
+            0.0006914978188101344
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9716779186563478,
+          "baseline": 0.9722542400790384,
+          "paired_delta": -0.0005763214226905978,
+          "log_cluster_95_interval": [
+            -0.001748317340488426,
+            0.0006237389536809142
+          ]
+        },
+        "ego_progress": {
+          "first": 0.834000188165158,
+          "baseline": 0.8340676536511021,
+          "paired_delta": -6.746548594412186e-05,
+          "log_cluster_95_interval": [
+            -0.0010731515408455964,
+            0.0009885797295239947
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9510126790712992,
+          "baseline": 0.9511773423349251,
+          "paired_delta": -0.00016466326362588507,
+          "log_cluster_95_interval": [
+            -0.0010317279621274479,
+            0.0006877839642407572
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.983492507821505,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 4.116581590647127e-05,
+          "log_cluster_95_interval": [
+            -0.0002549906063291154,
+            0.00037545702966896574
+          ]
+        }
+      },
+      "wins": 4349,
+      "losses": 3411,
+      "ties": 4386,
+      "first_zero_fraction": 0.044706076074427795,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.21746393458614,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": -0.022071640451134605
+    },
+    "8": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8931019873745822,
+          "baseline": 0.8923953557503727,
+          "paired_delta": 0.0007066316242094572,
+          "log_cluster_95_interval": [
+            -6.87864413672289e-05,
+            0.0015882434020213002
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9823810307920303,
+          "baseline": 0.9821340358965914,
+          "paired_delta": 0.0002469948954388276,
+          "log_cluster_95_interval": [
+            -8.182335804019089e-05,
+            0.0006409111931223266
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.972830561501729,
+          "baseline": 0.9722542400790384,
+          "paired_delta": 0.0005763214226905978,
+          "log_cluster_95_interval": [
+            -0.0002471543424010013,
+            0.001501799980004561
+          ]
+        },
+        "ego_progress": {
+          "first": 0.834742553481462,
+          "baseline": 0.8340676536511021,
+          "paired_delta": 0.0006748998303598403,
+          "log_cluster_95_interval": [
+            -9.913307983683221e-05,
+            0.00153721077347173
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.951342005598551,
+          "baseline": 0.9511773423349251,
+          "paired_delta": 0.00016466326362588507,
+          "log_cluster_95_interval": [
+            -0.0003418248328387708,
+            0.0006944204062336118
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9834513420055986,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            -0.00018981130860481487,
+            0.00020843018523003572
+          ]
+        }
+      },
+      "wins": 2947,
+      "losses": 4789,
+      "ties": 4410,
+      "first_zero_fraction": 0.0435534332290466,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.31019873745822,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": 0.07066316242094572
+    },
+    "10": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8923953557503727,
+          "baseline": 0.8923953557503727,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9821340358965914,
+          "baseline": 0.9821340358965914,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9722542400790384,
+          "baseline": 0.9722542400790384,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8340676536511021,
+          "baseline": 0.8340676536511021,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9511773423349251,
+          "baseline": 0.9511773423349251,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9834513420055986,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "wins": 0,
+      "losses": 0,
+      "ties": 12146,
+      "first_zero_fraction": 0.04445908117898897,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.23953557503727,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": 0.0
+    },
+    "15": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8927010375724836,
+          "baseline": 0.8923953557503727,
+          "paired_delta": 0.0003056818221110546,
+          "log_cluster_95_interval": [
+            -0.0003092050452950195,
+            0.0009908559147198965
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9819693726329656,
+          "baseline": 0.9821340358965914,
+          "paired_delta": -0.00016466326362588507,
+          "log_cluster_95_interval": [
+            -0.0004955931456504924,
+            0.00015821348165048082
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9726658982381031,
+          "baseline": 0.9722542400790384,
+          "paired_delta": 0.00041165815906471265,
+          "log_cluster_95_interval": [
+            -0.00016428628258886022,
+            0.0010949327821795382
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8340438527555383,
+          "baseline": 0.8340676536511021,
+          "paired_delta": -2.3800895563905985e-05,
+          "log_cluster_95_interval": [
+            -0.0005830435859192409,
+            0.0005996381793067792
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9514243372303639,
+          "baseline": 0.9511773423349251,
+          "paired_delta": 0.0002469948954388276,
+          "log_cluster_95_interval": [
+            -0.0002460327385112037,
+            0.0008349665477357303
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9834513420055986,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            -0.00016665347337953802,
+            0.00016917825996469636
+          ]
+        }
+      },
+      "wins": 3076,
+      "losses": 4647,
+      "ties": 4423,
+      "first_zero_fraction": 0.04421208628355014,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.27010375724836,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": 0.030568182211105462
+    },
+    "20": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8926317124823656,
+          "baseline": 0.8923953557503727,
+          "paired_delta": 0.00023635673199312197,
+          "log_cluster_95_interval": [
+            -0.0003991428522749183,
+            0.0009725774540010237
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9819693726329656,
+          "baseline": 0.9821340358965914,
+          "paired_delta": -0.00016466326362588507,
+          "log_cluster_95_interval": [
+            -0.0006950498107962005,
+            0.000324153050730886
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9723365717108513,
+          "baseline": 0.9722542400790384,
+          "paired_delta": 8.233163181294254e-05,
+          "log_cluster_95_interval": [
+            -0.0005584831600848119,
+            0.000806010946400894
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8338940278673586,
+          "baseline": 0.8340676536511021,
+          "paired_delta": -0.00017362578374361922,
+          "log_cluster_95_interval": [
+            -0.000861729185263714,
+            0.0005588033213861266
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9517536637576157,
+          "baseline": 0.9511773423349251,
+          "paired_delta": 0.0005763214226905978,
+          "log_cluster_95_interval": [
+            -7.419539737815022e-05,
+            0.0013121201827572162
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9835336736374115,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 8.233163181294254e-05,
+          "log_cluster_95_interval": [
+            -0.00011058105903743045,
+            0.0002915749460475797
+          ]
+        }
+      },
+      "wins": 3655,
+      "losses": 4076,
+      "ties": 4415,
+      "first_zero_fraction": 0.04445908117898897,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.26317124823656,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": 0.023635673199312198
+    },
+    "30": {
+      "scenes": 12146,
+      "logs": 136,
+      "failed_first": 0,
+      "failed_baseline": 0,
+      "valid": true,
+      "interval_scope": "paired log-cluster bootstrap for one fixed training seed; not cross-seed uncertainty",
+      "metrics": {
+        "score": {
+          "first": 0.8920204051860412,
+          "baseline": 0.8923953557503727,
+          "paired_delta": -0.0003749505643315055,
+          "log_cluster_95_interval": [
+            -0.0015833131903780072,
+            0.0007956431179806425
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9818458751852461,
+          "baseline": 0.9821340358965914,
+          "paired_delta": -0.0002881607113452989,
+          "log_cluster_95_interval": [
+            -0.0008793934173197746,
+            0.00027944837626537195
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9722542400790384,
+          "baseline": 0.9722542400790384,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            -0.0012151944714872186,
+            0.0011747082038317226
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8336038646888179,
+          "baseline": 0.8340676536511021,
+          "paired_delta": -0.0004637889622843453,
+          "log_cluster_95_interval": [
+            -0.0016799651960417005,
+            0.0006763617886986684
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9506833525440475,
+          "baseline": 0.9511773423349251,
+          "paired_delta": -0.0004939897908776552,
+          "log_cluster_95_interval": [
+            -0.0013191551637835224,
+            0.0004015425256476487
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "paired_delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9835748394533179,
+          "baseline": 0.9834513420055986,
+          "paired_delta": 0.0001234974477194138,
+          "log_cluster_95_interval": [
+            -9.203400352483756e-05,
+            0.00038726492237666844
+          ]
+        }
+      },
+      "wins": 3489,
+      "losses": 4273,
+      "ties": 4384,
+      "first_zero_fraction": 0.044623744442614854,
+      "baseline_zero_fraction": 0.04445908117898897,
+      "PDMS_first_percent": 89.20204051860412,
+      "PDMS_baseline_percent": 89.23953557503727,
+      "delta_percentage_points": -0.03749505643315055
+    }
+  },
+  "original10_maximum_metric_difference": 0.0,
+  "cost_gpu_hours": 13.554014778004754,
+  "inference_seed": 42,
+  "training_updates": 0,
+  "interpretation": "Fixed-weight, single-noise Navtest sensitivity diagnostic; no automatic production protocol selection",
+  "postprocess_source": "c05605f1c59637197c20e2a7f240c6f89399e08f",
+  "ego_fit": {
+    "1": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.9042274568625539,
+          "FDE": 1.8487789795458611,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.029143096310411207,
+          "yaw_endpoint_rad": 0.04685479750800303
+        },
+        "moving": {
+          "ADE": 0.9067770864394004,
+          "FDE": 1.8551192424678231,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.029190690770539283,
+          "yaw_endpoint_rad": 0.04689625747931559
+        },
+        "stationary": {
+          "ADE": 0.5196795759346859,
+          "FDE": 0.8925088243409398,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.02196466186159423,
+          "yaw_endpoint_rad": 0.04060159733478674
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "2": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8715563478645654,
+          "FDE": 1.8354570262818453,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.02507316518264047,
+          "yaw_endpoint_rad": 0.042056883101907326
+        },
+        "moving": {
+          "ADE": 0.8740882013407485,
+          "FDE": 1.8418552486044326,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.02512367008759803,
+          "yaw_endpoint_rad": 0.04210091238744769
+        },
+        "stationary": {
+          "ADE": 0.4896895473192447,
+          "FDE": 0.8704451444775989,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.017455762892414985,
+          "yaw_endpoint_rad": 0.0354161661102821
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "3": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.860547985463965,
+          "FDE": 1.831254223687779,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.024199385212246464,
+          "yaw_endpoint_rad": 0.0409956872582734
+        },
+        "moving": {
+          "ADE": 0.8630593563460002,
+          "FDE": 1.8376307688701248,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.024253549920109918,
+          "yaw_endpoint_rad": 0.041042740730055434
+        },
+        "stationary": {
+          "ADE": 0.48177047218101565,
+          "FDE": 0.8695117965604446,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.016029993148740408,
+          "yaw_endpoint_rad": 0.03389884737674799
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "5": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8570114481863487,
+          "FDE": 1.8299111759434952,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.02383551809274282,
+          "yaw_endpoint_rad": 0.04058981778703646
+        },
+        "moving": {
+          "ADE": 0.859490797735213,
+          "FDE": 1.836276199245471,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.02388835687437091,
+          "yaw_endpoint_rad": 0.040636953733757905
+        },
+        "stationary": {
+          "ADE": 0.48306355247889304,
+          "FDE": 0.8699065364229572,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.015866108853686698,
+          "yaw_endpoint_rad": 0.03348053862277452
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "8": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8542930786447686,
+          "FDE": 1.8287373104619107,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.023611198749163266,
+          "yaw_endpoint_rad": 0.040436275621881596
+        },
+        "moving": {
+          "ADE": 0.8567402490160008,
+          "FDE": 1.835074792468413,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.0236629919088938,
+          "yaw_endpoint_rad": 0.04048379772145662
+        },
+        "stationary": {
+          "ADE": 0.4851986074036801,
+          "FDE": 0.8728865868312322,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.01579949543280672,
+          "yaw_endpoint_rad": 0.03326875495347895
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "10": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8541240895855754,
+          "FDE": 1.8289683911838592,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.02354898162525551,
+          "yaw_endpoint_rad": 0.04041018473033513
+        },
+        "moving": {
+          "ADE": 0.856591703952004,
+          "FDE": 1.8353402835203885,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.023602098932151178,
+          "yaw_endpoint_rad": 0.0404567771167762
+        },
+        "stationary": {
+          "ADE": 0.48194615276897057,
+          "FDE": 0.8679277295268252,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.015537563812716496,
+          "yaw_endpoint_rad": 0.03338288804536077
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "15": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8541960202385367,
+          "FDE": 1.8310259572943481,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.02353679610591876,
+          "yaw_endpoint_rad": 0.040458140697433
+        },
+        "moving": {
+          "ADE": 0.8566601354295349,
+          "FDE": 1.8373930570650072,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.023590718861429556,
+          "yaw_endpoint_rad": 0.040505634328958505
+        },
+        "stationary": {
+          "ADE": 0.48254584655625476,
+          "FDE": 0.8707081343846468,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.015403896506003581,
+          "yaw_endpoint_rad": 0.03329491372259792
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "20": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8539743816809923,
+          "FDE": 1.8303146631370752,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.02352534040294461,
+          "yaw_endpoint_rad": 0.04043592952134354
+        },
+        "moving": {
+          "ADE": 0.8564446044875071,
+          "FDE": 1.8366907626947873,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.02357909730958902,
+          "yaw_endpoint_rad": 0.040483517957429084
+        },
+        "stationary": {
+          "ADE": 0.48140302688838227,
+          "FDE": 0.8686394473451362,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.015417454958301527,
+          "yaw_endpoint_rad": 0.03325840364874068
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    },
+    "30": {
+      "failed": 0,
+      "groups": {
+        "all": {
+          "ADE": 0.8546688663968117,
+          "FDE": 1.832037942497996,
+          "failed": 0,
+          "scenes": 12146,
+          "stationary_ADE": 11.28490146369712,
+          "stationary_FDE": 19.9392717540922,
+          "valid": true,
+          "yaw_MAE_rad": 0.02364160187930593,
+          "yaw_endpoint_rad": 0.04063351437855539
+        },
+        "moving": {
+          "ADE": 0.8571383120609668,
+          "FDE": 1.838423491581487,
+          "failed": 0,
+          "scenes": 12066,
+          "stationary_ADE": 11.357937447290189,
+          "stationary_FDE": 20.06976703446571,
+          "valid": true,
+          "yaw_MAE_rad": 0.023696349318906337,
+          "yaw_endpoint_rad": 0.0406825718981553
+        },
+        "stationary": {
+          "ADE": 0.4822147241006052,
+          "FDE": 0.8689375019804727,
+          "failed": 0,
+          "scenes": 80,
+          "stationary_ADE": 0.2692492382725474,
+          "stationary_FDE": 0.2573210917577954,
+          "valid": true,
+          "yaw_MAE_rad": 0.015384319301573832,
+          "yaw_endpoint_rad": 0.033234413984899125
+        }
+      },
+      "logs": 136,
+      "scenes": 12146,
+      "scope": "ego-only label-side trajectory fit, not PDMS",
+      "valid": true
+    }
+  },
+  "complete_scene_rows": 109314,
+  "complete_csv_sha256": "218a366716da01eca7f0206c92257d4286b1c3116616b289354dd37de76a3762",
+  "postprocess_completed_unix": 1790902454.442313
+}
