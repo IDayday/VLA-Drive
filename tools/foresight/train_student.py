@@ -35,6 +35,7 @@ def main():
     for key in ('config','data','campaign-root','run-id'):p.add_argument('--'+key,required=True)
     p.add_argument('--future-root');p.add_argument('--future-identity')
     p.add_argument('--dino-root');p.add_argument('--dino-index');p.add_argument('--dino-identity')
+    p.add_argument('--clip-root');p.add_argument('--clip-identity')
     p.add_argument('--local-image-root')
     p.add_argument('--loader-workers',type=int,default=0)
     p.add_argument('--interaction-root');p.add_argument('--interaction-identity')
@@ -76,6 +77,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     cfg=OmegaConf.load(a.config);arm=cfg.foresight.arm
     from starVLA.model.modules.foresight.tradeoff import CANDIDATES
     full_method=bool(cfg.foresight.get('full_algorithm',False))
+    clip_method=cfg.foresight.get('future_target_type','legacy_single_frame') != 'legacy_single_frame'
     tradeoff=arm in CANDIDATES and not full_method
     dino_campaign=full_method or arm.startswith('W_') or arm=='R_NATIVE' or tradeoff
     need_cur=bool(cfg.foresight.get('enable_current_dino',False));need_fut=bool(cfg.foresight.get('enable_future_dino',False))
@@ -85,7 +87,17 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
     if bool(a.dino_root)!=(need_cur or need_fut):raise ValueError('DINO label inventory does not match arm')
     if need_cur and float(cfg.foresight.lambda_cur)<=0 or need_fut and float(cfg.foresight.lambda_fut)<=0:raise ValueError('Active DINO weights must be positive')
     data_kwargs=dict(future_root=a.future_root,expected_future=a.future_identity,interaction_root=a.interaction_root,expected_interaction=a.interaction_identity)
-    if full_method:
+    if clip_method:
+        from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesightDataset
+        if bool(a.clip_root) != need_fut:
+            raise ValueError('Configured clip task requires exactly its identified target cache')
+        data=ActionVideoForesightDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
+            candidate=cfg.foresight.candidate,current=need_cur,future=need_fut,
+            clip_root=a.clip_root,expected_clip=a.clip_identity,future_type=cfg.foresight.future_target_type,
+            allow_partial=a.scope!='formal',image_root=a.local_image_root,**data_kwargs)
+    elif a.clip_root or a.clip_identity:
+        raise ValueError('Legacy training must not silently consume a video cache')
+    elif full_method:
         from starVLA.dataloader.full_foresight_dataset import FullForesightDataset
         data=FullForesightDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
             candidate=cfg.foresight.candidate,current=need_cur,future=need_fut,
@@ -125,11 +137,21 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         candidate=CANDIDATES[cfg.foresight.candidate].record(),
         attention='native causal; current→view,row,column W→action; W retained at deployment',
         auxiliary_frequency='one current and one requested future per original scene; valid MAE once; Qwen once')
+    if clip_method:
+        identity.update(schema='ddp_action_video_student_v1',future_clip=data.clip_identity,
+            future_sampling='one complete eight-real-frame request per scene; whole-view mask on any missing frame',
+            auxiliary_frequency='ego repeat8, current once, full native clip once, valid MAE once; Qwen once')
     if full_method and a.scope=='formal':
         from starVLA.model.modules.vehicle_joint.initialization import file_sha256
         if not a.registration:raise ValueError('Full formal registration required')
         registered=json.loads(Path(a.registration).read_text())
         if registered['training_source_sha']!=source or registered['scene_count']!=size:raise ValueError('Registration source/population changed')
+        if clip_method:
+            expected={'run_id':a.run_id,'config_sha256':identity_hash(OmegaConf.to_container(cfg,resolve=True)),
+                'global_batch':a.global_batch,'micro_batch':a.micro_batch,'world_size':world,
+                'updates':a.updates,'schedule_updates':a.schedule_updates,'milestones':sorted(milestones)}
+            if any(registered.get(k)!=v for k,v in expected.items()):
+                raise ValueError('Action/video formal registration configuration/schedule mismatch')
         identity['registration_sha256']=file_sha256(a.registration)
     signature=identity_hash(identity)
     lock=None
@@ -159,13 +181,13 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         atomic_json(out/'initialization.json',init)
         if full_method:
             atomic_json(out/'auxiliary_initialization.json',{
-                name:module_manifest(getattr(model,name)) for name in ('query_geometry','dino_head','interaction_head')
+                name:module_manifest(getattr(model,name)) for name in ('query_geometry','dino_head','interaction_head','spatiotemporal_head')
                 if hasattr(model,name)})
         model.qwen_vl_interface.processor.save_pretrained(str(out/'tokenizer'))
         atomic_json(out/'parameters.json',{'total':sum(p.numel() for p in model.parameters()),
             'trainable':sum(p.numel() for p in model.parameters() if p.requires_grad),
             'groups':{key:sum(p.numel() for name,p in model.named_parameters() if name.startswith(key) and p.requires_grad)
-                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','query_geometry','future_head','dino_head','interaction_head')}})
+                      for key in ('qwen_vl_interface','action_model','action_input_model','foresight_queries','query_geometry','future_head','dino_head','interaction_head','spatiotemporal_head')}})
     import deepspeed
     ds_config={'train_micro_batch_size_per_gpu':a.micro_batch,'gradient_accumulation_steps':1,
                'train_batch_size':a.micro_batch*world,'bf16':{'enabled':True},'gradient_clipping':1.,'steps_per_print':1000000,
@@ -247,7 +269,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 end=torch.cuda.Event(enable_timing=True);end.record()
                 head_events.append((name,pending.pop(),end))
             head_hooks.extend([module.register_forward_pre_hook(before),module.register_forward_hook(after)])
-        for name in ('dino_head','interaction_head'):
+        for name in ('dino_head','interaction_head','spatiotemporal_head'):
             if hasattr(model,name):attach_head(name,getattr(model,name))
     try:
         if not a.resume and 0 in milestones:checkpoint('milestone_000000')
@@ -273,7 +295,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             if need_vis:
                 h=targets['visual_horizon'];valid=targets['future_valid'][torch.arange(len(h)),h].sum(-1)
                 for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
-            if need_fut:
+            if need_fut and not clip_method:
                 h=targets['dino_horizon'];valid=targets['future_dino_valid'][torch.arange(len(h)),h].flatten(2).any(-1).sum(-1)
                 for k in range(3):exposures[k]=(h==k).sum();exposures[k+3]=valid[h==k].sum()
             dist.all_reduce(exposures)
@@ -285,7 +307,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 if not torch.isfinite(output['loss']):raise FloatingPointError('Nonfinite student loss')
                 engine.backward(output['loss'])  # already normalized across ALL microbatches/ranks
                 for key,value in output['losses'].items():logs[key]=logs.get(key,0.)+float(value.detach())
-                for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw'):
+                for key in ('visual_raw','interaction_raw','current_dino_raw','future_dino_raw','future_clip_raw'):
                     if key in output['metrics']:logs[key]=logs.get(key,0.)+float(output['metrics'][key])
                 if boundary:before=capture_master_samples(engine.optimizer)
                 observe = full_method and a.scope=='formal' and boundary and (completed+1 in {1,100,500,1000,2000} | milestones)
@@ -324,11 +346,15 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                 for task in ('current_dino','future_dino'):counters[task+'_elements']+=int(counts.get(task,0))
                 counters['current_requests']+=len(batches[offset-1])*int(need_cur)
                 counters['future_requests']+=len(batches[offset-1])*int(need_fut)
+            if clip_method:
+                counters['future_clip_scenes']=counters.get('future_clip_scenes',0)+int(counts.get('future_clip',0))
+                counters['physical_future_frame_requests']=counters.get('physical_future_frame_requests',0)+8*len(batches[offset-1])*int(need_fut)
             for k in range(3):counters['horizon_scenes'][k]+=int(exposures[k]);counters['valid_views'][k]+=int(exposures[k+3])
             torch.cuda.synchronize()
             readout_times={'current_dino':0.,'future_dino':0.,'interaction':0.};dino_call=0
             for name,start_event,end_event in head_events:
                 if name=='interaction_head':key='interaction'
+                elif name=='spatiotemporal_head':key='future_dino'
                 else:
                     key='current_dino' if need_cur and (not need_fut or dino_call%2==0) else 'future_dino'
                     dino_call+=1
@@ -350,6 +376,12 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
                     row['horizon_scene_requests']=exposures[:3].cpu().tolist();row['horizon_valid_views']=exposures[3:].cpu().tolist()
                     row['valid_patches']={k:int(counts.get(k,0))//fcfg.dino_feature_dim for k in ('current_dino','future_dino')}
                     row['valid_interaction_scenes']=int(counts.get('interaction',0))//int(np.prod(targets['interaction_latent'].shape[1:])) if need_int else 0
+                    if clip_method:
+                        row['effective_weights']['future_clip']=row['effective_weights'].pop('future_dino')
+                        row['raw_losses']['future_clip']=logs.get('future_clip_raw')
+                        row['raw_losses'].pop('future_dino',None)
+                        row['valid_clip_scenes']=int(counts.get('future_clip',0))
+                        row['planner_condition_mode']=cfg.foresight.planner_condition_mode
                 with (out/'steps.jsonl').open('a') as stream:stream.write(json.dumps(row)+'\n')
             write_status()
             if completed in milestones:checkpoint(f'milestone_{completed:06d}')

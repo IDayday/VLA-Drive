@@ -28,6 +28,16 @@ class ForesightConfig:
     full_algorithm: bool = False
     candidate: str = ''
     ablation: str = 'FULL'
+    future_target_type: str = 'legacy_single_frame'
+    future_action_condition: str = 'none'
+    planner_condition_mode: str = 'action_only'
+    clip_times_s: tuple = (.5, 1., 1.5, 2., 2.5, 3., 3.5, 4.)
+    future_feature_dim: int = 1024
+    future_grid_height: int = 9
+    future_grid_width: int = 12
+    future_time_intervals_s: tuple = ((.5, 1.), (1.5, 2.), (2.5, 3.), (3.5, 4.))
+    video_teacher_identity: str = ''
+    future_normalization: str = 'nonaffine_layernorm_per_token_v1'
 
     @property
     def is_tradeoff(self):
@@ -43,6 +53,24 @@ class ForesightConfig:
         return self.enable_interaction if self.is_dino else self.arm in ('C','D')
 
     def validate(self):
+        if self.future_target_type not in ('legacy_single_frame', 'dino_sequence', 'video_clip'):
+            raise ValueError('Unknown future representation')
+        if self.future_action_condition not in ('none', 'gt_ego') or self.planner_condition_mode not in ('action_only', 'action_plus_W'):
+            raise ValueError('Unknown action condition / planner mode')
+        if self.future_target_type == 'legacy_single_frame':
+            if self.future_action_condition != 'none' or self.planner_condition_mode != 'action_only' or self.video_teacher_identity:
+                raise ValueError('Legacy configuration cannot silently change its action/future paths')
+        else:
+            if not self.full_algorithm or self.candidate != 'C1' or tuple(self.clip_times_s) != (.5, 1., 1.5, 2., 2.5, 3., 3.5, 4.):
+                raise ValueError('Action/video study fixes C1 and eight real physical timestamps')
+            if self.future_normalization != 'nonaffine_layernorm_per_token_v1' or not self.video_teacher_identity:
+                raise ValueError('Explicit frozen target identity and normalization required')
+            if min(self.future_feature_dim, self.future_grid_height, self.future_grid_width) < 1:
+                raise ValueError('Invalid native future feature layout')
+            spans = tuple(tuple(x) for x in self.future_time_intervals_s)
+            expected = tuple((t, t) for t in self.clip_times_s) if self.future_target_type == 'dino_sequence' else ((.5, 1.), (1.5, 2.), (2.5, 3.), (3.5, 4.))
+            if spans != expected:
+                raise ValueError('Future token times must follow image or native tubelet layout')
         if self.full_algorithm:
             from .tradeoff import CANDIDATES
             definitions = {'FULL': (True, True, True), 'NO_INTERACTION': (True, True, False),

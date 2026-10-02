@@ -10,7 +10,7 @@ from starVLA.model.modules.vehicle_joint.initialization import initialization_se
 
 class DDPFullForesight(DDPForesight):
     def __init__(self, config, accelerator=None):
-        if config.framework.name != 'DDPFullForesight' or not config.foresight.get('full_algorithm', False):
+        if config.framework.name not in ('DDPFullForesight', 'DDPActionVideoForesight') or not config.foresight.get('full_algorithm', False):
             raise ValueError('Explicit full-method configuration required')
         super().__init__(config, accelerator=accelerator)
         cfg = self.foresight_config

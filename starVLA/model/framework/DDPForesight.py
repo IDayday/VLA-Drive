@@ -86,6 +86,7 @@ class DDPForesight(Qwenvl_OFT):
         instructions=[e['lang']+' '+ROBOT_HISTORY_TOKEN+''.join(self.foresight_tokens)+
                       ''.join(self.act_query_tokens) for e in current]
         ids,attention,positions,slots,visual,deepstack=self._build_qwen_batch(current,instructions)
+        self._diagnostic_world_positions = slots.get('foresight')
         self.last_sequence_lengths=attention.sum(-1).detach()
         rows=torch.arange(len(current),device=ids.device)
         with self.amp():
@@ -101,10 +102,20 @@ class DDPForesight(Qwenvl_OFT):
         return {'W':hidden[rows[:,None],slots['foresight']] if self.foresight_tokens else hidden[:,:0],
                 'action_queries':hidden[rows[:,None],slots['action']]}
 
+    def build_planner_condition(self, encoded):
+        action, world = encoded['action_queries'], encoded['W']
+        mode = self.foresight_config.planner_condition_mode
+        if mode == 'action_only':
+            return action
+        if mode != 'action_plus_W' or world.ndim != 3 or world.shape[0] != action.shape[0] or world.shape[2] != action.shape[2] or not world.shape[1]:
+            raise ValueError('Invalid explicit direct-W planner condition')
+        # Raw final Qwen states: the original action head applies qwen_proj ONCE.
+        return torch.cat((action, world), dim=1)
+
     def forward(self, observations, targets, *, completed_updates=0, noise_generator=None,
                 time_generator=None, horizon_generator=None, global_counts=None):
         encoded=self.encode_current(observations)
-        action=encoded['action_queries'];device=action.device
+        action=self.build_planner_condition(encoded);device=action.device
         ego=targets['ego'].to(device=device,dtype=torch.float32)
         if ego.shape!=(len(observations),8,4) or not torch.isfinite(ego).all():raise ValueError('Invalid ego target')
         repeat=int(self.config.framework.action_model.repeated_diffusion_steps)
@@ -149,7 +160,7 @@ class DDPForesight(Qwenvl_OFT):
         if hasattr(self,'dino_head'):
             from starVLA.model.modules.foresight.losses import request_future_horizons
             # Physical seconds keep old future IDs0/1/2 mapped to1/2/4, even with h=0.
-            if cfg.enable_future_dino:
+            if cfg.enable_future_dino and cfg.future_target_type == 'legacy_single_frame':
                 horizon=targets.get('dino_horizon')
                 if horizon is None: horizon=request_future_horizons(len(ego),horizon_generator)
                 if horizon.shape!=(len(ego),) or horizon.dtype!=torch.long or ((horizon<0)|(horizon>2)).any():
@@ -157,6 +168,8 @@ class DDPForesight(Qwenvl_OFT):
             for task,enabled,weight in [('current_dino',cfg.enable_current_dino,cfg.lambda_cur),
                                         ('future_dino',cfg.enable_future_dino,cfg.lambda_fut)]:
                 if not enabled: continue
+                if task == 'future_dino' and cfg.future_target_type != 'legacy_single_frame':
+                    continue
                 values=targets[task];mask=targets[task+'_valid']
                 if task=='future_dino':
                     rows=torch.arange(len(ego),device=values.device);selection=horizon.to(values.device)
@@ -173,12 +186,17 @@ class DDPForesight(Qwenvl_OFT):
                 losses[task]=loss*weight*task_warmup
                 metrics.update({task+'_raw':loss.detach(),task+'_global_elements':count})
                 metrics[task+'_effective_weight']=weight*task_warmup
+        if cfg.future_target_type != 'legacy_single_frame' and cfg.enable_future_dino:
+            loss, count = self.compute_clip_loss(encoded['W'], targets, counts.get('future_clip'))
+            losses['future_clip'] = loss * cfg.lambda_fut * weights
+            metrics.update(future_clip_raw=loss.detach(), future_clip_global_elements=count,
+                           future_clip_effective_weight=cfg.lambda_fut * weights)
         return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
 
     @torch.no_grad()
     def predict_action(self,observations,*,sampling_seed=42,initial_noise=None):
         encoded=self.encode_current(observations)
-        action=encoded['action_queries']
+        action=self.build_planner_condition(encoded)
         if initial_noise is None:
             generator=torch.Generator(device=action.device).manual_seed(sampling_seed)
             initial_noise=torch.randn((len(observations),8,4),device=action.device,generator=generator)
@@ -187,6 +205,6 @@ class DDPForesight(Qwenvl_OFT):
         return decode_ego(ego.float())
 
     def strip_auxiliary_heads(self):
-        for name in ('future_head','dino_head','interaction_head'):
+        for name in ('future_head','dino_head','interaction_head','spatiotemporal_head'):
             if hasattr(self,name):delattr(self,name)
         return self

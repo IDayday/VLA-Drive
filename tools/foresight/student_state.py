@@ -44,6 +44,11 @@ def optimizer_batch_counts(targets,horizon_generator,device):
     the optimizer's gradient average. No further microbatch averaging is valid.
     """
     counts={'ego_scenes':len(targets['ego'])}
+    if 'future_clip' in targets:
+        values, valid = targets['future_clip'], targets['future_clip_valid']
+        if values.ndim != 6 or valid.shape != values.shape[:-1] or valid.dtype != torch.bool:
+            raise ValueError('Native clip layout/mask mismatch')
+        counts['future_clip'] = int(valid.flatten(1).any(-1).sum())
     for task in ('current_dino','future_dino'):
         if task not in targets: continue
         values, valid = targets[task], targets[task+'_valid']

@@ -7,7 +7,7 @@ from starVLA.model.modules.vehicle_joint.initialization import identity_hash,fil
 
 def checkpoint_identity(run,tag):
     run=Path(run);identity=json.loads((run/'identity.json').read_text())
-    if identity.get('schema') not in ('foresight_student_training_v1','foresight_dino_student_training_v1','dino_tradeoff_student_v1','ddp_full_foresight_student_v1') or identity_hash({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']:
+    if identity.get('schema') not in ('foresight_student_training_v1','foresight_dino_student_training_v1','dino_tradeoff_student_v1','ddp_full_foresight_student_v1','ddp_action_video_student_v1') or identity_hash({k:v for k,v in identity.items() if k!='identity'})!=identity['identity']:
         raise ValueError('Foreign or changed student identity')
     if Path(tag).name!=tag:raise ValueError('Checkpoint tag must be a directory name')
     folder=run/'checkpoints'/tag;complete=json.loads((folder/'COMPLETE.json').read_text())
@@ -15,11 +15,14 @@ def checkpoint_identity(run,tag):
     files={p.name:file_sha256(p) for p in sorted(folder.glob('*.pt'))}
     if not any('model_states' in k for k in files) or not any('optim_states' in k for k in files):raise ValueError('Missing model or FP32 masters')
     classes={'DDPForesight':'starVLA.model.framework.DDPForesight.DDPForesight',
-             'DDPFullForesight':'starVLA.model.framework.ddp_full_foresight.DDPFullForesight'}
+             'DDPFullForesight':'starVLA.model.framework.ddp_full_foresight.DDPFullForesight',
+             'DDPActionVideoForesight':'starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight'}
     name=identity['config']['framework']['name']
     if name not in classes:raise ValueError('Wrong checkpoint class')
-    if (name=='DDPFullForesight') != (identity['schema']=='ddp_full_foresight_student_v1'):
+    if (name in ('DDPFullForesight','DDPActionVideoForesight')) != (identity['schema'] in ('ddp_full_foresight_student_v1','ddp_action_video_student_v1')):
         raise ValueError('Full-method checkpoint schema/class mismatch')
+    if (name=='DDPActionVideoForesight') != (identity['schema']=='ddp_action_video_student_v1'):
+        raise ValueError('Action/video schema must preserve its exact framework and planner mode')
     record={'run_identity':identity['identity'],'training_source_sha':identity['source_sha'],'tag':tag,
             'completed':complete['completed'],'arm':identity['config']['foresight']['arm'],'scope':identity['scope'],'files':files,
             'training_seed':int(identity['config']['seed']),'model_class':classes[name]}

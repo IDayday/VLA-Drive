@@ -60,6 +60,9 @@ def build_framework(cfg, accelerator=None):
     if cfg.framework.name == "DDPFullForesight":
         from .ddp_full_foresight import DDPFullForesight
         return DDPFullForesight(cfg, accelerator)
+    if cfg.framework.name == "DDPActionVideoForesight":
+        from .ddp_action_video_foresight import DDPActionVideoForesight
+        return DDPActionVideoForesight(cfg, accelerator)
 
     # Register a requested custom framework without importing unrelated modules.
     if cfg.framework.name not in FRAMEWORK_REGISTRY._registry:

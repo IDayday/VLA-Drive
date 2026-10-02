@@ -1,0 +1,18 @@
+campaign: action-video-foresight-20261002
+user_time_limit: null
+user_gpu_hours_limit: null
+permitted_hosts: [training-vlawm-zt, training-vlawm-zt2]
+external_paid_resources: false
+resources: {gpus_per_host: 8, gpu_model: A800-SXM4-80GB}
+old_campaign_budget_inherited: false
+finite_plan:
+  old_model_updates: 0
+  frozen_probes: [F0, F1, V0, V1, F_ACTION_ONLY, V_ACTION_ONLY]
+  formal_primary: [S0, S1, S2, S3, S4]
+  proposed_shared_full_updates: 100000
+  proposed_shared_observation_updates: 25000
+  second_seed_priority: [S3, S4]
+  attribution_controls: [C_BASE_A, C_BASE_AW, S4_NO_MAE]
+  formal_registration: pending_real_clip_validation_and_new_model_profile
+accounting: all_startup_extract_probe_train_fail_resume_evaluate_gpu_allocations
+stop_policy: explicit_user_stop_or_unrepairable_correctness_or_unavailable_legal_assets

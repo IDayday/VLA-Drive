@@ -15,6 +15,49 @@ from tools.ddpolicy_vehicle.run_meter import metered_run
 from tools.ddpolicy_vehicle.campaign import charged_gpu_hours
 
 
+class FixedPositionMoments:
+    """Scene variance at fixed coordinates; a fixed rich template has zero variance."""
+    def __init__(self):
+        self.count = self.total = self.square = None
+
+    def add(self, value, valid):
+        active = torch.broadcast_to(valid, value.shape)
+        if valid.dtype != torch.bool or not torch.isfinite(value[active]).all():
+            raise ValueError('Invalid fixed-coordinate variance input')
+        clean = torch.where(active, value.double(), 0.).cpu()
+        if self.total is None:
+            self.total = torch.zeros_like(clean)
+            self.square = torch.zeros_like(clean)
+            self.count = torch.zeros_like(clean)
+        self.total += clean
+        self.square += clean.square()
+        self.count += active.cpu()
+
+    def result(self):
+        if self.count is None:
+            return None
+        n = self.count.clamp_min(1)
+        variance = (self.square/n-(self.total/n).square()).clamp_min(0)
+        selected = self.count > 1
+        return float(variance[selected].mean()) if selected.any() else None
+
+
+def masked_feature_error(prediction, target, valid):
+    if prediction.shape != target.shape or valid.dtype != torch.bool:
+        raise ValueError('Reference/target shape mismatch')
+    mask = torch.broadcast_to(valid, target.shape)
+    if not torch.isfinite(prediction[mask]).all() or not torch.isfinite(target[mask]).all():
+        raise ValueError('Nonfinite valid reference/target')
+    p = torch.where(mask, prediction.float(), 0.)
+    t = torch.where(mask, target.float(), 0.)
+    return {'squared_error': float((p-t).square().sum()), 'elements': int(mask.sum())}
+
+
+def frozen_mae_decode(teacher, latent, current_anchor):
+    """The exact raw-Z teacher interface: reconstruct already contains LayerNorm."""
+    return teacher.reconstruct(latent.float()) * teacher.xy_scale + current_anchor[..., None, :]
+
+
 def spatial_statistics(prediction, target, current, valid):
     if prediction.shape!=target.shape or current.shape!=target.shape or prediction.ndim!=4:
         raise ValueError('Expected three separate C,H,W view tensors')
