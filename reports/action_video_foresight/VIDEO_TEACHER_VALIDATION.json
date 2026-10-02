@@ -1,0 +1,68 @@
+{
+  "all_finite": true,
+  "cross_time_variance": 0.41872772574424744,
+  "deterministic_exact": true,
+  "feature_mean": -0.022021912038326263,
+  "feature_variance": 3.077476978302002,
+  "fp16_quantization_mse": 1.3671889576016838e-07,
+  "image_path_shape": [
+    1,
+    432,
+    1024
+  ],
+  "missing_keys": [],
+  "output_shape": [
+    1,
+    4,
+    9,
+    12,
+    1024
+  ],
+  "real_optimizer_updates": 0,
+  "reverse_mse": 1.6294291019439697,
+  "source": "c273137330fb309db531002de4b464232f83d7e8",
+  "static_control": "repeated current image only for diagnostic, never used to fill missing clips",
+  "static_current_clip_mse": 2.0916733741760254,
+  "strict_load": true,
+  "teacher": {
+    "checkpoint_key": "ema_encoder",
+    "family": "V-JEPA 2.1 distilled ViT-L/16",
+    "feature_dim": 1024,
+    "input_axes": "B,C,T,H,W",
+    "input_hw": [
+      288,
+      384
+    ],
+    "input_times_s": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "native_thw": [
+      4,
+      18,
+      24
+    ],
+    "output": "last block, norms_block[-1], time,row,column",
+    "output_thw": [
+      4,
+      9,
+      12
+    ],
+    "pool": 2,
+    "precision": "FP32, TF32 off",
+    "preprocess": "RGB PIL bicubic resize384x288, ImageNet mean/std once; no crop/padding",
+    "source_sha": "204698b45b3712590f06245fbfba32d3be539812",
+    "temporal_semantics": "bidirectional full-clip context; pairs [.5,1],[1.5,2],[2.5,3],[3.5,4]",
+    "tokenizer": "official video PatchEmbed3D, no predictor/robot action weights",
+    "tubelet": 2,
+    "weight_sha256": "7ea9b7cb4a75d10644a8a8d42cff9e177b10dca8f02173f0eaf2b0bed82838c6"
+  },
+  "time_permutation_mse": 0.7053919434547424,
+  "unexpected_keys": []
+}

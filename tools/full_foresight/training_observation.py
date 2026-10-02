@@ -5,6 +5,10 @@ import torch
 def parameters(model):
     selected={'action_decoder':model.action_model.action_decoder.layer2.weight}
     if hasattr(model,'foresight_queries'):selected['W']=model.foresight_queries
+    if hasattr(model,'spatiotemporal_head'):
+        selected['future_readout']=model.spatiotemporal_head.output.weight
+        if model.spatiotemporal_head.action_condition=='gt_ego':
+            selected['GT_action_aux_encoder']=model.spatiotemporal_head.action_encoder.point[0].weight
     layers=model.qwen_vl_interface.model.model.language_model.layers
     selected['Qwen_first_q']=layers[0].self_attn.q_proj.weight
     selected['Qwen_last_q']=layers[-1].self_attn.q_proj.weight

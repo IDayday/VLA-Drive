@@ -7,7 +7,7 @@ from starVLA.model.modules.vehicle_joint.initialization import identity_hash
 
 
 class ActionVideoForesightDataset(FullForesightDataset):
-    def __init__(self, *args, clip_root, expected_clip, future_type, future, **kwargs):
+    def __init__(self, *args, clip_root, expected_clip, future_type, future, expected_teacher=None, **kwargs):
         super().__init__(*args, future=False, **kwargs)
         self.clip_root = Path(clip_root) if clip_root else None
         self.clip_identity = None
@@ -20,6 +20,8 @@ class ActionVideoForesightDataset(FullForesightDataset):
         identity = json.loads((self.clip_root/'identity.json').read_text())
         if identity['schema'] != 'action_video_clip_targets_v1' or identity['future_target_type'] != future_type or identity['identity'] != expected_clip or identity_hash({k:v for k,v in identity.items() if k!='identity'}) != expected_clip:
             raise ValueError('Foreign video/DINO sequence target cache')
+        if expected_teacher is None or identity_hash(identity['recipe']) != expected_teacher:
+            raise ValueError('Configured frozen future teacher differs from target cache')
         if identity['scene_index_hash'] != self.identity['index_sha256'] or identity['split'] != self.identity['split'] or identity['partition_sha256'] != self.identity['partition_sha256']:
             raise ValueError('Clip targets may not change the ego scene/log population')
         if not kwargs.get('allow_partial', False):

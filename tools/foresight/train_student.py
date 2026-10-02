@@ -94,6 +94,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         data=ActionVideoForesightDataset(a.data,dino_root=a.dino_root,dino_index=a.dino_index,expected_dino=a.dino_identity,
             candidate=cfg.foresight.candidate,current=need_cur,future=need_fut,
             clip_root=a.clip_root,expected_clip=a.clip_identity,future_type=cfg.foresight.future_target_type,
+            expected_teacher=cfg.foresight.video_teacher_identity,
             allow_partial=a.scope!='formal',image_root=a.local_image_root,**data_kwargs)
     elif a.clip_root or a.clip_identity:
         raise ValueError('Legacy training must not silently consume a video cache')
