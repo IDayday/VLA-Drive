@@ -58,6 +58,8 @@ def main():
         'future_clip':clip['identity'] if cfg['foresight']['enable_future_dino'] else None,
         'initialization':'genericQwen plus independently seeded random driving, queries and heads; no checkpoint initialization',
         'GPU_hours_limit':None,'time_limit':None,'stage_pause':a.stop_after,'scope':a.scope}
+    if a.resume and registration_path.exists():
+        registration['stage_pause']=json.loads(registration_path.read_text())['stage_pause']
     for path,value in [(config_path,cfg),(registration_path,registration)]:
         if path.exists() and json.loads(path.read_text())!=value:raise ValueError('Frozen registration/config changed')
         if not path.exists():atomic_json(path,value)
