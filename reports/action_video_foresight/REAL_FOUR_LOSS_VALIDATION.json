@@ -1,0 +1,131 @@
+{
+  "passed": true,
+  "source": "b4895c3f311e76b1ed7cef3bafe6cc5ea48e364f",
+  "initialization": "genericQwen/randomdriving only; no learned driving checkpoint loaded",
+  "W_initialization": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+  "four_loss_gradients": [
+    {
+      "current_dino": {
+        "Qwen_layer0": 0.6187483668327332,
+        "W": 1.0592362880706787,
+        "weighted_loss_at_unit_future": 0.5165354013442993
+      },
+      "ego_fm": {
+        "Qwen_layer0": 1.9103649854660034,
+        "W": 3.3280534744262695,
+        "weighted_loss_at_unit_future": 1.5656342506408691
+      },
+      "future_clip": {
+        "Qwen_layer0": 0.7880403399467468,
+        "W": 1.3139599561691284,
+        "weighted_loss_at_unit_future": 2.0508248805999756
+      },
+      "interaction": {
+        "Qwen_layer0": 0.31267616152763367,
+        "W": 0.5773037672042847,
+        "weighted_loss_at_unit_future": 1.6655102968215942
+      }
+    },
+    {
+      "current_dino": {
+        "Qwen_layer0": 0.24391251802444458,
+        "W": 0.5047196745872498,
+        "weighted_loss_at_unit_future": 0.5221899747848511
+      },
+      "ego_fm": {
+        "Qwen_layer0": 0.5786166191101074,
+        "W": 1.2866657972335815,
+        "weighted_loss_at_unit_future": 1.3628661632537842
+      },
+      "future_clip": {
+        "Qwen_layer0": 0.1098579689860344,
+        "W": 0.25357159972190857,
+        "weighted_loss_at_unit_future": 2.0592305660247803
+      },
+      "interaction": {
+        "Qwen_layer0": 0.20218966901302338,
+        "W": 0.43978390097618103,
+        "weighted_loss_at_unit_future": 1.6670950651168823
+      }
+    },
+    {
+      "current_dino": {
+        "Qwen_layer0": 0.2283984124660492,
+        "W": 0.4708027243614197,
+        "weighted_loss_at_unit_future": 0.5209997892379761
+      },
+      "ego_fm": {
+        "Qwen_layer0": 0.6286895275115967,
+        "W": 1.285828709602356,
+        "weighted_loss_at_unit_future": 1.400266408920288
+      },
+      "future_clip": {
+        "Qwen_layer0": 0.12313948571681976,
+        "W": 0.2700795531272888,
+        "weighted_loss_at_unit_future": 2.059676170349121
+      },
+      "interaction": {
+        "Qwen_layer0": 0.29805365204811096,
+        "W": 0.5982673168182373,
+        "weighted_loss_at_unit_future": 1.6504759788513184
+      }
+    },
+    {
+      "current_dino": {
+        "Qwen_layer0": 0.17001938819885254,
+        "W": 0.43879303336143494,
+        "weighted_loss_at_unit_future": 0.516727864742279
+      },
+      "ego_fm": {
+        "Qwen_layer0": 0.5982151031494141,
+        "W": 1.2938066720962524,
+        "weighted_loss_at_unit_future": 1.3553674221038818
+      },
+      "future_clip": {
+        "Qwen_layer0": 0.10818135738372803,
+        "W": 0.23327066004276276,
+        "weighted_loss_at_unit_future": 2.0520896911621094
+      },
+      "interaction": {
+        "Qwen_layer0": 0.24244320392608643,
+        "W": 0.521976888179779,
+        "weighted_loss_at_unit_future": 1.6903842687606812
+      }
+    }
+  ],
+  "mean_shared_gradient_norms": {
+    "current_dino": {
+      "Qwen_layer0": 0.31526967138051987,
+      "W": 0.6183879300951958
+    },
+    "ego_fm": {
+      "Qwen_layer0": 0.9289715588092804,
+      "W": 1.7985886633396149
+    },
+    "future_clip": {
+      "Qwen_layer0": 0.28230478800833225,
+      "W": 0.5177204422652721
+    },
+    "interaction": {
+      "Qwen_layer0": 0.2638406716287136,
+      "W": 0.5343329682946205
+    }
+  },
+  "lambda_cur": 1.0,
+  "lambda_fut": 1.1549543539882532,
+  "lambda_int": 0.8328945981862067,
+  "warmup": 1000,
+  "calibration": "one training-only geometric-mean current/new-future shared-gradient scale calibration",
+  "raw_future_condition_difference": 0.0234375,
+  "GT_changes_future_only": true,
+  "pure_current_encoding_and_ego_exact": true,
+  "deployment_stripping_exact": true,
+  "one_Qwen_forward": true,
+  "future_loss_action_model_gradient": null,
+  "real_optimizer_updates": 0,
+  "future_cache": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+  "current_dino": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+  "MAE": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+  "peak_allocated_bytes": 17396944384,
+  "real_training_scene_count": 4
+}

@@ -36,7 +36,12 @@ def main():
         model=build_framework(cfg).cuda().eval()
         params=dict(model.named_parameters());q=next(p for n,p in params.items() if 'language_model.layers.0.self_attn.q_proj.weight' in n)
         selected={'W':model.foresight_queries,'Qwen_layer0':q}
-        gradients=[];qwen_calls=[0]
+        gradients=[];qwen_calls=[0];captured=[];projection_calls=[]
+        original_encode=model.encode_current
+        def capture_current(observations):
+            encoded=original_encode(observations);captured.append(encoded);return encoded
+        model.encode_current=capture_current
+        projection_hook=model.action_model.qwen_proj.register_forward_pre_hook(lambda _m,args:projection_calls.append(tuple(args[0].shape)))
         hook=model.qwen_vl_interface.model.model.language_model.register_forward_hook(lambda *_:qwen_calls.__setitem__(0,qwen_calls[0]+1))
         action_param=model.action_model.action_decoder.layer2.weight
         for i,(observation,targets) in chosen:
@@ -44,7 +49,10 @@ def main():
             output=model.forward_train(observation,targets,completed_updates=1000,
                 noise_generator=torch.Generator(device='cuda').manual_seed(9042),time_generator=torch.Generator(device='cuda').manual_seed(10042))
             if qwen_calls[0]-count!=1 or set(output['losses'])!={'ego_fm','current_dino','future_clip','interaction'}:raise AssertionError('One Qwen forward/four real losses required')
-            record={}
+            final_W_grad,=torch.autograd.grad(output['losses']['ego_fm'],captured[-1]['W'],retain_graph=True,allow_unused=True)
+            if final_W_grad is None or not final_W_grad.abs().sum():raise AssertionError('No direct ego gradient to final W')
+            if projection_calls[-1][1]!=8+cfg.foresight.num_queries:raise AssertionError('Planner sequence was truncated')
+            record={'direct_final_W_gradient_norm':float(final_W_grad.float().norm())}
             for task,loss in output['losses'].items():
                 grad=torch.autograd.grad(loss,tuple(selected.values()),retain_graph=True,allow_unused=True)
                 norms={k:float(g.float().norm()) if g is not None else 0. for k,g in zip(selected,grad)}
@@ -55,8 +63,8 @@ def main():
             if forbidden is not None or condition is None or not condition.abs().sum():raise AssertionError('GT auxiliary gradient split is wrong')
             output['loss'].backward()
             if any(not torch.isfinite(p.grad).all() for p in model.parameters() if p.grad is not None):raise FloatingPointError('Nonfinite real backward')
-            gradients.append(record);model.zero_grad(set_to_none=True);del output
-        hook.remove()
+            gradients.append(record);model.zero_grad(set_to_none=True);captured.clear();del output, final_W_grad, grad, forbidden, condition
+        hook.remove();projection_hook.remove();model.encode_current=original_encode;captured.clear()
         obs,targets=chosen[0][1]
         with torch.inference_mode():
             encoded=model.encode_current(obs);gt=decode_ego(targets['ego'].cuda())
@@ -72,7 +80,7 @@ def main():
             torch.testing.assert_close(before,other,rtol=0,atol=0)
             model.strip_auxiliary_heads();after=model.predict_action(obs,initial_noise=noise)
             torch.testing.assert_close(before,after,rtol=0,atol=0)
-        means={task:{k:sum(r[task][k] for r in gradients)/len(gradients) for k in selected} for task in gradients[0]}
+        means={task:{k:sum(r[task][k] for r in gradients)/len(gradients) for k in selected} for task in ('ego_fm','current_dino','future_clip','interaction')}
         weight=((means['current_dino']['W']/means['future_clip']['W'])*(means['current_dino']['Qwen_layer0']/means['future_clip']['Qwen_layer0']))**.5
         atomic_json(a.output,{'passed':True,'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
             'initialization':'genericQwen/randomdriving only; no learned driving checkpoint loaded','action_initialization':module_manifest(model.action_model),
@@ -81,7 +89,7 @@ def main():
             'calibration':'one training-only geometric-mean current/new-future shared-gradient scale calibration',
             'real_training_scenes':[ds.index[i]['token'] for i,_ in chosen],'raw_future_condition_difference':float((f0-f1).abs().max()),
             'GT_changes_future_only':True,'pure_current_encoding_and_ego_exact':True,'deployment_stripping_exact':True,
-            'one_Qwen_forward':True,'future_loss_action_model_gradient':None,'real_optimizer_updates':0,
+            'one_Qwen_forward':True,'ego_direct_final_W_gradient':True,'planner_condition_tokens':8+cfg.foresight.num_queries,'qwen_projection_once_per_action_forward':len(projection_calls)==len(chosen),'future_loss_action_model_gradient':None,'real_optimizer_updates':0,
             'future_cache':ci['identity'],'teacher':ci['recipe'],'current_dino':di['identity'],'MAE':ii['identity'],
             'peak_allocated_bytes':torch.cuda.max_memory_allocated()})
         meter['inference_scenes']=len(chosen);save()

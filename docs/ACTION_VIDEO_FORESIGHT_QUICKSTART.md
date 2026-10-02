@@ -1,0 +1,57 @@
+# Action-conditioned video foresight
+
+The existing Action-Only Qwen/DDP path retains current C1 DINO targets and the frozen vehicle-MAE teacher. A new auxiliary head predicts either eight independent DINO frame targets or four native V-JEPA2.1 tubelets. GT ego actions enter this head after current encoding; they never enter the planner. `action_plus_W` feeds the original DiT one sequence of eight action hidden states followed by 144 final W states, with its original projection applied once.
+
+| Arm | Future target | Auxiliary GT ego action | Planner condition |
+|---|---|---|---|
+| S0 | Eight independent DINO frames | Absent | H_A |
+| S1 | Eight independent DINO frames | Present | H_A |
+| S2 | Genuine V-JEPA2.1 video | Absent | H_A |
+| S3 | Genuine V-JEPA2.1 video | Present | H_A |
+| S4 | Genuine V-JEPA2.1 video | Present | H_A + W |
+
+All five retain current DINO and vehicle-MAE representation supervision. Deployment removes every auxiliary head and GT-action encoder, retains W, and executes only the original ego DiT. Driving modules start randomly; existing 100k students are used only for frozen diagnostics.
+
+Commands below accept paths through CLI. Run from a clean, committed source checkout. `$AV_ROOT` is a new artifact directory, `$BASE_CONFIG` the resolved generic/random initialization configuration, `$TRAIN_DATA`, `$CURRENT_DINO`, `$DINO_INDEX` and `$INTERACTION_LABELS` the verified training assets. `$CLIP_LABELS` must match the requested arm. A formal invocation requires the complete training population and a complete native clip cache; engineering prefixes are rejected.
+
+Actually executed real training, 4 GPUs, 4 continuous updates:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 OMP_NUM_THREADS=2 \
+python -m tools.action_video_foresight.run_experiments \
+  --base-config "$BASE_CONFIG" --data "$TRAIN_DATA" \
+  --dino-root "$CURRENT_DINO" --dino-index "$DINO_INDEX" \
+  --interaction-root "$INTERACTION_LABELS" --clip-root "$CLIP_LABELS" \
+  --campaign-root "$AV_ROOT" --run-id startup_continuous4_v1 \
+  --arm S4 --calibration "$AV_ROOT/real_four_loss_action_video_v1.json" \
+  --scope startup --limit 64 --updates 4 --schedule-updates 100000 \
+  --gpus 4 --micro-batch 4 --master-port 29731 --milestones 0,4 --deterministic
+```
+
+A separate 2+2 run was explicitly resumed with the same source, world size and optimizer schedule using `--resume --acknowledge-stop --stop-after 0`. Final model, optimizer, scheduler, task/data progress and per-rank RNG are compared using:
+
+```bash
+python -m tools.action_video_foresight.verify_resume \
+  --continuous "$AV_ROOT/students/startup_continuous4_v1/checkpoints/final_000004" \
+  --resumed "$AV_ROOT/students/startup_resume2plus2_v1/checkpoints/final_000004" \
+  --output "$AV_ROOT/real_resume_equivalence.json"
+```
+
+Formal execution uses the same wrapper, with no startup/profile weight reuse:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 OMP_NUM_THREADS=2 \
+python -m tools.action_video_foresight.run_experiments \
+  --base-config "$BASE_CONFIG" --data "$TRAIN_DATA" \
+  --dino-root "$CURRENT_DINO" --dino-index "$DINO_INDEX" \
+  --interaction-root "$INTERACTION_LABELS" --clip-root "$CLIP_LABELS" \
+  --campaign-root "$AV_ROOT" --run-id formal_S4_seed42_v1 \
+  --arm S4 --calibration "$AV_ROOT/real_four_loss_action_video_v1.json" \
+  --scope formal --updates 100000 --schedule-updates 100000 \
+  --gpus 8 --micro-batch 4 --master-port 29844 \
+  --milestones 0,5000,10000,25000,50000,75000,100000
+```
+
+At this documentation snapshot, formal S0–S4 execution awaits full training clip caches and completion of the new 4/8-GPU cost measurements. Complete development clip caches already exist. This command is the formal entry, not a claim of a completed formal run. Exact launches and resource meters live outside git; compact verified evidence is under `reports/action_video_foresight/`.
+
+Use `tools.action_video_foresight.audit_existing_auxiliary`, `audit_W_usage`, `probe_representation` and `train_frozen_W_probe` for the prescribed read-only/probe diagnostics. Official PDMS remains canonical NAVSIM v1 FP32 master loading, TF32 off, ten FM steps, one ego candidate. Live BF16 timing is a separate deployment point and must not be paired with FP32 scores.
