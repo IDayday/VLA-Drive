@@ -1,0 +1,221 @@
+{
+  "families": {
+    "V": {
+      "identities": {
+        "V0": {
+          "batch": 16,
+          "condition": "none",
+          "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+          "dev_targets": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+          "frozen_checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+          "seed": 42,
+          "source": "41c8b8195fd12706a3c6ab9c71d225e6a62d260e",
+          "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+          "train_targets": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+          "trainable_parameters": 8413184,
+          "updates": 2000,
+          "use_world": true
+        },
+        "V1": {
+          "batch": 16,
+          "condition": "gt_ego",
+          "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+          "dev_targets": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+          "frozen_checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+          "seed": 42,
+          "source": "41c8b8195fd12706a3c6ab9c71d225e6a62d260e",
+          "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+          "train_targets": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+          "trainable_parameters": 8943104,
+          "updates": 2000,
+          "use_world": true
+        },
+        "V_ACTION_ONLY": {
+          "batch": 16,
+          "condition": "gt_ego",
+          "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+          "dev_targets": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+          "frozen_checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+          "seed": 42,
+          "source": "41c8b8195fd12706a3c6ab9c71d225e6a62d260e",
+          "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+          "train_targets": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+          "trainable_parameters": 7894016,
+          "updates": 2000,
+          "use_world": false
+        }
+      },
+      "paired": {
+        "V0-V_ACTION_ONLY": {
+          "bootstrap_draws": 10000,
+          "bootstrap_seed": 73,
+          "interpretation": "One frozen-checkpoint/train-seed probe. Log sampling uncertainty is not cross-training-seed stability or PDMS.",
+          "left_minus_right_normalized_mse": -0.07006511522331654,
+          "log_cluster_bootstrap_95": [
+            -0.07406499618646109,
+            -0.06345085425683833
+          ],
+          "logs_with_valid_targets": 16,
+          "missing_target_scenes_retained": 2,
+          "requested_scenes": 1696,
+          "valid_matched_scenes": 1694
+        },
+        "V1-V0": {
+          "bootstrap_draws": 10000,
+          "bootstrap_seed": 73,
+          "interpretation": "One frozen-checkpoint/train-seed probe. Log sampling uncertainty is not cross-training-seed stability or PDMS.",
+          "left_minus_right_normalized_mse": -0.0003274287390737072,
+          "log_cluster_bootstrap_95": [
+            -0.0008342749842786652,
+            1.517167947050906e-05
+          ],
+          "logs_with_valid_targets": 16,
+          "missing_target_scenes_retained": 2,
+          "requested_scenes": 1696,
+          "valid_matched_scenes": 1694
+        },
+        "V1-V_ACTION_ONLY": {
+          "bootstrap_draws": 10000,
+          "bootstrap_seed": 73,
+          "interpretation": "One frozen-checkpoint/train-seed probe. Log sampling uncertainty is not cross-training-seed stability or PDMS.",
+          "left_minus_right_normalized_mse": -0.07039254396239025,
+          "log_cluster_bootstrap_95": [
+            -0.07432063563225287,
+            -0.06389716276421278
+          ],
+          "logs_with_valid_targets": 16,
+          "missing_target_scenes_retained": 2,
+          "requested_scenes": 1696,
+          "valid_matched_scenes": 1694
+        }
+      },
+      "results": {
+        "V0": {
+          "failed": 0,
+          "normal_normalized_mse": 0.3024481789614684,
+          "normal_valid_scenes": 1694,
+          "permuted_W_normalized_mse": 0.5429962882255297,
+          "permuted_W_valid_scenes": 1694,
+          "permuted_action_normalized_mse": 0.3024481789614684,
+          "permuted_action_valid_scenes": 1694,
+          "requested": 1696,
+          "scenes": 1696
+        },
+        "V1": {
+          "failed": 0,
+          "normal_normalized_mse": 0.3021207502223947,
+          "normal_valid_scenes": 1694,
+          "permuted_W_normalized_mse": 0.5235587446087225,
+          "permuted_W_valid_scenes": 1694,
+          "permuted_action_normalized_mse": 0.309194752218591,
+          "permuted_action_valid_scenes": 1694,
+          "requested": 1696,
+          "scenes": 1696
+        },
+        "V_ACTION_ONLY": {
+          "failed": 0,
+          "normal_normalized_mse": 0.37251329418478496,
+          "normal_valid_scenes": 1694,
+          "permuted_W_normalized_mse": 0.37251329418478496,
+          "permuted_W_valid_scenes": 1694,
+          "permuted_action_normalized_mse": 0.47019123761895976,
+          "permuted_action_valid_scenes": 1694,
+          "requested": 1696,
+          "scenes": 1696
+        }
+      },
+      "teacher_and_target_structure": {
+        "chunk_size": 16,
+        "clip_index": "eaedb9de564bead84ad7b544e871498de774698ade4d62dd1f299b9bab1aae33",
+        "dtype": "float16",
+        "future_target_type": "video_clip",
+        "identity": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+        "missing_policy": "invalid whole view if any of eight real frames unavailable; identical eligibility for both teachers",
+        "normalization": "raw teacher features; training nonaffine channel LayerNorm",
+        "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+        "recipe": {
+          "checkpoint_key": "ema_encoder",
+          "family": "V-JEPA 2.1 distilled ViT-L/16",
+          "feature_dim": 1024,
+          "input_axes": "B,C,T,H,W",
+          "input_hw": [
+            288,
+            384
+          ],
+          "input_times_s": [
+            0.5,
+            1.0,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            3.5,
+            4.0
+          ],
+          "native_thw": [
+            4,
+            18,
+            24
+          ],
+          "output": "last block, norms_block[-1], time,row,column",
+          "output_thw": [
+            4,
+            9,
+            12
+          ],
+          "pool": 2,
+          "precision": "FP32, TF32 off",
+          "preprocess": "RGB PIL bicubic resize384x288, ImageNet mean/std once; no crop/padding",
+          "source_sha": "204698b45b3712590f06245fbfba32d3be539812",
+          "temporal_semantics": "bidirectional full-clip context; pairs [.5,1],[1.5,2],[2.5,3],[3.5,4]",
+          "tokenizer": "official video PatchEmbed3D, no predictor/robot action weights",
+          "tubelet": 2,
+          "weight_sha256": "7ea9b7cb4a75d10644a8a8d42cff9e177b10dca8f02173f0eaf2b0bed82838c6"
+        },
+        "scene_count": 1696,
+        "scene_index_hash": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+        "schema": "action_video_clip_targets_v1",
+        "source": "1937b7d403e1f1f0601deaae61cbf05593cc352a",
+        "split": "dev",
+        "target_shape": [
+          3,
+          4,
+          9,
+          12,
+          1024
+        ],
+        "time_intervals_s": [
+          [
+            0.5,
+            1.0
+          ],
+          [
+            1.5,
+            2.0
+          ],
+          [
+            2.5,
+            3.0
+          ],
+          [
+            3.5,
+            4.0
+          ]
+        ],
+        "times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ],
+        "writer_sha256": "67717d8292cdb918a9fcdaca9639420bcc9faab8e354b6e650bd7eba6599ab0c"
+      }
+    }
+  },
+  "main_model_optimizer_updates": 0,
+  "scope": "Frozen C1@100k future-head probes, not formal ego planning; no raw-MSE ranking across teacher types"
+}
