@@ -34,9 +34,13 @@ def resource_cost(root,now):
             continue
         for device in devices:
             per_device.setdefault((record['host'],device),[]).append((record['start_unix'],end))
+    missing=[]
+    if (Path(root)/'clip_nccl_equivalence_v1.log').exists() and not (Path(root)/'runs'/'clip_nccl_equivalence_v1'/'status.json').exists():
+        missing.append({'check':'actual two-process NCCL equivalence',
+            'GPU_count':2,'GPUh':'NOT_MEASURED','reason':'Standalone validation log has a result but no recorded start/end allocation interval; do not invent elapsed time.'})
     return {'job_allocated_GPUh':allocated,'job_allocated_GPUh_by_kind':kinds,
         'physical_device_interval_union_GPUh':sum(union_seconds(v) for v in per_device.values())/3600,
-        'unassigned_allocation_GPUh':unassigned,
+        'unassigned_allocation_GPUh':unassigned,'known_unmetered_checks':missing,
         'accounting':'Loading/failures/saving/evaluation included. Job allocations overlap when authorized jobs share a GPU; physical union counts each declared host/device interval once. Idle pressure and unrelated tasks are excluded. Unassigned intervals are reported separately.'}
 
 
@@ -47,6 +51,37 @@ def read_steps(path):
     # completed record; malformed completed lines are errors, not filtered data.
     if value and not value.endswith('\n'):lines=lines[:-1]
     return [json.loads(line) for line in lines]
+
+
+def development_results(plan):
+    root=Path(plan['campaign_root']);results={}
+    for arm,spec in plan['runs'].items():
+        for update in plan['evaluation_updates']:
+            label=spec['run_id']+'_dev'+str(update)+'_seed42'
+            path=root/'evaluations'/(label+'_state.json')
+            if not path.exists():continue
+            state=json.loads(path.read_text())
+            expected={'plan':plan['identity'],'arm':arm,'update':update,
+                'evaluation_source':plan['training_source_sha'],
+                'purpose':'registered complete development; not Navtest'}
+            if state['identity']!=expected:raise ValueError('Development evaluation identity mismatch')
+            entry={'status':state['status'],'identity':expected}
+            if state['status']=='COMPLETE':
+                score=json.loads(Path(state['scores']).read_text())
+                ego=json.loads(Path(state['ego']).read_text())
+                if any(not v['valid'] or v['failed'] or v['scenes']!=plan['dev_scenes'] for v in (score,ego)):
+                    raise ValueError('Incomplete development result; preserve failed rows')
+                values=[score['PDMS'],*score['metrics'].values(),
+                    *(ego['groups']['all'][k] for k in ('ADE','FDE','yaw_MAE_rad'))]
+                if not all(math.isfinite(v) for v in values):raise ValueError('Nonfinite development result')
+                if state['PDMS_points']!=100*score['PDMS']:
+                    raise ValueError('Development score scale mismatch')
+                entry.update(PDMS_points=state['PDMS_points'],metrics=score['metrics'],
+                    ego=ego['groups']['all'],scenes=score['scenes'],failed=score['failed'])
+            elif state.get('error'):
+                entry['error']=state['error']
+            results.setdefault(arm,{})[str(update)]=entry
+    return results
 
 
 def snapshot(plan,now):
@@ -91,6 +126,8 @@ def snapshot(plan,now):
             'complete':complete.exists(),'published_chunks':len(list(directory.glob('chunk_*.json'))),
             'required_scenes':plan['scene_count']}
         if complete.exists():caches[target].update(json.loads(complete.read_text()))
+    evaluations=development_results(plan)
+    have_scores=any(v['status']=='COMPLETE' for arm in evaluations.values() for v in arm.values())
     return {'snapshot_utc':datetime.datetime.fromtimestamp(now,datetime.timezone.utc).isoformat(),
         'training_source':plan['training_source_sha'],'formal_plan_identity':plan['identity'],
         'scope':'Actual fresh generic-Qwen/random-driving formal training; startup/profile/probe checkpoints excluded',
@@ -98,7 +135,8 @@ def snapshot(plan,now):
         'train_scenes':plan['scene_count'],'train_logs':plan['train_logs'],'dev_scenes':plan['dev_scenes'],
         'dev_logs':plan['dev_logs'],'weights':plan['common_weights'],'runs':runs,
         'actual_common_initialization_comparison':comparisons,'full_native_caches':caches,
-        'cost':resource_cost(root,now),'new_method_PDMS':'NOT_YET_EVALUATED',
+        'cost':resource_cost(root,now),'development_results':evaluations,
+        'new_method_PDMS':'DEVELOPMENT_RESULTS_AVAILABLE' if have_scores else 'NOT_YET_EVALUATED',
         'remaining':'Complete shared100k training/dev; locked final Navtest; key second seed and registered capacity/MAE controls. No early-warmup loss claim substitutes for these.'}
 
 

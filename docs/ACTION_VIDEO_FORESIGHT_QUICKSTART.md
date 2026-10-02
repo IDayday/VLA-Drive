@@ -77,3 +77,16 @@ Use `tools.action_video_foresight.audit_existing_auxiliary`, `audit_W_usage`, `p
 Formal deployment is now active from immutable1493ded. Check actual ledgers before running recovery commands; launching again while the controller owns its flock is an error. Snapshot and exact five-host commands: reports/action_video_foresight/FORMAL_START_20261002.md and FORMAL_CONTROLLER_LAUNCHES_V2.json. S2/S4 are performing real optimizer updates; other arms start after the full source/cache and GPU readiness gates. All old formal0 statements are historical.
 
 The completed old-model W intervention scores are a fixed128scene development diagnostic and do not establish a new method gain. Frozen future probes use train-only means in the channel-LayerNorm loss space and a separately encoded static-current-repeat video reference. These diagnostic reference caches never enter formal student inputs.
+
+
+Latest actual warmup evidence: FORMAL_FULL_WEIGHT_1000.json binds unchanged1493ded and real full-weight observations for S2/S4. S3 now performs formal updates too. Full1696-scene frozen video reference evaluation completed on2c4d659; changed-region/fullC1 and preselected128sceneC0 audits run on2df1341. These evaluation commits do not change the training source. Later hardening checks invalid arithmetic-mean references without applying a second normalization; original valid measurements and their identities are preserved.
+
+
+All five formal controllers now perform real updates (18:00UTC snapshot), with complete source and local native caches. Their source remains1493ded. See `FORMAL_ALL_FIVE_RUNNING_20261002.md`; do not launch another controller on top of the existing live run. Source/report changes for finite-value checks, resource coverage and learning-curve rendering do not alter training. To regenerate a new aggregate curve snapshot without discarding completed journal records:
+
+```bash
+python -m tools.action_video_foresight.summarize_live_campaign --plan "$AV_ROOT/formal_plan_seed42_v2.json" --output "$AV_ROOT/new_progress_snapshot.json"
+python -m tools.action_video_foresight.plot_learning_curves --snapshot "$AV_ROOT/new_progress_snapshot.json" --campaign-root "$AV_ROOT" --output-prefix "$AV_ROOT/new_learning_curves"
+```
+
+Both commands were executed against the actual formal ledgers; use new output names to preserve old evidence. The plot uses every completed record up to the recorded snapshot, including a final partial averaging window. It does not rank different target families by raw MSE.

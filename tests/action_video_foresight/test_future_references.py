@@ -19,6 +19,14 @@ def test_reference_padding_and_empty_population_preserve_loss_space():
         normalized_values(polluted,valid)
 
 
+def test_arithmetic_mean_reference_checks_finiteness_without_second_normalization():
+    target=torch.randn(2,3,2,2,3,4);valid=torch.ones(target.shape[:-1],dtype=torch.bool)
+    valid[1]=False;mean=target.clone();mean[~valid]=float('nan')
+    assert errors_in_normalized_space(mean,target,valid)==[0.,None]
+    mean[0,0,0,0,0,0]=float('nan')
+    with pytest.raises(ValueError,match='Illegal valid'):errors_in_normalized_space(mean,target,valid)
+
+
 def test_mean_template_must_not_be_layer_normalized_a_second_time():
     raw=torch.tensor([1.,2.,3.,4.]).reshape(1,1,1,1,1,4)
     valid=torch.ones(raw.shape[:-1],dtype=torch.bool)

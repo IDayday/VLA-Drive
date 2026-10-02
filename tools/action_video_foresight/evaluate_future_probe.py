@@ -31,7 +31,13 @@ def normalized_values(values, valid):
 
 
 def errors_in_normalized_space(prediction,target,valid):
-    error=(prediction-target).square().mean(-1)
+    if prediction.shape!=target.shape or valid.shape!=target.shape[:-1] or valid.dtype!=torch.bool:
+        raise ValueError('Reference/target shape or mask mismatch')
+    if not torch.isfinite(prediction[valid]).all() or not torch.isfinite(target[valid]).all():
+        raise ValueError('Illegal valid normalized reference value')
+    p=torch.where(valid[...,None],prediction.float(),0.)
+    t=torch.where(valid[...,None],target.float(),0.)
+    error=(p-t).square().mean(-1)
     count=valid.sum((2,3,4));views=count>0
     by_view=(error*valid).sum((2,3,4))/count.clamp_min(1)
     by_scene=(by_view*views).sum(-1)/views.sum(-1).clamp_min(1)
@@ -55,6 +61,8 @@ def _fit_mean(data, path):
         saved=torch.load(path,weights_only=True)
         if saved['identity']!=identity:
             raise ValueError('Train mean identity mismatch')
+        if list(saved['mean'].shape)!=data.identity['target_shape'] or not torch.isfinite(saved['mean']).all() or not (saved['counts']>0).all():
+            raise ValueError('Invalid stored training reference')
         return saved['mean']
     sums=torch.zeros(data.identity['target_shape'],dtype=torch.float64)
     counts=torch.zeros(data.identity['target_shape'][:-1],dtype=torch.int64)

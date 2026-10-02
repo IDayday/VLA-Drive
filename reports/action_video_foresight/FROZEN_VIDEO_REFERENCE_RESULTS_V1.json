@@ -1,0 +1,117 @@
+{
+  "evaluation_source": "2c4d659d527603d0119c9e42e98b16cb7a432af9",
+  "scope": "Same V-JEPA2.1 frozen readout target; train-only means, artificial same-encoder static current-repeat references; not deployment/PDMS",
+  "results": {
+    "V0": {
+      "failed": 0,
+      "model": {
+        "normalized_mse": 0.30244817906702565,
+        "valid_scenes": 1694
+      },
+      "probe_identity": {
+        "batch": 16,
+        "condition": "none",
+        "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+        "dev_targets": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+        "frozen_checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+        "seed": 42,
+        "source": "41c8b8195fd12706a3c6ab9c71d225e6a62d260e",
+        "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+        "train_targets": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+        "trainable_parameters": 8413184,
+        "updates": 2000,
+        "use_world": true
+      },
+      "requested": 1696,
+      "scenes": 1696,
+      "scope": "frozen readout references, not deployment/PDMS; no target-type raw-MSE ranking",
+      "static_current_reference": {
+        "normalized_mse": 0.718398650710107,
+        "valid_scenes": 1694
+      },
+      "training_mean": {
+        "normalized_mse": 0.37295936850265743,
+        "valid_scenes": 1694
+      },
+      "unit_normalized_training_mean": {
+        "normalized_mse": 0.4173430640342807,
+        "valid_scenes": 1694
+      }
+    },
+    "V1": {
+      "failed": 0,
+      "model": {
+        "normalized_mse": 0.302120749905723,
+        "valid_scenes": 1694
+      },
+      "probe_identity": {
+        "batch": 16,
+        "condition": "gt_ego",
+        "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+        "dev_targets": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+        "frozen_checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+        "seed": 42,
+        "source": "41c8b8195fd12706a3c6ab9c71d225e6a62d260e",
+        "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+        "train_targets": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+        "trainable_parameters": 8943104,
+        "updates": 2000,
+        "use_world": true
+      },
+      "requested": 1696,
+      "scenes": 1696,
+      "scope": "frozen readout references, not deployment/PDMS; no target-type raw-MSE ranking",
+      "static_current_reference": {
+        "normalized_mse": 0.718398650710107,
+        "valid_scenes": 1694
+      },
+      "training_mean": {
+        "normalized_mse": 0.37295936850265743,
+        "valid_scenes": 1694
+      },
+      "unit_normalized_training_mean": {
+        "normalized_mse": 0.4173430640342807,
+        "valid_scenes": 1694
+      }
+    },
+    "V_ACTION_ONLY": {
+      "failed": 0,
+      "model": {
+        "normalized_mse": 0.3725132939208919,
+        "valid_scenes": 1694
+      },
+      "probe_identity": {
+        "batch": 16,
+        "condition": "gt_ego",
+        "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+        "dev_targets": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+        "frozen_checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+        "seed": 42,
+        "source": "41c8b8195fd12706a3c6ab9c71d225e6a62d260e",
+        "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+        "train_targets": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+        "trainable_parameters": 7894016,
+        "updates": 2000,
+        "use_world": false
+      },
+      "requested": 1696,
+      "scenes": 1696,
+      "scope": "frozen readout references, not deployment/PDMS; no target-type raw-MSE ranking",
+      "static_current_reference": {
+        "normalized_mse": 0.718398650710107,
+        "valid_scenes": 1694
+      },
+      "training_mean": {
+        "normalized_mse": 0.37295936850265743,
+        "valid_scenes": 1694
+      },
+      "unit_normalized_training_mean": {
+        "normalized_mse": 0.4173430640342807,
+        "valid_scenes": 1694
+      }
+    }
+  },
+  "references_fit_on": "4096 fixed training scenes, no dev fit",
+  "reference_normalization": "Arithmetic mean of channel-LayerNorm target is NOT LayerNormed again; second-normalized template reported separately",
+  "main_model_optimizer_updates": 0
+}

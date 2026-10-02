@@ -1,0 +1,30 @@
+{
+  "checked_utc": "2026-10-02T18:08:57.092673+00:00",
+  "result": "PASS",
+  "tests_passed": 29,
+  "elapsed_seconds": 4.06,
+  "command": "/root/miniconda3/envs/ddp/bin/python -m pytest -q tests/full_foresight/test_auxiliary_diagnostics.py tests/full_foresight/test_precision_protocol.py tests/full_foresight/test_training_observations.py tests/action_video_foresight",
+  "source_base": "2df13419467a2275aed2376aef1db7fab3f16bda",
+  "checked_files_SHA256": {
+    "tools/action_video_foresight/evaluate_future_probe.py": "36efc6ddebe0c8eed6725a0290f8daab511c5842639638366eefb34cad822d7c",
+    "tools/action_video_foresight/summarize_live_campaign.py": "656b030e3d3d2db3e68f8c074075689b50d7541dbab8c5f1387b4aefd86a5291",
+    "tools/action_video_foresight/plot_learning_curves.py": "409a57b3ca9ba6be6b2d7cf787977460bc26a8840ece57d310527aa92d5defc5",
+    "tests/action_video_foresight/test_future_references.py": "0e9aae0c3ae0e29a1ac2f9416f79b34d9c4d296bca4d31e46da5a5d677a0b35b",
+    "tests/action_video_foresight/test_live_cost.py": "4228a57aa5301660d72a6f7ac93b9a5dd429617d4324f70d2b42242064c2961e"
+  },
+  "formal_training_source_unchanged": "1493deda247107efe076b9294863a6753391298a",
+  "scope": "Targeted changed evaluation/reporting paths; no new training algorithm change or repeated historical GPU audit",
+  "executed_CLI": [
+    "summarize_live_campaign on actual five formal run ledgers",
+    "plot_learning_curves on actual completed journals and immutable progress snapshot",
+    "plot_learning_curves --help"
+  ],
+  "historical_real_GPU_evidence": "Preserved separately with original immutable sources for all-four-loss gradients, GT isolation, direct final-W, deployment stripping, two-rank NCCL and real continuous/resume",
+  "new_formal_PDMS": "NOT_YET_EVALUATED",
+  "all_five_formal_students": "RUNNING_WITH_REAL_OPTIMIZER_UPDATES",
+  "precommit_format_check": {
+    "initial": "Matplotlib generated trailing SVG whitespace; commit was not made",
+    "repair": "Strip line-end formatting whitespace; all figure coordinates and numerical data unchanged; original artifact copies preserved",
+    "final": "PASS"
+  }
+}
