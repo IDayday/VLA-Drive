@@ -5,8 +5,11 @@ not normalized again; a separate unit-normalized template is also reported.
 Different teacher raw losses are never compared as a common quality scale.
 """
 import argparse
+import fcntl
 import json
+import os
 from pathlib import Path
+import subprocess
 
 import torch
 from torch.nn import functional as F
@@ -16,6 +19,7 @@ from starVLA.model.modules.foresight.future_spatiotemporal_head import FutureSpa
 from starVLA.model.modules.vehicle_joint.initialization import identity_hash
 from tools.action_video_foresight.train_frozen_W_probe import ProbeData
 from tools.ddpolicy_vehicle.prepare_data import atomic_json
+from tools.ddpolicy_vehicle.run_meter import metered_run
 
 
 def normalized_values(values, valid):
@@ -35,6 +39,15 @@ def errors_in_normalized_space(prediction,target,valid):
 
 
 def fit_mean(data, path):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    # All matched heads use one train-only reference. Concurrent evaluations
+    # must neither refit it independently nor race on its atomic publication.
+    with path.with_suffix('.lock').open('a+') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX)
+        return _fit_mean(data,path)
+
+
+def _fit_mean(data, path):
     identity={'train_queries':identity_hash(data.index),'train_targets':data.identity['identity'],
               'space':'mean of channel-LayerNorm target, no second norm on arithmetic mean',
               'split':'train','scenes':len(data.index)}
@@ -53,7 +66,7 @@ def fit_mean(data, path):
     if (counts==0).any():
         raise ValueError('No training population for some reference positions')
     mean=(sums/counts[...,None]).float()
-    temporary=path.with_suffix('.tmp')
+    temporary=path.with_suffix(f'.{os.getpid()}.tmp')
     torch.save({'identity':identity,'mean':mean,'counts':counts},temporary);temporary.replace(path)
     return mean
 
@@ -80,17 +93,8 @@ class DinoCurrentReference:
         return features[:,None].expand(-1,steps,-1,-1,-1),valid[:,None].expand(-1,steps,-1,-1)
 
 
-def main():
-    parser=argparse.ArgumentParser(__doc__)
-    for key in ('representations','train-data','dev-data','train-targets','dev-targets',
-                'probe','mean-output','output'):
-        parser.add_argument('--'+key,required=True)
-    parser.add_argument('--static-video-reference')
-    parser.add_argument('--dino-current-cache')
-    parser.add_argument('--dino-index')
-    args=parser.parse_args()
-    torch.set_num_threads(2)
-    torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
+def evaluate(args,meter,save):
+    out=Path(args.output);out.mkdir(parents=True,exist_ok=False)
     train=ProbeData(args.representations,args.train_data,args.train_targets,'train')
     dev=ProbeData(args.representations,args.dev_data,args.dev_targets,'dev')
     if {r['log'] for r in train.index}&{r['log'] for r in dev.index}:
@@ -101,6 +105,9 @@ def main():
     if (identity['train_queries'],identity['dev_queries'],identity['train_targets'],identity['dev_targets'])!=(
             identity_hash(train.index),identity_hash(dev.index),train.identity['identity'],dev.identity['identity']) or checkpoint['completed']!=identity['updates']:
         raise ValueError('Probe is not the complete registered comparison')
+    atomic_json(out/'identity.json',{'probe_identity':identity,'source':subprocess.check_output(
+        ['git','rev-parse','HEAD'],text=True).strip(),'mean_output':args.mean_output,
+        'real_optimizer_updates':0,'precision':'BF16 readout, FP32 feature normalization/MSE, TF32 off'})
     # The actual saved projection size, rather than a backbone name, is authoritative.
     hidden=checkpoint['model']['project.weight'].shape[1]
     model=FutureSpatiotemporalHead(hidden,dev.identity['target_shape'][-1],dev.identity['time_intervals_s'],
@@ -116,40 +123,69 @@ def main():
         if reference['schema']!='action_video_static_reference_v1' or reference['future_target_identity']!=dev.identity['identity'] or complete['identity']!=reference['identity'] or complete['scenes']!=len(dev.index):
             raise ValueError('Genuine same-encoder static video reference required')
     rows=[]
+    score_names=('model','training_mean','unit_normalized_training_mean','static_current_reference')
     with torch.inference_mode():
         for start in range(0,len(dev.index),8):
-            ids=list(range(start,min(start+8,len(dev.index))));w,action,target,valid=dev.batch(ids,'cuda')
-            with torch.autocast('cuda',dtype=torch.bfloat16):
-                pred=model(w if model.use_world else None,(9,12),gt_action=action if model.action_condition=='gt_ego' else None)
-            normalized_target=normalized_values(target,valid)
-            scores={'model':errors_in_normalized_space(normalized_values(pred,valid),normalized_target,valid),
-                'training_mean':errors_in_normalized_space(mean[None].expand_as(target),normalized_target,valid),
-                'unit_normalized_training_mean':errors_in_normalized_space(normalized_values(mean[None].expand_as(target),valid),normalized_target,valid)}
-            statics=[];masks=[]
-            for i in ids:
-                if static is not None:
-                    z,m=static.get(dev.index[i]['token'],target.shape[2])
-                else:
-                    value=torch.load(static_root/'targets'/(dev.index[i]['token']+'.pt'),weights_only=True)
-                    if value['identity']!=reference['identity']:
-                        raise ValueError('Static video scene identity changed')
-                    z=value['features'];m=torch.ones(z.shape[:-1],dtype=torch.bool)
-                statics.append(z);masks.append(m)
-            statics=torch.stack(statics).cuda();mask=torch.stack(masks).cuda()&valid
-            if not torch.equal(mask,valid):
-                raise ValueError('Reference invalidity must not shrink scientific denominator')
-            scores['static_current_reference']=errors_in_normalized_space(normalized_values(statics,mask),normalized_target,mask)
-            for j,i in enumerate(ids):
-                rows.append({**dev.index[i],**{k:v[j] for k,v in scores.items()},'failure':None})
-    out=Path(args.output);out.mkdir(parents=True,exist_ok=False)
-    with (out/'scenes.jsonl').open('w') as stream:
-        for row in rows:stream.write(json.dumps(row)+'\n')
-    summary={'requested':len(dev.index),'scenes':len(rows),'failed':0,'probe_identity':identity,
+            ids=list(range(start,min(start+8,len(dev.index))))
+            batch_rows=[{**dev.index[i],**dict.fromkeys(score_names),'failure':None} for i in ids]
+            try:
+                w,action,target,valid=dev.batch(ids,'cuda')
+                with torch.autocast('cuda',dtype=torch.bfloat16):
+                    pred=model(w if model.use_world else None,(9,12),gt_action=action if model.action_condition=='gt_ego' else None)
+                normalized_target=normalized_values(target,valid)
+                scores={'model':errors_in_normalized_space(normalized_values(pred,valid),normalized_target,valid),
+                    'training_mean':errors_in_normalized_space(mean[None].expand_as(target),normalized_target,valid),
+                    'unit_normalized_training_mean':errors_in_normalized_space(normalized_values(mean[None].expand_as(target),valid),normalized_target,valid)}
+                statics=[];masks=[]
+                for i in ids:
+                    if static is not None:
+                        z,m=static.get(dev.index[i]['token'],target.shape[2])
+                    else:
+                        value=torch.load(static_root/'targets'/(dev.index[i]['token']+'.pt'),weights_only=True)
+                        if value['identity']!=reference['identity']:
+                            raise ValueError('Static video scene identity changed')
+                        z=value['features'];m=torch.ones(z.shape[:-1],dtype=torch.bool)
+                    statics.append(z);masks.append(m)
+                statics=torch.stack(statics).cuda();mask=torch.stack(masks).cuda()&valid
+                if not torch.equal(mask,valid):
+                    raise ValueError('Reference invalidity must not shrink scientific denominator')
+                scores['static_current_reference']=errors_in_normalized_space(normalized_values(statics,mask),normalized_target,mask)
+                for j,row in enumerate(batch_rows):row.update({k:v[j] for k,v in scores.items()})
+            except Exception as error:
+                # Preserve every requested scene, including a failed batch. No
+                # average over successful rows is a complete scientific result.
+                for row in batch_rows:row['failure']=repr(error)
+            rows.extend(batch_rows)
+            with (out/'scenes.jsonl').open('a') as stream:
+                for row in batch_rows:stream.write(json.dumps(row)+'\n')
+            meter.update(inference_scenes=len(rows));save()
+            atomic_json(out/'progress.json',{'requested':len(dev.index),'scenes':len(rows),
+                'failed':sum(r['failure'] is not None for r in rows)})
+    failed=sum(r['failure'] is not None for r in rows)
+    summary={'requested':len(dev.index),'scenes':len(rows),'failed':failed,'probe_identity':identity,
              'scope':'frozen readout references, not deployment/PDMS; no target-type raw-MSE ranking'}
-    for key in scores:
+    for key in score_names:
         values=[r[key] for r in rows if r[key] is not None]
-        summary[key]={'normalized_mse':sum(values)/len(values),'valid_scenes':len(values)}
+        summary[key]={'normalized_mse':sum(values)/len(values) if values and not failed else None,'valid_scenes':len(values)}
     atomic_json(out/'SUMMARY.json',summary)
+    if failed:raise RuntimeError('Failed probe evaluation rows preserved; complete result unavailable')
+
+
+def main():
+    parser=argparse.ArgumentParser(__doc__)
+    for key in ('representations','train-data','dev-data','train-targets','dev-targets',
+                'probe','mean-output','output','campaign-root','run-id'):
+        parser.add_argument('--'+key,required=True)
+    parser.add_argument('--static-video-reference')
+    parser.add_argument('--dino-current-cache')
+    parser.add_argument('--dino-index')
+    args=parser.parse_args()
+    if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze evaluation source')
+    torch.set_num_threads(2)
+    torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
+    with metered_run(args.campaign_root,args.run_id,1,{'kind':'frozen_future_reference_evaluation',
+            'main_model_optimizer_updates':0,'real_optimizer_updates':0}) as (meter,_,save):
+        evaluate(args,meter,save)
 
 
 if __name__=='__main__':

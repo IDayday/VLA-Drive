@@ -58,17 +58,22 @@ The host-local formal controller binds a frozen plan/source, waits for complete 
 
 ```bash
 python -m tools.action_video_foresight.run_formal_campaign \
-  --plan "$AV_ROOT/formal_plan_seed42_v1.json" --arm S4
+  --plan "$AV_ROOT/formal_plan_seed42_v2.json" --arm S4
 ```
 
 Resume a safely paused controller/run only after checking its state, from the same immutable source and plan:
 
 ```bash
 python -m tools.action_video_foresight.run_formal_campaign \
-  --plan "$AV_ROOT/formal_plan_seed42_v1.json" --arm S4 \
+  --plan "$AV_ROOT/formal_plan_seed42_v2.json" --arm S4 \
   --resume-controller --acknowledge-stop
 ```
 
 `stage_native_targets` copies only the required native cache onto a host's local disk, verifies byte hashes, and publishes local COMPLETE only after the full source population is complete. It can stage finished chunks while extraction continues. No teacher is rerun or target transformed. `run_experiments --local-image-root` uses the existing byte-checked current-image replica. Exact launches and resource meters live outside git; compact verified evidence is under `reports/action_video_foresight/`.
 
 Use `tools.action_video_foresight.audit_existing_auxiliary`, `audit_W_usage`, `probe_representation` and `train_frozen_W_probe` for the prescribed read-only/probe diagnostics. Official PDMS remains canonical NAVSIM v1 FP32 master loading, TF32 off, ten FM steps, one ego candidate. Live BF16 timing is a separate deployment point and must not be paired with FP32 scores.
+
+
+Formal deployment is now active from immutable1493ded. Check actual ledgers before running recovery commands; launching again while the controller owns its flock is an error. Snapshot and exact five-host commands: reports/action_video_foresight/FORMAL_START_20261002.md and FORMAL_CONTROLLER_LAUNCHES_V2.json. S2/S4 are performing real optimizer updates; other arms start after the full source/cache and GPU readiness gates. All old formal0 statements are historical.
+
+The completed old-model W intervention scores are a fixed128scene development diagnostic and do not establish a new method gain. Frozen future probes use train-only means in the channel-LayerNorm loss space and a separately encoded static-current-repeat video reference. These diagnostic reference caches never enter formal student inputs.

@@ -1,0 +1,86 @@
+{
+  "source": "41c8b81",
+  "checkpoint": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+  "purpose": "Fixed128dev W sensitivity, not a new model planning gain or causal proof",
+  "canonical_scoring": "NAVSIM v1 full-precision original metric cache; FP32 master/TF32off; same batch2, same scene noise/10Eulersteps/oneego",
+  "results": {
+    "base": {
+      "scenes": 128,
+      "logs": 16,
+      "PDMS_points": 88.17524011166127,
+      "zero_fraction": 0.0546875,
+      "failed": 0,
+      "metrics_points": {
+        "comfort": 100.0,
+        "drivable_area_compliance": 96.875,
+        "driving_direction_compliance": 98.4375,
+        "ego_progress": 82.40182626798713,
+        "no_at_fault_collisions": 97.65625,
+        "score": 88.17524011166127,
+        "time_to_collision_within_bound": 94.53125
+      },
+      "summary_sha256": "0ca9891c9cc353a7d653ba167b2d33a02172b2ea306ae3a66145a59c5e4eea62"
+    },
+    "W_permuted_layer9": {
+      "scenes": 128,
+      "logs": 16,
+      "PDMS_points": 86.48748616305986,
+      "zero_fraction": 0.0625,
+      "failed": 0,
+      "metrics_points": {
+        "comfort": 100.0,
+        "drivable_area_compliance": 96.09375,
+        "driving_direction_compliance": 98.4375,
+        "ego_progress": 81.78871679134365,
+        "no_at_fault_collisions": 97.65625,
+        "score": 86.48748616305986,
+        "time_to_collision_within_bound": 92.1875
+      },
+      "summary_sha256": "cb065ef45c2db20674ffee4152954fbf54e7b45927e10e454a44f0bf52a0d792"
+    },
+    "W_permuted_layer18": {
+      "scenes": 128,
+      "logs": 16,
+      "PDMS_points": 88.14153891800908,
+      "zero_fraction": 0.0546875,
+      "failed": 0,
+      "metrics_points": {
+        "comfort": 100.0,
+        "drivable_area_compliance": 96.875,
+        "driving_direction_compliance": 98.4375,
+        "ego_progress": 82.32094340322188,
+        "no_at_fault_collisions": 97.65625,
+        "score": 88.14153891800908,
+        "time_to_collision_within_bound": 94.53125
+      },
+      "summary_sha256": "6b9afa47b068d68cefa9a243a1bdfe52f9c9a6ccb0fc3032904206ede42eb9e9"
+    }
+  },
+  "paired": {
+    "W_permuted_layer9-base": {
+      "mean_points": -1.6877539486014645,
+      "log_cluster_bootstrap_95_points": [
+        -4.460112404824721,
+        0.586056513991091
+      ],
+      "logs": 16,
+      "draws": 10000,
+      "bootstrap_seed": 73,
+      "train_seed": 42,
+      "sampling_seed": 42
+    },
+    "W_permuted_layer18-base": {
+      "mean_points": -0.033701193652186,
+      "log_cluster_bootstrap_95_points": [
+        -0.1002150814157511,
+        0.029517300011857706
+      ],
+      "logs": 16,
+      "draws": 10000,
+      "bootstrap_seed": 73,
+      "train_seed": 42,
+      "sampling_seed": 42
+    }
+  },
+  "model_optimizer_updates": 0
+}
