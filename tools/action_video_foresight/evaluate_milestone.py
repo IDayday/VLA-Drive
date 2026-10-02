@@ -2,6 +2,7 @@
 import argparse
 import fcntl
 import json
+import math
 import os
 from pathlib import Path
 import shlex
@@ -14,6 +15,15 @@ from starVLA.model.modules.vehicle_joint.initialization import file_sha256, iden
 
 def read(path):
     return json.loads(Path(path).read_text())
+
+
+def checked_ego_summary(output, scenes):
+    value=read(Path(output)/'summary.json')
+    if not value['valid'] or value['failed'] or value['scenes']!=scenes:
+        raise RuntimeError('Incomplete ego evaluation; keep every failed row')
+    if any(not math.isfinite(value['groups']['all'][key]) for key in ('ADE','FDE','yaw_MAE_rad')):
+        raise RuntimeError('Nonfinite ego evaluation')
+    return value
 
 
 def main():
@@ -78,13 +88,16 @@ def main():
         summary=read(scores/'summary.json')
         if not summary['valid'] or summary['failed'] or summary['scenes']!=plan['dev_scenes']:
             raise RuntimeError('Development evaluation incomplete; failed rows remain in the denominator')
-        ego=root/'evaluations'/(label+'_ego.json')
-        if not ego.exists():
+        if not math.isfinite(summary['PDMS']) or any(not math.isfinite(v) for v in summary['metrics'].values()):
+            raise RuntimeError('Nonfinite official development result')
+        ego=root/'evaluations'/(label+'_ego')
+        if not (ego/'summary.json').exists():
             subprocess.run([sys.executable,'-m','tools.foresight.evaluate_ego',
                             '--predictions',str(path),'--current-root',plan['dev_data'],
                             '--output',str(ego)],check=True)
+        checked_ego_summary(ego,plan['dev_scenes'])
         atomic_json(state,{'identity':identity,'status':'COMPLETE',
-            'scores':str(scores/'summary.json'),'ego':str(ego),'PDMS_points':100*summary['PDMS'],
+            'scores':str(scores/'summary.json'),'ego':str(ego/'summary.json'),'PDMS_points':100*summary['PDMS'],
             'scenes':summary['scenes'],'failed':summary['failed']})
     except BaseException as error:
         atomic_json(state,{'identity':identity,'status':'FAILED','error':repr(error)})

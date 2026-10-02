@@ -4,6 +4,7 @@ import pytest
 from pathlib import Path
 from starVLA.model.modules.vehicle_joint.initialization import file_sha256
 from tools.action_video_foresight.stage_native_targets import copy_chunk
+from tools.action_video_foresight.evaluate_milestone import checked_ego_summary
 
 
 def test_formal_controller_waits_for_complete_population_and_rejects_changed_identity(tmp_path):
@@ -35,3 +36,15 @@ def test_native_replica_rejects_foreign_or_corrupt_data(tmp_path):
     (output/entity.name).write_bytes(b'corrupt')
     with pytest.raises(ValueError,match='corrupt'):
         copy_chunk(source, output, 0, 'native-video')
+
+
+def test_ego_evaluation_cannot_resume_past_failed_or_incomplete_summary(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        checked_ego_summary(tmp_path,1696)
+    record={'valid':False,'failed':1,'scenes':1696,'groups':{'all':{'ADE':None,'FDE':None,'yaw_MAE_rad':None}}}
+    (tmp_path/'summary.json').write_text(json.dumps(record))
+    with pytest.raises(RuntimeError,match='Incomplete'):
+        checked_ego_summary(tmp_path,1696)
+    record.update(valid=True,failed=0);record['groups']['all'].update(ADE=.5,FDE=1.,yaw_MAE_rad=.1)
+    (tmp_path/'summary.json').write_text(json.dumps(record))
+    assert checked_ego_summary(tmp_path,1696)['valid']
