@@ -308,6 +308,15 @@ def run(registration_path, attempt):
                 codes=[p.wait() for p in groups]
                 if any(codes):raise RuntimeError(f'Export host failure: {codes}')
                 for future in futures:future.result()
+            # CPU scoring can finish just before GPU shard completion markers.
+            # Its successful PAUSED exit preserves all records but has no final
+            # outer summary yet. Finalize with the same canonical adapter once
+            # both host groups have exited; never re-infer or change metrics.
+            with (root/f'merge_a{attempt}.log').open('x') as log:
+                subprocess.run([config['scoring_python'],'-m',MODULE,'merge',
+                    '--registration',str(registration_path),'--attempt',str(attempt)],
+                    cwd=config['source_worktree'],env=environment(),stdout=log,
+                    stderr=subprocess.STDOUT,check=True)
             summarize(registration_path)
             atomic(root/'status.json',{'status':'COMPLETE','registration':registration['identity'],
                   'source_sha':registration['source_sha'],'real_optimizer_updates':0,
@@ -318,6 +327,19 @@ def run(registration_path, attempt):
                   'error':repr(error),'registration':registration['identity'],'real_optimizer_updates':0,
                   'gpu_hours':sweep_usage(registration,config)})
             raise
+
+
+def merge(registration_path,attempt):
+    from tools.foresight.score_pdms import merge_parts
+    from tools.ddpolicy_vehicle.run_meter import metered_run
+    registration,config=load_registration(registration_path);root=Path(config['artifact_root'])
+    with metered_run(config['campaign_root'],f'fm_sweep_{registration["identity"][:12]}_merge_a{attempt}',0,
+                     {'kind':'canonical_CPU_merge_after_GPU_complete','real_optimizer_updates':0}) as (meter,_,save):
+        for n in config['steps']:
+            out=root/f'steps_{n:02d}'/'scores';bank=root/f'steps_{n:02d}'/'predictions'
+            result=merge_parts(out,bank,read(out/'requested_index.json'),read(out/'identity.json'),1)
+            if result is None or not result['valid']:raise RuntimeError('Incomplete/invalid canonical scores retained')
+        meter['inference_scenes']=12146*len(config['steps']);save()
 
 
 def summarize(registration_path):
@@ -360,7 +382,7 @@ def summarize(registration_path):
 def main():
     parser=argparse.ArgumentParser(__doc__);sub=parser.add_subparsers(dest='command',required=True)
     p=sub.add_parser('register');p.add_argument('--config',required=True);p.add_argument('--output',required=True)
-    for name in ('export','group','run','summarize'):
+    for name in ('export','group','run','merge','summarize'):
         p=sub.add_parser(name);p.add_argument('--registration',required=True)
         if name!='summarize':p.add_argument('--attempt',type=int,default=1)
         if name=='export':p.add_argument('--rank',type=int,required=True);p.add_argument('--smoke-count',type=int,default=0)
@@ -370,6 +392,7 @@ def main():
     elif a.command=='export':export(a.registration,a.rank,a.attempt,a.smoke_count)
     elif a.command=='group':group(a.registration,a.host_index,a.attempt,a.smoke)
     elif a.command=='run':run(a.registration,a.attempt)
+    elif a.command=='merge':merge(a.registration,a.attempt)
     else:summarize(a.registration)
 
 
