@@ -25,6 +25,10 @@ def test_gt_action_changes_auxiliary_without_grad_to_gt_or_execution_head():
     no_action=FutureSpatiotemporalHead(16,12,[(.5,1.)],dim=32)
     with pytest.raises(ValueError):no_action(world,(2,3),gt_action=gt)
     with pytest.raises(ValueError):head(world,(2,3))
+    only_action=FutureSpatiotemporalHead(16,12,[(.5,1.)],dim=32,action_condition='gt_ego',use_world=False)
+    assert only_action(None,(2,3),gt_action=gt).shape==(2,3,1,2,3,12)
+    with pytest.raises(ValueError,match='no W input'):
+        only_action(world,(2,3),gt_action=gt)
 
 
 def test_direct_world_condition_preserves_raw_hidden_and_gradient():

@@ -28,10 +28,16 @@ class FutureSpatiotemporalHead(nn.Module):
         self.project.requires_grad_(use_world)
 
     def forward(self, world, grid, *, gt_action=None):
-        if world.ndim != 3 or not torch.isfinite(world).all():
-            raise ValueError('Invalid current W')
         if (gt_action is not None) != (self.action_condition == 'gt_ego'):
             raise ValueError('Absent condition is not a zero trajectory; obey declared mode')
+        if self.use_world:
+            if world is None or world.ndim != 3 or not torch.isfinite(world).all():
+                raise ValueError('Invalid current W')
+            batch, device = len(world), world.device
+        else:
+            if world is not None:
+                raise ValueError('Action-only control has no W input')
+            batch, device = len(gt_action), gt_action.device
         height, width = grid
         if min(height, width) < 1:
             raise ValueError('Invalid native spatial grid')
@@ -39,22 +45,22 @@ class FutureSpatiotemporalHead(nn.Module):
         if self.use_world:
             memory.append(self.project(world) + self.memory_type.weight[0])
         if gt_action is not None:
-            if len(gt_action) != len(world):
+            if len(gt_action) != batch:
                 raise ValueError('Action/scene batch mismatch')
             memory.append(self.action_encoder(gt_action) + self.memory_type.weight[1])
         memory = torch.cat(memory, 1)
-        yy, xx = torch.meshgrid((torch.arange(height, device=world.device) + .5) / height,
-                               (torch.arange(width, device=world.device) + .5) / width, indexing='ij')
+        yy, xx = torch.meshgrid((torch.arange(height, device=device) + .5) / height,
+                               (torch.arange(width, device=device) + .5) / width, indexing='ij')
         xy = torch.stack((2*xx-1, 2*yy-1), -1).reshape(-1, 2).to(memory.dtype)
-        span = self.time_intervals_s.to(device=world.device, dtype=memory.dtype) / 4.
+        span = self.time_intervals_s.to(device=device, dtype=memory.dtype) / 4.
         mid = span.mean(-1)
         temporal = self.time(torch.stack((span[:, 0], span[:, 1], mid.sin(), mid.cos()), -1))
-        query = (self.view(torch.arange(3, device=world.device))[None, :, None, None]
+        query = (self.view(torch.arange(3, device=device))[None, :, None, None]
                  + temporal[None, None, :, None] + self.spatial(xy)[None, None, None])
-        query = query.expand(len(world), -1, -1, -1, -1).flatten(1, 3)
+        query = query.expand(batch, -1, -1, -1, -1).flatten(1, 3)
         for block in self.blocks:
             query = block(query, memory)
-        return self.output(query).reshape(len(world), 3, len(span), height, width, -1)
+        return self.output(query).reshape(batch, 3, len(span), height, width, -1)
 
 
 def normalized_clip_loss(prediction, target, valid, *, eps=1e-5, global_count=None):

@@ -1,0 +1,471 @@
+{
+  "cost_scope": "Optimizer speed estimates; all loading, saving and failed attempts are also metered",
+  "paired4": {
+    "boundary_policy": "only whole measured batches in common overlap; conservative",
+    "completed_scenes_per_job": [
+      3040,
+      3168
+    ],
+    "samples_per_s": 18.626241292948855,
+    "seconds": 333.2932233810425,
+    "valid": true
+  },
+  "precision": "Live BF16 timing is separate from FP32-master deployment timing",
+  "profiles": [
+    {
+      "all_four_losses": true,
+      "bf16_training_model_timing": {
+        "RGB_loading_included": false,
+        "W_retained": true,
+        "batch1_p50_s": 0.2943409467115998,
+        "batch1_p95_s": 0.3088049152866006,
+        "precision_protocol": {
+          "W_retained": 144,
+          "auxiliary_heads_removed": true,
+          "compute_policy": "BF16 autocast; original FP32 action integration",
+          "cudnn_tf32": true,
+          "loading_path": "in-memory DeepSpeed model after training",
+          "matmul_tf32": false,
+          "parameter_dtype_elements": {
+            "torch.bfloat16": 2951547396
+          },
+          "parameter_source": "live BF16 training parameters; not reconstructed FP32 masters"
+        },
+        "quality_pairing": "Not a FP32 deployment point; no BF16 PDMS measured",
+        "readout_heads": false,
+        "teachers": false
+      },
+      "candidate": "C1",
+      "checkpoint_costs": [
+        {
+          "seconds": 10.831055402755737,
+          "tag": "milestone_000000"
+        },
+        {
+          "seconds": 16.32514238357544,
+          "tag": "milestone_000120"
+        },
+        {
+          "seconds": 16.187360286712646,
+          "tag": "final_000120"
+        }
+      ],
+      "data_wait_p50_s": 0.5486570596694946,
+      "effective_accumulation": 2.0,
+      "full_training_population": 101592,
+      "future_target_type": "dino_sequence",
+      "global_batch": 32,
+      "head_timing_scope": "forward CUDA events only; total step includes all backward and optimizer work",
+      "mean_step_s": 3.3916624116897585,
+      "measured_steps": 100,
+      "measurement_complete": true,
+      "micro_batch": 4,
+      "optimizer_gpu_hours_per_1000_updates": 3.768513790766398,
+      "optimizer_gpu_hours_per_epoch_estimate": 11.965031285683313,
+      "per_batch_rank_max_sequence_minmax": [
+        1930,
+        1930
+      ],
+      "per_rank_peak_allocated_bytes": [
+        19274949120.0,
+        19396058624.0,
+        19597558272.0,
+        18603335680.0
+      ],
+      "per_rank_peak_reserved_bytes": [
+        21978152960.0,
+        22108176384.0,
+        21290287104.0,
+        20484980736.0
+      ],
+      "planner_condition_mode": "action_only",
+      "profile_only_not_planning_evidence": true,
+      "rank0_head_forward_ms": {
+        "current_dino": {
+          "p50": 2.490447998046875,
+          "p95": 3.070009708404541
+        },
+        "future_dino": {
+          "p50": 8.987199902534485,
+          "p95": 9.633479976654053
+        },
+        "interaction": {
+          "p50": 4.107856035232544,
+          "p95": 4.638675189018249
+        }
+      },
+      "run": "profile_S0_paired4_v1",
+      "samples_per_s": 9.434901271337703,
+      "source_sha": "974c5c6e1ce2a22bbcb49b9cf0eb1da8f4b4f0ff",
+      "status": "COMPLETE",
+      "step_p50_s": 3.285945177078247,
+      "step_p95_s": 3.871009528636932,
+      "sum_rank_peak_allocated_bytes": 76871901696,
+      "task_counters": {
+        "current_dino_elements": 566231040,
+        "current_requests": 3840,
+        "future_clip_scenes": 3780,
+        "future_dino_elements": 0,
+        "future_requests": 3840,
+        "horizon_scenes": [
+          0,
+          0,
+          0
+        ],
+        "interaction_elements": 10321920,
+        "physical_future_frame_requests": 30720,
+        "valid_views": [
+          0,
+          0,
+          0
+        ],
+        "visual_elements": 0
+      },
+      "world_size": 4
+    },
+    {
+      "all_four_losses": true,
+      "bf16_training_model_timing": {
+        "RGB_loading_included": false,
+        "W_retained": true,
+        "batch1_p50_s": 0.30602916423231363,
+        "batch1_p95_s": 0.31308881687000395,
+        "precision_protocol": {
+          "W_retained": 144,
+          "auxiliary_heads_removed": true,
+          "compute_policy": "BF16 autocast; original FP32 action integration",
+          "cudnn_tf32": true,
+          "loading_path": "in-memory DeepSpeed model after training",
+          "matmul_tf32": false,
+          "parameter_dtype_elements": {
+            "torch.bfloat16": 2951547396
+          },
+          "parameter_source": "live BF16 training parameters; not reconstructed FP32 masters"
+        },
+        "quality_pairing": "Not a FP32 deployment point; no BF16 PDMS measured",
+        "readout_heads": false,
+        "teachers": false
+      },
+      "candidate": "C1",
+      "checkpoint_costs": [
+        {
+          "seconds": 10.87271237373352,
+          "tag": "milestone_000000"
+        },
+        {
+          "seconds": 16.223727226257324,
+          "tag": "milestone_000120"
+        },
+        {
+          "seconds": 16.507713079452515,
+          "tag": "final_000120"
+        }
+      ],
+      "data_wait_p50_s": 0.5370421409606934,
+      "effective_accumulation": 2.0,
+      "full_training_population": 101592,
+      "future_target_type": "video_clip",
+      "global_batch": 32,
+      "head_timing_scope": "forward CUDA events only; total step includes all backward and optimizer work",
+      "mean_step_s": 3.2932904863357546,
+      "measured_steps": 100,
+      "measurement_complete": true,
+      "micro_batch": 4,
+      "optimizer_gpu_hours_per_1000_updates": 3.6592116514841715,
+      "optimizer_gpu_hours_per_epoch_estimate": 11.617996993462244,
+      "per_batch_rank_max_sequence_minmax": [
+        1930,
+        1930
+      ],
+      "per_rank_peak_allocated_bytes": [
+        19275983360.0,
+        19397092864.0,
+        19598592512.0,
+        18606434304.0
+      ],
+      "per_rank_peak_reserved_bytes": [
+        20906508288.0,
+        21221081088.0,
+        21321744384.0,
+        20520632320.0
+      ],
+      "planner_condition_mode": "action_plus_W",
+      "profile_only_not_planning_evidence": true,
+      "rank0_head_forward_ms": {
+        "current_dino": {
+          "p50": 2.361056089401245,
+          "p95": 2.5839056491851804
+        },
+        "future_dino": {
+          "p50": 8.239279866218567,
+          "p95": 9.185533082485199
+        },
+        "interaction": {
+          "p50": 3.8346399664878845,
+          "p95": 4.088064026832581
+        }
+      },
+      "run": "profile_S4_paired4_v1",
+      "samples_per_s": 9.716725607040049,
+      "source_sha": "974c5c6e1ce2a22bbcb49b9cf0eb1da8f4b4f0ff",
+      "status": "COMPLETE",
+      "step_p50_s": 3.2540385723114014,
+      "step_p95_s": 3.5997433423995973,
+      "sum_rank_peak_allocated_bytes": 76878103040,
+      "task_counters": {
+        "current_dino_elements": 566231040,
+        "current_requests": 3840,
+        "future_clip_scenes": 3780,
+        "future_dino_elements": 0,
+        "future_requests": 3840,
+        "horizon_scenes": [
+          0,
+          0,
+          0
+        ],
+        "interaction_elements": 10321920,
+        "physical_future_frame_requests": 30720,
+        "valid_views": [
+          0,
+          0,
+          0
+        ],
+        "visual_elements": 0
+      },
+      "world_size": 4
+    },
+    {
+      "all_four_losses": true,
+      "bf16_training_model_timing": {
+        "RGB_loading_included": false,
+        "W_retained": true,
+        "batch1_p50_s": 0.2963498421013355,
+        "batch1_p95_s": 0.31023096200078726,
+        "precision_protocol": {
+          "W_retained": 144,
+          "auxiliary_heads_removed": true,
+          "compute_policy": "BF16 autocast; original FP32 action integration",
+          "cudnn_tf32": true,
+          "loading_path": "in-memory DeepSpeed model after training",
+          "matmul_tf32": false,
+          "parameter_dtype_elements": {
+            "torch.bfloat16": 2951547396
+          },
+          "parameter_source": "live BF16 training parameters; not reconstructed FP32 masters"
+        },
+        "quality_pairing": "Not a FP32 deployment point; no BF16 PDMS measured",
+        "readout_heads": false,
+        "teachers": false
+      },
+      "candidate": "C1",
+      "checkpoint_costs": [
+        {
+          "seconds": 10.372981786727905,
+          "tag": "milestone_000000"
+        },
+        {
+          "seconds": 19.04674458503723,
+          "tag": "milestone_000120"
+        },
+        {
+          "seconds": 15.805706024169922,
+          "tag": "final_000120"
+        }
+      ],
+      "data_wait_p50_s": 0.511300802230835,
+      "effective_accumulation": 2.0,
+      "full_training_population": 101592,
+      "future_target_type": "video_clip",
+      "global_batch": 32,
+      "head_timing_scope": "forward CUDA events only; total step includes all backward and optimizer work",
+      "mean_step_s": 3.279408583641052,
+      "measured_steps": 100,
+      "measurement_complete": true,
+      "micro_batch": 4,
+      "optimizer_gpu_hours_per_1000_updates": 3.6437873151567244,
+      "optimizer_gpu_hours_per_epoch_estimate": 11.5690247256226,
+      "per_batch_rank_max_sequence_minmax": [
+        1930,
+        1930
+      ],
+      "per_rank_peak_allocated_bytes": [
+        19275983360.0,
+        19397092864.0,
+        19598592512.0,
+        18606434304.0
+      ],
+      "per_rank_peak_reserved_bytes": [
+        21005074432.0,
+        21028143104.0,
+        21514682368.0,
+        20615004160.0
+      ],
+      "planner_condition_mode": "action_plus_W",
+      "profile_only_not_planning_evidence": true,
+      "rank0_head_forward_ms": {
+        "current_dino": {
+          "p50": 2.437824010848999,
+          "p95": 2.742468726634979
+        },
+        "future_dino": {
+          "p50": 8.510511994361877,
+          "p95": 9.29459180831909
+        },
+        "interaction": {
+          "p50": 3.9556000232696533,
+          "p95": 4.396822482347488
+        }
+      },
+      "run": "profile_S4_single4_v1",
+      "samples_per_s": 9.757856998858964,
+      "source_sha": "974c5c6e1ce2a22bbcb49b9cf0eb1da8f4b4f0ff",
+      "status": "COMPLETE",
+      "step_p50_s": 3.2158474922180176,
+      "step_p95_s": 3.614839148521423,
+      "sum_rank_peak_allocated_bytes": 76878103040,
+      "task_counters": {
+        "current_dino_elements": 566231040,
+        "current_requests": 3840,
+        "future_clip_scenes": 3780,
+        "future_dino_elements": 0,
+        "future_requests": 3840,
+        "horizon_scenes": [
+          0,
+          0,
+          0
+        ],
+        "interaction_elements": 10321920,
+        "physical_future_frame_requests": 30720,
+        "valid_views": [
+          0,
+          0,
+          0
+        ],
+        "visual_elements": 0
+      },
+      "world_size": 4
+    },
+    {
+      "all_four_losses": true,
+      "bf16_training_model_timing": {
+        "RGB_loading_included": false,
+        "W_retained": true,
+        "batch1_p50_s": 0.30204505007714033,
+        "batch1_p95_s": 0.31640148982405664,
+        "precision_protocol": {
+          "W_retained": 144,
+          "auxiliary_heads_removed": true,
+          "compute_policy": "BF16 autocast; original FP32 action integration",
+          "cudnn_tf32": true,
+          "loading_path": "in-memory DeepSpeed model after training",
+          "matmul_tf32": false,
+          "parameter_dtype_elements": {
+            "torch.bfloat16": 2951547396
+          },
+          "parameter_source": "live BF16 training parameters; not reconstructed FP32 masters"
+        },
+        "quality_pairing": "Not a FP32 deployment point; no BF16 PDMS measured",
+        "readout_heads": false,
+        "teachers": false
+      },
+      "candidate": "C1",
+      "checkpoint_costs": [
+        {
+          "seconds": 8.698468208312988,
+          "tag": "milestone_000000"
+        },
+        {
+          "seconds": 12.053335428237915,
+          "tag": "milestone_000120"
+        },
+        {
+          "seconds": 11.682644605636597,
+          "tag": "final_000120"
+        }
+      ],
+      "data_wait_p50_s": 0.2717738151550293,
+      "effective_accumulation": 1.0,
+      "full_training_population": 101592,
+      "future_target_type": "video_clip",
+      "global_batch": 32,
+      "head_timing_scope": "forward CUDA events only; total step includes all backward and optimizer work",
+      "mean_step_s": 1.7079047298431396,
+      "measured_steps": 100,
+      "measurement_complete": true,
+      "micro_batch": 4,
+      "optimizer_gpu_hours_per_1000_updates": 3.7953438440958656,
+      "optimizer_gpu_hours_per_epoch_estimate": 12.050216705004374,
+      "per_batch_rank_max_sequence_minmax": [
+        1930,
+        1930
+      ],
+      "per_rank_peak_allocated_bytes": [
+        13213840896.0,
+        13275279360.0,
+        13276755456.0,
+        13256194560.0,
+        13279810560.0,
+        13364835840.0,
+        12806993408.0,
+        12725204480.0
+      ],
+      "per_rank_peak_reserved_bytes": [
+        15246295040.0,
+        15307112448.0,
+        15407775744.0,
+        15195963392.0,
+        15118368768.0,
+        15302918144.0,
+        15187574784.0,
+        14663286784.0
+      ],
+      "planner_condition_mode": "action_plus_W",
+      "profile_only_not_planning_evidence": true,
+      "rank0_head_forward_ms": {
+        "current_dino": {
+          "p50": 2.3740479946136475,
+          "p95": 2.6599615335464475
+        },
+        "future_dino": {
+          "p50": 2.9642399549484253,
+          "p95": 3.1042671918869016
+        },
+        "interaction": {
+          "p50": 1.9130399823188782,
+          "p95": 2.107304048538208
+        }
+      },
+      "run": "profile_S4_single8_v1",
+      "samples_per_s": 18.73640809164982,
+      "source_sha": "974c5c6e1ce2a22bbcb49b9cf0eb1da8f4b4f0ff",
+      "status": "COMPLETE",
+      "step_p50_s": 1.6902649402618408,
+      "step_p95_s": 1.771046233177185,
+      "sum_rank_peak_allocated_bytes": 105198914560,
+      "task_counters": {
+        "current_dino_elements": 566231040,
+        "current_requests": 3840,
+        "future_clip_scenes": 3780,
+        "future_dino_elements": 0,
+        "future_requests": 3840,
+        "horizon_scenes": [
+          0,
+          0,
+          0
+        ],
+        "interaction_elements": 10321920,
+        "physical_future_frame_requests": 30720,
+        "valid_views": [
+          0,
+          0,
+          0
+        ],
+        "visual_elements": 0
+      },
+      "world_size": 8
+    }
+  ],
+  "selection_basis": "Measured speed and capacity, never profile planning quality",
+  "evidence_source_commit": "974c5c6",
+  "artifact_sha256": "70d6f5c63cb69298defd8fb227052df328eb3c83c7322a633b8a9c6d2f1a3d3d"
+}

@@ -9,10 +9,15 @@ finite_plan:
   old_model_updates: 0
   frozen_probes: [F0, F1, V0, V1, F_ACTION_ONLY, V_ACTION_ONLY]
   formal_primary: [S0, S1, S2, S3, S4]
-  proposed_shared_full_updates: 100000
-  proposed_shared_observation_updates: 25000
+  shared_full_updates: 100000
+  shared_observation_updates: 25000
   second_seed_priority: [S3, S4]
   attribution_controls: [C_BASE_A, C_BASE_AW, S4_NO_MAE]
-  formal_registration: pending_real_clip_validation_and_new_model_profile
+  measured_topology: single_host_8gpu_per_model
+  global_batch: 32
+  micro_batch_per_gpu: 4
+  formal_registration: immutable_per_run_on_full_cache_completion
+  raw_loss_weights: {current: 1.0, future: 1.1549543539882532, interaction: 0.8328945981862067}
+  auxiliary_warmup_updates: 1000
 accounting: all_startup_extract_probe_train_fail_resume_evaluate_gpu_allocations
 stop_policy: explicit_user_stop_or_unrepairable_correctness_or_unavailable_legal_assets

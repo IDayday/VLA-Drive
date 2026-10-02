@@ -46,7 +46,7 @@ def evaluate(model,data,device,batch,permutation_seed=812):
             inputs=[('normal',w,a),('permuted_W',wp,a),('permuted_action',w,ap)]
             scores={}
             for name,ww,aa in inputs:
-                with torch.autocast('cuda',dtype=torch.bfloat16):p=model(ww,(9,12),gt_action=aa if model.action_condition=='gt_ego' else None)
+                with torch.autocast('cuda',dtype=torch.bfloat16):p=model(ww if model.use_world else None,(9,12),gt_action=aa if model.action_condition=='gt_ego' else None)
                 for j,i in enumerate(ids):
                     loss,n=normalized_clip_loss(p[j:j+1],t[j:j+1],v[j:j+1]);scores.setdefault(i,{})[name]=float(loss) if n else None
             for j,i in enumerate(ids):rows.append({**data.index[i],'valid_clip_views':int(v[j].flatten(1).any(-1).sum()),'swap_token':data.index[mapping[i]]['token'],**scores[i],'failure':None})
@@ -94,7 +94,7 @@ def main():
             if offset>=len(order):epoch+=1;offset=0;order=torch.randperm(len(train.index),generator=rng)
             ids=order[offset:offset+a.batch].tolist();w,action,target,valid=train.batch(ids,'cuda')
             optimizer.zero_grad(set_to_none=True)
-            with torch.autocast('cuda',dtype=torch.bfloat16):prediction=model(w,(9,12),gt_action=action if a.condition=='gt_ego' else None)
+            with torch.autocast('cuda',dtype=torch.bfloat16):prediction=model(w if model.use_world else None,(9,12),gt_action=action if a.condition=='gt_ego' else None)
             loss,n=normalized_clip_loss(prediction,target,valid);loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.)
             if any(not torch.isfinite(p.grad).all() for p in model.parameters() if p.grad is not None):raise FloatingPointError('Invalid probe gradient')
             optimizer.step();completed+=1;offset+=len(ids);exposure+=len(ids)

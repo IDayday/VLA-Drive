@@ -39,7 +39,7 @@ def concurrent_rate(step_lists):
 
 def summarize(run, population=None):
     identity = read(run / 'identity.json')
-    if identity['schema'] != 'ddp_full_foresight_student_v1' or identity['scope'] != 'profile':
+    if identity['schema'] not in ('ddp_full_foresight_student_v1', 'ddp_action_video_student_v1') or identity['scope'] != 'profile':
         raise ValueError('Complete-method profiles only')
     config = identity['config']['foresight']
     if not all(config[k] for k in ('enable_current_dino', 'enable_future_dino', 'enable_interaction')):
@@ -51,6 +51,8 @@ def summarize(run, population=None):
               'global_batch': identity['global_batch'], 'micro_batch': identity['micro_batch'],
               'measured_steps': len(rows), 'measurement_complete': len(rows) == 100 and status['status'] == 'COMPLETE',
               'all_four_losses': True, 'profile_only_not_planning_evidence': True}
+    result['future_target_type'] = config.get('future_target_type', 'legacy_single_frame')
+    result['planner_condition_mode'] = config.get('planner_condition_mode', 'action_only')
     if not rows:
         return result
     rank_values = np.asarray([r['per_rank_profile'] for r in rows], dtype=np.float64)

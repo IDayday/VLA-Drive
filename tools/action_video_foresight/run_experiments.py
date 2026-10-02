@@ -35,6 +35,7 @@ def main():
     p.add_argument('--stop-after',type=int,default=0);p.add_argument('--master-port',type=int,required=True)
     p.add_argument('--milestones',default='0,1,100,500,1000,2000,5000,10000,25000,50000,75000,100000')
     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true');p.add_argument('--deterministic',action='store_true')
+    p.add_argument('--local-image-root')
     p.add_argument('--register-only',action='store_true');a=p.parse_args()
     source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze run source')
@@ -57,7 +58,8 @@ def main():
         'milestones':milestones,'calibration_sha256':calibration_id,'dino':di['identity'],'interaction':ii['identity'],
         'future_clip':clip['identity'] if cfg['foresight']['enable_future_dino'] else None,
         'initialization':'genericQwen plus independently seeded random driving, queries and heads; no checkpoint initialization',
-        'GPU_hours_limit':None,'time_limit':None,'stage_pause':a.stop_after,'scope':a.scope}
+        'GPU_hours_limit':None,'time_limit':None,'stage_pause':a.stop_after,'scope':a.scope,
+        'local_image_root':a.local_image_root}
     if a.resume and registration_path.exists():
         registration['stage_pause']=json.loads(registration_path.read_text())['stage_pause']
     for path,value in [(config_path,cfg),(registration_path,registration)]:
@@ -81,6 +83,7 @@ def main():
     elif a.scope=='profile':command+=['--max-seconds','14400','--campaign-gpu-hours','1000000']
     if cfg['foresight']['enable_future_dino']:command+=['--clip-root',a.clip_root,'--clip-identity',clip['identity']]
     if cfg['foresight']['enable_interaction']:command+=['--interaction-root',a.interaction_root,'--interaction-identity',ii['identity']]
+    if a.local_image_root:command+=['--local-image-root',a.local_image_root]
     if a.scope=='formal':command+=['--registration',str(registration_path)]
     for key in ('resume','acknowledge_stop','deterministic'):
         if getattr(a,key):command+=['--'+key.replace('_','-')]

@@ -52,6 +52,23 @@ python -m tools.action_video_foresight.run_experiments \
   --milestones 0,5000,10000,25000,50000,75000,100000
 ```
 
-At this documentation snapshot, formal S0–S4 execution awaits full training clip caches and completion of the new 4/8-GPU cost measurements. Complete development clip caches already exist. This command is the formal entry, not a claim of a completed formal run. Exact launches and resource meters live outside git; compact verified evidence is under `reports/action_video_foresight/`.
+The four full-model120-update topology profiles are complete. Single8 measured18.7364scenes/s; the actual overlapping2x4 window measured18.6262scenes/s. The five-host campaign therefore uses8GPUs/model to shorten the first complete comparison. Complete development clip caches already exist; full101592scene training clip caches remain a strict requirement. Startup/profile checkpoints are never formal initialization.
+
+The host-local formal controller binds a frozen plan/source, waits for complete identity-matched native targets and local replicas, and then launches fresh formal training. It blocks unrelated compute processes and only releases ledger-verified pressure reserves. It exports registered development milestones with the canonical FP32-master/TF32off protocol; it does not start a Navtest observer. Controller/source CLI checks have been executed; formal progress must be read from the actual student ledger.
+
+```bash
+python -m tools.action_video_foresight.run_formal_campaign \
+  --plan "$AV_ROOT/formal_plan_seed42_v1.json" --arm S4
+```
+
+Resume a safely paused controller/run only after checking its state, from the same immutable source and plan:
+
+```bash
+python -m tools.action_video_foresight.run_formal_campaign \
+  --plan "$AV_ROOT/formal_plan_seed42_v1.json" --arm S4 \
+  --resume-controller --acknowledge-stop
+```
+
+`stage_native_targets` copies only the required native cache onto a host's local disk, verifies byte hashes, and publishes local COMPLETE only after the full source population is complete. It can stage finished chunks while extraction continues. No teacher is rerun or target transformed. `run_experiments --local-image-root` uses the existing byte-checked current-image replica. Exact launches and resource meters live outside git; compact verified evidence is under `reports/action_video_foresight/`.
 
 Use `tools.action_video_foresight.audit_existing_auxiliary`, `audit_W_usage`, `probe_representation` and `train_frozen_W_probe` for the prescribed read-only/probe diagnostics. Official PDMS remains canonical NAVSIM v1 FP32 master loading, TF32 off, ten FM steps, one ego candidate. Live BF16 timing is a separate deployment point and must not be paired with FP32 scores.
