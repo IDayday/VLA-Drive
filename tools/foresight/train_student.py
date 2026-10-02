@@ -43,20 +43,20 @@ def main():
     p.add_argument('--updates',type=int,required=True);p.add_argument('--schedule-updates',type=int,required=True)
     p.add_argument('--warmup',type=int,required=True);p.add_argument('--save-every',type=int,default=200)
     p.add_argument('--milestones',default='0');p.add_argument('--stop-after',type=int,default=0)
-    p.add_argument('--max-seconds',type=float,required=True);p.add_argument('--campaign-gpu-hours',type=float,required=True)
+    p.add_argument('--max-seconds',type=float);p.add_argument('--campaign-gpu-hours',type=float)
     p.add_argument('--scope',choices=('startup','small_fit','profile','formal'),required=True)
     p.add_argument('--limit',type=int,default=0,help='Diagnostic prefix only; formal requires0')
     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true')
     p.add_argument('--deterministic',action='store_true');p.add_argument('--offload-optimizer',action='store_true')
     p.add_argument('--registration')
     a=p.parse_args()
-    if min(a.global_batch,a.micro_batch,a.updates,a.save_every,a.max_seconds,a.campaign_gpu_hours)<=0:raise ValueError('Positive training/budget settings required')
+    if min(a.global_batch,a.micro_batch,a.updates,a.save_every)<=0 or any(x is not None and x<=0 for x in (a.max_seconds,a.campaign_gpu_hours)):raise ValueError('Positive training/budget settings required')
     if not 0<=a.warmup<a.schedule_updates or not a.updates<=a.schedule_updates or not 0<=a.stop_after<=a.updates or a.limit<0:raise ValueError('Invalid schedule/progress bounds')
-    if a.scope=='startup' and (a.updates>4 or a.max_seconds>1800):raise ValueError('Startup <=4 updates/1800seconds')
+    if a.scope=='startup' and (a.updates>4 or (a.max_seconds is None or a.max_seconds>1800)):raise ValueError('Startup <=4 updates/1800seconds')
     if a.scope=='small_fit' and (not 0<a.limit<=64 or a.updates>512):raise ValueError('Small fit <=64scenes/512updates')
     if a.scope=='formal' and a.limit:raise ValueError('Formal must use full manifest')
     if not 0<=a.loader_workers<=8:raise ValueError('Bounded per-rank I/O workers required')
-    if a.scope=='profile' and (a.updates>120 or not a.limit or a.max_seconds>14400):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
+    if a.scope=='profile' and (a.updates>120 or not a.limit or (a.max_seconds is None or a.max_seconds>14400)):raise ValueError('Profile <=120 updates, explicit prefix and <=4h')
     milestones={int(x) for x in a.milestones.split(',') if x}
     if any(x<0 or x>a.updates for x in milestones):raise ValueError('Milestone out of range')
     rank=int(os.environ['RANK']);world=int(os.environ['WORLD_SIZE']);local=int(os.environ['LOCAL_RANK'])
@@ -166,7 +166,7 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
             if (out/'STOP_REQUESTED').exists():(out/'STOP_REQUESTED').rename(out/('STOP_ACKNOWLEDGED_'+str(time.time_ns())))
         else:atomic_json(out/'identity.json',{'identity':signature,**identity})
     dist.barrier()
-    if charged_gpu_hours(root)>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before model loading')
+    if a.campaign_gpu_hours is not None and charged_gpu_hours(root)>=a.campaign_gpu_hours:raise RuntimeError('Campaign budget exhausted before model loading')
     random.seed(int(cfg.seed)+rank);np.random.seed(int(cfg.seed)+rank);torch.manual_seed(int(cfg.seed)+rank)
     torch.set_num_threads(2)
     if a.deterministic:
@@ -278,8 +278,8 @@ def run(a,milestones,rank,world,attempt,meter,save_meter):
         while completed<a.updates:
             batches=epoch_batches(size,a.global_batch,int(cfg.seed),epoch)
             if offset==len(batches):epoch+=1;offset=0;continue
-            stop=stopping[0] or (out/'STOP_REQUESTED').exists() or time.time()-begin>=a.max_seconds or bool(a.stop_after and completed>=a.stop_after)
-            if rank==0:stop=stop or charged_gpu_hours(root)>=a.campaign_gpu_hours
+            stop=stopping[0] or (out/'STOP_REQUESTED').exists() or (a.max_seconds is not None and time.time()-begin>=a.max_seconds) or bool(a.stop_after and completed>=a.stop_after)
+            if rank==0:stop=stop or (a.campaign_gpu_hours is not None and charged_gpu_hours(root)>=a.campaign_gpu_hours)
             stop_tensor=torch.tensor(int(stop),device='cuda');dist.all_reduce(stop_tensor,op=dist.ReduceOp.MAX)
             if stop_tensor:
                 status['status']='PAUSED';checkpoint(f'paused_{completed:06d}_{attempt}');meter['status']='PAUSED';break

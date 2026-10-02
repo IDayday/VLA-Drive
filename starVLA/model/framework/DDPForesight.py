@@ -189,7 +189,7 @@ class DDPForesight(Qwenvl_OFT):
         if cfg.future_target_type != 'legacy_single_frame' and cfg.enable_future_dino:
             loss, count = self.compute_clip_loss(encoded['W'], targets, counts.get('future_clip'))
             losses['future_clip'] = loss * cfg.lambda_fut * weights
-            metrics.update(future_clip_raw=loss.detach(), future_clip_global_elements=count,
+            metrics.update(future_clip_raw=loss.detach(), future_clip_global_valid_scenes=count,
                            future_clip_effective_weight=cfg.lambda_fut * weights)
         return {'loss':sum(losses.values()),'losses':losses,'metrics':metrics}
 
