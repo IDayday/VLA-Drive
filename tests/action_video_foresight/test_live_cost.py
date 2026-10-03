@@ -48,3 +48,24 @@ def test_development_snapshot_uses_complete_bound_scores_and_preserves_failures(
     assert development_results(plan)['S4']['5000']['PDMS_points']==80.
     value=json.loads(score.read_text());value['failed']=1;score.write_text(json.dumps(value))
     with pytest.raises(ValueError,match='Incomplete development'):development_results(plan)
+
+
+def test_reconciled_result_is_bound_to_preserved_original_failure(tmp_path):
+    from starVLA.model.modules.vehicle_joint.initialization import file_sha256
+    plan={'campaign_root':str(tmp_path),'runs':{'S4':{'run_id':'run'}},
+        'evaluation_updates':[5000],'identity':'plan','training_source_sha':'source','dev_scenes':2}
+    original=tmp_path/'evaluations'/'run_dev5000_seed42_state.json';original.parent.mkdir()
+    identity={'plan':'plan','arm':'S4','update':5000,'evaluation_source':'source',
+        'purpose':'registered complete development; not Navtest'}
+    original.write_text(json.dumps({'identity':identity,'status':'FAILED','error':'SSH'}))
+    score=tmp_path/'score.json';ego=tmp_path/'ego.json'
+    score.write_text(json.dumps({'valid':True,'failed':0,'scenes':2,'PDMS':.8,'metrics':{'NC':1.}}))
+    ego.write_text(json.dumps({'valid':True,'failed':0,'scenes':2,'groups':{'all':{'ADE':.5,'FDE':1.,'yaw_MAE_rad':.1}}}))
+    sidecar=tmp_path/'reconciled_development'/'run_dev5000_seed42_state.json';sidecar.parent.mkdir()
+    sidecar.write_text(json.dumps({'identity':identity,'status':'COMPLETE','original_failed_state_SHA256':file_sha256(original),
+        'scores':str(score),'ego':str(ego),'PDMS_points':80.,'transport_source':'recovery-source'}))
+    result=development_results(plan)['S4']['5000']
+    assert result['PDMS_points']==80. and result['transport_source']=='recovery-source'
+    assert json.loads(original.read_text())['status']=='FAILED'
+    original.write_text(original.read_text()+'\n')
+    with pytest.raises(ValueError,match='original state changed'):development_results(plan)
