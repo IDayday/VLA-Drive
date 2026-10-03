@@ -61,14 +61,19 @@ def development_results(plan):
             path=root/'evaluations'/(label+'_state.json')
             if not path.exists():continue
             state=json.loads(path.read_text())
-            recovery=root/'reconciled_development'/(label+'_state.json')
-            if state['status']!='COMPLETE' and recovery.exists():
-                recovered=json.loads(recovery.read_text())
-                if recovered['status']=='COMPLETE':
+            recovered_states=[]
+            if state['status']!='COMPLETE':
+                for recovery in sorted(root.glob('reconciled_development*/'+label+'_state.json')):
+                    recovered=json.loads(recovery.read_text())
+                    if recovered['status']!='COMPLETE':continue
                     from starVLA.model.modules.vehicle_joint.initialization import file_sha256
                     if recovered['original_failed_state_SHA256']!=file_sha256(path):
                         raise ValueError('Recovered evaluation original state changed')
-                    state=recovered
+                    recovered_states.append(recovered)
+                if recovered_states:
+                    if any(v['identity']!=recovered_states[0]['identity'] or v['PDMS_points']!=recovered_states[0]['PDMS_points'] for v in recovered_states):
+                        raise ValueError('Multiple recovery versions disagree; do not choose the favorable score')
+                    state=recovered_states[0]
             expected={'plan':plan['identity'],'arm':arm,'update':update,
                 'evaluation_source':plan['training_source_sha'],
                 'purpose':'registered complete development; not Navtest'}

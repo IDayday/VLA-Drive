@@ -34,7 +34,18 @@ def expected_identity(plan, arm, update):
 def complete_export(plan, arm, update, bank):
     manifest=read(bank/'identity.json')
     cp=manifest['checkpoint'];protocol=manifest['protocol']
-    if (cp['completed']!=update or cp['arm']!=arm or cp['scope']!='formal'
+    # The inherited checkpoint field "arm" records the C1 visual candidate,
+    # whereas the formal registration records the S0--S4 experimental arm.
+    root=Path(plan['campaign_root']);run_id=plan['runs'][arm]['run_id']
+    registration_path=root/'registrations'/(run_id+'.json')
+    registration=read(registration_path);training=read(root/'students'/run_id/'identity.json')
+    if (training['identity']!=identity_hash({k:v for k,v in training.items() if k!='identity'})
+        or training['registration_sha256']!=file_sha256(registration_path)
+        or registration['arm']!=arm or registration['run_id']!=run_id
+        or registration['training_source_sha']!=plan['training_source_sha']
+        or cp['run_identity']!=training['identity']):
+        raise ValueError('Export is not bound to the registered experimental arm')
+    if (cp['completed']!=update or cp['arm']!=training['candidate']['name'] or cp['scope']!='formal'
         or cp['training_source_sha']!=plan['training_source_sha']
         or manifest['current_identity']['split']!='dev' or manifest['limit']
         or manifest['world_size']!=len(plan['runs'][arm]['gpus'])):
@@ -70,10 +81,10 @@ def validate_results(plan, score, ego, evaluator):
     if not all(math.isfinite(value) for value in values):raise ValueError('Nonfinite result')
 
 
-def recover(plan,arm,update,source,evaluator,workers):
+def recover(plan,arm,update,source,evaluator,workers,sidecars):
     root=Path(plan['campaign_root']);label=plan['runs'][arm]['run_id']+f'_dev{update}_seed42'
     original=root/'evaluations'/(label+'_state.json')
-    sidecars=root/'reconciled_development';state_path=sidecars/(label+'_state.json')
+    state_path=sidecars/(label+'_state.json')
     identity=expected_identity(plan,arm,update)
     old=read(original)
     if old['identity']!=identity or old['status']!='FAILED' or 'CalledProcessError(255' not in old.get('error',''):
@@ -121,9 +132,12 @@ def main():
     parser.add_argument('--plan',required=True);parser.add_argument('--reference-score',required=True)
     parser.add_argument('--workers',type=int,default=16);parser.add_argument('--slots',type=int,default=2)
     parser.add_argument('--interval',type=int,default=60);parser.add_argument('--once',action='store_true')
+    parser.add_argument('--recovery-directory',default='reconciled_development')
     args=parser.parse_args()
     if not 1<=args.workers<=16 or not 1<=args.slots<=2 or args.interval<10:
         raise ValueError('Bounded CPU-only allocation required')
+    if not args.recovery_directory.startswith('reconciled_development') or Path(args.recovery_directory).name!=args.recovery_directory:
+        raise ValueError('Use a versioned recovery directory inside this campaign')
     plan=read(args.plan)
     if plan['identity']!=identity_hash({k:v for k,v in plan.items() if k!='identity'}):raise ValueError('Frozen plan changed')
     if socket.gethostname()!=plan['runs']['S4']['hostname']:raise ValueError('Run on audited canonical CPU host')
@@ -143,7 +157,7 @@ def main():
     versions=json.loads(subprocess.check_output([plan['scoring_python'],'-c',
         "import importlib.metadata,json;print(json.dumps({n:importlib.metadata.version(n) for n in ('numpy','scipy','shapely')}))"],text=True))
     if versions!=evaluator['runtime_versions']:raise ValueError('Canonical CPU versions changed')
-    root=Path(plan['campaign_root']);out=root/'reconciled_development';out.mkdir(exist_ok=True)
+    root=Path(plan['campaign_root']);out=root/args.recovery_directory;out.mkdir(exist_ok=True)
     lock=(out/'observer.lock').open('a+');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     contract={'plan':plan['identity'],'source':source,'reference_SHA256':file_sha256(args.reference_score),
         'workers':args.workers,'slots':args.slots}
@@ -175,7 +189,7 @@ def main():
                 'completed_registered_evaluations':completed,'pending_transport_recoveries':pending,
                 'updated_unix':time.time()})
             with ThreadPoolExecutor(max_workers=args.slots) as executor:
-                futures=[executor.submit(recover,plan,arm,update,source,evaluator,args.workers) for arm,update in pending]
+                futures=[executor.submit(recover,plan,arm,update,source,evaluator,args.workers,out) for arm,update in pending]
                 for future in futures:
                     try:future.result()
                     except BaseException as error:
