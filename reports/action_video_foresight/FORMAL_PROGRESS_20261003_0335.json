@@ -1,0 +1,5553 @@
+{
+  "actual_common_initialization_comparison": {
+    "S1-S0": {
+      "W": true,
+      "action": true,
+      "driving_tokens": true,
+      "driving_weights_loaded": true,
+      "future_teacher_in_model": true,
+      "generic_source_manifest": true,
+      "state": true
+    },
+    "S2-S0": {
+      "W": true,
+      "action": true,
+      "driving_tokens": true,
+      "driving_weights_loaded": true,
+      "future_teacher_in_model": true,
+      "generic_source_manifest": true,
+      "state": true
+    },
+    "S3-S0": {
+      "W": true,
+      "action": true,
+      "driving_tokens": true,
+      "driving_weights_loaded": true,
+      "future_teacher_in_model": true,
+      "generic_source_manifest": true,
+      "state": true
+    },
+    "S4-S0": {
+      "W": true,
+      "action": true,
+      "driving_tokens": true,
+      "driving_weights_loaded": true,
+      "future_teacher_in_model": true,
+      "generic_source_manifest": true,
+      "state": true
+    }
+  },
+  "common_updates": 100000,
+  "cost": {
+    "accounting": "Loading/failures/saving/evaluation included. Job allocations overlap when authorized jobs share a GPU; physical union counts each declared host/device interval once. Idle pressure and unrelated tasks are excluded. Unassigned intervals are reported separately.",
+    "job_allocated_GPUh": 506.76226295974516,
+    "job_allocated_GPUh_by_kind": {
+      "FP32_deployment_profile": 0.06977388613753849,
+      "action_video_real_four_loss_validation": 0.018480588926209345,
+      "artificial_static_video_diagnostic_reference": 0.32429654558499654,
+      "dino_sequence_target_extraction": 37.614089913434455,
+      "fixed_train_change_group_audit": 0.5089674639701843,
+      "foresight_current_camera_export": 13.60139563990964,
+      "foresight_student_formal": 415.4220729557673,
+      "foresight_student_profile": 2.4308707756466337,
+      "foresight_student_startup": 0.28899237473805744,
+      "frozen100k_encode": 3.8123101796044243,
+      "frozen100k_evaluate": 0.14690108637015026,
+      "frozen100k_templates": 0.0,
+      "frozen_W_lightweight_probe": 3.3206706013944416,
+      "frozen_future_reference_evaluation": 1.300139470299085,
+      "frozen_representation_ego_readout": 0.3509987361563577,
+      "intermediate_W_planner_intervention": 0.17241065131293404,
+      "official_CPU_PDMS": 0.0,
+      "official_CPU_development_recovery": 0.0,
+      "video_clip_target_extraction": 27.37442460940944,
+      "video_teacher_validation": 0.005467481083340115
+    },
+    "known_unmetered_checks": [
+      {
+        "GPU_count": 2,
+        "GPUh": "NOT_MEASURED",
+        "check": "actual two-process NCCL equivalence",
+        "reason": "Standalone validation log has a result but no recorded start/end allocation interval; do not invent elapsed time."
+      }
+    ],
+    "physical_device_interval_union_GPUh": 485.848952671157,
+    "unassigned_allocation_GPUh": 0.0
+  },
+  "dev_logs": 16,
+  "dev_scenes": 1696,
+  "development_results": {
+    "S0": {
+      "10000": {
+        "PDMS_points": 83.57364096900534,
+        "ego": {
+          "ADE": 1.066945262059991,
+          "FDE": 2.1000286027342123,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.03364652344289253,
+          "yaw_endpoint_rad": 0.0541060356036672
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S0",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9964622641509434,
+          "drivable_area_compliance": 0.9150943396226415,
+          "driving_direction_compliance": 0.9861438679245284,
+          "ego_progress": 0.7866654896209427,
+          "no_at_fault_collisions": 0.9808372641509434,
+          "score": 0.8357364096900534,
+          "time_to_collision_within_bound": 0.9369103773584906
+        },
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "transport_source": "6659529e3e4f771c2b661ec1b14529eba69d0706"
+      },
+      "5000": {
+        "PDMS_points": 78.85614277714676,
+        "ego": {
+          "ADE": 1.5558467408167727,
+          "FDE": 3.068581206029125,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.05067869513032009,
+          "yaw_endpoint_rad": 0.08043446476167103
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S0",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 1.0,
+          "drivable_area_compliance": 0.8897405660377359,
+          "driving_direction_compliance": 0.9643278301886793,
+          "ego_progress": 0.7132921951592025,
+          "no_at_fault_collisions": 0.9699292452830188,
+          "score": 0.7885614277714675,
+          "time_to_collision_within_bound": 0.9227594339622641
+        },
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "transport_source": "6659529e3e4f771c2b661ec1b14529eba69d0706"
+      }
+    },
+    "S1": {
+      "10000": {
+        "PDMS_points": 84.85355717864185,
+        "ego": {
+          "ADE": 1.0563940578008528,
+          "FDE": 2.0473564452368698,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.02998318835952372,
+          "yaw_endpoint_rad": 0.04930664711403397
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S1",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9982311320754716,
+          "drivable_area_compliance": 0.9316037735849056,
+          "driving_direction_compliance": 0.9861438679245284,
+          "ego_progress": 0.7986346347727311,
+          "no_at_fault_collisions": 0.9781839622641509,
+          "score": 0.8485355717864185,
+          "time_to_collision_within_bound": 0.9363207547169812
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      },
+      "5000": {
+        "PDMS_points": 79.04811533893734,
+        "ego": {
+          "ADE": 1.6904457568779658,
+          "FDE": 3.185641665942967,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.0469945365000727,
+          "yaw_endpoint_rad": 0.07908778960974712
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S1",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 0.9994103773584906,
+          "drivable_area_compliance": 0.8985849056603774,
+          "driving_direction_compliance": 0.9696344339622641,
+          "ego_progress": 0.7225273572477748,
+          "no_at_fault_collisions": 0.9702240566037735,
+          "score": 0.7904811533893734,
+          "time_to_collision_within_bound": 0.9168632075471698
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      }
+    },
+    "S2": {
+      "10000": {
+        "PDMS_points": 84.90433659544416,
+        "ego": {
+          "ADE": 1.0798650954076845,
+          "FDE": 2.1004126384790616,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.03345480909184465,
+          "yaw_endpoint_rad": 0.05266511285642408
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S2",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9970518867924528,
+          "drivable_area_compliance": 0.9286556603773585,
+          "driving_direction_compliance": 0.984375,
+          "ego_progress": 0.7976645819697494,
+          "no_at_fault_collisions": 0.9826061320754716,
+          "score": 0.8490433659544416,
+          "time_to_collision_within_bound": 0.9404481132075472
+        },
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "transport_source": "6659529e3e4f771c2b661ec1b14529eba69d0706"
+      },
+      "5000": {
+        "PDMS_points": 79.54645848592727,
+        "ego": {
+          "ADE": 1.590094256135723,
+          "FDE": 2.970748615088732,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.0455101927180054,
+          "yaw_endpoint_rad": 0.07533865183029535
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S2",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 0.9988207547169812,
+          "drivable_area_compliance": 0.8950471698113207,
+          "driving_direction_compliance": 0.9658018867924528,
+          "ego_progress": 0.7313970634868706,
+          "no_at_fault_collisions": 0.9725825471698113,
+          "score": 0.7954645848592727,
+          "time_to_collision_within_bound": 0.9186320754716981
+        },
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "transport_source": "6659529e3e4f771c2b661ec1b14529eba69d0706"
+      }
+    },
+    "S3": {
+      "10000": {
+        "PDMS_points": 85.06825163761123,
+        "ego": {
+          "ADE": 1.0685117020719808,
+          "FDE": 2.1179522285990213,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.031230729969464383,
+          "yaw_endpoint_rad": 0.05099701009831339
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S3",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9952830188679245,
+          "drivable_area_compliance": 0.9321933962264151,
+          "driving_direction_compliance": 0.9852594339622641,
+          "ego_progress": 0.805524181558603,
+          "no_at_fault_collisions": 0.980247641509434,
+          "score": 0.8506825163761123,
+          "time_to_collision_within_bound": 0.9327830188679245
+        },
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "transport_source": "6659529e3e4f771c2b661ec1b14529eba69d0706"
+      },
+      "5000": {
+        "PDMS_points": 80.20355070192777,
+        "ego": {
+          "ADE": 1.6685280472057749,
+          "FDE": 3.1057613580553562,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.043774868994248366,
+          "yaw_endpoint_rad": 0.07183659793633335
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S3",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 0.9988207547169812,
+          "drivable_area_compliance": 0.9033018867924528,
+          "driving_direction_compliance": 0.96875,
+          "ego_progress": 0.7330676505081284,
+          "no_at_fault_collisions": 0.9699292452830188,
+          "score": 0.8020355070192776,
+          "time_to_collision_within_bound": 0.9215801886792453
+        },
+        "scenes": 1696,
+        "status": "COMPLETE",
+        "transport_source": "6659529e3e4f771c2b661ec1b14529eba69d0706"
+      }
+    },
+    "S4": {
+      "10000": {
+        "PDMS_points": 82.30189383526094,
+        "ego": {
+          "ADE": 1.021735285268218,
+          "FDE": 2.1005253428071606,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.03765707554401092,
+          "yaw_endpoint_rad": 0.055697188624795876
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S4",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9970518867924528,
+          "drivable_area_compliance": 0.9097877358490566,
+          "driving_direction_compliance": 0.9855542452830188,
+          "ego_progress": 0.7798569095954931,
+          "no_at_fault_collisions": 0.9758254716981132,
+          "score": 0.8230189383526094,
+          "time_to_collision_within_bound": 0.9245283018867925
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      },
+      "5000": {
+        "PDMS_points": 79.55588901403868,
+        "ego": {
+          "ADE": 1.771678741990571,
+          "FDE": 3.4014663250780806,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.04728676290866339,
+          "yaw_endpoint_rad": 0.07571110326164174
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S4",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 0.9976415094339622,
+          "drivable_area_compliance": 0.8991745283018868,
+          "driving_direction_compliance": 0.9643278301886793,
+          "ego_progress": 0.7190973179352083,
+          "no_at_fault_collisions": 0.9767099056603774,
+          "score": 0.7955588901403868,
+          "time_to_collision_within_bound": 0.9257075471698113
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      }
+    }
+  },
+  "formal_plan_identity": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+  "full_native_caches": {
+    "dino_sequence": {
+      "cache_bytes": 539557651936,
+      "chunks": 6350,
+      "complete": true,
+      "identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+      "published_chunks": 6350,
+      "required_scenes": 101592,
+      "scenes": 101592
+    },
+    "video_clip": {
+      "cache_bytes": 269779689568,
+      "chunks": 6350,
+      "complete": true,
+      "identity": "ea9de4d2eb3c5a922bb66522c33039731aa13bbfec8c6eaf994f1c2d957ca7c9",
+      "published_chunks": 6350,
+      "required_scenes": 101592,
+      "scenes": 101592
+    }
+  },
+  "global_batch": 32,
+  "new_method_PDMS": "DEVELOPMENT_RESULTS_AVAILABLE",
+  "remaining": "Complete shared100k training/dev; locked final Navtest; key second seed and registered capacity/MAE controls. No early-warmup loss claim substitutes for these.",
+  "runs": {
+    "S0": {
+      "all_logged_losses_finite": true,
+      "all_logged_master_updates_verified": true,
+      "auxiliary_initialization_hash": "542160502f5357e02282f16b28ea5eb1df8a48d0d98e6a2ac79e360fc66b9310",
+      "completed_updates": 17027,
+      "controller_status": "TRAINING",
+      "effective_data_traversals": 5.362863217576187,
+      "gpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "host": "training-vlawm-zt2",
+      "initialization_hash": "de60c174a9981c4e50925021dd3377a5580293b67cc5155cc114260538ddfc32",
+      "initialization_summary": {
+        "W": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+        "driving_weights_loaded": false,
+        "future_teacher_in_model": false,
+        "generic_source_manifest": {
+          "qwen": {
+            "files": {
+              ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+              "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+              "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+              "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+              "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+              "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+              "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+              "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+              "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+              "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+              "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "generic_pretraining_data_fully_auditable": false,
+            "public_lfs_verified": [
+              "model.safetensors"
+            ],
+            "repository": "Qwen/Qwen3-VL-2B-Instruct",
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+            "root": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct"
+          }
+        }
+      },
+      "latest_controller_event": {
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "tools.action_video_foresight.evaluate_milestone",
+          "--plan",
+          "/mnt/project/action-video-foresight-artifacts/20261002/formal_plan_seed42_v2.json",
+          "--arm",
+          "S0",
+          "--update",
+          "10000"
+        ],
+        "event": "START",
+        "label": "formal_S0_seed42_full100k_v2_dev10000_seed42",
+        "log": "/mnt/project/action-video-foresight-artifacts/20261002/formal_controllers/formal_S0_seed42_full100k_v2/formal_S0_seed42_full100k_v2_dev10000_seed42_1790985441221286873.log",
+        "pid": 1089291,
+        "time": 1790985441.223641
+      },
+      "latest_recorded_update": 17027,
+      "observations": [
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 65536.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.0011549543539882531,
+            "interaction": 0.0008328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 10.738788604736328,
+            "FDE_m": 14.052176475524902,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.6333739757537842
+          },
+          "ended_unix": 1790963567.4787261,
+          "epoch": 0,
+          "exposure": 32,
+          "fp32_master_update_verified": true,
+          "grad_norm": 10.237259864807129,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5195568725466728,
+            "current_dino_raw": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 0.002290083939442411,
+            "future_clip_raw": 1.982834979891777,
+            "interaction": 0.0016637448788969778,
+            "interaction_raw": 1.997545376420021
+          },
+          "lr": 2e-09,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "offset": 1,
+          "peak_memory_bytes": 11189532672,
+          "per_rank_profile": [
+            [
+              2.824277877807617,
+              0.3086972236633301,
+              11189532672.0,
+              14128513024.0,
+              1930.0
+            ],
+            [
+              2.8243184089660645,
+              0.2592594623565674,
+              11250971136.0,
+              14138998784.0,
+              1930.0
+            ],
+            [
+              2.8243465423583984,
+              0.2716095447540283,
+              11252447232.0,
+              14138998784.0,
+              1930.0
+            ],
+            [
+              2.8243422508239746,
+              0.2852137088775635,
+              11231886336.0,
+              14120124416.0,
+              1930.0
+            ],
+            [
+              2.8243212699890137,
+              0.29029369354248047,
+              11255502336.0,
+              14164164608.0,
+              1930.0
+            ],
+            [
+              2.8243343830108643,
+              0.38234496116638184,
+              11340527616.0,
+              14273216512.0,
+              1930.0
+            ],
+            [
+              2.8243863582611084,
+              0.3146800994873047,
+              10782685184.0,
+              13715374080.0,
+              1930.0
+            ],
+            [
+              2.824457883834839,
+              0.39099693298339844,
+              10699580928.0,
+              13633585152.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 1.982834979891777,
+            "interaction": 1.997545376420021
+          },
+          "sampled_changed_elements": 19924,
+          "seconds": 2.8248651027679443,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 3930269,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193498,
+              "gradient_norm": 0.5730145573616028,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 4.9862151172419544e-06
+            },
+            "Qwen_last_q": {
+              "changed_elements": 3193647,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193830,
+              "gradient_norm": 0.05318763479590416,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 3.896273938153172e-06
+            },
+            "W": {
+              "changed_elements": 294272,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294864,
+              "gradient_norm": 0.9118691682815552,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.1871940159835503e-06
+            },
+            "action_decoder": {
+              "changed_elements": 6138,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6138,
+              "gradient_norm": 3.6399178504943848,
+              "max_abs_update": 2.0954757928848267e-09,
+              "update_norm": 1.4803670467244956e-07
+            },
+            "future_readout": {
+              "changed_elements": 350610,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524211,
+              "gradient_norm": 0.0010910650016739964,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.1229543588342494e-06
+            }
+          },
+          "update": 1,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 16,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 31.0,
+            "interaction": 69632.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.11549543539882533,
+            "interaction": 0.08328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 11.081766128540039,
+            "FDE_m": 18.365917205810547,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.297996163368225
+          },
+          "ended_unix": 1790963745.908226,
+          "epoch": 0,
+          "exposure": 3200,
+          "fp32_master_update_verified": true,
+          "grad_norm": 6.509326457977295,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5024089030921459,
+            "current_dino_raw": 0.5024089030921459,
+            "ego_fm": 1.5819711685180664,
+            "future_clip": 0.22873320057988167,
+            "future_clip_raw": 1.9804523289203644,
+            "interaction": 0.16663965582847595,
+            "interaction_raw": 2.0007290840148926
+          },
+          "lr": 2e-07,
+          "maximum_sampled_change": 2.384185791015625e-07,
+          "offset": 100,
+          "peak_memory_bytes": 13251092480,
+          "per_rank_profile": [
+            [
+              2.093905210494995,
+              0.29926562309265137,
+              13251092480.0,
+              15443427328.0,
+              1930.0
+            ],
+            [
+              2.093958616256714,
+              0.2760593891143799,
+              13312530944.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.0939247608184814,
+              0.2619059085845947,
+              13314007040.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.0939273834228516,
+              0.2894730567932129,
+              13293446144.0,
+              15737028608.0,
+              1930.0
+            ],
+            [
+              2.0938944816589355,
+              0.26111912727355957,
+              13317062144.0,
+              15781068800.0,
+              1930.0
+            ],
+            [
+              2.093925952911377,
+              0.2745223045349121,
+              13402087424.0,
+              15688794112.0,
+              1930.0
+            ],
+            [
+              2.0939242839813232,
+              0.26248598098754883,
+              12844244992.0,
+              15130951680.0,
+              1930.0
+            ],
+            [
+              2.0939278602600098,
+              0.26769375801086426,
+              12761140224.0,
+              15049162752.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5024089030921459,
+            "ego_fm": 1.5819711685180664,
+            "future_clip": 1.9804523289203644,
+            "interaction": 2.0007290840148926
+          },
+          "sampled_changed_elements": 21792,
+          "seconds": 2.0945353507995605,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4178798,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193028,
+              "gradient_norm": 0.2808639109134674,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.00028772035147994757
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4185881,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193714,
+              "gradient_norm": 0.030121376737952232,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.0003299861855339259
+            },
+            "W": {
+              "changed_elements": 294416,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294835,
+              "gradient_norm": 0.5499335527420044,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 8.658670412842184e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6112,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6142,
+              "gradient_norm": 2.2565131187438965,
+              "max_abs_update": 2.2724270820617676e-07,
+              "update_norm": 8.679116945131682e-06
+            },
+            "future_readout": {
+              "changed_elements": 523963,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524243,
+              "gradient_norm": 0.10870638489723206,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.00014638305583503097
+            }
+          },
+          "update": 100,
+          "valid_clip_scenes": 31,
+          "valid_interaction_scenes": 17,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 86016.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.5774771769941266,
+            "interaction": 0.41644729909310335
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 4.926207542419434,
+            "FDE_m": 6.743049621582031,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.24143871665000916
+          },
+          "ended_unix": 1790964490.2852635,
+          "epoch": 0,
+          "exposure": 16000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 30.987028121948242,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.14911586418747902,
+            "current_dino_raw": 0.14911586418747902,
+            "ego_fm": 0.5739307887852192,
+            "future_clip": 0.8636263757944107,
+            "future_clip_raw": 1.495516076683998,
+            "interaction": 0.4323585294187069,
+            "interaction_raw": 1.0382070392370224
+          },
+          "lr": 1e-06,
+          "maximum_sampled_change": 1.0114163160324097e-06,
+          "offset": 500,
+          "peak_memory_bytes": 13251092480,
+          "per_rank_profile": [
+            [
+              2.072601795196533,
+              0.265697717666626,
+              13251092480.0,
+              15443427328.0,
+              1930.0
+            ],
+            [
+              2.0726218223571777,
+              0.26456451416015625,
+              13312530944.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.0726261138916016,
+              0.27875304222106934,
+              13314007040.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.0726466178894043,
+              0.27333617210388184,
+              13293446144.0,
+              15737028608.0,
+              1930.0
+            ],
+            [
+              2.0726206302642822,
+              0.25749850273132324,
+              13317062144.0,
+              15781068800.0,
+              1930.0
+            ],
+            [
+              2.072626829147339,
+              0.2748849391937256,
+              13402087424.0,
+              15688794112.0,
+              1930.0
+            ],
+            [
+              2.0726211071014404,
+              0.25207948684692383,
+              12844244992.0,
+              15130951680.0,
+              1930.0
+            ],
+            [
+              2.072629690170288,
+              0.2525298595428467,
+              12761140224.0,
+              15049162752.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.14911586418747902,
+            "ego_fm": 0.5739307887852192,
+            "future_clip": 1.495516076683998,
+            "interaction": 1.0382070392370224
+          },
+          "sampled_changed_elements": 21807,
+          "seconds": 2.073206663131714,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4170937,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193100,
+              "gradient_norm": 3.398498058319092,
+              "max_abs_update": 8.579227142035961e-07,
+              "update_norm": 0.000357828481355682
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4174925,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192855,
+              "gradient_norm": 0.3577582836151123,
+              "max_abs_update": 9.941868484020233e-07,
+              "update_norm": 0.0003900853334926069
+            },
+            "W": {
+              "changed_elements": 293870,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294833,
+              "gradient_norm": 3.4976463317871094,
+              "max_abs_update": 8.209608495235443e-07,
+              "update_norm": 9.569234680384398e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6138,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6144,
+              "gradient_norm": 0.9148499369621277,
+              "max_abs_update": 9.522773325443268e-07,
+              "update_norm": 1.8965720300911926e-05
+            },
+            "future_readout": {
+              "changed_elements": 524204,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524231,
+              "gradient_norm": 0.5169569849967957,
+              "max_abs_update": 1.080334186553955e-06,
+              "update_norm": 0.0006308277370408177
+            }
+          },
+          "update": 500,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 21,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 90112.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 2.946911334991455,
+            "FDE_m": 6.753393173217773,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.08790729939937592
+          },
+          "ended_unix": 1790965546.0851567,
+          "epoch": 0,
+          "exposure": 32000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 17.987930297851562,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.05250541539862752,
+            "current_dino_raw": 0.05250541539862752,
+            "ego_fm": 0.29376201517879963,
+            "future_clip": 1.2058440744876862,
+            "future_clip_raw": 1.0440621227025986,
+            "interaction": 0.34095174446702003,
+            "interaction_raw": 0.40935760363936424
+          },
+          "lr": 2e-06,
+          "maximum_sampled_change": 2.107582986354828e-06,
+          "offset": 1000,
+          "peak_memory_bytes": 13251092480,
+          "per_rank_profile": [
+            [
+              2.6277401447296143,
+              0.26763176918029785,
+              13251092480.0,
+              15443427328.0,
+              1930.0
+            ],
+            [
+              2.627777099609375,
+              0.3753986358642578,
+              13312530944.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.6277761459350586,
+              0.458390474319458,
+              13314007040.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.6278903484344482,
+              0.4884200096130371,
+              13293446144.0,
+              15737028608.0,
+              1930.0
+            ],
+            [
+              2.6277880668640137,
+              0.37563109397888184,
+              13317062144.0,
+              15781068800.0,
+              1930.0
+            ],
+            [
+              2.6277852058410645,
+              0.40247631072998047,
+              13402087424.0,
+              15688794112.0,
+              1930.0
+            ],
+            [
+              2.6277706623077393,
+              0.3141200542449951,
+              12844244992.0,
+              15130951680.0,
+              1930.0
+            ],
+            [
+              2.6277925968170166,
+              0.3726484775543213,
+              12761140224.0,
+              15049162752.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.05250541539862752,
+            "ego_fm": 0.29376201517879963,
+            "future_clip": 1.0440621227025986,
+            "interaction": 0.40935760363936424
+          },
+          "sampled_changed_elements": 21842,
+          "seconds": 2.6283814907073975,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4184467,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192522,
+              "gradient_norm": 1.7183977365493774,
+              "max_abs_update": 1.6801059246063232e-06,
+              "update_norm": 0.0007391292019747198
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4183854,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192689,
+              "gradient_norm": 0.1652037352323532,
+              "max_abs_update": 1.925509423017502e-06,
+              "update_norm": 0.0007255869568325579
+            },
+            "W": {
+              "changed_elements": 294467,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294762,
+              "gradient_norm": 1.705188274383545,
+              "max_abs_update": 1.5534460544586182e-06,
+              "update_norm": 0.00021015691163484007
+            },
+            "action_decoder": {
+              "changed_elements": 6138,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6143,
+              "gradient_norm": 1.0628741979599,
+              "max_abs_update": 1.3597309589385986e-06,
+              "update_norm": 3.553751594154164e-05
+            },
+            "future_readout": {
+              "changed_elements": 524223,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524175,
+              "gradient_norm": 0.7180245518684387,
+              "max_abs_update": 2.1904706954956055e-06,
+              "update_norm": 0.001171136274933815
+            }
+          },
+          "update": 1000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 22,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 61440.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 2.2832188606262207,
+            "FDE_m": 4.93608283996582,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.16180700063705444
+          },
+          "ended_unix": 1790967669.4427629,
+          "epoch": 0,
+          "exposure": 64000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 10.590763092041016,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.037933194544166327,
+            "current_dino_raw": 0.037933194544166327,
+            "ego_fm": 0.1846818896010518,
+            "future_clip": 0.8221884071826935,
+            "future_clip_raw": 0.711879588663578,
+            "interaction": 0.07234100694768131,
+            "interaction_raw": 0.0868549330625683
+          },
+          "lr": 4e-06,
+          "maximum_sampled_change": 3.580935299396515e-06,
+          "offset": 2000,
+          "peak_memory_bytes": 13251092480,
+          "per_rank_profile": [
+            [
+              2.0715043544769287,
+              0.2639484405517578,
+              13251092480.0,
+              15443427328.0,
+              1930.0
+            ],
+            [
+              2.0714972019195557,
+              0.2553067207336426,
+              13312530944.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.071502923965454,
+              0.27836155891418457,
+              13314007040.0,
+              15755902976.0,
+              1930.0
+            ],
+            [
+              2.071512460708618,
+              0.2702059745788574,
+              13293446144.0,
+              15737028608.0,
+              1930.0
+            ],
+            [
+              2.0715126991271973,
+              0.27936244010925293,
+              13317062144.0,
+              15781068800.0,
+              1930.0
+            ],
+            [
+              2.071504592895508,
+              0.2592494487762451,
+              13402087424.0,
+              15688794112.0,
+              1930.0
+            ],
+            [
+              2.0715086460113525,
+              0.2739534378051758,
+              12844244992.0,
+              15130951680.0,
+              1930.0
+            ],
+            [
+              2.071512222290039,
+              0.2740821838378906,
+              12761140224.0,
+              15049162752.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.037933194544166327,
+            "ego_fm": 0.1846818896010518,
+            "future_clip": 0.711879588663578,
+            "interaction": 0.0868549330625683
+          },
+          "sampled_changed_elements": 21863,
+          "seconds": 2.0721242427825928,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4190127,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192644,
+              "gradient_norm": 1.286123275756836,
+              "max_abs_update": 2.983957529067993e-06,
+              "update_norm": 0.0015542956534773111
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4190313,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192716,
+              "gradient_norm": 0.10424637049436569,
+              "max_abs_update": 3.4011900424957275e-06,
+              "update_norm": 0.0017673228867352009
+            },
+            "W": {
+              "changed_elements": 294740,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294758,
+              "gradient_norm": 0.8138477206230164,
+              "max_abs_update": 2.9316870495676994e-06,
+              "update_norm": 0.0004471478459890932
+            },
+            "action_decoder": {
+              "changed_elements": 6142,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6143,
+              "gradient_norm": 0.542561411857605,
+              "max_abs_update": 2.7283094823360443e-06,
+              "update_norm": 7.048660336295143e-05
+            },
+            "future_readout": {
+              "changed_elements": 524044,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524102,
+              "gradient_norm": 0.24889618158340454,
+              "max_abs_update": 4.071742296218872e-06,
+              "update_norm": 0.0012435333337634802
+            }
+          },
+          "update": 2000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 15,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        }
+      ],
+      "observed_unix": 1790998512.810562,
+      "parameters": {
+        "groups": {
+          "action_input_model": 4206592,
+          "action_model": 819503620,
+          "dino_head": 8411648,
+          "foresight_queries": 294912,
+          "future_head": 0,
+          "interaction_head": 7622656,
+          "query_geometry": 10240,
+          "qwen_vl_interface": 1720574976,
+          "spatiotemporal_head": 8413184
+        },
+        "total": 2976524804,
+        "trainable": 2569037828
+      },
+      "recent_training": {
+        "raw_loss_means": {
+          "current_dino": 0.02139726498629898,
+          "ego_fm": 0.028642950365319848,
+          "future_clip": 0.3536309091374278,
+          "interaction": 0.016966268792457412
+        },
+        "records": 100,
+        "step_mean_seconds": 1.7364525151252748
+      },
+      "run_id": "formal_S0_seed42_full100k_v2",
+      "scene_exposure": 544824,
+      "training_status": "RUNNING"
+    },
+    "S1": {
+      "all_logged_losses_finite": true,
+      "all_logged_master_updates_verified": true,
+      "auxiliary_initialization_hash": "5bc5fa7e935978dd3ac564b840b604e0daf23e1335783cf52024a538fff8e9c8",
+      "completed_updates": 19200,
+      "controller_status": "TRAINING",
+      "effective_data_traversals": 6.047247814788566,
+      "gpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "host": "training-vla-zt2",
+      "initialization_hash": "de60c174a9981c4e50925021dd3377a5580293b67cc5155cc114260538ddfc32",
+      "initialization_summary": {
+        "W": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+        "driving_weights_loaded": false,
+        "future_teacher_in_model": false,
+        "generic_source_manifest": {
+          "qwen": {
+            "files": {
+              ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+              "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+              "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+              "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+              "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+              "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+              "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+              "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+              "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+              "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+              "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "generic_pretraining_data_fully_auditable": false,
+            "public_lfs_verified": [
+              "model.safetensors"
+            ],
+            "repository": "Qwen/Qwen3-VL-2B-Instruct",
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+            "root": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct"
+          }
+        }
+      },
+      "latest_controller_event": {
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "tools.action_video_foresight.evaluate_milestone",
+          "--plan",
+          "/mnt/project/action-video-foresight-artifacts/20261002/formal_plan_seed42_v2.json",
+          "--arm",
+          "S1",
+          "--update",
+          "10000"
+        ],
+        "event": "START",
+        "label": "formal_S1_seed42_full100k_v2_dev10000_seed42",
+        "log": "/mnt/project/action-video-foresight-artifacts/20261002/formal_controllers/formal_S1_seed42_full100k_v2/formal_S1_seed42_full100k_v2_dev10000_seed42_1790981626093427996.log",
+        "pid": 880400,
+        "time": 1790981626.0955703
+      },
+      "latest_recorded_update": 19200,
+      "observations": [
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 65536.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.0011549543539882531,
+            "interaction": 0.0008328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 10.738788604736328,
+            "FDE_m": 14.052176475524902,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.6333739757537842
+          },
+          "ended_unix": 1790963151.3249888,
+          "epoch": 0,
+          "exposure": 32,
+          "fp32_master_update_verified": true,
+          "grad_norm": 10.237102508544922,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5195568725466728,
+            "current_dino_raw": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 0.0022889823012519628,
+            "future_clip_raw": 1.9818811267614365,
+            "interaction": 0.0016637448788969778,
+            "interaction_raw": 1.997545376420021
+          },
+          "lr": 2e-09,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "offset": 1,
+          "peak_memory_bytes": 11189817344,
+          "per_rank_profile": [
+            [
+              2.7657055854797363,
+              0.32089877128601074,
+              11189817344.0,
+              14099152896.0,
+              1930.0
+            ],
+            [
+              2.7657785415649414,
+              0.2651691436767578,
+              11251255808.0,
+              14273216512.0,
+              1930.0
+            ],
+            [
+              2.765726089477539,
+              0.32890844345092773,
+              11252731904.0,
+              14401142784.0,
+              1930.0
+            ],
+            [
+              2.765732526779175,
+              0.3243980407714844,
+              11232171008.0,
+              14382268416.0,
+              1930.0
+            ],
+            [
+              2.7657225131988525,
+              0.29656147956848145,
+              11255787008.0,
+              14405337088.0,
+              1930.0
+            ],
+            [
+              2.765828847885132,
+              0.30887556076049805,
+              11340812288.0,
+              14489223168.0,
+              1930.0
+            ],
+            [
+              2.765745162963867,
+              0.3013319969177246,
+              10782969856.0,
+              13931380736.0,
+              1930.0
+            ],
+            [
+              2.765732765197754,
+              0.27599048614501953,
+              10701181440.0,
+              13686013952.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 1.9818811267614365,
+            "interaction": 1.997545376420021
+          },
+          "sampled_changed_elements": 19921,
+          "seconds": 2.7662713527679443,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 4,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2047,
+              "gradient_norm": 3.8818336633994477e-07,
+              "max_abs_update": 4.656612873077393e-10,
+              "update_norm": 6.269183505658305e-10
+            },
+            "Qwen_first_q": {
+              "changed_elements": 3930368,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193556,
+              "gradient_norm": 0.5745788812637329,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 4.986278327123728e-06
+            },
+            "Qwen_last_q": {
+              "changed_elements": 3193654,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193828,
+              "gradient_norm": 0.05318674072623253,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 3.896297585015418e-06
+            },
+            "W": {
+              "changed_elements": 294260,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294865,
+              "gradient_norm": 0.9144321084022522,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.18711818686279e-06
+            },
+            "action_decoder": {
+              "changed_elements": 6138,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6138,
+              "gradient_norm": 3.6399178504943848,
+              "max_abs_update": 2.0954757928848267e-09,
+              "update_norm": 1.4803670467244956e-07
+            },
+            "future_readout": {
+              "changed_elements": 350546,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524226,
+              "gradient_norm": 0.0010799437295645475,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.121039190365991e-06
+            }
+          },
+          "update": 1,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 16,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 31.0,
+            "interaction": 69632.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.11549543539882533,
+            "interaction": 0.08328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 11.083721160888672,
+            "FDE_m": 18.368907928466797,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.2973960638046265
+          },
+          "ended_unix": 1790963331.8650036,
+          "epoch": 0,
+          "exposure": 3200,
+          "fp32_master_update_verified": true,
+          "grad_norm": 6.651987075805664,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5024107173085213,
+            "current_dino_raw": 0.5024107173085213,
+            "ego_fm": 1.5818154513835907,
+            "future_clip": 0.2286134548485279,
+            "future_clip_raw": 1.9794155955314636,
+            "interaction": 0.1666449336335063,
+            "interaction_raw": 2.00079245865345
+          },
+          "lr": 2e-07,
+          "maximum_sampled_change": 2.384185791015625e-07,
+          "offset": 100,
+          "peak_memory_bytes": 13251906560,
+          "per_rank_profile": [
+            [
+              2.0616254806518555,
+              0.259934663772583,
+              13251906560.0,
+              15617490944.0,
+              1930.0
+            ],
+            [
+              2.061607837677002,
+              0.280181884765625,
+              13313345024.0,
+              15590227968.0,
+              1930.0
+            ],
+            [
+              2.0615978240966797,
+              0.2853987216949463,
+              13314821120.0,
+              15315501056.0,
+              1930.0
+            ],
+            [
+              2.0616040229797363,
+              0.30393528938293457,
+              13294260224.0,
+              15296626688.0,
+              1930.0
+            ],
+            [
+              2.0616109371185303,
+              0.26418519020080566,
+              13317876224.0,
+              15319695360.0,
+              1930.0
+            ],
+            [
+              2.0616066455841064,
+              0.2964186668395996,
+              13402901504.0,
+              15403581440.0,
+              1930.0
+            ],
+            [
+              2.0616073608398438,
+              0.2875387668609619,
+              12845059072.0,
+              14845739008.0,
+              1930.0
+            ],
+            [
+              2.0616700649261475,
+              0.26261234283447266,
+              12763270144.0,
+              15305015296.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5024107173085213,
+            "ego_fm": 1.5818154513835907,
+            "future_clip": 1.9794155955314636,
+            "interaction": 2.00079245865345
+          },
+          "sampled_changed_elements": 21808,
+          "seconds": 2.062251091003418,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 1799,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 3.735911741387099e-05,
+              "max_abs_update": 2.2351741790771484e-07,
+              "update_norm": 5.745820999436546e-06
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4179632,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193359,
+              "gradient_norm": 0.4534853398799896,
+              "max_abs_update": 2.384185791015625e-07,
+              "update_norm": 0.00029065244598314166
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4185829,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193753,
+              "gradient_norm": 0.030371716246008873,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.0003300579555798322
+            },
+            "W": {
+              "changed_elements": 294444,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294838,
+              "gradient_norm": 0.8129274845123291,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 8.680442988406867e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6110,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6144,
+              "gradient_norm": 2.255474328994751,
+              "max_abs_update": 2.2724270820617676e-07,
+              "update_norm": 8.671918294567149e-06
+            },
+            "future_readout": {
+              "changed_elements": 523951,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524230,
+              "gradient_norm": 0.10764215886592865,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.00014630897203460336
+            }
+          },
+          "update": 100,
+          "valid_clip_scenes": 31,
+          "valid_interaction_scenes": 17,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 86016.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.5774771769941266,
+            "interaction": 0.41644729909310335
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 4.514374256134033,
+            "FDE_m": 6.106775760650635,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.24251961708068848
+          },
+          "ended_unix": 1790964080.2216847,
+          "epoch": 0,
+          "exposure": 16000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 17.57008934020996,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.1476910077035427,
+            "current_dino_raw": 0.1476910077035427,
+            "ego_fm": 0.5663841962814331,
+            "future_clip": 0.8661205098032951,
+            "future_clip_raw": 1.4998350888490677,
+            "interaction": 0.43106862157583237,
+            "interaction_raw": 1.035109631717205
+          },
+          "lr": 1e-06,
+          "maximum_sampled_change": 1.0575167834758759e-06,
+          "offset": 500,
+          "peak_memory_bytes": 13251884544,
+          "per_rank_profile": [
+            [
+              2.037254571914673,
+              0.25376152992248535,
+              13251884544.0,
+              15617490944.0,
+              1930.0
+            ],
+            [
+              2.0372753143310547,
+              0.3004424571990967,
+              13313323008.0,
+              15590227968.0,
+              1930.0
+            ],
+            [
+              2.037277936935425,
+              0.30030131340026855,
+              13314799104.0,
+              15315501056.0,
+              1930.0
+            ],
+            [
+              2.037277936935425,
+              0.27209043502807617,
+              13294238208.0,
+              15296626688.0,
+              1930.0
+            ],
+            [
+              2.037274122238159,
+              0.2654571533203125,
+              13317854208.0,
+              15319695360.0,
+              1930.0
+            ],
+            [
+              2.0372729301452637,
+              0.2853200435638428,
+              13402879488.0,
+              15403581440.0,
+              1930.0
+            ],
+            [
+              2.0372695922851562,
+              0.2935512065887451,
+              12845037056.0,
+              14845739008.0,
+              1930.0
+            ],
+            [
+              2.037294864654541,
+              0.2864806652069092,
+              12763248128.0,
+              15305015296.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.1476910077035427,
+            "ego_fm": 0.5663841962814331,
+            "future_clip": 1.4998350888490677,
+            "interaction": 1.035109631717205
+          },
+          "sampled_changed_elements": 21809,
+          "seconds": 2.0378363132476807,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 2001,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2047,
+              "gradient_norm": 9.861943544819951e-05,
+              "max_abs_update": 9.685754776000977e-07,
+              "update_norm": 2.3863760361564346e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4170334,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4191754,
+              "gradient_norm": 2.2513973712921143,
+              "max_abs_update": 7.972121238708496e-07,
+              "update_norm": 0.0003286110295448452
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4177350,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4191913,
+              "gradient_norm": 0.19807657599449158,
+              "max_abs_update": 9.80333425104618e-07,
+              "update_norm": 0.0004050912684760988
+            },
+            "W": {
+              "changed_elements": 293919,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294718,
+              "gradient_norm": 3.016056537628174,
+              "max_abs_update": 8.493661880493164e-07,
+              "update_norm": 9.433650120627135e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6133,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6139,
+              "gradient_norm": 0.585720419883728,
+              "max_abs_update": 7.692724466323853e-07,
+              "update_norm": 1.8119681044481695e-05
+            },
+            "future_readout": {
+              "changed_elements": 524211,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524245,
+              "gradient_norm": 0.5163290500640869,
+              "max_abs_update": 1.0970979928970337e-06,
+              "update_norm": 0.0006359276012517512
+            }
+          },
+          "update": 500,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 21,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 90112.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 3.7245771884918213,
+            "FDE_m": 8.189001083374023,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.08573117107152939
+          },
+          "ended_unix": 1790964990.715068,
+          "epoch": 0,
+          "exposure": 32000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 15.65086555480957,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.05274614365771413,
+            "current_dino_raw": 0.05274614365771413,
+            "ego_fm": 0.29280961584299803,
+            "future_clip": 1.2097898870706558,
+            "future_clip_raw": 1.0474785566329956,
+            "interaction": 0.3421414066106081,
+            "interaction_raw": 0.4107859432697296
+          },
+          "lr": 2e-06,
+          "maximum_sampled_change": 1.998618245124817e-06,
+          "offset": 1000,
+          "peak_memory_bytes": 13251884544,
+          "per_rank_profile": [
+            [
+              2.0373010635375977,
+              0.2547008991241455,
+              13251884544.0,
+              15617490944.0,
+              1930.0
+            ],
+            [
+              2.037351608276367,
+              0.2788381576538086,
+              13313323008.0,
+              15590227968.0,
+              1930.0
+            ],
+            [
+              2.0373408794403076,
+              0.2659761905670166,
+              13314799104.0,
+              15315501056.0,
+              1930.0
+            ],
+            [
+              2.0373494625091553,
+              0.27225494384765625,
+              13294238208.0,
+              15296626688.0,
+              1930.0
+            ],
+            [
+              2.037344217300415,
+              0.25050854682922363,
+              13317854208.0,
+              15319695360.0,
+              1930.0
+            ],
+            [
+              2.0373377799987793,
+              0.27736949920654297,
+              13402879488.0,
+              15403581440.0,
+              1930.0
+            ],
+            [
+              2.0373387336730957,
+              0.26181650161743164,
+              12845037056.0,
+              14845739008.0,
+              1930.0
+            ],
+            [
+              2.0374133586883545,
+              0.25998973846435547,
+              12763248128.0,
+              15305015296.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.05274614365771413,
+            "ego_fm": 0.29280961584299803,
+            "future_clip": 1.0474785566329956,
+            "interaction": 0.4107859432697296
+          },
+          "sampled_changed_elements": 21845,
+          "seconds": 2.037858486175537,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 1970,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2047,
+              "gradient_norm": 1.145357146015158e-05,
+              "max_abs_update": 1.7285346984863281e-06,
+              "update_norm": 2.6277033612132072e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4183947,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192398,
+              "gradient_norm": 1.3999570608139038,
+              "max_abs_update": 1.648440957069397e-06,
+              "update_norm": 0.0006893353420309722
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4185246,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192429,
+              "gradient_norm": 0.16193847358226776,
+              "max_abs_update": 1.7583370208740234e-06,
+              "update_norm": 0.0008295949082821608
+            },
+            "W": {
+              "changed_elements": 294418,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294749,
+              "gradient_norm": 1.4235161542892456,
+              "max_abs_update": 1.5970435924828053e-06,
+              "update_norm": 0.0001948265708051622
+            },
+            "action_decoder": {
+              "changed_elements": 6140,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6142,
+              "gradient_norm": 0.9930475354194641,
+              "max_abs_update": 1.1669471859931946e-06,
+              "update_norm": 2.5155977709800936e-05
+            },
+            "future_readout": {
+              "changed_elements": 524206,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524168,
+              "gradient_norm": 0.7237266898155212,
+              "max_abs_update": 2.18953937292099e-06,
+              "update_norm": 0.001160488580353558
+            }
+          },
+          "update": 1000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 22,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 61440.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 2.5313119888305664,
+            "FDE_m": 5.529020309448242,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.11645477265119553
+          },
+          "ended_unix": 1790966819.0696006,
+          "epoch": 0,
+          "exposure": 64000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 7.180286884307861,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.03803835902363062,
+            "current_dino_raw": 0.03803835902363062,
+            "ego_fm": 0.16932214982807636,
+            "future_clip": 0.8219727799296379,
+            "future_clip_raw": 0.7116928920149803,
+            "interaction": 0.0657276667188853,
+            "interaction_raw": 0.07891474524512887
+          },
+          "lr": 4e-06,
+          "maximum_sampled_change": 3.557652235031128e-06,
+          "offset": 2000,
+          "peak_memory_bytes": 13251884544,
+          "per_rank_profile": [
+            [
+              2.0999739170074463,
+              0.2442317008972168,
+              13251884544.0,
+              15617490944.0,
+              1930.0
+            ],
+            [
+              2.099992036819458,
+              0.3488316535949707,
+              13313323008.0,
+              15590227968.0,
+              1930.0
+            ],
+            [
+              2.0999908447265625,
+              0.342559814453125,
+              13314799104.0,
+              15315501056.0,
+              1930.0
+            ],
+            [
+              2.0999879837036133,
+              0.2636070251464844,
+              13294238208.0,
+              15296626688.0,
+              1930.0
+            ],
+            [
+              2.099991798400879,
+              0.2443532943725586,
+              13317854208.0,
+              15319695360.0,
+              1930.0
+            ],
+            [
+              2.0999867916107178,
+              0.2536170482635498,
+              13402879488.0,
+              15403581440.0,
+              1930.0
+            ],
+            [
+              2.099989414215088,
+              0.25558900833129883,
+              12845037056.0,
+              14845739008.0,
+              1930.0
+            ],
+            [
+              2.1000075340270996,
+              0.2534041404724121,
+              12763248128.0,
+              15305015296.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.03803835902363062,
+            "ego_fm": 0.16932214982807636,
+            "future_clip": 0.7116928920149803,
+            "interaction": 0.07891474524512887
+          },
+          "sampled_changed_elements": 21873,
+          "seconds": 2.1005539894104004,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 2027,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 7.721500151092187e-05,
+              "max_abs_update": 2.7120113372802734e-06,
+              "update_norm": 3.962450136896223e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4190063,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192412,
+              "gradient_norm": 0.9918349385261536,
+              "max_abs_update": 3.073364496231079e-06,
+              "update_norm": 0.0014896857319399714
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4189628,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192521,
+              "gradient_norm": 0.0830000713467598,
+              "max_abs_update": 3.077089786529541e-06,
+              "update_norm": 0.0015338632510975003
+            },
+            "W": {
+              "changed_elements": 294671,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294747,
+              "gradient_norm": 0.7247505784034729,
+              "max_abs_update": 3.03611159324646e-06,
+              "update_norm": 0.0004029080446343869
+            },
+            "action_decoder": {
+              "changed_elements": 6142,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6140,
+              "gradient_norm": 0.5394080281257629,
+              "max_abs_update": 1.8817372620105743e-06,
+              "update_norm": 5.432761099655181e-05
+            },
+            "future_readout": {
+              "changed_elements": 524110,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524071,
+              "gradient_norm": 0.24380356073379517,
+              "max_abs_update": 4.239554982632399e-06,
+              "update_norm": 0.0013191727921366692
+            }
+          },
+          "update": 2000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 15,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        }
+      ],
+      "observed_unix": 1790998512.3924308,
+      "parameters": {
+        "groups": {
+          "action_input_model": 4206592,
+          "action_model": 819503620,
+          "dino_head": 8411648,
+          "foresight_queries": 294912,
+          "future_head": 0,
+          "interaction_head": 7622656,
+          "query_geometry": 10240,
+          "qwen_vl_interface": 1720574976,
+          "spatiotemporal_head": 8943104
+        },
+        "total": 2976524804,
+        "trainable": 2569567748
+      },
+      "recent_training": {
+        "raw_loss_means": {
+          "current_dino": 0.02072567486902699,
+          "ego_fm": 0.0259297696914291,
+          "future_clip": 0.3441439709998667,
+          "interaction": 0.015177148185903206
+        },
+        "records": 100,
+        "step_mean_seconds": 1.7091666531562806
+      },
+      "run_id": "formal_S1_seed42_full100k_v2",
+      "scene_exposure": 614352,
+      "training_status": "RUNNING"
+    },
+    "S2": {
+      "all_logged_losses_finite": true,
+      "all_logged_master_updates_verified": true,
+      "auxiliary_initialization_hash": "542160502f5357e02282f16b28ea5eb1df8a48d0d98e6a2ac79e360fc66b9310",
+      "completed_updates": 18400,
+      "controller_status": "TRAINING",
+      "effective_data_traversals": 5.795338215607528,
+      "gpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "host": "training-vlawm-zt",
+      "initialization_hash": "de60c174a9981c4e50925021dd3377a5580293b67cc5155cc114260538ddfc32",
+      "initialization_summary": {
+        "W": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+        "driving_weights_loaded": false,
+        "future_teacher_in_model": false,
+        "generic_source_manifest": {
+          "qwen": {
+            "files": {
+              ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+              "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+              "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+              "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+              "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+              "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+              "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+              "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+              "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+              "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+              "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "generic_pretraining_data_fully_auditable": false,
+            "public_lfs_verified": [
+              "model.safetensors"
+            ],
+            "repository": "Qwen/Qwen3-VL-2B-Instruct",
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+            "root": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct"
+          }
+        }
+      },
+      "latest_controller_event": {
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "tools.action_video_foresight.evaluate_milestone",
+          "--plan",
+          "/mnt/project/action-video-foresight-artifacts/20261002/formal_plan_seed42_v2.json",
+          "--arm",
+          "S2",
+          "--update",
+          "10000"
+        ],
+        "event": "START",
+        "label": "formal_S2_seed42_full100k_v2_dev10000_seed42",
+        "log": "/mnt/project/action-video-foresight-artifacts/20261002/formal_controllers/formal_S2_seed42_full100k_v2/formal_S2_seed42_full100k_v2_dev10000_seed42_1790981871516619792.log",
+        "pid": 2801647,
+        "time": 1790981871.5201535
+      },
+      "latest_recorded_update": 18400,
+      "observations": [
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 65536.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.0011549543539882531,
+            "interaction": 0.0008328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 10.739269256591797,
+            "FDE_m": 14.053244590759277,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.6333484649658203
+          },
+          "ended_unix": 1790959116.3781614,
+          "epoch": 0,
+          "exposure": 32,
+          "fp32_master_update_verified": true,
+          "grad_norm": 10.236807823181152,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5195568725466728,
+            "current_dino_raw": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 0.0023723533377051353,
+            "future_clip_raw": 2.0540667474269867,
+            "interaction": 0.0016637448788969778,
+            "interaction_raw": 1.997545376420021
+          },
+          "lr": 2e-09,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "offset": 1,
+          "peak_memory_bytes": 11188861952,
+          "per_rank_profile": [
+            [
+              3.4530742168426514,
+              0.43839240074157715,
+              11188861952.0,
+              14042529792.0,
+              1930.0
+            ],
+            [
+              3.453145742416382,
+              0.5381460189819336,
+              11250300416.0,
+              13948157952.0,
+              1930.0
+            ],
+            [
+              3.4531333446502686,
+              0.45800352096557617,
+              11251776512.0,
+              14105444352.0,
+              1930.0
+            ],
+            [
+              3.453000545501709,
+              0.5624756813049316,
+              11231215616.0,
+              14187233280.0,
+              1930.0
+            ],
+            [
+              3.453167676925659,
+              0.5088417530059814,
+              11254831616.0,
+              14109638656.0,
+              1930.0
+            ],
+            [
+              3.453009605407715,
+              0.5559818744659424,
+              11339856896.0,
+              14193524736.0,
+              1930.0
+            ],
+            [
+              3.453030586242676,
+              0.5472033023834229,
+              10782014464.0,
+              13501464576.0,
+              1930.0
+            ],
+            [
+              3.4530086517333984,
+              0.422626256942749,
+              10698910208.0,
+              13654556672.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 2.0540667474269867,
+            "interaction": 1.997545376420021
+          },
+          "sampled_changed_elements": 19931,
+          "seconds": 3.45375394821167,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 3930316,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193480,
+              "gradient_norm": 0.5727621912956238,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 4.986295607523061e-06
+            },
+            "Qwen_last_q": {
+              "changed_elements": 3193636,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193785,
+              "gradient_norm": 0.05318813398480415,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 3.896248472301522e-06
+            },
+            "W": {
+              "changed_elements": 294271,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294858,
+              "gradient_norm": 0.9117342829704285,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.1871800325025106e-06
+            },
+            "action_decoder": {
+              "changed_elements": 6138,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6138,
+              "gradient_norm": 3.6399178504943848,
+              "max_abs_update": 2.0954757928848267e-09,
+              "update_norm": 1.4803670467244956e-07
+            },
+            "future_readout": {
+              "changed_elements": 354348,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524251,
+              "gradient_norm": 0.0014067754382267594,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.120329898185446e-06
+            }
+          },
+          "update": 1,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 16,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 31.0,
+            "interaction": 69632.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.11549543539882533,
+            "interaction": 0.08328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 11.084087371826172,
+            "FDE_m": 18.36953353881836,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.2972608804702759
+          },
+          "ended_unix": 1790959334.7290597,
+          "epoch": 0,
+          "exposure": 3200,
+          "fp32_master_update_verified": true,
+          "grad_norm": 6.605125904083252,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5023274272680283,
+            "current_dino_raw": 0.5023274272680283,
+            "ego_fm": 1.5818064212799072,
+            "future_clip": 0.23652110248804092,
+            "future_clip_raw": 2.047882691025734,
+            "interaction": 0.16664911899715662,
+            "interaction_raw": 2.0008427649736404
+          },
+          "lr": 2e-07,
+          "maximum_sampled_change": 2.384185791015625e-07,
+          "offset": 100,
+          "peak_memory_bytes": 13250421760,
+          "per_rank_profile": [
+            [
+              2.714367151260376,
+              0.5016701221466064,
+              13250421760.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              2.714433193206787,
+              0.4924635887145996,
+              13311860224.0,
+              15728640000.0,
+              1930.0
+            ],
+            [
+              2.714435338973999,
+              0.4601161479949951,
+              13313336320.0,
+              15281946624.0,
+              1930.0
+            ],
+            [
+              2.714517116546631,
+              0.5423159599304199,
+              13292775424.0,
+              15263072256.0,
+              1930.0
+            ],
+            [
+              2.7144367694854736,
+              0.32540154457092285,
+              13316391424.0,
+              15286140928.0,
+              1930.0
+            ],
+            [
+              2.714442014694214,
+              0.44497251510620117,
+              13401416704.0,
+              15370027008.0,
+              1930.0
+            ],
+            [
+              2.7144477367401123,
+              0.48814821243286133,
+              12843574272.0,
+              15181283328.0,
+              1930.0
+            ],
+            [
+              2.714400291442871,
+              0.48146843910217285,
+              12760469504.0,
+              14730395648.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5023274272680283,
+            "ego_fm": 1.5818064212799072,
+            "future_clip": 2.047882691025734,
+            "interaction": 2.0008427649736404
+          },
+          "sampled_changed_elements": 21799,
+          "seconds": 2.7150986194610596,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4179795,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193255,
+              "gradient_norm": 0.3580874800682068,
+              "max_abs_update": 2.384185791015625e-07,
+              "update_norm": 0.0002927100576926023
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4186151,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193763,
+              "gradient_norm": 0.03129570186138153,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.00033257706672884524
+            },
+            "W": {
+              "changed_elements": 294495,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294841,
+              "gradient_norm": 0.671913206577301,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 8.708989480510354e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6115,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6139,
+              "gradient_norm": 2.2567145824432373,
+              "max_abs_update": 2.2724270820617676e-07,
+              "update_norm": 8.672111107443925e-06
+            },
+            "future_readout": {
+              "changed_elements": 524118,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524260,
+              "gradient_norm": 0.14035795629024506,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.00015332231123466045
+            }
+          },
+          "update": 100,
+          "valid_clip_scenes": 31,
+          "valid_interaction_scenes": 17,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 86016.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.5774771769941266,
+            "interaction": 0.41644729909310335
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 3.903003215789795,
+            "FDE_m": 5.630516052246094,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.25836920738220215
+          },
+          "ended_unix": 1790960244.5981953,
+          "epoch": 0,
+          "exposure": 16000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 23.532434463500977,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.14975976198911667,
+            "current_dino_raw": 0.14975976198911667,
+            "ego_fm": 0.574111670255661,
+            "future_clip": 0.757008008658886,
+            "future_clip_raw": 1.3108882158994675,
+            "interaction": 0.43014832213521004,
+            "interaction_raw": 1.0328997522592545
+          },
+          "lr": 1e-06,
+          "maximum_sampled_change": 1.0319054126739502e-06,
+          "offset": 500,
+          "peak_memory_bytes": 13252355072,
+          "per_rank_profile": [
+            [
+              2.541841745376587,
+              0.38460230827331543,
+              13252355072.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              2.5419182777404785,
+              0.5274055004119873,
+              13313793536.0,
+              15728640000.0,
+              1930.0
+            ],
+            [
+              2.5420515537261963,
+              0.488506555557251,
+              13315269632.0,
+              15281946624.0,
+              1930.0
+            ],
+            [
+              2.5419087409973145,
+              0.5221834182739258,
+              13294708736.0,
+              15263072256.0,
+              1930.0
+            ],
+            [
+              2.541914463043213,
+              0.35591936111450195,
+              13318324736.0,
+              15286140928.0,
+              1930.0
+            ],
+            [
+              2.541933298110962,
+              0.35350823402404785,
+              13403350016.0,
+              15370027008.0,
+              1930.0
+            ],
+            [
+              2.5418827533721924,
+              0.4249734878540039,
+              12845507584.0,
+              15181283328.0,
+              1930.0
+            ],
+            [
+              2.5418925285339355,
+              0.4095451831817627,
+              12762402816.0,
+              14730395648.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.14975976198911667,
+            "ego_fm": 0.574111670255661,
+            "future_clip": 1.3108882158994675,
+            "interaction": 1.0328997522592545
+          },
+          "sampled_changed_elements": 21799,
+          "seconds": 2.54252028465271,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4177322,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192548,
+              "gradient_norm": 2.5487143993377686,
+              "max_abs_update": 8.531496860086918e-07,
+              "update_norm": 0.00042830247548408806
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4180228,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192621,
+              "gradient_norm": 0.32694411277770996,
+              "max_abs_update": 9.834766387939453e-07,
+              "update_norm": 0.00048331936704926193
+            },
+            "W": {
+              "changed_elements": 294136,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294777,
+              "gradient_norm": 2.941833972930908,
+              "max_abs_update": 8.605420589447021e-07,
+              "update_norm": 0.00010909834963968024
+            },
+            "action_decoder": {
+              "changed_elements": 6137,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6142,
+              "gradient_norm": 0.8588504791259766,
+              "max_abs_update": 8.158385753631592e-07,
+              "update_norm": 1.861467353592161e-05
+            },
+            "future_readout": {
+              "changed_elements": 524222,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524254,
+              "gradient_norm": 0.6704752445220947,
+              "max_abs_update": 1.0989606380462646e-06,
+              "update_norm": 0.0006442570011131465
+            }
+          },
+          "update": 500,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 21,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 90112.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 4.609527111053467,
+            "FDE_m": 9.711353302001953,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.07884854823350906
+          },
+          "ended_unix": 1790961285.8243897,
+          "epoch": 0,
+          "exposure": 32000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 24.474281311035156,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.05273511726409197,
+            "current_dino_raw": 0.05273511726409197,
+            "ego_fm": 0.30063823238015175,
+            "future_clip": 0.859627790749073,
+            "future_clip_raw": 0.7442959323525429,
+            "interaction": 0.3303926456719637,
+            "interaction_raw": 0.39668000489473343
+          },
+          "lr": 2e-06,
+          "maximum_sampled_change": 2.0079314708709717e-06,
+          "offset": 1000,
+          "peak_memory_bytes": 13251388416,
+          "per_rank_profile": [
+            [
+              2.0746829509735107,
+              0.28580594062805176,
+              13251388416.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              2.0747246742248535,
+              0.2757856845855713,
+              13312826880.0,
+              15728640000.0,
+              1930.0
+            ],
+            [
+              2.0747246742248535,
+              0.275132417678833,
+              13314302976.0,
+              15281946624.0,
+              1930.0
+            ],
+            [
+              2.074728488922119,
+              0.2828075885772705,
+              13293742080.0,
+              15263072256.0,
+              1930.0
+            ],
+            [
+              2.074739933013916,
+              0.2901301383972168,
+              13317358080.0,
+              15286140928.0,
+              1930.0
+            ],
+            [
+              2.0747127532958984,
+              0.26727843284606934,
+              13402383360.0,
+              15370027008.0,
+              1930.0
+            ],
+            [
+              2.0747342109680176,
+              0.28209948539733887,
+              12844540928.0,
+              15181283328.0,
+              1930.0
+            ],
+            [
+              2.0747249126434326,
+              0.3198552131652832,
+              12761436160.0,
+              14730395648.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.05273511726409197,
+            "ego_fm": 0.30063823238015175,
+            "future_clip": 0.7442959323525429,
+            "interaction": 0.39668000489473343
+          },
+          "sampled_changed_elements": 21825,
+          "seconds": 2.0753226280212402,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4182983,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192687,
+              "gradient_norm": 2.1232240200042725,
+              "max_abs_update": 1.6279518604278564e-06,
+              "update_norm": 0.0006445547332987189
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4184844,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192839,
+              "gradient_norm": 0.2868909239768982,
+              "max_abs_update": 1.7927959561347961e-06,
+              "update_norm": 0.0007719173445366323
+            },
+            "W": {
+              "changed_elements": 294443,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294777,
+              "gradient_norm": 2.0116021633148193,
+              "max_abs_update": 1.5459954738616943e-06,
+              "update_norm": 0.00018238219490740448
+            },
+            "action_decoder": {
+              "changed_elements": 6140,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6144,
+              "gradient_norm": 1.4843568801879883,
+              "max_abs_update": 1.341104507446289e-06,
+              "update_norm": 3.0730476282769814e-05
+            },
+            "future_readout": {
+              "changed_elements": 524230,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524214,
+              "gradient_norm": 0.891613781452179,
+              "max_abs_update": 2.210959792137146e-06,
+              "update_norm": 0.0012061638990417123
+            }
+          },
+          "update": 1000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 22,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 61440.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 2.35075306892395,
+            "FDE_m": 4.927506923675537,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.10780368000268936
+          },
+          "ended_unix": 1790963193.9622023,
+          "epoch": 0,
+          "exposure": 64000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 7.530195713043213,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.038518302608281374,
+            "current_dino_raw": 0.038518302608281374,
+            "ego_fm": 0.16789047792553902,
+            "future_clip": 0.5878920927643776,
+            "future_clip_raw": 0.5090176202356815,
+            "interaction": 0.06053946353495121,
+            "interaction_raw": 0.0726856212131679
+          },
+          "lr": 4e-06,
+          "maximum_sampled_change": 3.818422555923462e-06,
+          "offset": 2000,
+          "peak_memory_bytes": 13252290048,
+          "per_rank_profile": [
+            [
+              2.0996952056884766,
+              0.2936432361602783,
+              13252290048.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              2.099733591079712,
+              0.2641925811767578,
+              13313728512.0,
+              15728640000.0,
+              1930.0
+            ],
+            [
+              2.0997307300567627,
+              0.28002071380615234,
+              13315204608.0,
+              15281946624.0,
+              1930.0
+            ],
+            [
+              2.0997347831726074,
+              0.2672114372253418,
+              13294643712.0,
+              15263072256.0,
+              1930.0
+            ],
+            [
+              2.099764108657837,
+              0.2808058261871338,
+              13318259712.0,
+              15286140928.0,
+              1930.0
+            ],
+            [
+              2.0997440814971924,
+              0.28561830520629883,
+              13403284992.0,
+              15370027008.0,
+              1930.0
+            ],
+            [
+              2.0997562408447266,
+              0.31761622428894043,
+              12845442560.0,
+              15181283328.0,
+              1930.0
+            ],
+            [
+              2.099738121032715,
+              0.2872941493988037,
+              12762337792.0,
+              14730395648.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.038518302608281374,
+            "ego_fm": 0.16789047792553902,
+            "future_clip": 0.5090176202356815,
+            "interaction": 0.0726856212131679
+          },
+          "sampled_changed_elements": 21860,
+          "seconds": 2.1002824306488037,
+          "shared_parameter_observation": {
+            "Qwen_first_q": {
+              "changed_elements": 4189969,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192033,
+              "gradient_norm": 0.9139178991317749,
+              "max_abs_update": 3.6135315895080566e-06,
+              "update_norm": 0.0015866231406107545
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4190064,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192223,
+              "gradient_norm": 0.0594211146235466,
+              "max_abs_update": 3.285706043243408e-06,
+              "update_norm": 0.0016649016179144382
+            },
+            "W": {
+              "changed_elements": 294725,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294667,
+              "gradient_norm": 0.49858608841896057,
+              "max_abs_update": 3.0118972063064575e-06,
+              "update_norm": 0.0004306097107473761
+            },
+            "action_decoder": {
+              "changed_elements": 6140,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6143,
+              "gradient_norm": 0.396130234003067,
+              "max_abs_update": 2.1886080503463745e-06,
+              "update_norm": 3.988181197200902e-05
+            },
+            "future_readout": {
+              "changed_elements": 524066,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524108,
+              "gradient_norm": 0.1962064653635025,
+              "max_abs_update": 4.328787326812744e-06,
+              "update_norm": 0.0012490787776187062
+            }
+          },
+          "update": 2000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 15,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        }
+      ],
+      "observed_unix": 1790998515.0331256,
+      "parameters": {
+        "groups": {
+          "action_input_model": 4206592,
+          "action_model": 819503620,
+          "dino_head": 8411648,
+          "foresight_queries": 294912,
+          "future_head": 0,
+          "interaction_head": 7622656,
+          "query_geometry": 10240,
+          "qwen_vl_interface": 1720574976,
+          "spatiotemporal_head": 8413184
+        },
+        "total": 2976524804,
+        "trainable": 2569037828
+      },
+      "recent_training": {
+        "raw_loss_means": {
+          "current_dino": 0.021329886810854078,
+          "ego_fm": 0.028729760622954927,
+          "future_clip": 0.2977028335444629,
+          "interaction": 0.016070572981843726
+        },
+        "records": 100,
+        "step_mean_seconds": 1.808895251750946
+      },
+      "run_id": "formal_S2_seed42_full100k_v2",
+      "scene_exposure": 588760,
+      "training_status": "RUNNING"
+    },
+    "S3": {
+      "all_logged_losses_finite": true,
+      "all_logged_master_updates_verified": true,
+      "auxiliary_initialization_hash": "5bc5fa7e935978dd3ac564b840b604e0daf23e1335783cf52024a538fff8e9c8",
+      "completed_updates": 20298,
+      "controller_status": "TRAINING",
+      "effective_data_traversals": 6.3931018190408695,
+      "gpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "host": "training-rl-zt2",
+      "initialization_hash": "de60c174a9981c4e50925021dd3377a5580293b67cc5155cc114260538ddfc32",
+      "initialization_summary": {
+        "W": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+        "driving_weights_loaded": false,
+        "future_teacher_in_model": false,
+        "generic_source_manifest": {
+          "qwen": {
+            "files": {
+              ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+              "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+              "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+              "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+              "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+              "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+              "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+              "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+              "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+              "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+              "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "generic_pretraining_data_fully_auditable": false,
+            "public_lfs_verified": [
+              "model.safetensors"
+            ],
+            "repository": "Qwen/Qwen3-VL-2B-Instruct",
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+            "root": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct"
+          }
+        }
+      },
+      "latest_controller_event": {
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "tools.action_video_foresight.evaluate_milestone",
+          "--plan",
+          "/mnt/project/action-video-foresight-artifacts/20261002/formal_plan_seed42_v2.json",
+          "--arm",
+          "S3",
+          "--update",
+          "10000"
+        ],
+        "event": "START",
+        "label": "formal_S3_seed42_full100k_v2_dev10000_seed42",
+        "log": "/mnt/project/action-video-foresight-artifacts/20261002/formal_controllers/formal_S3_seed42_full100k_v2/formal_S3_seed42_full100k_v2_dev10000_seed42_1790979654063122999.log",
+        "pid": 3386221,
+        "time": 1790979654.065185
+      },
+      "latest_recorded_update": 20298,
+      "observations": [
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 65536.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.0011549543539882531,
+            "interaction": 0.0008328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 10.739269256591797,
+            "FDE_m": 14.053244590759277,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.6333484649658203
+          },
+          "ended_unix": 1790961048.1525233,
+          "epoch": 0,
+          "exposure": 32,
+          "fp32_master_update_verified": true,
+          "grad_norm": 10.237674713134766,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5195568725466728,
+            "current_dino_raw": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 0.0023714415438007563,
+            "future_clip_raw": 2.0532771944999695,
+            "interaction": 0.0016637448788969778,
+            "interaction_raw": 1.997545376420021
+          },
+          "lr": 2e-09,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "offset": 1,
+          "peak_memory_bytes": 11189146624,
+          "per_rank_profile": [
+            [
+              2.927227735519409,
+              0.3190324306488037,
+              11189146624.0,
+              14143193088.0,
+              1930.0
+            ],
+            [
+              2.927243947982788,
+              0.2724635601043701,
+              11250585088.0,
+              13964935168.0,
+              1930.0
+            ],
+            [
+              2.927300453186035,
+              0.2790958881378174,
+              11252061184.0,
+              14105444352.0,
+              1930.0
+            ],
+            [
+              2.927227020263672,
+              0.30646204948425293,
+              11231500288.0,
+              13979615232.0,
+              1930.0
+            ],
+            [
+              2.9272189140319824,
+              0.3075530529022217,
+              11255116288.0,
+              14109638656.0,
+              1930.0
+            ],
+            [
+              2.9272406101226807,
+              0.30994224548339844,
+              11340141568.0,
+              14193524736.0,
+              1930.0
+            ],
+            [
+              2.9272263050079346,
+              0.3157782554626465,
+              10782299136.0,
+              13736345600.0,
+              1930.0
+            ],
+            [
+              2.927276134490967,
+              0.31722402572631836,
+              10700510720.0,
+              13553893376.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5195568725466728,
+            "ego_fm": 1.9171514958143234,
+            "future_clip": 2.0532771944999695,
+            "interaction": 1.997545376420021
+          },
+          "sampled_changed_elements": 19930,
+          "seconds": 2.9277868270874023,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 9,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 5.648986416417756e-07,
+              "max_abs_update": 9.313225746154785e-10,
+              "update_norm": 1.9093540082337768e-09
+            },
+            "Qwen_first_q": {
+              "changed_elements": 3930232,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193512,
+              "gradient_norm": 0.5743678212165833,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 4.986250132787973e-06
+            },
+            "Qwen_last_q": {
+              "changed_elements": 3193634,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193807,
+              "gradient_norm": 0.053187817335128784,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 3.896238013112452e-06
+            },
+            "W": {
+              "changed_elements": 294272,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294870,
+              "gradient_norm": 0.9136404991149902,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.187170482808142e-06
+            },
+            "action_decoder": {
+              "changed_elements": 6138,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6138,
+              "gradient_norm": 3.6399178504943848,
+              "max_abs_update": 2.0954757928848267e-09,
+              "update_norm": 1.4803670467244956e-07
+            },
+            "future_readout": {
+              "changed_elements": 354263,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524255,
+              "gradient_norm": 0.001391894300468266,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.1187279369551106e-06
+            }
+          },
+          "update": 1,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 16,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 31.0,
+            "interaction": 69632.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.11549543539882533,
+            "interaction": 0.08328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 11.083394050598145,
+            "FDE_m": 18.368629455566406,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.2977827787399292
+          },
+          "ended_unix": 1790961229.50354,
+          "epoch": 0,
+          "exposure": 3200,
+          "fp32_master_update_verified": true,
+          "grad_norm": 6.707207202911377,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5022668242454529,
+            "current_dino_raw": 0.5022668242454529,
+            "ego_fm": 1.5818898379802704,
+            "future_clip": 0.23643378913402557,
+            "future_clip_raw": 2.047126740217209,
+            "interaction": 0.16664128191769123,
+            "interaction_raw": 2.0007486268877983
+          },
+          "lr": 2e-07,
+          "maximum_sampled_change": 2.384185791015625e-07,
+          "offset": 100,
+          "peak_memory_bytes": 13251235840,
+          "per_rank_profile": [
+            [
+              2.072985887527466,
+              0.2751486301422119,
+              13251235840.0,
+              15221129216.0,
+              1930.0
+            ],
+            [
+              2.0730643272399902,
+              0.2629275321960449,
+              13312674304.0,
+              15747514368.0,
+              1930.0
+            ],
+            [
+              2.0730488300323486,
+              0.27858448028564453,
+              13314150400.0,
+              15284043776.0,
+              1930.0
+            ],
+            [
+              2.0730185508728027,
+              0.2754993438720703,
+              13293589504.0,
+              15359541248.0,
+              1930.0
+            ],
+            [
+              2.0730090141296387,
+              0.26863765716552734,
+              13317205504.0,
+              15288238080.0,
+              1930.0
+            ],
+            [
+              2.0730133056640625,
+              0.26580047607421875,
+              13402230784.0,
+              15372124160.0,
+              1930.0
+            ],
+            [
+              2.073009729385376,
+              0.26003289222717285,
+              12844388352.0,
+              14814281728.0,
+              1930.0
+            ],
+            [
+              2.0730113983154297,
+              0.253662109375,
+              12762599424.0,
+              14732492800.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5022668242454529,
+            "ego_fm": 1.5818898379802704,
+            "future_clip": 2.047126740217209,
+            "interaction": 2.0007486268877983
+          },
+          "sampled_changed_elements": 21809,
+          "seconds": 2.0735490322113037,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 1871,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2046,
+              "gradient_norm": 5.4626645578537136e-05,
+              "max_abs_update": 2.384185791015625e-07,
+              "update_norm": 6.055640369595494e-06
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4178830,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193362,
+              "gradient_norm": 0.46986567974090576,
+              "max_abs_update": 2.384185791015625e-07,
+              "update_norm": 0.000287195056444034
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4185893,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193747,
+              "gradient_norm": 0.030839066952466965,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.0003321176627650857
+            },
+            "W": {
+              "changed_elements": 294476,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294843,
+              "gradient_norm": 0.8437782526016235,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 8.656126738060266e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6117,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6138,
+              "gradient_norm": 2.2560062408447266,
+              "max_abs_update": 2.2724270820617676e-07,
+              "update_norm": 8.657110811327584e-06
+            },
+            "future_readout": {
+              "changed_elements": 524088,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524259,
+              "gradient_norm": 0.13895867764949799,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.0001531594607513398
+            }
+          },
+          "update": 100,
+          "valid_clip_scenes": 31,
+          "valid_interaction_scenes": 17,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 86016.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.5774771769941266,
+            "interaction": 0.41644729909310335
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 3.8132331371307373,
+            "FDE_m": 5.7517170906066895,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.23635044693946838
+          },
+          "ended_unix": 1790961983.9272833,
+          "epoch": 0,
+          "exposure": 16000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 22.451324462890625,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.14944999478757381,
+            "current_dino_raw": 0.14944999478757381,
+            "ego_fm": 0.5736529044806957,
+            "future_clip": 0.7618413791060448,
+            "future_clip_raw": 1.3192580491304398,
+            "interaction": 0.43012721836566925,
+            "interaction_raw": 1.0328490734100342
+          },
+          "lr": 1e-06,
+          "maximum_sampled_change": 1.0468065738677979e-06,
+          "offset": 500,
+          "peak_memory_bytes": 13253147136,
+          "per_rank_profile": [
+            [
+              2.1163885593414307,
+              0.2605123519897461,
+              13253147136.0,
+              15221129216.0,
+              1930.0
+            ],
+            [
+              2.1163997650146484,
+              0.2531461715698242,
+              13314585600.0,
+              15747514368.0,
+              1930.0
+            ],
+            [
+              2.1163361072540283,
+              0.2804248332977295,
+              13316061696.0,
+              15284043776.0,
+              1930.0
+            ],
+            [
+              2.1163811683654785,
+              0.34868359565734863,
+              13295500800.0,
+              15359541248.0,
+              1930.0
+            ],
+            [
+              2.1164183616638184,
+              0.2611231803894043,
+              13319116800.0,
+              15288238080.0,
+              1930.0
+            ],
+            [
+              2.1163861751556396,
+              0.24834871292114258,
+              13404142080.0,
+              15372124160.0,
+              1930.0
+            ],
+            [
+              2.116384983062744,
+              0.26274871826171875,
+              12846299648.0,
+              14814281728.0,
+              1930.0
+            ],
+            [
+              2.1163744926452637,
+              0.25388360023498535,
+              12764510720.0,
+              14732492800.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.14944999478757381,
+            "ego_fm": 0.5736529044806957,
+            "future_clip": 1.3192580491304398,
+            "interaction": 1.0328490734100342
+          },
+          "sampled_changed_elements": 21809,
+          "seconds": 2.1169657707214355,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 2004,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2047,
+              "gradient_norm": 0.0001231128117069602,
+              "max_abs_update": 8.791685104370117e-07,
+              "update_norm": 2.174422115786001e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4174879,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4191806,
+              "gradient_norm": 2.271418571472168,
+              "max_abs_update": 7.948838174343109e-07,
+              "update_norm": 0.0003413903759792447
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4179728,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192900,
+              "gradient_norm": 0.42093807458877563,
+              "max_abs_update": 9.5367431640625e-07,
+              "update_norm": 0.00046499090967699885
+            },
+            "W": {
+              "changed_elements": 294048,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294761,
+              "gradient_norm": 2.6554794311523438,
+              "max_abs_update": 7.115304470062256e-07,
+              "update_norm": 9.340008546132594e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6131,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6143,
+              "gradient_norm": 0.9911755323410034,
+              "max_abs_update": 7.841736078262329e-07,
+              "update_norm": 1.6902571587706916e-05
+            },
+            "future_readout": {
+              "changed_elements": 524235,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524261,
+              "gradient_norm": 0.668438196182251,
+              "max_abs_update": 1.0766088962554932e-06,
+              "update_norm": 0.0006003344315104187
+            }
+          },
+          "update": 500,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 21,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 90112.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 3.914573907852173,
+            "FDE_m": 8.663708686828613,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.09509201347827911
+          },
+          "ended_unix": 1790962905.299483,
+          "epoch": 0,
+          "exposure": 32000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 15.484550476074219,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.0527028264477849,
+            "current_dino_raw": 0.0527028264477849,
+            "ego_fm": 0.2828573603183031,
+            "future_clip": 0.8604607880115509,
+            "future_clip_raw": 0.7450171709060669,
+            "interaction": 0.32838693633675575,
+            "interaction_raw": 0.3942718841135502
+          },
+          "lr": 2e-06,
+          "maximum_sampled_change": 1.9762665033340454e-06,
+          "offset": 1000,
+          "peak_memory_bytes": 13252180480,
+          "per_rank_profile": [
+            [
+              2.0678272247314453,
+              0.2520260810852051,
+              13252180480.0,
+              15221129216.0,
+              1930.0
+            ],
+            [
+              2.0678505897521973,
+              0.25122547149658203,
+              13313618944.0,
+              15747514368.0,
+              1930.0
+            ],
+            [
+              2.067976236343384,
+              0.25075697898864746,
+              13315095040.0,
+              15284043776.0,
+              1930.0
+            ],
+            [
+              2.067847490310669,
+              0.27808618545532227,
+              13294534144.0,
+              15359541248.0,
+              1930.0
+            ],
+            [
+              2.0678908824920654,
+              0.28201913833618164,
+              13318150144.0,
+              15288238080.0,
+              1930.0
+            ],
+            [
+              2.067845582962036,
+              0.24869990348815918,
+              13403175424.0,
+              15372124160.0,
+              1930.0
+            ],
+            [
+              2.0678489208221436,
+              0.2521333694458008,
+              12845332992.0,
+              14814281728.0,
+              1930.0
+            ],
+            [
+              2.06785249710083,
+              0.2477409839630127,
+              12763544064.0,
+              14732492800.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.0527028264477849,
+            "ego_fm": 0.2828573603183031,
+            "future_clip": 0.7450171709060669,
+            "interaction": 0.3942718841135502
+          },
+          "sampled_changed_elements": 21842,
+          "seconds": 2.068408966064453,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 1967,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 1.0382380423834547e-05,
+              "max_abs_update": 1.6540288925170898e-06,
+              "update_norm": 2.6947296646540053e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4181721,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192219,
+              "gradient_norm": 1.1837477684020996,
+              "max_abs_update": 1.5685800462961197e-06,
+              "update_norm": 0.000647877692244947
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4183978,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192689,
+              "gradient_norm": 0.19566652178764343,
+              "max_abs_update": 1.866370439529419e-06,
+              "update_norm": 0.0008236659923568368
+            },
+            "W": {
+              "changed_elements": 294453,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294746,
+              "gradient_norm": 1.3980916738510132,
+              "max_abs_update": 1.519918441772461e-06,
+              "update_norm": 0.00019109535787720233
+            },
+            "action_decoder": {
+              "changed_elements": 6135,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6141,
+              "gradient_norm": 1.133503794670105,
+              "max_abs_update": 1.1203810572624207e-06,
+              "update_norm": 2.6173600417678244e-05
+            },
+            "future_readout": {
+              "changed_elements": 524234,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524220,
+              "gradient_norm": 0.889267086982727,
+              "max_abs_update": 2.1867454051971436e-06,
+              "update_norm": 0.001155263977125287
+            }
+          },
+          "update": 1000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 22,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 61440.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 2.847461700439453,
+            "FDE_m": 6.128879070281982,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.1301209032535553
+          },
+          "ended_unix": 1790964800.2504387,
+          "epoch": 0,
+          "exposure": 64000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 9.233165740966797,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.03853832697495818,
+            "current_dino_raw": 0.03853832697495818,
+            "ego_fm": 0.17735345661640167,
+            "future_clip": 0.5879156291484833,
+            "future_clip_raw": 0.5090379938483238,
+            "interaction": 0.06163749983534217,
+            "interaction_raw": 0.07400396023876965
+          },
+          "lr": 4e-06,
+          "maximum_sampled_change": 3.512948751449585e-06,
+          "offset": 2000,
+          "peak_memory_bytes": 13252817408,
+          "per_rank_profile": [
+            [
+              2.053915500640869,
+              0.2516911029815674,
+              13252817408.0,
+              15221129216.0,
+              1930.0
+            ],
+            [
+              2.053936719894409,
+              0.24552202224731445,
+              13314255872.0,
+              15747514368.0,
+              1930.0
+            ],
+            [
+              2.053942918777466,
+              0.2510948181152344,
+              13315731968.0,
+              15284043776.0,
+              1930.0
+            ],
+            [
+              2.053912878036499,
+              0.25932788848876953,
+              13295171072.0,
+              15359541248.0,
+              1930.0
+            ],
+            [
+              2.0539627075195312,
+              0.2563612461090088,
+              13318787072.0,
+              15288238080.0,
+              1930.0
+            ],
+            [
+              2.0539400577545166,
+              0.25641727447509766,
+              13403812352.0,
+              15372124160.0,
+              1930.0
+            ],
+            [
+              2.0539329051971436,
+              0.2581362724304199,
+              12845969920.0,
+              14814281728.0,
+              1930.0
+            ],
+            [
+              2.0539333820343018,
+              0.24880719184875488,
+              12764180992.0,
+              14732492800.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_only",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.03853832697495818,
+            "ego_fm": 0.17735345661640167,
+            "future_clip": 0.5090379938483238,
+            "interaction": 0.07400396023876965
+          },
+          "sampled_changed_elements": 21868,
+          "seconds": 2.054485321044922,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 2022,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 5.3563580877380446e-05,
+              "max_abs_update": 3.129243850708008e-06,
+              "update_norm": 4.192992491880432e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4190237,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192305,
+              "gradient_norm": 0.9131860136985779,
+              "max_abs_update": 3.2335519790649414e-06,
+              "update_norm": 0.001663184491917491
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4189844,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192372,
+              "gradient_norm": 0.0686824843287468,
+              "max_abs_update": 3.3620744943618774e-06,
+              "update_norm": 0.0015946811763569713
+            },
+            "W": {
+              "changed_elements": 294703,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294733,
+              "gradient_norm": 0.6125244498252869,
+              "max_abs_update": 3.086403012275696e-06,
+              "update_norm": 0.00043986973469145596
+            },
+            "action_decoder": {
+              "changed_elements": 6141,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6141,
+              "gradient_norm": 0.6014904379844666,
+              "max_abs_update": 2.2817403078079224e-06,
+              "update_norm": 4.55524459539447e-05
+            },
+            "future_readout": {
+              "changed_elements": 524014,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524144,
+              "gradient_norm": 0.21197161078453064,
+              "max_abs_update": 4.09688800573349e-06,
+              "update_norm": 0.0011889245361089706
+            }
+          },
+          "update": 2000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 15,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        }
+      ],
+      "observed_unix": 1790998515.532083,
+      "parameters": {
+        "groups": {
+          "action_input_model": 4206592,
+          "action_model": 819503620,
+          "dino_head": 8411648,
+          "foresight_queries": 294912,
+          "future_head": 0,
+          "interaction_head": 7622656,
+          "query_geometry": 10240,
+          "qwen_vl_interface": 1720574976,
+          "spatiotemporal_head": 8943104
+        },
+        "total": 2976524804,
+        "trainable": 2569567748
+      },
+      "recent_training": {
+        "raw_loss_means": {
+          "current_dino": 0.020889234428759663,
+          "ego_fm": 0.025274725159397347,
+          "future_clip": 0.2906473420746625,
+          "interaction": 0.013819291294494178
+        },
+        "records": 100,
+        "step_mean_seconds": 1.7258154463768005
+      },
+      "run_id": "formal_S3_seed42_full100k_v2",
+      "scene_exposure": 649488,
+      "training_status": "RUNNING"
+    },
+    "S4": {
+      "all_logged_losses_finite": true,
+      "all_logged_master_updates_verified": true,
+      "auxiliary_initialization_hash": "5bc5fa7e935978dd3ac564b840b604e0daf23e1335783cf52024a538fff8e9c8",
+      "completed_updates": 21619,
+      "controller_status": "TRAINING",
+      "effective_data_traversals": 6.809197574612174,
+      "gpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "host": "training-vla-zt",
+      "initialization_hash": "de60c174a9981c4e50925021dd3377a5580293b67cc5155cc114260538ddfc32",
+      "initialization_summary": {
+        "W": "b68950f93392c509d31addc466cf27de07d3f8c15ed3f9c1603fdcdc88d6a8dd",
+        "driving_weights_loaded": false,
+        "future_teacher_in_model": false,
+        "generic_source_manifest": {
+          "qwen": {
+            "files": {
+              ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+              "README.md": "5fc5be1ca9a3910399bd6239ee5086ab5d82a2a59c5d2b00e887a8835cc110e4",
+              "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+              "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+              "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+              "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+              "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+              "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+              "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+              "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+              "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+              "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+            },
+            "generic_pretraining_data_fully_auditable": false,
+            "public_lfs_verified": [
+              "model.safetensors"
+            ],
+            "repository": "Qwen/Qwen3-VL-2B-Instruct",
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+            "root": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct"
+          }
+        }
+      },
+      "latest_controller_event": {
+        "command": [
+          "/root/miniconda3/envs/ddp/bin/python",
+          "-u",
+          "-m",
+          "tools.action_video_foresight.evaluate_milestone",
+          "--plan",
+          "/mnt/project/action-video-foresight-artifacts/20261002/formal_plan_seed42_v2.json",
+          "--arm",
+          "S4",
+          "--update",
+          "10000"
+        ],
+        "event": "START",
+        "label": "formal_S4_seed42_full100k_v2_dev10000_seed42",
+        "log": "/mnt/project/action-video-foresight-artifacts/20261002/formal_controllers/formal_S4_seed42_full100k_v2/formal_S4_seed42_full100k_v2_dev10000_seed42_1790977442376194634.log",
+        "pid": 3647881,
+        "time": 1790977442.3780012
+      },
+      "latest_recorded_update": 21619,
+      "observations": [
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 65536.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.0011549543539882531,
+            "interaction": 0.0008328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 10.738985061645508,
+            "FDE_m": 14.057025909423828,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.6290699243545532
+          },
+          "ended_unix": 1790959045.026832,
+          "epoch": 0,
+          "exposure": 32,
+          "fp32_master_update_verified": true,
+          "grad_norm": 9.915923118591309,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5195568725466728,
+            "current_dino_raw": 0.5195568725466728,
+            "ego_fm": 1.9199326485395432,
+            "future_clip": 0.0023714415438007563,
+            "future_clip_raw": 2.0532771944999695,
+            "interaction": 0.0016637448788969778,
+            "interaction_raw": 1.997545376420021
+          },
+          "lr": 2e-09,
+          "maximum_sampled_change": 3.725290298461914e-09,
+          "offset": 1,
+          "peak_memory_bytes": 11189146624,
+          "per_rank_profile": [
+            [
+              2.8833930492401123,
+              0.3373908996582031,
+              11189146624.0,
+              14042529792.0,
+              1930.0
+            ],
+            [
+              2.8834755420684814,
+              0.2715184688568115,
+              11250585088.0,
+              14105444352.0,
+              1930.0
+            ],
+            [
+              2.883439064025879,
+              0.3045070171356201,
+              11252061184.0,
+              14105444352.0,
+              1930.0
+            ],
+            [
+              2.88346004486084,
+              0.29772377014160156,
+              11231500288.0,
+              14086569984.0,
+              1930.0
+            ],
+            [
+              2.8835082054138184,
+              0.28301191329956055,
+              11255116288.0,
+              14109638656.0,
+              1930.0
+            ],
+            [
+              2.88348388671875,
+              0.3192880153656006,
+              11340141568.0,
+              14053015552.0,
+              1930.0
+            ],
+            [
+              2.8835718631744385,
+              0.3275463581085205,
+              10782299136.0,
+              13635682304.0,
+              1930.0
+            ],
+            [
+              2.8834388256073,
+              0.3187122344970703,
+              10700510720.0,
+              13553893376.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_plus_W",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5195568725466728,
+            "ego_fm": 1.9199326485395432,
+            "future_clip": 2.0532771944999695,
+            "interaction": 1.997545376420021
+          },
+          "sampled_changed_elements": 19896,
+          "seconds": 2.883962869644165,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 9,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 5.648986416417756e-07,
+              "max_abs_update": 9.313225746154785e-10,
+              "update_norm": 1.9093540082337768e-09
+            },
+            "Qwen_first_q": {
+              "changed_elements": 3919880,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193476,
+              "gradient_norm": 0.35655567049980164,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 4.970251666236436e-06
+            },
+            "Qwen_last_q": {
+              "changed_elements": 3068644,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193558,
+              "gradient_norm": 0.042601633816957474,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 3.732848654180998e-06
+            },
+            "W": {
+              "changed_elements": 294222,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294880,
+              "gradient_norm": 0.7740731239318848,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.1866812883454259e-06
+            },
+            "action_decoder": {
+              "changed_elements": 6142,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6142,
+              "gradient_norm": 3.636662483215332,
+              "max_abs_update": 2.0954757928848267e-09,
+              "update_norm": 1.480765661199257e-07
+            },
+            "future_readout": {
+              "changed_elements": 356247,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524255,
+              "gradient_norm": 0.001391894300468266,
+              "max_abs_update": 3.725290298461914e-09,
+              "update_norm": 1.1280259286650107e-06
+            }
+          },
+          "update": 1,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 16,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 31.0,
+            "interaction": 69632.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.11549543539882533,
+            "interaction": 0.08328945981862068
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 11.069893836975098,
+            "FDE_m": 18.406967163085938,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 1.3137913942337036
+          },
+          "ended_unix": 1790959221.1327875,
+          "epoch": 0,
+          "exposure": 3200,
+          "fp32_master_update_verified": true,
+          "grad_norm": 6.418149948120117,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.5022793933749199,
+            "current_dino_raw": 0.5022793933749199,
+            "ego_fm": 1.5837678015232086,
+            "future_clip": 0.23643329739570618,
+            "future_clip_raw": 2.0471224933862686,
+            "interaction": 0.1666345177218318,
+            "interaction_raw": 2.000667490065098
+          },
+          "lr": 2e-07,
+          "maximum_sampled_change": 2.384185791015625e-07,
+          "offset": 100,
+          "peak_memory_bytes": 13251235840,
+          "per_rank_profile": [
+            [
+              2.118176221847534,
+              0.27022767066955566,
+              13251235840.0,
+              15051259904.0,
+              1930.0
+            ],
+            [
+              2.118300437927246,
+              0.2714650630950928,
+              13312674304.0,
+              15214837760.0,
+              1930.0
+            ],
+            [
+              2.1182126998901367,
+              0.2740600109100342,
+              13314150400.0,
+              15114174464.0,
+              1930.0
+            ],
+            [
+              2.118206739425659,
+              0.35335588455200195,
+              13293589504.0,
+              15095300096.0,
+              1930.0
+            ],
+            [
+              2.1182072162628174,
+              0.26012086868286133,
+              13317205504.0,
+              15118368768.0,
+              1930.0
+            ],
+            [
+              2.118234872817993,
+              0.2617628574371338,
+              13402230784.0,
+              15766388736.0,
+              1930.0
+            ],
+            [
+              2.118201971054077,
+              0.34703803062438965,
+              12844388352.0,
+              14644412416.0,
+              1930.0
+            ],
+            [
+              2.1182055473327637,
+              0.25363707542419434,
+              12762599424.0,
+              14562623488.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_plus_W",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.5022793933749199,
+            "ego_fm": 1.5837678015232086,
+            "future_clip": 2.0471224933862686,
+            "interaction": 2.000667490065098
+          },
+          "sampled_changed_elements": 21847,
+          "seconds": 2.1187915802001953,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 1871,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2047,
+              "gradient_norm": 5.445540591608733e-05,
+              "max_abs_update": 2.384185791015625e-07,
+              "update_norm": 6.079491868149489e-06
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4181854,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193295,
+              "gradient_norm": 0.22466474771499634,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.0003072887484449893
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4185079,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193836,
+              "gradient_norm": 0.027483226731419563,
+              "max_abs_update": 2.384185791015625e-07,
+              "update_norm": 0.00033327192068099976
+            },
+            "W": {
+              "changed_elements": 294516,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294844,
+              "gradient_norm": 0.5617107152938843,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 8.806749974610284e-05
+            },
+            "action_decoder": {
+              "changed_elements": 6104,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6141,
+              "gradient_norm": 2.24682354927063,
+              "max_abs_update": 2.2724270820617676e-07,
+              "update_norm": 8.862538379617035e-06
+            },
+            "future_readout": {
+              "changed_elements": 524098,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524257,
+              "gradient_norm": 0.1389169692993164,
+              "max_abs_update": 2.3096799850463867e-07,
+              "update_norm": 0.0001534011826151982
+            }
+          },
+          "update": 100,
+          "valid_clip_scenes": 31,
+          "valid_interaction_scenes": 17,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 86016.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 0.5774771769941266,
+            "interaction": 0.41644729909310335
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 4.038784980773926,
+            "FDE_m": 5.076621055603027,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.2193925976753235
+          },
+          "ended_unix": 1790959951.1784987,
+          "epoch": 0,
+          "exposure": 16000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 42.804744720458984,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.15199784375727177,
+            "current_dino_raw": 0.15199784375727177,
+            "ego_fm": 0.578807532787323,
+            "future_clip": 0.7788161709904671,
+            "future_clip_raw": 1.3486527800559998,
+            "interaction": 0.4395601898431778,
+            "interaction_raw": 1.0555001273751259
+          },
+          "lr": 1e-06,
+          "maximum_sampled_change": 1.0202638804912567e-06,
+          "offset": 500,
+          "peak_memory_bytes": 13252635648,
+          "per_rank_profile": [
+            [
+              2.0711452960968018,
+              0.32837605476379395,
+              13252635648.0,
+              15151923200.0,
+              1930.0
+            ],
+            [
+              2.0712268352508545,
+              0.2521204948425293,
+              13314074112.0,
+              15214837760.0,
+              1930.0
+            ],
+            [
+              2.0711090564727783,
+              0.32360076904296875,
+              13315550208.0,
+              15114174464.0,
+              1930.0
+            ],
+            [
+              2.071112871170044,
+              0.26314544677734375,
+              13294989312.0,
+              15195963392.0,
+              1930.0
+            ],
+            [
+              2.0711240768432617,
+              0.2506554126739502,
+              13318605312.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              2.0711891651153564,
+              0.2525513172149658,
+              13403630592.0,
+              15766388736.0,
+              1930.0
+            ],
+            [
+              2.0711045265197754,
+              0.2676517963409424,
+              12845788160.0,
+              14745075712.0,
+              1930.0
+            ],
+            [
+              2.071105480194092,
+              0.25698208808898926,
+              12763999232.0,
+              14663286784.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_plus_W",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.15199784375727177,
+            "ego_fm": 0.578807532787323,
+            "future_clip": 1.3486527800559998,
+            "interaction": 1.0555001273751259
+          },
+          "sampled_changed_elements": 21820,
+          "seconds": 2.071765422821045,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 1996,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 0.00013508720439858735,
+              "max_abs_update": 8.642673492431641e-07,
+              "update_norm": 2.1307914721546695e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4176113,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193329,
+              "gradient_norm": 2.3476264476776123,
+              "max_abs_update": 7.115304470062256e-07,
+              "update_norm": 0.00034828405478037894
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4180006,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193680,
+              "gradient_norm": 1.2514996528625488,
+              "max_abs_update": 8.009374141693115e-07,
+              "update_norm": 0.0004216263478156179
+            },
+            "W": {
+              "changed_elements": 294244,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294849,
+              "gradient_norm": 2.929145574569702,
+              "max_abs_update": 7.415656000375748e-07,
+              "update_norm": 0.0001048462072503753
+            },
+            "action_decoder": {
+              "changed_elements": 6136,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6144,
+              "gradient_norm": 1.7759751081466675,
+              "max_abs_update": 7.59027898311615e-07,
+              "update_norm": 1.7092381312977523e-05
+            },
+            "future_readout": {
+              "changed_elements": 524224,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524251,
+              "gradient_norm": 0.6678077578544617,
+              "max_abs_update": 1.0561197996139526e-06,
+              "update_norm": 0.0005675562424585223
+            }
+          },
+          "update": 500,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 21,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 90112.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 3.3391528129577637,
+            "FDE_m": 7.697568416595459,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.07218144088983536
+          },
+          "ended_unix": 1790960845.0407,
+          "epoch": 0,
+          "exposure": 32000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 21.33966827392578,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.05282732052728534,
+            "current_dino_raw": 0.05282732052728534,
+            "ego_fm": 0.28328912332654,
+            "future_clip": 0.8681488409638405,
+            "future_clip_raw": 0.7516737431287766,
+            "interaction": 0.3328947015106678,
+            "interaction_raw": 0.3996840566396713
+          },
+          "lr": 2e-06,
+          "maximum_sampled_change": 2.1096784621477127e-06,
+          "offset": 1000,
+          "peak_memory_bytes": 13251213824,
+          "per_rank_profile": [
+            [
+              1.9581186771392822,
+              0.2464616298675537,
+              13251213824.0,
+              15151923200.0,
+              1930.0
+            ],
+            [
+              1.9581115245819092,
+              0.24497151374816895,
+              13312652288.0,
+              15214837760.0,
+              1930.0
+            ],
+            [
+              1.9580435752868652,
+              0.24329638481140137,
+              13314128384.0,
+              15114174464.0,
+              1930.0
+            ],
+            [
+              1.958047866821289,
+              0.24962377548217773,
+              13293567488.0,
+              15195963392.0,
+              1930.0
+            ],
+            [
+              1.9580414295196533,
+              0.24970197677612305,
+              13317183488.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              1.9580528736114502,
+              0.24455761909484863,
+              13402208768.0,
+              15766388736.0,
+              1930.0
+            ],
+            [
+              1.9580392837524414,
+              0.2514338493347168,
+              12844366336.0,
+              14745075712.0,
+              1930.0
+            ],
+            [
+              1.958040475845337,
+              0.24574661254882812,
+              12762577408.0,
+              14663286784.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_plus_W",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.05282732052728534,
+            "ego_fm": 0.28328912332654,
+            "future_clip": 0.7516737431287766,
+            "interaction": 0.3996840566396713
+          },
+          "sampled_changed_elements": 21837,
+          "seconds": 1.9587550163269043,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 2000,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2048,
+              "gradient_norm": 1.656417407502886e-05,
+              "max_abs_update": 1.817941665649414e-06,
+              "update_norm": 3.466019916231744e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4179474,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193120,
+              "gradient_norm": 0.9243499636650085,
+              "max_abs_update": 1.4742836356163025e-06,
+              "update_norm": 0.0005493041826412082
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4181868,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193293,
+              "gradient_norm": 0.3073132634162903,
+              "max_abs_update": 1.6111880540847778e-06,
+              "update_norm": 0.000688323169015348
+            },
+            "W": {
+              "changed_elements": 294355,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294831,
+              "gradient_norm": 1.2641301155090332,
+              "max_abs_update": 1.4510005712509155e-06,
+              "update_norm": 0.00016748509369790554
+            },
+            "action_decoder": {
+              "changed_elements": 6135,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6143,
+              "gradient_norm": 1.3678309917449951,
+              "max_abs_update": 1.2256205081939697e-06,
+              "update_norm": 2.6493495170143433e-05
+            },
+            "future_readout": {
+              "changed_elements": 524235,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524218,
+              "gradient_norm": 0.899321436882019,
+              "max_abs_update": 2.16066837310791e-06,
+              "update_norm": 0.001148391398601234
+            }
+          },
+          "update": 1000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 22,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        },
+        {
+          "counts": {
+            "current_dino": 4718592.0,
+            "ego_scenes": 32.0,
+            "future_clip": 32.0,
+            "interaction": 61440.0
+          },
+          "effective_weights": {
+            "current_dino": 1.0,
+            "ego_fm": 1.0,
+            "future_clip": 1.1549543539882532,
+            "interaction": 0.8328945981862067
+          },
+          "ego_training_diagnostic": {
+            "ADE_m": 2.2205779552459717,
+            "FDE_m": 4.291864395141602,
+            "protocol": "live BF16, first current scene per rank in this fixed training batch; not PDMS",
+            "sampling_seed": 42,
+            "scenes": 8,
+            "yaw_abs_rad": 0.08530686795711517
+          },
+          "ended_unix": 1790962800.0364285,
+          "epoch": 0,
+          "exposure": 64000,
+          "fp32_master_update_verified": true,
+          "grad_norm": 10.061781883239746,
+          "horizon_scene_requests": [
+            0,
+            0,
+            0
+          ],
+          "horizon_valid_views": [
+            0,
+            0,
+            0
+          ],
+          "losses": {
+            "current_dino": 0.038976825308054686,
+            "current_dino_raw": 0.038976825308054686,
+            "ego_fm": 0.14955623354762793,
+            "future_clip": 0.591994933784008,
+            "future_clip_raw": 0.5125700086355209,
+            "interaction": 0.06002423050813377,
+            "interaction_raw": 0.07206701720133424
+          },
+          "lr": 4e-06,
+          "maximum_sampled_change": 3.419816493988037e-06,
+          "offset": 2000,
+          "peak_memory_bytes": 13252635648,
+          "per_rank_profile": [
+            [
+              2.044144868850708,
+              0.25348401069641113,
+              13252635648.0,
+              15151923200.0,
+              1930.0
+            ],
+            [
+              2.044279098510742,
+              0.2563328742980957,
+              13314074112.0,
+              15214837760.0,
+              1930.0
+            ],
+            [
+              2.0441794395446777,
+              0.29015040397644043,
+              13315550208.0,
+              15214837760.0,
+              1930.0
+            ],
+            [
+              2.044182300567627,
+              0.25482773780822754,
+              13294989312.0,
+              15195963392.0,
+              1930.0
+            ],
+            [
+              2.0441858768463135,
+              0.24963092803955078,
+              13318605312.0,
+              15219032064.0,
+              1930.0
+            ],
+            [
+              2.0441622734069824,
+              0.24471402168273926,
+              13403630592.0,
+              15766388736.0,
+              1930.0
+            ],
+            [
+              2.0441806316375732,
+              0.250652551651001,
+              12845788160.0,
+              14745075712.0,
+              1930.0
+            ],
+            [
+              2.0441832542419434,
+              0.2450084686279297,
+              12763999232.0,
+              14663286784.0,
+              1930.0
+            ]
+          ],
+          "planner_condition_mode": "action_plus_W",
+          "profile_fields": [
+            "total_step_seconds",
+            "data_seconds",
+            "peak_allocated_bytes",
+            "peak_reserved_bytes",
+            "max_sequence_length"
+          ],
+          "raw_losses": {
+            "current_dino": 0.038976825308054686,
+            "ego_fm": 0.14955623354762793,
+            "future_clip": 0.5125700086355209,
+            "interaction": 0.07206701720133424
+          },
+          "sampled_changed_elements": 21860,
+          "seconds": 2.0447838306427,
+          "shared_parameter_observation": {
+            "GT_action_aux_encoder": {
+              "changed_elements": 2035,
+              "elements": 2048,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 2046,
+              "gradient_norm": 8.92900352482684e-05,
+              "max_abs_update": 3.2782554626464844e-06,
+              "update_norm": 5.554148447117768e-05
+            },
+            "Qwen_first_q": {
+              "changed_elements": 4188293,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4193360,
+              "gradient_norm": 1.0380094051361084,
+              "max_abs_update": 3.2801181077957153e-06,
+              "update_norm": 0.0013297576224431396
+            },
+            "Qwen_last_q": {
+              "changed_elements": 4188873,
+              "elements": 4194304,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 4192710,
+              "gradient_norm": 0.08562414348125458,
+              "max_abs_update": 3.1068921089172363e-06,
+              "update_norm": 0.001345303375273943
+            },
+            "W": {
+              "changed_elements": 294657,
+              "elements": 294912,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 294816,
+              "gradient_norm": 1.0710647106170654,
+              "max_abs_update": 3.0584633350372314e-06,
+              "update_norm": 0.0003497205616440624
+            },
+            "action_decoder": {
+              "changed_elements": 6140,
+              "elements": 6144,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 6144,
+              "gradient_norm": 1.0272111892700195,
+              "max_abs_update": 2.2690510377287865e-06,
+              "update_norm": 4.233971776557155e-05
+            },
+            "future_readout": {
+              "changed_elements": 524048,
+              "elements": 524288,
+              "gradient_dtype": "torch.float32",
+              "gradient_nonzero": 524107,
+              "gradient_norm": 0.1949811726808548,
+              "max_abs_update": 4.077330231666565e-06,
+              "update_norm": 0.0011660113232210279
+            }
+          },
+          "update": 2000,
+          "valid_clip_scenes": 32,
+          "valid_interaction_scenes": 15,
+          "valid_patches": {
+            "current_dino": 4608,
+            "future_dino": 0
+          }
+        }
+      ],
+      "observed_unix": 1790998517.1892686,
+      "parameters": {
+        "groups": {
+          "action_input_model": 4206592,
+          "action_model": 819503620,
+          "dino_head": 8411648,
+          "foresight_queries": 294912,
+          "future_head": 0,
+          "interaction_head": 7622656,
+          "query_geometry": 10240,
+          "qwen_vl_interface": 1720574976,
+          "spatiotemporal_head": 8943104
+        },
+        "total": 2976524804,
+        "trainable": 2569567748
+      },
+      "recent_training": {
+        "raw_loss_means": {
+          "current_dino": 0.02090067823417485,
+          "ego_fm": 0.02327731210854836,
+          "future_clip": 0.28382836524397137,
+          "interaction": 0.014326334359502653
+        },
+        "records": 100,
+        "step_mean_seconds": 1.704150791168213
+      },
+      "run_id": "formal_S4_seed42_full100k_v2",
+      "scene_exposure": 691760,
+      "training_status": "RUNNING"
+    }
+  },
+  "scope": "Actual fresh generic-Qwen/random-driving formal training; startup/profile/probe checkpoints excluded",
+  "snapshot_utc": "2026-10-03T03:35:14.329808+00:00",
+  "train_logs": 1176,
+  "train_scenes": 101592,
+  "training_source": "1493deda247107efe076b9294863a6753391298a",
+  "weights": {
+    "current": 1.0,
+    "future": 1.1549543539882532,
+    "interaction": 0.8328945981862067
+  }
+}

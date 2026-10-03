@@ -1,0 +1,281 @@
+{
+  "snapshot_utc": "2026-10-03T03:20:47.450962+00:00",
+  "common_updates": 100000,
+  "train_seed": 42,
+  "arms": {
+    "S0": {
+      "updates": 16558,
+      "progress_percent": 16.558,
+      "scene_exposures": 529816,
+      "status": "RUNNING",
+      "host": "training-vlawm-zt2",
+      "recent_completed_records": 1000,
+      "compute_seconds_per_update": 1.7377220430374145,
+      "elapsed_seconds_per_update_including_journal_gaps": 1.824472504215794,
+      "remaining_compute_hours": 40.27750075420221,
+      "remaining_elapsed_hours_before_future_eval_variation": 42.288231860215085
+    },
+    "S1": {
+      "updates": 18716,
+      "progress_percent": 18.716,
+      "scene_exposures": 598872,
+      "status": "RUNNING",
+      "host": "training-vla-zt2",
+      "recent_completed_records": 1000,
+      "compute_seconds_per_update": 1.7130449409484862,
+      "elapsed_seconds_per_update_including_journal_gaps": 1.7990541422331296,
+      "remaining_compute_hours": 38.6786513833491,
+      "remaining_elapsed_hours_before_future_eval_variation": 40.620643582577145
+    },
+    "S2": {
+      "updates": 17945,
+      "progress_percent": 17.945,
+      "scene_exposures": 574200,
+      "status": "RUNNING",
+      "host": "training-vlawm-zt",
+      "recent_completed_records": 1000,
+      "compute_seconds_per_update": 1.8118805279731751,
+      "elapsed_seconds_per_update_including_journal_gaps": 1.915155174018623,
+      "remaining_compute_hours": 41.29829353412191,
+      "remaining_elapsed_hours_before_future_eval_variation": 43.652238278916144
+    },
+    "S3": {
+      "updates": 19816,
+      "progress_percent": 19.816,
+      "scene_exposures": 634064,
+      "status": "RUNNING",
+      "host": "training-rl-zt2",
+      "recent_completed_records": 1000,
+      "compute_seconds_per_update": 1.7153630177974701,
+      "elapsed_seconds_per_update_including_journal_gaps": 1.803635936599594,
+      "remaining_compute_hours": 38.20685228307565,
+      "remaining_elapsed_hours_before_future_eval_variation": 40.17298442786163
+    },
+    "S4": {
+      "updates": 21144,
+      "progress_percent": 21.144,
+      "scene_exposures": 676560,
+      "status": "RUNNING",
+      "host": "training-vla-zt",
+      "recent_completed_records": 1000,
+      "compute_seconds_per_update": 1.7011374945640565,
+      "elapsed_seconds_per_update_including_journal_gaps": 1.7884064439061407,
+      "remaining_compute_hours": 37.262471742039786,
+      "remaining_elapsed_hours_before_future_eval_variation": 39.17404959462851
+    }
+  },
+  "scope": "Current five-arm first-seed main training only; second seed, controls and final Navtest not included.",
+  "estimate_rule": "Last1000 completed records; elapsed interval includes rolling-save and ordinary data waits. Future milestone export/scoring/concurrency may add time; not a deadline guarantee.",
+  "all_five_elapsed_hours_before_future_eval_variation": 43.652238278916144,
+  "current_development_results": {
+    "S0": {
+      "10000": {
+        "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'training-vla-zt', 'cd /mnt/project/VLA-Drive-action-video-source-1493ded && env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/navsim/bin/python -u -m tools.foresight.score_pdms --devkit /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1 --metric-index /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json --current-index /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1/index.json --predictions /mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S0_seed42_full100k_v2_dev10000_seed42 --output /mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S0_seed42_full100k_v2_dev10000_seed42 --campaign-root /mnt/project/action-video-foresight-artifacts/20261002 --run-id formal_S0_seed42_full100k_v2_dev10000_seed42_score_1790985442957624306 --workers 16'])",
+        "identity": {
+          "arm": "S0",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "status": "FAILED"
+      },
+      "5000": {
+        "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'training-vla-zt', 'cd /mnt/project/VLA-Drive-action-video-source-1493ded && env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/navsim/bin/python -u -m tools.foresight.score_pdms --devkit /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1 --metric-index /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json --current-index /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1/index.json --predictions /mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S0_seed42_full100k_v2_dev5000_seed42 --output /mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S0_seed42_full100k_v2_dev5000_seed42 --campaign-root /mnt/project/action-video-foresight-artifacts/20261002 --run-id formal_S0_seed42_full100k_v2_dev5000_seed42_score_1790974593430721456 --workers 16'])",
+        "identity": {
+          "arm": "S0",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "status": "FAILED"
+      }
+    },
+    "S1": {
+      "10000": {
+        "PDMS_points": 84.85355717864185,
+        "ego": {
+          "ADE": 1.0563940578008528,
+          "FDE": 2.0473564452368698,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.02998318835952372,
+          "yaw_endpoint_rad": 0.04930664711403397
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S1",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9982311320754716,
+          "drivable_area_compliance": 0.9316037735849056,
+          "driving_direction_compliance": 0.9861438679245284,
+          "ego_progress": 0.7986346347727311,
+          "no_at_fault_collisions": 0.9781839622641509,
+          "score": 0.8485355717864185,
+          "time_to_collision_within_bound": 0.9363207547169812
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      },
+      "5000": {
+        "PDMS_points": 79.04811533893734,
+        "ego": {
+          "ADE": 1.6904457568779658,
+          "FDE": 3.185641665942967,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.0469945365000727,
+          "yaw_endpoint_rad": 0.07908778960974712
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S1",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 0.9994103773584906,
+          "drivable_area_compliance": 0.8985849056603774,
+          "driving_direction_compliance": 0.9696344339622641,
+          "ego_progress": 0.7225273572477748,
+          "no_at_fault_collisions": 0.9702240566037735,
+          "score": 0.7904811533893734,
+          "time_to_collision_within_bound": 0.9168632075471698
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      }
+    },
+    "S2": {
+      "10000": {
+        "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'training-vla-zt', 'cd /mnt/project/VLA-Drive-action-video-source-1493ded && env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/navsim/bin/python -u -m tools.foresight.score_pdms --devkit /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1 --metric-index /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json --current-index /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1/index.json --predictions /mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S2_seed42_full100k_v2_dev10000_seed42 --output /mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S2_seed42_full100k_v2_dev10000_seed42 --campaign-root /mnt/project/action-video-foresight-artifacts/20261002 --run-id formal_S2_seed42_full100k_v2_dev10000_seed42_score_1790981874273689383 --workers 16'])",
+        "identity": {
+          "arm": "S2",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "status": "FAILED"
+      },
+      "5000": {
+        "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'training-vla-zt', 'cd /mnt/project/VLA-Drive-action-video-source-1493ded && env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/navsim/bin/python -u -m tools.foresight.score_pdms --devkit /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1 --metric-index /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json --current-index /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1/index.json --predictions /mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S2_seed42_full100k_v2_dev5000_seed42 --output /mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S2_seed42_full100k_v2_dev5000_seed42 --campaign-root /mnt/project/action-video-foresight-artifacts/20261002 --run-id formal_S2_seed42_full100k_v2_dev5000_seed42_score_1790969991494242668 --workers 16'])",
+        "identity": {
+          "arm": "S2",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "status": "FAILED"
+      }
+    },
+    "S3": {
+      "10000": {
+        "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'training-vla-zt', 'cd /mnt/project/VLA-Drive-action-video-source-1493ded && env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/navsim/bin/python -u -m tools.foresight.score_pdms --devkit /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1 --metric-index /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json --current-index /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1/index.json --predictions /mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S3_seed42_full100k_v2_dev10000_seed42 --output /mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S3_seed42_full100k_v2_dev10000_seed42 --campaign-root /mnt/project/action-video-foresight-artifacts/20261002 --run-id formal_S3_seed42_full100k_v2_dev10000_seed42_score_1790979655791981555 --workers 16'])",
+        "identity": {
+          "arm": "S3",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "status": "FAILED"
+      },
+      "5000": {
+        "error": "CalledProcessError(255, ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15', 'training-vla-zt', 'cd /mnt/project/VLA-Drive-action-video-source-1493ded && env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /root/miniconda3/envs/navsim/bin/python -u -m tools.foresight.score_pdms --devkit /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1 --metric-index /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json --current-index /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1/index.json --predictions /mnt/project/action-video-foresight-artifacts/20261002/evaluations/formal_S3_seed42_full100k_v2_dev5000_seed42 --output /mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S3_seed42_full100k_v2_dev5000_seed42 --campaign-root /mnt/project/action-video-foresight-artifacts/20261002 --run-id formal_S3_seed42_full100k_v2_dev5000_seed42_score_1790970386502472075 --workers 16'])",
+        "identity": {
+          "arm": "S3",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "status": "FAILED"
+      }
+    },
+    "S4": {
+      "10000": {
+        "PDMS_points": 82.30189383526094,
+        "ego": {
+          "ADE": 1.021735285268218,
+          "FDE": 2.1005253428071606,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.03765707554401092,
+          "yaw_endpoint_rad": 0.055697188624795876
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S4",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 10000
+        },
+        "metrics": {
+          "comfort": 0.9970518867924528,
+          "drivable_area_compliance": 0.9097877358490566,
+          "driving_direction_compliance": 0.9855542452830188,
+          "ego_progress": 0.7798569095954931,
+          "no_at_fault_collisions": 0.9758254716981132,
+          "score": 0.8230189383526094,
+          "time_to_collision_within_bound": 0.9245283018867925
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      },
+      "5000": {
+        "PDMS_points": 79.55588901403868,
+        "ego": {
+          "ADE": 1.771678741990571,
+          "FDE": 3.4014663250780806,
+          "failed": 0,
+          "scenes": 1696,
+          "stationary_ADE": 10.12663150680423,
+          "stationary_FDE": 17.899331875301016,
+          "valid": true,
+          "yaw_MAE_rad": 0.04728676290866339,
+          "yaw_endpoint_rad": 0.07571110326164174
+        },
+        "failed": 0,
+        "identity": {
+          "arm": "S4",
+          "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+          "plan": "d86ee0c61a24d42b7c2dd5f93220ec51855acfe59a13027ca18838b462580774",
+          "purpose": "registered complete development; not Navtest",
+          "update": 5000
+        },
+        "metrics": {
+          "comfort": 0.9976415094339622,
+          "drivable_area_compliance": 0.8991745283018868,
+          "driving_direction_compliance": 0.9643278301886793,
+          "ego_progress": 0.7190973179352083,
+          "no_at_fault_collisions": 0.9767099056603774,
+          "score": 0.7955588901403868,
+          "time_to_collision_within_bound": 0.9257075471698113
+        },
+        "scenes": 1696,
+        "status": "COMPLETE"
+      }
+    }
+  },
+  "training_source": "1493deda247107efe076b9294863a6753391298a"
+}

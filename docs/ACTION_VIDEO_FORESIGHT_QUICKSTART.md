@@ -90,3 +90,16 @@ python -m tools.action_video_foresight.plot_learning_curves --snapshot "$AV_ROOT
 ```
 
 Both commands were executed against the actual formal ledgers; use new output names to preserve old evidence. The plot uses every completed record up to the recorded snapshot, including a final partial averaging window. It does not rank different target families by raw MSE.
+
+
+For already complete development exports whose original CPU scoring failed at SSH transport, use the independent canonical-host recovery. This is actually deployed on immutable6659529; no model is loaded and no training source is edited. It preserves the original failed states, binds inherited C1 checkpoint identity to the S0–S4 formal registration, and limits concurrency to32CPUworkers. Read its observer state and flock before restarting; do not duplicate the live service.
+
+```bash
+python -m tools.action_video_foresight.reconcile_development \
+  --plan "$AV_ROOT/formal_plan_seed42_v2.json" \
+  --reference-score "$AV_ROOT/scores/formal_S4_seed42_full100k_v2_dev10000_seed42/summary.json" \
+  --workers 16 --slots 2 --interval 60 \
+  --recovery-directory reconciled_development_v2
+```
+
+This command must run on the plan's canonical scoring host, from a clean source. Corrected score/ego sidecars retain the original failed-state hash and are included by `summarize_live_campaign`; incompatible identities or failed scenes are rejected. It never starts a Navtest observer or retries GPU inference.
