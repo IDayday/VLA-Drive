@@ -1,0 +1,106 @@
+{
+  "schema": "navsim_optimized_trajectories_v1",
+  "release_id": "navtrain_20261004_v3",
+  "source_run_identity": "f0dbb2d10de773808a555d395aa99145e217f9e4b7a3e059d57bf008c803407e",
+  "source_artifact_hashes": {
+    "manifest.json": "0ea58341c7f6b4cdd59bf0381ca615124aafc2da6b925bc13a6becb5d88b9d23",
+    "per_scene.csv": "9af239d9bf2bd9f17ee7a75b6829ac9b103ac394778fc91690d01575eb4ccf51",
+    "trajectories.npz": "b592e6b8a8234519bfbf7277d52fee8a6853c14ba50df362519acde469ae0e90"
+  },
+  "source_summary": {
+    "complete": true,
+    "run_identity": "f0dbb2d10de773808a555d395aa99145e217f9e4b7a3e059d57bf008c803407e",
+    "expected_scenes": 103288,
+    "exported_scenes": 103288,
+    "accepted_count": 92015,
+    "changed_count": 91810,
+    "new_accepted": 33501,
+    "unverified_gt_fallbacks": 11273,
+    "accepted_geometry_failures": 0,
+    "missing_count": 0,
+    "error_count": 0,
+    "export_score": 0.9800419397132305,
+    "export_zero_rate": 0.006207707000087135,
+    "gt_score": 0.9492297897797308,
+    "gt_zero_rate": 0.039008314812103054,
+    "export_pdm_cvar": 0.9399591321079585,
+    "gt_pdm_cvar": 0.7667596575624503,
+    "export_cvar": 0.7745482289149811,
+    "gt_cvar": 0.294749472242152,
+    "validation_scope": "Retained labels preserve existing independent validation. Changed labels use paired 1024 full-scale and declared-scale probes plus 64 corners; full-dataset mixed-seed rates are descriptive, not a fresh uniform evaluation.",
+    "parent_score": 0.9779503460585284,
+    "parent_zero_rate": 0.007225530041001859,
+    "nominal_gain_points": 0.20915936547021285,
+    "recorded_zero_rate_reduction": 0.001017823040914724
+  },
+  "trajectory_file": "trajectories.npz",
+  "trajectory_sha256": "9a60f8a17c6bdfb36a4cb75ae888293d21b16cc2c21080d4691220fb16df88ec",
+  "trajectory_bytes": 19041860,
+  "compression": "ZIP_LZMA (NumPy np.load compatible)",
+  "numerical_transform": "none; original tokens, float64 poses and accepted masks preserved byte-for-byte",
+  "arrays": {
+    "tokens": {
+      "shape": [
+        103288
+      ],
+      "dtype": "<U16",
+      "sha256": "195e0559af88f8800dfe2855d79e48cd6a0e69eaeecf5da2e993f2b00be44028"
+    },
+    "trajectories": {
+      "shape": [
+        103288,
+        8,
+        3
+      ],
+      "dtype": "<f8",
+      "sha256": "50d6093a3609a85ebc6ba6c6ca0d683b22d69964931d07cce469ecd02aa2d807"
+    },
+    "accepted": {
+      "shape": [
+        103288
+      ],
+      "dtype": "|b1",
+      "sha256": "976bb26c5a354a816f7aae586431e46c7ef5d264caf3d812e67c5d49c2cd3010"
+    },
+    "acceptance_noise_scale": {
+      "shape": [
+        103288
+      ],
+      "dtype": "<f4",
+      "sha256": "e7ea3b7b1d3b2300c6ec2261a92c9ec8dc7b7bc646063c9f6ccfbfa9616434d3"
+    }
+  },
+  "frame": "ego_t0_local_rear_axle",
+  "pose_fields": [
+    "x_m",
+    "y_m",
+    "yaw_rad"
+  ],
+  "times_s": [
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    3.5,
+    4.0
+  ],
+  "split": "navtrain",
+  "scene_count": 103288,
+  "verified_scene_count": 92015,
+  "original_gt_fallback_count": 11273,
+  "accepted_geometry_failures": 0,
+  "acceptance_noise_scale_definition": {
+    "0.0": "unverified original-GT fallback",
+    "0.25": "quarter declared local noise",
+    "0.5": "half declared local noise",
+    "1.0": "standard declared local noise"
+  },
+  "verified_radius_counts": {
+    "1.0": 62546,
+    "0.25": 24910,
+    "0.5": 4559
+  },
+  "training_policy": "Join by token against your existing train split. Use accepted optimized planning targets; keep original targets for unverified fallbacks. Preserve logged ego actions for video conditioning and other original auxiliary targets."
+}
