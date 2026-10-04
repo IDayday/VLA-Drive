@@ -14,7 +14,7 @@ float64 轨迹、全部 token、顺序和验收标记与原发布版逐字节一
 ```bash
 git clone --depth 1 --single-branch \
   --branch data/navtrain-optimized-20261004-v3 \
-  git@github.com:IDayday/VLA-Drive.git navtrain-trajectories-v3
+  https://github.com/IDayday/VLA-Drive.git navtrain-trajectories-v3
 cd navtrain-trajectories-v3
 python tools/optimized_trajectories.py verify
 ```
