@@ -335,19 +335,21 @@ def render(args):
             summary=read_json(root/a/'SUMMARY.json');kind=summary['kind'];p=bases['current' if kind=='legacy_single_frame' else kind]
             intervals=summary['time_intervals_s'];time_count=len(intervals)
             for view in range(3):
-                names=('Actual future RGB','Target feature','Model feature','Static reference','Train mean','Shuffled W','Model MSE','Static MSE')
-                fig,axes=plt.subplots(len(names),time_count,figsize=(3*time_count,13),squeeze=False)
+                names=('Actual future RGB','Target feature','Model feature','Static reference','Train mean','Shuffled W','Model MSE','Static MSE','GT deviation from static','Predicted deviation from static')
+                fig,axes=plt.subplots(len(names),time_count,figsize=(3*time_count,15.5),squeeze=False)
                 error=patch_error(pack['future_pred'][view].float(),pack['future_target'][view].float(),pack['future_valid'][view])
                 se=patch_error(pack['future_static'][view].float(),pack['future_target'][view].float(),pack['future_valid'][view])
                 vmax=max(float(torch.quantile(torch.cat((error.flatten(),se.flatten())),.98)),1e-6)
+                predicted_change=patch_error(pack['future_pred'][view].float(),pack['future_static'][view].float(),pack['future_valid'][view])
+                change_vmax=max(float(torch.quantile(torch.cat((predicted_change.flatten(),se.flatten())),.98)),1e-6)
                 for t,(lo,hi) in enumerate(intervals):
                     idx=int(round(hi*2))-1;frame=clip_rows[row['index']]['frames_by_view'][view][idx]
                     picture=source_picture(frame['path']) if frame else np.zeros((288,512,3),dtype=np.uint8)
-                    values=[picture]+[display_rgb(pack[k][view,t],p) for k in ('future_target','future_pred','future_static','future_mean','future_shuffled')]+[error[t].numpy(),se[t].numpy()]
+                    values=[picture]+[display_rgb(pack[k][view,t],p) for k in ('future_target','future_pred','future_static','future_mean','future_shuffled')]+[error[t].numpy(),se[t].numpy(),se[t].numpy(),predicted_change[t].numpy()]
                     for y,value in enumerate(values):
                         if y>0 and not pack['future_valid'][view,t].any():
                             axes[y,t].text(.5,.5,'NO VALID CLIP TARGET',ha='center',va='center',fontsize=8,transform=axes[y,t].transAxes)
-                        else:axes[y,t].imshow(value,**({'cmap':'magma','vmin':0,'vmax':vmax} if y>=6 else {}),interpolation='nearest')
+                        else:axes[y,t].imshow(value,**({'cmap':'magma','vmin':0,'vmax':change_vmax if y>=8 else vmax} if y>=6 else {}),interpolation='nearest')
                         axes[y,t].set_xticks([]);axes[y,t].set_yticks([])
                         if t==0:axes[y,t].set_ylabel(names[y],fontsize=8)
                     axes[0,t].set_title(f'{lo:g}-{hi:g}s'+(' (interval end RGB)' if lo!=hi else ''),fontsize=9)
