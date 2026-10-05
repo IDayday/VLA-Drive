@@ -45,7 +45,8 @@ def main():
             if (root/'STOP_REQUESTED').exists():
                 state.update(status='PAUSED', phase=phase); atomic_json(root/'status.json', state); return
             time.sleep(10)
-        cache = str(root/('features_smoke_v1' if smoke else 'features_full_v1'))
+        cache = plan.get('smoke_cache' if smoke else 'full_cache',
+                         str(root/('features_smoke_v1' if smoke else 'features_full_v1')))
         is_cache = phase.startswith('cache')
         module = 'tools.recogdrive_stage2.cache_stage1' if is_cache else 'tools.recogdrive_stage2.train'
         common = ['-m', module, '--official-source', plan['official_source'],

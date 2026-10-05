@@ -16,6 +16,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 from .assets import atomic_json, check_official, digest, read
+from .compatibility import install_annotation_compatibility
 
 
 class IdentifiedCacheDataset(Dataset):
@@ -53,6 +54,7 @@ def main():
     a = p.parse_args()
     source = check_official(a.official_source, a.official_revision)
     sys.path.insert(0, str(source))
+    compatibility = install_annotation_compatibility(source)
     from hydra import compose, initialize_config_dir
     from hydra.utils import instantiate
     from omegaconf import OmegaConf
@@ -107,6 +109,7 @@ def main():
         world_size=world, seed=int(cfg.seed), epochs=200, per_gpu_batch=int(cfg.dataloader.params.batch_size),
         global_batch=world * int(cfg.dataloader.params.batch_size),
         precision=cfg.trainer.params.precision, tf32=False,
+        compatibility=compatibility,
         gpu_hours_limit=a.gpu_hours_limit,
         architecture=vars(agent.action_head.config),
         data_counts=data['identity']['counts'], split_adjustment=data['identity']['split_adjustment'])
