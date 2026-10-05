@@ -92,9 +92,20 @@ def main():
                 if not accepted and not np.allclose(labels['trajectories'][i], target, atol=2e-5):
                     raise ValueError('Optimized fallback does not equal recorded physical trajectory')
                 target = labels['trajectories'][i]
-            image = Path(a.sensors) / frames[index]['cams']['CAM_F0']['data_path']
+            raw_image = frames[index]['cams']['CAM_F0']['data_path']
+            image = Path(a.sensors) / raw_image
+            if not image.is_file():
+                # Existing complete current-image indexes may span several
+                # physical sensor copies. Reuse only a path to the exact raw
+                # front frame, never a preprocessed image or model output.
+                current_root = Path(a.dev_data if log in dev_logs else a.train_data)
+                current = read(current_root / 'current' / (token + '.json'))
+                alternate = Path(current['image_paths'][0])
+                if not str(alternate).endswith('/' + raw_image):
+                    raise ValueError('Current index and raw front-camera identity disagree ' + token)
+                image = alternate
             if not image.is_file() or not np.isfinite(target).all():
-                raise ValueError('Missing current image or illegal trajectory')
+                raise ValueError('Missing current image or illegal trajectory ' + token + ' ' + str(image))
             rows.append(dict(token=token, log=log, split=split, image=str(image),
                 history=[status.ego_pose.tolist() for status in agent.ego_statuses],
                 command=np.asarray(now.driving_command).tolist(), velocity=now.ego_velocity.tolist(),
