@@ -35,7 +35,7 @@ def complete_targets(root, expected_identity, scenes):
                (root/f'chunk_{i:06d}.safetensors').exists() for i in range(done['chunks']))
 
 
-def ready_gpus(cards, pressure_script):
+def ready_gpus(cards, pressure_script, registered_co_residents=()):
     # Auto-yielding pressure is allowed to remain; every other compute PID blocks.
     rows = subprocess.check_output(['nvidia-smi', '--query-gpu=index,uuid,memory.free',
                                     '--format=csv,noheader,nounits'], text=True)
@@ -60,6 +60,14 @@ def ready_gpus(cards, pressure_script):
         except FileNotFoundError:
             # A driver PID outside our namespace is not evidence of an idle GPU.
             return False
+        co_resident = next((x for x in registered_co_residents if x['pid'] == int(pid)), None)
+        if co_resident is not None:
+            import hashlib
+            if (proc.stat().st_uid == co_resident['uid'] and
+                    hashlib.sha256((proc/'cmdline').read_bytes()).hexdigest() == co_resident['cmdline_sha256']):
+                # An explicitly identified, low-memory job may share a GPU. Never
+                # signal it or allow an unrelated replacement process through.
+                continue
         if not is_yielding_pressure:
             return False
     return True
@@ -140,7 +148,7 @@ def main():
             for model in prior['models']:
                 if model['hostname']==socket.gethostname():
                     release_owned_pressure(prior,model,out,reason='Explicit new five-host training authorization; verified owned pressure only')
-        while not ready_gpus(spec['gpus'],plan['auto_yield_pressure_script']):
+        while not ready_gpus(spec['gpus'],plan['auto_yield_pressure_script'],spec.get('registered_co_residents', ())):
             if stopped():
                 state['status']='PAUSED';event('STOP_BEFORE_TRAINING');return
             time.sleep(10)
