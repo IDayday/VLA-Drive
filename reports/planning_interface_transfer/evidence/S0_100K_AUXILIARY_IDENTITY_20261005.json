@@ -1,0 +1,56 @@
+{
+  "change_rule": {
+    "definition": "channel mean squared LN(future)-LN(static current); valid views/positions only",
+    "high_threshold": 0.6807447075843811,
+    "low_threshold": 0.1463455855846405,
+    "quantiles": [
+      0.25,
+      0.75
+    ],
+    "scenes": 4096,
+    "schema": "training_static_change_quartiles_v1",
+    "static_identity": "c65cc2d589d573b5fa11fbd6581ce4eba9dec49cd0778c453d78e169134bb966",
+    "target_identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+    "target_type": "dino_sequence",
+    "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+    "valid_patches": 10533888
+  },
+  "checkpoint": {
+    "arm": "C1",
+    "completed": 100000,
+    "files": {
+      "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "577aff837cea143748e623f2a08bde56c4216b2c7a699a4bb33333b06446e534",
+      "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "2534bfc45436c604b6bc74a5cee0db6887ad2033d8eaaa3b16a065ea7d8775e5",
+      "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "0c979bb79b29eb0a613001629a92cd839ccf9320bc2e0fa0796218d1ddbd97ff",
+      "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "09604116a9a1faa7fb2cb746a44cdb2aa1d97bc117fc104b39b8056dc4ae90e4",
+      "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "44a579a7f353efc34cc22cb7759fb1cf7c69f31a429fd9f0ff8360d900737009",
+      "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "a8e08e552a52541d274dc4a172712ebc8a5232a23398256bdf0e1cb0803c4968",
+      "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "d91637cea182a6aa99bda688559fc1f05fc81a52adf26efc6c15f00677a6f36e",
+      "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "59e86b26ff3a2ea2e01a11cb2898f13f933ffee3451df535e7b7966cee2b4f7f",
+      "mp_rank_00_model_states.pt": "31bc341c240aff9bf8b2c6a921cc225a581929ce9f3b0cd0d6896b87a21b039b",
+      "rng_rank0.pt": "f48002f65d4cd7c8a8555808ba83a1d531be5ef11d06b66c7f4131c79cc6393d",
+      "rng_rank1.pt": "8d874e589511c3346831374088a375e48cd9b69aab4225b89e8b1a0e6b37a619",
+      "rng_rank2.pt": "d5d52d1ca4e22ac40620af3a2d336091320c83f3f2f8105f42a0eb408700a265",
+      "rng_rank3.pt": "08c593ba3ddb68b3ccf07104429765eb6e7953d13fac78364d784afe25a676b2",
+      "rng_rank4.pt": "d56cff6fb5c7c7bd5112cf9bd8bd8c560b708b529ce04244f227029c64412704",
+      "rng_rank5.pt": "c92607d6eb770885a4c0b24618f1386aba8738af3130b79e0d84d3a03dfc1cc7",
+      "rng_rank6.pt": "a2868b94f9af6348df4ee54a871b9255db3bd4ffe2d0f61a4675555828242e3d",
+      "rng_rank7.pt": "d36657dbb55247ce21d40c61db126f63be4eafd84fa737fce7703b8f7acff5a4"
+    },
+    "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight",
+    "run_identity": "8dd7d914f10559b0fbfc9593ee1f480a8bb2da80cccb53cba0d684a468e209cd",
+    "scope": "formal",
+    "sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+    "tag": "milestone_100000",
+    "training_seed": 42,
+    "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+  },
+  "dev_queries": "1b45819cc3c023495c6700ccb1885a4f0bd889ecdfc9409728f20f1d8156017b",
+  "evaluation_source": "334dc2521f44fd677110e7ec4b63e84fffe98b74",
+  "main_optimizer_updates": 0,
+  "precision": "FP32 master / FP32 compute / TF32 off",
+  "predicted_current_reference": "C1 h0 prediction resampled bilinearly6x8 to9x12; diagnostic only; teacher copy-current uses native384x288 encoding",
+  "template_sha256": "13ec06f8fdb847cf7f16057c7706c6e06f07583e5fbfc37e77904a7d6d003f25",
+  "train_queries": "8991153797721d7ae943574256138f3da7f30cacbda1367d6439397705f52066",
+  "training_source": "1493deda247107efe076b9294863a6753391298a"
+}

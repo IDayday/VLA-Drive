@@ -1,0 +1,410 @@
+{
+  "conditioning_attention": null,
+  "configuration": {
+    "ablation": "FULL",
+    "arm": "C1",
+    "auxiliary_warmup": 1000,
+    "candidate": "C1",
+    "clip_times_s": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "current_horizon_s": 0.0,
+    "dino_feature_dim": 1024,
+    "dino_height": 6,
+    "dino_width": 8,
+    "enable_current_dino": true,
+    "enable_future_dino": true,
+    "enable_interaction": true,
+    "full_algorithm": true,
+    "future_action_condition": "none",
+    "future_action_injection": "memory_only",
+    "future_action_query_scale": 1.0,
+    "future_feature_dim": 1024,
+    "future_grid_height": 9,
+    "future_grid_width": 12,
+    "future_horizons_s": [
+      1.0,
+      2.0,
+      4.0
+    ],
+    "future_normalization": "nonaffine_layernorm_per_token_v1",
+    "future_target_type": "dino_sequence",
+    "future_time_intervals_s": [
+      [
+        0.5,
+        0.5
+      ],
+      [
+        1.0,
+        1.0
+      ],
+      [
+        1.5,
+        1.5
+      ],
+      [
+        2.0,
+        2.0
+      ],
+      [
+        2.5,
+        2.5
+      ],
+      [
+        3.0,
+        3.0
+      ],
+      [
+        3.5,
+        3.5
+      ],
+      [
+        4.0,
+        4.0
+      ]
+    ],
+    "interaction_functional_loss": "disabled",
+    "interaction_readout_source": "action",
+    "lambda_cur": 1.0,
+    "lambda_fut": 1.1549543539882532,
+    "lambda_int": 0.8328945981862067,
+    "num_queries": 144,
+    "planner_condition_mode": "action_only",
+    "readout_dim": 512,
+    "readout_layers": 2,
+    "video_teacher_identity": "be37540459788d75d25ed53fa1faa2fb1764cb682201a5437cf24642bdd9c4d4"
+  },
+  "deployment_stripping_exact": true,
+  "gradient_samples": [
+    {
+      "angles": {
+        "current_dino__future_clip": {
+          "Qwen_layer0": -0.5514458417892456,
+          "W_input": -0.5180059671401978
+        },
+        "ego_fm__current_dino": {
+          "Qwen_layer0": -0.8674502968788147,
+          "W_input": -0.8714128136634827
+        },
+        "ego_fm__future_clip": {
+          "Qwen_layer0": 0.6461712121963501,
+          "W_input": 0.6198615431785583
+        },
+        "ego_fm__interaction": {
+          "Qwen_layer0": 0.06543473899364471,
+          "W_input": 0.1039595901966095
+        },
+        "interaction__current_dino": {
+          "Qwen_layer0": -0.09348203986883163,
+          "W_input": -0.0888940766453743
+        },
+        "interaction__future_clip": {
+          "Qwen_layer0": 0.04650412127375603,
+          "W_input": 0.0695032849907875
+        }
+      },
+      "gradients": {
+        "current_dino": {
+          "norms": {
+            "Qwen_layer0": 0.6697782278060913,
+            "W_input": 1.1408958435058594,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.0005620603915303946,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 0.5165354013442993
+        },
+        "ego_fm": {
+          "norms": {
+            "Qwen_layer0": 4.410871505737305,
+            "W_input": 7.071960926055908,
+            "action_decoder": 6.211419105529785,
+            "final_H_A": 0.010760016739368439,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 1.5611413717269897
+        },
+        "future_clip": {
+          "norms": {
+            "Qwen_layer0": 0.20153431594371796,
+            "W_input": 0.36156511306762695,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.0005377382622100413,
+            "future_output": 1.2221378087997437,
+            "interaction_output": null
+          },
+          "weighted_loss": 2.3074982166290283
+        },
+        "interaction": {
+          "norms": {
+            "Qwen_layer0": 0.30144304037094116,
+            "W_input": 0.4696163237094879,
+            "action_decoder": null,
+            "final_H_A": 0.004063064232468605,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": 1.412972092628479
+          },
+          "weighted_loss": 1.676322340965271
+        }
+      },
+      "index": 3
+    },
+    {
+      "angles": {
+        "current_dino__future_clip": {
+          "Qwen_layer0": -0.27940884232521057,
+          "W_input": -0.2348904311656952
+        },
+        "ego_fm__current_dino": {
+          "Qwen_layer0": 0.008387938141822815,
+          "W_input": 0.07551871240139008
+        },
+        "ego_fm__future_clip": {
+          "Qwen_layer0": -0.1060633659362793,
+          "W_input": -0.12365511804819107
+        },
+        "ego_fm__interaction": {
+          "Qwen_layer0": -0.10609261691570282,
+          "W_input": -0.03655615821480751
+        },
+        "interaction__current_dino": {
+          "Qwen_layer0": -0.06686587631702423,
+          "W_input": -0.08053706586360931
+        },
+        "interaction__future_clip": {
+          "Qwen_layer0": -0.13182365894317627,
+          "W_input": -0.15191420912742615
+        }
+      },
+      "gradients": {
+        "current_dino": {
+          "norms": {
+            "Qwen_layer0": 0.24222348630428314,
+            "W_input": 0.5011938810348511,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.000565610418561846,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 0.5221899747848511
+        },
+        "ego_fm": {
+          "norms": {
+            "Qwen_layer0": 1.2159349918365479,
+            "W_input": 1.6599113941192627,
+            "action_decoder": 6.249619483947754,
+            "final_H_A": 0.010551855899393559,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 1.3741329908370972
+        },
+        "future_clip": {
+          "norms": {
+            "Qwen_layer0": 0.16651690006256104,
+            "W_input": 0.3275684416294098,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.0005621289019472897,
+            "future_output": 1.2592934370040894,
+            "interaction_output": null
+          },
+          "weighted_loss": 2.2969889640808105
+        },
+        "interaction": {
+          "norms": {
+            "Qwen_layer0": 0.3558644652366638,
+            "W_input": 0.5361646413803101,
+            "action_decoder": null,
+            "final_H_A": 0.004103327170014381,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": 1.4463952779769897
+          },
+          "weighted_loss": 1.6806154251098633
+        }
+      },
+      "index": 6
+    },
+    {
+      "angles": {
+        "current_dino__future_clip": {
+          "Qwen_layer0": -0.6980872750282288,
+          "W_input": -0.5083650946617126
+        },
+        "ego_fm__current_dino": {
+          "Qwen_layer0": 0.179435133934021,
+          "W_input": 0.21334849298000336
+        },
+        "ego_fm__future_clip": {
+          "Qwen_layer0": -0.19969461858272552,
+          "W_input": -0.22203411161899567
+        },
+        "ego_fm__interaction": {
+          "Qwen_layer0": 0.47318994998931885,
+          "W_input": 0.4558108448982239
+        },
+        "interaction__current_dino": {
+          "Qwen_layer0": 0.538878321647644,
+          "W_input": 0.3920573592185974
+        },
+        "interaction__future_clip": {
+          "Qwen_layer0": -0.5352296233177185,
+          "W_input": -0.47686710953712463
+        }
+      },
+      "gradients": {
+        "current_dino": {
+          "norms": {
+            "Qwen_layer0": 0.22972248494625092,
+            "W_input": 0.4721369445323944,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.0005588468629866838,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 0.5209997892379761
+        },
+        "ego_fm": {
+          "norms": {
+            "Qwen_layer0": 1.5918411016464233,
+            "W_input": 2.4036777019500732,
+            "action_decoder": 5.792979717254639,
+            "final_H_A": 0.009699960239231586,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 1.407357931137085
+        },
+        "future_clip": {
+          "norms": {
+            "Qwen_layer0": 0.16062834858894348,
+            "W_input": 0.28739508986473083,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.000497500179335475,
+            "future_output": 1.1837599277496338,
+            "interaction_output": null
+          },
+          "weighted_loss": 2.293661594390869
+        },
+        "interaction": {
+          "norms": {
+            "Qwen_layer0": 0.5529153347015381,
+            "W_input": 0.8582197427749634,
+            "action_decoder": null,
+            "final_H_A": 0.004342861473560333,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": 1.477266550064087
+          },
+          "weighted_loss": 1.6561470031738281
+        }
+      },
+      "index": 7
+    },
+    {
+      "angles": {
+        "current_dino__future_clip": {
+          "Qwen_layer0": -0.1995888352394104,
+          "W_input": -0.24210402369499207
+        },
+        "ego_fm__current_dino": {
+          "Qwen_layer0": 0.051539063453674316,
+          "W_input": 0.10786991566419601
+        },
+        "ego_fm__future_clip": {
+          "Qwen_layer0": -0.1740085333585739,
+          "W_input": -0.14156240224838257
+        },
+        "ego_fm__interaction": {
+          "Qwen_layer0": 0.20816312730312347,
+          "W_input": 0.3909473419189453
+        },
+        "interaction__current_dino": {
+          "Qwen_layer0": 0.06584008038043976,
+          "W_input": 0.08506669849157333
+        },
+        "interaction__future_clip": {
+          "Qwen_layer0": -0.13423468172550201,
+          "W_input": -0.06571277230978012
+        }
+      },
+      "gradients": {
+        "current_dino": {
+          "norms": {
+            "Qwen_layer0": 0.17018559575080872,
+            "W_input": 0.43882688879966736,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.0005706726224161685,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 0.516727864742279
+        },
+        "ego_fm": {
+          "norms": {
+            "Qwen_layer0": 1.057253360748291,
+            "W_input": 1.651936650276184,
+            "action_decoder": 6.137851715087891,
+            "final_H_A": 0.010250229388475418,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": null
+          },
+          "weighted_loss": 1.3620712757110596
+        },
+        "future_clip": {
+          "norms": {
+            "Qwen_layer0": 0.12409947067499161,
+            "W_input": 0.2562946379184723,
+            "action_decoder": null,
+            "final_H_A": null,
+            "final_W": 0.0005550861242227256,
+            "future_output": 1.2399866580963135,
+            "interaction_output": null
+          },
+          "weighted_loss": 2.3108298778533936
+        },
+        "interaction": {
+          "norms": {
+            "Qwen_layer0": 0.36859703063964844,
+            "W_input": 0.5793188214302063,
+            "action_decoder": null,
+            "final_H_A": 0.0040541235357522964,
+            "final_W": null,
+            "future_output": null,
+            "interaction_output": 1.464807391166687
+          },
+          "weighted_loss": 1.6979115009307861
+        }
+      },
+      "index": 8
+    }
+  ],
+  "no_GT_leak": true,
+  "passed": true,
+  "peak_allocated": 17476048384,
+  "precision": "existing BF16 forward/FP32 gradient diagnostic, TF32 off",
+  "real_optimizer_updates": 0,
+  "source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+  "training_samples": 4
+}

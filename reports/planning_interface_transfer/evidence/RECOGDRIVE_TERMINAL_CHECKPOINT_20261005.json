@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "checkpoint": "/mnt/project/recogdrive-stage2-optimized-artifacts/20261005/campaign_16gpu_v6/stage2_smoke_v1/checkpoints/final.ckpt",
+  "training_source": "8160b510fe2422587cd1409efb0e0a9cc0fabadd",
+  "trainer_global_step": 20,
+  "actual_adam_steps": [
+    16
+  ],
+  "scene_exposure": 5120,
+  "official_frozen_boundary_values": {
+    "agent.action_head.eta.eta_logit": {
+      "nan": 0,
+      "positive_inf": 1,
+      "negative_inf": 0
+    }
+  },
+  "all_other_state_values_finite": true,
+  "terminal_progress_matches_checkpoint": true,
+  "explanation": "Official frozen eta=1 uses +inf followed by tanh=1. No NaN. Final complete state matches logged optimizer and exposure boundary. Smoke is never a formal initializer.",
+  "checked_unix": 1791228226.8195858
+}
