@@ -6,6 +6,7 @@ Use the original complete canonical score CSVs, not rounded chat summaries.
 import argparse
 import csv
 from datetime import datetime, timezone
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -17,6 +18,26 @@ from tools.local_interaction_mask_v2.compare_pdms import read as read_scenes
 FACTORS = {'NC':'no_at_fault_collisions','DAC':'drivable_area_compliance',
            'TTC':'time_to_collision_within_bound','EP':'ego_progress','Comfort':'comfort'}
 ARMS = ['C0','C1','C4','S0','S1','S2','S3','S4']
+
+
+def public_id(kind, split, value):
+    """Stable anonymous joins; publish metric rows without raw scene/log names."""
+    return hashlib.sha256(f'cs-planning-results-v1:{kind}:{split}:{value}'.encode()).hexdigest()[:24]
+
+
+def endpoint_ego(result, arm, checkpoint):
+    """C and S job schemas differ; bind both to the actual scored checkpoint."""
+    if (result['status'] != 'COMPLETE' or result['arm'] != arm
+            or result['update'] != checkpoint['completed']
+            or result['checkpoint']['sha256'] != checkpoint['sha256']):
+        raise ValueError('Endpoint ego result/checkpoint identity mismatch')
+    ego = result['ego_fit'] if arm.startswith('C') else result['ego']
+    if not ego['valid'] or ego['failed'] or ego['scenes'] != 12146:
+        raise ValueError('Endpoint ego result must retain the complete Navtest population')
+    fields = {'ADE_m':'ADE', 'FDE_m':'FDE', 'yaw_MAE_rad':'yaw_MAE_rad'}
+    if any(not math.isfinite(ego[k]) or ego[k] < 0 for k in fields.values()):
+        raise ValueError('Invalid endpoint ego metric')
+    return {name:ego[key] for name,key in fields.items()}
 
 
 def main():
@@ -107,14 +128,51 @@ def main():
     comparisons={}
     pairs=[('C1','C0',100000),('C4','C1',100000),('C4','C0',100000),
            ('S1','S0',50000),('S3','S2',50000),('S2','S0',50000),('S3','S1',50000),('S4','S3',50000)]
+    pairs += [(first,base,100000) for first,base in
+              [('S1','S0'),('S3','S2'),('S2','S0'),('S3','S1'),('S4','S3'),
+               ('S0','C1'),('S3','C1'),('S4','C1')]]
+    missing_comparisons={}
     for split in ('navtest','dev'):
         for first,baseline,step in pairs:
-            report,_,_=paired_difference(populations[(split,first,step)],populations[(split,baseline,step)])
-            comparisons[f'{split}_{first}-{baseline}_{step}']=report
+            name=f'{split}_{first}-{baseline}_{step}'
+            if (split,first,step) not in populations or (split,baseline,step) not in populations:
+                missing_comparisons[name]='NOT_RUN';continue
+            report,_,logs=paired_difference(populations[(split,first,step)],populations[(split,baseline,step)])
+            comparisons[name]=report
+            if step == 100000:
+                write_csv(out/(name+'_logs.csv'),
+                          [dict(row,log=public_id('log',split,row['log'])) for row in logs])
     atomic(out/'PAIRED_COMPARISONS.json',comparisons)
+    atomic(out/'MISSING_COMPARISONS.json',missing_comparisons)
+    endpoints=[]
+    for arm in ARMS:
+        navkey=('navtest',arm,100000);devkey=('dev',arm,100000)
+        if navkey not in rows or devkey not in rows:continue
+        nav=rows[navkey];summary=read(nav['score_summary'])
+        ego=endpoint_ego(read(Path(nav['score_summary']).parent.parent/'result.json'),
+                         arm,summary['export_identity']['checkpoint'])
+        endpoints.append(dict(nav,**ego,dev_PDMS=rows[devkey]['PDMS'],
+                              dev_zero_scenes=rows[devkey]['zero_scenes']))
+    if endpoints:write_csv(out/'ENDPOINT_100K.csv',endpoints)
+    if len(endpoints) == len(ARMS):
+        for split in ('dev','navtest'):
+            by_arm={arm:{r['token']:r for r in populations[(split,arm,100000)]} for arm in ARMS}
+            tokens=sorted(by_arm[ARMS[0]])
+            if len({public_id('scene',split,t) for t in tokens}) != len(tokens):
+                raise ValueError('Anonymous scene ID collision')
+            logs={by_arm[ARMS[0]][t]['log'] for t in tokens}
+            if len({public_id('log',split,log) for log in logs}) != len(logs):
+                raise ValueError('Anonymous log ID collision')
+            write_csv(out/(split.upper()+'_100K_SCENE_PDMS.csv'),[
+                dict(scene_id=public_id('scene',split,t),
+                     log_id=public_id('log',split,by_arm[ARMS[0]][t]['log']),
+                     **{arm:100*by_arm[arm][t]['score'] for arm in ARMS}) for t in tokens])
     atomic(out/'IDENTITY.json',dict(created_utc=datetime.now(timezone.utc).isoformat(),
         score_contracts=contracts,source_summaries={r['score_summary']:r['summary_sha256'] for r in ordered},
         complete_evaluations=len(rows),navtest_evaluations=sum(r['split']=='navtest' for r in ordered),
+        development_evaluations=sum(r['split']=='dev' for r in ordered),
+        complete_100k_endpoints=len(endpoints),missing_comparisons=missing_comparisons,
+        public_identifiers='SHA256 cs-planning-results-v1:kind:split:value; first24hex; raw identifiers not published',
         failed_scenes=sum(r['failed'] for r in ordered),script_sha256=sha(__file__),
         new_optimizer_updates=0,new_model_inference=0,
         limitations='One training seed and one sampling seed. Different checkpoints/series are not equal-exposure causal ablations. Repeated Navtest observations are not a blind final test.'))
