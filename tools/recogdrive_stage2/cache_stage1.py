@@ -14,6 +14,7 @@ def main():
     for name in ('official-source', 'official-revision', 'manifest', 'output'):
         p.add_argument('--' + name, required=True)
     p.add_argument('--limit', type=int, default=0)
+    p.add_argument('--max-seconds', type=float)
     a = p.parse_args()
     source = check_official(a.official_source, a.official_revision)
     sys.path.insert(0, str(source))
@@ -48,6 +49,11 @@ def main():
     atomic_json(ident, signature)
     done, total_bytes, begin = 0, 0, time.time()
     for row in rows[rank::world]:
+        if ((root / 'STOP_REQUESTED').exists() or
+                (a.max_seconds is not None and time.time() - begin >= a.max_seconds)):
+            atomic_json(root / f'progress_rank{rank:02d}.json', dict(status='PAUSED', completed=done,
+                bytes=total_bytes, seconds=time.time()-begin, real_optimizer_updates=0))
+            return
         dest = root / row['token'][:2] / (row['token'] + '.pt')
         if dest.exists():
             item = torch.load(dest, map_location='cpu', weights_only=True)

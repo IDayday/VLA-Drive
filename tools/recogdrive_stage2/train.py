@@ -99,6 +99,7 @@ def main():
         raise ValueError('Stage2 must have cached fixed Stage1 and random imitation-learning planner')
     module = AgentLightningModule(agent)
     identity = dict(schema='official_recogdrive_stage2_optimized_16gpu_v1',
+        scope='pipeline_smoke' if a.smoke_steps else 'formal', smoke_steps=a.smoke_steps,
         official_revision=a.official_revision, training_source=__import__('subprocess').check_output(
             ['git', 'rev-parse', 'HEAD'], text=True).strip(), manifest_sha256=data['manifest_sha256'],
         stage1=data['identity']['stage1'], optimized_labels=data['identity']['optimized_labels']['identity'],
