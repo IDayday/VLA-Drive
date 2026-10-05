@@ -1,6 +1,7 @@
 import hashlib
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -27,6 +28,13 @@ def atomic_json(path, value):
 def check_official(source, revision):
     source = Path(source)
     actual = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source, text=True).strip()
-    if actual != revision or subprocess.check_output(['git', 'status', '--porcelain'], cwd=source).strip():
+    status = subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=all'],
+                                     cwd=source, text=True).splitlines()
+    changed = [line for line in status if not (line.startswith('?? ') and
+               '/__pycache__/' in line and line.endswith('.pyc'))]
+    # Python bytecode generated during a read-only check is not source. No .py
+    # additions or tracked edits are allowed; prevent further bytecode writes.
+    sys.dont_write_bytecode = True
+    if actual != revision or changed:
         raise ValueError('Official source must be clean and match the registered revision')
     return source
