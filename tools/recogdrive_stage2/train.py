@@ -110,7 +110,6 @@ def main():
         global_batch=world * int(cfg.dataloader.params.batch_size),
         precision=cfg.trainer.params.precision, tf32=False,
         compatibility=compatibility,
-        gpu_hours_limit=a.gpu_hours_limit,
         architecture=vars(agent.action_head.config),
         data_counts=data['identity']['counts'], split_adjustment=data['identity']['split_adjustment'])
     # Exact official configuration is stored without the 100k-entry scene-filter token list.
@@ -123,6 +122,8 @@ def main():
     if rank == 0:
         atomic_json(output / 'identity.json', identity)
         atomic_json(output / 'resolved_official_config.json', resolved)
+        atomic_json(output / ('resources_attempt_' + str(time.time_ns()) + '.json'),
+                    dict(gpu_hours_limit=a.gpu_hours_limit, resume=a.resume, world_size=world))
     train = IdentifiedCacheDataset(data, a.cache, 'train')
     val = IdentifiedCacheDataset(data, a.cache, 'val')
     if a.smoke_steps:
@@ -135,21 +136,34 @@ def main():
     val_loader = DataLoader(val, collate_fn=custom_collate_fn, **cfg.dataloader.params, shuffle=False)
 
     class Progress(pl.Callback):
+        def __init__(self):
+            self.exposure = 0
+
         def on_train_batch_end(self, trainer, module, outputs, batch, batch_idx):
+            exhausted = a.gpu_hours_limit is not None and world * (time.time() - begin) / 3600 >= a.gpu_hours_limit
+            local_count = len(batch[2])
+            totals = torch.tensor([int(stopping[0] or exhausted or (output / 'STOP_REQUESTED').exists()),
+                                   local_count], device='cuda', dtype=torch.long)
+            torch.distributed.all_reduce(totals, op=torch.distributed.ReduceOp.SUM)
+            self.exposure += int(totals[1])
             if trainer.is_global_zero and (trainer.global_step == 1 or trainer.global_step % 20 == 0):
-                atomic_json(output / 'status.json', dict(status='TRAINING', update=trainer.global_step,
+                steps = sorted({int(v['step']) for v in trainer.optimizers[0].state.values() if 'step' in v})
+                record = dict(status='TRAINING', trainer_global_step=trainer.global_step,
+                    optimizer_steps=steps, scene_exposure=self.exposure,
                     epoch=trainer.current_epoch, train_scenes=len(train), val_scenes=len(val), world_size=world,
                     epoch_batch=batch_idx, loss=float(outputs['loss'].detach()),
-                    peak_allocated=torch.cuda.max_memory_allocated(), timestamp=time.time()))
-            exhausted = a.gpu_hours_limit is not None and world * (time.time() - begin) / 3600 >= a.gpu_hours_limit
-            stop = torch.tensor(int(stopping[0] or exhausted or (output / 'STOP_REQUESTED').exists()), device='cuda')
-            torch.distributed.all_reduce(stop, op=torch.distributed.ReduceOp.MAX)
-            if stop.item():
+                    amp_scale=trainer.precision_plugin.scaler.get_scale(),
+                    peak_allocated=torch.cuda.max_memory_allocated(), timestamp=time.time())
+                atomic_json(output / 'status.json', record)
+                with (output / 'steps.jsonl').open('a') as stream:
+                    stream.write(__import__('json').dumps(record) + '\n')
+            if totals[0].item():
                 trainer.save_checkpoint(output / 'checkpoints' / 'paused.ckpt')
                 trainer.should_stop = True
                 stopping[0] = True
         def on_save_checkpoint(self, trainer, module, checkpoint):
             checkpoint['recogdrive_identity'] = identity
+            checkpoint['recogdrive_scene_exposure'] = self.exposure
             rng = dict(python=random.getstate(), numpy=np.random.get_state(),
                        torch=torch.get_rng_state(), cuda=torch.cuda.get_rng_state())
             states = [None] * world
@@ -158,13 +172,16 @@ def main():
         def on_load_checkpoint(self, trainer, module, checkpoint):
             if checkpoint.get('recogdrive_identity') != identity:
                 raise ValueError('Checkpoint protocol/target/source mismatch')
+            self.exposure = checkpoint['recogdrive_scene_exposure']
             rng = checkpoint['recogdrive_rng_by_rank'][rank]
             random.setstate(rng['python']); np.random.set_state(rng['numpy'])
             torch.set_rng_state(rng['torch'].cpu()); torch.cuda.set_rng_state(rng['cuda'].cpu())
         def on_train_end(self, trainer, module):
             if trainer.is_global_zero:
+                steps = sorted({int(v['step']) for v in trainer.optimizers[0].state.values() if 'step' in v})
                 atomic_json(output / 'status.json', dict(status='PAUSED' if stopping[0] else 'COMPLETE',
-                    updates=trainer.global_step, epochs=trainer.current_epoch,
+                    trainer_global_step=trainer.global_step, optimizer_steps=steps,
+                    scene_exposure=self.exposure, epochs=trainer.current_epoch,
                     gpu_hours=world * (time.time()-begin) / 3600, timestamp=time.time()))
     checkpoint = pl.callbacks.ModelCheckpoint(dirpath=output / 'checkpoints', monitor='val/loss_epoch',
         mode='min', save_top_k=5, every_n_epochs=1, save_last=True)

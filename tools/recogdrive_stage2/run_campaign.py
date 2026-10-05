@@ -48,6 +48,23 @@ def main():
         cache = plan.get('smoke_cache' if smoke else 'full_cache',
                          str(root/('features_smoke_v1' if smoke else 'features_full_v1')))
         is_cache = phase.startswith('cache')
+        if phase=='cache_full' and plan.get('reuse_full_cache_campaign'):
+            previous=Path(plan['reuse_full_cache_campaign'])
+            state.update(status='WAITING_EXISTING_CACHE',phase=phase)
+            atomic_json(root/'status.json',state)
+            while not (previous/'cache_full_COMPLETE.json').exists():
+                progress=read(previous/'status.json')
+                if progress['status']=='FAILED':
+                    state.update(status='FAILED',reason='Existing extraction failed; preserve its partial labels')
+                    atomic_json(root/'status.json',state);return
+                if (root/'STOP_REQUESTED').exists():
+                    state.update(status='PAUSED');atomic_json(root/'status.json',state);return
+                time.sleep(10)
+            inherited=read(previous/'cache_full_COMPLETE.json')['costs']
+            costs.append(dict(inherited,reused_once_from=str(previous)))
+            atomic_json(root/'costs.json',costs)
+            atomic_json(root/'cache_full_COMPLETE.json',dict(identity=identity,costs=costs[-1]))
+            continue
         module = 'tools.recogdrive_stage2.cache_stage1' if is_cache else 'tools.recogdrive_stage2.train'
         common = ['-m', module, '--official-source', plan['official_source'],
                   '--official-revision', plan['official_revision'], '--manifest', manifest]
@@ -59,7 +76,7 @@ def main():
             output = str(root/('stage2_smoke_v1' if smoke else 'stage2_formal_v1'))
             common += ['--cache', cache, '--output', output, '--gpu-hours-limit', str(remaining)]
             if smoke:
-                common += ['--smoke-steps', '2']
+                common += ['--smoke-steps', str(plan.get('smoke_steps',2))]
             elif a.resume_phase == 'train_full':
                 ckpt = Path(output)/'checkpoints/paused.ckpt'
                 if not ckpt.exists():

@@ -8,12 +8,17 @@ from starVLA.dataloader.action_video_foresight_dataset import ActionVideoForesig
 from starVLA.dataloader.foresight_dataset import collate_training,decode_ego
 from tools.ddpolicy_vehicle.prepare_data import atomic_json
 from tools.ddpolicy_vehicle.run_meter import metered_run
+from tools.foresight.checkpoints import checkpoint_identity,load_student
 
 
 def main():
     p=argparse.ArgumentParser(__doc__)
     for k in ('config','data','dino-root','dino-index','interaction-root','clip-root','campaign-root','run-id','output'):p.add_argument('--'+k,required=True)
-    p.add_argument('--samples',type=int,default=4);a=p.parse_args()
+    p.add_argument('--samples',type=int,default=4)
+    p.add_argument('--checkpoint-run',help='Frozen endpoint for read-only gradient diagnostics')
+    p.add_argument('--checkpoint-tag',default='milestone_100000')
+    p.add_argument('--query-list',help='Fixed training diagnostic population')
+    a=p.parse_args()
     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze source')
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
     cfg=OmegaConf.load(a.config)
@@ -25,7 +30,12 @@ def main():
        expected_teacher=cfg.foresight.video_teacher_identity,allow_partial=False)
     if ds.identity['split']!='train':raise ValueError('Validation uses training data only')
     with metered_run(a.campaign_root,a.run_id,1,{'kind':'real_interface_gradient_check','real_optimizer_updates':0}) as (meter,_,save):
-        model=build_framework(cfg).cuda().eval();fc=model.foresight_config;records=[]
+        endpoint=None
+        if a.checkpoint_run:
+            identity,endpoint=checkpoint_identity(a.checkpoint_run,a.checkpoint_tag)
+            model=load_student(a.checkpoint_run,a.checkpoint_tag,identity,precision='fp32',strip=False)
+        else:model=build_framework(cfg).cuda().eval()
+        fc=model.foresight_config;records=[]
         original=model.encode_current;captured=[]
         def encode(obs):
             z=original(obs);captured.append(z);return z
@@ -35,7 +45,11 @@ def main():
         named={'W_input':model.foresight_queries,'Qwen_layer0':q,
           'action_decoder':model.action_model.action_decoder.layer2.weight,
           'future_output':model.spatiotemporal_head.output.weight,'interaction_output':model.interaction_head.output.weight}
-        for i in range(64):
+        if a.query_list:
+            requested=json.loads(Path(a.query_list).read_text());lookup={r['token']:i for i,r in enumerate(ds.index)}
+            indices=[lookup[r['token']] for r in requested[:64]]
+        else:indices=range(64)
+        for i in indices:
             observation,target=ds[i]
             if not target['interaction_valid'] or not target['future_clip_valid'].all():continue
             obs,t=collate_training([(observation,target)])
@@ -86,7 +100,9 @@ def main():
         atomic_json(a.output,{'passed':True,'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
           'configuration':OmegaConf.to_container(cfg.foresight,resolve=True),'real_optimizer_updates':0,'training_samples':len(records),
           'gradient_samples':records,'conditioning_attention':attention,'no_GT_leak':True,'deployment_stripping_exact':True,
-          'precision':'existing BF16 forward/FP32 gradient diagnostic, TF32 off','peak_allocated':torch.cuda.max_memory_allocated()})
+          'checkpoint':endpoint,
+          'query_list_sha256':__import__('hashlib').sha256(Path(a.query_list).read_bytes()).hexdigest() if a.query_list else None,
+          'precision':'FP32 master/FP32 compute/TF32 off' if endpoint else 'existing BF16 forward/FP32 gradient diagnostic, TF32 off','peak_allocated':torch.cuda.max_memory_allocated()})
         save()
 
 if __name__=='__main__':main()
