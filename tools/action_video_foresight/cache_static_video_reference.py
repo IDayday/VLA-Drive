@@ -25,6 +25,7 @@ def main():
         parser.add_argument('--'+key,required=True)
     parser.add_argument('--shards',type=int,default=1)
     parser.add_argument('--shard',type=int,default=0)
+    parser.add_argument('--queries',help='Explicit fixed training diagnostic scene list; never all-training fallback')
     args=parser.parse_args()
     if not 0<=args.shard<args.shards:
         raise ValueError('Invalid reference shard')
@@ -36,8 +37,17 @@ def main():
     current=json.loads((data/'identity.json').read_text())
     targets=json.loads((Path(args.future_targets)/'identity.json').read_text())
     rows=json.loads((data/'index.json').read_text())
-    if current['split']!='dev' or targets['future_target_type']!='video_clip' or targets['scene_index_hash']!=current['index_sha256']:
-        raise ValueError('Only matching development video references allowed')
+    if targets['future_target_type']!='video_clip' or targets['scene_index_hash']!=current['index_sha256']:
+        raise ValueError('Only matching split/population video references allowed')
+    selection=None
+    if args.queries:
+        requested=json.loads(Path(args.queries).read_text());lookup={r['token']:r for r in rows}
+        if len({r['token'] for r in requested})!=len(requested):raise ValueError('Duplicate diagnostic query')
+        for r in requested:
+            if r['token'] not in lookup or lookup[r['token']]['log']!=r['log']:raise ValueError('Foreign diagnostic query')
+        rows=[lookup[r['token']] for r in requested];selection=identity_hash(requested)
+    elif current['split']!='dev':
+        raise ValueError('Training static diagnostic requires an explicit fixed subset')
     out.mkdir(parents=True,exist_ok=True);(out/'targets').mkdir(exist_ok=True)
     with metered_run(args.campaign_root,args.run_id,1,
                      {'kind':'artificial_static_video_diagnostic_reference','real_optimizer_updates':0}) as (meter,_,save):
@@ -50,6 +60,7 @@ def main():
             'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
             'purpose':'artificial current-frame repetition; never a real future label',
             'current_future_population_hash':current['index_sha256']}
+        if selection:identity['diagnostic_query_hash']=selection
         identity['identity']=identity_hash(identity)
         if (out/'identity.json').exists() and json.loads((out/'identity.json').read_text())!=identity:
             raise ValueError('Different diagnostic reference identity')

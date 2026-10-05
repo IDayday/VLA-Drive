@@ -82,16 +82,141 @@ def mse(p,t,v):
     return float((p[mask].float()-t[mask].float()).square().mean()) if mask.any() else None
 
 
+def static_dino_dataset(plan,split,root):
+    ref=FullForesightDataset(plan[split+'_data'],candidate='C3',current=True,future=False,
+        dino_root=root,dino_index=plan['dino_index'],expected_dino=read(Path(root)/'identity.json')['identity'],
+        interaction_root=None,expected_interaction=None,allow_partial=False)
+    return ref
+
+
+def current_dino_reference(ref,i,times):
+    pairs=[ref.read_image(x) for x in ref.dino_scenes[i]['images'][0]]
+    features=torch.stack([v[0] for v in pairs]).float().permute(0,2,3,1)[:,None]
+    valid=torch.stack([v[1] for v in pairs])[:,None]
+    return features.expand(-1,times,-1,-1,-1),valid.expand(-1,times,-1,-1)
+
+
+def fit_change(a,out,plan):
+    """Training-only quartiles of normalized future minus genuine static reference."""
+    ds=dataset(plan,'train',a.arm);population=queries(a,'train');lookup={r['token']:i for i,r in enumerate(ds.index)}
+    ref=static_dino_dataset(plan,'train',a.dino_sequence_current_root) if a.arm in ('S0','S1') else None
+    if ref is None:
+        sr=Path(a.static_train);sid=read(sr/'identity.json')
+        if sid['recipe']!=ds.clip_identity['recipe'] or sid.get('diagnostic_query_hash')!=identity_hash(population):raise ValueError('Wrong static training reference')
+        if read(sr/'COMPLETE.json')['scenes']!=len(population):raise ValueError('Static reference incomplete')
+    values=[]
+    for j,row in enumerate(population):
+        i=lookup[row['token']];_,targets=ds[i];future=targets['future_clip'].float();valid=targets['future_clip_valid']
+        if ref:static,sv=current_dino_reference(ref,i,future.shape[1])
+        else:
+            item=torch.load(sr/'targets'/(row['token']+'.pt'),weights_only=True)
+            if item['identity']!=sid['identity']:raise ValueError('Foreign static feature')
+            static=item['features'].float();sv=torch.ones_like(valid)
+        good=valid&sv
+        if not torch.isfinite(future[good]).all() or not torch.isfinite(static[good]).all():raise ValueError('Invalid active target')
+        norm=lambda x:F.layer_norm(torch.where(good[...,None],x,0.),(x.shape[-1],))
+        change=(norm(future)-norm(static)).square().mean(-1)
+        values.append(change[good])
+        if j%100==0:atomic_json(out/'progress.json',{'fitted_training_scenes':j,'total':len(population)})
+    values=torch.cat(values)
+    result={'schema':'training_static_change_quartiles_v1','target_type':ds.clip_identity['future_target_type'],
+        'train_queries':identity_hash(population),'target_identity':ds.clip_identity['identity'],
+        'static_identity':ref.dino_identity['identity'] if ref else sid['identity'],
+        'definition':'channel mean squared LN(future)-LN(static current); valid views/positions only',
+        'quantiles':[.25,.75],'low_threshold':float(values.quantile(.25)),
+        'high_threshold':float(values.quantile(.75)),'valid_patches':len(values),'scenes':len(population)}
+    atomic_json(out/'thresholds.json',result)
+
+
+def summarize(a,out,plan):
+    """Merge complete shards with fixed-position moments; retain full denominators."""
+    result={'evaluation_source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        'scope':'frozen endpoint auxiliary diagnostics; no planning score or optimizer update',
+        'arm':a.arm,'splits':{},'scene_averaging':'mean over valid per-scene queries, with coverage separately reported',
+        'means':'raw current arithmetic template; normalized future/interaction arithmetic and unit-renormalized references both shown'}
+    def flatten(record,prefix=''):
+        for key,value in record.items():
+            name=prefix+'/'+key if prefix else key
+            if isinstance(value,dict):yield from flatten(value,name)
+            elif isinstance(value,(int,float)) and not isinstance(value,bool):yield name,float(value)
+    for split in ('train','dev'):
+        records=[];merged={}
+        for shard in range(a.shards):
+            receipt=read(out/f'eval_{split}_{shard}.json')
+            if receipt['status']!='COMPLETE':raise ValueError('Failed/incomplete audit shard')
+            records.extend(json.loads(line) for line in (out/f'{split}_scenes_{shard}.jsonl').read_text().splitlines())
+            states=torch.load(out/f'{split}_moments_{shard}.pt',weights_only=True)
+            for name,state in states.items():
+                if name not in merged:merged[name]=state
+                else:
+                    for k in ('count','total','square'):merged[name][k]+=state[k]
+        population=queries(a,split)
+        if {r['token'] for r in records}!={r['token'] for r in population} or len(records)!=len(population):raise ValueError('Missing/duplicate requested scene')
+        if any(r['failure'] for r in records):raise ValueError('Failed rows cannot become complete summary')
+        values={};decoded={}
+        for r in records:
+            for section in ('current','future','interaction'):
+                for key,value in flatten(r[section]):values.setdefault(section+'/'+key,[]).append(value)
+            if r['decoded_ego']:
+                for name,row in r['decoded_ego'].items():
+                    for key,value in row.items():
+                        if isinstance(value,(float,int)):decoded.setdefault(name+'/'+key,[]).append(value)
+                        elif key=='point_error':
+                            for t,error in enumerate(value):
+                                if error is not None:decoded.setdefault(name+'/time_'+str(t),[]).append(error)
+        statistics={key:{'mean':sum(v)/len(v),'valid_scenes':len(v)} for key,v in values.items()}
+        variance={}
+        for name,state in merged.items():
+            obj=FixedPositionMoments();obj.__dict__.update(state);variance[name]=obj.result()
+        result['splits'][split]={'requested':len(population),'scenes':len(records),'failed':0,
+            'valid_interaction':sum(r['interaction_valid'] for r in records),
+            'no_valid_interaction':sum(not r['interaction_valid'] for r in records),
+            'statistics':statistics,'fixed_position_cross_scene_variance':variance,
+            'frozen_mae_functional_decode':{k:{'mean':sum(v)/len(v),'valid_scenes':len(v)} for k,v in decoded.items()}}
+    result['train_development_gap']={key:{'train':tr['mean'],'development':result['splits']['dev']['statistics'][key]['mean'],
+        'difference':result['splits']['dev']['statistics'][key]['mean']-tr['mean']} for key,tr in result['splits']['train']['statistics'].items()
+        if key in result['splits']['dev']['statistics']}
+    atomic_json(out/'SUMMARY.json',result)
+
+
 def evaluate(a,out,plan):
     run=Path(plan['campaign_root'])/'students'/plan['runs'][a.arm]['run_id'];training,cp=checkpoint_identity(run,'milestone_100000')
     model=load_student(run,'milestone_100000',training,strip=False)
+    change_rule=read(a.change_thresholds)
+    if change_rule['train_queries']!=identity_hash(queries(a,'train')):raise ValueError('Foreign change threshold population')
+    expected_type='dino_sequence' if a.arm in ('S0','S1') else 'video_clip'
+    if change_rule['target_type']!=expected_type:raise ValueError('Threshold target family mismatch')
     template=torch.load(Path(a.templates)/'templates.pt',weights_only=True)
     if template['identity']['train_queries']!=identity_hash(queries(a,'train')):raise ValueError('Template population changed')
     teacher_root=Path(a.teacher_root);frozen=read(a.frozen_teacher);tid=read(teacher_root/'identity.json');weight=teacher_root/frozen['checkpoint']
     if file_sha256(weight)!=frozen['checkpoint_sha256']:raise ValueError('Frozen teacher weight changed')
     teacher=TrajectoryMAE(**tid['model']).cuda().eval().requires_grad_(False);teacher.load_state_dict(torch.load(weight,weights_only=False)['model'],strict=True)
+    atomic_json(out/'identity.json',{'training_source':training['source_sha'] if 'source_sha' in training else training.get('source'),
+        'evaluation_source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        'checkpoint':cp,'train_queries':identity_hash(queries(a,'train')),'dev_queries':identity_hash(queries(a,'dev')),
+        'template_sha256':file_sha256(Path(a.templates)/'templates.pt'),'change_rule':change_rule,
+        'precision':'FP32 master / FP32 compute / TF32 off','main_optimizer_updates':0,
+        'predicted_current_reference':'C1 h0 prediction resampled bilinearly6x8 to9x12; diagnostic only; teacher copy-current uses native384x288 encoding'})
     for split in ('train','dev'):
         ds=dataset(plan,split,a.arm);population=queries(a,split);mapping={r['token']:i for i,r in enumerate(ds.index)}
+        representation_root=Path(a.representation_root) if a.representation_root else out
+        static_root=Path(a.static_train if split=='train' else a.static_dev) if a.arm not in ('S0','S1') else None
+        if static_root:
+            static_identity=read(static_root/'identity.json')
+            if static_identity['recipe']!=ds.clip_identity['recipe']:raise ValueError('Static video reference uses another encoder')
+            if split=='train' and static_identity.get('diagnostic_query_hash')!=identity_hash(population):raise ValueError('Static training reference population mismatch')
+            if read(static_root/'COMPLETE.json')['scenes']!=len(population):raise ValueError('Incomplete static video diagnostic')
+        current_reference=None
+        if a.arm in ('S0','S1'):
+            ref_root=Path(a.dino_sequence_current_root)
+            current_reference=static_dino_dataset(plan,split,str(ref_root))
+            # Explicit different schema implementations can share the exact teacher/preprocessing.
+            rec=current_reference.dino_identity['recipe'];clip_rec=ds.clip_identity['recipe']
+            for key in ('weight_sha256','revision','feature','extra_norm','mean','std','pool'):
+                if key=='pool':
+                    if current_reference.dino_identity['candidate']['pool']!=clip_rec['pool']:raise ValueError('Copy-current pool differs')
+                elif rec[key]!=clip_rec[key]:raise ValueError('Copy-current teacher recipe differs: '+key)
+            if list(current_reference.dino_identity['grid_hw'])!=ds.clip_identity['target_shape'][2:4]:raise ValueError('Copy-current native grid differs')
         order=sorted(range(len(population)),key=lambda i:hashlib.sha256(('W-swap-v1:'+population[i]['token']).encode()).hexdigest())
         paired={order[i]:order[(i+len(order)//2)%len(order)] for i in range(len(order))}
         if {r['log'] for r in queries(a,'train')}&{r['log'] for r in queries(a,'dev')}:raise ValueError('Log leakage')
@@ -102,7 +227,7 @@ def evaluate(a,out,plan):
         path=out/(split+f'_scenes_{a.shard}.jsonl')
         if path.exists():raise FileExistsError('Use a new audit attempt; partial rows retained')
         def encoded(row):
-            z=torch.load(out/'representations'/(row['token']+'.pt'),weights_only=True)
+            z=torch.load(representation_root/'representations'/(row['token']+'.pt'),weights_only=True)
             if z['checkpoint']!=cp['sha256']:raise ValueError('Wrong W checkpoint')
             return {'W':z['W'][None].cuda(),'action_queries':z['H_A'][None].cuda()}
         for i,row in enumerate(population):
@@ -126,15 +251,42 @@ def evaluate(a,out,plan):
                     mask=cv[v][None]
                     r['current'][str(v)]={name:mse(value,target[v],mask) for name,value in [('model',cur[v]),('training_mean',template['current_mean'][v].cuda()),('shuffled_W',cs[v])]}
                     r['current'][str(v)].update(prediction_norm=float(cur[v,:,cv[v]].norm(dim=0).mean()),target_norm=float(target[v,:,cv[v]].norm(dim=0).mean()))
+                    r['current'][str(v)]['normalized']={name:mse(F.layer_norm(value.permute(1,2,0),(value.shape[0],)),F.layer_norm(target[v].permute(1,2,0),(target.shape[1],)),cv[v][...,None]) for name,value in [('model',cur[v]),('training_mean',template['current_mean'][v].cuda()),('shuffled_W',cs[v])]}
                 for name,value in [('current_prediction',cur),('current_target',target)]:moments.setdefault(name,FixedPositionMoments()).add(value,cv[:,None])
                 norm=lambda x:F.layer_norm(x,(x.shape[-1],),eps=model.foresight_config.normalization_eps)
                 nt=norm(torch.where(fv[...,None],ft,0.));nf=norm(future);nfs=norm(fs)
+                if current_reference:
+                    static,static_valid=current_dino_reference(current_reference,mapping[row['token']],ft.shape[1])
+                    static=static.cuda();static_valid=static_valid.cuda()
+                    predicted_static=F.interpolate(cur,size=ft.shape[2:4],mode='bilinear',align_corners=False).permute(0,2,3,1)[:,None].expand_as(ft)
+                else:
+                    reference=torch.load(static_root/'targets'/(row['token']+'.pt'),weights_only=True)
+                    if reference['identity']!=static_identity['identity']:raise ValueError('Foreign static video tensor')
+                    static=reference['features'].cuda().float();static_valid=torch.ones_like(fv)
+                    predicted_static=None
+                normalized_static=norm(torch.where(static_valid[...,None],static,0.))
+                change=(nt-normalized_static).square().mean(-1)
                 for v in range(3):
                     for tt in range(ft.shape[1]):
                         mask=fv[v,tt,:, :, None];key=str(v)+'_'+str(tt)
                         r['future'][key]={name:mse(val[v,tt],nt[v,tt],mask) for name,val in [('model',nf),('training_mean',futuremean['mean'].cuda()),('unit_training_mean',norm(futuremean['mean'].cuda())),('shuffled_W',nfs)]}
+                        reference_mask=(fv&static_valid)[v,tt,...,None]
+                        r['future'][key]['static_current']=mse(normalized_static[v,tt],nt[v,tt],reference_mask)
+                        r['future'][key]['static_comparison_model']=mse(nf[v,tt],nt[v,tt],reference_mask)
+                        r['future'][key]['static_comparison_patches']=int(reference_mask.sum())
+                        if predicted_static is not None:r['future'][key]['copy_resampled_predicted_current']=mse(norm(predicted_static)[v,tt],nt[v,tt],mask)
+                        r['future'][key]['prediction_norm']=float(future[v,tt].norm(dim=-1)[fv[v,tt]].mean()) if fv[v,tt].any() else None
+                        r['future'][key]['target_norm']=float(ft[v,tt].norm(dim=-1)[fv[v,tt]].mean()) if fv[v,tt].any() else None
+                        r['future'][key]['raw_model_mse']=mse(future[v,tt],ft[v,tt],mask)
+                        r['future'][key]['change_groups']={}
+                        for group,selected in [('low',change[v,tt]<=change_rule['low_threshold']),('high',change[v,tt]>=change_rule['high_threshold'])]:
+                            active=reference_mask&selected[...,None]
+                            r['future'][key]['change_groups'][group]={'patches':int(active.sum()),
+                                'model':mse(nf[v,tt],nt[v,tt],active),'static':mse(normalized_static[v,tt],nt[v,tt],active),
+                                'training_mean':mse(futuremean['mean'][v,tt].cuda(),nt[v,tt],active)}
                         if fa is not None:r['future'][key]['shuffled_action']=mse(norm(fa)[v,tt],nt[v,tt],mask)
                 for name,value in [('future_prediction',nf),('future_target',nt)]:moments.setdefault(name,FixedPositionMoments()).add(value,fv[...,None])
+                for name,value in [('future_raw_prediction',future),('future_raw_target',ft)]:moments.setdefault(name,FixedPositionMoments()).add(value,fv[...,None])
                 iv=bool(t['interaction_valid']);r['interaction_valid']=iv
                 zt=t['interaction_latent'].cuda().float()
                 r['interaction']={name:mse(value,norm(zt),torch.ones_like(zt,dtype=torch.bool)) if iv else None for name,value in [('model',norm(z)),('training_mean',template['interaction_normalized_mean'].cuda()),('unit_training_mean',norm(template['interaction_normalized_mean'].cuda())),('shuffled_memory',norm(zs))]}
@@ -142,7 +294,13 @@ def evaluate(a,out,plan):
                     for name,value in [('interaction_prediction',norm(z)),('interaction_target',norm(zt))]:moments.setdefault(name,FixedPositionMoments()).add(value,torch.ones_like(value,dtype=torch.bool))
                     rec=torch.load(Path(a.teacher_data)/'records'/(row['token']+'.pt'),weights_only=True)['record']
                     anchor=rec['current'][0,:2].cuda();truth=rec['future'][0].cuda();valid=rec['point_valid'][0].cuda()
-                    with torch.inference_mode():r['decoded_ego']={name:trajectory_error(frozen_mae_decode(teacher,value,anchor),truth,valid) for name,value in [('teacher',zt),('student',z),('training_mean',template['interaction_raw_mean'].cuda()),('shuffled_student',zs)]}
+                    with torch.inference_mode():
+                        r['decoded_ego']={}
+                        for name,value in [('teacher',zt),('student',z),('training_mean',template['interaction_raw_mean'].cuda()),('shuffled_student',zs)]:
+                            trajectory=frozen_mae_decode(teacher,value,anchor)
+                            r['decoded_ego'][name]=trajectory_error(trajectory,truth,valid)
+                            distances=(trajectory-truth).norm(dim=-1)
+                            r['decoded_ego'][name]['point_error']=[float(d) if bool(ok) else None for d,ok in zip(distances,valid)]
                 else:r['decoded_ego']=None
             except Exception as error:r['failure']=repr(error)
             with path.open('a') as f:f.write(json.dumps(r)+'\n')
@@ -154,14 +312,23 @@ def evaluate(a,out,plan):
 
 
 def main():
-    p=argparse.ArgumentParser(__doc__);p.add_argument('mode',choices=('fit','encode','evaluate'))
+    p=argparse.ArgumentParser(__doc__);p.add_argument('mode',choices=('fit','fit-change','encode','evaluate','summarize'))
     for k in ('plan','reference-representations','output','campaign-root','run-id'):p.add_argument('--'+k,required=True)
     p.add_argument('--arm',default='S0',choices=('S0','S1','S2','S3','S4'));p.add_argument('--templates');p.add_argument('--teacher-root');p.add_argument('--teacher-data');p.add_argument('--frozen-teacher')
+    p.add_argument('--representation-root',help='Immutable previously encoded endpoint cache')
+    p.add_argument('--dino-sequence-current-root',help='Same384x288 DINO encoder/pool cache, used only as static reference')
+    p.add_argument('--static-train');p.add_argument('--static-dev')
+    p.add_argument('--change-thresholds')
     p.add_argument('--shards',type=int,default=8);p.add_argument('--shard',type=int,default=0);a=p.parse_args()
+    if a.mode=='evaluate':
+        needed=('templates','teacher_root','teacher_data','frozen_teacher','change_thresholds')
+        if any(not getattr(a,k) for k in needed):raise ValueError('Evaluation requires genuine fixed teacher and training templates')
+        if a.arm in ('S0','S1') and not a.dino_sequence_current_root:raise ValueError('True current384x288 DINO reference required')
+        if a.arm not in ('S0','S1') and not (a.static_train and a.static_dev):raise ValueError('Same-video-encoder static references required')
     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze source')
     torch.set_num_threads(2);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True);plan=read(a.plan)
-    with metered_run(a.campaign_root,a.run_id,0 if a.mode=='fit' else 1,{'kind':'S100k_endpoint_'+a.mode,'real_optimizer_updates':0}) as (meter,_,save):
-        {'fit':fit,'encode':encode,'evaluate':evaluate}[a.mode](a,out,plan);save()
+    with metered_run(a.campaign_root,a.run_id,0 if a.mode in ('fit','fit-change','summarize') else 1,{'kind':'S100k_endpoint_'+a.mode,'real_optimizer_updates':0}) as (meter,_,save):
+        {'fit':fit,'fit-change':fit_change,'encode':encode,'evaluate':evaluate,'summarize':summarize}[a.mode](a,out,plan);save()
 
 if __name__=='__main__':main()
