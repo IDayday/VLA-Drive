@@ -118,6 +118,12 @@ def main():
         atomic_json(output / 'resolved_official_config.json', resolved)
     train = IdentifiedCacheDataset(data, a.cache, 'train')
     val = IdentifiedCacheDataset(data, a.cache, 'val')
+    if a.smoke_steps:
+        for dataset in (train, val):
+            dataset.rows = [r for r in dataset.rows if
+                (Path(a.cache) / r['token'][:2] / (r['token'] + '.pt')).exists()]
+            if len(dataset) < world * int(cfg.dataloader.params.batch_size):
+                raise ValueError('Real full-batch smoke requires enough cached train and validation scenes')
     train_loader = DataLoader(train, collate_fn=custom_collate_fn, **cfg.dataloader.params, shuffle=True)
     val_loader = DataLoader(val, collate_fn=custom_collate_fn, **cfg.dataloader.params, shuffle=False)
 

@@ -24,7 +24,10 @@ def main():
     torch.backends.cuda.matmul.allow_tf32 = False
     data = read(a.manifest); identity = data['identity']; rows = data['rows']
     if a.limit:
-        rows = rows[:a.limit]
+        # A real pipeline smoke must include both official splits. It never
+        # publishes a full-population completion marker.
+        rows = ([r for r in rows if r['split'] == 'train'][:a.limit // 2] +
+                [r for r in rows if r['split'] == 'val'][:a.limit - a.limit // 2])
     root = Path(a.output); root.mkdir(parents=True, exist_ok=True)
     manifest_hash = digest(a.manifest)
     builder = ReCogDriveFeatureBuilder(cache_hidden_state=True, cache_mode=True,
