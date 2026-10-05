@@ -67,6 +67,9 @@ def main():
     torch.backends.cuda.matmul.allow_tf32 = False
     data = read(a.manifest); data['manifest_sha256'] = digest(a.manifest)
     if not a.smoke_steps:
+        if (data['identity'].get('scope', 'formal') != 'formal' or
+                len(data['rows']) != data['identity']['optimized_labels']['source_scenes']):
+            raise ValueError('A smoke or prefix manifest cannot initialize formal Stage2')
         finished = [read(Path(a.cache) / f'COMPLETE_rank{i:02d}.json') for i in range(world)]
         if sum(x['scenes'] for x in finished) != len(data['rows']):
             raise ValueError('Full official training/validation cache is incomplete')

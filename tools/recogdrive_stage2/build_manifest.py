@@ -21,6 +21,7 @@ def main():
     for name in ('official-source', 'official-revision', 'stage1', 'train-data', 'dev-data',
                  'optimized-labels', 'logs', 'sensors', 'output'):
         p.add_argument('--' + name, required=True)
+    p.add_argument('--smoke-per-split', type=int, default=0)
     a = p.parse_args()
     source = check_official(a.official_source, a.official_revision)
     sys.path.insert(0, str(source))
@@ -52,7 +53,11 @@ def main():
     if weight_hash != metadata[1]:
         raise ValueError('Stage1 file differs from its public download SHA256')
     groups = defaultdict(list)
-    for row in train + dev:
+    population = train + dev
+    if a.smoke_per_split:
+        population = ([r for r in train if r['log'] in train_logs][:a.smoke_per_split] +
+                      [r for r in train if r['log'] in val_logs][:a.smoke_per_split])
+    for row in population:
         groups[row['log']].append(row)
     output = Path(a.output)
     if output.exists():
@@ -99,6 +104,7 @@ def main():
         if len(rows) % 2000 < len(requested):
             print('manifest scenes', len(rows), flush=True)
     identity = dict(schema='official_recogdrive_stage2_current_inputs_optimized_targets_v1',
+        scope='pipeline_smoke' if a.smoke_per_split else 'formal',
         official_revision=a.official_revision, official_split_sha256=digest(split_path),
         stage1=dict(repo='owl10/ReCogDrive-VLM-2B', revision=metadata[0], sha256=weight_hash,
                     path=str(stage1), config_sha256=digest(stage1 / 'config.json')),
