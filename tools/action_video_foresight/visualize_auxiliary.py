@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 import subprocess
 import time
+import shutil
 
 import numpy as np
 from PIL import Image
@@ -73,6 +74,23 @@ def fit_display_basis(values):
 
 def prepare(args):
     out = Path(args.output); out.mkdir(parents=True,exist_ok=False)
+    if args.reuse_preparation:
+        parent=Path(args.reuse_preparation)
+        candidates=read_json(parent/'representatives.json')
+        ids=[int(x) for x in args.representative_indices.split(',')]
+        if len(ids)!=args.gallery_size or len(set(ids))!=len(ids) or min(ids)<0 or max(ids)>=len(candidates):raise ValueError('Explicit representative subset')
+        selected=[candidates[i] for i in ids]
+        for name in ('config.json','population.json','display_projection.pt'):shutil.copyfile(parent/name,out/name)
+        atomic_json(out/'representatives.json',selected)
+        identity=read_json(parent/'identity.json')
+        identity.update(source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            gallery_scenes=len(selected),selection_sha256=file_sha256(out/'representatives.json'),
+            selection='10 cases chosen from the already attribute-selected24 after viewing CURRENT RGB only; no predictions/errors used',
+            parent_preparation_identity_sha256=file_sha256(parent/'identity.json'),parent_representative_indices=ids,
+            scope='10 representative current/future auxiliary cases ONLY; not a complete-development statistical conclusion')
+        atomic_json(out/'identity.json',identity)
+        print('Reused fixed TRAIN-only display projection; selected',len(selected),'cases',flush=True)
+        return
     cfg = read_json(args.plan)
     cfg.update(teacher_data=args.teacher_data, c1_run=args.c1_run, legacy_representations=args.legacy_representations)
     train, dev = [ForesightCurrentDataset(cfg[s+'_data']) for s in ('train','dev')]
@@ -131,7 +149,7 @@ def prepare(args):
 
 
 def infer(args):
-    root=Path(args.output);cfg=read_json(root/'config.json');pop=read_json(root/'population.json')
+    root=Path(args.output);cfg=read_json(root/'config.json');pop=read_json(root/('representatives.json' if args.scope=='representatives' else 'population.json'))
     out=root/args.arm;out.mkdir(exist_ok=False);(out/'features').mkdir()
     run=Path(cfg['c1_run']) if args.arm=='C1' else Path(cfg['campaign_root'])/'students'/f'formal_{args.arm}_seed42_full100k_v2'
     start=time.time();training,cp=checkpoint_identity(run,'milestone_100000')
@@ -157,15 +175,15 @@ def infer(args):
     # One current forward per scene. Stored only in this diagnostic directory.
     worlds=[]
     with torch.inference_mode():
-        for i,row in enumerate(current.index):
+        for i,row in enumerate(pop):
             if args.arm=='C1':
                 z=torch.load(Path(cfg['legacy_representations'])/'representations'/(row['token']+'.pt'),weights_only=True)
                 if z['checkpoint']!=cp['sha256']:raise ValueError('Foreign cached W')
                 w=z['W']
-            else:w=model.encode_current([current[i]])['W'][0].cpu()
+            else:w=model.encode_current([current[row['index']]])['W'][0].cpu()
             if not torch.isfinite(w).all():raise ValueError('Invalid W')
             worlds.append(w)
-            if i%100==0:print(f'{args.arm} encode {i}/{len(current)}',flush=True)
+            if i%10==0:print(f'{args.arm} encode {i}/{len(pop)}',flush=True)
     world=torch.stack(worlds);del worlds
     # A fixed identity-only derangement, identical for all arms.
     order=sorted(range(len(pop)),key=lambda i:hashlib.sha256(('viz-W-swap-v1:'+pop[i]['token']).encode()).hexdigest())
@@ -174,10 +192,11 @@ def infer(args):
     def add_moment(key,z,m):moments.setdefault(key,FixedPositionMoments()).add(z,m[...,None])
     with torch.inference_mode():
         for i,row in enumerate(pop):
+            source_index=row['index']
             result={**{k:v for k,v in row.items() if k!='anchors'},'failure':None,'scores':{},'swap_token':pop[swap[i]]['token']}
             try:
                 w=world[i:i+1].cuda();sw=world[swap[i]:swap[i]+1].cuda()
-                f,m=images(ds,i);target=f[0];valid=m[0]
+                f,m=images(ds,source_index);target=f[0];valid=m[0]
                 pred=model.dino_head(w,torch.zeros(1,device='cuda'),(6,8))[0].permute(0,2,3,1).cpu()
                 shuffled=model.dino_head(sw,torch.zeros(1,device='cuda'),(6,8))[0].permute(0,2,3,1).cpu()
                 pack={'current_target':target,'current_pred':pred,'current_shuffled':shuffled,'current_mean':current_mean,'current_valid':valid}
@@ -192,7 +211,7 @@ def infer(args):
                     fm=templates['visual_mean'][1:].permute(1,0,3,4,2)
                     static=target[:,None].expand_as(ft);static_mask=valid[:,None].expand_as(fv)&fv
                 else:
-                    ft,fv=clip(cache,i)
+                    ft,fv=clip(cache,source_index)
                     action=None
                     if cfg_head.future_action_condition=='gt_ego':
                         ego=torch.load(current.root/'ego'/(row['token']+'.pt'),weights_only=True)['ego']
@@ -201,7 +220,7 @@ def infer(args):
                     fs=model.spatiotemporal_head(sw,(9,12),gt_action=action)[0].cpu()
                     ft=clean_features(ft,fv,True);fp=clean_features(fp,fv,True);fs=clean_features(fs,fv,True);fm=future_mean
                     if c3:
-                        source,source_valid=images(c3,i);static=source[0][:,None].expand_as(ft);static_mask=source_valid[0][:,None].expand_as(fv)&fv
+                        source,source_valid=images(c3,source_index);static=source[0][:,None].expand_as(ft);static_mask=source_valid[0][:,None].expand_as(fv)&fv
                         static=clean_features(static,static_mask,True)
                     else:
                         value=torch.load(Path(kinds)/'static_video_dev_reference_v1/targets'/(row['token']+'.pt'),weights_only=True)
@@ -254,7 +273,7 @@ def infer(args):
     for total in sums.values():total['mse']=total['squared_channel_mean_sum']/total['patches'] if total['patches'] and not failed else None
     anchors=[a for r in rows for a in r.get('vehicle_anchor_diagnostics',[])]
     summary={'arm':args.arm,'checkpoint':cp,'requested':len(pop),'scenes':len(rows),'logs':len({r['log'] for r in rows}),
-        'failures':failed,'kind':kind,'time_intervals_s':intervals,'precision':model.deployment_precision,
+        'failures':failed,'kind':kind,'time_intervals_s':intervals,'precision':model.deployment_precision,'scope':args.scope,
         'scores':sums,'fixed_position_variance':{k:v.result() for k,v in moments.items()},
         'vehicle_anchors':{'count':len(anchors),'scenes':sum(bool(r.get('vehicle_anchor_diagnostics')) for r in rows),
             **{k:float(np.mean([r[k] for r in anchors])) if anchors else None for k in ('map_rmse','mean_map_rmse','anchor_rank','target_anchor_similarity','same_position_mean_similarity')}},
@@ -326,16 +345,21 @@ def render(args):
                     picture=source_picture(frame['path']) if frame else np.zeros((288,512,3),dtype=np.uint8)
                     values=[picture]+[display_rgb(pack[k][view,t],p) for k in ('future_target','future_pred','future_static','future_mean','future_shuffled')]+[error[t].numpy(),se[t].numpy()]
                     for y,value in enumerate(values):
-                        axes[y,t].imshow(value,**({'cmap':'magma','vmin':0,'vmax':vmax} if y>=6 else {}),interpolation='nearest');axes[y,t].set_xticks([]);axes[y,t].set_yticks([])
+                        if y>0 and not pack['future_valid'][view,t].any():
+                            axes[y,t].text(.5,.5,'NO VALID CLIP TARGET',ha='center',va='center',fontsize=8,transform=axes[y,t].transAxes)
+                        else:axes[y,t].imshow(value,**({'cmap':'magma','vmin':0,'vmax':vmax} if y>=6 else {}),interpolation='nearest')
+                        axes[y,t].set_xticks([]);axes[y,t].set_yticks([])
                         if t==0:axes[y,t].set_ylabel(names[y],fontsize=8)
                     axes[0,t].set_title(f'{lo:g}-{hi:g}s'+(' (interval end RGB)' if lo!=hi else ''),fontsize=9)
-                fig.suptitle(f'{alias} {a} view{view}; {kind}; '+('whole-clip bidirectional teacher tokens' if kind=='video_clip' else 'independent frame features'))
+                condition='GT ego action in AUXILIARY head only' if a in ('S1','S3','S4') else 'no GT action condition'
+                fig.suptitle(f'{alias} {a} view{view}; {kind}; {condition}; '+('whole-clip bidirectional teacher tokens' if kind=='video_clip' else 'independent frame features'))
                 fig.tight_layout();file=f'{a}_future_v{view}.png';fig.savefig(scene/file,dpi=95);plt.close(fig);future_files.append(file)
                 if view==0:
                     # An actual sequence of feature panels, never generated RGB.
                     frames=[]
                     for t in range(time_count):
                         fs=[Image.fromarray((display_rgb(pack[k][view,t],p)*255).astype('uint8')).resize((288,162),Image.Resampling.NEAREST) for k in ('future_target','future_pred','future_static')]
+                        if not pack['future_valid'][view,t].any():fs=[Image.new('RGB',(288,162),'gray') for _ in fs]
                         canvas=Image.new('RGB',(864,162));[canvas.paste(z,(j*288,0)) for j,z in enumerate(fs)];frames.append(canvas)
                     frames[0].save(scene/f'{a}_features.gif',save_all=True,append_images=frames[1:],duration=650,loop=0)
         body=f'<h1>{alias}</h1><p>Navigation {row["navigation"]}; ego {row["ego_motion"]}; {row["peer_motion"]}; {row["peer_count"]} selected GT peers. Selection precedes prediction.</p>'
@@ -356,6 +380,8 @@ def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('mode',choices=('prepare','infer','render'))
     p.add_argument('--output',required=True);p.add_argument('--plan');p.add_argument('--teacher-data');p.add_argument('--c1-run');p.add_argument('--legacy-representations')
     p.add_argument('--gallery-size',type=int,default=24);p.add_argument('--arm',choices=('C1','S0','S1','S2','S3','S4'))
+    p.add_argument('--scope',choices=('representatives','full_dev'),default='representatives')
+    p.add_argument('--reuse-preparation');p.add_argument('--representative-indices')
     a=p.parse_args();torch.set_num_threads(4);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
     if a.mode=='prepare':prepare(a)
     elif a.mode=='infer':infer(a)

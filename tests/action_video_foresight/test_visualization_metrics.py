@@ -42,3 +42,18 @@ def test_common_anchor_affinity_and_calibration():
     anchors=projected_vehicle_centres(record,current.numpy(),[True,True,True])
     assert len(anchors)==1 and anchors[0]['row']==3 and anchors[0]['column']==4
     assert relative_gain(1,0) is None
+
+
+def test_summary_keeps_current_future_change_groups_separate():
+    from tools.action_video_foresight.summarize_visualization import task_score, clustered_difference
+    rows=[{'log':str(i%2),'scores':{
+        'current/v0/model':dict(patches=1,squared_channel_mean_sum=2),
+        'current/v0/train_mean':dict(patches=1,squared_channel_mean_sum=4),
+        'future/v0/t0/model':dict(patches=3,squared_channel_mean_sum=9),
+        'future/v0/t0/static':dict(patches=3,squared_channel_mean_sum=12),
+        'future/v0/t0/high_change/model':dict(patches=1,squared_channel_mean_sum=8)}} for i in range(4)]
+    assert task_score(rows[0],'current','model')==2
+    assert task_score(rows[0],'future','model')==3
+    assert task_score(rows[0],'future','model','high_change')==8
+    result=clustered_difference(rows,'future','static',100)
+    assert result['scenes']==4 and result['log_cluster_95']==[-1,-1]
