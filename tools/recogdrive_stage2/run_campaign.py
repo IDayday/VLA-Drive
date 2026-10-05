@@ -48,7 +48,7 @@ def main():
         cache = str(root/('features_smoke_v1' if smoke else 'features_full_v1'))
         is_cache = phase.startswith('cache')
         module = 'tools.recogdrive_stage2.cache_stage1' if is_cache else 'tools.recogdrive_stage2.train'
-        common = ['-u', '-m', module, '--official-source', plan['official_source'],
+        common = ['-m', module, '--official-source', plan['official_source'],
                   '--official-revision', plan['official_revision'], '--manifest', manifest]
         if is_cache:
             common += ['--output', cache, '--max-seconds', str(remaining*3600/16)]
@@ -71,7 +71,7 @@ def main():
             command = [plan['python'], '-u', '-m', 'torch.distributed.run', '--nnodes=2',
                 '--nproc_per_node=8', '--node_rank='+str(node), '--master_addr='+plan['master_addr'],
                 '--master_port='+str(plan['ports'][phase]), *common]
-            environment = ['env', 'CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7', 'OMP_NUM_THREADS=2',
+            environment = ['env', 'CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7', 'OMP_NUM_THREADS=2', 'PYTHONUNBUFFERED=1',
                 'OPENBLAS_NUM_THREADS=1', 'PYTHONDONTWRITEBYTECODE=1', 'NCCL_IB_DISABLE=0',
                 'NCCL_P2P_DISABLE=0', 'NCCL_SHM_DISABLE=0', 'CUDA_LAUNCH_BLOCKING=1',
                 'OPENSCENE_DATA_ROOT='+plan['sensors'], 'NUPLAN_MAPS_ROOT='+plan['maps'],
