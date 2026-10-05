@@ -1,9 +1,11 @@
 The auxiliary visualization entry point is `python -m tools.action_video_foresight.visualize_auxiliary`.
 It performs no optimizer updates and uses complete 100k checkpoints restored from FP32 masters (TF32 disabled).
 
-1. `prepare --output OUT --plan FORMAL_PLAN --teacher-data GT_RECORDS --c1-run C1_RUN --legacy-representations C1_REPRESENTATIONS --gallery-size 24`
+1. `prepare --output OUT --plan FORMAL_PLAN --teacher-data GT_RECORDS --c1-run C1_RUN --legacy-representations C1_REPRESENTATIONS --gallery-size 10`
 2. `infer --output OUT --arm C1` and separately `--arm S0`, `S1`, `S2`, `S3`, `S4` on available GPUs.
 3. `render --output OUT`; open `OUT/gallery/index.html` locally.
+
+Publish numeric evidence with `python -m tools.action_video_foresight.summarize_visualization --artifacts OUT --output REPORT_DIR`. After reviewing the actual images, a case-note file can create a Chinese local overview with `python -m tools.action_video_foresight.annotate_visualization --artifacts OUT --notes CASE_NOTES_JSON`; open `OUT/gallery/analysis.html`. The latter only adds explanatory pages and current RGB thumbnails; no model forward, optimizer update or change to scores.
 
 Selection balances navigation, current ego speed, selected GT peer motion and clip availability; log preference and hashes resolve ties. It never uses prediction errors. The default `infer --scope representatives` computes only the selected cases; it cannot support full-development statistical conclusions. Explicit `--scope full_dev` evaluates all development scenes. A smaller attribute-selected gallery can reuse the same train-fit display basis with `prepare --reuse-preparation PARENT --representative-indices 0,2,5,7,9,10,17,19,21,22 --gallery-size 10 --output OUT`. This selection uses only scene properties and source RGB, before any model outputs. GT vehicle centres are offline diagnostic anchors only, not student input or dense semantic labels.
 

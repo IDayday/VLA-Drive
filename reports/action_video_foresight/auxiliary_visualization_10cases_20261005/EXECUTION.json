@@ -1,0 +1,333 @@
+{
+  "created_utc": "2026-10-05T16:50:15.665988+00:00",
+  "status": "COMPLETE_10_CASE_DIAGNOSTIC",
+  "selection_sha256": "9a39efb9b70cf99260b61e5ec2460e593202e8c5e8da2b59a9ca153f39b17aaa",
+  "selection_before_predictions": true,
+  "selected_scenes": 10,
+  "selected_logs": 8,
+  "models": {
+    "C1": {
+      "checkpoint_sha256": "5e2ea076c8404ffb5aa1b2e6d10a2ce9455cbf481a971bdd7148c1a22416558a",
+      "completed_training_updates": 100000,
+      "evaluation_source": "56fc62cda76905f925777154b1ef11366b52c366",
+      "scenes": 10,
+      "failures": 0,
+      "allocation_gpu_hours": 0.09629041764471266
+    },
+    "S0": {
+      "checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+      "completed_training_updates": 100000,
+      "evaluation_source": "56fc62cda76905f925777154b1ef11366b52c366",
+      "scenes": 10,
+      "failures": 0,
+      "allocation_gpu_hours": 0.09980922308233049
+    },
+    "S1": {
+      "checkpoint_sha256": "6cd64cf38da0e9bf64b9470e7eb4af9daa3e24364080eaef974f3b43ad58f905",
+      "completed_training_updates": 100000,
+      "evaluation_source": "56fc62cda76905f925777154b1ef11366b52c366",
+      "scenes": 10,
+      "failures": 0,
+      "allocation_gpu_hours": 0.09974066727691226
+    },
+    "S2": {
+      "checkpoint_sha256": "2b46e9b4c15fa253bd97c18ab67c301f278c9a9186ced42cd8d0b8c7c6ff1f3b",
+      "completed_training_updates": 100000,
+      "evaluation_source": "56fc62cda76905f925777154b1ef11366b52c366",
+      "scenes": 10,
+      "failures": 0,
+      "allocation_gpu_hours": 0.09952378239896563
+    },
+    "S3": {
+      "checkpoint_sha256": "1157f6bf431841417ab882b413205bfc3908396c6bb68062f9858cda7f768184",
+      "completed_training_updates": 100000,
+      "evaluation_source": "56fc62cda76905f925777154b1ef11366b52c366",
+      "scenes": 10,
+      "failures": 0,
+      "allocation_gpu_hours": 0.09941254821088578
+    },
+    "S4": {
+      "checkpoint_sha256": "a574679f859e821528df7675a78d3d1c6818fdab10546582c36ca15755589f42",
+      "completed_training_updates": 100000,
+      "evaluation_source": "56fc62cda76905f925777154b1ef11366b52c366",
+      "scenes": 10,
+      "failures": 0,
+      "allocation_gpu_hours": 0.0994975029097663
+    }
+  },
+  "counts": {
+    "case_pages": 10,
+    "current_png": 30,
+    "future_png": 180,
+    "affinity_png": 15,
+    "feature_gif": 60
+  },
+  "renderer_source": "3d4648947d378f77c0cee39d09f6899d9f8613b2",
+  "real_optimizer_updates_this_task": 0,
+  "new_pdms_evaluations": 0,
+  "full_dev_evaluation": "NOT_RUN: user requested10 cases",
+  "assets": {
+    "current_dino_C1": {
+      "identity_file_sha256": "3b82ba7d71e9605a5d89d4a78ba57855a1d4d693d8df6972d0daf6883717e698",
+      "identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+      "recipe": {
+        "actual_tensor_chw": [
+          3,
+          192,
+          256
+        ],
+        "config_sha256": "a71f705b0074e173540d0bdbd3aa940fa8d7d3c6c7f020a683004c46ca605b24",
+        "encoder_implementation": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8",
+        "extra_norm": "none",
+        "feature": "last_block_post_norm_dense_patch",
+        "feature_dim": 1024,
+        "forward_source_sha256": "2cfb3a5938be4c8598d6d1670fdc9249ff8bf03f2045df0dee497c4862a844f7",
+        "interpolation": "PIL bicubic antialias",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "normalization": "ImageNet RGB once; last post-norm patches; no extra L2",
+        "padding": "none",
+        "patch_size": [
+          16,
+          16
+        ],
+        "precision": "FP32 model/input/output; TF32 disabled; FP16 storage",
+        "prefix_tokens_excluded": 5,
+        "preprocess_implementation": "748898f9695a0cff78ca75522b5de675e8fffa9457ce32b6c1e98ed8aceb768b",
+        "repository": "timm/vit_large_patch16_dinov3.lvd1689m",
+        "revision": "30c1109559f65dea34316b0d4842d35c5771fe11",
+        "rope": "timm default FP32 periods",
+        "schema": "dino_tradeoff_target_recipe_v1",
+        "source_rgb_range": "full original16:9 image resized anisotropically to4:3; no crop",
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "weight_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941"
+      },
+      "schema": "ddp_full_dino_cache_v1"
+    },
+    "same_recipe_dino_static_C3": {
+      "identity_file_sha256": "2d2ca3fc36379803c54f464cdd9b320f46a981f6e9deb77530ad2aa22e7c70f9",
+      "identity": "c65cc2d589d573b5fa11fbd6581ce4eba9dec49cd0778c453d78e169134bb966",
+      "recipe": {
+        "actual_tensor_chw": [
+          3,
+          288,
+          384
+        ],
+        "config_sha256": "a71f705b0074e173540d0bdbd3aa940fa8d7d3c6c7f020a683004c46ca605b24",
+        "encoder_implementation": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8",
+        "extra_norm": "none",
+        "feature": "last_block_post_norm_dense_patch",
+        "feature_dim": 1024,
+        "forward_source_sha256": "2cfb3a5938be4c8598d6d1670fdc9249ff8bf03f2045df0dee497c4862a844f7",
+        "interpolation": "PIL bicubic antialias",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "normalization": "ImageNet RGB once; last post-norm patches; no extra L2",
+        "padding": "none",
+        "patch_size": [
+          16,
+          16
+        ],
+        "precision": "FP32 model/input/output; TF32 disabled; FP16 storage",
+        "prefix_tokens_excluded": 5,
+        "preprocess_implementation": "748898f9695a0cff78ca75522b5de675e8fffa9457ce32b6c1e98ed8aceb768b",
+        "repository": "timm/vit_large_patch16_dinov3.lvd1689m",
+        "revision": "30c1109559f65dea34316b0d4842d35c5771fe11",
+        "rope": "timm default FP32 periods",
+        "schema": "dino_tradeoff_target_recipe_v1",
+        "source_rgb_range": "full original16:9 image resized anisotropically to4:3; no crop",
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "weight_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941"
+      },
+      "schema": "ddp_full_dino_cache_v1"
+    },
+    "dino_sequence_dev": {
+      "identity_file_sha256": "aad5232529683747f1000651cd96c62c44e3a7a0255162d7c6b0074997a57613",
+      "identity": "b3e60c8ebf515d05474d6ada69160730383ba2bcfed15ca4ade9f31b59dc4535",
+      "recipe": {
+        "config_sha256": "a71f705b0074e173540d0bdbd3aa940fa8d7d3c6c7f020a683004c46ca605b24",
+        "extra_norm": "none",
+        "feature": "last_block_post_norm_dense_patch",
+        "feature_dim": 1024,
+        "forward_source_sha256": "2cfb3a5938be4c8598d6d1670fdc9249ff8bf03f2045df0dee497c4862a844f7",
+        "implementation_sha256": "709d5522e707eb97b1b576918816f2ef6ddb1a5e380e079abbe459f135f737a8",
+        "input_width_height": [
+          384,
+          288
+        ],
+        "interpolation": "PIL bicubic antialias",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "native_grid_hw": [
+          18,
+          24
+        ],
+        "original_user_recipe": "UNVERIFIED; explicit fallback",
+        "output_grid_hw": [
+          9,
+          12
+        ],
+        "padding": "right/bottom normalized zero; fully contained patches only",
+        "patch_size": [
+          16,
+          16
+        ],
+        "pool": 2,
+        "pooling": "none",
+        "precision": "FP32, TF32 off",
+        "prefix_tokens_excluded": 5,
+        "preprocess": "full source RGB, PIL bicubic384x288, ImageNet once, no crop",
+        "repository": "timm/vit_large_patch16_dinov3.lvd1689m",
+        "revision": "30c1109559f65dea34316b0d4842d35c5771fe11",
+        "rope": "timm default FP32 periods",
+        "schema": "dinov3_dense_target_recipe_v1",
+        "short_side": 256,
+        "source_rgb_range": "original full16:9 field, same as DDP",
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "temporal_path": "eight independent images; no video attention",
+        "timm": "1.0.20",
+        "torch": "2.5.1+cu124",
+        "weight_sha256": "45172f209c9583c40538afc26b60a07033e6fcc2e8c30228338e6b2e932e7941"
+      },
+      "schema": "action_video_clip_targets_v1"
+    },
+    "video_clip_dev": {
+      "identity_file_sha256": "c4341f11ad4cfac82d5b47814301f3e27961d012dc8dfc9906c8da2b314c3d81",
+      "identity": "3bc68f46e0ad3d2ed058a88b36eeeefcd21578999f88c5d452bb059203b52918",
+      "recipe": {
+        "checkpoint_key": "ema_encoder",
+        "family": "V-JEPA 2.1 distilled ViT-L/16",
+        "feature_dim": 1024,
+        "input_axes": "B,C,T,H,W",
+        "input_hw": [
+          288,
+          384
+        ],
+        "input_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ],
+        "native_thw": [
+          4,
+          18,
+          24
+        ],
+        "output": "last block, norms_block[-1], time,row,column",
+        "output_thw": [
+          4,
+          9,
+          12
+        ],
+        "pool": 2,
+        "precision": "FP32, TF32 off",
+        "preprocess": "RGB PIL bicubic resize384x288, ImageNet mean/std once; no crop/padding",
+        "source_sha": "204698b45b3712590f06245fbfba32d3be539812",
+        "temporal_semantics": "bidirectional full-clip context; pairs [.5,1],[1.5,2],[2.5,3],[3.5,4]",
+        "tokenizer": "official video PatchEmbed3D, no predictor/robot action weights",
+        "tubelet": 2,
+        "weight_sha256": "7ea9b7cb4a75d10644a8a8d42cff9e177b10dca8f02173f0eaf2b0bed82838c6"
+      },
+      "schema": "action_video_clip_targets_v1"
+    },
+    "video_static": {
+      "identity_file_sha256": "b27e42da7aae287a8585e28ca2ca6df2f2fa06b4f70032050757a4902b775421",
+      "identity": "adf9fcefcc191827b47869d46561bf58e129889c657a451f20cb3cf575d28b8a",
+      "recipe": {
+        "checkpoint_key": "ema_encoder",
+        "family": "V-JEPA 2.1 distilled ViT-L/16",
+        "feature_dim": 1024,
+        "input_axes": "B,C,T,H,W",
+        "input_hw": [
+          288,
+          384
+        ],
+        "input_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0
+        ],
+        "native_thw": [
+          4,
+          18,
+          24
+        ],
+        "output": "last block, norms_block[-1], time,row,column",
+        "output_thw": [
+          4,
+          9,
+          12
+        ],
+        "pool": 2,
+        "precision": "FP32, TF32 off",
+        "preprocess": "RGB PIL bicubic resize384x288, ImageNet mean/std once; no crop/padding",
+        "source_sha": "204698b45b3712590f06245fbfba32d3be539812",
+        "temporal_semantics": "bidirectional full-clip context; pairs [.5,1],[1.5,2],[2.5,3],[3.5,4]",
+        "tokenizer": "official video PatchEmbed3D, no predictor/robot action weights",
+        "tubelet": 2,
+        "weight_sha256": "7ea9b7cb4a75d10644a8a8d42cff9e177b10dca8f02173f0eaf2b0bed82838c6"
+      },
+      "schema": "action_video_static_reference_v1"
+    },
+    "display_projection": {
+      "sha256": "e77c7456cb4daaedd4b3562a19bb19c850c4f4d7c4bb1d0b369650538baeb7b4",
+      "fit_training_scenes": 64,
+      "usage": "display only; not model compression or training objective"
+    },
+    "dino_sequence_mean_file_sha256": "667d7a9764162d2a91e25a845bcf189d4df85df22b36b580f29aaffd2e47f642",
+    "video_clip_mean_file_sha256": "772fd808aa6da983aea2f98352b59766d54b6217674f9cec7f80cffc7f2e7dc8",
+    "current_and_legacy_future_mean_file_sha256": "20505fdcbeee4b5fe0e44c45d9de939ed01a7ed25acb0393625117fe6018e951"
+  },
+  "validation": {
+    "cpu_tests_passed": 5,
+    "cpu_test_file": "tests/action_video_foresight/test_visualization_metrics.py",
+    "private_gallery_file_links": "all exist",
+    "private_gallery_images": "all verified",
+    "public_data_scene_and_log_ids": "none present"
+  },
+  "allocation_gpu_hours": {
+    "ten_cases_loading_and_inference": 0.5942741415235732,
+    "aborted_own_full_dev_loading": 0.5629194444459346,
+    "recorded_total": 1.1571935859695077,
+    "display_projection_preparation": "NOT_SEPARATELY_METERED",
+    "cpu_rendering": "NOT_SEPARATELY_METERED"
+  },
+  "private_source_pictures_uploaded": false,
+  "private_feature_tensors_uploaded": false,
+  "train_sources_changed": false
+}

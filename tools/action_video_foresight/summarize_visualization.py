@@ -82,9 +82,9 @@ def summarize(artifacts,output):
     result['total_allocation_gpu_hours']=sum(r['allocation_gpu_hours'] for r in result['models'].values())
     atomic_json(out/'SUMMARY.json',result)
     with (out/'ANONYMIZED_SCENES.csv').open('w') as f:
-        writer=csv.DictWriter(f,fieldnames=list(public_rows[0]));writer.writeheader();writer.writerows(public_rows)
+        writer=csv.DictWriter(f,fieldnames=list(public_rows[0]),lineterminator='\n');writer.writeheader();writer.writerows(public_rows)
     with (out/'REPRESENTATIVE_SCENES.csv').open('w') as f:
-        writer=csv.DictWriter(f,fieldnames=list(result['representatives'][0]));writer.writeheader();writer.writerows(result['representatives'])
+        writer=csv.DictWriter(f,fieldnames=list(result['representatives'][0]),lineterminator='\n');writer.writeheader();writer.writerows(result['representatives'])
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -96,6 +96,8 @@ def summarize(artifacts,output):
         for i,ref in enumerate(refs):ax.bar(x+(i-1)*.23,[result['models'][a]['tasks'][task][ref]['scene_mean_mse'] for a in arms],.23,label=ref)
         ax.set_xticks(x,arms);ax.set_title(title,fontsize=10);ax.legend(fontsize=8);ax.set_ylabel('MSE (same target only)')
     fig.tight_layout();fig.savefig(out/'REFERENCE_COMPARISONS.svg');plt.close(fig)
+    svg=out/'REFERENCE_COMPARISONS.svg'
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
     atomic_json(out/'PROVENANCE.json',{'artifact_identity_sha256':file_sha256(root/'identity.json'),'real_optimizer_updates':0,
         'private_images_uploaded':False,'private_feature_tensors_uploaded':False,
         'feature_projection':'diagnostic only; shared train-fit colours, not an image decoder',

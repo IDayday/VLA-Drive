@@ -381,7 +381,7 @@ def render(args):
 def main():
     p=argparse.ArgumentParser(__doc__);p.add_argument('mode',choices=('prepare','infer','render'))
     p.add_argument('--output',required=True);p.add_argument('--plan');p.add_argument('--teacher-data');p.add_argument('--c1-run');p.add_argument('--legacy-representations')
-    p.add_argument('--gallery-size',type=int,default=24);p.add_argument('--arm',choices=('C1','S0','S1','S2','S3','S4'))
+    p.add_argument('--gallery-size',type=int,default=10);p.add_argument('--arm',choices=('C1','S0','S1','S2','S3','S4'))
     p.add_argument('--scope',choices=('representatives','full_dev'),default='representatives')
     p.add_argument('--reuse-preparation');p.add_argument('--representative-indices')
     a=p.parse_args();torch.set_num_threads(4);torch.backends.cuda.matmul.allow_tf32=torch.backends.cudnn.allow_tf32=False
