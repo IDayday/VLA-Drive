@@ -30,6 +30,10 @@ class ForesightConfig:
     ablation: str = 'FULL'
     future_target_type: str = 'legacy_single_frame'
     future_action_condition: str = 'none'
+    interaction_readout_source: str = 'world'
+    future_action_injection: str = 'memory_only'
+    future_action_query_scale: float = 1.0
+    interaction_functional_loss: str = 'disabled'
     planner_condition_mode: str = 'action_only'
     clip_times_s: tuple = (.5, 1., 1.5, 2., 2.5, 3., 3.5, 4.)
     future_feature_dim: int = 1024
@@ -55,8 +59,19 @@ class ForesightConfig:
     def validate(self):
         if self.future_target_type not in ('legacy_single_frame', 'dino_sequence', 'video_clip'):
             raise ValueError('Unknown future representation')
-        if self.future_action_condition not in ('none', 'gt_ego') or self.planner_condition_mode not in ('action_only', 'action_plus_W'):
+        if self.future_action_condition not in ('none', 'gt_ego') or self.planner_condition_mode not in ('action_only', 'action_plus_W', 'action_residual_W'):
             raise ValueError('Unknown action condition / planner mode')
+        import math
+        if self.interaction_readout_source not in ('world', 'action'):
+            raise ValueError('Unknown interaction readout source')
+        if self.future_action_injection not in ('memory_only', 'memory_and_query') or not math.isfinite(self.future_action_query_scale):
+            raise ValueError('Unknown/nonfinite future action query injection')
+        if self.future_action_injection == 'memory_and_query' and self.future_action_condition != 'gt_ego':
+            raise ValueError('Action query injection requires explicit GT ego conditioning')
+        if self.interaction_functional_loss not in ('disabled', 'frozen_teacher', 'plain_head'):
+            raise ValueError('Unknown interaction functional supervision')
+        if self.interaction_functional_loss != 'disabled':
+            raise ValueError('Functional controls require a separately registered follow-up; not part of this first comparison')
         if self.future_target_type == 'legacy_single_frame':
             if self.future_action_condition != 'none' or self.planner_condition_mode != 'action_only' or self.video_teacher_identity:
                 raise ValueError('Legacy configuration cannot silently change its action/future paths')

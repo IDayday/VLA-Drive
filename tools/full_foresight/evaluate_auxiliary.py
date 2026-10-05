@@ -145,7 +145,7 @@ def main():
             try:
                 observation,targets=data[i]
                 with torch.inference_mode():
-                    world=model.encode_current([observation])['W']
+                    encoded=model.encode_current([observation]);world=encoded['W']
                     if hasattr(model,'dino_head'):
                         cur=targets['current_dino'].cuda()
                         for hidx,h in enumerate((0,1,2,4)):
@@ -155,7 +155,7 @@ def main():
                             for view,stats in enumerate(spatial_statistics(predicted,target,cur,valid)):
                                 row[f'h{h}_v{view}']=stats
                     if hasattr(model,'interaction_head'):
-                        row['interaction']=interaction_statistics(model.interaction_head(world)[0],
+                        row['interaction']=interaction_statistics(model.predict_interaction(encoded)[0],
                             targets['interaction_latent'].cuda(),bool(targets['interaction_valid']),model.foresight_config.normalization_eps)
             except Exception as error:row={**data.index[i],'failure':repr(error)}
             with path.open('a') as stream:stream.write(json.dumps(row)+'\n')

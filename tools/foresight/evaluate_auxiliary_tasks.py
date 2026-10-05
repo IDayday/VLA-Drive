@@ -92,7 +92,7 @@ def main():
             try:
                 observation,targets=data[i]
                 with torch.inference_mode():
-                    W=model.encode_current([observation])['W']
+                    encoded=model.encode_current([observation]);W=encoded['W']
                     if a.future_root:
                         folder=data.future_shards[i%data.future_identity['shards']]
                         raw=torch.load(folder/'targets'/(scene['token']+'.pt'),map_location='cpu',weights_only=True)
@@ -103,7 +103,7 @@ def main():
                                 key=f'visual_{horizon}s_v{v}';row[key+'_elements']=stats['elements']
                                 row[key+'_squared_error']=stats['prediction_squared_error'];row[key+'_copy_squared_error']=stats['copy_current_squared_error']
                     if a.interaction_root:
-                        prediction=model.interaction_head(W)[0]
+                        prediction=model.predict_interaction(encoded)[0]
                         stats=interaction_statistics(prediction,targets['interaction_latent'].cuda(),bool(targets['interaction_valid']),model.foresight_config.normalization_eps)
                         row['interaction_elements']=stats['elements'];row['interaction_squared_error']=stats['squared_error']
             except Exception as error:row={'token':scene['token'],'log':scene['log'],'failure':repr(error)}

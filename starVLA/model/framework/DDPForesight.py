@@ -22,7 +22,7 @@ class DDPForesight(Qwenvl_OFT):
     def __init__(self, config, accelerator=None):
         options=dict(config.foresight)
         # Environment-backed OmegaConf values are strings until explicitly typed.
-        for key in ('lambda_vis','lambda_int','lambda_cur','lambda_fut','normalization_eps'):
+        for key in ('lambda_vis','lambda_int','lambda_cur','lambda_fut','normalization_eps','future_action_query_scale'):
             if key in options: options[key]=float(options[key])
         self.foresight_config=ForesightConfig(**options).validate()
         if config.get('from_scratch') is None: raise ValueError('Generic source manifest required')
@@ -61,6 +61,10 @@ class DDPForesight(Qwenvl_OFT):
         with initialization_seed(int(config.seed)+2400):
             if cfg.uses_interaction:
                 self.interaction_head=InteractionLatentHead(hidden,cfg.readout_dim,layers=cfg.readout_layers)
+        if cfg.planner_condition_mode == 'action_residual_W':
+            from starVLA.model.modules.foresight.planner_residual import PlannerResidualW
+            with initialization_seed(int(config.seed)+2600):
+                self.planner_residual = PlannerResidualW(hidden)
         self.qwen_vl_interface.model.model.visual.requires_grad_(False)
         if cfg.gradient_checkpointing:
             self.qwen_vl_interface.model.model.language_model.gradient_checkpointing_enable()
@@ -107,10 +111,24 @@ class DDPForesight(Qwenvl_OFT):
         mode = self.foresight_config.planner_condition_mode
         if mode == 'action_only':
             return action
+        if mode == 'action_residual_W':
+            return self.planner_residual(action, world)
         if mode != 'action_plus_W' or world.ndim != 3 or world.shape[0] != action.shape[0] or world.shape[2] != action.shape[2] or not world.shape[1]:
             raise ValueError('Invalid explicit direct-W planner condition')
         # Raw final Qwen states: the original action head applies qwen_proj ONCE.
         return torch.cat((action, world), dim=1)
+
+    def interaction_memory(self, encoded):
+        """One source selection shared by training, evaluation and functional probes."""
+        source = self.foresight_config.interaction_readout_source
+        if source not in ('world', 'action'):
+            raise ValueError('Unknown interaction readout source')
+        return encoded['W' if source == 'world' else 'action_queries']
+
+    def predict_interaction(self, encoded):
+        if not hasattr(self, 'interaction_head'):
+            raise RuntimeError('Interaction head is absent; this is not a missing-peer label')
+        return self.interaction_head(self.interaction_memory(encoded))
 
     def forward(self, observations, targets, *, completed_updates=0, noise_generator=None,
                 time_generator=None, horizon_generator=None, global_counts=None):
@@ -152,7 +170,7 @@ class DDPForesight(Qwenvl_OFT):
             losses['visual']=loss*cfg.lambda_vis*weights
             metrics.update(visual_raw=loss.detach(),visual_global_elements=count,horizon=horizon.detach())
         if hasattr(self,'interaction_head'):
-            with self.amp():prediction=self.interaction_head(encoded['W'])
+            with self.amp():prediction=self.predict_interaction(encoded)
             loss,count=interaction_loss(prediction,targets['interaction_latent'].to(device),
                 targets['interaction_valid'].to(device),cfg.normalization_eps,counts.get('interaction'))
             losses['interaction']=loss*cfg.lambda_int*weights

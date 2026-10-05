@@ -41,7 +41,7 @@ def main():
         loss,_=masked_regression(pred,torch.ones_like(pred),torch.ones(1,3,1,1,1,device='cuda',dtype=torch.bool))
         loss.backward();visual=norms();model.zero_grad(set_to_none=True);del encoded,pred,loss
         encoded=model.encode_current(observations)
-        with model.amp():pred=model.interaction_head(encoded['W'])
+        with model.amp():pred=model.predict_interaction(encoded)
         target=torch.linspace(-1,1,pred.numel(),device='cuda').reshape_as(pred)
         loss,_=interaction_loss(pred,target,torch.ones(1,device='cuda',dtype=torch.bool))
         loss.backward();interaction=norms();model.zero_grad(set_to_none=True);del encoded,pred,loss

@@ -60,6 +60,8 @@ def main():
     p=argparse.ArgumentParser(__doc__)
     for k in ('representations','train-data','dev-data','train-targets','dev-targets','output','campaign-root','run-id'):p.add_argument('--'+k,required=True)
     p.add_argument('--condition',choices=('none','gt_ego'),required=True);p.add_argument('--action-only',action='store_true')
+    p.add_argument('--action-injection',choices=('memory_only','memory_and_query'),default='memory_only')
+    p.add_argument('--action-query-scale',type=float,default=1.)
     p.add_argument('--updates',type=int,default=2000);p.add_argument('--batch',type=int,default=16);p.add_argument('--seed',type=int,default=42)
     p.add_argument('--resume',action='store_true');a=p.parse_args()
     if min(a.updates,a.batch)<1:raise ValueError('Fixed finite probe budget')
@@ -72,13 +74,16 @@ def main():
         first=torch.load(train.rroot/(train.index[0]['token']+'.pt'),weights_only=True)
         with initialization_seed(a.seed+2500):
             model=FutureSpatiotemporalHead(first['W'].shape[-1],train.identity['target_shape'][-1],
-                train.identity['time_intervals_s'],action_condition=a.condition,use_world=not a.action_only).cuda()
+                train.identity['time_intervals_s'],action_condition=a.condition,use_world=not a.action_only,
+                action_injection=a.action_injection,action_query_scale=a.action_query_scale).cuda()
         optimizer=torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],lr=1e-4,weight_decay=.001)
         rng=torch.Generator().manual_seed(a.seed+13000);completed=epoch=offset=exposure=0;order=torch.randperm(len(train.index),generator=rng)
         identity={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'frozen_checkpoint':first['checkpoint'],
             'train_queries':identity_hash(train.index),'dev_queries':identity_hash(dev.index),'train_targets':train.identity['identity'],
             'dev_targets':dev.identity['identity'],'condition':a.condition,'use_world':not a.action_only,'updates':a.updates,'batch':a.batch,'seed':a.seed,
             'trainable_parameters':sum(p.numel() for p in model.parameters() if p.requires_grad)}
+        if a.action_injection != 'memory_only' or a.action_query_scale != 1.:
+            identity.update(action_injection=a.action_injection,action_query_scale=a.action_query_scale)
         if a.resume:
             s=torch.load(out/'latest.pt',weights_only=False)
             if s['identity']!=identity:raise ValueError('Probe resume identity')

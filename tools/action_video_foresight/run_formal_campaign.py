@@ -68,7 +68,8 @@ def ready_gpus(cards, pressure_script):
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--plan', required=True)
-    parser.add_argument('--arm', choices=('S0','S1','S2','S3','S4'), required=True)
+    from .run_experiments import ARMS, PLANNING_ARMS
+    parser.add_argument('--arm', choices=(*ARMS, *PLANNING_ARMS), required=True)
     parser.add_argument('--resume-controller', action='store_true')
     parser.add_argument('--acknowledge-stop', action='store_true')
     args = parser.parse_args()
@@ -154,6 +155,8 @@ def main():
                 'master-port':spec['master_port'],'milestones':','.join(map(str,plan['milestones']))}
         for key,value in values.items():
             command+=['--'+key,str(value)]
+        if plan.get('GPU_hours_limit') is not None:
+            command += ['--campaign-gpu-hours', str(plan['GPU_hours_limit'])]
         if spec.get('local_image_root'):
             command+=['--local-image-root',spec['local_image_root']]
         if (run/'status.json').exists():

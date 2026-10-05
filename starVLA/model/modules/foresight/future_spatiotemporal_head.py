@@ -7,7 +7,8 @@ from .ego_trajectory_condition import EgoTrajectoryConditionEncoder
 
 class FutureSpatiotemporalHead(nn.Module):
     def __init__(self, hidden_dim, feature_dim, time_intervals_s, dim=512, layers=2,
-                 action_condition='none', use_world=True):
+                 action_condition='none', use_world=True, action_injection='memory_only',
+                 action_query_scale=1.0):
         super().__init__()
         if action_condition not in ('none', 'gt_ego') or not (use_world or action_condition == 'gt_ego'):
             raise ValueError('At least one explicitly declared conditioning source required')
@@ -16,6 +17,12 @@ class FutureSpatiotemporalHead(nn.Module):
             raise ValueError('Native temporal intervals required')
         self.register_buffer('time_intervals_s', spans, persistent=True)
         self.action_condition, self.use_world = action_condition, use_world
+        import math
+        if action_injection not in ('memory_only', 'memory_and_query') or not math.isfinite(action_query_scale):
+            raise ValueError('Invalid action injection/query scale')
+        if action_injection != 'memory_only' and action_condition != 'gt_ego':
+            raise ValueError('Query injection needs GT action tokens')
+        self.action_injection, self.action_query_scale = action_injection, float(action_query_scale)
         self.project = nn.Linear(hidden_dim, dim)
         self.action_encoder = EgoTrajectoryConditionEncoder(dim)
         self.memory_type = nn.Embedding(2, dim)
@@ -26,6 +33,18 @@ class FutureSpatiotemporalHead(nn.Module):
         self.output = nn.Linear(dim, feature_dim)
         self.action_encoder.requires_grad_(action_condition == 'gt_ego')
         self.project.requires_grad_(use_world)
+        self.capture_conditioning = False
+
+    def aligned_action_tokens(self, tokens):
+        """Average ENCODED vectors in each declared interval, never yaw angles."""
+        times = self.action_encoder.physical_times_s
+        groups = []
+        for lo, hi in self.time_intervals_s:
+            selected = (times >= lo - 1e-6) & (times <= hi + 1e-6)
+            if not selected.any() or not torch.isclose(times[selected][0], lo, atol=1e-6) or not torch.isclose(times[selected][-1], hi, atol=1e-6):
+                raise ValueError('Future interval has no matching physical action endpoints')
+            groups.append(tokens[:, selected].mean(1))
+        return torch.stack(groups, 1)
 
     def forward(self, world, grid, *, gt_action=None):
         if (gt_action is not None) != (self.action_condition == 'gt_ego'):
@@ -42,12 +61,14 @@ class FutureSpatiotemporalHead(nn.Module):
         if min(height, width) < 1:
             raise ValueError('Invalid native spatial grid')
         memory = []
+        action_tokens = None
         if self.use_world:
             memory.append(self.project(world) + self.memory_type.weight[0])
         if gt_action is not None:
             if len(gt_action) != batch:
                 raise ValueError('Action/scene batch mismatch')
-            memory.append(self.action_encoder(gt_action) + self.memory_type.weight[1])
+            action_tokens = self.action_encoder(gt_action)
+            memory.append(action_tokens + self.memory_type.weight[1])
         memory = torch.cat(memory, 1)
         yy, xx = torch.meshgrid((torch.arange(height, device=device) + .5) / height,
                                (torch.arange(width, device=device) + .5) / width, indexing='ij')
@@ -57,10 +78,45 @@ class FutureSpatiotemporalHead(nn.Module):
         temporal = self.time(torch.stack((span[:, 0], span[:, 1], mid.sin(), mid.cos()), -1))
         query = (self.view(torch.arange(3, device=device))[None, :, None, None]
                  + temporal[None, None, :, None] + self.spatial(xy)[None, None, None])
+        # Skip the addition at zero scale for exact legacy numerical regression.
+        if self.action_injection == 'memory_and_query' and self.action_query_scale != 0:
+            query = query + self.action_query_scale * self.aligned_action_tokens(action_tokens)[:, None, :, None]
         query = query.expand(batch, -1, -1, -1, -1).flatten(1, 3)
+        if self.capture_conditioning:
+            self.conditioning_diagnostics = {'query_norm':float(query.detach().float().norm(dim=-1).mean()),
+                'memory_norm':float(memory.detach().float().norm(dim=-1).mean()),
+                'action_query_norm':float(self.aligned_action_tokens(action_tokens).detach().float().norm(dim=-1).mean()) if action_tokens is not None else None,
+                'world_tokens':world.shape[1] if self.use_world else 0,'action_tokens':8 if action_tokens is not None else 0,'layers':[]}
         for block in self.blocks:
+            if self.capture_conditioning:
+                self._record_group_attention(block, query, memory, (batch, 3, len(span), height*width))
             query = block(query, memory)
         return self.output(query).reshape(batch, 3, len(span), height, width, -1)
+
+    @torch.no_grad()
+    def _record_group_attention(self, block, query, memory, layout):
+        """Diagnostic only, matching torch2.5 MHA q/k projection and softmax."""
+        import math
+        from torch.nn import functional as F
+        attn = block.attn
+        if not attn._qkv_same_embed_dim or attn.add_zero_attn or attn.bias_k is not None:
+            raise ValueError('Unsupported diagnostic MHA layout')
+        qw, kw, _ = attn.in_proj_weight.detach().chunk(3)
+        biases = attn.in_proj_bias.detach().chunk(3) if attn.in_proj_bias is not None else (None, None, None)
+        q = F.linear(block.qnorm(query).float(), qw.float(), None if biases[0] is None else biases[0].float())
+        k = F.linear(block.mnorm(memory).float(), kw.float(), None if biases[1] is None else biases[1].float())
+        b, v, t, p = layout;heads=attn.num_heads;dim=q.shape[-1]//heads
+        q=q.reshape(b,-1,heads,dim).transpose(1,2);k=k.reshape(b,-1,heads,dim).transpose(1,2)
+        weights=(q @ k.transpose(-1,-2) / math.sqrt(dim)).softmax(-1)
+        split = self.conditioning_diagnostics['world_tokens']
+        rows={}
+        for name,lo,hi in [('world',0,split),('action',split,memory.shape[1])]:
+            n=hi-lo
+            if not n:continue
+            mass=weights[...,lo:hi].sum(-1).reshape(b,heads,v,t,p).mean((0,2,4))
+            rows[name]={'token_count':n,'total_mass_by_head_time':mass.cpu().tolist(),
+                        'per_token_mass_by_head_time':(mass/n).cpu().tolist()}
+        self.conditioning_diagnostics['layers'].append(rows)
 
 
 def normalized_clip_loss(prediction, target, valid, *, eps=1e-5, global_count=None):

@@ -10,8 +10,21 @@ ARMS={'S0':('dino_sequence','none','action_only'), 'S1':('dino_sequence','gt_ego
  'S4':('video_clip','gt_ego','action_plus_W'),'C_BASE_A':('video_clip','none','action_only'),
  'C_BASE_AW':('video_clip','none','action_plus_W'),'S4_NO_MAE':('video_clip','gt_ego','action_plus_W')}
 
+PLANNING_ARMS = {'A_W': 'S0', 'A_NO_MAE': 'S0', 'A_ACTION': 'S0',
+                 'V_NONE': 'S2', 'V_MEMORY': 'S3', 'V_QUERY': 'S3'}
+
 
 def create_config(base,arm,clip,lambda_future,seed):
+    if arm in PLANNING_ARMS:
+        cfg = create_config(base, PLANNING_ARMS[arm], clip, lambda_future, seed)
+        f = cfg['foresight']
+        f.update(interaction_readout_source='action' if arm == 'A_ACTION' else 'world',
+                 future_action_injection='memory_and_query' if arm == 'V_QUERY' else 'memory_only',
+                 future_action_query_scale=1.0, interaction_functional_loss='disabled')
+        if arm == 'A_NO_MAE':
+            f.update(arm='NO_INTERACTION', ablation='NO_INTERACTION', enable_interaction=False, lambda_int=0.)
+        ForesightConfig(**f).validate()
+        return cfg
     import copy
     cfg=copy.deepcopy(base);target,condition,planner=ARMS[arm]
     cfg['seed']=seed;cfg['framework']['name']='DDPActionVideoForesight';cfg['framework']['qwenvl']['device_map']='cpu'
@@ -28,7 +41,7 @@ def create_config(base,arm,clip,lambda_future,seed):
 def main():
     p=argparse.ArgumentParser(__doc__)
     for k in ('base-config','data','dino-root','dino-index','interaction-root','clip-root','campaign-root','run-id'):p.add_argument('--'+k,required=True)
-    p.add_argument('--arm',choices=ARMS,required=True);p.add_argument('--calibration');p.add_argument('--lambda-future',type=float)
+    p.add_argument('--arm',choices=(*ARMS, *PLANNING_ARMS),required=True);p.add_argument('--calibration');p.add_argument('--lambda-future',type=float)
     p.add_argument('--seed',type=int,default=42);p.add_argument('--gpus',type=int,default=8);p.add_argument('--micro-batch',type=int,default=4)
     p.add_argument('--updates',type=int,default=100000);p.add_argument('--schedule-updates',type=int,default=100000)
     p.add_argument('--scope',choices=('startup','profile','formal'),required=True);p.add_argument('--limit',type=int,default=0)
@@ -36,6 +49,8 @@ def main():
     p.add_argument('--milestones',default='0,1,100,500,1000,2000,5000,10000,25000,50000,75000,100000')
     p.add_argument('--resume',action='store_true');p.add_argument('--acknowledge-stop',action='store_true');p.add_argument('--deterministic',action='store_true')
     p.add_argument('--local-image-root')
+    p.add_argument('--campaign-gpu-hours', type=float)
+    p.add_argument('--max-seconds', type=float)
     p.add_argument('--register-only',action='store_true');a=p.parse_args()
     source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     if subprocess.check_output(['git','status','--porcelain']).strip():raise ValueError('Freeze run source')
@@ -58,7 +73,7 @@ def main():
         'milestones':milestones,'calibration_sha256':calibration_id,'dino':di['identity'],'interaction':ii['identity'],
         'future_clip':clip['identity'] if cfg['foresight']['enable_future_dino'] else None,
         'initialization':'genericQwen plus independently seeded random driving, queries and heads; no checkpoint initialization',
-        'GPU_hours_limit':None,'time_limit':None,'stage_pause':a.stop_after,'scope':a.scope,
+        'GPU_hours_limit':a.campaign_gpu_hours,'time_limit':a.max_seconds,'stage_pause':a.stop_after,'scope':a.scope,
         'local_image_root':a.local_image_root}
     if a.resume and registration_path.exists():
         registration['stage_pause']=json.loads(registration_path.read_text())['stage_pause']
@@ -85,6 +100,8 @@ def main():
     if cfg['foresight']['enable_interaction']:command+=['--interaction-root',a.interaction_root,'--interaction-identity',ii['identity']]
     if a.local_image_root:command+=['--local-image-root',a.local_image_root]
     if a.scope=='formal':command+=['--registration',str(registration_path)]
+    if a.scope=='formal' and a.campaign_gpu_hours is not None:command+=['--campaign-gpu-hours',str(a.campaign_gpu_hours)]
+    if a.scope=='formal' and a.max_seconds is not None:command+=['--max-seconds',str(a.max_seconds)]
     for key in ('resume','acknowledge_stop','deterministic'):
         if getattr(a,key):command+=['--'+key.replace('_','-')]
     os.execvpe(command[0],command,os.environ)

@@ -12,9 +12,10 @@ class InteractionLatentHead(nn.Module):
         self.blocks = nn.ModuleList(CrossReadout(dim, heads) for _ in range(layers))
         self.output = nn.Linear(dim, dim)
 
-    def forward(self, world):
-        if world.ndim != 3 or not torch.isfinite(world).all(): raise ValueError('Invalid W')
-        memory = self.project(world)
-        q = self.time(torch.arange(self.steps, device=world.device))[None].expand(len(world), -1, -1)
+    def forward(self, memory):
+        if memory.ndim != 3 or memory.shape[1] == 0 or not torch.isfinite(memory).all():
+            raise ValueError('Invalid current interaction memory')
+        q = self.time(torch.arange(self.steps, device=memory.device))[None].expand(len(memory), -1, -1)
+        memory = self.project(memory)
         for block in self.blocks: q = block(q, memory)
         return self.output(q)

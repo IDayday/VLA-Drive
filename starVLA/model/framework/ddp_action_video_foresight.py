@@ -16,7 +16,9 @@ class DDPActionVideoForesight(DDPFullForesight):
                 self.spatiotemporal_head = FutureSpatiotemporalHead(
                     self.qwen_vl_interface.model.config.hidden_size, cfg.future_feature_dim,
                     cfg.future_time_intervals_s, cfg.readout_dim, cfg.readout_layers,
-                    action_condition=cfg.future_action_condition)
+                    action_condition=cfg.future_action_condition,
+                    action_injection=cfg.future_action_injection,
+                    action_query_scale=cfg.future_action_query_scale)
 
     def compute_clip_loss(self, world, targets, global_count):
         cfg = self.foresight_config

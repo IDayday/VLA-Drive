@@ -119,7 +119,9 @@ def evaluate(args,meter,save):
     # The actual saved projection size, rather than a backbone name, is authoritative.
     hidden=checkpoint['model']['project.weight'].shape[1]
     model=FutureSpatiotemporalHead(hidden,dev.identity['target_shape'][-1],dev.identity['time_intervals_s'],
-        action_condition=identity['condition'],use_world=identity['use_world'])
+        action_condition=identity['condition'],use_world=identity['use_world'],
+        action_injection=identity.get('action_injection','memory_only'),
+        action_query_scale=identity.get('action_query_scale',1.))
     model.load_state_dict(checkpoint['model'],strict=True);model.cuda().eval()
     static=None
     if dev.identity['future_target_type']=='dino_sequence':

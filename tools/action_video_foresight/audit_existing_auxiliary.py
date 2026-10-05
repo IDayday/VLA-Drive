@@ -150,7 +150,9 @@ def evaluate(a,out):
             with torch.inference_mode():
                 pred=torch.stack([model.dino_head(w,torch.tensor([float(h)],device='cuda'),targets.shape[-2:])[0] for h in H])
                 shuffle=torch.stack([model.dino_head(sw,torch.tensor([float(h)],device='cuda'),targets.shape[-2:])[0] for h in H])
-                z=model.interaction_head(w)[0];zs=model.interaction_head(sw)[0]
+                if model.foresight_config.interaction_readout_source != 'world':
+                    raise ValueError('Legacy W-only audit cannot evaluate an action readout; use planning_interface_transfer.audit_endpoints')
+                z=model.predict_interaction({'W':w})[0];zs=model.predict_interaction({'W':sw})[0]
             for h in range(4):
                 for v in range(3):
                     mask=valid[h,v][None];key=f'h{H[h]}_v{v}'
