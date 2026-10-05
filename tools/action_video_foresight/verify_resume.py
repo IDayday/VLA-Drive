@@ -28,6 +28,9 @@ def compare(a,b,path='root'):
 
 
 def main():
+    # Full ZeRO states live on a distributed filesystem. Sequential reads avoid
+    # thousands of tiny mmap page faults without changing exact comparisons.
+    torch.set_num_threads(4)
     p=argparse.ArgumentParser(__doc__)
     for k in ('continuous','resumed','output'):p.add_argument('--'+k,required=True)
     a=p.parse_args();first=Path(a.continuous);second=Path(a.resumed);elements=0;files=[]
@@ -37,7 +40,7 @@ def main():
     names={p.name for p in first.glob('*.pt')}
     if names!={p.name for p in second.glob('*.pt')}:raise AssertionError('Checkpoint file populations differ')
     for name in sorted(names):
-        x=torch.load(first/name,map_location='cpu',weights_only=False,mmap=True);y=torch.load(second/name,map_location='cpu',weights_only=False,mmap=True)
+        x=torch.load(first/name,map_location='cpu',weights_only=False,mmap=False);y=torch.load(second/name,map_location='cpu',weights_only=False,mmap=False)
         # DeepSpeed client checkpoint tag/attempt ID is administrative, not model state.
         if 'model_states' in name:
             # Run identity differs by run ID; checkpoint tags are administrative.
