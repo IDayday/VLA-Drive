@@ -45,6 +45,10 @@ def main():
         raise ValueError('Optimized label checksum mismatch')
     labels = np.load(label_root / 'labels.npz', allow_pickle=False)
     lookup = {token: i for i, token in enumerate(labels['tokens'].tolist())}
+    # NPZ indexing otherwise decompresses the complete population for each scene.
+    # Materialize each immutable array once; values and selection are unchanged.
+    optimized_trajectories = labels['trajectories']
+    optimized_accepted = labels['accepted']
     if set(lookup) != {r['token'] for r in train}:
         raise ValueError('Optimized labels must match the same existing full training population')
     stage1 = Path(a.stage1)
@@ -88,10 +92,10 @@ def main():
             accepted = False
             if split == 'train':
                 i = lookup[token]
-                accepted = bool(labels['accepted'][i])
-                if not accepted and not np.allclose(labels['trajectories'][i], target, atol=2e-5):
+                accepted = bool(optimized_accepted[i])
+                if not accepted and not np.allclose(optimized_trajectories[i], target, atol=2e-5):
                     raise ValueError('Optimized fallback does not equal recorded physical trajectory')
-                target = labels['trajectories'][i]
+                target = optimized_trajectories[i]
             raw_image = frames[index]['cams']['CAM_F0']['data_path']
             image = Path(a.sensors) / raw_image
             if not image.is_file():
