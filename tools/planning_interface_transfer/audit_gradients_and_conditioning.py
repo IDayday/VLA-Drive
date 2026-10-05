@@ -84,7 +84,7 @@ def main():
             torch.testing.assert_close(before,model.predict_action(altered,initial_noise=noise),rtol=0,atol=0)
             model.strip_auxiliary_heads();torch.testing.assert_close(before,model.predict_action(obs,initial_noise=noise),rtol=0,atol=0)
         atomic_json(a.output,{'passed':True,'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-          'configuration':dict(cfg.foresight),'real_optimizer_updates':0,'training_samples':len(records),
+          'configuration':OmegaConf.to_container(cfg.foresight,resolve=True),'real_optimizer_updates':0,'training_samples':len(records),
           'gradient_samples':records,'conditioning_attention':attention,'no_GT_leak':True,'deployment_stripping_exact':True,
           'precision':'existing BF16 forward/FP32 gradient diagnostic, TF32 off','peak_allocated':torch.cuda.max_memory_allocated()})
         save()
