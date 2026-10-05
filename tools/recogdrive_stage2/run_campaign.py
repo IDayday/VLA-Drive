@@ -91,7 +91,7 @@ def main():
                 '--master_port='+str(plan['ports'][phase]), *common]
             environment = ['env', 'CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7', 'OMP_NUM_THREADS=2', 'PYTHONUNBUFFERED=1',
                 'OPENBLAS_NUM_THREADS=1', 'PYTHONDONTWRITEBYTECODE=1', 'NCCL_IB_DISABLE=0',
-                'NCCL_P2P_DISABLE=0', 'NCCL_SHM_DISABLE=0', 'CUDA_LAUNCH_BLOCKING=1',
+                'NCCL_P2P_DISABLE=0', 'NCCL_SHM_DISABLE=0', 'CUDA_LAUNCH_BLOCKING=0',
                 'OPENSCENE_DATA_ROOT='+plan['sensors'], 'NUPLAN_MAPS_ROOT='+plan['maps'],
                 'NUPLAN_MAP_VERSION=nuplan-maps-v1.0', 'NAVSIM_EXP_ROOT='+str(root)]
             shell = 'cd '+shlex.quote(str(source))+' && '+shlex.join(environment+command)

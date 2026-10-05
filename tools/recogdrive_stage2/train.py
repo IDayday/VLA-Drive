@@ -177,11 +177,18 @@ def main():
             random.setstate(rng['python']); np.random.set_state(rng['numpy'])
             torch.set_rng_state(rng['torch'].cpu()); torch.cuda.set_rng_state(rng['cuda'].cpu())
         def on_train_end(self, trainer, module):
+            # The final training batch may not run validation (notably max_steps
+            # smoke runs). ModelCheckpoint.last then belongs to an earlier
+            # optimizer boundary. All ranks participate because our checkpoint
+            # hook gathers each rank's RNG state.
+            if not stopping[0]:
+                trainer.save_checkpoint(output / 'checkpoints' / 'final.ckpt')
             if trainer.is_global_zero:
                 steps = sorted({int(v['step']) for v in trainer.optimizers[0].state.values() if 'step' in v})
                 atomic_json(output / 'status.json', dict(status='PAUSED' if stopping[0] else 'COMPLETE',
                     trainer_global_step=trainer.global_step, optimizer_steps=steps,
                     scene_exposure=self.exposure, epochs=trainer.current_epoch,
+                    checkpoint='paused.ckpt' if stopping[0] else 'final.ckpt',
                     gpu_hours=world * (time.time()-begin) / 3600, timestamp=time.time()))
     checkpoint = pl.callbacks.ModelCheckpoint(dirpath=output / 'checkpoints', monitor='val/loss_epoch',
         mode='min', save_top_k=5, every_n_epochs=1, save_last=True)
