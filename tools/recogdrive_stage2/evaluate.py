@@ -133,6 +133,8 @@ def load_agent(args, manifest):
     state = checkpoint['state_dict']
     if any(not k.startswith('agent.') for k in state):
         raise ValueError('Unexpected non-agent checkpoint tensors')
+    if any(v.is_floating_point() and v.dtype != torch.float32 for v in state.values()):
+        raise ValueError('Stage2 checkpoint is not the original FP32 master state')
     agent.load_state_dict({k[len('agent.'):]: v for k, v in state.items()}, strict=True)
     agent.float().eval()
     if str(agent.action_head.config) != identity['architecture']:
@@ -142,8 +144,14 @@ def load_agent(args, manifest):
             if not (name == 'action_head.eta.eta_logit' and torch.isposinf(value).all()
                     and not dict(agent.named_parameters())[name].requires_grad):
                 raise FloatingPointError('Nonfinite checkpoint tensor: ' + name)
+    if digest(Path(identity['stage1']['path']) / 'model.safetensors') != identity['stage1']['sha256']:
+        raise ValueError('Public Stage1 weight contents changed')
     builder = ReCogDriveFeatureBuilder(cache_hidden_state=True, cache_mode=True, model_type='internvl',
         checkpoint_path=identity['stage1']['path'], device='cuda:0')
+    from safetensors import safe_open
+    with safe_open(Path(identity['stage1']['path']) / 'model.safetensors', framework='pt') as weights:
+        if set(weights.keys()) != set(builder.backbone.model.state_dict()):
+            raise ValueError('Stage1 core tensor inventory differs from the public file')
     builder.backbone.eval()
     for p in builder.backbone.parameters():
         p.requires_grad_(False)
@@ -204,6 +212,8 @@ def export(args):
             if completed == 0:
                 random.seed(seed); np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
                 reference = agent.compute_trajectory(current).poses
+                if isinstance(reference, torch.Tensor):
+                    reference = reference.detach().cpu().numpy()
                 error = float(np.max(np.abs(poses - reference)))
                 if error > 1e-6:
                     raise ValueError('Original compute_trajectory parity failed')
