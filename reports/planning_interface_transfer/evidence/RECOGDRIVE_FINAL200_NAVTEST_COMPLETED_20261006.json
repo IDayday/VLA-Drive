@@ -1,0 +1,82 @@
+{
+  "PDMS_points": 86.11762781116944,
+  "actual_optimizer_updates": 65372,
+  "checkpoint_sha256": "ba78c77ea6db3a9eb5b8ac7f3aca111a2239b8de904273d478141f9ca5f2e998",
+  "completed_scenes": 12146,
+  "evaluation_gpu_hours": 1.1288470368915133,
+  "evaluation_optimizer_updates": 0,
+  "evaluation_source": "57130ca69b81b7652ec487f75a98ae518fa7f657",
+  "evaluation_wall_seconds": 1545.763732433319,
+  "failed": 0,
+  "formal_training_gpu_hours": 157.33260059780545,
+  "inference_protocol": {
+    "candidates": 1,
+    "deterministic": false,
+    "future_conditioning": false,
+    "learned_scorer": null,
+    "noise": "new registered SHA256(recogdrive:seed:scene), independent of GPU layout",
+    "postprocess": "unchanged official clamp and denorm_odo",
+    "sampler": "unchanged official DDIM",
+    "steps": 5
+  },
+  "logs": 136,
+  "metrics_raw_0_to_1": {
+    "comfort": 1.0,
+    "drivable_area_compliance": 0.9606454799934134,
+    "driving_direction_compliance": 0.9758356660629014,
+    "ego_progress": 0.8501386180903081,
+    "no_at_fault_collisions": 0.9592046764366869,
+    "score": 0.8611762781116944,
+    "time_to_collision_within_bound": 0.8833360777210605
+  },
+  "missing": 0,
+  "precision": {
+    "stage1_compute": "BF16 official backbone",
+    "stage1_hidden_interface": "FP32 full sequence",
+    "stage1_weights": "BF16",
+    "stage2_compute": "FP32",
+    "stage2_master": "FP32",
+    "tf32": false
+  },
+  "requested_scenes": 12146,
+  "run": "final200_navtest_seed42_v1",
+  "sampling_seed": 42,
+  "scene_exposure": 16729600,
+  "schema": "recogdrive_final200_navtest_completion_v1",
+  "scope": "One training seed, one scene-bound inference seed; no five-run or matched C/S method-effect claim.",
+  "snapshot_utc": "2026-10-06T15:25:12.876763+00:00",
+  "source_receipts": {
+    "SUMMARY.json": "8e28ff0a0af9b11ce2f28a48779c2dcb51df97db83ec05b8eae07b3dc2e80183",
+    "official_parity.json": "aca5bf8811cd00e089651066d24d30fb4fda919cec83bf67c8ccdb24b52a1316",
+    "official_reference/official.csv": "8e81f126ed826960f043db45f6f7b0bf5122b67d850cd83bae8c45bb4b321d0a",
+    "registration.json": "7b729d02536ff21a3a5745707341327ab509d3ed3d15c8fe95acf8f452f5c1bb",
+    "scores/scenes.csv": "636df0e032b3aec1e963ced3e5e89222f31a5603e4c72ec02ffd0abfc9e05524"
+  },
+  "status": "COMPLETE",
+  "trained_epochs": 200,
+  "trainer_global_step": 65400,
+  "training_seed": 0,
+  "training_source": "8160b510fe2422587cd1409efb0e0a9cc0fabadd",
+  "validation": {
+    "all_12146_prediction_receipts_and_file_hashes_verified": true,
+    "all_8_export_shards_complete": true,
+    "all_seven_metrics_max_abs_error": {
+      "comfort": 0.0,
+      "drivable_area_compliance": 0.0,
+      "driving_direction_compliance": 0.0,
+      "ego_progress": 0.0,
+      "no_at_fault_collisions": 0.0,
+      "score": 0.0,
+      "time_to_collision_within_bound": 0.0
+    },
+    "canonical_token_log_population_verified": true,
+    "full_independent_official_reference_replay": true,
+    "official_inputs_and_semantic_identity_verified": true,
+    "official_token_factor_parity_passed": true,
+    "official_tolerance_raw": 1e-08,
+    "original_inference_max_pose_error": 0,
+    "original_inference_spot_scenes": 8
+  },
+  "zero_score_percent": 7.788572369504363,
+  "zero_score_scenes": 946
+}
