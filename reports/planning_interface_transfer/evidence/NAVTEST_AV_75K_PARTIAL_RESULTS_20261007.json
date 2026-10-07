@@ -1,0 +1,482 @@
+{
+  "observed_utc": "2026-10-07T15:01:09.644211+00:00",
+  "completed_result": {
+    "status": "COMPLETE",
+    "arm": "A_ACTION",
+    "update": 75000,
+    "scenes": 12146,
+    "logs": 136,
+    "failed": 0,
+    "zero_scenes": 580,
+    "PDMS_points": 88.87072694017078,
+    "metrics_points": {
+      "comfort": 99.99176683681871,
+      "drivable_area_compliance": 97.07722707064053,
+      "driving_direction_compliance": 98.3657171085131,
+      "ego_progress": 83.27976928028174,
+      "no_at_fault_collisions": 98.08578956034908,
+      "score": 88.87072694017078,
+      "time_to_collision_within_bound": 94.59081178988967
+    },
+    "ego": {
+      "ADE": 0.862886408144916,
+      "FDE": 1.8408083754532176,
+      "failed": 0,
+      "scenes": 12146,
+      "stationary_ADE": 11.28490146369712,
+      "stationary_FDE": 19.9392717540922,
+      "valid": true,
+      "yaw_MAE_rad": 0.02416964900490483,
+      "yaw_endpoint_rad": 0.041502699237834104
+    },
+    "checkpoint": {
+      "sha256": "ed7e80df12f013b38dd913886febd5e868e10b4202b8403daf5e366dc1f62740",
+      "run_identity": "dd0961c754823e5d7ead9a5fe18ce4b41e0ec4cabb4f055e7f6f9221592558f0",
+      "training_source_sha": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "tag": "milestone_075000",
+      "completed": 75000,
+      "arm": "C1",
+      "scope": "formal",
+      "files": {
+        "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "a434610e87838ae0724169b59bcd86a93bb7535d2dab8ad8fdfe31b00f7d8bc7",
+        "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "d65e1ca02130465edfbe876b55590be0a41e2d92c897e7dfb06ac981999e93e9",
+        "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "4530d281a04e7a449212c3f07c23b4363e404f3a372f6cccfada2daa57aaa51c",
+        "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "0df112109e928aa42518caf8e939b24189af8c6eb45b19dd79bf65a544f2d597",
+        "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "46353ba0897ad7709ff5dc68331cbcb49dcd8fa45eddc6dcde7e572e043692f5",
+        "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "21e88ddd1c9d742b6ab298c8609f92462a3ed0dfc663b8b323fd353cdae2d669",
+        "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "ffb11132d56dfdf42446850eefd96a1843790a2b54683580438bfc09e19404d2",
+        "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "7b4598ef290f66b651ffee8b2ec08763ba572556583cfbedfe46ac928c48b46e",
+        "mp_rank_00_model_states.pt": "c97cd8e59cd31c923a86c9d372af6525916733cf0dfd7223d46ff8e963bf24ad",
+        "rng_rank0.pt": "ee2d43d991acd2ec316c685799d937126e89b5f2bd07c26d50a8a20553b1015a",
+        "rng_rank1.pt": "da38608822df771101ee4c4184ff2bab9cfba1315222b2844601d51cc2e3de3e",
+        "rng_rank2.pt": "7352f9db07ac1f1ece036d1be14ebc356c4c6cad92a0afc33fb931eab1e431e9",
+        "rng_rank3.pt": "79277d15480d1d189e3d0a87904cfea95aef4919fc74ad535eaa867134e9759e",
+        "rng_rank4.pt": "262e6d9f8f45a72be947d600847cb788b325fe994b1ca961e778027f8eaed6b0",
+        "rng_rank5.pt": "82417079bfd3a6f3a1c311c17f0bb887d6ad0a58079ccf678c493c19712be5e0",
+        "rng_rank6.pt": "6f2b929498be67afed884156aac2ecb74280ba7a6cd76d02fccc783dd980311c",
+        "rng_rank7.pt": "ac7b19488037312f0f6dee5039c973f1c36c287aaee1f7c005e871c01cdb9f5f"
+      },
+      "training_seed": 42,
+      "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight"
+    },
+    "evaluation_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+    "controller_source": "c9e101096b08b828ee7362faa12f2cd6f635a449",
+    "sampling_seed": 42,
+    "execution_source": "4b566a6c6c6d3b4b6212ed19d7af018485d5298d",
+    "execution_allocation": "c61a1d1eaf69e31ac6b7847ac89933296592bb9fc79716d1feca548012e4b3c6",
+    "precision": "FP32 optimizer masters/FP32 compute/TF32off",
+    "inference_steps": 10,
+    "candidates": 1,
+    "cpu_qualification": "reused full official replay plus new8 distinct-log official spots",
+    "reused_cpu_parity_sha256": "aca5bf8811cd00e089651066d24d30fb4fda919cec83bf67c8ccdb24b52a1316",
+    "official_spot_max_error": 0.0,
+    "complete_csv_sha256": "c92f1084fd27a560147f2769ce3251c3842ccf1e714d267c38297098977ff00a",
+    "optimizer_updates": 0,
+    "completed_unix": 1791382731.6343243
+  },
+  "compared50k": {
+    "PDMS": 88.37380769355326,
+    "zeros": 636,
+    "ego": {
+      "ADE": 0.9246377418677854,
+      "FDE": 1.9058820120326898,
+      "failed": 0,
+      "scenes": 12146,
+      "stationary_ADE": 11.28490146369712,
+      "stationary_FDE": 19.9392717540922,
+      "valid": true,
+      "yaw_MAE_rad": 0.025368265933870014,
+      "yaw_endpoint_rad": 0.04337006367505024
+    },
+    "delta_PDMS_points": 0.49691924661752296
+  },
+  "six_tasks": [
+    {
+      "arm": "A_ACTION",
+      "update": 75000,
+      "predictions": 12146,
+      "cpu_progress": {
+        "completed": 12146,
+        "requested": 12146,
+        "inflight_chunks": 0,
+        "failed": 0
+      },
+      "complete": true,
+      "status": {
+        "status": "RUNNING",
+        "pid": 444712,
+        "registration": "15c99d9ccd30c48773297604c6937f8d3c507371164fb6729d33afb5d8bce66a",
+        "completed": [
+          "A_ACTION"
+        ],
+        "active_gpu_ranks": [
+          [
+            "A_NO_MAE",
+            0
+          ],
+          [
+            "A_NO_MAE",
+            1
+          ],
+          [
+            "A_NO_MAE",
+            2
+          ],
+          [
+            "A_NO_MAE",
+            3
+          ],
+          [
+            "V_QUERY",
+            0
+          ],
+          [
+            "V_QUERY",
+            1
+          ],
+          [
+            "V_QUERY",
+            2
+          ],
+          [
+            "V_QUERY",
+            3
+          ]
+        ],
+        "queued_gpu_ranks": [],
+        "cpu_scoring": [
+          "A_NO_MAE"
+        ],
+        "updated_unix": 1791385266.4657416,
+        "optimizer_updates": 0
+      }
+    },
+    {
+      "arm": "A_ACTION",
+      "update": 80000,
+      "predictions": 5837,
+      "cpu_progress": {
+        "completed": 5832,
+        "requested": 12146,
+        "inflight_chunks": 0,
+        "failed": 0
+      },
+      "complete": false,
+      "status": {
+        "status": "RUNNING",
+        "pid": 443390,
+        "registration": "10e389a513b89c3753426aef2d4df14010136748945cd7eb79e575e19d096666",
+        "completed": [],
+        "active_gpu_ranks": [
+          [
+            "A_ACTION",
+            0
+          ],
+          [
+            "A_ACTION",
+            1
+          ],
+          [
+            "A_ACTION",
+            2
+          ],
+          [
+            "A_ACTION",
+            3
+          ]
+        ],
+        "queued_gpu_ranks": [],
+        "cpu_scoring": [
+          "A_ACTION"
+        ],
+        "updated_unix": 1791385267.6084728,
+        "optimizer_updates": 0
+      }
+    },
+    {
+      "arm": "A_NO_MAE",
+      "update": 75000,
+      "predictions": 5635,
+      "cpu_progress": {
+        "completed": 5631,
+        "requested": 12146,
+        "inflight_chunks": 0,
+        "failed": 0
+      },
+      "complete": false,
+      "status": {
+        "status": "RUNNING",
+        "pid": 444712,
+        "registration": "15c99d9ccd30c48773297604c6937f8d3c507371164fb6729d33afb5d8bce66a",
+        "completed": [
+          "A_ACTION"
+        ],
+        "active_gpu_ranks": [
+          [
+            "A_NO_MAE",
+            0
+          ],
+          [
+            "A_NO_MAE",
+            1
+          ],
+          [
+            "A_NO_MAE",
+            2
+          ],
+          [
+            "A_NO_MAE",
+            3
+          ],
+          [
+            "V_QUERY",
+            0
+          ],
+          [
+            "V_QUERY",
+            1
+          ],
+          [
+            "V_QUERY",
+            2
+          ],
+          [
+            "V_QUERY",
+            3
+          ]
+        ],
+        "queued_gpu_ranks": [],
+        "cpu_scoring": [
+          "A_NO_MAE"
+        ],
+        "updated_unix": 1791385266.4657416,
+        "optimizer_updates": 0
+      }
+    },
+    {
+      "arm": "A_NO_MAE",
+      "update": 80000,
+      "predictions": 5820,
+      "cpu_progress": {
+        "completed": 5816,
+        "requested": 12146,
+        "inflight_chunks": 0,
+        "failed": 0
+      },
+      "complete": false,
+      "status": {
+        "status": "RUNNING",
+        "pid": 443393,
+        "registration": "52c7ab7108ec0636bb0bcef5fc836472a2e4fbb0c87429fdeddd599fa2319e0e",
+        "completed": [],
+        "active_gpu_ranks": [
+          [
+            "A_NO_MAE",
+            0
+          ],
+          [
+            "A_NO_MAE",
+            1
+          ],
+          [
+            "A_NO_MAE",
+            2
+          ],
+          [
+            "A_NO_MAE",
+            3
+          ]
+        ],
+        "queued_gpu_ranks": [],
+        "cpu_scoring": [
+          "A_NO_MAE"
+        ],
+        "updated_unix": 1791385267.6913855,
+        "optimizer_updates": 0
+      }
+    },
+    {
+      "arm": "V_QUERY",
+      "update": 75000,
+      "predictions": 5849,
+      "cpu_progress": null,
+      "complete": false,
+      "status": {
+        "status": "RUNNING",
+        "pid": 444712,
+        "registration": "15c99d9ccd30c48773297604c6937f8d3c507371164fb6729d33afb5d8bce66a",
+        "completed": [
+          "A_ACTION"
+        ],
+        "active_gpu_ranks": [
+          [
+            "A_NO_MAE",
+            0
+          ],
+          [
+            "A_NO_MAE",
+            1
+          ],
+          [
+            "A_NO_MAE",
+            2
+          ],
+          [
+            "A_NO_MAE",
+            3
+          ],
+          [
+            "V_QUERY",
+            0
+          ],
+          [
+            "V_QUERY",
+            1
+          ],
+          [
+            "V_QUERY",
+            2
+          ],
+          [
+            "V_QUERY",
+            3
+          ]
+        ],
+        "queued_gpu_ranks": [],
+        "cpu_scoring": [
+          "A_NO_MAE"
+        ],
+        "updated_unix": 1791385266.4657416,
+        "optimizer_updates": 0
+      }
+    },
+    {
+      "arm": "V_QUERY",
+      "update": 80000,
+      "predictions": 5926,
+      "cpu_progress": {
+        "completed": 5922,
+        "requested": 12146,
+        "inflight_chunks": 0,
+        "failed": 0
+      },
+      "complete": false,
+      "status": {
+        "status": "RUNNING",
+        "pid": 443398,
+        "registration": "226387e68ac89a643907c04474eef5bade846a6bfc613874744c4e87582271be",
+        "completed": [],
+        "active_gpu_ranks": [
+          [
+            "V_QUERY",
+            0
+          ],
+          [
+            "V_QUERY",
+            1
+          ],
+          [
+            "V_QUERY",
+            2
+          ],
+          [
+            "V_QUERY",
+            3
+          ]
+        ],
+        "queued_gpu_ranks": [],
+        "cpu_scoring": [
+          "V_QUERY"
+        ],
+        "updated_unix": 1791385267.6876972,
+        "optimizer_updates": 0
+      }
+    }
+  ],
+  "future_queue": {
+    "status": "RUNNING",
+    "registration": "b1aee9f28642e344c4806b80ae1f960956d3851dc1f14efe604c2f586d3520d2",
+    "pid": 443350,
+    "tasks": {
+      "A_ACTION_080000": "RUNNING",
+      "A_ACTION_090000": "WAITING",
+      "A_ACTION_100000": "WAITING",
+      "A_NO_MAE_080000": "RUNNING",
+      "A_NO_MAE_090000": "WAITING",
+      "A_NO_MAE_100000": "WAITING",
+      "V_QUERY_080000": "RUNNING",
+      "V_QUERY_090000": "WAITING",
+      "V_QUERY_100000": "WAITING"
+    },
+    "completed_tasks": 0,
+    "awaiting75k": false,
+    "orphan_requires_inspection": false,
+    "execution_allocation": "1ba968f4a407fff1f6d58c4ed6f446f2be3743e358248020a0d87bb1a5e07c61",
+    "active_tasks": [
+      "A_ACTION_080000",
+      "A_NO_MAE_080000",
+      "V_QUERY_080000"
+    ],
+    "optimizer_updates": 0,
+    "updated_unix": 1791385268.6760879
+  },
+  "original_s3_curve": [
+    {
+      "update": 50000,
+      "PDMS_points": 88.5037387459557,
+      "ADE": 0.9073634259678132,
+      "FDE": 1.8890750562743899,
+      "failed": 0,
+      "scenes": 12146,
+      "result": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_050000/result.json"
+    },
+    {
+      "update": 60000,
+      "PDMS_points": 89.0207194829746,
+      "ADE": 0.8599351826581453,
+      "FDE": 1.8323157119110287,
+      "failed": 0,
+      "scenes": 12146,
+      "result": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_060000/result.json"
+    },
+    {
+      "update": 70000,
+      "PDMS_points": 89.28084120493352,
+      "ADE": 0.8563840135215061,
+      "FDE": 1.8254123637136834,
+      "failed": 0,
+      "scenes": 12146,
+      "result": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_070000/result.json"
+    },
+    {
+      "update": 80000,
+      "PDMS_points": 89.21488181159518,
+      "ADE": 0.858381082341949,
+      "FDE": 1.8342568109914341,
+      "failed": 0,
+      "scenes": 12146,
+      "result": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_080000/result.json"
+    },
+    {
+      "update": 90000,
+      "PDMS_points": 89.29576933511423,
+      "ADE": 0.8527773188543029,
+      "FDE": 1.82244237794992,
+      "failed": 0,
+      "scenes": 12146,
+      "result": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_090000/result.json"
+    },
+    {
+      "update": 100000,
+      "PDMS_points": 89.4081789221355,
+      "ADE": 0.8537996498299724,
+      "FDE": 1.8242211226063494,
+      "failed": 0,
+      "scenes": 12146,
+      "result": "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_100000/result.json"
+    }
+  ],
+  "validation": "Rechecked full canonical scores/population, checkpoint-registration identity, complete CSV SHA256 and four zero-failure export shards. Applicable full official backend qualification reused; fresh8 distinct-log official spots maxerror0.",
+  "evaluation_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+  "execution_source": "4b566a6c6c6d3b4b6212ed19d7af018485d5298d"
+}
