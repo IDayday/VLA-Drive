@@ -1,0 +1,968 @@
+{
+  "schema": "planning_interface_exact50k_navtest_matched_v1",
+  "status": "COMPLETE",
+  "created_utc": "2026-10-07T07:57:34.527786+00:00",
+  "artifact_root": "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_50k_20261007_v1",
+  "training_seed": 42,
+  "sampling_seeds": [
+    42
+  ],
+  "updates": 50000,
+  "training_labels": "original NAVSIM GT; not optimized relabel variants",
+  "requested_new_arms": [
+    "A_ACTION",
+    "A_NO_MAE",
+    "V_QUERY"
+  ],
+  "registration_identity": "79b62d28ba61c441e6acca4cf3206c54dd8cf2420e1e0ffa674028b11c4cab65",
+  "controller_source": "0f8257eda763527362444efdda575244e8897ab1",
+  "analysis_source_before_report": "a839fdcc209a3221697477dab7f474c3a7ed14f0",
+  "protocol": {
+    "W_retained": 144,
+    "auxiliary_heads_removed": true,
+    "candidates_per_scene": 1,
+    "current_views": [
+      "CAM_F0",
+      "CAM_L0",
+      "CAM_R0"
+    ],
+    "evaluation_purpose": "user_requested_fixed_checkpoint",
+    "future_conditioning": false,
+    "history_images": 0,
+    "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+    "precision": "FP32",
+    "sampling_seed": 42,
+    "scorer": null,
+    "solver": "original Euler",
+    "steps": 10,
+    "tf32": false,
+    "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+  },
+  "current_identity": {
+    "annotations_in_cache": false,
+    "cameras": [
+      "CAM_F0",
+      "CAM_L0",
+      "CAM_R0"
+    ],
+    "fallback_sensor_root": [],
+    "future_in_cache": false,
+    "history_images": 0,
+    "history_poses": 4,
+    "identity": "44ba2878112ec0c51a8998db4fe1096e4e965904934dead7a101c29c43821cdb",
+    "image_size": [
+      1024,
+      576
+    ],
+    "index_sha256": "93093612d4560a228635db6323cf7d1b84aa93ff36b8013b6753337c6c5ce7e8",
+    "raw_log_root": "/mnt/navsim/test_navsim_logs/test",
+    "schema": "ddpolicy_current_cameras_v1",
+    "sensor_root": "/mnt/navsim/test_sensor_blobs/test",
+    "split": "navtest",
+    "writer_sha256": "6b26a7e6c4dd91ade22a29946a366174d431a0a15375f9a4c03247b9c7963874"
+  },
+  "evaluator_identity": {
+    "evaluator_sha256": "07c3fdf737388f4ee219bba4de5187a2140d8e6411151d686302666be5f063c8",
+    "failure_policy": "retain all requested rows; failures scored zero and invalidate benchmark",
+    "index_sha256": "129857f904f7a06371839f83a6d7e4de843b17e536e10b686e9fbfb024f2497c",
+    "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+    "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+    "protocol": "official NAVSIM v1 full reference cache; one predicted trajectory per scene",
+    "runtime_versions": {
+      "numpy": "1.26.4",
+      "scipy": "1.13.1",
+      "shapely": "2.0.7"
+    },
+    "scorer_sha256": "02ab075017d4edb1c8bba6476ef1674b84d43dbca0f599df87cfe052b2dd5211",
+    "simulator_sha256": "ae07b533ada10bc37e973e5685a46a7cafc51de8d922ed02add558452ff04807"
+  },
+  "source_csv_sha256": {
+    "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_50k_20261007_v1/A_ACTION/scores/scenes.csv": "5865a23d13d2015810ad152ceaf5ece6d90fd4d5487b7baa23f37f6066037d0d",
+    "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_50k_20261007_v1/A_NO_MAE/scores/scenes.csv": "6561ce3853b2c3db5c8d9803935ed66d02e0ac2d39356c428ae913687e7f9d6c",
+    "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_50k_20261007_v1/V_QUERY/scores/scenes.csv": "4377e33d5b20cd48ecde883754dc387a5f03814679b7421b30e973a4b6e38743",
+    "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S0_050000/scores/scenes.csv": "05f05a7ea7f018f826d765a729f82d700bce179eb42d26a0562a983fc09d5e98",
+    "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S2_050000/scores/scenes.csv": "2fac6fa559a0798def1e6c9846900a8d1e4dbaf361aa5efcd30787ad9ada77fa",
+    "/mnt/project/action-video-foresight-artifacts/20261002/navtest_50k_100k_20261003/jobs/S3_050000/scores/scenes.csv": "1fccfdf5051d7e21a434b16417673bd1790cb9e0014a7741ea331f602b78d039"
+  },
+  "results": {
+    "A_ACTION": {
+      "status": "COMPLETE",
+      "arm": "A_ACTION",
+      "update": 50000,
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 636,
+      "PDMS_points": 88.37380769355326,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 96.5503046270377,
+        "driving_direction_compliance": 98.29573522147209,
+        "ego_progress": 82.68843815580864,
+        "no_at_fault_collisions": 98.08167297875843,
+        "score": 88.37380769355326,
+        "time_to_collision_within_bound": 94.64844393215873
+      },
+      "ego": {
+        "ADE": 0.9246377418677854,
+        "FDE": 1.9058820120326898,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.025368265933870014,
+        "yaw_endpoint_rad": 0.04337006367505024
+      },
+      "checkpoint": {
+        "sha256": "0629886b6e48a3d88622cec742e8c0265a2fbef1a1bd92e50c00d2300cd11dbf",
+        "run_identity": "dd0961c754823e5d7ead9a5fe18ce4b41e0ec4cabb4f055e7f6f9221592558f0",
+        "training_source_sha": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+        "tag": "milestone_050000",
+        "completed": 50000,
+        "arm": "C1",
+        "scope": "formal",
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "b8474e14c0a0dddbfb032040e7429ef9d950aa8c1a1c64d1a1907dd284407728",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "ddc3dac4b4c7bdffdd99c1a4ddf69f9777371e1eca48de2b5d13159fc5ab92e5",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "f0fadf5d553db3f1c3f9350354e9613ddc8baf251e15526069ba937c539bb9bc",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "25d0f5fb866916f41478204e53ead50b2dbc2c8299272c611aa7b2e8f36db3e7",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "fc2dba29239edd8b1887cf75924ad6bcd9327ce892ba9c162f541e64b4727f3b",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "fb93491cd474706476e12827622240b0d63db0fd810945d1e3a8ea9d0779b96b",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "6810b34e4ec7fecd6c343ae0b8852e62f7f9adf9bc9ba1d473ddb0e8f39a4be9",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "6efaa5a511b03b68f9496c3ebdfc4cd1a1a9cdf609eb8bad235aced5fc555612",
+          "mp_rank_00_model_states.pt": "e008c81c40f54a81f4d438bb0e94aeb9b298e8c3c3950256d65090795b87516a",
+          "rng_rank0.pt": "1122d7adf16ee5c193f458ffc89d2d3e94fad76ff119d053d0b56b28a94c38ff",
+          "rng_rank1.pt": "4c233f89babca5f5e0e24781e8f78661822abc503d4e8a8ea910624504922640",
+          "rng_rank2.pt": "d028952190ece15461b44f4c4957785f08014ba0ed324f668493014b97f76d04",
+          "rng_rank3.pt": "31609046ffd45b66c91e6a43eaa1c97ba96c48e26d53b693adc17b661d3b1e93",
+          "rng_rank4.pt": "57d9fbee4b8f670982f28a426e7777246baf94c885220b88ab77e42e956b80a8",
+          "rng_rank5.pt": "99c451bf9d9a5ca6f396f4b83c7f57d67128a30032af96fe0b877308892c96f4",
+          "rng_rank6.pt": "7f2f8866d7f505d06ae294ed5f9a4d1d1fa1f2cfc9e4acc3dc725821ed07e2e3",
+          "rng_rank7.pt": "8b0dd185172045bef7bfd17e193abec0174dcb54dca4c10cadf29363f345bd0e"
+        },
+        "training_seed": 42,
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight"
+      },
+      "evaluation_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "controller_source": "0f8257eda763527362444efdda575244e8897ab1",
+      "sampling_seed": 42,
+      "precision": "FP32 optimizer masters/FP32 compute/TF32off",
+      "inference_steps": 10,
+      "candidates": 1,
+      "cpu_qualification": "reused full official replay plus new8 distinct-log official spots",
+      "reused_cpu_parity_sha256": "aca5bf8811cd00e089651066d24d30fb4fda919cec83bf67c8ccdb24b52a1316",
+      "official_spot_max_error": 0.0,
+      "complete_csv_sha256": "5865a23d13d2015810ad152ceaf5ece6d90fd4d5487b7baa23f37f6066037d0d",
+      "optimizer_updates": 0,
+      "completed_unix": 1791344496.9711645
+    },
+    "A_NO_MAE": {
+      "status": "COMPLETE",
+      "arm": "A_NO_MAE",
+      "update": 50000,
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 559,
+      "PDMS_points": 88.879682088472,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 97.02782809155278,
+        "driving_direction_compliance": 98.4192326691915,
+        "ego_progress": 83.17477967885118,
+        "no_at_fault_collisions": 98.2875020582908,
+        "score": 88.879682088472,
+        "time_to_collision_within_bound": 94.79664086942203
+      },
+      "ego": {
+        "ADE": 0.9029297395428068,
+        "FDE": 1.880331445868166,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.024752918710547245,
+        "yaw_endpoint_rad": 0.04190056647373742
+      },
+      "checkpoint": {
+        "sha256": "0a30de13ae669c04be4d5c87994ac50e560206979cf33b5420fbaa87a78bed11",
+        "run_identity": "c19a829e2275b2fd0f9022b1a0ba42a07c4a9372a33de7f41eca4965d7783638",
+        "training_source_sha": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+        "tag": "milestone_050000",
+        "completed": 50000,
+        "arm": "NO_INTERACTION",
+        "scope": "formal",
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "dcfdace5f4a2c38e1b29699073baaaa8e2b18fb121c85a2228c33748d7d7603f",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "676447ee67b3d80f7373986374d5081b0d2a7ea67581a553624492573ae704bb",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "d446ba9a4836ab0670fb8700f630e433d1ec787c653f0dc8599f8f5546cf7e0a",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "ab02a33fe8f145aeb0e8da055fc24926f537582582f7cc5d1059cfaf70b3cdfd",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "f6d9f0e82064cf27ef8a2da016c16fbfd2cbd8fbe11cd3eeed3ca552041d06b7",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "9bbcfc372348f626ba453000ab33ceac385a6d4fe3aaccfb0795c8690d36d179",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "2af46b0c8ac09c5d73d268b4e8f5e081d5d2cbdb23e6907f4d32a1adeed721d5",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "272f2fab096cf01205fe27a58fbd73bb9d6d024375f001526bce2642f2c0f84a",
+          "mp_rank_00_model_states.pt": "d1fdd63dc0e9828178868b8cd5fef007b6061b46311eaa282299b2e0c85cdd14",
+          "rng_rank0.pt": "1122d7adf16ee5c193f458ffc89d2d3e94fad76ff119d053d0b56b28a94c38ff",
+          "rng_rank1.pt": "4c233f89babca5f5e0e24781e8f78661822abc503d4e8a8ea910624504922640",
+          "rng_rank2.pt": "d028952190ece15461b44f4c4957785f08014ba0ed324f668493014b97f76d04",
+          "rng_rank3.pt": "31609046ffd45b66c91e6a43eaa1c97ba96c48e26d53b693adc17b661d3b1e93",
+          "rng_rank4.pt": "57d9fbee4b8f670982f28a426e7777246baf94c885220b88ab77e42e956b80a8",
+          "rng_rank5.pt": "99c451bf9d9a5ca6f396f4b83c7f57d67128a30032af96fe0b877308892c96f4",
+          "rng_rank6.pt": "7f2f8866d7f505d06ae294ed5f9a4d1d1fa1f2cfc9e4acc3dc725821ed07e2e3",
+          "rng_rank7.pt": "8b0dd185172045bef7bfd17e193abec0174dcb54dca4c10cadf29363f345bd0e"
+        },
+        "training_seed": 42,
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight"
+      },
+      "evaluation_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "controller_source": "0f8257eda763527362444efdda575244e8897ab1",
+      "sampling_seed": 42,
+      "precision": "FP32 optimizer masters/FP32 compute/TF32off",
+      "inference_steps": 10,
+      "candidates": 1,
+      "cpu_qualification": "reused full official replay plus new8 distinct-log official spots",
+      "reused_cpu_parity_sha256": "aca5bf8811cd00e089651066d24d30fb4fda919cec83bf67c8ccdb24b52a1316",
+      "official_spot_max_error": 0.0,
+      "complete_csv_sha256": "6561ce3853b2c3db5c8d9803935ed66d02e0ac2d39356c428ae913687e7f9d6c",
+      "optimizer_updates": 0,
+      "completed_unix": 1791348912.3870935
+    },
+    "V_QUERY": {
+      "status": "COMPLETE",
+      "arm": "V_QUERY",
+      "update": 50000,
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 603,
+      "PDMS_points": 88.71352081668496,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 96.72320105384489,
+        "driving_direction_compliance": 98.33278445578792,
+        "ego_progress": 82.87622488245997,
+        "no_at_fault_collisions": 98.22163675284045,
+        "score": 88.71352081668496,
+        "time_to_collision_within_bound": 95.10126790712991
+      },
+      "ego": {
+        "ADE": 0.9354628463599665,
+        "FDE": 1.927867758292055,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.025441502847719948,
+        "yaw_endpoint_rad": 0.043968095797432286
+      },
+      "checkpoint": {
+        "sha256": "1309e3964d1f78cb775fb30c98d00c43b2a1b9833e393b6f90f6c0615c3bd2d3",
+        "run_identity": "b314859c53108a2a6fade18167113edbae306fcd5c92f1af40cea66ac844b81e",
+        "training_source_sha": "7c5231c514f2a327dabf934fbe3bd9a30f9b7c6c",
+        "tag": "milestone_050000",
+        "completed": 50000,
+        "arm": "C1",
+        "scope": "formal",
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "d2c46c474aa7c7ac5b50372d8535d2af13cf9bc2cb8e00a1acd7dd5c6239a52b",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "c113b635b09bd386ed859316d0d1ed50137ca8beea82e2b0a546e9a5a85d20bd",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "c3c8fceb5bbea731377d0c65c4a8a43a0faed03dcd2cc041728b75f9c65746a6",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "31baefb1381b3dbd1d8fb8ef9e0d0203b15de4002605516ddf94490dcbdb21e4",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "0e1f4a058e51ecf3f8247ae6fd8329540dbccea6836a96d1acb3fd8ccab1cd0f",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "c805a755c7bec1f0967838784c64e7029041986737d11c9b75da949d8f14517e",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "a017514bd44ef46fbe3d8050d34a612276a23179861a8374ce3b25ab6cee069d",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "3a9b77b7acbb97b3f233a15c7419560360a48a541b8474399222d0886ed960bd",
+          "mp_rank_00_model_states.pt": "5ef80606a92595017e555a4901c78314f935290ce6ceaecd0116c7a219593db9",
+          "rng_rank0.pt": "1122d7adf16ee5c193f458ffc89d2d3e94fad76ff119d053d0b56b28a94c38ff",
+          "rng_rank1.pt": "4c233f89babca5f5e0e24781e8f78661822abc503d4e8a8ea910624504922640",
+          "rng_rank2.pt": "d028952190ece15461b44f4c4957785f08014ba0ed324f668493014b97f76d04",
+          "rng_rank3.pt": "31609046ffd45b66c91e6a43eaa1c97ba96c48e26d53b693adc17b661d3b1e93",
+          "rng_rank4.pt": "57d9fbee4b8f670982f28a426e7777246baf94c885220b88ab77e42e956b80a8",
+          "rng_rank5.pt": "99c451bf9d9a5ca6f396f4b83c7f57d67128a30032af96fe0b877308892c96f4",
+          "rng_rank6.pt": "7f2f8866d7f505d06ae294ed5f9a4d1d1fa1f2cfc9e4acc3dc725821ed07e2e3",
+          "rng_rank7.pt": "8b0dd185172045bef7bfd17e193abec0174dcb54dca4c10cadf29363f345bd0e"
+        },
+        "training_seed": 42,
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight"
+      },
+      "evaluation_source": "7c5231c514f2a327dabf934fbe3bd9a30f9b7c6c",
+      "controller_source": "0f8257eda763527362444efdda575244e8897ab1",
+      "sampling_seed": 42,
+      "precision": "FP32 optimizer masters/FP32 compute/TF32off",
+      "inference_steps": 10,
+      "candidates": 1,
+      "cpu_qualification": "reused full official replay plus new8 distinct-log official spots",
+      "reused_cpu_parity_sha256": "aca5bf8811cd00e089651066d24d30fb4fda919cec83bf67c8ccdb24b52a1316",
+      "official_spot_max_error": 0.0,
+      "complete_csv_sha256": "4377e33d5b20cd48ecde883754dc387a5f03814679b7421b30e973a4b6e38743",
+      "optimizer_updates": 0,
+      "completed_unix": 1791353292.5639439
+    },
+    "S0": {
+      "status": "COMPLETE",
+      "arm": "S0",
+      "update": 50000,
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 650,
+      "PDMS_points": 88.24310629560121,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 96.30330973159889,
+        "driving_direction_compliance": 98.43569899555409,
+        "ego_progress": 82.41232177410701,
+        "no_at_fault_collisions": 98.2092870080685,
+        "score": 88.24310629560121,
+        "time_to_collision_within_bound": 94.94483780668533
+      },
+      "ego": {
+        "ADE": 0.914154785014059,
+        "FDE": 1.8855399496062333,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.024899473317468578,
+        "yaw_endpoint_rad": 0.042312648303586414
+      },
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 50000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "eb9d16b35dbf7cfdf8e0cf8930d5e819b60b7355ddfde35db7d9ebe747cf06d1",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "c341769d6fd3657434d56b2e06231888b51c4381dcae711cef5c8aa7ca6d5035",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "7c85c2f5cd38c3265fe46f2ecf0e9c1d9a0155cd6a1399c65bbaf3ea01fefe6e",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "71fe768681fd45e3605e49feabc876a64f1b522afcb6d8c98a89351d7889dcc1",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "3fa948045ed348b7fad7ef0305c7a3c0d8283c498aab10d5c59a00426f5d68a6",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "9c16568f67d804c36d073e754e3969d2dfc730ae8fd8beb990a886ed910002d4",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "d493b0f4859ee71b795371b4d3399034365e780a40929affd3159b3dd1554247",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "9f91e8fce3e54b1869cb4ef1f1db364ce3900c475d9300755597616e09ff4156",
+          "mp_rank_00_model_states.pt": "bb8738450eac17720dfb45d2e8194b4699e359196d5f92c8695e16a58451c74c",
+          "rng_rank0.pt": "1122d7adf16ee5c193f458ffc89d2d3e94fad76ff119d053d0b56b28a94c38ff",
+          "rng_rank1.pt": "4c233f89babca5f5e0e24781e8f78661822abc503d4e8a8ea910624504922640",
+          "rng_rank2.pt": "d028952190ece15461b44f4c4957785f08014ba0ed324f668493014b97f76d04",
+          "rng_rank3.pt": "31609046ffd45b66c91e6a43eaa1c97ba96c48e26d53b693adc17b661d3b1e93",
+          "rng_rank4.pt": "57d9fbee4b8f670982f28a426e7777246baf94c885220b88ab77e42e956b80a8",
+          "rng_rank5.pt": "99c451bf9d9a5ca6f396f4b83c7f57d67128a30032af96fe0b877308892c96f4",
+          "rng_rank6.pt": "7f2f8866d7f505d06ae294ed5f9a4d1d1fa1f2cfc9e4acc3dc725821ed07e2e3",
+          "rng_rank7.pt": "8b0dd185172045bef7bfd17e193abec0174dcb54dca4c10cadf29363f345bd0e"
+        },
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight",
+        "run_identity": "8dd7d914f10559b0fbfc9593ee1f480a8bb2da80cccb53cba0d684a468e209cd",
+        "scope": "formal",
+        "sha256": "f06fb8a4bc8f457d8b81dd19e00a7471516af582c82e298ae8f2104c5647f1a3",
+        "tag": "milestone_050000",
+        "training_seed": 42,
+        "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+      },
+      "training_source": "1493deda247107efe076b9294863a6753391298a",
+      "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+      "observer_source": "dd1df3b3d5b6d571226258e0cb2b33cb77d0e107",
+      "complete_csv_sha256": "4d5f4a8d95657abd52df3d7882fe2b869eac7630a269a2812710a6e2b5ea22bf",
+      "completed_unix": 1791070049.2043,
+      "sampling_seed": 42,
+      "precision": "FP32 masters/FP32 compute/TF32off",
+      "optimizer_updates_in_evaluation": 0
+    },
+    "S2": {
+      "status": "COMPLETE",
+      "arm": "S2",
+      "update": 50000,
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 639,
+      "PDMS_points": 88.32954208274487,
+      "metrics_points": {
+        "comfort": 99.99176683681871,
+        "drivable_area_compliance": 96.45150666886218,
+        "driving_direction_compliance": 98.27515231351886,
+        "ego_progress": 82.47453987839538,
+        "no_at_fault_collisions": 98.12695537625555,
+        "score": 88.32954208274487,
+        "time_to_collision_within_bound": 94.85427301169109
+      },
+      "ego": {
+        "ADE": 0.9135014251828492,
+        "FDE": 1.8857551284566851,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.0251271021382691,
+        "yaw_endpoint_rad": 0.04293917735486247
+      },
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 50000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "df157a1bdbe4276c58f7bc7c01cc657b0b4b190717853a8b8542f22868a9ed1e",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "8d6d2ce74861c51c2faf047818f510b0d1e008b389eef931a7852e994ff0c939",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "3756972eac116d5b0852395d304683dbc0278997ff2350ebb74bfb69e21629d8",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "a4ef19e261272681dd7315c9728c1ff409145fea8734a1306a90dbde4a2131a8",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "43447eb7b86498182a0eb09c86a3c4ea9aab11cbeeee18aadf8d43838ab8f141",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "21dac456f3cb3e99e539d096899de187ad34c80e0fc349f28422b3f498d9cf1d",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "bd418ffa10435ebd6cdec50a005ea0cbd066c0d740d6148b32fcf4bbdb23eac2",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "3f0ecbf521bb43ea05ab6e6cff3d8be4eb62980ab2b38ba960d10fa42676a8a8",
+          "mp_rank_00_model_states.pt": "ecdb5941d1d2444f0cb21d972a9386cb58c7d678571b91c06834e465209cb7a6",
+          "rng_rank0.pt": "1122d7adf16ee5c193f458ffc89d2d3e94fad76ff119d053d0b56b28a94c38ff",
+          "rng_rank1.pt": "4c233f89babca5f5e0e24781e8f78661822abc503d4e8a8ea910624504922640",
+          "rng_rank2.pt": "d028952190ece15461b44f4c4957785f08014ba0ed324f668493014b97f76d04",
+          "rng_rank3.pt": "31609046ffd45b66c91e6a43eaa1c97ba96c48e26d53b693adc17b661d3b1e93",
+          "rng_rank4.pt": "57d9fbee4b8f670982f28a426e7777246baf94c885220b88ab77e42e956b80a8",
+          "rng_rank5.pt": "99c451bf9d9a5ca6f396f4b83c7f57d67128a30032af96fe0b877308892c96f4",
+          "rng_rank6.pt": "7f2f8866d7f505d06ae294ed5f9a4d1d1fa1f2cfc9e4acc3dc725821ed07e2e3",
+          "rng_rank7.pt": "8b0dd185172045bef7bfd17e193abec0174dcb54dca4c10cadf29363f345bd0e"
+        },
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight",
+        "run_identity": "d94cd54ca60cd286dc4d5e3646d4da693f6494d7c6983c50ee81684560c69205",
+        "scope": "formal",
+        "sha256": "e56c024ae859db4d20185281801751c562716860bb9821a95d1cb93f90448b81",
+        "tag": "milestone_050000",
+        "training_seed": 42,
+        "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+      },
+      "training_source": "1493deda247107efe076b9294863a6753391298a",
+      "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+      "observer_source": "dd1df3b3d5b6d571226258e0cb2b33cb77d0e107",
+      "complete_csv_sha256": "9a4b52d6b410a72a034d87a9a50e7a74a3f940aba46154fbc468e956767e75b5",
+      "completed_unix": 1791070425.1002405,
+      "sampling_seed": 42,
+      "precision": "FP32 masters/FP32 compute/TF32off",
+      "optimizer_updates_in_evaluation": 0
+    },
+    "S3": {
+      "status": "COMPLETE",
+      "arm": "S3",
+      "update": 50000,
+      "scenes": 12146,
+      "logs": 136,
+      "failed": 0,
+      "zero_scenes": 625,
+      "PDMS_points": 88.5037387459557,
+      "metrics_points": {
+        "comfort": 100.0,
+        "drivable_area_compliance": 96.59147044294419,
+        "driving_direction_compliance": 98.31631812942533,
+        "ego_progress": 82.71036426521758,
+        "no_at_fault_collisions": 98.14753828420879,
+        "score": 88.5037387459557,
+        "time_to_collision_within_bound": 94.93660464350403
+      },
+      "ego": {
+        "ADE": 0.9073634259678132,
+        "FDE": 1.8890750562743899,
+        "failed": 0,
+        "scenes": 12146,
+        "stationary_ADE": 11.28490146369712,
+        "stationary_FDE": 19.9392717540922,
+        "valid": true,
+        "yaw_MAE_rad": 0.025107777521000373,
+        "yaw_endpoint_rad": 0.042756845310438385
+      },
+      "checkpoint": {
+        "arm": "C1",
+        "completed": 50000,
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "b99e304f12d80140db34e00a93e78c654f699bb55b1a5680bb829a42249bf03b",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "e0bc780ad8072e99ed6d1b0b48c83f330639f60d6769a4d1c7f8f8461caaada4",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "286faa992bdc1dc904ca6ca0ae88e3557b53e7ec6d3ddf0d1eb33ba9b29a11b0",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "043bd22cce5a37b2d7f32c5e234964e927ba932fa55e05ae86ce2602e7f205ee",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "e08f98af3c251bd29e65019dc7a3438e87e4b8f81236228a4593a5e112f1e8dd",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "cb8e3b1f7b87a48b30071bb266472e5846c99eaab825a747294b8a9610d0a0c0",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "5ce3677fa07547ffdb981fd3729535191dbd3c90e1392f008af9ed1ab4f5d18e",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "6987453d6c049f9b9abf1b56407d70456cf2861b918041b058e8b8172549396e",
+          "mp_rank_00_model_states.pt": "04120647f5b1016d31df8590e26c381ec5510ba3ad17ee04e7f62445b0228ad4",
+          "rng_rank0.pt": "1122d7adf16ee5c193f458ffc89d2d3e94fad76ff119d053d0b56b28a94c38ff",
+          "rng_rank1.pt": "4c233f89babca5f5e0e24781e8f78661822abc503d4e8a8ea910624504922640",
+          "rng_rank2.pt": "d028952190ece15461b44f4c4957785f08014ba0ed324f668493014b97f76d04",
+          "rng_rank3.pt": "31609046ffd45b66c91e6a43eaa1c97ba96c48e26d53b693adc17b661d3b1e93",
+          "rng_rank4.pt": "57d9fbee4b8f670982f28a426e7777246baf94c885220b88ab77e42e956b80a8",
+          "rng_rank5.pt": "99c451bf9d9a5ca6f396f4b83c7f57d67128a30032af96fe0b877308892c96f4",
+          "rng_rank6.pt": "7f2f8866d7f505d06ae294ed5f9a4d1d1fa1f2cfc9e4acc3dc725821ed07e2e3",
+          "rng_rank7.pt": "8b0dd185172045bef7bfd17e193abec0174dcb54dca4c10cadf29363f345bd0e"
+        },
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight",
+        "run_identity": "d4cead2eb0714e908e5a90fd84da954489f8e5ed25d1dbb0a41dae78b9c39606",
+        "scope": "formal",
+        "sha256": "349f20db03749ee6125a4351a9c68a3a8ebb0d8badcd91b000d17930c5cf42e9",
+        "tag": "milestone_050000",
+        "training_seed": 42,
+        "training_source_sha": "1493deda247107efe076b9294863a6753391298a"
+      },
+      "training_source": "1493deda247107efe076b9294863a6753391298a",
+      "evaluation_source": "1493deda247107efe076b9294863a6753391298a",
+      "observer_source": "dd1df3b3d5b6d571226258e0cb2b33cb77d0e107",
+      "complete_csv_sha256": "9849f49b5677efb8e9613acb6c55807a50a64d44b518a7b54fcafd767c62c40c",
+      "completed_unix": 1791056709.5434947,
+      "sampling_seed": 42,
+      "precision": "FP32 masters/FP32 compute/TF32off",
+      "optimizer_updates_in_evaluation": 0
+    }
+  },
+  "comparisons": {
+    "A_ACTION-S0": {
+      "scenes": 12146,
+      "logs": 136,
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "valid": true,
+      "metrics": {
+        "score": {
+          "first": 0.8837380769355326,
+          "baseline": 0.8824310629560064,
+          "delta": 0.001307013979526376,
+          "log_cluster_95_interval": [
+            -0.0020562192219568095,
+            0.0046927918573759966
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9808167297875844,
+          "baseline": 0.982092870080685,
+          "delta": -0.0012761402931006091,
+          "log_cluster_95_interval": [
+            -0.003559971023389792,
+            0.0009124567279488557
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9655030462703771,
+          "baseline": 0.9630330973159889,
+          "delta": 0.002469948954388276,
+          "log_cluster_95_interval": [
+            -0.0006334689376985656,
+            0.005609888996008539
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8268843815580849,
+          "baseline": 0.8241232177410698,
+          "delta": 0.002761163817015045,
+          "log_cluster_95_interval": [
+            -0.0005239186901732291,
+            0.00607615182684964
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9464844393215873,
+          "baseline": 0.9494483780668533,
+          "delta": -0.002963938745265931,
+          "log_cluster_95_interval": [
+            -0.005977739115322148,
+            0.000189277582964077
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9829573522147209,
+          "baseline": 0.9843569899555409,
+          "delta": -0.001399637740820023,
+          "log_cluster_95_interval": [
+            -0.0024191395873480273,
+            -0.0004893034767342702
+          ]
+        }
+      },
+      "wins": 4250,
+      "losses": 3957,
+      "ties": 3939,
+      "official_zero_transitions": {
+        "both_zero": 446,
+        "old_zero_new_nonzero": 204,
+        "old_nonzero_new_zero": 190,
+        "both_nonzero": 11306
+      },
+      "comparison_role": "primary"
+    },
+    "A_ACTION-A_NO_MAE": {
+      "scenes": 12146,
+      "logs": 136,
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "valid": true,
+      "metrics": {
+        "score": {
+          "first": 0.8837380769355326,
+          "baseline": 0.8887968208847207,
+          "delta": -0.005058743949188128,
+          "log_cluster_95_interval": [
+            -0.008950609504764567,
+            -0.0014993094460855549
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9808167297875844,
+          "baseline": 0.982875020582908,
+          "delta": -0.0020582907953235635,
+          "log_cluster_95_interval": [
+            -0.004287937469385996,
+            0.0001975135834472868
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9655030462703771,
+          "baseline": 0.9702782809155277,
+          "delta": -0.004775234645150667,
+          "log_cluster_95_interval": [
+            -0.008456126115504167,
+            -0.0014640035419789363
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8268843815580849,
+          "baseline": 0.8317477967885135,
+          "delta": -0.004863415230428584,
+          "log_cluster_95_interval": [
+            -0.008773787045365402,
+            -0.0011108719667329234
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9464844393215873,
+          "baseline": 0.9479664086942203,
+          "delta": -0.0014819693726329656,
+          "log_cluster_95_interval": [
+            -0.004558200805699225,
+            0.0015953956693866196
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9829573522147209,
+          "baseline": 0.984192326691915,
+          "delta": -0.001234974477194138,
+          "log_cluster_95_interval": [
+            -0.00249343736827458,
+            0.0
+          ]
+        }
+      },
+      "wins": 3659,
+      "losses": 4583,
+      "ties": 3904,
+      "official_zero_transitions": {
+        "both_zero": 414,
+        "old_zero_new_nonzero": 145,
+        "old_nonzero_new_zero": 222,
+        "both_nonzero": 11365
+      },
+      "comparison_role": "primary"
+    },
+    "V_QUERY-S3": {
+      "scenes": 12146,
+      "logs": 136,
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "valid": true,
+      "metrics": {
+        "score": {
+          "first": 0.8871352081668468,
+          "baseline": 0.885037387459561,
+          "delta": 0.0020978207072858378,
+          "log_cluster_95_interval": [
+            -0.0015536495178809864,
+            0.005885742702208154
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9822163675284045,
+          "baseline": 0.9814753828420879,
+          "delta": 0.0007409846863164828,
+          "log_cluster_95_interval": [
+            -0.001459834651970202,
+            0.002916143538293281
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9672320105384489,
+          "baseline": 0.9659147044294418,
+          "delta": 0.0013173061090070806,
+          "log_cluster_95_interval": [
+            -0.0018194194152619655,
+            0.00478180972995754
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8287622488246017,
+          "baseline": 0.8271036426521785,
+          "delta": 0.0016586061724232187,
+          "log_cluster_95_interval": [
+            -0.0018016057838909395,
+            0.005380881017770178
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9510126790712992,
+          "baseline": 0.9493660464350403,
+          "delta": 0.0016466326362588506,
+          "log_cluster_95_interval": [
+            -0.0016913074844665428,
+            0.005094774367295952
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 1.0,
+          "delta": -8.233163181294254e-05,
+          "log_cluster_95_interval": [
+            -0.00027594581244740405,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9833278445578791,
+          "baseline": 0.9831631812942533,
+          "delta": 0.00016466326362588507,
+          "log_cluster_95_interval": [
+            -0.001095436281657173,
+            0.0014674516095508764
+          ]
+        }
+      },
+      "wins": 4303,
+      "losses": 3883,
+      "ties": 3960,
+      "official_zero_transitions": {
+        "both_zero": 433,
+        "old_zero_new_nonzero": 192,
+        "old_nonzero_new_zero": 170,
+        "both_nonzero": 11351
+      },
+      "comparison_role": "primary"
+    },
+    "A_NO_MAE-S0": {
+      "scenes": 12146,
+      "logs": 136,
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "valid": true,
+      "metrics": {
+        "score": {
+          "first": 0.8887968208847207,
+          "baseline": 0.8824310629560064,
+          "delta": 0.006365757928714505,
+          "log_cluster_95_interval": [
+            0.0019346362779950061,
+            0.011163002711239196
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.982875020582908,
+          "baseline": 0.982092870080685,
+          "delta": 0.0007821505022229541,
+          "log_cluster_95_interval": [
+            -0.001345082038372928,
+            0.002849462413534345
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9702782809155277,
+          "baseline": 0.9630330973159889,
+          "delta": 0.0072451835995389425,
+          "log_cluster_95_interval": [
+            0.0031367323893902394,
+            0.011714045656024753
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8317477967885135,
+          "baseline": 0.8241232177410698,
+          "delta": 0.00762457904744363,
+          "log_cluster_95_interval": [
+            0.003151666111853483,
+            0.01231007063040737
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9479664086942203,
+          "baseline": 0.9494483780668533,
+          "delta": -0.0014819693726329656,
+          "log_cluster_95_interval": [
+            -0.004319073254519636,
+            0.0013729158976385173
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.984192326691915,
+          "baseline": 0.9843569899555409,
+          "delta": -0.00016466326362588507,
+          "log_cluster_95_interval": [
+            -0.001466527048111079,
+            0.0010338445840302791
+          ]
+        }
+      },
+      "wins": 4784,
+      "losses": 3475,
+      "ties": 3887,
+      "official_zero_transitions": {
+        "both_zero": 398,
+        "old_zero_new_nonzero": 252,
+        "old_nonzero_new_zero": 161,
+        "both_nonzero": 11335
+      },
+      "comparison_role": "supplementary_exploratory"
+    },
+    "V_QUERY-S2": {
+      "scenes": 12146,
+      "logs": 136,
+      "bootstrap_draws": 10000,
+      "bootstrap_seed": 20260928,
+      "interval_scope": "paired log clusters after averaging fixed inference seeds within each scene; one training seed",
+      "valid": true,
+      "metrics": {
+        "score": {
+          "first": 0.8871352081668468,
+          "baseline": 0.8832954208274465,
+          "delta": 0.0038397873394001654,
+          "log_cluster_95_interval": [
+            -0.0001381662316770289,
+            0.008009908233553438
+          ]
+        },
+        "no_at_fault_collisions": {
+          "first": 0.9822163675284045,
+          "baseline": 0.9812695537625555,
+          "delta": 0.0009468137658488391,
+          "log_cluster_95_interval": [
+            -0.0008464194507797901,
+            0.0028486999084621437
+          ]
+        },
+        "drivable_area_compliance": {
+          "first": 0.9672320105384489,
+          "baseline": 0.9645150666886217,
+          "delta": 0.0027169438498271035,
+          "log_cluster_95_interval": [
+            -0.0008692327338166669,
+            0.006643700266955927
+          ]
+        },
+        "ego_progress": {
+          "first": 0.8287622488246017,
+          "baseline": 0.8247453987839543,
+          "delta": 0.004016850040647563,
+          "log_cluster_95_interval": [
+            6.5344300362587e-05,
+            0.00815581568139054
+          ]
+        },
+        "time_to_collision_within_bound": {
+          "first": 0.9510126790712992,
+          "baseline": 0.9485427301169109,
+          "delta": 0.002469948954388276,
+          "log_cluster_95_interval": [
+            -0.0006359373528433998,
+            0.005784534195668272
+          ]
+        },
+        "comfort": {
+          "first": 0.9999176683681871,
+          "baseline": 0.9999176683681871,
+          "delta": 0.0,
+          "log_cluster_95_interval": [
+            0.0,
+            0.0
+          ]
+        },
+        "driving_direction_compliance": {
+          "first": 0.9833278445578791,
+          "baseline": 0.9827515231351885,
+          "delta": 0.0005763214226905978,
+          "log_cluster_95_interval": [
+            -0.00045388714656291175,
+            0.0016740794787068265
+          ]
+        }
+      },
+      "wins": 4516,
+      "losses": 3639,
+      "ties": 3991,
+      "official_zero_transitions": {
+        "both_zero": 446,
+        "old_zero_new_nonzero": 193,
+        "old_nonzero_new_zero": 157,
+        "both_nonzero": 11350
+      },
+      "comparison_role": "supplementary_exploratory"
+    }
+  },
+  "evaluation_cost": {
+    "A_ACTION": {
+      "GPU_hours": 4.869290113184187,
+      "GPU_exporter_processes": 4,
+      "CPU_worker_process_wall_hours": 2.4820406385262808,
+      "GPU_meter_basis": "sum of UUID-leased exporter wall time, loading and save included; lease queue wait not GPU occupation",
+      "peak_allocated_GiB": 11.95595645904541,
+      "peak_reserved_GiB": 12.373046875
+    },
+    "A_NO_MAE": {
+      "GPU_hours": 4.868472800718413,
+      "GPU_exporter_processes": 4,
+      "CPU_worker_process_wall_hours": 2.5016177062855824,
+      "GPU_meter_basis": "sum of UUID-leased exporter wall time, loading and save included; lease queue wait not GPU occupation",
+      "peak_allocated_GiB": 11.95595645904541,
+      "peak_reserved_GiB": 12.373046875
+    },
+    "V_QUERY": {
+      "GPU_hours": 4.836146832174725,
+      "GPU_exporter_processes": 4,
+      "CPU_worker_process_wall_hours": 2.423411106997066,
+      "GPU_meter_basis": "sum of UUID-leased exporter wall time, loading and save included; lease queue wait not GPU occupation",
+      "peak_allocated_GiB": 11.95595645904541,
+      "peak_reserved_GiB": 12.373046875
+    }
+  },
+  "total_evaluation_GPU_hours": 14.573909746077325,
+  "optimizer_updates_in_evaluation": 0,
+  "identity_checks": {
+    "complete_scene_and_log_populations": true,
+    "identical_current_inputs": true,
+    "identical_inference_protocol": true,
+    "identical_official_evaluator_fingerprint": true,
+    "identical_metric_cache_per_token": true
+  },
+  "limitations": [
+    "50k midpoint, not common100k endpoint",
+    "one training seed and one inference seed",
+    "Navtest repeatedly observed; not a new blind test",
+    "small gains with intervals crossing zero are unresolved",
+    "reused full official CPU replay qualification plus fresh eight distinct-log official submission spots per requested model; no new full per-model official replay"
+  ]
+}
