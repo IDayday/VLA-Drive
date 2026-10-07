@@ -194,5 +194,151 @@
   "reused_cpu_qualification": "/mnt/project/recogdrive-stage2-evaluation-artifacts/20261006/final200_navtest_seed42_v1/official_parity.json",
   "per_new_model_official_checks": "Eight fresh distinct-log unmodified official reference spots plus complete population/content verification before result acceptance",
   "no_training_source_or_recipe_changes": true,
-  "missing60k70k": "Exact rolling weights no longer exist; not evaluated or substituted"
+  "missing60k70k": "Exact rolling weights no longer exist; not evaluated or substituted",
+  "recovery": {
+    "captured_unix": 1791368509.7467868,
+    "first_attempt_exit": {
+      "exit_code": 1,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "-m",
+        "tools.planning_interface_transfer.evaluate_fixed_navtest",
+        "run",
+        "--registration",
+        "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_75k_20261007_v1/registration.json"
+      ],
+      "completed_unix": 1791368242.343341,
+      "bootstrap_pid": 428365
+    },
+    "failure": "All four A_ACTION exporters hitCUDA OOM at model.to before writing any trajectory; transient other-memory origin not identified, no verified pressure owner was signaled",
+    "own_waiting_scorer_stopped": {
+      "reason": "All4 GPU exporters failedOOM before any prediction; stop only the exact own waiting CPU score group so finite controller can exit; preserve all records",
+      "own_cpu_pids": [
+        428470
+      ],
+      "unix": 1791368242.1444447
+    },
+    "resume_same_registration": {
+      "bootstrap_pid": 429744,
+      "command": [
+        "/root/miniconda3/envs/ddp/bin/python",
+        "-u",
+        "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_75k_20261007_v1/bootstrap_attempt2.py",
+        "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_75k_20261007_v1",
+        "tools.planning_interface_transfer.evaluate_fixed_navtest",
+        "run"
+      ],
+      "started_unix": 1791368284.1729617,
+      "resume_same_registration": true,
+      "failed_attempt_retained": true
+    },
+    "current75k_status": {
+      "status": "RUNNING",
+      "pid": 429746,
+      "registration": "15c99d9ccd30c48773297604c6937f8d3c507371164fb6729d33afb5d8bce66a",
+      "completed": [],
+      "active_gpu_ranks": [
+        [
+          "A_ACTION",
+          0
+        ],
+        [
+          "A_ACTION",
+          1
+        ],
+        [
+          "A_ACTION",
+          2
+        ],
+        [
+          "A_ACTION",
+          3
+        ]
+      ],
+      "queued_gpu_ranks": [
+        [
+          "A_NO_MAE",
+          0
+        ],
+        [
+          "A_NO_MAE",
+          1
+        ],
+        [
+          "A_NO_MAE",
+          2
+        ],
+        [
+          "A_NO_MAE",
+          3
+        ],
+        [
+          "V_QUERY",
+          0
+        ],
+        [
+          "V_QUERY",
+          1
+        ],
+        [
+          "V_QUERY",
+          2
+        ],
+        [
+          "V_QUERY",
+          3
+        ]
+      ],
+      "cpu_scoring": [
+        "A_ACTION"
+      ],
+      "updated_unix": 1791368506.3406951,
+      "optimizer_updates": 0
+    },
+    "future_status": {
+      "status": "RUNNING",
+      "registration": "b1aee9f28642e344c4806b80ae1f960956d3851dc1f14efe604c2f586d3520d2",
+      "pid": 428393,
+      "tasks": {
+        "A_ACTION_080000": "WAITING",
+        "A_ACTION_090000": "WAITING",
+        "A_ACTION_100000": "WAITING",
+        "A_NO_MAE_080000": "WAITING",
+        "A_NO_MAE_090000": "WAITING",
+        "A_NO_MAE_100000": "WAITING",
+        "V_QUERY_080000": "WAITING",
+        "V_QUERY_090000": "WAITING",
+        "V_QUERY_100000": "WAITING"
+      },
+      "completed_tasks": 0,
+      "awaiting75k": true,
+      "orphan_requires_inspection": false,
+      "optimizer_updates": 0,
+      "updated_unix": 1791368508.5119839
+    },
+    "A_ACTION_predictions_written": 224,
+    "protocol": {
+      "W_retained": 144,
+      "auxiliary_heads_removed": true,
+      "candidates_per_scene": 1,
+      "current_views": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "evaluation_purpose": "user_requested_fixed_checkpoint",
+      "future_conditioning": false,
+      "history_images": 0,
+      "noise": "SHA256 foresight-action-v1:seed:token, CPU torch.randn(1,8,4)",
+      "precision": "FP32",
+      "sampling_seed": 42,
+      "scorer": null,
+      "solver": "original Euler",
+      "steps": 10,
+      "tf32": false,
+      "trajectory": "ego only, original DDP postprocessing; 8x0.5s; xy/yaw in ego(t0)"
+    },
+    "no_precision_model_or_solver_changes": true
+  }
 }
