@@ -23,6 +23,7 @@ from tools.full_foresight.navtest_schedule import atomic, read, sha, source_iden
 
 
 ARMS = {"A_ACTION", "A_NO_MAE", "V_QUERY"}
+UPDATES = {50000, 60000, 70000, 75000, 80000, 90000, 100000}
 METRICS = ("score", "no_at_fault_collisions", "drivable_area_compliance", "ego_progress",
            "time_to_collision_within_bound", "comfort", "driving_direction_compliance")
 
@@ -31,10 +32,11 @@ def prepare(request, output):
     c = read(request)
     if Path(output).exists():
         raise FileExistsError("Never overwrite a fixed-checkpoint registration")
-    if {m["arm"] for m in c["models"]} != ARMS or len(c["models"]) != 3:
-        raise ValueError("Exactly the three requested interface experiments are required")
-    if c["update"] != 50000 or c["sampling_seed"] != 42:
-        raise ValueError("This request is the exact common 50k checkpoint, sampling seed42")
+    arms = [m["arm"] for m in c["models"]]
+    if not arms or len(set(arms)) != len(arms) or not set(arms) <= ARMS:
+        raise ValueError("Only distinct requested A/V interface experiments are allowed")
+    if c["update"] not in UPDATES or c["sampling_seed"] != 42:
+        raise ValueError("An exact registered checkpoint and sampling seed42 are required")
     c["controller_source"] = source_identity(Path.cwd())
     c["controller_worktree"] = str(Path.cwd())
     c["canonical_hostname"] = socket.gethostname()
@@ -63,7 +65,19 @@ def prepare(request, output):
             raise ValueError("Immutable native inference source changed")
         training, checkpoint = checkpoint_identity(m["training_run"], m["tag"])
         run = Path(m["training_run"])
-        upstream = run.parent.parent/"registrations"/(run.name+".json")
+        source_run = Path(m.get("source_training_run", m["training_run"]))
+        if source_run != run:
+            snapshot_path = run.parent/"snapshot.json"
+            snapshot = read(snapshot_path)
+            original = read(source_run/"identity.json")
+            sizes = {p.name:p.stat().st_size for p in (run/"checkpoints"/m["tag"]).iterdir()}
+            if (training != original or snapshot["run_identity"] != training["identity"]
+                    or snapshot["source_training_run"] != str(source_run)
+                    or snapshot["training_run"] != str(run) or snapshot["tag"] != m["tag"]
+                    or snapshot["completed"] != c["update"] or snapshot["file_sizes"] != sizes):
+                raise ValueError("Preserved checkpoint provenance changed")
+            files += [str(source_run/"identity.json"), str(snapshot_path)]
+        upstream = source_run.parent.parent/"registrations"/(source_run.name+".json")
         original_registration = read(upstream)
         if (training["scope"] != "formal" or checkpoint["completed"] != c["update"]
                 or checkpoint["training_seed"] != 42 or training["source_sha"] != m["evaluation_source"]
@@ -84,7 +98,7 @@ def prepare(request, output):
             scene_count=12146, log_count=136, official_metric_index_sha256=sha(c["metric_index"]),
             sampling_seeds=[42], inference_steps=10, candidates_per_scene=1, learned_scorer=None,
             precision="FP32", final_endpoint_comparison=False,
-            checkpoint_selection="exact user-requested 50k; no best-Navtest selection")
+            checkpoint_selection=f"exact user-requested {c['update']} updates; no best-Navtest selection")
         lock["identity"] = identity_hash(lock)
         atomic(job/"lock.json", lock)
         atomic(job/"status.json", dict(status="QUEUED", optimizer_updates=0))
@@ -218,7 +232,7 @@ def _run(path, children):
             native = [c["inference_python"], "-u", "-m", "tools.foresight.export_predictions",
                 "--training-run", m["training_run"], "--checkpoint-tag", m["tag"],
                 "--current-root", c["current_root"], "--output", str(job/"predictions"),
-                "--campaign-root", str(root), "--run-id", f"{m['arm']}_50k_rank{rank}_{stamp}",
+                "--campaign-root", str(root), "--run-id", f"{m['arm']}_{c['update']}_rank{rank}_{stamp}",
                 "--sampling-seed", "42", "--rank", str(rank), "--world-size", str(len(c["gpus"])),
                 "--max-seconds", str(c["export_timeout_seconds"]), "--campaign-gpu-hours", str(c["gpu_hours_limit"]),
                 "--gpu-memory-fraction", "0.45", "--final-lock", str(job/"lock.json")]
@@ -246,7 +260,7 @@ def _run(path, children):
                     "--devkit", c["devkit"], "--metric-index", c["metric_index"],
                     "--current-index", str(Path(c["current_root"])/"index.json"),
                     "--predictions", str(job/"predictions"), "--output", str(job/"scores"),
-                    "--campaign-root", str(root), "--run-id", f"{arm}_50k_cpu_{time.time_ns()}",
+                    "--campaign-root", str(root), "--run-id", f"{arm}_{c['update']}_cpu_{time.time_ns()}",
                     "--workers", str(c["cpu_workers"]), "--timeout-seconds", str(c["controller_timeout_seconds"])]
                 if (job/"scores/identity.json").exists():
                     command.append("--resume")
@@ -258,13 +272,16 @@ def _run(path, children):
                 del scorers[arm]
                 if (job/"scores/summary.json").exists():
                     results[arm] = finish(c, m, job)
-        atomic(root/"status.json", dict(status="COMPLETE" if len(results)==3 else "RUNNING",
+        atomic(root/"status.json", dict(status="COMPLETE" if len(results)==len(c["models"]) else "RUNNING",
             pid=os.getpid(), registration=r["identity"], completed=list(results),
             active_gpu_ranks=[list(k) for k in active], queued_gpu_ranks=[[m["arm"],rank] for m,rank in queue],
             cpu_scoring=list(scorers), updated_unix=time.time(), optimizer_updates=0))
-        if len(results) < 3:
+        if len(results) < len(c["models"]):
             time.sleep(5)
     atomic(root/"SUMMARY.json", results)
+    atomic(root/"status.json", dict(status="COMPLETE", pid=os.getpid(), registration=r["identity"],
+        completed=list(results), active_gpu_ranks=[], queued_gpu_ranks=[], cpu_scoring=[],
+        updated_unix=time.time(), optimizer_updates=0))
 
 
 def run(path):
