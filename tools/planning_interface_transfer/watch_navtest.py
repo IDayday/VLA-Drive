@@ -6,6 +6,7 @@ no trainer files, processes or save configuration are changed.
 """
 import argparse
 import copy
+import contextlib
 import os
 from pathlib import Path
 import socket
@@ -100,13 +101,15 @@ def capture(r):
     return states
 
 
-def task(path, key):
+def task(path, key, execution=None):
     r = load(path); root = Path(r["root"])
     pairs = {f"{m['arm']}_{u:06d}":(m,u) for m in r["models"] for u in UPDATES}
     if key not in pairs:
         raise ValueError("Task not registered")
     m, update = pairs[key]; job = root/"jobs"/key
-    with lease(root/"executor.lock"):
+    # Legacy queues remain serial unless an immutable allocation overlay is
+    # explicitly supplied. Each job still has its own exclusive worker lease.
+    with (contextlib.nullcontext() if execution else lease(root/"executor.lock")):
         with lease(job/"worker.lock"):
             if (job/"result.json").exists():
                 return
@@ -124,7 +127,7 @@ def task(path, key):
                     atomic(request, config)
                     fixed.prepare(request, output)
                 atomic(job/"status.json", dict(status="RUNNING", phase="EXPORT_AND_OFFICIAL_SCORE", pid=os.getpid()))
-                fixed.run(output)
+                fixed.run(output,execution)
                 result = read(job/"evaluation"/m["arm"]/"result.json")
                 atomic(job/"result.json", result)
                 atomic(job/"status.json", dict(status="COMPLETE", completed_unix=time.time(), optimizer_updates=0))
@@ -133,8 +136,14 @@ def task(path, key):
                 raise
 
 
-def watch(path, once=False):
+def watch(path, once=False, execution=None):
     path = Path(path).resolve(); r = load(path); root = Path(r["root"])
+    overlay = None
+    if execution:
+        from .navtest_execution import load as load_execution
+        overlay = load_execution(execution)
+        if overlay['queue_registration_identity'] != r['identity']:
+            raise ValueError('Execution overlay belongs to a different queue')
     with lease(root/"observer.lock"):
         children = []
         while True:
@@ -143,19 +152,29 @@ def watch(path, once=False):
             prior = Path(r["protocol"]["root"])/"status.json"
             # Preserve while75k runs, but avoid simultaneous model-load/scoring waves.
             previous_complete = prior.exists() and read(prior)["status"] == "COMPLETE"
-            orphan = any(v == "RUNNING" for v in states.values()) and not busy(root/"executor.lock")
-            if previous_complete and not stopped and not orphan and not busy(root/"executor.lock") and not children:
+            orphan = (any(v == 'RUNNING' and not busy(root/'jobs'/key/'worker.lock')
+                          for key,v in states.items()) if overlay else
+                any(v == "RUNNING" for v in states.values()) and not busy(root/"executor.lock"))
+            capacity = overlay['max_parallel_future_tasks'] if overlay else 1
+            available = ((overlay is not None and len(children)<capacity) or
+                (previous_complete and not busy(root/'executor.lock') and not children))
+            if available and not stopped and not orphan:
+                running_arms = {job.name.rsplit('_',1)[0] for _,job in children}
                 for key, status in sorted(states.items(), key=lambda kv:(int(kv[0].rsplit("_",1)[1]), kv[0])):
                     job = root/"jobs"/key
                     if status != "QUEUED" or busy(job/"worker.lock"):
                         continue
+                    arm = key.rsplit('_',1)[0]
+                    if arm in running_arms: continue
                     command = [r["worker_python"], "-u", "-m", MODULE, "task", "--registration", str(path), "--task", key]
+                    if overlay: command += ['--execution',str(Path(execution).resolve())]
                     with (job/f"worker_{time.time_ns()}.log").open("x") as stream:
-                        child = subprocess.Popen(command, cwd=r["source_worktree"], env=fixed.environment(),
+                        child = subprocess.Popen(command, cwd=overlay['source_worktree'] if overlay else r["source_worktree"], env=fixed.environment(),
                             stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
                     children.append((child, job))
+                    running_arms.add(arm)
                     atomic(job/"launch.json", dict(pid=child.pid, command=command, started_unix=time.time()))
-                    break
+                    if len(children) >= capacity: break
             for child, job in list(children):
                 code = child.poll()
                 if code is None:
@@ -170,7 +189,9 @@ def watch(path, once=False):
             atomic(root/"status.json", dict(status=("COMPLETE" if all(v=="COMPLETE" for v in states.values())
                 else "FINISHED_WITH_FAILURES") if finished else "PAUSED" if stopped or orphan else "RUNNING",
                 registration=r["identity"], pid=os.getpid(), tasks=states, completed_tasks=len(results),
-                awaiting75k=not previous_complete, orphan_requires_inspection=orphan,
+                awaiting75k=(not previous_complete and overlay is None), orphan_requires_inspection=orphan,
+                execution_allocation=overlay['identity'] if overlay else None,
+                active_tasks=[job.name for _,job in children],
                 optimizer_updates=0, updated_unix=time.time()))
             if once or finished or (stopped and not children):
                 return
@@ -181,13 +202,13 @@ def main():
     p = argparse.ArgumentParser(__doc__); sub = p.add_subparsers(dest="mode", required=True)
     q = sub.add_parser("register"); q.add_argument("--base-registration", required=True); q.add_argument("--output", required=True)
     for mode in ("watch", "task"):
-        q = sub.add_parser(mode); q.add_argument("--registration", required=True)
+        q = sub.add_parser(mode); q.add_argument("--registration", required=True);q.add_argument('--execution')
         if mode == "watch": q.add_argument("--once", action="store_true")
         else: q.add_argument("--task", required=True)
     a = p.parse_args()
     if a.mode == "register": register(a.base_registration, a.output)
-    elif a.mode == "watch": watch(a.registration, a.once)
-    else: task(a.registration, a.task)
+    elif a.mode == "watch": watch(a.registration, a.once, a.execution)
+    else: task(a.registration, a.task, a.execution)
 
 
 if __name__ == "__main__":

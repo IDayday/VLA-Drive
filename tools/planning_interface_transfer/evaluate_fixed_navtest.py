@@ -1,7 +1,7 @@
 """Finite user-requested A/V checkpoint evaluation using unchanged native adapters.
 
-The GPU queue runs on a separate authorized host. Every native rank has an
-immutable scene partition and waits for an idle, UUID-checked GPU lease. CPU
+Every native rank has an immutable scene partition and a UUID-checked GPU
+lease. An explicit allocation overlay permits authorized trainer co-residence. CPU
 scoring runs locally and can consume atomic predictions while exports continue.
 No training source, controller, checkpoint or earlier result is modified.
 """
@@ -9,9 +9,11 @@ import argparse
 import csv
 import fcntl
 import json
+import copy
 import os
 from pathlib import Path
 import shlex
+import signal
 import socket
 import subprocess
 import sys
@@ -184,6 +186,8 @@ def finish(c, m, job):
         PDMS_points=100*summary["PDMS"], metrics_points={k:100*v for k,v in summary["metrics"].items()},
         ego=fit["groups"]["all"], checkpoint=m["checkpoint"], evaluation_source=m["evaluation_source"],
         controller_source=c["controller_source"], sampling_seed=42,
+        execution_source=c.get('execution_source',c['controller_source']),
+        execution_allocation=c.get('execution_allocation'),
         precision="FP32 optimizer masters/FP32 compute/TF32off", inference_steps=10, candidates=1,
         cpu_qualification="reused full official replay plus new8 distinct-log official spots",
         reused_cpu_parity_sha256=sha(c["qualified_cpu_parity"]), official_spot_max_error=max(errors),
@@ -193,13 +197,26 @@ def finish(c, m, job):
     return result
 
 
-def _run(path, children):
+def _run(path, children, execution=None):
     r = load(path); c = r["config"]; root = Path(c["root"])
+    overlay = None
+    if execution:
+        from .navtest_execution import load as load_execution, allocation
+        overlay = load_execution(execution)
+        c = copy.deepcopy(c)
+        if len(c['gpus']) != overlay['world_size']:
+            raise ValueError('Changing scene partitions is prohibited on resume')
+        c['execution_source'] = overlay['source_sha']
+        c['execution_allocation'] = overlay['identity']
+        c['cpu_slots'] = overlay['cpu_slots']; c['cpu_workers'] = overlay['cpu_workers']
+        for m in c['models']:
+            a = allocation(overlay,c['update'],m['arm'])
+            m['execution_allocation'] = a
     if socket.gethostname() != c["canonical_hostname"]:
         raise ValueError("Run the controller/CPU score on the registered canonical host")
     guard = (root/"controller.lock").open("a+")
     fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    queue, active, scorers, retry, results = [], {}, {}, {}, {}
+    queue, active, scorers, retry, results, crashes, cpu_guards = [], {}, {}, {}, {}, {}, {}
     for m in c["models"]:
         job = root/m["arm"]
         if (job/"result.json").exists():
@@ -219,14 +236,26 @@ def _run(path, children):
             if code is None:
                 continue
             del active[key]
+            if overlay and code in (-9,247):
+                from .navtest_execution import close_dead_export_meter
+                close_dead_export_meter(child.native_meter_path,time.time(),f'Owned exporter exited {code}')
             if code == 75:
                 queue.append((m, rank)); retry[key] = time.time()+30
+            elif overlay and code in (-9,247) and crashes.get(key,0) < overlay['max_killed_rank_retries']:
+                crashes[key] = crashes.get(key,0)+1
+                atomic(root/m['arm']/f'retry_rank{rank}_{time.time_ns()}.json',
+                    dict(exit_code=code,attempt=crashes[key],reason='Killed owned exporter; resume exact atomic bank'))
+                queue.append((m,rank));retry[key] = time.time()+30
             elif code:
                 atomic(root/m["arm"]/"status.json", dict(status="FAILED", rank=rank, exit_code=code))
                 raise RuntimeError(f"Native export failed for {m['arm']} rank{rank}: {code}")
         for m, rank in list(queue):
-            card = c["gpus"][rank]; key = (m["arm"], rank)
-            if any(c["gpus"][v[2]] == card for v in active.values()) or time.time() < retry.get(key, 0):
+            a = m.get('execution_allocation',dict(host=c['gpu_host'],gpus=c['gpus'],gpu_uuids=c['gpu_uuids']))
+            card = a['gpus'][rank]; key = (m["arm"], rank)
+            def device(model, at):
+                alloc = model.get('execution_allocation',dict(host=c['gpu_host'],gpus=c['gpus']))
+                return alloc['host'],alloc['gpus'][at]
+            if any(device(v[1],v[2]) == (a['host'],card) for v in active.values()) or time.time() < retry.get(key, 0):
                 continue
             job = root/m["arm"]; stamp = time.time_ns()
             native = [c["inference_python"], "-u", "-m", "tools.foresight.export_predictions",
@@ -239,23 +268,40 @@ def _run(path, children):
             remote = ["env", "OMP_NUM_THREADS=1", "MKL_NUM_THREADS=1", "OPENBLAS_NUM_THREADS=1",
                 "TOKENIZERS_PARALLELISM=false", "CUBLAS_WORKSPACE_CONFIG=:4096:8",
                 "python3", str(Path(c["skill_deployment"])/"with_gpu_lease.py"),
-                "--gpus", str(card), "--expect-uuid", c["gpu_uuids"][str(card)],
+                "--gpus", str(card), "--expect-uuid", a["gpu_uuids"][str(card)],
                 "--policy", c["gpu_policy"], "--minimum-free-mib", "20000",
                 "--lease-file", str(root/"gpu_leases"/f"gpu{card}.lock"),
                 "--cwd", m["evaluation_worktree"], "--", *native]
-            command = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=15", c["gpu_host"],
+            if overlay:
+                remote = ['env','OMP_NUM_THREADS=1','MKL_NUM_THREADS=1','OPENBLAS_NUM_THREADS=1',
+                    'TOKENIZERS_PARALLELISM=false','CUBLAS_WORKSPACE_CONFIG=:4096:8',
+                    c['inference_python'],'-u','-m','tools.planning_interface_transfer.navtest_execution',
+                    '--allocation',str(Path(execution).resolve()),'--arm',m['arm'],'--update',str(c['update']),
+                    '--rank',str(rank),'--cwd',m['evaluation_worktree'],'--',*native]
+                remote = ['bash','-c','cd '+shlex.quote(overlay['source_worktree'])+' && exec '+shlex.join(remote)]
+            command = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=15", a['host'],
                        "exec "+shlex.join(remote)]
             child = launch(command, c["controller_worktree"], job/f"export_rank{rank}_{stamp}.log")
+            child.native_meter_path = root/'runs'/f"{m['arm']}_{c['update']}_rank{rank}_{stamp}"/'status.json'
             children.append(child)
             active[key] = (child, m, rank); queue.remove((m, rank))
             atomic(job/f"export_rank{rank}_launch.json", dict(pid=child.pid, command=command,
-                   physical_gpu=card, uuid=c["gpu_uuids"][str(card)], rank=rank,
+                   physical_gpu=card, uuid=a['gpu_uuids'][str(card)], host=a['host'], rank=rank,
                    world_size=len(c["gpus"]), started_unix=time.time(), optimizer_updates=0))
         for m in c["models"]:
             arm = m["arm"]; job = root/arm
             if arm in results:
                 continue
             if arm not in scorers and (job/"predictions/identity.json").exists() and len(scorers) < c["cpu_slots"]:
+                if overlay:
+                    guard = None
+                    for slot in range(overlay['global_cpu_slots']):
+                        p = Path(overlay['cpu_lease_root'])/f'slot{slot}.lock';p.parent.mkdir(parents=True,exist_ok=True)
+                        f = p.open('a')
+                        try: fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB);guard=f;break
+                        except BlockingIOError: f.close()
+                    if guard is None: continue
+                    cpu_guards[arm] = guard
                 command = [c["scoring_python"], "-u", "-m", "tools.foresight.score_pdms",
                     "--devkit", c["devkit"], "--metric-index", c["metric_index"],
                     "--current-index", str(Path(c["current_root"])/"index.json"),
@@ -270,6 +316,7 @@ def _run(path, children):
                 if scorers[arm].returncode:
                     raise RuntimeError(f"Official CPU scoring failed for {arm}; artifacts retained")
                 del scorers[arm]
+                if arm in cpu_guards: cpu_guards.pop(arm).close()
                 if (job/"scores/summary.json").exists():
                     results[arm] = finish(c, m, job)
         atomic(root/"status.json", dict(status="COMPLETE" if len(results)==len(c["models"]) else "RUNNING",
@@ -284,19 +331,24 @@ def _run(path, children):
         updated_unix=time.time(), optimizer_updates=0))
 
 
-def run(path):
+def run(path, execution=None):
     children = []
     try:
-        _run(path, children)
+        _run(path, children, execution)
     except BaseException as error:
         root = Path(read(path)["config"]["root"])
         atomic(root/"status.json", dict(status="FAILED", error=repr(error), pid=os.getpid(),
                                        updated_unix=time.time(), optimizer_updates=0))
-        # Wait only for our own bounded children; never send a signal to a
-        # trainer, pressure process or another evaluation/controller.
+        # Stop only children launched by this controller. In particular a
+        # waiting scorer must not keep a failed controller/lock alive for12h.
         for child in children:
             if child.poll() is None:
-                child.wait()
+                os.killpg(child.pid,signal.SIGTERM)
+        for child in children:
+            if child.poll() is None:
+                try: child.wait(timeout=20)
+                except subprocess.TimeoutExpired:
+                    os.killpg(child.pid,signal.SIGKILL);child.wait()
         raise
 
 
@@ -304,12 +356,12 @@ def main():
     p = argparse.ArgumentParser(__doc__)
     s = p.add_subparsers(dest="mode", required=True)
     q = s.add_parser("prepare"); q.add_argument("--request", required=True); q.add_argument("--output", required=True)
-    q = s.add_parser("run"); q.add_argument("--registration", required=True)
+    q = s.add_parser("run"); q.add_argument("--registration", required=True);q.add_argument('--execution')
     a = p.parse_args()
     if a.mode == "prepare":
         prepare(a.request, a.output)
     else:
-        run(a.registration)
+        run(a.registration,a.execution)
 
 
 if __name__ == "__main__":
