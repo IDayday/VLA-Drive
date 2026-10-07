@@ -55,10 +55,18 @@ def verify_owned(pid,bank):
 def lease_worker(a,c):
     if socket.gethostname()!=c['hostname']:raise ValueError('Wrong GPU host')
     handles=[]
-    for name in ['navtest_pdms','recogdrive_mtopd_research']:
+    for name in ['navtest_pdms_shared','navtest_pdms','recogdrive_mtopd_research']:
         f=Path(f'/var/tmp/{name}_gpu{c["gpu"]}.lock').open('a');handles.append(f)
         try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:
+            stat=os.fstat(f.fileno());device=(os.major(stat.st_dev),os.minor(stat.st_dev),stat.st_ino)
+            owners={int(row.split()[4]) for row in Path('/proc/locks').read_text().splitlines()
+                    if len(row.split())>5 and row.split()[1]=='FLOCK' and tuple(int(x,16 if k<2 else 10) for k,x in enumerate(row.split()[5].split(':')))==device}
+            approved=c.get('approved_training_lease_owner')
+            if name!='navtest_pdms_shared' and approved and owners=={approved['pid']}:
+                p=Path('/proc')/str(approved['pid'])/'cmdline'
+                if p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==approved['cmdline_sha256']:
+                    f.close();handles.remove(f);continue
             for h in handles:h.close()
             return None
     raw=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.free','--format=csv,noheader,nounits'],text=True)
@@ -129,7 +137,7 @@ def worker(a):
             c['indices']=read(work)['indices'];record['delegated_indices']=c['indices'];save()
             signature=identity_hash(export);done=0
             for idx in c['indices']:
-                if (Path(c['request_root'])/'STOP_DRAIN').exists() or time.time()-record['start_unix']>900:
+                if (Path(c['request_root'])/'STOP_DRAIN').exists() or time.time()-record['start_unix']>c.get('helper_max_seconds',900):
                     record['status']='PAUSED';break
                 scene=data.index[idx];token=scene['token'];dest=bank/'predictions'/(token+'.npz');meta=dest.with_suffix('.json')
                 if meta.exists():
@@ -189,7 +197,7 @@ def run(a):
                     request=dict(allocation,bank=str(bank),bank_identity=rows,current_root=c['current_root'],
                         training_run=job['training_run'],tag=job['tag'],native_worktree=job['native_worktree'],native_source=job['native_source'],
                         helper_source=c['helper_source'],helper_file_sha256=c['helper_file_sha256'],campaign_root=str(root),
-                        request_root=str(folder),run_id=job['name']+f'_helper{k}',probe_index=distinct[k%len(distinct)])
+                        request_root=str(folder),run_id=job['name']+f'_helper{k}',probe_index=distinct[k%len(distinct)],helper_max_seconds=c.get('helper_max_seconds',900))
                     atomic(folder/'request.json',request)
                     command=[c['python'],'-u',str(Path(__file__).resolve()),'worker','--request',str(folder/'request.json')]
                     remote=['env','OMP_NUM_THREADS=1','MKL_NUM_THREADS=1','OPENBLAS_NUM_THREADS=1','TOKENIZERS_PARALLELISM=false','CUBLAS_WORKSPACE_CONFIG=:4096:8',*command]
@@ -215,7 +223,7 @@ def run(a):
             for p,f in children:
                 if p.poll() is None and not (f/'work.json').exists():atomic(f/'STOP_DRAIN',dict(reason='Helper not ready within finite loading window'))
             atomic(root/'status.json',dict(status='RUNNING',pid=os.getpid(),helpers=len(children),paused_natives=paused,started_unix=time.time(),optimizer_updates=0))
-            deadline=time.time()+1000
+            deadline=time.time()+c.get('helper_max_seconds',900)+100
             while any(p.poll() is None for p,_ in children) and time.time()<deadline and not interrupted:time.sleep(3)
             if any(p.poll() is None for p,_ in children):raise TimeoutError('Bounded supplemental window exhausted')
             atomic(root/'helper_exits.json',[dict(folder=str(f),exit_code=p.returncode) for p,f in children])
@@ -254,7 +262,7 @@ if p.exists():
 
 def rescue(a):
     """Independent bounded fail-safe resumes owned native writers after a crash."""
-    c=read(a.plan);root=Path(c['root']);deadline=time.time()+1100
+    c=read(a.plan);root=Path(c['root']);deadline=time.time()+c.get('helper_max_seconds',900)+500
     while time.time()<deadline:
         if (root/'status.json').exists() and read(root/'status.json')['status']=='HELPERS_FINISHED_NATIVE_RESUMED':return
         if (root/'paused.json').exists():
@@ -270,15 +278,67 @@ def rescue(a):
     atomic(root/'rescue_receipt.json',dict(resumed_unix=time.time(),optimizer_updates=0))
 
 
+def watch(a):
+    """Feed only existing registered 90k/100k banks; never start another evaluator."""
+    import shlex
+    c=read(a.plan);root=Path(c['root']);root.mkdir(parents=True,exist_ok=True)
+    if sha(__file__)!=c['helper_file_sha256']:raise ValueError('Companion source changed')
+    if sha(c['queue_registration'])!=c['queue_registration_sha256']:raise ValueError('Registered queue changed')
+    requested={f'{arm}_{step:06d}' for arm in ('A_ACTION','A_NO_MAE','V_QUERY') for step in (90000,100000)}
+    if set(c['jobs'])!=requested:raise ValueError('Companion must cover only the six requested future banks')
+    with (root/'companion.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        children={};completed={};deadline=time.time()+86400
+        if (root/'companion_status.json').exists():completed=read(root/'companion_status.json')['completed']
+        while time.time()<deadline and len(completed)<len(requested):
+            for name,p in list(children.items()):
+                if p.poll() is not None:completed[name]=dict(exit_code=p.returncode);del children[name]
+            for name,spec in c['jobs'].items():
+                if name in completed or name in children:continue
+                bank=Path(spec['bank'])
+                if not (bank/'identity.json').exists() or len(list((bank/'predictions').glob('*.json')))<128:continue
+                if all((bank/f'shard_{i}.json').exists() and read(bank/f'shard_{i}.json')['status']=='complete' for i in range(4)):
+                    completed[name]=dict(status='NATIVE_ALREADY_COMPLETE');continue
+                code="""import pathlib,json
+rows=[]
+for p in pathlib.Path('/proc').glob('[0-9]*/cmdline'):
+ try:w=[x.decode() for x in p.read_bytes().split(b'\\0') if x]
+ except (OSError,UnicodeError):continue
+ if '-m' in w and w[w.index('-m')+1]=='tools.foresight.export_predictions' and '--output' in w and w[w.index('--output')+1]==BANK:rows.append(dict(pid=int(p.parent.name),bank=BANK,words=w))
+print(json.dumps(rows))
+""".replace('BANK',repr(str(bank)))
+                try:
+                    records=json.loads(subprocess.check_output(['ssh',spec['native_host'],'python3 -c '+shlex.quote(code)],text=True,timeout=20))
+                except (subprocess.SubprocessError,json.JSONDecodeError):continue
+                if not records:continue
+                words=records[0]['words'];identity=read(bank/'identity.json')
+                job=dict(spec,name=name,native_processes=[dict(pid=r['pid'],bank=str(bank)) for r in records],
+                    training_run=words[words.index('--training-run')+1],tag=words[words.index('--checkpoint-tag')+1],native_source=identity['evaluation_source'])
+                folder=root/name;folder.mkdir();plan={k:v for k,v in c.items() if k not in ('jobs','queue_registration','queue_registration_sha256')}
+                plan.update(root=str(folder),jobs=[job]);atomic(folder/'plan.json',plan)
+                handles={}
+                for mode in ('run','rescue'):
+                    with (folder/(mode+'.log')).open('x') as log:
+                        p=subprocess.Popen([c['python'],'-u',str(Path(__file__).resolve()),mode,'--plan',str(folder/'plan.json')],stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+                    handles[mode]=p.pid
+                    if mode=='run':children[name]=p
+                atomic(folder/'launch.json',handles)
+            atomic(root/'companion_status.json',dict(status='RUNNING',pid=os.getpid(),completed=completed,active=list(children),requested=sorted(requested),optimizer_updates=0,updated_unix=time.time()))
+            time.sleep(10)
+        atomic(root/'companion_status.json',dict(status='COMPLETE' if len(completed)==len(requested) else 'PAUSED',completed=completed,requested=sorted(requested),optimizer_updates=0,updated_unix=time.time()))
+
+
 def main():
     p=argparse.ArgumentParser(__doc__);s=p.add_subparsers(dest='mode',required=True)
     x=s.add_parser('worker');x.add_argument('--request',required=True)
     x=s.add_parser('run');x.add_argument('--plan',required=True)
     x=s.add_parser('rescue');x.add_argument('--plan',required=True)
+    x=s.add_parser('watch');x.add_argument('--plan',required=True)
     a=p.parse_args()
     if a.mode=='worker':sys.exit(worker(a))
     elif a.mode=='run':run(a)
-    else:rescue(a)
+    elif a.mode=='rescue':rescue(a)
+    else:watch(a)
 
 
 if __name__=='__main__':main()
