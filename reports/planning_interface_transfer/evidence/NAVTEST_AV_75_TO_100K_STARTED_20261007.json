@@ -1,0 +1,198 @@
+{
+  "schema": "av_navtest75_and_future_startup_v1",
+  "captured_unix": 1791367988.0096304,
+  "status": "RUNNING_RESULTS_PENDING",
+  "controller_source": "c9e101096b08b828ee7362faa12f2cd6f635a449",
+  "controller_worktree": "/mnt/project/VLA-Drive-planning-interface-navtest75-source-c9e1010",
+  "75k_registration_identity": "15c99d9ccd30c48773297604c6937f8d3c507371164fb6729d33afb5d8bce66a",
+  "future_registration_identity": "b1aee9f28642e344c4806b80ae1f960956d3851dc1f14efe604c2f586d3520d2",
+  "75k_status": {
+    "status": "RUNNING",
+    "pid": 428366,
+    "registration": "15c99d9ccd30c48773297604c6937f8d3c507371164fb6729d33afb5d8bce66a",
+    "completed": [],
+    "active_gpu_ranks": [
+      [
+        "A_ACTION",
+        0
+      ],
+      [
+        "A_ACTION",
+        1
+      ],
+      [
+        "A_ACTION",
+        2
+      ],
+      [
+        "A_ACTION",
+        3
+      ]
+    ],
+    "queued_gpu_ranks": [
+      [
+        "A_NO_MAE",
+        0
+      ],
+      [
+        "A_NO_MAE",
+        1
+      ],
+      [
+        "A_NO_MAE",
+        2
+      ],
+      [
+        "A_NO_MAE",
+        3
+      ],
+      [
+        "V_QUERY",
+        0
+      ],
+      [
+        "V_QUERY",
+        1
+      ],
+      [
+        "V_QUERY",
+        2
+      ],
+      [
+        "V_QUERY",
+        3
+      ]
+    ],
+    "cpu_scoring": [
+      "A_ACTION"
+    ],
+    "updated_unix": 1791367984.8706741,
+    "optimizer_updates": 0
+  },
+  "future_status": {
+    "status": "RUNNING",
+    "registration": "b1aee9f28642e344c4806b80ae1f960956d3851dc1f14efe604c2f586d3520d2",
+    "pid": 428393,
+    "tasks": {
+      "A_ACTION_080000": "WAITING",
+      "A_ACTION_090000": "WAITING",
+      "A_ACTION_100000": "WAITING",
+      "A_NO_MAE_080000": "WAITING",
+      "A_NO_MAE_090000": "WAITING",
+      "A_NO_MAE_100000": "WAITING",
+      "V_QUERY_080000": "WAITING",
+      "V_QUERY_090000": "WAITING",
+      "V_QUERY_100000": "WAITING"
+    },
+    "completed_tasks": 0,
+    "awaiting75k": true,
+    "orphan_requires_inspection": false,
+    "optimizer_updates": 0,
+    "updated_unix": 1791367987.964379
+  },
+  "75k_launch": {
+    "bootstrap_pid": 428365,
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-u",
+      "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_75k_20261007_v1/bootstrap.py",
+      "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_75k_20261007_v1",
+      "tools.planning_interface_transfer.evaluate_fixed_navtest",
+      "run"
+    ],
+    "cwd": "/mnt/project/VLA-Drive-planning-interface-navtest75-source-c9e1010",
+    "started_unix": 1791367888.179018
+  },
+  "future_launch": {
+    "bootstrap_pid": 428392,
+    "command": [
+      "/root/miniconda3/envs/ddp/bin/python",
+      "-u",
+      "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_80_90_100k_20261007_v1/bootstrap.py",
+      "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_80_90_100k_20261007_v1",
+      "tools.planning_interface_transfer.watch_navtest",
+      "watch"
+    ],
+    "cwd": "/mnt/project/VLA-Drive-planning-interface-navtest75-source-c9e1010",
+    "started_unix": 1791367905.6172438
+  },
+  "gpu_host": "training-vla-zt3",
+  "authorized_physical_gpus": [
+    4,
+    5,
+    6,
+    7
+  ],
+  "rank_mapping": [
+    7,
+    4,
+    5,
+    6
+  ],
+  "sampling_seed": 42,
+  "precision": "FP32 optimizer-master / FP32 compute / TF32off",
+  "inference_steps": 10,
+  "candidates_per_scene": 1,
+  "scenes": 12146,
+  "logs": 136,
+  "evaluation_optimizer_updates": 0,
+  "finite_budget": {
+    "75k_gpu_hours_cap": 48,
+    "future_gpu_hours_cap": 144,
+    "total_gpu_hours_cap": 192,
+    "future_observer_window_hours": 48,
+    "cost_estimate_all12_checkpoints_gpu_hours": 58.3,
+    "estimate_source": "Same-protocol completed50k three-model evaluation consumed14.573910GPUh; not a completion promise"
+  },
+  "checkpoints": [
+    {
+      "arm": "A_ACTION",
+      "completed": 75000,
+      "tag": "milestone_075000",
+      "sha256": "ed7e80df12f013b38dd913886febd5e868e10b4202b8403daf5e366dc1f62740",
+      "training_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "training_exposure": 2399816
+    },
+    {
+      "arm": "A_NO_MAE",
+      "completed": 75000,
+      "tag": "milestone_075000",
+      "sha256": "c6d0c20f67202c0a45c672d6e51f07ceb243ab7276787af4df7baea93a09cfa3",
+      "training_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "training_exposure": 2399816
+    },
+    {
+      "arm": "V_QUERY",
+      "completed": 75000,
+      "tag": "milestone_075000",
+      "sha256": "09ebc6e8821b1dee0e3949edfe986af16ed97b37fb7ab5b129d6e94682e1fa88",
+      "training_source": "7c5231c514f2a327dabf934fbe3bd9a30f9b7c6c",
+      "training_exposure": 2399816
+    }
+  ],
+  "training_status": [
+    {
+      "arm": "A_ACTION",
+      "status": "RUNNING",
+      "completed": 76616
+    },
+    {
+      "arm": "A_NO_MAE",
+      "status": "RUNNING",
+      "completed": 75999
+    },
+    {
+      "arm": "V_QUERY",
+      "status": "RUNNING",
+      "completed": 76659
+    }
+  ],
+  "tests": {
+    "passed": 19,
+    "scope": "checkpoint retention, exact steps, duplicate observer, old queue compatibility and completed single-arm resume"
+  },
+  "reused_cpu_qualification": "/mnt/project/recogdrive-stage2-evaluation-artifacts/20261006/final200_navtest_seed42_v1/official_parity.json",
+  "per_new_model_official_checks": "Eight fresh distinct-log unmodified official reference spots plus complete population/content verification before result acceptance",
+  "no_training_source_or_recipe_changes": true,
+  "missing60k70k": "Exact rolling weights no longer exist; not evaluated or substituted"
+}
