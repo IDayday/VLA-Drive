@@ -111,7 +111,7 @@ def worker(a):
         torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
         torch.cuda.set_per_process_memory_fraction(.25)
         with metered_run(c['campaign_root'],c['run_id'],1,dict(kind='foresight_supplemental_export',real_optimizer_updates=0)) as (record,folder,save):
-            record.update(bank=str(bank),helper_source=c['helper_source'],native_source=c['native_source'],delegated_indices=c['indices']);save()
+            record.update(bank=str(bank),helper_source=c['helper_source'],native_source=c['native_source']);save()
             model=load_student(c['training_run'],c['tag'],training)
             if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('FP32 required')
             # Each helper independently checks the unchanged native path against
@@ -122,6 +122,11 @@ def worker(a):
             error=float(np.max(np.abs(pose.cpu().numpy()-original)))
             if error>1e-6:raise ValueError(f'Native inference parity failed: {error}')
             atomic(Path(c['request_root'])/'parity.json',dict(passed=True,max_pose_error=error,native_source=c['native_source'],helper_source=c['helper_source']))
+            work=Path(c['request_root'])/'work.json'
+            while not work.exists():
+                if (Path(c['request_root'])/'STOP_DRAIN').exists() or time.time()-record['start_unix']>600:return 0
+                time.sleep(.5)
+            c['indices']=read(work)['indices'];record['delegated_indices']=c['indices'];save()
             signature=identity_hash(export);done=0
             for idx in c['indices']:
                 if (Path(c['request_root'])/'STOP_DRAIN').exists() or time.time()-record['start_unix']>900:
@@ -173,30 +178,42 @@ def run(a):
                 bank=Path(job['bank']);rows=read(bank/'identity.json')
                 # No helper can overlap a live native writer. Pause only exact
                 # registered export PIDs, never a trainer or CPU scorer.
-                paused.setdefault(job['native_host'],[]).extend(job['native_processes'])
-                atomic(root/'paused.json',dict(parent_pid=os.getpid(),paused=paused,helper_file=str(Path(__file__).resolve()),plan=str(Path(a.plan).resolve())))
-                signal_owned(job['native_host'],job['native_processes'],signal.SIGSTOP)
                 existing={p.stem for p in (bank/'predictions').glob('*.json')}
-                guards,parts=partition_missing(index,existing,4,32,len(job['workers']))
-                atomic(root/job['name']/'partition.json',dict(guards=guards,parts=parts,bank_identity=rows))
                 probes=[i for i,x in enumerate(index) if x['token'] in existing]
                 seen=set();distinct=[]
                 for i in probes:
                     if index[i]['log'] not in seen:seen.add(index[i]['log']);distinct.append(i)
-                    if len(distinct)>=len(parts):break
-                for k,(allocation,indices) in enumerate(zip(job['workers'],parts)):
-                    if not indices:continue
+                    if len(distinct)>=len(job['workers']):break
+                for k,allocation in enumerate(job['workers']):
                     folder=root/job['name']/f'helper{k}';folder.mkdir(parents=True,exist_ok=True)
                     request=dict(allocation,bank=str(bank),bank_identity=rows,current_root=c['current_root'],
                         training_run=job['training_run'],tag=job['tag'],native_worktree=job['native_worktree'],native_source=job['native_source'],
                         helper_source=c['helper_source'],helper_file_sha256=c['helper_file_sha256'],campaign_root=str(root),
-                        request_root=str(folder),run_id=job['name']+f'_helper{k}',indices=indices,probe_index=distinct[k%len(distinct)])
+                        request_root=str(folder),run_id=job['name']+f'_helper{k}',probe_index=distinct[k%len(distinct)])
                     atomic(folder/'request.json',request)
                     command=[c['python'],'-u',str(Path(__file__).resolve()),'worker','--request',str(folder/'request.json')]
                     remote=['env','OMP_NUM_THREADS=1','MKL_NUM_THREADS=1','OPENBLAS_NUM_THREADS=1','TOKENIZERS_PARALLELISM=false','CUBLAS_WORKSPACE_CONFIG=:4096:8',*command]
                     with (folder/'worker.log').open('x') as stream:
                         child=subprocess.Popen(['ssh',allocation['host'],'exec '+shlex.join(remote)],stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
                     children.append((child,folder))
+            # Original exporters keep working during expensive model loading.
+            # Pause only after helpers are ready, then issue disjoint tails.
+            loading_deadline=time.time()+360
+            while time.time()<loading_deadline and not interrupted:
+                if all(p.poll() is not None or (f/'parity.json').exists() for p,f in children):break
+                time.sleep(2)
+            for job in c['jobs']:
+                ready=[f for p,f in children if f.parent.name==job['name'] and p.poll() is None and (f/'parity.json').exists()]
+                if not ready:continue
+                paused.setdefault(job['native_host'],[]).extend(job['native_processes'])
+                atomic(root/'paused.json',dict(parent_pid=os.getpid(),paused=paused,helper_file=str(Path(__file__).resolve()),plan=str(Path(a.plan).resolve())))
+                signal_owned(job['native_host'],job['native_processes'],signal.SIGSTOP)
+                bank=Path(job['bank']);existing={p.stem for p in (bank/'predictions').glob('*.json')}
+                guards,parts=partition_missing(index,existing,4,32,len(ready))
+                atomic(root/job['name']/'partition.json',dict(guards=guards,parts=parts,bank_identity=read(bank/'identity.json')))
+                for folder,indices in zip(ready,parts):atomic(folder/'work.json',dict(indices=indices))
+            for p,f in children:
+                if p.poll() is None and not (f/'work.json').exists():atomic(f/'STOP_DRAIN',dict(reason='Helper not ready within finite loading window'))
             atomic(root/'status.json',dict(status='RUNNING',pid=os.getpid(),helpers=len(children),paused_natives=paused,started_unix=time.time(),optimizer_updates=0))
             deadline=time.time()+1000
             while any(p.poll() is None for p,_ in children) and time.time()<deadline and not interrupted:time.sleep(3)
