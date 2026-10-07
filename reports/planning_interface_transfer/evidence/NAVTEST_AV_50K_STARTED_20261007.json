@@ -1,0 +1,60 @@
+{
+  "status": "RUNNING_EXPORT_AND_RESOURCE_QUEUE",
+  "registration_identity": "79b62d28ba61c441e6acca4cf3206c54dd8cf2420e1e0ffa674028b11c4cab65",
+  "controller_source": "0f8257eda763527362444efdda575244e8897ab1",
+  "controller_pid": 354259,
+  "bootstrap_pid": 353908,
+  "gpu_host": "training-vla-zt3",
+  "authorized_physical_gpus": [
+    4,
+    5,
+    6,
+    7
+  ],
+  "currently_acquired_gpu": 7,
+  "native_export_pid": 416039,
+  "queued_reason": "GPU4-6 leased by existing S0@70k Navtest; no process signalled",
+  "population": {
+    "scenes": 12146,
+    "logs": 136
+  },
+  "models": [
+    {
+      "arm": "A_ACTION",
+      "training_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "checkpoint": "0629886b6e48a3d88622cec742e8c0265a2fbef1a1bd92e50c00d2300cd11dbf",
+      "completed_updates": 50000,
+      "run_identity": "dd0961c754823e5d7ead9a5fe18ce4b41e0ec4cabb4f055e7f6f9221592558f0",
+      "training_seed": 42
+    },
+    {
+      "arm": "A_NO_MAE",
+      "training_source": "f0ed4c3608b8ae78ddb1a0e7a5cca78f9a4b9882",
+      "checkpoint": "0a30de13ae669c04be4d5c87994ac50e560206979cf33b5420fbaa87a78bed11",
+      "completed_updates": 50000,
+      "run_identity": "c19a829e2275b2fd0f9022b1a0ba42a07c4a9372a33de7f41eca4965d7783638",
+      "training_seed": 42
+    },
+    {
+      "arm": "V_QUERY",
+      "training_source": "7c5231c514f2a327dabf934fbe3bd9a30f9b7c6c",
+      "checkpoint": "1309e3964d1f78cb775fb30c98d00c43b2a1b9833e393b6f90f6c0615c3bd2d3",
+      "completed_updates": 50000,
+      "run_identity": "b314859c53108a2a6fade18167113edbae306fcd5c92f1af40cea66ac844b81e",
+      "training_seed": 42
+    }
+  ],
+  "precision": "FP32 optimizer masters/FP32 compute, TF32 off",
+  "solver": "original Euler10, one candidate, scene-bound samplingseed42",
+  "future_teacher_or_GT_input": false,
+  "new_optimizer_updates": 0,
+  "cpu_host": "training-vla-zt",
+  "cpu_workers_per_task": 16,
+  "cpu_slots": 2,
+  "gpu_hours_limit": 48,
+  "task_scope": "only three exact50k evaluations; no recurring Navtest observer",
+  "cpu_qualification": "reused exact NAVSIM/nuPlan/runtime match to complete unmodified official submission replay; eight distinct-log replay spots per new bank scheduled",
+  "artifacts": "/mnt/project/planning-interface-transfer-artifacts/20261005/navtest_AV_50k_20261007_v1",
+  "result": "PENDING",
+  "timestamp": "2026-10-07T01:11:52.644059+00:00"
+}
