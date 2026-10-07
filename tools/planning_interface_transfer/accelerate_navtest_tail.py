@@ -1,0 +1,267 @@
+"""Temporarily delegate untouched tails of native four-rank Navtest banks.
+
+Native writers are paused, never replaced. Helpers use the exact native model,
+noise, preprocessing and FP32 path; native writers resume to publish original
+completion receipts. All teacher/label inputs remain absent. Existing rows are
+immutable. This script imports model code only after changing to its pinned
+native worktree, so its orchestration source cannot change the model class.
+"""
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import socket
+import subprocess
+import sys
+import time
+
+
+def read(p): return json.loads(Path(p).read_text())
+
+
+def sha(p):
+    h=hashlib.sha256()
+    with Path(p).open('rb') as f:
+        for b in iter(lambda:f.read(8<<20),b''):h.update(b)
+    return h.hexdigest()
+
+
+def atomic(p,v):
+    p=Path(p);p.parent.mkdir(parents=True,exist_ok=True)
+    tmp=p.with_name(p.name+f'.{os.getpid()}.tmp');tmp.write_text(json.dumps(v,indent=2)+'\n');tmp.replace(p)
+
+
+def partition_missing(index,existing,world_size,guard_per_rank,helpers):
+    if world_size!=4 or guard_per_rank<2 or helpers<1:raise ValueError('Invalid delegation')
+    guards,tail=[],[]
+    for rank in range(world_size):
+        missing=[i for i in range(rank,len(index),world_size) if index[i]['token'] not in existing]
+        guards.extend(missing[:guard_per_rank]);tail.extend(missing[guard_per_rank:])
+    tail.sort()
+    return sorted(guards),[tail[i::helpers] for i in range(helpers)]
+
+
+def verify_owned(pid,bank):
+    p=Path('/proc')/str(pid)/'cmdline'
+    if not p.exists():return False
+    words=[x.decode() for x in p.read_bytes().split(b'\0') if x]
+    return ('-m' in words and words[words.index('-m')+1]=='tools.foresight.export_predictions'
+            and '--output' in words and words[words.index('--output')+1]==bank)
+
+
+def lease_worker(a,c):
+    if socket.gethostname()!=c['hostname']:raise ValueError('Wrong GPU host')
+    handles=[]
+    for name in ['navtest_pdms','recogdrive_mtopd_research']:
+        f=Path(f'/var/tmp/{name}_gpu{c["gpu"]}.lock').open('a');handles.append(f)
+        try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except BlockingIOError:
+            for h in handles:h.close()
+            return None
+    raw=subprocess.check_output(['nvidia-smi','--query-gpu=index,uuid,memory.free','--format=csv,noheader,nounits'],text=True)
+    devices={int(x.split(',')[0]):x.split(', ') for x in raw.strip().splitlines()};gpu=devices[c['gpu']]
+    if gpu[1]!=c['uuid']:raise ValueError('GPU UUID changed')
+    if int(gpu[2])<30000:
+        for f in handles:f.close()
+        return None
+    raw=subprocess.check_output(['nvidia-smi','--query-compute-apps=gpu_uuid,pid','--format=csv,noheader,nounits'],text=True)
+    for row in raw.strip().splitlines():
+        if not row:continue
+        uuid,pid=[x.strip() for x in row.split(',')]
+        if uuid!=c['uuid']:continue
+        try:words=[x.decode() for x in (Path('/proc')/pid/'cmdline').read_bytes().split(b'\0') if x]
+        except OSError:
+            for f in handles:f.close()
+            return None
+        if not ('-m' in words and words[words.index('-m')+1]=='tools.foresight.train_student'
+                and '--run-id' in words and words[words.index('--run-id')+1]==c['trainer_run_id']):
+            for f in handles:f.close()
+            return None
+    os.environ['CUDA_DEVICE_ORDER']='PCI_BUS_ID';os.environ['CUDA_VISIBLE_DEVICES']=c['uuid']
+    return handles
+
+
+def worker(a):
+    c=read(a.request)
+    if sha(__file__)!=c['helper_file_sha256']:raise ValueError('Helper source changed')
+    handles=lease_worker(a,c)
+    if handles is None:return 75
+    try:
+        atomic(Path(c['request_root'])/'process.json',dict(pid=os.getpid(),request=str(Path(a.request).resolve()),host=socket.gethostname()))
+        os.chdir(c['native_worktree']);sys.path.insert(0,c['native_worktree'])
+        if subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()!=c['native_source'] or subprocess.check_output(['git','status','--porcelain']).strip():
+            raise ValueError('Native model source changed')
+        import numpy as np
+        import torch
+        from tools.foresight.checkpoints import checkpoint_identity,load_student,scene_noise
+        from tools.ddpolicy_vehicle.run_meter import metered_run
+        from starVLA.dataloader.foresight_dataset import ForesightCurrentDataset
+        from starVLA.model.modules.vehicle_joint.initialization import identity_hash
+        bank=Path(c['bank']);export=read(bank/'identity.json')
+        if export!=c['bank_identity'] or export['world_size']!=4:raise ValueError('Bank identity/partition changed')
+        data=ForesightCurrentDataset(c['current_root'])
+        if data.identity!=export['current_identity'] or len(data)!=12146:raise ValueError('Current population changed')
+        training,ckpt=checkpoint_identity(c['training_run'],c['tag'])
+        if ckpt!=export['checkpoint']:raise ValueError('Checkpoint changed')
+        expected=dict(precision='FP32',tf32=False,candidates_per_scene=1,sampling_seed=42,steps=10,future_conditioning=False)
+        if any(export['protocol'][k]!=v for k,v in expected.items()):raise ValueError('Inference protocol changed')
+        torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False;torch.backends.cudnn.benchmark=False
+        torch.cuda.set_per_process_memory_fraction(.25)
+        with metered_run(c['campaign_root'],c['run_id'],1,dict(kind='foresight_supplemental_export',real_optimizer_updates=0)) as (record,folder,save):
+            record.update(bank=str(bank),helper_source=c['helper_source'],native_source=c['native_source'],delegated_indices=c['indices']);save()
+            model=load_student(c['training_run'],c['tag'],training)
+            if any(p.dtype!=torch.float32 for p in model.parameters()):raise ValueError('FP32 required')
+            # Each helper independently checks the unchanged native path against
+            # one retained completed scene before writing any new prediction.
+            probe=c['probe_index'];scene=data.index[probe]
+            with torch.inference_mode():pose=model.predict_action([data[probe]],initial_noise=scene_noise(scene['token'],42,'cuda'))[0]
+            original=np.load(bank/'predictions'/(scene['token']+'.npz'))['trajectory']
+            error=float(np.max(np.abs(pose.cpu().numpy()-original)))
+            if error>1e-6:raise ValueError(f'Native inference parity failed: {error}')
+            atomic(Path(c['request_root'])/'parity.json',dict(passed=True,max_pose_error=error,native_source=c['native_source'],helper_source=c['helper_source']))
+            signature=identity_hash(export);done=0
+            for idx in c['indices']:
+                if (Path(c['request_root'])/'STOP_DRAIN').exists() or time.time()-record['start_unix']>900:
+                    record['status']='PAUSED';break
+                scene=data.index[idx];token=scene['token'];dest=bank/'predictions'/(token+'.npz');meta=dest.with_suffix('.json')
+                if meta.exists():
+                    row=read(meta)
+                    if row['status']!='ok' or row['identity_sha256']!=signature or sha(dest)!=row['proposal_sha256']:
+                        raise ValueError('Existing scene changed')
+                    continue
+                with torch.inference_mode():pose=model.predict_action([data[idx]],initial_noise=scene_noise(token,42,'cuda'))[0]
+                if pose.shape!=(8,3) or not torch.isfinite(pose).all():raise FloatingPointError('Invalid ego prediction')
+                tmp=dest.with_suffix(f'.{os.getpid()}.tail.tmp')
+                with tmp.open('wb') as stream:np.savez_compressed(stream,trajectory=pose.cpu().numpy())
+                tmp.replace(dest)
+                atomic(meta,dict(token=token,log=scene['log'],identity_sha256=signature,status='ok',proposal_sha256=sha(dest),
+                    supplemental_source=c['helper_source'],native_inference_source=c['native_source']))
+                done+=1;record.update(inference_scenes=done,peak_allocated_bytes=torch.cuda.max_memory_allocated(),peak_reserved_bytes=torch.cuda.max_memory_reserved());save()
+            atomic(Path(c['request_root'])/'result.json',dict(status='COMPLETE' if done==len(c['indices']) else 'PAUSED',generated=done,requested=len(c['indices']),max_pose_error=error,optimizer_updates=0))
+    finally:
+        for f in handles:f.close()
+    return 0
+
+
+def signal_owned(host,records,signum):
+    code='import os,signal,pathlib,json;records='+repr(records)+'\n'
+    code+='''for r in records:
+ p=pathlib.Path('/proc')/str(r['pid'])/'cmdline'
+ if not p.exists():continue
+ words=[x.decode() for x in p.read_bytes().split(b'\\0') if x]
+ if not ('-m' in words and words[words.index('-m')+1]=='tools.foresight.export_predictions' and words[words.index('--output')+1]==r['bank']):raise RuntimeError('Owned native PID mismatch')
+ os.kill(r['pid'],'''+str(signum)+')\n'
+    import shlex
+    subprocess.run(['ssh',host,'python3 -c '+shlex.quote(code)],check=True,timeout=20)
+
+
+def run(a):
+    import shlex
+    c=read(a.plan);root=Path(c['root'])
+    if sha(__file__)!=c['helper_file_sha256']:raise ValueError('Locked helper source changed')
+    with (root/'controller.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        children=[];paused={};interrupted=[]
+        for s in (signal.SIGTERM,signal.SIGINT,signal.SIGHUP):
+            signal.signal(s,lambda received,frame:interrupted.append(received))
+        try:
+            index=read(Path(c['current_root'])/'index.json')
+            for job in c['jobs']:
+                bank=Path(job['bank']);rows=read(bank/'identity.json')
+                # No helper can overlap a live native writer. Pause only exact
+                # registered export PIDs, never a trainer or CPU scorer.
+                paused.setdefault(job['native_host'],[]).extend(job['native_processes'])
+                atomic(root/'paused.json',dict(parent_pid=os.getpid(),paused=paused,helper_file=str(Path(__file__).resolve()),plan=str(Path(a.plan).resolve())))
+                signal_owned(job['native_host'],job['native_processes'],signal.SIGSTOP)
+                existing={p.stem for p in (bank/'predictions').glob('*.json')}
+                guards,parts=partition_missing(index,existing,4,32,len(job['workers']))
+                atomic(root/job['name']/'partition.json',dict(guards=guards,parts=parts,bank_identity=rows))
+                probes=[i for i,x in enumerate(index) if x['token'] in existing]
+                seen=set();distinct=[]
+                for i in probes:
+                    if index[i]['log'] not in seen:seen.add(index[i]['log']);distinct.append(i)
+                    if len(distinct)>=len(parts):break
+                for k,(allocation,indices) in enumerate(zip(job['workers'],parts)):
+                    if not indices:continue
+                    folder=root/job['name']/f'helper{k}';folder.mkdir(parents=True,exist_ok=True)
+                    request=dict(allocation,bank=str(bank),bank_identity=rows,current_root=c['current_root'],
+                        training_run=job['training_run'],tag=job['tag'],native_worktree=job['native_worktree'],native_source=job['native_source'],
+                        helper_source=c['helper_source'],helper_file_sha256=c['helper_file_sha256'],campaign_root=str(root),
+                        request_root=str(folder),run_id=job['name']+f'_helper{k}',indices=indices,probe_index=distinct[k%len(distinct)])
+                    atomic(folder/'request.json',request)
+                    command=[c['python'],'-u',str(Path(__file__).resolve()),'worker','--request',str(folder/'request.json')]
+                    remote=['env','OMP_NUM_THREADS=1','MKL_NUM_THREADS=1','OPENBLAS_NUM_THREADS=1','TOKENIZERS_PARALLELISM=false','CUBLAS_WORKSPACE_CONFIG=:4096:8',*command]
+                    with (folder/'worker.log').open('x') as stream:
+                        child=subprocess.Popen(['ssh',allocation['host'],'exec '+shlex.join(remote)],stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+                    children.append((child,folder))
+            atomic(root/'status.json',dict(status='RUNNING',pid=os.getpid(),helpers=len(children),paused_natives=paused,started_unix=time.time(),optimizer_updates=0))
+            deadline=time.time()+1000
+            while any(p.poll() is None for p,_ in children) and time.time()<deadline and not interrupted:time.sleep(3)
+            if any(p.poll() is None for p,_ in children):raise TimeoutError('Bounded supplemental window exhausted')
+            atomic(root/'helper_exits.json',[dict(folder=str(f),exit_code=p.returncode) for p,f in children])
+        finally:
+            for p,f in children:
+                if p.poll() is None:atomic(f/'STOP_DRAIN',dict(reason='Controller draining before native resume'))
+            for p,f in children:
+                if p.poll() is None:
+                    try:p.wait(timeout=30)
+                    except subprocess.TimeoutExpired:stop_owned_helper(f,c)
+            # Native originals finish the32 guarded scenes/rank, verify all new
+            # atomic cache rows and publish the original four shard receipts.
+            for host,records in paused.items():signal_owned(host,records,signal.SIGCONT)
+            atomic(root/'status.json',dict(status='HELPERS_FINISHED_NATIVE_RESUMED',pid=os.getpid(),optimizer_updates=0,updated_unix=time.time()))
+
+
+def stop_owned_helper(folder,c):
+    """SIGTERM only the manifest-bound helper, never a trainer or native writer."""
+    request=read(folder/'request.json')
+    if not (folder/'process.json').exists():return
+    pid=read(folder/'process.json')['pid']
+    import shlex
+    code='import os,signal,pathlib;pid='+repr(pid)+';request='+repr(str(folder/'request.json'))+'\n'
+    code+='''p=pathlib.Path('/proc')/str(pid)/'cmdline'
+if p.exists():
+ w=[x.decode() for x in p.read_bytes().split(b'\\0') if x]
+ if not ('--request' in w and w[w.index('--request')+1]==request and 'worker' in w):raise RuntimeError('Helper PID ownership changed')
+ os.kill(pid,signal.SIGTERM)
+ import time
+ deadline=time.time()+10
+ while p.exists() and time.time()<deadline:time.sleep(.1)
+ if p.exists():raise RuntimeError('Helper has not stopped; refuse concurrent native writing')
+'''
+    subprocess.run(['ssh',request['host'],'python3 -c '+shlex.quote(code)],check=True,timeout=15)
+
+
+def rescue(a):
+    """Independent bounded fail-safe resumes owned native writers after a crash."""
+    c=read(a.plan);root=Path(c['root']);deadline=time.time()+1100
+    while time.time()<deadline:
+        if (root/'status.json').exists() and read(root/'status.json')['status']=='HELPERS_FINISHED_NATIVE_RESUMED':return
+        if (root/'paused.json').exists():
+            pid=read(root/'paused.json')['parent_pid']
+            if not (Path('/proc')/str(pid)).exists():break
+        time.sleep(5)
+    for folder in root.glob('*/helper*'):
+        atomic(folder/'STOP_DRAIN',dict(reason='Independent finite rescue'))
+    time.sleep(5)
+    for folder in root.glob('*/helper*'):stop_owned_helper(folder,c)
+    if (root/'paused.json').exists():
+        for host,records in read(root/'paused.json')['paused'].items():signal_owned(host,records,signal.SIGCONT)
+    atomic(root/'rescue_receipt.json',dict(resumed_unix=time.time(),optimizer_updates=0))
+
+
+def main():
+    p=argparse.ArgumentParser(__doc__);s=p.add_subparsers(dest='mode',required=True)
+    x=s.add_parser('worker');x.add_argument('--request',required=True)
+    x=s.add_parser('run');x.add_argument('--plan',required=True)
+    x=s.add_parser('rescue');x.add_argument('--plan',required=True)
+    a=p.parse_args()
+    if a.mode=='worker':sys.exit(worker(a))
+    elif a.mode=='run':run(a)
+    else:rescue(a)
+
+
+if __name__=='__main__':main()
