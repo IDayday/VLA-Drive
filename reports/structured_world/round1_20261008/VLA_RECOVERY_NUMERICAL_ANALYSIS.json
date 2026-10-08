@@ -1,0 +1,240 @@
+{
+  "exact_restore_boundary": {
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "FP32_masters": "bitwise all ranks, actual parameters",
+    "FP32_model_and_buffers": "bitwise",
+    "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+    "all_task_RNG": "exact all ranks",
+    "completed": 2,
+    "epoch": 0,
+    "exposure": 64,
+    "identity": "64c0d9d95b326f9d7cd7d3cb6c17a64014ff1f91842596bfe0bb10d48337a463",
+    "offset": 2,
+    "passed": true,
+    "timing": "before next forward/backward/update"
+  },
+  "post_update_tolerance": {
+    "relative": 0.0001,
+    "absolute": 1e-05
+  },
+  "floating_tensors": 1796,
+  "floating_elements": 11252911440,
+  "outside_tolerance_elements": 5022,
+  "maximum_absolute_difference": 0.0002318053157068789,
+  "exact_state_mismatches": [],
+  "largest_differences": [
+    {
+      "path": "zero_pp_rank_5_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/0/exp_avg",
+      "elements": 60954240,
+      "maximum_absolute_difference": 0.0002318053157068789,
+      "outside_tolerance_elements": 1381,
+      "RMS_relative_to_state": 0.03939908815600915
+    },
+    {
+      "path": "zero_pp_rank_0_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/0/exp_avg",
+      "elements": 60954240,
+      "maximum_absolute_difference": 0.00014226743951439857,
+      "outside_tolerance_elements": 686,
+      "RMS_relative_to_state": 0.02605556902344368
+    },
+    {
+      "path": "zero_pp_rank_7_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/0/exp_avg",
+      "elements": 60954240,
+      "maximum_absolute_difference": 0.0001115662744268775,
+      "outside_tolerance_elements": 1315,
+      "RMS_relative_to_state": 0.01461415068138438
+    },
+    {
+      "path": "zero_pp_rank_6_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/0/exp_avg",
+      "elements": 60954240,
+      "maximum_absolute_difference": 6.438468699343503e-05,
+      "outside_tolerance_elements": 147,
+      "RMS_relative_to_state": 0.03628098718393377
+    },
+    {
+      "path": "module/future_space.res_latent_decoder.layers.2.ffns.0.layers.0.0.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 3.4244731068611145e-05,
+      "outside_tolerance_elements": 224,
+      "RMS_relative_to_state": 3.131692179113232e-05
+    },
+    {
+      "path": "zero_pp_rank_7_mp_rank_00_optim_states.pt/optimizer_state_dict/single_partition_of_fp32_groups/6",
+      "elements": 10085879,
+      "maximum_absolute_difference": 3.4244731068611145e-05,
+      "outside_tolerance_elements": 668,
+      "RMS_relative_to_state": 7.896094256395768e-06
+    },
+    {
+      "path": "module/future_space.res_latent_decoder.layers.1.ffns.0.layers.0.0.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 3.241095691919327e-05,
+      "outside_tolerance_elements": 105,
+      "RMS_relative_to_state": 2.7915890686344747e-05
+    },
+    {
+      "path": "module/future_space.res_latent_decoder.layers.0.ffns.0.layers.0.0.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 3.139302134513855e-05,
+      "outside_tolerance_elements": 117,
+      "RMS_relative_to_state": 2.551498335619784e-05
+    },
+    {
+      "path": "module/future_space.res_latent_decoder.layers.0.ffns.0.layers.1.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 3.1311996281147e-05,
+      "outside_tolerance_elements": 55,
+      "RMS_relative_to_state": 2.3142960577989028e-05
+    },
+    {
+      "path": "module/future_space.res_latent_decoder.layers.1.ffns.0.layers.1.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 3.068707883358002e-05,
+      "outside_tolerance_elements": 14,
+      "RMS_relative_to_state": 1.763662345786122e-05
+    },
+    {
+      "path": "module/future_space.res_latent_decoder.layers.2.ffns.0.layers.1.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 2.7291476726531982e-05,
+      "outside_tolerance_elements": 32,
+      "RMS_relative_to_state": 1.7910059109469462e-05
+    },
+    {
+      "path": "module/scene_semantics.future.0.weight",
+      "elements": 589824,
+      "maximum_absolute_difference": 2.679973840713501e-05,
+      "outside_tolerance_elements": 49,
+      "RMS_relative_to_state": 3.4245338733486825e-05
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.2.ffns.0.layers.0.0.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 2.6090070605278015e-05,
+      "outside_tolerance_elements": 11,
+      "RMS_relative_to_state": 1.0531599753026357e-05
+    },
+    {
+      "path": "zero_pp_rank_1_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/1/exp_avg",
+      "elements": 61347136,
+      "maximum_absolute_difference": 2.4259352358058095e-05,
+      "outside_tolerance_elements": 2,
+      "RMS_relative_to_state": 0.017500155402414497
+    },
+    {
+      "path": "module/future_space.semantic.weight",
+      "elements": 524288,
+      "maximum_absolute_difference": 2.3332424461841583e-05,
+      "outside_tolerance_elements": 3,
+      "RMS_relative_to_state": 2.7198297799350883e-05
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.0.ffns.0.layers.0.0.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 2.3087486624717712e-05,
+      "outside_tolerance_elements": 21,
+      "RMS_relative_to_state": 1.0611974623528718e-05
+    },
+    {
+      "path": "module/geometry.bev_backbone.layers.2.0.conv2.weight",
+      "elements": 3686400,
+      "maximum_absolute_difference": 2.2444874048233032e-05,
+      "outside_tolerance_elements": 16,
+      "RMS_relative_to_state": 2.4948356188443373e-05
+    },
+    {
+      "path": "zero_pp_rank_5_mp_rank_00_optim_states.pt/optimizer_state_dict/single_partition_of_fp32_groups/6",
+      "elements": 10085894,
+      "maximum_absolute_difference": 2.2444874048233032e-05,
+      "outside_tolerance_elements": 21,
+      "RMS_relative_to_state": 1.1545446046156283e-05
+    },
+    {
+      "path": "module/geometry.bev_neck.up2.4.weight",
+      "elements": 65536,
+      "maximum_absolute_difference": 2.1979212760925293e-05,
+      "outside_tolerance_elements": 1,
+      "RMS_relative_to_state": 4.369068537690255e-06
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.2.attentions.0.attn.in_proj_weight",
+      "elements": 196608,
+      "maximum_absolute_difference": 2.1733343601226807e-05,
+      "outside_tolerance_elements": 3,
+      "RMS_relative_to_state": 7.989059121619439e-06
+    },
+    {
+      "path": "zero_pp_rank_7_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/6/exp_avg",
+      "elements": 10085894,
+      "maximum_absolute_difference": 2.061363193206489e-05,
+      "outside_tolerance_elements": 46,
+      "RMS_relative_to_state": 0.00613740657686441
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.1.ffns.0.layers.1.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 1.9449740648269653e-05,
+      "outside_tolerance_elements": 3,
+      "RMS_relative_to_state": 1.1911975106156903e-05
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.1.ffns.0.layers.0.0.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 1.9058585166931152e-05,
+      "outside_tolerance_elements": 6,
+      "RMS_relative_to_state": 7.652813594384586e-06
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.0.ffns.0.layers.1.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 1.823529601097107e-05,
+      "outside_tolerance_elements": 7,
+      "RMS_relative_to_state": 1.3549454935237661e-05
+    },
+    {
+      "path": "module/future_space.latent_decoder.layers.2.ffns.0.layers.1.weight",
+      "elements": 131072,
+      "maximum_absolute_difference": 1.7876271158456802e-05,
+      "outside_tolerance_elements": 10,
+      "RMS_relative_to_state": 1.436332678542305e-05
+    },
+    {
+      "path": "module/geometry.bev_backbone.layers.2.1.conv1.weight",
+      "elements": 3686400,
+      "maximum_absolute_difference": 1.7618760466575623e-05,
+      "outside_tolerance_elements": 1,
+      "RMS_relative_to_state": 2.327997975527389e-05
+    },
+    {
+      "path": "zero_pp_rank_6_mp_rank_00_optim_states.pt/optimizer_state_dict/single_partition_of_fp32_groups/6",
+      "elements": 10085894,
+      "maximum_absolute_difference": 1.7618760466575623e-05,
+      "outside_tolerance_elements": 4,
+      "RMS_relative_to_state": 1.1591591640237922e-05
+    },
+    {
+      "path": "zero_pp_rank_5_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/5/exp_avg",
+      "elements": 10494978,
+      "maximum_absolute_difference": 1.7502752598375082e-05,
+      "outside_tolerance_elements": 25,
+      "RMS_relative_to_state": 0.014056455776839944
+    },
+    {
+      "path": "zero_pp_rank_0_mp_rank_00_optim_states.pt/optimizer_state_dict/base_optimizer_state/state/2/exp_avg",
+      "elements": 62395680,
+      "maximum_absolute_difference": 1.7168204067274928e-05,
+      "outside_tolerance_elements": 1,
+      "RMS_relative_to_state": 0.011317450649715318
+    },
+    {
+      "path": "module/future_space.action_mln.beta.weight",
+      "elements": 65536,
+      "maximum_absolute_difference": 1.6180343664018437e-05,
+      "outside_tolerance_elements": 1,
+      "RMS_relative_to_state": 0.0017203568209640545
+    }
+  ],
+  "outside_tolerance_fraction": 4.4628450395056163e-07,
+  "post_update_floating_test_passed": false,
+  "interpretation": "The load boundary and all subsequent RNG/data/step comparisons are distinct checks. A nonzero native CUDA continuation difference is reported, not hidden by enlarging tolerance."
+}

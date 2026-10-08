@@ -273,7 +273,8 @@ class FlowmatchingActionHead(nn.Module):
         return BatchFeature(data=batch)
 
 
-    def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None):
+    def forward(self, vl_embs: torch.Tensor, actions: torch.Tensor, video_token=None, state: torch.Tensor = None,
+                *, noise=None, times=None):
         """
         vl_embs: shape (B, seq_length, feature_dim)
         actions: shape (B, future_action_window_size, D_action)
@@ -281,8 +282,12 @@ class FlowmatchingActionHead(nn.Module):
         device = vl_embs.device
 
         # Embed noised action trajectory.
-        noise = torch.randn(actions.shape, device=actions.device, dtype=actions.dtype)
-        t = self.sample_time(actions.shape[0], device=actions.device, dtype=actions.dtype)
+        noise = torch.randn(actions.shape, device=actions.device, dtype=actions.dtype) if noise is None else noise
+        t = self.sample_time(actions.shape[0], device=actions.device, dtype=actions.dtype) if times is None else times
+        if noise.shape != actions.shape or t.shape != (len(actions),):
+            raise ValueError("Explicit FM noise/time shape mismatch")
+        if not torch.isfinite(noise).all() or not torch.isfinite(t).all():
+            raise ValueError("Nonfinite explicit FM noise/time")
         t = t[:, None, None]  # shape (B,1,1) for broadcast
 
         noisy_trajectory = (1 - t) * noise + t * actions
@@ -332,15 +337,19 @@ class FlowmatchingActionHead(nn.Module):
         return loss
 
     @torch.no_grad()
-    def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None) -> torch.Tensor:
+    def predict_action(self, vl_embs: torch.Tensor, state: torch.Tensor = None, initial_noise: torch.Tensor = None) -> torch.Tensor:
         # Set initial actions as the sampled noise.
         batch_size = vl_embs.shape[0]
         device = vl_embs.device
-        actions = torch.randn(
-            size=(batch_size, self.config.action_horizon, self.config.action_dim),
-            dtype=vl_embs.dtype,
-            device=device,
-        )
+        shape = (batch_size, self.config.action_horizon, self.config.action_dim)
+        if initial_noise is None:
+            actions = torch.randn(size=shape, dtype=vl_embs.dtype, device=device)
+        else:
+            if tuple(initial_noise.shape) != shape or initial_noise.device != device:
+                raise ValueError("Initial action noise shape/device mismatch")
+            if not initial_noise.is_floating_point() or not torch.isfinite(initial_noise).all():
+                raise ValueError("Initial action noise must be finite and floating point")
+            actions = initial_noise
 
         num_steps = self.num_inference_timesteps
         dt = 1.0 / num_steps

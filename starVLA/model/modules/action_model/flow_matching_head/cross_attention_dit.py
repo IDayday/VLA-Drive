@@ -26,6 +26,7 @@ from diffusers.models.embeddings import (
     Timesteps,
 )
 from torch import nn
+from torch.utils.checkpoint import checkpoint
 
 
 class TimestepEncoder(nn.Module):
@@ -268,7 +269,27 @@ class DiT(ModelMixin, ConfigMixin):
         encoder_hidden_states: torch.Tensor,  # Shape: (B, S, D)
         timestep: Optional[torch.LongTensor] = None,
         return_all_hidden_states: bool = False,
+        active_token_mask: Optional[torch.Tensor] = None,
+        condition_token_mask: Optional[torch.Tensor] = None,
     ):
+        # Optional joint-actor padding contract. None preserves the original
+        # action-only path. Clean BEFORE normalization or attention projections.
+        def clean(value, mask, label):
+            if mask is None:
+                return value
+            if mask.dtype != torch.bool or mask.shape != value.shape[:2] or not mask.any(-1).all():
+                raise ValueError(f"Invalid {label} attention support")
+            if not torch.isfinite(value[mask]).all():
+                raise ValueError(f"Nonfinite active {label}")
+            return torch.where(mask[..., None], value, torch.zeros_like(value))
+        hidden_states = clean(hidden_states, active_token_mask, "state")
+        encoder_hidden_states = clean(encoder_hidden_states, condition_token_mask, "condition")
+        def bias(mask, dtype):
+            if mask is None:
+                return None
+            return torch.zeros(mask.shape, device=mask.device, dtype=dtype).masked_fill(~mask, -torch.inf)[:, None]
+        state_bias = bias(active_token_mask, hidden_states.dtype)
+        condition_bias = bias(condition_token_mask, hidden_states.dtype)
         # Encode timesteps
         temb = self.timestep_encoder(timestep)
 
@@ -280,32 +301,28 @@ class DiT(ModelMixin, ConfigMixin):
 
         # Process through transformer blocks
         for idx, block in enumerate(self.transformer_blocks):
-            if idx % 2 == 1 and self.config.interleave_self_attention:
-                hidden_states = block(
-                    hidden_states,
-                    attention_mask=None,
-                    encoder_hidden_states=None,
-                    encoder_attention_mask=None,
-                    temb=temb,
-                )
+            self_attention = idx % 2 == 1 and self.config.interleave_self_attention
+            block_args = dict(attention_mask=state_bias if self_attention else condition_bias,
+                              encoder_hidden_states=None if self_attention else encoder_hidden_states,
+                              encoder_attention_mask=None, temb=temb)
+            if self.gradient_checkpointing and self.training and torch.is_grad_enabled():
+                hidden_states = checkpoint(block, hidden_states, use_reentrant=False, **block_args)
             else:
-                hidden_states = block(
-                    hidden_states,
-                    attention_mask=None,
-                    encoder_hidden_states=encoder_hidden_states,
-                    encoder_attention_mask=None,
-                    temb=temb,
-                )
+                hidden_states = block(hidden_states, **block_args)
+            if active_token_mask is not None:
+                hidden_states = torch.where(active_token_mask[..., None], hidden_states, 0.)
             all_hidden_states.append(hidden_states)
 
         # Output processing
         conditioning = temb
         shift, scale = self.proj_out_1(F.silu(conditioning)).chunk(2, dim=1)
         hidden_states = self.norm_out(hidden_states) * (1 + scale[:, None]) + shift[:, None]
+        output = self.proj_out_2(hidden_states)
+        if active_token_mask is not None:
+            output = torch.where(active_token_mask[..., None], output, 0.)
         if return_all_hidden_states:
-            return self.proj_out_2(hidden_states), all_hidden_states
-        else:
-            return self.proj_out_2(hidden_states)
+            return output, all_hidden_states
+        return output
 
 
 class SelfAttentionTransformer(ModelMixin, ConfigMixin):

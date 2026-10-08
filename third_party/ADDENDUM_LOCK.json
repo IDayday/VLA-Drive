@@ -1,0 +1,36 @@
+{
+  "schema": "structured_world_additional_sources_v1",
+  "base_lock": "third_party/LOCK.json",
+  "ports": [
+    {
+      "file": "third_party/vad/ported/planning_pose.py",
+      "repository": "https://github.com/hustvl/VAD",
+      "commit": "1688c4b1c3a9e2e7873ca9700ff8058170c0e3c8",
+      "source_file": "tools/data_converter/vad_nuscenes_converter.py",
+      "license": "Apache-2.0",
+      "sha256": "85d496f920c90d74eadcb574d05ffedd29834747b6e8b6dead2bd446028b82b7",
+      "modifications": [
+        "get_global_sensor_pose extracted unchanged with its standard imports"
+      ],
+      "validation": "real VAD target and six-camera calibration checks"
+    },
+    {
+      "file": "third_party/uniad/ported/planning_metrics.py",
+      "repository": "https://github.com/OpenDriveLab/UniAD",
+      "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+      "source_file": "projects/mmdet3d_plugin/uniad/dense_heads/planning_head_plugin/planning_metrics.py",
+      "license": "Apache-2.0",
+      "sha256": "d10a05927ced97f03f5d48b80cf9b636b89fead17f0bc13bc788c0bebd411cde",
+      "modifications": [
+        "removed legacy Lightning Metric import; all class methods unchanged",
+        "local original occupancy utility import"
+      ],
+      "validation": "test_nuscenes_contracts.py class AST equality, numeric masking and GT replay"
+    }
+  ],
+  "new_wrappers": {
+    "third_party/uniad/ported/metrics_compat.py": "offline nn.Module sum-state holder; no metric/geometry changes",
+    "starVLA/dataloader/structured_world/centered_boxes.py": "new named semantic correction wrapper; mature reframe/corners/raster reused; gravity center corrected under sensor pitch/roll"
+  },
+  "base_lock_immutability": "base lock retained while NAVSIM label builds record its exact hash; this addendum covers new interfaces"
+}

@@ -1,0 +1,169 @@
+run_id: navsim_G2_EVENT_UNIFORM_seed42
+run_root_dir: results/Checkpoints
+seed: 42
+trackers:
+- jsonl
+wandb_entity: your_wandb_entity
+wandb_project: llavavla
+is_debug: false
+ver_1225: 1
+act_tok: 8
+pretrain_model_2d: null
+enable_image_aug: 0
+w_depth: 0
+doing_s2: 0
+w_video_latent: 0
+vit_pre: 0
+rgb_query_loss: 0
+gs_query_loss: 0
+framework:
+  name: VLAStructuredFGTR
+  qwenvl:
+    base_vlm: /mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct
+    attn_implementation: sdpa
+    vl_hidden_dim: 2048
+    device_map: cpu
+  action_model:
+    action_model_type: DiT-B
+    hidden_size: 1536
+    add_pos_embed: true
+    max_seq_len: 1024
+    action_dim: 4
+    state_dim: 4
+    future_action_window_size: 8
+    action_horizon: 8
+    past_action_window_size: 0
+    repeated_diffusion_steps: 8
+    noise_beta_alpha: 1.5
+    noise_beta_beta: 1.0
+    noise_s: 0.999
+    num_timestep_buckets: 1000
+    num_inference_timesteps: 10
+    num_target_vision_tokens: 32
+    diffusion_model_cfg:
+      cross_attention_dim: 1536
+      dropout: 0.2
+      final_dropout: true
+      interleave_self_attention: true
+      norm_type: ada_norm
+      num_layers: 24
+      output_dim: 1536
+      positional_embeddings: null
+    mlp_head: 0
+  camera_count: 3
+datasets:
+  vla_data:
+    load_act_data: true
+    act_norm: true
+  video_data:
+    load_2d_data: false
+  gs_data:
+    load_3d_data: false
+  reward_data:
+    load_reward_data: false
+trainer:
+  epochs: 100
+  max_train_steps: 100000
+  num_warmup_steps: 5000
+  save_interval: 10000
+  eval_interval: 200000
+  learning_rate:
+    base: 1.0e-05
+    qwen_vl_interface: 1.0e-05
+    rgb_model: 1.0e-05
+    action_model: 1.0e-05
+    gs_model: 1.0e-05
+    reward_model: 1.0e-05
+    geometry: 0.0001
+    future_space: 0.0001
+    refiner: 0.0001
+    scene_semantics: 0.0001
+    dino_head: 1.0e-05
+  lr_scheduler_type: cosine_with_min_lr
+  scheduler_specific_kwargs:
+    min_lr: 5.0e-07
+  freeze_modules: ''
+  loss_scale:
+    vla: 1.0
+    vlm: 0.1
+  repeated_diffusion_steps: 4
+  max_grad_norm: 1.0
+  warmup_ratio: 0.1
+  weight_decay: 0.0
+  logging_frequency: 100
+  gradient_clipping: 1.0
+  gradient_accumulation_steps: 1
+  optimizer:
+    name: AdamW
+    betas:
+    - 0.9
+    - 0.95
+    eps: 1.0e-08
+    weight_decay: 0.001
+  is_resume: false
+  resume_ckpt: none
+  resume_epoch: null
+  resume_step: null
+  enable_gradient_checkpointing: true
+  enable_mixed_precision_training: true
+from_scratch:
+  source_manifest: /mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json
+foresight:
+  arm: C1
+  num_queries: 144
+  enable_current_dino: true
+  enable_future_dino: false
+  enable_interaction: false
+  current_horizon_s: 0.0
+  future_horizons_s:
+  - 1.0
+  - 2.0
+  - 4.0
+  dino_feature_dim: 1024
+  dino_height: 6
+  dino_width: 8
+  lambda_cur: 1.0
+  lambda_fut: 0.0
+  lambda_int: 0.0
+  auxiliary_warmup: 1
+  full_algorithm: false
+  candidate: ''
+  ablation: FULL
+  readout_dim: 512
+  readout_layers: 2
+structured_world:
+  dataset: navsim
+  group: G2_EVENT_UNIFORM
+  initialization_kind: generic
+  imagenet_checkpoint: /mnt/project/structured-world-fgtr-round1-artifacts/20261008/public_initialization/resnet50-0676ba61.pth
+  grid:
+    xmin: -20.0
+    xmax: 80.0
+    ymin: -40.0
+    ymax: 40.0
+    dx: 0.5
+    dy: 0.5
+  geometry_image_size:
+  - 256
+  - 448
+  queries: 1024
+  refine_warmup_updates: 1000
+  class_statistics:
+    status: uncalibrated_debug_only
+    current_positive_weight: 1.0
+    future_positive_weight: 1.0
+    arrival_positive_weight: 1.0
+    release_positive_weight: 1.0
+  loss_weights:
+    geometry: 1.0
+    future: 1.0
+    query: 1.0
+    refine: 1.0
+  registration_status: implementation_probe_not_formal_frozen_recipe
+  formal_training_seed: 42
+  evaluation_sampling_seeds:
+  - 42
+  - 43
+  - 44
+  - 45
+  - 46

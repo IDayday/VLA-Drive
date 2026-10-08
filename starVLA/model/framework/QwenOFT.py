@@ -19,6 +19,7 @@ Note: How to add special tokens to Qwen2.5:
   or /starVLA/model/modules/vlm/tools/add_qwen_special_tokens/README.md （adpat a little code)
   
 """
+import os
 from typing import List
 from tqdm import tqdm
 from typing import List, Optional, Tuple
@@ -44,12 +45,10 @@ from starVLA.model.modules.vlm import get_vlm_model
 # from starVLA.model.modules.action_model.MLP_ActionHeader import get_action_model
 from starVLA.model.modules.action_model.GR00T_ActionHeader import get_action_model, FlowmatchingActionHead, MLP, FlowmatchingRewardHead, get_reward_model
 from starVLA.training.trainer_utils.trainer_tools import resize_images
-from starVLA.model.modules.video_model.wan_i2v_header import WanWorldHead
 import time
 from omegaconf import OmegaConf
 
 ##### depth ppd
-from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
 from starVLA.cache.navsim_feature_cache import (
     GS_QUERY_TOKENS,
     REWARD_QUERY_TOKENS,
@@ -209,6 +208,7 @@ class Qwenvl_OFT(baseframework):
         ## 2d gen
         if self.config.datasets.video_data.load_2d_data:
             if not infer_not_load_wan:
+                from starVLA.model.modules.video_model.wan_i2v_header import WanWorldHead
                 self.rgb_model = WanWorldHead(self.config, accelerator)
 
         if self.config.datasets.video_data.load_2d_data:
@@ -244,10 +244,18 @@ class Qwenvl_OFT(baseframework):
         self.w_depth = OmegaConf.select(self.config, "w_depth", default=0)
 
         if self.w_depth:
+            from starVLA.model.modules.depth_model.models.ppd_train import PixelPerfectDepth
             depth_ppd_path = 'starVLA/model/modules/depth_model/configs/train_finetune.yaml'
             self.depth_ppd_cfg = OmegaConf.load(depth_ppd_path)
+            # Optional path override; the original relative paths remain the default.
+            if os.environ.get('DEPTH_MODEL_CKPTS'):
+                from pathlib import Path
+                for key in ('semantics_pth','ckpt_path'):
+                    old=self.depth_ppd_cfg.model.pipeline.config[key]
+                    self.depth_ppd_cfg.model.pipeline.config[key]=str(Path(os.environ['DEPTH_MODEL_CKPTS'])/Path(old).name)
             self.gs_model = PixelPerfectDepth(self.depth_ppd_cfg.model.pipeline.config)
             missing, unexpected = self.gs_model.load_state_dict(torch.load(self.depth_ppd_cfg.model.pipeline.config.ckpt_path, map_location='cpu'), strict=False)
+            self.ppd_generic_load_report = {"missing": list(missing), "unexpected": list(unexpected)}
             print(f'[PPD] missing keys: {len(missing)} {missing[:8]}')
             print(f'[PPD] unexpected keys: {len(unexpected)} {unexpected[:8]}')
         
@@ -282,10 +290,9 @@ class Qwenvl_OFT(baseframework):
 
     @staticmethod
     def _find_token_positions(input_ids, token_ids):
-        """Find ordered special-token positions without Python/CUDA scalar syncs."""
-        ids = torch.as_tensor(token_ids, device=input_ids.device, dtype=input_ids.dtype)
-        matches = input_ids.unsqueeze(-1).eq(ids.view(1, 1, -1))
-        return matches.to(torch.int8).argmax(dim=1)
+        """Validate exactly one occurrence of each ordered special token."""
+        from starVLA.model.modules.structured_world.tokens import token_positions
+        return token_positions(input_ids, token_ids)
 
     def _build_qwen_batch(self, examples, instructions):
         """Build either cached or ordinary Qwen inputs for one training batch."""
@@ -720,8 +727,8 @@ class Qwenvl_OFT(baseframework):
         if self.config.datasets.vla_data.load_act_data:
             for b in range(B):
                 where = (input_ids[b] == hist_id).nonzero(as_tuple=False)
-                if where.numel() == 0:
-                    raise RuntimeError(f"Sample {b}: robot_history token not found in input_ids.")
+                if where.numel() != 1:
+                    raise RuntimeError(f"Sample {b}: robot_history token must occur exactly once in input_ids.")
                 if where.numel() > 1:
                     # 如果你只想覆盖第一个出现的位置，就取 where[0]
                     # 这里严格要求只有一个
@@ -827,8 +834,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in act_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 act_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
@@ -857,8 +864,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in rgb_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 rgb_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             rgb_pos_idx = torch.stack(rgb_pos_idx, dim=0)                            # [B, T]
@@ -880,8 +887,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in gs_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 gs_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             gs_pos_idx = torch.stack(gs_pos_idx, dim=0)                            # [B, T]
@@ -903,8 +910,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in reward_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 reward_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             reward_pos_idx = torch.stack(reward_pos_idx, dim=0)                            # [B, T]
@@ -1032,8 +1039,8 @@ class Qwenvl_OFT(baseframework):
         B, L, H = text_embeds.shape
         for b in range(B):
             where = (input_ids[b] == hist_id).nonzero(as_tuple=False)
-            if where.numel() == 0:
-                raise RuntimeError(f"Sample {b}: robot_history token not found in input_ids.")
+            if where.numel() != 1:
+                raise RuntimeError(f"Sample {b}: robot_history token must occur exactly once in input_ids.")
             if where.numel() > 1:
                 # 如果你只想覆盖第一个出现的位置，就取 where[0]
                 # 这里严格要求只有一个
@@ -1154,8 +1161,8 @@ class Qwenvl_OFT(baseframework):
             pos_list = []
             for tid in act_ids:
                 w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                if w.numel() == 0:
-                    raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                if w.numel() != 1:
+                    raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                 pos_list.append(int(w[0]))
             act_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
         act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]
@@ -1183,8 +1190,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in rgb_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 rgb_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             rgb_pos_idx = torch.stack(rgb_pos_idx, dim=0)                            # [B, T]
@@ -1207,8 +1214,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in gs_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 gs_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             gs_pos_idx = torch.stack(gs_pos_idx, dim=0)                            # [B, T]
@@ -1231,8 +1238,8 @@ class Qwenvl_OFT(baseframework):
                 pos_list = []
                 for tid in reward_ids:
                     w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                    if w.numel() == 0:
-                        raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                    if w.numel() != 1:
+                        raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                     pos_list.append(int(w[0]))
                 reward_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
             reward_pos_idx = torch.stack(reward_pos_idx, dim=0)                            # [B, T]
@@ -1331,8 +1338,8 @@ class Qwenvl_OFT(baseframework):
         B, L, H = text_embeds.shape
         for b in range(B):
             where = (input_ids[b] == hist_id).nonzero(as_tuple=False)
-            if where.numel() == 0:
-                raise RuntimeError(f"Sample {b}: robot_history token not found in input_ids.")
+            if where.numel() != 1:
+                raise RuntimeError(f"Sample {b}: robot_history token must occur exactly once in input_ids.")
             if where.numel() > 1:
                 # 如果你只想覆盖第一个出现的位置，就取 where[0]
                 # 这里严格要求只有一个
@@ -1419,8 +1426,8 @@ class Qwenvl_OFT(baseframework):
             pos_list = []
             for tid in act_ids:
                 w = (input_ids[b] == tid).nonzero(as_tuple=False)
-                if w.numel() == 0:
-                    raise RuntimeError(f"Sample {b}: action token {tid} not found.")
+                if w.numel() != 1:
+                    raise RuntimeError(f"Sample {b}: action token {tid} must occur exactly once.")
                 pos_list.append(int(w[0]))
             act_pos_idx.append(torch.tensor(pos_list, device=last_hidden.device))
         act_pos_idx = torch.stack(act_pos_idx, dim=0)                            # [B, T]

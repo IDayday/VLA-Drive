@@ -1,0 +1,1009 @@
+{
+  "scope": "fixed_train_gradient_measurement_not_formal_results",
+  "dataset": "navsim",
+  "group": "G1_FULL_UNIFORM",
+  "cache_identity": "82c9f4acee2a962dd5588999fdb88f51af3bc0b78e8e6056be8b108b5f635703",
+  "geometry_identity": "ef6b9d413f51fdc0a31ab99f40a3e2d1218258d95817c61338a8bb79adcb3828",
+  "samples": 8,
+  "loss_weights_used": {
+    "geometry": 1.0,
+    "future": 1.0,
+    "query": 1.0,
+    "refine": 1.0
+  },
+  "norm_definition": "per scene/rank parameter gradient; no optimizer or validation score tuning",
+  "rows": [
+    {
+      "rank": 0,
+      "phase": "random_geometry",
+      "token": "8f8594689372528c",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.8347809314727783,
+          "total_parameter_gradient_norm": 13.348905063008722,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.0992817878723145,
+            "qwen_vl_interface": 4.506843141024115,
+            "action_input_model": 0.1723347747018866,
+            "action_model": 12.2314285029769,
+            "dino_head": 1.9588529195741344
+          }
+        },
+        "current_geometry": {
+          "loss": 6.52020263671875,
+          "total_parameter_gradient_norm": 20.901308235612483,
+          "parameter_module_gradient_norms": {
+            "geometry": 20.82736845773203,
+            "scene_semantics": 1.756533257855116
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6845232248306274,
+          "total_parameter_gradient_norm": 66.75234360738169,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 18.56922721862793,
+            "qwen_vl_interface": 43.75554833751089,
+            "action_input_model": 0.9096575951719467,
+            "geometry": 15.242233376757552,
+            "future_space": 29.475674252373427,
+            "scene_semantics": 33.08387279900345
+          }
+        },
+        "query_relations": {
+          "loss": 0.327717125415802,
+          "total_parameter_gradient_norm": 20.515702525914847,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 4.98153018951416,
+            "qwen_vl_interface": 11.774414581042048,
+            "action_input_model": 0.240660621531532,
+            "geometry": 10.390578692705684,
+            "future_space": 8.071831063284524,
+            "scene_semantics": 9.179600675316005
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.623982310295105,
+          "total_parameter_gradient_norm": 5.348422401873724,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 5.348422401873724
+          }
+        }
+      }
+    },
+    {
+      "rank": 0,
+      "phase": "prepared_geometry",
+      "token": "8f8594689372528c",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.8347809314727783,
+          "total_parameter_gradient_norm": 13.34724650650892,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.090686082839966,
+            "qwen_vl_interface": 4.505959599240956,
+            "action_input_model": 0.17146753215199204,
+            "action_model": 12.2314285029769,
+            "dino_head": 1.9588529195741344
+          }
+        },
+        "current_geometry": {
+          "loss": 2.735771656036377,
+          "total_parameter_gradient_norm": 24.551190829107064,
+          "parameter_module_gradient_norms": {
+            "geometry": 24.53212123661203,
+            "scene_semantics": 0.9674702886392863
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7302248477935791,
+          "total_parameter_gradient_norm": 58.0142492932433,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 14.845765113830566,
+            "qwen_vl_interface": 35.326556603556696,
+            "action_input_model": 0.7660735406212582,
+            "geometry": 5.576862652839522,
+            "future_space": 27.088389221799694,
+            "scene_semantics": 33.64255759345991
+          }
+        },
+        "query_relations": {
+          "loss": 0.28308218717575073,
+          "total_parameter_gradient_norm": 16.213703548500913,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.618363618850708,
+            "qwen_vl_interface": 8.787784742877353,
+            "action_input_model": 0.20937985927956196,
+            "geometry": 4.900705306748904,
+            "future_space": 7.381492457859738,
+            "scene_semantics": 9.696354132290738
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.623982310295105,
+          "total_parameter_gradient_norm": 5.742747663595949,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 5.742747663595949
+          }
+        }
+      }
+    },
+    {
+      "rank": 1,
+      "phase": "random_geometry",
+      "token": "8ad8a9598afd511c",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 2.061293601989746,
+          "total_parameter_gradient_norm": 15.025253262210207,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 1.8073983192443848,
+            "qwen_vl_interface": 4.549041017798926,
+            "action_input_model": 0.14470114465074954,
+            "action_model": 14.072965209506352,
+            "dino_head": 1.930928408381463
+          }
+        },
+        "current_geometry": {
+          "loss": 6.5510663986206055,
+          "total_parameter_gradient_norm": 26.97200381304587,
+          "parameter_module_gradient_norms": {
+            "geometry": 26.92218929131137,
+            "scene_semantics": 1.6385095220230923
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6797017455101013,
+          "total_parameter_gradient_norm": 58.46360418424056,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 15.177539825439453,
+            "qwen_vl_interface": 37.291476791999834,
+            "action_input_model": 0.784926250308453,
+            "geometry": 15.610433272936016,
+            "future_space": 26.122938338638487,
+            "scene_semantics": 29.500362948597214
+          }
+        },
+        "query_relations": {
+          "loss": 0.35369986295700073,
+          "total_parameter_gradient_norm": 11.053867251970082,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.3122202157974243,
+            "qwen_vl_interface": 0.729519046179875,
+            "action_input_model": 0.01105926907201096,
+            "geometry": 10.946515949309864,
+            "future_space": 0.6397460008700074,
+            "scene_semantics": 1.1500839276887624
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.0229122638702393,
+          "total_parameter_gradient_norm": 2.570199904610404,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 2.570199904610404
+          }
+        }
+      }
+    },
+    {
+      "rank": 1,
+      "phase": "prepared_geometry",
+      "token": "8ad8a9598afd511c",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 2.061293601989746,
+          "total_parameter_gradient_norm": 15.024569423432206,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 1.8039122819900513,
+            "qwen_vl_interface": 4.548177168313776,
+            "action_input_model": 0.14435019147195807,
+            "action_model": 14.072965209506352,
+            "dino_head": 1.930928408381463
+          }
+        },
+        "current_geometry": {
+          "loss": 3.336810827255249,
+          "total_parameter_gradient_norm": 38.067636547858406,
+          "parameter_module_gradient_norms": {
+            "geometry": 38.048471020559774,
+            "scene_semantics": 1.2078101413168365
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7190754413604736,
+          "total_parameter_gradient_norm": 48.86012045429288,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 11.88880729675293,
+            "qwen_vl_interface": 28.323570975392375,
+            "action_input_model": 0.6257131245581627,
+            "geometry": 5.654590834359686,
+            "future_space": 23.582841476059425,
+            "scene_semantics": 29.24425811278818
+          }
+        },
+        "query_relations": {
+          "loss": 0.2430839091539383,
+          "total_parameter_gradient_norm": 4.6629007781853815,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.3600606322288513,
+            "qwen_vl_interface": 0.8858822060252588,
+            "action_input_model": 0.01380085798124566,
+            "geometry": 4.115201003727655,
+            "future_space": 0.990598824347449,
+            "scene_semantics": 1.7064163998883577
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.0229122638702393,
+          "total_parameter_gradient_norm": 2.889441182515236,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 2.889441182515236
+          }
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "phase": "random_geometry",
+      "token": "d0eca9ce68de5844",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.8460124731063843,
+          "total_parameter_gradient_norm": 11.645385732930094,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 1.6316617727279663,
+            "qwen_vl_interface": 4.615085447863783,
+            "action_input_model": 0.1256123316003278,
+            "action_model": 10.377112255252444,
+            "dino_head": 1.9883253810947157
+          }
+        },
+        "current_geometry": {
+          "loss": 6.552022933959961,
+          "total_parameter_gradient_norm": 16.82683381885677,
+          "parameter_module_gradient_norms": {
+            "geometry": 16.690643844632962,
+            "scene_semantics": 2.1365262504911278
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6535513997077942,
+          "total_parameter_gradient_norm": 61.60901814570341,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 12.475364685058594,
+            "qwen_vl_interface": 34.20109068439615,
+            "action_input_model": 0.7290467293021748,
+            "geometry": 16.761281493886138,
+            "future_space": 30.94635452719343,
+            "scene_semantics": 35.08807295758168
+          }
+        },
+        "query_relations": {
+          "loss": 0.38673484325408936,
+          "total_parameter_gradient_norm": 30.905169215154285,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.847827434539795,
+            "qwen_vl_interface": 16.102725467422633,
+            "action_input_model": 0.35212543159770043,
+            "geometry": 11.827982337125434,
+            "future_space": 15.045768692599841,
+            "scene_semantics": 17.182383914807506
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.2162089347839355,
+          "total_parameter_gradient_norm": 2.960754100711957,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 2.960754100711957
+          }
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "phase": "prepared_geometry",
+      "token": "d0eca9ce68de5844",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.8460124731063843,
+          "total_parameter_gradient_norm": 11.644999088258334,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 1.6302249431610107,
+            "qwen_vl_interface": 4.614630792554308,
+            "action_input_model": 0.12512581439028905,
+            "action_model": 10.377112255252444,
+            "dino_head": 1.9883253810947157
+          }
+        },
+        "current_geometry": {
+          "loss": 3.5394535064697266,
+          "total_parameter_gradient_norm": 29.14677337667407,
+          "parameter_module_gradient_norms": {
+            "geometry": 29.13016116520021,
+            "scene_semantics": 0.983925180416594
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7229452133178711,
+          "total_parameter_gradient_norm": 60.74440466063363,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 11.879042625427246,
+            "qwen_vl_interface": 34.3387850476713,
+            "action_input_model": 0.7657806153368364,
+            "geometry": 6.623771343131281,
+            "future_space": 31.04929618482336,
+            "scene_semantics": 36.89307963559178
+          }
+        },
+        "query_relations": {
+          "loss": 0.31636035442352295,
+          "total_parameter_gradient_norm": 29.0618522725257,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.4082112312316895,
+            "qwen_vl_interface": 15.742801160293837,
+            "action_input_model": 0.3545992366729663,
+            "geometry": 5.872860141582845,
+            "future_space": 14.627689244623491,
+            "scene_semantics": 17.858365012436675
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.2162089347839355,
+          "total_parameter_gradient_norm": 3.0935120212810983,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 3.0935120212810983
+          }
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "phase": "random_geometry",
+      "token": "70eb4d4d0c7750cf",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 3.0286033153533936,
+          "total_parameter_gradient_norm": 21.83828267262626,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.130441188812256,
+            "qwen_vl_interface": 8.009024410276252,
+            "action_input_model": 0.37551557600314944,
+            "action_model": 19.96920901919666,
+            "dino_head": 2.013984917602127
+          }
+        },
+        "current_geometry": {
+          "loss": 6.517890453338623,
+          "total_parameter_gradient_norm": 20.289309590125225,
+          "parameter_module_gradient_norms": {
+            "geometry": 20.17556865462583,
+            "scene_semantics": 2.1453468499119306
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6520256400108337,
+          "total_parameter_gradient_norm": 68.16905579077184,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 17.058826446533203,
+            "qwen_vl_interface": 41.75357437026748,
+            "action_input_model": 1.2539718578225667,
+            "geometry": 19.18904250231755,
+            "future_space": 31.592959227894713,
+            "scene_semantics": 35.28099721702302
+          }
+        },
+        "query_relations": {
+          "loss": 0.2930559515953064,
+          "total_parameter_gradient_norm": 25.58822287072526,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.92786979675293,
+            "qwen_vl_interface": 14.46720214813628,
+            "action_input_model": 0.43583769464923816,
+            "geometry": 11.571976929040767,
+            "future_space": 11.050592043446425,
+            "scene_semantics": 12.413757783467599
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.9552375078201294,
+          "total_parameter_gradient_norm": 5.136004095757401,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 5.136004095757401
+          }
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "phase": "prepared_geometry",
+      "token": "70eb4d4d0c7750cf",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 3.0286033153533936,
+          "total_parameter_gradient_norm": 21.836282898296684,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.1196279525756836,
+            "qwen_vl_interface": 8.007896094845002,
+            "action_input_model": 0.3732670430466006,
+            "action_model": 19.96920901919666,
+            "dino_head": 2.013984917602127
+          }
+        },
+        "current_geometry": {
+          "loss": 2.9550697803497314,
+          "total_parameter_gradient_norm": 32.1208601933748,
+          "parameter_module_gradient_norms": {
+            "geometry": 31.813150800919647,
+            "scene_semantics": 4.435436357369544
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7320966124534607,
+          "total_parameter_gradient_norm": 62.74865684305799,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 14.261338233947754,
+            "qwen_vl_interface": 36.633662300477354,
+            "action_input_model": 1.3992417689515735,
+            "geometry": 7.864687707267767,
+            "future_space": 30.810221200826312,
+            "scene_semantics": 37.13357016413447
+          }
+        },
+        "query_relations": {
+          "loss": 0.3497243821620941,
+          "total_parameter_gradient_norm": 25.951801568439972,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.157597064971924,
+            "qwen_vl_interface": 13.216543158874245,
+            "action_input_model": 0.49049672111704723,
+            "geometry": 10.596612049373947,
+            "future_space": 11.545599170463976,
+            "scene_semantics": 15.046213807111364
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.9552375078201294,
+          "total_parameter_gradient_norm": 5.372918001070758,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 5.372918001070758
+          }
+        }
+      }
+    },
+    {
+      "rank": 4,
+      "phase": "random_geometry",
+      "token": "d838fc5ff0b4599e",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.7032806873321533,
+          "total_parameter_gradient_norm": 12.538906691063545,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.0553550720214844,
+            "qwen_vl_interface": 4.8630158847087825,
+            "action_input_model": 0.1353931622573023,
+            "action_model": 11.20343130109196,
+            "dino_head": 1.9533481035162708
+          }
+        },
+        "current_geometry": {
+          "loss": 6.599850177764893,
+          "total_parameter_gradient_norm": 16.75169336801012,
+          "parameter_module_gradient_norms": {
+            "geometry": 16.64202673795832,
+            "scene_semantics": 1.9136814648510472
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6423165202140808,
+          "total_parameter_gradient_norm": 63.571765969498145,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 14.679068565368652,
+            "qwen_vl_interface": 38.089867650701386,
+            "action_input_model": 0.8443084574805853,
+            "geometry": 16.409907821032466,
+            "future_space": 30.424716075884046,
+            "scene_semantics": 34.34232195297207
+          }
+        },
+        "query_relations": {
+          "loss": 0.39283689856529236,
+          "total_parameter_gradient_norm": 30.3229340263858,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 6.533830642700195,
+            "qwen_vl_interface": 16.991452351325254,
+            "action_input_model": 0.37587852572872066,
+            "geometry": 12.210243032629194,
+            "future_space": 13.812572893391419,
+            "scene_semantics": 15.749966430963466
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.3120918273925781,
+          "total_parameter_gradient_norm": 2.7312693692501275,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 2.7312693692501275
+          }
+        }
+      }
+    },
+    {
+      "rank": 4,
+      "phase": "prepared_geometry",
+      "token": "d838fc5ff0b4599e",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.7032806873321533,
+          "total_parameter_gradient_norm": 12.538269006741418,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.052940845489502,
+            "qwen_vl_interface": 4.8623887858617305,
+            "action_input_model": 0.13548850010838157,
+            "action_model": 11.20343130109196,
+            "dino_head": 1.9533481035162708
+          }
+        },
+        "current_geometry": {
+          "loss": 3.0919909477233887,
+          "total_parameter_gradient_norm": 25.67934957723351,
+          "parameter_module_gradient_norms": {
+            "geometry": 25.671286105468447,
+            "scene_semantics": 0.6434783608991413
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7175990343093872,
+          "total_parameter_gradient_norm": 60.230456405518716,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 13.344889640808105,
+            "qwen_vl_interface": 35.237124000397905,
+            "action_input_model": 0.8721042941055392,
+            "geometry": 6.182074816235299,
+            "future_space": 29.74861641288985,
+            "scene_semantics": 35.833058731536404
+          }
+        },
+        "query_relations": {
+          "loss": 0.3179754614830017,
+          "total_parameter_gradient_norm": 27.517039434995084,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.649086952209473,
+            "qwen_vl_interface": 14.91364221249024,
+            "action_input_model": 0.36529070453505846,
+            "geometry": 7.8918880414251085,
+            "future_space": 13.17868974232149,
+            "scene_semantics": 16.33295301988292
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.3120918273925781,
+          "total_parameter_gradient_norm": 3.4482711565139215,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 3.4482711565139215
+          }
+        }
+      }
+    },
+    {
+      "rank": 5,
+      "phase": "random_geometry",
+      "token": "45705a3bb0d85b5d",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 3.595818042755127,
+          "total_parameter_gradient_norm": 24.84477764883567,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.3988213539123535,
+            "qwen_vl_interface": 8.878945269647067,
+            "action_input_model": 0.28191793587194586,
+            "action_model": 22.86951927372196,
+            "dino_head": 1.9444616707920432
+          }
+        },
+        "current_geometry": {
+          "loss": 6.541593551635742,
+          "total_parameter_gradient_norm": 19.342019807645894,
+          "parameter_module_gradient_norms": {
+            "geometry": 19.240660791583036,
+            "scene_semantics": 1.9775496308829748
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6952735185623169,
+          "total_parameter_gradient_norm": 68.91662877708036,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 18.799785614013672,
+            "qwen_vl_interface": 47.474049260295786,
+            "action_input_model": 1.8081188025528674,
+            "geometry": 15.327503146469846,
+            "future_space": 29.066970640704703,
+            "scene_semantics": 32.545260809513536
+          }
+        },
+        "query_relations": {
+          "loss": 0.39691442251205444,
+          "total_parameter_gradient_norm": 22.02174192518903,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.233375549316406,
+            "qwen_vl_interface": 13.250159506322555,
+            "action_input_model": 0.49585151579874254,
+            "geometry": 11.12783586045845,
+            "future_space": 8.30933121449091,
+            "scene_semantics": 9.427756145622219
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 2.585050106048584,
+          "total_parameter_gradient_norm": 5.349136392984054,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 5.349136392984054
+          }
+        }
+      }
+    },
+    {
+      "rank": 5,
+      "phase": "prepared_geometry",
+      "token": "45705a3bb0d85b5d",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 3.595818042755127,
+          "total_parameter_gradient_norm": 24.843840468658765,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.396030902862549,
+            "qwen_vl_interface": 8.877380419734589,
+            "action_input_model": 0.28223611030991097,
+            "action_model": 22.86951927372196,
+            "dino_head": 1.9444616707920432
+          }
+        },
+        "current_geometry": {
+          "loss": 3.2913272380828857,
+          "total_parameter_gradient_norm": 31.094979054084718,
+          "parameter_module_gradient_norms": {
+            "geometry": 30.698049169136386,
+            "scene_semantics": 4.952524566648007
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7399430871009827,
+          "total_parameter_gradient_norm": 58.69270681847811,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 14.602371215820312,
+            "qwen_vl_interface": 37.32566448222165,
+            "action_input_model": 1.505515870468063,
+            "geometry": 5.5271484079567355,
+            "future_space": 26.952149255648997,
+            "scene_semantics": 32.85064782401157
+          }
+        },
+        "query_relations": {
+          "loss": 0.37045472860336304,
+          "total_parameter_gradient_norm": 20.963826591697405,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.6282565593719482,
+            "qwen_vl_interface": 9.323866623099425,
+            "action_input_model": 0.3683408620778531,
+            "geometry": 12.639435471784012,
+            "future_space": 7.362903802177935,
+            "scene_semantics": 11.192851936150662
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 2.585050106048584,
+          "total_parameter_gradient_norm": 6.53807433592174,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 6.53807433592174
+          }
+        }
+      }
+    },
+    {
+      "rank": 6,
+      "phase": "random_geometry",
+      "token": "d16950d154295f04",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.920809268951416,
+          "total_parameter_gradient_norm": 13.289159205697485,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.2150728702545166,
+            "qwen_vl_interface": 4.7214078156376535,
+            "action_input_model": 0.1518501215828443,
+            "action_model": 12.062913742586638,
+            "dino_head": 1.9663586630526162
+          }
+        },
+        "current_geometry": {
+          "loss": 6.484038352966309,
+          "total_parameter_gradient_norm": 33.245816581033644,
+          "parameter_module_gradient_norms": {
+            "geometry": 33.20186514446944,
+            "scene_semantics": 1.7089385794103897
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7250180840492249,
+          "total_parameter_gradient_norm": 69.55898469086205,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 19.464582443237305,
+            "qwen_vl_interface": 46.64886199889926,
+            "action_input_model": 1.3581129587503706,
+            "geometry": 17.289416583924517,
+            "future_space": 29.448477584900434,
+            "scene_semantics": 33.39887463750925
+          }
+        },
+        "query_relations": {
+          "loss": 0.34623390436172485,
+          "total_parameter_gradient_norm": 12.891451565706207,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.1285414695739746,
+            "qwen_vl_interface": 5.190568691815736,
+            "action_input_model": 0.14405281057125738,
+            "geometry": 10.404463641656017,
+            "future_space": 3.2811009485122,
+            "scene_semantics": 3.9594940360722926
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.0621641874313354,
+          "total_parameter_gradient_norm": 4.770824398802694,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 4.770824398802694
+          }
+        }
+      }
+    },
+    {
+      "rank": 6,
+      "phase": "prepared_geometry",
+      "token": "d16950d154295f04",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 1.920809268951416,
+          "total_parameter_gradient_norm": 13.289724611535368,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 2.21584153175354,
+            "qwen_vl_interface": 4.722636891105297,
+            "action_input_model": 0.15189798724367215,
+            "action_model": 12.062913742586638,
+            "dino_head": 1.9663586630526162
+          }
+        },
+        "current_geometry": {
+          "loss": 3.247138500213623,
+          "total_parameter_gradient_norm": 41.18941314050561,
+          "parameter_module_gradient_norms": {
+            "geometry": 41.18325528895592,
+            "scene_semantics": 0.7122068968634184
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7730263471603394,
+          "total_parameter_gradient_norm": 60.363870565182886,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 15.581254959106445,
+            "qwen_vl_interface": 37.46775087094752,
+            "action_input_model": 1.1655066547234958,
+            "geometry": 6.19697527352947,
+            "future_space": 27.777659893944865,
+            "scene_semantics": 34.43587824777337
+          }
+        },
+        "query_relations": {
+          "loss": 0.2925785779953003,
+          "total_parameter_gradient_norm": 10.308064494378002,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 1.6065782308578491,
+            "qwen_vl_interface": 3.949905106796457,
+            "action_input_model": 0.11412477713803355,
+            "geometry": 7.23661376459214,
+            "future_space": 3.3964444309441193,
+            "scene_semantics": 4.91486639091652
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.0621641874313354,
+          "total_parameter_gradient_norm": 5.158738215777734,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 5.158738215777734
+          }
+        }
+      }
+    },
+    {
+      "rank": 7,
+      "phase": "random_geometry",
+      "token": "1b313d6ad160563b",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 2.4368202686309814,
+          "total_parameter_gradient_norm": 16.923697490401242,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.3624987602233887,
+            "qwen_vl_interface": 7.632396310410538,
+            "action_input_model": 0.24075081701493264,
+            "action_model": 14.591393222340196,
+            "dino_head": 1.9710272119106542
+          }
+        },
+        "current_geometry": {
+          "loss": 6.565774440765381,
+          "total_parameter_gradient_norm": 17.94311093509605,
+          "parameter_module_gradient_norms": {
+            "geometry": 17.847957653956467,
+            "scene_semantics": 1.8454369704057172
+          }
+        },
+        "future_semantics": {
+          "loss": 0.6737117171287537,
+          "total_parameter_gradient_norm": 67.99244531745612,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 19.793975830078125,
+            "qwen_vl_interface": 44.93972039035351,
+            "action_input_model": 1.0944824257086572,
+            "geometry": 15.560426229901063,
+            "future_space": 29.73217468136535,
+            "scene_semantics": 32.92819012340015
+          }
+        },
+        "query_relations": {
+          "loss": 0.37718403339385986,
+          "total_parameter_gradient_norm": 25.595841120157754,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 6.64487361907959,
+            "qwen_vl_interface": 15.042098827063139,
+            "action_input_model": 0.36586566705955254,
+            "geometry": 12.48382722479459,
+            "future_space": 10.063685047237634,
+            "scene_semantics": 11.290280931705576
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.5509281158447266,
+          "total_parameter_gradient_norm": 2.7884342635000943,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 2.7884342635000943
+          }
+        }
+      }
+    },
+    {
+      "rank": 7,
+      "phase": "prepared_geometry",
+      "token": "1b313d6ad160563b",
+      "objectives": {
+        "baseline_FM_plus_current_DINO": {
+          "loss": 2.4368202686309814,
+          "total_parameter_gradient_norm": 16.925930155760657,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 3.362978458404541,
+            "qwen_vl_interface": 7.637146119165248,
+            "action_input_model": 0.24037936988541575,
+            "action_model": 14.591393222340196,
+            "dino_head": 1.9710272119106542
+          }
+        },
+        "current_geometry": {
+          "loss": 2.7284317016601562,
+          "total_parameter_gradient_norm": 20.346411322589564,
+          "parameter_module_gradient_norms": {
+            "geometry": 20.34247979243245,
+            "scene_semantics": 0.3999620012929904
+          }
+        },
+        "future_semantics": {
+          "loss": 0.7286984324455261,
+          "total_parameter_gradient_norm": 62.33158544292999,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 16.76435661315918,
+            "qwen_vl_interface": 39.201717742010366,
+            "action_input_model": 1.230871505569902,
+            "geometry": 5.3906985062720745,
+            "future_space": 28.856527898297376,
+            "scene_semantics": 34.70063889696983
+          }
+        },
+        "query_relations": {
+          "loss": 0.28811776638031006,
+          "total_parameter_gradient_norm": 21.187825579447704,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 5.197865962982178,
+            "qwen_vl_interface": 12.33430892712916,
+            "action_input_model": 0.34634282400640026,
+            "geometry": 4.078724323155141,
+            "future_space": 9.823769391920289,
+            "scene_semantics": 12.510338723809351
+          }
+        },
+        "refine_at_full_weight": {
+          "loss": 1.5509281158447266,
+          "total_parameter_gradient_norm": 3.349091183923666,
+          "parameter_module_gradient_norms": {
+            "foresight_queries": 0.0,
+            "qwen_vl_interface": 0.0,
+            "action_input_model": 0.0,
+            "geometry": 0.0,
+            "future_space": 0.0,
+            "refiner": 3.349091183923666
+          }
+        }
+      }
+    }
+  ]
+}

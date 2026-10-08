@@ -1,0 +1,39 @@
+{
+  "kind": "geometry",
+  "world_size": 8,
+  "effective_global_batch": 32,
+  "continuous_updates": 4,
+  "interrupted_updates": "exact shared checkpoint at2 + resumed2",
+  "tensor_elements_checked": 223861189,
+  "maximum_tensor_absolute_difference": 2.2649765014648438e-05,
+  "files_checked": [
+    "rank0.pt",
+    "rank1.pt",
+    "rank2.pt",
+    "rank3.pt",
+    "rank4.pt",
+    "rank5.pt",
+    "rank6.pt",
+    "rank7.pt"
+  ],
+  "RNG_comparison": "exact",
+  "floating_state_tolerance": {
+    "relative": 0.0001,
+    "absolute": 1e-05
+  },
+  "tolerance_reason": "post-update native CUDA/AMP rounding; exact restore boundary reported separately when instrumented",
+  "exact_restore_boundary": {
+    "passed": true,
+    "timing": "before next forward/backward/update",
+    "world_size": 8,
+    "model_and_buffers": "bitwise all ranks",
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "RNG": "exact all ranks",
+    "completed": 2,
+    "epoch": 0,
+    "offset": 2,
+    "exposure": 64,
+    "scheduler_horizon": 4
+  },
+  "passed": true
+}

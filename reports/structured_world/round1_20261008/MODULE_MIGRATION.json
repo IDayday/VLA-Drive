@@ -1,0 +1,65 @@
+{
+  "reference_torch": "1.9.1+cu111",
+  "reference_mmcv": "1.4.0",
+  "migration_torch": "2.5.1+cu124",
+  "migration_mmcv": "2.2.0",
+  "precision": "FP32 TF32 disabled",
+  "fixtures": "controlled storage, random test weights only",
+  "tests": "tools/structured_world/validate_reference_modules.py",
+  "results": {
+    "TokenLearner": {
+      "status": "PASS",
+      "tensors_compared": 9,
+      "max_abs_error": 7.450580596923828e-08,
+      "max_error_tolerance_ratio": 0.0004152869753599075
+    },
+    "TokenFuser": {
+      "status": "PASS",
+      "tensors_compared": 15,
+      "max_abs_error": 3.337860107421875e-06,
+      "max_error_tolerance_ratio": 0.0019276515253020161
+    },
+    "MLN": {
+      "status": "PASS",
+      "tensors_compared": 9,
+      "max_abs_error": 2.384185791015625e-07,
+      "max_error_tolerance_ratio": 0.00026135299644555743
+    },
+    "latent_decoder": {
+      "status": "PASS",
+      "tensors_compared": 26,
+      "max_abs_error": 4.76837158203125e-07,
+      "max_error_tolerance_ratio": 0.0005744151659481682
+    },
+    "DepthNet": {
+      "status": "PASS",
+      "tensors_compared": 67,
+      "max_abs_error": 2.682209014892578e-07,
+      "max_error_tolerance_ratio": 0.0014432418305825368
+    },
+    "RCSample": {
+      "status": "PASS",
+      "tensors_compared": 65,
+      "max_abs_error": 2.9802322387695312e-08,
+      "max_error_tolerance_ratio": 0.0005330852397274461
+    },
+    "ResNet50_FPN": {
+      "status": "PASS",
+      "tensors_compared": 167,
+      "max_abs_error": 6.556510925292969e-07,
+      "max_error_tolerance_ratio": 0.0010678882500535442
+    },
+    "BEV_encoder_neck": {
+      "status": "PASS",
+      "tensors_compared": 55,
+      "max_abs_error": 1.4901161193847656e-08,
+      "max_error_tolerance_ratio": 0.00014476307656524043
+    },
+    "MSDeformAttn": {
+      "status": "PASS",
+      "tensors_compared": 12,
+      "max_abs_error": 2.384185791015625e-07,
+      "max_error_tolerance_ratio": 0.0003607861504241139
+    }
+  }
+}

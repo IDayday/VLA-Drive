@@ -1,0 +1,668 @@
+{
+  "scope": "real_data_coordinate_and_evaluation_validation",
+  "scenes": 8,
+  "root_is_provisional": true,
+  "native_metric_protocol": {
+    "name": "UniAD-v2.0-style open-loop planning",
+    "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+    "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds",
+    "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+    "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+    "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+    "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+    "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+    "ego_state": "legal previous/current sensor poses provided identically",
+    "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+    "not_closed_loop": true
+  },
+  "records": [
+    {
+      "token": "d8e4b034554d4fd4b6d50a2f3dfa001f",
+      "camera_calibration_max_absolute_error": 1.5511329465311974e-07,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 1.2730719783961878e-05,
+      "mature_box_planar_center_error_m_mean": 1.6227061572291154e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.499881,
+          0.99976,
+          1.500224,
+          2.000059,
+          2.499994,
+          2.999812
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "eef2dd01e2994d8b8f906b699d2692bc",
+      "camera_calibration_max_absolute_error": 1.2140960414797064e-07,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 8.053758557496333e-06,
+      "mature_box_planar_center_error_m_mean": 9.189965344927123e-07,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.500422,
+          1.000835,
+          1.449836,
+          1.949715,
+          2.4496,
+          2.949461
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "81a0b7e1553a42a7a77ecfbb423df537",
+      "camera_calibration_max_absolute_error": 7.13007203279048e-08,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 1.0074085161874227e-05,
+      "mature_box_planar_center_error_m_mean": 1.3093802879109832e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.450105,
+          0.949431,
+          1.499079,
+          2.000091,
+          2.499936,
+          2.999815
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "bff71490972b4bb48657dc23eda191fd",
+      "camera_calibration_max_absolute_error": 8.604888601659866e-08,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 6.968174263097453e-06,
+      "mature_box_planar_center_error_m_mean": 1.726328096267809e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.599427,
+          1.099311,
+          1.648931,
+          2.147705,
+          2.647024,
+          3.147458
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "2ed4dccaefbc49848cad29bade674344",
+      "camera_calibration_max_absolute_error": 1.6333871410978418e-07,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 6.808312707711229e-06,
+      "mature_box_planar_center_error_m_mean": 1.5322155561437038e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.599959,
+          1.10038,
+          1.60137,
+          2.101821,
+          2.501588,
+          3.0015
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "58494ec3aae248eeaa6189447a011b1e",
+      "camera_calibration_max_absolute_error": 8.669773099434508e-08,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 6.949601596540535e-06,
+      "mature_box_planar_center_error_m_mean": 1.7782477310384142e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.499888,
+          1.000287,
+          1.499604,
+          2.000057,
+          2.500461,
+          3.000913
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "939194a5788e421faa6aab68cb86e6e8",
+      "camera_calibration_max_absolute_error": 1.2427511753010378e-07,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 8.375641353823682e-06,
+      "mature_box_planar_center_error_m_mean": 1.8413607774477352e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.499317,
+          0.99977,
+          1.500174,
+          2.000626,
+          2.500498,
+          3.049576
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    },
+    {
+      "token": "0c10b2165f86467dae3b2d30516726e3",
+      "camera_calibration_max_absolute_error": 1.545440733163872e-07,
+      "source_VAD_GT_max_absolute_xy_error": 0.0,
+      "mature_box_planar_center_error_m_max": 1.0006860226569366e-05,
+      "mature_box_planar_center_error_m_mean": 1.9230198112053123e-06,
+      "GT_native_metric": {
+        "per_timestep": {
+          "obj_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "obj_box_col": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "L2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "native_out_of_range_steps": 0,
+        "L2_1s": 0.0,
+        "box_collision_1s": 0.0,
+        "point_collision_1s": 0.0,
+        "L2_2s": 0.0,
+        "box_collision_2s": 0.0,
+        "point_collision_2s": 0.0,
+        "L2_3s": 0.0,
+        "box_collision_3s": 0.0,
+        "point_collision_3s": 0.0
+      },
+      "protocol": {
+        "origin": "current LiDAR origin with forward/left axes",
+        "camera_order": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT",
+          "CAM_BACK_RIGHT"
+        ],
+        "horizon_s": 3.0,
+        "navigation_source": "original VAD global-sensor future endpoint +/-2 m, fixed high-level text only",
+        "navigation_privileged_condition": true,
+        "ego_state": "previous/current LiDAR poses only, displacement at nominal 0.5 s from actual past dt",
+        "body_geometry": "original UniAD fixed 4.084 x 1.85 m rectangle, +0.5 m forward offset",
+        "sensor_timing": "each current camera mapped via its timestamp ego pose to lidar-time ego(t0)",
+        "inverse_axes": "lidar_x=-internal_y; lidar_y=internal_x; lidar_z=internal_z",
+        "nominal_future_times_s": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "actual_annotation_times_s": [
+          0.49988,
+          1.000306,
+          1.50019,
+          1.899973,
+          2.399852,
+          2.900283
+        ],
+        "timing_protocol": "six successive annotated 2 Hz keyframes, original VAD eligibility; jitter retained and reported",
+        "map_height_approximation": "map planar yaw projection; label height evidence masks unsupported road levels"
+      }
+    }
+  ]
+}
