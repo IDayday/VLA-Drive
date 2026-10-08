@@ -117,6 +117,9 @@ def main():
         kind = 'fixed_train_debug_subset_not_formal' if args.split == 'train' else 'fixed_validation_debug_subset_not_formal'
     else:
         downloads = json.loads((args.root/'download_manifest.json').read_text())
+        from tools.structured_world.download_nuscenes import NAMES
+        if set(downloads['archives']) != set(NAMES):
+            raise ValueError('Formal cache requires metadata, maps, CAN bus and all ten sensor archives')
         archives = downloads['archives'].values()
         if not all(a.get('extracted') and a.get('sha256') for a in archives):
             raise ValueError('Formal cache requires all official archives verified and extracted')
