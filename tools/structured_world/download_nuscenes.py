@@ -40,6 +40,38 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def download_resumable(identity, partial, *, run=subprocess.run, sleep=time.sleep):
+    """Start a NEW Range request after errors, keeping every received byte.
+
+    curl's internal retry reuses its initial continue offset and can discard
+    progress received after that offset. Each process here recalculates the
+    current file size. If-Range binds resumed bytes to the registered S3 object.
+    """
+    failures_without_progress = 0
+    while True:
+        before = partial.stat().st_size if partial.exists() else 0
+        if before == identity['bytes']: return
+        if before > identity['bytes']: raise RuntimeError('Partial archive exceeds registered object size')
+        command = ['curl', '--fail', '--location', '--continue-at', '-', '--retry', '0',
+                   '--connect-timeout', '45', '--speed-limit', '1024', '--speed-time', '180',
+                   '--silent', '--show-error', '--output', str(partial)]
+        if identity.get('etag'): command += ['--header', 'If-Range: '+identity['etag']]
+        command.append(identity['url'])
+        result = run(command, check=False)
+        after = partial.stat().st_size if partial.exists() else 0
+        if after < before:
+            raise RuntimeError('Resumable request discarded received bytes; preserving partial and stopping')
+        if after == identity['bytes']: return
+        if after > identity['bytes']: raise RuntimeError('Response exceeds pinned object size')
+        failures_without_progress = failures_without_progress+1 if after == before else 0
+        print(json.dumps({'event': 'retry_new_range', 'url': identity['url'], 'returncode': result.returncode,
+                          'bytes_before': before, 'bytes_after': after,
+                          'consecutive_no_progress': failures_without_progress}), flush=True)
+        if failures_without_progress >= 64:
+            raise RuntimeError('64 consecutive requests made no download progress')
+        sleep(min(30, 5+failures_without_progress))
+
+
 def safe_destination(root, name):
     result = (root / name).resolve()
     if not result.is_relative_to(root.resolve()):
@@ -127,10 +159,7 @@ def main():
             if shutil.disk_usage(root).free < identity['bytes']*3 + args.reserve_gib*(1 << 30):
                 raise RuntimeError(f'Insufficient storage reserve for {name}')
             partial = archive.with_name(archive.name + '.part')
-            subprocess.run(['curl', '--fail', '--location', '--continue-at', '-', '--retry', '12',
-                            '--retry-delay', '5', '--retry-all-errors', '--connect-timeout', '45',
-                            '--speed-limit', '1024', '--speed-time', '180', '--silent', '--show-error',
-                            '--output', str(partial), identity['url']], check=True)
+            download_resumable(identity, partial)
             if partial.stat().st_size != identity['bytes']:
                 raise RuntimeError(f'Download size mismatch: {name}')
             os.replace(partial, archive)

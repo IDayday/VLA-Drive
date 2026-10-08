@@ -1,0 +1,26 @@
+{
+  "scope": "one common training-only gradient calibration rule, registered before measuring prepared full geometry gradients",
+  "datasets": "NAVSIM calibration supplies common scalar weights for both datasets; each dataset class weights use only its own full train statistics",
+  "groups_measured": [
+    "G1_FULL_UNIFORM",
+    "G3_EVENT_LOCAL"
+  ],
+  "fixed_subset_seed": 42,
+  "samples_per_rank": 2,
+  "world_size": 8,
+  "scenes": 16,
+  "reference": "median per-scene gradient norm of original_FM+current_DINO across both modes and prepared geometry",
+  "lambda_geometry_future_query": "min(1, 0.25 * baseline_median / maximum_of_G1_G3_component_medians_in_prepared_state)",
+  "lambda_refine": "min(1, 0.5 * baseline_median / maximum_of_G1_G3_refine_component_medians_at_full_refine_weight)",
+  "refine_warmup_updates": 1000,
+  "no_development_or_test_PDMS_tuning": true,
+  "no_optimizer_updates_during_calibration": true,
+  "class_statistics": {
+    "arrival_positive_weight": 6.580630780076882,
+    "current_positive_weight": 3.88124994826121,
+    "future_positive_weight": 3.838836274157505,
+    "release_positive_weight": 1.4268184780051738
+  },
+  "generalization_claim": false,
+  "formal_training_started": false
+}

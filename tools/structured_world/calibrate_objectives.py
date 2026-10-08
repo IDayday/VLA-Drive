@@ -4,11 +4,13 @@ Per-rank scene gradient norms are reported as a calibration distribution, not
 misrepresented as the norm of a globally averaged optimizer gradient.
 """
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
 import random
 import socket
+import subprocess
 import sys
 import numpy as np
 import torch
@@ -103,6 +105,10 @@ def main():
     if rank == 0:
         flat = [row for rank_rows in all_rows for row in rank_rows]
         report = {'scope': 'fixed_train_gradient_measurement_not_formal_results',
+                  'training_source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+                  'calibration_source_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  'config_sha256': hashlib.sha256(args.config.read_bytes()).hexdigest(),
+                  'config': OmegaConf.to_container(config, resolve=True),
                   'dataset': config.structured_world.dataset, 'group': config.structured_world.group,
                   'cache_identity': data.identity['identity'], 'geometry_identity': args.geometry_identity,
                   'DINO_identity': data.dino_identity['identity'],

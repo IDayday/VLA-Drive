@@ -61,8 +61,10 @@ FP32 native ZeRO master reconstruction is strict; TF32 is off for inference.
   scenes and original ego supervision; affected auxiliary frames become
   unknown/ignore255 rather than free space. The corrected v5 cache is complete
   for all 101592 scenes with zero errors (5074 seconds, 103.74 GB). Common
-  preparation is queued on the qualified, idle complete eight-A800 zt2 host
-  after local cache replication and starts automatically after final checks.
+  preparation finished on the complete eight-A800 zt2 host: five full epochs,
+  15875 updates, 507960 scene exposures, 12.964 training GPU-hours. It trained
+  current geometry only; no planner or Qwen was involved. The shared identity is
+  `e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd`.
 - nuScenes official metadata, maps and CAN bus are downloaded under
   `/mnt/project/datasets/nuscenes-v1.0-trainval`; ten raw trainval archives are
   still downloading with resumable verification. Engineering checks use real
@@ -136,12 +138,17 @@ four updates took about 4.2 s; nuScenes six-view updates took 8.1–9.2 s. These
 profiles preceded final loss calibration and are not a final cost commitment.
 FP32 nuScenes deployment on eight real scenes and native primary scoring ran.
 
-Common geometry debug fitting learned depth/current occupancy and overall road
-distance, but boundary error did not improve; this needs checking after full
-preparation. It was 64-scene engineering fitting, not five full train epochs and
-is forbidden as formal initialization. Raw per-objective gradient measurements
-show the unit-weight future loss dominates FM+DINO; weights will be calibrated
-on a fixed training subset after full shared preparation, jointly for controls.
+Common geometry's five complete training epochs learned depth, occupancy and
+overall road distance. On a fixed 64-scene training diagnostic, overall road MAE
+fell from 4.65 to 0.777 m, projected depth-bin expectation MAE from 34.6 to
+1.375 m, and current occupancy IoU reached 0.438 (precision 0.505/recall 0.767).
+Boundary MAE did not improve (0.686 to 0.772 m); a near-zero initial distance
+predictor is a weak boundary-only reference. This limitation remains explicit,
+and these are training diagnostics, not generalization or planning results.
+Old debug-only geometry checkpoints remain ineligible for formal initialization.
+Unit-weight future gradients dominated FM+DINO in early probes. The shared
+training-only calibration rule is now preregistered in `COMMON_CALIBRATION_RULE.json`;
+G1/G3 component medians select one recipe common to all controls, without dev PDMS.
 
 Eight-rank checkpoint restoration reproduces model, FP32 masters, Adam moments,
 LR, all RNG and data position **exactly at the restored boundary**. Geometry's
@@ -158,7 +165,12 @@ does not select deterministic Flash backward; this is an observed source of
 variation, not proof that it explains every difference. The new current-only
 run passed exact eight-rank restoration with every checkpoint file verified by
 SHA256, and completed its remaining two updates. No failed continuation check
-is relabeled as a pass.
+is relabeled as a pass. Two independent uninterrupted four-update controls also
+failed the same floating-state tolerance: 19.39 million elements out of 11.25
+billion, maximum absolute difference 0.00839 in a BatchNorm running variance,
+with exact RNG/discrete state. This establishes ordinary CUDA continuation
+variation but does not prove functional equivalence or erase the recovery
+failure. See `AA_UNINTERRUPTED_NUMERICAL_ANALYSIS.json`.
 
 All 1696 development scene labels were built using the same unchanged geometry
 core in a separate population that cannot enter common training preparation.
@@ -168,11 +180,23 @@ reports endpoint events/timing, stationary raster-track retention, temporal
 changes, road boundary errors, full-body relations and explicit unknown/OOR
 coverage. Camera support is a calibration/ROI proxy, not annotated object
 visibility. Synthetic perfect, delayed/missed event, unknown-label and OOR
-checks passed for six/eight points; real-model scene metrics remain pending.
+checks passed for six/eight points. Real label-to-field identity checks passed
+on 128 NAVSIM/nuScenes samples as privileged GT fixtures, not model results.
+Real-model scene metrics remain pending.
 
-Still pending: full data hashes/label builds; remaining full-model/restore
-checks; full common
-geometry five epochs; common weights and final G1/G3 profile; clean frozen
+nuScenes archive 02 is fully downloaded, hashed and extracted. After observing
+progress lost during internal curl retries, the owned downloader was restarted
+with a new If-Range request from the latest file size after each error. Completed
+archives, partial bytes and the pinned object identities are preserved.
+
+Explicitly authorized cleanup removed only verified `gpu_stress.py` process
+trees on local/zt2 after they occupied 75 GiB per GPU and caused a calibration
+startup OOM. Unrelated training and the old-objective pause locks remain intact.
+Physical UUID comparison found that local and recovery containers share the
+same eight GPUs; they are not counted as independent training servers.
+
+Still pending: nuScenes full data hashes/label builds and shared preparation;
+remaining full-model/restore checks; common weights and final G1/G3 profile; clean frozen
 source/run registration; all six formal seed42 trainings; common endpoints,
 development/final evaluation, paired failure and mechanism analysis, costs and
 second-seed limitations. Existing six YAMLs are implementation probes and are
