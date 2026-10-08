@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--geometry-identity', required=True)
     parser.add_argument('--dino-root', type=Path)
     parser.add_argument('--dino-identity')
+    parser.add_argument('--image-root', type=Path)
     parser.add_argument('--samples-per-rank', type=int, default=2)
     args = parser.parse_args()
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
@@ -46,13 +47,16 @@ def main():
     if config.structured_world.group not in ('G1_FULL_UNIFORM', 'G3_EVENT_LOCAL'):
         raise ValueError('Calibration requires a complete registered objective')
     if config.structured_world.dataset == 'navsim':
+        if not args.dino_root or not args.dino_identity:
+            raise ValueError('Verified current-only C1 cache required for NAVSIM calibration')
         data = StructuredNAVSIMDataset(args.cache, '/var/tmp/ddp-full-foresight-20260929/student_train_v1',
-            dino_root='/var/tmp/ddp-full-foresight-20260929/targets/C1',
+            dino_root=args.dino_root,
             dino_index='/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1',
-            expected_dino='7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb',
-            image_root='/var/tmp/ddp-full-foresight-20260929/images', allow_debug=True)
+            expected_dino=args.dino_identity,
+            image_root=args.image_root or '/var/tmp/ddp-full-foresight-20260929/images', allow_debug=True)
     else:
-        data = StructuredNuScenesDataset(args.cache, dino_root=args.dino_root, expected_dino=args.dino_identity, allow_debug=True)
+        data = StructuredNuScenesDataset(args.cache, dino_root=args.dino_root, expected_dino=args.dino_identity,
+                                        image_root=args.image_root, allow_debug=True)
     model = VLAStructuredFGTR(config).float().cuda().train()
     named = [(name, value) for name, value in model.named_parameters() if value.requires_grad]
     indices = np.random.default_rng(42).choice(len(data), args.samples_per_rank*world, replace=False).tolist()
@@ -101,6 +105,7 @@ def main():
         report = {'scope': 'fixed_train_gradient_measurement_not_formal_results',
                   'dataset': config.structured_world.dataset, 'group': config.structured_world.group,
                   'cache_identity': data.identity['identity'], 'geometry_identity': args.geometry_identity,
+                  'DINO_identity': data.dino_identity['identity'],
                   'samples': len(indices), 'loss_weights_used': dict(config.structured_world.loss_weights),
                   'norm_definition': 'per scene/rank parameter gradient; no optimizer or validation score tuning',
                   'rows': flat}

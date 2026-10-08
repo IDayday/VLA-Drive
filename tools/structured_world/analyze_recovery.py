@@ -12,14 +12,32 @@ import torch
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--run', type=Path, required=True)
+    parser.add_argument('--run', type=Path)
+    parser.add_argument('--uninterrupted-left', type=Path)
+    parser.add_argument('--uninterrupted-right', type=Path)
+    parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     torch.set_num_threads(4)
+    if args.run:
+        if args.uninterrupted_left or args.uninterrupted_right:
+            raise ValueError('Separate uninterrupted control from a recovery comparison')
+        runs = [args.run/name for name in ('continuous', 'interrupted')]
+        boundary = json.loads((args.run/'interrupted/RESUME_BOUNDARY_VERIFIED.json').read_text())
+        output = args.output or args.run/'RECOVERY_NUMERICAL_ANALYSIS.json'
+    else:
+        if not args.uninterrupted_left or not args.uninterrupted_right or not args.output:
+            raise ValueError('Two uninterrupted run paths and output are required')
+        runs = [args.uninterrupted_left, args.uninterrupted_right]
+        boundary, output = None, args.output
+    identities = [json.loads((p/'identity.json').read_text()) for p in runs]
+    if identities[0]['identity'] != identities[1]['identity']:
+        raise ValueError('State comparison requires identical scientific/source contracts')
     folders = []
-    for name in ('continuous', 'interrupted'):
-        root = args.run/name/'checkpoints'
+    for run in runs:
+        root = run/'checkpoints'
         folders.append(root/(root/'latest').read_text().strip())
-    report = {'exact_restore_boundary': json.loads((args.run/'interrupted/RESUME_BOUNDARY_VERIFIED.json').read_text()),
+    report = {'exact_restore_boundary': boundary, 'comparison': 'continuous_vs_resumed' if args.run else 'two_uninterrupted_runs',
+              'training_identity': identities[0]['identity'], 'training_source_sha': identities[0]['training_source_sha'],
               'post_update_tolerance': {'relative': 1e-4, 'absolute': 1e-5},
               'floating_tensors': 0, 'floating_elements': 0, 'outside_tolerance_elements': 0,
               'maximum_absolute_difference': 0., 'exact_state_mismatches': [], 'largest_differences': []}
@@ -85,7 +103,8 @@ def main():
     report['post_update_floating_test_passed'] = not report['outside_tolerance_elements'] and not report['exact_state_mismatches']
     report['interpretation'] = ('The load boundary and all subsequent RNG/data/step comparisons are distinct checks. '
                                 'A nonzero native CUDA continuation difference is reported, not hidden by enlarging tolerance.')
-    (args.run/'RECOVERY_NUMERICAL_ANALYSIS.json').write_text(json.dumps(report, indent=2)+'\n')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps(report, indent=2), flush=True)
 
 

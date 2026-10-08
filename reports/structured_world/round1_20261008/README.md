@@ -59,8 +59,10 @@ FP32 native ZeRO master reconstruction is strict; TF32 is off for inference.
 - One original NAVSIM PCD is truncated and affects two scenes. The old complete
   build attempt is preserved as INCOMPLETE. The corrected builder keeps both
   scenes and original ego supervision; affected auxiliary frames become
-  unknown/ignore255 rather than free space. The full corrected cache is being
-  built; it must finish before formal common preparation.
+  unknown/ignore255 rather than free space. The corrected v5 cache is complete
+  for all 101592 scenes with zero errors (5074 seconds, 103.74 GB). Common
+  preparation is queued on the qualified, idle complete eight-A800 zt2 host
+  after local cache replication and starts automatically after final checks.
 - nuScenes official metadata, maps and CAN bus are downloaded under
   `/mnt/project/datasets/nuscenes-v1.0-trainval`; ten raw trainval archives are
   still downloading with resumable verification. Engineering checks use real
@@ -147,7 +149,26 @@ subsequent short continuation passed the registered floating tolerance. VLA's
 continuation has 5022 out-of-tolerance floating elements out of 11.25 billion,
 max 2.32e-4 (Adam first moments), with exact discrete/RNG state. That continuation
 test is retained as a failure; CUDA atomic/dropout/kernel rounding is not hidden
-by claiming bitwise future updates. Functional consequences need assessment.
+by claiming bitwise future updates. Functional comparison on eight real current
+inputs also failed its strict predeclared tolerance: maximum coordinate
+difference 5.77 mm and heading difference 0.00355 rad. The failure is retained
+in `VLA_RECOVERY_FUNCTIONAL_DIAGNOSIS.json`. Two independent uninterrupted runs
+are measuring ordinary native CUDA variation. Torch 2.5's warn-only determinism
+does not select deterministic Flash backward; this is an observed source of
+variation, not proof that it explains every difference. The new current-only
+run passed exact eight-rank restoration with every checkpoint file verified by
+SHA256, and completed its remaining two updates. No failed continuation check
+is relabeled as a pass.
+
+All 1696 development scene labels were built using the same unchanged geometry
+core in a separate population that cannot enter common training preparation.
+`score_scene_fields.py` evaluates complete prediction populations on dense
+valid cells and an identical logged-GT body neighborhood for every model. It
+reports endpoint events/timing, stationary raster-track retention, temporal
+changes, road boundary errors, full-body relations and explicit unknown/OOR
+coverage. Camera support is a calibration/ROI proxy, not annotated object
+visibility. Synthetic perfect, delayed/missed event, unknown-label and OOR
+checks passed for six/eight points; real-model scene metrics remain pending.
 
 Still pending: full data hashes/label builds; remaining full-model/restore
 checks; full common
@@ -171,6 +192,7 @@ $QPY -m pytest -q tests/structured_world
 $QPY tools/structured_world/validate_reference_modules.py --help
 $QPY tools/structured_world/download_nuscenes.py --help
 $QPY tools/structured_world/build_cache.py --help
+$QPY tools/structured_world/build_navsim_dev_labels.py --help
 $QPY tools/structured_world/build_nuscenes_cache.py --help
 $QPY tools/structured_world/build_current_dino.py --help
 $QPY tools/structured_world/slice_navsim_current_c1.py --help
@@ -182,6 +204,7 @@ $QPY tools/structured_world/build_navsim_current_inputs.py --help
 $QPY tools/structured_world/export_current_inputs.py --help
 $QPY tools/structured_world/infer_checkpoint.py --help
 $QPY tools/structured_world/score_nuscenes.py --help
+$QPY tools/structured_world/score_scene_fields.py --help
 /root/miniconda3/envs/navsim/bin/python tools/structured_world/score_navsim.py --help
 ```
 
