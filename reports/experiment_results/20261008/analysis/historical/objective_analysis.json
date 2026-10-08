@@ -1,0 +1,79 @@
+{
+  "created_utc": "2026-10-08T04:37:17.247485+00:00",
+  "observed": {
+    "S3_r1_new_minus_r1_old_50k_PDMS": -0.7579070871266623,
+    "log_cluster_95ci": [
+      -1.2779923362583159,
+      -0.2656098343187364
+    ],
+    "new_zero_scenes": 306,
+    "rescued_zero_scenes": 197,
+    "introduced_zero_with_DAC_zero": 199,
+    "introduced_offroad_logs": 59,
+    "new_objective_applied": true,
+    "new_objective_has_rollout_loss": false,
+    "new_objective_has_explicit_risk_loss": false,
+    "config_changes": {
+      "acceleration_tolerance_mps2": 1.0,
+      "acceleration_weight": 0.0,
+      "checkpoint_rollout": true,
+      "fm_braking_scene_weight": 1.0,
+      "fm_braking_speed_drop_mps": 2.0,
+      "fm_channel_weights": [
+        4.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "fm_endpoint_acceleration_weight": 2.5e-05,
+      "fm_endpoint_velocity_weight": 0.0005,
+      "fm_total_weight": 1.75,
+      "heading_tolerance_rad": 0.05235987755982988,
+      "heading_weight": 0.0,
+      "horizon_weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "lateral_tolerance_m": 0.25,
+      "longitudinal_tolerance_m": 0.5,
+      "position_weight": 0.0,
+      "risk_margin_m": 0.25,
+      "risk_overshoot_weight": 0.0,
+      "rollout_every": 1,
+      "timestep_s": 0.5,
+      "velocity_tolerance_mps": 1.0,
+      "velocity_weight": 0.0,
+      "warmup_updates": 1000
+    }
+  },
+  "interpretation": [
+    "The r1 comparison isolates the registered objective change while label identity and other registered training settings stay equal.",
+    "FM longitudinal and braking reweighting changes optimizer scaling and task balance; road compliance regresses despite average collision/TTC improvement.",
+    "Endpoint derivative fitting is applied to random-time linear-bridge FM estimates; it is not a loss on the native final 10-step rollout.",
+    "All four full runs apply the FM objective from update1. The rollout warmup does not ramp the FM endpoint/reweighting terms.",
+    "The selected objective was screened by 512 updates from mature S3@100k and S0@50k checkpoints; that evidence does not establish from-scratch superiority.",
+    "V12 changes label coverage and targets, and its additional aggregate 50k regression relative to r1 has a confidence interval crossing zero.",
+    "Which individual objective component causes the road/heading tradeoff still requires matched ablations; no causal ranking of its three components is established."
+  ],
+  "sources": [
+    "OBJECTIVE_PAIRED_50K.json",
+    "OFFROAD_FITTING_50K.json",
+    "TRAINING_DIAGNOSTICS.json",
+    "LABEL_COMPARISON.json",
+    "/mnt/project/trajectory-objective-training-artifacts/20261006/selected_objective_review.json"
+  ],
+  "recommended_dev_controls": [
+    "Legacy objective with r1 labels",
+    "Only absolute x FM weight4",
+    "Only braking-scene FM weight2",
+    "Only linear-bridge endpoint derivative terms",
+    "Full registered objective"
+  ],
+  "ongoing_full_runs": "Keep their registered definitions; report subsequent fixed milestones without retuning on Navtest."
+}

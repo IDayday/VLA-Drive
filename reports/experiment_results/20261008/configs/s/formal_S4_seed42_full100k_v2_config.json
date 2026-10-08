@@ -1,0 +1,184 @@
+{
+  "act_tok": 8,
+  "datasets": {
+    "gs_data": {
+      "load_3d_data": false
+    },
+    "reward_data": {
+      "load_reward_data": false
+    },
+    "video_data": {
+      "load_2d_data": false
+    },
+    "vla_data": {
+      "act_norm": true,
+      "load_act_data": true
+    }
+  },
+  "doing_s2": 0,
+  "enable_image_aug": 0,
+  "foresight": {
+    "ablation": "FULL",
+    "arm": "C1",
+    "auxiliary_warmup": 1000,
+    "candidate": "C1",
+    "clip_times_s": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "current_horizon_s": 0.0,
+    "dino_feature_dim": 1024,
+    "dino_height": 6,
+    "dino_width": 8,
+    "enable_current_dino": true,
+    "enable_future_dino": true,
+    "enable_interaction": true,
+    "full_algorithm": true,
+    "future_action_condition": "gt_ego",
+    "future_feature_dim": 1024,
+    "future_grid_height": 9,
+    "future_grid_width": 12,
+    "future_horizons_s": [
+      1.0,
+      2.0,
+      4.0
+    ],
+    "future_normalization": "nonaffine_layernorm_per_token_v1",
+    "future_target_type": "video_clip",
+    "future_time_intervals_s": [
+      [
+        0.5,
+        1.0
+      ],
+      [
+        1.5,
+        2.0
+      ],
+      [
+        2.5,
+        3.0
+      ],
+      [
+        3.5,
+        4.0
+      ]
+    ],
+    "lambda_cur": 1.0,
+    "lambda_fut": 1.1549543539882532,
+    "lambda_int": 0.8328945981862067,
+    "num_queries": 144,
+    "planner_condition_mode": "action_plus_W",
+    "readout_dim": 512,
+    "readout_layers": 2,
+    "video_teacher_identity": "13ebb6afea2d0d0cc705f54ad195cf961cbd38f1c3e47c19567d60358c7d1c5b"
+  },
+  "framework": {
+    "action_model": {
+      "action_dim": 4,
+      "action_horizon": 8,
+      "action_model_type": "DiT-B",
+      "add_pos_embed": true,
+      "diffusion_model_cfg": {
+        "cross_attention_dim": 1536,
+        "dropout": 0.2,
+        "final_dropout": true,
+        "interleave_self_attention": true,
+        "norm_type": "ada_norm",
+        "num_layers": 24,
+        "output_dim": 1536,
+        "positional_embeddings": null
+      },
+      "future_action_window_size": 8,
+      "hidden_size": 1536,
+      "max_seq_len": 1024,
+      "mlp_head": 0,
+      "noise_beta_alpha": 1.5,
+      "noise_beta_beta": 1.0,
+      "noise_s": 0.999,
+      "num_inference_timesteps": 10,
+      "num_target_vision_tokens": 32,
+      "num_timestep_buckets": 1000,
+      "past_action_window_size": 0,
+      "repeated_diffusion_steps": 8,
+      "state_dim": 4
+    },
+    "name": "DDPActionVideoForesight",
+    "qwenvl": {
+      "attn_implementation": "sdpa",
+      "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+      "device_map": "cpu",
+      "vl_hidden_dim": 2048
+    }
+  },
+  "from_scratch": {
+    "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+  },
+  "gs_query_loss": 0,
+  "is_debug": false,
+  "pretrain_model_2d": null,
+  "rgb_query_loss": 0,
+  "run_id": "qwenact",
+  "run_root_dir": "results/Checkpoints",
+  "seed": 42,
+  "trackers": [
+    "jsonl"
+  ],
+  "trainer": {
+    "enable_gradient_checkpointing": true,
+    "enable_mixed_precision_training": true,
+    "epochs": 100,
+    "eval_interval": 200000,
+    "freeze_modules": "",
+    "gradient_accumulation_steps": 1,
+    "gradient_clipping": 1.0,
+    "is_resume": false,
+    "learning_rate": {
+      "action_model": 1e-05,
+      "base": 1e-05,
+      "gs_model": 1e-05,
+      "qwen_vl_interface": 1e-05,
+      "reward_model": 1e-05,
+      "rgb_model": 1e-05
+    },
+    "logging_frequency": 100,
+    "loss_scale": {
+      "vla": 1.0,
+      "vlm": 0.1
+    },
+    "lr_scheduler_type": "cosine_with_min_lr",
+    "max_grad_norm": 1.0,
+    "max_train_steps": 100000,
+    "num_warmup_steps": 5000,
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.95
+      ],
+      "eps": 1e-08,
+      "name": "AdamW",
+      "weight_decay": 0.001
+    },
+    "repeated_diffusion_steps": 4,
+    "resume_ckpt": "none",
+    "resume_epoch": null,
+    "resume_step": null,
+    "save_interval": 10000,
+    "scheduler_specific_kwargs": {
+      "min_lr": 5e-07
+    },
+    "warmup_ratio": 0.1,
+    "weight_decay": 0.0
+  },
+  "ver_1225": 1,
+  "vit_pre": 0,
+  "w_depth": 0,
+  "w_video_latent": 0,
+  "wandb_entity": "your_wandb_entity",
+  "wandb_project": "llavavla"
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "objective_config_v2_diagnosis_v1",
+  "created_utc": "2026-10-08T05:12:53.143402+00:00",
+  "source_sha": "6ec45b0e8705c7919fb555c20324f91580add976",
+  "status": "COMPLETE_REVISED_OBJECTIVE_REJECTED",
+  "historical_regression": {
+    "S3_r1_50k_PDMS_delta": -0.757907087,
+    "paired_log_95CI": [
+      -1.277992336,
+      -0.265609834
+    ],
+    "population": 12146,
+    "logs": 136,
+    "configuration_difference": "trajectory_objective only; same data/labels/initialization/batch/schedule",
+    "reference": "/mnt/project/experiment-results-summary/20261008_CS_AV/OBJECTIVE_PAIRED_50K.json"
+  },
+  "issues": [
+    {
+      "id": "fm_gain_and_clipping",
+      "finding": "FM绝对通道系数[4,1,1,1]，刹车场景再×2；旧label相同的50k对照显示梯度与裁剪占比显著升高。",
+      "evidence": "S3 r1旧目标49k–50k mean grad=.840343, >1占12.1878%；新目标mean=1.808024, >1占98.5015%；训练集真实head刹车样本共享条件梯度旧增强/原FM=3.3266–7.8822。",
+      "mechanism": "全局梯度裁剪缩放整个共享参数梯度；即使y/yaw名义绝对系数未降低，它们在总梯度方向和裁剪后更新中的相对份额仍可下降。Adam的非线性和辅助项意味着不能直接把梯度放大等同于步长放大。",
+      "change": "绝对[x,y,sin,cos]改为[1.5,1,1.5,1.5]；保留clip1，测量实际clip_scale，不用直接调高阈值掩盖失衡。"
+    },
+    {
+      "id": "no_objective_curriculum",
+      "finding": "FM channel/gain/braking/endpoint全部第一步启用，existing warmup_updates只作用于rollout；auxiliary另有1000步ramp。",
+      "change": "新增fm_warmup_updates=1000，从原FM逐步过渡；训练目标计数与成熟初始化auxiliary exposure offset分离，原生resume使用保存的本实验completed counter。"
+    },
+    {
+      "id": "braking_proxy_batch_gain",
+      "finding": "braking由标签首末速度差>2m/s判定，不是经过审计的危险/障碍/道路标签；旧scene权重mean未归一化。",
+      "mechanism": "平均损失增益=1+batch_braking_fraction；受batch组成及r1/V12接受率变化影响，和安全需求不完全等价。",
+      "change": "braking系数1→.25；按全局优化器batch计算1+.25*braking_count/ego_count归一化，覆盖rank/microbatch/tail与fallback原GT；不添加无真实mask的风险损失。"
+    },
+    {
+      "id": "endpoint_surrogate_units",
+      "finding": "FM的流时间t与车辆0.5秒物理时间不同；(1−t)端点估计的速度/加速度拟合不等于部署10-step rollout；x/y反归一化尺度8.805105/2.277741。",
+      "mechanism": "二阶差分放大短时标签/预测误差；新增物理项损失标量虽小，梯度尺度需要实测。",
+      "change": "velocity .0005→.00005；acceleration .000025→0；同时测量condition与真实decoder的每项梯度和raw physical terms。"
+    },
+    {
+      "id": "missing_deployment_heading_tail",
+      "finding": "旧新目标无native rollout约束、无航向额外保护；S3 r1新目标新增306零分、挽救197，净+109；新增零分中199发生DAC=0，这199样本yawMAE .046745→.065612rad。",
+      "mechanism": "PDMS由NC/DAC乘法门控；更小的总体ADE不能抵消道路或碰撞零分。上述尾部关联支持诊断，但单独不能证明唯一因果。",
+      "change": "FM sin/cos各×1.5；每8updates做原生10Euler rollout position=.00004 heading=.00008，1000步ramp；不引入轨迹最近点匹配、未来输入或另一个推理器。"
+    },
+    {
+      "id": "mature_calibration_not_cold_start",
+      "finding": "同一provisional rollout成熟权重condition梯度/FM最大.08472，generic初始化最大1.01827。",
+      "change": "相同两项系数一起降为provisional的.08，观测cold maximum=.08146；成熟最大=.00678。cold和mature各4 uniform train +4 accepted-brake train，校准不是PDMS证据。"
+    },
+    {
+      "id": "optimizer_configuration_not_executed",
+      "finding": "DeepSpeed gradient_clipping硬编码1；每步把全部参数组lr覆写为base_schedule，trainer.learning_rate模块字段未生效。",
+      "change": "读取gradient_clipping（兼容max_grad_norm alias）；参数按模块LR且有MAX_GROUP_ELEMENTS=5e8安全上限分组；schedule按比例更新各组，保留ZeRO FP32实际master update审计。两配对试验中action/base=1e-5,Qwen=5e-6，shared语言参数更新慢一半；辅助头保留base。",
+      "causal_limit": "旧目标/旧新目标对照的所有模块LR原本都等于base=1e-5，clip字段也都是1，因此这些实现缺陷不是该配对退化的单独因果解释；它们使后续调整无法落实。修复后才能检验模块LR/裁剪方案。"
+    },
+    {
+      "id": "scheduler_and_duplicate_fields",
+      "finding": "CLI真实控制schedule_updates/warmup，而example trainer字段不是权威；实际diffusion repeat=framework.action_model.repeated_diffusion_steps=8，trainer示例字段4未被使用。",
+      "change": "有限pilot显式schedule100k/warmup1k/limit5k/stop2k；recipe记录CLI/config identities以及per-group actual LR。相对于旧100k的warmup5k属于另一项recipe变化，不能将跨recipe比较归因于新目标。"
+    },
+    {
+      "id": "observability",
+      "finding": "原日志丢弃FM endpoint raw和braking fraction，objective_pilot未记录共享参数梯度/实际更新；只看weighted FM scalar容易误判。",
+      "change": "增加raw x/y/sin/cos、physical endpoint、braking fraction、effective curriculum、global counts、clip_scale、per-group lr；pilot加入ZeRO-aware shared gradient/master update与保留RNG的训练域轨迹诊断。"
+    },
+    {
+      "id": "labels_are_separate_factor",
+      "finding": "r1/V12标签新增4342accepted，37799共享accepted轨迹改变；planning优化标签与video condition记录原始GT的routing是固定科学合同。",
+      "change": "先在r1做S0/S3 matched cold-start control/candidate四组隔离目标影响；若5k gate通过再独立确认V12，不同时改变标签、video教师routing和新目标。"
+    },
+    {
+      "id": "shared_auxiliary_budget",
+      "finding": "future/interactions loss weights lambda_fut=1.1549543539882532、lambda_int=.8328945981862067 沿用原FM配置的校准；新增FM增益和braking改了共享主干上的主辅梯度预算。",
+      "mechanism": "S3共享Qwen同时用优化后的planner标签和原logged-motion video/interaction监督；目标之间可能有梯度冲突。仅看各loss scalar或detached condition梯度不能证明冲突大小。",
+      "change": "先通过下调FM增益/独立warmup恢复较接近原预算，实际落实较低Qwen LR；两组匹配对照中保留原auxiliary teacher/label routing和lambda以隔离目标效果。必要时下一轮测完整共享Qwen按任务梯度夹角，再单独试aux权重；当前未改教师，不把该假设说成已证明根因。"
+    },
+    {
+      "id": "encoded_axis_not_frenet",
+      "finding": "fm_channel_weights索引为encoded ego_t0-frame [x,y,sin(yaw),cos(yaw)]。x通道不是沿未来道路或轨迹的Frenet纵向轴，转弯场景尤其不同；量纲也不是统一物理误差。",
+      "mechanism": "把x重权解释为普遍的安全纵向约束会遗漏未来方向变化、车辆姿态及占地边界。监督端点速度项也未包含道路几何/碰撞门控。",
+      "change": "保留小幅FM改动，并用GT每个时间点yaw构造native-rollout Frenet along/lateral误差与heading方向误差；不移动原0.5秒时间对应、不用nearest-point匹配掩盖延迟。该监督目标仍不是可微PDMS。"
+    }
+  ],
+  "gradient_calibration": {
+    "calibration": {
+      "samples": 8,
+      "uniform": 4,
+      "braking": 4,
+      "objective_condition_gain_min": 1.011220492578728,
+      "objective_condition_gain_max": 1.7936126247577815,
+      "old_condition_gain_max": 7.882184275099381,
+      "candidate_rollout_condition_ratio_max": 0.006777671369648962,
+      "raw_rollout_backward_median_seconds": 1.8381823301315308
+    },
+    "calibration_generic": {
+      "samples": 8,
+      "uniform": 4,
+      "braking": 4,
+      "objective_condition_gain_min": 1.1595701643104914,
+      "objective_condition_gain_max": 1.807083295725621,
+      "old_condition_gain_max": 6.546918326744753,
+      "candidate_rollout_condition_ratio_max": 0.08146153289156152,
+      "raw_rollout_backward_median_seconds": 1.9802956581115723
+    }
+  },
+  "code_validation": {
+    "tests_passed": 75,
+    "default_small_head_loss_gradient_native_prediction_max_error": 0.0,
+    "preserved_model_tensor_inventory": true,
+    "followup_serialization_tests_passed": 15
+  },
+  "finite_plan": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/PLAN.json",
+  "old_long_runs_paused": true,
+  "long_training_value_proven": false,
+  "decision": {
+    "candidate_v2": "REJECTED; no continuation to5k or100k",
+    "original_aggressive_objective": "REJECTED; historical50k regression also significant",
+    "fallback": "Use original FM as the default objective; retain implemented trainer fixes and executed per-module LR/observability. This is the qualified2k control recipe, not proof of its100k optimality.",
+    "original_four_100k_runs": "REMAIN_NATIVE_PAUSED_WITH_FULL_STATE",
+    "new_four_pilots": "ALL_NATIVE_PAUSED_AT2000",
+    "V12": "No full validation of fallback underV12; no automatic long-training authorization"
+  },
+  "runtime_summary": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/RUNTIME_SUMMARY.json",
+  "all_four_finite_runs_paused_2000": true,
+  "full_validation_report": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/FINAL_REPORT.json"
+}

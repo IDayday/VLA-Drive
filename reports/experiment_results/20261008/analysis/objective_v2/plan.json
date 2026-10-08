@@ -1,0 +1,92 @@
+{
+  "schema": "objective_config_v2_finite_validation_v1",
+  "created_utc": "2026-10-08T05:10:03.345931+00:00",
+  "purpose": "Retest revised trajectory objective and executed optimizer configuration before any new long training",
+  "runs": [
+    {
+      "run_id": "S0_r1_config_v2_control_cold5k_seed42",
+      "variant": "S0",
+      "role": "control",
+      "config": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/configs/S0_r1_config_v2_control_cold5k_seed42.json",
+      "config_sha256": "53e3be6664cd7312ebb3f4aa0af347daf45fba4318e2c56a774942422f73777b"
+    },
+    {
+      "run_id": "S0_r1_config_v2_candidate_cold5k_seed42",
+      "variant": "S0",
+      "role": "candidate",
+      "config": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/configs/S0_r1_config_v2_candidate_cold5k_seed42.json",
+      "config_sha256": "a4494efe979a68805d33b6ac488d050bc1610bb6b4773d22d516dc9ed7ec6741"
+    },
+    {
+      "run_id": "S3_r1_config_v2_control_cold5k_seed42",
+      "variant": "S3",
+      "role": "control",
+      "config": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/configs/S3_r1_config_v2_control_cold5k_seed42.json",
+      "config_sha256": "5bc2f491fc7af12d3e0e74c65999653852743b14af2c7e7e6341094bd1322172"
+    },
+    {
+      "run_id": "S3_r1_config_v2_candidate_cold5k_seed42",
+      "variant": "S3",
+      "role": "candidate",
+      "config": "/mnt/project/trajectory-objective-training-artifacts/20261006/config_v2_validation/configs/S3_r1_config_v2_candidate_cold5k_seed42.json",
+      "config_sha256": "c569bf78ef5bdfc006025487796161ce8319edccde8e0b5a639a705e6954bd3e"
+    }
+  ],
+  "source_worktree": "/mnt/project/VLA-Drive-trajectory-objective-config-v2-20261008",
+  "initialization": "original verified generic source, random driving tokens/action/state/auxiliary heads, no learned pilot weights",
+  "labels": "/mnt/project/s3-optimized-training-artifacts/labels_v1",
+  "train_scenes": 101592,
+  "seed": 42,
+  "global_batch": 32,
+  "micro_batch": 4,
+  "world_size": 8,
+  "maximum_updates": 5000,
+  "initial_stop_after": 2000,
+  "schedule_updates": 100000,
+  "optimizer_warmup": 1000,
+  "milestones": [
+    1000,
+    2000,
+    5000
+  ],
+  "save_every": 1000,
+  "max_seconds_per_attempt": 14400,
+  "original_100k_runs_remain_paused": true,
+  "automatic_long_training": false,
+  "paired_factors": "Same initialization, train permutation, task/noise/time RNG, teacher identities, labels, optimizer recipe, schedule, batch and source within each S0/S3 pair. Only trajectory objective differs.",
+  "evaluation": {
+    "population": "all 1696 held-out dev scenes / 16 logs; never tune on Navtest",
+    "precision": "FP32 masters; TF32 disabled",
+    "native_steps": 10,
+    "seed": 42,
+    "scoring": "official CPU parity qualified PDM",
+    "metrics": [
+      "PDMS",
+      "DAC",
+      "NC",
+      "TTC",
+      "EP",
+      "zero_count",
+      "ADE",
+      "FDE",
+      "yaw_abs_rad",
+      "yaw_abs_rad_p95"
+    ],
+    "cluster_bootstrap": "paired differences, resample logs, 10000 replicates, seed 20261008",
+    "repeat": "128 hash-selected dev scenes x four inference seeds, diagnosis only"
+  },
+  "early_decision": {
+    "reject": "Significant PDMS degradation (paired log 95% CI upper <0), more zero/DAC-zero failures without compensating score improvement, nonfinite/no actual FP32 optimizer updates, or excessive runtime/memory overhead.",
+    "continue_to_5000": "No safety/score regression and positive paired point estimate or convincing improvement of DAC/zero failures; otherwise keep long training held.",
+    "long_train_gate": "Both S0/S3 5k finite checkpoints must have positive mean PDMS over matched controls; combined paired 95% CI lower >0; no increase of zero/DAC-zero counts and yaw tail; speed overhead <=20%. Independent V12 confirmation remains required before long-training the full label matrix.",
+    "limitations": "2k is an early rejection gate, not proof of eventual100k quality. Changes in optimizer warmup/shared LR versus archived 100k runs are not an objective-only comparison; only within-pair contrast is causal."
+  },
+  "calibration": {
+    "mature_and_generic_sources": "S3 r1 architecture; 4 uniform train +4 optimized accepted braking scenes; detached current condition and real decoder gradient; not full-model optimizer norms",
+    "candidate_rollout_scale_vs_provisional": 0.08,
+    "maximum_observed_cold_rollout_to_fm_gradient_ratio_after_scaling": 0.082,
+    "reference_brake_fraction": 0.15,
+    "actual_training_braking_normalization": "global optimizer-batch exact count, includes original-target fallback scenes"
+  },
+  "source_sha": "6ec45b0e8705c7919fb555c20324f91580add976"
+}

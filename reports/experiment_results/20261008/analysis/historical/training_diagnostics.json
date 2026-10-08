@@ -1,0 +1,542 @@
+{
+  "created_utc": "2026-10-08T04:37:17.247485+00:00",
+  "gradient_threshold": 1.0,
+  "notes": [
+    "Norms are logged by DeepSpeed get_global_grad_norm; fractions count norms exceeding configured gradient_clipping=1.0.",
+    "Weighted ego_fm values cannot be compared as the same loss across objective definitions.",
+    "Live BF16 training diagnostics are eight batch scenes, not a held-out score."
+  ],
+  "runs": {
+    "S3_r1_old": {
+      "source": "/mnt/project/s3-optimized-training-artifacts/students/S3_optimized_seed42_100k_v1/steps.jsonl",
+      "last_update": 100000,
+      "nonfinite_grad_rows": 0,
+      "windows": {
+        "1-1000": {
+          "rows": 1000,
+          "mean_gradient_norm": 19.25701766037941,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 2e-06,
+          "mean_losses": {
+            "ego_fm": 0.871662793555297,
+            "interaction": 0.3615912365456097,
+            "current_dino": 0.2123472539782524,
+            "future_clip": 0.6598460795505962,
+            "interaction_raw": 1.175172676820308,
+            "current_dino_raw": 0.2123472539782524,
+            "future_clip_raw": 1.3936388688087464
+          }
+        },
+        "9000-11000": {
+          "rows": 2001,
+          "mean_gradient_norm": 1.631098557209623,
+          "fraction_norm_above_threshold": 0.9845077461269365,
+          "last_lr": 9.906835798429301e-06,
+          "mean_losses": {
+            "ego_fm": 0.0524866849839476,
+            "interaction": 0.02088590260066938,
+            "current_dino": 0.02479891681383694,
+            "future_clip": 0.38537918643161156,
+            "interaction_raw": 0.0250762845861155,
+            "current_dino_raw": 0.02479891681383694,
+            "future_clip_raw": 0.33367483165470707
+          }
+        },
+        "24000-26000": {
+          "rows": 2001,
+          "mean_gradient_norm": 1.1140292497469984,
+          "fraction_norm_above_threshold": 0.6561719140429785,
+          "last_lr": 8.90000580059759e-06,
+          "mean_losses": {
+            "ego_fm": 0.026057059278050534,
+            "interaction": 0.00936310217338919,
+            "current_dino": 0.019195848720209643,
+            "future_clip": 0.31716542265497555,
+            "interaction_raw": 0.01124164079291991,
+            "current_dino_raw": 0.019195848720209643,
+            "future_clip_raw": 0.27461295974427374
+          }
+        },
+        "49000-50000": {
+          "rows": 1001,
+          "mean_gradient_norm": 0.8403427339457609,
+          "fraction_norm_above_threshold": 0.12187812187812187,
+          "last_lr": 5.6424084339051665e-06,
+          "mean_losses": {
+            "ego_fm": 0.012461833184474259,
+            "interaction": 0.0038892709975649315,
+            "current_dino": 0.01586184789206587,
+            "future_clip": 0.2729651433332906,
+            "interaction_raw": 0.004669583507839216,
+            "current_dino_raw": 0.01586184789206587,
+            "future_clip_raw": 0.23634280572337407
+          }
+        }
+      }
+    },
+    "S0_r1_old": {
+      "source": "/mnt/project/s3-optimized-training-artifacts/students/S0_optimized_seed42_100k_v1/steps.jsonl",
+      "last_update": 100000,
+      "nonfinite_grad_rows": 0,
+      "windows": {
+        "1-1000": {
+          "rows": 1000,
+          "mean_gradient_norm": 19.241164202690126,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 2e-06,
+          "mean_losses": {
+            "ego_fm": 0.8719878199025989,
+            "interaction": 0.3637723939633215,
+            "current_dino": 0.2112926593273878,
+            "future_clip": 0.7821640223370341,
+            "interaction_raw": 1.1773442896921187,
+            "current_dino_raw": 0.2112926593273878,
+            "future_clip_raw": 1.5343780549392103
+          }
+        },
+        "9000-11000": {
+          "rows": 2001,
+          "mean_gradient_norm": 1.7268209360588318,
+          "fraction_norm_above_threshold": 0.9995002498750625,
+          "last_lr": 9.906835798429301e-06,
+          "mean_losses": {
+            "ego_fm": 0.052113549485660694,
+            "interaction": 0.021381368416379894,
+            "current_dino": 0.024005268030552782,
+            "future_clip": 0.47185746489231406,
+            "interaction_raw": 0.025671156734962754,
+            "current_dino_raw": 0.024005268030552782,
+            "future_clip_raw": 0.40855076178342387
+          }
+        },
+        "24000-26000": {
+          "rows": 2001,
+          "mean_gradient_norm": 1.2413389034297453,
+          "fraction_norm_above_threshold": 0.920039980009995,
+          "last_lr": 8.90000580059759e-06,
+          "mean_losses": {
+            "ego_fm": 0.02646843110784718,
+            "interaction": 0.010192774508419777,
+            "current_dino": 0.019103597955317932,
+            "future_clip": 0.35458786377142454,
+            "interaction_raw": 0.012237772008645344,
+            "current_dino_raw": 0.019103597955317932,
+            "future_clip_raw": 0.3070146233226912
+          }
+        },
+        "49000-50000": {
+          "rows": 1001,
+          "mean_gradient_norm": 0.9675781131386162,
+          "fraction_norm_above_threshold": 0.3386613386613387,
+          "last_lr": 5.6424084339051665e-06,
+          "mean_losses": {
+            "ego_fm": 0.012684016341490524,
+            "interaction": 0.00447997545921902,
+            "current_dino": 0.015638307000130795,
+            "future_clip": 0.2905880855722027,
+            "interaction_raw": 0.005378802233136556,
+            "current_dino_raw": 0.015638307000130795,
+            "future_clip_raw": 0.25160136815350315
+          }
+        }
+      }
+    },
+    "S3_V12_new": {
+      "source": "/mnt/project/trajectory-objective-training-artifacts/20261006/full_training/students/S3_V12_objective_seed42_full100k_v1/steps.jsonl",
+      "last_update": 51600,
+      "nonfinite_grad_rows": 0,
+      "windows": {
+        "1-1000": {
+          "rows": 1000,
+          "mean_gradient_norm": 75.25458120536804,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 2e-06,
+          "mean_losses": {
+            "ego_fm": 1.985775708194822,
+            "ego_fm_endpoint_velocity": 0.07256973226589616,
+            "ego_fm_endpoint_acceleration": 0.040903346057719316,
+            "interaction": 0.4078670390289408,
+            "current_dino": 0.23526494116522373,
+            "future_clip": 0.7110263590578979,
+            "interaction_raw": 1.2794398335460573,
+            "current_dino_raw": 0.23526494116522373,
+            "future_clip_raw": 1.4746725028380752
+          }
+        },
+        "9000-11000": {
+          "rows": 2001,
+          "mean_gradient_norm": 4.019085571564537,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 9.906835798429301e-06,
+          "mean_losses": {
+            "ego_fm": 0.12622386173553196,
+            "ego_fm_endpoint_velocity": 0.0008723243763156681,
+            "ego_fm_endpoint_acceleration": 0.00038223157228811313,
+            "interaction": 0.022718363762010824,
+            "current_dino": 0.025269630677027182,
+            "future_clip": 0.38953535874438905,
+            "interaction_raw": 0.027276396226574913,
+            "current_dino_raw": 0.025269630677027182,
+            "future_clip_raw": 0.3372733917213913
+          }
+        },
+        "24000-26000": {
+          "rows": 2001,
+          "mean_gradient_norm": 2.4953661655438415,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 8.90000580059759e-06,
+          "mean_losses": {
+            "ego_fm": 0.062060752394271716,
+            "ego_fm_endpoint_velocity": 0.00044458793031710566,
+            "ego_fm_endpoint_acceleration": 0.00021430260269084044,
+            "interaction": 0.011770057538221015,
+            "current_dino": 0.019836357243111016,
+            "future_clip": 0.3269116552169623,
+            "interaction_raw": 0.014131508606457456,
+            "current_dino_raw": 0.019836357243111016,
+            "future_clip_raw": 0.28305159006146774
+          }
+        },
+        "49000-50000": {
+          "rows": 1001,
+          "mean_gradient_norm": 1.8153067534858291,
+          "fraction_norm_above_threshold": 0.9920079920079921,
+          "last_lr": 5.6424084339051665e-06,
+          "mean_losses": {
+            "ego_fm": 0.028632928200308456,
+            "ego_fm_endpoint_velocity": 0.0002444496214310049,
+            "ego_fm_endpoint_acceleration": 0.0001298150096267414,
+            "interaction": 0.005277056097831526,
+            "current_dino": 0.0168944475459415,
+            "future_clip": 0.28458962658165277,
+            "interaction_raw": 0.006335802815197343,
+            "current_dino_raw": 0.0168944475459415,
+            "future_clip_raw": 0.24640769181730268
+          }
+        }
+      }
+    },
+    "S0_V12_new": {
+      "source": "/mnt/project/trajectory-objective-training-artifacts/20261006/full_training/students/S0_V12_objective_seed42_full100k_v1/steps.jsonl",
+      "last_update": 37910,
+      "nonfinite_grad_rows": 0,
+      "windows": {
+        "1-1000": {
+          "rows": 1000,
+          "mean_gradient_norm": 76.43036138629914,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 2e-06,
+          "mean_losses": {
+            "ego_fm": 1.9948819509707392,
+            "ego_fm_endpoint_velocity": 0.07277087750495412,
+            "ego_fm_endpoint_acceleration": 0.04100561168233981,
+            "interaction": 0.4074088802861297,
+            "current_dino": 0.23554463822022081,
+            "future_clip": 0.8186445420523232,
+            "interaction_raw": 1.2790823063720018,
+            "current_dino_raw": 0.23554463822022081,
+            "future_clip_raw": 1.5902155372351408
+          }
+        },
+        "9000-11000": {
+          "rows": 2001,
+          "mean_gradient_norm": 4.153705443161122,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 9.906835798429301e-06,
+          "mean_losses": {
+            "ego_fm": 0.12707959943816813,
+            "ego_fm_endpoint_velocity": 0.0008846714935898653,
+            "ego_fm_endpoint_acceleration": 0.0003886763386604804,
+            "interaction": 0.02362993376902222,
+            "current_dino": 0.024542573854668827,
+            "future_clip": 0.4897780131394121,
+            "interaction_raw": 0.02837085641365194,
+            "current_dino_raw": 0.024542573854668827,
+            "future_clip_raw": 0.42406700152730653
+          }
+        },
+        "24000-26000": {
+          "rows": 2001,
+          "mean_gradient_norm": 2.5808838448007365,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 8.90000580059759e-06,
+          "mean_losses": {
+            "ego_fm": 0.062225437613549935,
+            "ego_fm_endpoint_velocity": 0.0004515935259392797,
+            "ego_fm_endpoint_acceleration": 0.00021794169448764188,
+            "interaction": 0.012484686498403728,
+            "current_dino": 0.01932467412874233,
+            "future_clip": 0.3694566802886398,
+            "interaction_raw": 0.014989515059435429,
+            "current_dino_raw": 0.01932467412874233,
+            "future_clip_raw": 0.3198885666564859
+          }
+        }
+      }
+    },
+    "S0_r1_new": {
+      "source": "/mnt/project/trajectory-objective-training-artifacts/20261006/full_training/students/S0_r1_objective_seed42_full100k_v1/steps.jsonl",
+      "last_update": 53831,
+      "nonfinite_grad_rows": 0,
+      "windows": {
+        "1-1000": {
+          "rows": 1000,
+          "mean_gradient_norm": 77.64208086776733,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 2e-06,
+          "mean_losses": {
+            "ego_fm": 2.031634162835777,
+            "ego_fm_endpoint_velocity": 0.07441340458753984,
+            "ego_fm_endpoint_acceleration": 0.04198313927539857,
+            "interaction": 0.4062195273332254,
+            "current_dino": 0.23551313261408358,
+            "future_clip": 0.817272112097562,
+            "interaction_raw": 1.2770765377189963,
+            "current_dino_raw": 0.23551313261408358,
+            "future_clip_raw": 1.5886006750687958
+          }
+        },
+        "9000-11000": {
+          "rows": 2001,
+          "mean_gradient_norm": 4.1509499160841905,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 9.906835798429301e-06,
+          "mean_losses": {
+            "ego_fm": 0.1291639138447602,
+            "ego_fm_endpoint_velocity": 0.0009020463220041001,
+            "ego_fm_endpoint_acceleration": 0.00040387555961980226,
+            "interaction": 0.023472902604739117,
+            "current_dino": 0.02423258137836613,
+            "future_clip": 0.4849977638751179,
+            "interaction_raw": 0.02818231975987797,
+            "current_dino_raw": 0.02423258137836613,
+            "future_clip_raw": 0.4199280939458207
+          }
+        },
+        "24000-26000": {
+          "rows": 2001,
+          "mean_gradient_norm": 2.6209509309561834,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 8.90000580059759e-06,
+          "mean_losses": {
+            "ego_fm": 0.06334456817570679,
+            "ego_fm_endpoint_velocity": 0.00045238080521107246,
+            "ego_fm_endpoint_acceleration": 0.0002222091624780919,
+            "interaction": 0.012412601981864092,
+            "current_dino": 0.019372894990151802,
+            "future_clip": 0.37925834545138654,
+            "interaction_raw": 0.014902968079003022,
+            "current_dino_raw": 0.019372894990151802,
+            "future_clip_raw": 0.3283751926150756
+          }
+        },
+        "49000-50000": {
+          "rows": 1001,
+          "mean_gradient_norm": 1.8737070267493432,
+          "fraction_norm_above_threshold": 0.998001998001998,
+          "last_lr": 5.6424084339051665e-06,
+          "mean_losses": {
+            "ego_fm": 0.029108811226093326,
+            "ego_fm_endpoint_velocity": 0.00024463118035572036,
+            "ego_fm_endpoint_acceleration": 0.00013002568781334017,
+            "interaction": 0.005817478353130717,
+            "current_dino": 0.016613172685292985,
+            "future_clip": 0.31328909870955374,
+            "interaction_raw": 0.00698465110778037,
+            "current_dino_raw": 0.016613172685292985,
+            "future_clip_raw": 0.2712567023985036
+          }
+        }
+      }
+    },
+    "S3_r1_new": {
+      "source": "/mnt/project/trajectory-objective-training-artifacts/20261006/full_training/students/S3_r1_objective_seed42_full100k_v1/steps.jsonl",
+      "last_update": 53937,
+      "nonfinite_grad_rows": 0,
+      "windows": {
+        "1-1000": {
+          "rows": 1000,
+          "mean_gradient_norm": 76.61466494512558,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 2e-06,
+          "mean_losses": {
+            "ego_fm": 2.041266749087721,
+            "ego_fm_endpoint_velocity": 0.07456450690707425,
+            "ego_fm_endpoint_acceleration": 0.042076245747070064,
+            "interaction": 0.408022971907958,
+            "current_dino": 0.23581375491945072,
+            "future_clip": 0.7109681129220117,
+            "interaction_raw": 1.2808152223620564,
+            "current_dino_raw": 0.23581375491945072,
+            "future_clip_raw": 1.4752493770420552
+          }
+        },
+        "9000-11000": {
+          "rows": 2001,
+          "mean_gradient_norm": 4.049551833813814,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 9.906835798429301e-06,
+          "mean_losses": {
+            "ego_fm": 0.12843299410673606,
+            "ego_fm_endpoint_velocity": 0.0008862220721197957,
+            "ego_fm_endpoint_acceleration": 0.00039509206623967086,
+            "interaction": 0.022669392277615837,
+            "current_dino": 0.025366449997276774,
+            "future_clip": 0.3912845641422993,
+            "interaction_raw": 0.027217599502474914,
+            "current_dino_raw": 0.025366449997276774,
+            "future_clip_raw": 0.3387879150417419
+          }
+        },
+        "24000-26000": {
+          "rows": 2001,
+          "mean_gradient_norm": 2.564134529386384,
+          "fraction_norm_above_threshold": 1,
+          "last_lr": 8.90000580059759e-06,
+          "mean_losses": {
+            "ego_fm": 0.06204904883648844,
+            "ego_fm_endpoint_velocity": 0.0004411840712862755,
+            "ego_fm_endpoint_acceleration": 0.00021674297249796824,
+            "interaction": 0.01190333777629422,
+            "current_dino": 0.01914797816181212,
+            "future_clip": 0.31882466208645843,
+            "interaction_raw": 0.014291529140607601,
+            "current_dino_raw": 0.01914797816181212,
+            "future_clip_raw": 0.2760495874585806
+          }
+        },
+        "49000-50000": {
+          "rows": 1001,
+          "mean_gradient_norm": 1.808024445613781,
+          "fraction_norm_above_threshold": 0.985014985014985,
+          "last_lr": 5.6424084339051665e-06,
+          "mean_losses": {
+            "ego_fm": 0.029196332767338296,
+            "ego_fm_endpoint_velocity": 0.00024739672999176066,
+            "ego_fm_endpoint_acceleration": 0.0001317625490425801,
+            "interaction": 0.00536313196862393,
+            "current_dino": 0.015833160519571073,
+            "future_clip": 0.2753969088855472,
+            "interaction_raw": 0.0064391482664578285,
+            "current_dino_raw": 0.015833160519571073,
+            "future_clip_raw": 0.23844831391283267
+          }
+        }
+      }
+    }
+  },
+  "matched_registration_checks": {
+    "S0": {
+      "config_exact_except_trajectory_objective": true,
+      "registration_fields_equal": {
+        "ego_relabel_identity": true,
+        "scene_count": true,
+        "scene_index": true,
+        "global_batch": true,
+        "micro_batch": true,
+        "world_size": true,
+        "seed": true,
+        "schedule_updates": true,
+        "initialization": true,
+        "video_condition": true,
+        "future_clip": true,
+        "dino": true,
+        "interaction": true
+      },
+      "objective": {
+        "acceleration_tolerance_mps2": 1.0,
+        "acceleration_weight": 0.0,
+        "checkpoint_rollout": true,
+        "fm_braking_scene_weight": 1.0,
+        "fm_braking_speed_drop_mps": 2.0,
+        "fm_channel_weights": [
+          4.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "fm_endpoint_acceleration_weight": 2.5e-05,
+        "fm_endpoint_velocity_weight": 0.0005,
+        "fm_total_weight": 1.75,
+        "heading_tolerance_rad": 0.05235987755982988,
+        "heading_weight": 0.0,
+        "horizon_weights": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lateral_tolerance_m": 0.25,
+        "longitudinal_tolerance_m": 0.5,
+        "position_weight": 0.0,
+        "risk_margin_m": 0.25,
+        "risk_overshoot_weight": 0.0,
+        "rollout_every": 1,
+        "timestep_s": 0.5,
+        "velocity_tolerance_mps": 1.0,
+        "velocity_weight": 0.0,
+        "warmup_updates": 1000
+      }
+    },
+    "S3": {
+      "config_exact_except_trajectory_objective": true,
+      "registration_fields_equal": {
+        "ego_relabel_identity": true,
+        "scene_count": true,
+        "scene_index": true,
+        "global_batch": true,
+        "micro_batch": true,
+        "world_size": true,
+        "seed": true,
+        "schedule_updates": true,
+        "initialization": true,
+        "video_condition": true,
+        "future_clip": true,
+        "dino": true,
+        "interaction": true
+      },
+      "objective": {
+        "acceleration_tolerance_mps2": 1.0,
+        "acceleration_weight": 0.0,
+        "checkpoint_rollout": true,
+        "fm_braking_scene_weight": 1.0,
+        "fm_braking_speed_drop_mps": 2.0,
+        "fm_channel_weights": [
+          4.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "fm_endpoint_acceleration_weight": 2.5e-05,
+        "fm_endpoint_velocity_weight": 0.0005,
+        "fm_total_weight": 1.75,
+        "heading_tolerance_rad": 0.05235987755982988,
+        "heading_weight": 0.0,
+        "horizon_weights": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lateral_tolerance_m": 0.25,
+        "longitudinal_tolerance_m": 0.5,
+        "position_weight": 0.0,
+        "risk_margin_m": 0.25,
+        "risk_overshoot_weight": 0.0,
+        "rollout_every": 1,
+        "timestep_s": 0.5,
+        "velocity_tolerance_mps": 1.0,
+        "velocity_weight": 0.0,
+        "warmup_updates": 1000
+      }
+    }
+  }
+}

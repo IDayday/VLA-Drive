@@ -6,6 +6,10 @@
 > commands for this workspace are documented in
 > [`PPU_REPRODUCTION.md`](PPU_REPRODUCTION.md).
 
+Completed C/S/A/V experiments, best checkpoints, per-scene evaluation data,
+and optimized trajectory labels are archived in
+[the October 8 experiment results](reports/experiment_results/20261008/README.md).
+
 [![arXiv](https://img.shields.io/badge/arXiv-2604.01765-b31b1b.svg)](https://arxiv.org/abs/2604.01765)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 

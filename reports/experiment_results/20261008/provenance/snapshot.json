@@ -1,0 +1,40 @@
+{
+  "created_utc": "2026-10-08T12:55:30.187702+00:00",
+  "status": "COMPLETE",
+  "datasets": {
+    "navtest": {
+      "file": "data/scenes/navtest.csv.gz",
+      "rows": 1068848,
+      "evaluations": 88
+    },
+    "dev": {
+      "file": "data/scenes/dev.csv.gz",
+      "rows": 98368,
+      "evaluations": 58
+    },
+    "objective_v2_dev": {
+      "file": "data/scenes/objective_v2_dev.csv.gz",
+      "rows": 13568,
+      "evaluations": 8
+    },
+    "objective_v2_diagnostic": {
+      "file": "data/scenes/objective_v2_diagnostic.csv.gz",
+      "rows": 4096,
+      "evaluations": 32
+    }
+  },
+  "evaluation_count": 186,
+  "scene_rows": 1184880,
+  "log_rows": 13536,
+  "new_training_updates": 0,
+  "new_model_inference": 0,
+  "new_trajectory_objective_research": "PAUSED_BY_USER",
+  "label_versions": [
+    "r1",
+    "V12"
+  ],
+  "scene_identifier_rule": "SHA256 cs-planning-results-v1:scene:split:token first24hex",
+  "log_identifier_rule": "SHA256 cs-planning-results-v1:log:split:log first24hex",
+  "metric_units": "all PDMS component columns use 0-100; ADE/FDE use metres",
+  "weight_storage": "checkpoint directories and hashes indexed in data/best_checkpoints.csv"
+}

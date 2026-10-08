@@ -1,0 +1,6 @@
+# Keep archived files byte-identical so manifest checks also work after cloning.
+* -text
+
+# CSV artifacts use CRLF record endings; matplotlib SVG paths contain trailing spaces.
+*.csv whitespace=cr-at-eol
+figures/*.svg whitespace=-blank-at-eol
