@@ -166,7 +166,7 @@ def signal_owned(host,records,signum):
  if not p.exists():continue
  words=[x.decode() for x in p.read_bytes().split(b'\\0') if x]
  if not ('-m' in words and words[words.index('-m')+1]=='tools.foresight.export_predictions' and words[words.index('--output')+1]==r['bank']):raise RuntimeError('Owned native PID mismatch')
- os.kill(r['pid'],'''+str(signum)+')\n'
+ os.kill(r['pid'],'''+str(int(signum))+')\n'
     import shlex
     subprocess.run(['ssh',host,'python3 -c '+shlex.quote(code)],check=True,timeout=20)
 

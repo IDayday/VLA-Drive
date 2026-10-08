@@ -1,4 +1,9 @@
 import pytest
+import ast
+import shlex
+import signal
+from enum import IntEnum
+from tools.planning_interface_transfer import accelerate_navtest_tail
 from tools.planning_interface_transfer.accelerate_navtest_tail import partition_missing
 
 
@@ -30,3 +35,32 @@ def test_helpers_do_not_use_cache_tokens_as_indices():
     index=[{'token':f'random-{100-i}'} for i in range(64)]
     guards,parts=partition_missing(index,{'random-100','random-99'},4,2,3)
     assert set(guards)|set(i for p in parts for i in p)==set(range(2,64))
+
+
+class LegacySignal(IntEnum):
+    SIGCONT = int(signal.SIGCONT)
+
+    def __str__(self):
+        # Python 3.10's signal enum spelling is not defined in remote code.
+        return 'Signals.SIGCONT'
+
+
+@pytest.mark.parametrize('signum', [signal.SIGSTOP, signal.SIGCONT, LegacySignal.SIGCONT])
+def test_remote_owned_signal_uses_portable_integer(monkeypatch, signum):
+    calls = []
+    monkeypatch.setattr(accelerate_navtest_tail.subprocess, 'run',
+                        lambda command, **kwargs: calls.append((command, kwargs)))
+    accelerate_navtest_tail.signal_owned('registered-host',
+                                        [{'pid': 123, 'bank': '/registered/bank'}], signum)
+    command, kwargs = calls[0]
+    assert command[:2] == ['ssh', 'registered-host']
+    assert kwargs == {'check': True, 'timeout': 20}
+    code = shlex.split(command[2])[2]
+    tree = ast.parse(code)
+    kill = next(node for node in ast.walk(tree)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == 'kill')
+    assert isinstance(kill.args[1], ast.Constant)
+    assert kill.args[1].value == int(signum)
+    assert 'tools.foresight.export_predictions' in code
+    assert "r['bank']" in code and 'Owned native PID mismatch' in code
