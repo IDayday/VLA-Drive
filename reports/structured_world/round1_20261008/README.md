@@ -148,7 +148,12 @@ and these are training diagnostics, not generalization or planning results.
 Old debug-only geometry checkpoints remain ineligible for formal initialization.
 Unit-weight future gradients dominated FM+DINO in early probes. The shared
 training-only calibration rule is now preregistered in `COMMON_CALIBRATION_RULE.json`;
-G1/G3 component medians select one recipe common to all controls, without dev PDMS.
+G1/G3 component medians selected one recipe common to all controls, without dev
+PDMS: geometry 0.1161248667, future semantics 0.1054616027, query relations
+0.3871265716 and refine 1.0, with the common 1000-update refine warmup. Both
+datasets use these scalar weights; class weights come from each training
+population. See `COMMON_LOSS_CALIBRATION_SELECTED.json`. Complete profiles and
+small-set learning with this recipe remain prerequisites for formal freezing.
 
 Eight-rank checkpoint restoration reproduces model, FP32 masters, Adam moments,
 LR, all RNG and data position **exactly at the restored boundary**. Geometry's
@@ -196,7 +201,7 @@ Physical UUID comparison found that local and recovery containers share the
 same eight GPUs; they are not counted as independent training servers.
 
 Still pending: nuScenes full data hashes/label builds and shared preparation;
-remaining full-model/restore checks; common weights and final G1/G3 profile; clean frozen
+remaining full-model/restore checks; final G1/G3 profile and small-set learning; clean frozen
 source/run registration; all six formal seed42 trainings; common endpoints,
 development/final evaluation, paired failure and mechanism analysis, costs and
 second-seed limitations. Existing six YAMLs are implementation probes and are

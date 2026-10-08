@@ -55,6 +55,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--scope', choices=['profile', 'small_fit', 'formal'], required=True)
     parser.add_argument('--debug-updates', type=int, default=0)
+    parser.add_argument('--debug-scenes', type=int, default=0,
+                        help='Fixed training-only engineering subset; forbidden in formal scope')
     parser.add_argument('--micro-batch', type=int, default=2)
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--stop-after', type=int, default=0)
@@ -83,15 +85,15 @@ def main():
     random.seed(42+rank); np.random.seed(42+rank); torch.manual_seed(42+rank); torch.cuda.manual_seed_all(42+rank)
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
     torch.backends.cudnn.benchmark = False; torch.backends.cudnn.deterministic = True
-    # PyTorch SDPA has a deterministic backward choice. Mature grid_sample and
-    # deformable CUDA kernels can retain atomic rounding noise, which is measured
-    # by the common-prefix recovery test rather than silently called bitwise.
+    # Warn-only determinism does not select deterministic Flash backward in
+    # Torch 2.5. Mature CUDA kernels can also retain atomic rounding noise;
+    # common-prefix recovery measures this rather than claiming bitwise updates.
     torch.use_deterministic_algorithms(True, warn_only=True)
     config = OmegaConf.load(args.config)
     dataset = config.structured_world.dataset
     if dataset not in ('navsim', 'nuscenes'): raise ValueError('Registered dataset required')
     if args.scope == 'formal':
-        if config.structured_world.registration_status != 'frozen_after_common_calibration_and_profile' or not args.geometry or args.debug_updates:
+        if config.structured_world.registration_status != 'frozen_after_common_calibration_and_profile' or not args.geometry or args.debug_updates or args.debug_scenes:
             raise ValueError('Formal training requires frozen common recipe and full shared geometry')
         if subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip():
             raise ValueError('Formal training source must be a clean committed worktree')
@@ -109,6 +111,18 @@ def main():
         data = StructuredNuScenesDataset(args.cache, dino_root=args.dino_root, expected_dino=args.dino_identity,
                                         image_root=args.image_root, allow_debug=args.scope != 'formal')
         current_identity, dino_identity = data.identity['source_current_identity'], data.dino_identity['identity']
+    original_population = len(data)
+    training_selection = None
+    if args.debug_scenes:
+        if not 32 <= args.debug_scenes < len(data):
+            raise ValueError('Engineering selection requires at least one batch and fewer scenes than full population')
+        indices = sorted(np.random.default_rng(42).choice(len(data), args.debug_scenes, replace=False).tolist())
+        training_selection = {'population_kind': 'fixed_training_debug_subset_not_formal', 'selection_seed': 42,
+            'source_scene_count': original_population, 'source_indices': indices,
+            'tokens': [data.index[index]['token'] for index in indices]}
+        subset = torch.utils.data.Subset(data, indices)
+        subset.identity = data.identity
+        data = subset
     validate_rank_batches(len(data), 32, world, args.micro_batch)
     initialization = [initialization_assets(config, args.geometry, args.geometry_identity, data.identity['identity'],
                            formal=args.scope == 'formal') if rank == 0 else None]
@@ -127,6 +141,7 @@ def main():
         'effective_global_batch': 32, 'FM_repeat': 8, 'microbatch': args.micro_batch,
         'schedule_horizon': horizon, 'schedule_warmup': warmup,
         'dataset': dataset, 'scenes_per_epoch': len(data), 'updates_per_epoch': updates_per_epoch,
+        'source_population_scenes': original_population, 'engineering_training_selection': training_selection,
         'observation_plan': [25000, 50000, 75000, 100000] if dataset == 'navsim' else [6, 12, 18, 24],
         'determinism': {'torch_algorithms': 'warn_only', 'cudnn_deterministic': True,
             'CUBLAS_WORKSPACE_CONFIG': os.environ['CUBLAS_WORKSPACE_CONFIG'],

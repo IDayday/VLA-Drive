@@ -1,0 +1,58 @@
+{
+  "scope": "one common training-only loss recipe, not a result",
+  "rule": {
+    "scope": "one common training-only gradient calibration rule, registered before measuring prepared full geometry gradients",
+    "datasets": "NAVSIM calibration supplies common scalar weights for both datasets; each dataset class weights use only its own full train statistics",
+    "groups_measured": [
+      "G1_FULL_UNIFORM",
+      "G3_EVENT_LOCAL"
+    ],
+    "fixed_subset_seed": 42,
+    "samples_per_rank": 2,
+    "world_size": 8,
+    "scenes": 16,
+    "reference": "median per-scene gradient norm of original_FM+current_DINO across both modes and prepared geometry",
+    "lambda_geometry_future_query": "min(1, 0.25 * baseline_median / maximum_of_G1_G3_component_medians_in_prepared_state)",
+    "lambda_refine": "min(1, 0.5 * baseline_median / maximum_of_G1_G3_refine_component_medians_at_full_refine_weight)",
+    "refine_warmup_updates": 1000,
+    "no_development_or_test_PDMS_tuning": true,
+    "no_optimizer_updates_during_calibration": true,
+    "class_statistics": {
+      "arrival_positive_weight": 6.580630780076882,
+      "current_positive_weight": 3.88124994826121,
+      "future_positive_weight": 3.838836274157505,
+      "release_positive_weight": 1.4268184780051738
+    },
+    "generalization_claim": false,
+    "formal_training_started": false
+  },
+  "gradient_measurement_hashes": {
+    "NAVSIM_COMMON_GRADIENT_G1_FULL5EPOCH_v2.json": "416e89ff517d1b9d9b951863fd525a16b592e79191a0ce7105994333de3e6e42",
+    "NAVSIM_COMMON_GRADIENT_G3_FULL5EPOCH_v1.json": "b1eb36090b5db74cd3a8011b86a328fa9c3cb8517a4eb67c1be01caae28836ed"
+  },
+  "prepared_geometry_component_medians": {
+    "G1_FULL_UNIFORM": {
+      "baseline_FM_plus_current_DINO": 13.89671326328398,
+      "current_geometry": 29.91771048595421,
+      "future_semantics": 32.9427019062535,
+      "query_relations": 7.57086786156548,
+      "refine_at_full_weight": 3.5184085690679687
+    },
+    "G3_EVENT_LOCAL": {
+      "baseline_FM_plus_current_DINO": 13.897311931484968,
+      "current_geometry": 28.97709512096466,
+      "future_semantics": 25.790178847451315,
+      "query_relations": 8.974300387059916,
+      "refine_at_full_weight": 3.5184085690679687
+    }
+  },
+  "baseline_median": 13.896760565919152,
+  "selected_common_loss_weights": {
+    "geometry": 0.11612486667757727,
+    "future": 0.10546160273575751,
+    "query": 0.3871265716143443,
+    "refine": 1.0
+  },
+  "formal_training_started": false,
+  "full_recipe_status": "profile_and_small_learning_check_pending"
+}

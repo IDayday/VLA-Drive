@@ -86,7 +86,7 @@ trainer:
   loss_scale:
     vla: 1.0
     vlm: 0.1
-  repeated_diffusion_steps: 4
+  repeated_diffusion_steps: 8
   max_grad_norm: 1.0
   warmup_ratio: 0.1
   weight_decay: 0.0
@@ -155,11 +155,11 @@ structured_world:
     arrival_positive_weight: 1.0
     release_positive_weight: 1.0
   loss_weights:
-    geometry: 1.0
-    future: 1.0
-    query: 1.0
+    geometry: 0.11612486667757727
+    future: 0.10546160273575751
+    query: 0.3871265716143443
     refine: 1.0
-  registration_status: implementation_probe_not_formal_frozen_recipe
+  registration_status: common_weights_selected_nuscenes_full_assets_pending
   formal_training_seed: 42
   evaluation_sampling_seeds:
   - 42
@@ -173,3 +173,6 @@ structured_world:
   - 18
   - 24
   maximum_common_epochs: 32
+  shared_loss_calibration:
+    rule_sha256: bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4
+    selected_recipe_sha256: 1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4
