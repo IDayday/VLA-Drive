@@ -115,6 +115,18 @@ body-point proxy can miss small boundary/hole incursions (four of 512 hole poses
 and three of 512 rotated-road poses); exact polygon containment and this proxy
 are reported separately. It is not an exact DAC or a collision probability.
 
+The new dedicated NAVSIM current-C1 cache is complete for all 101592 scenes.
+It copies the locked legacy current targets bitwise, verifies original chunk
+hashes, and contains no future target dependency. It took 393 CPU wall seconds
+and zero GPU-hours. Eight real samples loaded successfully with a nonexistent
+future teacher index. Formal training rejects the legacy mixed current/future
+cache path; historical assets remain intact. A separate actual file-access
+audit on eight current exports found zero non-current data reads and bitwise
+identity of every current image, state, calibration and geometry input.
+nuScenes retains 85.46% of nominal future scene-label times at the shared 60 ms
+tolerance; every original 23230/4969 planning sample remains eligible. Exact
+per-time coverage is stored in `NUSCENES_WHOLE_POPULATION_AUX_TIME_COVERAGE.json`.
+
 Actual full-eight-A800 optimizer profiles completed for NAVSIM and nuScenes:
 global batch 32, FM repeat 8, full ten-step proposal, geometry, all Bt, FGTR,
 all losses, FP32 masters and actual 10x new-module LR. Observed NAVSIM microbatch
@@ -161,6 +173,7 @@ $QPY tools/structured_world/download_nuscenes.py --help
 $QPY tools/structured_world/build_cache.py --help
 $QPY tools/structured_world/build_nuscenes_cache.py --help
 $QPY tools/structured_world/build_current_dino.py --help
+$QPY tools/structured_world/slice_navsim_current_c1.py --help
 $QPY tools/structured_world/train_geometry.py --help
 $QPY tools/structured_world/calibrate_objectives.py --help
 $QPY tools/structured_world/train_vla.py --help

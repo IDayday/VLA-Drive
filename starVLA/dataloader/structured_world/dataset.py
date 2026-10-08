@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from starVLA.dataloader.full_foresight_dataset import FullForesightDataset
+from starVLA.dataloader.foresight_dataset import ForesightTrainingDataset
 
 
 def validate_native_ego_contract(encoded, auxiliary_physical, auxiliary_time_valid):
@@ -33,9 +34,29 @@ class StructuredNAVSIMDataset(Dataset):
         if not allow_debug and self.identity['population_kind'] != 'full_train_population':
             raise ValueError('A fixed debug subset is not a formal experiment population')
         self.index = json.loads((self.root/'index.json').read_text())
-        self.base = FullForesightDataset(current_root, candidate='C1', current=True, future=False,
-            dino_root=dino_root, dino_index=dino_index, expected_dino=expected_dino,
-            image_root=image_root, allow_partial=False)
+        self.dino_root = Path(dino_root)
+        self.dino_identity = json.loads((self.dino_root/'identity.json').read_text())
+        self.current_teacher_only = self.dino_identity['schema'] == 'structured_world_current_C1_v1'
+        if self.current_teacher_only:
+            done = json.loads((self.dino_root/'COMPLETE.json').read_text())
+            if self.dino_identity['identity'] != expected_dino or done['identity'] != expected_dino:
+                raise ValueError('Wrong current-only C1 teacher')
+            if self.dino_identity['structured_cache_identity'] != self.identity['identity'] or done['scenes'] != len(self.index):
+                raise ValueError('Current-only teacher population changed')
+            if self.dino_identity['cameras'] != 3 or self.dino_identity['grid_hw'] != [6, 8] or self.dino_identity['feature_dim'] != 1024:
+                raise ValueError('Current C1 teacher layout changed')
+            self.base = ForesightTrainingDataset(current_root)
+            self.base.dino_identity = self.dino_identity
+            self.base.local_image_root = image_root
+            if image_root:
+                stage = json.loads((Path(current_root)/'local_stage.json').read_text())
+                if stage['source_identity'] != self.base.identity['identity'] or Path(stage['image_root']) != Path(image_root) or stage['scenes'] != len(self.base.index):
+                    raise ValueError('Incomplete or foreign current image residency')
+        else:
+            if not allow_debug: raise ValueError('Formal runs require a dedicated current-only C1 cache, without future teacher dependencies')
+            self.base = FullForesightDataset(current_root, candidate='C1', current=True, future=False,
+                dino_root=dino_root, dino_index=dino_index, expected_dino=expected_dino,
+                image_root=image_root, allow_partial=False)
         if self.base.identity != self.identity['source_current_identity']:
             raise ValueError('Historical GT/current source population changed')
         lookup = {row['token']: i for i, row in enumerate(self.base.index)}
@@ -56,6 +77,14 @@ class StructuredNAVSIMDataset(Dataset):
                 raise ValueError('Structured label hash mismatch')
             self._checked.add(token)
         observation, targets = self.base[self.global_indices[index]]
+        if self.current_teacher_only:
+            teacher_file = self.dino_root/'targets'/(token+'.npz')
+            teacher_record = json.loads((self.dino_root/'records'/(token+'.json')).read_text())
+            if teacher_record['identity'] != self.dino_identity['identity'] or hashlib.sha256(teacher_file.read_bytes()).hexdigest() != teacher_record['sha256']:
+                raise ValueError('Current-only teacher target changed')
+            with np.load(teacher_file, allow_pickle=False) as teacher:
+                targets['current_dino'] = torch.from_numpy(teacher['current_dino'].copy()).float()
+                targets['current_dino_valid'] = torch.from_numpy(teacher['valid'].copy())
         with np.load(path, allow_pickle=False) as arrays:
             rgb = torch.from_numpy(arrays['geometry_rgb'].copy()).float()/255.
             observation['geometry_images'] = (rgb-rgb.new_tensor([.485, .456, .406])[None, :, None, None])/rgb.new_tensor([.229, .224, .225])[None, :, None, None]
