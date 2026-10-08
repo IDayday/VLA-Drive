@@ -26,6 +26,7 @@ from starVLA.model.modules.structured_world.losses import scene_means, scene_red
 from tools.ddpolicy_vehicle.training_state import epoch_batches
 from tools.foresight.student_state import capture_rng, restore_rng, learning_rate, validate_rank_batches
 from tools.structured_world.recovery_boundary import exact
+from tools.structured_world.training_assets import file_digest, verify_checkpoint_files
 
 
 class GeometryCache:
@@ -128,7 +129,7 @@ def main():
     if not 5 <= args.epochs <= 10 and not args.debug_updates:
         raise ValueError('Formal common geometry preparation permits five to ten epochs')
     warmup = max(1, min(500, horizon//10))
-    paths = [Path(__file__), ROOT/'tools/structured_world/recovery_boundary.py']
+    paths = [Path(__file__), ROOT/'tools/structured_world/recovery_boundary.py', ROOT/'tools/structured_world/training_assets.py']
     for directory in ('starVLA/model/modules/structured_world', 'third_party/resworld/ported'):
         paths.extend(sorted((ROOT/directory).rglob('*.py')))
     code_hashes = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
@@ -158,8 +159,11 @@ def main():
     completed, epoch, offset, exposure, seconds = 0, 0, 0, 0, 0.
     if args.resume:
         tag = (args.output/'latest').read_text().strip()
-        if Path(tag).name != tag or json.loads((args.output/tag/'COMPLETE.json').read_text())['identity'] != identity:
+        complete = json.loads((args.output/tag/'COMPLETE.json').read_text())
+        if Path(tag).name != tag or complete['identity'] != identity:
             raise ValueError('Incomplete/foreign geometry recovery point')
+        verify_checkpoint_files(args.output/tag, complete, rank=rank, world=world)
+        dist.barrier()
         state = torch.load(args.output/tag/f'rank{rank}.pt', map_location='cpu', weights_only=False)
         if state['identity'] != identity:
             raise ValueError('Foreign geometry checkpoint')
@@ -195,9 +199,14 @@ def main():
         temporary = folder/f'rank{rank}.tmp'
         torch.save(state, temporary); temporary.replace(folder/f'rank{rank}.pt')
         dist.barrier()
+        owned = [folder/f'rank{rank}.pt']+([folder/'model_optimizer.pt'] if rank == 0 else [])
+        rank_hashes = [None]*world
+        dist.all_gather_object(rank_hashes, {p.name: file_digest(p) for p in owned})
+        hashes = {name: value for record in rank_hashes for name, value in record.items()}
         if rank == 0:
             temporary = folder/'COMPLETE.tmp'
-            temporary.write_text(json.dumps({'identity': identity, 'ranks': world, 'updates': completed, 'status': status})+'\n')
+            temporary.write_text(json.dumps({'identity': identity, 'ranks': world, 'updates': completed, 'status': status,
+                                            'file_sha256': hashes})+'\n')
             temporary.replace(folder/'COMPLETE.json')
             final = args.output/tag
             if final.exists(): raise ValueError('Refusing to overwrite a geometry checkpoint')

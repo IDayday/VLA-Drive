@@ -8,6 +8,20 @@ from torch.utils.data import Dataset
 from starVLA.dataloader.full_foresight_dataset import FullForesightDataset
 
 
+def validate_native_ego_contract(encoded, auxiliary_physical, auxiliary_time_valid):
+    """Native complete ego labels survive gaps in physical-time scene labels."""
+    from starVLA.dataloader.foresight_dataset import decode_ego
+    if encoded.shape != (8, 4) or not torch.isfinite(encoded).all():
+        raise ValueError('Native NAVSIM eight-point ego population changed')
+    valid = np.asarray(auxiliary_time_valid, dtype=bool)
+    if valid.shape != (8,) or np.asarray(auxiliary_physical).shape != (8, 3):
+        raise ValueError('Auxiliary ego/time contract changed')
+    physical = decode_ego(encoded).numpy()
+    if not np.allclose(physical[valid], np.asarray(auxiliary_physical)[valid], atol=2e-4, rtol=1e-5):
+        raise ValueError('NAVSIM adapter differs from original native GT coordinates')
+    return torch.ones(8, dtype=torch.bool)
+
+
 class StructuredNAVSIMDataset(Dataset):
     def __init__(self, cache_root, current_root, *, dino_root, dino_index, expected_dino, image_root=None,
                  allow_debug=False):
@@ -48,15 +62,13 @@ class StructuredNAVSIMDataset(Dataset):
             observation['geometry_pixel_valid'] = torch.from_numpy(arrays['geometry_pixel_valid'].copy())
             observation['calibration'] = {k: torch.from_numpy(arrays['calibration_'+k].copy())
                                           for k in ('sensor2ego', 'intrinsics', 'post_rots', 'post_trans')}
-            for key in ('road_distance', 'road_valid', 'occupancy', 'occupancy_valid', 'depth', 'future_valid'):
+            for key in ('road_distance', 'road_valid', 'occupancy', 'occupancy_valid', 'depth'):
                 targets[key] = torch.from_numpy(arrays[key].copy())
-            # Native NAVSIM GT stays authoritative, with a numerical adapter check.
-            from starVLA.dataloader.foresight_dataset import decode_ego
-            physical = decode_ego(targets['ego'])
-            if not np.allclose(physical.numpy(), arrays['ego_physical'], atol=2e-4, rtol=1e-5):
-                raise ValueError('NAVSIM adapter differs from original GT ego coordinates')
-        if not targets['future_valid'].all():
-            raise ValueError('Original NAVSIM formal population unexpectedly lacks a complete horizon')
+            # Source logs can skip a sensor keyframe. They retain native eight
+            # planning annotations in the canonical protocol, but a mismatched
+            # future scene label is unknown at its nominal physical time.
+            targets['auxiliary_future_time_valid'] = torch.from_numpy(arrays['future_valid'].copy())
+            targets['future_valid'] = validate_native_ego_contract(targets['ego'], arrays['ego_physical'], arrays['future_valid'])
         targets['ego_bodies'] = metadata['ego_body']
         return observation, targets
 

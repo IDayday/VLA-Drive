@@ -56,6 +56,12 @@ def build_one(task):
     arrays['geometry_pixel_valid'] = scene.observations['geometry_pixel_valid'].numpy()
     arrays.update({f'calibration_{key}': value.numpy() for key, value in scene.observations['calibration'].items()})
     planning = planning_metadata(_NUSC, sample)
+    from starVLA.dataloader.structured_world.temporal_validity import mask_auxiliary_time_mismatch
+    timing_valid = mask_auxiliary_time_mismatch(arrays, planning['future_times_s'])
+    labels['protocol'] = dict(labels['protocol'], auxiliary_time_contract={
+        'nominal_times_s': [.5, 1., 1.5, 2., 2.5, 3.], 'maximum_annotation_jitter_s': .06,
+        'valid_future_scene_label_times': timing_valid.tolist(),
+        'larger_jitter': 'unknown255 for future scene losses only; original VAD ego protocol retained'})
     arrays['original_VAD_lidar_xy'] = planning['original_VAD_lidar_xy']
     arrays['actual_future_times_s'] = np.asarray(planning['future_times_s'], dtype=np.float64)
     temporary = target.with_suffix('.tmp')
@@ -116,6 +122,7 @@ def main():
             raise ValueError('Formal cache requires all official archives verified and extracted')
     code = ['starVLA/dataloader/structured_world/nuscenes_adapter.py',
             'starVLA/dataloader/structured_world/centered_boxes.py', 'tools/structured_world/build_nuscenes_cache.py',
+            'starVLA/dataloader/structured_world/temporal_validity.py',
             'starVLA/dataloader/structured_world/adapters.py', 'starVLA/dataloader/structured_world/cameras.py',
             'starVLA/dataloader/structured_world/labels.py', 'third_party/uniad/ported/occflow_label.py',
             'third_party/vad/ported/planning_pose.py', 'third_party/vad/ported/converter.py']
@@ -124,7 +131,9 @@ def main():
         'index': rows, 'grid': asdict(GridSpec()), 'code_hashes': {p: digest(ROOT/p) for p in code},
         'external_sources_sha256': digest(ROOT/'third_party/LOCK.json'),
         'input_root': str(args.root), 'population_protocol': population,
-        'label_semantics': 'same derived signed road distance, endpoint environment box occupancy and unknown255 as NAVSIM'}
+        'label_semantics': 'same derived signed road distance, endpoint environment box occupancy and unknown255 as NAVSIM',
+        'auxiliary_annotation_jitter_s': .06,
+        'planning_GT_timing': 'unaltered native VAD six annotated keyframes; nominal 2Hz with stored actual times'}
     identity = hashlib.sha256(json.dumps(declaration, sort_keys=True).encode()).hexdigest()
     args.output.mkdir(parents=True, exist_ok=True)
     if (args.output/'identity.json').exists() and json.loads((args.output/'identity.json').read_text())['identity'] != identity:

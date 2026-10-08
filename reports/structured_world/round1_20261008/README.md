@@ -70,7 +70,12 @@ FP32 native ZeRO master reconstruction is strict; TF32 is off for inference.
   samples across the official 700/150 scenes, requiring a legal previous pose
   and complete future. These are nominal 2 Hz annotated keyframes; actual
   timestamp jitter is stored, and this is **not exact physical-time resampling**.
-  The final physical-time training/evaluation contract still needs resolution.
+  Future scene labels now accept only annotations within 60 ms of their nominal
+  physical time; larger jitter is unknown255. Native VAD ego targets/evaluation
+  remain unchanged. This approximation and per-time valid coverage are reported.
+  Whole-NAVSIM timing QA likewise found 678 jump-frame scenes. Their native
+  complete eight-point ego labels remain in training; future scene labels with
+  mismatched physical times are unknown rather than excluding those scenes.
 - NAVSIM origin is the canonical Pacifica rear axle. The nuScenes wrapper uses
   rotated current LiDAR axes (forward/left = LiDAR y/-x), exact inverse transform,
   and the native UniAD 4.084 x 1.85 m body with +0.5 m offset. Current state uses
@@ -86,13 +91,29 @@ FP32 native ZeRO master reconstruction is strict; TF32 is off for inference.
 
 ## Actual checks and remaining gates
 
-21 contract tests passed, including original ten-step proposal identity,
+Contract tests passed, including original ten-step proposal identity,
 6/8-time-point gradient paths, 3/6-camera contracts, event identities,
 unknown labels, clone invariance, native UniAD metric AST equality and tilted
 box center semantics. The historical S0 strict read-only replay is bitwise
 identical for its recorded scene. A real full-Qwen probe verified one current
 forward, enabled branch gradients, GT-key poisoning invariance and unchanged
 predictions after stripping only supervision heads.
+
+24 actual eight-rank reduction comparisons passed across all four objectives,
+6/8 horizons, global batches 32/24/30 and an entirely auxiliary-empty rank.
+Maximum gradient discrepancy from a full-population native objective was
+5.97e-8. Independent current exports cover all 1696 development scenes. Native
+GT replay on four development scenes successfully traversed the canonical
+scoring adapter; these privileged GT results are not model performance.
+The canonical lock is taken from completed S0 scoring, not the older metric
+cache builder's package tree; see `CANONICAL_EVALUATION_LOCK.json`.
+
+Fixed-grid geometric approximation measurements are retained in
+`GEOMETRY_POLYGON_RASTER_BODY_QA.json`: axis-aligned straight roads are exact at
+cell centers; a rotated synthetic road has at most 0.25 m point error. The
+body-point proxy can miss small boundary/hole incursions (four of 512 hole poses
+and three of 512 rotated-road poses); exact polygon containment and this proxy
+are reported separately. It is not an exact DAC or a collision probability.
 
 Actual full-eight-A800 optimizer profiles completed for NAVSIM and nuScenes:
 global batch 32, FM repeat 8, full ten-step proposal, geometry, all Bt, FGTR,
@@ -116,8 +137,8 @@ max 2.32e-4 (Adam first moments), with exact discrete/RNG state. That continuati
 test is retained as a failure; CUDA atomic/dropout/kernel rounding is not hidden
 by claiming bitwise future updates. Functional consequences need assessment.
 
-Still pending: full data hashes/label builds; quantitative polygon/raster/body
-approximation QA; all required empty-rank/tail/restore checks; full common
+Still pending: full data hashes/label builds; remaining full-model/restore
+checks; full common
 geometry five epochs; common weights and final G1/G3 profile; clean frozen
 source/run registration; all six formal seed42 trainings; common endpoints,
 development/final evaluation, paired failure and mechanism analysis, costs and

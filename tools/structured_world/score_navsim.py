@@ -53,7 +53,9 @@ def main():
     expected_runtime = {'numpy': '1.26.4', 'scipy': '1.13.1', 'shapely': '2.0.7'}
     if contract['navsim_python_tree_sha256'] != '1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f':
         raise ValueError('NAVSIM canonical source differs from the historical frozen evaluator')
-    if contract['nuplan_python_tree_sha256'] != 'ffbee2e824a071b5845fa3af657146e7b26ce9550e0c24b95ef624d81724cc36':
+    # Pin the completed S0/A-V canonical scoring environment, rather than the
+    # older metric-cache construction environment's unused package tree.
+    if contract['nuplan_python_tree_sha256'] != '0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849':
         raise ValueError('nuPlan canonical source differs from the historical frozen evaluator')
     if contract['runtime_versions'] != expected_runtime: raise ValueError('Use the locked canonical scoring environment')
     identity = hashlib.sha256(json.dumps(contract, sort_keys=True).encode()).hexdigest()

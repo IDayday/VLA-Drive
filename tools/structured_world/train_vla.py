@@ -27,6 +27,7 @@ from tools.ddpolicy_vehicle.optimizer_safety import bounded_parameter_groups, ca
 from tools.ddpolicy_vehicle.training_state import epoch_batches
 from tools.foresight.student_state import capture_rng, restore_rng, learning_rate, validate_rank_batches, optimizer_batch_counts
 from tools.structured_world.recovery_boundary import verify_boundary
+from tools.structured_world.training_assets import initialization_assets, file_digest, verify_checkpoint_files
 
 
 def atomic_json(path, value):
@@ -42,6 +43,7 @@ def source_hashes():
         paths += sorted((ROOT/directory).rglob('*.py'))
     paths.append(Path(__file__))
     paths.append(ROOT/'tools/structured_world/recovery_boundary.py')
+    paths.append(ROOT/'tools/structured_world/training_assets.py')
     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
 
@@ -108,6 +110,9 @@ def main():
                                         image_root=args.image_root, allow_debug=args.scope != 'formal')
         current_identity, dino_identity = data.identity['source_current_identity'], data.dino_identity['identity']
     validate_rank_batches(len(data), 32, world, args.micro_batch)
+    initialization = [initialization_assets(config, args.geometry, args.geometry_identity, data.identity['identity'],
+                           formal=args.scope == 'formal') if rank == 0 else None]
+    dist.broadcast_object_list(initialization, src=0)
     updates_per_epoch = math.ceil(len(data)/32)
     horizon = (100000 if dataset == 'navsim' else 24*updates_per_epoch) if args.scope == 'formal' else args.debug_updates
     warmup = (5000 if dataset == 'navsim' else updates_per_epoch) if args.scope == 'formal' else max(1, horizon//10)
@@ -118,6 +123,7 @@ def main():
         'config': OmegaConf.to_container(config, resolve=True), 'cache_identity': data.identity['identity'],
         'current_and_GT_identity': current_identity, 'DINO_identity': dino_identity,
         'shared_geometry_identity': args.geometry_identity, 'training_seed': 42, 'world_size': world,
+        'initialization_assets': initialization[0],
         'effective_global_batch': 32, 'FM_repeat': 8, 'microbatch': args.micro_batch,
         'schedule_horizon': horizon, 'schedule_warmup': warmup,
         'dataset': dataset, 'scenes_per_epoch': len(data), 'updates_per_epoch': updates_per_epoch,
@@ -158,6 +164,8 @@ def main():
         complete = json.loads((args.output/'checkpoints'/tag/'COMPLETE.json').read_text())
         if complete['identity'] != identity:
             raise ValueError('Incomplete/foreign recovery checkpoint')
+        verify_checkpoint_files(args.output/'checkpoints'/tag, complete, rank=rank, world=world)
+        dist.barrier()
         _, state = engine.load_checkpoint(str(args.output/'checkpoints'), tag=tag,
             load_module_strict=True, load_optimizer_states=True, load_lr_scheduler_states=True)
         completed, epoch, offset, exposure, elapsed = [state[k] for k in ('completed', 'epoch', 'offset', 'exposure', 'elapsed')]
@@ -184,6 +192,12 @@ def main():
         engine.save_checkpoint(str(checkpoint_root), tag=staging, client_state=state, save_latest=False)
         torch.save(capture_rng(generators), checkpoint_root/staging/f'rng_rank{rank}.pt')
         dist.barrier()
+        owned = [checkpoint_root/staging/f'rng_rank{rank}.pt',
+                 checkpoint_root/staging/f'zero_pp_rank_{rank}_mp_rank_00_optim_states.pt']
+        if rank == 0: owned.append(checkpoint_root/staging/'mp_rank_00_model_states.pt')
+        local_hashes = {p.name: file_digest(p) for p in owned}
+        rank_hashes = [None]*world; dist.all_gather_object(rank_hashes, local_hashes)
+        hashes = {name: value for record in rank_hashes for name, value in record.items()}
         save_cost = torch.tensor(time.monotonic()-start, device='cuda'); dist.all_reduce(save_cost, op=dist.ReduceOp.MAX)
         # Recovery stores training elapsed separately; checkpoint wall time is
         # recorded per complete checkpoint for total cost accounting.
@@ -194,7 +208,7 @@ def main():
             (checkpoint_root/staging).rename(folder)
             atomic_json(folder/'COMPLETE.json', {'identity': identity, 'tag': tag, 'completed': completed,
                 'ranks': world, 'status': status, 'save_seconds': float(save_cost),
-                'checkpoint_GPU_hours': float(save_cost)*world/3600.})
+                'checkpoint_GPU_hours': float(save_cost)*world/3600., 'file_sha256': hashes})
             temp = checkpoint_root/'latest.tmp'; temp.write_text(tag+'\n'); temp.replace(checkpoint_root/'latest')
             rolling = sorted(checkpoint_root.glob('latest_*'))
             for old in rolling[:-2]:

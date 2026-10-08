@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import subprocess
 import sys
 import time
 import numpy as np
@@ -15,6 +16,7 @@ sys.path.insert(0, str(ROOT))
 from starVLA.model.framework.vla_structured_fgtr import VLAStructuredFGTR
 from starVLA.dataloader.structured_world.current_inputs import CurrentInputs
 from tools.structured_world.build_cache import digest, atomic_json
+from tools.structured_world.training_assets import verify_checkpoint_files
 
 
 def scene_noise(token, seed, steps, device):
@@ -30,6 +32,7 @@ def load_model(run, tag, device):
     identity = json.loads((run/'identity.json').read_text())
     complete = json.loads((run/'checkpoints'/tag/'COMPLETE.json').read_text())
     if complete['identity'] != identity['identity']: raise ValueError('Foreign/incomplete checkpoint')
+    verify_checkpoint_files(run/'checkpoints'/tag, complete)
     config = OmegaConf.create(identity['config'])
     model = VLAStructuredFGTR(config).float()
     state = get_fp32_state_dict_from_zero_checkpoint(str(run/'checkpoints'), tag=tag)
@@ -62,6 +65,8 @@ def main():
     if args.strip_supervision_heads: model.strip_auxiliary_heads()
     contract = {'schema': 'structured_world_FP32_predictions_v1', 'training_identity': source['identity'],
         'training_source_sha': source['training_source_sha'], 'checkpoint': args.tag, 'updates': checkpoint['completed'],
+        'checkpoint_files_sha256': checkpoint['file_sha256'],
+        'evaluation_source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'evaluation_source_files': {p: digest(ROOT/p) for p in
             ('tools/structured_world/infer_checkpoint.py', 'starVLA/dataloader/structured_world/current_inputs.py')},
         'input_identity': data.identity['identity'], 'sampling_seed': args.sampling_seed,
