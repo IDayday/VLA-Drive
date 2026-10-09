@@ -1,0 +1,92 @@
+{
+  "scope": "six-group resource registration from complete final NAVSIM profiles; nuScenes cost remains provisional until full-data profile",
+  "authorization": {
+    "GPU_hours_cap": null,
+    "time_limit": null,
+    "only_authorized_zt_servers": true
+  },
+  "physical_hosts": [
+    "training-vla-zt",
+    "training-vla-zt2"
+  ],
+  "recovery_container_is_same_physical_GPUs_as_local": true,
+  "common_geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+  "NAVSIM_profiles": {
+    "G1_FULL_UNIFORM": {
+      "source_sha": "8b0661063bf13f24c4e20ba29db06c154934460d",
+      "actual_updates": 8,
+      "mean_seconds": 5.0529866218566895,
+      "steady_median_seconds": 4.936144113540649,
+      "rank0_peak_GiB": 31.89622974395752,
+      "all_clip_fraction": 1,
+      "checkpoint_save_seconds": [
+        35.685142517089844,
+        36.19657516479492
+      ],
+      "one_trained_checkpoint_bytes": 45395933136,
+      "metrics_sha256": "5b41ebf9bdf54efa8d9918e17520d28a1a989b383698caaab3e6e0cd9c4f241d",
+      "HA_B0_Bt_gradients_nonzero": true
+    },
+    "G3_EVENT_LOCAL": {
+      "source_sha": "8b0661063bf13f24c4e20ba29db06c154934460d",
+      "actual_updates": 8,
+      "mean_seconds": 5.031758725643158,
+      "steady_median_seconds": 4.939140558242798,
+      "rank0_peak_GiB": 31.896230220794678,
+      "all_clip_fraction": 1,
+      "checkpoint_save_seconds": [
+        30.564634323120117,
+        35.47500228881836
+      ],
+      "one_trained_checkpoint_bytes": 45395933136,
+      "metrics_sha256": "2f9ae4327977487490d6b3ffa8b8e1384cfa01ac0ca29412a649465573ec2e17",
+      "HA_B0_Bt_gradients_nonzero": true
+    }
+  },
+  "formal_NAVSIM": {
+    "groups": [
+      "G1_FULL_UNIFORM",
+      "G3_EVENT_LOCAL",
+      "G0_NO_FUTURE_LABEL",
+      "G2_EVENT_UNIFORM"
+    ],
+    "updates_each": 100000,
+    "global_batch": 32,
+    "FM_repeat": 8,
+    "microbatch_per_GPU": 4,
+    "estimated_training_GPU_hours_each": 1122.8859159681533,
+    "scheduler_horizon_from_start": 100000,
+    "dev_observation_updates": [
+      25000,
+      50000,
+      75000,
+      100000
+    ],
+    "final_Navtest_only_after_frozen_config": true
+  },
+  "formal_nuscenes": {
+    "groups": [
+      "G1_FULL_UNIFORM",
+      "G3_EVENT_LOCAL"
+    ],
+    "train_scenes": 700,
+    "eligible_train_samples": 23230,
+    "epochs": 24,
+    "updates_each": 17424,
+    "estimated_GPU_hours_each_from_old_complete_engineering_profile": 356.224,
+    "requires_full_data_and_own_common_geometry": true,
+    "own_final_profile_pending": true
+  },
+  "shared_preparation_GPU_hours_NAVSIM_training": 12.963801165090667,
+  "checkpoint_retention": {
+    "milestones": 4,
+    "latest": 2,
+    "atomic_writes": true,
+    "SHA256_all_rank_files": true,
+    "minimum_free_bytes_before_save": 107374182400,
+    "estimated_peak_six_run_checkpoint_bytes": 1634253592896
+  },
+  "launch_order": "G1/G3 after small-set checks, then G0/G2; nuScenes after official assets and preparation, no download barrier to NAVSIM",
+  "formal_started_at_registration": false,
+  "recorded_unix": 1791503710.4720683
+}
