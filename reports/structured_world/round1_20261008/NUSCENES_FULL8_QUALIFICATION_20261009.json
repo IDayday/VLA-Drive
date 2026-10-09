@@ -1,0 +1,362 @@
+{
+  "scope": "preregistered first seed42 nuScenes G1/G3 formal deployment, qualification is not formal result",
+  "budget": {
+    "scope": "six registered first-training-seed experiments; no additional mechanism launched",
+    "registered_utc": "2026-10-09T15:17:38.562199+00:00",
+    "user_GPU_hours_cap": null,
+    "user_time_limit": null,
+    "full8_extra_hosts": [
+      "training-vla-zt3",
+      "training-vlawm-zt"
+    ],
+    "NU_population": {
+      "train_samples": 23230,
+      "validation_samples": 4969,
+      "official_train_scenes": 700,
+      "official_validation_scenes": 150,
+      "global_batch": 32,
+      "updates_per_epoch": 726,
+      "tail_batch_scenes": 30,
+      "epochs": 24,
+      "updates": 17424,
+      "actual_planned_exposure_per_group": 557520,
+      "observations_updates": [
+        4356,
+        8712,
+        13068,
+        17424
+      ]
+    },
+    "common_initialization": "own dataset full-train 5-epoch shared perception; generic Qwen and random driving/action, never qualification checkpoints",
+    "nuScenes": {
+      "G1_FULL_UNIFORM": {
+        "host": "training-vla-zt3",
+        "profile_source_sha": "b89f3f386929035cf7402e4b62b73d5c94bfd8e7",
+        "profile_steady_median_seconds": 4.4701454639434814,
+        "peak_rank0_allocated_bytes": 33973496320,
+        "training_wall_hours_estimate": 21.63550404548645,
+        "training_GPU_hours_estimate": 173.0840323638916,
+        "shared_with_existing_scientific_jobs": false
+      },
+      "G3_EVENT_LOCAL": {
+        "host": "training-vlawm-zt",
+        "profile_source_sha": "b89f3f386929035cf7402e4b62b73d5c94bfd8e7",
+        "profile_steady_median_seconds": 6.964597940444946,
+        "peak_rank0_allocated_bytes": 33974022656,
+        "training_wall_hours_estimate": 33.70865403175354,
+        "training_GPU_hours_estimate": 269.6692322540283,
+        "shared_with_existing_scientific_jobs": true
+      }
+    },
+    "NAVSIM": {
+      "G1_FULL_UNIFORM": {
+        "host": "training-vla-zt2",
+        "updates": 100000,
+        "seconds_recent_median": 3.1353384256362915,
+        "training_GPU_hours_estimate": 696.7418723636204,
+        "next_same_host_group": "G0_NO_FUTURE_LABEL"
+      },
+      "G3_EVENT_LOCAL": {
+        "host": "training-vla-zt",
+        "updates": 100000,
+        "seconds_recent_median": 3.187972068786621,
+        "training_GPU_hours_estimate": 708.4382375081381,
+        "next_same_host_group": "G2_EVENT_UNIFORM"
+      }
+    },
+    "storage": {
+      "local_training_assets_bytes_per_extra_host": 72688063991,
+      "current_images_per_host": 139380,
+      "retention": "four fixed milestones plus two latest complete recovery points; atomic writes; 100GiB write reserve",
+      "controlled_storage_free_bytes": 8082930434048
+    },
+    "estimate_limits": "Measured short full-chain profiles; excludes save/load and validation wall time; sharing load may change. Unlimited authorization is not a promise of fixed GPU availability.",
+    "estimated_six_group_training_GPU_hours": 3253.1134843614363
+  },
+  "geometry_learning_on_first64_training_samples": {
+    "kind": "fixed_training_subset_perception_learning_not_formal_planning",
+    "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+    "before": {
+      "scenes": 64,
+      "road_MAE_m": 3.5873079119596203,
+      "road_boundary_MAE_m": 0.6489549378399039,
+      "current_obstacle_IoU": 0.0,
+      "current_obstacle_precision": null,
+      "current_obstacle_recall": 0.0,
+      "projected_depth_bin_expectation_MAE_m": 37.594753063993224,
+      "totals": {
+        "road_abs": 1264633.658203125,
+        "road_count": 352530,
+        "boundary_abs": 44091.29638671875,
+        "boundary_count": 67942,
+        "TP": 0,
+        "FP": 0,
+        "FN": 21116,
+        "depth_abs": 4818218.7421875,
+        "depth_count": 128162
+      }
+    },
+    "shared_geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+    "after": {
+      "scenes": 64,
+      "road_MAE_m": 0.8003876737468487,
+      "road_boundary_MAE_m": 0.9074827155304427,
+      "current_obstacle_IoU": 0.5575202578546254,
+      "current_obstacle_precision": 0.6050541044166203,
+      "current_obstacle_recall": 0.876491759802993,
+      "projected_depth_bin_expectation_MAE_m": 1.8256231043584,
+      "totals": {
+        "road_abs": 282160.66662597656,
+        "road_count": 352530,
+        "boundary_abs": 61656.190658569336,
+        "boundary_count": 67942,
+        "TP": 18508,
+        "FP": 12081,
+        "FN": 2608,
+        "depth_abs": 233975.50830078125,
+        "depth_count": 128162
+      }
+    }
+  },
+  "geometry_limitations": "Boundary-band SDF MAE increased from 0.649 to 0.907m while global SDF improved from 3.587 to 0.800m, depth from 37.59 to 1.826m and current obstacle IoU to0.558. This fixed first64 train check is not a planning result or population generalization claim. Joint training retains common geometry supervision.",
+  "qualification": {
+    "G1_FULL_UNIFORM": {
+      "qualification": {
+        "DINO_identity": "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+        "FM_repeat": 8,
+        "allow_sharing": false,
+        "caveat": "Engineering train-only checks; no formal planning results or initialization from these checkpoints",
+        "epochs": 24,
+        "evaluation": "locked UniAD v2.0 open-loop; FP32 restored masters, TF32 disabled, proposal seed42",
+        "geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+        "global_batch": 32,
+        "gradient_calibration": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_qualification/gradient_calibration.json",
+        "group": "G1_FULL_UNIFORM",
+        "host": "training-vla-zt3",
+        "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "microbatch": 4,
+        "passed": true,
+        "phase": "qualify",
+        "profile": {
+          "estimate_excludes": "initialization, checkpoint writes, validation and future sharing-load changes",
+          "peak_rank0_GPU_allocated_GiB": 31.640284061431885,
+          "steady_step_seconds_max": 4.55858039855957,
+          "steady_step_seconds_median": 4.4701454639434814,
+          "training_GPU_hours_estimate_24epochs": 173.4911629486084,
+          "updates": 16
+        },
+        "real_eight_rank_recovery": {
+          "Adam_moments_steps_and_LR": "bitwise all ranks",
+          "FP32_masters": "bitwise all ranks, actual parameters",
+          "FP32_model_and_buffers": "bitwise",
+          "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+          "all_task_RNG": "exact all ranks",
+          "completed": 20,
+          "epoch": 9,
+          "exposure": 640,
+          "identity": "95f800d12391d92219888954cd3574c468a9b9bb6b52203b74c7e72e5b2cc649",
+          "offset": 2,
+          "passed": true,
+          "timing": "before next forward/backward/update"
+        },
+        "small_learning": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_qualification/small_fit",
+        "source_sha": "b89f3f386929035cf7402e4b62b73d5c94bfd8e7",
+        "training_initialization": "generic Qwen, random driving/action, own nuScenes shared five-epoch perception",
+        "unrelated_processes_stopped": false,
+        "updates": [
+          4356,
+          8712,
+          13068,
+          17424
+        ]
+      },
+      "initialization_identity": "2b8f66caa0e82aad8a3ab28b7ec3c64cc114a508ecb51fb5db1c124b0e05c109",
+      "common_geometry_checkpoint": {
+        "actual_exposure": 116150,
+        "epochs": 5.0,
+        "identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+        "label_cache_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "sha256": "ebdbfe5e4fc723dcb41c0dc15091b82df8fff7981111890768f353f5ac5c4720",
+        "training_source_sha": "4aa8703d825715e329039d7c5d45db0d507d4e8e"
+      },
+      "model_source_tree_sha256": "11915ed4b770a1a9060784f31661d15125a256e7f41cf8474fc3fa9ca8d72173",
+      "gradient_medians": {
+        "random_geometry": {
+          "baseline_FM_plus_current_DINO": 15.124867532466443,
+          "current_geometry": 2.070582915951462,
+          "future_semantics": 11.80879265723674,
+          "query_relations": 10.378909213019279,
+          "refine_at_full_weight": 7.20466704297382
+        },
+        "prepared_geometry": {
+          "baseline_FM_plus_current_DINO": 15.124801492601666,
+          "current_geometry": 2.556864244024556,
+          "future_semantics": 11.704486431838625,
+          "query_relations": 6.018971238802916,
+          "refine_at_full_weight": 6.291414980792613
+        }
+      },
+      "all_100_updates_changed_FP32_masters": true,
+      "last20_train_seconds_median": 4.562143564224243,
+      "small_learning_loss_first10_last10": {
+        "current_DINO": [
+          0.48517880141735076,
+          0.17552110254764558
+        ],
+        "current_geometry": [
+          0.23047697246074678,
+          0.14282972663640975
+        ],
+        "future_semantics": [
+          0.08792838528752327,
+          0.01146330488845706
+        ],
+        "local_relations": [
+          0.08656347393989564,
+          0.00932787051424384
+        ],
+        "original_FM": [
+          1.3417896628379822,
+          0.2932498395442963
+        ],
+        "refine": [
+          0.005213137727696449,
+          0.007561329752206802
+        ]
+      },
+      "raw_refine_first10_last10": [
+        1.01721550822258,
+        0.0826904397457838
+      ],
+      "last_update_HA_B0_Bt_gradients": [
+        {
+          "B0": 0.000709163723513484,
+          "Bt": 0.00024180111358873546,
+          "H_A": 0.003207635134458542
+        }
+      ]
+    },
+    "G3_EVENT_LOCAL": {
+      "qualification": {
+        "DINO_identity": "b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e",
+        "FM_repeat": 8,
+        "allow_sharing": true,
+        "caveat": "Engineering train-only checks; no formal planning results or initialization from these checkpoints",
+        "epochs": 24,
+        "evaluation": "locked UniAD v2.0 open-loop; FP32 restored masters, TF32 disabled, proposal seed42",
+        "geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+        "global_batch": 32,
+        "gradient_calibration": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_qualification/gradient_calibration.json",
+        "group": "G3_EVENT_LOCAL",
+        "host": "training-vlawm-zt",
+        "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "microbatch": 4,
+        "passed": true,
+        "phase": "qualify",
+        "profile": {
+          "estimate_excludes": "initialization, checkpoint writes, validation and future sharing-load changes",
+          "peak_rank0_GPU_allocated_GiB": 31.640774250030518,
+          "steady_step_seconds_max": 9.258463859558105,
+          "steady_step_seconds_median": 6.964597940444946,
+          "training_GPU_hours_estimate_24epochs": 291.9213838450114,
+          "updates": 16
+        },
+        "real_eight_rank_recovery": {
+          "Adam_moments_steps_and_LR": "bitwise all ranks",
+          "FP32_masters": "bitwise all ranks, actual parameters",
+          "FP32_model_and_buffers": "bitwise",
+          "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+          "all_task_RNG": "exact all ranks",
+          "completed": 20,
+          "epoch": 9,
+          "exposure": 640,
+          "identity": "2411d65b36144be5f7fe123f88384e38bdb5f2ac4a9eae0164b18f9e5ab1fe14",
+          "offset": 2,
+          "passed": true,
+          "timing": "before next forward/backward/update"
+        },
+        "small_learning": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_qualification/small_fit",
+        "source_sha": "b89f3f386929035cf7402e4b62b73d5c94bfd8e7",
+        "training_initialization": "generic Qwen, random driving/action, own nuScenes shared five-epoch perception",
+        "unrelated_processes_stopped": false,
+        "updates": [
+          4356,
+          8712,
+          13068,
+          17424
+        ]
+      },
+      "initialization_identity": "2b8f66caa0e82aad8a3ab28b7ec3c64cc114a508ecb51fb5db1c124b0e05c109",
+      "common_geometry_checkpoint": {
+        "actual_exposure": 116150,
+        "epochs": 5.0,
+        "identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+        "label_cache_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+        "sha256": "ebdbfe5e4fc723dcb41c0dc15091b82df8fff7981111890768f353f5ac5c4720",
+        "training_source_sha": "4aa8703d825715e329039d7c5d45db0d507d4e8e"
+      },
+      "model_source_tree_sha256": "11915ed4b770a1a9060784f31661d15125a256e7f41cf8474fc3fa9ca8d72173",
+      "gradient_medians": {
+        "random_geometry": {
+          "baseline_FM_plus_current_DINO": 15.124542195835973,
+          "current_geometry": 2.7101022714819374,
+          "future_semantics": 4.2118728565789745,
+          "query_relations": 5.1189779578418815,
+          "refine_at_full_weight": 7.20466704297382
+        },
+        "prepared_geometry": {
+          "baseline_FM_plus_current_DINO": 15.125042073828272,
+          "current_geometry": 2.69650100983696,
+          "future_semantics": 2.618439725834869,
+          "query_relations": 2.708391656069913,
+          "refine_at_full_weight": 6.291414980792613
+        }
+      },
+      "all_100_updates_changed_FP32_masters": true,
+      "last20_train_seconds_median": 4.483170509338379,
+      "small_learning_loss_first10_last10": {
+        "current_DINO": [
+          0.47880666255950927,
+          0.16793432533740998
+        ],
+        "current_geometry": [
+          0.22853685915470123,
+          0.13951689898967742
+        ],
+        "future_semantics": [
+          0.07209084704518318,
+          0.02158647496253252
+        ],
+        "local_relations": [
+          0.030527868121862412,
+          0.00862223287113011
+        ],
+        "original_FM": [
+          1.3386226534843444,
+          0.2903642624616623
+        ],
+        "refine": [
+          0.005167932866606861,
+          0.008172414451837539
+        ]
+      },
+      "raw_refine_first10_last10": [
+        1.0097566962242126,
+        0.09178104735910893
+      ],
+      "last_update_HA_B0_Bt_gradients": [
+        {
+          "B0": 0.0007011580746620893,
+          "Bt": 0.0002358337806072086,
+          "H_A": 0.0030840307008475065
+        }
+      ]
+    }
+  },
+  "checks": {
+    "nuScenes_real_coordinate_metric_and_time_tests": "10 passed",
+    "matched_recipes_tail_epoch_and_config_binding": "3 passed",
+    "both_host_current_only_prefetch": "64 real samples per host, current/target bytes and CPU RNG unchanged"
+  },
+  "next": "camera-only FP32 deployment probe review, then new formal initialization and fixed24epoch queues; no short checkpoint reused"
+}

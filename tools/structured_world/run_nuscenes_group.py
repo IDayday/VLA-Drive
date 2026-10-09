@@ -15,6 +15,7 @@ import shlex
 import subprocess
 import sys
 import time
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -24,6 +25,22 @@ from tools.structured_world.download_nuscenes import atomic_json
 def observation_updates(population):
     per_epoch = math.ceil(population/32)
     return [epoch*per_epoch for epoch in (6, 12, 18, 24)]
+
+
+def scientific_config_digest(path):
+    config = yaml.safe_load(path.read_text())
+    config['structured_world'].pop('registration_status')
+    return hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
+
+
+def execution_source_digest():
+    paths = []
+    for directory in ('starVLA/model', 'starVLA/dataloader', 'third_party', 'tools/ddpolicy_vehicle', 'tools/foresight'):
+        paths.extend(sorted((ROOT/directory).rglob('*.py')))
+    paths.extend(ROOT/('tools/structured_world/'+name) for name in
+        ('train_vla.py', 'recovery_boundary.py', 'training_assets.py', 'stage_timing.py', 'prefetch.py', 'resume_origin.py'))
+    hashes = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
 
 
 def profile_summary(run):
@@ -94,8 +111,18 @@ def main():
                 or qualification['label_identity'] != copied['label_identity']
                 or qualification['DINO_identity'] != args.dino_identity
                 or qualification['geometry_identity'] != args.geometry_identity
-                or qualification['physical_gpu_UUIDs'] != uuids):
+                or qualification['physical_gpu_UUIDs'] != uuids
+                or qualification['scientific_config_sha256'] != scientific_config_digest(config)
+                or qualification['execution_source_sha256'] != execution_source_digest()):
             raise ValueError('Qualification does not match formal assets, method or GPUs')
+        raw_qualification = Path(qualification['raw_qualification_file'])
+        if hashlib.sha256(raw_qualification.read_bytes()).hexdigest() != qualification['raw_qualification_sha256']:
+            raise ValueError('Raw qualification evidence changed after review')
+        for filename, expected in qualification['deployment_probe_files_sha256'].items():
+            if hashlib.sha256(Path(filename).read_bytes()).hexdigest() != expected:
+                raise ValueError('Deployment probe evidence changed after review')
+        if not qualification['deployment_probe_passed'] or not qualification['current_only_prefetch_passed']:
+            raise ValueError('Current-only deployment and CPU equivalence must be verified')
         required_MiB = math.ceil((qualification['profile']['peak_rank0_GPU_allocated_GiB']+12)*1024)
     def available(snapshot):
         if sorted(r['uuid'] for r in snapshot) != uuids:
@@ -111,6 +138,7 @@ def main():
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         args.output.mkdir(parents=True, exist_ok=True)
         registration = {'source_sha': source, 'host': args.host, 'group': args.group, 'phase': args.phase,
+            'scientific_config_sha256': scientific_config_digest(config), 'execution_source_sha256': execution_source_digest(),
             'physical_gpu_UUIDs': uuids, 'initial_other_GPU_workloads': devices,
             'allow_sharing': args.allow_sharing, 'unrelated_processes_stopped': False,
             'label_identity': copied['label_identity'], 'DINO_identity': args.dino_identity,

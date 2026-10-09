@@ -14,6 +14,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from starVLA.dataloader.structured_world.dataset import StructuredNAVSIMDataset, collate_structured
+from starVLA.dataloader.structured_world.nuscenes_dataset import StructuredNuScenesDataset
 from tools.structured_world.prefetch import OrderedScenePrefetch
 
 
@@ -37,13 +38,20 @@ def RNG_digest():
 
 def main():
     parser = argparse.ArgumentParser()
-    for name in ('cache', 'current', 'dino', 'images', 'output'):
+    for name in ('cache', 'dino', 'images', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
+    parser.add_argument('--current', type=Path)
+    parser.add_argument('--dataset', choices=('navsim', 'nuscenes'), default='navsim')
     parser.add_argument('--DINO-identity', required=True)
     args = parser.parse_args()
     torch.set_num_threads(2)
-    data = StructuredNAVSIMDataset(args.cache, args.current, dino_root=args.dino,
-        dino_index='', expected_dino=args.DINO_identity, image_root=args.images)
+    if args.dataset == 'navsim':
+        if not args.current: parser.error('NAVSIM requires --current')
+        data = StructuredNAVSIMDataset(args.cache, args.current, dino_root=args.dino,
+            dino_index='', expected_dino=args.DINO_identity, image_root=args.images)
+    else:
+        data = StructuredNuScenesDataset(args.cache, dino_root=args.dino,
+            expected_dino=args.DINO_identity, image_root=args.images)
     indices = np.random.default_rng(20261009).choice(len(data), 64, replace=False).reshape(16, 4).tolist()
     before = RNG_digest()
     with ThreadPoolExecutor(max_workers=2) as pool:
@@ -55,7 +63,7 @@ def main():
                 if offset+1 < len(indices): prefetch.submit((0, offset+1), indices[offset+1])
                 assert fingerprint(actual) == reference[offset], 'Actual current inputs/targets/order changed'
     assert before == RNG_digest(), 'Data loading advanced a training RNG'
-    report = {'schema': 'real_NAVSIM_CPU_prefetch_equivalence_v1', 'scenes': 64, 'ordered_batches': 16,
+    report = {'schema': 'real_'+args.dataset.upper()+'_CPU_prefetch_equivalence_v1', 'scenes': 64, 'ordered_batches': 16,
         'current_images_state_navigation_calibration_and_all_targets': 'bytewise identical',
         'Python_NumPy_Torch_CPU_RNG': 'exact unchanged', 'CUDA_used': False,
         'future_data_position': 'unconsumed prefetch is not an exposure; derived from saved epoch/offset',
