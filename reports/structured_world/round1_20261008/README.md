@@ -3,9 +3,11 @@
 This branch contains executable code and real data/training/deployment checks.
 **Formal NAVSIM G1/G3 are running on two distinct physical eight-A800 hosts;
 G0/G2 are queued. nuScenes official assets and complete train/validation labels
-are ready; its own shared perception preparation is running on vla-zt3.
-Formal nuScenes G1/G3 have not started. No planning improvement is claimed.** The
-current formal training/evaluation source is frozen at `0c54f1c`; each run records
+are ready; its own five-epoch shared perception preparation is complete.
+Formal nuScenes G1/G3 are now updating on vla-zt3/vlawm-zt, respectively, from
+the prescribed generic/random driving initialization and own shared perception.
+No planning improvement is claimed.** NAVSIM training/evaluation source remains
+frozen at `0c54f1c`; nuScenes is frozen at `41da7c1`. Each run records
 the full SHA and its `f052e2f` recovery ancestry. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
 not a live counter or a completed result. Historical engineering scores remain
 explicitly separate from the formal population and endpoint.
@@ -59,6 +61,25 @@ explained by an isolated control. These are measured implementations, not a
 claim that the public DDP algorithm inherently requires a one-second VLM pass.
 The AMP cost row is a separate precision experiment; planning-quality parity
 with canonical FP32 has not been established. Canonical scoring remains FP32.
+
+The two extra nuScenes hosts each have 23,230 complete training labels, current
+C1 targets and 139,380 current JPEGs on local storage (72.69 GB of hashed assets).
+Each passed full eight-GPU profiles, a 100-update fixed training subset with
+exact native all-rank recovery at update20, random/prepared component gradient
+checks and FP32 camera-only deployment plus locked native planning/scene scoring
+on 32 engineering validation scenes. Those short checks are not formal results.
+`NUSCENES_FULL8_QUALIFICATION_20261009.json` preserves costs and learning checks;
+`NUSCENES_FORMAL_LAUNCH_20261009.json` records actual formal commands, source,
+assets, LR groups and timestamped progress. Both groups use full official train700
+eligibility, 24 epochs / 17,424 updates, batch32/repeat8, and fixed full4,969-val
+observations at updates4,356/8,712/13,068/17,424. The shared geometry cost was
+4.021 training GPU-hours for five epochs /116,150 exposures. The first64 train
+perception check improved global road MAE, depth and occupancy, while boundary
+road MAE worsened; that limitation is retained, not hidden as a planning gain.
+The shared-host profile initially measured6.96s/step; its existing allocations
+subsequently released themselves and the final20 small-fit steps measured4.48s.
+No unrelated process was killed. Formal training began at about4.5s/step on
+both hosts; future co-tenancy remains a source of runtime variation.
 
 ## Source and preservation
 
