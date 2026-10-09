@@ -25,7 +25,15 @@ def main():
     parser = argparse.ArgumentParser()
     for name in ('labels', 'output', 'teacher-model', 'imagenet'):
         parser.add_argument('--'+name, type=Path, required=True)
+    parser.add_argument('--host', help='Pin one currently authorized complete eight-GPU host')
+    parser.add_argument('--qwen-python', help='Isolated Python on the pinned host')
+    parser.add_argument('--runtime-labels', type=Path,
+                        help='Byte-preserving local copy on the selected host; source identity stays unchanged')
     args = parser.parse_args()
+    if bool(args.host) != bool(args.qwen_python):
+        parser.error('--host and --qwen-python must be supplied together')
+    if args.host and any(c.isspace() for c in args.host):
+        parser.error('A single SSH host alias is required')
     args.output.mkdir(parents=True, exist_ok=True)
     state = args.output/'STATE.json'
     def route(command, host):
@@ -34,6 +42,8 @@ def main():
                 'cd '+shlex.quote(str(ROOT))+' && env OMP_NUM_THREADS=2 '+shlex.join(command)]
     hosts = [('local', '/tmp/structured-world-round1/envs/qwen/bin/python'),
              ('training-vla-zt2', '/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python')]
+    if args.host:
+        hosts = [(args.host, args.qwen_python)]
     locks = args.output.parent/'physical_gpu_locks'; locks.mkdir(exist_ok=True)
     lock = None
     while lock is None:
@@ -66,19 +76,27 @@ def main():
             time.sleep(30)
     with lock:
         host, python, ids = selected
+        runtime_labels = args.runtime_labels or args.labels
+        probe = [python, '-c', 'import json,pathlib; p=pathlib.Path('+repr(str(runtime_labels))+'); '
+                 'print(json.dumps({"identity":json.loads((p/"identity.json").read_text())["identity"],'
+                 '"complete":json.loads((p/"COMPLETE.json").read_text())}))']
+        runtime = json.loads(subprocess.check_output(route(probe, host), text=True, timeout=30))
+        if runtime['identity'] != labels['identity'] or runtime['complete'] != done:
+            raise ValueError('Runtime label copy differs from the complete official source population')
         contract = {'scope': 'official nuScenes own current-only shared perception preparation',
             'training_source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
             'host': host, 'physical_gpu_UUIDs': ids, 'label_identity': labels['identity'],
+            'runtime_labels': str(runtime_labels), 'source_labels': str(args.labels),
             'full_training_samples': done['scenes'], 'epochs': 5,
             'initialization': 'public ImageNet R50, random remaining geometric modules; no driving head or Qwen',
             'current_DINO': 'same locked C1 teacher recipe for both nuScenes groups'}
         atomic_json(args.output/'REGISTRATION.json', contract)
         commands = [
             ('current_C1', [python, '-u', '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=8',
-                str(ROOT/'tools/structured_world/build_current_dino.py'), '--cache', str(args.labels),
+                '--', str(ROOT/'tools/structured_world/build_current_dino.py'), '--cache', str(runtime_labels),
                 '--model-root', str(args.teacher_model), '--output', str(args.output/'current_C1')]),
             ('shared_geometry', [python, '-u', '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=8',
-                str(ROOT/'tools/structured_world/train_geometry.py'), '--cache', str(args.labels),
+                '--', str(ROOT/'tools/structured_world/train_geometry.py'), '--cache', str(runtime_labels),
                 '--imagenet', str(args.imagenet), '--output', str(args.output/'shared_geometry'), '--epochs', '5'])]
         for stage, command in commands:
             output = args.output/stage
