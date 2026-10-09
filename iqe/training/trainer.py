@@ -101,7 +101,10 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                                    global_batch=global_batch, accumulation=accumulation, non_exact_finetune=non_exact_finetune)
         start_step, consumed = restored["step"], restored["consumed_ids"]
         restored_trainer = restored.get("trainer_state", {})
-    if reuse_complete:
+    completed_resume = (not non_exact_finetune and finished is not None and finished["status"] == "COMPLETE"
+                        and resume is not None and Path(resume).resolve() == Path(finished["checkpoint"]).resolve()
+                        and start_step == finished["optimizer_steps"])
+    if reuse_complete or completed_resume:
         require(file_hash(output / "best.pt") == finished["best_checkpoint_hash"], "completed best checkpoint changed")
         return []
     before = module_hash_parameters(module)

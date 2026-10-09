@@ -90,6 +90,14 @@ def test_completed_trainer_reuses_verified_weights_and_rejects_changed_config(tm
     assert train(restored,loss_fn,fetch,ConsumedSampler(plan()),cfg(),{'data':'unit'},tmp_path,denominator_function=denominator)==[]
     assert file_hash(tmp_path/'step_000004.pt')==before
     assert all(torch.equal(a,b) for a,b in zip(module.parameters(),restored.parameters()))
+    # Explicit CLI --resume on a completed checkpoint must preserve stage receipts,
+    # including result timings/gradient-update evidence, as automatic reuse does.
+    result_before=file_hash(tmp_path/'result.json')
+    explicit=network()
+    assert train(explicit,loss_fn,fetch,ConsumedSampler(plan()),cfg(),{'data':'unit'},tmp_path,
+                 denominator_function=denominator,resume=tmp_path/'step_000004.pt')==[]
+    assert file_hash(tmp_path/'result.json')==result_before
+    assert all(torch.equal(a,b) for a,b in zip(module.parameters(),explicit.parameters()))
     with pytest.raises(ValueError,match='config'):
         train(network(),loss_fn,fetch,ConsumedSampler(plan()),cfg()|{'lr':.03},{'data':'unit'},tmp_path,denominator_function=denominator)
 

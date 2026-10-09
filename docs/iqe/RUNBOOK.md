@@ -110,3 +110,16 @@ PYTHONPATH=. CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 $IQE_PY
 ```
 
 E8的无校准value-only对照读取每个对应loss配置下 `evaluate-baselines` 输出中的 `value_only_scorer` 项；完整校准输出单列，不把没有component监督的head校准结果冒充纯value-only选择器。
+
+真实双轮产生的checkpoint可直接核验恢复。以下均为已经完成的2步CPU smoke，恢复只核验/复用，不增加步数、不改冻结schedule；`run-round --resume`复用11个完成阶段。正式训练使用上面的main配置，不能续接这些诊断checkpoint。
+
+```bash
+CUDA_VISIBLE_DEVICES='' $IQE_PYTHON -m iqe.cli train-expert --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml --mode smoke --max-samples 32 --max-steps 2 --round 1 --resume /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round/rounds/round_001/expert/step_000002.pt --device cpu
+CUDA_VISIBLE_DEVICES='' $IQE_PYTHON -m iqe.cli train-scorer --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml --mode smoke --max-samples 32 --max-steps 2 --round 2 --resume /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round/rounds/round_002/scorer/step_000002.pt --device cpu
+CUDA_VISIBLE_DEVICES='' $IQE_PYTHON -m iqe.cli train-router --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml --mode smoke --max-samples 32 --max-steps 2 --round 1 --resume /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round/rounds/round_001/router/step_000002.pt --device cpu
+CUDA_VISIBLE_DEVICES='' $IQE_PYTHON -m iqe.cli run-round --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml --mode smoke --max-samples 32 --max-steps 2 --round 2 --resume --device cpu
+CUDA_VISIBLE_DEVICES='' $IQE_PYTHON -m iqe.cli load-bundle --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml --mode smoke --max-samples 32 --bundle /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round/rounds/round_002/bundle --device cpu
+PYTHONPATH=. CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 $IQE_PYTHON scripts/iqe/real_router_probe.py --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml
+```
+
+`benchmark --allow-latency-clones`仅用于明确标记的容量计时诊断：K超过已训练池时创建临时S0副本，结果记录`untrained_capacity_probe_clones`，不写registry、不计科学收益。默认benchmark仍拒绝把未注册K称为真实训练池。CPU实测命令及数据见LATENCY_REPORT；GPU实测待资源释放。
