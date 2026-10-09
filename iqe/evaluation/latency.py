@@ -9,7 +9,7 @@ from ..selector import SelectionRule
 
 
 def benchmark(model, observation, scorer, router, expert_counts=(1,2,3,5), warmup=5, repetitions=20,
-              device='cpu', *, observation_loader=None, rule=None):
+              device='cpu', *, observation_loader=None, rule=None, router_rule=None):
     require(warmup>=1 and repetitions>=2 and all(k>0 for k in expert_counts),'latency budgets')
     model.set_trainable_stage('inference');model.eval()
     def sync():
@@ -59,10 +59,15 @@ def benchmark(model, observation, scorer, router, expert_counts=(1,2,3,5), warmu
         if count==1 or scorer is not None:
             reports[str(count)]['image_to_selected_trajectory']=measure(online)
         if router is not None:
-            reports[str(count)]['router_network_only']=measure(lambda:router(f))
-            if tuple(router.expert_ids)==ids:
+            if tuple(router.expert_ids)==ids and ids==tuple(model.experts):
+                reports[str(count)]['router_network_only']=measure(lambda:router(f))
                 from ..selector import RouterRule
-                reports[str(count)]['true_prerouted_cached_trajectory']=measure(lambda:model.forward_prerouted(None,RouterRule(),features=f)[0].cpu())
+                actual_rule=router_rule or RouterRule()
+                reports[str(count)]['true_prerouted_cached_trajectory']=measure(lambda:model.forward_prerouted(None,actual_rule,features=f)[0].cpu())
+                reports[str(count)]['true_prerouted_image_to_trajectory']=measure(lambda:model.forward_prerouted(
+                    [observation_loader() if observation_loader else observation],actual_rule)[0].cpu())
+            else:
+                reports[str(count)]['router_status']='UNMEASURED: trained Router registry differs from this K'
         reports[str(count)]['peak_gpu_bytes']=torch.cuda.max_memory_allocated() if device.startswith('cuda') else None
     return {'hardware':torch.cuda.get_device_name() if device.startswith('cuda') else platform.processor() or platform.machine(),
         'device':device,'batch':1,'parameter_dtype':str(next(model.parameters()).dtype),'VLM_autocast':'inherited_bfloat16',

@@ -14,6 +14,17 @@ COMMANDS = ("preflight", "build-splits", "prepare-metric-contexts", "verify-refe
             "evaluate", "evaluate-baselines", "export-bundle", "run-round", "overfit-32", "benchmark", "load-bundle", "rollback", "final-test")
 
 
+def resolve_resume(folder, requested):
+    if requested != "auto":
+        return requested
+    folder = Path(folder)
+    if (folder / "result.json").exists():
+        return read_json(folder / "result.json")["checkpoint"]
+    completed = sorted(folder.glob("step_*.pt.COMPLETE.json"))
+    require(completed, "resume requested but no completed optimizer-step checkpoint exists")
+    return str(completed[-1]).removesuffix(".COMPLETE.json")
+
+
 class JSONParser(argparse.ArgumentParser):
     def error(self, message):
         print(__import__("json").dumps({"status":"FAILED", "exit_code":2, "error":message}), file=sys.stderr)
@@ -50,6 +61,7 @@ def parser():
         c.add_argument("--selector-only", action="store_true")
         c.add_argument("--shard-index", type=int, default=0)
         c.add_argument("--num-shards", type=int, default=1)
+        c.add_argument("--allow-latency-clones", action="store_true")
     return p
 
 
@@ -60,13 +72,14 @@ def execute(a):
         require(a.command in {"train-base","train-expert","train-scorer","train-router","train-policy-copy"},
                 "DDP wraps individual training jobs; run-round and artifact stages require one coordinator")
     require(not a.selector_only or a.command == "run-round", "--selector-only belongs to run-round")
+    require(not a.allow_latency_clones or a.command == "benchmark", "latency clones are diagnostic benchmark only")
     require(0 <= a.shard_index < a.num_shards, "invalid shard index/count")
     require(a.num_shards == 1 or a.command == "cache-features", "scene sharding is supported by cache-features")
     require(not a.non_exact_finetune or (a.resume and a.command in {"train-expert", "train-scorer", "train-router"}), "non-exact finetune requires a supported trainer and explicit resume")
     require(not a.activate or a.command == "export-bundle", "--activate belongs to export-bundle")
     require(a.round >= 0, "negative round")
     require(a.mode != "full" or a.max_samples is not None, "full mode needs explicit --max-samples")
-    maximum = a.max_samples or config["execution"]["max_samples"]
+    maximum = a.max_samples if a.max_samples is not None else config["execution"]["max_samples"]
     require(maximum > 0 and (a.max_steps is None or a.max_steps > 0), "positive budgets")
     if a.mode == "dry-run":
         return {"status": "DRY_RUN", "command": a.command, "mode": a.mode, "max_samples": maximum, "max_steps": a.max_steps,
@@ -92,9 +105,7 @@ def execute(a):
         return prepare_contexts(pipeline,a.roles)
     if a.command == "train-base":
         from .training.base_trainer import train_base
-        resume = a.resume
-        if resume == "auto":
-            resume = read_json(pipeline.root / "query_base/result.json")["checkpoint"]
+        resume = resolve_resume(pipeline.root / "query_base", a.resume)
         path = train_base(pipeline.config, pipeline.contract, pipeline.scenes(["incremental_fit"]), pipeline.root / "query_base", mode=a.mode,
                           steps=a.max_steps, stop_after=a.stop_after, resume=resume, device=pipeline.device)
         return read_json(pipeline.root / "query_base/result.json") | {"resources": resource}
@@ -120,9 +131,7 @@ def execute(a):
             result = evaluate_copy(pipeline, a.round, a.role)
             atomic_json(pipeline.round_root(a.round) / "policy_copy" / ("evaluation_" + a.role + ".json"), result, immutable=True)
             return result
-        resume = a.resume
-        if resume == "auto":
-            resume = read_json(pipeline.round_root(a.round) / "policy_copy/result.json")["checkpoint"]
+        resume = resolve_resume(pipeline.round_root(a.round) / "policy_copy", a.resume)
         return train_copy(pipeline, a.round, steps=a.max_steps, resume=resume, stop_after=a.stop_after)
     if a.command == "cache-features":
         return pipeline.cache_features(a.roles, shard_index=a.shard_index, num_shards=a.num_shards)
@@ -137,9 +146,7 @@ def execute(a):
         if a.command == "overfit-32":
             from .overfit import overfit_32
             return overfit_32(pipeline, a.round, a.max_steps or 32, resume=a.resume)
-        resume = a.resume
-        if resume == "auto":
-            resume = read_json(pipeline.round_root(a.round) / "expert/result.json")["checkpoint"]
+        resume = resolve_resume(pipeline.round_root(a.round) / "expert", a.resume)
         return pipeline.train_expert(a.round, steps=a.max_steps, resume=resume, stop_after=a.stop_after, non_exact_finetune=a.non_exact_finetune)
     if a.command == "audit-frozen":
         return pipeline.frozen_audit(a.round)
@@ -148,9 +155,7 @@ def execute(a):
     router = config["router_ablation"]["enabled"]
     if a.command in {"train-scorer", "train-router"}:
         router = a.command == "train-router"
-        resume = a.resume
-        if resume == "auto":
-            resume = read_json(pipeline.round_root(a.round) / ("router" if router else "scorer") / "result.json")["checkpoint"]
+        resume = resolve_resume(pipeline.round_root(a.round) / ("router" if router else "scorer"), a.resume)
         return pipeline.train_selector(a.round, router=router, steps=a.max_steps, resume=resume, stop_after=a.stop_after, non_exact_finetune=a.non_exact_finetune)
     if a.command == "calibrate":
         return pipeline.calibrate(a.round, a.role, router=router)
@@ -171,13 +176,25 @@ def execute(a):
         from .data.sources import load_observation
         model = pipeline.model(a.round)
         scorer = model.scorer
-        rule = None
+        rule = router_rule = None
         if a.round > 0:
-            scorer, rule, _ = pipeline.calibrated_selector(a.round)
+            if (pipeline.round_root(a.round) / "calibration.json").exists():
+                scorer, rule, _ = pipeline.calibrated_selector(a.round)
+            if (pipeline.round_root(a.round) / "router_calibration.json").exists():
+                model.router, router_rule, _ = pipeline.calibrated_selector(a.round, router=True)
+        diagnostic_clones = []
+        if a.allow_latency_clones:
+            while len(model.experts) < max(a.expert_counts):
+                expert_id = "expert_" + str(max(int(e.split("_")[-1]) for e in model.experts) + 1)
+                model.append_expert(expert_id)
+                diagnostic_clones.append(expert_id)
+            model.set_trainable_stage("inference")
         scene = pipeline.scenes(["stage_val"])[0]
         result = benchmark(model, load_observation(scene, pipeline.contract), scorer, model.router,
                            a.expert_counts, a.warmup, a.repetitions, pipeline.device,
-                           observation_loader=lambda:load_observation(scene,pipeline.contract), rule=rule)
+                           observation_loader=lambda:load_observation(scene,pipeline.contract), rule=rule, router_rule=router_rule)
+        result["untrained_capacity_probe_clones"] = diagnostic_clones
+        result["registry_or_candidate_bank_modified"] = False
         atomic_json(pipeline.root / "latency.json", result)
         return result
     raise ValueError("unhandled command")

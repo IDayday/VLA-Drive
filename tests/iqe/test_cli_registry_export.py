@@ -122,3 +122,12 @@ def test_parser_errors_emit_json(capsys):
         parser().parse_args(['train-expert','--round','nonsense'])
     assert exc.value.code==2
     assert json.loads(capsys.readouterr().err)['exit_code']==2
+
+
+def test_zero_budget_rejected_and_auto_resume_survives_missing_result(tmp_path,capsys):
+    from iqe.cli import resolve_resume
+    assert main(['preflight','--config','configs/iqe/main.yaml','--mode','dry-run','--max-samples','0'])==2
+    assert json.loads(capsys.readouterr().out)['status']=='FAILED'
+    with pytest.raises(ValueError,match='completed'):resolve_resume(tmp_path,'auto')
+    atomic_json(tmp_path/'step_000004.pt.COMPLETE.json',{'checksum':'validated_by_loader'})
+    assert resolve_resume(tmp_path,'auto')==str(tmp_path/'step_000004.pt')

@@ -13,6 +13,7 @@ from pathlib import Path
 import random
 import signal
 import time
+from datetime import timedelta
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -51,7 +52,9 @@ def init_distributed(device):
     if int(os.environ.get("WORLD_SIZE", "1")) > 1 and not dist.is_initialized():
         if device.startswith("cuda"):
             torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
-        dist.init_process_group("nccl" if device.startswith("cuda") else "gloo")
+        # Rank0 performs bounded offline official stage_val evaluation between
+        # updates. Its duration is unrelated to CUDA collective throughput.
+        dist.init_process_group("nccl" if device.startswith("cuda") else "gloo", timeout=timedelta(hours=6))
     return dist.get_rank() if dist.is_initialized() else 0, dist.get_world_size() if dist.is_initialized() else 1
 
 

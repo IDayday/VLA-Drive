@@ -102,3 +102,11 @@ CUDA_VISIBLE_DEVICES=0,1 bash scripts/iqe/gpu_qualification.sh /mnt/project/iqe-
 ```
 
 该测试使用合成 tensor 验证 DDP 数学和 exact resume，随后独立使用真实 Qwen、图像和 GT 检验 GPU 接口；前者不替代后者。GPU 资源检查在 CUDA 上下文创建前由每台机器的 local rank0 执行，其他 ranks 通过 CPU rendezvous 同步结果，避免把本作业的上下文误认成已有任务。
+
+真实私有专家恢复对照也已通过：`/mnt/project/iqe-runtime-audit-20261009/real_resume_probe_v2/interrupted/step_000001.pt` 是实际中断在第1步的 checkpoint。实验用同一个真实2步采样计划，与未中断运行比较下一批IDs、loss、实际gradient tensors、最终参数和RNG，全部完全一致。该诊断不改registry、不发布专家。
+
+```bash
+PYTHONPATH=. CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 $IQE_PYTHON scripts/iqe/real_resume_probe.py --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml --round 1 --output outputs/iqe/real_resume_reproduction
+```
+
+E8的无校准value-only对照读取每个对应loss配置下 `evaluate-baselines` 输出中的 `value_only_scorer` 项；完整校准输出单列，不把没有component监督的head校准结果冒充纯value-only选择器。

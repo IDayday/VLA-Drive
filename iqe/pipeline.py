@@ -570,8 +570,11 @@ class Pipeline:
         adapter = self._model.adapter
         require(all(s.scene_id in old["scenes"] for s in rows), "fixed stage_val old pool labels missing")
         def validate(expert, step):
+            from concurrent.futures import ThreadPoolExecutor
             gains, successes, losses = [], 0, []
             expert_hash = module_hash(expert)
+            jobs = []
+            thresholds = MiningThresholds(**{k: self.config["mining"][k] for k in ("high_quality","severe_low","target_gain_margin","zero_epsilon")})
             for scene in rows:
                 f = self.cached(scene).to(self.device)
                 out = expert(f)
@@ -584,13 +587,18 @@ class Pipeline:
                 th = save_trajectory(ref, out.physical[0].cpu().numpy())
                 c = CandidateRecord(1, scene.scene_id, f"expert_{number}", key, f.contract_hash, th, str(ref), self.trajectory_contract.raw_representation,
                     "ego_relative_rear_axle", self.trajectory_contract.horizon, self.trajectory_contract.dt, True, self.contract["iqe_code_hash"], self.config["config_hash"], "stage_val")
-                score = self.backend().score(c, scene)
-                require(score.score_valid, "official checkpoint validation failed")
-                gains.append(max(best, score.total_score_01) - best)
-                thresholds = MiningThresholds(**{k: self.config["mining"][k] for k in ("high_quality","severe_low","target_gain_margin","zero_epsilon")})
-                successes += safe_quality(score, thresholds) and not any(safe_quality(s, thresholds) for s in old_scores)
+                jobs.append((c,scene,best,any(safe_quality(s,thresholds) for s in old_scores)))
                 terms = adapter.compute_expert_il_loss(out, load_target(scene, self.trajectory_contract)[None].to(self.device))
                 losses.append(float(terms["il"].numerator / terms["il"].denominator.clamp_min(1)))
+            backend = self.backend()
+            def score_job(job):
+                candidate, scene, best, solved = job
+                return backend.score(candidate, scene), best, solved
+            with ThreadPoolExecutor(max_workers=self.config["execution"]["cpu_score_workers"]) as workers:
+                for score,best,solved in workers.map(score_job,jobs):
+                    require(score.score_valid, "official checkpoint validation failed")
+                    gains.append(max(best,score.total_score_01)-best)
+                    successes += safe_quality(score,thresholds) and not solved
             return {"role": "stage_val", "fixed_scene_ids": [s.scene_id for s in rows], "oracle_gain_01": float(np.mean(gains)),
                     "new_successes": int(successes), "IL_loss": float(np.mean(losses)),
                     "selection_key": [float(np.mean(gains)), int(successes), -float(np.mean(losses))]}
