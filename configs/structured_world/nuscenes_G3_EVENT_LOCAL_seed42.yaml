@@ -63,8 +63,8 @@ datasets:
     load_reward_data: false
 trainer:
   epochs: 24
-  max_train_steps: 100000
-  num_warmup_steps: 5000
+  max_train_steps: 17424
+  num_warmup_steps: 726
   save_interval: 10000
   eval_interval: 200000
   learning_rate:
@@ -149,17 +149,18 @@ structured_world:
   queries: 1024
   refine_warmup_updates: 1000
   class_statistics:
-    status: uncalibrated_debug_only
-    current_positive_weight: 1.0
-    future_positive_weight: 1.0
-    arrival_positive_weight: 1.0
-    release_positive_weight: 1.0
+    status: whole_training_population_derived_sqrt_negative_positive
+    label_identity: 07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d
+    arrival_positive_weight: 7.9690810628974
+    current_positive_weight: 3.553073806447493
+    future_positive_weight: 3.46425622930606
+    release_positive_weight: 2.285906796698916
   loss_weights:
     geometry: 0.11612486667757727
     future: 0.10546160273575751
     query: 0.3871265716143443
     refine: 1.0
-  registration_status: common_weights_selected_nuscenes_full_assets_pending
+  registration_status: common_weights_selected_nuscenes_profile_and_small_learning_pending
   formal_training_seed: 42
   evaluation_sampling_seeds:
   - 42
@@ -176,3 +177,7 @@ structured_world:
   shared_loss_calibration:
     rule_sha256: bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4
     selected_recipe_sha256: 1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4
+  formal_recipe_assets:
+    label_cache_identity: 07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d
+    current_DINO_identity: b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e
+    shared_geometry_identity: 8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79
