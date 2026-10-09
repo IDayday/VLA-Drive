@@ -1,6 +1,7 @@
 """Eight-GPU original-FM/structured-world trainer with complete ZeRO recovery."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 import hashlib
 import json
 import math
@@ -28,6 +29,9 @@ from tools.ddpolicy_vehicle.training_state import epoch_batches
 from tools.foresight.student_state import capture_rng, restore_rng, learning_rate, validate_rank_batches, optimizer_batch_counts
 from tools.structured_world.recovery_boundary import verify_boundary
 from tools.structured_world.training_assets import initialization_assets, file_digest, verify_checkpoint_files
+from starVLA.model.modules.structured_world.execution import configure_execution
+from tools.structured_world.prefetch import OrderedScenePrefetch
+from tools.structured_world.resume_origin import read_origin, verify_scientific_contract
 
 
 def atomic_json(path, value):
@@ -45,6 +49,8 @@ def source_hashes():
     paths.append(ROOT/'tools/structured_world/recovery_boundary.py')
     paths.append(ROOT/'tools/structured_world/training_assets.py')
     paths.append(ROOT/'tools/structured_world/stage_timing.py')
+    paths.append(ROOT/'tools/structured_world/prefetch.py')
+    paths.append(ROOT/'tools/structured_world/resume_origin.py')
     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
 
@@ -69,6 +75,9 @@ def main():
     parser.add_argument('--image-root', type=Path)
     parser.add_argument('--profile-stages', action='store_true',
                         help='Only profile scope: measure the real model and optimizer stages')
+    parser.add_argument('--execution-mode', choices=('reference', 'loss_preserving_v1'), default='reference')
+    parser.add_argument('--resume-origin-run', type=Path,
+                        help='Paused parent of an execution-only upgrade; remains in every recovery contract')
     args = parser.parse_args()
     if args.profile_stages and args.scope != 'profile':
         raise ValueError('Extra stage instrumentation is forbidden in formal/small-fit runs')
@@ -160,8 +169,18 @@ def main():
             'native_CUDA_atomic_rounding': 'measured with common-prefix recovery'},
         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
         'extra_stage_instrumentation': args.profile_stages}
+    contract['execution_mode'] = args.execution_mode
+    resume_origin = None
+    if args.resume_origin_run is not None:
+        if args.scope != 'formal':
+            raise ValueError('Execution ancestry is for preserved formal runs, not engineering initialization')
+        resume_origin, parent_contract, parent_complete = read_origin(args.resume_origin_run)
+        verify_scientific_contract(parent_contract, contract)
+        contract['execution_upgrade_origin'] = resume_origin
     identity = hashlib.sha256(json.dumps(contract, sort_keys=True).encode()).hexdigest()
     args.output.mkdir(parents=True, exist_ok=True)
+    if (args.output/'checkpoints/latest').exists() and not args.resume:
+        raise ValueError('Existing recovery checkpoint requires --resume; no implicit reinitialization')
     if rank == 0:
         if (args.output/'identity.json').exists() and json.loads((args.output/'identity.json').read_text())['identity'] != identity:
             raise ValueError('Run directory belongs to another scientific/source contract')
@@ -171,8 +190,14 @@ def main():
     if args.geometry:
         model.load_shared_geometry(args.geometry, args.geometry_identity, allow_debug=args.scope != 'formal')
     model = nn.SyncBatchNorm.convert_sync_batchnorm(model).cuda().train()
+    execution_contract = configure_execution(model, args.execution_mode)
+    if rank == 0:
+        atomic_json(args.output/'execution_policy.json', execution_contract)
     rates = dict(config.trainer.learning_rate)
     groups, group_records = bounded_parameter_groups(model.named_parameters(), learning_rates=rates)
+    if resume_origin is not None:
+        if json.loads((args.resume_origin_run/'optimizer_groups.json').read_text()) != group_records:
+            raise ValueError('Execution migration changed actual optimizer groups or base learning rates')
     ds_config = {'train_micro_batch_size_per_gpu': args.micro_batch, 'gradient_accumulation_steps': 1,
         'train_batch_size': args.micro_batch*world, 'bf16': {'enabled': False}, 'fp16': {'enabled': False},
         'gradient_clipping': float(config.trainer.gradient_clipping), 'steps_per_print': 1000000,
@@ -189,20 +214,23 @@ def main():
                   [('noise', 100), ('time', 200), ('proposal', 300), ('queries', 400)]}
     generators['counts'] = torch.Generator().manual_seed(420500+rank)
     completed, epoch, offset, exposure, elapsed = 0, 0, 0, 0, 0.
-    if args.resume:
-        tag = (args.output/'checkpoints/latest').read_text().strip()
+    if args.resume or resume_origin is not None:
+        recovery_run = args.output if args.resume else args.resume_origin_run
+        tag = (recovery_run/'checkpoints/latest').read_text().strip()
         if Path(tag).name != tag:
             raise ValueError('Unsafe checkpoint pointer')
-        complete = json.loads((args.output/'checkpoints'/tag/'COMPLETE.json').read_text())
-        if complete['identity'] != identity:
+        recovery_folder = recovery_run/'checkpoints'/tag
+        complete = json.loads((recovery_folder/'COMPLETE.json').read_text())
+        expected_identity = identity if args.resume else resume_origin['identity']
+        if complete['identity'] != expected_identity:
             raise ValueError('Incomplete/foreign recovery checkpoint')
-        verify_checkpoint_files(args.output/'checkpoints'/tag, complete, rank=rank, world=world)
+        verify_checkpoint_files(recovery_folder, complete, rank=rank, world=world)
         dist.barrier()
-        _, state = engine.load_checkpoint(str(args.output/'checkpoints'), tag=tag,
+        _, state = engine.load_checkpoint(str(recovery_run/'checkpoints'), tag=tag,
             load_module_strict=True, load_optimizer_states=True, load_lr_scheduler_states=True)
         completed, epoch, offset, exposure, elapsed = [state[k] for k in ('completed', 'epoch', 'offset', 'exposure', 'elapsed')]
-        restore_rng(torch.load(args.output/'checkpoints'/tag/f'rng_rank{rank}.pt', map_location='cpu', weights_only=False), generators)
-        boundary = verify_boundary(engine, args.output/'checkpoints'/tag, generators)
+        restore_rng(torch.load(recovery_folder/f'rng_rank{rank}.pt', map_location='cpu', weights_only=False), generators)
+        boundary = verify_boundary(engine, recovery_folder, generators)
         if rank == 0:
             atomic_json(args.output/'RESUME_BOUNDARY_VERIFIED.json', {'identity': identity,
                 'completed': completed, 'epoch': epoch, 'offset': offset, 'exposure': exposure, **boundary})
@@ -251,15 +279,38 @@ def main():
         dist.barrier()
     if not completed:
         save('INITIAL')
-    with ThreadPoolExecutor(max_workers=2) as pool:
+    elif resume_origin is not None and not args.resume:
+        # Own an atomic recovery point before executing the first upgraded step.
+        save('RUNNING')
+    optimized_execution = args.execution_mode == 'loss_preserving_v1'
+    batch_cache = {}
+    def batches_for(current_epoch):
+        if not optimized_execution:
+            return epoch_batches(len(data), 32, 42, current_epoch)
+        if current_epoch not in batch_cache:
+            batch_cache[current_epoch] = epoch_batches(len(data), 32, 42, current_epoch)
+        for previous in list(batch_cache):
+            if previous < current_epoch-1:
+                del batch_cache[previous]
+        return batch_cache[current_epoch]
+    with ThreadPoolExecutor(max_workers=2) as pool, \
+            (OrderedScenePrefetch(data, collate_structured, pool) if optimized_execution else nullcontext()) as prefetch:
         while completed < horizon:
-            batches = epoch_batches(len(data), 32, 42, epoch)
+            batches = batches_for(epoch)
             if offset >= len(batches):
                 epoch += 1; offset = 0; continue
             start = time.monotonic()
             indices = batches[offset][rank::world]
-            samples = list(pool.map(data.__getitem__, indices))
-            observations, targets = collate_structured(samples)
+            if prefetch is None:
+                samples = list(pool.map(data.__getitem__, indices))
+                observations, targets = collate_structured(samples)
+            else:
+                observations, targets = prefetch.consume((epoch, offset), indices)
+                if completed+1 < horizon:
+                    next_epoch, next_offset = epoch, offset+1
+                    if next_offset == len(batches):
+                        next_epoch, next_offset = epoch+1, 0
+                    prefetch.submit((next_epoch, next_offset), batches_for(next_epoch)[next_offset][rank::world])
             data_seconds = time.monotonic()-start
             counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
             actual_lrs = []
@@ -278,16 +329,32 @@ def main():
                 if not torch.isfinite(output['loss']):
                     raise FloatingPointError('Nonfinite full objective')
                 engine.backward(output['loss'], scale_wrt_gas=False)
+                if optimized_execution:
+                    # Queue the unchanged optimizer before transferring detached
+                    # diagnostic scalars to the host. Preserve the before/after
+                    # FP32 master sample boundary and the original loss graph.
+                    if boundary: before = capture_master_samples(engine.optimizer)
+                    engine.step()
+                    if boundary: evidence = master_update_evidence(engine.optimizer, before, torch.device('cuda', local))
                 for name, value in output['losses'].items(): logs[name] = logs.get(name, 0.)+float(value.detach())
                 for name, value in output['metrics']['raw'].items(): raw[name] = raw.get(name, 0.)+float(value.detach())
                 for name, value in output['metrics']['effective_counts'].items():
                     effective[name] = effective.get(name, 0.)+float(value.sum())
                 query_records.extend(output['metrics']['query_strata'])
-                activation_gradients.append(output['metrics']['activation_gradient_norms'])
+                if optimized_execution:
+                    # A single scalar transfer replaces three blocking transfers
+                    # inside the autograd hooks. These are detached observations.
+                    norms = output['metrics']['activation_gradient_norms']
+                    names = sorted(norms)
+                    values = torch.stack([norms[name] for name in names]).cpu().tolist() if names else []
+                    activation_gradients.append(dict(zip(names, values)))
+                else:
+                    activation_gradients.append(output['metrics']['activation_gradient_norms'])
                 proposal_out_of_range += int(output['metrics']['proposal_out_of_range'].sum())
-                if boundary: before = capture_master_samples(engine.optimizer)
-                engine.step()
-                if boundary: evidence = master_update_evidence(engine.optimizer, before, torch.device('cuda', local))
+                if not optimized_execution:
+                    if boundary: before = capture_master_samples(engine.optimizer)
+                    engine.step()
+                    if boundary: evidence = master_update_evidence(engine.optimizer, before, torch.device('cuda', local))
                 del output
             torch.cuda.synchronize()
             cost = torch.tensor(time.monotonic()-start, device='cuda'); dist.all_reduce(cost, op=dist.ReduceOp.MAX)

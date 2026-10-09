@@ -31,6 +31,9 @@ def main():
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--geometry-identity', required=True)
     parser.add_argument('--dino-identity', required=True)
+    parser.add_argument('--execution-mode', choices=('reference', 'loss_preserving_v1'), default='reference')
+    parser.add_argument('--resume-origin-run', type=Path,
+                        help='Preserved checkpoint ancestry for the first group only')
     args = parser.parse_args()
     if tuple(args.groups) not in (('G1_FULL_UNIFORM', 'G0_NO_FUTURE_LABEL'), ('G3_EVENT_LOCAL', 'G2_EVENT_UNIFORM')):
         raise ValueError('Only preregistered G1/G0 or G3/G2 queues are allowed')
@@ -62,6 +65,8 @@ def main():
             'groups': args.groups, 'horizon': 100000, 'global_batch': 32, 'FM_repeat': 8,
             'microbatch': 4, 'development_updates': [25000, 50000, 75000, 100000],
             'geometry_identity': args.geometry_identity, 'DINO_identity': args.dino_identity,
+            'execution_mode': args.execution_mode,
+            'first_group_resume_origin_run': str(args.resume_origin_run) if args.resume_origin_run else None,
             'pause_restore': 'exact boundary verification; ordinary native CUDA continuation variation disclosed',
             'final_Navtest': 'required after fixed endpoint; separate from this development-only queue'}
         registration = args.output/'REGISTRATION.json'
@@ -94,12 +99,18 @@ def main():
                     if latest.exists():
                         tag = latest.read_text().strip()
                         completed = json.loads((run_root/'checkpoints'/tag/'COMPLETE.json').read_text())['completed']
+                    elif group == args.groups[0] and args.resume_origin_run:
+                        from tools.structured_world.resume_origin import read_origin
+                        completed = read_origin(args.resume_origin_run)[0]['completed']
                     if completed < target:
                         command = [args.qwen_python, '-u', '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=8',
                             str(ROOT/'tools/structured_world/train_vla.py'), '--config', str(config),
                             '--cache', str(args.cache), '--output', str(run_root), '--scope', 'formal', '--micro-batch', '4',
                             '--geometry', str(args.geometry), '--geometry-identity', args.geometry_identity,
                             '--dino-root', str(args.dino_root), '--dino-identity', args.dino_identity, '--save-every', '5000']
+                        command += ['--execution-mode', args.execution_mode]
+                        if group == args.groups[0] and args.resume_origin_run:
+                            command += ['--resume-origin-run', str(args.resume_origin_run)]
                         if target < 100000: command += ['--stop-after', str(target)]
                         if latest.exists(): command.append('--resume')
                         run(group+'_train_to_'+str(target), command, True)

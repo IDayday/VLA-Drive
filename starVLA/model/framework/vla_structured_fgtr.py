@@ -155,7 +155,8 @@ class VLAStructuredFGTR(DDPForesight):
         for name, value in (('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])):
             if value.requires_grad:
                 def record_gradient(gradient, key=name):
-                    gradient_norms[key] = float(torch.linalg.vector_norm(gradient.detach().float()))
+                    norm = torch.linalg.vector_norm(gradient.detach().float()).detach()
+                    gradient_norms[key] = norm if getattr(self, 'defer_activation_metrics', False) else float(norm)
                 value.register_hook(record_gradient)
         semantic = self.scene_semantics(planned['current']['B0'], planned['Bt'])
         query = sample_queries(planned['q0'], targets, mode=self.query_mode, generator=query_generator,
