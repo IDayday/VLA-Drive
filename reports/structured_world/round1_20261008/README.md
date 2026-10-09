@@ -1,9 +1,13 @@
 # Structured-world FGTR round one — implementation milestone
 
 This branch contains executable code and real data/training/deployment checks.
-**The six formal training groups have not started. No planning improvement is
-claimed by this milestone.** Engineering scores from four updates on a debug
-subset are explicitly marked as such and cannot establish method quality.
+**Formal NAVSIM G1/G3 are running on two distinct physical eight-A800 hosts;
+G0/G2 are queued. nuScenes formal G1/G3 await official assets and their own
+common perception preparation. No planning improvement is claimed.** The
+formal training/evaluation source is frozen at `e0e2592`; each run records the
+full SHA. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
+not a live counter or a completed result. Historical engineering scores remain
+explicitly separate from the formal population and endpoint.
 
 ## Source and preservation
 
@@ -197,7 +201,7 @@ checks passed for six/eight points. Real label-to-field identity checks passed
 on 128 NAVSIM/nuScenes samples as privileged GT fixtures, not model results.
 Real-model scene metrics remain pending.
 
-nuScenes archive 02 is fully downloaded, hashed and extracted. After observing
+nuScenes archives 02 and 03 are fully downloaded, hashed and extracted. After observing
 progress lost during internal curl retries, the owned downloader was restarted
 with a new If-Range request from the latest file size after each error. Completed
 archives, partial bytes and the pinned object identities are preserved.
@@ -219,6 +223,14 @@ verified restoration on each complete eight-GPU host; it does not select
 checkpoints with Navtest. Native CUDA continuation tolerance failures above
 remain disclosed and are not relabeled as passes.
 
+`prepare_nuscenes_labels.py` is actively waiting for all 13 official assets
+before building the complete 23230/4969 populations. The dedicated
+`prepare_nuscenes_perception.py` queue then uses a complete idle authorized host
+and the same physical GPU locks as NAVSIM, producing current-only C1 and five
+full epochs of nuScenes-only shared geometry. It does not evict active NAVSIM
+or unrelated jobs. nuScenes final profile, recipe registration and formal24epoch
+training remain required afterward; this queue is not reported as training them.
+
 ## Executable entry points
 
 Run from the task repository, using the isolated Qwen Python for model/data
@@ -235,6 +247,10 @@ $QPY tools/structured_world/download_nuscenes.py --help
 $QPY tools/structured_world/build_cache.py --help
 $QPY tools/structured_world/build_navsim_dev_labels.py --help
 $QPY tools/structured_world/build_nuscenes_cache.py --help
+$QPY tools/structured_world/prepare_nuscenes_labels.py --help
+$QPY tools/structured_world/prepare_nuscenes_perception.py --help
+$QPY tools/structured_world/validate_training_target_invariance.py --help
+$QPY tools/structured_world/run_navsim_pair.py --help
 $QPY tools/structured_world/build_current_dino.py --help
 $QPY tools/structured_world/slice_navsim_current_c1.py --help
 $QPY tools/structured_world/train_geometry.py --help

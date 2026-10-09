@@ -1,0 +1,86 @@
+{
+  "scope": "first actual formal training launch snapshot, not final results",
+  "recorded_unix": 1791505017.2821817,
+  "six_groups": [
+    {
+      "dataset": "NAVSIM",
+      "group": "G3_EVENT_LOCAL",
+      "state": "RUNNING",
+      "run_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v1/G3_EVENT_LOCAL",
+      "updates_observed": 44,
+      "registered_end_updates": 100000,
+      "training_source_sha": "e0e25929dfd9fc9eb75ef2a2f25bce0fc3c7bcc2",
+      "training_identity": "db7404828fe36d6aeedcf2d872728e86d49b84ec027b89488a052c0a4f4830af",
+      "geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+      "endpoint_planning_result_available": false
+    },
+    {
+      "dataset": "NAVSIM",
+      "group": "G2_EVENT_UNIFORM",
+      "state": "QUEUED",
+      "run_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v1/G2_EVENT_UNIFORM",
+      "updates_observed": 0,
+      "registered_end_updates": 100000,
+      "training_source_sha": "e0e2592",
+      "training_identity": null,
+      "geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+      "endpoint_planning_result_available": false
+    },
+    {
+      "dataset": "NAVSIM",
+      "group": "G1_FULL_UNIFORM",
+      "state": "RUNNING",
+      "run_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v1/G1_FULL_UNIFORM",
+      "updates_observed": 43,
+      "registered_end_updates": 100000,
+      "training_source_sha": "e0e25929dfd9fc9eb75ef2a2f25bce0fc3c7bcc2",
+      "training_identity": "527c42e87dfdcaac27c2683e2880d3f07bde0f430bd7b785f8529a4cb16c4d5a",
+      "geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+      "endpoint_planning_result_available": false
+    },
+    {
+      "dataset": "NAVSIM",
+      "group": "G0_NO_FUTURE_LABEL",
+      "state": "QUEUED",
+      "run_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v1/G0_NO_FUTURE_LABEL",
+      "updates_observed": 0,
+      "registered_end_updates": 100000,
+      "training_source_sha": "e0e2592",
+      "training_identity": null,
+      "geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+      "endpoint_planning_result_available": false
+    },
+    {
+      "dataset": "nuScenes",
+      "group": "G1_FULL_UNIFORM",
+      "state": "OFFICIAL_ASSETS_AND_SHARED_PERCEPTION_PENDING",
+      "epochs": 24,
+      "formal_started": false,
+      "endpoint_planning_result_available": false
+    },
+    {
+      "dataset": "nuScenes",
+      "group": "G3_EVENT_LOCAL",
+      "state": "OFFICIAL_ASSETS_AND_SHARED_PERCEPTION_PENDING",
+      "epochs": 24,
+      "formal_started": false,
+      "endpoint_planning_result_available": false
+    }
+  ],
+  "continued_background_work": [
+    "complete NAVSIM G1/G3 then G0/G2 with fixed development observations",
+    "official nuScenes download",
+    "full official train/val labels",
+    "own current C1 and five-epoch geometry preparation"
+  ],
+  "claims_supported": [
+    "complete training chain learns on fixed training64",
+    "actual training labels do not enter q0/q_final generation"
+  ],
+  "claims_not_supported": [
+    "auxiliary supervision improves canonical planning",
+    "event objectives beat full occupancy",
+    "local supervision improves dynamic driving",
+    "cross-dataset or training-seed robustness"
+  ]
+}
