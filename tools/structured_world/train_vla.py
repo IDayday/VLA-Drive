@@ -79,6 +79,8 @@ def main():
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
     args = parser.parse_args()
+    if args.scope == 'formal' and args.execution_mode == 'loss_preserving_v1':
+        raise ValueError('No-recompute candidate has not passed production-gradient equivalence; use the validated IO-only execution')
     if args.profile_stages and args.scope != 'profile':
         raise ValueError('Extra stage instrumentation is forbidden in formal/small-fit runs')
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())

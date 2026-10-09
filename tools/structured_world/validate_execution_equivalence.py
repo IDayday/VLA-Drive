@@ -42,6 +42,8 @@ def main():
                         help='Math is a separate diagnostic for native Flash backward variation, never a formal setting')
     parser.add_argument('--microbatch', type=int, choices=(2, 4), default=4)
     parser.add_argument('--optimized-mode', choices=('io_preserving_v1', 'loss_preserving_v1'), default='loss_preserving_v1')
+    parser.add_argument('--precision-diagnostic', choices=('native', 'fp32'), default='native',
+                        help='FP32 is a separate controlled numerical diagnostic, never a formal precision change')
     args = parser.parse_args()
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     if socket.gethostname().removesuffix('-worker-0') not in policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts']:
@@ -75,7 +77,9 @@ def main():
             'forward_loss_tolerance': {'rtol': 1e-6, 'atol': 1e-7},
             'trajectory_RNG_and_buffers': 'bitwise', 'precision': identity['precision']})
         atomic_json(args.output/'ATTENTION_DIAGNOSTIC.json', {'mode': args.attention_diagnostic,
+            'precision_diagnostic': args.precision_diagnostic,
             'formal_attention_backend_changed': False,
+            'formal_precision_changed': False,
             'purpose': 'isolate checkpoint recomputation equivalence from native Flash backward variation'})
     dist.barrier()
     model = VLAStructuredFGTR(OmegaConf.create(identity['config'])).float()
@@ -84,6 +88,7 @@ def main():
     epoch, offset = saved['epoch'], saved['offset']
     del saved
     model = nn.SyncBatchNorm.convert_sync_batchnorm(model).cuda().train()
+    model.inference_fp32 = args.precision_diagnostic == 'fp32'
     model.shared_geometry_identity = identity['shared_geometry_identity']
     data = StructuredNAVSIMDataset(args.cache, '/var/tmp/ddp-full-foresight-20260929/student_train_v1',
         dino_root=args.dino_root, dino_index='', expected_dino=identity['DINO_identity'],
@@ -166,6 +171,7 @@ def main():
         atomic_json(args.output/'COMPLETE.json', {'training_identity': identity['identity'], 'checkpoint': tag,
             'ranks': world, 'scene_count': len(selected_batch), 'per_rank': records, 'passed': passed,
             'attention_diagnostic': args.attention_diagnostic, 'optimized_mode': args.optimized_mode,
+            'precision_diagnostic': args.precision_diagnostic,
             'limitation': 'No optimizer update here; native ZeRO update/profile and exact boundary recovery are verified separately'})
     dist.destroy_process_group()
     if not passed: raise AssertionError('Real model execution equivalence failed; formal rollout prohibited')

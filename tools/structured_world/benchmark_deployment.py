@@ -45,11 +45,14 @@ def main():
     if complete['identity'] != identity['identity']: raise ValueError('Foreign checkpoint')
     if file_digest(args.model_state_file) != complete['file_sha256']['mp_rank_00_model_states.pt']:
         raise ValueError('Local FP32 model is not byte-identical to the saved formal model')
+    load_started = time.perf_counter()
     model = VLAStructuredFGTR(OmegaConf.create(identity['config'])).float()
     saved = torch.load(args.model_state_file, map_location='cpu', mmap=True, weights_only=False)
     model.load_state_dict(saved['module'], strict=True); del saved
     model.shared_geometry_identity = identity['shared_geometry_identity']
     model.strip_auxiliary_heads().cuda().eval(); model.inference_fp32 = True
+    torch.cuda.synchronize()
+    model_loading_seconds = time.perf_counter()-load_started
     if any(p.dtype != torch.float32 for p in model.parameters()): raise AssertionError('Non-FP32 deployment parameters')
     current = CurrentInputs(args.inputs)
     if current.identity['dataset'] != identity['dataset']: raise ValueError('Foreign deployment dataset')
@@ -78,7 +81,8 @@ def main():
         'proposal': 'original ten steps, one candidate, one FGTR residual',
         'cameras': model.cameras, 'future_points': model.steps,
         'training_labels_read_during_predict': False, 'supervision_heads_removed': True,
-        'executed_parameter_elements': sum(p.numel() for p in model.parameters()),
+        'deployed_parameter_elements': sum(p.numel() for p in model.parameters()),
+        'cold_model_construction_checkpoint_restore_and_GPU_transfer_seconds': model_loading_seconds,
         'model_wall': summarize(samples),
         'current_input_first_read': summarize([r['current_input_read_seconds'] for r in rows]),
         'serial_current_read_plus_model': summarize([r['current_input_read_seconds']+r['model_wall_seconds'] for r in rows]),

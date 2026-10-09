@@ -31,7 +31,7 @@ def verify_scientific_contract(parent, child):
             raise ValueError('Execution-only recovery changed scientific setting: '+name)
     if parent.get('execution_mode', 'reference') not in ('reference', 'io_preserving_v1', 'loss_preserving_v1'):
         raise ValueError('Unknown parent execution implementation')
-    if child['execution_mode'] not in ('io_preserving_v1', 'loss_preserving_v1') or child['extra_stage_instrumentation']:
+    if child['execution_mode'] != 'io_preserving_v1' or child['extra_stage_instrumentation']:
         raise ValueError('Formal recovery upgrade requires the validated common execution mode')
     if parent.get('extra_stage_instrumentation'):
         raise ValueError('Instrumented engineering checkpoints cannot initialize formal recovery')
