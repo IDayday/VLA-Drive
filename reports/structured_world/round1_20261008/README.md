@@ -153,7 +153,15 @@ PDMS: geometry 0.1161248667, future semantics 0.1054616027, query relations
 0.3871265716 and refine 1.0, with the common 1000-update refine warmup. Both
 datasets use these scalar weights; class weights come from each training
 population. See `COMMON_LOSS_CALIBRATION_SELECTED.json`. Complete profiles and
-small-set learning with this recipe remain prerequisites for formal freezing.
+small-set learning with this recipe passed. Final full profiles took 4.94 s
+per steady update and 31.90 GiB peak allocated memory per GPU. On the identical
+64 training scenes over 100 updates, mean first-ten/last-ten FM losses fell
+1.606/0.531 (G1) and 1.597/0.471 (G3). Raw refine losses fell 1.333/0.246 and
+1.331/0.216. These are learning checks, not planning benefits; see
+`COMMON_SMALL_LEARNING.json`. Actual complete training-forward substitution of
+ego, DINO, road, depth and current/future occupancy targets passed on four
+real scenes per group: losses changed, while q0/q_final remained bitwise equal.
+See `TRAINING_TARGET_INVARIANCE.json`.
 
 Eight-rank checkpoint restoration reproduces model, FP32 masters, Adam moments,
 LR, all RNG and data position **exactly at the restored boundary**. Geometry's
@@ -201,11 +209,15 @@ Physical UUID comparison found that local and recovery containers share the
 same eight GPUs; they are not counted as independent training servers.
 
 Still pending: nuScenes full data hashes/label builds and shared preparation;
-remaining full-model/restore checks; final G1/G3 profile and small-set learning; clean frozen
-source/run registration; all six formal seed42 trainings; common endpoints,
+remaining full-model/restore checks; all six formal seed42 trainings; common endpoints,
 development/final evaluation, paired failure and mechanism analysis, costs and
-second-seed limitations. Existing six YAMLs are implementation probes and are
-guarded against formal launch until the common recipe is frozen.
+second-seed limitations. NAVSIM's four recipes are frozen after common
+calibration, complete profiles and learning checks. nuScenes remains guarded
+until full assets, its own perception preparation and population class counts
+are complete. `run_navsim_pair.py` executes fixed development observations and
+verified restoration on each complete eight-GPU host; it does not select
+checkpoints with Navtest. Native CUDA continuation tolerance failures above
+remain disclosed and are not relabeled as passes.
 
 ## Executable entry points
 

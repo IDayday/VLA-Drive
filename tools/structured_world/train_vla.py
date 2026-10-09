@@ -111,6 +111,13 @@ def main():
         data = StructuredNuScenesDataset(args.cache, dino_root=args.dino_root, expected_dino=args.dino_identity,
                                         image_root=args.image_root, allow_debug=args.scope != 'formal')
         current_identity, dino_identity = data.identity['source_current_identity'], data.dino_identity['identity']
+    if args.scope == 'formal':
+        expected_assets = dict(config.structured_world.formal_recipe_assets)
+        observed_assets = {'label_cache_identity': data.identity['identity'],
+                           'current_DINO_identity': dino_identity,
+                           'shared_geometry_identity': args.geometry_identity}
+        if observed_assets != expected_assets:
+            raise ValueError('Formal dataset/teacher/geometry differs from the frozen common recipe')
     original_population = len(data)
     training_selection = None
     if args.debug_scenes:
