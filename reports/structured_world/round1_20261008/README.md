@@ -2,8 +2,9 @@
 
 This branch contains executable code and real data/training/deployment checks.
 **Formal NAVSIM G1/G3 are running on two distinct physical eight-A800 hosts;
-G0/G2 are queued. nuScenes formal G1/G3 await official assets and their own
-common perception preparation. No planning improvement is claimed.** The
+G0/G2 are queued. nuScenes official assets and complete train/validation labels
+are ready; its own shared perception preparation is running on vla-zt3.
+Formal nuScenes G1/G3 have not started. No planning improvement is claimed.** The
 current formal training/evaluation source is frozen at `0c54f1c`; each run records
 the full SHA and its `f052e2f` recovery ancestry. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
 not a live counter or a completed result. Historical engineering scores remain
@@ -119,11 +120,12 @@ FP32 native ZeRO master reconstruction is strict; TF32 is off for inference.
   15875 updates, 507960 scene exposures, 12.964 training GPU-hours. It trained
   current geometry only; no planner or Qwen was involved. The shared identity is
   `e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd`.
-- nuScenes official metadata, maps and CAN bus are downloaded under
-  `/mnt/project/datasets/nuscenes-v1.0-trainval`; ten raw trainval archives are
-  still downloading with resumable verification. Engineering checks use real
-  intact sample files extracted from a partial official archive in a separately
-  marked provisional directory; these are ineligible for formal preparation.
+- nuScenes official metadata, maps, CAN bus and all ten raw trainval archives
+  are downloaded, hashed and extracted under
+  `/mnt/project/datasets/nuscenes-v1.0-trainval` (13 completed official assets).
+  Complete labels contain 23230 training and 4969 validation samples with no
+  build errors, occupying 38.85/8.29 GB. Earlier partial-archive engineering
+  inputs remain separately marked and ineligible for formal preparation.
 - Mature VAD six-successor eligibility gives 23230 train and 4969 validation
   samples across the official 700/150 scenes, requiring a legal previous pose
   and complete future. These are nominal 2 Hz annotated keyframes; actual
@@ -256,10 +258,10 @@ checks passed for six/eight points. Real label-to-field identity checks passed
 on 128 NAVSIM/nuScenes samples as privileged GT fixtures, not model results.
 Real-model scene metrics remain pending.
 
-nuScenes archives 02 and 03 are fully downloaded, hashed and extracted. After observing
-progress lost during internal curl retries, the owned downloader was restarted
-with a new If-Range request from the latest file size after each error. Completed
-archives, partial bytes and the pinned object identities are preserved.
+All 13 nuScenes official archives are now downloaded, hashed and extracted.
+The earlier progress-loss diagnosis and monotonic If-Range retry records remain
+preserved. Complete official label builds finished on both populations; older
+partial-data engineering caches remain separate.
 
 Explicitly authorized cleanup removed only verified `gpu_stress.py` process
 trees on local/zt2 after they occupied 75 GiB per GPU and caused a calibration
@@ -267,7 +269,7 @@ startup OOM. Unrelated training and the old-objective pause locks remain intact.
 Physical UUID comparison found that local and recovery containers share the
 same eight GPUs; they are not counted as independent training servers.
 
-Still pending: nuScenes full data hashes/label builds and shared preparation;
+Still pending: completion of nuScenes own shared perception preparation;
 remaining full-model/restore checks; all six formal seed42 trainings; common endpoints,
 development/final evaluation, paired failure and mechanism analysis, costs and
 second-seed limitations. NAVSIM's four recipes are frozen after common
@@ -278,13 +280,26 @@ verified restoration on each complete eight-GPU host; it does not select
 checkpoints with Navtest. Native CUDA continuation tolerance failures above
 remain disclosed and are not relabeled as passes.
 
-`prepare_nuscenes_labels.py` is actively waiting for all 13 official assets
-before building the complete 23230/4969 populations. The dedicated
-`prepare_nuscenes_perception.py` queue then uses a complete idle authorized host
-and the same physical GPU locks as NAVSIM, producing current-only C1 and five
-full epochs of nuScenes-only shared geometry. It does not evict active NAVSIM
-or unrelated jobs. nuScenes final profile, recipe registration and formal24epoch
-training remain required afterward; this queue is not reported as training them.
+`prepare_nuscenes_labels.py` has completed the official 23230/4969 populations.
+After the user's additional resource authorization, the owned waiting
+perception controller was replaced with a pinned vla-zt3 route using source
+`4aa8703`. Its 23230-scene label copy and public teacher/backbone assets are on
+the host's local disk. Current-only C1 generation finished for all 23230 samples
+in 440.71 seconds (0.979 GPU-hours), identity
+`b0dc99cff8c2cb32905452087791d9c91540acfdcd64be4d8297b10ce6b1827e`.
+The queue has automatically started five full epochs of nuScenes-only shared
+geometry on all eight GPUs, with real updates and FP32 parameter changes,
+using the same physical GPU locks as NAVSIM.
+The isolated environment and eight-rank NCCL/deformable-operator readiness checks
+passed. NAVSIM and unrelated jobs remain running. nuScenes final profile, recipe
+registration and formal 24-epoch G1/G3 training remain required afterward;
+perception preparation is not reported as those formal VLA runs.
+
+`RESOURCE_ROUTING_20261009.json` records the additional host inspection and actual
+dispatch. Recovery and local containers share the same physical GPUs, so they
+are counted once. vlawm-zt has ample memory for sharing but its compute load
+changed during continuous sampling; readiness checks alone are not evidence of
+acceptable full-model training throughput. No unverified GPU workload was killed.
 
 ## Executable entry points
 
