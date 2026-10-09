@@ -32,6 +32,7 @@ def main():
     parser.add_argument('--geometry-identity', required=True)
     parser.add_argument('--dino-identity', required=True)
     parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1'), default='reference')
+    parser.add_argument('--execution-acceptance', type=Path)
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Preserved checkpoint ancestry for the first group only')
     args = parser.parse_args()
@@ -66,6 +67,7 @@ def main():
             'microbatch': 4, 'development_updates': [25000, 50000, 75000, 100000],
             'geometry_identity': args.geometry_identity, 'DINO_identity': args.dino_identity,
             'execution_mode': args.execution_mode,
+            'execution_acceptance': str(args.execution_acceptance) if args.execution_acceptance else None,
             'first_group_resume_origin_run': str(args.resume_origin_run) if args.resume_origin_run else None,
             'pause_restore': 'exact boundary verification; ordinary native CUDA continuation variation disclosed',
             'final_Navtest': 'required after fixed endpoint; separate from this development-only queue'}
@@ -109,6 +111,8 @@ def main():
                             '--geometry', str(args.geometry), '--geometry-identity', args.geometry_identity,
                             '--dino-root', str(args.dino_root), '--dino-identity', args.dino_identity, '--save-every', '5000']
                         command += ['--execution-mode', args.execution_mode]
+                        if args.execution_acceptance:
+                            command += ['--execution-acceptance', str(args.execution_acceptance)]
                         if group == args.groups[0] and args.resume_origin_run:
                             command += ['--resume-origin-run', str(args.resume_origin_run)]
                         if target < 100000: command += ['--stop-after', str(target)]

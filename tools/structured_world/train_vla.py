@@ -76,11 +76,22 @@ def main():
     parser.add_argument('--profile-stages', action='store_true',
                         help='Only profile scope: measure the real model and optimizer stages')
     parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1'), default='reference')
+    parser.add_argument('--execution-acceptance', type=Path,
+                        help='Frozen measured acceptance and preserved numerical failures for formal IO-only execution')
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
     args = parser.parse_args()
     if args.scope == 'formal' and args.execution_mode == 'loss_preserving_v1':
         raise ValueError('No-recompute candidate has not passed production-gradient equivalence; use the validated IO-only execution')
+    execution_acceptance = None
+    if args.scope == 'formal' and args.execution_mode == 'io_preserving_v1':
+        if args.execution_acceptance is None:
+            raise ValueError('Formal IO acceleration requires its frozen full-chain acceptance evidence')
+        acceptance = json.loads(args.execution_acceptance.read_text())
+        if not acceptance['passed'] or acceptance['accepted_mode'] != args.execution_mode:
+            raise ValueError('Unaccepted execution change')
+        execution_acceptance = {'sha256': file_digest(args.execution_acceptance),
+            'schema': acceptance['schema'], 'file': str(args.execution_acceptance)}
     if args.profile_stages and args.scope != 'profile':
         raise ValueError('Extra stage instrumentation is forbidden in formal/small-fit runs')
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
@@ -172,6 +183,8 @@ def main():
         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
         'extra_stage_instrumentation': args.profile_stages}
     contract['execution_mode'] = args.execution_mode
+    if execution_acceptance is not None:
+        contract['execution_acceptance'] = execution_acceptance
     resume_origin = None
     if args.resume_origin_run is not None:
         if args.scope != 'formal':
