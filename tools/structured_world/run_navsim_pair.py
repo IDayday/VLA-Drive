@@ -104,7 +104,7 @@ def main():
                         completed = read_origin(args.resume_origin_run)[0]['completed']
                     if completed < target:
                         command = [args.qwen_python, '-u', '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=8',
-                            str(ROOT/'tools/structured_world/train_vla.py'), '--config', str(config),
+                            '--', str(ROOT/'tools/structured_world/train_vla.py'), '--config', str(config),
                             '--cache', str(args.cache), '--output', str(run_root), '--scope', 'formal', '--micro-batch', '4',
                             '--geometry', str(args.geometry), '--geometry-identity', args.geometry_identity,
                             '--dino-root', str(args.dino_root), '--dino-identity', args.dino_identity, '--save-every', '5000']
@@ -120,7 +120,7 @@ def main():
                     predictions = run_root/('dev_'+str(target)+'_seed42')
                     if not (predictions/'COMPLETE.json').exists():
                         run(group+'_dev_infer_'+str(target), [args.qwen_python, '-u', '-m', 'torch.distributed.run',
-                            '--standalone', '--nproc-per-node=8', str(ROOT/'tools/structured_world/infer_checkpoint.py'),
+                            '--standalone', '--nproc-per-node=8', '--', str(ROOT/'tools/structured_world/infer_checkpoint.py'),
                             '--run', str(run_root), '--tag', tag, '--inputs', str(args.dev_inputs), '--output', str(predictions),
                             '--sampling-seed', '42', '--scene-fields'], True)
                     planning = run_root/('dev_'+str(target)+'_canonical')

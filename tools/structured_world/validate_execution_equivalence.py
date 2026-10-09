@@ -35,6 +35,8 @@ def main():
     parser = argparse.ArgumentParser()
     for name in ('run', 'cache', 'dino-root', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
+    parser.add_argument('--model-state-file', type=Path,
+                        help='Optional byte-identical local copy; avoids concurrent NFS mmap page faults')
     args = parser.parse_args()
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     if socket.gethostname().removesuffix('-worker-0') not in policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts']:
@@ -56,8 +58,9 @@ def main():
         raise ValueError('Preserved complete paused model required')
     if identity['scope'] != 'formal' or identity['dataset'] != 'navsim':
         raise ValueError('A real formal NAVSIM checkpoint is required')
+    model_file = args.model_state_file or folder/'mp_rank_00_model_states.pt'
     if rank == 0:
-        if file_digest(folder/'mp_rank_00_model_states.pt') != complete['file_sha256']['mp_rank_00_model_states.pt']:
+        if file_digest(model_file) != complete['file_sha256']['mp_rank_00_model_states.pt']:
             raise ValueError('Saved model hash changed')
         args.output.mkdir(parents=True, exist_ok=True)
         atomic_json(args.output/'REGISTRATION.json', {'checkpoint': tag, 'training_identity': identity['identity'],
@@ -67,7 +70,7 @@ def main():
             'trajectory_RNG_and_buffers': 'bitwise', 'precision': identity['precision']})
     dist.barrier()
     model = VLAStructuredFGTR(OmegaConf.create(identity['config'])).float()
-    saved = torch.load(folder/'mp_rank_00_model_states.pt', map_location='cpu', mmap=True, weights_only=False)
+    saved = torch.load(model_file, map_location='cpu', mmap=True, weights_only=False)
     model.load_state_dict(saved['module'], strict=True)
     epoch, offset = saved['epoch'], saved['offset']
     del saved
