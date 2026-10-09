@@ -1,0 +1,566 @@
+{
+  "schema": "recorded_training_step_time_diagnosis_v2",
+  "historical_S": {
+    "S0": {
+      "recorded_updates": 100000,
+      "source_sha": "1493deda247107efe076b9294863a6753391298a",
+      "precision": "BF16 model, FP32 AdamW master/moments",
+      "deterministic_training_flag": false,
+      "updates_101_500": {
+        "updates": 400,
+        "mean_s": 1.768269858956337,
+        "median_s": 1.7542153596878052,
+        "minimum_s": 1.6836566925048828,
+        "maximum_s": 2.073206663131714
+      },
+      "last_1000": {
+        "updates": 1000,
+        "mean_s": 1.7430809943675996,
+        "median_s": 1.7335635423660278,
+        "minimum_s": 1.654937744140625,
+        "maximum_s": 2.159533739089966
+      },
+      "first_window_rankmax_data_median_s": 0.30674946308135986,
+      "first_window_sequence_length_median": 1930.0
+    },
+    "S3": {
+      "recorded_updates": 100000,
+      "source_sha": "1493deda247107efe076b9294863a6753391298a",
+      "precision": "BF16 model, FP32 AdamW master/moments",
+      "deterministic_training_flag": false,
+      "updates_101_500": {
+        "updates": 400,
+        "mean_s": 1.7913839012384414,
+        "median_s": 1.769884467124939,
+        "minimum_s": 1.7090117931365967,
+        "maximum_s": 2.1368978023529053
+      },
+      "last_1000": {
+        "updates": 1000,
+        "mean_s": 1.7224078409671784,
+        "median_s": 1.7028895616531372,
+        "minimum_s": 1.649810791015625,
+        "maximum_s": 2.1604509353637695
+      },
+      "first_window_rankmax_data_median_s": 0.2893047332763672,
+      "first_window_sequence_length_median": 1930.0
+    }
+  },
+  "structured_world": {
+    "G1_FULL_UNIFORM": {
+      "original_last_100_updates": {
+        "updates": 100,
+        "mean_s": 4.88917941570282,
+        "median_s": 4.855529546737671,
+        "minimum_s": 4.810931205749512,
+        "maximum_s": 5.223459243774414
+      },
+      "old_complete_recovery_checkpoint": {
+        "schema": "precision_contract_disclosure_v1",
+        "original_identity_unchanged": true,
+        "training_source_sha": "e0e25929dfd9fc9eb75ef2a2f25bce0fc3c7bcc2",
+        "previous_precision_description": "BF16 Qwen and original action compute",
+        "actual_Qwen_vision_compute": "FP32: model.float() and vision extraction outside autocast",
+        "Qwen_language_and_original_action_compute": "BF16 autocast with FP32 parameters",
+        "geometry_future_refiner_compute": "FP32; TF32 off",
+        "checkpoint": "latest_0000390",
+        "completed_updates": 390,
+        "full_native_recovery_preserved": true,
+        "future_groups_must_share_same_corrected_recipe": true,
+        "created_unix": 1791506860.0144699
+      },
+      "corrected_profile_source_sha": "f052e2fc1e43ac72a00eeb7b60e6e45d07cd1ec4",
+      "corrected_full_chain_profile_all_eight_updates": {
+        "updates": 8,
+        "mean_s": 3.6899229884147644,
+        "median_s": 3.578218102455139,
+        "minimum_s": 3.421412467956543,
+        "maximum_s": 4.128216743469238
+      },
+      "corrected_full_chain_steady_profile_updates_3_8": {
+        "updates": 6,
+        "mean_s": 3.6184970140457153,
+        "median_s": 3.4566951990127563,
+        "minimum_s": 3.421412467956543,
+        "maximum_s": 4.128216743469238
+      },
+      "steady_rankmax_data_median_s": 0.31168310064822435,
+      "observed_vision_autocast_BF16_all_eight_ranks": true,
+      "stages": {
+        "Qwen_vision": {
+          "rank0_CUDA_stream_median_s": 0.24947513580322267,
+          "rankmax_CUDA_stream_median_s": 0.25116970825195317
+        },
+        "Qwen_current_inclusive": {
+          "rank0_CUDA_stream_median_s": 0.6645401000976563,
+          "rankmax_CUDA_stream_median_s": 0.68684765625
+        },
+        "FM_supervision": {
+          "rank0_CUDA_stream_median_s": 0.05975502395629882,
+          "rankmax_CUDA_stream_median_s": 0.06079091262817383
+        },
+        "proposal_10steps": {
+          "rank0_CUDA_stream_median_s": 0.3259904327392578,
+          "rankmax_CUDA_stream_median_s": 0.3262606353759766
+        },
+        "current_geometry": {
+          "rank0_CUDA_stream_median_s": 0.13861798095703126,
+          "rankmax_CUDA_stream_median_s": 0.17805857849121093
+        },
+        "future_space": {
+          "rank0_CUDA_stream_median_s": 0.11265198135375976,
+          "rankmax_CUDA_stream_median_s": 0.11301921844482421
+        },
+        "FGTR": {
+          "rank0_CUDA_stream_median_s": 0.015609328269958495,
+          "rankmax_CUDA_stream_median_s": 0.015790575981140136
+        },
+        "scene_heads": {
+          "rank0_CUDA_stream_median_s": 0.028900079727172852,
+          "rankmax_CUDA_stream_median_s": 0.02891590404510498
+        },
+        "backward_inclusive": {
+          "rank0_CUDA_stream_median_s": 1.5905804443359375,
+          "rankmax_CUDA_stream_median_s": 1.5921101074218749
+        },
+        "optimizer_step": {
+          "rank0_CUDA_stream_median_s": 0.09202376174926757,
+          "rankmax_CUDA_stream_median_s": 0.09343231964111329
+        }
+      },
+      "checkpoint_complete": 8,
+      "training_update_only_100k_GPU_hours_at_steady_median": 768.1544886695015
+    },
+    "G3_EVENT_LOCAL": {
+      "original_last_100_updates": {
+        "updates": 100,
+        "mean_s": 4.885770616531372,
+        "median_s": 4.84834361076355,
+        "minimum_s": 4.820023536682129,
+        "maximum_s": 5.211493492126465
+      },
+      "old_complete_recovery_checkpoint": {
+        "schema": "precision_contract_disclosure_v1",
+        "original_identity_unchanged": true,
+        "training_source_sha": "e0e25929dfd9fc9eb75ef2a2f25bce0fc3c7bcc2",
+        "previous_precision_description": "BF16 Qwen and original action compute",
+        "actual_Qwen_vision_compute": "FP32: model.float() and vision extraction outside autocast",
+        "Qwen_language_and_original_action_compute": "BF16 autocast with FP32 parameters",
+        "geometry_future_refiner_compute": "FP32; TF32 off",
+        "checkpoint": "latest_0000391",
+        "completed_updates": 391,
+        "full_native_recovery_preserved": true,
+        "future_groups_must_share_same_corrected_recipe": true,
+        "created_unix": 1791506860.007679
+      },
+      "corrected_profile_source_sha": "f052e2fc1e43ac72a00eeb7b60e6e45d07cd1ec4",
+      "corrected_full_chain_profile_all_eight_updates": {
+        "updates": 8,
+        "mean_s": 3.56885826587677,
+        "median_s": 3.432891011238098,
+        "minimum_s": 3.4063165187835693,
+        "maximum_s": 4.108542442321777
+      },
+      "corrected_full_chain_steady_profile_updates_3_8": {
+        "updates": 6,
+        "mean_s": 3.456434726715088,
+        "median_s": 3.4207065105438232,
+        "minimum_s": 3.4063165187835693,
+        "maximum_s": 3.6342580318450928
+      },
+      "steady_rankmax_data_median_s": 0.28950707241892815,
+      "observed_vision_autocast_BF16_all_eight_ranks": true,
+      "stages": {
+        "Qwen_vision": {
+          "rank0_CUDA_stream_median_s": 0.250367073059082,
+          "rankmax_CUDA_stream_median_s": 0.2513510513305664
+        },
+        "Qwen_current_inclusive": {
+          "rank0_CUDA_stream_median_s": 0.6543442993164063,
+          "rankmax_CUDA_stream_median_s": 0.6747803955078124
+        },
+        "FM_supervision": {
+          "rank0_CUDA_stream_median_s": 0.060842126846313474,
+          "rankmax_CUDA_stream_median_s": 0.06234111976623535
+        },
+        "proposal_10steps": {
+          "rank0_CUDA_stream_median_s": 0.32505944824218747,
+          "rankmax_CUDA_stream_median_s": 0.33473825073242186
+        },
+        "current_geometry": {
+          "rank0_CUDA_stream_median_s": 0.12803283309936525,
+          "rankmax_CUDA_stream_median_s": 0.1735945587158203
+        },
+        "future_space": {
+          "rank0_CUDA_stream_median_s": 0.11307201766967773,
+          "rankmax_CUDA_stream_median_s": 0.11307201766967773
+        },
+        "FGTR": {
+          "rank0_CUDA_stream_median_s": 0.015670096397399903,
+          "rankmax_CUDA_stream_median_s": 0.01569969606399536
+        },
+        "scene_heads": {
+          "rank0_CUDA_stream_median_s": 0.028894944190979002,
+          "rankmax_CUDA_stream_median_s": 0.028931663513183593
+        },
+        "backward_inclusive": {
+          "rank0_CUDA_stream_median_s": 1.5935516967773438,
+          "rankmax_CUDA_stream_median_s": 1.595439453125
+        },
+        "optimizer_step": {
+          "rank0_CUDA_stream_median_s": 0.09177494430541992,
+          "rankmax_CUDA_stream_median_s": 0.0932857780456543
+        }
+      },
+      "checkpoint_complete": 8,
+      "training_update_only_100k_GPU_hours_at_steady_median": 760.1570023430718
+    }
+  },
+  "same_effective_batch": {
+    "eight_A800": true,
+    "global_batch": 32,
+    "microbatch": 4,
+    "FM_repeat": 8
+  },
+  "timing_scope": "Data read/collation, full forward/backward and optimizer update; checkpoint saves separately recorded",
+  "limitation": "Historical steady timings and small fixed-initialization profiles are not paired final planning experiments; CUDA current-stream stage intervals overlap inclusive parents and must not be blindly summed.",
+  "independent_CPU_real_data_probe": {
+    "kind": "CPU_only_real_data_loader_probe_not_live_rank_partition",
+    "CUDA_used": false,
+    "initialization_seconds_excluded": 0.23458046279847622,
+    "population": 101592,
+    "cache_identity": "9e8996413379c8421e657bf89006415963263df55d4ae87af3e954b588d0c268",
+    "DINO_identity": "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+    "micro_batch": 4,
+    "loader_workers": 2,
+    "distinct_scenes": 64,
+    "selection_seed": 20261009,
+    "current_training_runs_untouched": true,
+    "limitation": "Separate CPU process reading real local assets; measures loading and collation only, not Qwen image preprocessing, GPU transfer, full eight-rank straggler time or GPU stage costs.",
+    "measurements": {
+      "first_access": {
+        "batches": 16,
+        "median_load_s": 0.2818323550745845,
+        "median_collate_s": 0.0010161492973566055,
+        "median_total_s": 0.28282803762704134,
+        "maximum_total_s": 0.3047558832913637,
+        "rows": [
+          {
+            "load_s": 0.2862457428127527,
+            "collate_s": 0.001180008053779602,
+            "total_s": 0.2874257508665323
+          },
+          {
+            "load_s": 0.27425860427320004,
+            "collate_s": 0.0009635258466005325,
+            "total_s": 0.27522213011980057
+          },
+          {
+            "load_s": 0.292880916967988,
+            "collate_s": 0.000964360311627388,
+            "total_s": 0.2938452772796154
+          },
+          {
+            "load_s": 0.28335563465952873,
+            "collate_s": 0.0010147560387849808,
+            "total_s": 0.2843703906983137
+          },
+          {
+            "load_s": 0.2808898650109768,
+            "collate_s": 0.0009773653000593185,
+            "total_s": 0.2818672303110361
+          },
+          {
+            "load_s": 0.2791054602712393,
+            "collate_s": 0.0009634736925363541,
+            "total_s": 0.28006893396377563
+          },
+          {
+            "load_s": 0.2827748451381922,
+            "collate_s": 0.001013999804854393,
+            "total_s": 0.28378884494304657
+          },
+          {
+            "load_s": 0.3006983585655689,
+            "collate_s": 0.0010703951120376587,
+            "total_s": 0.3017687536776066
+          },
+          {
+            "load_s": 0.28306952863931656,
+            "collate_s": 0.0013696439564228058,
+            "total_s": 0.28443917259573936
+          },
+          {
+            "load_s": 0.27927141077816486,
+            "collate_s": 0.0011819396167993546,
+            "total_s": 0.2804533503949642
+          },
+          {
+            "load_s": 0.2762979008257389,
+            "collate_s": 0.0010180845856666565,
+            "total_s": 0.27731598541140556
+          },
+          {
+            "load_s": 0.2862399574369192,
+            "collate_s": 0.0010529030114412308,
+            "total_s": 0.28729286044836044
+          },
+          {
+            "load_s": 0.27662321738898754,
+            "collate_s": 0.001011773943901062,
+            "total_s": 0.2776349913328886
+          },
+          {
+            "load_s": 0.27428227849304676,
+            "collate_s": 0.0010097548365592957,
+            "total_s": 0.27529203332960606
+          },
+          {
+            "load_s": 0.2768218722194433,
+            "collate_s": 0.001019548624753952,
+            "total_s": 0.2778414208441973
+          },
+          {
+            "load_s": 0.3037383407354355,
+            "collate_s": 0.0010175425559282303,
+            "total_s": 0.3047558832913637
+          }
+        ]
+      },
+      "same_batches_repeated": {
+        "batches": 16,
+        "median_load_s": 0.28125685919076204,
+        "median_collate_s": 0.000997675582766533,
+        "median_total_s": 0.2823928212746978,
+        "maximum_total_s": 0.2909304443746805,
+        "rows": [
+          {
+            "load_s": 0.2821297403424978,
+            "collate_s": 0.0012808870524168015,
+            "total_s": 0.2834106273949146
+          },
+          {
+            "load_s": 0.2844393216073513,
+            "collate_s": 0.001038903370499611,
+            "total_s": 0.2854782249778509
+          },
+          {
+            "load_s": 0.27147907577455044,
+            "collate_s": 0.0010033082216978073,
+            "total_s": 0.27248238399624825
+          },
+          {
+            "load_s": 0.27985626459121704,
+            "collate_s": 0.0009942669421434402,
+            "total_s": 0.2808505315333605
+          },
+          {
+            "load_s": 0.2765319440513849,
+            "collate_s": 0.000990208238363266,
+            "total_s": 0.2775221522897482
+          },
+          {
+            "load_s": 0.28174594417214394,
+            "collate_s": 0.0009851213544607162,
+            "total_s": 0.28273106552660465
+          },
+          {
+            "load_s": 0.27714069560170174,
+            "collate_s": 0.0009657945483922958,
+            "total_s": 0.27810649015009403
+          },
+          {
+            "load_s": 0.2838502824306488,
+            "collate_s": 0.001126755028963089,
+            "total_s": 0.2849770374596119
+          },
+          {
+            "load_s": 0.28954959101974964,
+            "collate_s": 0.0013808533549308777,
+            "total_s": 0.2909304443746805
+          },
+          {
+            "load_s": 0.28514566645026207,
+            "collate_s": 0.000945262610912323,
+            "total_s": 0.2860909290611744
+          },
+          {
+            "load_s": 0.2865330148488283,
+            "collate_s": 0.0009600985795259476,
+            "total_s": 0.28749311342835426
+          },
+          {
+            "load_s": 0.2716297749429941,
+            "collate_s": 0.0009586531668901443,
+            "total_s": 0.27258842810988426
+          },
+          {
+            "load_s": 0.2811413425952196,
+            "collate_s": 0.0012531634420156479,
+            "total_s": 0.28239450603723526
+          },
+          {
+            "load_s": 0.2813723757863045,
+            "collate_s": 0.0010187607258558273,
+            "total_s": 0.2823911365121603
+          },
+          {
+            "load_s": 0.27458883449435234,
+            "collate_s": 0.0009715594351291656,
+            "total_s": 0.2755603939294815
+          },
+          {
+            "load_s": 0.2806605100631714,
+            "collate_s": 0.0010010842233896255,
+            "total_s": 0.281661594286561
+          }
+        ]
+      }
+    }
+  },
+  "original_live_mainthread_sample_not_CUDA_partition": {
+    "schema": "py_spy_host_stack_time_not_CUDA_partition",
+    "PID": 973707,
+    "tool_version": "0.4.1",
+    "rate_Hz": 50,
+    "nonblocking": true,
+    "include_idle": true,
+    "duration_s": 44.97999999999954,
+    "samples": 2249,
+    "stage_host_seconds": {
+      "backward": 14.279999999999784,
+      "optimizer": 0.9200000000000005,
+      "data_loading": 2.780000000000002,
+      "other": 0.5200000000000001,
+      "Qwen_rest": 3.2200000000000024,
+      "vision": 16.019999999999747,
+      "FGTR": 3.1000000000000023,
+      "proposal": 2.700000000000002,
+      "current_geometry": 0.9600000000000005,
+      "future_space": 0.48000000000000015
+    },
+    "top_leaf_frames": [
+      {
+        "function": "_engine_run_backward",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/autograd/graph.py",
+        "line": 825,
+        "seconds": 13.97999999999979
+      },
+      {
+        "function": "<listcomp>",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+        "line": 227,
+        "seconds": 12.039999999999832
+      },
+      {
+        "function": "forward",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py",
+        "line": 125,
+        "seconds": 3.2000000000000024
+      },
+      {
+        "function": "wait",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/threading.py",
+        "line": 320,
+        "seconds": 2.780000000000002
+      },
+      {
+        "function": "fast_pos_embed_interpolate",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+        "line": 649,
+        "seconds": 2.780000000000002
+      },
+      {
+        "function": "synchronize",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py",
+        "line": 954,
+        "seconds": 1.0000000000000004
+      },
+      {
+        "function": "<dictcomp>",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/framework/vla_structured_fgtr.py",
+        "line": 112,
+        "seconds": 0.7200000000000003
+      },
+      {
+        "function": "forward",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/_functions.py",
+        "line": 97,
+        "seconds": 0.5200000000000001
+      },
+      {
+        "function": "get_image_features",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+        "line": 1088,
+        "seconds": 0.48000000000000015
+      },
+      {
+        "function": "normalized_reference",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/structured_world/grid.py",
+        "line": 40,
+        "seconds": 0.4400000000000001
+      },
+      {
+        "function": "_preprocess",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl_fast.py",
+        "line": 237,
+        "seconds": 0.4000000000000001
+      },
+      {
+        "function": "sdpa_attention_forward",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py",
+        "line": 96,
+        "seconds": 0.27999999999999997
+      },
+      {
+        "function": "sample_queries",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/structured_world/queries.py",
+        "line": 43,
+        "seconds": 0.27999999999999997
+      },
+      {
+        "function": "_preprocess",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl_fast.py",
+        "line": 257,
+        "seconds": 0.25999999999999995
+      },
+      {
+        "function": "maybe_to",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/feature_extraction_utils.py",
+        "line": 240,
+        "seconds": 0.18
+      },
+      {
+        "function": "layer_norm",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/functional.py",
+        "line": 2900,
+        "seconds": 0.18
+      },
+      {
+        "function": "rescale_and_normalize",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py",
+        "line": 472,
+        "seconds": 0.16
+      },
+      {
+        "function": "_deepstack_process",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+        "line": 907,
+        "seconds": 0.16
+      },
+      {
+        "function": "forward",
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-formal-navsim-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+        "line": 351,
+        "seconds": 0.14
+      },
+      {
+        "function": "dropout",
+        "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/functional.py",
+        "line": 1425,
+        "seconds": 0.14
+      }
+    ],
+    "limitations": "CPU main-thread stack residency includes kernel launch, synchronization and waiting. GPU work is asynchronous: these values are not CUDA kernel durations or additive GPU cost attribution. Only one rank sampled for approximately nine optimizer updates."
+  }
+}

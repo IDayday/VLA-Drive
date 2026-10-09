@@ -4,10 +4,23 @@ This branch contains executable code and real data/training/deployment checks.
 **Formal NAVSIM G1/G3 are running on two distinct physical eight-A800 hosts;
 G0/G2 are queued. nuScenes formal G1/G3 await official assets and their own
 common perception preparation. No planning improvement is claimed.** The
-formal training/evaluation source is frozen at `e0e2592`; each run records the
+formal training/evaluation source is frozen at `f052e2f`; each run records the
 full SHA. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
 not a live counter or a completed result. Historical engineering scores remain
 explicitly separate from the formal population and endpoint.
+
+The initial `e0e2592` implementation unintentionally ran the frozen Qwen vision
+tower in FP32, outside the language autocast context. Its G1/G3 prefixes were
+saved with complete native recovery at updates 390/391 and preserved as a
+superseded implementation version. All four current formal groups use the
+corrected common BF16 vision/language compute from the prescribed initialization;
+they do not initialize from those prefixes or profiling checkpoints.
+`STEP_TIME_DIAGNOSIS_20261009.json` records the S0/S3 full-run timing comparison,
+real CPU data probe, live stack sample and eight-GPU full-chain profiles.
+Correcting vision autocast reduced steady profile time from about 4.89 seconds
+to 3.46/3.42 seconds for G1/G3. These eight-update profiles are cost measurements,
+not completed planning experiments. Further loss-preserving execution work is
+being verified separately; it does not change loss terms, proposal steps or seeds.
 
 ## Source and preservation
 
