@@ -84,6 +84,11 @@ FP32 native ZeRO master reconstruction is strict; TF32 is off for inference.
   Whole-NAVSIM timing QA likewise found 678 jump-frame scenes. Their native
   complete eight-point ego labels remain in training; future scene labels with
   mismatched physical times are unknown rather than excluding those scenes.
+- Whole-nuScenes training metadata coverage was checked with the same mature
+  VAD poses and shared full-body reader on all 23230 eligible samples. There
+  were zero GT-body out-of-range scenes. Body extents were x=[-3.56,58.44] m,
+  y=[-14.14,16.44] m within the common frozen grid; no map-size adjustment or
+  validation/test selection was needed. See `NUSCENES_WHOLE_TRAIN_GRID_AUDIT.json`.
 - NAVSIM origin is the canonical Pacifica rear axle. The nuScenes wrapper uses
   rotated current LiDAR axes (forward/left = LiDAR y/-x), exact inverse transform,
   and the native UniAD 4.084 x 1.85 m body with +0.5 m offset. Current state uses
