@@ -1,0 +1,198 @@
+method: iqe_v1
+seed: 42
+output_root: outputs/iqe/main
+s0:
+  contract: reports/iqe/S0_CONTRACT.json
+  origin: original_trajectory_framework_generic_initialization
+  source_root: /mnt/project/VLA-Drive-action-video-source-1493ded
+  source_commit: 1493deda247107efe076b9294863a6753391298a
+  source_config: /mnt/project/action-video-foresight-artifacts/20261002/registrations/formal_S0_seed42_full100k_v2_config.json
+  learned_driving_checkpoint: null
+  query_checkpoint: null
+  preserve_original_entrypoints: true
+  retain_existing_auxiliary_objectives: true
+  freeze_shared_after_s0: true
+  inherit_input_and_normalizer: true
+query_base:
+  width: 256
+  ffn: 1024
+  layers: 4
+  heads: 1
+  scene_tokens: 16
+  compressor_layers: 4
+  compressor_heads: 8
+  dropout: 0.1
+  drop_path: 0.2
+  dt: 0.5
+  prev_weight: 0.0
+  global_batch_size: 32
+  micro_batch_size: 4
+  max_optimizer_steps: 100000
+  warmup_steps: 5000
+  lr: 0.00001
+  lr_min_ratio: 0.05
+  weight_decay: 0.001
+  validation_every_steps: 200
+  grad_clip_norm: 1.0
+model:
+  expert_architecture: inherit_s0
+  init_from: s0
+  output_mode: full_trajectory
+  cross_expert_attention: false
+  max_experts_including_base: 5
+  shared_feature_cache: true
+  precision: fp32_master_bf16_autocast
+  variant: independent
+  adapter_bottleneck: 32
+metric:
+  protocol: NAVSIM_v1.1_PDMS
+  backend: official_single_reference
+  score_scale: zero_one
+  require_candidate_set_invariance: true
+  vectorized_backend_enabled: false
+  navsim_root: /mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1
+  python: /root/miniconda3/envs/navsim/bin/python
+  eval_seed: 42
+  repetitions: 1
+  timeout_seconds: 300
+  proposal_sampling: {num_poses: 40, interval_length: 0.1}
+  scorer: {progress_weight: 5.0, ttc_weight: 5.0, comfortable_weight: 2.0, driving_direction_weight: 0.0, driving_direction_horizon: 1.0, driving_direction_compliance_threshold: 2.0, driving_direction_violation_threshold: 6.0, stopped_speed_threshold: 0.005, progress_distance_threshold: 5.0}
+data:
+  scene_manifest: null
+  train_root: /mnt/project/ddp-foresight-artifacts/20260928/student_train_v1
+  dev_root: /mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1
+  train_metric_metadata: /mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv
+  dev_metric_metadata: /mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json
+  new_scene_manifest: null
+  raw_log_root: /mnt/navsim/trainval_navsim_logs/trainval
+  map_root: /mnt/navsim/maps
+  dino_root: /mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1
+  dino_index: /mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1
+  dino_identity: 7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb
+  interaction_root: /mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1
+  interaction_identity: ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474
+  clip_root: /mnt/project/action-video-foresight-artifacts/20261002/targets_dino_sequence_train_v1
+  clip_identity: 4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af
+splits:
+  use_existing_verified_manifests: true
+  fallback_fit_val_cal_log_ratios: [0.90, 0.05, 0.05]
+  grouping: source_log_and_parent_group
+  final_test_read_for_training: false
+mining:
+  based_on: frozen_candidate_pool
+  high_quality: 0.8
+  severe_low: 0.6
+  target_gain_margin: 0.05
+  zero_epsilon: 0.00000001
+  require_valid_gt: true
+  separate_selection_gap: true
+  external_targets_enabled: false
+  variant: remaining_pool
+expert_data:
+  mixture: {hard_original: 0.4, new_labeled: 0.4, local_support: 0.1, global_anchor: 0.1}
+  missing_new_to_hard: true
+  missing_support_to_hard: true
+  global_anchor_group_cap: 2048
+  max_source_group_draw_fraction: 0.10
+  allow_unverified_synthetic: false
+  fixed_target_per_observation_per_round: true
+  explicit_anchor_zero: false
+  support_limit: 16
+expert_train:
+  trainable: current_expert_only
+  loss: inherit_query_s0_il
+  optimizer: adamw
+  lr: 0.0003
+  weight_decay: 0.01
+  global_batch_size: 128
+  micro_batch_size: 128
+  max_optimizer_steps: 3000
+  warmup_steps: 100
+  lr_min_ratio: 0.1
+  grad_clip_norm: 1.0
+  validation_every_steps: 200
+  early_stop_patience: 5
+  checkpoint_metric: stage_val_oracle_gain
+  distill_all_experts_to_one: false
+  wta_across_experts: false
+scorer:
+  type: trajectory_conditioned_shared
+  hidden_size: 256
+  num_layers: 2
+  attention_heads: 4
+  dropout: 0.0
+  use_expert_identity: false
+  cross_candidate_attention: false
+  direct_value_head: true
+  component_heads: from_metric_schema
+  loss_weights: {value: 1.0, components: 1.0, ranking: 0.2}
+  huber_delta: 0.1
+  rank_temperature: 0.1
+  rank_tie_epsilon: 0.01
+  replay_old_candidates: true
+  sampling: scene_uniform
+  warm_start_previous_scorer: true
+  lr: 0.0001
+  weight_decay: 0.01
+  global_scene_batch_size: 128
+  micro_batch_size: 128
+  max_optimizer_steps: 3000
+  warmup_steps: 100
+  lr_min_ratio: 0.1
+  validation_every_steps: 200
+  early_stop_patience: 5
+  grad_clip_norm: 1.0
+selection:
+  type: scorer_base_fallback
+  protected_metrics: [no_at_fault_collisions, drivable_area_compliance]
+  calibration_split: selector_cal
+  sampling: natural_scene_distribution
+  delta_grid: [0, 0.01, 0.02, 0.05, 0.10]
+  eta_grid: [0, 0.8, 0.9, 0.95, 0.99]
+  safety_relative_tolerance: 0.02
+  budgets: {false_replacement_rate: 0.05, high_to_zero_rate: 0.0, new_hard_safety_violation_rate: 0.0}
+  budget_denominator: all_natural_calibration_scenes
+  tie_break: base_then_oldest_id
+  atomic_bundle_acceptance: true
+router_ablation:
+  enabled: false
+  hidden_size: 256
+  label_type: true_reward_soft_targets
+  label_temperature: 0.1
+  replay_and_refresh_targets_each_round: true
+  run_only_selected_decoder: true
+  logit_margin_grid: [0, 0.1, 0.5, 1.0, 2.0]
+  probability_margin_grid: [0, 0.01, 0.05, 0.1, 0.2]
+gates:
+  oracle_min_mean_gain: 0.005
+  oracle_min_new_successes: 10
+  require_positive_log_bootstrap_lower_bound: true
+  require_frozen_parameter_hash_match: true
+  minimum_logs_for_ci_gate: 10
+  compare_release_against: [s0, previous_serving_bundle]
+  require_no_true_safety_regression_for_release: true
+execution:
+  default_mode: implement_and_smoke
+  real_smoke_steps_per_trainer: 32
+  smoke_rounds: 2
+  auto_full_train: false
+  auto_full_labeling: false
+  auto_navtest: false
+  auto_push: false
+  device: cpu
+  num_threads: 2
+  loader_workers: 2
+  max_samples: 128
+  cpu_score_workers: 1
+  metric_cache_workers: 2
+  scientific_expansion: true
+  smoke_probe_when_no_gap: false
+  tolerate_no_scientific_gain_in_smoke: true
+  shared_gpu: false
+  checkpoint_every_steps: 200
+  bootstrap_repetitions: 2000
+  bootstrap_seed: 42
+tolerances:
+  fp32_cpu: {raw_max_abs: 0.000001, physical_max_abs: 0.00001}
+  fp32_cuda: {raw_max_abs: 0.00001, physical_max_abs: 0.0001}
+  bf16_cuda: {raw_max_abs: 0.02, physical_max_abs: 0.2}

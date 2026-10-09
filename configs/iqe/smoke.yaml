@@ -1,0 +1,26 @@
+extends: main.yaml
+output_root: outputs/iqe/smoke
+query_base:
+  max_optimizer_steps: 32
+  warmup_steps: 1
+  global_batch_size: 4
+  micro_batch_size: 1
+  validation_every_steps: 16
+expert_train:
+  max_optimizer_steps: 32
+  warmup_steps: 1
+  global_batch_size: 4
+  micro_batch_size: 4
+  validation_every_steps: 16
+scorer:
+  max_optimizer_steps: 32
+  warmup_steps: 1
+  global_scene_batch_size: 4
+  micro_batch_size: 4
+  validation_every_steps: 16
+execution:
+  default_mode: smoke
+  max_samples: 32
+  scientific_expansion: false
+  smoke_probe_when_no_gap: true
+  checkpoint_every_steps: 16
