@@ -6,6 +6,7 @@ before the probe, and any failure prevents formal deployment.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 import json
 import os
 from pathlib import Path
@@ -37,6 +38,10 @@ def main():
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--model-state-file', type=Path,
                         help='Optional byte-identical local copy; avoids concurrent NFS mmap page faults')
+    parser.add_argument('--attention-diagnostic', choices=('native', 'math'), default='native',
+                        help='Math is a separate diagnostic for native Flash backward variation, never a formal setting')
+    parser.add_argument('--microbatch', type=int, choices=(2, 4), default=4)
+    parser.add_argument('--optimized-mode', choices=('io_preserving_v1', 'loss_preserving_v1'), default='loss_preserving_v1')
     args = parser.parse_args()
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     if socket.gethostname().removesuffix('-worker-0') not in policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts']:
@@ -64,10 +69,14 @@ def main():
             raise ValueError('Saved model hash changed')
         args.output.mkdir(parents=True, exist_ok=True)
         atomic_json(args.output/'REGISTRATION.json', {'checkpoint': tag, 'training_identity': identity['identity'],
-            'scope': 'no-update actual trained model A/A and execution A/B', 'ranks': world, 'microbatch': 4,
+            'scope': 'no-update actual trained model A/A and execution A/B', 'ranks': world, 'microbatch': args.microbatch,
+            'optimized_mode': args.optimized_mode,
             'gradient_tolerance': {'rtol': GRAD_RTOL, 'atol': GRAD_ATOL},
             'forward_loss_tolerance': {'rtol': 1e-6, 'atol': 1e-7},
             'trajectory_RNG_and_buffers': 'bitwise', 'precision': identity['precision']})
+        atomic_json(args.output/'ATTENTION_DIAGNOSTIC.json', {'mode': args.attention_diagnostic,
+            'formal_attention_backend_changed': False,
+            'purpose': 'isolate checkpoint recomputation equivalence from native Flash backward variation'})
     dist.barrier()
     model = VLAStructuredFGTR(OmegaConf.create(identity['config'])).float()
     saved = torch.load(model_file, map_location='cpu', mmap=True, weights_only=False)
@@ -83,7 +92,8 @@ def main():
     batches = epoch_batches(len(data), 32, 42, epoch)
     if offset == len(batches):
         epoch += 1; offset = 0; batches = epoch_batches(len(data), 32, 42, epoch)
-    indices = batches[offset][rank::world]
+    selected_batch = batches[offset][:args.microbatch*world]
+    indices = selected_batch[rank::world]
     with ThreadPoolExecutor(max_workers=2) as pool:
         observations, targets = collate_structured(list(pool.map(data.__getitem__, indices)))
     generators = {name: torch.Generator(device='cuda').manual_seed(420000+rank+shift)
@@ -94,7 +104,7 @@ def main():
     reference_grads, reference_outputs, reference_buffers, reference_rng = {}, None, None, None
     checks = []
     for label, mode in [('reference', 'reference'), ('reference_replay', 'reference'),
-                        ('optimized', 'loss_preserving_v1')]:
+                        ('optimized', args.optimized_mode)]:
         configure_execution(model, mode)
         model.zero_grad(set_to_none=True)
         with torch.no_grad():
@@ -102,10 +112,13 @@ def main():
         restore_rng(start_rng, generators)
         counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
         torch.cuda.synchronize(); begin = time.monotonic()
-        result = model(observations, targets, completed_updates=complete['completed'],
-            noise_generator=generators['noise'], time_generator=generators['time'],
-            proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)
-        result['loss'].backward()
+        from torch.nn.attention import sdpa_kernel, SDPBackend
+        attention = sdpa_kernel(SDPBackend.MATH) if args.attention_diagnostic == 'math' else nullcontext()
+        with attention:
+            result = model(observations, targets, completed_updates=complete['completed'],
+                noise_generator=generators['noise'], time_generator=generators['time'],
+                proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)
+            result['loss'].backward()
         torch.cuda.synchronize(); seconds = time.monotonic()-begin
         outputs = {**{key: value.detach().cpu() for key, value in result['diagnostics'].items()},
                    **{key: value.detach().cpu() for key, value in result['losses'].items()}}
@@ -151,7 +164,8 @@ def main():
     passed = all(len(row['checks']) == 3 and all(check['passed'] for check in row['checks']) for row in records)
     if rank == 0:
         atomic_json(args.output/'COMPLETE.json', {'training_identity': identity['identity'], 'checkpoint': tag,
-            'ranks': world, 'scene_count': len(batches[offset]), 'per_rank': records, 'passed': passed,
+            'ranks': world, 'scene_count': len(selected_batch), 'per_rank': records, 'passed': passed,
+            'attention_diagnostic': args.attention_diagnostic, 'optimized_mode': args.optimized_mode,
             'limitation': 'No optimizer update here; native ZeRO update/profile and exact boundary recovery are verified separately'})
     dist.destroy_process_group()
     if not passed: raise AssertionError('Real model execution equivalence failed; formal rollout prohibited')

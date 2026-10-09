@@ -9,7 +9,7 @@ import torch
 
 
 class TrainingStageTiming:
-    def __init__(self, model, engine):
+    def __init__(self, model, engine=None):
         self.pending = []
         self.precision = []
         for name, owner, attribute in (
@@ -20,10 +20,12 @@ class TrainingStageTiming:
             ('current_geometry', model.geometry, 'forward'),
             ('future_space', model.future_space, 'forward'),
             ('FGTR', model.refiner, 'forward'),
-            ('scene_heads', model.scene_semantics, 'forward'),
+            ('scene_heads', getattr(model, 'scene_semantics', None), 'forward'),
             ('backward_inclusive', engine, 'backward'),
             ('optimizer_step', engine, 'step'),
         ):
+            if owner is None or (engine is None and name in ('FM_supervision', 'scene_heads')):
+                continue
             original = getattr(owner, attribute)
             setattr(owner, attribute, self._wrap(name, original))
 

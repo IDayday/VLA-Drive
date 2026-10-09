@@ -31,7 +31,7 @@ def main():
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--geometry-identity', required=True)
     parser.add_argument('--dino-identity', required=True)
-    parser.add_argument('--execution-mode', choices=('reference', 'loss_preserving_v1'), default='reference')
+    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1'), default='reference')
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Preserved checkpoint ancestry for the first group only')
     args = parser.parse_args()

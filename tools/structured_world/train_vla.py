@@ -75,7 +75,7 @@ def main():
     parser.add_argument('--image-root', type=Path)
     parser.add_argument('--profile-stages', action='store_true',
                         help='Only profile scope: measure the real model and optimizer stages')
-    parser.add_argument('--execution-mode', choices=('reference', 'loss_preserving_v1'), default='reference')
+    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1'), default='reference')
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
     args = parser.parse_args()
@@ -282,7 +282,7 @@ def main():
     elif resume_origin is not None and not args.resume:
         # Own an atomic recovery point before executing the first upgraded step.
         save('RUNNING')
-    optimized_execution = args.execution_mode == 'loss_preserving_v1'
+    optimized_execution = args.execution_mode != 'reference'
     batch_cache = {}
     def batches_for(current_epoch):
         if not optimized_execution:
