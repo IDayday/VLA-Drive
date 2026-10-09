@@ -1,0 +1,458 @@
+{
+  "schema": "execution_speed_and_deployment_cost_20261009_v1",
+  "snapshot_unix": 1791512228.0580635,
+  "scientific_scope": "latency and execution validation, not completed planning outcomes",
+  "IO_acceptance": {
+    "schema": "IO_only_execution_acceptance_v1",
+    "accepted_mode": "io_preserving_v1",
+    "passed": true,
+    "created_unix": 1791511273.7736976,
+    "decision": "CPU prefetch, cached deterministic epoch ordering and detached host metrics only. Model operators, activation recomputation, scientific configuration, precision and task RNG unchanged.",
+    "evidence_sha256": {
+      "FP32_full_graph_control": "5bc6601902e287306347c9a471991d1bfe64183babf775362675cc1228d71d1f",
+      "real_CPU_prefetch": "333841e4be8763fa76a98f4011dfc585e0611f0b73f78d4ce1688724b6c1cddb"
+    },
+    "prefetch_scenes": 64,
+    "forward_q0_qfinal_RNG_buffers": "bitwise on the actual trained full model in all completed controls",
+    "controlled_FP32_gradient_max_absolute_difference": 9.059906005859375e-06,
+    "existing_mature_operator_tolerance": {
+      "source": "tools/structured_world/validate_reference_modules.py:176 (registered before this speed work)",
+      "absolute_floor": 3e-05,
+      "relative_to_scale": 0.0003
+    },
+    "strict_1e6_absolute_gradient_tests": "FAILURES RETAINED; native BF16 A/A replay also fails. FP32 1e-6 control retains a few atomic-rounding violations, below the earlier mature-operator tolerance.",
+    "precision_control_only": "FP32/math diagnostic does not change formal BF16/autocast or attention policy",
+    "future_CUDA_updates_bitwise_guaranteed": false,
+    "no_recompute_candidate_formal_allowed": false,
+    "full_eight_GPU_profiles": {
+      "G1_FULL_UNIFORM": {
+        "updates": 16,
+        "steady_updates": 14,
+        "median_s": 3.171858310699463,
+        "mean_s": 3.190688507897513,
+        "peak_allocated_bytes": 34247569408,
+        "source_sha": "80b815813946ba56f60e3822c2083e765f3436e0"
+      },
+      "G3_EVENT_LOCAL": {
+        "updates": 16,
+        "steady_updates": 14,
+        "median_s": 3.156844973564148,
+        "mean_s": 3.1806087153298512,
+        "peak_allocated_bytes": 34247569920,
+        "source_sha": "80b815813946ba56f60e3822c2083e765f3436e0"
+      }
+    },
+    "exact_native_state_recovery_required_before_next_update": true
+  },
+  "deployment": {
+    "historical_S0_FP32": {
+      "schema": "read_only_historical_S0_DDP_deployment_cost_v1",
+      "checkpoint": {
+        "sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+        "run_identity": "8dd7d914f10559b0fbfc9593ee1f480a8bb2da80cccb53cba0d684a468e209cd",
+        "training_source_sha": "1493deda247107efe076b9294863a6753391298a",
+        "tag": "milestone_100000",
+        "completed": 100000,
+        "arm": "C1",
+        "scope": "formal",
+        "files": {
+          "bf16_zero_pp_rank_0_mp_rank_00_optim_states.pt": "577aff837cea143748e623f2a08bde56c4216b2c7a699a4bb33333b06446e534",
+          "bf16_zero_pp_rank_1_mp_rank_00_optim_states.pt": "2534bfc45436c604b6bc74a5cee0db6887ad2033d8eaaa3b16a065ea7d8775e5",
+          "bf16_zero_pp_rank_2_mp_rank_00_optim_states.pt": "0c979bb79b29eb0a613001629a92cd839ccf9320bc2e0fa0796218d1ddbd97ff",
+          "bf16_zero_pp_rank_3_mp_rank_00_optim_states.pt": "09604116a9a1faa7fb2cb746a44cdb2aa1d97bc117fc104b39b8056dc4ae90e4",
+          "bf16_zero_pp_rank_4_mp_rank_00_optim_states.pt": "44a579a7f353efc34cc22cb7759fb1cf7c69f31a429fd9f0ff8360d900737009",
+          "bf16_zero_pp_rank_5_mp_rank_00_optim_states.pt": "a8e08e552a52541d274dc4a172712ebc8a5232a23398256bdf0e1cb0803c4968",
+          "bf16_zero_pp_rank_6_mp_rank_00_optim_states.pt": "d91637cea182a6aa99bda688559fc1f05fc81a52adf26efc6c15f00677a6f36e",
+          "bf16_zero_pp_rank_7_mp_rank_00_optim_states.pt": "59e86b26ff3a2ea2e01a11cb2898f13f933ffee3451df535e7b7966cee2b4f7f",
+          "mp_rank_00_model_states.pt": "31bc341c240aff9bf8b2c6a921cc225a581929ce9f3b0cd0d6896b87a21b039b",
+          "rng_rank0.pt": "f48002f65d4cd7c8a8555808ba83a1d531be5ef11d06b66c7f4131c79cc6393d",
+          "rng_rank1.pt": "8d874e589511c3346831374088a375e48cd9b69aab4225b89e8b1a0e6b37a619",
+          "rng_rank2.pt": "d5d52d1ca4e22ac40620af3a2d336091320c83f3f2f8105f42a0eb408700a265",
+          "rng_rank3.pt": "08c593ba3ddb68b3ccf07104429765eb6e7953d13fac78364d784afe25a676b2",
+          "rng_rank4.pt": "d56cff6fb5c7c7bd5112cf9bd8bd8c560b708b529ce04244f227029c64412704",
+          "rng_rank5.pt": "c92607d6eb770885a4c0b24618f1386aba8738af3130b79e0d84d3a03dfc1cc7",
+          "rng_rank6.pt": "a2868b94f9af6348df4ee54a871b9255db3bd4ffe2d0f61a4675555828242e3d",
+          "rng_rank7.pt": "d36657dbb55247ce21d40c61db126f63be4eafd84fa737fce7703b8f7acff5a4"
+        },
+        "training_seed": 42,
+        "model_class": "starVLA.model.framework.ddp_action_video_foresight.DDPActionVideoForesight"
+      },
+      "legacy_source_root": "/mnt/project/VLA-Drive-action-video-source-1493ded",
+      "source_sha": "1493deda247107efe076b9294863a6753391298a",
+      "input_identity": "5058f705c43713a33471258cc3d2b637c0978cc18984d4ac42ebb29db7899458",
+      "batch_size": 1,
+      "GPUs": 1,
+      "hardware": "NVIDIA A800-SXM4-80GB",
+      "precision_policy": "canonical_fp32",
+      "precision": "native FP32 optimizer master reconstruction, strict=True; FP32 inference; TF32 off",
+      "sampling": "original ten steps, single candidate, scene-bound CPU FP32 initial noise seed42",
+      "warmup": 4,
+      "model_loading_seconds": 419.95916917175055,
+      "model_wall": {
+        "count": 32,
+        "mean_s": 1.0322364948224276,
+        "median_s": 1.0310737416148186,
+        "p95_s": 1.0383299017325043,
+        "min_s": 1.0235962122678757,
+        "max_s": 1.0733875297009945
+      },
+      "serial_current_read_plus_model": {
+        "count": 32,
+        "mean_s": 1.1950710085220635,
+        "median_s": 1.1767988968640566,
+        "p95_s": 1.279132439289242,
+        "min_s": 1.1642724052071571,
+        "max_s": 1.4539079647511244
+      },
+      "stage_CUDA_current_stream_medians_s": {
+        "Qwen_current_inclusive": 0.9035576477050782,
+        "proposal_10steps": 0.1267844161987305
+      },
+      "peak_allocated_bytes": 12811831808,
+      "peak_reserved_bytes": 13256097792,
+      "legacy_assets_modified": false,
+      "scope": "read-only latency; no training, official score or quality comparison"
+    },
+    "structured_G3_FP32": {
+      "schema": "real_current_only_single_scene_deployment_cost_v1",
+      "training_identity": "b8a775fc64e9d45e454ce71546a44d09d60ddce1d818efbc6eda95b88b36f7a0",
+      "training_source_sha": "f052e2fc1e43ac72a00eeb7b60e6e45d07cd1ec4",
+      "checkpoint": "latest_0000492",
+      "trained_updates": 492,
+      "input_identity": "5058f705c43713a33471258cc3d2b637c0978cc18984d4ac42ebb29db7899458",
+      "scope": "cost-only on real current development inputs; no planning score or endpoint claim",
+      "hardware": "NVIDIA A800-SXM4-80GB",
+      "GPUs": 1,
+      "batch_size": 1,
+      "warmup": 4,
+      "precision": "FP32 parameters and execution; TF32 disabled; no autocast",
+      "proposal": "original ten steps, one candidate, one FGTR residual",
+      "cameras": 3,
+      "future_points": 8,
+      "training_labels_read_during_predict": false,
+      "supervision_heads_removed": true,
+      "executed_parameter_elements": 3031043105,
+      "model_wall": {
+        "count": 32,
+        "mean_s": 1.3069361559464596,
+        "median_s": 1.3070335276424885,
+        "p95_s": 1.3106694946996869,
+        "min_s": 1.3013615105301142,
+        "max_s": 1.3111754953861237
+      },
+      "current_input_first_read": {
+        "count": 32,
+        "mean_s": 0.15039302792865783,
+        "median_s": 0.1405791761353612,
+        "p95_s": 0.17625888111069798,
+        "min_s": 0.13606816343963146,
+        "max_s": 0.3057416398078203
+      },
+      "serial_current_read_plus_model": {
+        "count": 32,
+        "mean_s": 1.4573291838751175,
+        "median_s": 1.4488419955596328,
+        "p95_s": 1.483876118157059,
+        "min_s": 1.4414186552166939,
+        "max_s": 1.6148521676659584
+      },
+      "stage_CUDA_current_stream_medians_s": {
+        "Qwen_current_inclusive": 0.9072984924316406,
+        "Qwen_vision": 0.4265841369628906,
+        "proposal_10steps": 0.27078103637695317,
+        "current_geometry": 0.024276415824890138,
+        "future_space": 0.0916523208618164,
+        "FGTR": 0.01018239974975586
+      },
+      "peak_allocated_bytes": 13159618560,
+      "peak_reserved_bytes": 13803454464,
+      "weights_loaded_allocated_bytes": 12124172420,
+      "limitations": "FP32 research evaluation implementation; not a real-time vehicle deployment benchmark. Stage intervals include host launch gaps and inclusive parents overlap."
+    },
+    "structured_G3_training_AMP": {
+      "schema": "real_current_only_single_scene_deployment_cost_v1",
+      "training_identity": "b8a775fc64e9d45e454ce71546a44d09d60ddce1d818efbc6eda95b88b36f7a0",
+      "training_source_sha": "f052e2fc1e43ac72a00eeb7b60e6e45d07cd1ec4",
+      "checkpoint": "latest_0000492",
+      "trained_updates": 492,
+      "input_identity": "5058f705c43713a33471258cc3d2b637c0978cc18984d4ac42ebb29db7899458",
+      "scope": "cost-only on real current development inputs; no planning score or endpoint claim",
+      "hardware": "NVIDIA A800-SXM4-80GB",
+      "GPUs": 1,
+      "batch_size": 1,
+      "warmup": 4,
+      "precision_policy": "training_amp",
+      "precision": "FP32 parameters; BF16 Qwen vision/language and action compute; FP32 geometry/future/FGTR; TF32 disabled",
+      "canonical_scoring_eligible": false,
+      "sampling": "same scene-bound CPU FP32 initial noise as canonical evaluator, seed42",
+      "proposal": "original ten steps, one candidate, one FGTR residual",
+      "cameras": 3,
+      "future_points": 8,
+      "training_labels_read_during_predict": false,
+      "supervision_heads_removed": true,
+      "deployed_parameter_elements": 3031043105,
+      "cold_model_construction_checkpoint_restore_and_GPU_transfer_seconds": 26.578258076682687,
+      "model_wall": {
+        "count": 32,
+        "mean_s": 0.5951876972685568,
+        "median_s": 0.594216818921268,
+        "p95_s": 0.6040810875594615,
+        "min_s": 0.5854670628905296,
+        "max_s": 0.6125511880964041
+      },
+      "current_input_first_read": {
+        "count": 32,
+        "mean_s": 0.1901663825265132,
+        "median_s": 0.14433161355555058,
+        "p95_s": 0.43056008303537935,
+        "min_s": 0.1369087789207697,
+        "max_s": 0.7698433510959148
+      },
+      "serial_current_read_plus_model": {
+        "count": 32,
+        "mean_s": 0.78535407979507,
+        "median_s": 0.7432356085628271,
+        "p95_s": 1.0290596958249805,
+        "min_s": 0.7223758418112993,
+        "max_s": 1.3644178286194801
+      },
+      "stage_CUDA_current_stream_medians_s": {
+        "Qwen_current_inclusive": 0.17384422302246094,
+        "Qwen_vision": 0.06690088272094727,
+        "proposal_10steps": 0.2907526550292969,
+        "current_geometry": 0.02436880016326904,
+        "future_space": 0.09163086318969726,
+        "FGTR": 0.010464848041534424
+      },
+      "peak_allocated_bytes": 15230659584,
+      "peak_reserved_bytes": 15871246336,
+      "weights_loaded_allocated_bytes": 12124172420,
+      "limitations": "FP32 research evaluation implementation; not a real-time vehicle deployment benchmark. Stage intervals include host launch gaps and inclusive parents overlap."
+    }
+  },
+  "numerical_controls": {
+    "native_BF16_no_recompute": {
+      "strict_test_passed": false,
+      "ranks": 8,
+      "scene_count": 32,
+      "maximum_gradient_differences_by_comparison": {
+        "reference_replay": 0.05193448066711426,
+        "optimized": 0.05970609188079834
+      },
+      "gradient_tolerance_violations_by_comparison": {
+        "reference_replay": 2944012933,
+        "optimized": 2935543496
+      },
+      "maximum_relative_gradient_L2_by_comparison": {
+        "reference_replay": 0.015204670875612579,
+        "optimized": 0.011878814640210022
+      },
+      "q0_qfinal_RNG_mutable_buffers": "bitwise",
+      "limitation": "no optimizer update; strict failure retained, not relabeled PASS"
+    },
+    "BF16_math_IO": {
+      "strict_test_passed": false,
+      "ranks": 8,
+      "scene_count": 16,
+      "maximum_gradient_differences_by_comparison": {
+        "reference_replay": 0.017578125,
+        "optimized": 0.03125
+      },
+      "gradient_tolerance_violations_by_comparison": {
+        "reference_replay": 983601578,
+        "optimized": 524797700
+      },
+      "maximum_relative_gradient_L2_by_comparison": {
+        "reference_replay": 0.005993991347109279,
+        "optimized": 0.004388979111374973
+      },
+      "q0_qfinal_RNG_mutable_buffers": "bitwise",
+      "limitation": "no optimizer update; strict failure retained, not relabeled PASS"
+    },
+    "FP32_math_IO": {
+      "strict_test_passed": false,
+      "ranks": 8,
+      "scene_count": 16,
+      "maximum_gradient_differences_by_comparison": {
+        "reference_replay": 9.059906005859375e-06,
+        "optimized": 4.291534423828125e-06
+      },
+      "gradient_tolerance_violations_by_comparison": {
+        "reference_replay": 28,
+        "optimized": 19
+      },
+      "maximum_relative_gradient_L2_by_comparison": {
+        "reference_replay": 2.4737968798322536e-06,
+        "optimized": 2.4738371134920747e-06
+      },
+      "q0_qfinal_RNG_mutable_buffers": "bitwise",
+      "limitation": "no optimizer update; strict failure retained, not relabeled PASS"
+    }
+  },
+  "same_precision_old_and_new_FP32": {
+    "same_current_inputs_and_32_scenes": true,
+    "S0_checkpoint": "best completed 100k historical S0; independently restored original master weights from 1493deda",
+    "new_G3_checkpoint": "formal update492; latency only, not a completed outcome",
+    "model_wall_delta_s": 0.2759597860276699,
+    "note": "New-world forward is ~0.126s. The observed original-action sampler differs ~0.144s between these executions, so total cost delta cannot be attributed only to geometry/FGTR."
+  },
+  "network_inspection": {
+    "both_intra_node": "eight NVLinks per GPU pair",
+    "both_container_eth0_reported_Mbps": 10000,
+    "both_container_dev_infiniband_exposed": false,
+    "host_IB_ports_reported_Gbps": 200,
+    "sixteen_GPU_training_measured": false,
+    "decision": "retain two independent eight-GPU runs; no unmeasured claim that sixteen GPUs are faster",
+    "reference": "https://docs.nvidia.com/deeplearning/nccl/archives/nccl_2262/user-guide/docs/troubleshooting.html"
+  },
+  "canonical_precision_fixed": "FP32 remains mandatory for main scores; training-AMP deployment timing has no planning-quality equivalence claim",
+  "formal_IO_upgrade_snapshot": {
+    "snapshot_unix": 1791512680.5151937,
+    "interpretation": "timestamped actual progress, not live counters or completed endpoints",
+    "runs": [
+      {
+        "group": "G1_FULL_UNIFORM",
+        "host": "training-vla-zt2",
+        "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "run_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+        "scope": "formal",
+        "schedule_horizon": 100000,
+        "execution_mode": "io_preserving_v1",
+        "execution_acceptance": {
+          "file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/IO_EXECUTION_ACCEPTANCE_v1.json",
+          "schema": "IO_only_execution_acceptance_v1",
+          "sha256": "f5c369126136f6ec233ff6d755b704e6c215d6d3539ef542ab463cf553fbbb4b"
+        },
+        "execution_upgrade_origin": {
+          "completed": 728,
+          "file_sha256": {
+            "mp_rank_00_model_states.pt": "998f109d062e0e478042c6a81935cecfd1412c48a2aaa378c63e6f3e3681616a",
+            "rng_rank0.pt": "1e38fc8e8e43dea26d53371d567fbff5f002dda7d9abb534e66ff41150cd1558",
+            "rng_rank1.pt": "808968c9003d3d02b7389ce773260ed2035909e2dda66624faebf37eada494ff",
+            "rng_rank2.pt": "c70058d32ae9cab048ef11e0718685e4504534b3377c4300bd3ca86d1bdb722b",
+            "rng_rank3.pt": "f878aa2d7549165c99917b941f51d8c5e44d3f1800230ced374e5e3250aadc0c",
+            "rng_rank4.pt": "90c6e500d410ebfba1035fce026191ea29e9590a2afe666cec80577cf19a6c8f",
+            "rng_rank5.pt": "e4ecf82a7407af171e0d4459bba73b5337432e62107ed6210a5f32bb7708dd7c",
+            "rng_rank6.pt": "be7818ec91d0926dd61e882bac19e4ada1c6f0ca3a84852321ca0cde0f61f55d",
+            "rng_rank7.pt": "0cd403eef530113493874437ac1e1b1329342ebcaf4fda7852676d5c6fedd219",
+            "zero_pp_rank_0_mp_rank_00_optim_states.pt": "a1cc3665a658a5bd6a25deb4046856a2c81b72b02852c7d82fbc51a1dd47b104",
+            "zero_pp_rank_1_mp_rank_00_optim_states.pt": "24c5e7a908999f0724e3755cb23091830c9c65155ae64f3bba0fda5df8c61c82",
+            "zero_pp_rank_2_mp_rank_00_optim_states.pt": "1e894154621980cbf71941389875f8911ad1ff0ebbecd6912dac71c03ce7a3f4",
+            "zero_pp_rank_3_mp_rank_00_optim_states.pt": "80fa1591f978ba03c32a687d9933c514cc0948632eb84e04d5fbe61af3fcb2cd",
+            "zero_pp_rank_4_mp_rank_00_optim_states.pt": "2ad72882c4f18e1587c097165eb3f8d6bd9653f7ed50b9db488bbe07e941d88f",
+            "zero_pp_rank_5_mp_rank_00_optim_states.pt": "7b195b9326b672933efd8c2aa523abc2076fed559517cd44512c52730e80c423",
+            "zero_pp_rank_6_mp_rank_00_optim_states.pt": "e1aedead67d59b1df9e24f36625dfbcfc77383586bf651b3ba4d686edfe3de60",
+            "zero_pp_rank_7_mp_rank_00_optim_states.pt": "c65c502a7441df72c5d13a8e1bc46b1b6536630000f325a03d6cb5ac416c55f8"
+          },
+          "identity": "4d0dec441ccfdbed2731f48e616cdafedda485d3a842b32647be2ac65212be16",
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v2_vision_amp/G1_FULL_UNIFORM",
+          "tag": "latest_0000728",
+          "training_source_sha": "f052e2fc1e43ac72a00eeb7b60e6e45d07cd1ec4"
+        },
+        "boundary": {
+          "Adam_moments_steps_and_LR": "bitwise all ranks",
+          "FP32_masters": "bitwise all ranks, actual parameters",
+          "FP32_model_and_buffers": "bitwise",
+          "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+          "all_task_RNG": "exact all ranks",
+          "completed": 728,
+          "epoch": 0,
+          "exposure": 23296,
+          "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+          "offset": 728,
+          "passed": true,
+          "timing": "before next forward/backward/update"
+        },
+        "snapshot_completed_updates": 1061,
+        "snapshot_scene_exposure": 33952,
+        "recent_timing_count": 30,
+        "recent_seconds_median": 3.1485447883605957,
+        "FP32_master_update_verified": true,
+        "execution_policy": {
+          "DiT_activation_checkpointing": true,
+          "Qwen_language_activation_checkpointing": true,
+          "deferred_activation_metrics": true,
+          "geometry_checkpointing_and_BN": "unchanged",
+          "mode": "io_preserving_v1",
+          "ordered_CPU_prefetch": true,
+          "precision_loss_noise_and_proposal_steps": "unchanged"
+        }
+      },
+      {
+        "group": "G3_EVENT_LOCAL",
+        "host": "training-vla-zt",
+        "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "run_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+        "scope": "formal",
+        "schedule_horizon": 100000,
+        "execution_mode": "io_preserving_v1",
+        "execution_acceptance": {
+          "file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/IO_EXECUTION_ACCEPTANCE_v1.json",
+          "schema": "IO_only_execution_acceptance_v1",
+          "sha256": "f5c369126136f6ec233ff6d755b704e6c215d6d3539ef542ab463cf553fbbb4b"
+        },
+        "execution_upgrade_origin": {
+          "completed": 492,
+          "file_sha256": {
+            "mp_rank_00_model_states.pt": "534f33a2b14372b865b628bfd07697a953e42366487c2cfdfe01193bbd32b2d3",
+            "rng_rank0.pt": "597e7b16596dce63d8c5a5bf3fb24a24c3195851830c32b2114e6242e1bb2b8e",
+            "rng_rank1.pt": "4c76fbb082fd525689f0bc8d6c33d8cdb670470d68d1b704c95006184e3c91c0",
+            "rng_rank2.pt": "3c291c3f762fa794fb8c8ab63d0955055763a742d648262d6183abe24ece3120",
+            "rng_rank3.pt": "19bdbbe371401292caa2ad5565e733c841127b742c2d7863600cc5e0f9ab5bed",
+            "rng_rank4.pt": "06f52b9ae98cb2df71c70e2c5f5018386b9e9dc22cd51dc38e20527d253b6826",
+            "rng_rank5.pt": "9158d55c25b6e067768e783f92d2143212b5cb3b5841f4d0ca43c08c7a7253d8",
+            "rng_rank6.pt": "431a7955bdfead4ffbf2cdd9712793c18a9f99d2646647e40579e65ba0682710",
+            "rng_rank7.pt": "651e2097b774ae2e1bbc7bedff5b02b4613d4a90f125c8f6e0f85e0759034de6",
+            "zero_pp_rank_0_mp_rank_00_optim_states.pt": "c38615f91d73e1fa0e006203900ccc49c4135d7a00e0aa31140316d4a1605317",
+            "zero_pp_rank_1_mp_rank_00_optim_states.pt": "2f6c3981190e4c17027f7d1fd0f9aae90f37babbadcb500c90c74afcb360575a",
+            "zero_pp_rank_2_mp_rank_00_optim_states.pt": "4cc4dd6b092a9124178d8256e23a84b29b85571f8b9797f380f039a5e3a1324c",
+            "zero_pp_rank_3_mp_rank_00_optim_states.pt": "a5928ade647c93cad8d482a2c1ec4245fea8d4547ff6e6e9f3c7bac716bd1d52",
+            "zero_pp_rank_4_mp_rank_00_optim_states.pt": "5b22b6f5cca5c6350df7353c1f49dd6bf1a6f6f88763b800502ddf5527399f85",
+            "zero_pp_rank_5_mp_rank_00_optim_states.pt": "7021c3b356a4015e7ebbd0b7d261a09dead3198703d402a855211fa43153e32c",
+            "zero_pp_rank_6_mp_rank_00_optim_states.pt": "47aab07f037f3fb746377d71f41dfe0637b1e2b3cab77f2d17740a054a3b7334",
+            "zero_pp_rank_7_mp_rank_00_optim_states.pt": "65ecccf464f0f071460c354a28b29b3e4c37c564e1bbfd21f2322ec3a267d6a5"
+          },
+          "identity": "b8a775fc64e9d45e454ce71546a44d09d60ddce1d818efbc6eda95b88b36f7a0",
+          "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v2_vision_amp/G3_EVENT_LOCAL",
+          "tag": "latest_0000492",
+          "training_source_sha": "f052e2fc1e43ac72a00eeb7b60e6e45d07cd1ec4"
+        },
+        "boundary": {
+          "Adam_moments_steps_and_LR": "bitwise all ranks",
+          "FP32_masters": "bitwise all ranks, actual parameters",
+          "FP32_model_and_buffers": "bitwise",
+          "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+          "all_task_RNG": "exact all ranks",
+          "completed": 492,
+          "epoch": 0,
+          "exposure": 15744,
+          "identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+          "offset": 492,
+          "passed": true,
+          "timing": "before next forward/backward/update"
+        },
+        "snapshot_completed_updates": 592,
+        "snapshot_scene_exposure": 18944,
+        "recent_timing_count": 30,
+        "recent_seconds_median": 3.136576533317566,
+        "FP32_master_update_verified": true,
+        "execution_policy": {
+          "DiT_activation_checkpointing": true,
+          "Qwen_language_activation_checkpointing": true,
+          "deferred_activation_metrics": true,
+          "geometry_checkpointing_and_BN": "unchanged",
+          "mode": "io_preserving_v1",
+          "ordered_CPU_prefetch": true,
+          "precision_loss_noise_and_proposal_steps": "unchanged"
+        }
+      }
+    ],
+    "remaining_NAVSIM_groups": "G0/G2 queued, common prescribed initialization",
+    "nuScenes_formal_status": "G1/G3 pending official data and independent shared geometry preparation"
+  },
+  "deployment_comparison_limits": {
+    "same": "physical A800 class, FP32/TF32-off, batch one, same current-input export, 32 scenes and four warmups, native ten-step one-candidate action sampler",
+    "different": "historical S0 update100000 versus structured G3 update492; distinct execution wrappers; newer benchmark sets CUBLAS_WORKSPACE_CONFIG, historical tool does not set it explicitly; first G3 FP32 cost uses its earlier fixed-noise cost implementation",
+    "purpose": "cost comparison, not controlled planning-quality or strict numerical equivalence; sampler overhead cause remains unresolved"
+  }
+}

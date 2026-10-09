@@ -4,8 +4,8 @@ This branch contains executable code and real data/training/deployment checks.
 **Formal NAVSIM G1/G3 are running on two distinct physical eight-A800 hosts;
 G0/G2 are queued. nuScenes formal G1/G3 await official assets and their own
 common perception preparation. No planning improvement is claimed.** The
-formal training/evaluation source is frozen at `f052e2f`; each run records the
-full SHA. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
+current formal training/evaluation source is frozen at `0c54f1c`; each run records
+the full SHA and its `f052e2f` recovery ancestry. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
 not a live counter or a completed result. Historical engineering scores remain
 explicitly separate from the formal population and endpoint.
 
@@ -19,8 +19,45 @@ they do not initialize from those prefixes or profiling checkpoints.
 real CPU data probe, live stack sample and eight-GPU full-chain profiles.
 Correcting vision autocast reduced steady profile time from about 4.89 seconds
 to 3.46/3.42 seconds for G1/G3. These eight-update profiles are cost measurements,
-not completed planning experiments. Further loss-preserving execution work is
-being verified separately; it does not change loss terms, proposal steps or seeds.
+not completed planning experiments. IO-only execution improvements subsequently
+reduced the 16-update profiles to 3.172/3.157 seconds. The original activation
+recomputation, precision, losses, proposal steps, effective batch and RNG remain
+unchanged. Actual G1/G3 formal training resumed from updates 728/492 with exact
+native model/master/Adam/LR/RNG/data-position verification before the next
+update; both have continued updating. G0/G2 are queued with the same execution
+mode and their prescribed common initialization, not those parent weights.
+
+`EXECUTION_SPEED_AND_DEPLOYMENT_20261009.json` contains the acceptance evidence,
+timestamped recovery/progress snapshot and actual deployment costs. The real
+64-scene prefetch check passed byte and RNG identity. Full-model q0/q_final,
+RNG and buffers matched bitwise in completed controls. Strict gradient checks
+remain **failed**, including native BF16 reference-versus-reference replay.
+The FP32 control has a maximum 9.06e-6 discrepancy, within the mature-operator
+tolerance registered before this work, but above the separate strict 1e-6
+threshold. IO acceptance does not promise bitwise future CUDA updates. The
+candidate that disables activation recomputation is prohibited in formal runs.
+
+The following single-A800, batch-one costs use 32 real current NAVSIM development
+inputs after four warmup scenes. All use one native ten-step proposal; the new
+model adds one residual. Weight loading is excluded from per-scene latency.
+
+| Executed model / precision | Model median | Current-file read + model median |
+| --- | ---: | ---: |
+| Historical S0 Qwen + original DDP, FP32 | 1.031 s | 1.177 s |
+| Structured G3, FP32 | 1.307 s | 1.449 s |
+| Structured G3, training AMP compute | 0.594 s | 0.743 s |
+
+The historical row strictly reconstructs S0's 100000-update FP32 masters from
+the pinned `1493ded` implementation. The new rows use update 492 only to measure
+cost, not completed model quality. Historical FP32 Qwen encoding takes about
+0.904 s and the original action sampler 0.127 s. New FP32 geometry, future-space
+generation and FGTR together take about 0.126 s, but the new sampler also measures
+0.271 s. Thus the observed total increase is 0.276 s (26.8%); it cannot all be
+attributed to the three new branches. The additional sampler runtime is not yet
+explained by an isolated control. These are measured implementations, not a
+claim that the public DDP algorithm inherently requires a one-second VLM pass.
+The AMP cost row is a separate precision experiment; planning-quality parity
+with canonical FP32 has not been established. Canonical scoring remains FP32.
 
 ## Source and preservation
 
@@ -268,6 +305,9 @@ $QPY tools/structured_world/build_nuscenes_cache.py --help
 $QPY tools/structured_world/prepare_nuscenes_labels.py --help
 $QPY tools/structured_world/prepare_nuscenes_perception.py --help
 $QPY tools/structured_world/validate_training_target_invariance.py --help
+$QPY tools/structured_world/validate_execution_equivalence.py --help
+$QPY tools/structured_world/benchmark_deployment.py --help
+$QPY tools/structured_world/benchmark_legacy_ddp.py --help
 $QPY tools/structured_world/run_navsim_pair.py --help
 $QPY tools/structured_world/build_current_dino.py --help
 $QPY tools/structured_world/slice_navsim_current_c1.py --help
@@ -285,6 +325,9 @@ $QPY tools/structured_world/score_scene_fields.py --help
 
 Formal training uses `train_vla.py --scope formal` only after its initialization,
 cache, clean-source and frozen-configuration gates are satisfied. Restart uses
-the **same frozen source and arguments** with `--resume`; changing source hashes
-or common recipe is rejected. No automatic legacy control process is started.
+the **same frozen source and arguments** with `--resume`. The registered IO-only
+upgrade separately requires `--execution-mode io_preserving_v1`, the hashed
+`--execution-acceptance` record and `--resume-origin-run`; it validates the whole
+scientific contract and exact native recovery boundary. Arbitrary source or
+recipe changes remain rejected. No automatic legacy control process is started.
 Only this feature branch is to be pushed; no automatic merge.
