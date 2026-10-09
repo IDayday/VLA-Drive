@@ -73,7 +73,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
     by_id = {x["token"]: i for i, x in enumerate(dataset.index)}
     fit = sorted(s.scene_id for s in scenes if s.split_role == "incremental_fit")
     require(fit and all(t in by_id for t in fit), "Query base fit records must join original training data")
-    require(all(s.source_kind == "original" and s.target_provenance == "gt" for s in scenes if s.scene_id in set(fit)), "base trains only original GT")
+    fit_ids = set(fit)
+    require(all(s.source_kind == "original" and s.target_provenance == "gt" for s in scenes if s.scene_id in fit_ids), "base trains only original GT")
     from tools.ddpolicy_vehicle.training_state import epoch_batches
     from tools.foresight.student_state import optimizer_batch_counts
     from starVLA.dataloader.foresight_dataset import collate_training
