@@ -18,6 +18,7 @@ from starVLA.model.framework.vla_structured_fgtr import VLAStructuredFGTR
 from starVLA.dataloader.structured_world.current_inputs import CurrentInputs
 from tools.structured_world.training_assets import file_digest
 from tools.structured_world.stage_timing import TrainingStageTiming
+from tools.structured_world.infer_checkpoint import scene_noise
 
 
 def summarize(values):
@@ -31,6 +32,7 @@ def main():
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--scenes', type=int, default=32)
     parser.add_argument('--warmup', type=int, default=4)
+    parser.add_argument('--precision-policy', choices=('canonical_fp32', 'training_amp'), default='canonical_fp32')
     args = parser.parse_args()
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     if socket.gethostname().removesuffix('-worker-0') not in policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts']:
@@ -50,7 +52,7 @@ def main():
     saved = torch.load(args.model_state_file, map_location='cpu', mmap=True, weights_only=False)
     model.load_state_dict(saved['module'], strict=True); del saved
     model.shared_geometry_identity = identity['shared_geometry_identity']
-    model.strip_auxiliary_heads().cuda().eval(); model.inference_fp32 = True
+    model.strip_auxiliary_heads().cuda().eval(); model.inference_fp32 = args.precision_policy == 'canonical_fp32'
     torch.cuda.synchronize()
     model_loading_seconds = time.perf_counter()-load_started
     if any(p.dtype != torch.float32 for p in model.parameters()): raise AssertionError('Non-FP32 deployment parameters')
@@ -63,7 +65,8 @@ def main():
         begin = time.perf_counter(); observation = current[index]
         load_seconds = time.perf_counter()-begin
         torch.cuda.synchronize(); begin = time.perf_counter()
-        result = model.predict_action([observation], sampling_seed=42, return_diagnostics=True)
+        result = model.predict_action([observation], sampling_seed=42,
+            initial_noise=scene_noise(observation['token'], 42, model.steps, 'cuda'), return_diagnostics=True)
         torch.cuda.synchronize(); seconds = time.perf_counter()-begin
         if not torch.isfinite(result['q_final']).all(): raise AssertionError('Invalid deployed trajectory')
         stages = timer.consume_after_synchronize()
@@ -77,7 +80,11 @@ def main():
         'checkpoint': tag, 'trained_updates': complete['completed'], 'input_identity': current.identity['identity'],
         'scope': 'cost-only on real current development inputs; no planning score or endpoint claim',
         'hardware': torch.cuda.get_device_name(), 'GPUs': 1, 'batch_size': 1, 'warmup': args.warmup,
-        'precision': 'FP32 parameters and execution; TF32 disabled; no autocast',
+        'precision_policy': args.precision_policy,
+        'precision': ('FP32 parameters and execution; TF32 disabled; no autocast' if args.precision_policy == 'canonical_fp32'
+            else 'FP32 parameters; BF16 Qwen vision/language and action compute; FP32 geometry/future/FGTR; TF32 disabled'),
+        'canonical_scoring_eligible': args.precision_policy == 'canonical_fp32',
+        'sampling': 'same scene-bound CPU FP32 initial noise as canonical evaluator, seed42',
         'proposal': 'original ten steps, one candidate, one FGTR residual',
         'cameras': model.cameras, 'future_points': model.steps,
         'training_labels_read_during_predict': False, 'supervision_heads_removed': True,
