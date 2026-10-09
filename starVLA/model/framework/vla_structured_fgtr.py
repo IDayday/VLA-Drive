@@ -66,6 +66,15 @@ class VLAStructuredFGTR(DDPForesight):
             'geometry_backbone': self.geometry.initialization['backbone'],
             'grid': asdict(self.grid), 'group': group, 'steps': steps, 'cameras': cameras}
 
+    def _build_qwen_batch(self, examples, instructions):
+        # The parent extracts frozen vision features before encode_current's
+        # language autocast block. FP32 master parameters otherwise make that
+        # vision forward silently FP32. Match the registered BF16 Qwen compute
+        # contract while retaining FP32 parameters; canonical inference uses
+        # amp()'s existing inference_fp32 bypass.
+        with self.amp():
+            return super()._build_qwen_batch(examples, instructions)
+
     def load_shared_geometry(self, path, expected_identity, *, allow_debug=False):
         state = torch.load(path, map_location='cpu', weights_only=False)
         if state['identity'] != expected_identity or state['dataset'] != self.structured_options['dataset']:

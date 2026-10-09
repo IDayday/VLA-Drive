@@ -44,6 +44,7 @@ def source_hashes():
     paths.append(Path(__file__))
     paths.append(ROOT/'tools/structured_world/recovery_boundary.py')
     paths.append(ROOT/'tools/structured_world/training_assets.py')
+    paths.append(ROOT/'tools/structured_world/stage_timing.py')
     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
 
@@ -66,7 +67,11 @@ def main():
     parser.add_argument('--dino-root', type=Path)
     parser.add_argument('--dino-identity')
     parser.add_argument('--image-root', type=Path)
+    parser.add_argument('--profile-stages', action='store_true',
+                        help='Only profile scope: measure the real model and optimizer stages')
     args = parser.parse_args()
+    if args.profile_stages and args.scope != 'profile':
+        raise ValueError('Extra stage instrumentation is forbidden in formal/small-fit runs')
     policy = json.loads(Path('/mnt/project/server_dispatch_policy.json').read_text())
     hosts = policy['task_authorizations']['structured_world_fgtr_round1']['allowed_hosts']
     canonical = socket.gethostname().removesuffix('-worker-0')
@@ -153,7 +158,8 @@ def main():
         'determinism': {'torch_algorithms': 'warn_only', 'cudnn_deterministic': True,
             'CUBLAS_WORKSPACE_CONFIG': os.environ['CUBLAS_WORKSPACE_CONFIG'],
             'native_CUDA_atomic_rounding': 'measured with common-prefix recovery'},
-        'precision': 'FP32 parameters/master/optimizer; BF16 Qwen and original action compute; FP32 geometry/refiner; TF32 off'}
+        'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
+        'extra_stage_instrumentation': args.profile_stages}
     identity = hashlib.sha256(json.dumps(contract, sort_keys=True).encode()).hexdigest()
     args.output.mkdir(parents=True, exist_ok=True)
     if rank == 0:
@@ -175,6 +181,10 @@ def main():
         'optimizer': {'type': 'Adam', 'params': {'lr': float(rates['base']), 'betas': [.9, .95],
                      'eps': 1e-8, 'weight_decay': .001, 'adam_w_mode': True}}}
     engine, _, _, _ = deepspeed.initialize(model=model, model_parameters=groups, config=ds_config)
+    stage_timing = None
+    if args.profile_stages:
+        from tools.structured_world.stage_timing import TrainingStageTiming
+        stage_timing = TrainingStageTiming(model, engine)
     generators = {name: torch.Generator(device='cuda').manual_seed(420000+rank+offset) for name, offset in
                   [('noise', 100), ('time', 200), ('proposal', 300), ('queries', 400)]}
     generators['counts'] = torch.Generator().manual_seed(420500+rank)
@@ -250,6 +260,7 @@ def main():
             indices = batches[offset][rank::world]
             samples = list(pool.map(data.__getitem__, indices))
             observations, targets = collate_structured(samples)
+            data_seconds = time.monotonic()-start
             counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
             actual_lrs = []
             for group, record in zip(engine.optimizer.param_groups, group_records):
@@ -280,6 +291,12 @@ def main():
                 del output
             torch.cuda.synchronize()
             cost = torch.tensor(time.monotonic()-start, device='cuda'); dist.all_reduce(cost, op=dist.ReduceOp.MAX)
+            stage_records = None
+            if stage_timing is not None:
+                local_stages = stage_timing.consume_after_synchronize()
+                local_stages['data_load_and_collate_seconds'] = data_seconds
+                stage_records = [None]*world
+                dist.all_gather_object(stage_records, local_stages)
             elapsed += float(cost); completed += 1; exposure += len(batches[offset]); offset += 1
             keys = sorted(logs); packed = torch.tensor([logs[k] for k in keys], device='cuda'); dist.all_reduce(packed); packed /= world
             if rank == 0:
@@ -296,6 +313,8 @@ def main():
                     'gradient_clip_scale': min(1., clip_limit/(gradient_norm+1e-6)) if clip_limit > 0 else 1.,
                     'peak_GPU_allocated_bytes_rank0': torch.cuda.max_memory_allocated(),
                     'GPU_hours': elapsed*world/3600., 'seconds': float(cost), **evidence}
+                if stage_records is not None:
+                    record['per_rank_stage_timing'] = stage_records
                 with (args.output/'metrics.jsonl').open('a') as stream: stream.write(json.dumps(record)+'\n')
                 print(json.dumps(record), flush=True)
             if (args.output/'STOP_AFTER_CHECKPOINT').exists() or (args.stop_after and completed >= args.stop_after):
