@@ -168,8 +168,10 @@ class Pipeline:
                 if len(chosen[role]) < self.max_samples:
                     chosen[role].append(row["token"])
             require(all(chosen.values()), "allowed source logs cannot supply all fit/val/cal roles")
-            train_scenes = import_current(d["train_root"], d["train_metric_metadata"], "incremental_fit", scene_ids=set(t for ids in chosen.values() for t in ids))
-            dev_scenes = import_current(d["dev_root"], d["dev_metric_metadata"], "dev_report", limit=self.max_samples)
+            train_scenes = import_current(d["train_root"], d["train_metric_metadata"], "incremental_fit", scene_ids=set(t for ids in chosen.values() for t in ids),
+                                          workers=max(1, self.config["execution"]["loader_workers"]))
+            dev_scenes = import_current(d["dev_root"], d["dev_metric_metadata"], "dev_report", limit=self.max_samples,
+                                        workers=max(1, self.config["execution"]["loader_workers"]))
             scenes = split_training_logs(train_scenes + dev_scenes, self.config["splits"]["fallback_fit_val_cal_log_ratios"], self.config["seed"])
             save_scenes(self.root / "scenes.json", scenes)
         audit = validate_isolation(scenes)

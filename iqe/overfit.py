@@ -15,8 +15,12 @@ def overfit_32(pipeline, number, steps=32, resume=None):
     manifest = read_json(pipeline.round_root(number) / "expert_manifest.json")
     require(not manifest["probe"], "overfit_32 requires 32 audited targets; smoke probes are separate evidence")
     records = {r["scene_id"]: strict_record(SceneRecord, r) for r in manifest["records"]}
-    ids = sorted(set(manifest["buckets"]["hard_original"]))[:32]
-    require(len(ids) == 32, "overfit_32 needs 32 distinct audit-passing coverage scenes")
+    # The diagnostic requires reliable GT, not 32 remaining coverage gaps.
+    # Support/anchor records underwent the same quality/input audit in build_round.
+    audited_ids = set().union(*(set(manifest["buckets"][k]) for k in
+                               ("hard_original", "local_support", "global_anchor")))
+    ids = sorted(s for s in audited_ids if records[s].target_provenance == "gt")[:32]
+    require(len(ids) == 32, "overfit_32 needs 32 distinct audit-passing GT scenes")
     rows = [records[s] for s in ids]
     model = pipeline.model(number - 1)
     eid = f"expert_{number}"

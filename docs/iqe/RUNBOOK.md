@@ -14,6 +14,10 @@ $IQE_PYTHON -m iqe.cli build-splits --config configs/iqe/main.yaml --mode full -
 
 `--max-samples` 为每个角色的显式上限，实际角色不足该数时使用全部。全量导入会核验真实图像 hash，耗时和 I/O 需预算。main.yaml 的 Query 基础训练100000 updates/global batch32；新增专家和 Scorer 各3000/global batch128。smoke 独立输出目录、最多32步，不调用 navtest。
 
+正式Query基础训练每1000步保存完整optimizer-step checkpoint（约22GB/份，100k约2.2TB存储预算）；独立专家/Scorer仍按200步验证和保存。该I/O间隔不改变任何loss、样本、global batch或schedule，避免在6.5TB可用空间上累计约11TB的基础checkpoint。不删除历史/其他作业权重。profile每8步、smoke按其显式较短配置保存。
+
+全量预审计可使用`build-splits --config configs/iqe/data_prepare.yaml --mode full --max-samples 101592 --device cpu`，仅把独立文件hash读取并发设为16，输出仍为main的同一有序manifest。384条真实记录已验证串行/并发的顺序及全部字段一致，图像/目标/context核验没有省略。训练继续使用main.yaml的原loader资源配置。profile使用独立PROFILE_CONTRACT，不覆盖正式S0契约。
+
 ```bash
 IQE_DEVICE=cuda IQE_SMOKE_STEPS=32 bash scripts/iqe/smoke_two_rounds.sh
 ```

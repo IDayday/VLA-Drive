@@ -11,6 +11,18 @@ from ..contracts import require
 from ..io import atomic_torch, atomic_json, file_hash, read_json
 
 
+def configure_language_checkpointing(framework):
+    """Keep activation recomputation with DDP-compatible non-reentrant autograd.
+
+    Only the already-checkpointed language stack changes its recomputation
+    implementation. Forward values, losses and RNG preservation are unchanged;
+    the frozen visual tower and input sequence retain their original execution.
+    """
+    language = framework.qwen_vl_interface.model.model.language_model
+    if language.is_gradient_checkpointing:
+        language.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+
+
 def capture_rng():
     return {"python": random.getstate(), "numpy": np.random.get_state(), "cpu": torch.get_rng_state(),
             "cuda": [torch.cuda.get_rng_state()] if torch.cuda.is_initialized() else [],

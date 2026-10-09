@@ -20,7 +20,7 @@ from ..contracts import require
 from ..io import atomic_json, atomic_torch, read_json, digest, file_hash
 from ..query_base import build_query_framework
 from .trainer import init_distributed, scheduler_factory
-from .checkpoint import capture_rng, restore_rng, environment
+from .checkpoint import capture_rng, restore_rng, environment, configure_language_checkpointing
 from ..losses import collective_error
 
 
@@ -65,6 +65,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
     random.seed(seed + rank); np.random.seed(seed + rank); torch.manual_seed(seed)
     model = build_query_framework(OmegaConf.create(contract["source_config"]), contract["query_architecture"],
                                   contract["source_root"], contract["source_commit"]).float().to(device)
+    if world > 1:
+        configure_language_checkpointing(model)
     # The original model freezes its visual tower and preserves its mode.
     model.train()
     dataset = original_dataset(config, contract, allow_partial=mode != "full")

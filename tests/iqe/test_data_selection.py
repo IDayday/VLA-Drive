@@ -159,3 +159,29 @@ def test_selection_capture_na_negative_and_regression():
     valid=np.ones_like(scores,bool);cm={NC:np.ones_like(scores),DAC:np.ones_like(scores)};mask={c:valid for c in cm}
     report=selection_report(scores,valid,np.array([2,2]),np.array([1,1]),cm,mask,["a","b"])
     assert report["oracle_capture"]<0 and report["vs_previous"]["mean_gain_01"]<0
+
+
+def test_parallel_source_import_preserves_ids_and_content_hashes(tmp_path):
+    from iqe.data.sources import import_current
+    from iqe.io import atomic_json,digest
+    root=tmp_path/'source';(root/'current').mkdir(parents=True);(root/'ego').mkdir()
+    index=[{'token':str(i),'log':'log_'+str(i%2)} for i in range(6)]
+    atomic_json(root/'index.json',index)
+    atomic_json(root/'identity.json',{'split':'train','identity':'source','index_sha256':digest(index)})
+    metrics=[]
+    for row in index:
+        sid=row['token'];images=[]
+        for camera in range(3):
+            p=root/f'{sid}_{camera}.jpg';p.write_bytes((sid+str(camera)).encode());images.append(str(p))
+        atomic_json(root/'current'/f'{sid}.json',{'token':sid,'identity':'source','image_paths':images})
+        (root/'ego'/f'{sid}.pt').write_bytes(sid.encode())
+        context=root/f'{sid}.metric';context.write_bytes(('context'+sid).encode())
+        metrics.append({'token':sid,'log':row['log'],'cache_path':str(context)})
+    metadata=root/'metric.json';atomic_json(metadata,metrics)
+    serial=import_current(root,metadata,'incremental_fit',workers=1)
+    parallel=import_current(root,metadata,'incremental_fit',workers=4)
+    assert serial==parallel and [s.scene_id for s in parallel]==[r['token'] for r in index]
+    (root/'3_1.jpg').write_bytes(b'changed actual observation')
+    changed=import_current(root,metadata,'incremental_fit',workers=4)
+    assert changed[3].observation_hash!=serial[3].observation_hash
+    assert all(changed[i]==serial[i] for i in (0,1,2,4,5))

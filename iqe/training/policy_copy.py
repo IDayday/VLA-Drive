@@ -8,6 +8,7 @@ candidate pool, Scorer, auxiliary teacher objectives or distillation.
 from __future__ import annotations
 from dataclasses import replace
 from pathlib import Path
+import os
 import torch
 from torch import nn
 from ..contracts import require, strict_record, SceneRecord, CandidateRecord
@@ -19,6 +20,7 @@ from ..data.candidate_bank import save_trajectory
 from ..data.sampler import ConsumedSampler
 from ..evaluation.selection import selection_report
 from .trainer import train
+from .checkpoint import configure_language_checkpointing
 
 
 class PolicyCopy(nn.Module):
@@ -41,6 +43,8 @@ def load_copy(pipeline, checkpoint=None):
     require(file_hash(c['query_checkpoint']) == c['query_checkpoint_hash'], 'locked S0 changed')
     framework.load_state_dict(torch.load(c['query_checkpoint'], map_location='cpu', weights_only=False, mmap=True)['model'], strict=True)
     framework.strip_auxiliary_heads()
+    if int(os.environ.get("WORLD_SIZE", "1")) > 1:
+        configure_language_checkpointing(framework)
     copy = PolicyCopy(framework, c).to(pipeline.device)
     if checkpoint:
         copy.load_state_dict(torch.load(checkpoint, map_location='cpu', weights_only=True), strict=True)

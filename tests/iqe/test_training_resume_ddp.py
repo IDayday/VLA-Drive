@@ -43,6 +43,30 @@ def denominator(batch):return {"mse":batch["y"].new_tensor(len(batch["y"]))}
 def network(dropout=.0):return nn.Sequential(nn.Linear(2,4),nn.Tanh(),nn.Dropout(dropout),nn.Linear(4,1))
 
 
+def test_language_nonreentrant_checkpoint_preserves_dropout_values_and_gradients():
+    from types import SimpleNamespace
+    from transformers import BertConfig, BertModel
+    from iqe.training.checkpoint import configure_language_checkpointing
+    torch.manual_seed(31)
+    original=BertModel(BertConfig(vocab_size=31,hidden_size=8,num_hidden_layers=2,
+        num_attention_heads=2,intermediate_size=16,hidden_dropout_prob=.2,attention_probs_dropout_prob=.1))
+    original.gradient_checkpointing_enable()
+    changed=deepcopy(original)
+    framework=SimpleNamespace(qwen_vl_interface=SimpleNamespace(model=SimpleNamespace(model=SimpleNamespace(language_model=changed))))
+    configure_language_checkpointing(framework)
+    ids=torch.tensor([[2,4,8,1],[3,7,9,1]])
+    outputs=[]
+    for module in (original,changed):
+        module.train();torch.manual_seed(73)
+        output=module(ids).last_hidden_state
+        output[:,:,0].square().mean().backward();outputs.append(output)
+    assert torch.equal(*outputs)
+    for a,b in zip(original.parameters(),changed.parameters()):
+        assert (a.grad is None)==(b.grad is None)
+        if a.grad is not None:assert torch.equal(a.grad,b.grad)
+    assert changed.encoder._gradient_checkpointing_func.keywords['use_reentrant'] is False
+
+
 def test_microbatch_loss_updates_match_full_batch(tmp_path):
     torch.manual_seed(9); full=network();micro=deepcopy(full)
     a=train(full,loss_fn,fetch,ConsumedSampler(plan()),cfg(4),{"data":"unit"},tmp_path/"full",seed=6,denominator_function=denominator)
