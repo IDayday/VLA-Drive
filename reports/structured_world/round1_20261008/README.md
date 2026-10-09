@@ -8,7 +8,8 @@ Formal nuScenes G1/G3 are now updating on vla-zt3/vlawm-zt, respectively, from
 the prescribed generic/random driving initialization and own shared perception.
 No planning improvement is claimed.** NAVSIM training/evaluation source remains
 frozen at `0c54f1c`; nuScenes is frozen at `41da7c1`. Each run records
-the full SHA and its `f052e2f` recovery ancestry. `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
+its full source SHA. The NAVSIM runs also record their `f052e2f` recovery ancestry.
+`FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
 not a live counter or a completed result. Historical engineering scores remain
 explicitly separate from the formal population and endpoint.
 
