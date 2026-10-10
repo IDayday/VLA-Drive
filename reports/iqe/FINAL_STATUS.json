@@ -1,0 +1,45 @@
+{
+  "IMPLEMENTATION": "PARTIAL",
+  "FUNCTIONAL_IQE_CORE": "COMPLETE",
+  "UNIT_TESTS": "PASS",
+  "UNIT_TEST_DETAIL": {
+    "CPU_passed": 85,
+    "CPU_GPU_only_skip": 1,
+    "separate_GPU_NCCL_passed": 1
+  },
+  "REAL_S0_INTEGRATION": "PASS",
+  "S0_INTEGRATION_SCOPE": "original framework migrated to Query; generic Qwen only; diagnostic trained Query base, no old driving weights",
+  "REAL_TWO_ROUND_SMOKE": "PASS",
+  "REAL_TWO_ROUND_SMOKE_DEVICE": "CPU",
+  "DDP_RESUME": "PASS",
+  "DDP_RESUME_BACKENDS": [
+    "Gloo",
+    "NCCL"
+  ],
+  "SCORE_REFERENCE_EQUIVALENCE": "PASS",
+  "SCIENTIFIC_GAIN": "UNTESTED",
+  "FULL_TRAINING_STARTED": true,
+  "FORMAL_QUERY_BASE_STATUS": "RUNNING",
+  "FORMAL_EXPERT_TRAINING_STARTED": false,
+  "FINAL_TEST_USED_FOR_TRAINING": false,
+  "FORMAL_DEPLOYMENT_UPDATED_BY_SMOKE": false,
+  "FORMAL_TRAINING_HOST": "training-vla-zt2-worker-0",
+  "FORMAL_TRAINING_PID": 2124247,
+  "EFFICIENCY_MONITOR_PID": 2124248,
+  "SNAPSHOT_OPTIMIZER_STEP": 32,
+  "SNAPSHOT_UNIX": 1791590418.0006604,
+  "IMPLEMENTATION_LIMITATIONS": [
+    "E12 aligned runnable LoRA-DiT expert ensemble not bound; config alone is not an implemented comparison"
+  ],
+  "DATA_LIMITATIONS": [
+    "No new observations for E3; actual experiment is resampling_only",
+    "No verified final_test manifest; not accessed"
+  ],
+  "SCIENCE_LIMITATIONS": [
+    "New Query base is still training",
+    "Two-round functional smoke uses one-update diagnostic base and two updates per expert/Scorer",
+    "No accepted formal serving bundle or statistical gain claim"
+  ],
+  "code_commit": "334c0008ecd41d521a47cc3de68d890b1249af76",
+  "formal_launch_record": "/mnt/project/iqe-runtime-audit-20261009/FORMAL_TRAINING_LAUNCH_V2.json"
+}

@@ -2,7 +2,7 @@
 
 工作区 `/mnt/project/DriveVLA-M0-iqe-20261009`；分支 `feature/s0-incremental-query-experts-20261009`。以下命令从该目录执行。训练环境为 `/root/miniconda3/envs/ddp/bin/python`，官方评分由配置内 `/root/miniconda3/envs/navsim/bin/python` 子进程执行。源码源头、真实数据、Qwen 通用初始化、地图路径已写入 main.yaml，未填造假权重路径。
 
-**GPU 作业需要资源资格检查。** 用户后续明确授权 `training-vlawm-zt`、`training-vlawm-zt2`、`training-vlawm-zt3`，已在 `/mnt/project/server_dispatch_policy.json` 的 `task_authorizations.iqe_v1` 记录；原有 `training-vla-zt` / `training-vla-zt2` 仍可用。不能继承其他任务的更大主机权限。只允许停止已确认的压力脚本，保留全部科学训练。2026-10-09 实查：vlawm-zt 有正式 structured-world 训练；vlawm-zt2/3 的 GPU 占用来自当前 SSH 容器不可见的进程，尚未释放。CPU 真图像/真实官方评分 smoke 与 GPU/NCCL 验收分别报告。
+**GPU 作业需要资源资格检查。** 用户后续明确授权 `training-vlawm-zt`、`training-vlawm-zt2`、`training-vlawm-zt3`，已在 `/mnt/project/server_dispatch_policy.json` 的 `task_authorizations.iqe_v1` 记录；原有 `training-vla-zt` / `training-vla-zt2` 仍可用。不能继承其他任务的更大主机权限。只允许停止已确认的压力脚本，保留全部科学训练。2026-10-09 实查：vlawm-zt 有正式 structured-world 训练；vlawm-zt2/3 的 GPU 占用来自当前 SSH 容器不可见的进程，尚未释放。随后复查`training-vla-zt2`有空闲8卡，已在该机通过GPU/NCCL、真实框架和吞吐验证。CPU双轮与GPU验证分别报告。
 
 ```bash
 cd /mnt/project/DriveVLA-M0-iqe-20261009
@@ -127,3 +127,5 @@ PYTHONPATH=. CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 $IQE_PY
 ```
 
 `benchmark --allow-latency-clones`仅用于明确标记的容量计时诊断：K超过已训练池时创建临时S0副本，结果记录`untrained_capacity_probe_clones`，不写registry、不计科学收益。默认benchmark仍拒绝把未注册K称为真实训练池。CPU实测命令及数据见LATENCY_REPORT；GPU实测待资源释放。
+
+当前正式作业记录：`/mnt/project/iqe-runtime-audit-20261009/FORMAL_TRAINING_LAUNCH_V2.json`；主机`training-vla-zt2-worker-0`，主PID2124247、效率监控PID2124248。不要重复启动同一output_root。日志为`/mnt/project/iqe-runtime-audit-20261009/formal-query-base-vla-zt2-v2.log`，每30秒更新`outputs/iqe/main/query_base/EFFICIENCY.json`，监控期限7天；监控只报告，不改loss/分辨率/batch/候选数，不启动其他实验。最终profile的实际8步checkpoint为`/mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/profile_ddp_v3/query_base/step_000008.pt`。长训练checkpoint按1000步写入，正式run完成后再freeze-base进入增量阶段；不得用profile短schedule的optimizer状态续正式schedule。

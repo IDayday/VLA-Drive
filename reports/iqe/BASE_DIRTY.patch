@@ -1,0 +1,27 @@
+diff --git a/navsim/planning/script/config/training/default_training.yaml b/navsim/planning/script/config/training/default_training.yaml
+index 54ddcaa..4de08f2 100644
+--- a/navsim/planning/script/config/training/default_training.yaml
++++ b/navsim/planning/script/config/training/default_training.yaml
+@@ -25,6 +25,7 @@ pretokenize_inputs_in_workers: false
+ experiment_name: navsim_nommcv
+ seed: 0 
+ validation_run: false
++collect_validation_predictions: true # optionally export trajectories after validation
+ 
+ dataloader:
+   params:
+diff --git a/navsim/planning/script/run_training_full.py b/navsim/planning/script/run_training_full.py
+index 00dc54a..c6650bc 100644
+--- a/navsim/planning/script/run_training_full.py
++++ b/navsim/planning/script/run_training_full.py
+@@ -372,6 +372,10 @@ def main(cfg: DictConfig) -> None:
+             ckpt_path=cfg.train_ckpt_path,
+             verbose=True
+         )
++        if not bool(cfg.get("collect_validation_predictions", True)):
++            logger.info("Validation complete; trajectory prediction export disabled")
++            return None
++
+         logger.info("Running predictions to collect trajectories")
+         predictions = trainer.predict(
+             AgentLightningModule(agent=agent, for_viz=True),
