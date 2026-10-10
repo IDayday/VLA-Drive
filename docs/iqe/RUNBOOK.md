@@ -126,6 +126,6 @@ CUDA_VISIBLE_DEVICES='' $IQE_PYTHON -m iqe.cli load-bundle --config /mnt/project
 PYTHONPATH=. CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 $IQE_PYTHON scripts/iqe/real_router_probe.py --config /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round.yaml
 ```
 
-`benchmark --allow-latency-clones`仅用于明确标记的容量计时诊断：K超过已训练池时创建临时S0副本，结果记录`untrained_capacity_probe_clones`，不写registry、不计科学收益。默认benchmark仍拒绝把未注册K称为真实训练池。CPU实测命令及数据见LATENCY_REPORT；GPU实测待资源释放。
+`benchmark --allow-latency-clones`仅用于明确标记的容量计时诊断：K超过已训练池时创建临时S0副本，结果记录`untrained_capacity_probe_clones`，不写registry、不计科学收益。默认benchmark仍拒绝把未注册K称为真实训练池。CPU与A800 GPU实测命令、数据及临时副本范围均见LATENCY_REPORT；GPU测试已在正式训练启动前完成。
 
 当前正式作业记录：`/mnt/project/iqe-runtime-audit-20261009/FORMAL_TRAINING_LAUNCH_V2.json`；主机`training-vla-zt2-worker-0`，主PID2124247、效率监控PID2124248。不要重复启动同一output_root。日志为`/mnt/project/iqe-runtime-audit-20261009/formal-query-base-vla-zt2-v2.log`，每30秒更新`outputs/iqe/main/query_base/EFFICIENCY.json`，监控期限7天；监控只报告，不改loss/分辨率/batch/候选数，不启动其他实验。最终profile的实际8步checkpoint为`/mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/profile_ddp_v3/query_base/step_000008.pt`。长训练checkpoint按1000步写入，正式run完成后再freeze-base进入增量阶段；不得用profile短schedule的optimizer状态续正式schedule。
