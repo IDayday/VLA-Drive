@@ -74,10 +74,10 @@ def load_config(path, *, resolved=False):
     for section in ("expert_train", "scorer", "query_base"):
         c = raw[section]
         require(0 <= c["warmup_steps"] < c["max_optimizer_steps"] and c["lr"] > 0 and c["micro_batch_size"] > 0, f"invalid {section} schedule/batch")
-        require(c["weight_decay"] >= 0 and c["grad_clip_norm"] > 0 and c["validation_every_steps"] > 0 and 0 <= c["lr_min_ratio"] <= 1, f"invalid {section} optimizer")
-    require(raw["model"]["variant"] in {"independent","query_only","adapter","residual"}, "unsupported expert variant; E1 uses train-policy-copy")
+        require(c["weight_decay"] >= 0 and c["grad_clip_norm"] > 0 and (c["validation_every_steps"] == 0 if section == "query_base" else c["validation_every_steps"] > 0) and 0 <= c["lr_min_ratio"] <= 1, f"invalid {section} optimizer")
+    require(raw["model"]["variant"] in {"independent","query_only","adapter","residual_v2"}, "unsupported expert variant; E1 uses train-policy-copy")
     require(raw["mining"]["variant"] in {"remaining_pool", "fixed_s0"}, "unsupported mining ablation")
-    require(raw["metric"]["repetitions"] >= 1 and raw["execution"]["loader_workers"] >= 0 and raw["execution"]["num_threads"] > 0, "invalid resources/repetitions")
+    require(raw["metric"]["repetitions"] == 1 and raw["execution"]["loader_workers"] >= 0 and raw["execution"]["num_threads"] > 0, "NAVSIM v1.1 deterministic labels require repetitions=1; repeated calls are equivalence audits, not averaged labels")
     require(raw["execution"]["cpu_score_workers"] > 0 and raw["execution"]["metric_cache_workers"] > 0, "positive CPU scoring/cache worker budgets")
     require(not raw["execution"]["shared_gpu"], "IQE has no authorization to contend with unrelated GPU jobs")
     require(raw["query_base"]["width"] % raw["query_base"]["heads"] == 0 and raw["query_base"]["width"] % raw["query_base"]["compressor_heads"] == 0, "Query attention width")
@@ -96,6 +96,7 @@ def load_config(path, *, resolved=False):
     require(abs(sum(raw['splits']['fallback_fit_val_cal_log_ratios'])-1)<1e-8 and len(raw['splits']['fallback_fit_val_cal_log_ratios'])==3, 'fit/val/cal split ratios')
     require(raw['expert_data']['explicit_anchor_zero'] == (raw['expert_data']['mixture']['global_anchor']==0), 'anchor=0 must be explicitly declared')
     require(all(0<=v<=1 for v in raw['selection']['budgets'].values()), 'risk budget range')
+    require(raw["execution"]["bootstrap_repetitions"] > 0 and raw["gates"]["minimum_logs_for_ci_gate"] > 0 and raw["gates"]["consecutive_no_gain_expansion_limit"] > 0, "bootstrap/expansion budgets")
     if resolved:
         require(raw["model"]["expert_architecture"] != "inherit_s0" and raw["scorer"]["component_heads"] != "from_metric_schema", "unresolved trainer config")
         require(raw["s0"]["query_checkpoint"] is not None, "Query S0 checkpoint not resolved")

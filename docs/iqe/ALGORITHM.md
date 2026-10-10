@@ -25,3 +25,6 @@ Router 为效率对照：读取 F/e，按真实分数 soft targets 训练，新�
 checkpoint 在 optimizer-step 边界保存 active weights、AdamW、scheduler、sampler consumed cursor、全部已消费 IDs、各 rank RNG、world/batch/accumulation、环境及依赖。恢复默认拒绝数据/世界大小/配置变化；显式 non-exact 模式重建训练状态。缓存、manifest、状态及权重原子写入，完成标志与 hash 一起决定复用。部署包无 optimizer/标签/metric cache；保留原始模型代码和 tokenizer/generic model construction 依赖，当前不是脱离原框架安装的单文件模型。
 
 科学接纳需 Oracle mean gain≥.005、组 bootstrap 下界>0、新安全成功≥10、至少10组，以及全部冻结审计。发布还需对 S0 和上一部署均无新增真安全违例/高分转零，并有正收益 CI。smoke 永不更新正式 active。资源和科学 gate 限制实际运行/发布，不省略后续 Scorer、多轮、恢复和导出实现。
+
+
+2026-10-10 readiness 修复：原 S0 框架的 Query 迁移不表示与旧 DiT 输出等价，也不表示严格复现原版 M0。Base 独立评估使用固定 stage_val，正式锁定必须通过预注册质量规则。Scorer/Router 初始化、训练、采样和 bootstrap 的 RNG 身份分离。数据接纳使用 round staging 与原子 DATA_COMMIT；Scorer-only 工作流不消耗扩容失败计数。E6 residual_v2 直接学习无限制 raw XY/sin/cos 增量，最终输出经原 normalizer/atan2 转为物理轨迹。历史 base+(private-base) 结果标记 DEGENERATE_RESIDUAL_ABLATION，不可作有效消融证据。

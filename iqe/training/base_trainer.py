@@ -43,6 +43,7 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
     device = f"cuda:{os.environ.get('LOCAL_RANK', '0')}" if device.startswith("cuda") else device
     from omegaconf import OmegaConf
     cfg = dict(config["query_base"])
+    require(cfg.get("validation_every_steps", 0) == 0, "inline Base validation unsupported; use evaluate-base with a fixed manifest, validation_every_steps must be0")
     if steps is not None:
         require(0 < steps <= cfg["max_optimizer_steps"], "base optimizer-step budget")
         cfg["max_optimizer_steps"] = steps
@@ -62,6 +63,17 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
         return finished["checkpoint"]
     require(resume is not None or (finished is None and not list(output.glob("step_*.pt.COMPLETE.json"))),
             "existing unfinished Query base requires explicit resume")
+    if mode == "full":
+        from ..storage import capacity_plan, require_capacity
+        # Generic model bytes bound the dominant model/Adam storage. If previous
+        # checkpoint sizes exist, prefer actual full serialized size.
+        sizes = [p.stat().st_size for p in output.glob("step_*.pt")]
+        generic = Path(contract["generic_vlm"])
+        measured = max(sizes) if sizes else 4 * sum(p.stat().st_size for p in generic.glob("*.safetensors"))
+        capacity = capacity_plan(output, measured, config["execution"]["checkpoint_every_steps"], cfg["max_optimizer_steps"])
+        if rank == 0:
+            atomic_json(output / "CAPACITY_PLAN.json", capacity)
+        require_capacity(capacity)
     random.seed(seed + rank); np.random.seed(seed + rank); torch.manual_seed(seed)
     model = build_query_framework(OmegaConf.create(contract["source_config"]), contract["query_architecture"],
                                   contract["source_root"], contract["source_commit"]).float().to(device)
@@ -86,6 +98,8 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
                                        find_unused_parameters=True) if world > 1 else model
     step = epoch = offset = 0
     if resume:
+        from .resume import resolve_resume
+        resume = resolve_resume(output, resume, expected_dependencies=dependencies, allow_fallback=config["resume"]["allow_fallback"])
         require(file_hash(resume) == read_json(str(resume) + ".COMPLETE.json")["checksum"], "base checkpoint partial/corrupt")
         state = torch.load(resume, map_location="cpu", weights_only=False)
         require(state["dependencies"] == dependencies, "exact base resume config/data/world/environment changed")
@@ -120,6 +134,9 @@ def train_base(config, contract, scenes, output, *, mode, steps=None, stop_after
                 if offset == len(batches):
                     epoch += 1; offset = 0; continue
                 entries = batches[offset]
+                if resume and step == start_step and rank == 0:
+                    from .resume import record_next_batch
+                    record_next_batch(output, [fit[i] for i in entries])
                 mine = entries[rank::world]
                 valid_count = len(mine)
                 while len(mine) < int(np.ceil(len(entries) / world)):

@@ -69,7 +69,7 @@ class TrainingStage(nn.Module):
 
 
 def train(module, loss_function, fetch, sampler, config, dependencies, output, *, device="cpu", weights=None,
-          resume=None, non_exact_finetune=False, validate=None, stop_after=None, audit=None, seed=42, denominator_function=None):
+          resume=None, non_exact_finetune=False, validate=None, stop_after=None, audit=None, seed=42, denominator_function=None, resume_allow_fallback=False):
     rank, world = init_distributed(device)
     device = f"cuda:{int(os.environ.get('LOCAL_RANK', '0'))}" if device.startswith("cuda") else device
     global_batch = config.get("global_batch_size", config.get("global_scene_batch_size"))
@@ -86,6 +86,10 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
     optimizer = torch.optim.AdamW(params, lr=config["lr"], weight_decay=config["weight_decay"])
     scheduler = scheduler_factory(optimizer, config)
     stage = TrainingStage(module, loss_function)
+    if world > 1 and hasattr(module, "_iqe_initialization_identity") and not resume:
+        identities = [None] * world
+        dist.all_gather_object(identities, module_hash_parameters(module))
+        require(len(set(identities)) == 1, "DDP selector initialization differs across ranks before broadcast")
     wrapped = DistributedDataParallel(stage, device_ids=[int(os.environ.get("LOCAL_RANK", "0"))] if device.startswith("cuda") else None,
                                       find_unused_parameters=config.get("find_unused_parameters", False)) if world > 1 else stage
     start_step, consumed, restored_trainer = 0, [], {}
@@ -97,8 +101,18 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
     require(resume is not None or (finished is None and not list(output.glob("step_*.pt.COMPLETE.json"))),
             "existing unfinished training requires explicit resume; refusing restart/overwrite")
     if resume:
-        restored = load_checkpoint(resume, module, optimizer, scheduler, None, sampler, dependencies, config,
-                                   global_batch=global_batch, accumulation=accumulation, non_exact_finetune=non_exact_finetune)
+        from .resume import resolve_resume
+        restored, error = None, None
+        try:
+            resume = resolve_resume(output, resume, expected_dependencies=dependencies,
+                                    expected_config=None if non_exact_finetune else config, allow_fallback=resume_allow_fallback)
+            restored = load_checkpoint(resume, module, optimizer, scheduler, None, sampler, dependencies, config,
+                                       global_batch=global_batch, accumulation=accumulation, non_exact_finetune=non_exact_finetune)
+        except Exception as exception:
+            if world == 1:
+                raise
+            error = repr(exception)
+        collective_error(error)
         start_step, consumed = restored["step"], restored["consumed_ids"]
         restored_trainer = restored.get("trainer_state", {})
     completed_resume = (not non_exact_finetune and finished is not None and finished["status"] == "COMPLETE"
@@ -107,6 +121,16 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
     if reuse_complete or completed_resume:
         require(file_hash(output / "best.pt") == finished["best_checkpoint_hash"], "completed best checkpoint changed")
         return []
+    best_snapshot = restored_trainer.get("best_snapshot")
+    if resume and restored_trainer.get("best") is not None:
+        if best_snapshot:
+            require(file_hash(best_snapshot["path"]) == best_snapshot["checksum"], "resume best validation snapshot corrupt")
+            if rank == 0:
+                # Restore the best as of the checkpoint, never a later uncommitted best.
+                atomic_torch(output / "best.pt", torch.load(best_snapshot["path"], map_location="cpu", weights_only=True))
+        else:
+            require(Path(resume).parent.resolve() == output.resolve(),
+                    "FORK_BEST_STATE_UNAVAILABLE: legacy checkpoint lacks its historical best weights; preserve parent and use an explicit non-exact fork")
     before = module_hash_parameters(module)
     def amp():
         return torch.autocast("cuda", dtype=torch.bfloat16) if device.startswith("cuda") and config.get("precision") == "fp32_master_bf16_autocast" else nullcontext()
@@ -121,6 +145,9 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
             update_start = time.perf_counter()
             entries = sampler.peek(global_batch)
             require(entries, "sampling plan exhausted before optimizer budget")
+            if resume and step == start_step and rank == 0:
+                from .resume import record_next_batch
+                record_next_batch(output, entries, exact=not non_exact_finetune)
             # True tail counts, including empty ranks, are handled by fetch's padded/masked sentinel.
             mine = entries[rank::world]
             target_local_count = math.ceil(len(entries) / world)
@@ -211,6 +238,11 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                     best, bad_cycles = key, 0
                     if rank == 0:
                         atomic_torch(output / "best.pt", module.state_dict())
+                        snapshot_path = output / f"best_step_{step:06d}.pt"
+                        atomic_torch(snapshot_path, module.state_dict(), immutable=True)
+                        best_snapshot = {"path":str(snapshot_path.resolve()),"checksum":file_hash(snapshot_path)}
+                    if world > 1:
+                        payload = [best_snapshot]; dist.broadcast_object_list(payload, src=0); best_snapshot = payload[0]
                 else:
                     bad_cycles += 1
                 if bad_cycles >= config.get("early_stop_patience", 10**9):
@@ -223,7 +255,7 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
             if step % config.get("checkpoint_every_steps", config["validation_every_steps"]) == 0 or step == config["max_optimizer_steps"] or stop[0] or step == stop_after:
                 save_checkpoint(output / f"step_{step:06d}.pt", module, optimizer, scheduler, None, sampler, step,
                                 dependencies, config, global_batch=global_batch, accumulation=accumulation, consumed_ids=consumed,
-                                trainer_state={"best": best, "bad_cycles": bad_cycles})
+                                trainer_state={"best": best, "bad_cycles": bad_cycles, "best_snapshot": best_snapshot})
             if stop[0]:
                 break
         require(step > start_step or start_step == config["max_optimizer_steps"], "trainer made no progress")

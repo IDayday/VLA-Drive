@@ -14,7 +14,14 @@ class CandidateBank:
     def put_candidate(self, record):
         path = self.root / "candidates" / (record.key + ".json")
         require(file_hash(record.trajectory_ref) == record.trajectory_hash, "trajectory checksum")
+        if path.exists():
+            original = self.candidate(record.key)
+            require(all(getattr(original,k)==getattr(record,k) for k in
+                ("scene_id","expert_id","expert_checkpoint_hash","feature_contract_hash","trajectory_hash",
+                 "raw_action_representation","physical_frame","horizon","dt","finite_valid")), "candidate semantic contract changed")
+            return original  # preserve original generation provenance; identical geometry is reusable
         atomic_json(path, asdict(record), immutable=True)
+        return record
 
     def candidate(self, key):
         record = strict_record(CandidateRecord, read_json(self.root / "candidates" / (key + ".json")))

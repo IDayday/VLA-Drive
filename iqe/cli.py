@@ -9,20 +9,12 @@ from .config import load_config
 from .contracts import require
 from .io import atomic_json, read_json, BlockedError
 
-COMMANDS = ("preflight", "build-splits", "prepare-metric-contexts", "verify-reference", "train-base", "train-policy-copy", "evaluate-policy-copy", "freeze-base", "cache-features", "export-candidates", "score-candidates",
+COMMANDS = ("capacity-plan", "evaluate-base", "qualify-base", "preflight", "build-splits", "prepare-metric-contexts", "verify-reference", "train-base", "train-policy-copy", "evaluate-policy-copy", "freeze-base", "cache-features", "export-candidates", "score-candidates",
             "build-round", "train-expert", "audit-frozen", "evaluate-oracle", "train-scorer", "train-router", "calibrate",
             "evaluate", "evaluate-baselines", "export-bundle", "run-round", "overfit-32", "benchmark", "load-bundle", "rollback", "final-test")
 
 
-def resolve_resume(folder, requested):
-    if requested != "auto":
-        return requested
-    folder = Path(folder)
-    if (folder / "result.json").exists():
-        return read_json(folder / "result.json")["checkpoint"]
-    completed = sorted(folder.glob("step_*.pt.COMPLETE.json"))
-    require(completed, "resume requested but no completed optimizer-step checkpoint exists")
-    return str(completed[-1]).removesuffix(".COMPLETE.json")
+from .training.resume import resolve_resume
 
 
 class JSONParser(argparse.ArgumentParser):
@@ -45,11 +37,14 @@ def parser():
         c.add_argument("--roles", nargs="+", choices=("incremental_fit", "stage_val", "selector_cal", "dev_report"),
                        default=["incremental_fit", "stage_val", "selector_cal", "dev_report"])
         c.add_argument("--role", choices=("incremental_fit", "stage_val", "selector_cal", "dev_report"), default="dev_report")
+        if command in {"evaluate-base", "qualify-base"}:
+            c.set_defaults(role="stage_val")
         c.add_argument("--max-steps", type=int)
         c.add_argument("--stop-after", type=int)
         c.add_argument("--resume", nargs="?", const="auto")
         c.add_argument("--non-exact-finetune", action="store_true")
         c.add_argument("--checkpoint")
+        c.add_argument("--evaluation")
         c.add_argument("--backend", choices=("reference",), default="reference")
         c.add_argument("--require-gates", action="store_true")
         c.add_argument("--activate", action="store_true")
@@ -95,6 +90,15 @@ def execute(a):
                 "learned_driving_weights_loaded": False, "query_checkpoint": contract["query_checkpoint"]}
     from .pipeline import Pipeline
     pipeline = Pipeline(config, mode=a.mode, max_samples=maximum, device=a.device)
+    if a.command == "capacity-plan":
+        from .storage import capacity_plan
+        from .training.resume import inspect_checkpoint
+        require(a.checkpoint, "capacity-plan requires a real complete --checkpoint")
+        info = inspect_checkpoint(a.checkpoint)
+        report = capacity_plan(pipeline.root, Path(a.checkpoint).stat().st_size,
+            config["execution"]["checkpoint_every_steps"], config["query_base"]["max_optimizer_steps"], info["optimizer_step"])
+        atomic_json(pipeline.root / "CAPACITY_PLAN.json", report)
+        return report
     if a.command == "build-splits":
         return pipeline.build_splits()
     if a.command == "verify-reference":
@@ -105,10 +109,21 @@ def execute(a):
         return prepare_contexts(pipeline,a.roles)
     if a.command == "train-base":
         from .training.base_trainer import train_base
-        resume = resolve_resume(pipeline.root / "query_base", a.resume)
+        resume = a.resume
         path = train_base(pipeline.config, pipeline.contract, pipeline.scenes(["incremental_fit"]), pipeline.root / "query_base", mode=a.mode,
                           steps=a.max_steps, stop_after=a.stop_after, resume=resume, device=pipeline.device)
         return read_json(pipeline.root / "query_base/result.json") | {"resources": resource}
+    if a.command in {"evaluate-base", "qualify-base"}:
+        from .base_qualification import evaluate_base, qualify_base
+        require(a.role == "stage_val", "Base qualification uses stage_val only")
+        require(a.checkpoint, "explicit complete --checkpoint required")
+        if a.command == "evaluate-base":
+            return evaluate_base(pipeline, a.checkpoint)
+        require(a.evaluation, "qualify-base requires --evaluation")
+        result = qualify_base(pipeline, a.checkpoint, a.evaluation)
+        if result["status"] != "QUALIFIED":
+            raise BlockedError(result["status"] + ": see BASE_QUALIFICATION.json")
+        return result
     if a.command == "freeze-base":
         checkpoint = a.checkpoint or config["s0"]["query_checkpoint"]
         require(checkpoint is not None, "freeze-base requires the actually trained Query checkpoint")
@@ -131,7 +146,7 @@ def execute(a):
             result = evaluate_copy(pipeline, a.round, a.role)
             atomic_json(pipeline.round_root(a.round) / "policy_copy" / ("evaluation_" + a.role + ".json"), result, immutable=True)
             return result
-        resume = resolve_resume(pipeline.round_root(a.round) / "policy_copy", a.resume)
+        resume = a.resume
         return train_copy(pipeline, a.round, steps=a.max_steps, resume=resume, stop_after=a.stop_after)
     if a.command == "cache-features":
         return pipeline.cache_features(a.roles, shard_index=a.shard_index, num_shards=a.num_shards)
@@ -146,7 +161,7 @@ def execute(a):
         if a.command == "overfit-32":
             from .overfit import overfit_32
             return overfit_32(pipeline, a.round, a.max_steps or 32, resume=a.resume)
-        resume = resolve_resume(pipeline.round_root(a.round) / "expert", a.resume)
+        resume = a.resume
         return pipeline.train_expert(a.round, steps=a.max_steps, resume=resume, stop_after=a.stop_after, non_exact_finetune=a.non_exact_finetune)
     if a.command == "audit-frozen":
         return pipeline.frozen_audit(a.round)
@@ -155,7 +170,7 @@ def execute(a):
     router = config["router_ablation"]["enabled"]
     if a.command in {"train-scorer", "train-router"}:
         router = a.command == "train-router"
-        resume = resolve_resume(pipeline.round_root(a.round) / ("router" if router else "scorer"), a.resume)
+        resume = a.resume
         return pipeline.train_selector(a.round, router=router, steps=a.max_steps, resume=resume, stop_after=a.stop_after, non_exact_finetune=a.non_exact_finetune)
     if a.command == "calibrate":
         return pipeline.calibrate(a.round, a.role, router=router)

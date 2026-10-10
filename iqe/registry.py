@@ -47,5 +47,6 @@ class ExpertRegistry:
     def latest(events):
         return {e["expert_id"]: e for e in events}
 
-    def candidate_pool(self):
-        return {eid: e["checkpoint_hash"] for eid, e in self.latest(self.read()).items() if e["status"] in {"frozen", "candidate_only", "served"}}
+    def candidate_pool(self, *, include_frozen=False):
+        statuses = {"candidate_only", "served"} | ({"frozen"} if include_frozen else set())
+        return {eid: e["checkpoint_hash"] for eid, e in self.latest(self.read()).items() if e["status"] in statuses}

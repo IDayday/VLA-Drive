@@ -1,5 +1,9 @@
 method: iqe_v1
 seed: 42
+randomness:
+  module_init_seed: 42
+  training_rng_seed: 42
+  sampler_seed: 42
 output_root: outputs/iqe/main
 s0:
   contract: reports/iqe/S0_CONTRACT.json
@@ -32,7 +36,7 @@ query_base:
   lr: 0.00001
   lr_min_ratio: 0.05
   weight_decay: 0.001
-  validation_every_steps: 200
+  validation_every_steps: 0 # independent evaluate-base; inline validation is explicitly disabled
   grad_clip_norm: 1.0
 model:
   expert_architecture: inherit_s0
@@ -169,6 +173,7 @@ gates:
   require_positive_log_bootstrap_lower_bound: true
   require_frozen_parameter_hash_match: true
   minimum_logs_for_ci_gate: 10
+  consecutive_no_gain_expansion_limit: 2
   compare_release_against: [s0, previous_serving_bundle]
   require_no_true_safety_regression_for_release: true
 execution:
@@ -196,3 +201,11 @@ tolerances:
   fp32_cpu: {raw_max_abs: 0.000001, physical_max_abs: 0.00001}
   fp32_cuda: {raw_max_abs: 0.00001, physical_max_abs: 0.0001}
   bf16_cuda: {raw_max_abs: 0.02, physical_max_abs: 0.2}
+
+base_evaluation:
+  manifest: null
+  rules: null
+  qualification: null
+  official: true
+resume:
+  allow_fallback: false

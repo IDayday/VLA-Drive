@@ -130,4 +130,5 @@ def test_zero_budget_rejected_and_auto_resume_survives_missing_result(tmp_path,c
     assert json.loads(capsys.readouterr().out)['status']=='FAILED'
     with pytest.raises(ValueError,match='completed'):resolve_resume(tmp_path,'auto')
     atomic_json(tmp_path/'step_000004.pt.COMPLETE.json',{'checksum':'validated_by_loader'})
-    assert resolve_resume(tmp_path,'auto')==str(tmp_path/'step_000004.pt')
+    with pytest.raises(ValueError,match='NO_VALID_RESUME_CHECKPOINT'):
+        resolve_resume(tmp_path,'auto')  # receipt without its actual checkpoint is invalid

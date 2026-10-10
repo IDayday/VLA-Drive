@@ -35,10 +35,13 @@ class IQEModel(nn.Module):
         if variant == "adapter":
             from .expert import AdapterExpert
             expert = AdapterExpert(expert, bottleneck)
+        elif variant == "residual_v2":
+            from .ablations.residual_v2 import ResidualExpertV2
+            expert = ResidualExpertV2(expert)
         elif variant == "residual":
             from .expert import ResidualExpert
             expert = ResidualExpert(expert)
-        require(variant in {"independent", "query_only", "adapter", "residual", "single_finetune"}, "expert ablation")
+        require(variant in {"independent", "query_only", "adapter", "residual", "residual_v2", "single_finetune"}, "expert ablation")
         self.experts[expert_id] = expert
         self.expert_variant = variant
         assert_no_alias(dict(self.experts))
@@ -63,7 +66,7 @@ class IQEModel(nn.Module):
                 expert.requires_grad_(False)
                 expert.query.requires_grad_(True)
                 expert.adapter.requires_grad_(True)
-            elif self.expert_variant == "residual":
+            elif self.expert_variant in {"residual", "residual_v2"}:
                 expert.initial.requires_grad_(False)
         elif stage == "scorer_train":
             self.scorer.requires_grad_(True)

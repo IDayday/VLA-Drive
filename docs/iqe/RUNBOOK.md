@@ -1,5 +1,9 @@
 # IQE 运行手册
 
+2026-10-10 修复验收以 `reports/iqe_review_1e876da/RUNBOOK.md` 为准。正式 freeze-base 现在要求与 checkpoint/固定 stage_val/预注册规则完全匹配的 BASE_QUALIFICATION.json；原文早期直接 freeze 命令受该门禁保护。现有 Base 作业不重启。新启动配置中的 query_base.validation_every_steps=0 明确表示使用独立 evaluate-base，非零的未接线 cadence 被拒绝。
+
+E6 使用 residual_v2：raw = frozen_base_raw + direct_delta_raw，所有私有输出头零初始化。旧 residual 是 DEGENERATE_RESIDUAL_ABLATION，仅保留历史重现能力，不能作为有效残差对照。
+
 工作区 `/mnt/project/DriveVLA-M0-iqe-20261009`；分支 `feature/s0-incremental-query-experts-20261009`。以下命令从该目录执行。训练环境为 `/root/miniconda3/envs/ddp/bin/python`，官方评分由配置内 `/root/miniconda3/envs/navsim/bin/python` 子进程执行。源码源头、真实数据、Qwen 通用初始化、地图路径已写入 main.yaml，未填造假权重路径。
 
 **GPU 作业需要资源资格检查。** 用户后续明确授权 `training-vlawm-zt`、`training-vlawm-zt2`、`training-vlawm-zt3`，已在 `/mnt/project/server_dispatch_policy.json` 的 `task_authorizations.iqe_v1` 记录；原有 `training-vla-zt` / `training-vla-zt2` 仍可用。不能继承其他任务的更大主机权限。只允许停止已确认的压力脚本，保留全部科学训练。2026-10-09 实查：vlawm-zt 有正式 structured-world 训练；vlawm-zt2/3 的 GPU 占用来自当前 SSH 容器不可见的进程，尚未释放。随后复查`training-vla-zt2`有空闲8卡，已在该机通过GPU/NCCL、真实框架和吞吐验证。CPU双轮与GPU验证分别报告。
@@ -63,7 +67,7 @@ $IQE_PYTHON -m iqe.cli rollback --config configs/iqe/main.yaml --mode full --max
 bash scripts/iqe/benchmark.sh configs/iqe/main.yaml 2
 ```
 
-恢复只保证 optimizer-step 边界。`--resume auto` 读取实际 `result.json` 的 checkpoint；若进程在写 result 之前中断，使用已完成 `step_*.pt.COMPLETE.json` 对应的真实 `.pt`。run-round 会自动寻找最后完整 receipt。改变 world size 不可 exact resume；专家/Scorer/Router 可显式 `--non-exact-finetune`，结果与正式 exact 分开。不能用修改 `--max-steps` 的方式延长已冻结 schedule。
+恢复只保证 optimizer-step 边界。`--resume auto` 使用共用解析器，验证完整 receipt、实际文件 checksum、step、schema 和依赖后选择最高兼容步数；旧 result.json 不覆盖更新 checkpoint。最新产物损坏时默认拒绝回退，需显式设置 resume.allow_fallback。显式较旧 checkpoint 必须使用新的 fork 输出目录；历史 best 验证权重也绑定到 optimizer-step checkpoint。改变 world size 不可 exact resume；专家/Scorer/Router 可显式 `--non-exact-finetune`，结果与正式 exact 分开。不能用修改 `--max-steps` 的方式延长已冻结 schedule。
 
 多卡仅包装训练子命令，模块先建齐、冻结、再 optimizer/DDP。不能 torchrun 整条文件状态机。示例：
 

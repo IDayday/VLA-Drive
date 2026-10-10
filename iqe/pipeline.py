@@ -16,7 +16,7 @@ from .data.feature_cache import FeatureCache
 from .data.candidate_bank import CandidateBank, save_trajectory
 from .data.mining import MiningThresholds, diagnose_scene, safe_quality
 from .data.sampler import sampling_plan, ConsumedSampler
-from .data.support_retrieval import retrieve
+from .data.support_retrieval import RetrievalIndex
 from .registry import ExpertRegistry
 from .s0_adapter import S0Adapter
 from .model import IQEModel, CandidateBatch
@@ -76,7 +76,7 @@ class Pipeline:
         p.mkdir(parents=True, exist_ok=True)
         return p
 
-    def scenes(self, roles=None):
+    def scenes(self, roles=None, *, before_round=None):
         path = self.config["data"]["scene_manifest"] or self.root / "scenes.json"
         if (self.root / "OFFICIAL_SCENES.json").exists():
             pointer = read_json(self.root / "OFFICIAL_SCENES.json")
@@ -85,7 +85,22 @@ class Pipeline:
         scenes = load_scenes(path)
         admitted = self.root / "admitted_sources.json"
         if admitted.exists():
-            scenes.extend(load_scenes(admitted))
+            legacy = load_scenes(admitted)
+            for record in legacy:
+                manifest = self.round_root(record.added_round) / "expert_manifest.json"
+                if not manifest.exists() or record.scene_id not in {r["scene_id"] for r in read_json(manifest)["records"]}:
+                    atomic_json(self.root / "LEGACY_ADMISSION_REPAIR.json", {"status":"BLOCKED_LEGACY_ADMISSION",
+                        "source":str(admitted), "checksum":file_hash(admitted), "scene_id":record.scene_id,
+                        "action":"preserve legacy files; fork a repair output, remove uncommitted membership from its old snapshot and import original records through data_staging"})
+                    raise BlockedError("BLOCKED_LEGACY_ADMISSION: half-completed historical admission; see LEGACY_ADMISSION_REPAIR.json")
+            scenes.extend(s for s in legacy if before_round is None or s.added_round < before_round)
+        from .data.transaction import committed_sources
+        scenes.extend(committed_sources(self.root, before_round))
+        unique = {}
+        for scene in scenes:
+            require(scene.scene_id not in unique or unique[scene.scene_id] == scene, "conflicting scene admission")
+            unique[scene.scene_id] = scene
+        scenes = list(unique.values())
         exposure = self.root / "base_exposure.json"
         if exposure.exists():
             seen = set(read_json(exposure)["fit_scene_ids"])
@@ -127,6 +142,8 @@ class Pipeline:
             if eid == "expert_0" or item["created_round"] > through_round:
                 continue
             require(item["status"] != "training", "expert not frozen yet")
+            if item["status"] == "rejected":
+                continue
             if eid not in self._model.experts:
                 # Historical IDs are never renumbered; rejected slots require explicitly retained weights.
                 self._model.append_expert(eid, item["architecture"]["variant"], item["architecture"].get("bottleneck", 32))
@@ -180,6 +197,10 @@ class Pipeline:
 
     def freeze_base(self, checkpoint):
         require(self.mode != "dry-run", "dry-run cannot lock S0")
+        qualification = None
+        if self.mode == "full":
+            from .base_qualification import require_qualification
+            qualification = require_qualification(self, checkpoint)
         state = torch.load(checkpoint, map_location="cpu", weights_only=False, mmap=True)
         require(state["kind"] == "iqe_query_base" and state["framework_contract_hash"] == self.contract["framework_contract_hash"], "not a Query framework-only base checkpoint")
         require(file_hash(checkpoint) == read_json(str(checkpoint) + ".COMPLETE.json")["checksum"], "incomplete Query base")
@@ -202,6 +223,8 @@ class Pipeline:
         c = dict(self.contract) | {"binding_status": "LOCKED_QUERY_S0", "query_checkpoint": str(Path(checkpoint).resolve()),
                                   "query_checkpoint_hash": file_hash(checkpoint), "base_optimizer_steps": state["optimizer_step"],
                                   "base_mode": self.mode, "base_split_manifest_hash": state["dependencies"]["fit_manifest"]}
+        if qualification:
+            c["base_qualification"] = qualification
         # Contract evolution is a separate immutable lock artifact; framework contract stays immutable.
         atomic_json(self.root / "LOCKED_S0.json", c, immutable=True)
         self.contract = c
@@ -216,6 +239,10 @@ class Pipeline:
         require((self.root / "LOCKED_S0.json").exists(), "Query base not locked: run train-base then freeze-base")
         self.contract = read_json(self.root / "LOCKED_S0.json")
         require(self.mode != "full" or self.contract.get("base_mode") == "full", "formal runs cannot use a smoke/profile-trained Query base")
+        if self.mode == "full":
+            from .base_qualification import require_qualification
+            checked = require_qualification(self, self.contract["query_checkpoint"])
+            require(self.contract.get("base_qualification") == checked, "locked Base qualification identity changed")
         self.config = resolve(self.raw_config, self.contract, self.root / "resolved_config.json")
         self.registry = ExpertRegistry(self.root / "registry.json", digest(self.contract))
 
@@ -241,7 +268,7 @@ class Pipeline:
 
     def export_candidates(self, number, roles):
         model = self.model(number)
-        pool = self.registry.candidate_pool()
+        pool = self.registry.candidate_pool(include_frozen=True)
         if self.mode == "smoke":
             pool = {eid: e["checkpoint_hash"] for eid, e in self.registry.latest(self.registry.read()).items()
                     if e["status"] != "training" and e["created_round"] <= number}
@@ -260,7 +287,8 @@ class Pipeline:
             rows[scene.scene_id] = {}
             f = self.cached(scene).to(self.device)
             for eid, checkpoint_hash in pool.items():
-                key = digest({"scene": scene.scene_id, "expert": eid, "checkpoint": checkpoint_hash, "feature": f.contract_hash})
+                key = digest({"scene": scene.scene_id, "expert": eid, "checkpoint": checkpoint_hash, "feature": f.contract_hash,
+                              "observation":scene.observation_hash, "feature_record":self.feature_record(scene).cache_key})
                 pointer = self.root / "candidate_lookup" / key[:2] / (key + ".json")
                 if pointer.exists():
                     lookup[key] = read_json(pointer)["candidate_key"]
@@ -382,18 +410,28 @@ class Pipeline:
                        "input_context_consistent": scene.input_consistency_status == "verified"}
 
     def build_round(self, number, steps=None):
+        from .workflow import check_expansion
+        check_expansion(self, number)
         self.require_reference_audit()
         require(number > 0, "incremental round starts at1")
         folder = self.round_root(number)
         old_folder = self.round_root(number - 1)
         old = read_json(old_folder / "scored.json")
+        accepted = self.registry.candidate_pool()
+        old = {k:v for k,v in old.items() if k != "pool_hash"}
+        old["experts"] = {e:h for e,h in old["experts"].items() if e in accepted}
+        old["scenes"] = {sid:{e:row for e,row in rows.items() if e in old["experts"]} for sid,rows in old["scenes"].items()}
+        old["pool_hash"] = digest(old)
+        from .data.transaction import RoundDataTransaction
+        transaction = RoundDataTransaction(self, number, old, steps)
         completed = folder / "expert_manifest.json"
         if completed.exists():
             previous = read_json(completed)
             require(previous["old_pool_hash"] == old["pool_hash"] and previous["config_hash"] == self.config["config_hash"], "completed round dependencies changed")
             require(len(previous["sampling_plan"]["entries"]) == (steps or self.config["expert_train"]["max_optimizer_steps"]) * self.config["expert_train"]["global_batch_size"], "resume round optimizer budget changed")
+            transaction.commit()
             return {"status": "REUSED", "manifest_hash": previous["manifest_hash"], "probe": previous["probe"], "sampling": previous["sampling_plan"]["metadata"]}
-        fit = self.scenes(["incremental_fit"])
+        fit = self.scenes(["incremental_fit"], before_round=number)
         # Diagnose decisions made by the actual previous serving bundle. The
         # last evaluated selector may have failed release and never been served.
         old_ids = sorted(old["experts"], key=lambda e:int(e.split("_")[-1]))
@@ -423,7 +461,7 @@ class Pipeline:
         quarantine = []
         if self.config["data"]["new_scene_manifest"]:
             incoming = load_scenes(self.config["data"]["new_scene_manifest"])
-            existing = self.scenes()
+            existing = transaction.old_scenes
             by_group = {s.source_group_id: s.split_role for s in existing}
             admitted_ids = {s.scene_id for s in existing}
             incoming = [s for s in incoming if s.scene_id not in admitted_ids and s.added_round == number]
@@ -441,7 +479,9 @@ class Pipeline:
                     continue
                 target, audit = self.target_score(s)
                 if safe_quality(target, thresholds) and all(audit.values()):
+                    transaction.point("new_data_audited")
                     self.cache_scene_list(self.model(number - 1), [s])
+                    transaction.point("new_features_cached")
                     old_scores = {}
                     f = self.cached(s).to(self.device)
                     for eid, checkpoint in old["experts"].items():
@@ -455,8 +495,16 @@ class Pipeline:
                             "ego_relative_rear_axle", self.trajectory_contract.horizon, self.trajectory_contract.dt, bool(torch.isfinite(out.physical).all()),
                             self.contract["iqe_code_hash"], self.config["config_hash"], "new_source_old_pool_audit")
                         self.bank.put_candidate(candidate)
-                        old_scores[eid] = self.backend().score(candidate, s)
-                        self.bank.put_score(old_scores[eid])
+                        pointer = transaction.staging / "old_pool_on_new_scenes" / (digest({"candidate":candidate.key,"context":s.metric_context_hash,"protocol":old["protocol_hash"]}) + ".json")
+                        if pointer.exists():
+                            saved = read_json(pointer)
+                            old_scores[eid] = self.bank.score(saved["score_key"],candidate,old["protocol_hash"],s.metric_context_hash)
+                        else:
+                            old_scores[eid] = self.backend().score(candidate, s)
+                            require(old_scores[eid].score_valid, "new source old-pool scoring incomplete")
+                            score_key = self.bank.put_score(old_scores[eid])
+                            atomic_json(pointer,{"scene_id":s.scene_id,"expert_id":eid,"candidate_key":candidate.key,"score_key":score_key},immutable=True)
+                        transaction.point("old_pool_new_scene_scored")
                     diagnosis = diagnose_scene(s, old_scores, target, "expert_0", audit, thresholds)
                     if diagnosis["eligible_for_expert_training"]:
                         new.append(s)
@@ -464,10 +512,7 @@ class Pipeline:
                         quarantine.append({"scene_id": s.scene_id, "reason": "new_source_not_an_eligible_remaining_gap", "diagnosis": diagnosis})
                 else:
                     quarantine.append({"scene_id": s.scene_id, "reason": "new_target_failed_official_audit"})
-            if new:
-                previous = load_scenes(self.root / "admitted_sources.json") if (self.root / "admitted_sources.json").exists() else []
-                save_scenes(self.root / "admitted_sources.json", previous + new, immutable=False)
-                save_scenes(folder / "admitted_sources_version.json", previous + new)
+        transaction.audit_stage(new, quarantine)
         atomic_json(folder / "source_quarantine.json", quarantine, immutable=True)
         probe = False
         if not hard and not new:
@@ -479,10 +524,14 @@ class Pipeline:
         hard, _ = freeze_targets(hard, external_targets=self.config["mining"]["external_targets_enabled"])
         support = []; retrieval_reports = []
         if hard and audited:
-            vectors = [torch.cat((self.cached(s).scene.mean(1)[0], self.cached(s).ego.flatten())).numpy() for s in audited]
-            for s in hard:
-                vector = torch.cat((self.cached(s).scene.mean(1)[0], self.cached(s).ego.flatten())).numpy()
-                found, report = retrieve(s, vector, audited, vectors, self.config["expert_data"]["support_limit"], digest(self.contract))
+            vectors = []
+            for scene in audited:
+                features = self.cached(scene)
+                vectors.append(torch.cat((features.scene.mean(1)[0], features.ego.flatten())).numpy())
+            retrieval_index = RetrievalIndex(audited, vectors, digest(self.contract), self.config["randomness"]["sampler_seed"])
+            atomic_json(folder / "retrieval_index.json", retrieval_index.identity, immutable=True)
+            by_id = {s.scene_id:v for s,v in zip(audited,vectors)}
+            for found, report in retrieval_index.query_many(hard,[by_id[s.scene_id] for s in hard],self.config["expert_data"]["support_limit"]):
                 support.extend(found); retrieval_reports.append(report)
         support = list({s.scene_id: s for s in support}.values())
         anchor_cap = self.config["expert_data"]["global_anchor_group_cap"]
@@ -496,23 +545,32 @@ class Pipeline:
         cfg = self.config["expert_train"]
         updates = steps or cfg["max_optimizer_steps"]
         plan = sampling_plan(buckets, self.config["expert_data"]["mixture"], updates * cfg["global_batch_size"],
-            self.config["seed"] + number, self.config["expert_data"]["max_source_group_draw_fraction"],
+            self.config["randomness"]["sampler_seed"] + number, self.config["expert_data"]["max_source_group_draw_fraction"],
             self.config["expert_data"]["explicit_anchor_zero"])
         payload = {"round": number, "old_pool_hash": old["pool_hash"], "config_hash": self.config["config_hash"], "buckets": {k: [s.scene_id for s in rows] for k, rows in buckets.items()},
                    "records": [asdict(s) for s in {s.scene_id: s for rows in buckets.values() for s in rows}.values()],
                    "sampling_plan": plan, "probe": probe, "science": "UNTESTED" if probe or self.mode == "smoke" else "PENDING",
                    "target_selection_rule": "audited GT only; conflicting target IDs rejected", "retrieval": retrieval_reports}
         payload["manifest_hash"] = digest(payload)
+        transaction.point("before_expert_manifest_commit")
         atomic_json(folder / "expert_manifest.json", payload, immutable=True)
+        transaction.commit()
         return {"status": "COMPLETE", "manifest_hash": payload["manifest_hash"], "probe": probe, "sampling": plan["metadata"]}
 
     def train_expert(self, number, *, steps=None, resume=None, stop_after=None, non_exact_finetune=False):
+        from .workflow import check_expansion
+        check_expansion(self, number, resume=bool(resume))
         folder = self.round_root(number)
         manifest = read_json(folder / "expert_manifest.json")
         require(manifest["manifest_hash"] == digest({k: v for k, v in manifest.items() if k != "manifest_hash"}), "expert manifest hash")
         result_path = folder / "expert" / "result.json"
         latest = self.registry.latest(self.registry.read()).get(f"expert_{number}")
         if result_path.exists() and read_json(result_path)["status"] == "COMPLETE" and latest and latest["status"] != "training":
+            if resume:
+                from .training.resume import resolve_resume
+                chosen = resolve_resume(folder / "expert", resume, allow_fallback=self.config["resume"]["allow_fallback"])
+                require(Path(chosen).resolve() == Path(read_json(result_path)["checkpoint"]).resolve(),
+                        "FORK_RUN_REQUIRED: completed frozen expert cannot consume a different training checkpoint")
             require(latest["train_manifest_hash"] == manifest["manifest_hash"] and latest["checkpoint_hash"] == file_hash(folder / "expert/best.pt"), "completed expert dependencies changed")
             return read_json(result_path) | {"reused": True}
         model = self.model(number - 1)
@@ -553,8 +611,8 @@ class Pipeline:
             model.train()
             model.audit_optimizer(optimizer)
         train(model.experts[eid], loss_fn, fetch, ConsumedSampler(manifest["sampling_plan"]), cfg, dependencies,
-              folder / "expert", device=self.device, resume=resume, non_exact_finetune=non_exact_finetune, stop_after=stop_after,
-              validate=validation, seed=self.config["seed"] + number, audit=audit_stage,
+              folder / "expert", device=self.device, resume=resume, non_exact_finetune=non_exact_finetune, stop_after=stop_after, resume_allow_fallback=self.config["resume"]["allow_fallback"],
+              validate=validation, seed=self.config["randomness"]["training_rng_seed"] + number, audit=audit_stage,
               denominator_function=lambda data: {"il": data["masks"].any(-1).sum().float()})
         model.set_trainable_stage("audit")
         require(frozen_snapshot(model, eid) == before, "old/shared hashes changed during expert training")
@@ -581,7 +639,7 @@ class Pipeline:
                 f = self.cached(scene).to(self.device)
                 out = expert(f)
                 old_scores = [self.bank.score(keys["score_key"], self.bank.candidate(keys["candidate_key"]), old["protocol_hash"], scene.metric_context_hash)
-                              for keys in old["scenes"][scene.scene_id].values()]
+                              for eid,keys in old["scenes"][scene.scene_id].items() if eid in self.registry.candidate_pool()]
                 require(all(s.score_valid for s in old_scores), "invalid stage_val labels")
                 best = max(s.total_score_01 for s in old_scores)
                 key = digest({"round": number, "step": step, "scene": scene.scene_id, "expert_state": expert_hash})
@@ -679,7 +737,7 @@ class Pipeline:
         t = MiningThresholds(**{k: self.config["mining"][k] for k in ("high_quality", "severe_low", "target_gain_margin", "zero_epsilon")})
         report = oracle_report(d["scores"].numpy(), d["valid"].numpy(), {k: v.numpy() for k, v in d["components"].items()},
             {k: v.numpy() for k, v in d["component_valid"].items()}, d["expert_ids"], [s.source_group_id for s in d["scenes"]],
-            f"expert_{number}", t, self.config["gates"], smoke=self.mode == "smoke")
+            f"expert_{number}", t, self.config["gates"], smoke=self.mode == "smoke", repetitions=self.config["execution"]["bootstrap_repetitions"], seed=self.config["execution"]["bootstrap_seed"])
         frozen = read_json(self.round_root(number) / "frozen_audit.json")
         report["frozen_audit_passed"] = frozen["passed"]
         report["oracle_gate"] = report["oracle_gate"] and frozen["passed"]
@@ -695,22 +753,40 @@ class Pipeline:
         return report
 
     def selector_module(self, number, router=False, *, warm_start=False):
+        from .training.randomness import initialization_rng, module_seed
+        kind = "router" if router else "scorer"
+        init_seed = module_seed(self.config["randomness"]["module_init_seed"], kind, number)
         width = self.contract["query_architecture"]["width"]
         ids = tuple(sorted(read_json(self.round_root(number) / "scored.json")["experts"], key=lambda e:int(e[7:])))
-        if router:
-            module = SceneRouter(width, width, ids, self.config["router_ablation"]["hidden_size"])
-            if warm_start and number > 1:
-                previous = read_json(self.round_root(number - 1) / "router" / "identity.json")
-                old = SceneRouter(width, width, previous["expert_ids"], self.config["router_ablation"]["hidden_size"])
-                old.load_state_dict(torch.load(self.round_root(number - 1) / "router" / "best.pt", map_location="cpu", weights_only=True), strict=True)
-                module = old.expanded(ids)
-        else:
-            c = self.config["scorer"]
-            module = TrajectoryScorer(width, width, COMPONENTS, c["hidden_size"], c["num_layers"], c["attention_heads"], c["dropout"])
-            if warm_start and number > 1 and c["warm_start_previous_scorer"]:
-                path = self.round_root(number - 1) / "scorer" / "best.pt"
-                require(path.exists(), "previous Scorer required for warm start")
-                module.load_state_dict(torch.load(path, map_location="cpu", weights_only=True), strict=True)
+        parent_hash = None
+        with initialization_rng(init_seed):
+            if router:
+                module = SceneRouter(width, width, ids, self.config["router_ablation"]["hidden_size"])
+            else:
+                c = self.config["scorer"]
+                module = TrajectoryScorer(width, width, COMPONENTS, c["hidden_size"], c["num_layers"], c["attention_heads"], c["dropout"])
+            if warm_start and number > 1 and (router or self.config["scorer"]["warm_start_previous_scorer"]):
+                # The immediately preceding selector update is a training parent,
+                # not necessarily the previously accepted serving bundle.
+                folder = self.round_root(number - 1) / kind
+                path = folder / "best.pt"
+                result = read_json(folder / "result.json")
+                parent_hash = file_hash(path)
+                require(result["status"] == "COMPLETE" and result["best_checkpoint_hash"] == parent_hash, "warm-start parent incomplete/corrupt")
+                state = torch.load(path, map_location="cpu", weights_only=True)
+                if router:
+                    previous = read_json(folder / "identity.json")
+                    old = SceneRouter(width, width, previous["expert_ids"], self.config["router_ablation"]["hidden_size"])
+                    old.load_state_dict(state, strict=True)
+                    module = old.for_pool(ids, init_seed=init_seed)
+                else:
+                    module.load_state_dict(state, strict=True)
+        module._iqe_initialization_identity = {"module_init_seed": init_seed,
+            "module_init_base_seed": self.config["randomness"]["module_init_seed"],
+            "training_rng_seed": self.config["randomness"]["training_rng_seed"] + number,
+            "sampler_seed": self.config["randomness"]["sampler_seed"] + number,
+            "bootstrap_seed": self.config["execution"]["bootstrap_seed"],
+            "parent_checkpoint_hash": parent_hash, "initial_state_hash": module_hash(module)}
         return module.to(self.device)
 
     def previous_indices(self, number, role, arrays):
@@ -771,6 +847,7 @@ class Pipeline:
     def train_selector(self, number, *, router=False, steps=None, resume=None, stop_after=None, non_exact_finetune=False):
         arrays = self.bank_arrays(number, "incremental_fit")
         if not self.config["scorer"]["replay_old_candidates"]:
+            require(f"expert_{number}" in arrays["expert_ids"], "new-candidate-only ablation requires a real expansion in this workflow round")
             keep = arrays["expert_ids"].index(f"expert_{number}")
             arrays["valid"][:, :keep] = False
             arrays["valid"][:, keep+1:] = False
@@ -786,7 +863,22 @@ class Pipeline:
         folder = self.round_root(number) / kind
         identity = {"kind": kind, "round": number, "pool_hash": arrays["manifest"]["pool_hash"], "expert_ids": list(arrays["expert_ids"]),
                     "training_role": "incremental_fit", "validation_role": "stage_val", "old_new_replay": self.config["scorer"]["replay_old_candidates"],
-                    "warm_started": number > 1, "frozen_generator_hashes": before}
+                    "warm_started": module._iqe_initialization_identity["parent_checkpoint_hash"] is not None, "frozen_generator_hashes": before,
+                    "initialization": module._iqe_initialization_identity}
+        if resume and (folder / "identity.json").exists():
+            original = read_json(folder / "identity.json")
+            for key in ("kind", "round", "pool_hash", "expert_ids", "frozen_generator_hashes", "old_new_replay"):
+                require(identity[key] == original[key], "selector resume identity changed: " + key)
+            if "initialization" in original:
+                for key in ("module_init_seed", "training_rng_seed", "sampler_seed", "bootstrap_seed"):
+                    require(identity["initialization"][key] == original["initialization"][key], "selector resume RNG identity changed")
+            else:
+                require(self.config["randomness"]["training_rng_seed"] == self.config["seed"] and
+                        self.config["randomness"]["sampler_seed"] == self.config["seed"], "legacy resume requires original sampler/training seed")
+                atomic_json(folder / "LEGACY_INITIALIZATION_PROVENANCE.json", {
+                    "status":"UNKNOWN_HISTORICAL_INIT_SEED", "checkpoint_weights_and_RNG_restored_strictly":True,
+                    "old_identity_hash":digest(original), "no_reinitialization_claim":True}, immutable=True)
+            identity = original
         atomic_json(folder / "identity.json", identity, immutable=True)
         cfg = deepcopy(self.config["scorer"])
         cfg["precision"] = self.config["model"]["precision"]
@@ -794,7 +886,7 @@ class Pipeline:
             cfg["max_optimizer_steps"] = steps; cfg["warmup_steps"] = min(cfg["warmup_steps"], steps - 1)
         require(self.mode != "smoke" or cfg["max_optimizer_steps"] <= 32, "selector smoke optimizer-step budget <=32")
         batch = cfg["global_scene_batch_size"]
-        rng = np.random.default_rng(self.config["seed"] + number)
+        rng = np.random.default_rng(self.config["randomness"]["sampler_seed"] + number)
         plan_rows = []
         count = batch * cfg["max_optimizer_steps"]
         # Uniform scene permutations, all old/new candidates per selected scene.
@@ -828,7 +920,7 @@ class Pipeline:
                 indices = np.array([val["expert_ids"].index(w) for w in winners])
             report = selection_report(val["scores"].numpy(), val["valid"].numpy(), indices, self.previous_indices(number, "stage_val", val),
                 {c: v.numpy() for c, v in val["components"].items()}, {c: v.numpy() for c, v in val["component_valid"].items()},
-                [s.source_group_id for s in val["scenes"]])
+                [s.source_group_id for s in val["scenes"]], repetitions=self.config["execution"]["bootstrap_repetitions"], seed=self.config["execution"]["bootstrap_seed"])
             violations = sum(report["vs_" + baseline][c]["new_violations"] for baseline in ("s0","previous") for c in self.config["selection"]["protected_metrics"])
             report.update(role="stage_val", fixed_scene_ids=[s.scene_id for s in val["scenes"]],
                           selection_key=[-violations, -report["selection_regret"], report["selected_mean_01"]])
@@ -838,7 +930,7 @@ class Pipeline:
             model.audit_optimizer(optimizer)
         train(module, loss_fn, fetch, ConsumedSampler(plan), cfg, identity, folder, device=self.device,
               weights=None if router else cfg["loss_weights"], resume=resume, non_exact_finetune=non_exact_finetune,
-              stop_after=stop_after, validate=validate, seed=self.config["seed"] + number, audit=audit_stage,
+              stop_after=stop_after, resume_allow_fallback=self.config["resume"]["allow_fallback"], validate=validate, seed=self.config["randomness"]["training_rng_seed"] + number, audit=audit_stage,
               denominator_function=(lambda data: {"router": (data["valid"] & torch.isfinite(data["scores"])).any(-1).sum().float()})
                   if router else (lambda data: scorer_denominators(data, cfg["rank_tie_epsilon"])))
         require(frozen_snapshot(model) == before, "Scorer/Router training changed a candidate generator")
@@ -897,7 +989,7 @@ class Pipeline:
             indices = np.array([d["expert_ids"].index(w) for w in winners])
         report = selection_report(d["scores"].numpy(), d["valid"].numpy(), indices, self.previous_indices(number, role, d),
             {c: v.numpy() for c, v in d["components"].items()}, {c: v.numpy() for c, v in d["component_valid"].items()},
-            [s.source_group_id for s in d["scenes"]])
+            [s.source_group_id for s in d["scenes"]], repetitions=self.config["execution"]["bootstrap_repetitions"], seed=self.config["execution"]["bootstrap_seed"])
         report.update(role=role, pool_hash=d["manifest"]["pool_hash"], selector_checkpoint_hash=calibration["selector_checkpoint_hash"],
                       smoke=self.mode == "smoke", science="UNTESTED" if self.mode == "smoke" else "PENDING_RELEASE_GATE",
                       frozen_output_drift=read_json(self.round_root(number) / "frozen_audit.json"))

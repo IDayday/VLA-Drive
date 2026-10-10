@@ -29,7 +29,7 @@ def safety_comparison(scores, selected, baseline, components, component_valid, h
     return out
 
 
-def selection_report(scores, valid, selected, previous, components, component_valid, groups):
+def selection_report(scores, valid, selected, previous, components, component_valid, groups, *, repetitions=2000, seed=42):
     scores, valid = np.asarray(scores), np.asarray(valid, bool)
     rows = np.arange(len(scores))
     require(valid[rows, selected].all(), "selected invalid true labels cannot yield an evaluation")
@@ -42,6 +42,6 @@ def selection_report(scores, valid, selected, previous, components, component_va
             "base_fallback_rate": float((np.asarray(selected) == 0).mean()),
             "vs_s0": safety_comparison(scores, selected, np.zeros(len(scores), int), components, component_valid),
             "vs_previous": safety_comparison(scores, selected, previous, components, component_valid),
-            "paired_group_bootstrap_vs_s0": paired_group_bootstrap(actual - base, groups),
-            "paired_group_bootstrap_vs_previous": paired_group_bootstrap(actual - scores[rows, previous], groups),
+            "paired_group_bootstrap_vs_s0": paired_group_bootstrap(actual - base, groups, repetitions, seed),
+            "paired_group_bootstrap_vs_previous": paired_group_bootstrap(actual - scores[rows, previous], groups, repetitions, seed),
             "selected_indices": list(map(int, selected)), "previous_indices": list(map(int, previous))}

@@ -20,14 +20,32 @@ class SceneRouter(nn.Module):
         ego = f.ego.mean(1) if f.ego.ndim == 3 else f.ego
         return self.head(self.encoder(torch.cat((scene, ego), -1)))
 
-    def expanded(self, expert_ids):
+    def expanded(self, expert_ids, init_seed=42):
         require(tuple(expert_ids[:len(self.expert_ids)]) == self.expert_ids, "Router rows cannot be reordered")
-        new = SceneRouter(self.scene_dim, self.ego_dim, expert_ids, self.head.in_features)
+        from .training.randomness import initialization_rng
+        with initialization_rng(init_seed):
+            new = SceneRouter(self.scene_dim, self.ego_dim, expert_ids, self.head.in_features)
         new.encoder.load_state_dict(self.encoder.state_dict(), strict=True)
         new.to(self.head.weight)
         with torch.no_grad():
             new.head.weight[:len(self.expert_ids)].copy_(self.head.weight)
             new.head.bias[:len(self.expert_ids)].copy_(self.head.bias)
+        return new
+
+    def for_pool(self, expert_ids, init_seed=42):
+        """Retain rows by stable ID when rejected evaluation candidates leave a pool."""
+        require(expert_ids[0] == "expert_0" and list(expert_ids) == sorted(set(expert_ids), key=lambda e:int(e[7:])), "Router pool stable ID order")
+        from .training.randomness import initialization_rng
+        with initialization_rng(init_seed):
+            new = SceneRouter(self.scene_dim, self.ego_dim, expert_ids, self.head.in_features)
+        new.encoder.load_state_dict(self.encoder.state_dict(), strict=True)
+        new.to(self.head.weight)
+        with torch.no_grad():
+            for i,eid in enumerate(expert_ids):
+                if eid in self.expert_ids:
+                    old_index = self.expert_ids.index(eid)
+                    new.head.weight[i].copy_(self.head.weight[old_index])
+                    new.head.bias[i].copy_(self.head.bias[old_index])
         return new
 
 

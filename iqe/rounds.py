@@ -12,12 +12,8 @@ FLOW = ("export-candidates", "score-candidates", "build-round", "train-expert", 
 
 def run_round(pipeline, number, *, resume=False, steps=None, selector_only=False):
     require(number >= 1, "round must be positive")
-    require(selector_only or len(pipeline.registry.latest(pipeline.registry.read())) < pipeline.config["model"]["max_experts_including_base"] or resume,
-            "configured scientific expert budget reached")
-    if number > 1 and pipeline.mode == "full" and not selector_only:
-        prior = read_json(pipeline.round_root(number - 1) / "oracle_stage_val.json")
-        if not prior["oracle_gate"]:
-            raise BlockedError("NO_COVERAGE_GAIN: automatic scientific expansion stopped; existing Scorer/export functionality remains executable")
+    from .workflow import check_expansion
+    check_expansion(pipeline, number, selector_only, resume)
     roles = ["incremental_fit", "stage_val", "selector_cal", "dev_report"]
     router = pipeline.config["router_ablation"]["enabled"]
     kind = "router" if router else "scorer"
@@ -26,7 +22,9 @@ def run_round(pipeline, number, *, resume=False, steps=None, selector_only=False
         folder = pipeline.round_root(version)
         log = folder / (name.replace("-", "_") + ".stage.json")
         inputs = {"round": version, "mode": pipeline.mode, "config": pipeline.config["config_hash"],
-                  "contract": digest(pipeline.contract), "max_samples": pipeline.max_samples, "steps": steps, "selector_only":selector_only}
+                  "contract": digest(pipeline.contract), "max_samples": pipeline.max_samples, "steps": steps, "selector_only":selector_only,
+                  "external_content": __import__("iqe.data.transaction",fromlist=["external_inputs"]).external_inputs(pipeline),
+                  "dependencies": __import__("iqe.data.transaction",fromlist=["stage_dependencies"]).stage_dependencies(pipeline,name,version)}
         if log.exists():
             saved = read_json(log)
             require(saved["inputs"] == inputs, "round-stage version mismatch")
@@ -60,17 +58,20 @@ def run_round(pipeline, number, *, resume=False, steps=None, selector_only=False
     if not selector_only:
         stage("build-round", lambda: pipeline.build_round(number, steps))
     def resume_path(kind):
+        from .training.resume import resolve_resume
         folder = pipeline.round_root(number) / kind
-        results = folder / "result.json"
-        if resume and results.exists() and read_json(results).get("status") == "STOPPED_AT_BOUNDARY":
-            return read_json(results)["checkpoint"]
-        receipts = sorted(folder.glob("step_*.pt.COMPLETE.json"))
-        return str(receipts[-1]).removesuffix(".COMPLETE.json") if resume and receipts else None
+        if resume and (list(folder.glob("step_*.pt*")) or (folder / "result.json").exists()):
+            return "auto" # shared trainer resolver validates run dependencies before selection
+        return None
     if selector_only:
         def reuse_pool():
             from .evaluation.retention import frozen_snapshot
             for filename in ("candidates.json", "scored.json"):
-                atomic_json(pipeline.round_root(number) / filename, read_json(pipeline.round_root(number-1) / filename), immutable=True)
+                prior = read_json(pipeline.round_root(number-1) / filename)
+                accepted = pipeline.registry.candidate_pool()
+                pool = {e:h for e,h in prior["experts"].items() if e in accepted}
+                rows = {sid:{e:v for e,v in row.items() if e in pool} for sid,row in prior["scenes"].items()}
+                pipeline.bank.pool(pipeline.round_root(number) / filename, rows, pool, prior["protocol_hash"])
             atomic_json(pipeline.round_root(number) / "frozen_audit.json", {"passed":True, "selector_only":True,
                         "frozen_hashes":frozen_snapshot(pipeline.model(number-1)), "output_drift":"no generator update; selector trainer also verifies hashes"}, immutable=True)
             atomic_json(pipeline.round_root(number) / "oracle_stage_val.json", {"oracle_gate":False,"selector_only":True,
@@ -95,7 +96,7 @@ def run_round(pipeline, number, *, resume=False, steps=None, selector_only=False
         folder = pipeline.round_root(number)
         prefix = "router_" if router else ""
         gate = release_gate(read_json(folder / (prefix+"evaluation_dev_report.json")), read_json(folder / "oracle_stage_val.json"),
-                            read_json(folder / "frozen_audit.json"), read_json(folder / (prefix+"calibration.json"))["report"])
+                            read_json(folder / "frozen_audit.json"), read_json(folder / (prefix+"calibration.json"))["report"], minimum_groups=pipeline.config["gates"]["minimum_logs_for_ci_gate"])
         if gate["passed"]:
             stage("export-bundle", lambda: pipeline.export_bundle(number, require_gates=True,router=router))
         else:

@@ -18,7 +18,7 @@ def paired_group_bootstrap(values, groups, repetitions=2000, seed=42):
             "upper": float(np.quantile(means, .975)), "groups": len(unique), "repetitions": repetitions, "seed": seed}
 
 
-def oracle_report(scores, valid, components, component_valid, expert_ids, groups, new_id, thresholds, gates, *, smoke=False):
+def oracle_report(scores, valid, components, component_valid, expert_ids, groups, new_id, thresholds, gates, *, smoke=False, repetitions=2000, seed=42):
     scores, valid = np.asarray(scores), np.asarray(valid, bool)
     require(scores.shape == valid.shape and scores.shape[1] == len(expert_ids), "Oracle bank shapes")
     require(np.isfinite(scores[valid]).all() and valid[:, 0].all(), "invalid Base scoring prevents scientific result")
@@ -35,9 +35,9 @@ def oracle_report(scores, valid, components, component_valid, expert_ids, groups
     quality &= hard_safe
     unsolved = ~quality[:, old_indices].any(-1)
     new_success = unsolved & quality[:, new_index]
-    bootstrap = paired_group_bootstrap(gains, groups)
+    bootstrap = paired_group_bootstrap(gains, groups, repetitions, seed)
     gate = not smoke and bootstrap["groups"] >= gates["minimum_logs_for_ci_gate"] and \
-        gains.mean() >= gates["oracle_min_mean_gain"] and bootstrap["lower"] > 0 and \
+        gains.mean() >= gates["oracle_min_mean_gain"] and (not gates.get("require_positive_log_bootstrap_lower_bound", True) or bootstrap["lower"] > 0) and \
         new_success.sum() >= gates["oracle_min_new_successes"]
     return {"base_mean_01": float(scores[:, 0].mean()), "new_mean_01": float(scores[valid[:, new_index], new_index].mean()) if valid[:, new_index].any() else None,
             "old_oracle_mean_01": float(old.mean()), "new_oracle_mean_01": float(current.mean()),
@@ -47,5 +47,5 @@ def oracle_report(scores, valid, components, component_valid, expert_ids, groups
             "severe_low_recovery": int(((old < thresholds.severe_low) & (current >= thresholds.high_quality)).sum()),
             "ordinary_unsafe_candidate_fraction": float((~unsolved & ~hard_safe[:, new_index]).sum() / (~unsolved).sum()) if (~unsolved).any() else None,
             "ordinary_candidate_denominator": int((~unsolved).sum()),
-            "bootstrap": bootstrap, "science": "UNTESTED" if smoke else "PASS" if gate else "INCONCLUSIVE" if bootstrap["groups"] < 10 else "NO_COVERAGE_GAIN",
+            "bootstrap": bootstrap, "science": "UNTESTED" if smoke else "PASS" if gate else "INCONCLUSIVE" if bootstrap["groups"] < gates["minimum_logs_for_ci_gate"] else "NO_COVERAGE_GAIN",
             "oracle_gate": gate}

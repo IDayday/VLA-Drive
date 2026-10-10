@@ -19,6 +19,6 @@ def evaluate_baselines(pipeline, number, role):
             choices[label]=np.array([d['expert_ids'].index(e) for e in ids])
     previous=pipeline.previous_indices(number,role,d)
     results={name:selection_report(scores,valid,selected,previous,{c:v.numpy() for c,v in d['components'].items()},
-        {c:v.numpy() for c,v in d['component_valid'].items()},[s.source_group_id for s in d['scenes']]) for name,selected in choices.items()}
+        {c:v.numpy() for c,v in d['component_valid'].items()},[s.source_group_id for s in d['scenes']],repetitions=pipeline.config['execution']['bootstrap_repetitions'],seed=pipeline.config['execution']['bootstrap_seed']) for name,selected in choices.items()}
     return {'role':role,'pool_hash':d['manifest']['pool_hash'],'results':results,'offline_only':['uniform_random_offline','oracle_offline'],
             'science':'UNTESTED' if pipeline.mode=='smoke' else 'REPORTED'}

@@ -1,0 +1,15 @@
+# GATED: the discovered checkpoint is currently BASE_QUALITY_UNTESTED.
+# No full workload is authorized or launched by this review.
+extends: ../main.yaml
+output_root: outputs/iqe/formal_after_review
+s0:
+  query_checkpoint: /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_013000.pt
+data:
+  scene_manifest: /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/scenes.json
+base_evaluation:
+  manifest: /mnt/project/iqe-review-runtime-1e876da/base_stage_val.json
+  rules: /mnt/project/iqe-review-runtime-1e876da/BASE_RULES_DRAFT.json
+  qualification: /mnt/project/iqe-review-runtime-1e876da/base_qualification/BASE_QUALIFICATION.json
+execution:
+  cpu_score_workers: 2
+  num_threads: 8
