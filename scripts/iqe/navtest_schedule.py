@@ -68,7 +68,7 @@ def main():
                     log=(out/'coordinator.log').open('a');jobs.append((subprocess.Popen(['ssh',host,remote],stdout=log,stderr=subprocess.STDOUT),log))
                 env=dict(os.environ,CUDA_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',PYTHONPATH=str(source))
                 log=(out/'scoring.log').open('a')
-                jobs.append((subprocess.Popen([plan['metric_python'],'-m','iqe.navtest','score',*common,'--workers',str(plan['cpu_workers']),'--timeout',str(plan['job_seconds'])],cwd=source,env=env,stdout=log,stderr=subprocess.STDOUT),log))
+                jobs.append((subprocess.Popen(['bash','scripts/iqe/navtest_score.sh',*common,'--workers',str(plan['cpu_workers']),'--timeout',str(plan['job_seconds'])],cwd=source,env=env,stdout=log,stderr=subprocess.STDOUT),log))
                 atomic_json(root/'SCHEDULE_STATUS.json',{'status':'EVALUATING','checkpoint_step':step,'host':host,'pid':os.getpid(),
                             'children':[j.pid for j,l in jobs],'plan_hash':digest(plan),'updated_unix':time.time()})
                 for child,log in jobs:
