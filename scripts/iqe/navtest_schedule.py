@@ -32,6 +32,9 @@ def main():
         for step in plan['steps']:
             out=root/f'step_{step:06d}';cp=Path(plan['checkpoint_root'])/f'step_{step:06d}.pt'
             while True:
+                if (root/'STOP_SCHEDULING').exists():
+                    atomic_json(root/'SCHEDULE_STATUS.json',{'status':'PAUSED_BY_OPERATOR','checkpoint_step':step,'pid':os.getpid()})
+                    return
                 if code_hash()!=plan['code_hash']:raise RuntimeError('evaluation code changed; schedule stopped')
                 if time.time()-start>plan['watch_seconds']:raise TimeoutError('finite checkpoint watch budget exhausted')
                 if (out/'NAVTEST_RESULT.json').exists():

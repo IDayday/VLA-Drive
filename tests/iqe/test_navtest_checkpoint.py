@@ -47,3 +47,19 @@ def test_navtest_payload_checks_current_metric_and_trajectory_hash(tmp_path):
     assert payload['scene_schema']=='navtest_input_v1' and 'target_ref' not in payload['scene']
     b.write_text('changed')
     with pytest.raises(ValueError,match='trajectory changed'):payload_for(scene,c,backend)
+
+
+def test_schedule_never_dispatches_to_unapproved_or_partly_busy_host(monkeypatch):
+    import importlib.util
+    from pathlib import Path
+    from types import SimpleNamespace
+    spec=importlib.util.spec_from_file_location('iqe_navtest_schedule',Path('scripts/iqe/navtest_schedule.py'))
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    monkeypatch.setattr(module,'read_json',lambda _: {'task_authorizations':{'iqe_v1':{'allowed_hosts':['busy','idle']}}})
+    calls=[]
+    def fake_run(cmd,**kwargs):
+        calls.append(cmd[5]);host=cmd[5]
+        return SimpleNamespace(returncode=0,stdout=('2000, 0\n' if host=='busy' else '0, 0\n')+'0, 0\n'*7)
+    monkeypatch.setattr(module.subprocess,'run',fake_run)
+    assert module.idle_host(['denied','busy','idle'])=='idle'
+    assert calls==['busy','idle']
