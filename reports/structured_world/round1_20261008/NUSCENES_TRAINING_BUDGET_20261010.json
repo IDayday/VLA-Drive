@@ -1,0 +1,163 @@
+{
+  "schema": "nuscenes_training_budget_audit_v1",
+  "captured_UTC": "2026-10-10T23:40:27.906269+00:00",
+  "provenance_of_24_epochs": "User round-one scope section 17; not copied from a paper",
+  "native_run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL",
+  "run_identity": "43bf49aca9277c889585dca3e4e805446eb790ea6de0b030c852f46cac34bdec",
+  "training_source_sha": "41da7c198cf0ac4f799aee2a27a0a8126de30230",
+  "shared_geometry_identity": "8719598d46107d630b6e09291c1c142a43a9ec4c8b26b95b61155fccef92fe79",
+  "dataset_label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+  "source_files_sha256": {
+    "identity.json": "d02da60d8b6b0c823502ba47ff85b14d91e0761fa9f868e9f82ced4723bfbf45",
+    "TRAINING_COMPLETE.json": "fe135c4e7e2465e9dd707c310be5f315434928942dc1f4594a96675f11652d7a",
+    "metrics.jsonl": "af4f3743a4d9865ba9943e053fec25f10a4b930292d511fa356f862b22b0d16d",
+    "optimizer_groups.json": "d78abcd326d48f0235d1c5b86c6cc40d00767f015757d7ef747ceb02af39b17d"
+  },
+  "measured_training": {
+    "scenes_per_epoch": 23230,
+    "effective_global_batch": 32,
+    "world_size": 8,
+    "updates_per_epoch": 726,
+    "schedule_horizon": 17424,
+    "schedule_warmup": 726,
+    "FM_repeat": 8
+  },
+  "completed": {
+    "GPU_hours": 174.22594297515022,
+    "evaluation_complete": false,
+    "exposure": 557520,
+    "identity": "43bf49aca9277c889585dca3e4e805446eb790ea6de0b030c852f46cac34bdec",
+    "updates": 17424
+  },
+  "final_measured_parameter_group_lrs": [
+    5.00000084068722e-07,
+    5.00000084068722e-07,
+    5.00000084068722e-07,
+    5.00000084068722e-07,
+    5.00000084068722e-07,
+    5.00000084068722e-07,
+    5.00000084068722e-06
+  ],
+  "gradient_diagnostics": {
+    "warmup": {
+      "first_update": 1,
+      "last_update": 726,
+      "updates": 726,
+      "clip_fraction": 1.0,
+      "median_raw_global_gradient_norm": 7.90750789642334,
+      "median_clip_scale": 0.12646222487209804
+    },
+    "first_six_epochs": {
+      "first_update": 1,
+      "last_update": 4356,
+      "updates": 4356,
+      "clip_fraction": 0.9474288337924701,
+      "median_raw_global_gradient_norm": 2.149951457977295,
+      "median_clip_scale": 0.4651265763055496
+    },
+    "last_six_epochs": {
+      "first_update": 13069,
+      "last_update": 17424,
+      "updates": 4356,
+      "clip_fraction": 0.03305785123966942,
+      "median_raw_global_gradient_norm": 0.5627181828022003,
+      "median_clip_scale": 1.0
+    }
+  },
+  "limits": [
+    "No training or evaluator changed by this audit",
+    "Gradient clip factors do not directly multiply Adam parameter-update size",
+    "Published batch defaults do not prove the exact author-scored run budget",
+    "nuScenes G1 incomplete; no common-endpoint auxiliary-supervision conclusion"
+  ],
+  "public_configuration_audit": {
+    "VAD": {
+      "commit": "1688c4b1c3a9e2e7873ca9700ff8058170c0e3c8",
+      "epochs": [
+        48,
+        12
+      ],
+      "stages": [
+        "perception_motion_map_no_planning_losses",
+        "planning_losses_enabled"
+      ],
+      "global_batch": 8,
+      "base_lr": 0.0002,
+      "backbone_multiplier": 0.1,
+      "weight_decay": 0.01,
+      "schedule": "cosine with 500-step warmup",
+      "source": "https://github.com/hustvl/VAD/blob/1688c4b1c3a9e2e7873ca9700ff8058170c0e3c8/projects/configs/VAD/VAD_base_stage_2.py"
+    },
+    "DiffusionDrive": {
+      "commit": "ae54fd87b32b3762f20e63ffd0af91d343cade85",
+      "epochs": [
+        100,
+        10
+      ],
+      "stages": [
+        "SparseDrive_perception",
+        "DiffusionDrive_planning"
+      ],
+      "global_batch": [
+        64,
+        48
+      ],
+      "base_lr": [
+        0.0004,
+        0.0003
+      ],
+      "backbone_multiplier": [
+        0.5,
+        0.1
+      ],
+      "weight_decay": 0.001,
+      "declared_keyframes": 28130,
+      "configured_updates": [
+        43900,
+        5860
+      ],
+      "initialization": "stage2 loads sparsedrive_stage1.pth; exact author checkpoint exposure not independently recovered",
+      "source": "https://github.com/hustvl/DiffusionDrive/blob/ae54fd87b32b3762f20e63ffd0af91d343cade85/projects/configs/diffusiondrive_configs/diffusiondrive_small_stage2.py"
+    },
+    "ResWorld": {
+      "commit": "a5ae973001dd6001d95b3389020a9e263d73a56e",
+      "epochs": 12,
+      "paper_global_batch": 8,
+      "released_samples_per_gpu": 2,
+      "released_global_batch_if_8_GPUs_without_overrides": 16,
+      "base_lr": 0.0001,
+      "weight_decay": 0.01,
+      "released_schedule": "500-step warmup, step at epoch24 beyond max epoch12",
+      "initialization": "geobev-r50-nuimage-cbgs.pth; pretraining exposure and exact split not independently verified",
+      "source": "https://github.com/mengtan00/ResWorld/blob/a5ae973001dd6001d95b3389020a9e263d73a56e/projects/configs/resworld/resworld_config.py"
+    },
+    "UniDriveVLA": {
+      "commit": "a93c175af893b35dc16618e659eca4d18bb1ec86",
+      "paper_VQA_preparation_epochs": 3,
+      "driving_epochs": [
+        30,
+        15
+      ],
+      "released_default_NUM_GPUS": 32,
+      "released_samples_per_gpu": 4,
+      "released_default_global_batch": 128,
+      "declared_keyframes": 28130,
+      "configured_updates_at_defaults": [
+        6570,
+        3285
+      ],
+      "base_lr": [
+        0.0002,
+        0.0001
+      ],
+      "joint_VLM_multiplier": 0.5,
+      "weight_decay": 1e-07,
+      "adaptation": [
+        "LoRA and EMA",
+        "VLM frozen, EMA"
+      ],
+      "limit": "launch GPU argument does not export NUM_GPUS; default topology and actual author run are not equated",
+      "source": "https://github.com/xiaomi-research/unidrivevla/blob/a93c175af893b35dc16618e659eca4d18bb1ec86/nuScenes/projects/configs/UniDriveVLA/unidrivevla_stage1_2b_cotraining.py"
+    }
+  }
+}

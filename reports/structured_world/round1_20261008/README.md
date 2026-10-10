@@ -27,6 +27,11 @@ compares this project's first nuScenes training results to public methods,
 using separate prefix and endpoint tables, and discloses the legal past-motion
 state interface and eligible-population differences.
 
+[The nuScenes training-budget audit](NUSCENES_TRAINING_BUDGET_20261010.md)
+traces our executed ego-state path and 24-epoch registration, verifies native
+updates/exposure/LRs, and separates public pretraining stages and configuration
+defaults from reproduced training budgets.
+
 The initial `e0e2592` implementation unintentionally ran the frozen Qwen vision
 tower in FP32, outside the language autocast context. Its G1/G3 prefixes were
 saved with complete native recovery at updates 390/391 and preserved as a
