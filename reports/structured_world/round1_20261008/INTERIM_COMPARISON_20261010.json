@@ -1,0 +1,1044 @@
+{
+  "schema": "interim_matched_population_comparison_20261010_v1",
+  "created_UTC": "2026-10-10T16:41:24.193809+00:00",
+  "scope": "Completed fixed observations only; not six-group final results or final Navtest",
+  "NAVSIM_protocol": {
+    "population": "1696 development scenes /16 logs",
+    "common_observation_updates": 25000,
+    "training_seed": 42,
+    "sampling_seed": 42,
+    "precision": "restored FP32 optimizer master weights; FP32 inference; TF32 disabled",
+    "proposal": "original ten-step single candidate; structured variants have one FGTR residual",
+    "reference_cache_hashes_match_for_every_scene_across_all_rows": true,
+    "bootstrap": {
+      "resamples": 10000,
+      "seed": 20260928,
+      "unit": "paired log clusters",
+      "estimate": "sum scene differences /sum scene counts; true scene weights retained",
+      "sorted_log_order_sha256": "0341b2fe92496e75d44d2e8ea30b6fa98aaafae4decebb9563a957930e10b447",
+      "limits": "Conditional on these fixed trained models. One training seed; 16 development logs. No training-seed stability or multiple-comparison correction."
+    }
+  },
+  "NAVSIM_25k_rows": [
+    {
+      "name": "A_ACTION",
+      "updates": 25000,
+      "PDMS": 89.02555159889916,
+      "NC": 99.08608490566037,
+      "DAC": 96.4622641509434,
+      "TTC": 96.4622641509434,
+      "EP": 82.15420968037701,
+      "zero_scenes": 74,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/planning-interface-transfer-artifacts/20261005/cpu_development_recovery_20261006_v1/A_ACTION_scores/scenes.csv",
+      "source_csv_sha256": "8dc2a8b6849bf6f2b43efb380c99eefc09c141b1ad489017b6ed6a5293541d7f"
+    },
+    {
+      "name": "A_NO_MAE",
+      "updates": 25000,
+      "PDMS": 89.76072211188391,
+      "NC": 99.11556603773585,
+      "DAC": 96.93396226415094,
+      "TTC": 97.05188679245283,
+      "EP": 82.80834931239586,
+      "zero_scenes": 66,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/planning-interface-transfer-artifacts/20261005/cpu_development_recovery_20261006_v1/A_NO_MAE_scores/scenes.csv",
+      "source_csv_sha256": "7e6bd8c09aba2281e68225640fffd78a826ba96c3aa87ad504c4aa0314bf3bea"
+    },
+    {
+      "name": "V_QUERY",
+      "updates": 25000,
+      "PDMS": 90.32802615342938,
+      "NC": 99.32193396226415,
+      "DAC": 97.40566037735849,
+      "TTC": 96.52122641509435,
+      "EP": 83.98091755601844,
+      "zero_scenes": 54,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/planning-interface-transfer-artifacts/20261005/scores/formal_V_QUERY_seed42_full100k_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "f4050e23b2a4a0d0e13ea812bb24027aea4e9ae4733f68147b75cf565eee94a2"
+    },
+    {
+      "name": "C0",
+      "updates": 25000,
+      "PDMS": 89.68216939586743,
+      "NC": 99.35141509433963,
+      "DAC": 96.75707547169812,
+      "TTC": 96.28537735849056,
+      "EP": 83.51550843687431,
+      "zero_scenes": 64,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/scores/formal_C0_seed42_priority_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "abb287cc1d504b79c4f61d82ff689ecee064db139a55ad16b7978049cb218daf"
+    },
+    {
+      "name": "C1",
+      "updates": 25000,
+      "PDMS": 89.94939479196425,
+      "NC": 99.29245283018868,
+      "DAC": 97.22877358490565,
+      "TTC": 96.875,
+      "EP": 82.96435644147188,
+      "zero_scenes": 56,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/scores_canonical_env_v1/formal_C1_seed42_priority_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "8fa57164411137c096199e6de1464079285ce00c2cd88a4ebd96aa39fcd984c1"
+    },
+    {
+      "name": "C4",
+      "updates": 25000,
+      "PDMS": 87.731311657125,
+      "NC": 99.11556603773585,
+      "DAC": 94.87028301886792,
+      "TTC": 96.69811320754717,
+      "EP": 80.89105846174762,
+      "zero_scenes": 100,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/scores/formal_C4_seed42_rlzt2_v1_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "9bed19fdc9266f9a0cf1a83c4076703de7e4ec0178148b9cd5ec1335420ccb09"
+    },
+    {
+      "name": "S0",
+      "updates": 25000,
+      "PDMS": 89.87518041284834,
+      "NC": 99.23349056603774,
+      "DAC": 96.81603773584906,
+      "TTC": 96.58018867924528,
+      "EP": 83.75467827385488,
+      "zero_scenes": 67,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/action-video-foresight-artifacts/20261002/scores_reconciled_development_v1/formal_S0_seed42_full100k_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "2ad271176494d940ad43e4d0c30e7372191ad3ffa1dea04a5daf914dcfabda9c"
+    },
+    {
+      "name": "S1",
+      "updates": 25000,
+      "PDMS": 90.14522959713534,
+      "NC": 99.55778301886792,
+      "DAC": 96.75707547169812,
+      "TTC": 96.93396226415094,
+      "EP": 83.70704159916255,
+      "zero_scenes": 62,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S1_seed42_full100k_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "04eb44028e1a2f57d76ded841cca51e953bbcaecfccd9edc0a25c6df7af80b98"
+    },
+    {
+      "name": "S2",
+      "updates": 25000,
+      "PDMS": 89.90989425628344,
+      "NC": 99.2629716981132,
+      "DAC": 96.28537735849056,
+      "TTC": 97.2877358490566,
+      "EP": 83.7151028901935,
+      "zero_scenes": 74,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/action-video-foresight-artifacts/20261002/scores_reconciled_development_v1/formal_S2_seed42_full100k_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "bbc5726464652dba94eb5195f00d626a206c130a6f7c2e0828aec7472394c234"
+    },
+    {
+      "name": "S3",
+      "updates": 25000,
+      "PDMS": 89.47020403962314,
+      "NC": 99.02712264150944,
+      "DAC": 96.75707547169812,
+      "TTC": 96.40330188679245,
+      "EP": 83.07265462962484,
+      "zero_scenes": 70,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/action-video-foresight-artifacts/20261002/scores_reconciled_development_v1/formal_S3_seed42_full100k_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "8a102ef3d46fd344beecb1a2939300b8151b9405a87bcd0c3943883f30420a94"
+    },
+    {
+      "name": "S4",
+      "updates": 25000,
+      "PDMS": 89.2793794853987,
+      "NC": 99.05660377358491,
+      "DAC": 96.63915094339622,
+      "TTC": 97.11084905660378,
+      "EP": 82.14116545133143,
+      "zero_scenes": 71,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/action-video-foresight-artifacts/20261002/scores/formal_S4_seed42_full100k_v2_dev25000_seed42/scenes.csv",
+      "source_csv_sha256": "80aeb5d12d3c5cf1ffd849c9262b35bdb1a5907cc09ba1a878884cf23f2780b9"
+    },
+    {
+      "name": "G1_q0",
+      "updates": 25000,
+      "PDMS": 87.72422459061285,
+      "NC": 98.61438679245283,
+      "DAC": 95.51886792452831,
+      "TTC": 95.16509433962264,
+      "EP": 81.85996980963924,
+      "zero_scenes": 96,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/dev_25000_canonical/q0/scenes.csv",
+      "source_csv_sha256": "86ae00119ae32e166bce20b4cd774e8715dbd2d7ebadff8a15e0808a18ef0a74"
+    },
+    {
+      "name": "G1_q_final",
+      "updates": 25000,
+      "PDMS": 90.54798291974645,
+      "NC": 99.35141509433963,
+      "DAC": 97.58254716981132,
+      "TTC": 96.75707547169812,
+      "EP": 84.23012340625216,
+      "zero_scenes": 50,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/dev_25000_canonical/q_final/scenes.csv",
+      "source_csv_sha256": "af92f71e1ea6311099b487f9ed6b0637ce924d85f489454a6bb9557b975658b3"
+    },
+    {
+      "name": "G3_q0",
+      "updates": 25000,
+      "PDMS": 88.02064501188467,
+      "NC": 99.02712264150944,
+      "DAC": 95.69575471698113,
+      "TTC": 95.51886792452831,
+      "EP": 81.92649366448718,
+      "zero_scenes": 89,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL/dev_25000_canonical/q0/scenes.csv",
+      "source_csv_sha256": "76b331453b510ca340811c21e00944c8a68841914ba1b70f76e09b42d5d00406"
+    },
+    {
+      "name": "G3_q_final",
+      "updates": 25000,
+      "PDMS": 90.03198982919885,
+      "NC": 99.29245283018868,
+      "DAC": 97.2877358490566,
+      "TTC": 96.75707547169812,
+      "EP": 83.39988879762443,
+      "zero_scenes": 58,
+      "scenes": 1696,
+      "logs": 16,
+      "failed": 0,
+      "source_csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL/dev_25000_canonical/q_final/scenes.csv",
+      "source_csv_sha256": "a64d2f00a8f4c7f863f51c1c29e9cb3dfcb4f571fd92b2e9ecaed0e2ebfdc638"
+    }
+  ],
+  "NAVSIM_paired_25k": [
+    {
+      "comparison": "G1_q_final minus S0",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 0.6728025068981087,
+          "paired_log_95CI": [
+            -0.1463309547980858,
+            1.3848623051545565
+          ]
+        },
+        "NC": {
+          "delta_points": 0.1179245283018868,
+          "paired_log_95CI": [
+            -0.4595611706122694,
+            0.5128205128205128
+          ]
+        },
+        "DAC": {
+          "delta_points": 0.7665094339622641,
+          "paired_log_95CI": [
+            -0.13793818363796678,
+            1.747625083301754
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.17688679245283018,
+          "paired_log_95CI": [
+            -0.835421888053467,
+            1.3213279358653807
+          ]
+        },
+        "EP": {
+          "delta_points": 0.4754451323972808,
+          "paired_log_95CI": [
+            -0.4906737964003847,
+            1.3088771830206107
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 41,
+        "introduced_zero_scenes": 24,
+        "both_zero": 26
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G3_q_final minus S0",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 0.1568094163505163,
+          "paired_log_95CI": [
+            -1.296571881379845,
+            0.9750804537063562
+          ]
+        },
+        "NC": {
+          "delta_points": 0.0589622641509434,
+          "paired_log_95CI": [
+            -0.6302562396116839,
+            0.49435756004862563
+          ]
+        },
+        "DAC": {
+          "delta_points": 0.4716981132075472,
+          "paired_log_95CI": [
+            -0.9624359656007628,
+            1.3158149537282398
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.17688679245283018,
+          "paired_log_95CI": [
+            -1.129204069123695,
+            1.3966697317741765
+          ]
+        },
+        "EP": {
+          "delta_points": -0.3547894762304582,
+          "paired_log_95CI": [
+            -1.7893522264437123,
+            0.5347830244762852
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 36,
+        "introduced_zero_scenes": 27,
+        "both_zero": 31
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G1_q_final minus S3",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 1.0777788801233124,
+          "paired_log_95CI": [
+            0.32745588918808166,
+            1.8793178974592166
+          ]
+        },
+        "NC": {
+          "delta_points": 0.3242924528301887,
+          "paired_log_95CI": [
+            -0.2666844919786096,
+            0.6993111846170621
+          ]
+        },
+        "DAC": {
+          "delta_points": 0.8254716981132075,
+          "paired_log_95CI": [
+            0.0,
+            1.8837323524823522
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.35377358490566035,
+          "paired_log_95CI": [
+            -0.525417089132639,
+            1.3716067383029835
+          ]
+        },
+        "EP": {
+          "delta_points": 1.1574687766273246,
+          "paired_log_95CI": [
+            0.23547466933969968,
+            1.9478941099743787
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 43,
+        "introduced_zero_scenes": 23,
+        "both_zero": 27
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G3_q_final minus S3",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 0.5617857895757199,
+          "paired_log_95CI": [
+            -0.6722497331006959,
+            1.4170508773944028
+          ]
+        },
+        "NC": {
+          "delta_points": 0.2653301886792453,
+          "paired_log_95CI": [
+            -0.3134845403806595,
+            0.6670112895513376
+          ]
+        },
+        "DAC": {
+          "delta_points": 0.5306603773584906,
+          "paired_log_95CI": [
+            -0.6809430569342292,
+            1.4403570236903567
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.35377358490566035,
+          "paired_log_95CI": [
+            -0.7619087940002419,
+            1.4276245508400502
+          ]
+        },
+        "EP": {
+          "delta_points": 0.32723416799958543,
+          "paired_log_95CI": [
+            -0.9058971448187523,
+            1.1268774134807926
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 38,
+        "introduced_zero_scenes": 26,
+        "both_zero": 32
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G1_q_final minus V_QUERY",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 0.21995676631707203,
+          "paired_log_95CI": [
+            -0.7704536982825686,
+            1.2414788391073692
+          ]
+        },
+        "NC": {
+          "delta_points": 0.0294811320754717,
+          "paired_log_95CI": [
+            -0.4180798998406556,
+            0.3208086048255216
+          ]
+        },
+        "DAC": {
+          "delta_points": 0.17688679245283018,
+          "paired_log_95CI": [
+            -0.8152451197870452,
+            1.3115562320675662
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.2358490566037736,
+          "paired_log_95CI": [
+            -0.7150365498485929,
+            1.0824341240215922
+          ]
+        },
+        "EP": {
+          "delta_points": 0.24920585023371392,
+          "paired_log_95CI": [
+            -0.7870661004402039,
+            1.3820798089616058
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 31,
+        "introduced_zero_scenes": 27,
+        "both_zero": 23
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G3_q_final minus V_QUERY",
+      "metrics": {
+        "PDMS": {
+          "delta_points": -0.2960363242305202,
+          "paired_log_95CI": [
+            -1.968446639778927,
+            0.8941384305398883
+          ]
+        },
+        "NC": {
+          "delta_points": -0.0294811320754717,
+          "paired_log_95CI": [
+            -0.6538084403114488,
+            0.4529754991427463
+          ]
+        },
+        "DAC": {
+          "delta_points": -0.1179245283018868,
+          "paired_log_95CI": [
+            -1.6823099150453904,
+            0.961591919940696
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.2358490566037736,
+          "paired_log_95CI": [
+            -1.1846114459159458,
+            1.3439902114908868
+          ]
+        },
+        "EP": {
+          "delta_points": -0.581028758394025,
+          "paired_log_95CI": [
+            -2.0710558873204477,
+            0.4893879201601641
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 28,
+        "introduced_zero_scenes": 32,
+        "both_zero": 26
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G3_q_final minus G1_q_final",
+      "metrics": {
+        "PDMS": {
+          "delta_points": -0.5159930905475922,
+          "paired_log_95CI": [
+            -1.4404886264588608,
+            0.05749166581332473
+          ]
+        },
+        "NC": {
+          "delta_points": -0.0589622641509434,
+          "paired_log_95CI": [
+            -0.3924666039134005,
+            0.3127845116573734
+          ]
+        },
+        "DAC": {
+          "delta_points": -0.294811320754717,
+          "paired_log_95CI": [
+            -1.1896132058771465,
+            0.18566826713249748
+          ]
+        },
+        "TTC": {
+          "delta_points": 0.0,
+          "paired_log_95CI": [
+            -0.9217656596688854,
+            0.8797753232854898
+          ]
+        },
+        "EP": {
+          "delta_points": -0.830234608627739,
+          "paired_log_95CI": [
+            -1.6227080987964921,
+            -0.3033178694992408
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 19,
+        "introduced_zero_scenes": 27,
+        "both_zero": 31
+      },
+      "interpretation": "overall recipe/architecture contrast, not isolated supervision causality"
+    },
+    {
+      "comparison": "G1_q_final minus G1_q0",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 2.8237583291335855,
+          "paired_log_95CI": [
+            1.8891502752453502,
+            4.034999664462902
+          ]
+        },
+        "NC": {
+          "delta_points": 0.7370283018867925,
+          "paired_log_95CI": [
+            0.2558820911658687,
+            1.2060740212444776
+          ]
+        },
+        "DAC": {
+          "delta_points": 2.063679245283019,
+          "paired_log_95CI": [
+            1.266227911140775,
+            3.4121930658439887
+          ]
+        },
+        "TTC": {
+          "delta_points": 1.5919811320754718,
+          "paired_log_95CI": [
+            0.5573192963468943,
+            2.29043628509325
+          ]
+        },
+        "EP": {
+          "delta_points": 2.3701535966129232,
+          "paired_log_95CI": [
+            1.4402176556911412,
+            3.522717435010455
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 50,
+        "introduced_zero_scenes": 4,
+        "both_zero": 46
+      },
+      "interpretation": "internal same-model refinement diagnostic, not independent DDP baseline"
+    },
+    {
+      "comparison": "G3_q_final minus G3_q0",
+      "metrics": {
+        "PDMS": {
+          "delta_points": 2.011344817314177,
+          "paired_log_95CI": [
+            0.7151086950062728,
+            3.210973398137587
+          ]
+        },
+        "NC": {
+          "delta_points": 0.2653301886792453,
+          "paired_log_95CI": [
+            -0.22906509678658918,
+            0.7993273024356501
+          ]
+        },
+        "DAC": {
+          "delta_points": 1.5919811320754718,
+          "paired_log_95CI": [
+            0.4468092528180033,
+            3.016622286774792
+          ]
+        },
+        "TTC": {
+          "delta_points": 1.2382075471698113,
+          "paired_log_95CI": [
+            0.0,
+            1.9966339148434726
+          ]
+        },
+        "EP": {
+          "delta_points": 1.4733951331372404,
+          "paired_log_95CI": [
+            0.5185313804830725,
+            2.6851544533145826
+          ]
+        }
+      },
+      "zero_failure_transfers": {
+        "fixed_baseline_zero_scenes": 46,
+        "introduced_zero_scenes": 15,
+        "both_zero": 43
+      },
+      "interpretation": "internal same-model refinement diagnostic, not independent DDP baseline"
+    }
+  ],
+  "NAVSIM_scene_fields_25k": [
+    {
+      "group": "G1_FULL_UNIFORM",
+      "scenes": 1696,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/dev_25000_scene_metrics/SCENE_METRICS.json",
+      "sha256": "06eed74ae06e215eeba3613c3410fef2a5b1ceb4879940a271f8682d9be11052",
+      "selected_metrics": {
+        "global_valid_cells/road": {
+          "road_MAE": 0.7375527929471337,
+          "road_boundary_MAE": 0.7215912457338053,
+          "road_boundary_count": 3685847,
+          "road_boundary_error_sum": 2659674.928314209,
+          "road_count": 22407850,
+          "road_error_sum": 16526972.35144043
+        },
+        "global_valid_cells/future_occupancy": {
+          "Brier": 0.05223600111115517,
+          "Brier_sum": 9813093.092078418,
+          "FN": 4385808,
+          "FP": 9109435,
+          "IoU": 0.3235019899310636,
+          "TN": 167912045,
+          "TP": 6453438,
+          "positive": 10839246,
+          "precision": 0.41466880825924624,
+          "recall": 0.5953770216120199,
+          "valid": 187860726
+        },
+        "global_valid_cells/enter": {
+          "Brier": 0.02336338287456528,
+          "Brier_sum": 3584571.1976871938,
+          "FN": 2832924,
+          "FP": 539465,
+          "IoU": 0.09284733994449038,
+          "TN": 149709337,
+          "TP": 345165,
+          "positive": 3178089,
+          "precision": 0.3901800752857127,
+          "recall": 0.10860771992225517,
+          "valid": 153426891
+        },
+        "global_valid_cells/release": {
+          "Brier": 0.01998293416643627,
+          "Brier_sum": 3065919.462213993,
+          "FN": 2247727,
+          "FP": 649855,
+          "IoU": 0.22082226672320868,
+          "TN": 149708122,
+          "TP": 821187,
+          "positive": 3068914,
+          "precision": 0.5582349110358508,
+          "recall": 0.2675822782912783,
+          "valid": 153426891
+        },
+        "fixed_logged_GT_body_neighborhood/future_occupancy": {
+          "Brier": 0.02403807747595166,
+          "Brier_sum": 48881.28631888285,
+          "FN": 26136,
+          "FP": 39158,
+          "IoU": 0.4500214789295912,
+          "TN": 1914773,
+          "TP": 53427,
+          "positive": 79563,
+          "precision": 0.5770589188313442,
+          "recall": 0.671505599336375,
+          "valid": 2033494
+        },
+        "fixed_logged_GT_body_relations": {
+          "body_occupancy_MAE": 0.150590462308573,
+          "body_occupancy_count": 10776,
+          "body_occupancy_error_sum": 1622.7628218371829,
+          "body_occupancy_unknown_or_out_of_range_queries": 29883,
+          "body_road_MAE": 0.3486121630698167,
+          "body_road_count": 33106,
+          "body_road_error_sum": 11541.154270589352,
+          "body_road_unknown_or_out_of_range_queries": 7553,
+          "invalid_auxiliary_time_queries": 45,
+          "out_of_range_body_queries": 0,
+          "registered_body_queries": 40704
+        }
+      }
+    },
+    {
+      "group": "G3_EVENT_LOCAL",
+      "scenes": 1696,
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL/dev_25000_scene_metrics/SCENE_METRICS.json",
+      "sha256": "cfd93827694217a730108273f552b2f99f824d76da9872f74b9f66d5583c4076",
+      "selected_metrics": {
+        "global_valid_cells/road": {
+          "road_MAE": 0.8798954819938677,
+          "road_boundary_MAE": 0.7077683377352744,
+          "road_boundary_count": 3685847,
+          "road_boundary_error_sum": 2608725.804336548,
+          "road_count": 22407850,
+          "road_error_sum": 19716565.97619629
+        },
+        "global_valid_cells/future_occupancy": {
+          "Brier": 0.06776680320616622,
+          "Brier_sum": 12730720.849009514,
+          "FN": 4175424,
+          "FP": 13509239,
+          "IoU": 0.27368528267775183,
+          "TN": 163512241,
+          "TP": 6663822,
+          "positive": 10839246,
+          "precision": 0.33033271450475465,
+          "recall": 0.6147864897613727,
+          "valid": 187860726
+        },
+        "global_valid_cells/enter": {
+          "Brier": 0.03283838059007543,
+          "Brier_sum": 5038290.639410019,
+          "FN": 2521468,
+          "FP": 2666058,
+          "IoU": 0.11235531891993819,
+          "TN": 147582744,
+          "TP": 656621,
+          "positive": 3178089,
+          "precision": 0.19761794624157195,
+          "recall": 0.20660875135970075,
+          "valid": 153426891
+        },
+        "global_valid_cells/release": {
+          "Brier": 0.028163598679684293,
+          "Brier_sum": 4321053.384795666,
+          "FN": 1695365,
+          "FP": 3362648,
+          "IoU": 0.21356382788504566,
+          "TN": 146995329,
+          "TP": 1373549,
+          "positive": 3068914,
+          "precision": 0.2900109518248502,
+          "recall": 0.44756842322723933,
+          "valid": 153426891
+        },
+        "fixed_logged_GT_body_neighborhood/future_occupancy": {
+          "Brier": 0.023229002732827783,
+          "Brier_sum": 47236.0376831889,
+          "FN": 24170,
+          "FP": 38672,
+          "IoU": 0.468499175371083,
+          "TN": 1915259,
+          "TP": 55393,
+          "positive": 79563,
+          "precision": 0.5888800297666508,
+          "recall": 0.6962155775925996,
+          "valid": 2033494
+        },
+        "fixed_logged_GT_body_relations": {
+          "body_occupancy_MAE": 0.13296561229519066,
+          "body_occupancy_count": 10776,
+          "body_occupancy_error_sum": 1432.8374380929745,
+          "body_occupancy_unknown_or_out_of_range_queries": 29883,
+          "body_road_MAE": 0.3022706677191626,
+          "body_road_count": 33106,
+          "body_road_error_sum": 10006.972725510597,
+          "body_road_unknown_or_out_of_range_queries": 7553,
+          "invalid_auxiliary_time_queries": 45,
+          "out_of_range_body_queries": 0,
+          "registered_body_queries": 40704
+        }
+      }
+    }
+  ],
+  "nuScenes_completed_validation": [
+    {
+      "group": "G1_FULL_UNIFORM",
+      "epochs": 6,
+      "updates": 4356,
+      "scenes": 4969,
+      "protocol": {
+        "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+        "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+        "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+        "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+        "ego_state": "legal previous/current sensor poses provided identically",
+        "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+        "name": "UniAD-v2.0-style open-loop planning",
+        "not_closed_loop": true,
+        "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+        "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+        "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds"
+      },
+      "q0": {
+        "L2_1s": 0.35201411631331675,
+        "L2_2s": 0.6714023391381251,
+        "L2_3s": 1.0872493791582298,
+        "box_collision_1s": 0.006238679814852083,
+        "box_collision_2s": 0.007848661702555847,
+        "box_collision_3s": 0.010464882387028635,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.00015093580197222782,
+        "point_collision_3s": 0.0010397799911333967
+      },
+      "q_final": {
+        "L2_1s": 0.3254397799528747,
+        "L2_2s": 0.6315491680549913,
+        "L2_3s": 1.0385617849252657,
+        "box_collision_1s": 0.003823706983296438,
+        "box_collision_2s": 0.004578385993157577,
+        "box_collision_3s": 0.006037432201840936,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.00015093580197222782,
+        "point_collision_3s": 0.0007714496685192364
+      },
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_formal/G1_FULL_UNIFORM/val_4356_planning/COMPLETE.json",
+      "sha256": "329e04bc2ae45bd76a953e9f457d552c99e2cd7884cff8f7e21f0fbde77052bd"
+    },
+    {
+      "group": "G3_EVENT_LOCAL",
+      "epochs": 6,
+      "updates": 4356,
+      "scenes": 4969,
+      "protocol": {
+        "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+        "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+        "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+        "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+        "ego_state": "legal previous/current sensor poses provided identically",
+        "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+        "name": "UniAD-v2.0-style open-loop planning",
+        "not_closed_loop": true,
+        "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+        "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+        "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds"
+      },
+      "q0": {
+        "L2_1s": 0.3342153726242712,
+        "L2_2s": 0.6412595932743581,
+        "L2_3s": 1.0476894978074738,
+        "box_collision_1s": 0.007043670758703964,
+        "box_collision_2s": 0.00830146910847253,
+        "box_collision_3s": 0.012074864307719473,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.00015093580197222782,
+        "point_collision_3s": 0.0009391561201530866
+      },
+      "q_final": {
+        "L2_1s": 0.37625629549351625,
+        "L2_2s": 0.6526850646455047,
+        "L2_3s": 1.042999238001464,
+        "box_collision_1s": 0.0063393036828335685,
+        "box_collision_2s": 0.00714429462668545,
+        "box_collision_3s": 0.009358019815241697,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.0001006238679814852,
+        "point_collision_3s": 0.0007714496715180613
+      },
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_4356_planning/COMPLETE.json",
+      "sha256": "0502c961ef3b7e84b037842f2fb8f346ae7b7b5b4dfdfd6a5d6463c4efa4f41b"
+    },
+    {
+      "group": "G3_EVENT_LOCAL",
+      "epochs": 12,
+      "updates": 8712,
+      "scenes": 4969,
+      "protocol": {
+        "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+        "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+        "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+        "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+        "ego_state": "legal previous/current sensor poses provided identically",
+        "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+        "name": "UniAD-v2.0-style open-loop planning",
+        "not_closed_loop": true,
+        "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+        "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+        "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds"
+      },
+      "q0": {
+        "L2_1s": 0.2896262839148644,
+        "L2_2s": 0.5773170033286493,
+        "L2_3s": 0.9711157010718625,
+        "box_collision_1s": 0.006037432078889113,
+        "box_collision_2s": 0.0074461662306299055,
+        "box_collision_3s": 0.0103642585130495,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.0001006238679814852,
+        "point_collision_3s": 0.0007379083811912913
+      },
+      "q_final": {
+        "L2_1s": 0.2936088287420188,
+        "L2_2s": 0.5816586845696669,
+        "L2_3s": 0.9719384963933245,
+        "box_collision_1s": 0.005534312738981686,
+        "box_collision_2s": 0.00694304689072248,
+        "box_collision_3s": 0.009592808847529088,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.0001006238679814852,
+        "point_collision_3s": 0.0007379083811912913
+      },
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_8712_planning/COMPLETE.json",
+      "sha256": "b8461faa7c354c98ad1c7b1b98943f48dc96003d67ef4bd66f2a4dac11d4bf85"
+    },
+    {
+      "group": "G3_EVENT_LOCAL",
+      "epochs": 18,
+      "updates": 13068,
+      "scenes": 4969,
+      "protocol": {
+        "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+        "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+        "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+        "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+        "ego_state": "legal previous/current sensor poses provided identically",
+        "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+        "name": "UniAD-v2.0-style open-loop planning",
+        "not_closed_loop": true,
+        "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+        "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+        "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds"
+      },
+      "q0": {
+        "L2_1s": 0.2710908097222494,
+        "L2_2s": 0.5517435733685868,
+        "L2_3s": 0.9383863879723445,
+        "box_collision_1s": 0.005131817267055746,
+        "box_collision_2s": 0.005383376937009458,
+        "box_collision_3s": 0.007412625093243208,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.0001006238679814852,
+        "point_collision_3s": 0.0006708258005377512
+      },
+      "q_final": {
+        "L2_1s": 0.2708413137798099,
+        "L2_2s": 0.5494990488973499,
+        "L2_3s": 0.9304429497243677,
+        "box_collision_1s": 0.004528074059166835,
+        "box_collision_2s": 0.004980881465083518,
+        "box_collision_3s": 0.006943047040663727,
+        "native_out_of_range_steps": 0.0,
+        "point_collision_1s": 0.0,
+        "point_collision_2s": 0.0001006238679814852,
+        "point_collision_3s": 0.0007379083811912913
+      },
+      "source": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_13068_planning/COMPLETE.json",
+      "sha256": "3aac05967b95fa755fea44875a1fd3840b6059610ec21a57a32bfdeb5ec714be"
+    }
+  ],
+  "scientific_limits": [
+    "NAVSIM current G1/G3 share a five-epoch perception preparation unavailable to historical S/A/V; equal driving updates do not mean equal total compute or exposure.",
+    "New architecture, losses, optimizer groups and execution differ from historical S/A/V; comparisons describe overall systems, not sole auxiliary-task causal effects.",
+    "G0 and G2 have not started, so G1-G0 and G3-G2 causal comparisons are unavailable.",
+    "nuScenes only six-epoch G1/G3 is currently a matched completed endpoint; longer G3 results are within-run learning evidence, not a fair G1 contrast.",
+    "nuScenes collision is locked UniAD-style open-loop raster box overlap, not NAVSIM responsibility collision or closed-loop safety.",
+    "Historical best full Navtest values must not be compared numerically with current development results.",
+    "Deployment latency measurements are cost-only engineering benchmarks, not an endpoint quality/latency tradeoff."
+  ],
+  "interpretation": [
+    "NAVSIM G1 has a positive 25k overall-system signal against S0; G3 has not improved on G1 or historical V_QUERY at this observation.",
+    "G3 reduces fixed logged GT-body local errors while lowering global occupancy IoU and event precision; local representation improvements have not yet yielded better aggregate planning.",
+    "nuScenes matched six-epoch G3 has worse final collision and slightly worse three-second L2 than G1; its own 6/12/18-epoch L2 trend improves, without monotonic collision improvement.",
+    "Original FM proposal scores alone are below historical S0 at25k; large internal refinement deltas must not be represented as gains over an independently trained original DDP baseline."
+  ],
+  "cost_evidence": {
+    "NAVSIM_current_recent_step_seconds_approx": 3.13,
+    "historical_S0_step_seconds_median": 1.7542153596878052,
+    "historical_S3_step_seconds_median": 1.769884467124939,
+    "current_step_time_vs_S0_ratio_approx": 1.784273511638298,
+    "latency_same_A800_FP32_batch1_32_real_scenes_cost_only": {
+      "historical_S0_seconds": 1.0310737416148186,
+      "structured_G3_seconds": 1.3070335276424885,
+      "limits": {
+        "same": "physical A800 class, FP32/TF32-off, batch one, same current-input export, 32 scenes and four warmups, native ten-step one-candidate action sampler",
+        "different": "historical S0 update100000 versus structured G3 update492; distinct execution wrappers; newer benchmark sets CUBLAS_WORKSPACE_CONFIG, historical tool does not set it explicitly; first G3 FP32 cost uses its earlier fixed-noise cost implementation",
+        "purpose": "cost comparison, not controlled planning-quality or strict numerical equivalence; sampler overhead cause remains unresolved"
+      }
+    },
+    "historical_timing_source": "STEP_TIME_DIAGNOSIS_20261009.json",
+    "deployment_source": "EXECUTION_SPEED_AND_DEPLOYMENT_20261009.json",
+    "interpretation": "Equal driving updates have higher new-system training cost. No established matched-total-compute planning gain."
+  }
+}
