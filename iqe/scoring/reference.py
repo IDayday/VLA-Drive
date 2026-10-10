@@ -43,6 +43,10 @@ class ReferenceBackend:
         payload = {"candidate": asdict(candidate), "scene": asdict(scene), "protocol_hash": self.protocol_hash,
                    "navsim_root": self.root, "source_hash": self.source_hash, "config": self.config,
                    "seed": seed, "eval_seed": self.eval_seed, "repetition": repetition}
+        if scene.split_role == "navtest":
+            from .navtest_schema import NavtestInput
+            require(isinstance(scene, NavtestInput), "explicit inference-only Navtest schema required")
+            payload["scene_schema"] = "navtest_input_v1"
         if original_entry_source:
             payload["original_entry_source"] = str(original_entry_source)
         with tempfile.TemporaryDirectory(prefix="iqe-reference-") as tmp:

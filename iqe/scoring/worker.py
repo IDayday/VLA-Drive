@@ -26,7 +26,10 @@ def main(request, response):
     from navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator import PDMSimulator
     from navsim.planning.simulation.planner.pdm_planner.scoring.pdm_scorer import PDMScorer, PDMScorerConfig
     from .reference import COMPONENTS
-    candidate, scene = strict_record(CandidateRecord, r["candidate"]), strict_record(SceneRecord, r["scene"])
+    from .navtest_schema import NavtestInput
+    require(r.get("scene_schema", "scene_record_v1") in {"scene_record_v1", "navtest_input_v1"}, "unknown scoring scene schema")
+    scene_type = NavtestInput if r.get("scene_schema") == "navtest_input_v1" else SceneRecord
+    candidate, scene = strict_record(CandidateRecord, r["candidate"]), strict_record(scene_type, r["scene"])
     random.seed(r["seed"])
     np.random.seed(r["seed"])
     with lzma.open(scene.metric_context_ref, "rb") as f:
