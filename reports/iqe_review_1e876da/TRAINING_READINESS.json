@@ -1,0 +1,91 @@
+{
+  "audit_base": "1e876da626b02af31459f44229248afa0cc55bed",
+  "repair_branch": "fix/iqe-formal-readiness-1e876da",
+  "IMPLEMENTATION": "COMPLETE",
+  "UNIT_TESTS": {
+    "status": "PASS",
+    "passed": 121,
+    "skipped": 1,
+    "separate_GPU_NCCL_pass": true
+  },
+  "REAL_S0_INTEGRATION": "PASS",
+  "REAL_MULTI_ROUND_ENGINEERING": "PASS_DIAGNOSTIC_QUERY_BASE",
+  "DDP_RESUME": "PASS_GLOO_NCCL_AND_REAL_CPU_OPTIMIZER_BOUNDARY",
+  "SCORE_REFERENCE_EQUIVALENCE": "PASS",
+  "SCIENTIFIC_GAIN": "UNTESTED",
+  "NEW_FULL_TRAINING_STARTED": false,
+  "FINAL_TEST_USED_FOR_TRAINING": false,
+  "FORMAL_DEPLOYMENT_UPDATED": false,
+  "PUSHED": false,
+  "NAVTEST_EXPLICITLY_AUTHORIZED": true,
+  "NAVTEST_USED_FOR_CHECKPOINT_OBSERVATION": true,
+  "navtest": {
+    "step": 14000,
+    "status": "COMPLETE",
+    "scenes": 12146,
+    "logs": 136,
+    "dataset_hash": "9051de59a26a65e3817ce0236066249354625e0d0287a63f0736c4eb2bcbfa25",
+    "future_fixed_steps": [
+      20000,
+      50000,
+      100000
+    ],
+    "PDMS_01": 0.852969324039308,
+    "valid_scores": 12146,
+    "zero_fraction": 0.08480158076733081,
+    "log_bootstrap": {
+      "groups": 136,
+      "lower": 0.8415546324196375,
+      "mean": 0.852969324039308,
+      "repetitions": 2000,
+      "seed": 42,
+      "upper": 0.8644662754635143
+    }
+  },
+  "EXISTING_BASE_JOB": {
+    "status": "RUNNING",
+    "host": "training-vla-zt2-worker-0",
+    "pid": 2124247,
+    "snapshot_optimizer_step": 14781,
+    "numerical_faults_observed": false,
+    "recommendation": "KEEP_RUNNING",
+    "hot_modified": false,
+    "snapshot_unix": 1791654629.3851874,
+    "snapshot_utc": "2026-10-10 17:58:33 UTC"
+  },
+  "BASE_QUALIFICATION": {
+    "status": "FORMAL_ACCEPTANCE_UNREGISTERED",
+    "formal_lock": false,
+    "reason": "Full user-requested Navtest score exists; no preregistered formal acceptance protocol. No validation expansion requested.",
+    "quality_measurement": "FULL_NAVTEST_COMPLETE"
+  },
+  "EXPERT_ROUND1_READY": {
+    "engineering": "PASS",
+    "formal": "BLOCKED",
+    "reason": "No qualified formal Base lock; no new full bank authorized"
+  },
+  "SCORER_READY": {
+    "engineering": "PASS",
+    "formal": "BLOCKED",
+    "reason": "Qualified Base and its complete official candidate bank required; diagnostic replay/backward/calibration/resume passed"
+  },
+  "MULTI_ROUND_READY": {
+    "engineering": "PASS",
+    "formal": "BLOCKED_BY_BASE",
+    "evidence": "Real expert1 -> selector-only2 -> expert3; all-stage checksum reuse"
+  },
+  "E3_NEW_DATA_READY": {
+    "status": "UNTESTED",
+    "reason": "No actual new observations; real resampling_only path and synthetic-unit fault injection passed"
+  },
+  "E6_RESIDUAL_READY": {
+    "engineering": "READY",
+    "science": "UNTESTED",
+    "legacy": "DEGENERATE_RESIDUAL_ABLATION"
+  },
+  "E12_LORA_DIT_COMPARISON_READY": {
+    "status": "BLOCKED",
+    "reason": "No runnable, aligned historical LoRA-DiT expert set was bound for this review"
+  },
+  "updated_unix": 1791655163.2530262
+}

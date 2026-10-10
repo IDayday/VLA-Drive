@@ -1,0 +1,44 @@
+........................................................................ [ 65%]
+..........F....................s......                                   [100%]
+=================================== FAILURES ===================================
+________ test_true_residual_has_zero_delta_changes_and_depends_on_base _________
+
+features = FeatureBundle(scene=tensor([[[-0.0766,  0.3599, -0.7820,  0.0715,  0.6648, -0.2868,  1.6206,
+          -1.5967],
+     ...    [True, True, True],
+        [True, True, True]]), contract_hash='unit', scene_ids=('a', 'b', 'c'), conditions=None)
+
+    def test_true_residual_has_zero_delta_changes_and_depends_on_base(features):
+        source=TensorAdapter().action.eval();expert=ResidualExpertV2(source).eval()
+        initial=module_hash(expert.initial)
+        assert torch.count_nonzero(expert.delta(features).raw)==0
+>       assert torch.equal(expert(features).raw,source(features).raw)
+E       AssertionError: assert False
+E        +  where False = <built-in method equal of type object at 0x7f20a0c5f1c0>(tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n         [ 0.2986,  0.08...         [-1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<AddBackward0>), tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n         [ 0.2986,  0.08...        [-1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<ViewBackward0>))
+E        +    where <built-in method equal of type object at 0x7f20a0c5f1c0> = torch.equal
+E        +    and   tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n         [ 0.2986,  0.08...         [-1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<AddBackward0>) = TrajectoryBundle(raw=tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n   ...-1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<AddBackward0>)), dt=0.5).raw
+E        +      where TrajectoryBundle(raw=tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n   ...-1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<AddBackward0>)), dt=0.5) = ResidualExpertV2(\n  (initial): IndependentExpert(\n    (query): Embedding(1, 8)\n    (decoder): Decoder(\n      (cross): ...ine=True)\n    )\n    (heads): ModuleList(\n      (0-1): 2 x Linear(in_features=8, out_features=16, bias=True)\n    )\n  )\n)(FeatureBundle(scene=tensor([[[-0.0766,  0.3599, -0.7820,  0.0715,  0.6648, -0.2868,  1.6206,\n          -1.5967],\n     ...    [True, True, True],\n        [True, True, True]]), contract_hash='unit', scene_ids=('a', 'b', 'c'), conditions=None))
+E        +    and   tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n         [ 0.2986,  0.08...        [-1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<ViewBackward0>) = TrajectoryBundle(raw=tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n   ...1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<ViewBackward0>)), dt=0.5).raw
+E        +      where TrajectoryBundle(raw=tensor([[[ 0.0500,  0.0897, -0.2025,  0.0899],\n         [ 0.6010,  0.3013, -0.5599, -0.3527],\n   ...1.2578, -0.6873, -0.5386, -0.6180],\n         [-0.4512, -0.8328,  1.1635,  0.4889]]], grad_fn=<ViewBackward0>)), dt=0.5) = IndependentExpert(\n  (query): Embedding(1, 8)\n  (decoder): Decoder(\n    (cross): MultiheadAttention(\n      (out_proj):...mentwise_affine=True)\n  )\n  (heads): ModuleList(\n    (0-1): 2 x Linear(in_features=8, out_features=16, bias=True)\n  )\n)(FeatureBundle(scene=tensor([[[-0.0766,  0.3599, -0.7820,  0.0715,  0.6648, -0.2868,  1.6206,\n          -1.5967],\n     ...    [True, True, True],\n        [True, True, True]]), contract_hash='unit', scene_ids=('a', 'b', 'c'), conditions=None))
+
+tests/iqe/test_readiness_repairs.py:128: AssertionError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+tests/iqe/test_cli_registry_export.py::test_import_all_main_modules
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+tests/iqe/test_cli_registry_export.py::test_import_all_main_modules
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: Deprecated call to `pkg_resources.declare_namespace('lightning_fabric')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/iqe/test_cli_registry_export.py::test_import_all_main_modules
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/pytorch_lightning/__init__.py:37: Deprecated call to `pkg_resources.declare_namespace('pytorch_lightning')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/iqe/test_readiness_repairs.py::test_true_residual_has_zero_delta_changes_and_depends_on_base
+1 failed, 108 passed, 1 skipped, 4 warnings in 30.89s

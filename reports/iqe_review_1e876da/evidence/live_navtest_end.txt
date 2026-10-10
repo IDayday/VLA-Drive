@@ -1,0 +1,16 @@
+Sat Oct 10 17:50:12 UTC 2026
+    PID                  STARTED     ELAPSED STAT COMMAND
+2124247 Fri Oct  9 23:57:22 2026    17:52:50 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m torch.distributed.run --standalone --nproc_per_node=8 -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124248 Fri Oct  9 23:57:22 2026    17:52:50 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.training.efficiency --directory /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base --warmup 3 --max-seconds-per-update 30 --watch-seconds 604800
+/mnt/project/DriveVLA-M0-iqe-20261009
+index, name, memory.used [MiB], utilization.gpu [%]
+0, NVIDIA A800-SXM4-80GB, 43935 MiB, 0 %
+1, NVIDIA A800-SXM4-80GB, 44613 MiB, 0 %
+2, NVIDIA A800-SXM4-80GB, 44079 MiB, 0 %
+3, NVIDIA A800-SXM4-80GB, 44639 MiB, 100 %
+4, NVIDIA A800-SXM4-80GB, 44639 MiB, 0 %
+5, NVIDIA A800-SXM4-80GB, 44629 MiB, 0 %
+6, NVIDIA A800-SXM4-80GB, 44391 MiB, 0 %
+7, NVIDIA A800-SXM4-80GB, 44269 MiB, 86 %
+Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on
+100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 428523751231488 4290840604672 100% /mnt/project

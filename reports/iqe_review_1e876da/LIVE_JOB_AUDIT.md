@@ -1,0 +1,19 @@
+# Existing Query Base job — live inspection
+
+Audit starts at `1e876da626b02af31459f44229248afa0cc55bed`; the source branch has no successor commits. Repair worktree: `/mnt/project/DriveVLA-M0-iqe-review-1e876da`, branch `fix/iqe-formal-readiness-1e876da`. Both original workspaces retain their pre-existing tracked modifications. No stash/reset/merge/push or checkpoint replacement occurred. See [workspace evidence](evidence/WORKSPACE_AUDIT.json).
+
+At **2026-10-10 17:24:02 UTC**, `training-vla-zt2-worker-0` was running torchrun PID **2124247**, eight children and efficiency observer **2124248**. Start: **2026-10-09 23:57:22 UTC**. Live `/proc` cwd is `/mnt/project/DriveVLA-M0-iqe-20261009`; cmdline is the original `train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda` with eight processes. This is a fresh observation, not the historical RUNNING JSON.
+
+The executable changes between launch commit `334c0008ecd41d521a47cc3de68d890b1249af76` and the audited HEAD are empty. Config and S0 contract still match launch SHA256. [Numerical inspection](evidence/LIVE_FINAL_NUMERICS.json) covered **14,267 logged optimizer updates**: no nonfinite loss/gradient. Last gradient norm 7.104095; ego IL 0.169511, DINO 0.024420, future clip 0.483891, interaction 0.008039. All original objectives remain enabled. Last 100 update p50/p95: **4.399687/4.400795 s**, actual global batch32. These are training timings, not inference timings.
+
+Eight A800-SXM4-80GB GPUs carry about 43,935–44,639 MiB; instantaneous utilization varied with the input/compute cycle. Latest fully saved checkpoint at that inspection: `step_014000.pt`, **22,816,333,071 bytes**, checksum **a65c68c4bcb562cbd134c31007a38255c0bbaf489a8a0f5c960c74288de00e93**, verified against its complete receipt. Output disk free **4,325,741,686,784 bytes** at the live snapshot. Earlier completed checkpoints remain intact.
+
+**Conclusion: RUNNING; keep the existing job running.** No observed numerical/data fault warrants stopping it. The old unused validation cadence does not make its optimizer state invalid; new independent evaluation reads complete checkpoints. The repair worktree has never been substituted into the active process. Existing Base exact cross-version training continuation was not attempted; its training recipe/config identity remains immutable.
+
+Only this review's just-started 128-scene validation-cache preparation was terminated after the user explicitly changed evaluation to navtest. Its process cmdline and group were checked immediately before termination. No training process or unrelated workload was stopped. GPU/NCCL probes and subsequent explicitly authorized navtest export used idle GPUs on `training-vlawm-zt`; current dispatch policy was checked at launch.
+
+Raw evidence: [initial](evidence/live_initial.txt), [follow-up](evidence/live_followup.txt), [final snapshot](evidence/live_final.txt), [launch identity checks](evidence/LIVE_NUMERICS.json).
+
+A fresh observation during navtest at **2026-10-10 17:50 UTC** reconfirmed both live PIDs/cwd. The training log reached **14,660 updates**, all finite, last100 p50/p95 **4.390336/4.391657 s**; available storage was **4,290,820,964,352 bytes**. The checksum-verified14k snapshot remains the evaluated checkpoint. See [navtest-time process snapshot](evidence/live_navtest_end.txt) and [all-step numerical scan](evidence/LIVE_NAVTEST_NUMERICS.json). No Base process was signaled.
+
+At **2026-10-10 17:58:33 UTC**, after full navtest completion, Base remained RUNNING at **14,781 optimizer steps**, latest loss/gradient finite, update4.385738s, disk free4,289,945,661,440 bytes. Both original PIDs/cwd remain identical. All8 navtest GPUs were released normally with0MiB usage. [Base live status](evidence/live_navtest_complete.txt); [evaluation GPU release](evidence/navtest_gpu_released.txt).

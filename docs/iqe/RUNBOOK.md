@@ -91,7 +91,7 @@ $IQE_PYTHON -m iqe.cli evaluate-baselines --config configs/iqe/main.yaml --mode 
 
 E4/E5/E6/E7/E8/E10/E11 同样 fork 对应配置后执行 run-round。E1 是在线图像完整策略副本 IL 微调，视觉塔仍按原框架冻结；不是把仅动作头更新伪称完整策略微调。其 checkpoint/评估独立保存，不替换 Base 或正式部署包。
 
-final_test 只有独立 `final-test --bundle ... --final-manifest ... --mode full --max-samples ...` 入口，要求已接纳锁定包、独立组，记录访问，不写回训练/校准路径。本次没有可核实的 final_test manifest，因此不提供虚构绝对路径，也未运行。
+锁定部署包的 final_test 使用独立 `final-test --bundle ... --final-manifest ... --mode full --max-samples ...` 入口，要求已接纳锁定包、独立组，记录访问，不写回训练/校准路径。历史实现阶段未运行；2026-10-10 用户后续明确要求直接监测 Base checkpoint 的 navtest PDMS，新增独立 `python -m iqe.navtest` 入口和完整真实清单。参见 `reports/iqe_review_1e876da/RUNBOOK.md`；不会把 checkpoint 观察伪称为未触碰的最终测试。
 
 实际已产生的 Query 基础诊断 checkpoint（真实图像、GT 与全部原辅助目标，CPU 1 update）为 `/mnt/project/iqe-runtime-audit-20261009/base_cpu_probe/query_base/step_000001.pt`，SHA256 为 `ff8f7905315d5d3b64e535c4799b872cd9466847a7f245d73c32ff8e8e1a266c`。这是 smoke 基础模型，禁止用 full 模式冻结或把其短 schedule 接成正式训练。
 

@@ -1,0 +1,26 @@
+Sat Oct 10 16:57:37 UTC 2026
+training-vla-zt2-worker-0
+    PID                  STARTED     ELAPSED STAT COMMAND
+2124247 Fri Oct  9 23:57:22 2026    17:00:15 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m torch.distributed.run --standalone --nproc_per_node=8 -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124248 Fri Oct  9 23:57:22 2026    17:00:15 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.training.efficiency --directory /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base --warmup 3 --max-seconds-per-update 30 --watch-seconds 604800
+/mnt/project/DriveVLA-M0-iqe-20261009
+index, name, memory.used [MiB], memory.total [MiB], utilization.gpu [%]
+0, NVIDIA A800-SXM4-80GB, 43935 MiB, 81920 MiB, 44 %
+1, NVIDIA A800-SXM4-80GB, 44613 MiB, 81920 MiB, 94 %
+2, NVIDIA A800-SXM4-80GB, 44079 MiB, 81920 MiB, 100 %
+3, NVIDIA A800-SXM4-80GB, 44639 MiB, 81920 MiB, 100 %
+4, NVIDIA A800-SXM4-80GB, 44639 MiB, 81920 MiB, 95 %
+5, NVIDIA A800-SXM4-80GB, 44629 MiB, 81920 MiB, 100 %
+6, NVIDIA A800-SXM4-80GB, 44391 MiB, 81920 MiB, 100 %
+7, NVIDIA A800-SXM4-80GB, 44269 MiB, 81920 MiB, 100 %
+Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on
+100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 428352504803328 4462087032832  99% /mnt/project
+{"actual_global_batch":32,"compute_update_seconds":3.88046695291996,"gradient_norm":4.099181652069092,"learned_driving_weights_loaded":false,"losses":{"current_dino":0.02079065889120102,"ego_il":0.1566172093153,"future_clip":0.30913540720939636,"interaction":0.021518215537071228},"optimizer_step":13919,"retained_objectives":["ego_il","current_dino","future_clip","interaction"],"sample_ids":["783d89921c065ec1","faeb020d3ac95b19","4287bc39f4255b5e","67ee97e8ff365e5d","e0bc6c9ec054529e","f3c8a25894385921","2c0980d5aff85f20","a3811de60f035ffb","ac98162b5b0d56b3","4f236fd917d2592d","e41f6467f60d5acb","bf32aa7b91e953c3","80bc7ef1fbe35e01","a9aa07ccfab35b43","a647ad538ccc54f4","631c9e7e02fa5905","40fa4412942556c9","284052a6d4ae5808","b386e8936f685898","5d10420d0a735937","b2705a9e19ee59d8","08a24641439153b4","deb4ef57fd355728","7f4950ddfa7b5a25","26c26a2475645e3c","008a132a26b6554d","720bda1f91e45a42","d83c244d690a546a","f3c5429aa16852b0","744d475d32745e46","2686c6db441051df","1e0d7011e1c6547d"],"seconds_per_update":4.394538608145677,"status":"RUNNING"}
+-rw------- 1 root root        1983 Oct 10 15:53 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_013000.pt.COMPLETE.json
+-rw-r--r-- 1 root root           0 Oct 10 15:53 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_013000.pt.COMPLETE.json.lock
+-rw------- 1 root root 22816333071 Oct 10 15:53 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_013000.pt
+-rw-r--r-- 1 root root           0 Oct 10 15:52 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_013000.pt.lock
+-rw------- 1 root root        1983 Oct 10 14:45 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_012000.pt.COMPLETE.json
+-rw-r--r-- 1 root root           0 Oct 10 14:45 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_012000.pt.COMPLETE.json.lock
+-rw------- 1 root root 22816333071 Oct 10 14:44 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_012000.pt
+-rw-r--r-- 1 root root           0 Oct 10 14:44 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_012000.pt.lock

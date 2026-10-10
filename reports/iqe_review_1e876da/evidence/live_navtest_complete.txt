@@ -1,0 +1,17 @@
+Sat Oct 10 17:58:33 UTC 2026
+    PID                  STARTED     ELAPSED STAT COMMAND
+2124247 Fri Oct  9 23:57:22 2026    18:01:10 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m torch.distributed.run --standalone --nproc_per_node=8 -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124248 Fri Oct  9 23:57:22 2026    18:01:10 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.training.efficiency --directory /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base --warmup 3 --max-seconds-per-update 30 --watch-seconds 604800
+/mnt/project/DriveVLA-M0-iqe-20261009
+index, name, memory.used [MiB], utilization.gpu [%]
+0, NVIDIA A800-SXM4-80GB, 43935 MiB, 100 %
+1, NVIDIA A800-SXM4-80GB, 44613 MiB, 100 %
+2, NVIDIA A800-SXM4-80GB, 44079 MiB, 100 %
+3, NVIDIA A800-SXM4-80GB, 44639 MiB, 100 %
+4, NVIDIA A800-SXM4-80GB, 44639 MiB, 100 %
+5, NVIDIA A800-SXM4-80GB, 44629 MiB, 100 %
+6, NVIDIA A800-SXM4-80GB, 44391 MiB, 100 %
+7, NVIDIA A800-SXM4-80GB, 44269 MiB, 100 %
+Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on
+100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 428524646174720 4289945661440 100% /mnt/project
+{"actual_global_batch":32,"compute_update_seconds":3.9835976362228394,"gradient_norm":6.2125325202941895,"learned_driving_weights_loaded":false,"losses":{"current_dino":0.02117951400578022,"ego_il":0.1026981994509697,"future_clip":0.4288588762283325,"interaction":0.010274711064994335},"optimizer_step":14781,"retained_objectives":["ego_il","current_dino","future_clip","interaction"],"sample_ids":["2faff13c4f915d75","c5815dd9bb015ab1","d4e955f6c4f15c0d","cc2e0758b2dd5ef9","c5538aad172c5029","b83c14a61c0e5d45","a826721ba9715c99","fd4b4902513e5c9b","6c22b8eedd1b5bed","b4c88ae4f85251d6","9888e839b0455f24","02478633a5a556d3","603f4d5413b35844","ffe5683af3ac52d3","e5e13177dddc5c97","cd1ee7463ec051f4","00249b8e2d515111","f3e39327a34b5243","bb27ea1dfd97528f","a0750314a7ff58a2","d711f16827d950ef","a1ad98481bd25fd4","6efe43d231305bf0","07faf0997b30559b","40df83fede1255d2","78224de8a0a45a34","ea904f410c485d0e","44eb287bd63e5235","d0701abc519e5484","c82f97ed2f625cd7","fda7844469e454db","5801d397de975821"],"seconds_per_update":4.385738015613024,"status":"RUNNING"}

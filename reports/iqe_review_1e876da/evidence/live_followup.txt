@@ -1,0 +1,29 @@
+Sat Oct 10 17:16:58 UTC 2026
+    PID                  STARTED     ELAPSED STAT COMMAND
+2124247 Fri Oct  9 23:57:22 2026    17:19:35 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m torch.distributed.run --standalone --nproc_per_node=8 -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124248 Fri Oct  9 23:57:22 2026    17:19:35 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.training.efficiency --directory /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base --warmup 3 --max-seconds-per-update 30 --watch-seconds 604800
+    PID                  STARTED STAT COMMAND
+2124255 Fri Oct  9 23:57:23 2026 Isl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124256 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124257 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124258 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124259 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124260 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124261 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124262 Fri Oct  9 23:57:23 2026 Rsl  /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+/mnt/project/DriveVLA-M0-iqe-20261009
+index, name, memory.used [MiB], utilization.gpu [%]
+0, NVIDIA A800-SXM4-80GB, 43935 MiB, 0 %
+1, NVIDIA A800-SXM4-80GB, 44613 MiB, 100 %
+2, NVIDIA A800-SXM4-80GB, 44079 MiB, 100 %
+3, NVIDIA A800-SXM4-80GB, 44639 MiB, 100 %
+4, NVIDIA A800-SXM4-80GB, 44639 MiB, 100 %
+5, NVIDIA A800-SXM4-80GB, 44629 MiB, 100 %
+6, NVIDIA A800-SXM4-80GB, 44391 MiB, 100 %
+7, NVIDIA A800-SXM4-80GB, 44269 MiB, 100 %
+Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on
+100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 428478178545664 4336413290496  99% /mnt/project
+{"actual_global_batch":32,"compute_update_seconds":3.864495951682329,"gradient_norm":7.919273376464844,"learned_driving_weights_loaded":false,"losses":{"current_dino":0.023195378482341766,"ego_il":0.11176776885986328,"future_clip":0.47681355476379395,"interaction":0.010840323753654957},"optimizer_step":14164,"retained_objectives":["ego_il","current_dino","future_clip","interaction"],"sample_ids":["6724aae71da15528","a7eff6b0a4d65312","0f642ef88b545d58","1bc94341d6bd5cc8","da35866213c45620","cf0cb5521fb65e9a","04aea56a1f895492","86df8340e5cf5b20","b380664667bb5844","21a27e3cede85989","e53b9cc079c75e1f","22cd34f4b431553c","ff7527f891e55645","dc5c677138445da4","95a2ab77a7455841","c6e0212c8d9f5df6","23532b0a386a5e2c","7fb95713f2e75007","fdfe49b6fa36542d","b9148d958ae35f13","4ada9da3ee3d5ef4","9d4f383df9a0547a","5072d5c3d16b54bd","855371e4280b5a54","12da92298a1a5d4d","6019839d345d5cdf","4cf79f853daa5e18","36ecb312430c59fd","d45b11053712574b","b3fc476731625a01","cbaaa011c317554a","19438700b02154c3"],"seconds_per_update":4.4007750937032135,"status":"RUNNING"}
+-rw------- 1 root root 1983 Oct 10 17:04 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_014000.pt.COMPLETE.json
+-rw------- 1 root root 1983 Oct 10 15:53 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_013000.pt.COMPLETE.json
+-rw------- 1 root root 1983 Oct 10 14:45 /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_012000.pt.COMPLETE.json

@@ -1,0 +1,66 @@
+........................................................................ [ 64%]
+...........F.....................s......                                 [100%]
+=================================== FAILURES ===================================
+________ test_true_residual_has_zero_delta_changes_and_depends_on_base _________
+
+features = FeatureBundle(scene=tensor([[[-0.0766,  0.3599, -0.7820,  0.0715,  0.6648, -0.2868,  1.6206,
+          -1.5967],
+     ...    [True, True, True],
+        [True, True, True]]), contract_hash='unit', scene_ids=('a', 'b', 'c'), conditions=None)
+
+    def test_true_residual_has_zero_delta_changes_and_depends_on_base(features):
+        source=TensorAdapter().action.eval().requires_grad_(False);expert=ResidualExpertV2(source).eval()
+        initial=module_hash(expert.initial)
+        assert torch.count_nonzero(expert.delta(features).raw)==0
+        assert torch.equal(expert(features).raw,source(features).raw)
+        optimizer=torch.optim.SGD(expert.delta.parameters(),lr=.01)
+        target=torch.randn_like(expert(features).raw)
+>       out=expert(features);loss=(out.raw-target).square().mean();loss.backward();optimizer.step()
+
+tests/iqe/test_readiness_repairs.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/_tensor.py:581: in backward
+    torch.autograd.backward(
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/autograd/__init__.py:347: in backward
+    _engine_run_backward(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+t_outputs = (tensor(1.1565),), args = ((None,), False, False, ())
+kwargs = {'accumulate_grad': True, 'allow_unreachable': True}
+attach_logging_hooks = False
+
+    def _engine_run_backward(
+        t_outputs: Sequence[Union[torch.Tensor, GradientEdge]],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Tuple[torch.Tensor, ...]:
+        attach_logging_hooks = log.getEffectiveLevel() <= logging.DEBUG
+        if attach_logging_hooks:
+            unregister_hooks = _register_logging_hooks_on_whole_graph(t_outputs)
+        try:
+>           return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+                t_outputs, *args, **kwargs
+            )  # Calls into the C++ engine to run the backward pass
+E           RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
+
+/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/autograd/graph.py:825: RuntimeError
+=============================== warnings summary ===============================
+../../../root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+tests/iqe/test_cli_registry_export.py::test_import_all_main_modules
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+tests/iqe/test_cli_registry_export.py::test_import_all_main_modules
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/lightning_fabric/__init__.py:41: Deprecated call to `pkg_resources.declare_namespace('lightning_fabric')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+tests/iqe/test_cli_registry_export.py::test_import_all_main_modules
+  /root/miniconda3/envs/ddp/lib/python3.10/site-packages/pytorch_lightning/__init__.py:37: Deprecated call to `pkg_resources.declare_namespace('pytorch_lightning')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/iqe/test_readiness_repairs.py::test_true_residual_has_zero_delta_changes_and_depends_on_base
+1 failed, 110 passed, 1 skipped, 4 warnings in 31.44s
