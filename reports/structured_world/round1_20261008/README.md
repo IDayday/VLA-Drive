@@ -1,17 +1,31 @@
 # Structured-world FGTR round one — implementation milestone
 
 This branch contains executable code and real data/training/deployment checks.
-**Formal NAVSIM G1/G3 are running on two distinct physical eight-A800 hosts;
-G0/G2 are queued. nuScenes official assets and complete train/validation labels
-are ready; its own five-epoch shared perception preparation is complete.
-Formal nuScenes G1/G3 are now updating on vla-zt3/vlawm-zt, respectively, from
-the prescribed generic/random driving initialization and own shared perception.
-No planning improvement is claimed.** NAVSIM training/evaluation source remains
+**As of 2026-10-10, NAVSIM G3 is training toward the registered 100k endpoint;
+G1 stopped after its complete 25k observation and is awaiting resource recovery.
+G0/G2 remain queued. Both completed 25k development observations are recorded in
+`INTERIM_COMPARISON_20261010.json`. nuScenes G3 finished its 24-epoch training
+and full 4969-sample final planning evaluation; scene-field scoring is finishing.
+G1 stopped at 6647 with native save6000.
+The user has deferred nuScenes recovery, preserving its assets and state.
+The six-group first round is not complete, and no isolated auxiliary-planning
+benefit is established.** NAVSIM training/evaluation source remains
 frozen at `0c54f1c`; nuScenes is frozen at `41da7c1`. Each run records
 its full source SHA. The NAVSIM runs also record their `f052e2f` recovery ancestry.
 `FORMAL_TRAINING_STATUS_LAUNCH.json` is a timestamped launch snapshot,
 not a live counter or a completed result. Historical engineering scores remain
 explicitly separate from the formal population and endpoint.
+
+[The external benchmark comparison](EXTERNAL_BENCHMARK_CONTEXT_20261010.md)
+separates our development scores from public NAVSIM v1 Navtest results, records
+sensor/label/candidate differences, and supplements existing nuScenes metrics
+with read-only endpoint aggregation. It does not change the frozen evaluator
+or start additional nuScenes training.
+
+[The focused nuScenes comparison](NUSCENES_EXTERNAL_COMPARISON_20261010.md)
+compares this project's first nuScenes training results to public methods,
+using separate prefix and endpoint tables, and discloses the legal past-motion
+state interface and eligible-population differences.
 
 The initial `e0e2592` implementation unintentionally ran the frozen Qwen vision
 tower in FP32, outside the language autocast context. Its G1/G3 prefixes were

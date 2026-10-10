@@ -1,0 +1,150 @@
+{
+  "scope": "Read-only supplemental aggregation of completed native metric arrays",
+  "prefix": "Mean first 2/4/6 positions, then mean three horizons",
+  "endpoint": "Position indices 1/3/5, then mean three horizons",
+  "collision_core": "Unchanged locked native evaluator; time aggregation alone does not establish full ST-P3 protocol equality",
+  "summary_source_sha256": "f6986fbca52a6d94c9da16f3bdd2c83143835719c29229483f83ee1fab642df8",
+  "observations": [
+    {
+      "planning_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_17424_planning",
+      "original_identity": "4cb7e70380267ef6ec44e7096696541df0d0ea73cb94854bad4dfd0fb21bb5a6",
+      "source_complete_sha256": "2318220896da2e6238509e38a56397874733b91f73fb63404c05005ac391c2c9",
+      "source_records_digest": "fca38ec41921f0b2fdb0a0ba0f42198c76d0bebc37ec4e5668664f667896a1d2",
+      "samples": 4969,
+      "scenes": 150,
+      "original_protocol": {
+        "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+        "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+        "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+        "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+        "ego_state": "legal previous/current sensor poses provided identically",
+        "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+        "name": "UniAD-v2.0-style open-loop planning",
+        "not_closed_loop": true,
+        "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+        "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+        "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds"
+      },
+      "q0": {
+        "prefix": {
+          "L2": {
+            "at_1_2_3s": [
+              0.27111876803091783,
+              0.5528840706889162,
+              0.9389758091050314
+            ],
+            "average": 0.5876595492749551,
+            "unit": "m"
+          },
+          "box_collision": {
+            "at_1_2_3s": [
+              0.0023143489635741596,
+              0.002817468303481586,
+              0.005265982424364393
+            ],
+            "average": 0.0034659332304733796,
+            "unit": "fraction (multiply by 100 for percent)"
+          },
+          "point_collision": {
+            "at_1_2_3s": [
+              0.0,
+              0.0001006238679814852,
+              0.0006037432078889112
+            ],
+            "average": 0.0002347890252901321,
+            "unit": "fraction (multiply by 100 for percent)"
+          }
+        },
+        "endpoint": {
+          "L2": {
+            "at_1_2_3s": [
+              0.3730221397089422,
+              1.016325541310832,
+              1.9681603633106586
+            ],
+            "average": 1.1191693481101443,
+            "unit": "m"
+          },
+          "box_collision": {
+            "at_1_2_3s": [
+              0.0022137250955926746,
+              0.004226202455222379,
+              0.01448983698933387
+            ],
+            "average": 0.006976588180049641,
+            "unit": "fraction (multiply by 100 for percent)"
+          },
+          "point_collision": {
+            "at_1_2_3s": [
+              0.0,
+              0.0004024954719259408,
+              0.0026162205675186153
+            ],
+            "average": 0.001006238679814852,
+            "unit": "fraction (multiply by 100 for percent)"
+          }
+        }
+      },
+      "q_final": {
+        "prefix": {
+          "L2": {
+            "at_1_2_3s": [
+              0.2707733167845001,
+              0.550629809559483,
+              0.9330427115884525
+            ],
+            "average": 0.5848152793108119,
+            "unit": "m"
+          },
+          "box_collision": {
+            "at_1_2_3s": [
+              0.0012074864157778226,
+              0.001911853491648219,
+              0.004427450191185349
+            ],
+            "average": 0.00251559669953713,
+            "unit": "fraction (multiply by 100 for percent)"
+          },
+          "point_collision": {
+            "at_1_2_3s": [
+              0.0,
+              0.0001006238679814852,
+              0.000637284497216073
+            ],
+            "average": 0.00024596945506585275,
+            "unit": "fraction (multiply by 100 for percent)"
+          }
+        },
+        "endpoint": {
+          "L2": {
+            "at_1_2_3s": [
+              0.3728960895954483,
+              1.010430802521024,
+              1.949761592631031
+            ],
+            "average": 1.1110294949158346,
+            "unit": "m"
+          },
+          "box_collision": {
+            "at_1_2_3s": [
+              0.001408734151740793,
+              0.0032199637754075265,
+              0.012879855101630106
+            ],
+            "average": 0.005836184342926143,
+            "unit": "fraction (multiply by 100 for percent)"
+          },
+          "point_collision": {
+            "at_1_2_3s": [
+              0.0,
+              0.0004024954719259408,
+              0.002817468303481586
+            ],
+            "average": 0.0010733212584691754,
+            "unit": "fraction (multiply by 100 for percent)"
+          }
+        }
+      }
+    }
+  ]
+}

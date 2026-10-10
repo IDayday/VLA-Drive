@@ -1,0 +1,846 @@
+{
+  "schema": "external_benchmark_context_v1",
+  "created_UTC": "2026-10-10T17:44:43.432402+00:00",
+  "scope": "NAVSIM v1 external context; current G dev is not a leaderboard submission. Completed nuScenes observations are a separate supplement.",
+  "NAVSIM_current": {
+    "protocol": {
+      "population": "1696 development scenes /16 logs",
+      "common_observation_updates": 25000,
+      "training_seed": 42,
+      "sampling_seed": 42,
+      "precision": "restored FP32 optimizer master weights; FP32 inference; TF32 disabled",
+      "proposal": "original ten-step single candidate; structured variants have one FGTR residual",
+      "reference_cache_hashes_match_for_every_scene_across_all_rows": true,
+      "bootstrap": {
+        "resamples": 10000,
+        "seed": 20260928,
+        "unit": "paired log clusters",
+        "estimate": "sum scene differences /sum scene counts; true scene weights retained",
+        "sorted_log_order_sha256": "0341b2fe92496e75d44d2e8ea30b6fa98aaafae4decebb9563a957930e10b447",
+        "limits": "Conditional on these fixed trained models. One training seed; 16 development logs. No training-seed stability or multiple-comparison correction."
+      }
+    },
+    "rows": [
+      {
+        "name": "G1_q_final",
+        "updates": 25000,
+        "PDMS": 90.54798291974645,
+        "NC": 99.35141509433963,
+        "DAC": 97.58254716981132,
+        "TTC": 96.75707547169812,
+        "EP": 84.23012340625216,
+        "zero_scenes": 50,
+        "scenes": 1696,
+        "logs": 16,
+        "failed": 0,
+        "source_csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/dev_25000_canonical/q_final/scenes.csv",
+        "source_csv_sha256": "af92f71e1ea6311099b487f9ed6b0637ce924d85f489454a6bb9557b975658b3"
+      },
+      {
+        "name": "G3_q_final",
+        "updates": 25000,
+        "PDMS": 90.03198982919885,
+        "NC": 99.29245283018868,
+        "DAC": 97.2877358490566,
+        "TTC": 96.75707547169812,
+        "EP": 83.39988879762443,
+        "zero_scenes": 58,
+        "scenes": 1696,
+        "logs": 16,
+        "failed": 0,
+        "source_csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL/dev_25000_canonical/q_final/scenes.csv",
+        "source_csv_sha256": "a64d2f00a8f4c7f863f51c1c29e9cb3dfcb4f571fd92b2e9ecaed0e2ebfdc638"
+      }
+    ],
+    "G_series_Navtest_completed": false
+  },
+  "NAVSIM_public_Navtest": [
+    {
+      "method": "DiffusionDrive",
+      "PDMS": 88.1,
+      "source": "https://github.com/hustvl/DiffusionDrive#checkpoint",
+      "paper": "https://arxiv.org/html/2411.15139v1",
+      "input": "3 front cameras plus LiDAR BEV",
+      "comparability": "Official Navtest result; different deployed sensors, multimodal truncated diffusion and selection interface."
+    },
+    {
+      "method": "DriveDreamer-Policy",
+      "PDMS": 89.2,
+      "source": "https://arxiv.org/html/2604.01765v1",
+      "table": "1",
+      "input": "3 current cameras, language/navigation and current action/state context",
+      "training": "100k updates, global batch32; depth/video world supervision",
+      "comparability": "Closest public backbone/action-family reference; different world targets/pretrained branches. Author result is Navtest, not our dev."
+    },
+    {
+      "method": "ResWorld, no detection/map auxiliaries",
+      "PDMS": 87.3,
+      "source": "https://arxiv.org/html/2602.10884v1",
+      "table": "2",
+      "input": "TransFuser-style image plus LiDAR BEV; no historical frame in this row",
+      "training": "100 epochs, batch512; trajectory supervision",
+      "comparability": "Mature FGTR architectural reference, different deployed sensors/backbones and budget."
+    },
+    {
+      "method": "ResWorld, detection/map auxiliaries",
+      "PDMS": 88.3,
+      "source": "https://arxiv.org/html/2602.10884v1",
+      "table": "2",
+      "input": "image plus LiDAR BEV",
+      "training": "detection/map supervision",
+      "comparability": "Must identify auxiliary-task variant; not camera-only GeoBEV NAVSIM."
+    },
+    {
+      "method": "ResWorld, historical frame and auxiliaries",
+      "PDMS": 89.0,
+      "source": "https://arxiv.org/html/2602.10884v1",
+      "table": "2",
+      "input": "image plus LiDAR BEV and historical frame",
+      "training": "detection/map supervision",
+      "comparability": "Adds history unavailable to this round."
+    },
+    {
+      "method": "ReCogDrive, revised imitation-only",
+      "PDMS": 86.5,
+      "source": "https://arxiv.org/html/2506.08052v2",
+      "table": "3",
+      "training": "Driving-QA pretraining plus imitation; no final RL stage",
+      "comparability": "Different pretraining, ego-history input and sampling budget. Not the 90.8 RL result."
+    },
+    {
+      "method": "ReCogDrive-Base2B, revised RL",
+      "PDMS": 90.8,
+      "source": "https://arxiv.org/html/2506.08052v2",
+      "checkpoint_table": "https://github.com/xiaomi-research/recogdrive#checkpoint",
+      "table": "1,3",
+      "training": "Driving-QA pretraining, 200 imitation epochs and 10 RL epochs; five-step inference in paper",
+      "comparability": "Early arXiv v1 RL reported89.6, revised Base2B RL reports90.8; official Large8B RL90.4. Current public code uses one current front image and historical ego path. Exact camera/version contract is not treated as equal to our three-current-view setup."
+    },
+    {
+      "method": "DriveWorld-VLA",
+      "PDMS": 91.3,
+      "source": "https://arxiv.org/html/2602.06521v1",
+      "table": "1",
+      "input": "3 front current cameras",
+      "training": "three stages; learned reward supervision and reward-weighted action refinement; driving pretraining",
+      "comparability": "Same broad camera modality; extra training sources and reward objectives prevent attribution to our auxiliary method."
+    },
+    {
+      "method": "DiffusionDriveV2",
+      "PDMS": 91.2,
+      "source": "https://arxiv.org/html/2512.07745v1",
+      "table": "1,9",
+      "input": "ResNet34 architecture, multiple trajectory modes and selector",
+      "training": "intra/inter-anchor GRPO with planning reward and imitation",
+      "comparability": "Reward training and trajectory selection are outside the registered single-candidate research scope."
+    },
+    {
+      "method": "CLOVER",
+      "PDMS": 94.5,
+      "source": "https://arxiv.org/html/2605.15120v1",
+      "table": "1",
+      "input": "4 cameras, DINOv2 ViT-S with LoRA; 64 proposals and learned scorer",
+      "training": "evaluator-filtered pseudo-experts and conservative scorer-guided self-distillation",
+      "comparability": "Benchmark context for stronger modern systems, not same input/label/candidate/control budget."
+    }
+  ],
+  "historical_same_checkpoint_split_difference": [
+    {
+      "method": "S0",
+      "updates": 100000,
+      "checkpoint_sha256": "78f870647015194798af067eefc8d8fedb6e59e6db2f3ae719c63b783871446f",
+      "dev_PDMS": 91.38836301424399,
+      "Navtest_PDMS": 89.52786813714813,
+      "dev_minus_Navtest": 1.86049487709586,
+      "use": "Demonstrates split mismatch only; never a correction formula for G series."
+    },
+    {
+      "method": "S3",
+      "updates": 100000,
+      "checkpoint_sha256": "1157f6bf431841417ab882b413205bfc3908396c6bb68062f9858cda7f768184",
+      "dev_PDMS": 91.05456304183333,
+      "Navtest_PDMS": 89.4081789221355,
+      "dev_minus_Navtest": 1.646384119697828,
+      "use": "Demonstrates split mismatch only; never a correction formula for G series."
+    },
+    {
+      "method": "V_QUERY",
+      "updates": 100000,
+      "checkpoint_sha256": "cf2c62afcd8ee91c691ea2c195cbbedbf12f7b171b418b7329e7cafbff4968fe",
+      "dev_PDMS": 91.73401886081506,
+      "Navtest_PDMS": 89.5319649398508,
+      "dev_minus_Navtest": 2.2020539209642607,
+      "use": "Demonstrates split mismatch only; never a correction formula for G series."
+    }
+  ],
+  "nuScenes_supplement": {
+    "supplement_only": true,
+    "aggregation": "native per-timestep endpoint at indices 1/3/5; no evaluator changes",
+    "runs": [
+      {
+        "group": "G1_FULL_UNIFORM",
+        "step": 4356,
+        "eligible_samples": 4969,
+        "scene_count": 150,
+        "original_identity": "65bdc9dad20ec1ae7d33a8fd7e28e9efe2cf56c8a5950e39c7abe3a2c7c4669d",
+        "source_records_digest": "6b5079d26360fb8d5fb70783cc69b72f30dab10ed8b24028267a2f57bf957c87",
+        "source_complete": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G1_FULL_UNIFORM_formal/G1_FULL_UNIFORM/val_4356_planning/COMPLETE.json",
+        "q0": {
+          "endpoint": {
+            "L2": [
+              0.46865624320013144,
+              1.1860574084591038,
+              2.1886424460503453
+            ],
+            "L2_Avg": 1.2811186992365269,
+            "obj_box_col": [
+              0.007043670758703964,
+              0.010263634534111492,
+              0.02012477359629704
+            ],
+            "obj_box_col_Avg": 0.012477359629704166,
+            "obj_col": [
+              0.0,
+              0.0006037432078889113,
+              0.003823706983296438
+            ],
+            "obj_col_Avg": 0.0014758167303951164
+          },
+          "locked_prefix": {
+            "L2": [
+              0.3520141164800063,
+              0.6714023391667883,
+              1.0872493787622144
+            ],
+            "L2_Avg": 0.7035552781363363,
+            "obj_box_col": [
+              0.006238679814852083,
+              0.007848661702555847,
+              0.010464882270074463
+            ],
+            "obj_box_col_Avg": 0.008184074595827463,
+            "obj_col": [
+              0.0,
+              0.00015093580197222782,
+              0.0010397799691420138
+            ],
+            "obj_col_Avg": 0.00039690525703808057
+          }
+        },
+        "q_final": {
+          "endpoint": {
+            "L2": [
+              0.4309242962953097,
+              1.133373293853977,
+              2.108809703498821
+            ],
+            "L2_Avg": 1.2243690978827024,
+            "obj_box_col": [
+              0.004427450191185349,
+              0.006641175286778024,
+              0.010464882270074461
+            ],
+            "obj_box_col_Avg": 0.007177835916012611,
+            "obj_col": [
+              0.0,
+              0.0006037432078889113,
+              0.0026162205675186153
+            ],
+            "obj_col_Avg": 0.0010733212584691754
+          },
+          "locked_prefix": {
+            "L2": [
+              0.32543977984028993,
+              0.6315491682901355,
+              1.0385617863369392
+            ],
+            "L2_Avg": 0.6651835781557882,
+            "obj_box_col": [
+              0.003823706983296438,
+              0.004578385993157577,
+              0.006037432078889113
+            ],
+            "obj_box_col_Avg": 0.004813175018447709,
+            "obj_col": [
+              0.0,
+              0.00015093580197222782,
+              0.0007714496545247199
+            ],
+            "obj_col_Avg": 0.0003074618188323159
+          }
+        }
+      },
+      {
+        "group": "G3_EVENT_LOCAL",
+        "step": 4356,
+        "eligible_samples": 4969,
+        "scene_count": 150,
+        "original_identity": "b42a2d88eea83fae3f05f8ef2bb2bf426264dc9743398653efabc0f8592172c6",
+        "source_records_digest": "ec08d274df0342f37f1111c58aa6e2680fed5d63b6db9e77e5bbb9ead2372a9e",
+        "source_complete": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_4356_planning/COMPLETE.json",
+        "q0": {
+          "endpoint": {
+            "L2": [
+              0.44697970208054244,
+              1.1387859426084948,
+              2.124710541338472
+            ],
+            "L2_Avg": 1.236825395342503,
+            "obj_box_col": [
+              0.007848661702555847,
+              0.010666130006037432,
+              0.02414972831555645
+            ],
+            "obj_box_col_Avg": 0.014221506674716576,
+            "obj_col": [
+              0.0,
+              0.0006037432078889113,
+              0.003421211511370497
+            ],
+            "obj_col_Avg": 0.0013416515730864693
+          },
+          "locked_prefix": {
+            "L2": [
+              0.33421537293372416,
+              0.6412595937607007,
+              1.04768949771435
+            ],
+            "L2_Avg": 0.674388154802925,
+            "obj_box_col": [
+              0.007043670758703964,
+              0.00830146910847253,
+              0.012074864157778226
+            ],
+            "obj_box_col_Avg": 0.009140001341651573,
+            "obj_col": [
+              0.0,
+              0.00015093580197222782,
+              0.0009391561011605286
+            ],
+            "obj_col_Avg": 0.00036336396771091884
+          }
+        },
+        "q_final": {
+          "endpoint": {
+            "L2": [
+              0.46847947500322806,
+              1.1127371608056045,
+              2.083611681367651
+            ],
+            "L2_Avg": 1.221609439058828,
+            "obj_box_col": [
+              0.007043670758703964,
+              0.008653652646407727,
+              0.015496075669148722
+            ],
+            "obj_box_col_Avg": 0.010397799691420137,
+            "obj_col": [
+              0.0,
+              0.0004024954719259408,
+              0.0026162205675186153
+            ],
+            "obj_col_Avg": 0.001006238679814852
+          },
+          "locked_prefix": {
+            "L2": [
+              0.37625629566962693,
+              0.6526850650446882,
+              1.0429992373253931
+            ],
+            "L2_Avg": 0.690646866013236,
+            "obj_box_col": [
+              0.0063393036828335685,
+              0.00714429462668545,
+              0.009358019722278123
+            ],
+            "obj_box_col_Avg": 0.007613872677265714,
+            "obj_col": [
+              0.0,
+              0.0001006238679814852,
+              0.0007714496545247199
+            ],
+            "obj_col_Avg": 0.00029069117416873503
+          }
+        }
+      },
+      {
+        "group": "G3_EVENT_LOCAL",
+        "step": 8712,
+        "eligible_samples": 4969,
+        "scene_count": 150,
+        "original_identity": "0b048d102879fcf5252753b6d400df48091994b5c9cee7fcf552e281ea473189",
+        "source_records_digest": "d6a8dd5378330ef24271fb2175a64b3a381fb4eae964748797a3355156ed9504",
+        "source_complete": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_8712_planning/COMPLETE.json",
+        "q0": {
+          "endpoint": {
+            "L2": [
+              0.39380279072225066,
+              1.0527713157672904,
+              2.02067038419121
+            ],
+            "L2_Avg": 1.1557481635602505,
+            "obj_box_col": [
+              0.007043670758703964,
+              0.00965989132622258,
+              0.01952103038840813
+            ],
+            "obj_box_col_Avg": 0.012074864157778226,
+            "obj_col": [
+              0.0,
+              0.0004024954719259408,
+              0.0030187160394445564
+            ],
+            "obj_col_Avg": 0.0011404038371234991
+          },
+          "locked_prefix": {
+            "L2": [
+              0.2896262839655984,
+              0.5773170028532418,
+              0.9711157002639994
+            ],
+            "L2_Avg": 0.6126863290276132,
+            "obj_box_col": [
+              0.006037432078889113,
+              0.0074461662306299055,
+              0.010364258402092976
+            ],
+            "obj_box_col_Avg": 0.007949285570537331,
+            "obj_col": [
+              0.0,
+              0.0001006238679814852,
+              0.0007379083651975582
+            ],
+            "obj_col_Avg": 0.00027951074439301447
+          }
+        },
+        "q_final": {
+          "endpoint": {
+            "L2": [
+              0.39891291624751346,
+              1.0585650501890465,
+              2.006800918184441
+            ],
+            "L2_Avg": 1.1547596282070003,
+            "obj_box_col": [
+              0.006439927550815053,
+              0.008854900382370698,
+              0.017911048500704366
+            ],
+            "obj_box_col_Avg": 0.01106862547796337,
+            "obj_col": [
+              0.0,
+              0.0004024954719259408,
+              0.0030187160394445564
+            ],
+            "obj_col_Avg": 0.0011404038371234991
+          },
+          "locked_prefix": {
+            "L2": [
+              0.2936088286928428,
+              0.5816586843040857,
+              0.9719384960594647
+            ],
+            "L2_Avg": 0.6157353363521311,
+            "obj_box_col": [
+              0.005534312738981686,
+              0.00694304689072248,
+              0.009592808747568257
+            ],
+            "obj_box_col_Avg": 0.007356722792424141,
+            "obj_col": [
+              0.0,
+              0.0001006238679814852,
+              0.0007379083651975582
+            ],
+            "obj_col_Avg": 0.00027951074439301447
+          }
+        }
+      },
+      {
+        "group": "G3_EVENT_LOCAL",
+        "step": 13068,
+        "eligible_samples": 4969,
+        "scene_count": 150,
+        "original_identity": "6cc3fdc917d7f534c99b533ff478b600346ab0685bb8dd60a5a9493a77f48e93",
+        "source_records_digest": "013f3bfe6a1dfd14f78b62e494cdfb2365383f9189149b7873d989cb0efc793a",
+        "source_complete": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_13068_planning/COMPLETE.json",
+        "q0": {
+          "endpoint": {
+            "L2": [
+              0.37176285225414446,
+              1.0129031989082258,
+              1.971163709437895
+            ],
+            "L2_Avg": 1.1186099202000885,
+            "obj_box_col": [
+              0.0054336888710002015,
+              0.006238679814852083,
+              0.014892332461259811
+            ],
+            "obj_box_col_Avg": 0.008854900382370698,
+            "obj_col": [
+              0.0,
+              0.0004024954719259408,
+              0.0026162205675186153
+            ],
+            "obj_col_Avg": 0.001006238679814852
+          },
+          "locked_prefix": {
+            "L2": [
+              0.27109080964540155,
+              0.5517435736150542,
+              0.9383863876071291
+            ],
+            "L2_Avg": 0.5870735902891949,
+            "obj_box_col": [
+              0.005131817267055746,
+              0.005383376937009458,
+              0.007412624941302744
+            ],
+            "obj_box_col_Avg": 0.005975939715122649,
+            "obj_col": [
+              0.0,
+              0.0001006238679814852,
+              0.0006708257865432346
+            ],
+            "obj_col_Avg": 0.00025714988484157325
+          }
+        },
+        "q_final": {
+          "endpoint": {
+            "L2": [
+              0.3725359141179071,
+              1.0067604795171823,
+              1.943964696156686
+            ],
+            "L2_Avg": 1.1077536965972585,
+            "obj_box_col": [
+              0.0052324411350372305,
+              0.006238679814852083,
+              0.013684846045481988
+            ],
+            "obj_box_col_Avg": 0.008385322331790434,
+            "obj_col": [
+              0.0,
+              0.0004024954719259408,
+              0.0030187160394445564
+            ],
+            "obj_col_Avg": 0.0011404038371234991
+          },
+          "locked_prefix": {
+            "L2": [
+              0.2708413139240581,
+              0.5494990490242494,
+              0.9304429495966912
+            ],
+            "L2_Avg": 0.5835944375149995,
+            "obj_box_col": [
+              0.004528074059166835,
+              0.004980881465083518,
+              0.00694304689072248
+            ],
+            "obj_box_col_Avg": 0.005484000804990945,
+            "obj_col": [
+              0.0,
+              0.0001006238679814852,
+              0.0007379083651975582
+            ],
+            "obj_col_Avg": 0.00027951074439301447
+          }
+        }
+      }
+    ]
+  },
+  "nuScenes_primary_public_context": [
+    {
+      "method": "UniDriveVLA-Base with ego state",
+      "source": "https://arxiv.org/html/2604.02190v1",
+      "table": "3",
+      "backbone": "Qwen3-VL-2B",
+      "STP3_prefix_L2_m": [
+        0.23,
+        0.4,
+        0.65
+      ],
+      "STP3_prefix_collision_percent": [
+        0.04,
+        0.09,
+        0.18
+      ],
+      "UniAD_endpoint_L2_m": [
+        0.3,
+        0.69,
+        1.32
+      ],
+      "UniAD_endpoint_collision_percent": [
+        0.03,
+        0.13,
+        0.52
+      ],
+      "differences": "Driving/multimodal pretraining, staged perception/action training, richer temporal/perception interfaces. Exact evaluator revision, population and ego-state dimensions are not established equal."
+    },
+    {
+      "method": "ResWorld with ego status",
+      "source": "https://arxiv.org/html/2602.10884v1",
+      "table": "1",
+      "UniAD_endpoint_L2_m": [
+        0.19,
+        0.5,
+        1.08
+      ],
+      "UniAD_endpoint_collision_percent": [
+        0.02,
+        0.06,
+        0.43
+      ],
+      "VAD_prefix_L2_m": [
+        0.14,
+        0.27,
+        0.49
+      ],
+      "VAD_prefix_collision_percent": [
+        0.01,
+        0.03,
+        0.14
+      ],
+      "differences": "Uses current and two previous camera frames; batch8, 12 epochs, different optimizer/backbone and eligibility. Not current-only."
+    },
+    {
+      "method": "VAD-Base without explicit planner ego-status",
+      "source": "https://arxiv.org/html/2303.12077v3",
+      "table": "1",
+      "prefix_L2_m": [
+        0.41,
+        0.7,
+        1.05
+      ],
+      "prefix_collision_percent": [
+        0.07,
+        0.17,
+        0.41
+      ],
+      "reported_average_L2_m": 0.72,
+      "reported_average_collision_percent": 0.22,
+      "differences": "Historical camera/BEV features, CANbus used by BEV. Not state-free everywhere."
+    },
+    {
+      "method": "VAD-Base with explicit planner ego-status (dagger variant)",
+      "source": "https://arxiv.org/html/2303.12077v3",
+      "table": "1",
+      "prefix_L2_m": [
+        0.17,
+        0.34,
+        0.6
+      ],
+      "reported_average_L2_m": 0.37,
+      "reported_average_collision_percent": 0.14,
+      "differences": "Historical camera/BEV, different status fields; do not substitute BEV-Planner union rate .33 for original VAD paper prefix collision .14."
+    },
+    {
+      "method": "DiffusionDrive nuScenes",
+      "source": "https://arxiv.org/html/2411.15139v3",
+      "official_checkpoint_table": "https://github.com/hustvl/DiffusionDrive#checkpoint",
+      "table": "7",
+      "prefix_L2_m": [
+        0.27,
+        0.54,
+        0.9
+      ],
+      "prefix_collision_percent": [
+        0.03,
+        0.05,
+        0.16
+      ],
+      "reported_average_L2_m": 0.57,
+      "reported_average_collision_percent": 0.08,
+      "differences": "Six current views with temporal sparse features/query; status prediction supervision/cached predicted state, not direct GT ego-state input. Native v2 collision uses rotated body polygon, unlike our fixed-axis raster."
+    }
+  ],
+  "limits": [
+    "No verified public method result on exactly our 1696-development manifest was located in checked primary sources. This is not a claim that no such result exists.",
+    "Public paper PDMS/version names do not establish equality of evaluator commit/cache/population hashes, training initialization, full optimization budget or inference RNG.",
+    "G-series G0/G2 and second training seed are not complete. External numbers cannot replace architecture-matched causality controls.",
+    "No G-series Navtest or ranking claim; no subtracting our dev scores from public Navtest numbers.",
+    "nuScenes locked main time aggregation is cumulative-prefix; collision raster/core is UniAD v2, so ST-P3-style time aggregation alone does not prove full ST-P3 metric identity. Endpoint supplement is read-only aggregation of saved six-step metric arrays, not an evaluator change.",
+    "nuScenes populations are 4969 eligible samples in 150 official val scenes with complete future and legal past state. Public evaluations may use different masks/populations.",
+    "nuScenes resumption is deferred per user; G3 completed its 24-epoch full-population planning evaluation; scene-field scoring may still be finishing."
+  ],
+  "public_source_lookup_UTC": "2026-10-10",
+  "public_source_type": "Primary author papers and official repository documentation; no third-party leaderboard values used.",
+  "nuScenes_current_ego_interface": {
+    "dimensions": 4,
+    "representation": [
+      "normalized nominal-half-second past dx",
+      "normalized nominal-half-second past dy",
+      "sin(past delta yaw)",
+      "cos(past delta yaw)"
+    ],
+    "source": "previous/current LiDAR sensor poses only; actual past interval normalization",
+    "explicit_CAN_bus_acceleration": false,
+    "future_displacement_as_current_velocity": false,
+    "comparability": "Published with-ego flags do not imply identical motion information, state dimensions or state source."
+  },
+  "nuScenes_final_24epoch_observation": {
+    "scope": "Read-only supplemental aggregation of completed native metric arrays",
+    "prefix": "Mean first 2/4/6 positions, then mean three horizons",
+    "endpoint": "Position indices 1/3/5, then mean three horizons",
+    "collision_core": "Unchanged locked native evaluator; time aggregation alone does not establish full ST-P3 protocol equality",
+    "summary_source_sha256": "f6986fbca52a6d94c9da16f3bdd2c83143835719c29229483f83ee1fab642df8",
+    "observations": [
+      {
+        "planning_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/nuscenes_full8_deployment_20261009/G3_EVENT_LOCAL_formal/G3_EVENT_LOCAL/val_17424_planning",
+        "original_identity": "4cb7e70380267ef6ec44e7096696541df0d0ea73cb94854bad4dfd0fb21bb5a6",
+        "source_complete_sha256": "2318220896da2e6238509e38a56397874733b91f73fb63404c05005ac391c2c9",
+        "source_records_digest": "fca38ec41921f0b2fdb0a0ba0f42198c76d0bebc37ec4e5668664f667896a1d2",
+        "samples": 4969,
+        "scenes": 150,
+        "original_protocol": {
+          "GT_self_collision": "native per-timestep exclusion of predicted collision where GT collides; denominator remains all eligible scenes",
+          "L2": "native masked Euclidean XY distance, complete six-keyframe population",
+          "collision": "native fixed axis-aligned 4.084 x 1.85 m raster rectangle with +0.5 m forward offset",
+          "commit": "609ee083ea51c3521c323f1279dfc4cee0e60467",
+          "ego_state": "legal previous/current sensor poses provided identically",
+          "grid": "native 200 x 200, +/-50 m, 0.5 m; distinct from auxiliary grid",
+          "name": "UniAD-v2.0-style open-loop planning",
+          "not_closed_loop": true,
+          "obstacles": "original UniAD only_vehicle=True: cars, buses, trucks, trailers, construction vehicles, bicycles, motorcycles; filter_invisible=False",
+          "out_of_range": "native metric preserves its clipping behavior; all scenes also receive explicit out-of-range diagnostics",
+          "time_aggregation": "cumulative mean of first 2/4/6 positions at 1/2/3 seconds"
+        },
+        "q0": {
+          "prefix": {
+            "L2": {
+              "at_1_2_3s": [
+                0.27111876803091783,
+                0.5528840706889162,
+                0.9389758091050314
+              ],
+              "average": 0.5876595492749551,
+              "unit": "m"
+            },
+            "box_collision": {
+              "at_1_2_3s": [
+                0.0023143489635741596,
+                0.002817468303481586,
+                0.005265982424364393
+              ],
+              "average": 0.0034659332304733796,
+              "unit": "fraction (multiply by 100 for percent)"
+            },
+            "point_collision": {
+              "at_1_2_3s": [
+                0.0,
+                0.0001006238679814852,
+                0.0006037432078889112
+              ],
+              "average": 0.0002347890252901321,
+              "unit": "fraction (multiply by 100 for percent)"
+            }
+          },
+          "endpoint": {
+            "L2": {
+              "at_1_2_3s": [
+                0.3730221397089422,
+                1.016325541310832,
+                1.9681603633106586
+              ],
+              "average": 1.1191693481101443,
+              "unit": "m"
+            },
+            "box_collision": {
+              "at_1_2_3s": [
+                0.0022137250955926746,
+                0.004226202455222379,
+                0.01448983698933387
+              ],
+              "average": 0.006976588180049641,
+              "unit": "fraction (multiply by 100 for percent)"
+            },
+            "point_collision": {
+              "at_1_2_3s": [
+                0.0,
+                0.0004024954719259408,
+                0.0026162205675186153
+              ],
+              "average": 0.001006238679814852,
+              "unit": "fraction (multiply by 100 for percent)"
+            }
+          }
+        },
+        "q_final": {
+          "prefix": {
+            "L2": {
+              "at_1_2_3s": [
+                0.2707733167845001,
+                0.550629809559483,
+                0.9330427115884525
+              ],
+              "average": 0.5848152793108119,
+              "unit": "m"
+            },
+            "box_collision": {
+              "at_1_2_3s": [
+                0.0012074864157778226,
+                0.001911853491648219,
+                0.004427450191185349
+              ],
+              "average": 0.00251559669953713,
+              "unit": "fraction (multiply by 100 for percent)"
+            },
+            "point_collision": {
+              "at_1_2_3s": [
+                0.0,
+                0.0001006238679814852,
+                0.000637284497216073
+              ],
+              "average": 0.00024596945506585275,
+              "unit": "fraction (multiply by 100 for percent)"
+            }
+          },
+          "endpoint": {
+            "L2": {
+              "at_1_2_3s": [
+                0.3728960895954483,
+                1.010430802521024,
+                1.949761592631031
+              ],
+              "average": 1.1110294949158346,
+              "unit": "m"
+            },
+            "box_collision": {
+              "at_1_2_3s": [
+                0.001408734151740793,
+                0.0032199637754075265,
+                0.012879855101630106
+              ],
+              "average": 0.005836184342926143,
+              "unit": "fraction (multiply by 100 for percent)"
+            },
+            "point_collision": {
+              "at_1_2_3s": [
+                0.0,
+                0.0004024954719259408,
+                0.002817468303481586
+              ],
+              "average": 0.0010733212584691754,
+              "unit": "fraction (multiply by 100 for percent)"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "nuScenes_protocol_audit": {
+    "our_collision": "UniAD v2 fixed axis-aligned raster rectangle, per-step GT self-collision exclusion, population4969",
+    "public_DiffusionDrive_UniDrive_v2": "rotated body polygons; obj_col in this v2 is GT-self collision, not predicted point collision; parallel evaluation paths exist",
+    "public_BEVPlanner": "5119 complete-future population, .1m grid and union-over-horizon collision, not strict match",
+    "ego_state": "Our four past-motion channels differ from VAD/BEV nine-dimensional status and UniDrive published config six of ten CANbus fields. Converter no-previous/fallback future paths do not establish all samples leak future or that all generated fields are consumed.",
+    "primary_sources": [
+      "https://github.com/hustvl/VAD/blob/main/projects/mmdet3d_plugin/VAD/planner/metric_stp3.py",
+      "https://github.com/hustvl/DiffusionDrive/blob/nusc/projects/mmdet3d_plugin/datasets/evaluation/planning/planning_eval.py",
+      "https://github.com/xiaomi-research/unidrivevla/blob/main/nuScenes/projects/mmdet3d_plugin/datasets/evaluation/planning/planning_eval_v2.py",
+      "https://github.com/xiaomi-research/unidrivevla/blob/main/nuScenes/projects/configs/UniDriveVLA/unidrivevla_stage2_2b.py",
+      "https://arxiv.org/html/2312.03031v2"
+    ]
+  }
+}
