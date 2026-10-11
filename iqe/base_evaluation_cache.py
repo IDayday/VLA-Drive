@@ -12,14 +12,19 @@ from .contracts import CandidateRecord, ScoreRecord, strict_record, require
 from .io import atomic_json, digest, file_hash, read_json, ContractError
 
 
-def verify_row(row, scene, candidate, protocol_hash):
-    require(row['scene_id'] == scene.scene_id and row['observation_hash'] == scene.observation_hash
-            and row['context_hash'] == scene.metric_context_hash, 'contract_mismatch: Base evaluation scene changed')
+def verify_scene_files(scene):
+    """Revalidate bytes even when a legacy completion receipt omitted inputs."""
     observation = read_json(scene.observation_ref)
     require(digest({'record':observation, 'images':{p:file_hash(p) for p in observation['image_paths']}}) == scene.observation_hash,
             'contract_mismatch: observation/images changed')
     require(file_hash(scene.target_ref) == scene.target_id, 'contract_mismatch: evaluation target changed')
     require(file_hash(scene.metric_context_ref) == scene.metric_context_hash, 'contract_mismatch: metric context changed')
+
+
+def verify_row(row, scene, candidate, protocol_hash):
+    require(row['scene_id'] == scene.scene_id and row['observation_hash'] == scene.observation_hash
+            and row['context_hash'] == scene.metric_context_hash, 'contract_mismatch: Base evaluation scene changed')
+    verify_scene_files(scene)
     require(file_hash(row['trajectory_ref']) == row['trajectory_hash'], 'contract_mismatch: prediction changed')
     if row.get('score'):
         score = strict_record(ScoreRecord, row['score'])

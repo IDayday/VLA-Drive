@@ -31,6 +31,11 @@ def fixed_manifest(pipeline):
     require(len(scenes) <= pipeline.max_samples, 'fixed Base validation exceeds explicit sample budget; cannot truncate its list')
     from .data.splits import validate_isolation
     validate_isolation(scenes)
+    # Qualify/freeze can run without calling evaluate-base in this process.
+    # Legacy completed receipts did not bind the input file bytes themselves.
+    from .base_evaluation_cache import verify_scene_files
+    for scene in scenes:
+        verify_scene_files(scene)
     return scenes, file_hash(source)
 
 

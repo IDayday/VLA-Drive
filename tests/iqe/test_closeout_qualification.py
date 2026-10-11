@@ -89,6 +89,20 @@ def test_explicit_qualification_and_legacy_failed_are_not_promoted(tmp_path,monk
     with pytest.raises(ValueError,match='evaluation changed'):require_qualification(p,ck)
 
 
+def test_freeze_revalidates_input_bytes_with_legacy_evaluation(tmp_path, monkeypatch):
+    p, ck, report = quality_fixture(tmp_path, monkeypatch)
+    evaluation = report(ck, .9, 'legacy_complete')
+    good = qualify_base(p, ck, evaluation, select=True)
+    assert require_qualification(p, ck)['checksum'] == file_hash(good['qualification_path'])
+    scene = load_scenes(p.config['base_evaluation']['manifest'])[0]
+    original = Path(scene.target_ref).read_bytes()
+    Path(scene.target_ref).write_bytes(original + b'changed')
+    with pytest.raises(ValueError, match='evaluation target changed'):
+        require_qualification(p, ck)
+    with pytest.raises(ValueError, match='evaluation target changed'):
+        qualify_base(p, ck, evaluation)
+
+
 def test_timeout_retries_only_failed_score_without_model_load(tmp_path,monkeypatch):
     p,ck,manifest,adapter,calls=evaluation_fixture(tmp_path,monkeypatch)
     original=p.backend().score
