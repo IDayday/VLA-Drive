@@ -1,0 +1,15 @@
+extends: ../main.yaml
+output_root: /mnt/project/iqe-perf-v2-runtime-3855e06/unlaunched_pipeline
+s0:
+  contract: /mnt/project/DriveVLA-M0-iqe-perf-v2-3855e06/reports/iqe/S0_CONTRACT.json
+data:
+  scene_manifest: null
+base_runtime:
+  prefetch_depth: 1
+  frozen_vision_ahead: true
+  batched_gradient_checks: true
+  qualification: /mnt/project/iqe-review-runtime-1e876da/performance_20261011/vision_ahead_deterministic_v6/RESULT.json
+  local_checkpoint_root: /var/tmp/iqe-runtime-checkpoints
+  allow_legacy_validation_metadata: true
+  deterministic_backward: true
+  allow_deterministic_backend_migration: true

@@ -1,0 +1,9 @@
+# Active runtime read-only audit
+
+Observed 2026-10-11T06:17:31Z on training-vla-zt2-worker-0. Parent torchrun PID2124247; rank0 PID2124255, started2026-10-09 23:57:23 UTC. cwd `/mnt/project/DriveVLA-M0-iqe-20261009`, actual commit `1e876da626b02af31459f44229248afa0cc55bed`. Command: `/root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda `. Running step25544, finite four-task losses and gradient norm 5.346217155456543. All eight GPU processes belong to this Base; no other GPU training process was present on that host. No signal was sent to it.
+
+**Vision-ahead is NOT enabled in this active job.** Its actual source predates the implementation and has no FrozenVisionAhead or runtime identity artifact. Recent1000 inter-update wall mean 4.0994s, p50 4.0187s, p95 4.3228s. A checkpoint interval after25000 cost 49.62s including the following update. Live source/config and receipt metadata are in evidence/LIVE_BASE.json. Missing historical backend runtime flags are not retroactively invented.
+
+Identity A: active original full Base, old output namespace. Identity B: locked step022000, SHA42320ea3e6fb09c6cd2b955dde7398a4033338a98a68bc4bac111fe8e5e01e93, unchanged resampling_only incremental start. Identity C: this performance campaign, complete step021000 SHA f1247b303c6accb18c63a42d628b0c2391817c58e400c851189d337ba0f79111, isolated output /mnt/project/iqe-perf-v2-runtime-3855e06. These identities are never interchangeable.
+
+Allowed test host training-vlawm-zt3 had only the previously authorized synthetic pressure parent2948815 and its eight verified children. Its identity-checked graceful --stop failed to exit; only those verified pressure processes were killed. PRESSURE_STOP.json preserves their identities. Other hosts' scientific workloads were not touched. Before every trial the runner rechecks the IQE resource policy and idle GPUs.

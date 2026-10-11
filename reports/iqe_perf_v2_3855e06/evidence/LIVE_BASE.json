@@ -1,0 +1,201 @@
+{
+  "time_utc": "2026-10-11T06:17:31Z",
+  "pid": 2124255,
+  "cwd": "/mnt/project/DriveVLA-M0-iqe-20261009",
+  "cmdline": "/root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda ",
+  "ps": "    PID                  STARTED COMMAND\n2124255 Fri Oct  9 23:57:23 2026 /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda\n",
+  "commit": "1e876da626b02af31459f44229248afa0cc55bed",
+  "status": {
+    "actual_global_batch": 32,
+    "compute_update_seconds": 3.8211785554885864,
+    "gradient_norm": 5.346217155456543,
+    "learned_driving_weights_loaded": false,
+    "losses": {
+      "current_dino": 0.01850743032991886,
+      "ego_il": 0.11924436688423157,
+      "future_clip": 0.3956012725830078,
+      "interaction": 0.0033465286251157522
+    },
+    "optimizer_step": 25544,
+    "retained_objectives": [
+      "ego_il",
+      "current_dino",
+      "future_clip",
+      "interaction"
+    ],
+    "sample_ids": [
+      "2e2ab86d03f855aa",
+      "6d10682998cd5229",
+      "cc76b5eca4fe5196",
+      "c026ca09d59755f5",
+      "69f4aafe98c05871",
+      "def00a054551512a",
+      "cbacf3dc92a75384",
+      "1121e6df73595ace",
+      "a0b7a20801e65fe0",
+      "112046fb43585738",
+      "5817e77f718c5965",
+      "32756652518555f1",
+      "6e640e51f7be5b54",
+      "559c7a1c6e115c3d",
+      "2e1fc7f689005a5d",
+      "4afbad35fa1d5ee6",
+      "1b51cd00a75f5bdd",
+      "f265ecb2f48b5828",
+      "4934dbaf2b4f54fb",
+      "e54d787c2c425a99",
+      "e7ec35d59dd65242",
+      "dff52c5acec95b9f",
+      "4ef9fb304a6b5c5c",
+      "878aa60f64945569",
+      "32c65d08d24d54a5",
+      "641b44419784537b",
+      "117be7ce4bae59d9",
+      "e6f2b546736c5611",
+      "59064cedb6485264",
+      "e4b61ea3352f54dc",
+      "867f84357a845ca3",
+      "fe398f54abfb5651"
+    ],
+    "seconds_per_update": 4.273557322679366,
+    "status": "RUNNING"
+  },
+  "recent1000_wall": {
+    "n": 1000,
+    "mean": 4.099408517297387,
+    "p50": 4.018721917629591,
+    "p95": 4.322811201122386,
+    "max": 49.616513155415305
+  },
+  "steps_log_snapshot_sha256": "716bf9425c4ba651940b810e9106608e6462efc78b755f1c246e7ee9dd6cea11",
+  "checkpoint_intervals": [
+    {
+      "after_step": 25001,
+      "wall_seconds": 49.616513155415305
+    }
+  ],
+  "complete_receipts": [
+    {
+      "path": "/mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_024000.pt.COMPLETE.json",
+      "checkpoint_exists": true,
+      "metadata": {
+        "checksum": "6b5ceedc3c59a41fabd013fa1dbcf29bdda4e2f6c5f5df712d6bad49fc5738ef",
+        "dependencies": {
+          "config": {
+            "compressor_heads": 8,
+            "compressor_layers": 4,
+            "drop_path": 0.2,
+            "dropout": 0.1,
+            "dt": 0.5,
+            "ffn": 1024,
+            "global_batch_size": 32,
+            "grad_clip_norm": 1.0,
+            "heads": 1,
+            "layers": 4,
+            "lr": 1e-05,
+            "lr_min_ratio": 0.05,
+            "max_optimizer_steps": 100000,
+            "micro_batch_size": 4,
+            "prev_weight": 0.0,
+            "scene_tokens": 16,
+            "validation_every_steps": 200,
+            "warmup_steps": 5000,
+            "weight_decay": 0.001,
+            "width": 256
+          },
+          "environment": {
+            "cuda": "12.4",
+            "deterministic": false,
+            "python": "3.10.20",
+            "tf32": false,
+            "torch": "2.5.1+cu124"
+          },
+          "fit_manifest": "c8bbb9b0914efb1ea1bdbdcf234b9a624375786f090bb5481cc6d3daae9e7c7b",
+          "framework_contract_hash": "a9d3bbd8a03f82137782dc016fb550dd8cceb2d7da703e5720975a55519d11ab",
+          "original_targets": {
+            "clip_identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+            "clip_root": "/mnt/project/action-video-foresight-artifacts/20261002/targets_dino_sequence_train_v1",
+            "dev_metric_metadata": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+            "dev_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+            "dino_identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+            "dino_index": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1",
+            "dino_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1",
+            "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+            "interaction_root": "/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1",
+            "map_root": "/mnt/navsim/maps",
+            "new_scene_manifest": null,
+            "raw_log_root": "/mnt/navsim/trainval_navsim_logs/trainval",
+            "scene_manifest": null,
+            "train_metric_metadata": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv",
+            "train_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+          },
+          "world_size": 8
+        },
+        "optimizer_step": 24000
+      }
+    },
+    {
+      "path": "/mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_025000.pt.COMPLETE.json",
+      "checkpoint_exists": true,
+      "metadata": {
+        "checksum": "aa12fe9586c3ed54b2bd06245d986dbcf98fb0933656ad7fd88129fbea6d472f",
+        "dependencies": {
+          "config": {
+            "compressor_heads": 8,
+            "compressor_layers": 4,
+            "drop_path": 0.2,
+            "dropout": 0.1,
+            "dt": 0.5,
+            "ffn": 1024,
+            "global_batch_size": 32,
+            "grad_clip_norm": 1.0,
+            "heads": 1,
+            "layers": 4,
+            "lr": 1e-05,
+            "lr_min_ratio": 0.05,
+            "max_optimizer_steps": 100000,
+            "micro_batch_size": 4,
+            "prev_weight": 0.0,
+            "scene_tokens": 16,
+            "validation_every_steps": 200,
+            "warmup_steps": 5000,
+            "weight_decay": 0.001,
+            "width": 256
+          },
+          "environment": {
+            "cuda": "12.4",
+            "deterministic": false,
+            "python": "3.10.20",
+            "tf32": false,
+            "torch": "2.5.1+cu124"
+          },
+          "fit_manifest": "c8bbb9b0914efb1ea1bdbdcf234b9a624375786f090bb5481cc6d3daae9e7c7b",
+          "framework_contract_hash": "a9d3bbd8a03f82137782dc016fb550dd8cceb2d7da703e5720975a55519d11ab",
+          "original_targets": {
+            "clip_identity": "4311f175f31474f84d6cf64d3b384c1aad360d4d15f3d43ddacf7076566741af",
+            "clip_root": "/mnt/project/action-video-foresight-artifacts/20261002/targets_dino_sequence_train_v1",
+            "dev_metric_metadata": "/mnt/project/local-interaction-mask-v2-artifacts/20260927/official_dev_metric_v2/cache_index.json",
+            "dev_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_dev_v1",
+            "dino_identity": "7663c45b77dd711e8304e8d202644dcaa8467f7e265ff8b4c1816d59d2c131cb",
+            "dino_index": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_index_v1",
+            "dino_root": "/mnt/project/ddp-full-foresight-study-artifacts/20260929/dino_targets_v1/C1",
+            "interaction_identity": "ee7d2d3a2910290df56fc75528cb58d87a3876dace557687cea69626826d6474",
+            "interaction_root": "/mnt/project/ddp-foresight-artifacts/20260928/interaction_train_v1",
+            "map_root": "/mnt/navsim/maps",
+            "new_scene_manifest": null,
+            "raw_log_root": "/mnt/navsim/trainval_navsim_logs/trainval",
+            "scene_manifest": null,
+            "train_metric_metadata": "/mnt/project/DriveVLA-M0-stage2/cache/metric_cache_navtrain_full/metadata/metric_cache_navtrain_full_metadata_node_0.csv",
+            "train_root": "/mnt/project/ddp-foresight-artifacts/20260928/student_train_v1"
+          },
+          "world_size": 8
+        },
+        "optimizer_step": 25000
+      }
+    }
+  ],
+  "runtime_identity": null,
+  "source_prefetch": false,
+  "gpu": "0, 43935 MiB, 98 %\n1, 44613 MiB, 100 %\n2, 44079 MiB, 98 %\n3, 44639 MiB, 99 %\n4, 44639 MiB, 98 %\n5, 44629 MiB, 98 %\n6, 44391 MiB, 99 %\n7, 44269 MiB, 98 %\n",
+  "disk": "Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on\n100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 430878689325056 1935902511104 100% /mnt/project\n"
+}

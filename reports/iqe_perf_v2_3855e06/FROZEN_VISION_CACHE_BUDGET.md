@@ -1,0 +1,9 @@
+# Frozen visual cache pilot
+
+Only image embeddings, all three DeepStack tensors, three-view grid, full current token IDs/slots and MRoPE positions are stored. No LLM hidden states, GT, history embeddings or trainable query substitutions enter the cache. Per-step embedding lookup, history/foresight/action replacements and language forward/backward remain live. `FrozenVisionPayload` wraps the exact whitelist-only `_build_qwen_batch` boundary; it does not activate the old incompatible qwen_feature_cache path.
+
+Identity includes ordered RGB bytes and instruction, actual frozen visual state hash, processor/tokenizer/transform/prompt identity, processor and visual source hashes, software/backend/precision, three views and no-augmentation identity. Each shard checksum is verified once per process and read by mmap; it is not hashed every optimizer step. Left-padding offsets and all foresight slots are preserved. A miss rejects rather than silently building the full dataset.
+
+Measured P0 dimensions imply1728 visual tokens per scene ×2048 channels ×4bytes ×4 outputs =56,623,104 tensor bytes/scene (54MiB), before IDs/positions/grid/container overhead. The101,592-scene population would need about5.75TB before legal image deduplication. The shared output disk has only about1.9TB available, so full cache construction is neither authorized nor feasible here. The pilot is limited to64 real scenes in16 batched shards on the isolated worker's local disk. There is no compressed BF16 storage in this T0 pilot.
+
+A future full cache decision must compare build cost plus random-read/H2D cost against saved visual work over remaining sample exposures. Training cache speed never represents deployment image-to-trajectory latency: deployment still needs the visual tower. OS caches are not globally flushed; first-process and repeated-process reads must not be mislabeled guaranteed disk-cold and RAM-hot measurements.

@@ -1,0 +1,5757 @@
+{
+  "source": "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1",
+  "rank": 0,
+  "modules": {
+    "attention_implementation": "sdpa",
+    "current": {
+      "trainable/torch.float32": 8411648
+    },
+    "future": {
+      "frozen/torch.float32": 529920,
+      "trainable/torch.float32": 8413184
+    },
+    "interaction": {
+      "trainable/torch.float32": 7622656
+    },
+    "language": {
+      "trainable/torch.float32": 1720574976
+    },
+    "query": {
+      "trainable/torch.float32": 15708576
+    },
+    "visual": {
+      "frozen/torch.float32": 406957056
+    }
+  },
+  "dtypes": {
+    "gradient/torch.float32": 1765242784,
+    "optimizer/exp_avg/torch.float32": 1765242784,
+    "optimizer/exp_avg_sq/torch.float32": 1765242784,
+    "optimizer/step/torch.float32": 643,
+    "parameter/torch.float32": 1765242784
+  },
+  "calls": {
+    "build_qwen_batch": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [
+            [
+              "dict",
+              "dict",
+              "dict",
+              "dict"
+            ],
+            [
+              "str",
+              "str",
+              "str",
+              "str"
+            ]
+          ],
+          {}
+        ],
+        "output": [
+          {
+            "device": "cuda:0",
+            "dtype": "torch.int64",
+            "requires_grad": false,
+            "shape": [
+              4,
+              1930
+            ]
+          },
+          {
+            "device": "cuda:0",
+            "dtype": "torch.int64",
+            "requires_grad": false,
+            "shape": [
+              4,
+              1930
+            ]
+          },
+          {
+            "device": "cuda:0",
+            "dtype": "torch.int64",
+            "requires_grad": false,
+            "shape": [
+              3,
+              4,
+              1930
+            ]
+          },
+          {
+            "action": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                8
+              ]
+            },
+            "foresight": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                144
+              ]
+            },
+            "history": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1
+              ]
+            }
+          },
+          {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": false,
+            "shape": [
+              6912,
+              2048
+            ]
+          },
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            }
+          ]
+        ]
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [
+              [
+                "dict",
+                "dict",
+                "dict",
+                "dict"
+              ],
+              [
+                "str",
+                "str",
+                "str",
+                "str"
+              ]
+            ],
+            {}
+          ],
+          "output": [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                3,
+                4,
+                1930
+              ]
+            },
+            {
+              "action": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  8
+                ]
+              },
+              "foresight": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  144
+                ]
+              },
+              "history": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1
+                ]
+              }
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "deepstack_injection_and_language": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                3,
+                4,
+                1930
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              }
+            ]
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  3,
+                  4,
+                  1930
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    6912,
+                    2048
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    6912,
+                    2048
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    6912,
+                    2048
+                  ]
+                }
+              ]
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "dino_head": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                144,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                4
+              ]
+            },
+            [
+              "int",
+              "int"
+            ]
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            3,
+            1024,
+            6,
+            8
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  144,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4
+                ]
+              },
+              [
+                "int",
+                "int"
+              ]
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.bfloat16",
+            "requires_grad": true,
+            "shape": [
+              4,
+              3,
+              1024,
+              6,
+              8
+            ]
+          }
+        }
+      ]
+    },
+    "frozen_visual": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                27648,
+                1536
+              ]
+            }
+          ],
+          {
+            "grid_thw": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                12,
+                3
+              ]
+            }
+          }
+        ],
+        "output": [
+          {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": false,
+            "shape": [
+              6912,
+              2048
+            ]
+          },
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            }
+          ]
+        ]
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  27648,
+                  1536
+                ]
+              }
+            ],
+            {
+              "grid_thw": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  12,
+                  3
+                ]
+              }
+            }
+          ],
+          "output": [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                6912,
+                2048
+              ]
+            },
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "future_clip_loss_and_H2D": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                144,
+                2048
+              ]
+            },
+            {
+              "current_dino": {
+                "device": "cuda:0",
+                "dtype": "torch.float16",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  3,
+                  1024,
+                  6,
+                  8
+                ]
+              },
+              "current_dino_valid": {
+                "device": "cuda:0",
+                "dtype": "torch.bool",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  3,
+                  6,
+                  8
+                ]
+              },
+              "ego": {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  8,
+                  4
+                ]
+              },
+              "future_clip": {
+                "device": "cuda:0",
+                "dtype": "torch.float16",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  3,
+                  8,
+                  9,
+                  12,
+                  1024
+                ]
+              },
+              "future_clip_valid": {
+                "device": "cuda:0",
+                "dtype": "torch.bool",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  3,
+                  8,
+                  9,
+                  12
+                ]
+              },
+              "interaction_latent": {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  8,
+                  512
+                ]
+              },
+              "interaction_valid": {
+                "device": "cuda:0",
+                "dtype": "torch.bool",
+                "requires_grad": false,
+                "shape": [
+                  4
+                ]
+              },
+              "iqe_sample_valid": {
+                "device": "cuda:0",
+                "dtype": "torch.bool",
+                "requires_grad": false,
+                "shape": [
+                  4
+                ]
+              }
+            },
+            "float"
+          ],
+          {}
+        ],
+        "output": [
+          {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": []
+          },
+          "int"
+        ]
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  144,
+                  2048
+                ]
+              },
+              {
+                "current_dino": {
+                  "device": "cuda:0",
+                  "dtype": "torch.float16",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    3,
+                    1024,
+                    6,
+                    8
+                  ]
+                },
+                "current_dino_valid": {
+                  "device": "cuda:0",
+                  "dtype": "torch.bool",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    3,
+                    6,
+                    8
+                  ]
+                },
+                "ego": {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    8,
+                    4
+                  ]
+                },
+                "future_clip": {
+                  "device": "cuda:0",
+                  "dtype": "torch.float16",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    3,
+                    8,
+                    9,
+                    12,
+                    1024
+                  ]
+                },
+                "future_clip_valid": {
+                  "device": "cuda:0",
+                  "dtype": "torch.bool",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    3,
+                    8,
+                    9,
+                    12
+                  ]
+                },
+                "interaction_latent": {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    8,
+                    512
+                  ]
+                },
+                "interaction_valid": {
+                  "device": "cuda:0",
+                  "dtype": "torch.bool",
+                  "requires_grad": false,
+                  "shape": [
+                    4
+                  ]
+                },
+                "iqe_sample_valid": {
+                  "device": "cuda:0",
+                  "dtype": "torch.bool",
+                  "requires_grad": false,
+                  "shape": [
+                    4
+                  ]
+                }
+              },
+              "float"
+            ],
+            {}
+          ],
+          "output": [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": []
+            },
+            "int"
+          ]
+        }
+      ]
+    },
+    "interaction_head": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                144,
+                2048
+              ]
+            }
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            8,
+            512
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  144,
+                  2048
+                ]
+              }
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.bfloat16",
+            "requires_grad": true,
+            "shape": [
+              4,
+              8,
+              512
+            ]
+          }
+        }
+      ]
+    },
+    "language_forward": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [],
+          {
+            "attention_mask": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            },
+            "deepstack_visual_embeds": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  6912,
+                  2048
+                ]
+              }
+            ],
+            "input_ids": "NoneType",
+            "inputs_embeds": {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            },
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                3,
+                4,
+                1930
+              ]
+            },
+            "use_cache": "bool",
+            "visual_pos_masks": {
+              "device": "cuda:0",
+              "dtype": "torch.bool",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "last_hidden_state": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [],
+            {
+              "attention_mask": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              },
+              "deepstack_visual_embeds": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    6912,
+                    2048
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    6912,
+                    2048
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    6912,
+                    2048
+                  ]
+                }
+              ],
+              "input_ids": "NoneType",
+              "inputs_embeds": {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              },
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  3,
+                  4,
+                  1930
+                ]
+              },
+              "use_cache": "bool",
+              "visual_pos_masks": {
+                "device": "cuda:0",
+                "dtype": "torch.bool",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "last_hidden_state": {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "language_layer_0": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_1": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_10": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_11": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_12": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_13": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_14": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_15": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_16": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_17": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_18": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_19": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_2": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_20": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_21": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_22": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_23": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_24": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_25": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_26": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_27": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_3": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_4": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_5": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_6": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_7": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_8": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "language_layer_9": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                1930,
+                2048
+              ]
+            }
+          ],
+          {
+            "attention_mask": "NoneType",
+            "cache_position": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                1930
+              ]
+            },
+            "position_embeddings": [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930,
+                  128
+                ]
+              }
+            ],
+            "position_ids": {
+              "device": "cuda:0",
+              "dtype": "torch.int64",
+              "requires_grad": false,
+              "shape": [
+                4,
+                1930
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            4,
+            1930,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  1930,
+                  2048
+                ]
+              }
+            ],
+            {
+              "attention_mask": "NoneType",
+              "cache_position": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  1930
+                ]
+              },
+              "position_embeddings": [
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                },
+                {
+                  "device": "cuda:0",
+                  "dtype": "torch.float32",
+                  "requires_grad": false,
+                  "shape": [
+                    4,
+                    1930,
+                    128
+                  ]
+                }
+              ],
+              "position_ids": {
+                "device": "cuda:0",
+                "dtype": "torch.int64",
+                "requires_grad": false,
+                "shape": [
+                  4,
+                  1930
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              4,
+              1930,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "processor_tokenizer_H2D": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [],
+          {
+            "images": [
+              "list",
+              "list",
+              "list",
+              "list"
+            ],
+            "instructions": [
+              "str",
+              "str",
+              "str",
+              "str"
+            ]
+          }
+        ],
+        "output": "BatchFeature"
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [],
+            {
+              "images": [
+                "list",
+                "list",
+                "list",
+                "list"
+              ],
+              "instructions": [
+                "str",
+                "str",
+                "str",
+                "str"
+              ]
+            }
+          ],
+          "output": "BatchFeature"
+        }
+      ]
+    },
+    "query_IL_branch": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                32,
+                8,
+                2048
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                32,
+                8,
+                4
+              ]
+            }
+          ],
+          {
+            "noise": {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                32,
+                8,
+                4
+              ]
+            },
+            "times": {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                32
+              ]
+            }
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": []
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  32,
+                  8,
+                  2048
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  32,
+                  8,
+                  4
+                ]
+              }
+            ],
+            {
+              "noise": {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  32,
+                  8,
+                  4
+                ]
+              },
+              "times": {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  32
+                ]
+              }
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": []
+          }
+        }
+      ]
+    },
+    "query_decoder_and_heads": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            "FeatureBundle"
+          ],
+          {}
+        ],
+        "output": "TrajectoryBundle"
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              "FeatureBundle"
+            ],
+            {}
+          ],
+          "output": "TrajectoryBundle"
+        }
+      ]
+    },
+    "query_q_former": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                1,
+                16,
+                256
+              ]
+            },
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                32,
+                8,
+                2048
+              ]
+            }
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": true,
+          "shape": [
+            32,
+            16,
+            256
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  1,
+                  16,
+                  256
+                ]
+              },
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  32,
+                  8,
+                  2048
+                ]
+              }
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": true,
+            "shape": [
+              32,
+              16,
+              256
+            ]
+          }
+        }
+      ]
+    },
+    "spatiotemporal_head": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": true,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": true,
+              "shape": [
+                4,
+                144,
+                2048
+              ]
+            },
+            [
+              "int",
+              "int"
+            ]
+          ],
+          {
+            "gt_action": "NoneType"
+          }
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.bfloat16",
+          "requires_grad": true,
+          "shape": [
+            4,
+            3,
+            8,
+            9,
+            12,
+            1024
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": true,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": true,
+                "shape": [
+                  4,
+                  144,
+                  2048
+                ]
+              },
+              [
+                "int",
+                "int"
+              ]
+            ],
+            {
+              "gt_action": "NoneType"
+            }
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.bfloat16",
+            "requires_grad": true,
+            "shape": [
+              4,
+              3,
+              8,
+              9,
+              12,
+              1024
+            ]
+          }
+        }
+      ]
+    },
+    "visual_deepstack_merger_0": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                27648,
+                1024
+              ]
+            }
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  27648,
+                  1024
+                ]
+              }
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": false,
+            "shape": [
+              6912,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "visual_deepstack_merger_1": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                27648,
+                1024
+              ]
+            }
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  27648,
+                  1024
+                ]
+              }
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": false,
+            "shape": [
+              6912,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "visual_deepstack_merger_2": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                27648,
+                1024
+              ]
+            }
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  27648,
+                  1024
+                ]
+              }
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": false,
+            "shape": [
+              6912,
+              2048
+            ]
+          }
+        }
+      ]
+    },
+    "visual_merger": {
+      "count": 7,
+      "first_call": {
+        "grad_enabled": false,
+        "input": [
+          [
+            {
+              "device": "cuda:0",
+              "dtype": "torch.float32",
+              "requires_grad": false,
+              "shape": [
+                27648,
+                1024
+              ]
+            }
+          ],
+          {}
+        ],
+        "output": {
+          "device": "cuda:0",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            6912,
+            2048
+          ]
+        }
+      },
+      "unique_signatures": [
+        {
+          "grad_enabled": false,
+          "input": [
+            [
+              {
+                "device": "cuda:0",
+                "dtype": "torch.float32",
+                "requires_grad": false,
+                "shape": [
+                  27648,
+                  1024
+                ]
+              }
+            ],
+            {}
+          ],
+          "output": {
+            "device": "cuda:0",
+            "dtype": "torch.float32",
+            "requires_grad": false,
+            "shape": [
+              6912,
+              2048
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "trace_paths": [
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank0.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank1.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank2.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank3.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank4.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank5.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank6.json",
+    "/mnt/project/iqe-perf-v2-runtime-3855e06/p0_trace_v1/trace_rank7.json"
+  ]
+}
