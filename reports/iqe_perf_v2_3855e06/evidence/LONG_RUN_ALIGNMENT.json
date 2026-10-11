@@ -1,0 +1,101 @@
+{
+  "alignment": {
+    "p0_long200": {
+      "same_sample_ids": true,
+      "same_lr": true,
+      "same_valid_denominators": true,
+      "all_finite": true,
+      "same_used_parameter_names": true,
+      "actual_global_batch": 32,
+      "updates": 200,
+      "global_sample_exposures": 6400,
+      "end_rng_matches_P0": true
+    },
+    "combined_fp32_long200": {
+      "same_sample_ids": true,
+      "same_lr": true,
+      "same_valid_denominators": true,
+      "all_finite": true,
+      "same_used_parameter_names": true,
+      "actual_global_batch": 32,
+      "updates": 200,
+      "global_sample_exposures": 6400,
+      "end_rng_matches_P0": true
+    },
+    "combined_visual_bf16_long200": {
+      "same_sample_ids": true,
+      "same_lr": true,
+      "same_valid_denominators": true,
+      "all_finite": true,
+      "same_used_parameter_names": true,
+      "actual_global_batch": 32,
+      "updates": 200,
+      "global_sample_exposures": 6400,
+      "end_rng_matches_P0": true
+    }
+  },
+  "all_alignment_checks_pass": true,
+  "loss_statistics": {
+    "p0_long200": {
+      "first50": {
+        "current_dino": 0.020668783565051852,
+        "ego_il": 0.12910040092654526,
+        "future_clip": 0.4129747940599918,
+        "interaction": 0.014559785242308863
+      },
+      "last50": {
+        "current_dino": 0.020672806007787585,
+        "ego_il": 0.13165923548862338,
+        "future_clip": 0.41193546041846274,
+        "interaction": 0.014631556509411893
+      },
+      "all200": {
+        "current_dino": 0.02059781300253235,
+        "ego_il": 0.12882530188653618,
+        "future_clip": 0.41128956110216675,
+        "interaction": 0.014548443644453074
+      }
+    },
+    "combined_fp32_long200": {
+      "first50": {
+        "current_dino": 0.020667829820886253,
+        "ego_il": 0.12915999059565364,
+        "future_clip": 0.41296453595161436,
+        "interaction": 0.014567479660618119
+      },
+      "last50": {
+        "current_dino": 0.020680514392443002,
+        "ego_il": 0.13387683876790107,
+        "future_clip": 0.4120341446995735,
+        "interaction": 0.0146898381045321
+      },
+      "all200": {
+        "current_dino": 0.020599728588713333,
+        "ego_il": 0.12936016058316455,
+        "future_clip": 0.41129579992964865,
+        "interaction": 0.014565722289698897
+      }
+    },
+    "combined_visual_bf16_long200": {
+      "first50": {
+        "current_dino": 0.020669869752600788,
+        "ego_il": 0.12934053310193122,
+        "future_clip": 0.4129996495693922,
+        "interaction": 0.014542125223088079
+      },
+      "last50": {
+        "current_dino": 0.020676998235285283,
+        "ego_il": 0.13161890413612126,
+        "future_clip": 0.41196110427379606,
+        "interaction": 0.014603280173032545
+      },
+      "all200": {
+        "current_dino": 0.020598421649774535,
+        "ego_il": 0.12916613007429986,
+        "future_clip": 0.4112980990577489,
+        "interaction": 0.014556194218384918
+      }
+    }
+  },
+  "science": "UNTESTED: 200-update training-only diagnostic; neither convergence nor PDMS evaluated"
+}

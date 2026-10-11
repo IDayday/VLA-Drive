@@ -1,0 +1,29 @@
+usage: Bounded real Query training, profiler and checkpoint runner. Schedule is inherited intact.
+       [-h] --config CONFIG --runtime RUNTIME --checkpoint CHECKPOINT --output
+       OUTPUT [--mode {bounded,continuation}] [--qualification QUALIFICATION]
+       [--checkpoint-every CHECKPOINT_EVERY] --updates UPDATES
+       [--warmup WARMUP] [--trace] [--fingerprint] [--save] [--probe]
+       [--build-vision-cache] [--mask-probe]
+       [--local-checkpoint-root LOCAL_CHECKPOINT_ROOT]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --runtime RUNTIME
+  --checkpoint CHECKPOINT
+  --output OUTPUT
+  --mode {bounded,continuation}
+  --qualification QUALIFICATION
+                        verified same-runtime throughput/numerics/resume
+                        certificate for explicit continuation
+  --checkpoint-every CHECKPOINT_EVERY
+  --updates UPDATES
+  --warmup WARMUP
+  --trace
+  --fingerprint
+  --save
+  --probe
+  --build-vision-cache
+  --mask-probe          two-update real-input missing-label/tail diagnostic,
+                        never a throughput or training checkpoint
+  --local-checkpoint-root LOCAL_CHECKPOINT_ROOT
