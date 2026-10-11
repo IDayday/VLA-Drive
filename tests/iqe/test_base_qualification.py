@@ -14,7 +14,15 @@ from conftest import TensorAdapter
 
 
 def prepared(p,tmp_path):
-    manifest=tmp_path/'stage_val.json';save_scenes(manifest,p.scenes(['stage_val']))
+    from dataclasses import replace
+    from iqe.io import atomic_bytes
+    rows=[]
+    for scene in p.scenes(['stage_val']):
+        image=tmp_path/(scene.scene_id+'.fixture');atomic_bytes(image,b'explicit tensor-test input')
+        observation={'token':scene.scene_id,'image_paths':[str(image)]}
+        path=tmp_path/(scene.scene_id+'.observation.json');atomic_json(path,observation)
+        rows.append(replace(scene,observation_ref=str(path),observation_hash=digest({'record':observation,'images':{str(image):file_hash(image)}})))
+    manifest=tmp_path/'stage_val.json';save_scenes(manifest,rows)
     p.config['base_evaluation']['manifest']=str(manifest)
     ck=tmp_path/'quality_base.pt'
     state={'kind':'iqe_query_base','framework_contract_hash':p.contract['framework_contract_hash'],

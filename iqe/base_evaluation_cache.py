@@ -15,6 +15,10 @@ from .io import atomic_json, digest, file_hash, read_json, ContractError
 def verify_row(row, scene, candidate, protocol_hash):
     require(row['scene_id'] == scene.scene_id and row['observation_hash'] == scene.observation_hash
             and row['context_hash'] == scene.metric_context_hash, 'contract_mismatch: Base evaluation scene changed')
+    observation = read_json(scene.observation_ref)
+    require(digest({'record':observation, 'images':{p:file_hash(p) for p in observation['image_paths']}}) == scene.observation_hash,
+            'contract_mismatch: observation/images changed')
+    require(file_hash(scene.target_ref) == scene.target_id, 'contract_mismatch: evaluation target changed')
     require(file_hash(scene.metric_context_ref) == scene.metric_context_hash, 'contract_mismatch: metric context changed')
     require(file_hash(row['trajectory_ref']) == row['trajectory_hash'], 'contract_mismatch: prediction changed')
     if row.get('score'):
@@ -119,9 +123,12 @@ def verify_completion(evaluation_path, *, require_all_valid=False):
     return report
 
 
-def complete_evaluation(path, rows):
+def complete_evaluation(path, rows, scenes):
     """Also repairs the atomic-report/receipt crash window after row validation."""
     folder = Path(path).parent
     files = list((folder/'scenes').rglob('*.json')) + [Path(r['trajectory_ref']) for r in rows]
+    for scene in scenes:
+        files.extend(Path(p) for p in (scene.observation_ref, scene.target_ref, scene.metric_context_ref))
+        files.extend(Path(p) for p in read_json(scene.observation_ref)['image_paths'])
     atomic_json(str(path)+'.COMPLETE.json', {'evaluation_hash':file_hash(path),
         'scene_ids':[r['scene_id'] for r in rows], 'outputs':{str(p):file_hash(p) for p in files}}, immutable=True)

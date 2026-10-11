@@ -80,7 +80,7 @@ def evaluate_base(pipeline, checkpoint):
             if not Path(str(result_path)+'.COMPLETE.json').exists():
                 require(report['status']=='COMPLETE' and all(r['outcome'] in {'valid_scored','invalid_prediction','prediction_only'} for r in report['rows']),
                         'BASE_EVALUATION_INCOMPLETE')
-                complete_evaluation(result_path, report['rows'])
+                complete_evaluation(result_path, report['rows'], scenes)
             verify_completion(result_path)
             return report | {'reused': True}
         adapter = None
@@ -147,7 +147,7 @@ def evaluate_base(pipeline, checkpoint):
             'rows':rows,'costs':costs,'result_path':str(report_path.resolve()),'scientific_gain':'UNTESTED'}
         atomic_json(report_path,report,immutable=True)
         if complete:
-            complete_evaluation(result_path, rows)
+            complete_evaluation(result_path, rows, scenes)
         atomic_json(folder/'LATEST_ATTEMPT.json',{'path':str(report_path.resolve()),'checksum':file_hash(report_path),'status':report['status']})
         return report
 

@@ -206,3 +206,15 @@ def test_changed_checkpoint_or_protocol_never_reuses_predictions(tmp_path,monkey
     p.backend().protocol_hash='another_protocol'
     third=evaluate_base(p,next_ck)
     assert calls['inference']==12 and second['result_path']!=third['result_path']
+
+
+def test_reused_prediction_rejects_changed_image_and_target_bytes(tmp_path,monkeypatch):
+    p,ck,manifest,adapter,calls=evaluation_fixture(tmp_path,monkeypatch)
+    evaluate_base(p,ck)
+    scene=load_scenes(manifest)[0]
+    image=Path(read_json(scene.observation_ref)['image_paths'][0]);original=image.read_bytes()
+    image.write_bytes(b'changed')
+    with pytest.raises(ValueError,match='observation/images changed'):evaluate_base(p,ck)
+    image.write_bytes(original)
+    Path(scene.target_ref).write_bytes(b'changed')
+    with pytest.raises(ValueError,match='target changed'):evaluate_base(p,ck)
