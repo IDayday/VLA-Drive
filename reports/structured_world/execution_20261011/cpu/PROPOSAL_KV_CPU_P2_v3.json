@@ -1,0 +1,223 @@
+{
+  "GPU_initialized": false,
+  "created_UTC": "2026-10-11T07:19:13.305560+00:00",
+  "errors": 0,
+  "evidence": {
+    "numerical_cases": [
+      {
+        "CPU_BF16_autocast": false,
+        "actual_DiT_forward_steps": 10,
+        "bitwise_all_step_actions_DiT_inputs_outputs_and_RNG": true,
+        "bitwise_output_and_RNG": true,
+        "cached_KV_calls": 4,
+        "condition_tokens": 8,
+        "depth": 4,
+        "hidden_width": 32,
+        "native_KV_calls": 40,
+        "native_timesteps": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900
+        ],
+        "projection_calls_saved": 36
+      },
+      {
+        "CPU_BF16_autocast": true,
+        "actual_DiT_forward_steps": 10,
+        "bitwise_all_step_actions_DiT_inputs_outputs_and_RNG": true,
+        "bitwise_output_and_RNG": true,
+        "cached_KV_calls": 4,
+        "condition_tokens": 8,
+        "depth": 4,
+        "hidden_width": 32,
+        "native_KV_calls": 40,
+        "native_timesteps": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900
+        ],
+        "projection_calls_saved": 36
+      },
+      {
+        "CPU_BF16_autocast": false,
+        "actual_DiT_forward_steps": 10,
+        "bitwise_all_step_actions_DiT_inputs_outputs_and_RNG": true,
+        "bitwise_output_and_RNG": true,
+        "cached_KV_calls": 24,
+        "condition_tokens": 8,
+        "depth": 24,
+        "hidden_width": 32,
+        "native_KV_calls": 240,
+        "native_timesteps": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900
+        ],
+        "projection_calls_saved": 216
+      },
+      {
+        "CPU_BF16_autocast": true,
+        "actual_DiT_forward_steps": 10,
+        "bitwise_all_step_actions_DiT_inputs_outputs_and_RNG": true,
+        "bitwise_output_and_RNG": true,
+        "cached_KV_calls": 24,
+        "condition_tokens": 8,
+        "depth": 24,
+        "hidden_width": 32,
+        "native_KV_calls": 240,
+        "native_timesteps": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900
+        ],
+        "projection_calls_saved": 216
+      },
+      {
+        "CPU_BF16_autocast": false,
+        "actual_DiT_forward_steps": 10,
+        "bitwise_all_step_actions_DiT_inputs_outputs_and_RNG": true,
+        "bitwise_output_and_RNG": true,
+        "cached_KV_calls": 4,
+        "condition_tokens": 152,
+        "depth": 4,
+        "hidden_width": 32,
+        "native_KV_calls": 40,
+        "native_timesteps": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900
+        ],
+        "projection_calls_saved": 36
+      },
+      {
+        "CPU_BF16_autocast": true,
+        "actual_DiT_forward_steps": 10,
+        "bitwise_all_step_actions_DiT_inputs_outputs_and_RNG": true,
+        "bitwise_output_and_RNG": true,
+        "cached_KV_calls": 4,
+        "condition_tokens": 152,
+        "depth": 4,
+        "hidden_width": 32,
+        "native_KV_calls": 40,
+        "native_timesteps": [
+          0,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600,
+          700,
+          800,
+          900
+        ],
+        "projection_calls_saved": 36
+      }
+    ],
+    "provenance": {
+      "GPU_numerical_and_performance_acceptance": "pending; do not enable by default",
+      "adapter_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/structured_world/proposal_execution.py",
+      "adapter_sha256": "6f7040fdedd95407f276fea191b21db022bcb512d194c1cfe4ff0c67b6371bb1",
+      "cross_attention_layers": 2,
+      "default_enabled": false,
+      "processor_norm_cross_head_norm_masks_SDPA_Euler_rng": "native and unchanged",
+      "schema": "proposal_KV_native_Linear_instance_adapter_v1",
+      "scope": "one original predict_action call; outer no_grad and all eval; inference_mode bypass",
+      "sources": [
+        {
+          "class": "starVLA.model.modules.action_model.GR00T_ActionHeader.FlowmatchingActionHead",
+          "method_sha256": "fffe39195d71da02b9737072b6b8bc1edc08b4ab8e3312006ed7f589a36ff259",
+          "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/action_model/GR00T_ActionHeader.py",
+          "source_sha256": "b67edc82a2ad110ef9feec68b5a457ea2371784f54b5ba75e2b32a18dce42999"
+        },
+        {
+          "class": "starVLA.model.modules.action_model.flow_matching_head.cross_attention_dit.DiT",
+          "method_sha256": "09b6999219e708494517052980917f0f5884c7f891680cfc8ba8eb9308b1d443",
+          "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+          "source_sha256": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2"
+        },
+        {
+          "class": "diffusers.models.attention_processor.AttnProcessor2_0",
+          "method_sha256": "bff040a099598b093263b84b78d4c53f83cb1e2be2af1c81209fdef6075fa7bc",
+          "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py",
+          "source_sha256": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90"
+        },
+        {
+          "class": "diffusers.models.attention_processor.Attention",
+          "method_sha256": "b8021dea011a83c3aa739de1cb8c6aad9d991129b32550aed26d40f2127973ec",
+          "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py",
+          "source_sha256": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90"
+        },
+        {
+          "class": "torch.nn.modules.linear.Linear",
+          "method_sha256": "4fed9af0cf2326f84d7fa1fd675941f3c3262378ee94d927c5a4f5695990cf5f",
+          "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py",
+          "source_sha256": "d7f5cadf773deb5ab4bcc9f57414e8239b2859c70d2aa6f141576de1ec918823"
+        }
+      ]
+    }
+  },
+  "failures": 0,
+  "limits": [
+    "tiny CPU models; no trained CUDA/ZeRO acceptance",
+    "no GPU performance evidence; require >=20ms proposal improvement before rollout",
+    "default disabled; no DiT/GR00T/trainer/integration source edits",
+    "native strict numerical failures retained; CPU pass does not supersede them"
+  ],
+  "passed": true,
+  "schema": "proposal_KV_native_CPU_candidate_tests_v1",
+  "source_sha256_at_finish": {
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/structured_world/proposal_execution.py": "6f7040fdedd95407f276fea191b21db022bcb512d194c1cfe4ff0c67b6371bb1",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_proposal_execution.py": "a17bacf14fad837be4f3918f26fc63a080124b9460f9a286298b6834c4ec09e8",
+    "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90",
+    "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py": "d7f5cadf773deb5ab4bcc9f57414e8239b2859c70d2aa6f141576de1ec918823",
+    "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/utils/_contextlib.py": "cf7aa5b08f44974ba8c1d08cd71ef70ffd13d1c48a4931576eb235306bfa46b5"
+  },
+  "source_sha256_at_start": {
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/structured_world/proposal_execution.py": "6f7040fdedd95407f276fea191b21db022bcb512d194c1cfe4ff0c67b6371bb1",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_proposal_execution.py": "a17bacf14fad837be4f3918f26fc63a080124b9460f9a286298b6834c4ec09e8",
+    "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90",
+    "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py": "d7f5cadf773deb5ab4bcc9f57414e8239b2859c70d2aa6f141576de1ec918823",
+    "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/utils/_contextlib.py": "cf7aa5b08f44974ba8c1d08cd71ef70ffd13d1c48a4931576eb235306bfa46b5"
+  },
+  "sources_unchanged_during_tests": true,
+  "test_sha256": "a17bacf14fad837be4f3918f26fc63a080124b9460f9a286298b6834c4ec09e8",
+  "tests_run": 9
+}
