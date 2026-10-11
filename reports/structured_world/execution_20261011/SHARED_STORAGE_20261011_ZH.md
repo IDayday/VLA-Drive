@@ -17,3 +17,7 @@ Python/依赖环境按用户授权重建，zt3 与 zt4 完整 84,661 个 regular
 15:54 UTC 尝试开启 full-gradient 对照时，资源门检查发现 zt4 正在启动另一项真实 IQE bounded 200-update 训练，因此没有创建本任务 GPU worker。zt3 同时执行真实 IQE 缓存任务，均予以保留。失败目录 `p0_gradient_v1_zt4_actual` 记录的是资源检查阻止执行，不是模型数值失败。下一次执行使用新目录和预登记，原失败记录不覆盖。
 
 正式数据、标签、Qwen、共享几何准备和已有正式恢复起点本来在 `/mnt/project`，继续保留。新数值权重采用共享目录逐组存储，比较结束后清理非必要中间点；报告与校验身份始终保留。
+
+原先只有 zt4 容器内副本的 G1/G3 early checkpoint（共同几何准备后、驾驶 update2）也已完成共享备份：`/mnt/project/structured-world-fgtr-execution-assets/20261011/navsim_initial_origins_v1/`。两组34个模型/optimizer/RNG payload逐文件hash与各自原COMPLETE一致，共90,791,866,272 bytes，核验25.46秒。它们是本轮必要的对照起点，复制既有权重，不是新增训练保存。
+
+空闲窗口出现后，使用新的预登记与 `p0_gradient_v2_zt4_actual` 目录开始完整梯度对照。旧资源门拒绝记录保留；真实worker启动前再次通过物理GPU/无争用检查，未重试旧失败目录或终止其他任务。该阶段仍是数值观察，不代表正式训练验收已经通过。
