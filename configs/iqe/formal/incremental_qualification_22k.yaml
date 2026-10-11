@@ -1,0 +1,25 @@
+extends: ../main.yaml
+output_root: /mnt/project/iqe-launch-runtime-924b003/incremental_qualification
+s0:
+  contract: /mnt/project/DriveVLA-M0-iqe-closeout-924b003/reports/iqe/S0_CONTRACT.json
+  query_checkpoint: /mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_022000.pt
+data:
+  scene_manifest: /mnt/project/iqe-runtime-audit-20261009/real_cpu_two_round/scenes.json
+base_evaluation:
+  manifest: /mnt/project/iqe-launch-runtime-924b003/stage_val_fixed.json
+  rules: /mnt/project/iqe-launch-runtime-924b003/BASE_RULES_22K_ENGINEERING.json
+  qualification: /mnt/project/iqe-launch-runtime-924b003/qualification/base_qualification/175b61961441ccd3005a6b794ed5443198e470ff7f7cb88b612774255772ddb6/QUALIFICATION.json
+execution:
+  num_threads: 8
+  metric_cache_workers: 2
+  cpu_score_workers: 2
+  max_samples: 32
+  scientific_expansion: false
+expert_train:
+  max_optimizer_steps: 2
+  warmup_steps: 1
+  validation_every_steps: 2
+scorer:
+  max_optimizer_steps: 2
+  warmup_steps: 1
+  validation_every_steps: 2

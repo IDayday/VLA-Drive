@@ -152,17 +152,10 @@ def evaluate_base(pipeline, checkpoint):
         return report
 
 
-def qualify_base(pipeline, checkpoint, evaluation_path, *, select=False):
-    info=inspect_checkpoint(checkpoint)
-    scenes,manifest_hash=fixed_manifest(pipeline)
-    from .base_evaluation_cache import verify_completion
-    evaluation=verify_completion(evaluation_path, require_all_valid=False)
-    expected=binding(pipeline.contract,info['checksum'],manifest_hash,pipeline.backend().protocol_hash)
-    require(evaluation['binding']==expected and evaluation['optimizer_step']==info['optimizer_step'],'qualification checkpoint/manifest/protocol mismatch')
-    rules_path=pipeline.config['base_evaluation']['rules']
-    rules=read_json(rules_path) if rules_path else None
-    rules_hash=file_hash(rules_path) if rules_path else None
-    require(evaluation['identity']['rules_hash']==rules_hash,'rules changed after evaluation; cannot tune thresholds on observed results')
+
+def assessment(scenes, evaluation, expected, rules, checkpoint_hash):
+    manifest_hash=expected['validation_manifest_hash']
+    info={'checksum':checkpoint_hash}
     registered=bool(rules and rules.get('status')=='PREREGISTERED' and rules.get('registered_unix',float('inf')) < evaluation['started_unix'])
     summary=evaluation['summary']
     checks={'rules_preregistered':registered,'formal_checkpoint':not evaluation['smoke_or_profile'],
@@ -193,6 +186,20 @@ def qualify_base(pipeline, checkpoint, evaluation_path, *, select=False):
                 valid=[r['score'] for r in evaluation['rows'] if r['score'] and r['score']['score_valid'] and r['score']['component_valid_masks'][metric]]
                 checks[name]=len(valid)==len(scenes) and sum(s['named_components'][metric]<1-1e-8 for s in valid)/len(scenes)<=rules['maximum_'+name+'_violation_rate']
     status='QUALIFIED' if all(checks.values()) else 'BASE_QUALITY_UNTESTED' if not registered else 'BASE_UNQUALIFIED'
+    return status, checks
+
+def qualify_base(pipeline, checkpoint, evaluation_path, *, select=False):
+    info=inspect_checkpoint(checkpoint)
+    scenes,manifest_hash=fixed_manifest(pipeline)
+    from .base_evaluation_cache import verify_completion
+    evaluation=verify_completion(evaluation_path, require_all_valid=False)
+    expected=binding(pipeline.contract,info['checksum'],manifest_hash,pipeline.backend().protocol_hash)
+    require(evaluation['binding']==expected and evaluation['optimizer_step']==info['optimizer_step'],'qualification checkpoint/manifest/protocol mismatch')
+    rules_path=pipeline.config['base_evaluation']['rules']
+    rules=read_json(rules_path) if rules_path else None
+    rules_hash=file_hash(rules_path) if rules_path else None
+    require(evaluation['identity']['rules_hash']==rules_hash,'rules changed after evaluation; cannot tune thresholds on observed results')
+    status,checks=assessment(scenes,evaluation,expected,rules,info['checksum'])
     report={'status':status,'qualification_scope':rules.get('qualification_scope','planning_quality') if rules else 'unregistered',
             'scientific_baseline_quality':rules.get('scientific_baseline_quality','UNTESTED') if rules else 'UNTESTED',
             'binding':expected,'optimizer_step':info['optimizer_step'],'rules':rules,
@@ -238,7 +245,7 @@ def require_qualification(pipeline, checkpoint, *, locked_qualification=None):
         atomic_json(pipeline.root/'base_qualification'/'legacy'/file_hash(path)/'MIGRATION.json',
             {'source_path':str(Path(path).resolve()),'checksum':file_hash(path),'status':report['status'],'action':'read_only_legacy_reference'},immutable=True)
     require(report['status']=='QUALIFIED' and all(report['checks'].values()) and not report['smoke_or_profile'], 'BASE_UNQUALIFIED')
-    _,manifest_hash=fixed_manifest(pipeline)
+    scenes,manifest_hash=fixed_manifest(pipeline)
     expected=binding(pipeline.contract,file_hash(checkpoint),manifest_hash,pipeline.backend().protocol_hash)
     require(report['binding']==expected,'BASE_UNQUALIFIED: checkpoint/framework/input/normalizer/validation/protocol mismatch')
     require(file_hash(report['evaluation_path'])==report['evaluation_hash'],'BASE_UNQUALIFIED: evaluation changed')
@@ -249,4 +256,9 @@ def require_qualification(pipeline, checkpoint, *, locked_qualification=None):
         require(report['qualification_id']==digest(expected | {'rules_hash':report['rules_hash'],'evaluation_hash':report['evaluation_hash']}), 'qualification identity mismatch')
     rules_path=pipeline.config['base_evaluation']['rules']
     require(rules_path and file_hash(rules_path)==report['rules_hash'],'BASE_UNQUALIFIED: preregistered rules changed')
+    rules=read_json(rules_path)
+    status,checks=assessment(scenes,evaluation,expected,rules,expected['checkpoint_hash'])
+    require(status=='QUALIFIED' and checks==report['checks'] and rules==report['rules'], 'BASE_UNQUALIFIED: qualification assessment differs from evidence')
+    info=inspect_checkpoint(checkpoint)
+    require(info['optimizer_step']==report['optimizer_step']==evaluation['optimizer_step'], 'qualification optimizer step mismatch')
     return {'path':str(Path(path).resolve()),'checksum':file_hash(path),'binding':expected}

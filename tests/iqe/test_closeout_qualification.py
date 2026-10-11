@@ -218,3 +218,25 @@ def test_reused_prediction_rejects_changed_image_and_target_bytes(tmp_path,monke
     image.write_bytes(original)
     Path(scene.target_ref).write_bytes(b'changed')
     with pytest.raises(ValueError,match='target changed'):evaluate_base(p,ck)
+
+
+def test_explicit_tampered_qualification_cannot_override_failed_assessment(tmp_path,monkeypatch):
+    p,ck,report=quality_fixture(tmp_path,monkeypatch)
+    failed=qualify_base(p,ck,report(ck,.1,'bad'))
+    forged=tmp_path/'forged_qualification.json'
+    atomic_json(forged,failed|{'status':'QUALIFIED','checks':{k:True for k in failed['checks']}})
+    p.config['base_evaluation']['qualification']=str(forged)
+    with pytest.raises(ValueError,match='assessment differs'):require_qualification(p,ck)
+
+
+def test_preflight_posttrain_migration_preserves_model_hash_checks(tmp_path):
+    from iqe.preflight import verify_existing_contract
+    previous={'input':'locked','query_model_code_hashes':{'iqe/query_base.py':'original'},'iqe_code_hash':'historical_posttrain',
+        'query_checkpoint':None,'query_checkpoint_hash':None,'binding_status':'FRAMEWORK_BOUND_QUERY_UNTRAINED'}
+    previous['framework_contract_hash']=digest({k:v for k,v in previous.items() if k not in {'query_checkpoint','query_checkpoint_hash','binding_status'}})
+    source=tmp_path/'contract.json';atomic_json(source,previous);checksum=file_hash(source)
+    current=previous|{'iqe_code_hash':'new_posttrain','framework_contract_hash':'new_full_tree','workspace':{'commit':'unit'}}
+    assert verify_existing_contract(previous,current,source,tmp_path/'out',dependency_hashes={'unit':'explicit_fixture'})==previous
+    assert file_hash(source)==checksum and (tmp_path/'out/PREFLIGHT_COMPATIBILITY.json').is_file()
+    changed=current|{'query_model_code_hashes':{'iqe/query_base.py':'changed'}}
+    with pytest.raises(ValueError,match='model/input/source/metric'):verify_existing_contract(previous,changed,source,tmp_path/'out',dependency_hashes={'unit':'explicit_fixture'})

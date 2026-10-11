@@ -1,4 +1,5 @@
 """Crash window tests execute the real trainer; no synthetic claims about S0."""
+import os
 from pathlib import Path
 import pytest
 import torch
@@ -68,10 +69,13 @@ def test_operator_pause_is_resumable(tmp_path):
     assert [r['optimizer_step'] for r in history]==[3,4]
 
 
-def terminal_worker(rank, rendezvous, folder):
+def terminal_worker(rank, rendezvous, folder, backend="gloo"):
     import iqe.training.trainer as trainer
     torch.set_num_threads(1)
-    dist.init_process_group('gloo',init_method='file://'+rendezvous,rank=rank,world_size=2)
+    device='cuda' if backend=='nccl' else 'cpu'
+    os.environ['LOCAL_RANK']=str(rank)
+    if backend=='nccl':torch.cuda.set_device(rank)
+    dist.init_process_group(backend,init_method='file://'+rendezvous,rank=rank,world_size=2)
     torch.manual_seed(9)
     config=cfg(2)|{'validation_every_steps':1,'early_stop_patience':1}
     original=trainer.atomic_json
@@ -81,15 +85,22 @@ def terminal_worker(rank, rendezvous, folder):
     trainer.atomic_json=failure
     try:
         train(network(.2),loss_fn,fetch,ConsumedSampler(plan()),config,{'data':'unit'},folder,
-              validate=lambda m,s:{'selection_key':[-s]})
+              validate=lambda m,s:{'selection_key':[-s]},device=device)
     except (OSError,ValueError):pass
     else:raise AssertionError('fault not delivered')
     trainer.atomic_json=original
     def forbidden(*a):raise AssertionError('terminal DDP fetched')
-    history=train(network(.2),loss_fn,forbidden,ConsumedSampler(plan()),config,{'data':'unit'},folder,resume='auto')
+    history=train(network(.2),loss_fn,forbidden,ConsumedSampler(plan()),config,{'data':'unit'},folder,resume='auto',device=device)
     assert history==[]
     dist.destroy_process_group()
 
 
 def test_gloo_terminal_resume_all_ranks(tmp_path):
     mp.spawn(terminal_worker,args=(str(tmp_path/'rendezvous'),str(tmp_path/'run')),nprocs=2,join=True)
+
+
+@pytest.mark.skipif(os.environ.get('IQE_RUN_GPU_TESTS')!='1',reason='requires two authorized idle GPUs')
+def test_nccl_terminal_resume_all_ranks(tmp_path):
+    from iqe.resources import qualify
+    qualify('cuda')
+    mp.spawn(terminal_worker,args=(str(tmp_path/'rendezvous'),str(tmp_path/'run'),'nccl'),nprocs=2,join=True)

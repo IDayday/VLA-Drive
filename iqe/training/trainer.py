@@ -68,6 +68,16 @@ class TrainingStage(nn.Module):
         return self.loss_function(self.module, batch)
 
 
+
+def complete_result(output):
+    """Repair the result/receipt crash window without changing training state."""
+    result=read_json(output/'result.json')
+    if result['status']=='COMPLETE':
+        atomic_json(output/'result.json.COMPLETE.json', {
+            'result_hash':file_hash(output/'result.json'), 'checkpoint':result['checkpoint'],
+            'checkpoint_hash':file_hash(result['checkpoint']), 'best_checkpoint_hash':result['best_checkpoint_hash'],
+            'termination':result.get('termination', {'legacy_completed_record':True})}, immutable=True)
+
 def train(module, loss_function, fetch, sampler, config, dependencies, output, *, device="cpu", weights=None,
           resume=None, non_exact_finetune=False, validate=None, stop_after=None, audit=None, seed=42, denominator_function=None, resume_allow_fallback=False):
     rank, world = init_distributed(device)
@@ -120,6 +130,14 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                         and start_step == finished["optimizer_steps"])
     if reuse_complete or completed_resume:
         require(file_hash(output / "best.pt") == finished["best_checkpoint_hash"], "completed best checkpoint changed")
+        error = None
+        if rank == 0:
+            try:
+                complete_result(output)
+            except Exception as exception:
+                if world == 1: raise
+                error = repr(exception)
+        collective_error(error)
         return []
     best_snapshot = restored_trainer.get("best_snapshot")
     if resume and restored_trainer.get("best") is not None:
@@ -282,6 +300,7 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
                            "actual_global_batch": global_batch, "resume_boundary": "optimizer_step",
                            "checkpoint": str(resume if step == start_step else output / f"step_{step:06d}.pt"), "best_selection_key": best,
                            "best_checkpoint_hash":file_hash(output / "best.pt")})
+                complete_result(output)
         except Exception as exception:
             if world == 1:
                 raise

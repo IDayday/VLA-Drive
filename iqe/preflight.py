@@ -10,6 +10,47 @@ from .query_base import source_trajectory_contract
 from .scoring.reference import python_source_hash, COMPONENTS
 
 
+def verify_existing_contract(previous, current, contract_path, output, *, dependency_hashes):
+    """Retain historical identity when only unrelated post-training code changed.
+
+    Never rewrite the old contract/hash. All original source, VLM, protected
+    model file hashes, architecture, inputs, losses and metric fields must match.
+    """
+    excluded = {'query_checkpoint', 'query_checkpoint_hash', 'binding_status', 'workspace', 'framework_contract_hash'}
+    require(previous['framework_contract_hash'] == digest({k:v for k,v in previous.items() if k not in excluded}),
+            'historical framework contract checksum invalid')
+    if previous['framework_contract_hash'] == current['framework_contract_hash']:
+        return previous
+    semantic_excluded = excluded | {'iqe_code_hash'}
+    require(digest({k:v for k,v in previous.items() if k not in semantic_excluded}) ==
+            digest({k:v for k,v in current.items() if k not in semantic_excluded}),
+            'preflight model/input/source/metric contract changed; explicit model compatibility migration required')
+    receipt = {'kind':'POSTTRAIN_CODE_ONLY_COMPATIBILITY', 'historical_contract':str(Path(contract_path).resolve()),
+               'historical_contract_checksum':file_hash(contract_path), 'framework_contract_hash':previous['framework_contract_hash'],
+               'original_iqe_code_hash':previous['iqe_code_hash'], 'current_iqe_code_hash':current['iqe_code_hash'],
+               'protected_model_hashes':current['query_model_code_hashes'], 'current_workspace':current['workspace'],
+               'additional_base_dependency_hashes':dependency_hashes,
+               'semantic_contract_unchanged':True, 'historical_contract_rewritten':False,
+               'checkpoint_load_rule':'unchanged strict state_dict plus protected-file hash validation'}
+    path=Path(output)/'preflight_compatibility'/digest(receipt)/'COMPATIBILITY.json'
+    atomic_json(path,receipt,immutable=True)
+    atomic_json(Path(output)/'PREFLIGHT_COMPATIBILITY.json',{'path':str(path.resolve()),'checksum':file_hash(path)})
+    return previous
+
+
+def audited_base_dependencies(repo):
+    # The closeout starts from this user-pinned audit anchor. Contracts contains
+    # physical conversion and io contains strict weight loading/hash utilities;
+    # neither may hide behind a change to the aggregate post-training hash.
+    anchor='924b003ad84ffc2d51e1cb4f5e140663f3280152'
+    result={}
+    for name in ('iqe/contracts.py','iqe/io.py'):
+        expected=__import__('hashlib').sha256(subprocess.check_output(['git','show',anchor+':'+name],cwd=repo)).hexdigest()
+        require(file_hash(Path(repo)/name)==expected, 'Base dependency changed; explicit model compatibility migration required: '+name)
+        result[name]=expected
+    return {'audit_anchor':anchor,'files':result}
+
+
 def audit(config, repo):
     repo = Path(repo).resolve()
     s0 = config["s0"]
@@ -77,12 +118,11 @@ def audit(config, repo):
     base["framework_contract_hash"] = digest({k: v for k, v in base.items() if k not in {"query_checkpoint", "query_checkpoint_hash", "binding_status"}})
     base["workspace"] = {"repo": str(repo), "branch": subprocess.check_output(["git", "branch", "--show-current"], cwd=repo, text=True).strip(),
         "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),
-        "dirty_patch_hash": read_json(repo / "reports/iqe/WORKSPACE_SNAPSHOT.json")["tracked_patch_sha256"]}
+        "dirty_patch_hash": __import__("hashlib").sha256(subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=repo)).hexdigest()}
     path = Path(s0["contract"])
     if path.exists():
         previous = read_json(path)
-        require(previous["framework_contract_hash"] == base["framework_contract_hash"], "preflight contract changed; write a new version")
-        return previous
+        return verify_existing_contract(previous,base,path,config['output_root'],dependency_hashes=audited_base_dependencies(repo))
     atomic_json(path, base, immutable=True)
     text = "# S0 contract\n\nFramework reuse only. No learned DiT/S0 driving weights are loaded.\n\n" + \
         "The original Qwen3-VL2B input pipeline is retained; the flow-matching head is replaced by a singleton Query Decoder. " + \
