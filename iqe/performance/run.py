@@ -148,7 +148,8 @@ def main():
                     'model':model.state_dict(),'optimizer':optimizer.state_dict(),'scheduler':scheduler.state_dict(),
                     'optimizer_step':step,'epoch':epoch,'offset':offset,'dependencies':original_dependencies,
                     'rng_by_rank':rngs,'resume_boundary':'optimizer_step','fit_scene_ids':fit,'seed':config['seed'],
-                    'mode':'full' if a.mode=='continuation' else 'performance_v2','performance_identity':identity,'parent_checkpoint':a.checkpoint})
+                    'mode':'full' if a.mode=='continuation' else 'performance_v2','performance_identity':identity,'parent_checkpoint':a.checkpoint,
+                    'terminal':step==cfg['max_optimizer_steps'],'termination_reason':('MAX_STEPS' if step==cfg['max_optimizer_steps'] else ('OPERATOR_PAUSED' if stop[0] or step==initial_step+a.updates else 'RUNNING_CHECKPOINT'))})
                 atomic_json(str(path)+'.COMPLETE.json',{'checksum':file_hash(path),'optimizer_step':step,'dependencies':original_dependencies})
             except Exception as ex:error=repr(ex)
         collective_check(error,device=device);checkpoint_seconds+=time.perf_counter()-began;last_saved_step=step
@@ -274,7 +275,7 @@ def main():
         values=np.array([[r['seconds'] for r in x['rows'][a.warmup:stop_at]] for x in ranks])
         slowest=values.max(0) if values.size else np.array([])
         stats=lambda v:{'n':len(v),'mean':float(np.mean(v)),'p50':float(np.quantile(v,.5)),'p95':float(np.quantile(v,.95))} if len(v) else None
-        atomic_json(root/'RESULT.json',{'status':'COMPLETE','identity':identity,'initial_step':initial_step,'final_step':step,'updates':len(rows),
+        atomic_json(root/'RESULT.json',{'status':'COMPLETE' if len(rows)==a.updates else 'OPERATOR_PAUSED','training_terminal':step==cfg['max_optimizer_steps'],'identity':identity,'initial_step':initial_step,'final_step':step,'updates':len(rows),
             'warmup_excluded':a.warmup,'drain_excluded':1,'rank0':stats(values[0]) if values.size else None,'slowest_rank_per_step':stats(slowest),
             'slowest_mean_rank':int(values.mean(1).argmax()) if values.size else None,'samples_per_second':32/slowest.mean() if values.size else None,
             'peak_allocated_bytes':max(x['peak_allocated_bytes'] for x in ranks),'peak_reserved_bytes':max(x['peak_reserved_bytes'] for x in ranks),
