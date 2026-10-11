@@ -73,6 +73,47 @@ class TokenFuser(nn.Module):
         self.mlp = MlpBlock(input_dim=in_channels, mlp_dim=bottleneck_dim, output_dim=bottleneck_dim, dropout_rate=dropout_rate)
         self.dropout = nn.Dropout(dropout_rate)
 
+    def can_reuse_spatial_mix(self):
+        """Only reuse a spatial branch without per-call random/state updates.
+
+        The registered branch uses GroupNorm and zero-rate dropout. Keep the
+        reference calls when training dropout or BatchNorm is present instead:
+        reusing their result would change masks, RNG or running statistics.
+        """
+        for branch in (self.norm, self.mlp):
+            for module in branch.modules():
+                if isinstance(module, nn.modules.dropout._DropoutNd) and module.training and module.p > 0:
+                    return False
+                if isinstance(module, nn.modules.batchnorm._BatchNorm) and module.training:
+                    return False
+        return True
+
+    def prepare_spatial_mix(self, original):
+        """Differentiable spatial GN/MLP branch, shared only within a forward."""
+        if original.dim() == 4:
+            n, c, h, w = original.shape
+            original = original.view(n, c, h * w).permute(0, 2, 1)
+        original = self.norm(original.permute(0, 2, 1)).permute(0, 2, 1)
+        return self.mlp(original).sigmoid()
+
+    def prepare_token_values(self, inputs):
+        """Retain the original token GN, dense projection and second GN."""
+        if self.use_normalization:
+            inputs = self.norm1(inputs.permute(0, 2, 1)).permute(0, 2, 1)
+        inputs = self.dense(inputs.permute(0, 2, 1))
+        if self.use_normalization:
+            inputs = self.norm2(inputs)
+        return inputs
+
+    def fuse(self, token_values, spatial_mix, original):
+        """Fuse prepared branches with the original per-call output dropout."""
+        fused = torch.einsum('bcs,bhs->bhc', token_values, spatial_mix)
+        fused = self.dropout(fused)
+        if original.dim() == 4:
+            n, c, h, w = original.shape
+            fused = fused.view(n, h, w, c).permute(0, 3, 1, 2)
+        return fused
+
     def forward(self, inputs, original):
         """Applies token fusion to the generate 2D ouputs.
 

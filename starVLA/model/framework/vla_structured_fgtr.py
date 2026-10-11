@@ -73,7 +73,30 @@ class VLAStructuredFGTR(DDPForesight):
         # contract while retaining FP32 parameters; canonical inference uses
         # amp()'s existing inference_fp32 bypass.
         with self.amp():
+            prepared = getattr(self, '_active_prepared_current', None)
+            if prepared is not None:
+                prepared.validate(examples, instructions, self.current_processor_identity)
+                inputs = prepared.inputs
+                with torch.no_grad():
+                    parts, deepstack = self.qwen_vl_interface.model.model.get_image_features(
+                        inputs['pixel_values'], inputs['image_grid_thw'])
+                return (inputs['input_ids'], inputs['attention_mask'], prepared.position_ids,
+                        prepared.slots, torch.cat(parts, dim=0), deepstack)
             return super()._build_qwen_batch(examples, instructions)
+
+    def encode_current(self, observations):
+        # Typed execution payload is derived only from current images/prompt;
+        # the historical teacher-cache whitelist is not weakened.
+        from starVLA.dataloader.structured_world.prepared_current import PreparedCurrent
+        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
+        if prepared is not None and (not isinstance(prepared, PreparedCurrent) or
+                any(row.get('_prepared_current') is not prepared for row in observations)):
+            raise ValueError('Mixed/untrusted current preprocessing payload')
+        self._active_prepared_current = prepared
+        try:
+            return super().encode_current(observations)
+        finally:
+            self._active_prepared_current = None
 
     def load_shared_geometry(self, path, expected_identity, *, allow_debug=False):
         state = torch.load(path, map_location='cpu', weights_only=False)
@@ -90,6 +113,11 @@ class VLAStructuredFGTR(DDPForesight):
 
     def geometric_current(self, observations):
         device = next(self.geometry.parameters()).device
+        prepared = observations[0].get('_prepared_current') if getattr(self, 'execution_fast', False) else None
+        if prepared is not None:
+            if any(row.get('_prepared_current') is not prepared for row in observations):
+                raise ValueError('Geometry microbatch identity mismatch')
+            return self.geometry(prepared.geometry_images, prepared.calibration, prepared.pixel_valid)
         images = torch.stack([item['geometry_images'] for item in observations]).to(device=device, dtype=torch.float32)
         calibration = {key: torch.stack([item['calibration'][key] for item in observations]).to(device=device, dtype=torch.float32)
                        for key in ('sensor2ego', 'intrinsics', 'post_rots', 'post_trans')}
@@ -152,18 +180,24 @@ class VLAStructuredFGTR(DDPForesight):
             raw['current_DINO'] = dino.detach()
         planned = self.plan_from_current(observations, encoded=encoded, H_A=action, proposal_generator=proposal_generator)
         gradient_norms = {}
-        for name, value in (('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])):
+        activation_gradient_samples = {}
+        for name, value in (('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])) if getattr(self, 'record_activation_metrics', True) else ():
             if value.requires_grad:
                 def record_gradient(gradient, key=name):
                     norm = torch.linalg.vector_norm(gradient.detach().float()).detach()
                     gradient_norms[key] = norm if getattr(self, 'defer_activation_metrics', False) else float(norm)
+                    if getattr(self, 'execution_diagnostic_capture', False):
+                        flat = gradient.detach().float().flatten()
+                        indices = torch.arange(min(1024, flat.numel()), device=flat.device)*max(1, flat.numel()-1)//max(1, min(1024, flat.numel())-1)
+                        activation_gradient_samples[key] = flat[indices].clone()
                 value.register_hook(record_gradient)
         semantic = self.scene_semantics(planned['current']['B0'], planned['Bt'])
         query = sample_queries(planned['q0'], targets, mode=self.query_mode, generator=query_generator,
-                                count=int(self.structured_options.get('queries', 1024)), grid=self.grid)
+                                count=int(self.structured_options.get('queries', 1024)), grid=self.grid,
+                                execution_fast=getattr(self, 'execution_fast', False))
         aux, effective = compute_structured_losses(semantic, targets, query, targets['ego_bodies'],
                             semantic_mode=self.semantic_mode, statistics=self.structured_options['class_statistics'],
-                            global_scenes=scenes, grid=self.grid)
+                            global_scenes=scenes, grid=self.grid, execution_fast=getattr(self, 'execution_fast', False))
         # Depth supervision is loss-only and scene-normalized, with no-return
         # pixels excluded by the pinned RCSample depth-label implementation.
         depth_scenes = []
@@ -187,9 +221,13 @@ class VLAStructuredFGTR(DDPForesight):
         raw.update({k: value.detach() for k, value in aux.items()}, refine=refine.detach())
         return {'loss': sum(losses.values()), 'losses': losses,
                 'metrics': {'raw': raw, 'effective_counts': effective, 'activation_gradient_norms': gradient_norms,
+                    'activation_gradient_samples': activation_gradient_samples,
                     'refine_effective_weight': float(weights['refine'])*warmup,
                     'query_strata': query['strata_records'], 'proposal_out_of_range': planned['out_of_range'].detach()},
-                'diagnostics': {'q0': planned['q0'].detach(), 'q_final': planned['q_final'].detach()}}
+                'diagnostics': {'q0': planned['q0'].detach(), 'q_final': planned['q_final'].detach(),
+                    **({name: value.detach() for name, value in
+                        [('H_A', planned['H_A']), ('B0', planned['current']['B0']), ('Bt', planned['Bt'])]}
+                       if getattr(self, 'execution_diagnostic_capture', False) else {})}}
 
     @torch.no_grad()
     def predict_action(self, observations, *, sampling_seed=42, initial_noise=None, return_diagnostics=False):

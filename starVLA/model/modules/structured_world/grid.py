@@ -43,16 +43,27 @@ class GridSpec:
         invalid = ((uv < 0) | (uv >= 1) | ~torch.isfinite(uv)).any(-1)
         return uv, invalid
 
-    def sample(self, fields, xy, *, mode='bilinear'):
+    def prepare_sample(self, xy):
+        """Ephemeral coordinates for repeated reads of the same XY tensor.
+
+        The returned tensors retain the coordinate gradient. They must only be
+        reused within one forward, with the same grid and unchanged XY.
+        """
+        uv, invalid = self.normalized_reference(xy)
+        safe = torch.where(torch.isfinite(uv), uv, torch.full_like(uv, -2))
+        return (2*safe-1).unsqueeze(2), ~invalid
+
+    def sample(self, fields, xy, *, mode='bilinear', _prepared=None):
         """Returns values plus explicit validity; padding is never a free label."""
         if fields.ndim != 4 or fields.shape[-2:] != (self.height, self.width) or xy.ndim != 3 or len(fields) != len(xy):
             raise ValueError('Expected B,C,H,W and B,K,2 on the registered grid')
-        uv, invalid = self.normalized_reference(xy)
         from torch.nn.functional import grid_sample
-        safe = torch.where(torch.isfinite(uv), uv, torch.full_like(uv, -2))
-        values = grid_sample(fields, (2*safe-1).unsqueeze(2), mode=mode,
+        coordinates, supported = self.prepare_sample(xy) if _prepared is None else _prepared
+        if coordinates.shape != (*xy.shape[:2], 1, 2) or supported.shape != xy.shape[:2]:
+            raise ValueError('Prepared coordinates must match the current XY tensor')
+        values = grid_sample(fields, coordinates, mode=mode,
                              padding_mode='zeros', align_corners=False).squeeze(-1).transpose(1, 2)
-        return values, ~invalid
+        return values, supported
 
     def resworld_config(self, *, depth=(1., 100., 1.)):
         return {'x': [self.xmin, self.xmax, self.dx], 'y': [self.ymin, self.ymax, self.dy],

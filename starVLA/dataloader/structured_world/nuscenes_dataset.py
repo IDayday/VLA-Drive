@@ -75,4 +75,6 @@ class StructuredNuScenesDataset(Dataset):
         if targets['ego'].shape != (6, 4) or targets['current_dino'].shape != (6, 1024, 6, 8) or not targets['future_valid'].all():
             raise ValueError('nuScenes 6-step / 6-camera target contract changed')
         targets['ego_bodies'] = metadata['ego_body']
+        targets['label_sha256'] = metadata['label_sha256']
+        targets['label_schema'] = self.identity['schema']
         return observation, targets

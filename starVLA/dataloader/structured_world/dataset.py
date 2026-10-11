@@ -99,6 +99,8 @@ class StructuredNAVSIMDataset(Dataset):
             targets['auxiliary_future_time_valid'] = torch.from_numpy(arrays['future_valid'].copy())
             targets['future_valid'] = validate_native_ego_contract(targets['ego'], arrays['ego_physical'], arrays['future_valid'])
         targets['ego_bodies'] = metadata['ego_body']
+        targets['label_sha256'] = metadata['label_sha256']
+        targets['label_schema'] = self.identity['schema']
         return observation, targets
 
 

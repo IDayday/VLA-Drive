@@ -31,6 +31,9 @@ class SingleFrameFuture(nn.Module):
         if steps not in (6, 8):
             raise ValueError('Only the registered 3s/4s horizons are supported')
         self.steps, self.channels = steps, channels
+        # Opt in through configure_execution; reference remains the default.
+        # Plain attributes add no parameters or persistent checkpoint entries.
+        self.execution_fast = False
         self.grid = grid or GridSpec()
         self.position = nn.Sequential(nn.Linear(2, channels), nn.ReLU(), nn.Linear(channels, channels))
         self.tokenlearner = TokenLearner(scene_tokens, 2*channels)
@@ -61,13 +64,20 @@ class SingleFrameFuture(nn.Module):
         semantic = self.semantic(action_hidden.float()).mean(1, keepdim=True)
         condition = q0_physical[..., :2].flatten(1).unsqueeze(1)/40.
         time = self.time(physical_time_features(self.times_s))
+        conditioned = self.action_mln(latent, condition) if self.execution_fast else None
+        spatial_mix = (self.tokenfuser.prepare_spatial_mix(B0)
+                       if self.execution_fast and self.tokenfuser.can_reuse_spatial_mix() else None)
         future = []
         for t in range(self.steps):
-            residual_tokens = self.action_mln(latent, condition)+semantic+time[t]
+            residual_tokens = (conditioned if self.execution_fast else self.action_mln(latent, condition))+semantic+time[t]
             residual_tokens = self.res_latent_decoder(
                 query=residual_tokens.transpose(0, 1), key=residual_tokens.transpose(0, 1),
                 value=residual_tokens.transpose(0, 1), query_pos=latent_pos.transpose(0, 1),
                 key_pos=latent_pos.transpose(0, 1)).transpose(0, 1)
-            delta = self.tokenfuser(residual_tokens, B0)
+            if spatial_mix is None:
+                delta = self.tokenfuser(residual_tokens, B0)
+            else:
+                token_values = self.tokenfuser.prepare_token_values(residual_tokens)
+                delta = self.tokenfuser.fuse(token_values, spatial_mix, B0)
             future.append(B0+delta)
         return torch.stack(future, 1)
