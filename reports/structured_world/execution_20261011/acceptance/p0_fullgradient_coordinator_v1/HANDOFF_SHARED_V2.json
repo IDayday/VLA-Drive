@@ -1,0 +1,95 @@
+{
+  "CPU_default_CLI_plan": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/CPU_SHARED_PLAN_V2/PLAN.json",
+    "sha256": "a7bb329427199c70d282ff773d93185ae10b37524ff920c38b887728054cac97"
+  },
+  "CPU_preflight_scope": "Actual frozen producer source/native metadata/optimizer group/versions; no GPU allocation or model forward",
+  "CPU_tests": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/CPU_TEST_RECEIPT.json",
+    "sha256": "883e146aa6d222e3f91a5aaf6007d72a0f5fbe6bef51d01adc688afe6b472de7"
+  },
+  "GPU_jobs_started": 0,
+  "GPU_resource_readiness_claimed": false,
+  "actual_shared_output": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v1_zt4_actual",
+  "actual_zt4_CPU_preflight": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/ZT4_CPU_PREFLIGHT_V1.json",
+    "sha256": "9b4692712719043c38949d1a4b9e3d644e277008a066e3ee5aeabadb35921734"
+  },
+  "bound_plan": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/BOUND_SHARED_EXECUTION_PLAN_V2.json",
+    "sha256": "46c22ecdc9cfd2f02ef62acd68caea64f64bba3f9bbd3f86bfdeafeff28b0225"
+  },
+  "created_UTC": "2026-10-11T15:07:47.204007+00:00",
+  "execute_command_template": [
+    "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+    "-B",
+    "${PARENT_FROZEN_COORDINATOR_ROOT}/tools/structured_world/run_p0_fullgrad_probes.py",
+    "--manifest",
+    "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/MANIFEST_SHARED_OUTPUT_V2.json",
+    "--output",
+    "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v1_zt4_actual",
+    "--execute"
+  ],
+  "execute_template_state": "ONLY driver root pending parent immutable freeze; no GPU dispatch by this agent",
+  "formal_authorized": false,
+  "fullgradient_prospective_binding": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_v1_prospective/SOURCE_BINDING.json",
+    "sha256": "8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598"
+  },
+  "manifest": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/MANIFEST_SHARED_OUTPUT_V2.json",
+    "sha256": "a9a4a4e15d9e93585c870462749af32b5afcbdea7d9c3a7bc734821ae1b6e48c"
+  },
+  "native_budget": {
+    "accounting_scope": "fresh_fullgradient_phase_only",
+    "accounting_sources": [],
+    "already_spent_external": 0,
+    "limit_kind": "internal_finite_test_registration",
+    "old_zt3_cost_state": "UNKNOWN_NOT_ZERO",
+    "per_job_reserves": {
+      "fullgradient": 2.5
+    },
+    "phase_limit": 30,
+    "reserved_elsewhere": 0,
+    "total_internal_limit": 30,
+    "user_GPU_hours_limit": null
+  },
+  "no_auto_retry": true,
+  "no_model_trainer_binding_edits": true,
+  "no_old_controller_changes": true,
+  "observations_semantics": "Direct fullparameter8rank A_A/A_B/AA_B; exact forward and complete finite gradients plus legacy strictFalse exit1 is scientific observation, not acceptance",
+  "original_forward_binding": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_forward_v1_prospective/SOURCE_BINDING.json",
+    "sha256": "44c78ea7aa563a4d6b863081ffd8db7af92d0fdb549c957c334a66a4fd608799"
+  },
+  "passed": false,
+  "preserved_CPU_negative": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v2/CPU_TEST_RECEIPT.json",
+    "reason": "CPU planning accidentally imported Torch in stdlib-only interpreter; corrected by pure source validation, v3 actual-source test passes; no GPU stage"
+  },
+  "previous_forward_completion": "/var/tmp/structured-world-fgtr-execution-20261011/p0_forward_v1_zt4_actual/COMPLETE.json",
+  "previous_forward_completion_existed_at_CPU_preflight": false,
+  "qualification": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt4_runtime_qualification_extension_v1/QUALIFICATION.json",
+    "sha256": "09a40febff8a3876040b38159038981e5ba0ab7fe62f5971eb537ecc79a0115e"
+  },
+  "schema": "p0_fullgradient_coordinator_CPU_handoff_v1",
+  "source_files": [
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_p0_fullgrad_probes.py",
+      "sha256": "f370dcf4e8a5db560e90e5417a833335a93c21ab76f35b39e67ad91ec64361a0"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_run_p0_fullgrad_probes.py",
+      "sha256": "8b3008a20c017de710ebc7448b9d6639f73fc6b93dbf3726925139f661c8fcc7"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_p0_fullgrad_probes.README.md",
+      "sha256": "479ad9c7d9df1fe6af0a3a8cc1bd49bfaea59613bcd290871d2b7d45f7ba57b5"
+    }
+  ],
+  "stable_for_parent_cold_freeze": true,
+  "trainer_consumable": false,
+  "whole_new_E2_acceptance_envelope": "PENDING separate prospective binding; original819/44/routingd8 not reinterpreted",
+  "zt3_state": "User-confirmed external maintenance/restart/new container. Parent owns new qualification; old costs unknown, old banks not reclassified"
+}

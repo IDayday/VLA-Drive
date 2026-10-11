@@ -1,0 +1,104 @@
+{
+  "GPU_jobs_started": 0,
+  "artifact_root": "/var/tmp/structured-world-fgtr-execution-20261011",
+  "binding_sha256": "44c78ea7aa563a4d6b863081ffd8db7af92d0fdb549c957c334a66a4fd608799",
+  "cache": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+  "coordinator_frozen_root_state": "PENDING_PARENT_COLD_FREEZE",
+  "coordinator_source": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_p0_fullgrad_probes.py",
+    "sha256": "f370dcf4e8a5db560e90e5417a833335a93c21ab76f35b39e67ad91ec64361a0"
+  },
+  "dino_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+  "fullgradient_source_binding": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_v1_prospective/SOURCE_BINDING.json",
+    "sha256": "8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598"
+  },
+  "gpu_uuids": [
+    "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+    "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+    "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+    "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+    "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+    "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+    "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+    "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+  ],
+  "host": "training-vlawm-zt4",
+  "limits": [
+    "This new12slot fullgradient phase must follow actual old forward12 completion; no old receipt reuse",
+    "Original44 sidecar and819 native binding retained; actual869 fullgradient registration is separately identified",
+    "No complete E2 acceptance envelope or native500 dispatch is authorized by this planning record",
+    "30GPUh belongs only to this finite phase; unknown historical/zt3 cost is not zero",
+    "Actual same qualified zt4 host/policy/UUIDs/environment/free8/mutex checked at dispatch; no current idle claim"
+  ],
+  "local_origin_metadata_verified_here": false,
+  "minimum_free_MiB": 68000,
+  "native_budget": {
+    "accounting_scope": "fresh_fullgradient_phase_only",
+    "accounting_sources": [],
+    "already_spent_external": 0,
+    "limit_kind": "internal_finite_test_registration",
+    "old_zt3_cost_state": "UNKNOWN_NOT_ZERO",
+    "per_job_reserves": {
+      "fullgradient": 2.5
+    },
+    "phase_limit": 30,
+    "reserved_elsewhere": 0,
+    "total_internal_limit": 30,
+    "user_GPU_hours_limit": null
+  },
+  "origins": [
+    {
+      "case": "G1/initial",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/initial_G1_common",
+      "tag": "milestone_0000002"
+    },
+    {
+      "case": "G3/initial",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/initial_G3_common",
+      "tag": "milestone_0000002"
+    },
+    {
+      "case": "G1/mid",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+      "tag": "milestone_0025000"
+    },
+    {
+      "case": "G3/mid",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G3",
+      "tag": "milestone_0050000"
+    }
+  ],
+  "output_route_update": {
+    "original_preserved": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_fullgrad_coordinator_cpu_v3/MANIFEST_V1.json",
+      "sha256": "62cf33b530f37f6082560e5689b9c59411f5c377acc849e8e1dd3b77ff157977"
+    },
+    "reason": "Latest user requests shared storage for new modest fullgradient reports; source/data/RNG/optimizer unchanged"
+  },
+  "planning_only": true,
+  "prepared_UTC": "2026-10-11T15:06:06.767085+00:00",
+  "previous_forward_completion": "/var/tmp/structured-world-fgtr-execution-20261011/p0_forward_v1_zt4_actual/COMPLETE.json",
+  "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+  "qualification": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/zt4_runtime_qualification_extension_v1/QUALIFICATION.json",
+    "sha256": "09a40febff8a3876040b38159038981e5ba0ab7fe62f5971eb537ecc79a0115e"
+  },
+  "qualification_update_provenance": {
+    "original_preserved": true,
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_p0_forward_coordinator_20261011/MANIFEST_v1.json",
+    "reason": "Original actual native qualification plus independently verified unchanged flash_attn metadata; availability separately gated per job",
+    "sha256": "7f620dce0c09fcd9a900f7574cc4072f575c84283a5e5c80f78ad1c569089216"
+  },
+  "recommended_actual_output": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v1_zt4_actual",
+  "route_manifest_provenance": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_forward_v1_prospective/MANIFEST_RUNTIME_EXTENSION_V2_PENDING_ADMISSION.json",
+    "sha256": "29811139bb68555d6c6b73f0a6bf7dc0b107151d74ab27b33ee7309a8b5d3c8e"
+  },
+  "route_provenance": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/records_v1/NU_P0_REAL32_MANIFEST_BUDGET_PENDING.json",
+    "sha256": "940a9e65070e601334011070e6027d6d6fa39687f968209d7eab0bee93bf971d"
+  },
+  "schema": "p0_fullgradient_coordinator_manifest_v1",
+  "source_binding": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_forward_v1_prospective/SOURCE_BINDING.json"
+}
