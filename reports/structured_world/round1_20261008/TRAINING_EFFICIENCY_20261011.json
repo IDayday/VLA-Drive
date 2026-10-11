@@ -1,0 +1,73 @@
+{
+  "schema": "read_only_formal_train_efficiency_v1",
+  "observed_utc": "2026-10-11T05:48:46.458384+00:00",
+  "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "world_size": 8,
+  "global_batch": 32,
+  "FM_repeat": 8,
+  "timing_scope": "rank-max data+forward+backward+optimizer; checkpoint and post-timing logging/host transfers recorded separately",
+  "runs": [
+    {
+      "group": "G3_EVENT_LOCAL",
+      "host": "vla-zt",
+      "run_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+      "latest_observed_update": 58224,
+      "window": 256,
+      "update_range": [
+        57969,
+        58224
+      ],
+      "seconds_mean": 3.1751456931233406,
+      "seconds_median": 3.145398259162903,
+      "seconds_p95": 3.3204355239868164,
+      "scenes_per_second": 10.078277689526148,
+      "peak_rank0_GiB": 31.897584915161133,
+      "reported_update_GPU_hours": 410.0403207625283,
+      "100k_update_hours_extrapolation": 88.19849147564835,
+      "100k_update_GPU_hours_extrapolation": 705.5879318051868,
+      "extrapolation_excludes": "preparation/loading/checkpoints/evaluation/interruptions"
+    },
+    {
+      "group": "G1_FULL_UNIFORM",
+      "host": "vlawm-zt2",
+      "run_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+      "latest_observed_update": 30895,
+      "window": 256,
+      "update_range": [
+        30640,
+        30895
+      ],
+      "seconds_mean": 3.189324456267059,
+      "seconds_median": 3.1660678386688232,
+      "seconds_p95": 3.354361057281494,
+      "scenes_per_second": 10.033472742831052,
+      "peak_rank0_GiB": 31.897584438323975,
+      "reported_update_GPU_hours": 217.69416782803006,
+      "100k_update_hours_extrapolation": 88.5923460074183,
+      "100k_update_GPU_hours_extrapolation": 708.7387680593464,
+      "extrapolation_excludes": "preparation/loading/checkpoints/evaluation/interruptions"
+    },
+    {
+      "group": "G0_NO_FUTURE_LABEL",
+      "host": "rl-zt2",
+      "run_identity": "6b30c6300151400cc1a36a56abedbc58d48a889061b123ea9f7e6e024ad1db4a",
+      "latest_observed_update": 6363,
+      "window": 256,
+      "update_range": [
+        6108,
+        6363
+      ],
+      "seconds_mean": 3.1855442728847265,
+      "seconds_median": 3.1576188802719116,
+      "seconds_p95": 3.352224826812744,
+      "scenes_per_second": 10.045379143646882,
+      "peak_rank0_GiB": 31.895533084869385,
+      "reported_update_GPU_hours": 45.033745161162486,
+      "100k_update_hours_extrapolation": 88.48734091346462,
+      "100k_update_GPU_hours_extrapolation": 707.898727307717,
+      "extrapolation_excludes": "preparation/loading/checkpoints/evaluation/interruptions"
+    }
+  ],
+  "precision": "FP32 parameters/master/optimizer; BF16 Qwen/action compute; FP32 geometry/future/refiner; TF32 off",
+  "candidate_changes_deployed_this_snapshot": false
+}

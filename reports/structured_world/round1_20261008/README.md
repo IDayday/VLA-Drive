@@ -1,5 +1,12 @@
 # Structured-world FGTR round one — implementation milestone
 
+[New complete G1/G3 25k Navtest and training-efficiency audit](NAVTEST_25K_AND_TRAINING_EFFICIENCY_20261011.md)
+records PDMS 86.3189/86.7897 on all 12146 scenes. The paired G3−G1 interval
+[-0.0549, 1.0045] includes zero. Current eight-GPU training takes about
+3.15–3.18 seconds/update; the audit separates additional ten-step proposal cost,
+geometry/future computation, precision differences and remaining synchronization
+candidates. No new optimization was applied to the frozen formal model.
+
 **2026-10-11 evaluation override:** the user requested direct full Navtest instead
 of further development scoring. [The active policy](NAVSIM_EVALUATION_POLICY_20261011.json)
 supersedes the earlier development-observation routing without changing training.

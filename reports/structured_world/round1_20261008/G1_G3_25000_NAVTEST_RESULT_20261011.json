@@ -1,0 +1,231 @@
+{
+  "schema": "G1_G3_complete_25000_navtest_v1",
+  "observed_utc": "2026-10-11T05:48:46.419958+00:00",
+  "population": "navtest",
+  "scenes": 12146,
+  "logs": 136,
+  "training_seed": 42,
+  "inference_seed": 42,
+  "runs": [
+    {
+      "job": "G1_FULL_UNIFORM_0025000",
+      "prediction_contract": {
+        "schema": "structured_world_FP32_predictions_v1",
+        "training_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+        "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "checkpoint": "milestone_0025000",
+        "updates": 25000,
+        "checkpoint_files_sha256": {
+          "mp_rank_00_model_states.pt": "f1c8fead385decd972966a384b98bfce0d48289659e00043bcbb6d6d6f61bc8e",
+          "rng_rank0.pt": "68a5cb68f887210dd0cdc24cf027893d39265b751183a65ba87c4cae8807a739",
+          "rng_rank1.pt": "b7ecf485af7e0da166096aca0eb61c2bdbc0e5a9584fcd858ad745a526ed34b9",
+          "rng_rank2.pt": "81f32501121b8b758a615fbdd9217a00a150e980f61cda333dfc14ed49b08a6f",
+          "rng_rank3.pt": "6dd3610ae9253b147548967dc5b43940c6a9df1847f83af8f8317ebdd06954a9",
+          "rng_rank4.pt": "5d358b2415b1fee9541d9335c6d367ff15fc0eb0aafc8680ac4b651d20e9454e",
+          "rng_rank5.pt": "f60ff6c986a5f59f4f60913f8d1092b7cfd2d286b20d521d4b899bfd7c4d4448",
+          "rng_rank6.pt": "ad26c0371d96b910fc59bf4521c208f6f01c20a2641e5e5dd0b06fb2defba451",
+          "rng_rank7.pt": "2092f19d0da67da1fcdecb98646ca2c1cd02fb3775cbb73b6e18405f5578a2c4",
+          "zero_pp_rank_0_mp_rank_00_optim_states.pt": "dd223a94d6554db48392ddca3a5c6b6cabd5f2dc9ea28bddc9d6dc80533eae0f",
+          "zero_pp_rank_1_mp_rank_00_optim_states.pt": "fa25c71755040567a1288d20517e440b9c08d46821d60efab669bef7a5f753e6",
+          "zero_pp_rank_2_mp_rank_00_optim_states.pt": "2e98cce427a47de1bd41bd5df24a759dbac09b8546f2206b2f65ca1ac708eeb0",
+          "zero_pp_rank_3_mp_rank_00_optim_states.pt": "c66a136d81bcbe292ecb792e19900d15b033b2f048ae98136735f177a4d43c40",
+          "zero_pp_rank_4_mp_rank_00_optim_states.pt": "b8b35810a5eb48551a11a86651afa65667406d02d0ed78e70d3950e4ee9b495a",
+          "zero_pp_rank_5_mp_rank_00_optim_states.pt": "4b5d79ce57e19bcef04ae51f2bd9c4c39c4dd3be440fab1603185dc1b15eb74c",
+          "zero_pp_rank_6_mp_rank_00_optim_states.pt": "716a66b818056e2cfa9295b2ef03f45726b478f245b4fb8a012bcd9f6a735f90",
+          "zero_pp_rank_7_mp_rank_00_optim_states.pt": "587dda287f62e05dadb690ca4c68bc947945e9be15d8899733df11f7ae13a661"
+        },
+        "evaluation_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "evaluation_source_files": {
+          "tools/structured_world/infer_checkpoint.py": "d1132fb66f42b2b70af5467fc347dc3d960cb87af7c5da1fb90bb713401f8333",
+          "starVLA/dataloader/structured_world/current_inputs.py": "ca8980fa3bc7b36ae984bd50dd8ecb5a551db2d4281f39cda8e35b7143122c53"
+        },
+        "input_identity": "b14585d89aecd8f67f088c6cc7eb467dcc12c9a654d9fac0a952626ff5759781",
+        "sampling_seed": 42,
+        "sampling": "independent CPU scene-bound Gaussian, original 10-step FM, one residual and one final candidate",
+        "precision": "FP32 native ZeRO master restore, strict=True; FP32 inference; TF32 disabled",
+        "supervision_heads_removed": false,
+        "scene_diagnostics": false,
+        "identity": "4f96383772131cc7ce10e486d152871f77b570dac641fc1459adbd4047f180e5"
+      },
+      "canonical_contract": {
+        "prediction_identity": "4f96383772131cc7ce10e486d152871f77b570dac641fc1459adbd4047f180e5",
+        "population": "navtest",
+        "index_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+        "adapter_sha256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372",
+        "canonical_adapter_sha256": "7bb032ec7aca4fdd83fd01ceaa4bf388cc94c47952bdc2b578012b654bb525e3",
+        "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+        "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+        "runtime_versions": {
+          "numpy": "1.26.4",
+          "scipy": "1.13.1",
+          "shapely": "2.0.7"
+        },
+        "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+        "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark",
+        "identity": "028507556f97a403b1f58a52a0c112d9eb916199dbe239246f547ae9f4290066"
+      },
+      "scores": {
+        "identity": "028507556f97a403b1f58a52a0c112d9eb916199dbe239246f547ae9f4290066",
+        "seconds": 841.0257290974259,
+        "q0": {
+          "identity": "028507556f97a403b1f58a52a0c112d9eb916199dbe239246f547ae9f4290066",
+          "scenes": 12146,
+          "failed": 0,
+          "valid": true,
+          "scene_csv_sha256": "c76de6f68a3203b689c0dd31c4b21cbbe1de7968e1c70413884528c7c176767e",
+          "metrics": {
+            "score": 0.8353266384616125,
+            "no_at_fault_collisions": 0.974147867610736,
+            "drivable_area_compliance": 0.9272188374773588,
+            "ego_progress": 0.7768858318321564,
+            "time_to_collision_within_bound": 0.9338876996542071,
+            "comfort": 1.0,
+            "driving_direction_compliance": 0.9785937757286349
+          },
+          "zero_fraction": 0.09608101432570394,
+          "main_result": false
+        },
+        "q_final": {
+          "identity": "028507556f97a403b1f58a52a0c112d9eb916199dbe239246f547ae9f4290066",
+          "scenes": 12146,
+          "failed": 0,
+          "valid": true,
+          "scene_csv_sha256": "39b7083e3fd859f7f7f354a92a2ddf131a3d4a21848a777912b48b8d450d788d",
+          "metrics": {
+            "score": 0.8631889233052286,
+            "no_at_fault_collisions": 0.9797464185740161,
+            "drivable_area_compliance": 0.9496953729622921,
+            "ego_progress": 0.8008206439093737,
+            "time_to_collision_within_bound": 0.9468960974806521,
+            "comfort": 1.0,
+            "driving_direction_compliance": 0.9832043471101597
+          },
+          "zero_fraction": 0.06957022888193644,
+          "main_result": true
+        }
+      },
+      "inference_cost": {
+        "seconds": 691.9437430985272,
+        "GPU_hours": 4.515178057321657,
+        "shards": 24,
+        "attempt_reports": 24,
+        "routing": "independent GPU processes with small work leases, exact full-input identity and original scene-bound noise",
+        "completed_utc": "2026-10-11T03:45:56.292748+00:00"
+      },
+      "cost_scope": "Reported inference phase; loading/qualification/CPU preparation and training costs are separate"
+    },
+    {
+      "job": "G3_EVENT_LOCAL_0025000",
+      "prediction_contract": {
+        "schema": "structured_world_FP32_predictions_v1",
+        "training_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+        "training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "checkpoint": "milestone_0025000",
+        "updates": 25000,
+        "checkpoint_files_sha256": {
+          "mp_rank_00_model_states.pt": "83796d6133841700d5e571de4a2e9fdd8838bd67a55b7ce4765b2b81a939c643",
+          "rng_rank0.pt": "d51f067f193ff51b7b5e045e6a037b3fa1ad4a45d250faec4895d9e591c9d054",
+          "rng_rank1.pt": "dab2aba033fec449033dd07f3dcc1b996de583b8eaa4576ad41069e4331153e8",
+          "rng_rank2.pt": "79589a1a6a835e4d11d000d5cd63f45b5312cf58a8153ca04563c01974ea5970",
+          "rng_rank3.pt": "b14a3fc5316bafacaf6ab0003c29f93a57ac9e9a046998241a670059889a54dd",
+          "rng_rank4.pt": "8cffb6d7fc67390b19208cc85b39bb8860650f7315531f7ded2c6ea55a12ae67",
+          "rng_rank5.pt": "c0d0f3ab87396252c0e2e29f5ee1bf2011d128bc373a938bc077ea33ecd19093",
+          "rng_rank6.pt": "05c455eb21079228e2e66fefb73a24a4a6d3e55c31e294435b1078482d7afd49",
+          "rng_rank7.pt": "55c3127ba212da6b69a87f5de0ad18466cf99164b12653dae309b7b275625033",
+          "zero_pp_rank_0_mp_rank_00_optim_states.pt": "5808b33d841f7e1759949b7a375e2d74c5f36abf8fd22ab18cdf5d9b3cc52b8c",
+          "zero_pp_rank_1_mp_rank_00_optim_states.pt": "9f0383d4e7ec7173abf36d23bb0a65c4fce4536c53417909ef015f75323013ba",
+          "zero_pp_rank_2_mp_rank_00_optim_states.pt": "8cef02181473295ec99f1a0a0093a0945cc5f07a8c443afd34910cec0159d62a",
+          "zero_pp_rank_3_mp_rank_00_optim_states.pt": "d92611bee81171a2cae1824d09c114f8063cf8feb64e003c0ea3c47ca9724a49",
+          "zero_pp_rank_4_mp_rank_00_optim_states.pt": "d72f761f5162b6911520a1a7253ba0001bd966a89ecf7f2e8f903501dbf8903d",
+          "zero_pp_rank_5_mp_rank_00_optim_states.pt": "3ba106cbe4cb63e8a19673d8b6fb760f8e0c042cb00b7602843086f4aa97cc59",
+          "zero_pp_rank_6_mp_rank_00_optim_states.pt": "9e42200ca35eaf28bb92a5fe52709a7d98824cb0be436840ba98425d0d25c1c7",
+          "zero_pp_rank_7_mp_rank_00_optim_states.pt": "98f9d7b35395648d988716b1f4bb4bb7a5de5cab757b91a93cbf129628a24f15"
+        },
+        "evaluation_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "evaluation_source_files": {
+          "tools/structured_world/infer_checkpoint.py": "d1132fb66f42b2b70af5467fc347dc3d960cb87af7c5da1fb90bb713401f8333",
+          "starVLA/dataloader/structured_world/current_inputs.py": "ca8980fa3bc7b36ae984bd50dd8ecb5a551db2d4281f39cda8e35b7143122c53"
+        },
+        "input_identity": "b14585d89aecd8f67f088c6cc7eb467dcc12c9a654d9fac0a952626ff5759781",
+        "sampling_seed": 42,
+        "sampling": "independent CPU scene-bound Gaussian, original 10-step FM, one residual and one final candidate",
+        "precision": "FP32 native ZeRO master restore, strict=True; FP32 inference; TF32 disabled",
+        "supervision_heads_removed": false,
+        "scene_diagnostics": false,
+        "identity": "6dbe0f95e6d3dcbbf2ff4b23862ed8800c839bf7bb2e3e776052dfecb0ae3ba6"
+      },
+      "canonical_contract": {
+        "prediction_identity": "6dbe0f95e6d3dcbbf2ff4b23862ed8800c839bf7bb2e3e776052dfecb0ae3ba6",
+        "population": "navtest",
+        "index_sha256": "79c1bcda809bfdb7c945fbc773281d932051b903d277ff76d2b9cb4e5c5f2b4a",
+        "adapter_sha256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372",
+        "canonical_adapter_sha256": "7bb032ec7aca4fdd83fd01ceaa4bf388cc94c47952bdc2b578012b654bb525e3",
+        "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+        "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+        "runtime_versions": {
+          "numpy": "1.26.4",
+          "scipy": "1.13.1",
+          "shapely": "2.0.7"
+        },
+        "protocol": "locked NAVSIM v1 full-reference-cache PDM; original 8 x 0.5s trajectory, 40 x 0.1s simulation",
+        "failure_policy": "keep failed scenes at zero in all summaries and invalidate the benchmark",
+        "identity": "a38326f570b263f8485b2cc52e2fee43a9b94b2f0baa95fff3925489eb460fbf"
+      },
+      "scores": {
+        "identity": "a38326f570b263f8485b2cc52e2fee43a9b94b2f0baa95fff3925489eb460fbf",
+        "seconds": 883.7247225623578,
+        "q0": {
+          "identity": "a38326f570b263f8485b2cc52e2fee43a9b94b2f0baa95fff3925489eb460fbf",
+          "scenes": 12146,
+          "failed": 0,
+          "valid": true,
+          "scene_csv_sha256": "49c96669baedbfab1d4e9f11975f81a7b1b19e9309d6b6aef105c0abbb8c5e0d",
+          "metrics": {
+            "score": 0.8400827527734118,
+            "no_at_fault_collisions": 0.9734892145562325,
+            "drivable_area_compliance": 0.9336407047587684,
+            "ego_progress": 0.7826899174614227,
+            "time_to_collision_within_bound": 0.9306767660135024,
+            "comfort": 1.0,
+            "driving_direction_compliance": 0.982092870080685
+          },
+          "zero_fraction": 0.09031780009879796,
+          "main_result": false
+        },
+        "q_final": {
+          "identity": "a38326f570b263f8485b2cc52e2fee43a9b94b2f0baa95fff3925489eb460fbf",
+          "scenes": 12146,
+          "failed": 0,
+          "valid": true,
+          "scene_csv_sha256": "6721fff174b3825454192a09c55c996a04d6e1bcbbfa15547e0ea7d3b99e76d2",
+          "metrics": {
+            "score": 0.8678970658910203,
+            "no_at_fault_collisions": 0.981310719578462,
+            "drivable_area_compliance": 0.9547176025028816,
+            "ego_progress": 0.805834191936418,
+            "time_to_collision_within_bound": 0.9451671332125803,
+            "comfort": 0.9999176683681871,
+            "driving_direction_compliance": 0.9850979746418574
+          },
+          "zero_fraction": 0.06265437180964926,
+          "main_result": true
+        }
+      },
+      "inference_cost": {
+        "seconds": 737.699623985216,
+        "GPU_hours": 4.5418573052384374,
+        "shards": 23,
+        "attempt_reports": 23,
+        "routing": "independent GPU processes with small work leases, exact full-input identity and original scene-bound noise",
+        "completed_utc": "2026-10-11T04:12:50.819928+00:00"
+      },
+      "cost_scope": "Reported inference phase; loading/qualification/CPU preparation and training costs are separate"
+    }
+  ],
+  "limits": [
+    "Intermediate Navtest requested by user; not an untouched final holdout",
+    "One training seed",
+    "G3 vs G1 jointly changes event target and query distribution; G2 required to separate them",
+    "No raw scene identifiers or private images exported"
+  ]
+}

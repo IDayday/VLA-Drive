@@ -1,0 +1,148 @@
+{
+  "schema": "native_G3_host_stack_not_kernel_breakdown_v1",
+  "pid": 1231650,
+  "tool": "py-spy0.4.2",
+  "sampling": "40seconds,50Hz,nonblocking,include_idle",
+  "main_thread_profile": "Thread 0x7FB9D95D0740 \"MainThread\"",
+  "main_thread_duration": 39.98,
+  "main_thread_samples": 1999,
+  "host_stack_seconds": {
+    "backward": 18.919999999999686,
+    "optimizer": 1.2200000000000006,
+    "Qwen_vision": 3.2000000000000024,
+    "Qwen_other": 2.0000000000000013,
+    "other": 1.700000000000001,
+    "FM": 1.0400000000000005,
+    "proposal": 4.179999999999999,
+    "geometry": 1.4400000000000008,
+    "future": 0.6000000000000002,
+    "FGTR": 1.1400000000000006,
+    "aux_query_sampling": 0.5800000000000002,
+    "auxiliary_losses": 0.8400000000000004,
+    "master_update_evidence": 0.02,
+    "Qwen_input_preprocessing": 3.1000000000000023
+  },
+  "top_leaf_frames": [
+    {
+      "function": "_engine_run_backward",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/autograd/graph.py",
+      "line": 825,
+      "seconds": 18.379999999999697
+    },
+    {
+      "function": "forward",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py",
+      "line": 125,
+      "seconds": 4.839999999999985
+    },
+    {
+      "function": "<listcomp>",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+      "line": 227,
+      "seconds": 1.8200000000000012
+    },
+    {
+      "function": "synchronize",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/cuda/__init__.py",
+      "line": 954,
+      "seconds": 1.5000000000000009
+    },
+    {
+      "function": "<dictcomp>",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/framework/vla_structured_fgtr.py",
+      "line": 121,
+      "seconds": 0.9800000000000005
+    },
+    {
+      "function": "normalized_reference",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/structured_world/grid.py",
+      "line": 40,
+      "seconds": 0.9000000000000005
+    },
+    {
+      "function": "forward",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/_functions.py",
+      "line": 97,
+      "seconds": 0.8200000000000004
+    },
+    {
+      "function": "_preprocess",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl_fast.py",
+      "line": 257,
+      "seconds": 0.7200000000000003
+    },
+    {
+      "function": "sample_queries",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/structured_world/queries.py",
+      "line": 43,
+      "seconds": 0.5400000000000001
+    },
+    {
+      "function": "_preprocess",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl_fast.py",
+      "line": 268,
+      "seconds": 0.38000000000000006
+    },
+    {
+      "function": "sdpa_attention_forward",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py",
+      "line": 96,
+      "seconds": 0.34
+    },
+    {
+      "function": "_preprocess",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl_fast.py",
+      "line": 236,
+      "seconds": 0.32
+    },
+    {
+      "function": "maybe_to",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/feature_extraction_utils.py",
+      "line": 240,
+      "seconds": 0.32
+    },
+    {
+      "function": "_preprocess",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl_fast.py",
+      "line": 237,
+      "seconds": 0.27999999999999997
+    },
+    {
+      "function": "layer_norm",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/functional.py",
+      "line": 2900,
+      "seconds": 0.27999999999999997
+    },
+    {
+      "function": "normalized_reference",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/structured_world/grid.py",
+      "line": 43,
+      "seconds": 0.27999999999999997
+    },
+    {
+      "function": "_deepstack_process",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+      "line": 907,
+      "seconds": 0.27999999999999997
+    },
+    {
+      "function": "normalize_image",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torchvision/transforms/v2/functional/_misc.py",
+      "line": 65,
+      "seconds": 0.27999999999999997
+    },
+    {
+      "function": "rescale_and_normalize",
+      "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py",
+      "line": 472,
+      "seconds": 0.25999999999999995
+    },
+    {
+      "function": "forward",
+      "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+      "line": 351,
+      "seconds": 0.23999999999999996
+    }
+  ],
+  "limitations": "One rank Python thread residency includes launch gaps and waiting; not CUDA kernel times, not a mutually exclusive multi-stream GPU breakdown. Native job neither paused nor changed. Input-preprocessing call includes device submission/waiting and must not be interpreted as pure CPU-only time."
+}
