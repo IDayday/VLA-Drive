@@ -1,0 +1,77 @@
+{
+  "PLAN": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/native_shared_recollected_zt3_v1/FROZEN_PHASE_V1/PLAN.json",
+    "sha256": "d8e5baa6ca0c8b2e106f0efdd14045e9fc8b5d1152b115c17cbe88adcf10e6d1"
+  },
+  "actual_freeze": {
+    "GPU_jobs_started": 0,
+    "actual_qualification_GPU_hours": 0.4442724577555555,
+    "banks": 30,
+    "exit": 0,
+    "jobs": 6,
+    "qualified_PID": 8373,
+    "tool_session": 86440
+  },
+  "created_UTC": "2026-10-11T16:29:44.284991+00:00",
+  "criteria": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+    "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "integration_pending": [
+    "execution_e2_provenance.native_facts actual triplet integration (500 banks unavailable)",
+    "New mixed869/same-mode recovery whole evaluator and cold formalguard hookup; be5 guard remains unchanged",
+    "Updated metadata-only fullgrad classifier source pin/CPU receipt for retained firstslot and fresh11"
+  ],
+  "manifest": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/native_shared_recollected_zt3_v1/FROZEN_PHASE_V1/MANIFEST.json",
+    "sha256": "f38fdd27c441b6225ce541833dc39647733d1480c87c89b79cf94b25126e99af"
+  },
+  "no_commit_or_GPU_launch_by_this_sidecar": true,
+  "phase_enrollment": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/native_shared_recollected_zt3_v1/FROZEN_PHASE_V1/PHASE_ENROLLMENT.json",
+    "sha256": "c8cf4651d10f2a2910f9c17d721bfe56c0b9a9d9ec6df9d1bfe218512c36dfcf"
+  },
+  "ready_interface": "freeze_native_e2_phase.py CLI and native phase enrollment/plan; cold68 dispatch byparentONLY",
+  "schema": "native_E2_CPU_stable_handoff_v1",
+  "source_refs": {
+    "tools/structured_world/execution_e2_provenance.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/execution_e2_provenance.py",
+      "sha256": "c5bc88fa408f26fae7eadb105212f9f843d7a5faf144da92ac5113ae16fd2ba0"
+    },
+    "tools/structured_world/freeze_native_e2_phase.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/freeze_native_e2_phase.py",
+      "sha256": "26d59186b62e79c0acb17fa1baa36d39f4a8c2d36cd3a57bebaf503d38465565"
+    },
+    "tools/structured_world/prepare_execution_e2_envelope.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/prepare_execution_e2_envelope.py",
+      "sha256": "727ceb061e512956782f9eb14c090b0bfc92ac52c34c51a0368766a3aa344302"
+    },
+    "tools/structured_world/test_execution_e2_provenance.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_execution_e2_provenance.py",
+      "sha256": "7155d5e4c30d9d8aac4552228ea1cea429961f119870ae2d8d4644a687149191"
+    },
+    "tools/structured_world/test_prepare_execution_e2_envelope.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_prepare_execution_e2_envelope.py",
+      "sha256": "dd9c40a3d023118b60664e29e442d38b52626e9d3dbeeda4fe7bbab98171127f"
+    }
+  },
+  "tests": {
+    "actual_exit": 0,
+    "cases": 34,
+    "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 python -B -m unittest discover -s tools/structured_world -p test_execution_e2_provenance.py -v",
+    "fixtures": "Synthetic small CPU metadata, no numerical native tensor acceptance",
+    "unique_controls": 20,
+    "wall_suite_seconds": 0.029
+  },
+  "unchanged_numeric_failure": {
+    "failures": [
+      "gradient/by_optimizer_group/1/AA_B/norm_relative: fresh AA envelope"
+    ],
+    "formal_acceptance": false,
+    "old_strict_and_this_failure_preserved": true,
+    "reference": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v2_zt4_actual/UNCHANGED_NUMERIC_COMPONENT_REVIEW.json",
+      "sha256": "eb90cf9790a563e0b9d5dfd7df878b21aa225f97b2f416f3f0701fa1fb72b5c9"
+    }
+  }
+}

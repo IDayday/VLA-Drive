@@ -1,0 +1,207 @@
+{
+  "schema": "remaining11_and_native_route_CPU_handoff_v1",
+  "created_UTC": "2026-10-11T16:50:26.640391+00:00",
+  "scope": "CPU-only external registrations/route preparation. No GPU dispatch, signals, payload transfer, deletion, commit or frozen source edit.",
+  "forward_enrollment": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/prospective_E2_envelope_cpu_v1/FORWARD_REMAINING11_FROZEN_V4/ENROLLMENT.json",
+    "sha256": "2dd8ccc7101fa5a9e59814ef1fb708787aaed3b3b8ed7d76ead1bb7f3a432bd3"
+  },
+  "forward_handoff": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/prospective_E2_envelope_cpu_v1/FORWARD_REMAINING11_FROZEN_V4/HANDOFF.json",
+    "sha256": "1d7ef49c7b40f3b8189dd1be6e19eebf836445d8f6139e979e215787d64c6a4c"
+  },
+  "new_coordinator_git": "c86285df9c9356729c2c5af96b6caf47421a1f9d",
+  "new_coordinator_script_sha256": "50160a20e75746014a7e3779532e7d15d4c01c09e2c9b3bf8c5f461577d56602",
+  "actual_CPU_prefix_reclassification": {
+    "host": "training-vlawm-zt4",
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": 2,
+    "OPENBLAS_NUM_THREADS": 2,
+    "returncode": 0,
+    "plan": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/prospective_E2_envelope_cpu_v1/FORWARD_REMAINING11_FROZEN_V4/PLAN_CPU_ONLY.json",
+      "sha256": "0b02441d6ab5cf32009b185d5c9bcec58e246678f68b4a2278310cd2d1dd3115"
+    },
+    "parent_local_initial_CPU_attempt": "Stopped before enrollment because old first-slot optimizer_groups.json resides only in zt4 /var/tmp. Same cold CPU build_plan then completed on zt4; no fake relocated origin or GPU rerun."
+  },
+  "chronology": {
+    "prefix_exemption": {
+      "GPU_reexecution_allowed": false,
+      "new_enrollment_applies": false,
+      "reason": "Already executed under its ORIGINAL pre-A enrollment and dispatcher; new freeze is NOT before this old A",
+      "slot": [
+        "G1",
+        "initial",
+        0
+      ]
+    },
+    "remaining_slot_start_requirement": "All actual A/AA/B role starts and each new PROCESS >= 2026-10-11T16:48:26.381891+00:00",
+    "remaining_slots_before_A": [
+      [
+        "G1",
+        "initial",
+        1
+      ],
+      [
+        "G1",
+        "initial",
+        2
+      ],
+      [
+        "G3",
+        "initial",
+        0
+      ],
+      [
+        "G3",
+        "initial",
+        1
+      ],
+      [
+        "G3",
+        "initial",
+        2
+      ],
+      [
+        "G1",
+        "mid",
+        0
+      ],
+      [
+        "G1",
+        "mid",
+        1
+      ],
+      [
+        "G1",
+        "mid",
+        2
+      ],
+      [
+        "G3",
+        "mid",
+        0
+      ],
+      [
+        "G3",
+        "mid",
+        1
+      ],
+      [
+        "G3",
+        "mid",
+        2
+      ]
+    ]
+  },
+  "original_prefix_dispatch_source": "ccbda534adc63e71425143c61a98af9381b31416 / 0e0d786fa7f2d380b77f24e880e02fe98311b4b95c044209f48addab0643f886",
+  "mandatory_numeric_negative": {
+    "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/p0_gradient_v2_zt4_actual/UNCHANGED_NUMERIC_COMPONENT_REVIEW.json",
+    "sha256": "eb90cf9790a563e0b9d5dfd7df878b21aa225f97b2f416f3f0701fa1fb72b5c9"
+  },
+  "retained_numeric_failures": [
+    "gradient/by_optimizer_group/1/AA_B/norm_relative: fresh AA envelope"
+  ],
+  "remaining_GPU_jobs_registered": 11,
+  "GPU_jobs_started_by_this_agent": 0,
+  "native_route_phase": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/native_shared_recollected_zt3_v1/FROZEN_ROUTE_V3/PHASE_ENROLLMENT.json",
+    "sha256": "cc63d21d81c2ccdce1f854d5eaeef8ed0053087875bcd43963513528897aa8fc"
+  },
+  "native_route_handoff": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/acceptance/native_shared_recollected_zt3_v1/FROZEN_ROUTE_V3/HANDOFF.json",
+    "sha256": "868b8a2f4dedf931e250347aac45d3dee6337c491265eb7654694e4b5008de49"
+  },
+  "native_selected_jobs": 3,
+  "native_planned_full_banks": 15,
+  "native_boundaries": [
+    1,
+    32,
+    100,
+    250,
+    500
+  ],
+  "native_v2_failed_GPU_hours": 0.025499398957777777,
+  "native_route_fix": "Only qualified lexical current image alias, NEW output and owned storage paths; physical shared bytes and cold be5/68 remain unchanged.",
+  "native_full_comparisons_performed": 0,
+  "CPU_controls": {
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "unittest",
+      "test_enroll_fullgrad_remaining11",
+      "test_freeze_native_e2_route_v3",
+      "test_prepare_native_e2_comparisons"
+    ],
+    "workdir": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world",
+    "CUDA_VISIBLE_DEVICES": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "tests": 20,
+    "returncode": 0,
+    "unittest_seconds": 0.004,
+    "actual_tool_output": "....................\n----------------------------------------------------------------------\nRan 20 tests in 0.004s\n\nOK\n",
+    "coverage": "Five chronological prefix/coverage controls; five lexical alias/scientific-arg preservation controls; ten full comparator command/readiness controls. These CPU controls are not native tensor or formal numerical acceptance."
+  },
+  "sources": {
+    "prepare_execution_e2_envelope.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/prepare_execution_e2_envelope.py",
+      "sha256": "727ceb061e512956782f9eb14c090b0bfc92ac52c34c51a0368766a3aa344302"
+    },
+    "test_prepare_execution_e2_envelope.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_prepare_execution_e2_envelope.py",
+      "sha256": "dd9c40a3d023118b60664e29e442d38b52626e9d3dbeeda4fe7bbab98171127f"
+    },
+    "execution_e2_provenance.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/execution_e2_provenance.py",
+      "sha256": "c5bc88fa408f26fae7eadb105212f9f843d7a5faf144da92ac5113ae16fd2ba0"
+    },
+    "freeze_native_e2_phase.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/freeze_native_e2_phase.py",
+      "sha256": "26d59186b62e79c0acb17fa1baa36d39f4a8c2d36cd3a57bebaf503d38465565"
+    },
+    "test_execution_e2_provenance.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_execution_e2_provenance.py",
+      "sha256": "7155d5e4c30d9d8aac4552228ea1cea429961f119870ae2d8d4644a687149191"
+    },
+    "freeze_native_e2_route_v3.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/freeze_native_e2_route_v3.py",
+      "sha256": "90af253f63d3232dfa285c72b9c48b21a37a586f77ec357ef78841d495125777"
+    },
+    "test_freeze_native_e2_route_v3.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_freeze_native_e2_route_v3.py",
+      "sha256": "27b4015f46484e7237aa685c53c2964e21236b1192938166ffc557ab0c727f0f"
+    },
+    "prepare_native_e2_comparisons.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/prepare_native_e2_comparisons.py",
+      "sha256": "3029bfc9e7b029856ef7634d9061f4de765876c9d3ce1402ca3afe4676d7be93"
+    },
+    "test_prepare_native_e2_comparisons.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_prepare_native_e2_comparisons.py",
+      "sha256": "384a5a679630f47ee619237a1b0583d452570a84d7eaa1ac336a9d68a5017ba9"
+    },
+    "enroll_fullgrad_remaining11.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/enroll_fullgrad_remaining11.py",
+      "sha256": "67d61d46d88385c0feab79565bb7a966854b87c7d82d95338d15012d0d1d5f51"
+    },
+    "test_enroll_fullgrad_remaining11.py": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_enroll_fullgrad_remaining11.py",
+      "sha256": "08e538137368eae3286769b66e72d5b178b1a6cf662d8b5aed2e7e79490715f5"
+    }
+  },
+  "stable_for_selective_commit": [
+    "freeze_native_e2_route_v3.py",
+    "test_freeze_native_e2_route_v3.py",
+    "prepare_native_e2_comparisons.py",
+    "test_prepare_native_e2_comparisons.py",
+    "enroll_fullgrad_remaining11.py",
+    "test_enroll_fullgrad_remaining11.py"
+  ],
+  "remaining_WIP": "Mixed provenance whole E2 evaluator/cold formalguard hookup and native_facts full 500-bank integration are not accepted or claimed complete. Current preserved real first-slot numeric failure prevents whole formal acceptance.",
+  "old_bytes_rechecked_unchanged": true,
+  "criteria_changed": false,
+  "old_strict_rewritten": false,
+  "passed": false,
+  "formal_authorized": false,
+  "trainer_consumable": false
+}

@@ -1,0 +1,7 @@
+CPU 准备已稳定：prepare_execution_e2_envelope.py 及25项控制测试可交父端冷冻结；没有启动GPU、读取真实checkpoint大payload、移动或删除权重。
+
+a520 coordinator 所绑定的 forward V1 只保留为原版本记录，已另记869/44上下文缺陷，不能用于修复后的新派发。V2须用修复后实际冷冻结root/完整commit/脚本SHA，明确绑定be5模型、746 fullgrad producer与869 sidecar，在新B开始前生成独立新文件；旧819/44/869、原strict失败与阈值不改。
+
+forward-only冻结不等于完整E2验收。native500五边界、同模式恢复真实边界和canonical dev尚缺实际receipt；旧assembler对单binding、split16与+32及恢复controls的接口差异均已记录，不能靠重标元数据补齐。
+
+共享存储新方案以父端清理和实测容量为前提，一次完成一个group全部15bank与五边界全量CPU比较，然后才按父端review清单清理新中间payload；保留500/currentresume、保护origin/正式/评估资产与负结果metadata。scratch helper未实现且已放弃。

@@ -1,0 +1,50 @@
+{
+  "actual_available_GiB_snapshot": 727.7299194335938,
+  "actual_available_path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011",
+  "all5_native_observations_required": [
+    1,
+    32,
+    100,
+    250,
+    500
+  ],
+  "alternative_shared_only": {
+    "all15_unpruned_GiB": 634.5,
+    "available_snapshot_can_fit_unpruned_with_reserve": false,
+    "missing_backpressure_hook": "No existing code consumes a CPU-comparison/pruning readiness hook; do not assume CPU will always finish before next save. Native storage admission can stop owned pilot safely but uninterrupted500 is not guaranteed. Thus less simple than bounded scratch.",
+    "order": "A500 thenAA500 thenB500, perform full triplet CPU comparisons asB checkpoints appear; release only NEW completed intermediate triplets after verified statistics and exact payload receipts, retain500/latest/recovery.",
+    "reserve_GiB": 145,
+    "unpruned_plus_reserve_GiB": 779.5
+  },
+  "created_utc": "2026-10-11T15:13:04.124473+00:00",
+  "exclusive_reservation_claim": false,
+  "no_data_moves_or_deletions_performed": true,
+  "quota_status": "not_exposed_here_not_unlimited_verified",
+  "recommended_option": {
+    "checkpoint_rule": "Native trainer saves with original schema. Only after a newer shared latest bank is complete, move the previous NEW diagnostic1/32/100/250 bank payloads to named local scratch, verify both hashes, keep all shared run metadata and immutable original COMPLETE/hash manifest. Never move current latest,500,formal/origin or recovery banks. Registered pointers must state local scratch dependence and cannot claim durable payloads. No code/tool doing these moves was written here.",
+    "code_and_originals": "Use existing cold /mnt/project code, immutable shared original origins/geometry/labels/DINO, new persistent current images; no new local clones required",
+    "cpu_compare": "After A/AA/B500 each group, full CPU compare all five boundaries onzt3, threads2/chunk262144. Actual17payloads perbank and all-rank integrity, old strict fail exit2, E1/scopes/numeric criteria retained. Only independently validated NEW scratch intermediates may be released under explicit plan.",
+    "current_latest_and_writing_headroom_GiB_estimate": 84.6,
+    "does_not_count_metadata_dev_or_new_recovery_banks": true,
+    "endpoint": "Every actual500 bank remains fully shared,17real payloads including8RNGfiles; canonical dev and future rollback depend only on persistent shared originals/endpoints.",
+    "illustrative_peak_requirement_GiB": 543.4,
+    "local_scratch_upper_GiB_estimate": "4intermediate banks x6roles x42.3 ~=1015.2; available2.8TB was parent observation, not our reservation",
+    "name": "Shared persistent metadata/latest/endpoints; bounded rebuildable intermediate payload scratch",
+    "new_current_images_GiB_estimate": 60,
+    "new_run_root": "Parent-chosen NEW shared native_zt3_recollected_p0_v2 root; not yet physically bound",
+    "physical_free_reserve_GiB": 145,
+    "recovery_order": "Run required recovery after mid comparisons. Bind actual persistent recovery banks separately and remeasure free space; do not assume two full recovery sets plus every diagnostic bank fit.",
+    "risk": "Additional copy/hash/IO wall and GPU exposure belong to pilot cost, not stable benchmark throughput; scratch loss before complete comparison leaves that observation pending, never recoverable by metadata alone",
+    "runtime": "Exact staged runtime may be local per latest explicit preference, remeasure after container recovery",
+    "shared_full_endpoint_GiB_estimate": 253.8
+  },
+  "safety": [
+    "No old/formal/origin/zt3historical bank deletions",
+    "No schema/algorithm/RNG/schedule/batch/capture change",
+    "No observed comparison or acceptance claimed",
+    "OS EDQUOT/ENOSPC fail preserves preceding banks; no automatic retry",
+    "Physical free+nextcheckpoint and ownedpool/run caps are rechecked at every save/copy; quota unknown is disclosed"
+  ],
+  "schema": "prospective_E2_storage_order_options_v1",
+  "state": "PROPOSED_CPU_ONLY_PARENT_SELECTS_BEFORE_PHYSICAL_BINDING"
+}

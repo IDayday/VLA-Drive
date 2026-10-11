@@ -1,0 +1,322 @@
+{
+  "E1": {
+    "binding_rule": "Freeze a separate adopted pilot binding manifest with registration hash and exact role/case/control assignment facts BEFORE candidate B execution starts. Null/empty bindings remain pending; mismatches reject. Pre-candidate reference-only A/AA evidence is disclosed and cannot retroactively qualify old candidates. Role source differences must be separately pinned.",
+    "exact_checks": [
+      "step",
+      "scheduler",
+      "parameter_inventory",
+      "optimizer_groups",
+      "data_epoch_offset",
+      "RNG",
+      "BN_type_counter_population",
+      "checkpoint_ancestry",
+      "full_rank_coverage"
+    ],
+    "recovery_rule": "Same-mode continuous vs split/resume at a saved boundary: native load boundary MUST be bitwise exact for FP32 master/model/Adam/BN/RNG and discrete state. Post-resume continuation retains strict failures and uses the same prospective tier budget.",
+    "required_case_fields": [
+      "origin",
+      "optimizer_groups_sha256",
+      "parameter_inventory_sha256",
+      "gradient_inventory_sha256",
+      "forward_module_inventory"
+    ],
+    "required_environment_fields": [
+      "python",
+      "torch",
+      "cuda_runtime",
+      "cuda_driver",
+      "cudnn",
+      "nccl",
+      "deepspeed",
+      "transformers",
+      "flash_attn",
+      "numpy",
+      "gpu_model",
+      "world_size",
+      "TF32",
+      "determinism",
+      "sync_BN",
+      "activation_checkpoint_policy",
+      "model_dtype",
+      "master_dtype",
+      "optimizer_dtype"
+    ],
+    "required_origin_fields": [
+      "identity",
+      "completed",
+      "COMPLETE_sha256",
+      "payload_manifest_sha256"
+    ],
+    "required_science_fields": [
+      "training_source_sha",
+      "config_sha256",
+      "training_population_sha256",
+      "current_and_GT_identity",
+      "DINO_identity",
+      "calibration_axis_sha256",
+      "batch_order_sha256",
+      "training_seed",
+      "global_batch",
+      "FM_repeat",
+      "schedule_sha256",
+      "schedule_horizon",
+      "warmup",
+      "loss_definition_sha256",
+      "execution_mode_flags_sha256",
+      "physical_conversion_sha256"
+    ],
+    "required_source_fields": [
+      "git_sha",
+      "files_sha256"
+    ],
+    "same_input_rule": "All 8 ranks, complete parameter gradients, no parameter/rank sampling. GPU ranks are NOT independent AA replicates."
+  },
+  "E2": {
+    "claim": "Execution preservation within a NEW prospectively fixed AA-relative pilot budget; not bitwise optimizer equivalence or a proof of lossless long training.",
+    "forward_by_mode": {
+      "engineering_fast": {
+        "module_tolerances": null,
+        "reason": "P0 common-computation hoisting retains the observed same-input exact path. Native gradients and continued BN remain separately assessed.",
+        "required_exact": [
+          "q0",
+          "Bt",
+          "q_final",
+          "loss"
+        ]
+      },
+      "engineering_timevec": {
+        "module_tolerances": {
+          "atol": 1e-06,
+          "physical_q_final_max_position_error_m": 0.0001,
+          "relative_L2_max": 0.0001,
+          "rtol": 0.0001,
+          "scope": "Complete Bt/q_final/total loss and all registered diagnostic/task-loss modules on every rank; both A_B and AA_B.",
+          "zero_reference": "Exact zero required."
+        },
+        "reason": "B*T batching/einsum changes FP32 reduction order. These are NEW fixed forward criteria, not revisions to the old bitwise full validator. Absolute physical trajectory bound prevents normalized-scale ambiguity. No AB timevec result was available when these criteria were written.",
+        "required_exact": [
+          "q0"
+        ]
+      }
+    },
+    "modes": [
+      "engineering_fast",
+      "engineering_timevec"
+    ],
+    "native_continuation_BN": "Float BN values may drift after different native CUDA gradients. E2 same-input BN_float exact is NOT a claim of long-continuation BN bitwise equivalence. Native checkpoint old strict failures remain; dtype/counter/mode/population stay E1 exact.",
+    "old_full_validator": "Original q0/q_final bitwise, original module and gradient strict results stay unchanged; timevec can fail old strict and remain only an independent pilot candidate.",
+    "same_input_forward_exact": [
+      "RNG",
+      "BN_float",
+      "BN_counter",
+      "buffer_inventory",
+      "gradient_inventory"
+    ]
+  },
+  "dev": {
+    "bootstrap": {
+      "family": "2 groups x 2 variants x 2 references x 3 guard metrics x max 2 prospectively registered candidates",
+      "lower_quantile": 0.0010416666666666667,
+      "one_sided_family_alpha": 0.05,
+      "replicates": 20000,
+      "seed": 42,
+      "simultaneous_endpoints": 48,
+      "unit": "log",
+      "weighting": "Pooled sampled log sums divided by sampled scene counts"
+    },
+    "candidate_count": 1,
+    "canonical_inference_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+    "full_canonical_gate": "No sampled dev proxy can satisfy completion; all 1696 rows, all 16 logs and both variants mandatory.",
+    "inconclusive": "A mean within margin but CI below margin remains pending; a mean below margin rejects. No widening margins after seeing receipts. Only 16 logs, one training seed; no long-run or Navtest claim.",
+    "logs": 16,
+    "mean_guard_metrics": [
+      "PDMS",
+      "NC",
+      "TTC"
+    ],
+    "metrics": {
+      "DAC": "drivable_area_compliance",
+      "DDC": "driving_direction_compliance",
+      "EP": "ego_progress",
+      "NC": "no_at_fault_collisions",
+      "PDMS": "score",
+      "TTC": "time_to_collision_within_bound",
+      "comfort": "comfort"
+    },
+    "noninferiority_margins_points": {
+      "NC": 0.1,
+      "PDMS": 0.1,
+      "TTC": 0.1
+    },
+    "population": "dev",
+    "precision": "FP32",
+    "proposal_steps": 10,
+    "protocol_bindings": [
+      "input_identity",
+      "calibration_axis_sha256",
+      "metric_index_sha256",
+      "scoring_version",
+      "backend_source_sha256",
+      "backend_environment_sha256"
+    ],
+    "roles": [
+      "A",
+      "AA",
+      "B"
+    ],
+    "rule": "At +500 BOTH q0 and q_final B-A and B-AA mean deltas AND simultaneous one-sided log-bootstrap lower bounds must be >= -margin for PDMS/NC/TTC. ALL rows must be finite/ok and independently match exact 1696 token/log index; summaries must match CSV means. q_final-q0 gain is diagnostic, cannot hide either variant regression.",
+    "sampling_seed": 42,
+    "scenes": 1696,
+    "variants": [
+      "q0",
+      "q_final"
+    ]
+  },
+  "numeric": {
+    "AA_control_policy": "Fresh AA must meet the tier absolute ceiling too. An unstable control cannot grant acceptance to an unstable candidate.",
+    "E2_AA_envelope": {
+      "factor": 1.25,
+      "floors": {
+        "cosine_error": 1e-08,
+        "norm_relative": 1e-06,
+        "relative_L2": 1e-06,
+        "update_cosine_error": 1e-07,
+        "update_error": 0.0001,
+        "update_norm_relative": 0.001
+      }
+    },
+    "E2_absolute": {
+      "BN": {
+        "cosine_error": 0.001,
+        "norm_relative": 0.01,
+        "relative_L2": 0.01,
+        "update_cosine_error": 0.005,
+        "update_error": 0.1,
+        "update_norm_relative": 0.05
+      },
+      "gradient": {
+        "cosine_error": 0.0005,
+        "norm_relative": 0.01,
+        "relative_L2": 0.02
+      },
+      "moment": {
+        "cosine_error": 0.005,
+        "norm_relative": 0.05,
+        "relative_L2": 0.1,
+        "update_cosine_error": 0.005,
+        "update_error": 0.1,
+        "update_norm_relative": 0.05
+      },
+      "state": {
+        "cosine_error": 1e-05,
+        "norm_relative": 0.001,
+        "relative_L2": 0.001,
+        "update_cosine_error": 0.001,
+        "update_error": 0.05,
+        "update_norm_relative": 0.02
+      }
+    },
+    "E3_absolute": {
+      "BN": {
+        "cosine_error": 0.005,
+        "norm_relative": 0.02,
+        "relative_L2": 0.02,
+        "update_cosine_error": 0.01,
+        "update_error": 0.2,
+        "update_norm_relative": 0.1
+      },
+      "gradient": {
+        "cosine_error": 0.0025,
+        "norm_relative": 0.02,
+        "relative_L2": 0.05
+      },
+      "moment": {
+        "cosine_error": 0.01,
+        "norm_relative": 0.1,
+        "relative_L2": 0.15,
+        "update_cosine_error": 0.01,
+        "update_error": 0.2,
+        "update_norm_relative": 0.1
+      },
+      "state": {
+        "cosine_error": 0.0001,
+        "norm_relative": 0.005,
+        "relative_L2": 0.005,
+        "update_cosine_error": 0.005,
+        "update_error": 0.1,
+        "update_norm_relative": 0.05
+      }
+    },
+    "comparison_scopes": [
+      "all",
+      "by_component",
+      "by_optimizer_group"
+    ],
+    "quantiles": "Report per logical tensor max-absolute p50/p90/p99 and worst tensors unchanged; heterogeneous tensor units prevent pooling raw max-absolute into one replacement tolerance.",
+    "required_native_categories": [
+      "model_FP32",
+      "master_FP32",
+      "Adam/exp_avg",
+      "Adam/exp_avg_sq",
+      "BN_float"
+    ],
+    "stage_drift": {
+      "E2_max_positive_OLS_slope_per_468_updates": 0.25,
+      "E3": "Report same drift trajectory; apply E3 absolute ceilings at EVERY registered boundary, do not label precision drift as E2 non-amplification.",
+      "metric": "A_B relative_L2 / (A_A relative_L2 + E2 registered floor)",
+      "updates": [
+        32,
+        100,
+        250,
+        500
+      ]
+    },
+    "zero_norm_policy": "If reference norm or update norm is zero, require ALL compared values/updates zero; no epsilon-denominator acceptance."
+  },
+  "passed": false,
+  "registration": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+    "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "trial_plan": {
+    "FM_repeat": 8,
+    "dev_after_updates": 500,
+    "dev_stages": [
+      "mid"
+    ],
+    "forward_repeats": 3,
+    "forward_updates": 0,
+    "global_batch": 32,
+    "groups": [
+      "G1",
+      "G3"
+    ],
+    "initial_native_updates": [
+      1
+    ],
+    "limits": "One 500-step triplet per mid origin is a bounded pilot, not a statistical proof over training seeds. Frozen native reference, replay and candidate consume identical ordered batches.",
+    "max_candidates": 2,
+    "mid_native_updates": [
+      1,
+      32,
+      100,
+      250,
+      500
+    ],
+    "native_repeats": 1,
+    "optional_extension_1000": "Separate prospective amendment/manual review; never automatic and never revise thresholds after seeing the candidate.",
+    "proposal_steps": 10,
+    "recovery_updates": 32,
+    "roles": [
+      "A",
+      "AA",
+      "B"
+    ],
+    "stages": [
+      "initial",
+      "mid"
+    ],
+    "training_seed": 42,
+    "world_size": 8
+  }
+}
