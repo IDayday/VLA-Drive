@@ -30,6 +30,8 @@ Formal expert: AdamW, lr3e-4, wd0.01, global128, micro128 on one GPU, max3000 op
 "$IQE_PY" -m iqe.cli freeze-base --config "$IQE_CONFIG" --checkpoint "$IQE_BASE" --mode full --max-samples 101592 --device cpu
 ```
 
+Preflight reports the immutable historical framework scope, whose original status remains FRAMEWORK_BOUND_QUERY_UNTRAINED; it now preserves the explicit22k checkpoint in the resolved launch config. The actual trained experiment identity is separately checked in LOCKED_S0 by freeze/use-locked.
+
 The evaluate-base result is complete and revalidated/reused on CPU with the same command and `--device cpu`; no GPU is needed for valid cached completion. If a score failed transiently, rerun the same evaluation identity: only failed labels retry, within `base_evaluation.scoring_attempts_per_scene_per_call`. Do not delete its historical attempts. Qualification is engineering eligibility to investigate this actual trained Base; it does not establish convergence or permit serving release. No new navtest command is included.
 
 ## Formal input preparation (full jobs not executed)

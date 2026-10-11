@@ -1,0 +1,23 @@
+Sun Oct 11 03:15:42 UTC 2026
+    PID    PPID                  STARTED STAT COMMAND
+2124247       1 Fri Oct  9 23:57:22 2026 Ssl  /root/miniconda3/envs/ddp/bin/python -u -m torch.distributed.run --standalone --nproc_per_node=8 -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+/mnt/project/DriveVLA-M0-iqe-20261009
+0, NVIDIA A800-SXM4-80GB, 0 %, 43935 MiB, 81920 MiB
+1, NVIDIA A800-SXM4-80GB, 0 %, 44613 MiB, 81920 MiB
+2, NVIDIA A800-SXM4-80GB, 0 %, 44079 MiB, 81920 MiB
+3, NVIDIA A800-SXM4-80GB, 0 %, 44639 MiB, 81920 MiB
+4, NVIDIA A800-SXM4-80GB, 0 %, 44639 MiB, 81920 MiB
+5, NVIDIA A800-SXM4-80GB, 0 %, 44629 MiB, 81920 MiB
+6, NVIDIA A800-SXM4-80GB, 0 %, 44391 MiB, 81920 MiB
+7, NVIDIA A800-SXM4-80GB, 0 %, 44269 MiB, 81920 MiB
+2124255, 43926 MiB
+2124256, 44604 MiB
+2124257, 44070 MiB
+2124258, 44630 MiB
+2124259, 44630 MiB
+2124260, 44620 MiB
+2124261, 44382 MiB
+2124262, 44260 MiB
+Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on
+100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 429996057681920 2818534154240 100% /mnt/project
+{"optimizer_step": 22887, "losses": {"interaction": 0.006103765219449997, "current_dino": 0.018330492079257965, "future_clip": 0.39942386746406555, "ego_il": 0.19210658967494965}, "gradient_norm": 5.376224040985107, "actual_global_batch": 32, "sample_ids": ["489dad7a8d2d5310", "abc48f73faaf5405", "ae715938c3c35048", "1a70a392f7e956b5", "52390e6d440f5bab", "ba0be5b087db5af8", "8fb2417791065290", "b1a6246336955a1f", "13ea8b06c2545e7b", "c852239b5ac95394", "6a4c2f5a5b6053bf", "2781dea601aa586f", "a7912413421a56e9", "a002172f650e5a36", "9b64afa1d0bc5fae", "701fa7d4d23b518b", "955b38377b8559cd", "a6558db75cae5e56", "c92590b716c25b0e", "3a32348a66e35361", "d62c5ef68d295ed7", "c8358de7630b5a31", "2d5e54d0896a535f", "4f694637d843574f", "d90466c1546c59b7", "f0aa6ac1ec1e531e", "b66b2171bb6f5874", "acefc5a4b10f58c3", "6b9faf5aefa652be", "dceb82cb01ec56a6", "036d62c5d61a57cf", "a986cdfc4dd450b9"], "seconds_per_update": 4.293136338373198, "compute_update_seconds": 3.913520721718669, "retained_objectives": ["ego_il", "current_dino", "future_clip", "interaction"], "learned_driving_weights_loaded": false, "status": "RUNNING"}

@@ -13,3 +13,5 @@ The qualified execution profile used another free host, `training-vlawm-zt`, and
 Existing navtest observer PID1181750 was verified alive; start2026-10-10 17:45:57UTC, unchanged `SCHEDULE_PLAN.json`. Its existing20k/50k/100k plan was not expanded, stopped or redirected. Observed20k full navtest PDMS87.1802704/100 over12,146 scenes is historical monitoring evidence, separate from the32-scene22k engineering qualification. No test failure cases entered training or calibration.
 
 No live training worktree, checkpoint, optimizer definition or monitoring plan was hot-modified. CPU diagnostic process1298470 was the only owned task stopped, after cmdline/cwd verification, to move our inefficient qualification forward to a separate GPU diagnostic root; its partial artifacts and migration receipt were preserved. This was not the ongoing Base.
+
+Delivery recheck: Sun Oct 11 03:15:42 UTC 2026, step22887, same launcher/PIDs/cwd and no competing GPU process; current losses/gradient remain finite. Full refreshed snapshot `evidence/LIVE_BASE_AT_DELIVERY.txt`. Existing Base remains RUNNING / KEEP_RUNNING.
