@@ -134,6 +134,12 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
     before = module_hash_parameters(module)
     def amp():
         return torch.autocast("cuda", dtype=torch.bfloat16) if device.startswith("cuda") and config.get("precision") == "fp32_master_bf16_autocast" else nullcontext()
+    from .checkpoint import termination_state
+    termination = termination_state(start_step, config, restored_trainer)
+    if world > 1:
+        terminals = [None] * world
+        dist.all_gather_object(terminals, termination)
+        require(all(x == terminals[0] for x in terminals), "DDP termination state disagrees")
     stop = [False]
     previous_handler = signal.getsignal(signal.SIGTERM)
     signal.signal(signal.SIGTERM, lambda *_: stop.__setitem__(0, True))
@@ -141,7 +147,7 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
     best = tuple(best) if best is not None else None
     step = start_step
     try:
-        while step < config["max_optimizer_steps"]:
+        while not termination["terminal"] and step < config["max_optimizer_steps"]:
             update_start = time.perf_counter()
             entries = sampler.peek(global_batch)
             require(entries, "sampling plan exhausted before optimizer budget")
@@ -252,24 +258,35 @@ def train(module, loss_function, fetch, sampler, config, dependencies, output, *
             if world > 1:
                 dist.all_reduce(stopping, op=dist.ReduceOp.MAX)
             stop[0] = bool(stopping)
+            trainer_state = {"best": best, "bad_cycles": bad_cycles, "best_snapshot": best_snapshot}
+            termination = termination_state(step, config, trainer_state, paused=stop[0])
+            trainer_state["termination"] = termination
             if step % config.get("checkpoint_every_steps", config["validation_every_steps"]) == 0 or step == config["max_optimizer_steps"] or stop[0] or step == stop_after:
                 save_checkpoint(output / f"step_{step:06d}.pt", module, optimizer, scheduler, None, sampler, step,
                                 dependencies, config, global_batch=global_batch, accumulation=accumulation, consumed_ids=consumed,
-                                trainer_state={"best": best, "bad_cycles": bad_cycles, "best_snapshot": best_snapshot})
+                                trainer_state=trainer_state)
             if stop[0]:
                 break
-        require(step > start_step or start_step == config["max_optimizer_steps"], "trainer made no progress")
+        require(step > start_step or termination["terminal"], "trainer made no progress")
         after = module_hash_parameters(module)
-        if rank == 0:
-            if best is None:
-                atomic_torch(output / "best.pt", module.state_dict())
-            atomic_json(output / "result.json", {"status": "COMPLETE" if step == config["max_optimizer_steps"] or bad_cycles >= config.get("early_stop_patience", 10**9) else "STOPPED_AT_BOUNDARY",
-                       "optimizer_steps": step, "new_optimizer_steps": step - start_step, "parameters_changed": before != after,
-                       "parameter_hash_before": before, "parameter_hash_after": after,
-                       "elapsed_seconds": time.perf_counter() - start, "GPU_seconds": (time.perf_counter() - start) * world if device.startswith("cuda") else 0,
-                       "actual_global_batch": global_batch, "resume_boundary": "optimizer_step",
-                       "checkpoint": str(output / f"step_{step:06d}.pt"), "best_selection_key": best,
-                       "best_checkpoint_hash":file_hash(output / "best.pt")})
+        error = None
+        try:
+            if rank == 0:
+                if best is None:
+                    atomic_torch(output / "best.pt", module.state_dict())
+                atomic_json(output / "result.json", {"status": "COMPLETE" if termination["terminal"] else "STOPPED_AT_BOUNDARY",
+                           "termination": termination,
+                           "optimizer_steps": step, "new_optimizer_steps": step - start_step, "parameters_changed": before != after,
+                           "parameter_hash_before": before, "parameter_hash_after": after,
+                           "elapsed_seconds": time.perf_counter() - start, "GPU_seconds": (time.perf_counter() - start) * world if device.startswith("cuda") else 0,
+                           "actual_global_batch": global_batch, "resume_boundary": "optimizer_step",
+                           "checkpoint": str(resume if step == start_step else output / f"step_{step:06d}.pt"), "best_selection_key": best,
+                           "best_checkpoint_hash":file_hash(output / "best.pt")})
+        except Exception as exception:
+            if world == 1:
+                raise
+            error = repr(exception)
+        collective_error(error)
         if world > 1:
             dist.barrier()
         return history

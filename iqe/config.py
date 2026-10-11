@@ -62,6 +62,7 @@ def load_config(path, *, resolved=False):
     raw = merge(schema, raw)
     validate_types(raw, schema, resolved=resolved)
     require(raw["method"] == "iqe_v1", "unsupported method")
+    require(0 <= raw['base_evaluation']['scoring_attempts_per_scene_per_call'] <= 10, 'Base scoring retry budget must be 0..10')
     require(raw["s0"]["learned_driving_checkpoint"] is None, "user explicitly requested framework reuse, not learned driving initialization")
     require(not raw["model"]["cross_expert_attention"] and not raw["scorer"]["cross_candidate_attention"]
             and not raw["scorer"]["use_expert_identity"], "forbidden expert/candidate mixing or identity input")

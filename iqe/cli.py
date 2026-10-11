@@ -45,6 +45,8 @@ def parser():
         c.add_argument("--non-exact-finetune", action="store_true")
         c.add_argument("--checkpoint")
         c.add_argument("--evaluation")
+        if command == "qualify-base":
+            c.add_argument("--select", action="store_true", help="explicitly select this qualified version before immutable Base locking")
         c.add_argument("--backend", choices=("reference",), default="reference")
         c.add_argument("--require-gates", action="store_true")
         c.add_argument("--activate", action="store_true")
@@ -118,11 +120,14 @@ def execute(a):
         require(a.role == "stage_val", "Base qualification uses stage_val only")
         require(a.checkpoint, "explicit complete --checkpoint required")
         if a.command == "evaluate-base":
-            return evaluate_base(pipeline, a.checkpoint)
+            result = evaluate_base(pipeline, a.checkpoint)
+            if result['status'] != 'COMPLETE':
+                raise BlockedError(result['status'] + ': ' + result['result_path'])
+            return result
         require(a.evaluation, "qualify-base requires --evaluation")
-        result = qualify_base(pipeline, a.checkpoint, a.evaluation)
+        result = qualify_base(pipeline, a.checkpoint, a.evaluation, select=a.select)
         if result["status"] != "QUALIFIED":
-            raise BlockedError(result["status"] + ": see BASE_QUALIFICATION.json")
+            raise BlockedError(result["status"] + ": " + result['qualification_path'])
         return result
     if a.command == "freeze-base":
         checkpoint = a.checkpoint or config["s0"]["query_checkpoint"]

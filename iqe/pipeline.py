@@ -198,6 +198,10 @@ class Pipeline:
     def freeze_base(self, checkpoint):
         require(self.mode != "dry-run", "dry-run cannot lock S0")
         qualification = None
+        lock_path = self.root / 'LOCKED_S0.json'
+        if lock_path.exists() and read_json(lock_path).get('base_mode') == 'full':
+            require(read_json(lock_path)['query_checkpoint_hash'] == file_hash(checkpoint),
+                    'LOCKED_BASE_IMMUTABLE: changing Base requires a new experiment output namespace')
         if self.mode == "full":
             from .base_qualification import require_qualification
             qualification = require_qualification(self, checkpoint)
@@ -241,7 +245,8 @@ class Pipeline:
         require(self.mode != "full" or self.contract.get("base_mode") == "full", "formal runs cannot use a smoke/profile-trained Query base")
         if self.mode == "full":
             from .base_qualification import require_qualification
-            checked = require_qualification(self, self.contract["query_checkpoint"])
+            checked = require_qualification(self, self.contract["query_checkpoint"],
+                                            locked_qualification=self.contract.get('base_qualification'))
             require(self.contract.get("base_qualification") == checked, "locked Base qualification identity changed")
         self.config = resolve(self.raw_config, self.contract, self.root / "resolved_config.json")
         self.registry = ExpertRegistry(self.root / "registry.json", digest(self.contract))

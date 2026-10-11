@@ -56,11 +56,11 @@ def test_qualification_binds_rules_manifest_checkpoint_and_protocol(tmp_path,mon
            'minimum_mean_PDMS_01':.8,'maximum_zero_rate':0.,'maximum_NC_violation_rate':0.,'maximum_DAC_violation_rate':0.,'minimum_scenes':4,'minimum_logs':4}
     rulefile=tmp_path/'rules.json';atomic_json(rulefile,rules);p.config['base_evaluation']['rules']=str(rulefile)
     metrics=['no_at_fault_collisions','drivable_area_compliance']
-    evaluation={'binding':bind,'optimizer_step':1,'identity':{'rules_hash':file_hash(rulefile)},'started_unix':2,'smoke_or_profile':False,
+    evaluation={'status':'COMPLETE','binding':bind,'optimizer_step':1,'identity':{'rules_hash':file_hash(rulefile)},'started_unix':2,'smoke_or_profile':False,
         'summary':{'scenes':4,'valid_official_scores':4,'nonfinite':0,'PDMS_01':.9,'zero_rate':0.},'per_log':dict.fromkeys(['a','b','c','d']),
         'rows':[{'score':{'score_valid':True,'component_valid_masks':{c:True for c in metrics},'named_components':{c:1. for c in metrics}}}]*4}
     ep=tmp_path/'evaluation.json';atomic_json(ep,evaluation)
-    assert qualify_base(p,ck,ep)['status']=='QUALIFIED'
+    assert qualify_base(p,ck,ep,select=True)['status']=='QUALIFIED'
     assert require_qualification(p,ck)['binding']==bind
     changed=tmp_path/'changed.pt';atomic_torch(changed,{'different':True})
     with pytest.raises(ValueError,match='mismatch'):require_qualification(p,changed)
