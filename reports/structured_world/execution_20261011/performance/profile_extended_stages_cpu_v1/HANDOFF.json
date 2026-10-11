@@ -1,0 +1,94 @@
+{
+  "schema": "extended_profile_stages_cpu_handoff_v1",
+  "status": "Stable for parent review/freeze; no further source edits planned",
+  "editable_worktree": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011",
+  "editable_git_HEAD": "6c4f18a4f56c9e923d3b7b60200ab2aa7c953408",
+  "adapter_changes_uncommitted": true,
+  "changed_source_files": {
+    "tools/structured_world/perf_reference_trace.py": "bfe52ef604b88d37bd18f106a83b2d1f6e25153b770c8eac4d09e6b2051597a2",
+    "tools/structured_world/test_perf_reference_trace.py": "aaa9d766ddd984b678c5226d5a5b455ce17cc96f33c89cb1e22bce993beb6333"
+  },
+  "CLI": {
+    "add_adapter_flag": "--extended-stages",
+    "required_trainer_flag": "--profile-stages",
+    "default": "Disabled; original 10 stage ranges, CPU/CUDA activities, wait5/warmup1/active3/repeat1, shape recording, stack-disabled export and trainer arguments preserved. Cleanup now also covers profiler-entry failures and restores sys.argv.",
+    "sample": "Add --extended-stages to the new prospectively frozen V2 profile command; keep all approved native trainer/source/origin/data/schedule arguments."
+  },
+  "outputs": {
+    "unchanged": [
+      "trace/rank{rank}.json",
+      "trace/rank{rank}_operators.txt",
+      "original trainer stage/metric artifacts"
+    ],
+    "additional": "trace/rank{rank}_extended_cpu.jsonl",
+    "format": "First line schema extended_profile_cpu_rows_v1: declared scope meanings plus installed labels. Subsequent lines contain public label, call/parent ID, thread ID/name, perf_counter start/end/host wall, raised boolean and profiler step hints.",
+    "privacy": "No args, kwargs, input/output references, image/token/tensor values, RNG bytes, private environment or exception messages serialized. CPU sidecar is created exclusively with mode0600 and existing output is not overwritten.",
+    "scope": "All original wrapped calls after native TrainingStageTiming.__init__, including CPU workers and calls outside Kineto active3. Finally restores all added instance/class/module patches before writing rows."
+  },
+  "targets": {
+    "Qwen_language_inclusive": "model.qwen_vl_interface.model.model.language_model.forward",
+    "Qwen_processor_apply_chat_template_host": "model.qwen_vl_interface.processor.apply_chat_template",
+    "Qwen_get_rope_index_host": "model.qwen_vl_interface.model.model.get_rope_index",
+    "Qwen_build_batch_including_vision": "model._build_qwen_batch",
+    "sample_queries_inclusive": "framework module global sample_queries (actual imported callsite)",
+    "structured_aux_losses_inclusive": "framework module global compute_structured_losses",
+    "final_trajectory_loss_inclusive": "framework module global final_trajectory_loss",
+    "geometry_depth_loss_inclusive": "model.geometry.view.get_depth_loss",
+    "prepared_current_transfer_optimizer_batch": "prepared_current module transfer_optimizer_batch, before trainer's later from-import",
+    "execution_log_flush_inclusive": "ExecutionLogWindow.flush class method"
+  },
+  "implementation_bounds": [
+    "Only process-local instrumentation; each wrapper calls the original once with identical positional/keyword arguments and returns the same object. Native exceptions propagate without storing their messages.",
+    "No added CUDA event, synchronization, collective, device transfer, tensor inspection or sampling. CPU workers only run record_function and host clocks/counters; original CUDA/NCCL/sync operators remain visible through Kineto.",
+    "The timer being CPU-only does not force get_rope_index or any other original computation onto CPU. IO get_rope_index can operate on original device inputs; prepared_current worker inputs stay CPU under the existing contract.",
+    "New labels are record_function CPU scopes with native GPU launch correlation, not additions to TrainingStageTiming CUDA event buckets. stage_timing.py is unchanged.",
+    "Current encode includes build/vision/language; build includes processor/RoPE/vision in the ordinary path. Nested host wall ranges and overlapping GPU streams/ranks must not be summed.",
+    "CPU row step hints can span prefetch windows and are not scene/update identities. Worker record_function events may be absent from Kineto; separate rows preserve actual host wall measurements without inventing GPU events.",
+    "Only engineering_fast uses transfer_optimizer_batch and ExecutionLogWindow.flush. IO mode has inline metric logging; zero calls for those two labels are expected there. Inline IO logging remains native Kineto operators rather than a fabricated flush call/range.",
+    "Existing profile.step remains inside engine.step: final active optimizer/update timing can include export overhead. Use actual markers/flows and per-stream interval unions; this profile is not the registered main throughput benchmark.",
+    "CPU rows in memory are scoped to the bounded profile process. Sidecar presence alone is not a completion/numerical/acceptance receipt; use actual existing process/training completion artifacts."
+  ],
+  "CPU_evidence": {
+    "tests_passed": 15,
+    "exit_code": 0,
+    "python": "/root/miniconda3/envs/ddp/bin/python",
+    "torch": "2.5.1+cu124",
+    "command": "CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 /root/miniconda3/envs/ddp/bin/python -B tools/structured_world/test_perf_reference_trace.py",
+    "log": "CPU_TEST.log",
+    "checks": [
+      "all 10 target labels / same return object / original calls once",
+      "positional and keyword arguments / no_grad mode / same exception object",
+      "CPU worker forbidden CUDA APIs and nested parent/step metadata",
+      "parameter identity/order/value, gradient identity/value, buffers and Python/NumPy/Torch RNG unchanged by install/restore",
+      "real native CPU forward/backward outputs/gradients and global/explicit-generator RNG exact against wrapper",
+      "native mocked sync/collective called exactly once with original arguments; no invented extra calls",
+      "exact restoration of owned/inherited methods, idempotent attach/restore",
+      "default schedule/activities/stage/export/trainer arguments and no extra sidecar",
+      "normal exit, trainer failure, profiler entry failure and partial attachment failure cleanup",
+      "CPU row IO failure preserves native exception; metadata privacy, mode0600 and no overwrite"
+    ],
+    "limitations": "Owned local CPU fixtures and real CPU Torch ops; no actual model-weight construction, GPU profiling, remote fixed-runtime execution, or whole-model numerical/performance result claimed."
+  },
+  "unchanged_actual_source_hashes": {
+    "tools/structured_world/stage_timing.py": "67736b1603d6bed2a3833b8679e85d45aa9161c343bed3460a52f4e20f680a6c",
+    "tools/structured_world/train_vla.py": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+    "starVLA/model/framework/vla_structured_fgtr.py": "90538ddd1f68ea0ee429c8cc33e720298672080b09b4c4cf7749df4278f063dc",
+    "starVLA/dataloader/structured_world/prepared_current.py": "c477e4503ee1c468883dc317d953bcf7725db434aa3214a30c00923a170af6c0",
+    "tools/structured_world/execution_log.py": "99562ee910764e9354f3ac7541b3d6c26ba26210555cbc9b7bc8b7848f9f28cc"
+  },
+  "prospective_source_identity": {
+    "new_driver_immutable_commit": "Pending parent review/commit/cold freeze; not claimed by this CPU handoff",
+    "trainer_math_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+    "trainer_math_commit": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "old_driver_commit": "69b8e9fa8c9174a7fa02ba6a26de8a0af3434ae2",
+    "old_cold_adapter_sha256": "4aec9ec2e41f7d620ef277fae28be480eca1605218cf4cc995ce1ea0fbd37d2f",
+    "old_plan": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/profile_paired_mid_v1/PLAN.json",
+    "rule": "Old69 PLAN describes the old adapter, not this extension. Parent V2 plan must pin the new immutable driver/file hash prospectively, with separate fresh outputs for two32update jobs from the same25k origin.",
+    "early_dirty_diagnostic": "Recorded Git267701f3b2c6cf36a97ff3a5e6bfb535e5aab232 and training treef4f7bb01aed30c43ecb1679fe53d4165da4b5de474cab4e8e56b9a4b5ddee93e; never relabel as frozen f8b33ef."
+  },
+  "GPU_jobs_launched": 0,
+  "actual_new_traces_captured": 0,
+  "commits_created": 0,
+  "shared_site_packages_changed": false,
+  "cold_roots_changed": false
+}
