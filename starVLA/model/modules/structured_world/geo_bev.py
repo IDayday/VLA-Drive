@@ -66,6 +66,9 @@ class SingleFrameGeoBEV(nn.Module):
         super().__init__()
         self.grid = grid or GridSpec()
         self.image_size = tuple(image_size)
+        # Separate E3 candidate: keep parameters, projection, DepthNet and
+        # grid sampling FP32. Canonical inference always bypasses this policy.
+        self.conv_autocast_bf16 = False
         self.backbone = ResNet(depth=50, num_stages=4, out_indices=(2, 3),
                               frozen_stages=-1, norm_cfg={'type': 'BN', 'requires_grad': True},
                               norm_eval=False, style='pytorch', with_cp=True)
@@ -92,7 +95,7 @@ class SingleFrameGeoBEV(nn.Module):
         self.initialization['backbone'] = {'kind': 'public_ImageNet_ResNet50', 'sha256': file_sha256(path),
                                            'excluded_classifier_keys': sorted(removed)}
 
-    def forward(self, images, calibration, pixel_valid=None):
+    def forward(self, images, calibration, pixel_valid=None, *, canonical_fp32=False):
         if images.ndim != 5 or images.shape[1] not in (3, 6) or images.shape[2:] != (3, *self.image_size):
             raise ValueError('One current timestep with exactly 3/6 registered cameras required')
         batch, cameras = images.shape[:2]
@@ -106,7 +109,10 @@ class SingleFrameGeoBEV(nn.Module):
         if any(p.dtype != torch.float32 for p in self.parameters()):
             raise RuntimeError('Pinned geometry path requires FP32 parameters')
         with torch.autocast(device_type=images.device.type, enabled=False):
-            features = self.fpn(self.backbone(images.float().flatten(0, 1)))
+            with torch.autocast(device_type=images.device.type, dtype=torch.bfloat16,
+                                enabled=self.conv_autocast_bf16 and not canonical_fp32):
+                features = self.fpn(self.backbone(images.float().flatten(0, 1)))
+            features = features.float()
             features = features.reshape(batch, cameras, *features.shape[1:])
             sensor2ego = calibration['sensor2ego'].float()
             intrinsics = calibration['intrinsics'].float()
@@ -117,7 +123,10 @@ class SingleFrameGeoBEV(nn.Module):
             bda = torch.eye(3, device=images.device).expand(batch, 3, 3)
             mlp = self.view.get_mlp_input(sensor2ego, global_identity, intrinsics, post_rots, post_trans, bda)
             bev, depth = self.view((features, sensor2ego, global_identity, intrinsics, post_rots, post_trans, bda, mlp))
-            output = self.bev_neck(self.bev_backbone(bev))
+            with torch.autocast(device_type=images.device.type, dtype=torch.bfloat16,
+                                enabled=self.conv_autocast_bf16 and not canonical_fp32):
+                output = self.bev_neck(self.bev_backbone(bev))
+            output = output.float()
             if output.shape[-2:] != (self.grid.height, self.grid.width):
                 raise RuntimeError('BEV encoder changed the registered spatial extent')
             return {'B0': output, 'depth': depth,

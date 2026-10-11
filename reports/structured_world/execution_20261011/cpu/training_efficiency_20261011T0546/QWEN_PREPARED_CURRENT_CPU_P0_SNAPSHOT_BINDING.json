@@ -1,0 +1,57 @@
+{
+  "CPU_receipt": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/QWEN_PREPARED_CURRENT_CPU_P0_v2.json",
+  "CPU_receipt_passed": true,
+  "CPU_receipt_sha256": "f14833374275d4c20d64f142300d7859edeff67d6e61ecba4e0b523849ca8c8f",
+  "GPU_acceptance": "pending; no GPU work executed, no overwrite of existing strict failures",
+  "counts": {
+    "processor_microbatches": 20,
+    "unittest_tests": 3,
+    "vision_language_FP32_BF16_cases": 4
+  },
+  "earlier_fixture_failure_receipt_preserved": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/QWEN_PREPARED_CURRENT_CPU_P0.json",
+  "frozen_commit": "f8b33ef2ac2c048be905227c14fc164382a813ae",
+  "frozen_tree": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-p0-frozen-20261011",
+  "observed_identity_gap": {
+    "changing_image_processor_shortest_edge_changes_processor_identity": false,
+    "current_pinned_processor_CPU_parity": "passed",
+    "processor_to_dict_keys": [
+      "processor_class"
+    ],
+    "suggested_owner_followup": "Include image_processor.to_dict in processor_identity; parent owns prepared_current.py"
+  },
+  "prompt_contract_observation": {
+    "CoT_prompt_null": "native wrapper errors on None.replace; current CPU collator falls back to instruction",
+    "formal_configs_have_CoT_prompt_key": false,
+    "tested_templates": "absent or string"
+  },
+  "schema": "prepared_current_CPU_receipt_frozen_P0_binding_v1",
+  "source_checks": {
+    "adapter": {
+      "CPU_receipt_matches_frozen": true,
+      "relative_path": "starVLA/model/modules/structured_world/qwen_execution.py",
+      "sha256": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4"
+    },
+    "current_wrapper": {
+      "CPU_receipt_matches_frozen": true,
+      "relative_path": "starVLA/model/framework/QwenOFT.py",
+      "sha256": "995abb28d9ffdc835a2ba62ba34bb2efdb546994694cbeac357b13f8629d7c26"
+    },
+    "prepared_current": {
+      "CPU_receipt_matches_frozen": true,
+      "relative_path": "starVLA/dataloader/structured_world/prepared_current.py",
+      "sha256": "8d9aa2839f923755dfbb54b42e72bd803a73998323679f2f9728ff10e720d46c"
+    },
+    "queries": {
+      "CPU_receipt_matches_frozen": true,
+      "relative_path": "starVLA/model/modules/structured_world/queries.py",
+      "sha256": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a"
+    },
+    "qwen": {
+      "CPU_receipt_matches_frozen": true,
+      "relative_path": "starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+      "sha256": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661"
+    }
+  },
+  "test_added_after_P0_freeze": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_qwen_current_processor.py",
+  "test_sha256": "702615f6895443ef154d4bd2e2581fb72fddaf07f8d62b3fc63d4b4491c34bc5"
+}

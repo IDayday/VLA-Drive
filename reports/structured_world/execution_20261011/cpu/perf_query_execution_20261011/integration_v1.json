@@ -1,0 +1,105 @@
+{
+  "schema": "query_prepared_cpu_integration_v1",
+  "all_passed": true,
+  "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011",
+  "python": "/tmp/structured-world-round1/envs/qwen/bin/python",
+  "torch_version": "2.5.1+cu124",
+  "device": "cpu",
+  "gpu_validation": false,
+  "actual_parent_collator_transfer": true,
+  "dataset_metadata_API_source_checked": true,
+  "original_metadata_binder_used": false,
+  "global_RNG_unchanged": true,
+  "prepared_row_transfers": [
+    {
+      "sha": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+      "device": "cpu",
+      "non_blocking": true
+    },
+    {
+      "sha": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+      "device": "cpu",
+      "non_blocking": true
+    },
+    {
+      "sha": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      "device": "cpu",
+      "non_blocking": true
+    },
+    {
+      "sha": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+      "device": "cpu",
+      "non_blocking": true
+    },
+    {
+      "sha": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+      "device": "cpu",
+      "non_blocking": true
+    }
+  ],
+  "pin_calls": 49,
+  "microbatch_cases": [
+    {
+      "mode": "uniform",
+      "rows": [
+        0,
+        2
+      ],
+      "exact_values_records_RNG": true
+    },
+    {
+      "mode": "uniform",
+      "rows": [
+        2,
+        4
+      ],
+      "exact_values_records_RNG": true
+    },
+    {
+      "mode": "uniform",
+      "rows": [
+        4,
+        5
+      ],
+      "exact_values_records_RNG": true
+    },
+    {
+      "mode": "local",
+      "rows": [
+        0,
+        2
+      ],
+      "exact_values_records_RNG": true
+    },
+    {
+      "mode": "local",
+      "rows": [
+        2,
+        4
+      ],
+      "exact_values_records_RNG": true
+    },
+    {
+      "mode": "local",
+      "rows": [
+        4,
+        5
+      ],
+      "exact_values_records_RNG": true
+    }
+  ],
+  "no_candidate_or_morphology_recomputation": true,
+  "source_sha256": {
+    "starVLA/dataloader/structured_world/dataset.py": "0cd837a1eb860b9ba713683f6e58603e6e07602cfd145c99bd777a2b51b33496",
+    "starVLA/dataloader/structured_world/nuscenes_dataset.py": "4cc8218dcce70441d1f8b451242808f034845ef94c993d70dd01e18d4338a7fb",
+    "starVLA/dataloader/structured_world/prepared_current.py": "8d9aa2839f923755dfbb54b42e72bd803a73998323679f2f9728ff10e720d46c",
+    "starVLA/model/modules/structured_world/queries.py": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a",
+    "starVLA/model/modules/structured_world/losses.py": "289f9ad5d9b3ef0f95f773c2aaa9a1b3ca57417136155e9210eae3f9ffdbc2d7",
+    "starVLA/model/modules/structured_world/grid.py": "eedbe87e180996e236dfa21625ca65f76c2ca1bbeda3570450ec10ca973cf6a3",
+    "starVLA/model/framework/vla_structured_fgtr.py": "0918c7022833728ef7c4300940d00fd6960f7382d497bff95f1fce55dea006b5",
+    "tools/structured_world/train_vla.py": "4e3ea0361308436405e027c7854615ae135d2df2725af84920e971987c377655",
+    "tools/structured_world/test_query_execution.py": "94e402137a3448899cfcffc01c9817b3f591c8a0d567a67bc7e208bb8656e10d"
+  },
+  "verifier_sha256": "7136f7fafd55b2fa443dd732c7fe2ceae42b02c4360edac7c0cf2936802cb0fd",
+  "limits": "Processor/history and pinning fixtures; transfers to CPU. Parent owns real CUDA pin/transfer, full-model numerical and throughput validation."
+}

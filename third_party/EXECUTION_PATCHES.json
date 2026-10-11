@@ -9,8 +9,39 @@
       "origin": "ResWorld projects/mmdet3d_plugin/resworld/tokenlearner.py",
       "origin_revision": "a5ae973001dd6001d95b3389020a9e263d73a56e",
       "license": "Apache-2.0",
-      "change": "Additional differentiable prepare_spatial_mix/prepare_token_values/fuse entrypoints; original forward retained",
-      "tests": "tools/structured_world/test_future_execution.py"
+      "change": "Differentiable prepare_spatial_mix/prepare_token_values/fuse entrypoints and optional batched-time fusion; original forward retained",
+      "tests": [
+        "tools/structured_world/test_future_execution.py",
+        "tools/structured_world/test_time_vectorization.py",
+        "tools/structured_world/test_future_fusion.py"
+      ],
+      "current_file_sha256": "df747e5bd8f49044fc428ec7ae6978659bb4dcca90f699dc459a166d2764059e"
+    }
+  ],
+  "additional_adapters": [
+    {
+      "file": "starVLA/model/modules/structured_world/qwen_execution.py",
+      "kind": "audited instance-local adapter, no shared site-packages modification",
+      "upstream": "Transformers4.57.0 Qwen3-VL, plus original repository Qwen fork",
+      "source_hashes_and_exact_patch": "starVLA/model/modules/structured_world/qwen_execution.README.md",
+      "tests": [
+        "tools/structured_world/test_qwen_execution.py",
+        "tools/structured_world/test_qwen_current_processor.py"
+      ]
+    },
+    {
+      "file": "starVLA/model/modules/structured_world/future.py",
+      "kind": "time independent decoder batching, separately enabled and dropout guarded",
+      "tests": [
+        "tools/structured_world/test_time_vectorization.py"
+      ]
+    },
+    {
+      "file": "starVLA/model/modules/structured_world/geo_bev.py",
+      "kind": "separate E3 BF16 convolution policy; FP32 projection and canonical bypass",
+      "tests": [
+        "tools/structured_world/test_geometry_precision.py"
+      ]
     }
   ]
 }

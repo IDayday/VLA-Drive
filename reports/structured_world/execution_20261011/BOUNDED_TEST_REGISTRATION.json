@@ -1,0 +1,59 @@
+{
+  "task": "structured-world-fgtr-execution",
+  "reference_training_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "archive_source_sha": "267701f3b2c6cf36a97ff3a5e6bfb535e5aab232",
+  "host": "training-vlawm-zt4",
+  "devices": 8,
+  "user_time_or_GPU_hour_limit": null,
+  "finite_tests": {
+    "baseline_timeline": {
+      "warmup_updates": 5,
+      "active_updates": 3,
+      "total_updates": 32
+    },
+    "P0_local_screen": {
+      "max_updates_per_candidate": 100,
+      "max_candidates": 4
+    },
+    "final_alternating_windows": {
+      "groups": [
+        "G1",
+        "G3"
+      ],
+      "states": [
+        "shared_geometry_initial",
+        "mid_checkpoint"
+      ],
+      "warmup": 20,
+      "stable_updates_per_window": 200,
+      "windows_each_mode": 3
+    },
+    "G0_nuscenes_compatibility": {
+      "max_updates_each": 32
+    },
+    "paired_continuation": {
+      "updates_each": 500,
+      "extend_only_borderline_to": 1000,
+      "max_candidates": 2
+    },
+    "recovery_probe": {
+      "max_updates": 32
+    }
+  },
+  "excludes": "No formal task interruption, no repeated Navtest, no algorithm or population reduction",
+  "budget_status": "will replace estimate with actual measured end-to-end throughput before expensive stages",
+  "storage_root": "/var/tmp/structured-world-fgtr-execution-20261011",
+  "checkpoint_retention": "own immutable probe boundaries only; no formal assets overwritten",
+  "initial_measured_seconds_per_update": {
+    "IO_reference": 3.4527313709259033,
+    "P0_screen": 2.853806219995022
+  },
+  "finite_execution_estimate": {
+    "final_windows_updates": 5280,
+    "steady_GPU_hours_upper_estimate": 40.59733333333333,
+    "all_tests_including_paired_continuation_development_qualification_and_P1_upper_estimate_GPU_hours": 120,
+    "limit_kind": "finite internal test registration, not user-imposed cap; no extra mechanism search",
+    "disk_strategy": "Benchmark windows keep immutable origins and metrics, omit disposable end checkpoints; numerical/recovery pilots retain native checkpoints",
+    "local_free_before_tests_TB": 1.3
+  }
+}

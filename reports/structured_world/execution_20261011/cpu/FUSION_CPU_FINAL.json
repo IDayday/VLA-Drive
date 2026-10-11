@@ -1,0 +1,2505 @@
+{
+  "base_source": "267701f3b2c6cf36a97ff3a5e6bfb535e5aab232",
+  "device": "cpu",
+  "torch": "2.5.1+cu124",
+  "passed": true,
+  "tests_run": 5,
+  "controls": [
+    {
+      "case": "fuse_time_spatial_reshape_storage_alias_and_axes",
+      "reshape_shares_einsum_storage": true,
+      "value_and_shared_mix_gradients_live": true,
+      "scope": "no repeated spatial bank or reshape copy; output allocation remains necessary"
+    },
+    {
+      "case": "future_T6_trainFalse_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.5762786865234375e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.dense.weight",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.039714140817523,
+      "candidate_seconds": 0.013179464265704155
+    },
+    {
+      "case": "future_T6_trainFalse_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.5762786865234375e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.dense.weight",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.034884095191955566,
+      "candidate_seconds": 0.016731953248381615
+    },
+    {
+      "case": "future_T6_trainTrue_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.5762786865234375e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.dense.weight",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.035244839265942574,
+      "candidate_seconds": 0.013036984950304031
+    },
+    {
+      "case": "future_T6_trainTrue_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.5762786865234375e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.dense.weight",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.0351260956376791,
+      "candidate_seconds": 0.01622607372701168
+    },
+    {
+      "case": "future_T8_trainFalse_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.76837158203125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.norm2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04354937560856342,
+      "candidate_seconds": 0.013876952230930328
+    },
+    {
+      "case": "future_T8_trainFalse_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.76837158203125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.norm2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.0445280596613884,
+      "candidate_seconds": 0.016608206555247307
+    },
+    {
+      "case": "future_T8_trainTrue_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.76837158203125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.norm2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.044522494077682495,
+      "candidate_seconds": 0.013404294848442078
+    },
+    {
+      "case": "future_T8_trainTrue_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.76837158203125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.norm2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04534192010760307,
+      "candidate_seconds": 0.016907280310988426
+    },
+    {
+      "case": "future_T6_final_dropout_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.035094693303108215,
+      "candidate_seconds": 0.015624774619936943
+    },
+    {
+      "case": "future_T6_spatial_dropout_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.4016709327697754e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "res_latent_decoder.layers.2.norms.1.weight",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03525041043758392,
+      "candidate_seconds": 0.018051711842417717
+    },
+    {
+      "case": "future_T6_token_bn_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.284083843231201e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "latent_decoder.layers.0.attentions.0.attn.out_proj.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03471311740577221,
+      "candidate_seconds": 0.031124688684940338
+    },
+    {
+      "case": "future_T8_final_dropout_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.1920928955078125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04419989697635174,
+      "candidate_seconds": 0.016904490068554878
+    },
+    {
+      "case": "future_T8_spatial_dropout_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 7.450580596923828e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "res_latent_decoder.layers.2.norms.1.weight",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ],
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04434205964207649,
+      "candidate_seconds": 0.0207428690046072
+    },
+    {
+      "case": "future_T8_token_bn_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 8.940696716308594e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "action_mln.gamma.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ],
+          [
+            3,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ],
+          [
+            3,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.045136695727705956,
+      "candidate_seconds": 0.04051737114787102
+    },
+    {
+      "case": "eval_inactive_dropout_time_fusion",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.76837158203125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.norm2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04409344121813774,
+      "candidate_seconds": 0.013034449890255928
+    },
+    {
+      "case": "fuser_T6_4DFalse_GNFalse",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 10880,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.043081283569336e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 10880,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.005352454259991646,
+      "candidate_seconds": 0.0015059690922498703
+    },
+    {
+      "case": "fuser_T6_4DFalse_GNTrue",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 11008,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.384185791015625e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 11008,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.006026148796081543,
+      "candidate_seconds": 0.0017097480595111847
+    },
+    {
+      "case": "fuser_T6_4DTrue_GNFalse",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 10880,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.1920928955078125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 10880,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.005406230688095093,
+      "candidate_seconds": 0.0014659706503152847
+    },
+    {
+      "case": "fuser_T6_4DTrue_GNTrue",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 11008,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.980232238769531e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 11008,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.0061373356729745865,
+      "candidate_seconds": 0.001685265451669693
+    },
+    {
+      "case": "fuser_T8_4DFalse_GNFalse",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 11648,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 8.940696716308594e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 11648,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.00681709498167038,
+      "candidate_seconds": 0.0015265513211488724
+    },
+    {
+      "case": "fuser_T8_4DFalse_GNTrue",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 11776,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.2782554626464844e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 11776,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.007790224626660347,
+      "candidate_seconds": 0.0017723720520734787
+    },
+    {
+      "case": "fuser_T8_4DTrue_GNFalse",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 11648,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.1920928955078125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 11648,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.006982807070016861,
+      "candidate_seconds": 0.0015133768320083618
+    },
+    {
+      "case": "fuser_T8_4DTrue_GNTrue",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 11776,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.5762786865234375e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "fuser.dense.weight",
+        "gradient_elements": 11776,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.007989780977368355,
+      "candidate_seconds": 0.0017575081437826157
+    },
+    {
+      "case": "future_T6_without_P0_flag",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 3.5762786865234375e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.dense.weight",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            18,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            18,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            6,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.035448670387268066,
+      "candidate_seconds": 0.012833105400204659
+    },
+    {
+      "case": "future_T8_without_P0_flag",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.76837158203125e-07,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.norm2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "fuser_calls": {
+        "norm": [
+          [
+            3,
+            32,
+            20
+          ]
+        ],
+        "norm1": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "norm2": [
+          [
+            24,
+            32,
+            64
+          ]
+        ],
+        "dense": [
+          [
+            24,
+            32,
+            4
+          ]
+        ],
+        "mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ],
+        "dropout": [
+          [
+            3,
+            8,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.043751973658800125,
+      "candidate_seconds": 0.013357244431972504
+    }
+  ],
+  "numeric_tolerance": {
+    "atol": 1e-06,
+    "rtol": 0.0001
+  },
+  "source_sha256": {
+    "starVLA/model/modules/structured_world/future.py": "7300a5baf8611e478d28e5da193a3110f6a73feb96356927125c775d843f8d2b",
+    "third_party/resworld/ported/tokenlearner.py": "df747e5bd8f49044fc428ec7ae6978659bb4dcca90f699dc459a166d2764059e",
+    "tools/structured_world/test_future_fusion.py": "8f852a49a0f635a6cccfa984f366c97edf2710e6af87bf18c3b2da538708375f",
+    "tools/structured_world/test_time_vectorization.py": "934d05117608460775273d11b5205eedd486f368f800f624da9cb76a65c16245"
+  },
+  "flag": "future_time_vectorized remains False by default; P0 alone does not enable full fusion",
+  "scope": "FP32 module CPU outputs/all input+parameter gradients/exact RNG+buffers/storage alias; no full-model speed or GPU peak qualification"
+}

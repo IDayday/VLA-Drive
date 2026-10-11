@@ -117,13 +117,14 @@ class VLAStructuredFGTR(DDPForesight):
         if prepared is not None:
             if any(row.get('_prepared_current') is not prepared for row in observations):
                 raise ValueError('Geometry microbatch identity mismatch')
-            return self.geometry(prepared.geometry_images, prepared.calibration, prepared.pixel_valid)
+            return self.geometry(prepared.geometry_images, prepared.calibration, prepared.pixel_valid,
+                                 canonical_fp32=getattr(self, 'inference_fp32', False))
         images = torch.stack([item['geometry_images'] for item in observations]).to(device=device, dtype=torch.float32)
         calibration = {key: torch.stack([item['calibration'][key] for item in observations]).to(device=device, dtype=torch.float32)
                        for key in ('sensor2ego', 'intrinsics', 'post_rots', 'post_trans')}
         # No map, box, LiDAR/depth label, or global pose can enter this call.
         pixel_valid = torch.stack([item['geometry_pixel_valid'] for item in observations]).to(device)
-        return self.geometry(images, calibration, pixel_valid)
+        return self.geometry(images, calibration, pixel_valid, canonical_fp32=getattr(self, 'inference_fp32', False))
 
     def plan_from_current(self, observations, *, proposal_generator=None, initial_noise=None, encoded=None, H_A=None):
         encoded = self.encode_current(observations) if encoded is None else encoded

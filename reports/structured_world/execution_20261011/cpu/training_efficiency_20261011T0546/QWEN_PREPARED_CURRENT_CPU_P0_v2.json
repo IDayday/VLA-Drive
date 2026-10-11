@@ -1,0 +1,933 @@
+{
+  "GPU_initialized": false,
+  "created_UTC": "2026-10-11T06:51:27.668238+00:00",
+  "errors": 0,
+  "evidence": {
+    "adapter_receipt": {
+      "GPU_equivalence_and_speed_validation": "pending; no numerical acceptance implied",
+      "adapter_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/structured_world/qwen_execution.py",
+      "adapter_sha256": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4",
+      "attention_backend_precision_rng_parameters_buffers": "unchanged",
+      "attention_layers": 3,
+      "metadata": "one int32-derived tuple per non-FA2 vision forward; reused by every Q/K/V split",
+      "schema": "qwen_vision_lengths_instance_adapter_v1",
+      "shared_classes_and_site_packages_modified": false,
+      "transformers_version": "4.57.0",
+      "upstream": [
+        {
+          "class": "starVLA.model.modules.vlm.qwen3_vl.modeling_qwen3_vl.Qwen3VLVisionModel",
+          "original_forward_sha256": "967c72a546faa603d7172adfa61d20ac6abe0f00ec03feb61d959dc723621aea",
+          "patch": "--- Qwen3VLVisionModel/original\n+++ Qwen3VLVisionModel/instance_adapter\n@@ -9,6 +9,8 @@\n     Returns:\n         `torch.Tensor`: hidden_states.\n     \"\"\"\n+    if '_structured_world_lengths_cpu' in kwargs:\n+        raise ValueError('Vision split metadata is adapter-owned')\n     hidden_states = self.patch_embed(hidden_states)\n \n     pos_embeds = self.fast_pos_embed_interpolate(grid_thw)\n@@ -31,6 +33,8 @@\n         dtype=grid_thw.dtype if torch.jit.is_tracing() else torch.int32,\n     )\n     cu_seqlens = F.pad(cu_seqlens, (1, 0), value=0)\n+    lengths_cpu = (_structured_world_make_lengths_cpu(cu_seqlens)\n+                   if self.config._attn_implementation != 'flash_attention_2' else None)\n \n     deepstack_feature_lists = []\n     for layer_num, blk in enumerate(self.blocks):\n@@ -38,6 +42,7 @@\n             hidden_states,\n             cu_seqlens=cu_seqlens,\n             position_embeddings=position_embeddings,\n+            _structured_world_lengths_cpu=lengths_cpu,\n             **kwargs,\n         )\n         if layer_num in self.deepstack_visual_indexes:\n",
+          "patched_forward_sha256": "91c3dbb5c203076a09c3d4394728f93198e2997d3c73828523314a5e1ba4807b",
+          "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+          "source_file_sha256": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661"
+        },
+        {
+          "class": "starVLA.model.modules.vlm.qwen3_vl.modeling_qwen3_vl.Qwen3VLVisionAttention",
+          "original_forward_sha256": "5a41ddeae90c047846ecdc78bd220c88a11e8bc9bed27a3f831fc6ae3d6e00c5",
+          "patch": "--- Qwen3VLVisionAttention/original\n+++ Qwen3VLVisionAttention/instance_adapter\n@@ -6,6 +6,7 @@\n     position_embeddings: Optional[tuple[torch.Tensor, torch.Tensor]] = None,\n     **kwargs,\n ) -> torch.Tensor:\n+    lengths_cpu = kwargs.pop('_structured_world_lengths_cpu', None)\n     seq_length = hidden_states.shape[0]\n     query_states, key_states, value_states = (\n         self.qkv(hidden_states).reshape(seq_length, 3, self.num_heads, -1).permute(1, 0, 2, 3).unbind(0)\n@@ -41,9 +42,10 @@\n         )\n     else:\n         # Other implementations: Process each chunk separately\n-        lengths = cu_seqlens[1:] - cu_seqlens[:-1]\n+        if lengths_cpu is None:\n+            lengths_cpu = _structured_world_make_lengths_cpu(cu_seqlens)\n         splits = [\n-            torch.split(tensor, lengths.tolist(), dim=2) for tensor in (query_states, key_states, value_states)\n+            torch.split(tensor, lengths_cpu, dim=2) for tensor in (query_states, key_states, value_states)\n         ]\n \n         attn_outputs = [\n",
+          "patched_forward_sha256": "7dfeb98ce4be3951c9683639fb06fe9ba2260e75c6173f915d99a2be3d166c3e",
+          "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/starVLA/model/modules/vlm/qwen3_vl/modeling_qwen3_vl.py",
+          "source_file_sha256": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661"
+        }
+      ],
+      "vision_class": "starVLA.model.modules.vlm.qwen3_vl.modeling_qwen3_vl.Qwen3VLVisionModel"
+    },
+    "ordered_CPU_worker_identity_and_transfer_aliases": "passed; three transfers for five rows at microbatch two",
+    "processor_microbatches": [
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          455,
+          494
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -287,
+          -248
+        ],
+        "sequence_shape": [
+          2,
+          494
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          459,
+          454
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -248,
+          -253
+        ],
+        "sequence_shape": [
+          2,
+          459
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          468
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -248
+        ],
+        "sequence_shape": [
+          1,
+          468
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          455,
+          494,
+          459,
+          454
+        ],
+        "actual_batch": 4,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -287,
+          -248,
+          -283,
+          -288
+        ],
+        "sequence_shape": [
+          4,
+          494
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          468
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -248
+        ],
+        "sequence_shape": [
+          1,
+          468
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          464,
+          503
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -287,
+          -248
+        ],
+        "sequence_shape": [
+          2,
+          503
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          469,
+          463
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -248,
+          -254
+        ],
+        "sequence_shape": [
+          2,
+          469
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          476
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -248
+        ],
+        "sequence_shape": [
+          1,
+          476
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          464,
+          503,
+          469,
+          463
+        ],
+        "actual_batch": 4,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -287,
+          -248,
+          -282,
+          -288
+        ],
+        "sequence_shape": [
+          4,
+          503
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          476
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 3,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -248
+        ],
+        "sequence_shape": [
+          1,
+          476
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          745,
+          784
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -535,
+          -496
+        ],
+        "sequence_shape": [
+          2,
+          784
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          749,
+          744
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -496,
+          -501
+        ],
+        "sequence_shape": [
+          2,
+          749
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          758
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -496
+        ],
+        "sequence_shape": [
+          1,
+          758
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          745,
+          784,
+          749,
+          744
+        ],
+        "actual_batch": 4,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -535,
+          -496,
+          -531,
+          -536
+        ],
+        "sequence_shape": [
+          4,
+          784
+        ]
+      },
+      {
+        "CoT_template": false,
+        "active_lengths": [
+          758
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -496
+        ],
+        "sequence_shape": [
+          1,
+          758
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          754,
+          793
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -535,
+          -496
+        ],
+        "sequence_shape": [
+          2,
+          793
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          759,
+          753
+        ],
+        "actual_batch": 2,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -496,
+          -502
+        ],
+        "sequence_shape": [
+          2,
+          759
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          766
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 2,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -496
+        ],
+        "sequence_shape": [
+          1,
+          766
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          754,
+          793,
+          759,
+          753
+        ],
+        "actual_batch": 4,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -535,
+          -496,
+          -530,
+          -536
+        ],
+        "sequence_shape": [
+          4,
+          793
+        ]
+      },
+      {
+        "CoT_template": true,
+        "active_lengths": [
+          766
+        ],
+        "actual_batch": 1,
+        "all_values_bitwise": true,
+        "cameras": 6,
+        "grids": [
+          [
+            1,
+            14,
+            20
+          ],
+          [
+            1,
+            18,
+            32
+          ],
+          [
+            1,
+            20,
+            14
+          ]
+        ],
+        "independent_integer_oracle": true,
+        "microbatch": 4,
+        "pixel_dtype": "torch.float32",
+        "rope_deltas": [
+          -496
+        ],
+        "sequence_shape": [
+          1,
+          766
+        ]
+      }
+    ],
+    "source_sha256_at_finish": {
+      "adapter": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4",
+      "current_wrapper": "995abb28d9ffdc835a2ba62ba34bb2efdb546994694cbeac357b13f8629d7c26",
+      "prepared_current": "8d9aa2839f923755dfbb54b42e72bd803a73998323679f2f9728ff10e720d46c",
+      "queries": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a",
+      "qwen": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661",
+      "test": "702615f6895443ef154d4bd2e2581fb72fddaf07f8d62b3fc63d4b4491c34bc5"
+    },
+    "source_sha256_at_start": {
+      "adapter": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4",
+      "current_wrapper": "995abb28d9ffdc835a2ba62ba34bb2efdb546994694cbeac357b13f8629d7c26",
+      "prepared_current": "8d9aa2839f923755dfbb54b42e72bd803a73998323679f2f9728ff10e720d46c",
+      "queries": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a",
+      "qwen": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661",
+      "test": "702615f6895443ef154d4bd2e2581fb72fddaf07f8d62b3fc63d4b4491c34bc5"
+    },
+    "sources": {
+      "adapter_sha256": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4",
+      "get_rope_index_source_sha256": "867ac5bee949408e2d21ce6f716bb6bbffb5538d6c052a151554d8abfffec0a6",
+      "image_processor_class": "transformers.models.qwen2_vl.image_processing_qwen2_vl_fast.Qwen2VLImageProcessorFast",
+      "image_processor_source_sha256": "09bfa9b17df7c3f0c6159bc34008ee50f21d2472cd5bae7e5c21ba1ca13a423c",
+      "prepared_current_sha256": "8d9aa2839f923755dfbb54b42e72bd803a73998323679f2f9728ff10e720d46c",
+      "processor_asset_sha256": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399"
+      },
+      "processor_class": "transformers.models.qwen3_vl.processing_qwen3_vl.Qwen3VLProcessor",
+      "processor_root": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+      "processor_source_sha256": "efd8d64aaf608aad1ffb3e6d503d6a99e5227d007df95c1d9fa905d998cda4a9",
+      "queries_sha256": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a",
+      "qwen_source_sha256": "0c8cb085e0da9f2a7ca1fe3c3d9921a0db9ef3d646980a682821644e5fea7661",
+      "test_sha256": "702615f6895443ef154d4bd2e2581fb72fddaf07f8d62b3fc63d4b4491c34bc5",
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0"
+    },
+    "vision_language_comparisons": [
+      {
+        "CPU_BF16_autocast": false,
+        "bitwise": true,
+        "cameras": 3,
+        "dtype": "torch.float32",
+        "max_absolute": 0,
+        "merged_image_lengths": [
+          70,
+          144
+        ],
+        "output_shape": [
+          2,
+          494,
+          16
+        ]
+      },
+      {
+        "CPU_BF16_autocast": true,
+        "bitwise": true,
+        "cameras": 3,
+        "dtype": "torch.float32",
+        "max_absolute": 0,
+        "merged_image_lengths": [
+          70,
+          144
+        ],
+        "output_shape": [
+          2,
+          494,
+          16
+        ]
+      },
+      {
+        "CPU_BF16_autocast": false,
+        "bitwise": true,
+        "cameras": 6,
+        "dtype": "torch.float32",
+        "max_absolute": 0,
+        "merged_image_lengths": [
+          70,
+          144
+        ],
+        "output_shape": [
+          2,
+          784,
+          16
+        ]
+      },
+      {
+        "CPU_BF16_autocast": true,
+        "bitwise": true,
+        "cameras": 6,
+        "dtype": "torch.float32",
+        "max_absolute": 0,
+        "merged_image_lengths": [
+          70,
+          144
+        ],
+        "output_shape": [
+          2,
+          784,
+          16
+        ]
+      }
+    ]
+  },
+  "failures": 0,
+  "fixtures": {
+    "CoT_templates": "absent or explicit string",
+    "action_tokens": 8,
+    "camera_counts": [
+      3,
+      6
+    ],
+    "foresight_tokens": 144,
+    "image_rng": "numpy PCG64 seed 710+cameras",
+    "images": "owned synthetic PIL RGB; native above-min and two resized orientations",
+    "microbatches": [
+      2,
+      4
+    ],
+    "tiny_model_torch_seed": 808,
+    "tokenizer_padding_side": "left"
+  },
+  "limitations": [
+    "pin_memory mocked; CUDA transfers not exercised",
+    "small random Qwen, no pretrained weights",
+    "candidate label identities cover owned fixture bytes; production cache hash binding is not exercised",
+    "CPU numerical evidence only; no trained CUDA, native Flash or ZeRO recovery acceptance",
+    "no end-to-end speed measurement; prior strict numerical failures remain valid",
+    "reference CoT_prompt:null is unsupported; this does not validate a widened prompt contract"
+  ],
+  "passed": true,
+  "schema": "prepared_current_actual_processor_CPU_parity_v1",
+  "tests_run": 3
+}

@@ -1,0 +1,6512 @@
+{
+  "base_source": "267701f3b2c6cf36a97ff3a5e6bfb535e5aab232",
+  "device": "cpu",
+  "torch": "2.5.1+cu124",
+  "passed": true,
+  "tests_run": 9,
+  "controls": [
+    {
+      "case": "fgtr_real_BN_trainTrue_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33084,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33084,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.01877550221979618,
+      "candidate_seconds": 0.014811534434556961
+    },
+    {
+      "case": "fgtr_real_BN_trainFalse_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33084,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33084,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.014345958828926086,
+      "candidate_seconds": 0.014379920437932014
+    },
+    {
+      "case": "default_future_6",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 69908,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 69908,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04055507853627205,
+      "candidate_seconds": 0.03452283330261707
+    },
+    {
+      "case": "default_future_8",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04326178692281246,
+      "candidate_seconds": 0.042731380090117455
+    },
+    {
+      "case": "default_fgtr_6",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 30516,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 30516,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.011499602347612381,
+      "candidate_seconds": 0.011284992098808289
+    },
+    {
+      "case": "default_fgtr_8",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33076,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33076,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.016395550221204758,
+      "candidate_seconds": 0.01420111209154129
+    },
+    {
+      "case": "fgtr_live_coordinate_dropout_fallback",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33076,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33076,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.0159523393958807,
+      "candidate_seconds": 0.017549604177474976
+    },
+    {
+      "case": "fgtr_eval_6_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.bias",
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            18,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            6,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.013714823871850967,
+      "candidate_seconds": 0.006245704367756844
+    },
+    {
+      "case": "fgtr_eval_6_chunk1",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.bias",
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            6,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.014302972704172134,
+      "candidate_seconds": 0.012066693976521492
+    },
+    {
+      "case": "fgtr_eval_6_chunk2",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.bias",
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            6,
+            32
+          ],
+          [
+            1,
+            6,
+            32
+          ],
+          [
+            1,
+            6,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            6,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.01234821230173111,
+      "candidate_seconds": 0.00778876431286335
+    },
+    {
+      "case": "fgtr_eval_6_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.bias",
+        "gradient_elements": 34524,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            12,
+            32
+          ],
+          [
+            1,
+            6,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            6,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.011962801218032837,
+      "candidate_seconds": 0.006898466497659683
+    },
+    {
+      "case": "fgtr_eval_8_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.weight",
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            24,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            8,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.014680124819278717,
+      "candidate_seconds": 0.004929106682538986
+    },
+    {
+      "case": "fgtr_eval_8_chunk1",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.weight",
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            8,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.01415681280195713,
+      "candidate_seconds": 0.013216082006692886
+    },
+    {
+      "case": "fgtr_eval_8_chunk2",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.weight",
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            6,
+            32
+          ],
+          [
+            1,
+            6,
+            32
+          ],
+          [
+            1,
+            6,
+            32
+          ],
+          [
+            1,
+            6,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            8,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.014305807650089264,
+      "candidate_seconds": 0.008519677445292473
+    },
+    {
+      "case": "fgtr_eval_8_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.weight",
+        "gradient_elements": 38364,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ],
+          [
+            1,
+            3,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ],
+          [
+            3,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            12,
+            32
+          ],
+          [
+            1,
+            12,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            3,
+            8,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.014101536944508553,
+      "candidate_seconds": 0.006080403923988342
+    },
+    {
+      "case": "fgtr_train_6_native_dropout",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 30516,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.bias",
+        "gradient_elements": 30516,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            6,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.011260271072387695,
+      "candidate_seconds": 0.010530443862080574
+    },
+    {
+      "case": "fgtr_train_8_native_dropout",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 33076,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "coordinate_decoder.4.bias",
+        "gradient_elements": 33076,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ],
+          [
+            2,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "col_attn": [
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ],
+          [
+            1,
+            2,
+            32
+          ]
+        ],
+        "coordinate_decoder": [
+          [
+            2,
+            8,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.014256564900279045,
+      "candidate_seconds": 0.013033520430326462
+    },
+    {
+      "case": "future_dropout_fallback_nativeFalse",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04572540707886219,
+      "candidate_seconds": 0.03993869014084339
+    },
+    {
+      "case": "future_dropout_fallback_nativeTrue",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04323253221809864,
+      "candidate_seconds": 0.03818295709788799
+    },
+    {
+      "case": "future_zero_decoder_live_fuser_dropout",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            8,
+            32
+          ],
+          [
+            4,
+            8,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.0439904760569334,
+      "candidate_seconds": 0.019534917548298836
+    },
+    {
+      "case": "future_C256_N16_P0_disabled",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 3507296,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 4.831235855817795e-09,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "res_latent_decoder.layers.2.norms.1.weight",
+        "gradient_elements": 3507296,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ],
+          [
+            16,
+            2,
+            256
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ],
+          [
+            2,
+            16,
+            256
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            16,
+            16,
+            256
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            16,
+            256
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ],
+          [
+            2,
+            20,
+            256
+          ]
+        ]
+      },
+      "reference_seconds": 0.09469120763242245,
+      "candidate_seconds": 0.04211605340242386
+    },
+    {
+      "case": "future_6_trainFalse_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            18,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03496944159269333,
+      "candidate_seconds": 0.014656715095043182
+    },
+    {
+      "case": "future_6_trainFalse_chunk1",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03399457037448883,
+      "candidate_seconds": 0.031254151836037636
+    },
+    {
+      "case": "future_6_trainFalse_chunk2",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03393663093447685,
+      "candidate_seconds": 0.021323254331946373
+    },
+    {
+      "case": "future_6_trainFalse_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            12,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03408636339008808,
+      "candidate_seconds": 0.01807118020951748
+    },
+    {
+      "case": "future_6_trainTrue_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            18,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03417760692536831,
+      "candidate_seconds": 0.014882653951644897
+    },
+    {
+      "case": "future_6_trainTrue_chunk1",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.034135451540350914,
+      "candidate_seconds": 0.03143471106886864
+    },
+    {
+      "case": "future_6_trainTrue_chunk2",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.033980997279286385,
+      "candidate_seconds": 0.02154010534286499
+    },
+    {
+      "case": "future_6_trainTrue_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 5.960464477539063e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70716,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            12,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.03431401215493679,
+      "candidate_seconds": 0.018519850447773933
+    },
+    {
+      "case": "future_8_trainFalse_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            24,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.043159397318959236,
+      "candidate_seconds": 0.015890253707766533
+    },
+    {
+      "case": "future_8_trainFalse_chunk1",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.043556174263358116,
+      "candidate_seconds": 0.038924580439925194
+    },
+    {
+      "case": "future_8_trainFalse_chunk2",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.046337997540831566,
+      "candidate_seconds": 0.026669319719076157
+    },
+    {
+      "case": "future_8_trainFalse_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            12,
+            32
+          ],
+          [
+            4,
+            12,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.043200694024562836,
+      "candidate_seconds": 0.019790465012192726
+    },
+    {
+      "case": "future_8_trainTrue_chunk0",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            24,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04306798428297043,
+      "candidate_seconds": 0.016261091455817223
+    },
+    {
+      "case": "future_8_trainTrue_chunk1",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04350115545094013,
+      "candidate_seconds": 0.03919617831707001
+    },
+    {
+      "case": "future_8_trainTrue_chunk2",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ],
+          [
+            4,
+            6,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04314436390995979,
+      "candidate_seconds": 0.026073213666677475
+    },
+    {
+      "case": "future_8_trainTrue_chunk4",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70844,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ],
+          [
+            4,
+            3,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ],
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ],
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            12,
+            32
+          ],
+          [
+            4,
+            12,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            3,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            3,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04420875199139118,
+      "candidate_seconds": 0.019571354612708092
+    },
+    {
+      "case": "future_first_forward",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 2.9802322387695312e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            8,
+            32
+          ],
+          [
+            4,
+            8,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.043259767815470695,
+      "candidate_seconds": 0.019016727805137634
+    },
+    {
+      "case": "future_second_forward",
+      "A_A": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 0.0,
+        "outputs_bitwise": true,
+        "gradients_bitwise": true,
+        "worst_gradient": null,
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "A_B": {
+        "output_max_abs_error": 0.0,
+        "gradient_max_abs_error": 1.4901161193847656e-08,
+        "outputs_bitwise": true,
+        "gradients_bitwise": false,
+        "worst_gradient": "tokenfuser.mlp.fc2.bias",
+        "gradient_elements": 70036,
+        "RNG_buffers_metadata_bitwise": true
+      },
+      "reference_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ],
+          [
+            4,
+            2,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ],
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ],
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "candidate_calls": {
+        "res_latent_decoder": [
+          [
+            4,
+            8,
+            32
+          ],
+          [
+            4,
+            8,
+            32
+          ]
+        ],
+        "action_mln": [
+          [
+            2,
+            4,
+            32
+          ]
+        ],
+        "tokenfuser.mlp": [
+          [
+            2,
+            20,
+            32
+          ]
+        ]
+      },
+      "reference_seconds": 0.04241979122161865,
+      "candidate_seconds": 0.0189485102891922
+    }
+  ],
+  "numeric_tolerance": {
+    "atol": 1e-06,
+    "rtol": 0.0001
+  },
+  "source_sha256": {
+    "starVLA/model/modules/structured_world/future.py": "43964213607373222ed29ac197e498e9f92cfc3a6d7fd379a6c222f44682e502",
+    "starVLA/model/modules/structured_world/fgtr.py": "4c7a04a3f66243111fcd577ab39d126fce41045764370ff9f02c4782d3cba43a",
+    "third_party/resworld/ported/tokenlearner.py": "56dbbd50059acf9d991c8709e1f23c7987b512550765fc848bd7294e661b794d",
+    "tools/structured_world/test_time_vectorization.py": "cbb61a9c7d74c3dabd94d81ff998a8d42c8a6dee83dbd7cd6c27b430f66d72fc"
+  },
+  "scope": "P1 module FP32 output/input/parameter gradients; exact A/A CPU, metadata, RNG, buffers; no GPU peak or training-speed qualification",
+  "FGTR_training": "native attention dropout 0.1 remains per-time; deterministic coordinate MLP is batched",
+  "defaults": "Future/FGTR vectorization False; engineering_fast does not enable P1"
+}

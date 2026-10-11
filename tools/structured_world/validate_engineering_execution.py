@@ -42,7 +42,7 @@ def main():
                         help='Math is a separate diagnostic for native Flash backward variation, never a formal setting')
     parser.add_argument('--microbatch', type=int, choices=(2, 4), default=4)
     parser.add_argument('--tag', required=True, help='Explicit immutable complete checkpoint, never a moving latest')
-    parser.add_argument('--optimized-mode', choices=('engineering_fast',), default='engineering_fast')
+    parser.add_argument('--optimized-mode', choices=('engineering_fast', 'engineering_timevec', 'precision_fast'), default='engineering_fast')
     parser.add_argument('--precision-diagnostic', choices=('native', 'fp32'), default='native',
                         help='FP32 is a separate controlled numerical diagnostic, never a formal precision change')
     args = parser.parse_args()
@@ -76,7 +76,9 @@ def main():
             'optimized_mode': args.optimized_mode,
             'gradient_tolerance': {'rtol': GRAD_RTOL, 'atol': GRAD_ATOL},
             'forward_loss_tolerance': {'rtol': 1e-6, 'atol': 1e-7},
-            'trajectory_RNG_and_buffers': 'bitwise', 'precision': identity['precision']})
+            'trajectory_RNG_and_discrete_buffers': 'bitwise',
+            'floating_buffers': 'E3 differences reported' if args.optimized_mode == 'precision_fast' else 'bitwise',
+            'precision': identity['precision']})
         atomic_json(args.output/'ATTENTION_DIAGNOSTIC.json', {'mode': args.attention_diagnostic,
             'precision_diagnostic': args.precision_diagnostic,
             'formal_attention_backend_changed': False,
@@ -129,7 +131,7 @@ def main():
         from torch.nn.attention import sdpa_kernel, SDPBackend
         attention = sdpa_kernel(SDPBackend.MATH) if args.attention_diagnostic == 'math' else nullcontext()
         with attention:
-            obs, tgt = (prepared_observations, prepared_targets) if mode == 'engineering_fast' else (observations, targets)
+            obs, tgt = (prepared_observations, prepared_targets) if mode in ('engineering_fast','engineering_timevec','precision_fast') else (observations, targets)
             result = model(obs, tgt, completed_updates=complete['completed'],
                 noise_generator=generators['noise'], time_generator=generators['time'],
                 proposal_generator=generators['proposal'], query_generator=generators['queries'], global_counts=counts)
@@ -151,7 +153,17 @@ def main():
                                if parameter.grad is not None}
         else:
             exact(after_rng, reference_rng, 'post-forward/backward RNG')
-            exact(after_buffers, reference_buffers, 'post-forward/backward mutable buffers')
+            if mode == 'precision_fast':
+                if set(after_buffers) != set(reference_buffers):
+                    raise AssertionError('Precision candidate changed buffer inventory')
+                for name, value in after_buffers.items():
+                    if not value.is_floating_point(): exact(value, reference_buffers[name], 'discrete buffer/'+name)
+                buffer_changes = {name: {'max_absolute': float((value-reference_buffers[name]).abs().max()),
+                    'relative_L2': float(torch.linalg.vector_norm((value-reference_buffers[name]).double())/torch.linalg.vector_norm(reference_buffers[name].double()).clamp_min(1e-300))}
+                    for name,value in after_buffers.items() if value.is_floating_point() and value.numel()}
+            else:
+                exact(after_buffers, reference_buffers, 'post-forward/backward mutable buffers')
+                buffer_changes = {}
             if grad_keys != set(reference_grads): raise AssertionError('Changed gradient parameter inventory')
             forward_checks = {}
             for name, value in outputs.items():
@@ -184,6 +196,7 @@ def main():
                 del actual, error
         record = {'label': label, 'mode': mode, 'forward_and_backward_seconds': seconds,
             'forward_checks': forward_checks if reference_outputs is not outputs else {},
+            'buffer_float_changes': buffer_changes if reference_outputs is not outputs else {},
             'gradient_parameter_count': len(grad_keys), 'gradient_elements_compared': grad_elements,
             'gradient_max_absolute_difference': grad_diff, 'gradient_tolerance_violations': violations,
             'gradient_relative_L2': (square_error/max(square_ref, 1e-300))**.5,
@@ -196,7 +209,9 @@ def main():
             'activation_gradient_1024_fixed_samples': {name: {'max_absolute': float((v-reference_activation[name]).abs().max()),
                 'relative_L2': float(torch.linalg.vector_norm((v-reference_activation[name]).double())/torch.linalg.vector_norm(reference_activation[name].double()).clamp_min(1e-300)),
                 'cosine': float(torch.nn.functional.cosine_similarity(v.double().reshape(1,-1),reference_activation[name].double().reshape(1,-1)))} for name,v in activation.items()},
-            'q0_RNG_and_mutable_buffers': 'bitwise; q_final/Bt floating checks reported separately',
+            'RNG_and_discrete_buffers': 'bitwise',
+            'floating_buffers': 'E3 differences reported' if mode == 'precision_fast' else 'bitwise',
+            'q0_and_q_final': 'strict bitwise checks retained; Bt/loss tolerance recorded',
             'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
             'strict_gradient_passed': violations == 0,
             'passed': violations == 0 and (reference_outputs is outputs or all(v['strict_passed'] for v in forward_checks.values()))}

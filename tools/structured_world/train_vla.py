@@ -76,18 +76,19 @@ def main():
     parser.add_argument('--image-root', type=Path)
     parser.add_argument('--profile-stages', action='store_true',
                         help='Only profile scope: measure the real model and optimizer stages')
-    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast'), default='reference')
+    parser.add_argument('--execution-mode', choices=('reference', 'io_preserving_v1', 'loss_preserving_v1', 'engineering_fast', 'precision_fast', 'engineering_timevec'), default='reference')
     parser.add_argument('--logging-every', type=int, default=20)
     parser.add_argument('--evidence-every', type=int, default=100)
     parser.add_argument('--pilot-origin-run', type=Path, help='Read-only engineering continuation; never changes parent latest')
     parser.add_argument('--pilot-origin-tag', help='Required immutable complete tag for a pilot origin')
     parser.add_argument('--use-formal-schedule', action='store_true', help='Finite engineering run, original dataset schedule from update zero')
+    parser.add_argument('--benchmark-no-end-save', action='store_true', help='Only read-only-origin performance windows; numerical/recovery pilots still save')
     parser.add_argument('--execution-acceptance', type=Path,
                         help='Frozen measured acceptance and preserved numerical failures for formal IO-only execution')
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
     args = parser.parse_args()
-    fast = args.execution_mode == 'engineering_fast'
+    fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
     if min(args.logging_every, args.evidence_every) < 1:
         raise ValueError('Positive metric/evidence intervals required')
     if args.scope == 'formal' and fast:
@@ -96,6 +97,8 @@ def main():
         raise ValueError('Pilot origins require profile scope, immutable tag and unchanged full population')
     if args.use_formal_schedule and (args.scope == 'formal' or args.pilot_origin_run):
         raise ValueError('Explicit common schedule is only for an engineering run without an origin')
+    if args.benchmark_no_end_save and (args.scope != 'profile' or not args.pilot_origin_run or args.resume):
+        raise ValueError('Benchmark windows must retain their immutable origin and cannot be resumed in place')
     if args.scope == 'formal' and args.execution_mode == 'loss_preserving_v1':
         raise ValueError('No-recompute candidate has not passed production-gradient equivalence; use the validated IO-only execution')
     execution_acceptance = None
@@ -214,6 +217,13 @@ def main():
         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
         'extra_stage_instrumentation': args.profile_stages}
     contract['execution_mode'] = args.execution_mode
+    contract['external_execution_patches'] = {'record': json.loads((ROOT/'third_party/EXECUTION_PATCHES.json').read_text()),
+        'sha256': file_digest(ROOT/'third_party/EXECUTION_PATCHES.json')}
+    if args.execution_mode == 'precision_fast':
+        contract['numeric_execution_candidate'] = {'level': 'E3', 'BF16': ['geometry.backbone', 'geometry.fpn', 'geometry.bev_backbone', 'geometry.bev_neck'],
+            'FP32': ['geometry.view', 'projection', 'grid_sample', 'loss_reduction', 'master_weights', 'optimizer', 'gradient_communication'],
+            'SyncBN': 'same population, counters and module types; floating running-stat changes require paired evaluation',
+            'canonical_inference': 'FP32 bypass preserved'}
     if fast:
         contract['execution_logging'] = {'summary_every': args.logging_every, 'detailed_evidence_every': args.evidence_every,
                                         'checkpoint_pause_end_flush': True}
@@ -224,6 +234,7 @@ def main():
             if contract[key] != pilot_parent[key]:
                 raise ValueError('Pilot changed scientific contract: '+key)
         contract['engineering_continue_origin'] = pilot_origin
+    contract['benchmark_no_end_checkpoint'] = args.benchmark_no_end_save
     if execution_acceptance is not None:
         contract['execution_acceptance'] = execution_acceptance
     resume_origin = None
@@ -336,7 +347,7 @@ def main():
                     raise ValueError('Foreign checkpoint found during retention')
                 shutil.rmtree(old)
         dist.barrier()
-    if not completed:
+    if not completed and not args.benchmark_no_end_save:
         save('INITIAL')
     elif resume_origin is not None and not args.resume:
         # Own an atomic recovery point before executing the first upgraded step.
@@ -467,7 +478,7 @@ def main():
                     local_stages = stage_timing.consume_after_synchronize()
                     with (args.output/f'stages_rank{rank}.jsonl').open('a') as stream:
                         stream.write(json.dumps({'updates': completed, **local_stages})+'\n')
-                if save_due:
+                if save_due and (stop or not args.benchmark_no_end_save):
                     save('PAUSED' if stop else ('COMPLETE' if completed == end_update else 'RUNNING'))
                 if completed == end_update and rank == 0:
                     atomic_json(args.output/'TRAINING_COMPLETE.json', {'identity': identity, 'updates': completed,
@@ -505,7 +516,7 @@ def main():
                 print(json.dumps(record), flush=True)
             if (args.output/'STOP_AFTER_CHECKPOINT').exists() or (args.stop_after and completed >= args.stop_after):
                 save('PAUSED'); break
-            if completed in milestones or completed % args.save_every == 0:
+            if (completed in milestones or completed % args.save_every == 0) and not args.benchmark_no_end_save:
                 save('COMPLETE' if completed == end_update else 'RUNNING')
             if completed == end_update and rank == 0:
                 atomic_json(args.output/'TRAINING_COMPLETE.json', {'identity': identity, 'updates': completed,

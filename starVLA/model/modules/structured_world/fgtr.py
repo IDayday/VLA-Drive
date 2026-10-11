@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import torch
 from torch import nn
 from mmcv.ops.multi_scale_deform_attn import MultiScaleDeformableAttention
-from .future import mature_decoder, physical_time_features
+from .future import mature_decoder, physical_time_features, can_batch_independent, time_chunk_size
 from .grid import GridSpec
 
 
@@ -39,6 +39,8 @@ class DDPProposalFGTR(nn.Module):
         if steps not in (6, 8):
             raise ValueError('Registered horizon required')
         self.steps, self.channels = steps, channels
+        self.fgtr_time_vectorized = False
+        self.fgtr_time_chunk_size = 0
         self.grid = grid or GridSpec()
         self.action_projection = nn.Linear(hidden_dim, channels)
         self.way_decoder = mature_decoder(channels, layers=1, cross=True)
@@ -51,6 +53,21 @@ class DDPProposalFGTR(nn.Module):
         nn.init.zeros_(self.coordinate_decoder[-1].weight)
         nn.init.zeros_(self.coordinate_decoder[-1].bias)
         self.register_buffer('times_s', .5*torch.arange(1, steps+1), persistent=True)
+
+    def _read_times(self, queries, positions, Bt, uv, shapes, start):
+        batch = len(Bt)
+        chunk = time_chunk_size(self.fgtr_time_chunk_size, self.steps)
+        reads = []
+        for first in range(0, self.steps, chunk):
+            count = min(chunk, self.steps-first)
+            query = queries[first:first+count].transpose(0, 1)+positions[:, first:first+count]
+            query = query.reshape(batch*count, self.channels).unsqueeze(0)
+            value = Bt[:, first:first+count].reshape(batch*count, self.channels, -1).permute(2, 0, 1)
+            reference = uv[:, first:first+count].reshape(batch*count, 1, 1, 2)
+            read = self.col_attn(query=query, value=value, reference_points=reference,
+                                 spatial_shapes=shapes, level_start_index=start)
+            reads.append(read.squeeze(0).reshape(batch, count, self.channels))
+        return torch.cat(reads, 1)
 
     def forward(self, H_A, Bt, q0_encoded, q0_physical):
         batch = len(H_A)
@@ -65,14 +82,25 @@ class DDPProposalFGTR(nn.Module):
         positions = self.position(q0_physical.float()/40.)+self.out_of_range_embedding(out_of_range.long())
         shapes = torch.tensor([[self.grid.height, self.grid.width]], device=Bt.device, dtype=torch.long)
         start = torch.zeros(1, device=Bt.device, dtype=torch.long)
-        residuals = []
-        for t in range(self.steps):
-            read = self.col_attn(query=queries[t:t+1]+positions[:, t].unsqueeze(0),
-                                 value=Bt[:, t].flatten(2).permute(2, 0, 1),
-                                 reference_points=uv[:, t:t+1].unsqueeze(2),
-                                 spatial_shapes=shapes, level_start_index=start)
-            residuals.append(self.coordinate_decoder(read.squeeze(0)))
-        residual = torch.stack(residuals, 1)
+        vectorized = self.fgtr_time_vectorized and can_batch_independent(self.coordinate_decoder)
+        if vectorized and can_batch_independent(self.col_attn):
+            reads = self._read_times(queries, positions, Bt, uv, shapes, start)
+        else:
+            reads, residuals = [], []
+            for t in range(self.steps):
+                read = self.col_attn(query=queries[t:t+1]+positions[:, t].unsqueeze(0),
+                                     value=Bt[:, t].flatten(2).permute(2, 0, 1),
+                                     reference_points=uv[:, t:t+1].unsqueeze(2),
+                                     spatial_shapes=shapes, level_start_index=start)
+                if vectorized:
+                    reads.append(read.squeeze(0))
+                else:
+                    residuals.append(self.coordinate_decoder(read.squeeze(0)))
+            if vectorized:
+                reads = torch.stack(reads, 1)
+        # Native training attention has dropout=0.1: retain its per-time calls
+        # and RNG order, while batching only this deterministic coordinate MLP.
+        residual = (self.coordinate_decoder(reads) if vectorized else torch.stack(residuals, 1))
         final = q0_encoded+residual
         # Decode uses atan2(sin, cos); avoid a new trajectory/control representation.
         return {'q_final_encoded': final, 'residual': residual, 'out_of_range': out_of_range,

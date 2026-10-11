@@ -297,7 +297,9 @@ class DiT(ModelMixin, ConfigMixin):
         hidden_states = hidden_states.contiguous()
         encoder_hidden_states = encoder_hidden_states.contiguous()
 
-        all_hidden_states = [hidden_states]
+        # Retain intermediate outputs only when the caller requests them.
+        # Autograd and selective checkpointing keep their own required inputs.
+        all_hidden_states = [hidden_states] if return_all_hidden_states else None
 
         # Process through transformer blocks
         for idx, block in enumerate(self.transformer_blocks):
@@ -311,7 +313,8 @@ class DiT(ModelMixin, ConfigMixin):
                 hidden_states = block(hidden_states, **block_args)
             if active_token_mask is not None:
                 hidden_states = torch.where(active_token_mask[..., None], hidden_states, 0.)
-            all_hidden_states.append(hidden_states)
+            if all_hidden_states is not None:
+                all_hidden_states.append(hidden_states)
 
         # Output processing
         conditioning = temb
@@ -381,12 +384,13 @@ class SelfAttentionTransformer(ModelMixin, ConfigMixin):
     ):
         # Process through transformer blocks - single pass through the blocks
         hidden_states = hidden_states.contiguous()
-        all_hidden_states = [hidden_states]
+        all_hidden_states = [hidden_states] if return_all_hidden_states else None
 
         # Process through transformer blocks
         for idx, block in enumerate(self.transformer_blocks):
             hidden_states = block(hidden_states)
-            all_hidden_states.append(hidden_states)
+            if all_hidden_states is not None:
+                all_hidden_states.append(hidden_states)
 
         if return_all_hidden_states:
             return hidden_states, all_hidden_states

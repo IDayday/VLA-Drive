@@ -114,6 +114,32 @@ class TokenFuser(nn.Module):
             fused = fused.view(n, h, w, c).permute(0, 3, 1, 2)
         return fused
 
+    def can_batch_time_fusion(self):
+        """Time batching requires inactive dropout and independent GN/MLP.
+
+        Preserve the original per-time path for real BatchNorm substitutions
+        and any active dropout; never change probabilities or training modes.
+        """
+        for module in self.modules():
+            if isinstance(module, nn.modules.batchnorm._BatchNorm):
+                return False
+            if isinstance(module, nn.modules.dropout._DropoutNd) and module.training and module.p > 0:
+                return False
+        return True
+
+    def fuse_time(self, token_values, spatial_mix, original):
+        """B,T,C,D values share one live B,HW,D mix, without tiling the grid.
+
+        The caller admits time batching via can_batch_time_fusion before
+        preparing token values. The returned spatial reshape is a view.
+        """
+        fused = torch.einsum('btcs,bhs->bthc', token_values, spatial_mix)
+        fused = self.dropout(fused)
+        if original.dim() == 4:
+            n, c, h, w = original.shape
+            return fused.view(n, token_values.shape[1], h, w, c).permute(0, 1, 4, 2, 3)
+        return fused
+
     def forward(self, inputs, original):
         """Applies token fusion to the generate 2D ouputs.
 

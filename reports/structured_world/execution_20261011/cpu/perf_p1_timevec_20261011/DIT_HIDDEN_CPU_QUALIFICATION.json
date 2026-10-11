@@ -1,0 +1,129 @@
+{
+  "base_source": "267701f3b2c6cf36a97ff3a5e6bfb535e5aab232",
+  "device": "cpu",
+  "torch": "2.5.1+cu124",
+  "passed": true,
+  "tests_run": 4,
+  "controls": [
+    {
+      "case": "checkpoint_train_grad_admission_4_combinations",
+      "passed": true
+    },
+    {
+      "case": "joint_actor_inactive_NaN_masks",
+      "steps": 2,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainFalse_collectFalse_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainFalse_collectFalse_checkpointTrue",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainFalse_collectTrue_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainFalse_collectTrue_checkpointTrue",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainTrue_collectFalse_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainTrue_collectFalse_checkpointTrue",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainTrue_collectTrue_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_trainTrue_collectTrue_checkpointTrue",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "SelfAttentionTransformer_trainFalse_collectFalse_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "SelfAttentionTransformer_trainFalse_collectTrue_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "SelfAttentionTransformer_trainTrue_collectFalse_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "SelfAttentionTransformer_trainTrue_collectTrue_checkpointFalse",
+      "steps": 2,
+      "A_A_bitwise": true,
+      "output_input_parameter_gradients_optimizer_RNG_bitwise": true
+    },
+    {
+      "case": "DiT_native_no_grad_weakref_lifetime",
+      "reference_live_intermediate_outputs": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "candidate_live_intermediate_outputs": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "requested_hidden_outputs_retained": 4,
+      "scope": "tensor object lifetime, no GPU allocator/peak claim"
+    },
+    {
+      "case": "SelfAttentionTransformer_native_no_grad_weakref_lifetime",
+      "reference_live_intermediate_outputs": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "candidate_live_intermediate_outputs": [
+        1,
+        2,
+        2,
+        2
+      ],
+      "requested_hidden_outputs_retained": 4,
+      "scope": "tensor object lifetime, no GPU allocator/peak claim"
+    }
+  ],
+  "source_sha256": {
+    "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2",
+    "tools/structured_world/test_dit_hidden_retention.py": "56bcb4a9e9f58c8c52567cd62ea7268b860ac1c5cbd77fd6aa802b3fb27c04a4"
+  },
+  "scope": "exact CPU outputs/input+parameter gradients/two AdamW steps/dropout RNG/checkpoint guard and native tensor lifetime; no GPU peak claim"
+}
