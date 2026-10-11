@@ -1,0 +1,45 @@
+usage: IQE executable pipeline. No large workload is implied by reading a config. evaluate-base
+       [-h] --config CONFIG [--mode {smoke,full,dry-run,profile}]
+       [--max-samples MAX_SAMPLES] [--device {cpu,cuda}] [--repo REPO]
+       [--round ROUND]
+       [--roles {incremental_fit,stage_val,selector_cal,dev_report} [{incremental_fit,stage_val,selector_cal,dev_report} ...]]
+       [--role {incremental_fit,stage_val,selector_cal,dev_report}]
+       [--max-steps MAX_STEPS] [--stop-after STOP_AFTER] [--resume [RESUME]]
+       [--non-exact-finetune] [--checkpoint CHECKPOINT]
+       [--evaluation EVALUATION] [--backend {reference}] [--require-gates]
+       [--activate] [--expert-counts EXPERT_COUNTS [EXPERT_COUNTS ...]]
+       [--warmup WARMUP] [--repetitions REPETITIONS] [--bundle BUNDLE]
+       [--final-manifest FINAL_MANIFEST] [--selector-only]
+       [--shard-index SHARD_INDEX] [--num-shards NUM_SHARDS]
+       [--allow-latency-clones]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --mode {smoke,full,dry-run,profile}
+  --max-samples MAX_SAMPLES
+                        explicit per-role sample ceiling; required for full
+                        execution
+  --device {cpu,cuda}
+  --repo REPO
+  --round ROUND
+  --roles {incremental_fit,stage_val,selector_cal,dev_report} [{incremental_fit,stage_val,selector_cal,dev_report} ...]
+  --role {incremental_fit,stage_val,selector_cal,dev_report}
+  --max-steps MAX_STEPS
+  --stop-after STOP_AFTER
+  --resume [RESUME]
+  --non-exact-finetune
+  --checkpoint CHECKPOINT
+  --evaluation EVALUATION
+  --backend {reference}
+  --require-gates
+  --activate
+  --expert-counts EXPERT_COUNTS [EXPERT_COUNTS ...]
+  --warmup WARMUP
+  --repetitions REPETITIONS
+  --bundle BUNDLE
+  --final-manifest FINAL_MANIFEST
+  --selector-only
+  --shard-index SHARD_INDEX
+  --num-shards NUM_SHARDS
+  --allow-latency-clones

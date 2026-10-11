@@ -1,0 +1,55 @@
+Sun Oct 11 02:42:22 UTC 2026
+    PID                  STARTED     ELAPSED CMD
+2124247 Fri Oct  9 23:57:22 2026  1-02:45:00 /root/miniconda3/envs/ddp/bin/python -u -m torch.distributed.run --standalone --nproc_per_node=8 -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+2124255 Fri Oct  9 23:57:23 2026  1-02:44:59 /root/miniconda3/envs/ddp/bin/python -u -m iqe.cli train-base --config configs/iqe/main.yaml --mode full --max-samples 101592 --device cuda
+/mnt/project/DriveVLA-M0-iqe-20261009
+1e876da626b02af31459f44229248afa0cc55bed
+ M navsim/planning/script/config/training/default_training.yaml
+ M navsim/planning/script/run_training_full.py
+?? docs/s3_optimized_training.md
+?? scripts/eval_pdms_async.py
+?? scripts/run_gt_navtrain_103k_metrics_rlzt3.sh
+?? scripts/train_s3_optimized.sh
+?? tests/fixtures/
+?? tests/test_navsim_adaptive_labels.py
+?? tests/test_navsim_arc_yaw_seeds.py
+?? tests/test_navsim_corridor_sampling.py
+?? tests/test_navsim_dense_perturbation.py
+?? tests/test_navsim_fixed_proposals.py
+?? tests/test_navsim_geometry_composition.py
+?? tests/test_navsim_geometry_dispatch.py
+?? tests/test_navsim_geometry_patch.py
+?? tests/test_navsim_geometry_release.py
+?? tests/test_navsim_gt_distance.py
+?? tests/test_navsim_isolated_resume.py
+?? tests/test_navsim_local_shape_repair.py
+?? tests/test_navsim_multi_host_dispatch.py
+?? tests/test_navsim_portal_route_audit.py
+?? tests/test_navsim_priority_acceleration.py
+?? tests/test_navsim_projection_guard.py
+?? tests/test_navsim_quality_release.py
+?? tests/test_navsim_release_archive.py
+?? tests/test_navsim_robust_labels.py
+?? tests/test_navsim_route_topology_audit.py
+?? tests/test_navsim_scene_batches.py
+?? tests/test_navsim_shape_search.py
+?? tests/test_navsim_simscale_repair.py
+?? tests/test_navsim_unconditioned_route_audit.py
+?? tests/test_navsim_validation_contract.py
+?? tests/test_navsim_waypoint_shape.py
+?? tests/test_navsim_zero_search.py
+?? tests/test_navsim_zero_search_v2.py
+?? tools/navsim_gt_metrics/
+?? tools/navsim_robust_labels/
+{"actual_global_batch":32,"compute_update_seconds":3.8864728063344955,"gradient_norm":4.837949752807617,"learned_driving_weights_loaded":false,"losses":{"current_dino":0.02080572210252285,"ego_il":0.10325175523757935,"future_clip":0.47192615270614624,"interaction":0.00917092151939869},"optimizer_step":22398,"retained_objectives":["ego_il","current_dino","future_clip","interaction"],"sample_ids":["4770be23ff7b50fe","508b669136375e43","438aa7014a3e5610","3ea8fb8f967f5c62","008b2dd650cf50da","2fc1e2b4f5aa5f1a","3589699115115d92","ad2198608d185abe","b468b70e470d5fc4","8fd56a0136395d67","da49cf0f4eed5217","98f0edee53225810","a1b6e7436c6150ac","0e98bd413f515b54","4321b2e0f1ca5894","482578d93ae35030","944685c9144f5346","0de1c03082885ead","f3d563ce70d2515b","4e3e4099f6d55622","1a425d6440a25c5f","60b3474f11185111","cf5d2d0245335b2d","2c812f09d0625f98","e88faec076a750d0","164c27a97efb5ccb","692aa83047fd58ca","43025d330e655fcf","838929fda6bf548b","1dfb6cb5c28758e1","0be6100f033c5ed5","f791076655955888"],"seconds_per_update":4.297534596321236,"status":"RUNNING"}
+index, name, utilization.gpu [%], memory.used [MiB], memory.total [MiB]
+0, NVIDIA A800-SXM4-80GB, 100 %, 43935 MiB, 81920 MiB
+1, NVIDIA A800-SXM4-80GB, 100 %, 44613 MiB, 81920 MiB
+2, NVIDIA A800-SXM4-80GB, 100 %, 44079 MiB, 81920 MiB
+3, NVIDIA A800-SXM4-80GB, 97 %, 44639 MiB, 81920 MiB
+4, NVIDIA A800-SXM4-80GB, 100 %, 44639 MiB, 81920 MiB
+5, NVIDIA A800-SXM4-80GB, 100 %, 44629 MiB, 81920 MiB
+6, NVIDIA A800-SXM4-80GB, 100 %, 44391 MiB, 81920 MiB
+7, NVIDIA A800-SXM4-80GB, 100 %, 44269 MiB, 81920 MiB
+Filesystem                                                                                          1B-blocks            Used     Available Use% Mounted on
+100.97.192.3@tcp:100.97.192.4@tcp:/hbTcp001/78ebbad2386e922193d44ac249bbb12e_kl4gv5vivlcf06o2 432814591836160 429828508041216 2986083794944 100% /mnt/project

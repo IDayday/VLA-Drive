@@ -1,0 +1,83 @@
+{
+  "recorded_utc": "2026-10-11T03:11:45.952424+00:00",
+  "target_commit": "924b003ad84ffc2d51e1cb4f5e140663f3280152",
+  "branch": "fix/iqe-launch-closeout-924b003",
+  "TARGET_COMMIT_BINDING": "PASS",
+  "C1_QUALIFICATION_VERSIONING": "PASS",
+  "C2_BASE_EVALUATION_RETRY": "PASS",
+  "C3_TERMINAL_RESUME": "PASS",
+  "EXISTING_BASE_JOB_STATUS": {
+    "status": "PASS",
+    "observed_state": "RUNNING",
+    "recommendation": "KEEP_RUNNING",
+    "optimizer_step": 22796,
+    "observed_at": "Sun Oct 11 03:09:34 UTC 2026"
+  },
+  "BASE_CHECKPOINT_COMPATIBILITY": "PASS",
+  "BASE_FOR_INCREMENTAL_READY": "PASS",
+  "base_scope": "user-confirmed 22k engineering qualification for a resampling_only experiment; convergence and scientific baseline sufficiency untested",
+  "base_checkpoint": "/mnt/project/DriveVLA-M0-iqe-20261009/outputs/iqe/main/query_base/step_022000.pt",
+  "base_checkpoint_hash": "42320ea3e6fb09c6cd2b955dde7398a4033338a98a68bc4bac111fe8e5e01e93",
+  "qualification_id": "175b61961441ccd3005a6b794ed5443198e470ff7f7cb88b612774255772ddb6",
+  "formal_config": "configs/iqe/formal/round1_locked.yaml",
+  "EXPERT_PIPELINE_READY": "PASS",
+  "EXPERT_ROUND1_START_READY": "WAITING_INPUTS",
+  "EXPERT_ROUND1_EXPERIMENT_QUALIFIED": "PASS",
+  "expert_start_dependencies": [
+    "full official train-domain contexts",
+    "full frozen feature cache and Base official candidate bank",
+    "audited round1 expert manifest/sampling plan",
+    "currently free authorized GPU"
+  ],
+  "SCORER_PIPELINE_READY": "PASS",
+  "SCORER_DATA_READY": "WAITING_INPUTS",
+  "SCORER_START_READY": "WAITING_INPUTS",
+  "scorer_start_dependencies": [
+    "formal complete accepted old/new candidate bank",
+    "stage_val candidate bank",
+    "free authorized GPU"
+  ],
+  "MULTI_ROUND_READY": "PASS",
+  "SCORE_REFERENCE_EQUIVALENCE": "PASS",
+  "DDP_TERMINAL_AND_RESUME": "PASS",
+  "E3_REAL_NEW_DATA": "UNTESTED",
+  "E6_RESIDUAL_ENGINEERING": "PASS",
+  "E12_LORA_DIT_BASELINE": "BLOCKED",
+  "E12_reason": "no aligned runnable old LoRA-DiT expert set bound; does not block main method",
+  "SCIENTIFIC_GAIN": "UNTESTED",
+  "DEPLOYMENT": "WAITING_INPUTS",
+  "BASE_EXECUTION_OPTIMIZATION": "PASS",
+  "base_profile_wall_p50_seconds": 2.7666225880384445,
+  "base_profile_updates": 32,
+  "base_profile_world_size": 8,
+  "base_runtime_default_enabled": false,
+  "deterministic_backend_migration": "explicit; optimization/objectives/precision preserved, not a bitwise claim against old nondeterministic backward",
+  "NEW_FULL_TRAINING_STARTED": false,
+  "EXISTING_BASE_STOPPED": false,
+  "FORMAL_ACTIVE_UPDATED": false,
+  "NEW_NAVTEST_STARTED": false,
+  "NAVTEST_MONITORING_PLAN_CHANGED": false,
+  "PUSHED": false,
+  "FINAL_TEST_USED_FOR_TRAINING": false,
+  "real_qualification_train_updates": {
+    "expert1": 2,
+    "scorer1": 2,
+    "scorer_only_round2": 2,
+    "continuous_expert_resume_control": 2
+  },
+  "real_qualification_path": "/mnt/project/iqe-launch-runtime-924b003/incremental_qualification_gpu",
+  "nonblocking_science_gaps": [
+    "incremental gain untested",
+    "no real new E3 observations",
+    "E12 baseline unavailable"
+  ],
+  "UNIT_TESTS": {
+    "status": "PASS",
+    "passed": 153,
+    "skipped_optional_GPU_tests": 2,
+    "optional_GPU_tests_separately_passed": 2,
+    "elapsed_seconds": 37.98
+  },
+  "tested_source_commit": "f2f873cc94b6e90e24594798d424d342ad69bdb6",
+  "user_22k_selection_confirmation": "evidence/USER_BASE_SELECTION_CONFIRMATION.json"
+}
