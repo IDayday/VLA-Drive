@@ -1,0 +1,358 @@
+{
+  "key": "G1_early_01_io_preserving_v1",
+  "case": "G1_early",
+  "mode": "io_preserving_v1",
+  "passed": true,
+  "stable_updates": 200,
+  "stable_scene_exposure": 6400,
+  "stable_wall_seconds": 641.5627934355289,
+  "stable_seconds_per_update": 3.2078139671776444,
+  "trainer_window_wall_seconds": null,
+  "stable_200_window_max_rank_wall_seconds": 641.5627934355289,
+  "all_rank_stable_200_wall_seconds": [
+    641.5627934355289,
+    641.5627838335931,
+    641.5627381708473,
+    641.5627343188971,
+    641.5627681333572,
+    641.5627638734877,
+    641.5627216100693,
+    641.5627861302346
+  ],
+  "boundary_timing_semantics": "CUDA sync only after optimizer step20 and220; MAX collective at220 outside measured span; final step log excluded",
+  "stable_200_window_rank0_stdout_wall_seconds": 641.5625427607447,
+  "timing_semantics": "identical all-rank MAX optimizer boundary20->220 wall for both modes; includes log20 through219, excludes final update220 log and end-edge MAX collective",
+  "stable_global_scenes_per_second": 9.975640834357613,
+  "wall_per_update_including_logs": {
+    "samples": 10,
+    "median_seconds": 3.2068908700253815,
+    "P90_seconds": 3.2175394884869455,
+    "mean_seconds": 3.2078127138037233
+  },
+  "update_intervals": {
+    "samples": 200,
+    "median_seconds": 3.1937537183985114,
+    "P90_seconds": 3.256584232859313,
+    "mean_seconds": 3.2078127138037233
+  },
+  "update_interval_semantics": "rank0 stdout arrival deltas, includes logging",
+  "sum_trainer_max_rank_update_seconds": 641.4783043861389,
+  "all_rank_peak_allocated_reserved_bytes": [
+    [
+      34249771008,
+      43182456832
+    ],
+    [
+      34250442240,
+      43631247360
+    ],
+    [
+      34250442240,
+      43622858752
+    ],
+    [
+      34249771008,
+      43236982784
+    ],
+    [
+      34250442240,
+      43652218880
+    ],
+    [
+      34250442240,
+      43813699584
+    ],
+    [
+      34250442240,
+      42693820416
+    ],
+    [
+      34249771008,
+      42196795392
+    ]
+  ],
+  "process_wall_seconds": 806.066905873,
+  "process_GPU_hours": 1.791259790828889,
+  "startup_through_native_boundary_seconds": 94.682793563,
+  "startup_observation_poll_seconds": 0.05,
+  "startup_through_first_metric_arrival_seconds": 99.861289012,
+  "startup_includes": "Python/DS/model/native hash+restore+boundary plus first update (IO) or first20 updates (fast)",
+  "checkpoint_save_seconds": 0.0,
+  "checkpoint_save_policy": "read-only origin; no new checkpoint; native hash/load costs included in startup",
+  "origin_checkpoint_save_seconds": 34.778289794921875,
+  "checkpoint_cost_limit": "Historical origin save_seconds is disclosed separately; no new save timing or amortization is inferred from these disposable windows",
+  "post_last_stdout_until_process_exit_seconds": 4.202007150999975,
+  "native_boundary": {
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "FP32_masters": "bitwise all ranks, actual parameters",
+    "FP32_model_and_buffers": "bitwise",
+    "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+    "all_task_RNG": "exact all ranks",
+    "completed": 2,
+    "epoch": 0,
+    "exposure": 64,
+    "identity": "a01b6fe7d64cccc4248730e74a15df3c34e2dedc3383ff13127b16f4ad0751c7",
+    "offset": 2,
+    "passed": true,
+    "timing": "before next forward/backward/update"
+  },
+  "run_identity": "a01b6fe7d64cccc4248730e74a15df3c34e2dedc3383ff13127b16f4ad0751c7",
+  "source": {
+    "training_source_sha": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+    "training_source_tree_sha256": "99a0a0bea2abacfe7635304d58f9c2071c7cbf31eea8d8ff2b0d2de69c9a77f7",
+    "config": {
+      "act_tok": 8,
+      "datasets": {
+        "gs_data": {
+          "load_3d_data": false
+        },
+        "reward_data": {
+          "load_reward_data": false
+        },
+        "video_data": {
+          "load_2d_data": false
+        },
+        "vla_data": {
+          "act_norm": true,
+          "load_act_data": true
+        }
+      },
+      "doing_s2": 0,
+      "enable_image_aug": 0,
+      "foresight": {
+        "ablation": "FULL",
+        "arm": "C1",
+        "auxiliary_warmup": 1,
+        "candidate": "",
+        "current_horizon_s": 0.0,
+        "dino_feature_dim": 1024,
+        "dino_height": 6,
+        "dino_width": 8,
+        "enable_current_dino": true,
+        "enable_future_dino": false,
+        "enable_interaction": false,
+        "full_algorithm": false,
+        "future_horizons_s": [
+          1.0,
+          2.0,
+          4.0
+        ],
+        "lambda_cur": 1.0,
+        "lambda_fut": 0.0,
+        "lambda_int": 0.0,
+        "num_queries": 144,
+        "readout_dim": 512,
+        "readout_layers": 2
+      },
+      "framework": {
+        "action_model": {
+          "action_dim": 4,
+          "action_horizon": 8,
+          "action_model_type": "DiT-B",
+          "add_pos_embed": true,
+          "diffusion_model_cfg": {
+            "cross_attention_dim": 1536,
+            "dropout": 0.2,
+            "final_dropout": true,
+            "interleave_self_attention": true,
+            "norm_type": "ada_norm",
+            "num_layers": 24,
+            "output_dim": 1536,
+            "positional_embeddings": null
+          },
+          "future_action_window_size": 8,
+          "hidden_size": 1536,
+          "max_seq_len": 1024,
+          "mlp_head": 0,
+          "noise_beta_alpha": 1.5,
+          "noise_beta_beta": 1.0,
+          "noise_s": 0.999,
+          "num_inference_timesteps": 10,
+          "num_target_vision_tokens": 32,
+          "num_timestep_buckets": 1000,
+          "past_action_window_size": 0,
+          "repeated_diffusion_steps": 8,
+          "state_dim": 4
+        },
+        "camera_count": 3,
+        "name": "VLAStructuredFGTR",
+        "qwenvl": {
+          "attn_implementation": "sdpa",
+          "base_vlm": "/mnt/project/DriveDreamer-Policy/models/Qwen3-VL-2B-Instruct",
+          "device_map": "cpu",
+          "vl_hidden_dim": 2048
+        }
+      },
+      "from_scratch": {
+        "source_manifest": "/mnt/project/ddp-foresight-artifacts/20260928/generic/sources.json"
+      },
+      "gs_query_loss": 0,
+      "is_debug": false,
+      "pretrain_model_2d": null,
+      "rgb_query_loss": 0,
+      "run_id": "navsim_G1_FULL_UNIFORM_seed42",
+      "run_root_dir": "results/Checkpoints",
+      "seed": 42,
+      "structured_world": {
+        "class_statistics": {
+          "arrival_positive_weight": 6.580630780076882,
+          "current_positive_weight": 3.88124994826121,
+          "future_positive_weight": 3.838836274157505,
+          "label_identity": "9e8996413379c8421e657bf89006415963263df55d4ae87af3e954b588d0c268",
+          "release_positive_weight": 1.4268184780051738,
+          "status": "whole_training_population_derived_sqrt_negative_positive"
+        },
+        "dataset": "navsim",
+        "evaluation_sampling_seeds": [
+          42,
+          43,
+          44,
+          45,
+          46
+        ],
+        "formal_recipe_assets": {
+          "current_DINO_identity": "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+          "label_cache_identity": "9e8996413379c8421e657bf89006415963263df55d4ae87af3e954b588d0c268",
+          "shared_geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd"
+        },
+        "formal_training_seed": 42,
+        "geometry_image_size": [
+          256,
+          448
+        ],
+        "grid": {
+          "dx": 0.5,
+          "dy": 0.5,
+          "xmax": 80.0,
+          "xmin": -20.0,
+          "ymax": 40.0,
+          "ymin": -40.0
+        },
+        "group": "G1_FULL_UNIFORM",
+        "imagenet_checkpoint": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/public_initialization/resnet50-0676ba61.pth",
+        "initialization_kind": "generic",
+        "loss_weights": {
+          "future": 0.10546160273575751,
+          "geometry": 0.11612486667757727,
+          "query": 0.3871265716143443,
+          "refine": 1.0
+        },
+        "queries": 1024,
+        "refine_warmup_updates": 1000,
+        "registration_status": "frozen_after_common_calibration_and_profile",
+        "shared_loss_calibration": {
+          "rule_sha256": "bec0fced9d00a84cf54accb4730ab777bc50d2608eac780dd2b3a664e1e7d0c4",
+          "selected_recipe_sha256": "1c81af070469b1ab2944020c9d35b7d07b873a0ae5cbc75c621ffa3eb97b9fd4"
+        }
+      },
+      "trackers": [
+        "jsonl"
+      ],
+      "trainer": {
+        "enable_gradient_checkpointing": true,
+        "enable_mixed_precision_training": true,
+        "epochs": 100,
+        "eval_interval": 200000,
+        "freeze_modules": "",
+        "gradient_accumulation_steps": 1,
+        "gradient_clipping": 1.0,
+        "is_resume": false,
+        "learning_rate": {
+          "action_model": 1e-05,
+          "base": 1e-05,
+          "dino_head": 1e-05,
+          "future_space": 0.0001,
+          "geometry": 0.0001,
+          "gs_model": 1e-05,
+          "qwen_vl_interface": 1e-05,
+          "refiner": 0.0001,
+          "reward_model": 1e-05,
+          "rgb_model": 1e-05,
+          "scene_semantics": 0.0001
+        },
+        "logging_frequency": 100,
+        "loss_scale": {
+          "vla": 1.0,
+          "vlm": 0.1
+        },
+        "lr_scheduler_type": "cosine_with_min_lr",
+        "max_grad_norm": 1.0,
+        "max_train_steps": 100000,
+        "num_warmup_steps": 5000,
+        "optimizer": {
+          "betas": [
+            0.9,
+            0.95
+          ],
+          "eps": 1e-08,
+          "name": "AdamW",
+          "weight_decay": 0.001
+        },
+        "repeated_diffusion_steps": 8,
+        "resume_ckpt": "none",
+        "resume_epoch": null,
+        "resume_step": null,
+        "save_interval": 10000,
+        "scheduler_specific_kwargs": {
+          "min_lr": 5e-07
+        },
+        "warmup_ratio": 0.1,
+        "weight_decay": 0.0
+      },
+      "ver_1225": 1,
+      "vit_pre": 0,
+      "w_depth": 0,
+      "w_video_latent": 0,
+      "wandb_entity": "your_wandb_entity",
+      "wandb_project": "llavavla"
+    },
+    "cache_identity": "9e8996413379c8421e657bf89006415963263df55d4ae87af3e954b588d0c268",
+    "current_and_GT_identity": {
+      "cameras": [
+        "CAM_F0",
+        "CAM_L0",
+        "CAM_R0"
+      ],
+      "current_only": true,
+      "history_images": 0,
+      "identity": "f5fbbb2ddbc1d0ec67f9db2209b7953eadd3130e656365796c03282bbbbc0967",
+      "index_sha256": "1045890740e1a4ec8c11b802dede2b6a42d0c0b7131d7f581081e6da1f3b7b7d",
+      "partition_sha256": "ab956543a4f6a96c64e5211ca5fce61e74580901f2335c772e29473ba2cc56d2",
+      "schema": "ddpolicy_current_cameras_v1",
+      "source_observation_identity": "59a0f36f22f33cc0e10bc82328191d126a9acfdc89b8c59b3931873ec212a423",
+      "split": "train",
+      "writer_sha256": "1387920b3da7d6aa1e752bbcde685577bc578820c978b68c91eea4c3448b1436"
+    },
+    "DINO_identity": "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+    "shared_geometry_identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+    "initialization_assets": {
+      "ImageNet_R50_sha256": "0676ba61b6795bbe1773cffd859882e5e297624d384b6993f7c9e683e722fb8a",
+      "Qwen_public_pretraining_files": {
+        "chat_template.json": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+        "config.json": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+        "generation_config.json": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "model.safetensors": "7de1838c87a5349b016c26a1c3f7d2bc400a3d485f95ef39a7059ffd734977a0",
+        "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+        "tokenizer.json": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+        "tokenizer_config.json": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+        "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "identity": "31939feacac53c08409b0a4be3bb3102acffab0dabc050a68de5c87b3e271acf",
+      "shared_geometry": {
+        "actual_exposure": 507960,
+        "epochs": 5.0,
+        "identity": "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "label_cache_identity": "9e8996413379c8421e657bf89006415963263df55d4ae87af3e954b588d0c268",
+        "sha256": "75219e9b2af7502b92063c0cbc6f720b65487d1e03c1b4058e9da2514a60b12c",
+        "training_source_sha": "3aca5abc8351821dd25640cd507a16bd5af518ea"
+      }
+    }
+  },
+  "artifacts": {
+    "run": "/var/tmp/structured-world-fgtr-execution-20261011/final_windows_v3/runs/G1_early_01_io_preserving_v1",
+    "stdout": "/var/tmp/structured-world-fgtr-execution-20261011/final_windows_v3/runs/G1_early_01_io_preserving_v1/stdout.log",
+    "arrivals": "/var/tmp/structured-world-fgtr-execution-20261011/final_windows_v3/runs/G1_early_01_io_preserving_v1/stdout_metric_arrivals.jsonl"
+  }
+}

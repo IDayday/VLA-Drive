@@ -2,7 +2,8 @@
 
 Default --manifest INPUT.json --output NEW_DIR only writes a reviewable plan.
 An operator must explicitly add --execute ON the qualified host. No SSH,
-Navtest, retries, process termination, checkpoint deletion or old-output reuse.
+Navtest, job retries, process termination or checkpoint deletion. Explicit
+--continue-from validates and references a completed prefix in a fresh output.
 
 Manifest: source_root, source_sha (full frozen commit), python, host,
 gpu_uuids (eight, rank order), qualification {path, sha256}, artifact_root,
@@ -66,8 +67,8 @@ def write(path, value):
     with Path(path).open('x') as stream: json.dump(value, stream, indent=2)
 
 
-def checked(command, cwd=None, env=None):
-    return subprocess.check_output(command, cwd=cwd, env=env, text=True).strip()
+def checked(command, cwd=None, env=None, timeout=None):
+    return subprocess.check_output(command, cwd=cwd, env=env, text=True, timeout=timeout).strip()
 
 
 def immutable_source(root, sha):
@@ -174,19 +175,40 @@ def runtime_snapshot(python):
     return json.loads(checked([python, '-B', '-c', code], env=env))
 
 
-def readiness(manifest):
+def readiness(manifest, record_sample=None):
     policy = authorize(manifest['host'])
     require(socket.gethostname().removesuffix('-worker-0') == manifest['host'], 'Execute on the qualified host, no remote dispatch')
-    rows = checked(['nvidia-smi', '--query-gpu=uuid,memory.used,memory.free,utilization.gpu', '--format=csv,noheader,nounits']).splitlines()
-    gpus = []
-    for row in rows:
-        uuid, used, free, util = [value.strip() for value in row.split(',')]
-        gpus.append(dict(uuid=uuid, used_MiB=int(used), free_MiB=int(free), utilization=int(util)))
-    apps = checked(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,process_name', '--format=csv,noheader,nounits'])
-    require(len(gpus) == 8 and {g['uuid'] for g in gpus} == set(manifest['gpu_uuids']), 'Physical UUID inventory changed')
-    require(not apps and all(g['used_MiB'] <= 128 and g['utilization'] <= 5 and g['free_MiB'] >= manifest['minimum_free_MiB'] for g in gpus),
-            'GPU host is occupied/insufficiently free; no process is stopped')
-    return {'policy': policy, 'gpus': gpus, 'compute_apps': [], 'observed_unix': time.time()}
+    started, samples = time.monotonic(), []
+    def record(sample):
+        sample.update(attempt=len(samples)+1, observed_unix=time.time(), elapsed_seconds=time.monotonic()-started)
+        samples.append(sample)
+        if record_sample is not None: record_sample(sample)
+    while True:
+        sample = {'gpus': [], 'compute_apps': []}
+        try:
+            timeout = lambda: max(.001, min(2., 10.-(time.monotonic()-started)))
+            rows = checked(['nvidia-smi', '--query-gpu=uuid,memory.used,memory.free,utilization.gpu', '--format=csv,noheader,nounits'], timeout=timeout()).splitlines()
+            for row in rows:
+                uuid, used, free, util = [value.strip() for value in row.split(',')]
+                sample['gpus'].append(dict(uuid=uuid, used_MiB=int(used), free_MiB=int(free), utilization=int(util)))
+            sample['compute_apps'] = checked(['nvidia-smi', '--query-compute-apps=gpu_uuid,pid,process_name', '--format=csv,noheader,nounits'], timeout=timeout()).splitlines()
+        except Exception as exc:
+            record({**sample, 'decision': 'query_failed', 'error': repr(exc)})
+            raise
+        gpus, apps = sample['gpus'], sample['compute_apps']
+        inventory = len(gpus) == 8 and {g['uuid'] for g in gpus} == set(manifest['gpu_uuids'])
+        memory = all(g['used_MiB'] <= 128 and g['free_MiB'] >= manifest['minimum_free_MiB'] for g in gpus)
+        idle = all(g['utilization'] <= 5 for g in gpus)
+        sample['decision'] = 'occupied' if apps or not memory else 'inventory_changed' if not inventory else 'ready' if idle else 'settling_utilization'
+        record(sample)
+        require(not apps, 'GPU compute app present; no settling, process stopped or job retried')
+        require(inventory, 'Physical UUID inventory changed')
+        require(memory, 'GPU memory occupied/insufficiently free; no settling or process stopped')
+        if idle:
+            return {'policy': policy, **sample, 'samples': samples, 'settle_limit_seconds': 10., 'sample_interval_seconds': .5}
+        remaining = 10.-(time.monotonic()-started)
+        require(remaining > 0, 'Empty-app GPU utilization did not settle within 10 seconds; samples retained, no job started')
+        time.sleep(min(.5, remaining))
 
 
 def acquire(stack, path):
@@ -405,6 +427,89 @@ def aggregate(results, candidate_mode=MODES[1]):
     return summary_cases
 
 
+def completed_prefix(plan, previous, natives):
+    """Read-only verification; never admit an earlier failed/unfinished worker."""
+    previous = Path(previous).resolve()
+    old, registration, outcome = [read(previous/name) for name in ('MANIFEST.json', 'REGISTRATION.json', 'RESULTS.json')]
+    require({k: v for k, v in old['manifest'].items() if k != 'candidate_mode'} ==
+            {k: v for k, v in plan['manifest'].items() if k != 'candidate_mode'},
+            'Continuation changed source/assets/origins/cases/resources/budget')
+    for key in ('schema', 'source_root', 'source_sha', 'warmup_updates', 'stable_updates', 'total_jobs', 'maximum_job_updates', 'maximum_total_updates'):
+        require(old[key] == plan[key], 'Continuation job/update/timing grid changed: '+key)
+    candidate_changed = old['candidate_mode'] != plan['candidate_mode']
+    require(not candidate_changed or all(r['mode'] == MODES[0] for r in outcome['jobs']),
+            'Candidate switch only allowed for an entirely reference-only completed prefix')
+    expected = build_plan(old['manifest'], previous, Path(old['driver']))
+    require(all(old.get(k) == v for k, v in expected.items()), 'Previous plan job grid/commands/timing/source altered')
+    require(registration['training_source_sha'] == plan['source_sha'] and registration['origins'] == natives
+            and registration['budget'] == plan['manifest']['budget'], 'Previous registered native/scientific/budget identity changed')
+    require(registration['driver_code_sha256'] == old['driver_sha256'], 'Previous driver identity changed')
+    immutable_source(Path(old['driver']).parents[2], registration['driver_sha'])
+    count = outcome['completed_jobs']
+    require(type(count) is int and 0 < count <= plan['total_jobs'] and len(outcome['jobs']) == count
+            and outcome['planned_jobs'] == plan['total_jobs'], 'Require a nonempty exact completed prefix')
+    require(outcome['status'] in ('FAILED', 'STOPPED_BEFORE_NEXT_JOB', 'COMPLETE')
+            and outcome['candidate_mode'] == old['candidate_mode'] and outcome['mode_pair'] == old['mode_pair'], 'Previous controller/result mode or completion state changed')
+    require([r['key'] for r in outcome['jobs']] == [j['key'] for j in old['jobs'][:count]], 'Completed jobs are not the ordered prefix')
+    inherited = read(previous/'CONTINUE_FROM.json') if (previous/'CONTINUE_FROM.json').exists() else {'jobs': [], 'completed_prefix': 0}
+    require(outcome.get('reused_jobs', 0) == inherited['completed_prefix'] == len(inherited['jobs']) <= count, 'Mixed inherited prefix evidence')
+    own_keys = {j['key'] for j in old['jobs'][len(inherited['jobs']):count]}
+    runs = previous/'runs'
+    require({p.name for p in runs.iterdir()} == own_keys if runs.exists() else not own_keys,
+            'Earlier started/failed/unfinished or mixed worker exists; no actual job retry')
+    require({p.name for p in previous.glob('*_RESULT.json')} == {j['key']+'_RESULT.json' for j in old['jobs'][:count]}, 'Missing/extra success receipt outside prefix')
+    references, results = [], []
+    for i, job in enumerate(old['jobs'][:count]):
+        new_job = plan['jobs'][i]
+        def scientific_args(j):
+            args = list(j['train_args'])
+            args[args.index('--output')+1] = '<private-output>'
+            return args
+        require(all(job[k] == new_job[k] for k in ('key', 'case', 'mode')) and scientific_args(job) == scientific_args(new_job),
+                'Reused job case/mode/scientific/native/timing args changed')
+        path = previous/(job['key']+'_RESULT.json')
+        result = read(path)
+        require(result == outcome['jobs'][i] and result['passed'], 'Success receipt differs from previous RESULTS')
+        run = Path(result['artifacts']['run']).resolve()
+        driver, driver_sha = Path(old['driver']), registration['driver_sha']
+        if i < len(inherited['jobs']):
+            ref = inherited['jobs'][i]
+            require(ref['key'] == job['key'] and digest(ref['result_path']) == ref['result_sha256']
+                    and read(ref['result_path']) == result and ref['run'] == str(run), 'Inherited success reference changed')
+            driver, driver_sha = Path(ref['worker_driver']), ref['worker_driver_sha']
+            require(digest(driver) == ref['worker_driver_code_sha256'], 'Inherited worker driver changed')
+            immutable_source(driver.parents[2], driver_sha)
+        else:
+            require(run == Path(job['run']).resolve(), 'Success run is not owned by previous controller')
+        process = read(run/'PROCESS_EXIT.json')
+        require(process['returncode'] == 0 and process.get('monitor_error') is None, 'Earlier actual job failed; no retry')
+        command = [str(run) if a == job['run'] else a for a in job['command']]
+        command[command.index('--')+1] = str(driver)
+        require(read(run/'PROCESS.json')['command'] == command, 'Success worker command differs from registered native job')
+        actual_job = {**job, 'run': str(run), 'gpu_uuids': plan['manifest']['gpu_uuids']}
+        require(result == analyze_job(actual_job, natives[job['case']], process), 'Success receipt cannot be reproduced from actual rank/boundary/window artifacts')
+        require(result['source']['training_source_sha'] == plan['source_sha'], 'Success training source differs')
+        require(all(read(run/f'worker_rank{rank}.json')['trainer'] == str(Path(plan['source_root'])/'tools/structured_world/train_vla.py') for rank in range(8)), 'Rank trainer source changed')
+        proof_names = ['PROCESS.json', 'PROCESS_EXIT.json', 'RESUME_BOUNDARY_VERIFIED.json', 'identity.json',
+                       'TRAINING_COMPLETE.json', 'optimizer_groups.json', 'metrics.jsonl', 'stdout_metric_arrivals.jsonl']
+        proof_names += [f'worker_rank{rank}.json' for rank in range(8)]
+        if job['mode'] != MODES[0]: proof_names.append('performance_windows.jsonl')
+        references.append({'key': job['key'], 'result_path': str(path), 'result_sha256': digest(path), 'run': str(run),
+            'worker_driver': str(driver), 'worker_driver_sha': driver_sha, 'worker_driver_code_sha256': digest(driver),
+            'verified_artifact_sha256': {str(run/name): digest(run/name) for name in proof_names}})
+        results.append(result)
+    hours = sum(r['process_GPU_hours'] for r in results)
+    require(math.isclose(outcome['process_GPU_hours'], hours, rel_tol=1e-12), 'Previous process budget includes unverified/failed work')
+    budget = plan['manifest']['budget']
+    require(budget['already_spent']+budget['reserved_elsewhere']+hours+(plan['total_jobs']-count)*budget['per_job_reserve_GPU_hours'] <= budget['GPU_hours_limit'], 'Continuation remaining matrix exceeds shared GPUh budget')
+    files = ['MANIFEST.json', 'REGISTRATION.json', 'RESULTS.json']
+    files += [name for name in ('FAILURE.json', 'CONTINUE_FROM.json') if (previous/name).exists()]
+    return results, {'previous_output': str(previous), 'completed_prefix': count, 'remaining_jobs': plan['total_jobs']-count,
+        'planned_candidate_changed': candidate_changed, 'previous_candidate_mode': old['candidate_mode'], 'candidate_mode': plan['candidate_mode'],
+        'reused_process_GPU_hours': hours, 'previous_environment': registration['environment'], 'jobs': references,
+        'previous_record_sha256': {str(previous/name): digest(previous/name) for name in files}, 'old_files_modified': False}
+
+
 def main():
     if '--worker' in sys.argv[1:]:
         worker(); return 0
@@ -412,6 +517,7 @@ def main():
     parser.add_argument('--manifest', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--continue-from', type=Path, help='Verify/reuse successful ordered prefix; fresh output only, no retry of any previously started incomplete job')
     args = parser.parse_args()
     output = args.output.resolve()
     require(not output.exists(), 'Output must be fresh; no retry/overwrite')
@@ -422,11 +528,20 @@ def main():
     require("'--benchmark-no-end-save'" in trainer.read_text(), 'Need new immutable trainer commit supporting --benchmark-no-end-save')
     require(repr(plan['candidate_mode']) in trainer.read_text(), 'Frozen trainer does not support selected candidate mode')
     natives = {case['name']: origin(case) for case in manifest['cases']}
+    results, continuation = [], None
+    if args.continue_from:
+        require(not output.is_relative_to(args.continue_from.resolve()), 'Continuation output must be outside previous artifacts')
+        results, continuation = completed_prefix(plan, args.continue_from, natives)
     output.mkdir(parents=True, exist_ok=False)
     write(output/'MANIFEST.json', plan)
+    if continuation:
+        write(output/'CONTINUE_FROM.json', continuation)
+        for result in results: write(output/(result['key']+'_RESULT.json'), result)
     if not args.execute:
-        print(json.dumps({'status': 'PLANNED_ONLY', 'jobs': len(plan['jobs']), 'manifest': str(output/'MANIFEST.json')})); return 0
-    results, status, error = [], 'COMPLETE', None
+        print(json.dumps({'status': 'PLANNED_ONLY', 'jobs': len(plan['jobs']), 'reused_jobs': len(results),
+                          'remaining_jobs': len(plan['jobs'])-len(results), 'manifest': str(output/'MANIFEST.json')})); return 0
+    reused = len(results)
+    status, error = 'COMPLETE', None
     stop_requested = [False]
     def stop_after_current(*unused): stop_requested[0] = True
     for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, stop_after_current)
@@ -440,19 +555,20 @@ def main():
         qualified = read(q['path'])
         require(qualified['passed'] and qualified['host'] == manifest['host'] and set(qualified['physical_gpu_UUIDs']) == set(manifest['gpu_uuids']), 'Host/full8 qualification mismatch')
         environment = runtime_snapshot(manifest['python'])
+        if continuation: require(environment == continuation['previous_environment'], 'Private runtime differs from completed prefix')
         for name, value in qualified.get('environment', {}).get('packages', {}).items():
             require(environment['packages'].get(name) == value, 'Private runtime version differs: '+name)
         write(output/'REGISTRATION.json', {'manifest_sha256': digest(args.manifest), 'driver_sha': driver_sha,
             'driver_code_sha256': digest(SCRIPT), 'training_source_sha': plan['source_sha'], 'qualification': qualified,
             'qualification_sha256': q['sha256'], 'environment': environment, 'origins': natives,
-            'budget': manifest['budget'], 'no_formal_training_or_Navtest_dispatch': True})
+            'budget': manifest['budget'], 'continue_from': continuation, 'no_formal_training_or_Navtest_dispatch': True})
         with ExitStack() as stack:
             root = Path(manifest['artifact_root'])
             queue_key = hashlib.sha256(json.dumps([plan['source_sha'], [[c['pilot_origin_run'], c['pilot_origin_tag']] for c in manifest['cases']]], sort_keys=True).encode()).hexdigest()
             physical_key = hashlib.sha256(json.dumps(sorted(manifest['gpu_uuids'])).encode()).hexdigest()
             locks = [acquire(stack, root/'engineering_benchmark_locks'/(queue_key+'.lock')),
                      acquire(stack, root/'physical_gpu_locks'/(physical_key+'.lock'))]
-            for job in plan['jobs']:
+            for job in plan['jobs'][reused:]:
                 if stop_requested[0] or (output/'STOP_BEFORE_NEXT_JOB').exists(): status = 'STOPPED_BEFORE_NEXT_JOB'; break
                 budget = manifest['budget']
                 spent = sum(result['process_GPU_hours'] for result in results)
@@ -460,7 +576,10 @@ def main():
                 immutable_source(plan['source_root'], plan['source_sha'])
                 require(digest(SCRIPT) == plan['driver_sha256'] and digest(q['path']) == q['sha256'], 'Immutable driver/qualification changed')
                 native = origin(next(case for case in manifest['cases'] if case['name'] == job['case']))
-                gate = readiness(manifest)
+                def record_sample(sample):
+                    with (output/'READINESS_SAMPLES.jsonl').open('a') as stream:
+                        stream.write(json.dumps({'job': job['key'], **sample})+'\n')
+                gate = readiness(manifest, record_sample)
                 write(output/(job['key']+'_RESOURCE_GATE.json'), gate)
                 job.update(gpu_uuids=manifest['gpu_uuids'], trainer=str(trainer))
                 process = run_job(job, locks)
@@ -472,9 +591,11 @@ def main():
     except BaseException as exc:
         status, error = 'FAILED', repr(exc)
         write(output/'FAILURE.json', {'error': error, 'completed_jobs': len(results), 'logs_preserved': True})
-    process_hours = sum(read(p)['wall_seconds']*8/3600 for p in (output/'runs').glob('*/PROCESS_EXIT.json'))
+    new_process_hours = sum(read(p)['wall_seconds']*8/3600 for p in (output/'runs').glob('*/PROCESS_EXIT.json'))
+    process_hours = new_process_hours+(continuation['reused_process_GPU_hours'] if continuation else 0.)
     write(output/'RESULTS.json', {'status': status, 'error': error, 'completed_jobs': len(results), 'planned_jobs': len(plan['jobs']),
-        'process_GPU_hours': process_hours, 'candidate_mode': plan['candidate_mode'], 'mode_pair': plan['mode_pair'],
+        'process_GPU_hours': process_hours, 'new_process_GPU_hours': new_process_hours, 'reused_jobs': reused,
+        'remaining_jobs': len(plan['jobs'])-len(results), 'candidate_mode': plan['candidate_mode'], 'mode_pair': plan['mode_pair'],
         'cases': aggregate(results, plan['candidate_mode']), 'jobs': results,
         'limits': ['Both modes measure all-rank optimizer20->220 wall (final small log excluded); IO also records stdout arrival wall and fast records full log-window wall.',
                    'Rank peaks are cumulative per process, including warmup/startup.',

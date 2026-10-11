@@ -238,6 +238,159 @@ def no_dispatch():
     with patch.object(sys,'argv',['driver','--manifest',str(input),'--output',str(root/'plan_only')]):rejects(b.main)
 check('plan_only_no_workers_no_GPU_queries_fresh_output_reject',no_dispatch)
 
+def settling_gate(utils, apps=None, used=0, free=70000, expect_failure=False):
+    now, sleeps, samples, calls = [0.], [], [], [0]
+    def query(cmd, **kwargs):
+        if '--query-gpu=uuid,memory.used,memory.free,utilization.gpu' in cmd:
+            index=min(calls[0],len(utils)-1);calls[0]+=1
+            return '\n'.join(f'{uuid}, {used}, {free}, {utils[index]}' for uuid in manifest['gpu_uuids'])
+        return (apps or [''])[min(calls[0]-1,len(apps or [''])-1)]
+    def sleep(seconds): sleeps.append(seconds);now[0]+=seconds
+    with (patch.object(b,'authorize',lambda host:{'mock':True}),patch.object(b.socket,'gethostname',lambda:manifest['host']),
+          patch.object(b,'checked',query),patch.object(b.time,'monotonic',lambda:now[0]),patch.object(b.time,'sleep',sleep)):
+        if expect_failure: rejects(lambda:b.readiness(manifest,samples.append));gate=None
+        else: gate=b.readiness(manifest,samples.append)
+    return gate,samples,sleeps
+
+def false_utilization():
+    gate,samples,sleeps=settling_gate([93,17,0])
+    assert sleeps==[.5,.5] and len(samples)==3 and gate['samples']==samples
+    assert [s['decision'] for s in samples]==['settling_utilization','settling_utilization','ready']
+    assert [s['elapsed_seconds'] for s in samples]==[0.,.5,1.] and all(not s['compute_apps'] for s in samples)
+check('empty_apps_low_memory_stale_utilization_settles_all_samples',false_utilization)
+
+def foreign_app():
+    _,samples,sleeps=settling_gate([0],['GPU-0, 999, FOREIGN_TASK'],expect_failure=True)
+    assert not sleeps and len(samples)==1 and samples[0]['decision']=='occupied'
+    _,samples,sleeps=settling_gate([99,0],['','GPU-0, 999, FOREIGN_TASK'],expect_failure=True)
+    assert sleeps==[.5] and len(samples)==2 and samples[-1]['compute_apps']
+check('foreign_app_immediate_reject_including_app_arriving_during_settling',foreign_app)
+
+def settling_timeout():
+    _,samples,sleeps=settling_gate([99],expect_failure=True)
+    assert len(samples)==21 and sum(sleeps)==10 and samples[-1]['elapsed_seconds']==10
+    assert all(s['decision']=='settling_utilization' for s in samples)
+check('persistent_empty_app_utilization_bounded_10_seconds_no_job_retry',settling_timeout)
+
+def occupied_memory():
+    for used,free in ((129,70000),(0,59999)):
+        _,samples,sleeps=settling_gate([0],used=used,free=free,expect_failure=True)
+        assert not sleeps and len(samples)==1 and samples[0]['decision']=='occupied'
+check('invisible_app_memory_or_insufficient_free_immediate_reject',occupied_memory)
+
+def sampling_failure():
+    samples=[]
+    with (patch.object(b,'authorize',lambda host:{}),patch.object(b.socket,'gethostname',lambda:manifest['host']),
+          patch.object(b,'checked',side_effect=b.subprocess.TimeoutExpired('nvidia-smi',2)),patch.object(b.time,'sleep',side_effect=AssertionError('No query retries'))):
+        try:b.readiness(manifest,samples.append)
+        except b.subprocess.TimeoutExpired:pass
+        else:raise AssertionError('Query failure accepted')
+    assert len(samples)==1 and samples[0]['decision']=='query_failed'
+check('readiness_query_failure_recorded_without_retry',sampling_failure)
+
+def previous_prefix(name,count=1):
+    previous=root/name;m=copy.deepcopy(manifest)
+    p=b.build_plan(m,previous,driver=args.driver.resolve())
+    store(previous/'MANIFEST.json',p)
+    natives={c['name']:b.origin(c) for c in m['cases']}
+    registration={'training_source_sha':m['source_sha'],'origins':natives,'budget':m['budget'],
+                  'driver_code_sha256':p['driver_sha256'],'driver_sha':'f'*40,'environment':{'CPU':'mock'}}
+    store(previous/'REGISTRATION.json',registration)
+    results=[]
+    for j in p['jobs'][:count]:
+        actual,n,process=fixture(str(Path(name)/'runs'/j['key']),j['mode'])
+        run=Path(actual['run']);identity=b.read(run/'identity.json');identity['training_source_sha']=m['source_sha']
+        (run/'identity.json').write_text(json.dumps(identity))
+        for rank in range(8):
+            path=run/f'worker_rank{rank}.json';receipt=b.read(path);receipt['trainer']=str(Path(p['source_root'])/'tools/structured_world/train_vla.py');path.write_text(json.dumps(receipt))
+        process.update(returncode=0,monitor_error=None,pid=123)
+        store(run/'PROCESS_EXIT.json',process);store(run/'PROCESS.json',{'command':j['command'],'pid':123})
+        result=b.analyze_job({**j,'gpu_uuids':m['gpu_uuids']},n,process)
+        store(previous/(j['key']+'_RESULT.json'),result);results.append(result)
+    store(previous/'RESULTS.json',{'status':'FAILED','completed_jobs':count,'planned_jobs':p['total_jobs'],
+        'candidate_mode':p['candidate_mode'],'mode_pair':p['mode_pair'],'jobs':results,
+        'process_GPU_hours':sum(r['process_GPU_hours'] for r in results)})
+    store(previous/'FAILURE.json',{'error':'Owned CPU mock readiness failure; no GPU','completed_jobs':count})
+    return previous,p,natives
+
+previous,past,natives=previous_prefix('prefix_1')
+next_plan=b.build_plan(manifest,root/'continued',driver=args.driver.resolve())
+
+def prefix_accepted():
+    before={str(p):b.digest(p) for p in previous.rglob('*') if p.is_file()}
+    with patch.object(b,'immutable_source',lambda *a:None):results,ref=b.completed_prefix(next_plan,previous,natives)
+    assert len(results)==ref['completed_prefix']==1 and ref['remaining_jobs']==23
+    assert ref['jobs'][0]['result_sha256']==b.digest(previous/(past['jobs'][0]['key']+'_RESULT.json'))
+    assert results==b.read(previous/'RESULTS.json')['jobs'] and ref['reused_process_GPU_hours']==800*8/3600
+    assert before=={str(p):b.digest(p) for p in previous.rglob('*') if p.is_file()}
+check('completed_prefix_1_reused_exact_success_sha_allranks_budget_remaining23_oldfiles_unchanged',prefix_accepted)
+
+def changed_contract(field):
+    changed=copy.deepcopy(next_plan)
+    if field=='source_sha':changed['manifest']['source_sha']='2'*40
+    elif field=='budget':changed['manifest']['budget']['already_spent']+=1
+    elif field=='origin':changed['manifest']['cases'][0]['origin_complete_sha256']='2'*64
+    elif field=='case':changed['manifest']['cases'][0]['name']='different'
+    elif field=='asset':changed['manifest']['cases'][0]['train_args'][1]='/different/asset'
+    else:changed['stable_updates']=199
+    with patch.object(b,'immutable_source',lambda *a:None):rejects(lambda:b.completed_prefix(changed,previous,natives))
+for field in ('source_sha','budget','origin','case','asset','stable_updates'):
+    check('continuation_reject_changed_'+field,lambda field=field:changed_contract(field))
+
+def corrupt_prefix(name,change):
+    prev,plan,origins=previous_prefix(name)
+    change(prev,plan)
+    with patch.object(b,'immutable_source',lambda *a:None):rejects(lambda:b.completed_prefix(next_plan,prev,origins))
+
+def mutate(path,change):
+    data=b.read(path);change(data);path.write_text(json.dumps(data))
+check('continuation_reject_nonzero_actual_exit',lambda:corrupt_prefix('prefix_exit',lambda p,m:mutate(Path(m['jobs'][0]['run'])/'PROCESS_EXIT.json',lambda d:d.update(returncode=7))))
+check('continuation_reject_forged_success_receipt',lambda:corrupt_prefix('prefix_receipt',lambda p,m:mutate(p/(m['jobs'][0]['key']+'_RESULT.json'),lambda d:d.update(stable_wall_seconds=1))))
+check('continuation_reject_boundary_not_passed',lambda:corrupt_prefix('prefix_boundary',lambda p,m:mutate(Path(m['jobs'][0]['run'])/'RESUME_BOUNDARY_VERIFIED.json',lambda d:d.update(passed=False))))
+check('continuation_reject_failed_rank',lambda:corrupt_prefix('prefix_rank',lambda p,m:mutate(Path(m['jobs'][0]['run'])/'worker_rank7.json',lambda d:d.update(passed=False))))
+check('continuation_reject_nonprefix_jobs',lambda:corrupt_prefix('prefix_order',lambda p,m:mutate(p/'RESULTS.json',lambda d:d['jobs'][0].update(key=m['jobs'][1]['key']))))
+check('continuation_reject_prior_started_unfinished_job_no_rerun',lambda:corrupt_prefix('prefix_unfinished',lambda p,m:Path(m['jobs'][1]['run']).mkdir()))
+check('continuation_reject_changed_native_registration',lambda:corrupt_prefix('prefix_native',lambda p,m:mutate(p/'REGISTRATION.json',lambda d:d['origins']['G1_mid']['complete'].update(completed=9))))
+check('continuation_reject_changed_registered_command',lambda:corrupt_prefix('prefix_command',lambda p,m:mutate(p/'MANIFEST.json',lambda d:d['jobs'][0]['train_args'].extend(['--resume','true']))))
+
+def reference_only_candidate_switch():
+    m=copy.deepcopy(manifest);m['candidate_mode']='engineering_timevec'
+    switched=b.build_plan(m,root/'timevec_from_reference',driver=args.driver.resolve())
+    with patch.object(b,'immutable_source',lambda *a:None):results,ref=b.completed_prefix(switched,previous,natives)
+    assert len(results)==1 and ref['planned_candidate_changed'] and ref['remaining_jobs']==23
+    assert ref['previous_candidate_mode']=='engineering_fast' and ref['candidate_mode']=='engineering_timevec'
+    # The same reference prefix permits timevec -> P0; preserve the old pair.
+    old=b.read(previous/'MANIFEST.json');old_m=copy.deepcopy(old['manifest']);old_m['candidate_mode']='engineering_timevec'
+    regenerated=b.build_plan(old_m,previous,driver=args.driver.resolve())
+    (previous/'MANIFEST.json').write_text(json.dumps(regenerated))
+    outcome=b.read(previous/'RESULTS.json');outcome.update(candidate_mode='engineering_timevec',mode_pair=regenerated['mode_pair'])
+    (previous/'RESULTS.json').write_text(json.dumps(outcome))
+    with patch.object(b,'immutable_source',lambda *a:None):results,ref=b.completed_prefix(next_plan,previous,natives)
+    assert ref['planned_candidate_changed'] and ref['previous_candidate_mode']=='engineering_timevec' and ref['candidate_mode']=='engineering_fast'
+    (previous/'MANIFEST.json').write_text(json.dumps(old))
+    outcome.update(candidate_mode=old['candidate_mode'],mode_pair=old['mode_pair']);(previous/'RESULTS.json').write_text(json.dumps(outcome))
+check('reference_only_prefix_allows_explicit_timevec_to_P0_candidate_switch',reference_only_candidate_switch)
+
+def candidate_completed_no_switch():
+    prev,plan,origins=previous_prefix('prefix_candidate',2)
+    m=copy.deepcopy(manifest);m['candidate_mode']='engineering_timevec'
+    switched=b.build_plan(m,root/'bad_switch',driver=args.driver.resolve())
+    with patch.object(b,'immutable_source',lambda *a:None):rejects(lambda:b.completed_prefix(switched,prev,origins))
+check('candidate_switch_rejected_after_any_completed_candidate_window',candidate_completed_no_switch)
+
+def continuation_plan_only():
+    source=root/'source';(source/'tools/structured_world/train_vla.py').write_text("# '--benchmark-no-end-save' 'engineering_fast' CPU MOCK ONLY\n")
+    input=root/'CONTINUATION_INPUT.json';store(input,manifest)
+    out=root/'continued_plan'
+    with (patch.object(b,'immutable_source',lambda *a:None),patch.object(b,'run_job',side_effect=AssertionError('No workers in planning')),
+          patch.object(b,'readiness',side_effect=AssertionError('No GPU queries in planning')),patch.object(b,'runtime_snapshot',side_effect=AssertionError('No runtime dispatch in planning')),
+          patch.object(sys,'argv',['driver','--manifest',str(input),'--output',str(out),'--continue-from',str(previous)])):
+        assert b.main()==0
+    assert b.read(out/'CONTINUE_FROM.json')['remaining_jobs']==23
+    assert not (out/'runs').exists() and b.read(out/'MANIFEST.json')['total_jobs']==24
+    assert b.read(out/(past['jobs'][0]['key']+'_RESULT.json'))==b.read(previous/'RESULTS.json')['jobs'][0]
+check('CLI_continue_plan_only_fresh24_grid_reuses1_remaining23_zero_dispatch',continuation_plan_only)
+
 result=dict(passed=all(r['passed'] for r in records), cases=len(records), tests=records, driver=str(args.driver.resolve()),
             driver_sha256=b.digest(args.driver), validation_script_sha256=b.digest(__file__), GPU_jobs_launched=0,
             qualification='CPU mock only; no hardware/throughput qualification claimed', fixture_root=str(root))
