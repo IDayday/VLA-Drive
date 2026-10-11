@@ -1,0 +1,1058 @@
+{
+  "schema": "navtest_parallel_eval_forward_plan_v1",
+  "status": "FORWARD_PLAN_COMPLETE_NO_DISPATCH",
+  "result_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_dispatch_20261011/SKILL_FORWARD_RESULT.json",
+  "skill": {
+    "name": "navtest-parallel-eval",
+    "path": "/mnt/project/skill/navtest-parallel-eval/SKILL.md",
+    "runtime_contract_path": "/mnt/project/skill/navtest-parallel-eval/references/runtime-contract.md"
+  },
+  "scope": {
+    "fixture_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_dispatch_20261011/SKILL_FORWARD_FIXTURE.json",
+    "authorized_hosts": [
+      "fixture-a",
+      "fixture-b",
+      "fixture-c"
+    ],
+    "snapshots_are_independent": true,
+    "interpretation": "Each snapshot is a separate full-checkpoint availability case, not an observed temporal transition. No first-snapshot process, lease, filler obligation or output is assumed to exist in the second case.",
+    "operations_performed": [
+      "Read the named skill, its runtime-contract reference and the named fixture.",
+      "Read/search relevant native model and controller/scorer source as static text.",
+      "Write and validate only the requested result JSON."
+    ],
+    "operations_not_performed": [
+      "GPU jobs or GPU runtime/import probes",
+      "SSH dispatch or remote inventory",
+      "process signals or filler restoration",
+      "installation or runtime staging",
+      "repo, skill or policy edits",
+      "reading parent conclusions, previous expected answers, historical qualification outputs or live deployment result artifacts"
+    ],
+    "only_written_artifact": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_dispatch_20261011/SKILL_FORWARD_RESULT.json"
+  },
+  "evidence": {
+    "source_type": "Fixture facts plus skill/reference and read-only static implementation inspection; no measured execution evidence.",
+    "files_read_and_sha256": [
+      {
+        "path": "/mnt/project/skill/navtest-parallel-eval/SKILL.md",
+        "sha256": "5c2c194a21b39e95787e65e9de8534ad40f991fad952e6512ada757964fb3a7a"
+      },
+      {
+        "path": "/mnt/project/skill/navtest-parallel-eval/references/runtime-contract.md",
+        "sha256": "f1a611365e820b34273f63002613ae4d8e72585dd84c959d6f749fbe541fdf10"
+      },
+      {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navtest_dispatch_20261011/SKILL_FORWARD_FIXTURE.json",
+        "sha256": "d90cde7f367014c276f56a705e815323cbb67fddec7daafe506e910df3e74504"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+        "sha256": "abe17f5107c94147cdecc9db91426437962df42abe074ab5c2378b418c1aa4ef"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stream_navsim_navtest_pdms.py",
+        "sha256": "b8647e43de6a9ed08cd6c5bfb4ef21615dc20e8b02a6123b9e81420da4d874f4"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/infer_checkpoint.py",
+        "sha256": "d1132fb66f42b2b70af5467fc347dc3d960cb87af7c5da1fb90bb713401f8333"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/dataloader/structured_world/current_inputs.py",
+        "sha256": "ca8980fa3bc7b36ae984bd50dd8ecb5a551db2d4281f39cda8e35b7143122c53"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/framework/vla_structured_fgtr.py",
+        "sha256": "761b20e716fdac7c3f5311103e3afd5caa500864635a5b51011ce8b71be1bb30"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/dataloader/foresight_dataset.py",
+        "sha256": "98d95a10da65d50acf83e3beef37464d5c46bc685440e7cfd91b3795f71d1235"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/modules/structured_world/fgtr.py",
+        "sha256": "3d95aa4ff7c9a6e421c78b8d655d2f361e00e244ba141f4a2e00ed6e7f8c6a50"
+      },
+      {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/score_navsim.py",
+        "sha256": "754f9c606a97523dc7ffb2d1a8ea85ff18ca034113a920a9adbc2f9f75ac4372"
+      }
+    ],
+    "historical_paths_in_runtime_contract": "Recognized as references only; their prior result/conclusion artifacts were not opened."
+  },
+  "resource_rules": {
+    "inference_peak_GiB": 13.1,
+    "memory_reserve_GiB": 4,
+    "minimum_free_GiB": 17.1,
+    "memory_admission": "Repeated measured free memory must be at least peak plus reserve; adequate memory does not establish ownership or authorize preemption.",
+    "ownership_admission": {
+      "idle": "Select if repeated idle samples, memory and runtime/data checks pass.",
+      "our_own_training": "Authorized cohosting; select with enough memory even when utilization is high, subject to profiling/rechecking contention. Never stop training.",
+      "genuine_other_training": "Select for explicitly authorized repeated low-utilization memory sharing with enough memory; exclude high-utilization genuine other training under this fixture. Never classify either as pressure.",
+      "confirmed_/mnt/project/gpu_stress.py": "Only this confirmed filler is authorized for capture, targeted stop, release recheck and original-parameter restoration.",
+      "unidentified": "No preemption authority; require ownership qualification for sharing, and exclude when memory is insufficient."
+    },
+    "low_utilization_definition": "This fixture has repeated 0..2 percent samples for low-load candidates and 82..100 percent for busy candidates; no ambiguous middle case requires inventing a numerical utilization policy.",
+    "deduplication": "Global physical GPU UUID, not host/container name. One selected model process per unique UUID.",
+    "unreachable_or_missing": "No capacity credit; do not reuse stale routes for a missing GPU or unreachable host.",
+    "actual_GPU_processes_started": 0
+  },
+  "snapshots": {
+    "first": {
+      "eligible_unique_GPU_count_after_authorized_release": 5,
+      "eligible_memory_suitable_GPU_count_before_pressure_release": 4,
+      "candidate_inference_hosts": [
+        "fixture-a",
+        "fixture-b"
+      ],
+      "eligible_GPU_routes": [
+        {
+          "worker_shard_id": 0,
+          "host": "fixture-a",
+          "GPU_uuid": "a0",
+          "model_processes": 1,
+          "observed_free_GiB": 35,
+          "utilization_samples_percent": [
+            85,
+            82,
+            87
+          ],
+          "owner": "our_own_training",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": 21.9,
+          "reserve_slack_GiB": 17.9,
+          "eligibility": "eligible_on_fixture_facts_subject_to_dispatch_recheck",
+          "reason": "Own-training cohosting is explicitly allowed and memory has 17.9 GiB slack beyond the required reserve. High compute utilization may slow both jobs; it does not by itself override the own-cohosting authorization. Profile contention, never stop the training.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            0,
+            32
+          ]
+        },
+        {
+          "worker_shard_id": 1,
+          "host": "fixture-a",
+          "GPU_uuid": "a2",
+          "model_processes": 1,
+          "observed_free_GiB": 45,
+          "utilization_samples_percent": [
+            1,
+            0,
+            1
+          ],
+          "owner": "genuine_other_training",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": 31.9,
+          "reserve_slack_GiB": 27.9,
+          "eligibility": "eligible_on_fixture_facts_subject_to_dispatch_recheck",
+          "reason": "Repeated low utilization and 27.9 GiB memory slack qualify for explicitly authorized low-utilization memory sharing. Leave the genuine training running and recheck its changing load; it is never pressure-preemptible.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            32,
+            64
+          ]
+        },
+        {
+          "worker_shard_id": 2,
+          "host": "fixture-a",
+          "GPU_uuid": "a3",
+          "model_processes": 1,
+          "observed_free_GiB": 1,
+          "utilization_samples_percent": [
+            100,
+            100,
+            100
+          ],
+          "owner": "confirmed_/mnt/project/gpu_stress.py",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": null,
+          "reserve_slack_GiB": null,
+          "eligibility": "conditional_on_pressure_release_and_all_preflight_checks",
+          "reason": "Eligible only after the exact authorized filler is captured, stopped and released headroom is remeasured. It cannot run the model in its current occupied state.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            64,
+            96
+          ]
+        },
+        {
+          "worker_shard_id": 3,
+          "host": "fixture-b",
+          "GPU_uuid": "b0",
+          "model_processes": 1,
+          "observed_free_GiB": 80,
+          "utilization_samples_percent": [
+            0,
+            0,
+            0
+          ],
+          "owner": "idle",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": 66.9,
+          "reserve_slack_GiB": 62.9,
+          "eligibility": "eligible_on_fixture_facts_subject_to_dispatch_recheck",
+          "reason": "Repeated idle samples and adequate free memory; no filler must be created or restored.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            96,
+            128
+          ]
+        },
+        {
+          "worker_shard_id": 4,
+          "host": "fixture-b",
+          "GPU_uuid": "b1",
+          "model_processes": 1,
+          "observed_free_GiB": 80,
+          "utilization_samples_percent": [
+            0,
+            0,
+            0
+          ],
+          "owner": "idle",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": 66.9,
+          "reserve_slack_GiB": 62.9,
+          "eligibility": "eligible_on_fixture_facts_subject_to_dispatch_recheck",
+          "reason": "Repeated idle samples and adequate free memory; distinct physical UUID from b0.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            128,
+            160
+          ]
+        }
+      ],
+      "exclusions": [
+        {
+          "host": "fixture-a",
+          "GPU_uuid": "a1",
+          "free_GiB": 5,
+          "utilization_samples_percent": [
+            2,
+            1,
+            0
+          ],
+          "reason": "5 < 17.1 GiB and owner unidentified. Low utilization is not permission to kill it; exclude."
+        },
+        {
+          "host": "fixture-c",
+          "GPU_uuid": "a0",
+          "reason": "Duplicate physical UUID already routed through fixture-a; do not start another model or count another GPU."
+        }
+      ],
+      "shard_plan": {
+        "concurrent_worker_shards": 5,
+        "one_model_process_per_unique_GPU": true,
+        "worker_shards_are_execution_metadata": true,
+        "cross_host_NCCL_barrier": false,
+        "population_scenes": 12146,
+        "work_queue": {
+          "implementation_reference": "run_navsim_navtest.py:leased_indices",
+          "mode": "Dynamic small leased chunks from one immutable full-population scene index.",
+          "chunk_scenes": 32,
+          "chunk_count": 380,
+          "full_chunks": 379,
+          "tail_scenes": 18,
+          "last_chunk_ordinals_half_open": [
+            12128,
+            12146
+          ],
+          "lease_expiry_seconds": 900,
+          "claims": "Exclusive queue lock; random lease owner/generation; renew heartbeat and fence publication against the current owner.",
+          "initial_claims": "Listed ranges illustrate one possible serialized claim order, not fixed assignments; actual workers claim as they become ready.",
+          "load_balance": "Faster workers consume more chunks. Do not assign equal fixed scene totals to the busy own-training GPU and idle GPUs.",
+          "recovery": "Reassign only expired/abandoned owned chunks after checking liveness and preserving valid predictions/scores. Verify heartbeat coverage for long scenes, ownership fencing and cross-host lock semantics before real use."
+        },
+        "qualification_and_loading": "Stagger native master restoration; share only a verified immutable checkpoint-bound FP32 export. Qualify each distinct worker runtime/path and measure peak memory, scene rate and cohosting cost before accepting routes.",
+        "fallback_if_pressure_release_fails": "Drop a3 and derive worker IDs/count from the remaining four unique routes; preserve the same scene queue, identity and seeds."
+      },
+      "CPU_scoring_plan": {
+        "reported_spare_cores": {
+          "fixture-a": 24,
+          "fixture-b": 12,
+          "fixture-c": 24
+        },
+        "credited_spare_cores_before_reservations": 36,
+        "host_pools": [
+          {
+            "host": "fixture-a",
+            "reported_spare_cores": 24,
+            "GPU_preprocessing_reservation_cores": 6,
+            "control_staging_reservation_cores": 2,
+            "initial_score_workers": 8,
+            "conditional_score_worker_ceiling": 16
+          },
+          {
+            "host": "fixture-b",
+            "reported_spare_cores": 12,
+            "GPU_preprocessing_reservation_cores": 4,
+            "control_staging_reservation_cores": 2,
+            "initial_score_workers": 4,
+            "conditional_score_worker_ceiling": 6
+          }
+        ],
+        "initial_total_score_workers": 12,
+        "conditional_total_score_worker_ceiling": 22,
+        "fixture_c": "Do not add its reported 24 cores to fixture-a solely because the container/host name differs. It exposes the same a0 UUID. Credit any genuinely disjoint CPU allocation only after physical topology, cgroup quota and allowed CPU-set checks.",
+        "supported_single_host_fallback": {
+          "host": "fixture-a",
+          "initial_score_workers": 12,
+          "conditional_score_worker_ceiling": 16,
+          "CLI_option": "--score-workers",
+          "condition": "Use this single local pool until exclusive multi-host CPU ownership exists; the controller must actually run on fixture-a and have the verified canonical environment."
+        },
+        "rules": {
+          "start": "Start the bounded canonical CPU pool before GPU inference and consume each complete verified prediction pair immediately; do not wait for the full GPU bank.",
+          "environment": "Use the canonical environment separately from Qwen. CPU scoring sets CUDA_VISIBLE_DEVICES empty and OMP_NUM_THREADS, MKL_NUM_THREADS, OPENBLAS_NUM_THREADS and NUMEXPR_NUM_THREADS to 1.",
+          "functions": "Reuse unchanged initialize/score_chunk; initialize once per process and reuse log-local metric caches. Score both q0 and q_final for each owned token.",
+          "work_unit": "The inspected streaming scorer submits batches of at most eight trajectory tasks with at most two pending batches per CPU worker.",
+          "ownership_for_multiple_hosts": "Before enabling distributed scoring, persist a unique token/log owner map or use fenced atomic token/variant claims. Group logs where practical for cache reuse; choose placement from actual log scene counts and measured host throughput. Remote shards publish separate owned records; one coordinator validates and merges the full population. No CPU shard emits the global full-bank completion marker.",
+          "adaptive_concurrency": "Start at the listed conservative counts. Increase only after sustained verified ready-task backlog and measured throughput improvement without training, preprocessing, RAM or storage pressure. Reduce on contention. Complete in-flight batches and preserve ownership before restarting/resizing a pool; the current CLI does not resize it automatically.",
+          "budget_status": "Counts are planning choices, not skill constants or measured optima. Two CPU cores per selected GPU worker and two host cores for control/staging are provisional reservations; the inspected GPU worker sets torch threads to two. Measure total preprocessing/control use and reduce the ceiling if more capacity is needed.",
+          "topology": "CPU capacity is additive only for disjoint physical/cgroup/affinity capacity. A duplicate GPU UUID is an alias warning, not proof of either independent or identical CPU capacity.",
+          "implementation_constraint": "The current controller starts one local ProcessPoolExecutor via --score-workers (1..32 in the streamer). It has no CPU host/partition/claim CLI. Two stock streamers against the same output would duplicate work and race; each also expects the complete bank. Multi-host scoring therefore requires an exclusive-work coordinator/qualified wrapper; it is a desired plan, not a runnable stock CLI feature."
+        }
+      },
+      "pressure_preemption_restoration": {
+        "planned_displaced_fillers": 1,
+        "observed_displaced_fillers": 0,
+        "host": "fixture-a",
+        "script": "/mnt/project/gpu_stress.py",
+        "original_argv": [
+          "python",
+          "/mnt/project/gpu_stress.py",
+          "--gpus",
+          "3"
+        ],
+        "original_cwd": "/mnt/project",
+        "original_GPU_binding": "a3",
+        "original_memory_limit_GiB": 70,
+        "capture_fields_not_supplied": [
+          "parent PID",
+          "resolved interpreter",
+          "UID/user",
+          "process start time",
+          "process group and descendants",
+          "private environment",
+          "other original resource limits",
+          "GPU index/UUID/visibility mapping"
+        ],
+        "preemption_status": "PLANNED_ONLY_PENDING_CAPTURE_AND_RELEASE_RECHECK",
+        "sequence": [
+          {
+            "step": 1,
+            "action": "Capture restoration state before stopping anything.",
+            "details": "Resolve the exact /mnt/project/gpu_stress.py parent and interpreter on fixture-a. Capture PID, UID/user, process start time, argv, cwd, process group, all descendants and their PID/start-time identities, complete GPU UUID/index/container mapping, original memory limit and other resource limits. Keep the required private environment in a protected local store and publish only a reference."
+          },
+          {
+            "step": 2,
+            "action": "Reserve the affected device and revalidate identity and authorization.",
+            "details": "Verify the exact script and recorded PID/start times immediately before any targeted action. Resolve original --gpus 3 to UUID a3. This filler is not genuine training. Account for all devices controlled by the parent; if discovery reveals other devices, protect their useful work and record the entire parent-level release."
+          },
+          {
+            "step": 3,
+            "action": "Stop only the confirmed filler parent and recorded descendants.",
+            "details": "Use a targeted graceful termination and a bounded wait; any escalation must remain within the existing confirmed-pressure authorization and recheck PID/start-time identities. Never signal a training process or match broad Python/GPU-use patterns. Verify the exact parent/descendants have exited and the GPU allocation has been released."
+          },
+          {
+            "step": 4,
+            "action": "Recheck released memory and qualify the inference worker.",
+            "details": "Select a3 only after repeated free-memory observations meet 17.1 GiB under the fixture peak-plus-reserve rule, with exact runtime/data access and native parity qualification. The original 70 GiB filler limit does not prove how much memory is released. If checks fail, launch no worker on a3 and restore the displaced filler once there is no useful worker on that card."
+          },
+          {
+            "step": 5,
+            "action": "Infer with one UUID-bound model process and retain the restoration journal.",
+            "details": "Track actual remote worker PID/start time and GPU allocation, including qualification and retries. A local SSH wrapper exiting or a shard report marked COMPLETE is insufficient evidence that the remote CUDA worker has exited. Retain the original filler parameters without leaking environment values."
+          },
+          {
+            "step": 6,
+            "action": "Restore after the last actual inference worker releases the card.",
+            "details": "After success, failure or cancellation, wait for actual worker/descendant exit and GPU release. CPU-only scoring may continue during restoration. If queued useful inference still owns a3, retain the restoration obligation until that work releases it. If a genuine task acquired a3, defer restoration and report why; do not displace that task."
+          },
+          {
+            "step": 7,
+            "action": "Restart the original filler with its original resource limits and verify it.",
+            "details": "Restore the same resolved interpreter, argv, cwd, user/private environment and original 70 GiB memory limit. Confirm local index 3 and the original visibility mapping still resolve to a3 before replaying argv; otherwise defer rather than silently target another card. Capture replacement PID/start time and descendants, verify script/argv, GPU UUID and memory limit, and record RESTORED or explicit failure/defer state."
+          }
+        ],
+        "never_preempt": [
+          "a0 own training",
+          "a2 genuine other training",
+          "a1 unidentified occupancy"
+        ],
+        "no_new_fillers_on": [
+          "a0",
+          "a1",
+          "a2",
+          "b0",
+          "b1"
+        ],
+        "restoration_can_overlap_CPU_scoring": true
+      },
+      "semantic_identity_checks": {
+        "status": "Required contract specified; actual checkpoint/input/metric hashes are not supplied by the fixture.",
+        "checkpoint": {
+          "immutable_complete": "Stipulated by fixture task; not independently inspected.",
+          "run_path": null,
+          "tag": null,
+          "completed_training_updates": null,
+          "training_identity": null,
+          "native_checkpoint_files_sha256": null,
+          "requirements": [
+            "Identify the actual training source and complete native checkpoint; verify its COMPLETE identity against training identity and every checkpoint file hash.",
+            "Preserve the checkpoint configuration, group, supervision heads and shared geometry identity.",
+            "Restore native ZeRO FP32 master weights with strict state loading. An immutable shared FP32 export must match native restoration and bind its own SHA256 to the exact native checkpoint."
+          ]
+        },
+        "source": {
+          "expected_frozen_commit": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "commit_evidence": "Runtime-contract expectation; source files read, but git checkout cleanliness and full source identity not independently verified.",
+          "native_functions": [
+            "load_model",
+            "scene_noise",
+            "CurrentInputs",
+            "plan_from_current",
+            "sample_proposal",
+            "decode_ego"
+          ],
+          "prediction_contract": "Reuse the native prediction_contract and its SHA256 of json.dumps(contract, sort_keys=True); pin additional protocol details in registration without replacing or silently changing the native identity schema."
+        },
+        "population": {
+          "name": "NAVSIM v1 Navtest",
+          "unique_scenes": 12146,
+          "unique_logs": 136,
+          "required_membership": "Exact equality of input, metric-index, prediction and both score token/log sets; counts alone are insufficient.",
+          "input_identity": null,
+          "metric_index_sha256": null,
+          "legal_current_only_inputs_complete": true,
+          "inputs": "Preserve the native current-camera pixels and hashes, crop/resize ROI, current calibration, legal ego-state encoding and navigation input. Future ground truth, maps and LiDAR remain scoring assets."
+        },
+        "inference": {
+          "seed": 42,
+          "seed_evidence": "Pinned native source and runtime contract; not a training seed.",
+          "scene_seed_expression": "int.from_bytes(SHA256(UTF8('foresight-action-v1:42:' + token))[:8], 'little') % (2**63 - 1)",
+          "noise": "Native CPU torch.Generator; torch.randn((1, 8, 4), dtype=torch.float32), then transfer to the selected device.",
+          "routing_excluded_from_seed_and_identity": [
+            "host",
+            "GPU UUID",
+            "GPU index",
+            "worker/shard ID",
+            "worker/shard count",
+            "lease owner/generation",
+            "retry/attempt ID",
+            "CPU placement"
+          ],
+          "precision": "Native FP32 master restoration and FP32 inference; strict=True; eval mode; no AMP; CUDA matmul and cuDNN TF32 disabled.",
+          "sampler": "One native ten-Euler-step FM proposal and the native residual refinement; no additional candidate or best-of selection.",
+          "trajectories": [
+            "q0",
+            "q_final"
+          ],
+          "main_executed_trajectory": "q_final",
+          "diagnostics": [
+            "out_of_range"
+          ],
+          "batching": "Retain the native one-scene worker path; do not change batching or preprocessing as an unvalidated scheduling shortcut.",
+          "coordinate_heading": {
+            "frame": "Native current-ego-relative planar trajectory; retain the native NAVSIM adapter convention without extra axis, rotation or heading transformations.",
+            "physical_output": [
+              "x in meters",
+              "y in meters",
+              "yaw in radians"
+            ],
+            "encode_decode_constants": {
+              "X_MEAN": 10.172484,
+              "X_STD": 8.805105,
+              "Y_MEAN": 0.360762,
+              "Y_STD": 2.277741
+            },
+            "heading_decode": "atan2(encoded[..., 2], encoded[..., 3]); encoded heading is sin(yaw), cos(yaw)."
+          },
+          "trajectory_shape": [
+            8,
+            3
+          ],
+          "pose_interval_seconds": 0.5,
+          "pose_times_seconds": [
+            0.5,
+            1.0,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            3.5,
+            4.0
+          ],
+          "acceptance_before_real_dispatch": "On fixed real scenes compare q0, q_final and out_of_range against native frozen inference, using identical input identity and scene noise. The referenced qualification uses four scenes and bitwise equality; no GPU qualification was performed in this test."
+        },
+        "scoring": {
+          "canonical_environment_verified": true,
+          "verification_scope": "Accepted as a fixture premise; no remote interpreter, imports or source-tree hashes were probed.",
+          "canonical_python_reference": "/root/miniconda3/envs/navsim/bin/python",
+          "qwen_python_reference": "/tmp/structured-world-round1/envs/qwen/bin/python",
+          "functions": [
+            "initialize",
+            "score_chunk"
+          ],
+          "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+          "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+          "runtime_versions": {
+            "numpy": "1.26.4",
+            "scipy": "1.13.1",
+            "shapely": "2.0.7"
+          },
+          "simulator_pose_count": 40,
+          "simulator_interval_seconds": 0.1,
+          "required_hash_bindings": [
+            "prediction identity",
+            "metric index",
+            "each metric cache",
+            "canonical adapters",
+            "NAVSIM tree",
+            "nuPlan tree",
+            "runtime versions",
+            "trajectory proposal payloads",
+            "score records"
+          ],
+          "invariants": "No change to canonical interpolation, simulator, metric components, weights, responsibility rules or failure policy. Score q0 and q_final independently for every scene."
+        },
+        "cross_snapshot_identity_rule": "These are separate availability cases. If the same checkpoint, input bank and protocol are used, their scientific identities and scene predictions must match; routing changes alone never create a new scientific evaluation identity."
+      },
+      "completion_checks": {
+        "observed_completion": {
+          "predicted_scenes": 0,
+          "q0_scored_scenes": 0,
+          "q_final_scored_scenes": 0,
+          "evaluation_executed": false
+        },
+        "preflight": [
+          "Use the fixture host authorization and latest task-scoped instructions, rather than inheriting live deployment host lists or old route counts.",
+          "Before any real work verify exact worker imports, model/checkpoint accessibility, local image/calibration availability, disk space, CPU/RAM budget, unique physical GPU UUIDs and current headroom. Repeat memory/utilization checks before dispatch and on changes.",
+          "Check the controller lock and supersede old routing only as authorized; do not launch a competing historical observer or controller.",
+          "Verify immutable checkpoint identity/hashes, input and metric-index membership, canonical source/runtime locks and native prediction parity.",
+          "For shared leases verify cross-host visibility, atomic rename and exclusive-lock behavior on the actual filesystem; otherwise use nonoverlapping owned work units with a serialized handoff."
+        ],
+        "stream_and_resume": [
+          "Publish each NPZ atomically, then its ready record containing token, common prediction identity and payload SHA256. Consumers verify both before scoring.",
+          "Maintain exclusive GPU leases and exclusive CPU token/variant ownership. Fence obsolete owners at publication; do not let two scorer controllers write to the same token/variant output.",
+          "Reuse only predictions and score records whose identities, token/log membership, input/cache/proposal bindings and hashes validate. Recover only expired work leases; infrastructure retries reuse the same scene seed and parameters.",
+          "Classify infrastructure errors separately from scientific errors. Scientific errors stop the affected dispatch; preserve failed scenes and mark the evaluation invalid. Do not repair a failure by changing a sampler, precision, population or cache."
+        ],
+        "prediction_completion": {
+          "required_unique_scenes": 12146,
+          "checks": [
+            "Exact expected token/log membership, no missing, duplicate or extra scenes, and matching full input identity across all workers and attempts.",
+            "Validate every prediction ready record, filename/token agreement, model identity and NPZ SHA256; validate finite (8,3) q0 and q_final and native out_of_range diagnostics.",
+            "Merge unique verified completed work across attempts. Do not rely solely on current-attempt worker counters when resuming or changing the worker count.",
+            "Worker or chunk completion is local progress. Only the validated full population receives the global prediction COMPLETE marker."
+          ]
+        },
+        "scoring_completion": {
+          "q0_required_scenes": 12146,
+          "q_final_required_scenes": 12146,
+          "total_required_token_variant_records": 24292,
+          "checks": [
+            "Each trajectory bank must have exactly the expected 12146 token/log entries and the same canonical identity, metric index, cache/proposal hashes and full component schema.",
+            "Validate record payloads and statuses, both variant summaries and finite component values. Retain valid zero scores, explicit failures and the full denominator; failures contribute zero and invalidate the result.",
+            "Aggregate per-scene metrics with pooled scene weighting; do not average shard means. Preserve all seven canonical components and all failure/zero diagnostics.",
+            "Declare a scientifically valid evaluation complete only when both prediction and canonical score population checks pass and both trajectory summaries have valid=true and failed=0.",
+            "A diagnostic scores/COMPLETE.json can exist for an invalid full bank in the inspected streamer. Its filename or presence alone is never sufficient for successful queue completion."
+          ]
+        },
+        "pressure_restoration_check": "For every displaced filler, verify all actual inference processes using its released UUIDs have exited, then verify a restored process with matching script/argv/cwd/user, original limits and correct GPU binding. A deferred or failed restoration remains an operational obligation even if scoring is complete.",
+        "reporting": "Report actual used hosts, unique UUIDs/processes, per-stage scene progress, commands, elapsed time, GPU-hours, cohosting impact and restoration state. Timing and speedup remain unknown in this plan. Any later paired comparison requires matching populations/protocols and log-cluster bootstrap with pooled scene weighting."
+      },
+      "execution_limitations": [
+        "a3 is not immediately memory-admissible; release memory and exact restoration metadata are unobserved.",
+        "Ownership-sensitive routing and pressure lifecycle need concrete operational integration.",
+        "Multi-host CPU scoring requires exclusive-work support; a single qualified local pool is the current implementation fallback.",
+        "CPU contribution from the alias fixture-c remains uncredited until disjoint capacity is proven."
+      ]
+    },
+    "second": {
+      "eligible_unique_GPU_count": 2,
+      "candidate_inference_hosts": [
+        "fixture-a",
+        "fixture-c"
+      ],
+      "eligible_GPU_routes": [
+        {
+          "worker_shard_id": 0,
+          "host": "fixture-a",
+          "GPU_uuid": "a1",
+          "model_processes": 1,
+          "observed_free_GiB": 80,
+          "utilization_samples_percent": [
+            0,
+            0,
+            0
+          ],
+          "owner": "idle",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": 66.9,
+          "reserve_slack_GiB": 62.9,
+          "eligibility": "eligible_on_fixture_facts_subject_to_dispatch_recheck",
+          "reason": "Freshly idle and adequate headroom in this independent snapshot; do not inherit its first-snapshot exclusion.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            0,
+            32
+          ]
+        },
+        {
+          "worker_shard_id": 1,
+          "host": "fixture-c",
+          "GPU_uuid": "c0",
+          "model_processes": 1,
+          "observed_free_GiB": 80,
+          "utilization_samples_percent": [
+            0,
+            0,
+            0
+          ],
+          "owner": "idle",
+          "required_free_GiB": 17.1,
+          "headroom_after_inference_GiB": 66.9,
+          "reserve_slack_GiB": 62.9,
+          "eligibility": "eligible_on_fixture_facts_subject_to_dispatch_recheck",
+          "reason": "Fresh distinct physical UUID with idle samples and adequate headroom; do not inherit the first-snapshot alias treatment of a0.",
+          "binding": "Bind CUDA_VISIBLE_DEVICES to the physical UUID; record resolved local device index separately.",
+          "illustrative_first_claim_ordinals_half_open": [
+            32,
+            64
+          ]
+        }
+      ],
+      "exclusions": [
+        {
+          "host": "fixture-a",
+          "GPU_uuid": "a0",
+          "free_GiB": 5,
+          "utilization_samples_percent": [
+            95,
+            96,
+            94
+          ],
+          "reason": "Own cohosting is authorized but 5 < 17.1 GiB. Authorization does not supply memory; exclude and leave training running."
+        },
+        {
+          "host": "fixture-a",
+          "GPU_uuid": "a2",
+          "free_GiB": 45,
+          "utilization_samples_percent": [
+            96,
+            95,
+            97
+          ],
+          "reason": "Adequate memory but genuine other training is now consistently busy. Only low-utilization sharing and own-training cohosting are authorized here; exclude without signals."
+        },
+        {
+          "host": "fixture-b",
+          "reason": "Unreachable. Exclude GPU routes and CPU capacity; b0/b1 from the first case are not assumed available."
+        }
+      ],
+      "absent_GPU_handling": "a3 is absent from this snapshot and contributes no route or new restoration action.",
+      "shard_plan": {
+        "concurrent_worker_shards": 2,
+        "one_model_process_per_unique_GPU": true,
+        "worker_shards_are_execution_metadata": true,
+        "cross_host_NCCL_barrier": false,
+        "population_scenes": 12146,
+        "work_queue": {
+          "implementation_reference": "run_navsim_navtest.py:leased_indices",
+          "mode": "Dynamic small leased chunks from one immutable full-population scene index.",
+          "chunk_scenes": 32,
+          "chunk_count": 380,
+          "full_chunks": 379,
+          "tail_scenes": 18,
+          "last_chunk_ordinals_half_open": [
+            12128,
+            12146
+          ],
+          "lease_expiry_seconds": 900,
+          "claims": "Exclusive queue lock; random lease owner/generation; renew heartbeat and fence publication against the current owner.",
+          "initial_claims": "Listed ranges illustrate one possible serialized claim order, not fixed assignments; actual workers claim as they become ready.",
+          "load_balance": "Faster workers consume more chunks. Do not assign equal fixed scene totals to the busy own-training GPU and idle GPUs.",
+          "recovery": "Reassign only expired/abandoned owned chunks after checking liveness and preserving valid predictions/scores. Verify heartbeat coverage for long scenes, ownership fencing and cross-host lock semantics before real use."
+        },
+        "qualification_and_loading": "Stagger native master restoration; share only a verified immutable checkpoint-bound FP32 export. Qualify each distinct worker runtime/path and measure peak memory, scene rate and cohosting cost before accepting routes.",
+        "fallback_if_pressure_release_fails": null
+      },
+      "CPU_scoring_plan": {
+        "reported_spare_cores": {
+          "fixture-a": 16,
+          "fixture-c": 16
+        },
+        "credited_spare_cores_before_reservations": 32,
+        "host_pools": [
+          {
+            "host": "fixture-a",
+            "reported_spare_cores": 16,
+            "GPU_preprocessing_reservation_cores": 2,
+            "control_staging_reservation_cores": 2,
+            "initial_score_workers": 4,
+            "conditional_score_worker_ceiling": 12
+          },
+          {
+            "host": "fixture-c",
+            "reported_spare_cores": 16,
+            "GPU_preprocessing_reservation_cores": 2,
+            "control_staging_reservation_cores": 2,
+            "initial_score_workers": 4,
+            "conditional_score_worker_ceiling": 12
+          }
+        ],
+        "initial_total_score_workers": 8,
+        "conditional_total_score_worker_ceiling": 24,
+        "capacity_assumption": "Treat the two reported capacities as disjoint for this plan because this snapshot provides distinct UUIDs and no alias annotation; validate CPU topology/quotas before treating 32 as real additive capacity.",
+        "fixture_b": "Unreachable; contributes no planned GPU worker or CPU scoring capacity.",
+        "supported_single_host_fallback": {
+          "host": "fixture-a",
+          "initial_score_workers": 8,
+          "conditional_score_worker_ceiling": 12,
+          "CLI_option": "--score-workers",
+          "condition": "Use this single local pool until exclusive multi-host CPU ownership exists; the controller must actually run on fixture-a and have the verified canonical environment."
+        },
+        "rules": {
+          "start": "Start the bounded canonical CPU pool before GPU inference and consume each complete verified prediction pair immediately; do not wait for the full GPU bank.",
+          "environment": "Use the canonical environment separately from Qwen. CPU scoring sets CUDA_VISIBLE_DEVICES empty and OMP_NUM_THREADS, MKL_NUM_THREADS, OPENBLAS_NUM_THREADS and NUMEXPR_NUM_THREADS to 1.",
+          "functions": "Reuse unchanged initialize/score_chunk; initialize once per process and reuse log-local metric caches. Score both q0 and q_final for each owned token.",
+          "work_unit": "The inspected streaming scorer submits batches of at most eight trajectory tasks with at most two pending batches per CPU worker.",
+          "ownership_for_multiple_hosts": "Before enabling distributed scoring, persist a unique token/log owner map or use fenced atomic token/variant claims. Group logs where practical for cache reuse; choose placement from actual log scene counts and measured host throughput. Remote shards publish separate owned records; one coordinator validates and merges the full population. No CPU shard emits the global full-bank completion marker.",
+          "adaptive_concurrency": "Start at the listed conservative counts. Increase only after sustained verified ready-task backlog and measured throughput improvement without training, preprocessing, RAM or storage pressure. Reduce on contention. Complete in-flight batches and preserve ownership before restarting/resizing a pool; the current CLI does not resize it automatically.",
+          "budget_status": "Counts are planning choices, not skill constants or measured optima. Two CPU cores per selected GPU worker and two host cores for control/staging are provisional reservations; the inspected GPU worker sets torch threads to two. Measure total preprocessing/control use and reduce the ceiling if more capacity is needed.",
+          "topology": "CPU capacity is additive only for disjoint physical/cgroup/affinity capacity. A duplicate GPU UUID is an alias warning, not proof of either independent or identical CPU capacity.",
+          "implementation_constraint": "The current controller starts one local ProcessPoolExecutor via --score-workers (1..32 in the streamer). It has no CPU host/partition/claim CLI. Two stock streamers against the same output would duplicate work and race; each also expects the complete bank. Multi-host scoring therefore requires an exclusive-work coordinator/qualified wrapper; it is a desired plan, not a runnable stock CLI feature."
+        }
+      },
+      "pressure_preemption_restoration": {
+        "planned_displaced_fillers": 0,
+        "observed_displaced_fillers": 0,
+        "sequence": [
+          "Stop no pressure processes; this snapshot contains none.",
+          "Dispatch only qualified a1 and c0 workers; preserve genuine training and exclude the unreachable host.",
+          "After inference create or restore no filler because none was displaced in this independent case."
+        ],
+        "restoration_status": "NOT_APPLICABLE_NO_FILLER_DISPLACED",
+        "cross_case_rule": "Do not infer a pending a3 restoration from the separate first case. In a real continuation, an existing journal obligation would persist until restored or explicitly deferred, even if the device disappeared from a later inventory."
+      },
+      "semantic_identity_checks": {
+        "status": "Required contract specified; actual checkpoint/input/metric hashes are not supplied by the fixture.",
+        "checkpoint": {
+          "immutable_complete": "Stipulated by fixture task; not independently inspected.",
+          "run_path": null,
+          "tag": null,
+          "completed_training_updates": null,
+          "training_identity": null,
+          "native_checkpoint_files_sha256": null,
+          "requirements": [
+            "Identify the actual training source and complete native checkpoint; verify its COMPLETE identity against training identity and every checkpoint file hash.",
+            "Preserve the checkpoint configuration, group, supervision heads and shared geometry identity.",
+            "Restore native ZeRO FP32 master weights with strict state loading. An immutable shared FP32 export must match native restoration and bind its own SHA256 to the exact native checkpoint."
+          ]
+        },
+        "source": {
+          "expected_frozen_commit": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+          "commit_evidence": "Runtime-contract expectation; source files read, but git checkout cleanliness and full source identity not independently verified.",
+          "native_functions": [
+            "load_model",
+            "scene_noise",
+            "CurrentInputs",
+            "plan_from_current",
+            "sample_proposal",
+            "decode_ego"
+          ],
+          "prediction_contract": "Reuse the native prediction_contract and its SHA256 of json.dumps(contract, sort_keys=True); pin additional protocol details in registration without replacing or silently changing the native identity schema."
+        },
+        "population": {
+          "name": "NAVSIM v1 Navtest",
+          "unique_scenes": 12146,
+          "unique_logs": 136,
+          "required_membership": "Exact equality of input, metric-index, prediction and both score token/log sets; counts alone are insufficient.",
+          "input_identity": null,
+          "metric_index_sha256": null,
+          "legal_current_only_inputs_complete": true,
+          "inputs": "Preserve the native current-camera pixels and hashes, crop/resize ROI, current calibration, legal ego-state encoding and navigation input. Future ground truth, maps and LiDAR remain scoring assets."
+        },
+        "inference": {
+          "seed": 42,
+          "seed_evidence": "Pinned native source and runtime contract; not a training seed.",
+          "scene_seed_expression": "int.from_bytes(SHA256(UTF8('foresight-action-v1:42:' + token))[:8], 'little') % (2**63 - 1)",
+          "noise": "Native CPU torch.Generator; torch.randn((1, 8, 4), dtype=torch.float32), then transfer to the selected device.",
+          "routing_excluded_from_seed_and_identity": [
+            "host",
+            "GPU UUID",
+            "GPU index",
+            "worker/shard ID",
+            "worker/shard count",
+            "lease owner/generation",
+            "retry/attempt ID",
+            "CPU placement"
+          ],
+          "precision": "Native FP32 master restoration and FP32 inference; strict=True; eval mode; no AMP; CUDA matmul and cuDNN TF32 disabled.",
+          "sampler": "One native ten-Euler-step FM proposal and the native residual refinement; no additional candidate or best-of selection.",
+          "trajectories": [
+            "q0",
+            "q_final"
+          ],
+          "main_executed_trajectory": "q_final",
+          "diagnostics": [
+            "out_of_range"
+          ],
+          "batching": "Retain the native one-scene worker path; do not change batching or preprocessing as an unvalidated scheduling shortcut.",
+          "coordinate_heading": {
+            "frame": "Native current-ego-relative planar trajectory; retain the native NAVSIM adapter convention without extra axis, rotation or heading transformations.",
+            "physical_output": [
+              "x in meters",
+              "y in meters",
+              "yaw in radians"
+            ],
+            "encode_decode_constants": {
+              "X_MEAN": 10.172484,
+              "X_STD": 8.805105,
+              "Y_MEAN": 0.360762,
+              "Y_STD": 2.277741
+            },
+            "heading_decode": "atan2(encoded[..., 2], encoded[..., 3]); encoded heading is sin(yaw), cos(yaw)."
+          },
+          "trajectory_shape": [
+            8,
+            3
+          ],
+          "pose_interval_seconds": 0.5,
+          "pose_times_seconds": [
+            0.5,
+            1.0,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            3.5,
+            4.0
+          ],
+          "acceptance_before_real_dispatch": "On fixed real scenes compare q0, q_final and out_of_range against native frozen inference, using identical input identity and scene noise. The referenced qualification uses four scenes and bitwise equality; no GPU qualification was performed in this test."
+        },
+        "scoring": {
+          "canonical_environment_verified": true,
+          "verification_scope": "Accepted as a fixture premise; no remote interpreter, imports or source-tree hashes were probed.",
+          "canonical_python_reference": "/root/miniconda3/envs/navsim/bin/python",
+          "qwen_python_reference": "/tmp/structured-world-round1/envs/qwen/bin/python",
+          "functions": [
+            "initialize",
+            "score_chunk"
+          ],
+          "navsim_python_tree_sha256": "1468974c9af4405597c9dd3e8db1b68e7d7ab337327a7595fb57c2b3dcd4a84f",
+          "nuplan_python_tree_sha256": "0e83aab8d5b92bf5792d815a1f25686088d1f4b8db70ea604331cd98f1606849",
+          "runtime_versions": {
+            "numpy": "1.26.4",
+            "scipy": "1.13.1",
+            "shapely": "2.0.7"
+          },
+          "simulator_pose_count": 40,
+          "simulator_interval_seconds": 0.1,
+          "required_hash_bindings": [
+            "prediction identity",
+            "metric index",
+            "each metric cache",
+            "canonical adapters",
+            "NAVSIM tree",
+            "nuPlan tree",
+            "runtime versions",
+            "trajectory proposal payloads",
+            "score records"
+          ],
+          "invariants": "No change to canonical interpolation, simulator, metric components, weights, responsibility rules or failure policy. Score q0 and q_final independently for every scene."
+        },
+        "cross_snapshot_identity_rule": "These are separate availability cases. If the same checkpoint, input bank and protocol are used, their scientific identities and scene predictions must match; routing changes alone never create a new scientific evaluation identity."
+      },
+      "completion_checks": {
+        "observed_completion": {
+          "predicted_scenes": 0,
+          "q0_scored_scenes": 0,
+          "q_final_scored_scenes": 0,
+          "evaluation_executed": false
+        },
+        "preflight": [
+          "Use the fixture host authorization and latest task-scoped instructions, rather than inheriting live deployment host lists or old route counts.",
+          "Before any real work verify exact worker imports, model/checkpoint accessibility, local image/calibration availability, disk space, CPU/RAM budget, unique physical GPU UUIDs and current headroom. Repeat memory/utilization checks before dispatch and on changes.",
+          "Check the controller lock and supersede old routing only as authorized; do not launch a competing historical observer or controller.",
+          "Verify immutable checkpoint identity/hashes, input and metric-index membership, canonical source/runtime locks and native prediction parity.",
+          "For shared leases verify cross-host visibility, atomic rename and exclusive-lock behavior on the actual filesystem; otherwise use nonoverlapping owned work units with a serialized handoff."
+        ],
+        "stream_and_resume": [
+          "Publish each NPZ atomically, then its ready record containing token, common prediction identity and payload SHA256. Consumers verify both before scoring.",
+          "Maintain exclusive GPU leases and exclusive CPU token/variant ownership. Fence obsolete owners at publication; do not let two scorer controllers write to the same token/variant output.",
+          "Reuse only predictions and score records whose identities, token/log membership, input/cache/proposal bindings and hashes validate. Recover only expired work leases; infrastructure retries reuse the same scene seed and parameters.",
+          "Classify infrastructure errors separately from scientific errors. Scientific errors stop the affected dispatch; preserve failed scenes and mark the evaluation invalid. Do not repair a failure by changing a sampler, precision, population or cache."
+        ],
+        "prediction_completion": {
+          "required_unique_scenes": 12146,
+          "checks": [
+            "Exact expected token/log membership, no missing, duplicate or extra scenes, and matching full input identity across all workers and attempts.",
+            "Validate every prediction ready record, filename/token agreement, model identity and NPZ SHA256; validate finite (8,3) q0 and q_final and native out_of_range diagnostics.",
+            "Merge unique verified completed work across attempts. Do not rely solely on current-attempt worker counters when resuming or changing the worker count.",
+            "Worker or chunk completion is local progress. Only the validated full population receives the global prediction COMPLETE marker."
+          ]
+        },
+        "scoring_completion": {
+          "q0_required_scenes": 12146,
+          "q_final_required_scenes": 12146,
+          "total_required_token_variant_records": 24292,
+          "checks": [
+            "Each trajectory bank must have exactly the expected 12146 token/log entries and the same canonical identity, metric index, cache/proposal hashes and full component schema.",
+            "Validate record payloads and statuses, both variant summaries and finite component values. Retain valid zero scores, explicit failures and the full denominator; failures contribute zero and invalidate the result.",
+            "Aggregate per-scene metrics with pooled scene weighting; do not average shard means. Preserve all seven canonical components and all failure/zero diagnostics.",
+            "Declare a scientifically valid evaluation complete only when both prediction and canonical score population checks pass and both trajectory summaries have valid=true and failed=0.",
+            "A diagnostic scores/COMPLETE.json can exist for an invalid full bank in the inspected streamer. Its filename or presence alone is never sufficient for successful queue completion."
+          ]
+        },
+        "pressure_restoration_check": "For every displaced filler, verify all actual inference processes using its released UUIDs have exited, then verify a restored process with matching script/argv/cwd/user, original limits and correct GPU binding. A deferred or failed restoration remains an operational obligation even if scoring is complete.",
+        "reporting": "Report actual used hosts, unique UUIDs/processes, per-stage scene progress, commands, elapsed time, GPU-hours, cohosting impact and restoration state. Timing and speedup remain unknown in this plan. Any later paired comparison requires matching populations/protocols and log-cluster bootstrap with pooled scene weighting."
+      },
+      "execution_limitations": [
+        "Exact checkpoint/input/metric identities and worker-runtime qualification are not supplied as operational artifacts.",
+        "CPU plans assume disjoint spare capacity between fixture-a and fixture-c, subject to topology/quota verification.",
+        "Multi-host CPU scoring is a desired qualified plan; use the single-host fallback until exclusive-work support exists."
+      ]
+    }
+  },
+  "necessary_missing_operational_instructions": [
+    {
+      "id": "ownership_aware_resource_admission",
+      "priority": "required",
+      "skill_already_says": "Use all suitable unique GPUs, permit authorized sharing/cohosting, preserve genuine training and refresh availability.",
+      "missing_operational_instruction": "Specify a per-process/UUID ownership verification method and a decision table combining authorization, repeated utilization, actual peak memory plus configurable reserve and topology; map those decisions into routes without inferring ownership from fixed host names.",
+      "fixture_consequence": "First a0 must qualify under own-training cohosting despite high utilization; a2 qualifies under low-utilization sharing, while second a2 does not. Low-utilization a1 with only 5 GiB remains excluded.",
+      "observed_source_evidence": {
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+        "function": "refresh_routes",
+        "details": "Own-training status is inferred from a hardcoded three-host set; selection uses a fixed 20 GiB minimum and utilization gate. Qualification uses five/six GiB headroom guards and a cap up to 26 GiB, whereas this fixture specifies a 13.1 GiB peak plus four GiB reserve."
+      },
+      "needed_resolution": "Document how the current task overrides are represented and enforceable, and distinguish conservative implementation headroom from the fixture admission rule. No route-selector override, host mapping or implementation edit was performed in this test."
+    },
+    {
+      "id": "pressure_journal_and_controller_lifecycle",
+      "priority": "required_for_first_snapshot_a3",
+      "skill_already_says": "Capture exact filler parameters, target PID/start-time identities, restore original limits after workers exit, and defer for genuine work.",
+      "missing_operational_instruction": "Name the inspected pressure helper or give a concrete capture/stop/release/restore/verify interface, protected journal schema, idempotent state transitions and failure/cancellation hook. Include interpreter resolution, remote PID/start-time tracking, device-index-to-UUID mapping, descendant handling, signal/wait policy and retry/deferred-restoration ownership.",
+      "fixture_consequence": "The provided argv/cwd/a3/70 GiB limit are insufficient to stop a process or faithfully restore it; PID, user, start time, descendants, private environment and mapping must first be captured. A missing filler in the second independent snapshot authorizes no new filler.",
+      "observed_source_evidence": {
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+        "functions": [
+          "refresh_routes",
+          "launch_worker",
+          "execute",
+          "serve"
+        ],
+        "details": "The inspected controller has no gpu_stress.py capture, preemption, restoration journal or cleanup/finally lifecycle; launch_worker records the local launcher PID, which can be an SSH client rather than the remote CUDA process."
+      },
+      "needed_resolution": "Document and qualify a real pressure lifecycle before claiming --serve implements this request. Missing capture data is a live preflight requirement, not permission to invent original process parameters."
+    },
+    {
+      "id": "cpu_budget_and_alias_deduplication",
+      "priority": "required",
+      "skill_already_says": "Choose CPU concurrency from actual spare capacity after allowing for training and preprocessing.",
+      "missing_operational_instruction": "Define spare-capacity accounting across containers/aliases, physical CPU identity, cgroup quota/affinity, per-worker native threads, preprocessing/control/RAM reservations, backlog measurements and safe pool resizing.",
+      "fixture_consequence": "First fixture-c must not automatically add another 24 cores to fixture-a; fixed 12/16/32-worker defaults are not capacity evidence. The per-host counts in this result are conservative explicit choices, pending measurement.",
+      "observed_source_evidence": {
+        "files": [
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stream_navsim_navtest_pdms.py"
+        ],
+        "details": "GPU inventory reports os.cpu_count(), not actual spare cores; --score-workers is a static controller argument. GPU workers set torch threads to two and scoring pins native CPU threads to one."
+      },
+      "needed_resolution": "Document how measured spare cores enter controller settings and when to use a single local pool versus qualified remote scoring pools."
+    },
+    {
+      "id": "distributed_cpu_exclusive_work_interface",
+      "priority": "required_for_multiple_CPU_hosts",
+      "skill_already_says": "Distribute CPU scoring across hosts when it is the bottleneck and use exclusive ownership or atomic claims.",
+      "missing_operational_instruction": "Provide the actual CPU host/partition/claim interface, unique per-token/variant ownership, safe remote output layout, cache locality rules, retry fencing and one full-population merge/completion owner.",
+      "fixture_consequence": "The desired first a+b pools and second a+c pools cannot be created safely by launching the existing full-bank streamer twice against one output. The documented single-host fallback can stream scoring concurrently with the GPU workers.",
+      "observed_source_evidence": {
+        "files": [
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stream_navsim_navtest_pdms.py"
+        ],
+        "functions": [
+          "execute",
+          "main"
+        ],
+        "details": "execute launches one local scoring process. The streamer has only predictions/index/devkit/output/workers arguments, an in-process submitted set and full 12146-scene validation; it has no cross-host claims or partition option."
+      },
+      "needed_resolution": "Supply and qualify an exclusive-scoring coordinator/wrapper that reuses the canonical per-scene functions, or explicitly document the single-host implementation limit."
+    },
+    {
+      "id": "availability_changes_and_resume_attempt_protocol",
+      "priority": "required_for_real_recovery",
+      "skill_already_says": "Refresh availability, recover expired leases and resume verified successes without changing scene identity.",
+      "missing_operational_instruction": "Specify live route changes versus per-checkpoint refresh, ownership epochs/remote liveness, infrastructure-failure classification, stale failure-marker handling, prior report retention, lease reconciliation and full-population accounting across attempts with a changed worker count.",
+      "fixture_consequence": "The snapshots are independent here, but a later real 5-to-2-worker recovery must retain successful scenes and cannot overwrite shard reports or infer completion from only new workers.",
+      "observed_source_evidence": {
+        "file": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+        "functions": [
+          "execute",
+          "leased_indices",
+          "finish_predictions"
+        ],
+        "details": "Routes refresh at execute entry, not continuously; active leases expire after 900 seconds with per-scene heartbeats. Persistent INFERENCE_FAILED.json stops workers. Completed leases are skipped, while finish_predictions requires current shard reports and their scenes_done sum to equal 12146, which is not a documented multi-attempt reconciliation protocol."
+      },
+      "needed_resolution": "Give a reviewed resume/handoff procedure, use validated global unique-scene accounting, preserve attempt costs, and prove lock/heartbeat/fenced-publication behavior on the actual shared storage. Never clear scientific failures or discard good outputs merely to satisfy counters."
+    },
+    {
+      "id": "completion_validity_schema",
+      "priority": "required",
+      "skill_already_says": "Keep failed scenes in the denominator, mark failed/incomplete results invalid and never claim a full bank for a shard.",
+      "missing_operational_instruction": "Define which prediction/score/queue markers certify population coverage versus scientific validity, their required identities/hashes and per-variant valid/failed fields, and how restoration state is reported independently.",
+      "fixture_consequence": "Every separate snapshot requires 12146 verified predictions and 12146 scores per trajectory; a COMPLETE filename or shard exit alone must not be accepted.",
+      "observed_source_evidence": {
+        "files": [
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stream_navsim_navtest_pdms.py"
+        ],
+        "details": "The streamer writes scores/COMPLETE.json before raising on failed rows. execute returns early merely if that file exists, so a failed diagnostic complete bank can be mistaken for success unless validity is explicitly checked."
+      },
+      "needed_resolution": "Require both variant summaries valid=true and failed=0 plus the full membership/hash checks before queue success; preserve diagnostic failed banks as invalid and track outstanding filler restoration separately."
+    },
+    {
+      "id": "task_scoped_plan_only_policy_and_cli_mapping",
+      "priority": "required_for_safe_execution_guidance",
+      "skill_already_says": "Use the latest task instructions and consult the live executable pipeline and its exact revision.",
+      "missing_operational_instruction": "Document the boundary between a fixture/read-only plan and live dispatch, how task-scoped host and cohosting authorization is supplied to the pipeline, and the exact supported routes/CPU/refresh/pressure options without relying on historical deployment policy.",
+      "fixture_consequence": "The only authorized hosts are fixture-a/b/c, and the entire test forbids GPU jobs, SSH, signals, staging/installations and repo changes. Referenced --serve/--inspect/asset preparation are not safe dry-run commands.",
+      "observed_source_evidence": {
+        "files": [
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+          "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stream_navsim_navtest_pdms.py"
+        ],
+        "details": "The controller reads live artifact policies, uses SSH and may stage an rsync overlay; the scorer separately reads server_dispatch_policy.json. No plan-only flag, pressure lifecycle flag, remote CPU flag or live route-refresh option appears in the inspected CLI."
+      },
+      "needed_resolution": "Explicitly provide a side-effect-free planning procedure and explain policy translation/prerequisites for later authorized execution. This result follows the fixture and does not read or change live policy artifacts."
+    }
+  ],
+  "limitations": [
+    "The fixture states checkpoint completeness, current-only input completeness and canonical-environment verification but provides no run/tag/update, checkpoint hash manifest, input/token/log list, metric-cache index or their concrete identities. This result pins expected semantics without inventing missing values.",
+    "No exact worker interpreter availability, model-path access, storage/memory limits, scene rates, training slowdown or cross-host filesystem locking was tested. Any actual dispatch must qualify these after fresh inventory.",
+    "a3 restoration metadata is incomplete and post-release free memory is unknown. Its five-GPU first-snapshot plan is conditional; use four remaining candidates if safe release/qualification cannot be completed.",
+    "The reference executable has policy, pressure lifecycle, distributed CPU scoring, recovery and validity-marker limitations detailed above. Skill principles alone do not make unsupported CLI operations executable.",
+    "The CPU budgets are explicit provisional choices, not measured maxima. Increase only when backlog and resource measurements justify it; never sum duplicate capacity.",
+    "No scores, completion markers, measured speedup, elapsed inference/scoring time or GPU-hour estimates are claimed. The historical benchmark mentioned in the runtime contract was not opened or extrapolated to these fixtures.",
+    "The isolated test authorizes this plan/result write only. All operational stop/start/dispatch steps in the JSON are hypothetical sequences and were not executed."
+  ],
+  "plan_validation": {
+    "selected_UUIDs_unique_per_snapshot": true,
+    "all_selected_hosts_in_fixture_authorization": true,
+    "scene_chunk_count": 380,
+    "scene_chunk_coverage": {
+      "full_chunks": 379,
+      "full_chunk_size": 32,
+      "tail_scenes": 18,
+      "total_scenes": 12146
+    },
+    "expected_score_record_count_per_snapshot": 24292,
+    "CPU_worker_plans_within_provisional_budgets": true,
+    "valid_JSON": true,
+    "validation_scope": "Structural/arithmetic checks of the written plan only; no scientific runtime or workload execution."
+  }
+}

@@ -1,5 +1,15 @@
 # Structured-world FGTR round one — implementation milestone
 
+**2026-10-11 evaluation override:** the user requested direct full Navtest instead
+of further development scoring. [The active policy](NAVSIM_EVALUATION_POLICY_20261011.json)
+supersedes the earlier development-observation routing without changing training.
+[Matched historical Navtest references](NAVSIM_NAVTEST_HISTORICAL_REFERENCES_20261011.json)
+keep the 50k and 100k populations separate. The reusable
+[Navtest parallel evaluation skill](../../../skills/navtest-parallel-eval/SKILL.md)
+is installed under `/mnt/project/skill/navtest-parallel-eval`; it uses independent
+GPU shards and concurrent canonical CPU scoring. Existing development snapshots
+remain historical evidence, not new Navtest results.
+
 [中文分析与差异总结](ANALYSIS_AND_DIFFERENCES_ZH_20261010.md)汇总ego输入、
 24epoch来源、公开工作训练准备/配方差异、nuScenes最终规划与场景指标，
 以及最新NAVSIM 50k与历史同步数比较。

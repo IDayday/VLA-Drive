@@ -1,0 +1,53 @@
+{
+  "schema": "structured_world_navsim_evaluation_policy_v1",
+  "effective_utc": "2026-10-11T02:18:17.703069+00:00",
+  "source": "explicit user instruction 2026-10-11",
+  "user_instruction": "不用再测开发集成绩，直接测navtest 结果",
+  "population": "navtest",
+  "expected_scenes": 12146,
+  "dispatch_development_evaluation": false,
+  "dispatch_navtest_evaluation": true,
+  "groups": [
+    "G0_NO_FUTURE_LABEL",
+    "G1_FULL_UNIFORM",
+    "G2_EVENT_UNIFORM",
+    "G3_EVENT_LOCAL"
+  ],
+  "observation_updates": [
+    25000,
+    50000,
+    75000,
+    100000
+  ],
+  "include_trajectories": [
+    "q0",
+    "q_final"
+  ],
+  "sampling_seed": 42,
+  "precision": "FP32 native master restore and inference, TF32 disabled",
+  "sampling": "original 10-step FM, scene-bound independent noise, one candidate",
+  "training_recipe_change": false,
+  "preserve_existing_development_results": true,
+  "do_not_resume_legacy_navtest_observers": true,
+  "comparison_rule": "Navtest compared only with same population/protocol; report actual checkpoint updates",
+  "latest_inference_instruction": "可用的服务器都用上，分片加速推理；GPU资源被压力占卡脚本占用可以kill，推理完恢复；GPU和分片数根据当前可用资源决定",
+  "latest_inference_instruction_utc": "2026-10-11T02:31:27.555688+00:00",
+  "inference_allowed_hosts": [
+    "training-vla-zt",
+    "training-vla-zt2",
+    "training-vla-zt3",
+    "training-vla-zt-recovery",
+    "training-rl-zt2",
+    "training-rl-zt3",
+    "training-rl-zt4",
+    "training-vlawm-zt",
+    "training-vlawm-zt2",
+    "training-vlawm-zt3",
+    "training-vlawm-zt4",
+    "training-vlawm-zt5"
+  ],
+  "inference_authorization_scope": "Previously authorized zt resources, all currently usable resources per latest user instruction; inference and canonical scoring only. Existing training routes and unrelated scientific jobs unchanged.",
+  "resource_selection": "Dynamic per dispatch, individual unique physical GPUs; no fixed host/GPU/shard count",
+  "pressure_restore_after_inference": true,
+  "navtest_dispatch_output": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225"
+}

@@ -1,0 +1,100 @@
+{
+  "passed": true,
+  "helper_file": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/adopt_navsim_evaluation_policy.py",
+  "helper_sha256": "2a63529c4c1825994b284b30bc64734628c8d13bb88524cc03303a63515e9118",
+  "changed_repo_files": [
+    "tools/structured_world/adopt_navsim_evaluation_policy.py"
+  ],
+  "validation_script": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/VALIDATE_POLICY_ADOPTION.py",
+  "validation_results": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/validation_v4/VALIDATION_RESULTS.json",
+  "live_verification_script": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/VERIFY_ADOPTION.py",
+  "live_snapshots": [
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/LIVE_ADOPTION_VERIFIED_1.json",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/LIVE_ADOPTION_VERIFIED_2.json"
+  ],
+  "frozen_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "training_source_and_native_identity_unchanged": true,
+  "original_supervisors_stopped_as_lockkeepers": true,
+  "do_not_resume_legacy_supervisors": true,
+  "current_worker_or_SSH_signals": [],
+  "later_supervisor_retirement": "Only the old supervisor PID, using pidfd after its sole child is a retained zombie; actual raw exit code is persisted and checked before further training",
+  "future_evaluation": "Newton run_navsim_navtest.py --enqueue; asynchronous; no DEV or legacy observer dispatch",
+  "queue_directory": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/requests",
+  "groups": [
+    {
+      "group": "G1",
+      "controller_pid": 1285351,
+      "old_supervisor_pid": 1257835,
+      "retained_child_pid": 1257848,
+      "control": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/G1_CONTROL",
+      "ranks": [
+        4102352,
+        4102353,
+        4102354,
+        4102355,
+        4102356,
+        4102357,
+        4102358,
+        4102359
+      ],
+      "updates_before": 27309,
+      "updates_after": 27331,
+      "seconds": 3.1880619525909424,
+      "metric_FP32_keys": {},
+      "planned_groups": [
+        "G1_FULL_UNIFORM"
+      ]
+    },
+    {
+      "group": "G3_G2",
+      "controller_pid": 1285367,
+      "old_supervisor_pid": 999877,
+      "retained_child_pid": 1231645,
+      "control": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/G3_G2_CONTROL",
+      "ranks": [
+        1231650,
+        1231651,
+        1231652,
+        1231653,
+        1231654,
+        1231655,
+        1231656,
+        1231657
+      ],
+      "updates_before": 54628,
+      "updates_after": 54650,
+      "seconds": 3.150972366333008,
+      "metric_FP32_keys": {},
+      "planned_groups": [
+        "G3_EVENT_LOCAL",
+        "G2_EVENT_UNIFORM"
+      ]
+    },
+    {
+      "group": "G0",
+      "controller_pid": 190915,
+      "old_supervisor_pid": 163255,
+      "retained_child_pid": 167882,
+      "control": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/evaluation_policy_migration_20261011/20261011T022936Z/G0_CONTROL",
+      "ranks": [
+        167886,
+        167887,
+        167888,
+        167889,
+        167890,
+        167891,
+        167892,
+        167893
+      ],
+      "updates_before": 2700,
+      "updates_after": 2721,
+      "seconds": 3.1337528228759766,
+      "metric_FP32_keys": {},
+      "planned_groups": [
+        "G0_NO_FUTURE_LABEL"
+      ]
+    }
+  ],
+  "NU_G1_deferred": true,
+  "no_commit_or_push_performed": true
+}
