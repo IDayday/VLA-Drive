@@ -10,6 +10,9 @@
 准备、16步profile、8→16步native恢复和正式启动；
 [进程核验](G0_EIGHT_RANK_PROBE_20261011.json)确认正式训练的8个rank。
 [50k失败分解](NAVSIM_50K_FAILURE_BREAKDOWN_20261011.json)单列道路、碰撞和分项转移。
+[实际部署/恢复/评价命令](NAVSIM_DEPLOYMENT_COMMANDS_20261011.md)和
+[恢复路由验证](RECOVERY_ROUTING_VALIDATION_20261011.json)提供可执行入口、20项
+CPU控制测试及G1接替服务器真实数据和模型导入检查；CPU准备不代表正式恢复已完成。
 
 This branch contains executable code and real data/training/deployment checks.
 **The results snapshot captured on 2026-10-10 contains NAVSIM G3's complete 50k

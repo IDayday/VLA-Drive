@@ -1,0 +1,264 @@
+{
+  "schema": "recovery_routing_validation_v1",
+  "captured_UTC": "2026-10-11T00:29:47.191142+00:00",
+  "passed": true,
+  "CPU_mock_cases": [
+    {
+      "helper": "navsim",
+      "case": "frozen_source_and_command_planning",
+      "passed": true,
+      "mode": "read_only"
+    },
+    {
+      "helper": "navsim",
+      "case": "inspect_no_dispatch",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "stage_failure_stops",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "lock_wait_then_stage_failure",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "resume_pass_records_reference",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "resume_stale_report_rejected",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "active_original_watcher_blocks",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "preparation_missing_import_gate_rejected",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "preparation_stale_controller_rejected",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "default_full_idle_rejects_existing_memory",
+      "passed": true,
+      "mode": "policy_mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "explicit_authorized_sharing_accepts_low_util_capacity",
+      "passed": true,
+      "mode": "policy_mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "sharing_rejects_active_GPU_load",
+      "passed": true,
+      "mode": "policy_mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "sharing_rejects_insufficient_memory_reserve",
+      "passed": true,
+      "mode": "policy_mock"
+    },
+    {
+      "helper": "navsim",
+      "case": "sharing_stops_after_policy_revocation",
+      "passed": true,
+      "mode": "policy_mock"
+    },
+    {
+      "helper": "nuscenes",
+      "case": "frozen_source_and_command_planning",
+      "passed": true,
+      "mode": "read_only"
+    },
+    {
+      "helper": "nuscenes",
+      "case": "inspect_no_dispatch",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "nuscenes",
+      "case": "stage_failure_stops",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "nuscenes",
+      "case": "lock_wait_then_stage_failure",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "nuscenes",
+      "case": "resume_pass_records_reference",
+      "passed": true,
+      "mode": "mock"
+    },
+    {
+      "helper": "nuscenes",
+      "case": "resume_stale_report_rejected",
+      "passed": true,
+      "mode": "mock"
+    }
+  ],
+  "GPU_workers_dispatched_by_mock_tests": false,
+  "helper_sha256": {
+    "navsim": "1e1c4d83ee1831ecbe6a297ea55442cb777106710bcbb987efc2bc72c3ce51d4",
+    "nuscenes": "3ab0cc78b1d74b46a21e4dcea318af0b2d7ed33eb009a1bd377b226a531fed19"
+  },
+  "test_script_sha256": "02b98a7f65d5d2aa99e4fa22f4bfee21ad1b2fc93e4c90c0b63dc08b1c16ba3d",
+  "complete_mock_result": {
+    "path": "/mnt/project/structured-world-routing-validation-20261011-v4/VALIDATION_RESULTS.json",
+    "sha256": "709864f895d1f18f5741dae427a3bc392049b6fa2370871ac481082c6127b10e"
+  },
+  "G1_real_destination_preparation": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/preparation_v3/PREPARATION_COMPLETE.json",
+    "sha256": "ec281ea1c4e025b4c63e930ad10d1b5ae1230f6ff783cbce3475a7e194217e1a",
+    "host": "training-vlawm-zt2",
+    "native_checkpoint_update": 25000,
+    "native_checkpoint_files_verified": 17,
+    "train_label_scenes": 101592,
+    "train_DINO_scenes": 101592,
+    "images": {
+      "all_SHA256_passed": true,
+      "bytes": 63670100680,
+      "images": 304776,
+      "original_image_root": "/var/tmp/ddp-full-foresight-20260929/images"
+    },
+    "CPU_prefetch": {
+      "CUDA_used": false,
+      "DINO_identity": "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+      "Python_NumPy_Torch_CPU_RNG": "exact unchanged",
+      "cache_identity": "9e8996413379c8421e657bf89006415963263df55d4ae87af3e954b588d0c268",
+      "current_images_state_navigation_calibration_and_all_targets": "bytewise identical",
+      "future_data_position": "unconsumed prefetch is not an exposure; derived from saved epoch/offset",
+      "ordered_batches": 16,
+      "passed": true,
+      "scenes": 64,
+      "schema": "real_NAVSIM_CPU_prefetch_equivalence_v1"
+    },
+    "CPU_import_readiness": {
+      "CUDA_initialized": false,
+      "executable": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python",
+      "modules": {
+        "accelerate": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/accelerate/__init__.py",
+          "sha256": "1c99d33067892e859f594d09a74c824ac1b8f2907b3aa571c6441db980a3e69c"
+        },
+        "deepspeed": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/deepspeed/__init__.py",
+          "sha256": "b5c4b7797c761ef30baf7f3fa1f83ed910bd97d935b3702c617f93c89101ac95"
+        },
+        "flash_attn": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/flash_attn/__init__.py",
+          "sha256": "19de6aae2ed6ace6bd29a0fa45c1872da7302b308bc2461144d3152f1a287ab8"
+        },
+        "mmcv._ext": {
+          "file": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/lib/python3.10/site-packages/mmcv/_ext.cpython-310-x86_64-linux-gnu.so",
+          "sha256": "078935397eeec440a0bfae81ffe06624893a1e0b81bf7f0eb15edd5c30cfd026"
+        },
+        "mmcv.cnn": {
+          "file": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/lib/python3.10/site-packages/mmcv/cnn/__init__.py",
+          "sha256": "6c8d408c8bb8f1e1dbadc5fcfefc87c5c351f337bc2e80cd896f0d6ca7f7c8a8"
+        },
+        "mmcv.ops": {
+          "file": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/lib/python3.10/site-packages/mmcv/ops/__init__.py",
+          "sha256": "5862e1fb29c68d9aefb40c7808483f50f2f1dcaa04cc146827b9c425674f4a2d"
+        },
+        "mmengine": {
+          "file": "/var/tmp/structured-world-fgtr-round1-20261008/qwen/lib/python3.10/site-packages/mmengine/__init__.py",
+          "sha256": "a3f87418ee8b1836c8853e3cc2da9ca9e2cbd035c3ce3466ae8b8799a1dbe02d"
+        },
+        "qwen_vl_utils": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/qwen_vl_utils/__init__.py",
+          "sha256": "a0c454a56f2ba478731013afe1ba5d5d9caff652fe0ce51be1c315476e5c7905"
+        },
+        "starVLA.model.framework.vla_structured_fgtr": {
+          "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/starVLA/model/framework/vla_structured_fgtr.py",
+          "sha256": "761b20e716fdac7c3f5311103e3afd5caa500864635a5b51011ce8b71be1bb30"
+        },
+        "timm": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/timm/__init__.py",
+          "sha256": "9668df8ff48b33f846428cd7607399cf14b4f0feef157930eabf6defe932b1d3"
+        },
+        "tools.structured_world.train_vla": {
+          "file": "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/train_vla.py",
+          "sha256": "454dc16559c50cb5819ed5ab012603ae5eb98f3d87e7099b265e5b28157f5a9e"
+        },
+        "torch": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/__init__.py",
+          "sha256": "e1b5bf4151bd246a21e3ac5318f6edfcf2e6ef0fd4f233bfb77a264698ec1319"
+        },
+        "torchvision": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torchvision/__init__.py",
+          "sha256": "ee2c9f4110cf1203db48c42601607329ac1f19709fa91c152f8d95eb53437a73"
+        },
+        "transformers": {
+          "file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/transformers/__init__.py",
+          "sha256": "ce74bbc573ec6060d601a86bf0914de819c3777213e0ba4527bc1cd53effe9a5"
+        }
+      },
+      "passed": true
+    },
+    "versions": {
+      "Pillow": "10.1.0",
+      "accelerate": "1.5.2",
+      "deepspeed": "0.16.9",
+      "einops": "0.8.1",
+      "flash-attn": "2.7.4.post1",
+      "mmcv": "2.2.0",
+      "mmengine": "0.10.7",
+      "numpy": "1.26.4",
+      "omegaconf": "2.3.0",
+      "qwen-vl-utils": "0.0.14",
+      "safetensors": "0.6.2",
+      "timm": "1.0.20",
+      "torch": "2.5.1+cu124",
+      "torchvision": "0.20.1+cu124",
+      "transformers": "4.57.0"
+    },
+    "reuse_limits": "Destination evidence proves environment/hardware only. Original NAV memory profile supplies reserve; target NAV GPU throughput is unmeasured. Original NVMe RGB path and staging bytes retained. Full payload/native/CPU equivalence proof is reused from the unchanged referenced certificate; runtime imports and metadata are fresh."
+  },
+  "startup_corrections": [
+    {
+      "stage": "first vlawm-zt startup before optimizer update",
+      "problem": "Original RGB residency absent",
+      "fix": "Copied original source bytes and required full image manifest/hash gate"
+    },
+    {
+      "stage": "first alternate vlawm-zt2 startup before native restore",
+      "problem": "Private mmcv overlay absent",
+      "fix": "Copied isolated environment; real trainer/model/mmcv operators imported under the exact destination runtime before dispatch"
+    }
+  ],
+  "limits": [
+    "CPU/mock tests do not establish real eight-GPU recovery",
+    "Prepared G1 data and CPU imports do not establish formal training progress",
+    "Actual G0 eight-GPU recovery is separately archived",
+    "nuScenes recovery helper is tested but not launched; user deferred recovery",
+    "Native G1 recovery and new GPU throughput will be recorded after actual execution"
+  ]
+}
