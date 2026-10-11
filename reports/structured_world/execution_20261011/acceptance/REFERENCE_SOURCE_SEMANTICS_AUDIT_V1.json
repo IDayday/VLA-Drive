@@ -1,0 +1,1602 @@
+{
+  "schema": "reference_source_semantics_static_audit_v1",
+  "created_UTC": "2026-10-11T13:42:29.109467+00:00",
+  "scope": {
+    "method": "bounded git diff, source conditional analysis and Python stdlib AST/hash checks; no project modules imported",
+    "source_versions": {
+      "0c54f1c": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+      "1e5b109": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+      "be5e722": "be5e72248a46afd43e1bf279c21134c391c5edad"
+    },
+    "scoped_diff_paths": [
+      "starVLA/model",
+      "starVLA/dataloader/structured_world",
+      "configs/structured_world",
+      "third_party/resworld",
+      "third_party/LOCK.json",
+      "third_party/EXECUTION_PATCHES.json",
+      "tools/structured_world/train_vla.py",
+      "tools/structured_world/native_capture.py"
+    ],
+    "unchanged_control_paths": [
+      "starVLA/model/framework/DDPForesight.py",
+      "starVLA/model/modules/structured_world/semantics.py",
+      "starVLA/dataloader/structured_world/adapters.py",
+      "tools/ddpolicy_vehicle/optimizer_safety.py",
+      "tools/ddpolicy_vehicle/training_state.py",
+      "tools/foresight/student_state.py",
+      "tools/structured_world/prefetch.py",
+      "tools/structured_world/resume_origin.py",
+      "tools/structured_world/training_assets.py",
+      "tools/structured_world/recovery_boundary.py",
+      "third_party/LOCK.json",
+      "configs/structured_world/navsim_G0_NO_FUTURE_LABEL_seed42.yaml",
+      "configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+      "configs/structured_world/navsim_G2_EVENT_UNIFORM_seed42.yaml",
+      "configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml"
+    ],
+    "not_performed": [
+      "GPU execution",
+      "model construction",
+      "0c-versus-1e5 full forward/backward/optimizer numerical bridge",
+      "checkpoint tensor payload comparison",
+      "whole repository history audit",
+      "remote job dispatch or signals"
+    ]
+  },
+  "actual_source_provenance": {
+    "formal_locked_scientific_and_canonical_evaluation_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+    "final_benchmark_training_source": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+    "final_benchmark_controller_source": "79fde5cf0e771c0b80ee55b1282917d70d596f14",
+    "native_capture_training_source": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "native_controller_v8_source": "02f7a9afe838a86dc906a10ec3c6f602faac7b98",
+    "observed_evidence": [
+      {
+        "path": "reports/structured_world/execution_20261011/performance/INTERIM_FINAL_WINDOWS_17_REVIEW_V1.json",
+        "sha256": "7a3d111e9f41a0596da810242e5e5ebc292734d35053d0cd9174ea34bc295400",
+        "kind": "existing archived evidence; no remote reread or native tensor payload comparison in this audit"
+      },
+      {
+        "path": "reports/structured_world/execution_20261011/native_G1_CPU_comparison_E3_prep/SUBMITTABLE_CAPTURE_EXPOSURE_COST_REVIEW_V2.json",
+        "sha256": "02398d13b1ccd0b5ecb33202a5876cce4a2d4aa5424d8dee81ef2d7d3bf5fa11",
+        "kind": "existing archived evidence; no remote reread or native tensor payload comparison in this audit"
+      },
+      {
+        "path": "reports/structured_world/execution_20261011/native_G1_CPU_comparison_E3_prep/ARCHIVED_CAPTURE_E1_E3_REVIEW_V1.json",
+        "sha256": "10925f5b07457dc0f5e24f144aa9b3eb74f9505bdfcb3a357c333b0d35db1450",
+        "kind": "existing archived evidence; no remote reread or native tensor payload comparison in this audit"
+      }
+    ],
+    "disclosure": "Bench IO control executes source1e5; native IO controls execute sourcebe5. Neither is an actual run of unmodified source0c. Literal reference mode in those trees also inherits common source changes. Current running main update/22-of-24 progress was not independently remeasured here."
+  },
+  "mode_flags": [
+    {
+      "mode": "reference",
+      "execution_fast": false,
+      "future_execution_fast": false,
+      "geometry_BF16": false,
+      "future_time_vectorized": false,
+      "FGTR_time_vectorized": false,
+      "Qwen_vision_instance_adapter": false,
+      "legacy_ordered_prefetch_and_deferred_metrics": false,
+      "language_and_DiT_checkpointing": true,
+      "formal_fast_modes_remain_rejected": false
+    },
+    {
+      "mode": "io_preserving_v1",
+      "execution_fast": false,
+      "future_execution_fast": false,
+      "geometry_BF16": false,
+      "future_time_vectorized": false,
+      "FGTR_time_vectorized": false,
+      "Qwen_vision_instance_adapter": false,
+      "legacy_ordered_prefetch_and_deferred_metrics": true,
+      "language_and_DiT_checkpointing": true,
+      "formal_fast_modes_remain_rejected": false
+    },
+    {
+      "mode": "loss_preserving_v1",
+      "execution_fast": false,
+      "future_execution_fast": false,
+      "geometry_BF16": false,
+      "future_time_vectorized": false,
+      "FGTR_time_vectorized": false,
+      "Qwen_vision_instance_adapter": false,
+      "legacy_ordered_prefetch_and_deferred_metrics": true,
+      "language_and_DiT_checkpointing": false,
+      "formal_fast_modes_remain_rejected": false
+    },
+    {
+      "mode": "engineering_fast",
+      "execution_fast": true,
+      "future_execution_fast": true,
+      "geometry_BF16": false,
+      "future_time_vectorized": false,
+      "FGTR_time_vectorized": false,
+      "Qwen_vision_instance_adapter": true,
+      "legacy_ordered_prefetch_and_deferred_metrics": true,
+      "language_and_DiT_checkpointing": true,
+      "formal_fast_modes_remain_rejected": true
+    },
+    {
+      "mode": "precision_fast",
+      "execution_fast": true,
+      "future_execution_fast": true,
+      "geometry_BF16": true,
+      "future_time_vectorized": false,
+      "FGTR_time_vectorized": false,
+      "Qwen_vision_instance_adapter": true,
+      "legacy_ordered_prefetch_and_deferred_metrics": true,
+      "language_and_DiT_checkpointing": true,
+      "formal_fast_modes_remain_rejected": true
+    },
+    {
+      "mode": "engineering_timevec",
+      "execution_fast": true,
+      "future_execution_fast": true,
+      "geometry_BF16": false,
+      "future_time_vectorized": true,
+      "FGTR_time_vectorized": true,
+      "Qwen_vision_instance_adapter": true,
+      "legacy_ordered_prefetch_and_deferred_metrics": true,
+      "language_and_DiT_checkpointing": true,
+      "formal_fast_modes_remain_rejected": true
+    }
+  ],
+  "common_flag_off_changes_0c_to_1e5": [
+    {
+      "id": "C01",
+      "files": [
+        "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py"
+      ],
+      "change": "DiT and SelfAttentionTransformer retain all_hidden_states only when requested; unconditional hidden list allocation/appends removed",
+      "IO_effect": "Reduced Python references/intermediate lifetime when return_all_hidden_states=False. Block/checkpoint/active mask/norm/projection operations and RNG calls otherwise AST identical after removing exactly those list statements. True return preserves list behavior.",
+      "classification": "common execution/storage change, not merely provenance metadata",
+      "numeric_caveat": "Storage lifetime and kernel scheduling can change nondeterministic realization; static evidence is not bitwise GPU equivalence."
+    },
+    {
+      "id": "C02",
+      "files": [
+        "starVLA/model/framework/vla_structured_fgtr.py"
+      ],
+      "change": "New encode_current context wrapper and prepared-current checks; extra geometry canonical_fp32 keyword; optional activation diagnostic fields/hooks",
+      "IO_effect": "execution_fast=False selects original superclass encoder and ordinary geometry inputs. record_activation_metrics defaultsTrue; IO records each update. Diagnostic gradient samples are conditional on execution_diagnostic_capture. plan_from_current/predict_action AST unchanged.",
+      "classification": "common routing/diagnostic wrappers; prepared compute conditional"
+    },
+    {
+      "id": "C03",
+      "files": [
+        "starVLA/model/modules/structured_world/future.py",
+        "starVLA/model/modules/structured_world/fgtr.py",
+        "third_party/resworld/ported/tokenlearner.py"
+      ],
+      "change": "Plain opt-in flags/helper entrypoints added",
+      "IO_effect": "Future still runs original per-time action_MLN, decoder, original TokenFuser.forward and B0+delta/stack. FGTR still per-time attention/coordinate MLP. Constructors retain same parameter/module/buffer declaration order after excluding listed plain flags. TokenFuser original forward AST exact.",
+      "classification": "dormant branches/default routing; not time-vectorized under IO"
+    },
+    {
+      "id": "C04",
+      "files": [
+        "starVLA/model/modules/structured_world/grid.py",
+        "starVLA/model/modules/structured_world/queries.py",
+        "starVLA/model/modules/structured_world/losses.py"
+      ],
+      "change": "Grid/body code factored; optional prepared coordinates, candidates, fields and finite guards added",
+      "IO_effect": "Grid same normalization/nonfinite sentinel/zeros padding/align_corners=False; body template explicit torch default dtype matches original linspace default. IO builds no caches/plans, retains original nonzero index order, RNG draws/50-25-25 strata, detached auxiliary poses, time loop multiply/add, footprint amin/amax and validity/loss masks. Scalar fallback/neighbor diagnostics now explicitly detach before conversion.",
+      "classification": "common helper refactor plus opt-in reuse; no IO objective difference identified"
+    },
+    {
+      "id": "C05",
+      "files": [
+        "starVLA/model/modules/structured_world/geo_bev.py"
+      ],
+      "change": "conv_autocast_bf16=False attr, nested disabled autocast and FP32 casts; canonical bypass keyword",
+      "IO_effect": "Outer geometry autocast(enabled=False) already existed in0c. Under registered FP32 IO geometry, new nested context disabled and feature/output float casts no-op. Backbone/BN/checkpoint construction and view projection unchanged.",
+      "classification": "common precision routing wrapper; actual convolution BF16 only E3"
+    },
+    {
+      "id": "C06",
+      "files": [
+        "starVLA/dataloader/structured_world/dataset.py",
+        "starVLA/dataloader/structured_world/nuscenes_dataset.py"
+      ],
+      "change": "Verified label payload SHA/schema attached as additional target metadata",
+      "IO_effect": "Existing loaded image/label tensors/calibration/population unchanged; IO ignores query candidate prep. No future labels enter current encoder.",
+      "classification": "metadata addition"
+    },
+    {
+      "id": "C07",
+      "files": [
+        "tools/structured_world/train_vla.py"
+      ],
+      "change": "Source/provenance hashes, candidate options, finite pilot origin schedule/endpoint handling, benchmark end-save skip, logging settings; loss finite check casts bool to int32",
+      "IO_effect": "Ordinary formal end_update equals existing horizon; same optimizer/backward placement, all-update IO evidence, existing prefetch path. Finite check cast changes diagnostic implementation only. Additional collective MIN/packed GPU summaries and CPU processor only fast. Origin/schedule/skip-save settings explicitly invoked for benchmark/native pilots affect execution/observation schedule; not an unmodified0c run.",
+      "classification": "common metadata/control infrastructure plus conditional pilots",
+      "caveat": "Flag-off refers to P0/E3/timevec, not to legacy IO optimizations already present in0c."
+    },
+    {
+      "id": "C08",
+      "files": [
+        "third_party/EXECUTION_PATCHES.json"
+      ],
+      "change": "Local execution patch provenance added without changing upstream LOCK",
+      "IO_effect": "Contract/provenance only. Manifest documents TokenFuser/Qwen/timevec/E3; it is not exhaustive of common internal changes such as DiT list retention.",
+      "classification": "metadata disclosure; audit inventory supplies full bounded file list"
+    }
+  ],
+  "conditional_candidates": [
+    {
+      "mode": "engineering_fast",
+      "changes": [
+        "CPU current-only image/prompt/calibration preparation and pinned batch transfer",
+        "Instance-local source-checked Qwen vision length metadata adapter, same original attention kernels",
+        "CPU label candidate index preparation preserving source ordering/hash",
+        "Same-forward coordinate/field/body reuse with nonfinite fallback",
+        "Future action_MLN once outside per-time loop and live-gradient spatial mix reuse; TokenFuser token normalization/dense/dropout remain per-time"
+      ],
+      "retained_contract": "No new learned risk/selector head, detached gradient path, proposal/FM repeat/steps, query distribution, loss weights, normalization population or optimizer scheme identified. Common reuse changes autograd accumulation order; mathematical intent is not bitwise gradient proof.",
+      "formal_status": "pilot only; original fast formal guard retained"
+    },
+    {
+      "mode": "engineering_timevec",
+      "changes": [
+        "P0 plus independent B*T future decoder and guarded TokenFuser batch-time fusion",
+        "Guarded coordinate MLP batching in FGTR; actual training attention dropout0.1 retains per-time attention/RNG calls"
+      ],
+      "retained_contract": "BN and active dropout guards conservatively retain original path. FP32 operation regrouping/roundoff is expected; separate candidate criteria apply, not P0 exact-forward acceptance."
+    },
+    {
+      "mode": "precision_fast",
+      "changes": [
+        "P0 plus BF16 autocast only geometry ResNet50/FPN/BEV backbone/neck convolutions"
+      ],
+      "retained_contract": "FP32 master/model/optimizer/gradient communication; existing BF16 Qwen/action; FP32 DepthNet/view/projection/grid_sample/loss/refiner; TF32 off and canonical inference FP32 bypass.",
+      "numeric_semantics": "Intentional E3 compute precision change; floating BN running statistics/gradients may differ even with unchanged type/population/counter logic. Cannot describe as E2 exact or lossless numerical execution."
+    },
+    {
+      "mode": "dormant proposal adapter",
+      "file": "starVLA/model/modules/structured_world/proposal_execution.py",
+      "status": "Prototype not installed/called by scoped trainer/configure_execution/framework. Not part of actual P0/IO dispatch in these sources."
+    }
+  ],
+  "be5_only_changes": {
+    "model_execution": {
+      "configure_execution_executable_body_before_return_AST_identical_1e5_be5": true,
+      "return_dictionary_changed": true,
+      "all_other_scoped_model_dataset_config_and_third_party_files_byte_identical_1e5_be5": true
+    },
+    "trainer": [
+      {
+        "change": "base_precision/effective_training_precision and source hash additions",
+        "effect": "Metadata only. Original precision field retained for origin compatibility; effective field accurately declares E3."
+      },
+      {
+        "change": "Pilot-only relative capture offsets bound to origin, extra retained milestone saves and CPU storage admission broadcast",
+        "effect": "Additional I/O/synchronization at saves; not extra optimizer updates. Existing native format preserved. No capture args => no capture plan/storage checks/log rows."
+      },
+      {
+        "change": "Every pilot-with-capture update records already-computed global_counts, scene indices and CPU loss-horizon draws",
+        "effect": "No new count calculation, count all-reduce or RNG draw; record construction/file-write cost added. Separate save admission broadcast exists and must not be described as zero additional collectives overall."
+      },
+      {
+        "change": "First native-load/resume and capture-boundary activation/master evidence sampling",
+        "effect": "fast logging expanded at those boundaries; IO already all-update evidence. Observations do not change returned gradients/optimizer definition, but wall-clock/nondeterministic realization not numerically proven."
+      }
+    ],
+    "native_capture_module": "CPU standard-library storage/capture planning only; no model/tensor imports, GPU math or new random draws."
+  },
+  "scientific_config_findings": {
+    "NAVSIM": {
+      "G0_G1_G2_G3_YAML_all_three_byte_identical": true,
+      "registered_group_semantic_query_mapping_AST_identical": true,
+      "objective_schedule_data_precision_contract_static_result": "No unexplained NAVSIM IO flag-off mathematical/scientific change identified within scoped files. Formal100k/warmup5k, global32, FM_repeat8, proposal10step, query/loss fields remain source/config locked; actual bank/runtime equality is not established by this audit."
+    },
+    "nuScenes": {
+      "files": [
+        "configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml",
+        "configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml"
+      ],
+      "common_unflagged_calibration_change": true,
+      "positive_weights_0c": {
+        "current": 1.0,
+        "future": 1.0,
+        "arrival": 1.0,
+        "release": 1.0
+      },
+      "positive_weights_1e5_and_be5": {
+        "current": 3.553073806447493,
+        "future": 3.46425622930606,
+        "arrival": 7.9690810628974,
+        "release": 2.285906796698916
+      },
+      "label_identity": "07e58bb5bc933ebf24971929e921e78a22f49ac49052936b262c4e05efad9f5d",
+      "meaning": "Raw nuScenes YAML0c-versus-1e5 comparisons change positive-weight loss objective; cannot call this an execution-only difference. 0c status was uncalibrated_debug_only and newer config records full-training-population calibration/recipe provenance. No inference of when actual formal NU recipe was adopted from this source diff alone.",
+      "schedule_yaml_fields": {
+        "max_train_steps": [
+          100000,
+          17424
+        ],
+        "num_warmup_steps": [
+          5000,
+          726
+        ]
+      },
+      "schedule_runtime_caveat": "Already0c trainer formal nuScenes horizon=24*ceil(population/32), warmup=ceil(population/32); it uses computed horizon/warmup for LR, not these YAML step fields. YAML alignment is not evidence of runtime LR schedule change.",
+      "effect_on_current_NAVSIM_bench": "Not used by current NAVSIM cases; NAVSIM configs unchanged. Any nuScenes compatibility claim needs its actual calibrated config/identity pinned separately."
+    }
+  },
+  "static_evidence": {
+    "file_inventory": [
+      {
+        "path": "configs/structured_world/navsim_G0_NO_FUTURE_LABEL_seed42.yaml",
+        "sha256_by_source": {
+          "0c54f1c": "00f8fa78f4192065ccbb014ab5fa271061326eace55de780863062a884b75d43",
+          "1e5b109": "00f8fa78f4192065ccbb014ab5fa271061326eace55de780863062a884b75d43",
+          "be5e722": "00f8fa78f4192065ccbb014ab5fa271061326eace55de780863062a884b75d43"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+        "sha256_by_source": {
+          "0c54f1c": "ad2979f69d04e7c2e43fd115e3e4b7cff6dd645b3f9677521a334eeb84ae0c8b",
+          "1e5b109": "ad2979f69d04e7c2e43fd115e3e4b7cff6dd645b3f9677521a334eeb84ae0c8b",
+          "be5e722": "ad2979f69d04e7c2e43fd115e3e4b7cff6dd645b3f9677521a334eeb84ae0c8b"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "configs/structured_world/navsim_G2_EVENT_UNIFORM_seed42.yaml",
+        "sha256_by_source": {
+          "0c54f1c": "f43cb3717548896e803955d849c6a653e7e548c6d2fdf27fa48b7598e256ef9a",
+          "1e5b109": "f43cb3717548896e803955d849c6a653e7e548c6d2fdf27fa48b7598e256ef9a",
+          "be5e722": "f43cb3717548896e803955d849c6a653e7e548c6d2fdf27fa48b7598e256ef9a"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "sha256_by_source": {
+          "0c54f1c": "1a8e5aa8fe57e4d1ac38052b368a2e2ef080ea599554e4f99cdb3f2309277fe0",
+          "1e5b109": "1a8e5aa8fe57e4d1ac38052b368a2e2ef080ea599554e4f99cdb3f2309277fe0",
+          "be5e722": "1a8e5aa8fe57e4d1ac38052b368a2e2ef080ea599554e4f99cdb3f2309277fe0"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml",
+        "sha256_by_source": {
+          "0c54f1c": "30290b609cad576c76b7ca4c72462f93883decea9d39dd438307c0874ef60d57",
+          "1e5b109": "780da89a82df9ee05d291ceb8e7280279a7112680c94585d4839acd17520894d",
+          "be5e722": "780da89a82df9ee05d291ceb8e7280279a7112680c94585d4839acd17520894d"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml",
+        "sha256_by_source": {
+          "0c54f1c": "f7232b8be54430cec2f9f8904547bbed8fe57f5d66401a65f796c7b77ecae20f",
+          "1e5b109": "fd90e15f0abcc33b9b221d6a3a3e20a1f24dc0c31fe69841d21af50234c41d59",
+          "be5e722": "fd90e15f0abcc33b9b221d6a3a3e20a1f24dc0c31fe69841d21af50234c41d59"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/dataloader/structured_world/adapters.py",
+        "sha256_by_source": {
+          "0c54f1c": "412458e667c09165bddab1fef8d946b18bd124b6519c8a1aea0095efb0474d3c",
+          "1e5b109": "412458e667c09165bddab1fef8d946b18bd124b6519c8a1aea0095efb0474d3c",
+          "be5e722": "412458e667c09165bddab1fef8d946b18bd124b6519c8a1aea0095efb0474d3c"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "starVLA/dataloader/structured_world/dataset.py",
+        "sha256_by_source": {
+          "0c54f1c": "9117999a98b5029ff46c793cf099c8fddb6f925c1b1ab92557833abfa4767846",
+          "1e5b109": "0cd837a1eb860b9ba713683f6e58603e6e07602cfd145c99bd777a2b51b33496",
+          "be5e722": "0cd837a1eb860b9ba713683f6e58603e6e07602cfd145c99bd777a2b51b33496"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/dataloader/structured_world/nuscenes_dataset.py",
+        "sha256_by_source": {
+          "0c54f1c": "d4400d4b514fd42b2aacc8cad98420fb9da64b3507e3ede33949abde834e669f",
+          "1e5b109": "4cc8218dcce70441d1f8b451242808f034845ef94c993d70dd01e18d4338a7fb",
+          "be5e722": "4cc8218dcce70441d1f8b451242808f034845ef94c993d70dd01e18d4338a7fb"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/dataloader/structured_world/prepared_current.py",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": "c477e4503ee1c468883dc317d953bcf7725db434aa3214a30c00923a170af6c0",
+          "be5e722": "c477e4503ee1c468883dc317d953bcf7725db434aa3214a30c00923a170af6c0"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/framework/DDPForesight.py",
+        "sha256_by_source": {
+          "0c54f1c": "1f9e077ae2abc7560ede9b13e01a254e7aa703e0e2a1a22418d47c2f7da09df0",
+          "1e5b109": "1f9e077ae2abc7560ede9b13e01a254e7aa703e0e2a1a22418d47c2f7da09df0",
+          "be5e722": "1f9e077ae2abc7560ede9b13e01a254e7aa703e0e2a1a22418d47c2f7da09df0"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "starVLA/model/framework/vla_structured_fgtr.py",
+        "sha256_by_source": {
+          "0c54f1c": "761b20e716fdac7c3f5311103e3afd5caa500864635a5b51011ce8b71be1bb30",
+          "1e5b109": "90538ddd1f68ea0ee429c8cc33e720298672080b09b4c4cf7749df4278f063dc",
+          "be5e722": "90538ddd1f68ea0ee429c8cc33e720298672080b09b4c4cf7749df4278f063dc"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+        "sha256_by_source": {
+          "0c54f1c": "e9d799db17f04641ed00c938860b6cae993614ce4ff6f91e84f5a03a34a3fc1a",
+          "1e5b109": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2",
+          "be5e722": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/execution.py",
+        "sha256_by_source": {
+          "0c54f1c": "782ebebd5f7be6929ed69202fafca19bee3d8dcb76e57f2635435cdfc6ce440d",
+          "1e5b109": "0cb5c3bb36c11c2a1db6b62894059015d63dbb56a05647f61087936bd45e173e",
+          "be5e722": "6c9145269b8322442465d3fba5ccfde90b6e067a68d4aaaa11ea0b0bd269e914"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/fgtr.py",
+        "sha256_by_source": {
+          "0c54f1c": "3d95aa4ff7c9a6e421c78b8d655d2f361e00e244ba141f4a2e00ed6e7f8c6a50",
+          "1e5b109": "4c7a04a3f66243111fcd577ab39d126fce41045764370ff9f02c4782d3cba43a",
+          "be5e722": "4c7a04a3f66243111fcd577ab39d126fce41045764370ff9f02c4782d3cba43a"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/future.py",
+        "sha256_by_source": {
+          "0c54f1c": "f95012d5bf4ca6c54f0715dd4dcd25c561b5756ba0283b9db0005df3418c2085",
+          "1e5b109": "7300a5baf8611e478d28e5da193a3110f6a73feb96356927125c775d843f8d2b",
+          "be5e722": "7300a5baf8611e478d28e5da193a3110f6a73feb96356927125c775d843f8d2b"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/geo_bev.py",
+        "sha256_by_source": {
+          "0c54f1c": "1a6c4a597138fefea35eba9ce30886f0281e917655f9f9bc986b691d28dc72bf",
+          "1e5b109": "1c2e192e7997f8a7f0285b3cdde5b12ee008c0b07071d3539d2ad08e1ccd409e",
+          "be5e722": "1c2e192e7997f8a7f0285b3cdde5b12ee008c0b07071d3539d2ad08e1ccd409e"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/grid.py",
+        "sha256_by_source": {
+          "0c54f1c": "d48e0474153827e4852c56e81c997a307c5828da2fd084c83ead5fb96bd48a00",
+          "1e5b109": "eedbe87e180996e236dfa21625ca65f76c2ca1bbeda3570450ec10ca973cf6a3",
+          "be5e722": "eedbe87e180996e236dfa21625ca65f76c2ca1bbeda3570450ec10ca973cf6a3"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/losses.py",
+        "sha256_by_source": {
+          "0c54f1c": "dcdc0d9c54b3c2811912d56885eeb08f39eefc63922d68d5879c7200e6fd070e",
+          "1e5b109": "b1b14a747287e800b81969ccb09068e12549b7c981ecd4e281e1aa53e7aac5c2",
+          "be5e722": "b1b14a747287e800b81969ccb09068e12549b7c981ecd4e281e1aa53e7aac5c2"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/proposal_execution.README.md",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": "1c7b7813f78bcea6051ed579a1eb85d66659ca732c1f4d9c7237599b5d104ba2",
+          "be5e722": "1c7b7813f78bcea6051ed579a1eb85d66659ca732c1f4d9c7237599b5d104ba2"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/proposal_execution.py",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": "6f7040fdedd95407f276fea191b21db022bcb512d194c1cfe4ff0c67b6371bb1",
+          "be5e722": "6f7040fdedd95407f276fea191b21db022bcb512d194c1cfe4ff0c67b6371bb1"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/queries.py",
+        "sha256_by_source": {
+          "0c54f1c": "7748ffc2edc485a0b0bcb6d367094231a0533438ce2d2b5dae54e6fb04e741b7",
+          "1e5b109": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a",
+          "be5e722": "c2132b6cf06b352427c47e4eef09504a8d163485ea576ca1af4bed2c3f6b0b0a"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/qwen_execution.README.md",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": "9acb1fcbbab143df0afe29ef0aa50968ca83d19587286775c372fe9199d65373",
+          "be5e722": "9acb1fcbbab143df0afe29ef0aa50968ca83d19587286775c372fe9199d65373"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/qwen_execution.py",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4",
+          "be5e722": "6e128dcdd5755ddcf4a380afd25745fe158e467ebe9ab8d6e9e2ad3251e563c4"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "starVLA/model/modules/structured_world/semantics.py",
+        "sha256_by_source": {
+          "0c54f1c": "0261843c12c4af4a705f42eb304c10dfd709ed0a508c0336bcf1159d1b5d52fe",
+          "1e5b109": "0261843c12c4af4a705f42eb304c10dfd709ed0a508c0336bcf1159d1b5d52fe",
+          "be5e722": "0261843c12c4af4a705f42eb304c10dfd709ed0a508c0336bcf1159d1b5d52fe"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "third_party/EXECUTION_PATCHES.json",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": "a49913e7148d546ca7f2b4f4f4edee7eda760ea04c448b66f888f839b99eca63",
+          "be5e722": "a49913e7148d546ca7f2b4f4f4edee7eda760ea04c448b66f888f839b99eca63"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "third_party/LOCK.json",
+        "sha256_by_source": {
+          "0c54f1c": "5b94b33bd7df75c08d0410438e7028217a951eedc20c27aea8da3f40828c6926",
+          "1e5b109": "5b94b33bd7df75c08d0410438e7028217a951eedc20c27aea8da3f40828c6926",
+          "be5e722": "5b94b33bd7df75c08d0410438e7028217a951eedc20c27aea8da3f40828c6926"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "third_party/resworld/ported/tokenlearner.py",
+        "sha256_by_source": {
+          "0c54f1c": "188f41d70c2c2e7b967d6612444a28c8f886bf9acfb49421c3ead1a9a983dda0",
+          "1e5b109": "df747e5bd8f49044fc428ec7ae6978659bb4dcca90f699dc459a166d2764059e",
+          "be5e722": "df747e5bd8f49044fc428ec7ae6978659bb4dcca90f699dc459a166d2764059e"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "tools/ddpolicy_vehicle/optimizer_safety.py",
+        "sha256_by_source": {
+          "0c54f1c": "cbb469348087abf10d169d3d0ee39f59870168c92ccc1969a7a5bdff2500d5bd",
+          "1e5b109": "cbb469348087abf10d169d3d0ee39f59870168c92ccc1969a7a5bdff2500d5bd",
+          "be5e722": "cbb469348087abf10d169d3d0ee39f59870168c92ccc1969a7a5bdff2500d5bd"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "tools/ddpolicy_vehicle/training_state.py",
+        "sha256_by_source": {
+          "0c54f1c": "311807dc6cf40029b4439ccf35e4c3ca118f86ddad551d5f07a655a754e3e84f",
+          "1e5b109": "311807dc6cf40029b4439ccf35e4c3ca118f86ddad551d5f07a655a754e3e84f",
+          "be5e722": "311807dc6cf40029b4439ccf35e4c3ca118f86ddad551d5f07a655a754e3e84f"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "tools/foresight/student_state.py",
+        "sha256_by_source": {
+          "0c54f1c": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c",
+          "1e5b109": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c",
+          "be5e722": "3085d34707c49e82f3e244a01c9ff6f86a23096f6687d431f935a430100ca01c"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "tools/structured_world/native_capture.py",
+        "sha256_by_source": {
+          "0c54f1c": null,
+          "1e5b109": null,
+          "be5e722": "c7600b96626812d02304361890f42fff8646dcf8d100f3a96dbbe74d9c5497d3"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "tools/structured_world/prefetch.py",
+        "sha256_by_source": {
+          "0c54f1c": "7ccc329d19edc87caf285b533d6dabe04be48d11ba43503d119f47ff6a6a9f12",
+          "1e5b109": "7ccc329d19edc87caf285b533d6dabe04be48d11ba43503d119f47ff6a6a9f12",
+          "be5e722": "7ccc329d19edc87caf285b533d6dabe04be48d11ba43503d119f47ff6a6a9f12"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "tools/structured_world/recovery_boundary.py",
+        "sha256_by_source": {
+          "0c54f1c": "2547a87bc389275d25d830c70077564861f2d7e3cf19b7612b59533790957bc1",
+          "1e5b109": "2547a87bc389275d25d830c70077564861f2d7e3cf19b7612b59533790957bc1",
+          "be5e722": "2547a87bc389275d25d830c70077564861f2d7e3cf19b7612b59533790957bc1"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "tools/structured_world/resume_origin.py",
+        "sha256_by_source": {
+          "0c54f1c": "97e567e9122917922b7f8c885fc67a29dcbc7d2d78f1d77b40f541ce9bb06a66",
+          "1e5b109": "97e567e9122917922b7f8c885fc67a29dcbc7d2d78f1d77b40f541ce9bb06a66",
+          "be5e722": "97e567e9122917922b7f8c885fc67a29dcbc7d2d78f1d77b40f541ce9bb06a66"
+        },
+        "all_three_byte_identical": true
+      },
+      {
+        "path": "tools/structured_world/train_vla.py",
+        "sha256_by_source": {
+          "0c54f1c": "454dc16559c50cb5819ed5ab012603ae5eb98f3d87e7099b265e5b28157f5a9e",
+          "1e5b109": "50bdc60f32b7faa199d36be55f34d1020adc2824bcfef20e5690c1023fb07bad",
+          "be5e722": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87"
+        },
+        "all_three_byte_identical": false
+      },
+      {
+        "path": "tools/structured_world/training_assets.py",
+        "sha256_by_source": {
+          "0c54f1c": "7b1f29fa81d47a672a0402b62097be8ff79ada0c8ab048a55c3d676c370fd8c3",
+          "1e5b109": "7b1f29fa81d47a672a0402b62097be8ff79ada0c8ab048a55c3d676c370fd8c3",
+          "be5e722": "7b1f29fa81d47a672a0402b62097be8ff79ada0c8ab048a55c3d676c370fd8c3"
+        },
+        "all_three_byte_identical": true
+      }
+    ],
+    "scoped_diffs": [
+      {
+        "from": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+        "to": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+        "scoped_diff_sha256": "1156b51125352f47db5f241dd2af743e9c179407d26560af19f752014bb443f5",
+        "changed_files": [
+          {
+            "status": "M",
+            "path": "configs/structured_world/nuscenes_G1_FULL_UNIFORM_seed42.yaml"
+          },
+          {
+            "status": "M",
+            "path": "configs/structured_world/nuscenes_G3_EVENT_LOCAL_seed42.yaml"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/dataloader/structured_world/dataset.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/dataloader/structured_world/nuscenes_dataset.py"
+          },
+          {
+            "status": "A",
+            "path": "starVLA/dataloader/structured_world/prepared_current.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/framework/vla_structured_fgtr.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/execution.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/fgtr.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/future.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/geo_bev.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/grid.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/losses.py"
+          },
+          {
+            "status": "A",
+            "path": "starVLA/model/modules/structured_world/proposal_execution.README.md"
+          },
+          {
+            "status": "A",
+            "path": "starVLA/model/modules/structured_world/proposal_execution.py"
+          },
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/queries.py"
+          },
+          {
+            "status": "A",
+            "path": "starVLA/model/modules/structured_world/qwen_execution.README.md"
+          },
+          {
+            "status": "A",
+            "path": "starVLA/model/modules/structured_world/qwen_execution.py"
+          },
+          {
+            "status": "A",
+            "path": "third_party/EXECUTION_PATCHES.json"
+          },
+          {
+            "status": "M",
+            "path": "third_party/resworld/ported/tokenlearner.py"
+          },
+          {
+            "status": "M",
+            "path": "tools/structured_world/train_vla.py"
+          }
+        ]
+      },
+      {
+        "from": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+        "to": "be5e72248a46afd43e1bf279c21134c391c5edad",
+        "scoped_diff_sha256": "a421d7f45f5dd530360de96418d4e5e4d03d4bf7caae46862e54594d99a26a12",
+        "changed_files": [
+          {
+            "status": "M",
+            "path": "starVLA/model/modules/structured_world/execution.py"
+          },
+          {
+            "status": "A",
+            "path": "tools/structured_world/native_capture.py"
+          },
+          {
+            "status": "M",
+            "path": "tools/structured_world/train_vla.py"
+          }
+        ]
+      }
+    ],
+    "AST_checks": [
+      {
+        "name": "starVLA/model/framework/vla_structured_fgtr.py::VLAStructuredFGTR.__init__",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "8e47e1f3120758c27353c02c302c96b83804b7994bb13da0375f3ed7ba3b7991",
+          "1e5b109": "8e47e1f3120758c27353c02c302c96b83804b7994bb13da0375f3ed7ba3b7991",
+          "be5e722": "8e47e1f3120758c27353c02c302c96b83804b7994bb13da0375f3ed7ba3b7991"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 27
+          },
+          "1e5b109": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 27
+          },
+          "be5e722": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 27
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/framework/vla_structured_fgtr.py::VLAStructuredFGTR.plan_from_current",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "0f01be949ef0b14dfeb1ffd5da523fb54308cd370af7ee215a1408e07055cba9",
+          "1e5b109": "0f01be949ef0b14dfeb1ffd5da523fb54308cd370af7ee215a1408e07055cba9",
+          "be5e722": "0f01be949ef0b14dfeb1ffd5da523fb54308cd370af7ee215a1408e07055cba9"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 100
+          },
+          "1e5b109": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 129
+          },
+          "be5e722": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 129
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/framework/vla_structured_fgtr.py::VLAStructuredFGTR.predict_action",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "4f8a7822eaf31ae7484a4c5f454fdc26a590137b20012d5ab4270f984a4b2a09",
+          "1e5b109": "4f8a7822eaf31ae7484a4c5f454fdc26a590137b20012d5ab4270f984a4b2a09",
+          "be5e722": "4f8a7822eaf31ae7484a4c5f454fdc26a590137b20012d5ab4270f984a4b2a09"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 195
+          },
+          "1e5b109": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 234
+          },
+          "be5e722": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 234
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/framework/vla_structured_fgtr.py::VLAStructuredFGTR.load_shared_geometry",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "ba40cdf5fbee30bbb172901224404fd4d5b78fd85bfa02f4ef88c0f50c9a670c",
+          "1e5b109": "ba40cdf5fbee30bbb172901224404fd4d5b78fd85bfa02f4ef88c0f50c9a670c",
+          "be5e722": "ba40cdf5fbee30bbb172901224404fd4d5b78fd85bfa02f4ef88c0f50c9a670c"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 78
+          },
+          "1e5b109": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 101
+          },
+          "be5e722": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 101
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/future.py::mature_decoder",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "634528a70792ca03780c17e15dd1d8142f76d43369be3f8b69c4fc0b85d1127a",
+          "1e5b109": "634528a70792ca03780c17e15dd1d8142f76d43369be3f8b69c4fc0b85d1127a",
+          "be5e722": "634528a70792ca03780c17e15dd1d8142f76d43369be3f8b69c4fc0b85d1127a"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 14
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 15
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 15
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/future.py::physical_time_features",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "4a114c363fe6f76c4362ae2079604cdbe05c37f95a747befd82c2eec4bc37e67",
+          "1e5b109": "4a114c363fe6f76c4362ae2079604cdbe05c37f95a747befd82c2eec4bc37e67",
+          "be5e722": "4a114c363fe6f76c4362ae2079604cdbe05c37f95a747befd82c2eec4bc37e67"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 24
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 25
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 25
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/fgtr.py::deterministic_action_head",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "125d25aac6edf762530343ad4bb333cd657fbf16f380490fa9cb537cf93e6d5e",
+          "1e5b109": "125d25aac6edf762530343ad4bb333cd657fbf16f380490fa9cb537cf93e6d5e",
+          "be5e722": "125d25aac6edf762530343ad4bb333cd657fbf16f380490fa9cb537cf93e6d5e"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 11
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 11
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 11
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/fgtr.py::sample_proposal",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "887e42ee0cb609a8fa23c4ddf2ae0dc7a73540196d97e0ca6216b24fcb8eda2f",
+          "1e5b109": "887e42ee0cb609a8fa23c4ddf2ae0dc7a73540196d97e0ca6216b24fcb8eda2f",
+          "be5e722": "887e42ee0cb609a8fa23c4ddf2ae0dc7a73540196d97e0ca6216b24fcb8eda2f"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 22
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 22
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 22
+          }
+        }
+      },
+      {
+        "name": "third_party/resworld/ported/tokenlearner.py::TokenLearner.__init__",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "448b16b64448bc8a6e823d90ac4f9023a5a9731548a2ccba20865cdf260178e7",
+          "1e5b109": "448b16b64448bc8a6e823d90ac4f9023a5a9731548a2ccba20865cdf260178e7",
+          "be5e722": "448b16b64448bc8a6e823d90ac4f9023a5a9731548a2ccba20865cdf260178e7"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 28
+          },
+          "1e5b109": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 28
+          },
+          "be5e722": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 28
+          }
+        }
+      },
+      {
+        "name": "third_party/resworld/ported/tokenlearner.py::TokenLearner.forward",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "ab9732864abebfb072cd16c499cf63aaf1ec2136db18f94b0379e8c8583c4d64",
+          "1e5b109": "ab9732864abebfb072cd16c499cf63aaf1ec2136db18f94b0379e8c8583c4d64",
+          "be5e722": "ab9732864abebfb072cd16c499cf63aaf1ec2136db18f94b0379e8c8583c4d64"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 36
+          },
+          "1e5b109": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 36
+          },
+          "be5e722": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 36
+          }
+        }
+      },
+      {
+        "name": "third_party/resworld/ported/tokenlearner.py::TokenFuser.__init__",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "c45fcfb8101cbddba5f70c1679d9669d8931e3b857f8738b12c17c52a6ab829a",
+          "1e5b109": "c45fcfb8101cbddba5f70c1679d9669d8931e3b857f8738b12c17c52a6ab829a",
+          "be5e722": "c45fcfb8101cbddba5f70c1679d9669d8931e3b857f8738b12c17c52a6ab829a"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 64
+          },
+          "1e5b109": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 64
+          },
+          "be5e722": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 64
+          }
+        }
+      },
+      {
+        "name": "third_party/resworld/ported/tokenlearner.py::TokenFuser.forward",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "407ea55b7b96552daa1af65d9813f12221fef43282af7f4542c0f4d3018b14b5",
+          "1e5b109": "407ea55b7b96552daa1af65d9813f12221fef43282af7f4542c0f4d3018b14b5",
+          "be5e722": "407ea55b7b96552daa1af65d9813f12221fef43282af7f4542c0f4d3018b14b5"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 76
+          },
+          "1e5b109": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 143
+          },
+          "be5e722": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 143
+          }
+        }
+      },
+      {
+        "name": "third_party/resworld/ported/tokenlearner.py::MlpBlock.forward",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "c898952ca5545249d9311b8d9aabd815e7802cbacd72f8da7944ef5f0744a5f2",
+          "1e5b109": "c898952ca5545249d9311b8d9aabd815e7802cbacd72f8da7944ef5f0744a5f2",
+          "be5e722": "c898952ca5545249d9311b8d9aabd815e7802cbacd72f8da7944ef5f0744a5f2"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 17
+          },
+          "1e5b109": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 17
+          },
+          "be5e722": {
+            "path": "third_party/resworld/ported/tokenlearner.py",
+            "line": 17
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/grid.py::GridSpec.normalized_reference",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "b859f3d1d033109457dc70177e8d149949d1acc33fc8f70f40c7b36056ef5546",
+          "1e5b109": "b859f3d1d033109457dc70177e8d149949d1acc33fc8f70f40c7b36056ef5546",
+          "be5e722": "b859f3d1d033109457dc70177e8d149949d1acc33fc8f70f40c7b36056ef5546"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 38
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 38
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 38
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/grid.py::GridSpec.centers",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "4916eee6d1fe01aa50bf5345da1303a01581a320f3395a41a1fd79eb3374db3a",
+          "1e5b109": "4916eee6d1fe01aa50bf5345da1303a01581a320f3395a41a1fd79eb3374db3a",
+          "be5e722": "4916eee6d1fe01aa50bf5345da1303a01581a320f3395a41a1fd79eb3374db3a"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 32
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 32
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 32
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/grid.py::GridSpec.resworld_config",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "6d04145a39cd583110a9bbb43310b420983b3b969f293cf34b663108df5e7a8a",
+          "1e5b109": "6d04145a39cd583110a9bbb43310b420983b3b969f293cf34b663108df5e7a8a",
+          "be5e722": "6d04145a39cd583110a9bbb43310b420983b3b969f293cf34b663108df5e7a8a"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 57
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 68
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/grid.py",
+            "line": 68
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/losses.py::scene_means",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "1758b50142aa59ae7f190f35b180c75cf8b8068412a247f756ce2c7829cebfbc",
+          "1e5b109": "1758b50142aa59ae7f190f35b180c75cf8b8068412a247f756ce2c7829cebfbc",
+          "be5e722": "1758b50142aa59ae7f190f35b180c75cf8b8068412a247f756ce2c7829cebfbc"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 8
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 8
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 8
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/losses.py::scene_reduce",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "c7b506ce39ed11732e1025f80bd57f60c863ab9ffe2ab2f4a65c0dff7aace8fc",
+          "1e5b109": "c7b506ce39ed11732e1025f80bd57f60c863ab9ffe2ab2f4a65c0dff7aace8fc",
+          "be5e722": "c7b506ce39ed11732e1025f80bd57f60c863ab9ffe2ab2f4a65c0dff7aace8fc"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 17
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 17
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 17
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/losses.py::binary_loss",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "1f1cec8f0a10aa1213bd0b36cd6f62edcd75f2092716d61eb452fabdc1348ef0",
+          "1e5b109": "1f1cec8f0a10aa1213bd0b36cd6f62edcd75f2092716d61eb452fabdc1348ef0",
+          "be5e722": "1f1cec8f0a10aa1213bd0b36cd6f62edcd75f2092716d61eb452fabdc1348ef0"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 26
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 26
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 26
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/losses.py::final_trajectory_loss",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "4b02dc2cfffd891ece0fceaba4a0e2ed54565fb656d755a573ec901451c719b3",
+          "1e5b109": "4b02dc2cfffd891ece0fceaba4a0e2ed54565fb656d755a573ec901451c719b3",
+          "be5e722": "4b02dc2cfffd891ece0fceaba4a0e2ed54565fb656d755a573ec901451c719b3"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 107
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 142
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/losses.py",
+            "line": 142
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/queries.py::boundary_candidates",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "1f6df4fc08421c647ae9340732964bbe6d55290424871c911302d33ff4a44a24",
+          "1e5b109": "1f6df4fc08421c647ae9340732964bbe6d55290424871c911302d33ff4a44a24",
+          "be5e722": "1f6df4fc08421c647ae9340732964bbe6d55290424871c911302d33ff4a44a24"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/queries.py",
+            "line": 20
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/queries.py",
+            "line": 35
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/queries.py",
+            "line": 35
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/geo_bev.py::CalibratedRCSample.create_grid_infos",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "17d193cd0f6f9ac2311bef0fff074daf4ecfcde7d3b0ad7554e8ee6626dc5f87",
+          "1e5b109": "17d193cd0f6f9ac2311bef0fff074daf4ecfcde7d3b0ad7554e8ee6626dc5f87",
+          "be5e722": "17d193cd0f6f9ac2311bef0fff074daf4ecfcde7d3b0ad7554e8ee6626dc5f87"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 17
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 17
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 17
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/geo_bev.py::CalibratedRCSample.get_sample_coor",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "00c48b10b0b46e06159e26359f5ad3a41f3a324faecc3cbd5ccaffa6133d35f6",
+          "1e5b109": "00c48b10b0b46e06159e26359f5ad3a41f3a324faecc3cbd5ccaffa6133d35f6",
+          "be5e722": "00c48b10b0b46e06159e26359f5ad3a41f3a324faecc3cbd5ccaffa6133d35f6"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 28
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 28
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 28
+          }
+        }
+      },
+      {
+        "name": "starVLA/model/modules/structured_world/geo_bev.py::SingleFrameGeoBEV.load_imagenet",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "6b6917211fd1d010ada34d695da63877d2e44d7c43bf3485d9e7ee8e00f3f794",
+          "1e5b109": "6b6917211fd1d010ada34d695da63877d2e44d7c43bf3485d9e7ee8e00f3f794",
+          "be5e722": "6b6917211fd1d010ada34d695da63877d2e44d7c43bf3485d9e7ee8e00f3f794"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 84
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 87
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 87
+          }
+        }
+      },
+      {
+        "name": "constructor_same_parameter_module_buffer_order_excluding_explicit_plain_flags::SingleFrameFuture.__init__",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "55b8a7886ddf318ee25951b3817a9bbb52a2d1cd5ba7238396fdc8ec9e9b7733",
+          "1e5b109": "55b8a7886ddf318ee25951b3817a9bbb52a2d1cd5ba7238396fdc8ec9e9b7733",
+          "be5e722": "55b8a7886ddf318ee25951b3817a9bbb52a2d1cd5ba7238396fdc8ec9e9b7733"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 29
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 58
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/future.py",
+            "line": 58
+          }
+        },
+        "removed_plain_nonparameter_attributes": {
+          "0c54f1c": [],
+          "1e5b109": [
+            "execution_fast",
+            "future_time_vectorized",
+            "future_time_chunk_size"
+          ],
+          "be5e722": [
+            "execution_fast",
+            "future_time_vectorized",
+            "future_time_chunk_size"
+          ]
+        }
+      },
+      {
+        "name": "constructor_same_parameter_module_buffer_order_excluding_explicit_plain_flags::DDPProposalFGTR.__init__",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "805cd071b7fa00276780b21ce3b8dd6d8ac7064da362d57c5c9bc1c470537b3d",
+          "1e5b109": "805cd071b7fa00276780b21ce3b8dd6d8ac7064da362d57c5c9bc1c470537b3d",
+          "be5e722": "805cd071b7fa00276780b21ce3b8dd6d8ac7064da362d57c5c9bc1c470537b3d"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 37
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 37
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/fgtr.py",
+            "line": 37
+          }
+        },
+        "removed_plain_nonparameter_attributes": {
+          "0c54f1c": [],
+          "1e5b109": [
+            "fgtr_time_vectorized",
+            "fgtr_time_chunk_size"
+          ],
+          "be5e722": [
+            "fgtr_time_vectorized",
+            "fgtr_time_chunk_size"
+          ]
+        }
+      },
+      {
+        "name": "constructor_same_parameter_module_buffer_order_excluding_explicit_plain_flags::SingleFrameGeoBEV.__init__",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "f37e329c8c97c0fa88d6994de5987995c6bc6a9a80bb468bdf57fbc032184218",
+          "1e5b109": "f37e329c8c97c0fa88d6994de5987995c6bc6a9a80bb468bdf57fbc032184218",
+          "be5e722": "f37e329c8c97c0fa88d6994de5987995c6bc6a9a80bb468bdf57fbc032184218"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 65
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 65
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/structured_world/geo_bev.py",
+            "line": 65
+          }
+        },
+        "removed_plain_nonparameter_attributes": {
+          "0c54f1c": [],
+          "1e5b109": [
+            "conv_autocast_bf16"
+          ],
+          "be5e722": [
+            "conv_autocast_bf16"
+          ]
+        }
+      },
+      {
+        "name": "unchanged_assignment::ds_config",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "d3872f3bad8386d942267d02a7aeae38ada20cfd85fdce050447ef0c44e09b26",
+          "1e5b109": "d3872f3bad8386d942267d02a7aeae38ada20cfd85fdce050447ef0c44e09b26",
+          "be5e722": "d3872f3bad8386d942267d02a7aeae38ada20cfd85fdce050447ef0c44e09b26"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 216
+          },
+          "1e5b109": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 268
+          },
+          "be5e722": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 286
+          }
+        }
+      },
+      {
+        "name": "unchanged_assignment::generators",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "1d3ba6adb968ec0e0a0d908cc22fdbfb2417b826cebf1f93f9ba174e5198e760",
+          "1e5b109": "1d3ba6adb968ec0e0a0d908cc22fdbfb2417b826cebf1f93f9ba174e5198e760",
+          "be5e722": "1d3ba6adb968ec0e0a0d908cc22fdbfb2417b826cebf1f93f9ba174e5198e760"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 228
+          },
+          "1e5b109": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 280
+          },
+          "be5e722": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 298
+          }
+        }
+      },
+      {
+        "name": "unchanged_assignment::rates",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "dc7129647c8b422c3d91827fc559af98e887423218557f840d87e1eade8b0385",
+          "1e5b109": "dc7129647c8b422c3d91827fc559af98e887423218557f840d87e1eade8b0385",
+          "be5e722": "dc7129647c8b422c3d91827fc559af98e887423218557f840d87e1eade8b0385"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 211
+          },
+          "1e5b109": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 263
+          },
+          "be5e722": {
+            "path": "tools/structured_world/train_vla.py",
+            "line": 281
+          }
+        }
+      },
+      {
+        "name": "unchanged_assignment::REGISTERED_GROUPS",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "c858602e5805127f789ddd7f8b358e4719f0dbba0e5c27b75990a7f6d2005cd5",
+          "1e5b109": "c858602e5805127f789ddd7f8b358e4719f0dbba0e5c27b75990a7f6d2005cd5",
+          "be5e722": "c858602e5805127f789ddd7f8b358e4719f0dbba0e5c27b75990a7f6d2005cd5"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 18
+          },
+          "1e5b109": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 18
+          },
+          "be5e722": {
+            "path": "starVLA/model/framework/vla_structured_fgtr.py",
+            "line": 18
+          }
+        }
+      },
+      {
+        "name": "forward_AST_same_except_explicit_intermediate_list_retention::DiT.forward",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "0c8b6c4c7dd6715a4d34b1d733caccc4ebea248ab915148bb5f640daf553cde3",
+          "1e5b109": "0c8b6c4c7dd6715a4d34b1d733caccc4ebea248ab915148bb5f640daf553cde3",
+          "be5e722": "0c8b6c4c7dd6715a4d34b1d733caccc4ebea248ab915148bb5f640daf553cde3"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "line": 266
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "line": 266
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "line": 266
+          }
+        }
+      },
+      {
+        "name": "forward_AST_same_except_explicit_intermediate_list_retention::SelfAttentionTransformer.forward",
+        "all_three_identical": true,
+        "AST_sha256_by_source": {
+          "0c54f1c": "3529a4c51b000650e35a56f1bb765e6f6450f41bd93841eb9389f674fe40c68e",
+          "1e5b109": "3529a4c51b000650e35a56f1bb765e6f6450f41bd93841eb9389f674fe40c68e",
+          "be5e722": "3529a4c51b000650e35a56f1bb765e6f6450f41bd93841eb9389f674fe40c68e"
+        },
+        "locations": {
+          "0c54f1c": {
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "line": 377
+          },
+          "1e5b109": {
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "line": 380
+          },
+          "be5e722": {
+            "path": "starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+            "line": 380
+          }
+        }
+      }
+    ],
+    "AST_checks_all_passed": true,
+    "AST_check_count": 33,
+    "unchanged_control_file_count": 15,
+    "state_dict_inventory_limit": "Unchanged constructors/module/buffer order by source AST is not a loaded model/state_dict/optimizer payload comparison.",
+    "external_execution_patch_declared_TokenFuser_hash_matches_actual_1e5": true
+  },
+  "conclusion_ZH": [
+    "正式科学/评估冻结源为0c；最终bench实际共同训练源1e5，native训练源be5。IO控制也继承公共执行改动，不能标成实际执行原始0c。",
+    "本范围静态审阅未发现NAVSIM IO关闭P0/E3/timevec后未说明的目标函数或数学改变；共同改动主要是DiT引用保留、默认路由/helper重构与元数据/观测。",
+    "nuScenes YAML正类权重发生未受执行flag保护的校准变更，属于真实科学配置差异；它不影响当前NAVSIM比较，但跨原始NU配置不能称纯执行等价。",
+    "E3的几何BF16和timevec的计算重排单列候选，旧strict失败与正式guard保持。静态检查不替代0c→1e5完整GPU数值验收或当前native payload比较。"
+  ],
+  "acceptance": {
+    "static_review_complete": true,
+    "unexplained_NAVSIM_IO_math_change_identified": false,
+    "cross_source_full_GPU_numerical_bridge_verified": false,
+    "native_payload_comparison_performed": false,
+    "numeric_acceptance_promoted": false,
+    "original_strict_failures_or_thresholds_changed": false,
+    "formal_authorized": false,
+    "trainer_consumable": false,
+    "passed": false
+  },
+  "actions": {
+    "GPU_jobs": 0,
+    "model_constructions": 0,
+    "signals": 0,
+    "source_edits": 0,
+    "binding_or_threshold_edits": 0,
+    "commits": 0,
+    "new_report_files": 1
+  }
+}
