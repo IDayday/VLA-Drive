@@ -1,0 +1,87 @@
+{
+  "schema": "native_continuation_storage_registration_v1",
+  "passed": false,
+  "trainer_acceptance": false,
+  "original_V1_criteria_unchanged": true,
+  "original_mid_points": [
+    1,
+    32,
+    100,
+    250,
+    500
+  ],
+  "OLS_points_unchanged": [
+    32,
+    100,
+    250,
+    500
+  ],
+  "full_native_bank_count": 36,
+  "continuous_mid_updates": 500,
+  "retention": "All observation points promoted to pilot milestone tags; normal end500, original rolling-latest2 unchanged",
+  "relative_origin_binding": "early origin2 => global3; G1mid25000 =>25001/25032/25100/25250/25500; G3mid50000=>50001/50032/50100/50250/50500",
+  "checkpoint_measurement_bytes": 45395935029,
+  "checkpoint_measurement_GiB": 42.27825908828527,
+  "per_bank_admission_upper_GiB": 45,
+  "local_controlled_cap_GiB": 810,
+  "shared_controlled_cap_GiB": 1080,
+  "local_split_GiB": {
+    "G1_mid_15banks_upper": 675,
+    "recovery_upper": 135
+  },
+  "shared_split_GiB": {
+    "G3_mid_15banks_upper": 675,
+    "early_6banks_upper": 270,
+    "compatibility_upper": 135
+  },
+  "reserve_per_filesystem_GiB": 100,
+  "actual_storage_snapshot": {
+    "LOCAL": {
+      "filesystem_probe_path": "/var/tmp/structured-world-fgtr-execution-20261011",
+      "free_bytes": 1011268861952,
+      "total_bytes": 3199068983296,
+      "quota_tools": {
+        "lfs": null,
+        "quota": null
+      }
+    },
+    "SHARED": {
+      "filesystem_probe_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008",
+      "free_bytes": 1482098036736,
+      "total_bytes": 432814591836160,
+      "quota_tools": {
+        "lfs": null,
+        "quota": null
+      }
+    }
+  },
+  "checked_unix": 1791707684.1425283,
+  "quota_not_exposed_is_not_unlimited": true,
+  "exclusive_filesystem_reservation_claimed": false,
+  "physical_admission": "all-rank admission before every save requires >=100GiB+next45GiB and explicit OWN pool/run caps",
+  "quota_policy": "Read uid quota command if exposed; otherwise quota_not_exposed risk. No hard quota collector prerequisite",
+  "failure": "No retry or cleanup; EDQUOT/ENOSPC/native save errors stop only owned pilot preserving preceding COMPLETE checkpoints and diagnostic staging",
+  "scientific_checkpoint_tensor_schema_changed": false,
+  "forced_restarts_at_observations": 0,
+  "sequential_io": "Reuse existing physical GPU lease; full native captures, no concurrent tensor comparison/archive with GPU windows",
+  "protected_assets": "formal milestones/latest, origins, rollback and old strict negatives untouched; no large copies/deletes or Git tensor uploads",
+  "logging": "Pilot-only each-update all-rank actual global_counts/scenes/loss horizons; cost separately reported, not benchmark throughput",
+  "new_candidate_source": "Must be freshly frozen by parent before execution. Immutable1e5 live benchmark unchanged",
+  "remaining": [
+    "parent new immutable source SHA/root binding",
+    "actual all-rank native1/32/100/250/500 comparisons",
+    "triplet data/denominator/horizon equality",
+    "canonical dev",
+    "recovery"
+  ],
+  "budgets": {
+    "LOCAL": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/storage_native_v1/LOCAL_BUDGET.json",
+      "sha256": "a18438e838624882451db17c95e19eb01ca2a99e89177e3e91271fc498fc3b32"
+    },
+    "SHARED": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/storage_native_v1/SHARED_BUDGET.json",
+      "sha256": "b5716975516fda798d48d4b70955964f6809bd4f338f2c667a77521ec9910514"
+    }
+  }
+}

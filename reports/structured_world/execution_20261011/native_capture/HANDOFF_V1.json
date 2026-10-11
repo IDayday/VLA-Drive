@@ -1,0 +1,52 @@
+{
+  "schema": "native_capture_code_handoff_v1",
+  "code_stable_for_parent_freeze": true,
+  "GPU_jobs_launched": 0,
+  "CPU_tests_passed": true,
+  "CPU_tests_run": 15,
+  "CPU_seconds": 3.30703947506845,
+  "source_sha256": {
+    "tools/structured_world/test_native_capture.py": "dea53df3b2e503f434f44f97d1e070b7497675fd0ab2ed676fde9d0b62c4d58e",
+    "tools/structured_world/native_capture.py": "c7600b96626812d02304361890f42fff8646dcf8d100f3a96dbbe74d9c5497d3",
+    "tools/structured_world/train_vla.py": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+    "tools/structured_world/run_native_execution_continuation.py": "679c317243fcef5e95ce10ad1a90edceed5320093f9fde0a29c2beef12c9e9d6"
+  },
+  "cpu_receipt": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/CPU_RECEIPT_STABLE_V1.json",
+  "manifest": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_capture/MANIFEST_PENDING_SOURCE.json",
+  "storage_registration": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_capture/STORAGE_REGISTRATION_V1.json",
+  "immutable_source_binding": "PENDING parent new source commit/root; do not run this manifest as-is",
+  "scientific_precision_field_unchanged": true,
+  "precision_metadata": {
+    "base_precision": "same original scientific precision",
+    "base_precision_scope": "locked scientific origin/comparison, not actual candidate compute",
+    "effective_training_precision_E2": "same original base",
+    "effective_training_precision_E3": "FP32 params/master/optimizer/gradient communication; BF16 Qwen/action and Geo R50/FPN/BEV backbone+neck conv; FP32 DepthNet/view/projection/grid_sample/loss/refiner; TF32 off; canonical FP32 bypass"
+  },
+  "candidate_metadata_difference_declaration": [
+    "execution_mode",
+    "effective_training_precision",
+    "numeric_execution_candidate",
+    "execution_logging",
+    "engineering_native_capture"
+  ],
+  "source_binding": "A/AA/B must use the same freshly frozen candidate source and same immutable origin; original base scientific precision/schedule/config/assets remain exact",
+  "first_loaded_step_evidence": "loaded_boundary_completed assigned after native verify_boundary; single evidence_due drives activation and FP32 master diagnostics, plus upcoming capture boundaries; no new RNG/optimizer/collective for this sampling decision",
+  "capture_offsets": "relative immutable origin; global milestone tags; no forced pause/restarts; end500 normal",
+  "denominator_evidence": "each update, all8 ranks: preexisting all-reduced global_counts, exact global/rank scene indices and previously sampled CPU loss horizons; no new count/RNG/collective",
+  "cpu_triplet_drift_detection": "500 steps x all8 rank logs A/AA/B equality, one step/rank horizon corruption rejected; native numeric acceptance still PENDING",
+  "storage": "local G1mid, shared G3mid+early; OWN capped runs and cooperative pool budgets, fresh all-rank >=100GiB+45GiB before every save; quota_not_exposed honest risk, not blocking invented quota proof",
+  "retention": "all 36 full native capture banks remain milestones; preceding completed pilot/formal/origin/rollback assets untouched; no archive/delete/large copies/Git tensor upload",
+  "costs": "rank-local diagnostic logging seconds + rank0 pre-save admission wall + native COMPLETE.save_seconds + full process startup/IO/GPUh; capture runs not throughput benchmark",
+  "cli_plan": "python -B tools/structured_world/run_native_execution_continuation.py --manifest <newly-bound-manifest.json> --output <fresh-controller-dir>",
+  "cli_execute": "same CLI plus --execute on qualified zt4; old benchmark physical_gpu_locks reused, sequential 12 jobs, no automatic retry; keep GPUs unoccupied before actual dispatch",
+  "acceptance_passed": false,
+  "formal_authorized": false,
+  "original_V1_registration_sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007",
+  "old_strict_results_thresholds_no_recompute_guard": "unchanged; original V1 protected trainer refers to immutable1e5, new instrumented trainer is a separately bound candidate source",
+  "remaining_actual_receipts": [
+    "all-rank native tensor/master/Adam/BN/RNG comparisons at early1 and mid1/32/100/250/500",
+    "canonical dev paired receipts",
+    "actual native restore/recovery",
+    "numeric acceptance remains false/PENDING"
+  ]
+}

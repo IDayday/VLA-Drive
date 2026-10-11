@@ -1,0 +1,170 @@
+{
+  "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+  "host": "training-vlawm-zt4",
+  "gpu_uuids": [
+    "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+    "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+    "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+    "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+    "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+    "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+    "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+    "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+  ],
+  "qualification": {
+    "path": "/var/tmp/structured-world-fgtr-execution-20261011/HOST_QUALIFICATION.json",
+    "sha256": "01d93ea95304e39ea048608014441b5658b5ce87e1edfff108581cc209e20e19"
+  },
+  "artifact_root": "/var/tmp/structured-world-fgtr-execution-20261011",
+  "minimum_free_MiB": 68000,
+  "schema": "native_execution_continuation_manifest_v1",
+  "source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-native-capture-frozen-20261011",
+  "source_sha": "PARENT_NEW_IMMUTABLE_COMMIT_REQUIRED",
+  "candidate_mode": "engineering_timevec",
+  "master_port": 29590,
+  "cases": [
+    {
+      "name": "G1_early",
+      "pilot_origin_run": "/var/tmp/structured-world-fgtr-execution-20261011/initial_G1_common",
+      "pilot_origin_tag": "milestone_0000002",
+      "origin_identity": "fe131c958c09cd55461aa780a2322626aa7c4aa836dd879e0f6cdde0e956a21e",
+      "origin_complete_sha256": "45a6fd0d9113083d8f178fa0af66e0382c0c08986896fe745fcd9e140e79a7f6",
+      "train_args": [
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-v3-frozen-20261011/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4"
+      ],
+      "group": "G1",
+      "stage": "early",
+      "output_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/numerical_native_v1/G1_early",
+      "storage_pool": "SHARED",
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/storage_native_v1/SHARED_BUDGET.json",
+        "sha256": "b5716975516fda798d48d4b70955964f6809bd4f338f2c667a77521ec9910514"
+      }
+    },
+    {
+      "name": "G3_early",
+      "pilot_origin_run": "/var/tmp/structured-world-fgtr-execution-20261011/initial_G3_common",
+      "pilot_origin_tag": "milestone_0000002",
+      "origin_identity": "b62b52881ddb2c127ed65f060ad7569c2ba488a4b26f2d4c43ee9bd864497f75",
+      "origin_complete_sha256": "9dcbdb44b8911eb0b879e883dbd240b8ee6fba003b61f27bc957124568f1dbd6",
+      "train_args": [
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-v3-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4"
+      ],
+      "group": "G3",
+      "stage": "early",
+      "output_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/numerical_native_v1/G3_early",
+      "storage_pool": "SHARED",
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/storage_native_v1/SHARED_BUDGET.json",
+        "sha256": "b5716975516fda798d48d4b70955964f6809bd4f338f2c667a77521ec9910514"
+      }
+    },
+    {
+      "name": "G1_mid",
+      "pilot_origin_run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+      "pilot_origin_tag": "milestone_0025000",
+      "origin_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+      "origin_complete_sha256": "1dbaafc0ac4b94678f32175a400a6745c417e98fafc096f6c50d267b79d0177e",
+      "train_args": [
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-v3-frozen-20261011/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4"
+      ],
+      "group": "G1",
+      "stage": "mid",
+      "output_root": "/var/tmp/structured-world-fgtr-execution-20261011/numerical_native_v1/G1_mid",
+      "storage_pool": "LOCAL",
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/storage_native_v1/LOCAL_BUDGET.json",
+        "sha256": "a18438e838624882451db17c95e19eb01ca2a99e89177e3e91271fc498fc3b32"
+      }
+    },
+    {
+      "name": "G3_mid",
+      "pilot_origin_run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G3",
+      "pilot_origin_tag": "milestone_0050000",
+      "origin_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+      "origin_complete_sha256": "a35ffa331dc0230b069ec2a6f9300809cc901d6174d82276db294e1f386150b9",
+      "train_args": [
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-v3-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4"
+      ],
+      "group": "G3",
+      "stage": "mid",
+      "output_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/numerical_native_v1/G3_mid",
+      "storage_pool": "SHARED",
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_capture_20261011/storage_native_v1/SHARED_BUDGET.json",
+        "sha256": "b5716975516fda798d48d4b70955964f6809bd4f338f2c667a77521ec9910514"
+      }
+    }
+  ],
+  "readiness": "PENDING new source freeze; runtime/UUID/origin bindings retained from qualified benchmark; no GPU launched",
+  "producer_benchmark_manifest": {
+    "path": "/var/tmp/structured-world-fgtr-execution-20261011/FINAL_BENCHMARK_MANIFEST_V3.json",
+    "sha256": "fcf22a55a7288ac4e4b6fe9cf8fbdb9ad99517fa6194e5fc636484fd30af9451"
+  },
+  "original_V1_criteria": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+    "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007",
+    "changed": false
+  },
+  "no_benchmark_or_formal_acceptance_claim": true
+}

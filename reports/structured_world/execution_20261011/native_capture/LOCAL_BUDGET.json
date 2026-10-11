@@ -1,0 +1,41 @@
+{
+  "schema": "native_capture_storage_budget_v1",
+  "approved_for_pilot": true,
+  "host": "training-vlawm-zt4",
+  "reserve_bytes": 107374182400,
+  "checkpoint_upper_bytes": 48318382080,
+  "pool_cap_bytes": 869730877440,
+  "other_owned_reservation_bytes": 144955146240,
+  "other_owned_reservation_purpose": "recovery (local) / compatibility (shared); no writes/deletes by this launcher",
+  "filesystem_probe_path": "/var/tmp/structured-world-fgtr-execution-20261011",
+  "owned_runs": [
+    {
+      "path": "/var/tmp/structured-world-fgtr-execution-20261011/numerical_native_v1/G1_mid/A",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 241591910400
+    },
+    {
+      "path": "/var/tmp/structured-world-fgtr-execution-20261011/numerical_native_v1/G1_mid/AA",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 241591910400
+    },
+    {
+      "path": "/var/tmp/structured-world-fgtr-execution-20261011/numerical_native_v1/G1_mid/B",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 241591910400
+    }
+  ],
+  "physical_free_snapshot": {
+    "filesystem_probe_path": "/var/tmp/structured-world-fgtr-execution-20261011",
+    "free_bytes": 1011268861952,
+    "total_bytes": 3199068983296,
+    "quota_tools": {
+      "lfs": null,
+      "quota": null
+    }
+  },
+  "snapshot_checked_unix": 1791707684.1425283,
+  "quota_status": "quota_not_exposed",
+  "exclusive_reservation": false,
+  "admission": "Refresh actual free >=100GiB+45GiB before EACH save; explicit OWN caps; EDQUOT/ENOSPC stop pilot retaining earlier checkpoints"
+}

@@ -1,0 +1,7949 @@
+{
+  "GPU": "NVIDIA A800-SXM4-80GB",
+  "KV_last_scope": {
+    "per_projection": [
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.0.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.0.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.2.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.2.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.4.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.4.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.6.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.6.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.8.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.8.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.10.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.10.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.12.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.12.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.14.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.14.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.16.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.16.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.18.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.18.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.20.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.20.attn1.to_v"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.22.attn1.to_k"
+      },
+      {
+        "hits": 9,
+        "misses": 1,
+        "name": "transformer_blocks.22.attn1.to_v"
+      }
+    ],
+    "projection_calls_bypassed": 0,
+    "projection_calls_executed": 24,
+    "projection_calls_saved": 216,
+    "retained_KV_bytes_at_scope_end": 2359296,
+    "succeeded": true,
+    "used": true
+  },
+  "adapter_provenance": {
+    "GPU_numerical_and_performance_acceptance": "pending; do not enable by default",
+    "adapter_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-proposal-frozen-20261011/starVLA/model/modules/structured_world/proposal_execution.py",
+    "adapter_sha256": "6f7040fdedd95407f276fea191b21db022bcb512d194c1cfe4ff0c67b6371bb1",
+    "cross_attention_layers": 12,
+    "default_enabled": false,
+    "processor_norm_cross_head_norm_masks_SDPA_Euler_rng": "native and unchanged",
+    "schema": "proposal_KV_native_Linear_instance_adapter_v1",
+    "scope": "one original predict_action call; outer no_grad and all eval; inference_mode bypass",
+    "sources": [
+      {
+        "class": "starVLA.model.modules.action_model.GR00T_ActionHeader.FlowmatchingActionHead",
+        "method_sha256": "fffe39195d71da02b9737072b6b8bc1edc08b4ab8e3312006ed7f589a36ff259",
+        "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-proposal-frozen-20261011/starVLA/model/modules/action_model/GR00T_ActionHeader.py",
+        "source_sha256": "b67edc82a2ad110ef9feec68b5a457ea2371784f54b5ba75e2b32a18dce42999"
+      },
+      {
+        "class": "starVLA.model.modules.action_model.flow_matching_head.cross_attention_dit.DiT",
+        "method_sha256": "09b6999219e708494517052980917f0f5884c7f891680cfc8ba8eb9308b1d443",
+        "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-proposal-frozen-20261011/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+        "source_sha256": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2"
+      },
+      {
+        "class": "diffusers.models.attention_processor.AttnProcessor2_0",
+        "method_sha256": "bff040a099598b093263b84b78d4c53f83cb1e2be2af1c81209fdef6075fa7bc",
+        "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py",
+        "source_sha256": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90"
+      },
+      {
+        "class": "diffusers.models.attention_processor.Attention",
+        "method_sha256": "b8021dea011a83c3aa739de1cb8c6aad9d991129b32550aed26d40f2127973ec",
+        "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py",
+        "source_sha256": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90"
+      },
+      {
+        "class": "torch.nn.modules.linear.Linear",
+        "method_sha256": "4fed9af0cf2326f84d7fa1fd675941f3c3262378ee94d927c5a4f5695990cf5f",
+        "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py",
+        "source_sha256": "d7f5cadf773deb5ab4bcc9f57414e8239b2859c70d2aa6f141576de1ec918823"
+      }
+    ]
+  },
+  "audited_sources": [
+    {
+      "class": "starVLA.model.modules.action_model.GR00T_ActionHeader.FlowmatchingActionHead",
+      "method_sha256": "fffe39195d71da02b9737072b6b8bc1edc08b4ab8e3312006ed7f589a36ff259",
+      "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-proposal-frozen-20261011/starVLA/model/modules/action_model/GR00T_ActionHeader.py",
+      "source_sha256": "b67edc82a2ad110ef9feec68b5a457ea2371784f54b5ba75e2b32a18dce42999"
+    },
+    {
+      "class": "starVLA.model.modules.action_model.flow_matching_head.cross_attention_dit.DiT",
+      "method_sha256": "09b6999219e708494517052980917f0f5884c7f891680cfc8ba8eb9308b1d443",
+      "source_file": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-proposal-frozen-20261011/starVLA/model/modules/action_model/flow_matching_head/cross_attention_dit.py",
+      "source_sha256": "3386dbf472a20b6b0e938b5eb5e12d760358f6d7f699d42a01f17e6e7ad612e2"
+    },
+    {
+      "class": "diffusers.models.attention_processor.AttnProcessor2_0",
+      "method_sha256": "bff040a099598b093263b84b78d4c53f83cb1e2be2af1c81209fdef6075fa7bc",
+      "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py",
+      "source_sha256": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90"
+    },
+    {
+      "class": "diffusers.models.attention_processor.Attention",
+      "method_sha256": "b8021dea011a83c3aa739de1cb8c6aad9d991129b32550aed26d40f2127973ec",
+      "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/diffusers/models/attention_processor.py",
+      "source_sha256": "d56adb29122171c897568ae0235dba6c5409b9a4176de6196d563c6f56c9df90"
+    },
+    {
+      "class": "torch.nn.modules.linear.Linear",
+      "method_sha256": "4fed9af0cf2326f84d7fa1fd675941f3c3262378ee94d927c5a4f5695990cf5f",
+      "source_file": "/root/miniconda3/envs/ddp/lib/python3.10/site-packages/torch/nn/modules/linear.py",
+      "source_sha256": "d7f5cadf773deb5ab4bcc9f57414e8239b2859c70d2aa6f141576de1ec918823"
+    }
+  ],
+  "checkpoint": {
+    "COMPLETE_sha256": "1dbaafc0ac4b94678f32175a400a6745c417e98fafc096f6c50d267b79d0177e",
+    "completed": 25000,
+    "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+    "model_file": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1/checkpoints/milestone_0025000/mp_rank_00_model_states.pt",
+    "model_sha256": "f1c8fead385decd972966a384b98bfce0d48289659e00043bcbb6d6d6f61bc8e",
+    "run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+    "tag": "milestone_0025000"
+  },
+  "created_UTC": "2026-10-11T07:50:02.409873+00:00",
+  "current": {
+    "H_A_dtype": "torch.float32",
+    "H_A_sha256": "99e93d75f1bd9f400daa2c558a49e6f292a3d288ffc010336c1a4185ac58a573",
+    "H_A_shape": [
+      4,
+      8,
+      2048
+    ],
+    "encode_current_calls": 1,
+    "epoch": 7,
+    "indices": [
+      23921,
+      37805,
+      73758,
+      37593
+    ],
+    "offset": 2775,
+    "tokens": [
+      "a89e94e7702458ed",
+      "317ef6fd6c1c5983",
+      "b6f2102bb13f5962",
+      "05a02567ebff5e92"
+    ]
+  },
+  "head_parameter_inventory": {
+    "buffers": [],
+    "modes": [
+      [
+        "",
+        true
+      ],
+      [
+        "model",
+        true
+      ],
+      [
+        "model.timestep_encoder",
+        true
+      ],
+      [
+        "model.timestep_encoder.time_proj",
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder",
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder.linear_1",
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder.act",
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder.linear_2",
+        true
+      ],
+      [
+        "model.transformer_blocks",
+        true
+      ],
+      [
+        "model.transformer_blocks.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.0.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.1.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.2.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.3.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.4",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.4.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.5",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.5.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.6",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.6.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.7",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.7.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.8",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.8.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.9",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.9.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.10",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.10.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.11",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.11.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.12",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.12.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.13",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.13.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.14",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.14.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.15",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.15.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.16",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.16.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.17",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.17.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.18",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.18.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.19",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.19.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.20",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.20.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.21",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.21.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.22",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.22.final_dropout",
+        true
+      ],
+      [
+        "model.transformer_blocks.23",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm1",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm1.silu",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm1.linear",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm1.norm",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_q",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_k",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_v",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_out",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_out.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_out.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm3",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.0",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.0.proj",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.1",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.2",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.3",
+        true
+      ],
+      [
+        "model.transformer_blocks.23.final_dropout",
+        true
+      ],
+      [
+        "model.norm_out",
+        true
+      ],
+      [
+        "model.proj_out_1",
+        true
+      ],
+      [
+        "model.proj_out_2",
+        true
+      ],
+      [
+        "qwen_proj",
+        true
+      ],
+      [
+        "qwen_proj.layer1",
+        true
+      ],
+      [
+        "qwen_proj.layer2",
+        true
+      ],
+      [
+        "action_encoder",
+        true
+      ],
+      [
+        "action_encoder.layer1",
+        true
+      ],
+      [
+        "action_encoder.layer2",
+        true
+      ],
+      [
+        "action_encoder.layer3",
+        true
+      ],
+      [
+        "action_encoder.pos_encoding",
+        true
+      ],
+      [
+        "action_decoder",
+        true
+      ],
+      [
+        "action_decoder.layer1",
+        true
+      ],
+      [
+        "action_decoder.layer2",
+        true
+      ],
+      [
+        "position_embedding",
+        true
+      ]
+    ],
+    "parameters": [
+      [
+        "model.timestep_encoder.timestep_embedder.linear_1.weight",
+        139832411089840,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          256
+        ],
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder.linear_1.bias",
+        139831599698208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder.linear_2.weight",
+        139831759718016,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.timestep_encoder.timestep_embedder.linear_2.bias",
+        139831624663664,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm1.linear.weight",
+        139831599485376,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.norm1.linear.bias",
+        139831599887392,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_q.weight",
+        139831737841232,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_q.bias",
+        139831599886592,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_k.weight",
+        139831599876512,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_k.bias",
+        139831599876272,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_v.weight",
+        139831625261408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_v.bias",
+        139831625268928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_out.0.weight",
+        139831599441584,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.attn1.to_out.0.bias",
+        139831599439184,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.0.proj.weight",
+        139831625260448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.0.proj.bias",
+        139831625262208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.2.weight",
+        139831625263088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.0.ff.net.2.bias",
+        139831720605024,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm1.linear.weight",
+        139831625257888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.norm1.linear.bias",
+        139831720605344,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_q.weight",
+        139831599434464,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_q.bias",
+        139831599433264,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_k.weight",
+        139831599435664,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_k.bias",
+        139831599438384,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_v.weight",
+        139831599434544,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_v.bias",
+        139831599447104,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_out.0.weight",
+        139831599721392,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.attn1.to_out.0.bias",
+        139831599721232,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.0.proj.weight",
+        139831599447344,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.0.proj.bias",
+        139831599723792,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.2.weight",
+        139831599712112,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.1.ff.net.2.bias",
+        139831599587760,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm1.linear.weight",
+        139831599584880,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.norm1.linear.bias",
+        139831599584800,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_q.weight",
+        139831599584320,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_q.bias",
+        139831599584240,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_k.weight",
+        139831599583920,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_k.bias",
+        139831599583600,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_v.weight",
+        139831599582800,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_v.bias",
+        139831599583360,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_out.0.weight",
+        139831599583280,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.attn1.to_out.0.bias",
+        139831599582640,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.0.proj.weight",
+        139831599584480,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.0.proj.bias",
+        139831599582320,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.2.weight",
+        139831599582240,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.2.ff.net.2.bias",
+        139831599582080,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm1.linear.weight",
+        139831599581920,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.norm1.linear.bias",
+        139831599581680,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_q.weight",
+        139831599581440,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_q.bias",
+        139831599581360,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_k.weight",
+        139831599581120,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_k.bias",
+        139831599579920,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_v.weight",
+        139831599580320,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_v.bias",
+        139831599580240,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_out.0.weight",
+        139831599580160,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.attn1.to_out.0.bias",
+        139831599580080,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.0.proj.weight",
+        139831599580880,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.0.proj.bias",
+        139831599579680,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.2.weight",
+        139831599579520,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.3.ff.net.2.bias",
+        139831599579440,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm1.linear.weight",
+        139831599584640,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.norm1.linear.bias",
+        139831599582720,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_q.weight",
+        139831599589600,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_q.bias",
+        139831599589840,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_k.weight",
+        139831599589920,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_k.bias",
+        139831599590160,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_v.weight",
+        139831599590480,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_v.bias",
+        139831599590880,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_out.0.weight",
+        139831599590960,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.attn1.to_out.0.bias",
+        139831599591040,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.0.proj.weight",
+        139831599581760,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.0.proj.bias",
+        139831599593200,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.2.weight",
+        139831599593040,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.4.ff.net.2.bias",
+        139831599592960,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm1.linear.weight",
+        139831599592800,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.norm1.linear.bias",
+        139831599592720,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_q.weight",
+        139831599591600,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_q.bias",
+        139831599591520,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_k.weight",
+        139831599591280,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_k.bias",
+        139831599595040,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_v.weight",
+        139831599594160,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_v.bias",
+        139831599593920,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_out.0.weight",
+        139831599594240,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.attn1.to_out.0.bias",
+        139831599594640,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.0.proj.weight",
+        139831599593120,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.0.proj.bias",
+        139831599594560,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.2.weight",
+        139831599939648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.5.ff.net.2.bias",
+        139831599939728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm1.linear.weight",
+        139831599939808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.norm1.linear.bias",
+        139831599939888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_q.weight",
+        139831599940048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_q.bias",
+        139831599940128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_k.weight",
+        139831599940208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_k.bias",
+        139831599940288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_v.weight",
+        139831599940368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_v.bias",
+        139831599940448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_out.0.weight",
+        139831599940528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.attn1.to_out.0.bias",
+        139831599940608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.0.proj.weight",
+        139831738576032,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.0.proj.bias",
+        139831760004224,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.2.weight",
+        139831599939968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.6.ff.net.2.bias",
+        139831599940688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm1.linear.weight",
+        139831599940768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.norm1.linear.bias",
+        139831599940848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_q.weight",
+        139831599941008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_q.bias",
+        139831599941088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_k.weight",
+        139831599941168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_k.bias",
+        139831599941248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_v.weight",
+        139831599941328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_v.bias",
+        139831599941408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_out.0.weight",
+        139831599941488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.attn1.to_out.0.bias",
+        139831599941568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.0.proj.weight",
+        139831599940928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.0.proj.bias",
+        139831599941648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.2.weight",
+        139831599941728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.7.ff.net.2.bias",
+        139831599941808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm1.linear.weight",
+        139831599941888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.norm1.linear.bias",
+        139831599941968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_q.weight",
+        139831599942128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_q.bias",
+        139831599942208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_k.weight",
+        139831599942288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_k.bias",
+        139831599942368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_v.weight",
+        139831599942448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_v.bias",
+        139831599942528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_out.0.weight",
+        139831599942608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.attn1.to_out.0.bias",
+        139831599942688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.0.proj.weight",
+        139831599942048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.0.proj.bias",
+        139831599942768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.2.weight",
+        139831599942848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.8.ff.net.2.bias",
+        139831599942928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm1.linear.weight",
+        139831599943008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.norm1.linear.bias",
+        139831599943088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_q.weight",
+        139831599943248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_q.bias",
+        139831599943328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_k.weight",
+        139831599943408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_k.bias",
+        139831599943488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_v.weight",
+        139831599943568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_v.bias",
+        139831599943648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_out.0.weight",
+        139831599943728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.attn1.to_out.0.bias",
+        139831599943808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.0.proj.weight",
+        139831599943168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.0.proj.bias",
+        139831599943888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.2.weight",
+        139831599943968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.9.ff.net.2.bias",
+        139831599944048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm1.linear.weight",
+        139831599944128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.norm1.linear.bias",
+        139831599944208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_q.weight",
+        139831599944368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_q.bias",
+        139831599944448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_k.weight",
+        139831599944528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_k.bias",
+        139831599944608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_v.weight",
+        139831599944688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_v.bias",
+        139831599944768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_out.0.weight",
+        139831599944848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.attn1.to_out.0.bias",
+        139831599944928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.0.proj.weight",
+        139831599944288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.0.proj.bias",
+        139831599945008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.2.weight",
+        139831599945088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.10.ff.net.2.bias",
+        139831599945168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm1.linear.weight",
+        139831599945248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.norm1.linear.bias",
+        139831599945328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_q.weight",
+        139831599945488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_q.bias",
+        139831599945568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_k.weight",
+        139831599945648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_k.bias",
+        139831599945728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_v.weight",
+        139831599945808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_v.bias",
+        139831599945888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_out.0.weight",
+        139831599945968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.attn1.to_out.0.bias",
+        139831599946048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.0.proj.weight",
+        139831599945408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.0.proj.bias",
+        139831599946128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.2.weight",
+        139831599946208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.11.ff.net.2.bias",
+        139831599946288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm1.linear.weight",
+        139831599946368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.norm1.linear.bias",
+        139831599946448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_q.weight",
+        139831599946608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_q.bias",
+        139831599946688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_k.weight",
+        139831599946768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_k.bias",
+        139831599946848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_v.weight",
+        139831599946928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_v.bias",
+        139831599947008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_out.0.weight",
+        139831599947088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.attn1.to_out.0.bias",
+        139831599947168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.0.proj.weight",
+        139831599946528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.0.proj.bias",
+        139831599947248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.2.weight",
+        139831599947328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.12.ff.net.2.bias",
+        139831599947408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm1.linear.weight",
+        139831599947488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.norm1.linear.bias",
+        139831599947568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_q.weight",
+        139831599947728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_q.bias",
+        139831599947808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_k.weight",
+        139831599947888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_k.bias",
+        139831599947968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_v.weight",
+        139831599948048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_v.bias",
+        139831599948128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_out.0.weight",
+        139831599948208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.attn1.to_out.0.bias",
+        139831599948288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.0.proj.weight",
+        139831599947648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.0.proj.bias",
+        139831599948368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.2.weight",
+        139831599948448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.13.ff.net.2.bias",
+        139831599948528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm1.linear.weight",
+        139831599948608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.norm1.linear.bias",
+        139831599948688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_q.weight",
+        139831599948848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_q.bias",
+        139831599948928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_k.weight",
+        139831599949008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_k.bias",
+        139831599949088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_v.weight",
+        139831599949168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_v.bias",
+        139831599949248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_out.0.weight",
+        139831599949328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.attn1.to_out.0.bias",
+        139831599949408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.0.proj.weight",
+        139831599948768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.0.proj.bias",
+        139831599949488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.2.weight",
+        139831599949568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.14.ff.net.2.bias",
+        139831599949648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm1.linear.weight",
+        139831599949728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.norm1.linear.bias",
+        139831599949808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_q.weight",
+        139831599949968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_q.bias",
+        139831599950048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_k.weight",
+        139831599950128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_k.bias",
+        139831599950208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_v.weight",
+        139831599950288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_v.bias",
+        139831599950368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_out.0.weight",
+        139831599950448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.attn1.to_out.0.bias",
+        139831599950528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.0.proj.weight",
+        139831599949888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.0.proj.bias",
+        139831599950608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.2.weight",
+        139831599950688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.15.ff.net.2.bias",
+        139831599950768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm1.linear.weight",
+        139831599950848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.norm1.linear.bias",
+        139831599950928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_q.weight",
+        139831599951088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_q.bias",
+        139831599951168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_k.weight",
+        139831599951248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_k.bias",
+        139831599951328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_v.weight",
+        139831599951408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_v.bias",
+        139831599951488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_out.0.weight",
+        139831599951568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.attn1.to_out.0.bias",
+        139831599951648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.0.proj.weight",
+        139831599951008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.0.proj.bias",
+        139831599951728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.2.weight",
+        139831599951808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.16.ff.net.2.bias",
+        139831599951888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm1.linear.weight",
+        139831599951968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.norm1.linear.bias",
+        139831599952048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_q.weight",
+        139831599952208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_q.bias",
+        139831599952288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_k.weight",
+        139831599952368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_k.bias",
+        139831599952448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_v.weight",
+        139831599952528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_v.bias",
+        139831599952608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_out.0.weight",
+        139831599952688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.attn1.to_out.0.bias",
+        139831599952768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.0.proj.weight",
+        139831599952128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.0.proj.bias",
+        139831599952848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.2.weight",
+        139831599952928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.17.ff.net.2.bias",
+        139831599953008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm1.linear.weight",
+        139831599953088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.norm1.linear.bias",
+        139831599953168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_q.weight",
+        139831599953328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_q.bias",
+        139831599953408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_k.weight",
+        139831599953488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_k.bias",
+        139831599953568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_v.weight",
+        139831599953648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_v.bias",
+        139831599953728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_out.0.weight",
+        139831599953808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.attn1.to_out.0.bias",
+        139831599953888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.0.proj.weight",
+        139831599953248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.0.proj.bias",
+        139831599953968,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.2.weight",
+        139831599954048,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.18.ff.net.2.bias",
+        139831599954128,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm1.linear.weight",
+        139831599954208,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.norm1.linear.bias",
+        139831599954288,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_q.weight",
+        139831599954448,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_q.bias",
+        139831599954528,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_k.weight",
+        139831599954608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_k.bias",
+        139831599954688,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_v.weight",
+        139831599954768,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_v.bias",
+        139831599954848,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_out.0.weight",
+        139831599954928,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.attn1.to_out.0.bias",
+        139831599955008,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.0.proj.weight",
+        139831599954368,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.0.proj.bias",
+        139831599955088,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.2.weight",
+        139831759544192,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.19.ff.net.2.bias",
+        139831599955168,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm1.linear.weight",
+        139831599955248,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.norm1.linear.bias",
+        139831599955328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_q.weight",
+        139831599955488,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_q.bias",
+        139831599955568,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_k.weight",
+        139831599955648,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_k.bias",
+        139831599955728,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_v.weight",
+        139831599955808,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_v.bias",
+        139831599955888,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_out.0.weight",
+        139831596023872,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.attn1.to_out.0.bias",
+        139831596023952,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.0.proj.weight",
+        139831599955408,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.0.proj.bias",
+        139831596024032,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.2.weight",
+        139831596024112,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.20.ff.net.2.bias",
+        139831596024192,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm1.linear.weight",
+        139831596024272,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.norm1.linear.bias",
+        139831596024352,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_q.weight",
+        139831596024512,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_q.bias",
+        139831596024592,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_k.weight",
+        139831596024672,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_k.bias",
+        139831596024752,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_v.weight",
+        139831596024832,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_v.bias",
+        139831596024912,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_out.0.weight",
+        139831596024992,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.attn1.to_out.0.bias",
+        139831596025072,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.0.proj.weight",
+        139831596024432,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.0.proj.bias",
+        139831596025152,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.2.weight",
+        139831596025232,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.21.ff.net.2.bias",
+        139831596025312,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm1.linear.weight",
+        139831596025392,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.norm1.linear.bias",
+        139831596025472,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_q.weight",
+        139831596025632,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_q.bias",
+        139831596025712,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_k.weight",
+        139831596025792,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_k.bias",
+        139831596025872,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_v.weight",
+        139831596025952,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_v.bias",
+        139831596026032,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_out.0.weight",
+        139831596026112,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.attn1.to_out.0.bias",
+        139831596026192,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.0.proj.weight",
+        139831596025552,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.0.proj.bias",
+        139831596026272,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.2.weight",
+        139831596026352,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.22.ff.net.2.bias",
+        139831596026432,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm1.linear.weight",
+        139831596026512,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.norm1.linear.bias",
+        139831596026592,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_q.weight",
+        139831596026752,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_q.bias",
+        139831596026832,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_k.weight",
+        139831596026912,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_k.bias",
+        139831596026992,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_v.weight",
+        139831596027072,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_v.bias",
+        139831596027152,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_out.0.weight",
+        139831596027232,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.attn1.to_out.0.bias",
+        139831596027312,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.0.proj.weight",
+        139831596026672,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.0.proj.bias",
+        139831596027392,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.2.weight",
+        139831596027472,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          6144
+        ],
+        true
+      ],
+      [
+        "model.transformer_blocks.23.ff.net.2.bias",
+        139831596027552,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "model.proj_out_1.weight",
+        139831596027632,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.proj_out_1.bias",
+        139831596027712,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          3072
+        ],
+        true
+      ],
+      [
+        "model.proj_out_2.weight",
+        139831596027792,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "model.proj_out_2.bias",
+        139831596027872,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "qwen_proj.layer1.weight",
+        139831625260608,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          2048
+        ],
+        true
+      ],
+      [
+        "qwen_proj.layer1.bias",
+        139831599440864,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "qwen_proj.layer2.weight",
+        139831599442864,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "qwen_proj.layer2.bias",
+        139831596027952,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "action_encoder.layer1.weight",
+        139831599695328,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          4
+        ],
+        true
+      ],
+      [
+        "action_encoder.layer1.bias",
+        139831599489456,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "action_encoder.layer2.weight",
+        139831596028352,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          3072
+        ],
+        true
+      ],
+      [
+        "action_encoder.layer2.bias",
+        139831596028112,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "action_encoder.layer3.weight",
+        139831596028192,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "action_encoder.layer3.bias",
+        139831596028432,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "action_decoder.layer1.weight",
+        139831596028032,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536,
+          1536
+        ],
+        true
+      ],
+      [
+        "action_decoder.layer1.bias",
+        139831596028272,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          1536
+        ],
+        true
+      ],
+      [
+        "action_decoder.layer2.weight",
+        139831596028512,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          4,
+          1536
+        ],
+        true
+      ],
+      [
+        "action_decoder.layer2.bias",
+        139831596028592,
+        2,
+        "torch.float32",
+        "cuda:0",
+        [
+          4
+        ],
+        true
+      ],
+      [
+        "position_embedding.weight",
+        139831596028672,
+        3,
+        "torch.float32",
+        "cuda:0",
+        [
+          1024,
+          1536
+        ],
+        true
+      ]
+    ]
+  },
+  "head_sha256_before_and_after": "660f12dd214623ac849ebbe300953ba8cd4dac9897df9f28c46a6b86085666e4",
+  "limits": [
+    "Single fixed current batch, no whole-training throughput or recovery claim",
+    "CUDA events include current-stream launch gaps, not kernel-only attribution",
+    "GPU admission is external and parent-owned; this script does not dispatch",
+    "Existing strict numerical failures are not superseded"
+  ],
+  "passed": true,
+  "peak_allocated_bytes": 15964035072,
+  "precision": "FP32 masters/BF16 per-proposal autocast; native attention; TF32 disabled",
+  "q0": [
+    [
+      [
+        -0.8724342584609985,
+        -0.16580377519130707,
+        -0.009591817855834961,
+        0.9964374303817749
+      ],
+      [
+        -0.6479952335357666,
+        -0.16756141185760498,
+        -0.007913470268249512,
+        0.9976422190666199
+      ],
+      [
+        -0.48350846767425537,
+        -0.17024853825569153,
+        -0.00622403621673584,
+        1.0006096363067627
+      ],
+      [
+        -0.35947030782699585,
+        -0.16999679803848267,
+        -0.0032960176467895508,
+        1.001172661781311
+      ],
+      [
+        -0.28971990942955017,
+        -0.1754528284072876,
+        -0.0073819756507873535,
+        1.001911997795105
+      ],
+      [
+        -0.2473219633102417,
+        -0.17169225215911865,
+        -0.007171362638473511,
+        0.9994711875915527
+      ],
+      [
+        -0.24409782886505127,
+        -0.1690751314163208,
+        -0.011960029602050781,
+        1.0033211708068848
+      ],
+      [
+        -0.2291157841682434,
+        -0.17158550024032593,
+        -0.00606691837310791,
+        1.004410743713379
+      ]
+    ],
+    [
+      [
+        -0.8531920909881592,
+        -0.15699249505996704,
+        -0.0003792867064476013,
+        0.996732771396637
+      ],
+      [
+        -0.613980770111084,
+        -0.15504992008209229,
+        0.001328587532043457,
+        0.996312141418457
+      ],
+      [
+        -0.4356303811073303,
+        -0.15027517080307007,
+        0.005429744720458984,
+        0.999031662940979
+      ],
+      [
+        -0.2946016788482666,
+        -0.1512950360774994,
+        0.004634380340576172,
+        0.998367428779602
+      ],
+      [
+        -0.19983506202697754,
+        -0.15258383750915527,
+        0.00437777116894722,
+        0.9986230134963989
+      ],
+      [
+        -0.14814800024032593,
+        -0.14780282974243164,
+        0.0011112987995147705,
+        1.0012043714523315
+      ],
+      [
+        -0.11100983619689941,
+        -0.14717626571655273,
+        0.006861060857772827,
+        0.9955503940582275
+      ],
+      [
+        -0.09679394960403442,
+        -0.14577919244766235,
+        0.006071180105209351,
+        0.9970332384109497
+      ]
+    ],
+    [
+      [
+        -0.7958312034606934,
+        -0.2849087715148926,
+        -0.15235161781311035,
+        0.9891493916511536
+      ],
+      [
+        -0.4847028851509094,
+        -0.569649875164032,
+        -0.3288383483886719,
+        0.9468821287155151
+      ],
+      [
+        -0.20265066623687744,
+        -1.0548384189605713,
+        -0.5151286125183105,
+        0.8651955723762512
+      ],
+      [
+        0.022040609270334244,
+        -1.6131128072738647,
+        -0.6524170637130737,
+        0.7755744457244873
+      ],
+      [
+        0.1926720142364502,
+        -2.2915139198303223,
+        -0.7863864898681641,
+        0.6524457931518555
+      ],
+      [
+        0.342133104801178,
+        -3.0984621047973633,
+        -0.8857272863388062,
+        0.48498648405075073
+      ],
+      [
+        0.4770714342594147,
+        -3.977388381958008,
+        -0.9758579730987549,
+        0.3205912113189697
+      ],
+      [
+        0.5435199737548828,
+        -4.980299472808838,
+        -1.0105332136154175,
+        0.19794362783432007
+      ]
+    ],
+    [
+      [
+        -1.0769540071487427,
+        -0.15874361991882324,
+        0.00022149458527565002,
+        1.00181245803833
+      ],
+      [
+        -1.0332690477371216,
+        -0.1572110652923584,
+        0.0013578757643699646,
+        0.9994211196899414
+      ],
+      [
+        -1.011479139328003,
+        -0.15400820970535278,
+        -0.0004557371139526367,
+        0.9931619167327881
+      ],
+      [
+        -1.0124825239181519,
+        -0.15475863218307495,
+        0.0037696361541748047,
+        1.0005369186401367
+      ],
+      [
+        -1.0110321044921875,
+        -0.15853354334831238,
+        -0.0028002262115478516,
+        1.002861499786377
+      ],
+      [
+        -1.0068981647491455,
+        -0.15849930047988892,
+        0.0010681450366973877,
+        0.9977163672447205
+      ],
+      [
+        -1.0060274600982666,
+        -0.15871787071228027,
+        0.005082279443740845,
+        1.0038506984710693
+      ],
+      [
+        -1.0167558193206787,
+        -0.16048383712768555,
+        0.012328147888183594,
+        0.9985448122024536
+      ]
+    ]
+  ],
+  "q0_bitwise_and_RNG": true,
+  "sampler_generated_noise_q0_and_RNG_bitwise": true,
+  "schema": "real_NAV_G1_current_proposal_KV_profile_v1",
+  "script_sha256": "a8caed3c6ff8b87237b927858b7bc17ea22d8cb469c18b6a554ecdc450c0c997",
+  "timed_per_mode_per_window": 50,
+  "timing": {
+    "IO_CUDA_median_ms": 321.05210876464844,
+    "IO_wall_median_ms": 321.1091235280037,
+    "KV_CUDA_median_ms": 303.7749481201172,
+    "KV_wall_median_ms": 303.8351144641638,
+    "every_window_saves_at_least_20ms": false,
+    "per_window_wall_saving_ms": [
+      17.40102656185627,
+      17.127652652561665,
+      17.503547482192516
+    ]
+  },
+  "verified_calls": {
+    "IO": 152,
+    "KV": 151
+  },
+  "warmup_per_mode_per_window": 20,
+  "windows": [
+    {
+      "IO": [
+        {
+          "CUDA_ms": 322.1410827636719,
+          "wall_ms": 322.24314846098423
+        },
+        {
+          "CUDA_ms": 322.5434265136719,
+          "wall_ms": 322.6025216281414
+        },
+        {
+          "CUDA_ms": 320.3702392578125,
+          "wall_ms": 320.4291444271803
+        },
+        {
+          "CUDA_ms": 320.7866516113281,
+          "wall_ms": 320.84497436881065
+        },
+        {
+          "CUDA_ms": 325.2273254394531,
+          "wall_ms": 325.30265860259533
+        },
+        {
+          "CUDA_ms": 319.6260986328125,
+          "wall_ms": 319.6804355829954
+        },
+        {
+          "CUDA_ms": 321.58294677734375,
+          "wall_ms": 321.6429743915796
+        },
+        {
+          "CUDA_ms": 320.1809997558594,
+          "wall_ms": 320.23474760353565
+        },
+        {
+          "CUDA_ms": 320.8112487792969,
+          "wall_ms": 320.8716902881861
+        },
+        {
+          "CUDA_ms": 320.4476013183594,
+          "wall_ms": 320.5046746879816
+        },
+        {
+          "CUDA_ms": 320.92230224609375,
+          "wall_ms": 320.9932669997215
+        },
+        {
+          "CUDA_ms": 320.4951477050781,
+          "wall_ms": 320.5526750534773
+        },
+        {
+          "CUDA_ms": 320.3529052734375,
+          "wall_ms": 320.41029818356037
+        },
+        {
+          "CUDA_ms": 321.4034423828125,
+          "wall_ms": 321.4810397475958
+        },
+        {
+          "CUDA_ms": 322.5584716796875,
+          "wall_ms": 322.6243332028389
+        },
+        {
+          "CUDA_ms": 321.40411376953125,
+          "wall_ms": 321.46442867815495
+        },
+        {
+          "CUDA_ms": 320.3491516113281,
+          "wall_ms": 320.40753215551376
+        },
+        {
+          "CUDA_ms": 320.6808776855469,
+          "wall_ms": 320.7380808889866
+        },
+        {
+          "CUDA_ms": 320.24029541015625,
+          "wall_ms": 320.3001357614994
+        },
+        {
+          "CUDA_ms": 321.0381774902344,
+          "wall_ms": 321.0965730249882
+        },
+        {
+          "CUDA_ms": 321.0228576660156,
+          "wall_ms": 321.09610736370087
+        },
+        {
+          "CUDA_ms": 320.26483154296875,
+          "wall_ms": 320.31513564288616
+        },
+        {
+          "CUDA_ms": 318.0972900390625,
+          "wall_ms": 318.1437849998474
+        },
+        {
+          "CUDA_ms": 317.9931640625,
+          "wall_ms": 318.038996309042
+        },
+        {
+          "CUDA_ms": 320.4190673828125,
+          "wall_ms": 320.47054544091225
+        },
+        {
+          "CUDA_ms": 322.1595458984375,
+          "wall_ms": 322.2290426492691
+        },
+        {
+          "CUDA_ms": 320.9308166503906,
+          "wall_ms": 320.9920506924391
+        },
+        {
+          "CUDA_ms": 321.5008544921875,
+          "wall_ms": 321.5614575892687
+        },
+        {
+          "CUDA_ms": 320.5140686035156,
+          "wall_ms": 320.5719608813524
+        },
+        {
+          "CUDA_ms": 321.5612487792969,
+          "wall_ms": 321.61843962967396
+        },
+        {
+          "CUDA_ms": 320.83538818359375,
+          "wall_ms": 320.8940848708153
+        },
+        {
+          "CUDA_ms": 320.2583312988281,
+          "wall_ms": 320.3149326145649
+        },
+        {
+          "CUDA_ms": 321.21392822265625,
+          "wall_ms": 321.2857134640217
+        },
+        {
+          "CUDA_ms": 321.2686462402344,
+          "wall_ms": 321.33241929113865
+        },
+        {
+          "CUDA_ms": 320.5893859863281,
+          "wall_ms": 320.64248993992805
+        },
+        {
+          "CUDA_ms": 320.98492431640625,
+          "wall_ms": 321.04114070534706
+        },
+        {
+          "CUDA_ms": 320.550537109375,
+          "wall_ms": 320.60628570616245
+        },
+        {
+          "CUDA_ms": 322.5205383300781,
+          "wall_ms": 322.5820567458868
+        },
+        {
+          "CUDA_ms": 322.2017822265625,
+          "wall_ms": 322.26888462901115
+        },
+        {
+          "CUDA_ms": 321.7084655761719,
+          "wall_ms": 321.7820078134537
+        },
+        {
+          "CUDA_ms": 321.0765686035156,
+          "wall_ms": 321.12906500697136
+        },
+        {
+          "CUDA_ms": 320.5267028808594,
+          "wall_ms": 320.58480754494667
+        },
+        {
+          "CUDA_ms": 322.2253112792969,
+          "wall_ms": 322.2830519080162
+        },
+        {
+          "CUDA_ms": 320.9462890625,
+          "wall_ms": 321.0050705820322
+        },
+        {
+          "CUDA_ms": 320.5323486328125,
+          "wall_ms": 320.5915279686451
+        },
+        {
+          "CUDA_ms": 321.2433776855469,
+          "wall_ms": 321.3002011179924
+        },
+        {
+          "CUDA_ms": 321.51837158203125,
+          "wall_ms": 321.5745631605387
+        },
+        {
+          "CUDA_ms": 321.2894592285156,
+          "wall_ms": 321.34988345205784
+        },
+        {
+          "CUDA_ms": 319.58148193359375,
+          "wall_ms": 319.64233703911304
+        },
+        {
+          "CUDA_ms": 319.49359130859375,
+          "wall_ms": 319.55068185925484
+        }
+      ],
+      "KV": [
+        {
+          "CUDA_ms": 303.5033874511719,
+          "wall_ms": 303.5628441721201
+        },
+        {
+          "CUDA_ms": 304.3179626464844,
+          "wall_ms": 304.3930362910032
+        },
+        {
+          "CUDA_ms": 305.6271667480469,
+          "wall_ms": 305.6859616190195
+        },
+        {
+          "CUDA_ms": 303.8297424316406,
+          "wall_ms": 303.8851171731949
+        },
+        {
+          "CUDA_ms": 305.6641540527344,
+          "wall_ms": 305.73062412440777
+        },
+        {
+          "CUDA_ms": 303.2399597167969,
+          "wall_ms": 303.29805612564087
+        },
+        {
+          "CUDA_ms": 303.673095703125,
+          "wall_ms": 303.7341684103012
+        },
+        {
+          "CUDA_ms": 303.0511169433594,
+          "wall_ms": 303.1006548553705
+        },
+        {
+          "CUDA_ms": 304.1474914550781,
+          "wall_ms": 304.20526303350925
+        },
+        {
+          "CUDA_ms": 303.2662353515625,
+          "wall_ms": 303.3252954483032
+        },
+        {
+          "CUDA_ms": 303.53204345703125,
+          "wall_ms": 303.5927042365074
+        },
+        {
+          "CUDA_ms": 303.1259460449219,
+          "wall_ms": 303.1825851649046
+        },
+        {
+          "CUDA_ms": 303.3517150878906,
+          "wall_ms": 303.40995639562607
+        },
+        {
+          "CUDA_ms": 304.0012512207031,
+          "wall_ms": 304.05946262180805
+        },
+        {
+          "CUDA_ms": 305.8614807128906,
+          "wall_ms": 305.9362228959799
+        },
+        {
+          "CUDA_ms": 303.27642822265625,
+          "wall_ms": 303.337499499321
+        },
+        {
+          "CUDA_ms": 304.44012451171875,
+          "wall_ms": 304.5007959008217
+        },
+        {
+          "CUDA_ms": 305.25177001953125,
+          "wall_ms": 305.30994571745396
+        },
+        {
+          "CUDA_ms": 303.8452453613281,
+          "wall_ms": 303.90447564423084
+        },
+        {
+          "CUDA_ms": 303.35296630859375,
+          "wall_ms": 303.4147247672081
+        },
+        {
+          "CUDA_ms": 303.53887939453125,
+          "wall_ms": 303.5984430462122
+        },
+        {
+          "CUDA_ms": 302.87982177734375,
+          "wall_ms": 302.9280696064234
+        },
+        {
+          "CUDA_ms": 300.5219421386719,
+          "wall_ms": 300.56736059486866
+        },
+        {
+          "CUDA_ms": 301.6694030761719,
+          "wall_ms": 301.7144240438938
+        },
+        {
+          "CUDA_ms": 302.8288269042969,
+          "wall_ms": 302.8820939362049
+        },
+        {
+          "CUDA_ms": 307.517333984375,
+          "wall_ms": 307.5924180448055
+        },
+        {
+          "CUDA_ms": 307.25897216796875,
+          "wall_ms": 307.31887370347977
+        },
+        {
+          "CUDA_ms": 305.7865905761719,
+          "wall_ms": 305.8534301817417
+        },
+        {
+          "CUDA_ms": 303.4531555175781,
+          "wall_ms": 303.50814387202263
+        },
+        {
+          "CUDA_ms": 303.5306701660156,
+          "wall_ms": 303.59056033194065
+        },
+        {
+          "CUDA_ms": 303.3154296875,
+          "wall_ms": 303.3755198121071
+        },
+        {
+          "CUDA_ms": 303.45758056640625,
+          "wall_ms": 303.5167567431927
+        },
+        {
+          "CUDA_ms": 303.666259765625,
+          "wall_ms": 303.7248943001032
+        },
+        {
+          "CUDA_ms": 305.1964416503906,
+          "wall_ms": 305.26728369295597
+        },
+        {
+          "CUDA_ms": 303.7992858886719,
+          "wall_ms": 303.85670997202396
+        },
+        {
+          "CUDA_ms": 303.46588134765625,
+          "wall_ms": 303.52283269166946
+        },
+        {
+          "CUDA_ms": 303.5038757324219,
+          "wall_ms": 303.5658076405525
+        },
+        {
+          "CUDA_ms": 330.3592529296875,
+          "wall_ms": 330.41983656585217
+        },
+        {
+          "CUDA_ms": 304.384765625,
+          "wall_ms": 304.45631220936775
+        },
+        {
+          "CUDA_ms": 303.17572021484375,
+          "wall_ms": 303.2304923981428
+        },
+        {
+          "CUDA_ms": 304.6662902832031,
+          "wall_ms": 304.7248348593712
+        },
+        {
+          "CUDA_ms": 303.11236572265625,
+          "wall_ms": 303.176824003458
+        },
+        {
+          "CUDA_ms": 303.3455505371094,
+          "wall_ms": 303.40468138456345
+        },
+        {
+          "CUDA_ms": 303.4834289550781,
+          "wall_ms": 303.54062281548977
+        },
+        {
+          "CUDA_ms": 303.5943603515625,
+          "wall_ms": 303.652411326766
+        },
+        {
+          "CUDA_ms": 302.9774169921875,
+          "wall_ms": 303.034083917737
+        },
+        {
+          "CUDA_ms": 304.2187805175781,
+          "wall_ms": 304.27658557891846
+        },
+        {
+          "CUDA_ms": 303.7268371582031,
+          "wall_ms": 303.78775857388973
+        },
+        {
+          "CUDA_ms": 301.97100830078125,
+          "wall_ms": 302.02981270849705
+        },
+        {
+          "CUDA_ms": 301.6767883300781,
+          "wall_ms": 301.7499577254057
+        }
+      ],
+      "first_mode": "IO",
+      "window": 1
+    },
+    {
+      "IO": [
+        {
+          "CUDA_ms": 318.93353271484375,
+          "wall_ms": 318.98933835327625
+        },
+        {
+          "CUDA_ms": 319.5557861328125,
+          "wall_ms": 319.61196288466454
+        },
+        {
+          "CUDA_ms": 320.3258972167969,
+          "wall_ms": 320.3829415142536
+        },
+        {
+          "CUDA_ms": 319.92626953125,
+          "wall_ms": 319.9837729334831
+        },
+        {
+          "CUDA_ms": 319.8182678222656,
+          "wall_ms": 319.87407244741917
+        },
+        {
+          "CUDA_ms": 321.748046875,
+          "wall_ms": 321.80552184581757
+        },
+        {
+          "CUDA_ms": 321.7298278808594,
+          "wall_ms": 321.7815291136503
+        },
+        {
+          "CUDA_ms": 324.25836181640625,
+          "wall_ms": 324.3337571620941
+        },
+        {
+          "CUDA_ms": 320.8489685058594,
+          "wall_ms": 320.90588100254536
+        },
+        {
+          "CUDA_ms": 321.9696350097656,
+          "wall_ms": 322.0269177109003
+        },
+        {
+          "CUDA_ms": 322.7652282714844,
+          "wall_ms": 322.8226937353611
+        },
+        {
+          "CUDA_ms": 322.5387268066406,
+          "wall_ms": 322.59415090084076
+        },
+        {
+          "CUDA_ms": 320.92291259765625,
+          "wall_ms": 320.9753427654505
+        },
+        {
+          "CUDA_ms": 323.14068603515625,
+          "wall_ms": 323.19810427725315
+        },
+        {
+          "CUDA_ms": 322.2273864746094,
+          "wall_ms": 322.28353433310986
+        },
+        {
+          "CUDA_ms": 321.3129577636719,
+          "wall_ms": 321.3716521859169
+        },
+        {
+          "CUDA_ms": 322.7641296386719,
+          "wall_ms": 322.8159211575985
+        },
+        {
+          "CUDA_ms": 321.0024108886719,
+          "wall_ms": 321.05037569999695
+        },
+        {
+          "CUDA_ms": 323.1963806152344,
+          "wall_ms": 323.2616763561964
+        },
+        {
+          "CUDA_ms": 352.7325439453125,
+          "wall_ms": 352.7938649058342
+        },
+        {
+          "CUDA_ms": 324.7189025878906,
+          "wall_ms": 324.7750848531723
+        },
+        {
+          "CUDA_ms": 323.2040710449219,
+          "wall_ms": 323.26311245560646
+        },
+        {
+          "CUDA_ms": 321.95111083984375,
+          "wall_ms": 322.00862839818
+        },
+        {
+          "CUDA_ms": 320.97601318359375,
+          "wall_ms": 321.02924957871437
+        },
+        {
+          "CUDA_ms": 319.901611328125,
+          "wall_ms": 319.9524525552988
+        },
+        {
+          "CUDA_ms": 319.1209411621094,
+          "wall_ms": 319.17293928563595
+        },
+        {
+          "CUDA_ms": 320.0619812011719,
+          "wall_ms": 320.11787965893745
+        },
+        {
+          "CUDA_ms": 323.5262756347656,
+          "wall_ms": 323.58505576848984
+        },
+        {
+          "CUDA_ms": 323.9922790527344,
+          "wall_ms": 324.05828312039375
+        },
+        {
+          "CUDA_ms": 322.9277038574219,
+          "wall_ms": 322.9835741221905
+        },
+        {
+          "CUDA_ms": 322.3359069824219,
+          "wall_ms": 322.4081676453352
+        },
+        {
+          "CUDA_ms": 322.75665283203125,
+          "wall_ms": 322.8127658367157
+        },
+        {
+          "CUDA_ms": 321.5675048828125,
+          "wall_ms": 321.62852957844734
+        },
+        {
+          "CUDA_ms": 320.38690185546875,
+          "wall_ms": 320.439575240016
+        },
+        {
+          "CUDA_ms": 321.1228332519531,
+          "wall_ms": 321.1795724928379
+        },
+        {
+          "CUDA_ms": 321.1132507324219,
+          "wall_ms": 321.1713433265686
+        },
+        {
+          "CUDA_ms": 321.1728210449219,
+          "wall_ms": 321.2291616946459
+        },
+        {
+          "CUDA_ms": 320.4585876464844,
+          "wall_ms": 320.5172587186098
+        },
+        {
+          "CUDA_ms": 321.0513916015625,
+          "wall_ms": 321.1088962852955
+        },
+        {
+          "CUDA_ms": 323.677734375,
+          "wall_ms": 323.7341344356537
+        },
+        {
+          "CUDA_ms": 320.9610595703125,
+          "wall_ms": 321.0140634328127
+        },
+        {
+          "CUDA_ms": 321.1676330566406,
+          "wall_ms": 321.21868804097176
+        },
+        {
+          "CUDA_ms": 320.6056213378906,
+          "wall_ms": 320.65622322261333
+        },
+        {
+          "CUDA_ms": 324.188232421875,
+          "wall_ms": 324.2410831153393
+        },
+        {
+          "CUDA_ms": 321.0528259277344,
+          "wall_ms": 321.1093507707119
+        },
+        {
+          "CUDA_ms": 320.86297607421875,
+          "wall_ms": 320.90857811272144
+        },
+        {
+          "CUDA_ms": 321.3243713378906,
+          "wall_ms": 321.3776834309101
+        },
+        {
+          "CUDA_ms": 320.2689208984375,
+          "wall_ms": 320.32471150159836
+        },
+        {
+          "CUDA_ms": 320.4425354003906,
+          "wall_ms": 320.49914821982384
+        },
+        {
+          "CUDA_ms": 320.3446350097656,
+          "wall_ms": 320.40066830813885
+        }
+      ],
+      "KV": [
+        {
+          "CUDA_ms": 301.8033752441406,
+          "wall_ms": 301.88856460154057
+        },
+        {
+          "CUDA_ms": 302.2117004394531,
+          "wall_ms": 302.2657036781311
+        },
+        {
+          "CUDA_ms": 302.09759521484375,
+          "wall_ms": 302.1489065140486
+        },
+        {
+          "CUDA_ms": 302.6428527832031,
+          "wall_ms": 302.7018532156944
+        },
+        {
+          "CUDA_ms": 302.0649719238281,
+          "wall_ms": 302.12284810841084
+        },
+        {
+          "CUDA_ms": 305.2878723144531,
+          "wall_ms": 305.35036511719227
+        },
+        {
+          "CUDA_ms": 304.84912109375,
+          "wall_ms": 304.9112316220999
+        },
+        {
+          "CUDA_ms": 304.88275146484375,
+          "wall_ms": 304.9403317272663
+        },
+        {
+          "CUDA_ms": 305.20245361328125,
+          "wall_ms": 305.2601758390665
+        },
+        {
+          "CUDA_ms": 304.4945373535156,
+          "wall_ms": 304.5582193881273
+        },
+        {
+          "CUDA_ms": 304.1674499511719,
+          "wall_ms": 304.22622337937355
+        },
+        {
+          "CUDA_ms": 304.18402099609375,
+          "wall_ms": 304.2356129735708
+        },
+        {
+          "CUDA_ms": 303.8643493652344,
+          "wall_ms": 303.9247449487448
+        },
+        {
+          "CUDA_ms": 304.9480895996094,
+          "wall_ms": 305.003859102726
+        },
+        {
+          "CUDA_ms": 305.3313903808594,
+          "wall_ms": 305.3889963775873
+        },
+        {
+          "CUDA_ms": 303.7152404785156,
+          "wall_ms": 303.77037450671196
+        },
+        {
+          "CUDA_ms": 303.7042236328125,
+          "wall_ms": 303.75657603144646
+        },
+        {
+          "CUDA_ms": 304.1964416503906,
+          "wall_ms": 304.2475301772356
+        },
+        {
+          "CUDA_ms": 305.0118103027344,
+          "wall_ms": 305.06749264895916
+        },
+        {
+          "CUDA_ms": 307.2824401855469,
+          "wall_ms": 307.3610495775938
+        },
+        {
+          "CUDA_ms": 305.0458984375,
+          "wall_ms": 305.1044400781393
+        },
+        {
+          "CUDA_ms": 304.4593200683594,
+          "wall_ms": 304.5183215290308
+        },
+        {
+          "CUDA_ms": 304.3128967285156,
+          "wall_ms": 304.3709509074688
+        },
+        {
+          "CUDA_ms": 305.067626953125,
+          "wall_ms": 305.12878857553005
+        },
+        {
+          "CUDA_ms": 303.23883056640625,
+          "wall_ms": 303.2909519970417
+        },
+        {
+          "CUDA_ms": 303.7506103515625,
+          "wall_ms": 303.8135189563036
+        },
+        {
+          "CUDA_ms": 302.3548583984375,
+          "wall_ms": 302.40460857748985
+        },
+        {
+          "CUDA_ms": 302.7844543457031,
+          "wall_ms": 302.84457094967365
+        },
+        {
+          "CUDA_ms": 304.8436279296875,
+          "wall_ms": 304.9008958041668
+        },
+        {
+          "CUDA_ms": 307.3475341796875,
+          "wall_ms": 307.40563571453094
+        },
+        {
+          "CUDA_ms": 304.27581787109375,
+          "wall_ms": 304.33427542448044
+        },
+        {
+          "CUDA_ms": 303.929443359375,
+          "wall_ms": 303.98451164364815
+        },
+        {
+          "CUDA_ms": 304.4454040527344,
+          "wall_ms": 304.5054320245981
+        },
+        {
+          "CUDA_ms": 303.8628234863281,
+          "wall_ms": 303.91632206737995
+        },
+        {
+          "CUDA_ms": 304.44970703125,
+          "wall_ms": 304.5108802616596
+        },
+        {
+          "CUDA_ms": 303.4473876953125,
+          "wall_ms": 303.5104386508465
+        },
+        {
+          "CUDA_ms": 304.40155029296875,
+          "wall_ms": 304.4601269066334
+        },
+        {
+          "CUDA_ms": 303.4559020996094,
+          "wall_ms": 303.512804210186
+        },
+        {
+          "CUDA_ms": 305.12786865234375,
+          "wall_ms": 305.1861524581909
+        },
+        {
+          "CUDA_ms": 303.34356689453125,
+          "wall_ms": 303.3935911953449
+        },
+        {
+          "CUDA_ms": 303.514892578125,
+          "wall_ms": 303.5666663199663
+        },
+        {
+          "CUDA_ms": 304.0130615234375,
+          "wall_ms": 304.07702922821045
+        },
+        {
+          "CUDA_ms": 303.7419738769531,
+          "wall_ms": 303.7899360060692
+        },
+        {
+          "CUDA_ms": 303.64337158203125,
+          "wall_ms": 303.69358509778976
+        },
+        {
+          "CUDA_ms": 303.6272277832031,
+          "wall_ms": 303.6842867732048
+        },
+        {
+          "CUDA_ms": 303.12237548828125,
+          "wall_ms": 303.170595318079
+        },
+        {
+          "CUDA_ms": 303.1157531738281,
+          "wall_ms": 303.16147953271866
+        },
+        {
+          "CUDA_ms": 304.1819152832031,
+          "wall_ms": 304.23929169774055
+        },
+        {
+          "CUDA_ms": 304.0562744140625,
+          "wall_ms": 304.11551520228386
+        },
+        {
+          "CUDA_ms": 302.6798095703125,
+          "wall_ms": 302.73108556866646
+        }
+      ],
+      "first_mode": "KV",
+      "window": 2
+    },
+    {
+      "IO": [
+        {
+          "CUDA_ms": 321.86376953125,
+          "wall_ms": 321.9590876251459
+        },
+        {
+          "CUDA_ms": 319.9262390136719,
+          "wall_ms": 319.9787978082895
+        },
+        {
+          "CUDA_ms": 320.9754638671875,
+          "wall_ms": 321.033488959074
+        },
+        {
+          "CUDA_ms": 320.8621826171875,
+          "wall_ms": 320.91949693858624
+        },
+        {
+          "CUDA_ms": 320.93829345703125,
+          "wall_ms": 320.99474035203457
+        },
+        {
+          "CUDA_ms": 318.0403747558594,
+          "wall_ms": 318.08982230722904
+        },
+        {
+          "CUDA_ms": 318.1665344238281,
+          "wall_ms": 318.22348944842815
+        },
+        {
+          "CUDA_ms": 318.3765563964844,
+          "wall_ms": 318.42904165387154
+        },
+        {
+          "CUDA_ms": 318.147216796875,
+          "wall_ms": 318.20330023765564
+        },
+        {
+          "CUDA_ms": 319.2734069824219,
+          "wall_ms": 319.328298792243
+        },
+        {
+          "CUDA_ms": 319.85369873046875,
+          "wall_ms": 319.9143633246422
+        },
+        {
+          "CUDA_ms": 325.71942138671875,
+          "wall_ms": 325.7766682654619
+        },
+        {
+          "CUDA_ms": 318.85552978515625,
+          "wall_ms": 318.9121540635824
+        },
+        {
+          "CUDA_ms": 318.19000244140625,
+          "wall_ms": 318.24805960059166
+        },
+        {
+          "CUDA_ms": 317.8483581542969,
+          "wall_ms": 317.90694780647755
+        },
+        {
+          "CUDA_ms": 317.9900817871094,
+          "wall_ms": 318.0471807718277
+        },
+        {
+          "CUDA_ms": 318.278564453125,
+          "wall_ms": 318.3343932032585
+        },
+        {
+          "CUDA_ms": 318.63580322265625,
+          "wall_ms": 318.69328022003174
+        },
+        {
+          "CUDA_ms": 318.969482421875,
+          "wall_ms": 319.027341902256
+        },
+        {
+          "CUDA_ms": 318.37359619140625,
+          "wall_ms": 318.42963211238384
+        },
+        {
+          "CUDA_ms": 318.70184326171875,
+          "wall_ms": 318.75998340547085
+        },
+        {
+          "CUDA_ms": 319.4432678222656,
+          "wall_ms": 319.51591186225414
+        },
+        {
+          "CUDA_ms": 320.0709533691406,
+          "wall_ms": 320.130567997694
+        },
+        {
+          "CUDA_ms": 319.98974609375,
+          "wall_ms": 320.04909962415695
+        },
+        {
+          "CUDA_ms": 321.87872314453125,
+          "wall_ms": 321.9414334744215
+        },
+        {
+          "CUDA_ms": 323.4268493652344,
+          "wall_ms": 323.4903682023287
+        },
+        {
+          "CUDA_ms": 323.8017883300781,
+          "wall_ms": 323.86299036443233
+        },
+        {
+          "CUDA_ms": 323.5348815917969,
+          "wall_ms": 323.593582957983
+        },
+        {
+          "CUDA_ms": 322.18853759765625,
+          "wall_ms": 322.2500793635845
+        },
+        {
+          "CUDA_ms": 319.1104736328125,
+          "wall_ms": 319.1679660230875
+        },
+        {
+          "CUDA_ms": 322.6920471191406,
+          "wall_ms": 322.7504100650549
+        },
+        {
+          "CUDA_ms": 324.9319152832031,
+          "wall_ms": 324.98011365532875
+        },
+        {
+          "CUDA_ms": 326.58367919921875,
+          "wall_ms": 326.6443591564894
+        },
+        {
+          "CUDA_ms": 322.44464111328125,
+          "wall_ms": 322.49963469803333
+        },
+        {
+          "CUDA_ms": 325.4926452636719,
+          "wall_ms": 325.55294036865234
+        },
+        {
+          "CUDA_ms": 323.8841857910156,
+          "wall_ms": 323.94266314804554
+        },
+        {
+          "CUDA_ms": 322.611083984375,
+          "wall_ms": 322.66899943351746
+        },
+        {
+          "CUDA_ms": 322.5351867675781,
+          "wall_ms": 322.5927259773016
+        },
+        {
+          "CUDA_ms": 321.7758483886719,
+          "wall_ms": 321.82228565216064
+        },
+        {
+          "CUDA_ms": 322.8742980957031,
+          "wall_ms": 322.9377008974552
+        },
+        {
+          "CUDA_ms": 322.4815673828125,
+          "wall_ms": 322.5284703075886
+        },
+        {
+          "CUDA_ms": 321.5801086425781,
+          "wall_ms": 321.6239735484123
+        },
+        {
+          "CUDA_ms": 322.2080383300781,
+          "wall_ms": 322.2594428807497
+        },
+        {
+          "CUDA_ms": 326.1291809082031,
+          "wall_ms": 326.1880073696375
+        },
+        {
+          "CUDA_ms": 321.8489074707031,
+          "wall_ms": 321.9054453074932
+        },
+        {
+          "CUDA_ms": 322.3328857421875,
+          "wall_ms": 322.39092513918877
+        },
+        {
+          "CUDA_ms": 322.0882873535156,
+          "wall_ms": 322.1501298248768
+        },
+        {
+          "CUDA_ms": 322.81988525390625,
+          "wall_ms": 322.879197075963
+        },
+        {
+          "CUDA_ms": 320.7126770019531,
+          "wall_ms": 320.7715358585119
+        },
+        {
+          "CUDA_ms": 322.0456237792969,
+          "wall_ms": 322.10452295839787
+        }
+      ],
+      "KV": [
+        {
+          "CUDA_ms": 304.3034973144531,
+          "wall_ms": 304.36072684824467
+        },
+        {
+          "CUDA_ms": 329.8630065917969,
+          "wall_ms": 329.92236502468586
+        },
+        {
+          "CUDA_ms": 303.9040222167969,
+          "wall_ms": 303.9644118398428
+        },
+        {
+          "CUDA_ms": 303.353515625,
+          "wall_ms": 303.4128751605749
+        },
+        {
+          "CUDA_ms": 301.0398254394531,
+          "wall_ms": 301.0965082794428
+        },
+        {
+          "CUDA_ms": 302.82830810546875,
+          "wall_ms": 302.8835095465183
+        },
+        {
+          "CUDA_ms": 301.0983581542969,
+          "wall_ms": 301.15639232099056
+        },
+        {
+          "CUDA_ms": 301.1534423828125,
+          "wall_ms": 301.2136369943619
+        },
+        {
+          "CUDA_ms": 300.5252380371094,
+          "wall_ms": 300.57924427092075
+        },
+        {
+          "CUDA_ms": 300.8967590332031,
+          "wall_ms": 300.9601831436157
+        },
+        {
+          "CUDA_ms": 302.2095642089844,
+          "wall_ms": 302.26745642721653
+        },
+        {
+          "CUDA_ms": 303.20037841796875,
+          "wall_ms": 303.25839668512344
+        },
+        {
+          "CUDA_ms": 302.5569152832031,
+          "wall_ms": 302.61542461812496
+        },
+        {
+          "CUDA_ms": 301.69329833984375,
+          "wall_ms": 301.75444297492504
+        },
+        {
+          "CUDA_ms": 301.667236328125,
+          "wall_ms": 301.7258457839489
+        },
+        {
+          "CUDA_ms": 302.046630859375,
+          "wall_ms": 302.1042477339506
+        },
+        {
+          "CUDA_ms": 301.4867858886719,
+          "wall_ms": 301.5447426587343
+        },
+        {
+          "CUDA_ms": 302.8290100097656,
+          "wall_ms": 302.888635545969
+        },
+        {
+          "CUDA_ms": 302.86761474609375,
+          "wall_ms": 302.92527191340923
+        },
+        {
+          "CUDA_ms": 301.62115478515625,
+          "wall_ms": 301.673436537385
+        },
+        {
+          "CUDA_ms": 301.4275207519531,
+          "wall_ms": 301.48542672395706
+        },
+        {
+          "CUDA_ms": 301.2189636230469,
+          "wall_ms": 301.2770935893059
+        },
+        {
+          "CUDA_ms": 302.4849548339844,
+          "wall_ms": 302.5418519973755
+        },
+        {
+          "CUDA_ms": 304.853515625,
+          "wall_ms": 304.91394735872746
+        },
+        {
+          "CUDA_ms": 304.8299255371094,
+          "wall_ms": 304.89134415984154
+        },
+        {
+          "CUDA_ms": 306.4600524902344,
+          "wall_ms": 306.52444809675217
+        },
+        {
+          "CUDA_ms": 304.0572204589844,
+          "wall_ms": 304.1179832071066
+        },
+        {
+          "CUDA_ms": 305.1145935058594,
+          "wall_ms": 305.1771130412817
+        },
+        {
+          "CUDA_ms": 304.2591857910156,
+          "wall_ms": 304.32118102908134
+        },
+        {
+          "CUDA_ms": 306.9117736816406,
+          "wall_ms": 306.97195045650005
+        },
+        {
+          "CUDA_ms": 304.96710205078125,
+          "wall_ms": 305.0169609487057
+        },
+        {
+          "CUDA_ms": 306.1438903808594,
+          "wall_ms": 306.1981964856386
+        },
+        {
+          "CUDA_ms": 304.88067626953125,
+          "wall_ms": 304.93644438683987
+        },
+        {
+          "CUDA_ms": 307.34991455078125,
+          "wall_ms": 307.41061456501484
+        },
+        {
+          "CUDA_ms": 305.13482666015625,
+          "wall_ms": 305.1934726536274
+        },
+        {
+          "CUDA_ms": 306.4909973144531,
+          "wall_ms": 306.55222944915295
+        },
+        {
+          "CUDA_ms": 306.9110412597656,
+          "wall_ms": 306.97748251259327
+        },
+        {
+          "CUDA_ms": 304.97698974609375,
+          "wall_ms": 305.02947978675365
+        },
+        {
+          "CUDA_ms": 304.50286865234375,
+          "wall_ms": 304.55404706299305
+        },
+        {
+          "CUDA_ms": 304.5177001953125,
+          "wall_ms": 304.56290766596794
+        },
+        {
+          "CUDA_ms": 304.7088623046875,
+          "wall_ms": 304.75566536188126
+        },
+        {
+          "CUDA_ms": 305.1202697753906,
+          "wall_ms": 305.16551434993744
+        },
+        {
+          "CUDA_ms": 305.1197814941406,
+          "wall_ms": 305.1780201494694
+        },
+        {
+          "CUDA_ms": 306.5584411621094,
+          "wall_ms": 306.62134662270546
+        },
+        {
+          "CUDA_ms": 305.950439453125,
+          "wall_ms": 306.01255781948566
+        },
+        {
+          "CUDA_ms": 304.9853210449219,
+          "wall_ms": 305.0461430102587
+        },
+        {
+          "CUDA_ms": 304.978759765625,
+          "wall_ms": 305.03847636282444
+        },
+        {
+          "CUDA_ms": 303.5177001953125,
+          "wall_ms": 303.5780806094408
+        },
+        {
+          "CUDA_ms": 302.7926330566406,
+          "wall_ms": 302.8520680963993
+        },
+        {
+          "CUDA_ms": 303.7347717285156,
+          "wall_ms": 303.7962708622217
+        }
+      ],
+      "first_mode": "IO",
+      "window": 3
+    }
+  ]
+}

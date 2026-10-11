@@ -28,7 +28,9 @@ def configure_execution(model, mode):
             'DiT_activation_checkpointing': checkpointed,
             'geometry_checkpointing_and_BN': 'unchanged',
             'deferred_activation_metrics': enabled, 'ordered_CPU_prefetch': enabled,
-            'precision_loss_noise_and_proposal_steps': 'unchanged',
+            'precision_loss_noise_and_proposal_steps': (
+                'Original FM/proposal/loss unchanged; BF16 geometry convolution activations only'
+                if mode == 'precision_fast' else 'unchanged'),
             'future_shared_current_spatial_mix_and_action_MLN': fast,
             'typed_current_CPU_processor_and_pinned_batch_transfer': fast,
             'query_and_body_execution_reuse': fast,
@@ -36,5 +38,9 @@ def configure_execution(model, mode):
             'formal_acceptance_required': fast,
             'numerical_level': 'E3' if mode == 'precision_fast' else 'E2',
             'geometry_convolution_BF16_autocast': mode == 'precision_fast',
+            'DeepSpeed_parameter_and_optimizer_precision': 'FP32',
+            'DeepSpeed_gradient_communication_precision': 'FP32',
+            'TF32': False,
+            'canonical_inference_precision': 'FP32',
             'time_vectorization': mode == 'engineering_timevec',
             'projection_depthnet_grid_loss_master_communication': 'FP32 unchanged'}

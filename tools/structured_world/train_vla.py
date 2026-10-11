@@ -32,6 +32,7 @@ from tools.structured_world.training_assets import initialization_assets, file_d
 from starVLA.model.modules.structured_world.execution import configure_execution
 from tools.structured_world.prefetch import OrderedScenePrefetch
 from tools.structured_world.resume_origin import read_origin, verify_scientific_contract
+from tools.structured_world.native_capture import validate_args as validate_capture_args, observation_plan, storage_admission
 
 
 def atomic_json(path, value):
@@ -52,6 +53,7 @@ def source_hashes():
     paths.append(ROOT/'tools/structured_world/prefetch.py')
     paths.append(ROOT/'tools/structured_world/resume_origin.py')
     paths.append(ROOT/'tools/structured_world/execution_log.py')
+    paths.append(ROOT/'tools/structured_world/native_capture.py')
     record = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
 
@@ -87,7 +89,10 @@ def main():
                         help='Frozen measured acceptance and preserved numerical failures for formal IO-only execution')
     parser.add_argument('--resume-origin-run', type=Path,
                         help='Paused parent of an execution-only upgrade; remains in every recovery contract')
+    parser.add_argument('--capture-updates', help='Pilot-only relative native capture offsets, e.g. 1,32,100,250; continuous training')
+    parser.add_argument('--capture-storage-budget', type=Path, help='Explicit owned storage/free-space admission, checked before every pilot save; quota visibility recorded')
     args = parser.parse_args()
+    validate_capture_args(args)
     fast = args.execution_mode in ('engineering_fast', 'precision_fast', 'engineering_timevec')
     if min(args.logging_every, args.evidence_every) < 1:
         raise ValueError('Positive metric/evidence intervals required')
@@ -217,6 +222,14 @@ def main():
         'precision': 'FP32 parameters/master/optimizer; BF16 Qwen vision/language and original action compute; FP32 geometry/refiner; TF32 off',
         'extra_stage_instrumentation': args.profile_stages}
     contract['execution_mode'] = args.execution_mode
+    # Keep the scientific base precision equal to the immutable origin. Actual
+    # candidate compute is separately declared; these are metadata only.
+    contract['base_precision'] = contract['precision']
+    contract['base_precision_scope'] = 'locked scientific origin/comparison contract; not the actual E3 candidate compute'
+    contract['effective_training_precision'] = (contract['precision'] if args.execution_mode != 'precision_fast' else
+        'FP32 parameters/master/optimizer/gradient communication; BF16 Qwen vision/language and original action compute; '
+        'BF16 Geo R50/FPN/BEV backbone+neck convolutions; FP32 DepthNet/view/projection/grid_sample/loss/refiner; '
+        'TF32 off; canonical inference FP32 bypass')
     contract['external_execution_patches'] = {'record': json.loads((ROOT/'third_party/EXECUTION_PATCHES.json').read_text()),
         'sha256': file_digest(ROOT/'third_party/EXECUTION_PATCHES.json')}
     if args.execution_mode == 'precision_fast':
@@ -235,6 +248,11 @@ def main():
                 raise ValueError('Pilot changed scientific contract: '+key)
         contract['engineering_continue_origin'] = pilot_origin
     contract['benchmark_no_end_checkpoint'] = args.benchmark_no_end_save
+    capture_plan = observation_plan(args.capture_updates, pilot_origin['completed'] if pilot_origin else 0, args.debug_updates)
+    if capture_plan is not None:
+        contract['engineering_native_capture'] = {**capture_plan,
+            'storage_budget_sha256': file_digest(args.capture_storage_budget),
+            'denominator_evidence': 'every update: existing global_counts and all-rank scene/loss-horizon evidence; pilot logging cost measured separately'}
     if execution_acceptance is not None:
         contract['execution_acceptance'] = execution_acceptance
     resume_origin = None
@@ -281,6 +299,7 @@ def main():
                   [('noise', 100), ('time', 200), ('proposal', 300), ('queries', 400)]}
     generators['counts'] = torch.Generator().manual_seed(420500+rank)
     completed, epoch, offset, exposure, elapsed = 0, 0, 0, 0, 0.
+    loaded_boundary_completed = None
     if args.resume or resume_origin is not None or pilot_origin is not None:
         recovery_run = args.output if args.resume else (args.pilot_origin_run if pilot_origin else args.resume_origin_run)
         tag = args.pilot_origin_tag if pilot_origin and not args.resume else (recovery_run/'checkpoints/latest').read_text().strip()
@@ -298,6 +317,7 @@ def main():
         completed, epoch, offset, exposure, elapsed = [state[k] for k in ('completed', 'epoch', 'offset', 'exposure', 'elapsed')]
         restore_rng(torch.load(recovery_folder/f'rng_rank{rank}.pt', map_location='cpu', weights_only=False), generators)
         boundary = verify_boundary(engine, recovery_folder, generators)
+        loaded_boundary_completed = completed
         if rank == 0:
             atomic_json(args.output/'RESUME_BOUNDARY_VERIFIED.json', {'identity': identity,
                 'completed': completed, 'epoch': epoch, 'offset': offset, 'exposure': exposure, **boundary})
@@ -312,11 +332,27 @@ def main():
         raise ValueError('Recovery boundary is beyond the registered training endpoint')
     milestones = ({25000, 50000, 75000, 100000} if dataset == 'navsim' else
                   {epoch*updates_per_epoch for epoch in (6, 12, 18, 24)}) if args.scope == 'formal' else {end_update}
+    if capture_plan is not None:
+        milestones.update(capture_plan['absolute_updates'])
     def save(status):
         nonlocal elapsed
         tag = f'milestone_{completed:07d}' if completed in milestones else f'latest_{completed:07d}'
         staging = 'writing_'+tag
         checkpoint_root = args.output/'checkpoints'
+        if capture_plan is not None:
+            admission = [None]
+            if rank == 0:
+                try:
+                    admission[0] = storage_admission(args.capture_storage_budget, args.output,
+                        expected_digest=contract['engineering_native_capture']['storage_budget_sha256'])
+                except (ValueError, OSError, KeyError, TypeError) as error:
+                    admission[0] = {'ok': False, 'error': str(error)}
+            dist.broadcast_object_list(admission, src=0)
+            if not admission[0]['ok']:
+                raise RuntimeError('Pilot storage admission blocked: '+admission[0]['error'])
+            if rank == 0:
+                with (args.output/'capture_storage_admissions.jsonl').open('a') as stream:
+                    stream.write(json.dumps({'completed': completed, **admission[0]})+'\n')
         if shutil.disk_usage(args.output).free < 100*(1 << 30):
             raise RuntimeError('Storage reserve below 100 GiB; preserving existing recovery checkpoints')
         state = {'identity': identity, 'completed': completed, 'epoch': epoch, 'offset': offset,
@@ -364,6 +400,15 @@ def main():
         model.current_processor_identity = collator.identity
     log_window = ExecutionLogWindow(args.output, world, 1 if args.profile_stages else args.logging_every) if fast else None
     batch_cache = {}
+    capture_logging_seconds = 0.
+    def capture_record(record):
+        nonlocal capture_logging_seconds
+        if capture_plan is not None:
+            started = time.monotonic()
+            with (args.output/f'capture_denominators_rank{rank}.jsonl').open('a') as stream:
+                stream.write(json.dumps({'updates': completed, 'epoch': epoch, 'offset_after_update': offset,
+                    'logging_seconds_prior': capture_logging_seconds, **record})+'\n')
+            capture_logging_seconds += time.monotonic()-started
     def batches_for(current_epoch):
         if not optimized_execution:
             return epoch_batches(len(data), 32, 42, current_epoch)
@@ -397,9 +442,25 @@ def main():
                     prefetch.submit((next_epoch, next_offset), batches_for(next_epoch)[next_offset][rank::world])
             data_seconds = time.monotonic()-start
             counts = optimizer_batch_counts(targets, generators['counts'], torch.device('cuda', local))
+            capture_counts = None
+            if capture_plan is not None:
+                # Reuse the already all-reduced CPU counts and already drawn
+                # CPU loss horizons BEFORE device transfer. No new RNG/count
+                # computation or collective belongs to these observations.
+                capture_started = time.monotonic()
+                capture_counts = {'global_counts': dict(counts), 'schedule_horizon': horizon,
+                    'schedule_warmup': warmup, 'continuation_endpoint': end_update,
+                    'source_population_scenes': original_population, 'rank': rank,
+                    'global_scene_indices': list(batches[offset]), 'local_scene_indices': list(indices),
+                    'loss_horizons': {name: targets[name].detach().tolist()
+                        for name in ('dino_horizon', 'visual_horizon') if name in targets}}
+                capture_logging_seconds += time.monotonic()-capture_started
+            evidence_due = (not fast or completed % args.evidence_every == 0 or
+                (loaded_boundary_completed is not None and completed == loaded_boundary_completed) or
+                (capture_plan is not None and completed+1 in milestones))
             if fast:
                 observations, targets = transfer_optimizer_batch(observations, targets, torch.device('cuda', local))
-                model.record_activation_metrics = completed % args.evidence_every == 0
+                model.record_activation_metrics = evidence_due
             actual_lrs = []
             for group, record in zip(engine.optimizer.param_groups, group_records):
                 base = float(record['base_lr'])
@@ -408,7 +469,6 @@ def main():
             logs, raw, effective, query_records, activation_gradients = {}, {}, {}, [], []
             proposal_out_of_range = 0
             fast_scalars = {}
-            evidence_due = not fast or completed % args.evidence_every == 0
             evidence = {'fp32_master_update_evidence_sampled_this_update': evidence_due}
             for at in range(0, len(indices), args.micro_batch):
                 end = min(len(indices), at+args.micro_batch); boundary = end == len(indices)
@@ -462,6 +522,7 @@ def main():
             if fast:
                 update_end.record()
                 completed += 1; exposure += len(batches[offset]); offset += 1
+                if capture_plan is not None: capture_record(capture_counts)
                 fast_scalars['gradient_norm'] = torch.as_tensor(engine.get_global_grad_norm(), device='cuda')
                 # Stable packing even when detailed activation evidence is not sampled.
                 for name in ('H_A', 'B0', 'Bt'):
@@ -472,7 +533,8 @@ def main():
                     'rank0_query_strata': query_records, 'execution_mode': args.execution_mode,
                     'activation_metrics_sampled': model.record_activation_metrics,
                     'peak_GPU_allocated_bytes_rank0': torch.cuda.max_memory_allocated(),
-                    'peak_GPU_reserved_bytes_rank0': torch.cuda.max_memory_reserved(), **evidence},
+                    'peak_GPU_reserved_bytes_rank0': torch.cuda.max_memory_reserved(),
+                    **({'global_counts': dict(counts)} if capture_plan is not None else {}), **evidence},
                     fast_scalars, tuple(sorted(logs)) or tuple(sorted(k.removeprefix('weighted/') for k in fast_scalars if k.startswith('weighted/'))),
                     (update_start, update_end))
                 stop = (args.output/'STOP_AFTER_CHECKPOINT').exists() or (args.stop_after and completed >= args.stop_after)
@@ -499,6 +561,7 @@ def main():
                 stage_records = [None]*world
                 dist.all_gather_object(stage_records, local_stages)
             elapsed += float(cost); completed += 1; exposure += len(batches[offset]); offset += 1
+            if capture_plan is not None: capture_record(capture_counts)
             keys = sorted(logs); packed = torch.tensor([logs[k] for k in keys], device='cuda'); dist.all_reduce(packed); packed /= world
             if rank == 0:
                 gradient_norm = float(engine.get_global_grad_norm())
@@ -514,6 +577,8 @@ def main():
                     'gradient_clip_scale': min(1., clip_limit/(gradient_norm+1e-6)) if clip_limit > 0 else 1.,
                     'peak_GPU_allocated_bytes_rank0': torch.cuda.max_memory_allocated(),
                     'GPU_hours': elapsed*world/3600., 'seconds': float(cost), **evidence}
+                if capture_plan is not None:
+                    record['global_counts'] = dict(counts)
                 if stage_records is not None:
                     record['per_rank_stage_timing'] = stage_records
                 with (args.output/'metrics.jsonl').open('a') as stream: stream.write(json.dumps(record)+'\n')
@@ -525,6 +590,11 @@ def main():
             if completed == end_update and rank == 0:
                 atomic_json(args.output/'TRAINING_COMPLETE.json', {'identity': identity, 'updates': completed,
                     'exposure': exposure, 'GPU_hours': elapsed*world/3600., 'evaluation_complete': False})
+    if capture_plan is not None:
+        atomic_json(args.output/f'capture_logging_rank{rank}.json', {'rank': rank,
+            'completed': completed, 'logging_wall_seconds': capture_logging_seconds,
+            'scope': 'pilot denominator record construction and rank-local file writes; normal metric packing/flush remains in process wall',
+            'additional_count_collectives': 0, 'additional_RNG_draws': 0})
     dist.destroy_process_group()
 
 
