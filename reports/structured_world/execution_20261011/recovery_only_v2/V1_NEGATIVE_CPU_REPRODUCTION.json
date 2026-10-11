@@ -1,0 +1,30 @@
+{
+  "schema": "preserved_V1_negative_synthetic_CPU_reproduction",
+  "source_test_receipt": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/recovery_only_v2_20261011/CPU_tests_v3/CPU_TEST_RECEIPT.json",
+    "sha256": "ea43065a56429b4787d95d78313b370537098647290804b54f7fa9fe7cf73a23"
+  },
+  "controls": [
+    {
+      "test": "__main__.RecoveryTests.test_original_V1_load16_remains_not_supported",
+      "original_V1_decision": "not_supported",
+      "passed": false,
+      "failures": [
+        "InvalidEvidence: Incomplete/nonexact actual restore boundary"
+      ],
+      "scope": "Synthetic V1 schema-mismatch reproduction; unchanged original evaluator"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_original_V1_source_guard_not_rebound_to_be5",
+      "original_V1_decision": "not_supported",
+      "passed": false,
+      "failures": [
+        "InvalidEvidence: Evidence hash mismatch: /mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py"
+      ],
+      "scope": "Original protected trainer hash remains unchanged; be5 is separately pinned only in V2"
+    }
+  ],
+  "actual_model_receipts": false,
+  "passed": false,
+  "GPU_jobs_started": 0
+}

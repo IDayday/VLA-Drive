@@ -1,0 +1,47 @@
+{
+  "schema": "recovery_only_v2_V1_failure_preservation_notes",
+  "scope": "Prospective recovery metadata clarification and synthetic CPU validator evidence only",
+  "V1_status": "not_supported",
+  "V1_schema_mismatch": {
+    "actual_native_load_relative_update": 16,
+    "comparison_endpoint_relative_update": 32,
+    "unchanged_V1_evaluator_expected_load_relative_update": 32,
+    "original_V1_A_AA_modes": "io_preserving_v1",
+    "prospective_V2_all_role_mode": "engineering_fast",
+    "note": "Actual load16 is never relabelled as load32. Original V1 recovery/schema failures remain not_supported."
+  },
+  "preserved_failure_evidence": [
+    "V1_SCHEMA_MISMATCH_PRESERVED.json",
+    "V1_NEGATIVE_CPU_REPRODUCTION.json"
+  ],
+  "negative_test_scope": "Synthetic CPU reproduction of original V1 evaluator rejection, not a real GPU recovery failure or receipt",
+  "source_pins": {
+    "original_V1_protected_source_sha": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+    "separately_pinned_V2_training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "original_V1_registration": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+      "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+    },
+    "original_V1_bindings": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/P0_V1_PROSPECTIVE_BINDINGS/BINDINGS.json",
+      "sha256": "819d5c268eb2bc14c9f47043fd46abe1f7c2e8f1cd700867d884b7745fc4819e"
+    }
+  },
+  "unchanged_V1_sections_sha256": {
+    "numeric": "592ddceaa9d0d3414b8c9093b5e33a3d18fa26a434b796879fa05ded99f8fc51",
+    "dev": "e81040ad8b300bbbaf2c4554fdc687e5765e8fb55585a1a87f7482ca750ec517",
+    "E1": "8dc461457f4781aaef21d913ff0c41145f1f7549d3393ea57601121de620a1a3",
+    "trial_plan": "4d466021c9a982d3f4827a2a5421448a8c6a8440e957ced35598bcf7faabc14b",
+    "tiers": "51438a072d5c58ca968b178616322f8a719797775396299128782a7677bbb8fd"
+  },
+  "preservation": "V1 numeric thresholds, fresh AA envelope, dev margins, source pins, strict failures and original schemas/bindings are unchanged. Native500/forward/dev evidence is not reinterpreted.",
+  "CPU_receipt_scope": "Parent CLI completed all 34 synthetic CPU tests; this proves validator behavior only.",
+  "real_GPU_recovery_evidence": "ABSENT; G1/G3 same-mode P0 recovery receipts remain PENDING",
+  "boundary_coverage_limit": "Frozen boundary helper checks all eight master/Adam/RNG partitions, and the shared model/BN payload on rank0 before an all-rank barrier. No per-rank model/BN receipt is invented.",
+  "quality_acceptance": "No actual recovery quality proof, acceptance, trainer source adoption or formal authorization is asserted.",
+  "passed": false,
+  "accepted_mode": null,
+  "formal_authorized": false,
+  "trainer_consumable": false,
+  "GPU_jobs_started": 0
+}

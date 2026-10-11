@@ -1,0 +1,606 @@
+{
+  "schema": "recovery_clarification_v2_synthetic_CPU_tests",
+  "tests": 34,
+  "failures": 0,
+  "errors": 0,
+  "CPU_tests_passed": true,
+  "scope": "SYNTHETIC ONLY; no actual model, recovery or host qualification claim",
+  "GPU_jobs_started": 0,
+  "validator": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/evaluate_recovery_clarification_v2.py",
+    "sha256": "54a887b0594d03ee99a5ed0884361742c91d7cd5f4d7cf0f6c83ac68754384ef"
+  },
+  "tests_source": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_recovery_clarification_v2.py",
+    "sha256": "8524959376820e63df45935f167989bcad3165430467c8558c184f8b1c577881"
+  },
+  "original_V1_registration": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+    "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "controls": [
+    {
+      "test": "__main__.RecoveryTests.test_V1_numeric_and_dev_digest_not_relaxed",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: V1 numeric/dev/scientific criteria unchanged"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_absolute_ceilings_remain_V1",
+      "decision": "not_supported",
+      "failures": [
+        "G1: Adam/exp_avg/all/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/all/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/all/A_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg/all/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/all/A_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg/all/A_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg/all/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg/all/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg_sq/all/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg_sq/all/A_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg_sq/all/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg_sq/all/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: BN_float/all/A_B/relative_L2: absolute ceiling",
+        "G1: BN_float/all/A_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/all/A_B/norm_relative: absolute ceiling",
+        "G1: BN_float/all/A_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/all/A_B/update_error: absolute ceiling",
+        "G1: BN_float/all/A_B/update_error: fresh AA envelope",
+        "G1: BN_float/all/A_B/update_norm_relative: absolute ceiling",
+        "G1: BN_float/all/A_B/update_norm_relative: fresh AA envelope",
+        "G1: BN_float/all/AA_B/relative_L2: absolute ceiling",
+        "G1: BN_float/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/all/AA_B/norm_relative: absolute ceiling",
+        "G1: BN_float/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/all/AA_B/update_error: absolute ceiling",
+        "G1: BN_float/all/AA_B/update_error: fresh AA envelope",
+        "G1: BN_float/all/AA_B/update_norm_relative: absolute ceiling",
+        "G1: BN_float/all/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/relative_L2: absolute ceiling",
+        "G1: BN_float/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/norm_relative: absolute ceiling",
+        "G1: BN_float/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/update_error: absolute ceiling",
+        "G1: BN_float/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "G1: BN_float/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/relative_L2: absolute ceiling",
+        "G1: BN_float/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/norm_relative: absolute ceiling",
+        "G1: BN_float/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "G1: BN_float/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "G1: BN_float/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: master_FP32/all/A_B/relative_L2: absolute ceiling",
+        "G1: master_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/all/A_B/norm_relative: absolute ceiling",
+        "G1: master_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/all/A_B/update_error: absolute ceiling",
+        "G1: master_FP32/all/A_B/update_error: fresh AA envelope",
+        "G1: master_FP32/all/A_B/update_norm_relative: absolute ceiling",
+        "G1: master_FP32/all/A_B/update_norm_relative: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/relative_L2: absolute ceiling",
+        "G1: master_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/norm_relative: absolute ceiling",
+        "G1: master_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/update_error: absolute ceiling",
+        "G1: master_FP32/all/AA_B/update_error: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/update_norm_relative: absolute ceiling",
+        "G1: master_FP32/all/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/relative_L2: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/norm_relative: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/update_error: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/relative_L2: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/norm_relative: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "G1: master_FP32/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/relative_L2: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/norm_relative: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/relative_L2: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/norm_relative: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: model_FP32/all/A_B/relative_L2: absolute ceiling",
+        "G1: model_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/all/A_B/norm_relative: absolute ceiling",
+        "G1: model_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/all/A_B/update_error: absolute ceiling",
+        "G1: model_FP32/all/A_B/update_error: fresh AA envelope",
+        "G1: model_FP32/all/A_B/update_norm_relative: absolute ceiling",
+        "G1: model_FP32/all/A_B/update_norm_relative: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/relative_L2: absolute ceiling",
+        "G1: model_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/norm_relative: absolute ceiling",
+        "G1: model_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/update_error: absolute ceiling",
+        "G1: model_FP32/all/AA_B/update_error: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/update_norm_relative: absolute ceiling",
+        "G1: model_FP32/all/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/relative_L2: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/norm_relative: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/update_error: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/update_norm_relative: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/A_B/update_norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/relative_L2: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/norm_relative: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/update_error: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/update_norm_relative: absolute ceiling",
+        "G1: model_FP32/by_component/geometry/AA_B/update_norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/relative_L2: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/norm_relative: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/update_error: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/update_norm_relative: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/A_B/update_norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/relative_L2: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/norm_relative: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/update_error: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/update_norm_relative: absolute ceiling",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/update_norm_relative: fresh AA envelope"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_actual_B16_before_freeze_rejected",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Actual stage preceded V2 freeze"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_actual_failed_child_rejected",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Incomplete/failed actual stage"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_actual_load16_and_endpoint32_consistent_without_acceptance",
+      "decision": "recovery_evidence_complete_for_review",
+      "failures": [],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_actual_load_client_offset_mismatch",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Restored split client/offset"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_bad_RNG_at_endpoint",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Native RNG/groups/data/scheduler E1 mismatch"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_bad_RNG_at_load",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Exact native load/all_task_RNG"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_changed_actual_commands_rejected",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Actual recovery command"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_cross_run_controls_cannot_replace_bound_own_runs",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Paired endpoint must belong to the bound own run"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_duplicate_group_rejected",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Duplicate/foreign recovery group"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_endpoint16_cannot_be_relabelled_as32",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Complete independently hashed native provenance/B"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_environment_header_drift",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Frozen source/environment/science role facts"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_foreign_host_control_rejected",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Actual host pairing"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_fresh_AA_envelope_remains_V1",
+      "decision": "not_supported",
+      "failures": [
+        "G1: Adam/exp_avg/all/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/all/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/all/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/all/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/all/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: Adam/exp_avg_sq/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: BN_float/all/A_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/all/A_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/all/A_B/update_error: fresh AA envelope",
+        "G1: BN_float/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/all/AA_B/update_error: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: BN_float/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: master_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/all/A_B/update_error: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/all/AA_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: master_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope",
+        "G1: model_FP32/all/A_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/all/A_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/all/A_B/update_error: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/all/AA_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/A_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_component/geometry/AA_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/A_B/update_error: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/relative_L2: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/norm_relative: fresh AA envelope",
+        "G1: model_FP32/by_optimizer_group/0/AA_B/update_error: fresh AA envelope"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_load32_cannot_be_relabelled_as16",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Actual native load16 (not endpoint32)"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_master_and_Adam_load_must_be_exact",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Exact native load/FP32_masters"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_master_and_Adam_load_must_be_exact",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Exact native load/Adam_moments_steps_and_LR"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_missing_BN_category_rejected",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Incomplete native tensor categories"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_missing_comparator_rank",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Missing/duplicate native comparison ranks"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_missing_native_rank_payload",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidCheckpoint: Missing native payload: rng_rank7.pt"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_missing_receipts_remain_pending",
+      "decision": "pending",
+      "failures": [],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_missing_stage_rank",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Missing/mixed all-rank stage completion"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_model_and_BN_load_must_be_exact",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Exact native load/FP32_model_and_buffers"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_native500_not_reinterpreted",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Foreign receipt; V1/native500/forward cannot be reinterpreted"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_no_skipped_payload_hashing",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Unverified/partial native comparison"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_old_schema_not_reinterpreted",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Foreign receipt; V1/native500/forward cannot be reinterpreted"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_one_group_does_not_complete_two_groups",
+      "decision": "pending",
+      "failures": [],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_original_V1_load16_remains_not_supported",
+      "original_V1_decision": "not_supported",
+      "passed": false,
+      "failures": [
+        "InvalidEvidence: Incomplete/nonexact actual restore boundary"
+      ],
+      "scope": "Synthetic V1 schema-mismatch reproduction; unchanged original evaluator"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_original_V1_source_guard_not_rebound_to_be5",
+      "original_V1_decision": "not_supported",
+      "passed": false,
+      "failures": [
+        "InvalidEvidence: Evidence hash mismatch: /mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py"
+      ],
+      "scope": "Original protected trainer hash remains unchanged; be5 is separately pinned only in V2"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_payload_corruption_even_when_report_claims_verified",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidCheckpoint: Native payload hash changed: rng_rank7.pt"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_same_GPU_pairing_required",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Actual same-device resource receipt missing"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_source_pin_drift",
+      "decision": "not_supported",
+      "failures": [
+        "ValueError: Immutable source changed"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    },
+    {
+      "test": "__main__.RecoveryTests.test_stage32_cannot_claim_split16_complete",
+      "decision": "not_supported",
+      "failures": [
+        "InvalidEvidence: Exact E1 mismatch: Preserved stage COMPLETE"
+      ],
+      "passed": false,
+      "scope": "SYNTHETIC CPU VALIDATOR TEST, NOT REAL MODEL EVIDENCE"
+    }
+  ],
+  "unittest_failures": []
+}
