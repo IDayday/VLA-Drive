@@ -1,11 +1,19 @@
 # Structured-world FGTR round one — implementation milestone
 
+[中文分析与差异总结](ANALYSIS_AND_DIFFERENCES_ZH_20261010.md)汇总ego输入、
+24epoch来源、公开工作训练准备/配方差异、nuScenes最终规划与场景指标，
+以及最新NAVSIM 50k与历史同步数比较。
+[结果快照](snapshot_20261010_v1/MANIFEST.json)提供学习曲线、规划CSV、完整辅助指标
+和成对log聚类区间；运行资源与恢复状态单独登记。
+
 This branch contains executable code and real data/training/deployment checks.
-**As of 2026-10-10, NAVSIM G3 is training toward the registered 100k endpoint;
-G1 stopped after its complete 25k observation and is awaiting resource recovery.
-G0/G2 remain queued. Both completed 25k development observations are recorded in
+**The results snapshot captured on 2026-10-10 contains NAVSIM G3's complete 50k
+development observation while training continues toward the registered 100k endpoint.
+G1's captured native boundary is 25k; recovery and G0 deployment on newly available
+eight-GPU hosts are tracked separately from this immutable results snapshot.
+G2 remains queued. Both completed 25k development observations are recorded in
 `INTERIM_COMPARISON_20261010.json`. nuScenes G3 finished its 24-epoch training
-and full 4969-sample final planning evaluation; scene-field scoring is finishing.
+and full 4969-sample final planning and scene-field evaluations.
 G1 stopped at 6647 with native save6000.
 The user has deferred nuScenes recovery, preserving its assets and state.
 The six-group first round is not complete, and no isolated auxiliary-planning

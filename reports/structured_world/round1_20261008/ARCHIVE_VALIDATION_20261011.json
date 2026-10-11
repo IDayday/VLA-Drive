@@ -1,0 +1,53 @@
+{
+  "schema": "structured_world_archive_validation_v1",
+  "captured_UTC": "2026-10-11T00:05:13.165881+00:00",
+  "exporter_sha256": "590b228f97e3241a21ec7f850f8b96e1cdf9b2d77f091700a4778b64518b2208",
+  "snapshot_file_sha256": {
+    "MANIFEST.json": "d6475ee7b946cf8d8a832e4ce09dedb09183332d964a9b08008dbd6342b05885",
+    "NAVSIM_PAIRED_COMPARISONS.json": "028f503248f93f390fdf125ea6b5803ac668845133a50ed6072d6f0d518597b8",
+    "PLANNING_RESULTS.csv": "75ce282216e0a14d9da3df0d01cba546ab7e672195cb3acc0636f57cc414f3ae",
+    "SCENE_FIELD_METRICS.json": "d8e2c3f5c2ac173d1b2cc1072b5e3c34a8314a2f46bf5a607b4499b30d8b0636",
+    "TRAINING_CURVES.csv": "5c98f4b4adb74b1c21a5e25767d90eec6281e6aaafebd2630bcce3dbc4d2b271"
+  },
+  "snapshot_validation": {
+    "passed": true,
+    "training_curves": 986,
+    "planning_rows": 19,
+    "scene_observations": 8,
+    "paired_comparisons": 4,
+    "source_identity_and_checkpoint_metadata_hashes_verified": true,
+    "planning_completion_and_protocol_hashes_verified": true,
+    "historical_scene_CSV_hashes_verified": true,
+    "four_result_files_byte_identical_before_after_exporter_optimization": true,
+    "no_raw_sample_token_or_secret_fields": true,
+    "exporter_syntax": true
+  },
+  "nuscenes_visibility_helper": {
+    "sha256": "f7b44fc51163b7b07e34fc27b701fda01f158020f6f01c174fea59a25e157ee8",
+    "real_official_val_samples_checked": 2,
+    "tracks_per_sample": [
+      45,
+      45
+    ],
+    "valid_current_positive_pixels": [
+      412,
+      419
+    ],
+    "valid_future_positive_pixels": [
+      2591,
+      2542
+    ],
+    "groups_per_sample": 24,
+    "positive_partitions_match_all_valid_GT_positives": true,
+    "recall_in_valid_range": true,
+    "empty_positive_denominator_returns_null": true,
+    "syntax": true,
+    "limits": "CPU checks on two real label/prediction pairs; not a full-population visibility evaluation. Positive GT subsets report recall, not precision or IoU."
+  },
+  "limits": [
+    "No training or evaluator changes from archive export",
+    "No additional inference from exporter",
+    "Routing and deployment validation is tracked separately",
+    "Not a completed six-group research round"
+  ]
+}
