@@ -102,7 +102,7 @@ def main():
     require(cfg['global_batch_size']==32 and cfg['micro_batch_size']==4 and cfg['max_optimizer_steps']==100000,'fixed batch and original100k schedule required')
     require(state['optimizer_step']+a.updates<=cfg['max_optimizer_steps'],'update budget exceeds schedule')
     identity={'options':opts.identity(),'backend_flags':backend_flags(),'framework_contract_hash':contract['framework_contract_hash'],
-        'optimizer_config':cfg,'original_dependencies_hash':digest(original_dependencies),'fit_hash':digest(state['fit_scene_ids']),'world_size':world,'torch':torch.__version__}
+        'optimizer_config':cfg,'execution_code_hashes':implementation_hashes,'original_dependencies_hash':digest(original_dependencies),'fit_hash':digest(state['fit_scene_ids']),'world_size':world,'torch':torch.__version__}
     if a.mode=='continuation':
         require(certificate['framework_contract_hash']==identity['framework_contract_hash'] and certificate['fit_hash']==identity['fit_hash'],'qualification Base/data framework mismatch')
     if state.get('performance_identity'):
