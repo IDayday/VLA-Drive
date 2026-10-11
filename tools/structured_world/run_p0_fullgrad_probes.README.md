@@ -11,8 +11,11 @@ The immutable producer is74651848e5d9a0f3522f7abdd66c9557b83d1b2b;
 its script SHA is75f51d573110c775229ca9363daed4a5c7317ed8f24a9ccb3a60f743220b5f55.
 The actual separate full-gradient binding is8691e3390cce77fcd55a38c90336fff732180b4a9e967b1d09743b9f72af0598.
 The original44 forward binding and819 native acceptance binding are preserved.
-`PROBE.json.binding` remains the original44 context; the additional
-`fullgradient_binding` explicitly identifies869. The routing-only d8 binding
+`PROBE.json.binding` remains the original44 historical context; the additional
+`fullgradient_binding` explicitly identifies869. The actual746 producer delegates
+to6d16 with869 args, so its unchanged `P0_FORWARD_COMPARISON.json` also records869
+as `producer_source_binding`. The coordinator checks that actual delegated
+context explicitly and never rewrites the sidecar to44. The routing-only d8 binding
 does not constitute a new acceptance envelope.
 
 After the parent freezes this coordinator, its CLI is:
@@ -42,8 +45,11 @@ strict exit1, are reconciled after every slot. Actual plus remaining reservation
 must fit before the next stage. No per-job timer kills workers. Started workers
 without an actual exit receipt make cost unknown and prevent a next dispatch.
 
-Classification first invokes the actual cold68 forward classifier. It then
-requires the separately hashed full-gradient report from the same strict and
+The old44 cold68 classifier cannot consume the actual869 delegated sidecar.
+Classification retains its exact coverage/strict/numeric rules and reuses its
+pinned exact-stat checker in a separate new-context validator. The actual746
+entrypoint/argv, raw869 context and preserved44 ancestry are checked separately.
+It then requires the separately hashed full-gradient report from the same strict and
 forward attempt, all eight ranks and scene order, the original native optimizer
 groups and full trainable inventory, every parameter's present FP32 gradient in
 A/AA/B, all three directly measured pairs, finite raw statistics and matching
@@ -61,14 +67,21 @@ original returncode. No gradient numeric acceptance is granted here:
 whole E2 envelope must prospectively pin the actual new producer/hashes and
 receipts; native500, E1, canonical dev and recovery remain independent gates.
 
-CPU tests use explicitly synthetic temporary records and the real cold68
-classifier, plus the actual registered869 source plan. They import no torch and
-dispatch no worker:
+Default CPU tests use explicitly synthetic temporary records, actual registered869
+source planning and the old classifier as a rejection control. They import no
+torch and dispatch no worker:
 
 ```sh
 CUDA_VISIBLE_DEVICES='' /usr/bin/python3 -B tools/structured_world/test_run_p0_fullgrad_probes.py \
   --receipt /absolute/fresh/CPU_TEST_RECEIPT.json
 ```
+
+The private CPU torch interpreter can additionally run `--producer-integration`.
+That test invokes the frozen746->6d16 entry functions, original Collector and
+reducers/writers with a tiny owned CPU stand-in for the legacy worker. It verifies
+the actually emitted new binding, the old44 rejection, full direct three-pair
+capture and byte-preserving new classification; no source hash or report writer
+is mocked. Its separate trace is synthetic CPU evidence, never a model/GPU pass.
 
 zt3's currently reported unreachability is maintenance/restart, an external
 cause. This helper does not classify it as OOM/code failure, resume old G3,

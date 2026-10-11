@@ -104,9 +104,88 @@ def build_plan(manifest, output):
             'Old strict failure and forward report remain unchanged; native500/E1/dev/recovery and new E2 binding require separate review']}
 
 
+def classify_forward_context(job, b, binding):
+    """Validate the real 746->6d16 sidecar in its actual869 context.
+
+    cold68's old44 classifier cannot consume this delegated emission. Keep the
+    bytes unchanged; reuse its exact-stat checker and the same coverage rules.
+    """
+    folder = Path(job['observed'])
+    path, strict_path = folder/'P0_FORWARD_COMPARISON.json', folder/'strict/COMPLETE.json'
+    process_path = Path(job['run'])/'PROCESS_EXIT.json'
+    report, strict, process = load(path), load(strict_path), load(process_path)
+    proto_path = Path(job['folder'])/'PROBE.json'; proto = load(proto_path)
+    require(proto['binding'] == job['source_binding'] and proto['fullgradient_binding'] == binding
+            and proto['job']['command'] == job['command'], 'Prospective original44/new869 contexts or argv differ')
+    argv = job['command']; require('--' in argv and argv[argv.index('--')+1] == str(PRODUCER/REL)
+            and '--nproc_per_node=8' in argv and '--max_restarts=0' in argv, 'Actual fullgradient entrypoint/full8/no-restart argv required')
+    for flag, value in {'--source-binding': binding['path'], '--source-binding-sha256': binding['sha256'],
+            '--model-source-root': b['model']['root'], '--forward-source-root': b['forward_producer']['root'],
+            '--run': job['origin']['run'], '--tag': job['origin']['tag'], '--output': job['observed'], '--microbatch': '4'}.items():
+        require(flag in argv and argv[argv.index(flag)+1] == value, 'Actual fullgradient argv/context differs: '+flag)
+    require(process['returncode'] in (0, 1) and process['monitor_error'] is None, 'Unexpected worker/monitor failure')
+    require(type(strict['passed']) is bool and (process['returncode'] == 0) == strict['passed'], 'Legacy exit/strict mismatch')
+    require(report['schema'] == 'execution_p0_exact_forward_stats_v1' and report['preset'] == forward.PRESET
+            and report['producer_sha256'] == forward.PRODUCER_SHA
+            and report['registration_sha256'] == forward.REGISTRATION_SHA, 'Wrong actual delegated forward producer/preset')
+    require(report['producer_source_binding'] == binding, 'Actual delegated forward binding must be869; do not relabel old44')
+    require(report['model_source'] == {k: b['model'][k] for k in ('root', 'git_sha')}
+            and report['original_acceptance_bindings'] == b['original_acceptance_bindings'], 'Delegated forward model/native context differs')
+    require(report['checkpoint'] == {'run': str(Path(job['origin']['run']).resolve()), 'tag': job['origin']['tag']}, 'Wrong actual forward origin')
+    original = report['original_strict']
+    require(original == {**ref(strict_path), 'passed': strict['passed'], 'tool_sha256': forward.LEGACY_SHA,
+            'unchanged_original_json': True}, 'Original strict JSON/hash changed')
+    require(strict['training_identity'] == b['cases'][job['case']]['origin']['identity']
+            and strict['checkpoint'] == job['origin']['tag'] and strict['optimized_mode'] == 'engineering_fast'
+            and strict['attention_diagnostic'] == strict['precision_diagnostic'] == 'native', 'Strict origin/operator differs')
+    require(report['ranks'] == strict['ranks'] == 8 and report['scene_count'] == strict['scene_count'] == 32
+            and report['full_tensor_rank_coverage'] is True and report['advisory_forward_passed'] is True, 'Incomplete actual full8 forward')
+    records = report['per_rank']; require(len(records) == 8 and {r['rank'] for r in records} == set(range(8)), 'Missing/duplicate forward ranks')
+    require(len(strict['per_rank']) == 8 and {r['rank'] for r in strict['per_rank']} == set(range(8)), 'Missing strict ranks')
+    tokens = [t for r in records for t in r['tokens']]
+    require(len(tokens) == len(set(tokens)) == 32 and all(len(r['tokens']) == 4 for r in records), 'Missing global32 forward scene coverage')
+    require({r['rank']: r['tokens'] for r in records} == {r['rank']: r['tokens'] for r in strict['per_rank']}, 'Strict/forward scene order differs')
+    names = set(report['logical_forward_module_inventory'])
+    require(forward.CORE <= names and any(n.startswith('task_loss/') for n in names)
+            and any(n.startswith('raw_loss/') for n in names), 'Missing full total/task/raw loss modules')
+    expected = names | {f'rank{r}/{n}' for r in range(8) for n in names}
+    require(set(report['modules']) == set(report['forward_module_inventory']) == expected, 'Full module/rank coverage missing')
+    for checks in report['modules'].values():
+        require(set(checks) == forward.PAIRS, 'Three actual forward pairs required')
+        for row in checks.values(): forward.stat_exact(row)
+    exact = forward.CORE | {'RNG', 'BN', 'BN_finite', 'BN_float', 'BN_counter', 'query_and_counts',
+                           'all_buffers', 'gradient_inventory', 'buffer_inventory'}
+    require(all(report['forward_exact'].get(n) is True for n in exact), 'Actual forward exact flags failed/missing')
+    require(set(report['forward_exact_by_pair']) == forward.PAIRS
+            and all(v is True for checks in report['forward_exact_by_pair'].values() for v in checks.values()), 'Forward role-pair exact flags failed')
+    frozen = datetime.fromisoformat(b['frozen_UTC'].replace('Z', '+00:00'))
+    prepared = datetime.fromisoformat(proto['created_UTC'].replace('Z', '+00:00'))
+    for r in records:
+        require(set(r['roles']) == {'A', 'AA', 'B'} and set(r['comparisons']) == forward.PAIRS, 'Incomplete role capture')
+        for checks in r['comparisons'].values():
+            require(set(checks['modules']) == names and all(v is True for v in checks['exact'].values()), 'Per-rank forward coverage/exact flags missing')
+            for row in checks['modules'].values(): forward.stat_exact(row)
+        started = datetime.fromisoformat(r['roles']['A']['started_UTC'].replace('Z', '+00:00'))
+        require(started.tzinfo is not None and frozen <= prepared <= started, 'New binding/PROBE must precede first A')
+    physical = report['physical_q_final']; require(physical['full_tensor_rank_coverage'] is True, 'Physical full tensor coverage missing')
+    for pair in forward.PAIRS:
+        row = physical[pair]
+        require(row['finite'] is True and row['max_position_error_m'] == row['max_heading_error_rad'] == 0, 'Nonfinite/nonexact physical trajectory')
+    require(report['full_parameter_gradient_statistics_captured'] is False
+            and all(report[k] is False for k in ('passed', 'formal_authorized', 'trainer_consumable')), 'Do not relabel forward sidecar as fullgrad/acceptance')
+    wall = process['wall_seconds']; require(type(wall) in (float, int) and math.isfinite(wall) and wall >= 0, 'Actual process cost missing')
+    return {'schema': 'p0_fullgradient_delegated_forward_context_v2', 'case': job['case'], 'repeat': job['repeat'],
+        'original_strict_passed': strict['passed'], 'actual_returncode': process['returncode'],
+        'expected_legacy_strict_failure': process['returncode'] == 1, 'PROCESS_EXIT': ref(process_path),
+        'P0_FORWARD_COMPARISON': ref(path), 'original_strict': ref(strict_path), 'prospective_PROBE': ref(proto_path),
+        'actual_delegated_forward_source_binding': binding, 'preserved_original44_context': job['source_binding'],
+        'forward_receipt_bytes_rewritten': False, 'wall_seconds': wall, 'GPU_hours': wall*len(job['gpu_uuids'])/3600,
+        'forward_exact_observed': True, 'passed': False, 'formal_authorized': False}
+
+
 def classify(job):
-    observed = forward.classify(job)  # Actual cold68 verification, not an inferred forward result.
     b, binding = checked_binding(job['fullgradient_source_binding'], job['source_binding'])
+    observed = classify_forward_context(job, b, binding)
     path = Path(job['observed'])/'P0_FULL_GRADIENT_COMPARISON.json'
     report, proto = load(path), load(Path(job['folder'])/'PROBE.json')
     require(proto['fullgradient_binding'] == binding and proto['binding'] == job['source_binding'], 'Prospective contexts missing/mixed')
