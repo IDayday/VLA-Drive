@@ -1,0 +1,57 @@
+{
+  "ready_for_Newton_GPU_profile": true,
+  "target_agent_id": "01a126cd-a966-7201-a568-ebb82e634b43",
+  "runtime_preparation_only": true,
+  "host_runtimes": [
+    {
+      "host": "training-vlawm-zt3",
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "readiness": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_runtime_staging_20261011/20261011T023958Z/stage_v1/training-vlawm-zt3/READINESS.json",
+      "readiness_sha256": "fb96e0697f5a9eb944ea27c3105b2d72b6bd41403d4258d11e96fefe8be21db8",
+      "GPU_UUIDs": [
+        "GPU-16ace1a1-9394-a10d-b928-a976ad91af56",
+        "GPU-25bfdc05-c7ed-a2bf-7258-b75683cae239",
+        "GPU-5f9742db-a34c-b9e4-5e72-dd3f8878dcc5",
+        "GPU-6fed0d45-8ab1-7a4e-4c3d-e26e50ec52ee",
+        "GPU-71d273a4-6963-571e-5622-b14c7741f843",
+        "GPU-7b92620c-cb29-69ce-05a7-aa98f1714eb0",
+        "GPU-7e2b3df8-c67d-0098-44a9-b489bd6bc08e",
+        "GPU-fb40c365-cb97-457b-4112-53d4b5cd0d17"
+      ],
+      "CPU_imports_passed": true,
+      "GPU_memory_profile_or_prediction_parity_qualified": false
+    },
+    {
+      "host": "training-vlawm-zt4",
+      "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+      "readiness": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_runtime_staging_20261011/20261011T023958Z/stage_v1/training-vlawm-zt4/READINESS.json",
+      "readiness_sha256": "6c394551d01bda0ba9bada76c6abaffb08e74abdadd433ad299c9f377b7e4c92",
+      "GPU_UUIDs": [
+        "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+        "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+        "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308",
+        "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+        "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+        "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+        "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+        "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e"
+      ],
+      "CPU_imports_passed": true,
+      "GPU_memory_profile_or_prediction_parity_qualified": false
+    }
+  ],
+  "helper": "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stage_navtest_runtime.py",
+  "helper_sha256": "c065103e362f7ff655b69619830294b3ad582eb89ebfb76954dea3cbeeb9aa23",
+  "recorded_unix": 1791686665.0784202,
+  "operator_python_requirement_for_adoption": {
+    "python": "/usr/bin/python3",
+    "required_APIs": [
+      "os.pidfd_open",
+      "signal.pidfd_send_signal"
+    ],
+    "Qwen_and_canonical_worker_Pythons_are_not_adoption_operators": true,
+    "no_environment_upgrade_required": true,
+    "actual_active_guards_use_operator_python": true
+  },
+  "notes": "Training gate unchanged; inference-only task override used. No GPU worker/profile or training launched; no shared environment upgrade; no commit or push."
+}

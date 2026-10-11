@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "scenes": 4,
+  "hosts": [
+    "training-vla-zt",
+    "training-vlawm-zt",
+    "training-vlawm-zt2",
+    "training-vlawm-zt3",
+    "training-vlawm-zt4",
+    "training-vlawm-zt5"
+  ],
+  "variants": [
+    "q0",
+    "q_final",
+    "out_of_range"
+  ],
+  "comparison": "bitwise against unmodified frozen infer_checkpoint.py native FP32 master restore",
+  "shared_prediction_identity": "e8262f690a71b9dff395a7095f06cf61965b6fd7ba50faaecede91b53facc5df",
+  "reference_command": [
+    "/var/tmp/structured-world-fgtr-round1-20261008/qwen/bin/python",
+    "-B",
+    "-u",
+    "/mnt/project/VLA-Drive-structured-world-fgtr-io-formal-frozen-20261009/tools/structured_world/infer_checkpoint.py",
+    "--run",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+    "--tag",
+    "milestone_0050000",
+    "--inputs",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_current_v1_0c54_memory4",
+    "--output",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/qualification/G3_EVENT_LOCAL_0050000/FROZEN_REFERENCE",
+    "--sampling-seed",
+    "42"
+  ],
+  "observed_utc": "2026-10-11T02:57:06.293366+00:00"
+}

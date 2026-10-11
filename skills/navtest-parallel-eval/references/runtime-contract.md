@@ -69,10 +69,40 @@ python tools/structured_world/run_navsim_navtest.py --serve \
 Do not start another server if `controller.lock` is held. Check `--help` for
 the exact revision's CPU-worker selection and route-refresh options. The GPU
 shard count is derived from the selected routes; past route files must be
-revalidated. Inspect `STATE.json`, per-job `shards/`, `scores/PROGRESS.json` and
+revalidated. Inspect `STATE.json`, per-job `attempts/*/shards/`,
+`scores/PROGRESS.json` and
 native train logs to confirm real execution and cohosting cost. A profile-only
 or asset-preparation state is not full inference. A complete job requires both
 prediction and canonical score completion files with all 12146 scenes.
+
+`--inventory` inspects and records the current authorized candidate pool without
+starting GPU inference. The active dispatch performs this scan again, deduplicates
+physical UUIDs, verifies ownership and capacity, and qualifies the selected worker
+environments. `--score-workers` is a ceiling; the actual local pool also respects
+available CPU capacity. The worker `--shards` option is supplied by the dispatcher,
+not a permanent value to copy into future commands.
+
+## Existing pressure scripts
+
+`tools/structured_world/navtest_pressure_lease.py` is a local-host operator;
+invoke it through SSH on the target host when needed, using `/usr/bin/python3`.
+Its `inspect` action is read-only. Select physical UUIDs from the current inventory:
+
+```bash
+/usr/bin/python3 -B tools/structured_world/navtest_pressure_lease.py inspect \
+  --gpu-uuids GPU-selected-uuid
+/usr/bin/python3 -B tools/structured_world/navtest_pressure_lease.py acquire \
+  --gpu-uuids GPU-selected-uuid --lease-id actual-job-host
+```
+
+After launch, record each actual host-local worker PID and start ticks by calling
+`acquire` again with `--worker-pid PID:START_TICKS`. Once those workers have exited,
+call `restore --lease-id actual-job-host` with their recorded identities. If no
+worker was ever launched, use `--no-workers-started` instead. Inspect `status`;
+exit code 3 means a restoration obligation is deferred and must remain tracked.
+Keep the default private journal outside Git. This helper restores only scripts
+actually released by that lease; it does not fill idle GPUs or terminate genuine
+training. See [the lifecycle details](scheduling.md#pressure-restoration).
 
 The qualified canonical implementation uses eight 0.5-second trajectory poses
 and forty 0.1-second simulator poses. Verify these exact source/runtime locks:

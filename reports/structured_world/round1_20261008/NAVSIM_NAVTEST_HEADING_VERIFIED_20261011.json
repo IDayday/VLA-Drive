@@ -1,0 +1,131 @@
+{
+  "passed": true,
+  "observed_utc": "2026-10-11T02:51:48.177551+00:00",
+  "input_identity": "b14585d89aecd8f67f088c6cc7eb467dcc12c9a654d9fac0a952626ff5759781",
+  "tolerance": 1e-07,
+  "canonical_reference": "float(Quaternion(*rotation).yaw_pitch_roll[0]), identical to historical preparer; no float32 matrix roundtrip",
+  "populations": {
+    "navtest_full": {
+      "scenes": 12146,
+      "logs": 136,
+      "source_identity": "44ba2878112ec0c51a8998db4fe1096e4e965904934dead7a101c29c43821cdb",
+      "direct_Quaternion_double": {
+        "count": 48584,
+        "max": 0.0,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p99": 0.0,
+        "above_1e_7": 0
+      },
+      "planar_matrix_float32_roundtrip": {
+        "count": 48584,
+        "max": 2.949410919939055e-07,
+        "mean": 5.551951319814819e-08,
+        "p50": 4.1762193259131664e-08,
+        "p99": 2.1786780202148748e-07,
+        "above_1e_7": 7738
+      },
+      "actual_planar_matrix_roundtrip": {
+        "count": 48584,
+        "max": 4.440892098500626e-16,
+        "mean": 7.084001680260962e-18,
+        "p50": 0.0,
+        "p99": 4.440892098500626e-16,
+        "above_1e_7": 0
+      },
+      "actual_pose_matrix_dtype": "float64",
+      "full_rotation_projected_yaw": {
+        "count": 48584,
+        "max": 0.005329678424531359,
+        "mean": 0.00014916592796476887,
+        "p50": 6.135141296859103e-05,
+        "p99": 0.0012954759916743441,
+        "above_1e_7": 48202
+      },
+      "bitwise_raw_direct_state_verified": 12146
+    },
+    "dev_full": {
+      "scenes": 1696,
+      "logs": 16,
+      "source_identity": "2a90e7d2de4522d9b0a3c16d8d3ed85fc93931baa2ebcfcdb075b4585109c6fb",
+      "direct_Quaternion_double": {
+        "count": 6784,
+        "max": 0.0,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p99": 0.0,
+        "above_1e_7": 0
+      },
+      "planar_matrix_float32_roundtrip": {
+        "count": 6784,
+        "max": 2.598030417466646e-07,
+        "mean": 4.979243139696875e-08,
+        "p50": 3.929770064914351e-08,
+        "p99": 1.9272712314943874e-07,
+        "above_1e_7": 783
+      },
+      "actual_planar_matrix_roundtrip": {
+        "count": 6784,
+        "max": 4.440892098500626e-16,
+        "mean": 1.9638378973322344e-18,
+        "p50": 0.0,
+        "p99": 0.0,
+        "above_1e_7": 0
+      },
+      "actual_pose_matrix_dtype": "float64",
+      "full_rotation_projected_yaw": {
+        "count": 6784,
+        "max": 0.002079564786741095,
+        "mean": 0.00010868341173213491,
+        "p50": 2.6982938899244857e-05,
+        "p99": 0.0012443418547434248,
+        "above_1e_7": 6706
+      },
+      "bitwise_raw_direct_state_verified": 0
+    },
+    "train_smallfit64_sample": {
+      "scenes": 64,
+      "logs": 60,
+      "source_identity": "c24dfffcbe398e99d53474ecb9b59d0f38faae21139d0a98feea16e646b7c7bd",
+      "direct_Quaternion_double": {
+        "count": 256,
+        "max": 0.0,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p99": 0.0,
+        "above_1e_7": 0
+      },
+      "planar_matrix_float32_roundtrip": {
+        "count": 256,
+        "max": 2.410006239017548e-07,
+        "mean": 4.586828544414501e-08,
+        "p50": 3.6316743390329975e-08,
+        "p99": 1.759070154427888e-07,
+        "above_1e_7": 23
+      },
+      "actual_planar_matrix_roundtrip": {
+        "count": 256,
+        "max": 4.440892098500626e-16,
+        "mean": 5.204170427930421e-18,
+        "p50": 0.0,
+        "p99": 1.9984014443252313e-16,
+        "above_1e_7": 0
+      },
+      "actual_pose_matrix_dtype": "float64",
+      "full_rotation_projected_yaw": {
+        "count": 256,
+        "max": 0.000677323561165899,
+        "mean": 9.155632150747821e-05,
+        "p50": 4.672092875379619e-05,
+        "p99": 0.0004665041334498187,
+        "above_1e_7": 253
+      },
+      "bitwise_raw_direct_state_verified": 0
+    }
+  },
+  "assets_rebuilt": false,
+  "tolerance_relaxed": false,
+  "training_adapter_sha256": "412458e667c09165bddab1fef8d946b18bd124b6519c8a1aea0095efb0474d3c",
+  "frozen_builder_sha256": "d0ad86aa0a23d109c17c8ec9cac41250e2b72904fe3642c62b9127927642ba4f",
+  "historical_preparer_sha256": "6b26a7e6c4dd91ade22a29946a366174d431a0a15375f9a4c03247b9c7963874"
+}

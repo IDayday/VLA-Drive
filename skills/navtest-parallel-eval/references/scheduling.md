@@ -17,6 +17,10 @@ host-name list.
 Measure model peak memory on the real current-input path. Require repeated free
 memory at least peak plus the registered reserve. A conservative larger guard
 may be used, but record it rather than calling it the model's actual requirement.
+Measure training update time before and during cohosting. A short profile on one
+GPU can underestimate the sustained effect of a full inference deployment. Treat
+observed interference as a resource-admission input and refresh the next route
+plan accordingly; keep the model, evaluation protocol and training recipe fixed.
 
 | Device state | Decision |
 | --- | --- |
