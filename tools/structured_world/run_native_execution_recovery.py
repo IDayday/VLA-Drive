@@ -26,6 +26,10 @@ def build_plan(manifest, output):
                   'Exactly one immutable-origin recovery triplet required')
     case = manifest['cases'][0]
     bench.require(case['group'] in ('G1', 'G3') and manifest['candidate_mode'] in bench.CANDIDATES, 'Registered group/candidate required')
+    control_mode = manifest.get('control_mode', 'io_preserving_v1')
+    bench.require(control_mode in ('io_preserving_v1', 'engineering_fast') and
+                  (control_mode != 'engineering_fast' or manifest['candidate_mode'] == 'engineering_fast'),
+                  'Controls must be IO, or engineering_fast paired with an engineering_fast candidate')
     bench.require(Path(case['pilot_origin_run']).is_absolute() and Path(manifest['source_root']).is_absolute() and Path(manifest['python']).is_absolute() and
                   Path(manifest['artifact_root']).is_absolute() and Path(case['output_root']).is_absolute(), 'Absolute source/runtime/artifact/output paths required')
     bench.require(len(manifest['gpu_uuids']) == len(set(manifest['gpu_uuids'])) == 8 and
@@ -55,7 +59,7 @@ def build_plan(manifest, output):
         banks = 2 if role == 'B' else 1
         bench.require(owner and owner['kind'] == 'owned_numerical_pilot' and
                       owner['cap_bytes'] >= banks*storage['checkpoint_upper_bytes'], 'Storage must cover A1/AA1/B2 native banks')
-        mode = manifest['candidate_mode'] if role == 'B' else 'io_preserving_v1'
+        mode = manifest['candidate_mode'] if role == 'B' else control_mode
         flags = args+['--scope', 'profile', '--debug-updates', '32',
             '--pilot-origin-run', case['pilot_origin_run'], '--pilot-origin-tag', case['pilot_origin_tag'],
             '--execution-mode', mode, '--capture-updates', '32', '--capture-storage-budget', budget['path'],

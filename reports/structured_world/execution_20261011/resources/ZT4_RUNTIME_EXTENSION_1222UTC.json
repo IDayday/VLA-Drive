@@ -1,0 +1,42 @@
+{
+  "schema": "structured_world_execution_host_qualification_v1",
+  "passed": true,
+  "host": "training-vlawm-zt4",
+  "physical_gpu_UUIDs": [
+    "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+    "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+    "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+    "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+    "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+    "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+    "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+    "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+  ],
+  "environment": {
+    "packages": {
+      "deepspeed": "0.16.9",
+      "flash_attn": "2.7.4.post1",
+      "mmcv": "2.2.0",
+      "mmengine": "0.10.7",
+      "numpy": "1.26.4",
+      "omegaconf": "2.3.0",
+      "timm": "1.0.20",
+      "torch": "2.5.1+cu124",
+      "transformers": "4.57.0"
+    }
+  },
+  "observed_UTC": "2026-10-11T12:21:14.441340+00:00",
+  "runtime_extension_only": true,
+  "original_native_qualification": {
+    "path": "/var/tmp/structured-world-fgtr-execution-20261011/HOST_QUALIFICATION.json",
+    "sha256": "01d93ea95304e39ea048608014441b5658b5ce87e1edfff108581cc209e20e19"
+  },
+  "original_native_full_model_qualification_retained": true,
+  "new_GPU_qualification_test_started": false,
+  "current_device_availability_passed": false,
+  "limits": [
+    "Host/model qualification inherited from preserved actual original success; this fresh receipt only verifies hostname, UUID inventory and exact runtime metadata including flash_attn.",
+    "The ongoing benchmark owns GPUs; each later dispatch separately checks full8 locks and actual idle memory/utilization.",
+    "No software installation, scientific model, precision or backend switch."
+  ]
+}

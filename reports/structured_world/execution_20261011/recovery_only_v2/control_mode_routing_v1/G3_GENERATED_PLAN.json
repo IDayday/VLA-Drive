@@ -1,0 +1,509 @@
+{
+  "schema": "native_execution_recovery_plan_v1",
+  "manifest": {
+    "host": "training-vlawm-zt4",
+    "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+    "gpu_uuids": [
+      "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+      "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+      "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+      "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+      "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+      "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+      "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+      "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+    ],
+    "qualification": {
+      "path": "/var/tmp/structured-world-fgtr-execution-20261011/HOST_QUALIFICATION.json",
+      "sha256": "01d93ea95304e39ea048608014441b5658b5ce87e1edfff108581cc209e20e19"
+    },
+    "artifact_root": "/var/tmp/structured-world-fgtr-execution-20261011",
+    "minimum_free_MiB": 68000,
+    "source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+    "source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+    "schema": "native_execution_recovery_manifest_v1",
+    "candidate_mode": "engineering_fast",
+    "control_mode": "engineering_fast",
+    "master_port": 29646,
+    "cases": [
+      {
+        "name": "G3_mid",
+        "group": "G3",
+        "stage": "mid",
+        "pilot_origin_run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "pilot_origin_tag": "milestone_0050000",
+        "origin_identity": "6a0b41ad25b9652474c16bfe2dab7c215446960e8e705d8adb6f01e6d2fd6d1e",
+        "origin_complete_sha256": "a35ffa331dc0230b069ec2a6f9300809cc901d6174d82276db294e1f386150b9",
+        "train_args": [
+          "--config",
+          "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+          "--cache",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+          "--geometry",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+          "--geometry-identity",
+          "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+          "--dino-root",
+          "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+          "--dino-identity",
+          "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+          "--image-root",
+          "/var/tmp/ddp-full-foresight-20260929/images",
+          "--micro-batch",
+          "4"
+        ],
+        "output_root": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3",
+        "storage_pool": "LOCAL",
+        "storage_budget": {
+          "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+          "sha256": "ac6d2023a7fd8514a0e30d4cb7825d344b94979c5cd5e9f01471ef1b62b95652"
+        }
+      }
+    ],
+    "recommended_controller_output": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/controllers/G3",
+    "frozen_exact_commands": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/G3_SAME_MODE_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "97760b9c5169026dbefdbae6fff644bc02199ff455f47a4bb23f64c43bb5eb97"
+    },
+    "recovery_only_V2_clarification": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/recovery_only_v2_20261011/frozen_v1/CLARIFICATION.json",
+      "sha256": "5cfcc5ed0e0307589549b2162cf3d494dcc60484dc26d18d923a1700d2c78fef"
+    },
+    "original_V1_criteria": {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json",
+      "sha256": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007",
+      "changed": false
+    },
+    "prospective_acceptance_bindings": {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/training_efficiency_20261011T0546/P0_V1_PROSPECTIVE_BINDINGS/BINDINGS.json",
+      "sha256": "819d5c268eb2bc14c9f47043fd46abe1f7c2e8f1cd700867d884b7745fc4819e",
+      "frozen_utc": "2026-10-11T09:52:41.001472+00:00",
+      "scope": "all500nativejobsfuture; preexistinglegacyprobe remainsoriginalpre-runbinding, notretroactivelyqualified"
+    },
+    "prior_frozen_driver": {
+      "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-driver-v8-frozen-20261011",
+      "source_sha": "02f7a9afe838a86dc906a10ec3c6f602faac7b98",
+      "driver_sha256": "a8e69113a3c1a09a2e892e28b244f3d8953427a9aa13d9067b8e18aa0710c572"
+    },
+    "new_operator_binding": {
+      "status": "PENDING_PARENT_REVIEW_AND_COLD_FREEZE",
+      "mutable_script": {
+        "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_native_execution_recovery.py",
+        "sha256": "cdc9eadba4e3698d03c52920e378990bffe39277c4e8a0332f8c9aa22f103015"
+      }
+    },
+    "budget_binding_state": "ABSENT; parent must bind fresh known GPU-hour budget before --execute; no numeric placeholders",
+    "dispatch_ready": false,
+    "passed": false,
+    "formal_authorized": false,
+    "GPU_jobs_started": 0
+  },
+  "jobs": [
+    {
+      "key": "A32",
+      "case": "G3_mid",
+      "role": "A",
+      "stage": "recovery",
+      "mode": "engineering_fast",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/A",
+      "process_run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/controllers/G3/processes/A32",
+      "command": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--nnodes=1",
+        "--nproc_per_node=8",
+        "--max_restarts=0",
+        "--master_port=29646",
+        "--",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4",
+        "--scope",
+        "profile",
+        "--debug-updates",
+        "32",
+        "--pilot-origin-run",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "--pilot-origin-tag",
+        "milestone_0050000",
+        "--execution-mode",
+        "engineering_fast",
+        "--capture-updates",
+        "32",
+        "--capture-storage-budget",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "--save-every",
+        "2147483647",
+        "--logging-every",
+        "20",
+        "--evidence-every",
+        "100",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/A"
+      ],
+      "trainer": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+      "gpu_uuids": [
+        "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+        "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+        "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+        "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+        "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+        "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+        "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+        "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+      ],
+      "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+      "capture_plan": {
+        "relative_updates": [
+          32
+        ],
+        "origin_completed": 50000,
+        "absolute_updates": [
+          50032
+        ],
+        "end_update": 50032,
+        "stop_at_capture": false,
+        "save_path": "existing native save callback, unchanged tensor layout",
+        "retain_observations": "pilot milestone tags; original rolling-latest retention unchanged"
+      },
+      "retained_global_updates": [
+        50032
+      ],
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "sha256": "ac6d2023a7fd8514a0e30d4cb7825d344b94979c5cd5e9f01471ef1b62b95652"
+      },
+      "origin": {
+        "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "tag": "milestone_0050000",
+        "complete_sha256": "a35ffa331dc0230b069ec2a6f9300809cc901d6174d82276db294e1f386150b9"
+      },
+      "expected_resume_completed": 50000,
+      "expected_exit_completed": 50032
+    },
+    {
+      "key": "AA32",
+      "case": "G3_mid",
+      "role": "AA",
+      "stage": "recovery",
+      "mode": "engineering_fast",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/AA",
+      "process_run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/controllers/G3/processes/AA32",
+      "command": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--nnodes=1",
+        "--nproc_per_node=8",
+        "--max_restarts=0",
+        "--master_port=29646",
+        "--",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4",
+        "--scope",
+        "profile",
+        "--debug-updates",
+        "32",
+        "--pilot-origin-run",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "--pilot-origin-tag",
+        "milestone_0050000",
+        "--execution-mode",
+        "engineering_fast",
+        "--capture-updates",
+        "32",
+        "--capture-storage-budget",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "--save-every",
+        "2147483647",
+        "--logging-every",
+        "20",
+        "--evidence-every",
+        "100",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/AA"
+      ],
+      "trainer": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+      "gpu_uuids": [
+        "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+        "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+        "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+        "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+        "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+        "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+        "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+        "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+      ],
+      "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+      "capture_plan": {
+        "relative_updates": [
+          32
+        ],
+        "origin_completed": 50000,
+        "absolute_updates": [
+          50032
+        ],
+        "end_update": 50032,
+        "stop_at_capture": false,
+        "save_path": "existing native save callback, unchanged tensor layout",
+        "retain_observations": "pilot milestone tags; original rolling-latest retention unchanged"
+      },
+      "retained_global_updates": [
+        50032
+      ],
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "sha256": "ac6d2023a7fd8514a0e30d4cb7825d344b94979c5cd5e9f01471ef1b62b95652"
+      },
+      "origin": {
+        "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "tag": "milestone_0050000",
+        "complete_sha256": "a35ffa331dc0230b069ec2a6f9300809cc901d6174d82276db294e1f386150b9"
+      },
+      "expected_resume_completed": 50000,
+      "expected_exit_completed": 50032
+    },
+    {
+      "key": "B16",
+      "case": "G3_mid",
+      "role": "B",
+      "stage": "recovery",
+      "mode": "engineering_fast",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/B",
+      "process_run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/controllers/G3/processes/B16",
+      "command": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--nnodes=1",
+        "--nproc_per_node=8",
+        "--max_restarts=0",
+        "--master_port=29646",
+        "--",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4",
+        "--scope",
+        "profile",
+        "--debug-updates",
+        "32",
+        "--pilot-origin-run",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "--pilot-origin-tag",
+        "milestone_0050000",
+        "--execution-mode",
+        "engineering_fast",
+        "--capture-updates",
+        "32",
+        "--capture-storage-budget",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "--save-every",
+        "2147483647",
+        "--logging-every",
+        "20",
+        "--evidence-every",
+        "100",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/B",
+        "--stop-after",
+        "50016"
+      ],
+      "trainer": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+      "gpu_uuids": [
+        "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+        "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+        "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+        "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+        "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+        "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+        "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+        "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+      ],
+      "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+      "capture_plan": {
+        "relative_updates": [
+          32
+        ],
+        "origin_completed": 50000,
+        "absolute_updates": [
+          50032
+        ],
+        "end_update": 50032,
+        "stop_at_capture": false,
+        "save_path": "existing native save callback, unchanged tensor layout",
+        "retain_observations": "pilot milestone tags; original rolling-latest retention unchanged"
+      },
+      "retained_global_updates": [
+        50032
+      ],
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "sha256": "ac6d2023a7fd8514a0e30d4cb7825d344b94979c5cd5e9f01471ef1b62b95652"
+      },
+      "origin": {
+        "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "tag": "milestone_0050000",
+        "complete_sha256": "a35ffa331dc0230b069ec2a6f9300809cc901d6174d82276db294e1f386150b9"
+      },
+      "expected_resume_completed": 50000,
+      "expected_exit_completed": 50016
+    },
+    {
+      "key": "B_resume32",
+      "case": "G3_mid",
+      "role": "B",
+      "stage": "recovery",
+      "mode": "engineering_fast",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/B",
+      "process_run": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/controllers/G3/processes/B_resume32",
+      "command": [
+        "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+        "-m",
+        "torch.distributed.run",
+        "--nnodes=1",
+        "--nproc_per_node=8",
+        "--max_restarts=0",
+        "--master_port=29646",
+        "--",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/configs/structured_world/navsim_G3_EVENT_LOCAL_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4",
+        "--scope",
+        "profile",
+        "--debug-updates",
+        "32",
+        "--pilot-origin-run",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "--pilot-origin-tag",
+        "milestone_0050000",
+        "--execution-mode",
+        "engineering_fast",
+        "--capture-updates",
+        "32",
+        "--capture-storage-budget",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "--save-every",
+        "2147483647",
+        "--logging-every",
+        "20",
+        "--evidence-every",
+        "100",
+        "--output",
+        "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/B",
+        "--resume"
+      ],
+      "trainer": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+      "gpu_uuids": [
+        "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+        "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+        "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+        "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+        "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+        "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+        "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+        "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+      ],
+      "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+      "capture_plan": {
+        "relative_updates": [
+          32
+        ],
+        "origin_completed": 50000,
+        "absolute_updates": [
+          50032
+        ],
+        "end_update": 50032,
+        "stop_at_capture": false,
+        "save_path": "existing native save callback, unchanged tensor layout",
+        "retain_observations": "pilot milestone tags; original rolling-latest retention unchanged"
+      },
+      "retained_global_updates": [
+        50032
+      ],
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+        "sha256": "ac6d2023a7fd8514a0e30d4cb7825d344b94979c5cd5e9f01471ef1b62b95652"
+      },
+      "origin": {
+        "run": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_local_G3_G2_v3_io/G3_EVENT_LOCAL",
+        "tag": "milestone_0050000",
+        "complete_sha256": "a35ffa331dc0230b069ec2a6f9300809cc901d6174d82276db294e1f386150b9"
+      },
+      "expected_resume_completed": 50016,
+      "expected_exit_completed": 50032
+    }
+  ],
+  "source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+  "source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "driver_sha256": "cdc9eadba4e3698d03c52920e378990bffe39277c4e8a0332f8c9aa22f103015",
+  "fixed_relative_endpoint": 32,
+  "maximum_total_optimizer_updates": 96,
+  "full_native_banks": 4,
+  "storage_cap_example_GiB": {
+    "A": 45,
+    "AA": 45,
+    "B": 90,
+    "total": 180
+  },
+  "passed": false,
+  "formal_authorized": false,
+  "numeric_acceptance": "PENDING actual native receipts"
+}

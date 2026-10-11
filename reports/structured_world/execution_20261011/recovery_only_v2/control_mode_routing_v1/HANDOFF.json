@@ -1,0 +1,62 @@
+{
+  "status": "STABLE_CPU_ROUTING_READY_FOR_PARENT_COLD_FREEZE",
+  "driver": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/run_native_execution_recovery.py",
+    "sha256": "cdc9eadba4e3698d03c52920e378990bffe39277c4e8a0332f8c9aa22f103015"
+  },
+  "tests_source": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/tools/structured_world/test_recovery_control_mode.py",
+    "sha256": "77a0f353e1b80e5e251f9ba76bd29c5ca185a9c4d3e34a973eab71fcef298fb8"
+  },
+  "CPU_controls": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/CPU_CONTROLS.json",
+    "sha256": "9c23adbe33f2d6f65cade9f8e82a1b931ba8a12b94f5f525c998fa50f2c4a9b5"
+  },
+  "exact_commands": {
+    "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/EXACT_EIGHT_COMMANDS.json",
+    "sha256": "c8f9a55e28e8787dc2253e084b3d40b2e0750efe1ee5eb007d6a0e4c15b2edd4"
+  },
+  "files": [
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/G1_RECOVERY_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "89d03c5081bff462dda8a75f0eed58e6921497f9e9cc2116432829ea6867dcee"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/G1_GENERATED_PLAN.json",
+      "sha256": "a6c2dbbaf9354020ab578fba5130ed1e6e23cf1a29e8eb1592c46312ca616f02"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/G3_RECOVERY_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "2a78288b17a77789e796393f3c77ce43a28da1ba792c7c640a854fbc1b20e04f"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/G3_GENERATED_PLAN.json",
+      "sha256": "6c5c026a26198848a377a5a4c4cc04fe63878a88159ee65896cade9019004e93"
+    }
+  ],
+  "frozen_recovery_V2": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/recovery_only_v2_20261011/frozen_v1/CLARIFICATION.json",
+    "sha256": "5cfcc5ed0e0307589549b2162cf3d494dcc60484dc26d18d923a1700d2c78fef"
+  },
+  "training_source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "default_control_mode": "io_preserving_v1",
+  "new_control_mode": "engineering_fast only with engineering_fast candidate",
+  "operator_CPU_or_execute_command": [
+    "QUALIFIED_PRIVATE_PYTHON",
+    "-B",
+    "NEW_PARENT_FROZEN_DRIVER/tools/structured_world/run_native_execution_recovery.py",
+    "--manifest",
+    "FRESH_PARENT_BUDGET_BOUND_MANIFEST",
+    "--output",
+    "manifest.recommended_controller_output",
+    "OPTIONAL_EXPLICIT_EXECUTE"
+  ],
+  "remaining": "Parent review/cold freeze, fresh budget binding and actual host/resource/lock gates. No scientific argv or V2 criteria change.",
+  "B16_metadata_note": "Existing retained_global_updates denotes planned capture32; expected_exit_completed and preserved B16 stage prove actual16. Existing runner metadata remains unchanged.",
+  "old_artifacts_overwritten": false,
+  "validator_or_old_bindings_edited": false,
+  "passed": false,
+  "actual_GPU_recovery_evidence": "PENDING",
+  "formal_authorized": false,
+  "GPU_jobs_started": 0
+}
