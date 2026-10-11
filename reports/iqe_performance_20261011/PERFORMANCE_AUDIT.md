@@ -1,5 +1,7 @@
 # Query Base execution audit
 
+Consolidated existing training-speed measurements: [seconds per update, mean/p50/p95 and S-series comparison](../iqe_launch_closeout_924b003/TRAINING_SPEED_REPORT.md). No new profiling was run for that summary.
+
 Reference: 924b003. Existing training remains in its original worktree. No Base forward, loss, camera, input resolution, objective, repeat count, optimizer formula, LR schedule or precision was reduced.
 
 The user's S-series 1.7s/update report is substantiated: same 8 A800/global32, median1.73487s in updates20001–22000. Its execution used BF16 models with FP32 Adam master states, ZeRO2/fused optimizer and staged data. Current Query uses FP32 model/DDP; the frozen visual call runs outside BF16 autocast. Query decoder forward itself is approximately16ms. It cannot account for the multi-second difference. FM training uses one batched repeat8 call, not ten iterative inference passes.

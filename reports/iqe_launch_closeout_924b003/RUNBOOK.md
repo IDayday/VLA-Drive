@@ -101,6 +101,8 @@ Use a currently free GPU for CUDA commands. Existing completed diagnostics can b
 
 ## Actual Base execution profile and limits
 
+See [the training-speed summary](TRAINING_SPEED_REPORT.md) for the existing before/after seconds per optimizer step, mean/p50/p95, and the S-series reference. That summary reuses saved logs; no additional profiling or tests were run for it.
+
 The actual eight-GPU CLI profile was executed on a free `training-vlawm-zt`:
 
 ```bash

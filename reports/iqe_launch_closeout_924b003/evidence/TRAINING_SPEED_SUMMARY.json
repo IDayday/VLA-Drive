@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "scope": "QUERY_BASE_TRAINING_SPEED_ONLY",
+  "compiled_date_utc": "2026-10-11",
+  "source_code_commit": "e4b327d3cdca9cbf0e6ff59aa5c2ea9c55822dea",
+  "new_tests_run": false,
+  "new_profiles_run": false,
+  "new_training_started": false,
+  "sources": {
+    "historical_base": {
+      "path": "reports/iqe_performance_20261011/evidence/TIMING.json",
+      "sha256": "7cd943f2d786499ba9389e5153be92f2df5a8cff432ab7e1cf12f43451e92170"
+    },
+    "controlled_ab": {
+      "path": "reports/iqe_performance_20261011/evidence/vision_ahead_deterministic_v6.json",
+      "sha256": "d36789e81e287199771a56efe08b6b15222b702198c517cf3c8d91ce564612b6"
+    },
+    "actual_trainer_summary": {
+      "path": "reports/iqe_launch_closeout_924b003/evidence/ACTUAL_TRAINER_PROFILE.json",
+      "sha256": "b95e795c9aaaff4db200309918ce87307c3c07eba268844d1cd9ed2052156aff"
+    },
+    "actual_trainer_steps": {
+      "path": "/mnt/project/iqe-launch-runtime-924b003/base_runtime_profile/query_base/steps.jsonl",
+      "sha256": "1e9eaaf48f2ecb37778e2b7dc5fec0e91fb32d0d5edb03dded19181ac066017e"
+    },
+    "s_series": {
+      "path": "reports/iqe_performance_20261011/evidence/S_SERIES_COMPARISON.json",
+      "sha256": "75091430b5cb762343224d97401986dddc8a80adc5a3c8f93bab6ac1a2d6219c"
+    }
+  },
+  "common_resources": {
+    "gpu_count": 8,
+    "gpu_model": "NVIDIA A800-SXM4-80GB",
+    "effective_global_batch": 32
+  },
+  "historical_base": {
+    "snapshot_utc": "2026-10-11T02:12:33.333317+00:00",
+    "last_step_at_snapshot": 21973,
+    "recent1000_step_wall_seconds": {
+      "n": 1000,
+      "mean": 4.106184023572132,
+      "p50": 4.042143514379859,
+      "p95": 4.2928923312574625,
+      "max": 51.63114678300917
+    },
+    "recent1000_compute_seconds": {
+      "n": 1000,
+      "mean": 3.9256705063562842,
+      "p50": 3.91471644397825,
+      "p95": 4.090434478595853,
+      "max": 4.504055684432387
+    },
+    "scope": "previously captured live Base; wall includes periodic checkpoint stalls; not current live status"
+  },
+  "controlled_ab": {
+    "checkpoint_hash": "f1247b303c6accb18c63a42d628b0c2391817c58e400c851189d337ba0f79111",
+    "optimizer_updates_per_arm": 6,
+    "warmup_excluded": 2,
+    "pipeline_drain_excluded": 1,
+    "steady_updates_per_arm": 3,
+    "reference_seconds": {
+      "median_s": 4.107980811037123,
+      "p95_s": 4.225913577992469
+    },
+    "optimized_seconds": {
+      "median_s": 2.752940559759736,
+      "p95_s": 2.8006504306569697
+    },
+    "speedup_from_medians": 1.4922155861569524,
+    "step_time_reduction_fraction": 0.32985554548763496,
+    "formula": "speedup = reference_median / optimized_median; reduction = 1 - optimized_median / reference_median",
+    "precision_changed": false,
+    "deterministic_backward_both_arms": true,
+    "equivalence_result": "PASS"
+  },
+  "actual_optimized_trainer": {
+    "mode": "profile",
+    "initial_step": 21000,
+    "final_step": 21032,
+    "optimizer_updates": 32,
+    "steady_updates": 28,
+    "warmup_excluded": 3,
+    "pipeline_drain_excluded": 1,
+    "step_wall_mean_seconds": 2.8524083707348575,
+    "step_wall_p50_seconds": 2.7666225880384445,
+    "step_wall_p95_seconds": 3.141840111184865,
+    "compute_p50_seconds": 2.673324327915907,
+    "compute_p95_seconds": 3.041620687488466,
+    "data_wait_p50_seconds": 0.003965604119002819,
+    "scene_exposures_per_second": 11.218589991641322,
+    "throughput_formula": "global_batch / mean(step_wall_seconds) over the same 28 steady updates",
+    "steady_step_metrics": [
+      {
+        "optimizer_step": 21004,
+        "step_wall_seconds": 2.707912964746356,
+        "compute_update_seconds": 2.695724541321397,
+        "data_wait_seconds": 0.0031811725348234177
+      },
+      {
+        "optimizer_step": 21005,
+        "step_wall_seconds": 2.8811620362102985,
+        "compute_update_seconds": 2.6600825041532516,
+        "data_wait_seconds": 0.004636334255337715
+      },
+      {
+        "optimizer_step": 21006,
+        "step_wall_seconds": 2.7548148036003113,
+        "compute_update_seconds": 2.722520813345909,
+        "data_wait_seconds": 0.005010060966014862
+      },
+      {
+        "optimizer_step": 21007,
+        "step_wall_seconds": 3.0450934544205666,
+        "compute_update_seconds": 2.973566548898816,
+        "data_wait_seconds": 0.005420433357357979
+      },
+      {
+        "optimizer_step": 21008,
+        "step_wall_seconds": 2.773149076849222,
+        "compute_update_seconds": 2.669474611058831,
+        "data_wait_seconds": 0.0034621115773916245
+      },
+      {
+        "optimizer_step": 21009,
+        "step_wall_seconds": 2.728641988709569,
+        "compute_update_seconds": 2.6586651653051376,
+        "data_wait_seconds": 0.004284912720322609
+      },
+      {
+        "optimizer_step": 21010,
+        "step_wall_seconds": 2.750480381771922,
+        "compute_update_seconds": 2.730550704523921,
+        "data_wait_seconds": 0.003071717917919159
+      },
+      {
+        "optimizer_step": 21011,
+        "step_wall_seconds": 2.739639237523079,
+        "compute_update_seconds": 2.671995658427477,
+        "data_wait_seconds": 0.004645850509405136
+      },
+      {
+        "optimizer_step": 21012,
+        "step_wall_seconds": 3.1117043513804674,
+        "compute_update_seconds": 2.6176914665848017,
+        "data_wait_seconds": 0.00344637967646122
+      },
+      {
+        "optimizer_step": 21013,
+        "step_wall_seconds": 2.7553216759115458,
+        "compute_update_seconds": 2.7312736716121435,
+        "data_wait_seconds": 0.004417898133397102
+      },
+      {
+        "optimizer_step": 21014,
+        "step_wall_seconds": 2.7804145850241184,
+        "compute_update_seconds": 2.670494580641389,
+        "data_wait_seconds": 0.00411965511739254
+      },
+      {
+        "optimizer_step": 21015,
+        "step_wall_seconds": 2.826846743002534,
+        "compute_update_seconds": 2.6848188396543264,
+        "data_wait_seconds": 0.003173964098095894
+      },
+      {
+        "optimizer_step": 21016,
+        "step_wall_seconds": 2.762222470715642,
+        "compute_update_seconds": 2.653321001678705,
+        "data_wait_seconds": 0.0033825021237134933
+      },
+      {
+        "optimizer_step": 21017,
+        "step_wall_seconds": 2.771022705361247,
+        "compute_update_seconds": 2.6611723359674215,
+        "data_wait_seconds": 0.0032742973417043686
+      },
+      {
+        "optimizer_step": 21018,
+        "step_wall_seconds": 2.7612779643386602,
+        "compute_update_seconds": 2.663946384564042,
+        "data_wait_seconds": 0.004218500107526779
+      },
+      {
+        "optimizer_step": 21019,
+        "step_wall_seconds": 2.7586693167686462,
+        "compute_update_seconds": 2.6861186046153307,
+        "data_wait_seconds": 0.0055963993072509766
+      },
+      {
+        "optimizer_step": 21020,
+        "step_wall_seconds": 2.750684816390276,
+        "compute_update_seconds": 2.6548838783055544,
+        "data_wait_seconds": 0.004446225240826607
+      },
+      {
+        "optimizer_step": 21021,
+        "step_wall_seconds": 3.5170430466532707,
+        "compute_update_seconds": 3.3622992523014545,
+        "data_wait_seconds": 0.0036810599267482758
+      },
+      {
+        "optimizer_step": 21022,
+        "step_wall_seconds": 3.0226978603750467,
+        "compute_update_seconds": 2.944834103807807,
+        "data_wait_seconds": 0.0037313122302293777
+      },
+      {
+        "optimizer_step": 21023,
+        "step_wall_seconds": 2.9942226577550173,
+        "compute_update_seconds": 2.9480313397943974,
+        "data_wait_seconds": 0.004766590893268585
+      },
+      {
+        "optimizer_step": 21024,
+        "step_wall_seconds": 2.771981542930007,
+        "compute_update_seconds": 2.674652997404337,
+        "data_wait_seconds": 0.0030169300734996796
+      },
+      {
+        "optimizer_step": 21025,
+        "step_wall_seconds": 3.1580670587718487,
+        "compute_update_seconds": 3.0782652236521244,
+        "data_wait_seconds": 0.0039037708193063736
+      },
+      {
+        "optimizer_step": 21026,
+        "step_wall_seconds": 3.0005666483193636,
+        "compute_update_seconds": 2.6191945523023605,
+        "data_wait_seconds": 0.0034341830760240555
+      },
+      {
+        "optimizer_step": 21027,
+        "step_wall_seconds": 2.7462953459471464,
+        "compute_update_seconds": 2.663764910772443,
+        "data_wait_seconds": 0.0067956577986478806
+      },
+      {
+        "optimizer_step": 21028,
+        "step_wall_seconds": 2.900770554319024,
+        "compute_update_seconds": 2.687550526112318,
+        "data_wait_seconds": 0.0040274374186992645
+      },
+      {
+        "optimizer_step": 21029,
+        "step_wall_seconds": 2.729139806702733,
+        "compute_update_seconds": 2.676976138725877,
+        "data_wait_seconds": 0.006555739790201187
+      },
+      {
+        "optimizer_step": 21030,
+        "step_wall_seconds": 2.717787841334939,
+        "compute_update_seconds": 2.6689152885228395,
+        "data_wait_seconds": 0.0038668885827064514
+      },
+      {
+        "optimizer_step": 21031,
+        "step_wall_seconds": 2.6498034447431564,
+        "compute_update_seconds": 2.593482619151473,
+        "data_wait_seconds": 0.0022596903145313263
+      }
+    ],
+    "exclusions": "Model/checkpoint load before optimizer loop and final checkpoint save after last update are outside these steady step timings; not full-job elapsed/steps."
+  },
+  "s_series_reference": {
+    "source_commit": "1493deda247107efe076b9294863a6753391298a",
+    "updates": [
+      20001,
+      22000
+    ],
+    "sample_count": 2000,
+    "seconds": {
+      "p50": 1.7348684072494507,
+      "mean": 1.7429898142814637,
+      "p95": 1.8250186443328857
+    },
+    "precision": "BF16 model, FP32 AdamW master/moments",
+    "direct_algorithm_comparison": false,
+    "reason": "Historical BF16 model / ZeRO2 / fused optimizer execution differs from Query FP32 model / DDP; this is an engineering reference, not an isolated Query-vs-DiT result."
+  },
+  "timing_semantics": {
+    "step_wall_seconds": "Host elapsed between consecutive optimizer update boundaries; the main steady throughput metric.",
+    "compute_update_seconds": "Host elapsed inside update including waiting, data fetch and synchronization; not isolated CUDA kernel time.",
+    "data_wait_seconds": "Exposed data/vision prefetch wait; overlaps other work and must not be added again to wall time.",
+    "legacy_seconds_per_update": "Cumulative from launch, including previous checkpoint saves; not a current rolling step measurement."
+  },
+  "limitations": [
+    "No new measurement performed for this report.",
+    "The controlled comparison has only three steady updates per arm; the actual trainer has 28. Neither establishes sustained full-run speed.",
+    "Original Base was not stopped or migrated by this report.",
+    "No 1.7-second Query result has been measured."
+  ]
+}
