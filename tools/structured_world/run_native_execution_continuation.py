@@ -36,13 +36,21 @@ def validate_gpu_budget(manifest, jobs):
     """Explicit dispatch snapshot; no guessed external spending or defaults."""
     budget = manifest.get('budget')
     bench.require(isinstance(budget, dict), 'Explicit known GPU-hour budget required at --execute')
+    bench.require(budget.get('limit_kind') == 'internal_finite_test_registration',
+                  'Explicit internal finite test registration limit_kind required')
+    bench.require('user_GPU_hours_limit' in budget, 'Explicit user_GPU_hours_limit disclosure required; null means no user cap')
+    user_limit = budget['user_GPU_hours_limit']
+    bench.require(user_limit is None or (type(user_limit) in (int, float) and
+                  math.isfinite(user_limit) and user_limit > 0), 'User GPU-hour limit must be null or finite positive')
     required = ('phase_limit', 'already_spent_external', 'total_internal_limit', 'reserved_elsewhere')
     for name in required:
         value = budget.get(name)
         bench.require(type(value) in (int, float) and math.isfinite(value) and value >= 0,
                       'Explicit finite GPU-hour budget field required: '+name)
-    bench.require(0 < budget['phase_limit'] <= budget['total_internal_limit'] <= 120,
-                  'Positive phase budget within explicit joint limit <=120 GPUh required')
+    bench.require(0 < budget['phase_limit'] <= budget['total_internal_limit'],
+                  'Positive phase budget within explicit finite internal total required')
+    bench.require(user_limit is None or budget['total_internal_limit'] <= user_limit,
+                  'Internal total must not exceed the explicit user GPU-hour limit')
     reserves = budget.get('per_job_reserves')
     bench.require(isinstance(reserves, dict), 'Explicit per-job GPU-hour reserves required')
     for stage in {j['stage'] for j in jobs}:
@@ -97,6 +105,7 @@ def gpu_admission(budget, jobs, charges, *, whole_plan=False, next_job=None):
         'next_job_reserve_GPU_hours': budget['per_job_reserves'][next_job['stage']] if next_job else None,
         'projected_phase_GPU_hours': phase, 'projected_joint_GPU_hours': joint,
         'phase_limit': budget['phase_limit'], 'total_internal_limit': budget['total_internal_limit'],
+        'limit_kind': budget['limit_kind'], 'user_GPU_hours_limit': budget['user_GPU_hours_limit'],
         'already_spent_external': budget['already_spent_external'], 'reserved_elsewhere': budget['reserved_elsewhere']}
 
 

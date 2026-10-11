@@ -23,7 +23,8 @@ from tools.structured_world import test_native_capture as old_tests
 
 
 def budget():
-    return {'phase_limit': 36., 'already_spent_external': 50., 'total_internal_limit': 120.,
+    return {'limit_kind': 'internal_finite_test_registration', 'user_GPU_hours_limit': None,
+            'phase_limit': 36., 'already_spent_external': 50., 'total_internal_limit': 120.,
             'reserved_elsewhere': 34., 'per_job_reserves': {'early': .5, 'mid': 5.5, 'recovery': .5},
             'accounting_sources': []}
 
@@ -57,10 +58,44 @@ class BudgetTests(unittest.TestCase):
             b = budget(); b.pop(missing)
             with self.subTest(missing=missing), self.assertRaises(ValueError): driver.validate_gpu_budget({'budget': b}, jobs)
         for change in ({'phase_limit': None}, {'reserved_elsewhere': -1}, {'already_spent_external': float('nan')},
-                       {'total_internal_limit': float('inf')}, {'total_internal_limit': 121}, {'phase_limit': True},
+                       {'total_internal_limit': float('inf')}, {'total_internal_limit': -1}, {'phase_limit': True},
+                       {'limit_kind': 'user_cap'}, {'limit_kind': None},
+                       {'user_GPU_hours_limit': 0}, {'user_GPU_hours_limit': -1}, {'user_GPU_hours_limit': True},
+                       {'user_GPU_hours_limit': float('nan')}, {'user_GPU_hours_limit': float('inf')},
                        {'per_job_reserves': {'mid': 0}}, {'per_job_reserves': {'mid': float('nan')}}):
             with self.subTest(change=change), self.assertRaises(ValueError): driver.validate_gpu_budget({'budget': {**budget(), **change}}, jobs)
         with self.assertRaises(ValueError): driver.validate_gpu_budget({}, jobs)
+
+    def test_explicit_internal_140_no_user_cap_and_no_automatic_budget_increase(self):
+        jobs = [{'key': str(i), 'stage': 'early' if i < 6 else 'mid'} for i in range(12)]
+        registered = {**budget(), 'total_internal_limit': 140., 'already_spent_external': 60., 'reserved_elsewhere': 44.}
+        original = copy.deepcopy(registered)
+        admitted = driver.validate_gpu_budget({'budget': registered}, jobs)
+        gate = driver.gpu_admission(admitted, jobs, {'actual_phase_GPU_hours': 0.}, whole_plan=True)
+        self.assertEqual(gate['projected_joint_GPU_hours'], 140.)
+        self.assertEqual(gate['limit_kind'], 'internal_finite_test_registration')
+        self.assertIsNone(gate['user_GPU_hours_limit'])
+        with self.assertRaises(driver.BudgetRefused):
+            driver.gpu_admission(admitted, jobs, {'actual_phase_GPU_hours': .001}, whole_plan=True)
+        self.assertEqual(registered, original)
+        # Existing registrations are still enforced as declared; neither
+        # failed costs nor selected phases automatically revise their limits.
+        old = driver.validate_gpu_budget({'budget': budget()}, jobs)
+        with self.assertRaises(driver.BudgetRefused):
+            driver.gpu_admission(old, jobs, {'actual_phase_GPU_hours': .001}, whole_plan=True)
+        self.assertEqual(old['total_internal_limit'], 120.)
+
+    def test_actual_positive_user_cap_is_enforced_separately(self):
+        jobs = [{'key': 'mid', 'stage': 'mid'}]
+        for cap in (119.999, 100.):
+            with self.subTest(cap=cap), self.assertRaisesRegex(ValueError, 'explicit user GPU-hour limit'):
+                driver.validate_gpu_budget({'budget': {**budget(), 'user_GPU_hours_limit': cap}}, jobs)
+        for cap in (120., 140.):
+            b = driver.validate_gpu_budget({'budget': {**budget(), 'user_GPU_hours_limit': cap}}, jobs)
+            gate = driver.gpu_admission(b, jobs, {'actual_phase_GPU_hours': 0.}, whole_plan=True)
+            self.assertEqual(gate['user_GPU_hours_limit'], cap)
+        revised = {**budget(), 'total_internal_limit': 140., 'user_GPU_hours_limit': 130.}
+        with self.assertRaises(ValueError): driver.validate_gpu_budget({'budget': revised}, jobs)
 
     def test_failed_exit_and_success_are_both_charged(self):
         with tempfile.TemporaryDirectory() as d:

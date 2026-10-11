@@ -1,0 +1,24 @@
+{
+  "schema": "native_GPU_budget_semantics_v7",
+  "required_disclosure": {
+    "limit_kind": "internal_finite_test_registration",
+    "user_GPU_hours_limit": null
+  },
+  "user_limit_meaning": "null explicitly discloses no user GPU-hour cap. A numeric user limit must be finite positive and the registered internal total may not exceed it.",
+  "prospective_parent_internal_total_GPUh": 140,
+  "internal_total_meaning": "Finite test registration, not user authorization. 140 is a parent prospective declaration for the same finite test list; it is not a driver default or an automatic increase.",
+  "still_required_at_execute": [
+    "phase_limit",
+    "already_spent_external",
+    "total_internal_limit",
+    "reserved_elsewhere",
+    "per_job_reserves"
+  ],
+  "required_relation": "0 < phase_limit <= total_internal_limit; if user_GPU_hours_limit is numeric then total_internal_limit <= user_GPU_hours_limit",
+  "actual_spending_unknown": "Explicit finite actual counters/reserves still required; null or absent actual budget counters cannot start execution.",
+  "remaining_controls": "Whole selected plan reservation before first launch; actual success/failed exit costs plus all remaining reserves before next. Unknown missing exit cost blocks next, safe stop only at next-job boundary, no automatic retry or budget revision.",
+  "legacy_manifests": "V7 continuation/recovery budgets must explicitly add both disclosure fields; old artifacts are retained, never silently assigned new semantics.",
+  "acceptance": "No numerical gate or strict negative result changed; internal budget admission is not scientific acceptance.",
+  "GPU_jobs_launched": 0,
+  "formal_authorized": false
+}

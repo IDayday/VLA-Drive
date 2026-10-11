@@ -1,0 +1,72 @@
+{
+  "schema": "native_budget_semantics_v7_handoff_v1",
+  "code_stable_for_parent_freeze": true,
+  "source_sha256": {
+    "tools/structured_world/run_native_execution_continuation.py": "356a1f9ca4378e2057e36380d15431835b65f779d36e4d8819f6f456034d2cbe",
+    "tools/structured_world/test_native_driver_budget.py": "7205b8dcd2c8c3465c482f1e5d2423baae1e3c9247873526a5e5083714c2de56"
+  },
+  "CPU_tests": {
+    "control_tests": 24,
+    "control_seconds": 1.2862683925777674,
+    "capture_regression_tests": 15,
+    "regression_seconds": 3.4849668201059103,
+    "all_passed": true
+  },
+  "receipts": {
+    "control": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_budget_semantics_v7/CPU_RECEIPT_V1.json",
+    "capture_regression": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_budget_semantics_v7/NATIVE_CAPTURE_REGRESSION_V1.json"
+  },
+  "budget_semantics": {
+    "schema": "native_GPU_budget_semantics_v7",
+    "required_disclosure": {
+      "limit_kind": "internal_finite_test_registration",
+      "user_GPU_hours_limit": null
+    },
+    "user_limit_meaning": "null explicitly discloses no user GPU-hour cap. A numeric user limit must be finite positive and the registered internal total may not exceed it.",
+    "prospective_parent_internal_total_GPUh": 140,
+    "internal_total_meaning": "Finite test registration, not user authorization. 140 is a parent prospective declaration for the same finite test list; it is not a driver default or an automatic increase.",
+    "still_required_at_execute": [
+      "phase_limit",
+      "already_spent_external",
+      "total_internal_limit",
+      "reserved_elsewhere",
+      "per_job_reserves"
+    ],
+    "required_relation": "0 < phase_limit <= total_internal_limit; if user_GPU_hours_limit is numeric then total_internal_limit <= user_GPU_hours_limit",
+    "actual_spending_unknown": "Explicit finite actual counters/reserves still required; null or absent actual budget counters cannot start execution.",
+    "remaining_controls": "Whole selected plan reservation before first launch; actual success/failed exit costs plus all remaining reserves before next. Unknown missing exit cost blocks next, safe stop only at next-job boundary, no automatic retry or budget revision.",
+    "legacy_manifests": "V7 continuation/recovery budgets must explicitly add both disclosure fields; old artifacts are retained, never silently assigned new semantics.",
+    "acceptance": "No numerical gate or strict negative result changed; internal budget admission is not scientific acceptance.",
+    "GPU_jobs_launched": 0,
+    "formal_authorized": false
+  },
+  "implementation_scope": "Only continuation driver and control test changed; recovery imports the shared new validator without any recovery source change.",
+  "removed": "Literal total_internal_limit <=120 requirement. The prior120 number remains only where explicitly declared by an existing internal registration, not as a new user authorization ceiling.",
+  "admission_record_fields": [
+    "limit_kind",
+    "user_GPU_hours_limit",
+    "phase_limit",
+    "total_internal_limit",
+    "already_spent_external",
+    "reserved_elsewhere"
+  ],
+  "previous_phase_selection": "--cases unchanged; original full four-case manifest, pending early cases, captures and all acceptance=false/PENDING semantics retained.",
+  "protected_sources_unchanged_sha256": {
+    "tools/structured_world/train_vla.py": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+    "tools/structured_world/native_capture.py": "c7600b96626812d02304361890f42fff8646dcf8d100f3a96dbbe74d9c5497d3",
+    "tools/structured_world/run_native_execution_recovery.py": "4da4cc653b68105633bad5f524570d76fbf8044655974768ef74411dd17e1468",
+    "tools/structured_world/compare_execution_checkpoints.py": "9dede8df91b9def8623c608e9581cb5246647c4870c8e52cdca4f6a8c76cb703",
+    "reports/structured_world/execution_20261011/INDEPENDENT_ACCEPTANCE_PREREGISTRATION_V1.json": "8bc0cc1dec82c88cc73e8cde4e5e9eac1d4d88633339c6fcd6670a1d984a8007"
+  },
+  "training_source_kept": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "benchmark_driver_source_changed": false,
+  "old_strict_receipts_changed": false,
+  "numerical_acceptance_thresholds_changed": false,
+  "same_input_GPU_forward_acceptance": "Independent parent current-be5 probe pending actual receipt, including current loss reuse; no inference from older f8 or CPU control tests. Old strict failures preserved.",
+  "actual_GPU_jobs_launched": 0,
+  "numeric_acceptance": false,
+  "formal_authorized": false,
+  "old_reports_overwritten": false,
+  "commit_or_push_by_agent": false,
+  "release_status": "STABLE_READY_FOR_PARENT_DRIVER_V7_FREEZE; no further source edits by this agent"
+}
