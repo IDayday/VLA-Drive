@@ -1,0 +1,167 @@
+{
+  "schema": "NAVSIM_G1_actual_native_recovery_v1",
+  "captured_UTC": "2026-10-11T00:34:01.371557+00:00",
+  "status": "FORMAL_TRAINING_RUNNING",
+  "host": "training-vlawm-zt2",
+  "run_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM",
+  "training_evaluation_source_sha": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "controller_source_sha256": "1e1c4d83ee1831ecbe6a297ea55442cb777106710bcbb987efc2bc72c3ce51d4",
+  "controller_launch": {
+    "pid": 1257835,
+    "command": [
+      "/tmp/structured-world-round1/envs/qwen/bin/python",
+      "-B",
+      "-u",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/resume_navsim_group.py",
+      "--execute",
+      "--prepared",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/preparation_v3/PREPARATION_COMPLETE.json",
+      "--destination-host",
+      "training-vlawm-zt2",
+      "--destination-qualification",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/environment_evidence_v2/DESTINATION_ENVIRONMENT_READINESS.json",
+      "--allow-low-util-sharing",
+      "--wait-for-resource",
+      "--output",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/execute_v2"
+    ],
+    "started_unix": 1791678559.2301035,
+    "host": "training-vlawm-zt2",
+    "policy_sha256": "2dc05d7b967a4510d2e009b6dfdbb4d9bfeced8eb159942ef751572012c10b05",
+    "helper_sha256": "1e1c4d83ee1831ecbe6a297ea55442cb777106710bcbb987efc2bc72c3ce51d4",
+    "preparation_sha256": "ec281ea1c4e025b4c63e930ad10d1b5ae1230f6ff783cbce3475a7e194217e1a",
+    "private_environment_evidence_sha256": "68c9ed85ac7b44949a0a305075af3262c356f408ab139415220a2ae0db1341f9",
+    "capacity_evidence_sha256": "3cfb989476eae0e31a9cdc66d3b31a3a1ffe0bdf3aa3fc7852cb1893c2b9d2ee",
+    "native_checkpoint": {
+      "tag": "milestone_0025000",
+      "completed": 25000,
+      "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+      "complete_file": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/checkpoints/milestone_0025000/COMPLETE.json",
+      "complete_sha256": "1dbaafc0ac4b94678f32175a400a6745c417e98fafc096f6c50d267b79d0177e"
+    },
+    "control_directory": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/execute_v2",
+    "NU_G1_launched": false
+  },
+  "eight_rank_probe": {
+    "captured_UTC": "2026-10-11T00:34:01.094158+00:00",
+    "host": "training-vlawm-zt2",
+    "ranks": [
+      {
+        "pid": 4102352,
+        "local_rank": 0,
+        "world_size": 8
+      },
+      {
+        "pid": 4102353,
+        "local_rank": 1,
+        "world_size": 8
+      },
+      {
+        "pid": 4102354,
+        "local_rank": 2,
+        "world_size": 8
+      },
+      {
+        "pid": 4102355,
+        "local_rank": 3,
+        "world_size": 8
+      },
+      {
+        "pid": 4102356,
+        "local_rank": 4,
+        "world_size": 8
+      },
+      {
+        "pid": 4102357,
+        "local_rank": 5,
+        "world_size": 8
+      },
+      {
+        "pid": 4102358,
+        "local_rank": 6,
+        "world_size": 8
+      },
+      {
+        "pid": 4102359,
+        "local_rank": 7,
+        "world_size": 8
+      }
+    ],
+    "GPU_snapshot": [
+      "0, 50709, 37",
+      "1, 50921, 36",
+      "2, 50905, 55",
+      "3, 43172, 17",
+      "4, 43174, 22",
+      "5, 51121, 27",
+      "6, 50343, 21",
+      "7, 41988, 53"
+    ]
+  },
+  "verified_native_boundary": {
+    "Adam_moments_steps_and_LR": "bitwise all ranks",
+    "FP32_masters": "bitwise all ranks, actual parameters",
+    "FP32_model_and_buffers": "bitwise",
+    "alignment_padding": "excluded using DeepSpeed original _get_groups_without_padding",
+    "all_task_RNG": "exact all ranks",
+    "completed": 25000,
+    "epoch": 7,
+    "exposure": 799944,
+    "identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+    "offset": 2775,
+    "passed": true,
+    "timing": "before next forward/backward/update"
+  },
+  "live_progress": {
+    "updates": 25046,
+    "seconds": 3.1707348823547363,
+    "GPU_hours": 175.8155106639862,
+    "scene_exposure": 801416,
+    "actual_parameter_group_lrs": [
+      8.99407165695459e-06,
+      8.99407165695459e-06,
+      8.99407165695459e-06,
+      8.99407165695459e-06,
+      8.99407165695459e-06,
+      8.99407165695459e-06,
+      8.99407165695459e-05
+    ],
+    "fp32_master_update_verified": true,
+    "sampled_changed_elements": 25961
+  },
+  "observed_restored_updates_checked": 46,
+  "recent_step_median_seconds": 3.184237837791443,
+  "evidence_files_sha256": {
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/LAUNCHED_CONTROLLER_V2.json": "e22deb671c3f289b8ffcf8a0e5032e3861043ec11f2bada26cf12df709212811",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/execute_v2/REGISTRATION.json": "45b579a1ee571601f22a8be2c73a1718ae3da15b4360fdb26445c7761c39e704",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/recovery_dispatch_20261010/navsim_G1_vlawm_native_20261010T235152Z/alternative_vlawm_zt2/preparation_v3/PREPARATION_COMPLETE.json": "ec281ea1c4e025b4c63e930ad10d1b5ae1230f6ff783cbce3475a7e194217e1a",
+    "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/formal_navsim_zt2_G1_G0_v3_io/G1_FULL_UNIFORM/RESUME_BOUNDARY_VERIFIED.json": "0da1b3c207b2eacae641abe1a9448bbb93380f1f85699302b10ef0c5e603d5d2"
+  },
+  "unchanged_contract": {
+    "global_batch": 32,
+    "FM_repeat": 8,
+    "proposal_steps": 10,
+    "horizon": 100000,
+    "training_seed": 42,
+    "development_updates": [
+      25000,
+      50000,
+      75000,
+      100000
+    ],
+    "development_scenes": 1696,
+    "precision": "Original IO-preserving AMP training; canonical FP32 evaluation unchanged"
+  },
+  "resource_mode": "All eight GPUs; existing low-utilization memory occupants retained under explicit user authorization. Original memory profile plus 12 GiB reserve, at least 55 GiB free on every GPU before dispatch.",
+  "startup_failures_preserved": [
+    "Missing original RGB before optimizer updates on first destination",
+    "Missing private mmcv overlay before native restore on first alternate startup"
+  ],
+  "limits": [
+    "Timestamped live progress, not a completed 100k run",
+    "No additional nuScenes training launched",
+    "Real native boundary verifies restoration, not bitwise future CUDA updates",
+    "Final Navtest is pending final frozen configuration",
+    "First round and second training seed remain incomplete"
+  ]
+}

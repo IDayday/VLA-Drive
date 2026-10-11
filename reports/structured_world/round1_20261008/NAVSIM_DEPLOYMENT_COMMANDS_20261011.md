@@ -85,5 +85,23 @@ env OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMEXPR_NUM_THREA
 GPU锁和现有停止请求。实际已执行命令、最终接替服务器和恢复验证在G1独立
 部署记录中保存。不能把已有NU资格标记改名为另一台服务器的资格。
 
+G1已经在`training-vlawm-zt2`实际恢复。
+[成功恢复记录](NAVSIM_G1_RECOVERY_20261011.json)中的`controller_launch`
+保留本次执行argv；`verified_native_boundary`和`eight_rank_probe`提供真实验证。
+其controller自动推进50k/75k/100k和开发评价。已验证数据准备可通过
+`--reuse-prepared`复用，仍重新检查运行环境、原身份和metadata；未来CUDA更新
+不承诺bitwise相同。
+
+恢复控制测试复现，仅运行CPU/mock，不派发GPU worker：
+
+```bash
+CUDA_VISIBLE_DEVICES= PYTHONDONTWRITEBYTECODE=1 \
+  /tmp/structured-world-round1/envs/qwen/bin/python -B \
+  tools/structured_world/validate_recovery_routing.py \
+  --output /mnt/project/structured-world-routing-validation-new
+```
+
+输出目录必须不存在且位于源码、原实验资产目录之外。
+
 G3/G2的原controller和source不变。G3当前继续到100k，G2在其登记队列中等待。
 nuScenes恢复helper本轮保留为后续工具，按用户安排不执行。

@@ -13,6 +13,9 @@
 [实际部署/恢复/评价命令](NAVSIM_DEPLOYMENT_COMMANDS_20261011.md)和
 [恢复路由验证](RECOVERY_ROUTING_VALIDATION_20261011.json)提供可执行入口、20项
 CPU控制测试及G1接替服务器真实数据和模型导入检查；CPU准备不代表正式恢复已完成。
+[G1实际恢复记录](NAVSIM_G1_RECOVERY_20261011.json)进一步确认在`vlawm-zt2`
+完成25k native状态恢复、8个真实rank和后续FP32 master更新；G0/G1/G3现均在训练。
+G1保留已有低利用率显存占用，共用完整8卡，未终止无关任务。
 
 This branch contains executable code and real data/training/deployment checks.
 **The results snapshot captured on 2026-10-10 contains NAVSIM G3's complete 50k
