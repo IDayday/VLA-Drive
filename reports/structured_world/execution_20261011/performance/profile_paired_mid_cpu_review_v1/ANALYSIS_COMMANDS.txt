@@ -1,0 +1,80 @@
+# 手工分析用法；仅在两个实际 jobs 完成后，在 zt4 运行。
+# 本文件不是 launcher；不采集新 trace，不复制 trace，不安装 viewer。
+# active3 是每个 rank 的3个记录步，不是整个32update，也不是3个微批。
+# 预计 ProfilerStep#6,#7,#8 对应更新25007..25009；以实际trace事件验证。
+# profiler.step 在 engine.step 内，step 包含前一更新的尾部日志/下一更新前部。
+# export 在第9次step内；25009 optimizer/stage/whole-update 可被导出严重污染。
+# 这些数字只能解释 instrumented runs，不能替代正式24-window吞吐证据。
+
+PAIR=/var/tmp/structured-world-fgtr-execution-20261011/profile_paired_mid_v1
+for MODE in io_preserving_v1 engineering_fast; do
+  printf '\n%s\n' "$MODE"
+  sha256sum "$PAIR/$MODE/identity.json" "$PAIR/$MODE/TRAINING_COMPLETE.json" "$PAIR/$MODE/PROCESS_EXIT.json"
+  sed -n '1,90p' "$PAIR/$MODE/trace/rank0_operators.txt"
+done
+
+# 只读取小型JSON/JSONL，打印全进程成本和active对应阶段；不读取巨型rank*.json。
+# 两列max各自可能来自不同rank；禁止横向相加或把max之和称为critical path。
+# host_dispatch_seconds 是整个函数调用的host wall，含host同步/嵌套/等待，非CPU纯计算。
+# CUDA_stream_ms 是当前stream event区间，含launch gap/依赖等待，非所有stream kernel总和。
+/usr/bin/python3 -B - "$PAIR" <<'PY'
+import json,sys
+from pathlib import Path
+base=Path(sys.argv[1]);active={25007,25008,25009}
+pair_identities=[]
+for mode in ('io_preserving_v1','engineering_fast'):
+    run=base/mode
+    identity=json.loads((run/'identity.json').read_text())
+    done=json.loads((run/'TRAINING_COMPLETE.json').read_text())
+    proc=json.loads((run/'PROCESS_EXIT.json').read_text())
+    resumed=json.loads((run/'RESUME_BOUNDARY_VERIFIED.json').read_text())
+    assert identity['training_source_sha']=='be5e72248a46afd43e1bf279c21134c391c5edad'
+    assert identity['execution_mode']==mode and identity['extra_stage_instrumentation'] is True
+    assert done['identity']==identity['identity'] and done['updates']==25032 and proc['returncode']==0
+    assert proc.get('monitor_error') is None
+    assert identity['engineering_continue_origin']['completed']==25000
+    assert resumed['identity']==identity['identity'] and resumed['completed']==25000
+    pair_identities.append(identity)
+    print(mode,'actual_process_wall_seconds',proc['wall_seconds'],'allocated8_GPUh',proc['wall_seconds']*8/3600)
+    rows=[json.loads(x)for x in (run/'metrics.jsonl').read_text().splitlines()if x.strip()]
+    if mode=='io_preserving_v1':
+        updates={r['updates']:r['per_rank_stage_timing']for r in rows if r['updates']in active}
+    else:
+        ranks=[[json.loads(x)for x in (run/f'stages_rank{rank}.jsonl').read_text().splitlines()if x.strip()]for rank in range(8)]
+        updates={u:[next(r for r in ranks[rank]if r['updates']==u)for rank in range(8)]for u in active}
+    assert set(updates)==active
+    for update,parts in sorted(updates.items()):
+        assert len(parts)==8
+        stages=sorted({n for part in parts for n,v in part.items()if isinstance(v,dict)and 'CUDA_stream_ms'in v})
+        for name in stages:
+            values=[p[name]for p in parts]
+            print(mode,update,name,'calls_by_rank',[v['calls']for v in values],
+                  'max_rank_stream_ms',max(v['CUDA_stream_ms']for v in values),
+                  'max_rank_host_wall_s',max(v['host_dispatch_seconds']for v in values),
+                  'export_boundary'if update==25009 else 'profiled')
+for key in ('engineering_continue_origin','training_source_sha','training_source_tree_sha256',
+            'config','cache_identity','current_and_GT_identity','DINO_identity',
+            'shared_geometry_identity','training_seed','world_size','effective_global_batch',
+            'FM_repeat','microbatch','schedule_horizon','schedule_warmup'):
+    assert pair_identities[0][key]==pair_identities[1][key],key
+print('same_origin_source_data_contract_verified')
+PY
+
+# 现有兼容Chrome/Kineto trace viewer的手工步骤（没有已有viewer时不用安装）：
+# 在原host就地打开 trace/rank0.json；先用rank0_operators.txt筛hot ops，再查看其他7rank。
+# 选择 ProfilerStep#6..8；通过thread/stream lanes确认实际边界，切勿按所有事件sum(dur)。
+# CPU ranges：Qwen_current_inclusive 包含Qwen_vision；二者不可相加。
+# 查看.backward_inclusive子项时可能包含重算forward ranges、SyncBN与通信等待。
+# 用CPU launch/correlation(flow)链接到对应GPU kernel，勿仅凭CPU range墙钟包含关系归属GPU。
+# 查看所有本rank设备的CUDA streams，包括NCCL stream，以及GPU memcpy/memset。
+# NCCL与compute重叠时先取时间区间union；NCCL kernel dur不等于纯通信阻塞时间。
+# 在选定同一step范围W内，GPU busy = measure(union(all captured GPU kernel/copy/set intervals clipped to W))。
+# trace-visible idle = length(W) - busy；只表示本trace可见设备活动的补集，不等于host原因证明。
+# gaps出现时同时看主线程、preprocess worker线程、CUDA runtime/sync和NCCL/peer-rank。
+# CPU有工作且所有GPU streams静默可支持launch-starvation假设；仍需排除I/O、依赖和未捕获活动。
+# CPU等待cudaSync/NCCL时不能叫纯Python overhead。with_stack=False不能给Python逐行归因。
+# host ranges是嵌套inclusive；只沿同一thread构造exclusive范围/intervalunion，不跨thread直接相减。
+# self_cuda_time_total排序仅用于定位累计成本；并发streams使其不能成为GPU wall分区。
+# rank之间按update/ProfilerStep对齐，不相加8个rank用时；最慢rank/collective critical path需timeline证据。
+# 第一active步可能含上一warmup optimizer/log尾部；最后active optimizer跨export，边界项单独披露。
+# 真实kernel与gap/overlap数据出现前，不填写数字收益、不把early dirty-tree f4f7称为f8 profile。

@@ -1,0 +1,129 @@
+{
+  "schema": "profile_paired_mid_cpu_read_only_review_v1",
+  "status": "CPU static review complete; this review launched no jobs and examined no new trace",
+  "sources": {
+    "plan": {
+      "path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/profile_paired_mid_v1/PLAN.json",
+      "sha256": "9ca11018366697d39c2881bd817c269c825a7cb4148ae038585a8fcc030c183e"
+    },
+    "driver": {
+      "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-dev-v1-frozen-20261011",
+      "commit": "69b8e9fa8c9174a7fa02ba6a26de8a0af3434ae2",
+      "file": "tools/structured_world/perf_reference_trace.py",
+      "sha256": "4aec9ec2e41f7d620ef277fae28be480eca1605218cf4cc995ce1ea0fbd37d2f",
+      "git_status_porcelain": ""
+    },
+    "training": {
+      "root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+      "commit": "be5e72248a46afd43e1bf279c21134c391c5edad",
+      "git_status_porcelain": "",
+      "files_sha256": {
+        "tools/structured_world/train_vla.py": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+        "tools/structured_world/stage_timing.py": "67736b1603d6bed2a3833b8679e85d45aa9161c343bed3460a52f4e20f680a6c",
+        "tools/structured_world/execution_log.py": "99562ee910764e9354f3ac7541b3d6c26ba26210555cbc9b7bc8b7848f9f28cc"
+      }
+    }
+  },
+  "paired_plan": {
+    "modes": [
+      "io_preserving_v1",
+      "engineering_fast"
+    ],
+    "host": "training-vlawm-zt4",
+    "world_size": 8,
+    "microbatch": 4,
+    "global_batch": 32,
+    "origin_run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+    "origin_tag": "milestone_0025000",
+    "updates_per_job": 32,
+    "expected_final_update": 25032,
+    "actual_argv_equal_after_removing_only": [
+      "--execution-mode",
+      "--output",
+      "--trace-dir"
+    ],
+    "argv_equality_verified": true,
+    "actual_same_origin_proof_pending": "After execution compare identity.engineering_continue_origin, config/data/geometry/source tree and RESUME_BOUNDARY_VERIFIED receipts. Plan paths agree; this CPU review does not assert actual future load/input hashes.",
+    "real_training": "Actual train_vla engine.forward/backward/optimizer update (train_vla.py:473-519); benchmark_no_end_save suppresses final checkpoint export, not optimization. PLAN sampling wording 'no-update-independent' must not be interpreted as no-update execution.",
+    "stages_import": "perf_reference_trace.py:20-22 prepends be5 trainer root before importing TrainingStageTiming. Scope wraps that trainer's instances.",
+    "parent_environment_update": "Parent reports fresh zt4 flashqualification 09a40 created by actual CPU query. No qualification file, old source binding, environment or source was changed by this review.",
+    "use_as_main_throughput_benchmark": false,
+    "plan_budget_and_storage": "2 GPUh and approximate 10 GiB trace upper size are declared reserves/estimates; not measured job costs or observed trace sizes."
+  },
+  "recording": {
+    "code": "perf_reference_trace.py:35-49",
+    "activities": [
+      "CPU",
+      "CUDA"
+    ],
+    "schedule": {
+      "wait": 5,
+      "warmup": 1,
+      "active": 3,
+      "repeat": 1
+    },
+    "record_shapes": true,
+    "with_stack": false,
+    "expected_active_profiler_labels": [
+      "ProfilerStep#6",
+      "ProfilerStep#7",
+      "ProfilerStep#8"
+    ],
+    "nominal_update_labels": [
+      25007,
+      25008,
+      25009
+    ],
+    "interpretation": "Three active profiler steps per rank, once. Registered global32/micro4/world8 yields one engine.step per optimizer update. Verify actual marker/call counts after execution.",
+    "schedule_evidence": "Static schedule/step implementation in locally installed torch/profiler/profiler.py:409-439,766-783; actual remote trace markers remain authoritative.",
+    "step_boundary": "profile.step runs after original DeepSpeedEngine.step but before its wrapper returns. ProfilerStep starts before preceding update's optimizer wrapper tail and post-step logging, so markers do not coincide exactly with complete training-update wall intervals.",
+    "export_boundary": "on_trace_ready exports rank JSON and operator table synchronously at the ninth step call, inside stage_timing optimizer_step wrapper. All eight rank callbacks may write concurrently. Final active optimizer host wall/current-stream interval and update25009 wall may include export/synchronization/storage overhead; flag separately, not as steady throughput. Genuine captured kernel events are still usable with boundary disclosure.",
+    "outputs": "rank{0..7}.json and rank{0..7}_operators.txt; top80 table sorted self_cuda_time_total.",
+    "instrumentation_overhead": "Shape recording, profiler collection, record_function, stage CUDA events, sync/log publication and export perturb timing. No code path here intentionally changes loss/RNG/operator/optimizer, but static review alone is not a numerical-equivalence receipt."
+  },
+  "timing_and_overlap": {
+    "stage_ranges_source": "stage_timing.py:15-25,32-56",
+    "nested_ranges": [
+      "Qwen_current_inclusive contains Qwen_vision; do not sum them.",
+      "backward_inclusive can contain checkpoint forward recomputation/SyncBN/collective dependencies; attribute child events by timeline/flows, not adding inclusive ranges."
+    ],
+    "current_stream_events": "CUDA_stream_ms sums current-stream event intervals for calls (35-41,51-54). It includes host launch gaps and stream waits; is not kernel-only or an all-stream exclusive partition.",
+    "host_wall": "host_dispatch_seconds is perf_counter wall around the call; includes nested work, blocking/sync and waits. It is not CPU busy time, nor a quantity to subtract from CUDA_stream_ms.",
+    "nccl": "train_vla.py:289-290 uses ZeRO2 overlap_comm/reduce_scatter. Other communication streams can overlap compute. NCCL kernel durations are not exclusive communication overhead or proof of a blocking critical path.",
+    "gpu_busy_method": "Within a chosen actual marker window W on one rank/device, clip all captured GPU kernel/memcpy/memset intervals on every stream to W and take interval UNION. Do not sum kernel durations, operator self time, nested stages or eight ranks.",
+    "trace_idle_method": "length(W) minus the captured GPU interval union gives trace-visible device inactivity, not proof of physical-device idle or a host cause. Check missing activities, peer-rank/collective dependencies, runtime API synchronization and CPU worker/thread activity.",
+    "host_gap": "Correlate CPU launch/flow with kernels. CPU work during all-stream trace silence can support a launch-starvation hypothesis, but I/O, synchronization/dependencies and uncaptured work must be excluded. with_stack=False cannot provide Python-line stacks. Data/CPU preprocessing in worker threads can be outside encode_current scope (train_vla.py:421-443).",
+    "rank_aggregation": "max-rank host and CUDA columns may come from different ranks. Do not sum their maxima; compare per-rank update/marker-aligned timelines. Clock offsets across separate rank traces are not assumed aligned.",
+    "table_limitation": "key_averages top80 self_cuda_time_total is cumulative operator cost ranking, not a mutually exclusive wall-time breakdown."
+  },
+  "logging": {
+    "fast_profile": "train_vla.py:401 makes ExecutionLogWindow interval=1 when profile_stages, despite --logging-every20. Its flush includes CUDA synchronization, collectives/packed host transfer/logging (execution_log.py:61-130). This differs from normal engineering_fast amortization.",
+    "io_profile": "train_vla.py:555-583 synchronizes and stores gathered all-rank stage records in metrics.jsonl per_rank_stage_timing.",
+    "fast_profile_stages": "train_vla.py:543-546 stores stages_rank{rank}.jsonl after log flush; each row includes updates.",
+    "cost_scopes": "IO metrics.seconds, fast performance_windows.wall_seconds_max_rank_including_log_flush, CUDA interval columns and whole PROCESS_EXIT.wall_seconds have different boundaries. Do not treat them as identical measurements or add them.",
+    "primary_speed_evidence": "Use completed registered native 24-window benchmark evidence for throughput claims. This pair is diagnostic only."
+  },
+  "early_source_identity": {
+    "summary_file": "SOURCE_IDENTITY_SUMMARY.json",
+    "recorded_git_head": "267701f3b2c6cf36a97ff3a5e6bfb535e5aab232",
+    "recorded_training_tree_sha256": "f4f7bb01aed30c43ecb1679fe53d4165da4b5de474cab4e8e56b9a4b5ddee93e",
+    "actual_identity_file_sha256": "40b0a0aaf4cac63f43aea07df8d5aeeeb319ce058e6c0f181cc1c5e6c3fc30e3",
+    "f8_commit": "f8b33ef2ac2c048be905227c14fc164382a813ae",
+    "interpretation": "Parent identifies early screen as dirty; f4f7 is a tree-content SHA256, not a commit. Preserve Git267701f plus treef4f7 identity, and never relabel this early diagnostic as frozen f8. New be5 paired run is a separate source-controlled diagnostic."
+  },
+  "analysis_handoff": {
+    "manual_commands": "ANALYSIS_COMMANDS.txt",
+    "execution_status": "Not executed against future jobs; only syntax/static schema checked.",
+    "large_trace_handling": "No trace copied/read in this review; use existing compatible viewer in place after actual runs, no installation."
+  },
+  "limits": {
+    "GPU_jobs_launched": 0,
+    "new_traces_collected": 0,
+    "large_trace_bytes_read": 0,
+    "model_or_tool_source_changes": 0,
+    "environment_changes": 0,
+    "commits_created": 0,
+    "performance_gain_claimed": false,
+    "actual_future_profile_completion_claimed": false
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "schema": "recovery_only_v2_queued_storage_CPU_review_v1",
+  "recorded_utc": "2026-10-11T12:39:46.311351+00:00",
+  "scope": "Existing queued LOCAL early6 + same-mode recovery8 + Nu2 native banks; no new disk/GPU-hour limits or job dispatch",
+  "review_source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011",
+  "review_source_sha": "68f6924bf39e6ab3f98ecfb7f8efc9ec86144318",
+  "capacity_snapshot": {
+    "provenance": "Latest explicit parent message, not a new disk/RAM probe by this sidecar",
+    "host": "training-vlawm-zt4",
+    "local_free_GiB": 907,
+    "shared_free_GiB": 975,
+    "available_RAM_GiB": 726,
+    "RAM_is_disk_capacity_credit": false,
+    "existing_assets_and_banks_already_debited_in_current_free_space": true
+  },
+  "bank_size_assumption": {
+    "parent_supplied_actual_estimate_GiB": 42.28,
+    "precision": "Provided rounded estimate; no new full-payload reads/hashes",
+    "unchanged_registered_next_checkpoint_upper_GiB": 45,
+    "units": "GiB = 2^30 bytes"
+  },
+  "components": [
+    {
+      "component": "G1_early",
+      "budget": "LOCAL_STORAGE_BUDGET",
+      "native_bank_count": 3,
+      "owned_runs": 3,
+      "estimated_payload_GiB": 126.84,
+      "metadata_headroom_GiB": 3.0,
+      "estimated_incremental_GiB_including_headroom": 129.84,
+      "existing_45GiB_upper_incremental_GiB_including_headroom": 138.0,
+      "active_owned_caps_GiB": 138.0,
+      "unused_capacity_above_planned_45GiB_plus_headroom_GiB": 0.0,
+      "owner_accounting": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G1_early/A",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G1_early/AA",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G1_early/B",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        }
+      ]
+    },
+    {
+      "component": "G3_early",
+      "budget": "LOCAL_STORAGE_BUDGET",
+      "native_bank_count": 3,
+      "owned_runs": 3,
+      "estimated_payload_GiB": 126.84,
+      "metadata_headroom_GiB": 3.0,
+      "estimated_incremental_GiB_including_headroom": 129.84,
+      "existing_45GiB_upper_incremental_GiB_including_headroom": 138.0,
+      "active_owned_caps_GiB": 138.0,
+      "unused_capacity_above_planned_45GiB_plus_headroom_GiB": 0.0,
+      "owner_accounting": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G3_early/A",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G3_early/AA",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G3_early/B",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        }
+      ]
+    },
+    {
+      "component": "G1_same_mode_recovery",
+      "budget": "ADDITIONAL_LOCAL_STORAGE_BUDGET",
+      "native_bank_count": 4,
+      "owned_runs": 3,
+      "estimated_payload_GiB": 169.12,
+      "metadata_headroom_GiB": 3.0,
+      "estimated_incremental_GiB_including_headroom": 172.12,
+      "existing_45GiB_upper_incremental_GiB_including_headroom": 183.0,
+      "active_owned_caps_GiB": 228.0,
+      "unused_capacity_above_planned_45GiB_plus_headroom_GiB": 45.0,
+      "owner_accounting": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G1/A",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G1/AA",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G1/B",
+          "expected_native_banks": 2,
+          "capacity_native_banks": 3,
+          "cap_GiB": 136.0,
+          "metadata_headroom_GiB": 1.0
+        }
+      ]
+    },
+    {
+      "component": "G3_same_mode_recovery",
+      "budget": "ADDITIONAL_LOCAL_STORAGE_BUDGET",
+      "native_bank_count": 4,
+      "owned_runs": 3,
+      "estimated_payload_GiB": 169.12,
+      "metadata_headroom_GiB": 3.0,
+      "estimated_incremental_GiB_including_headroom": 172.12,
+      "existing_45GiB_upper_incremental_GiB_including_headroom": 183.0,
+      "active_owned_caps_GiB": 228.0,
+      "unused_capacity_above_planned_45GiB_plus_headroom_GiB": 45.0,
+      "owner_accounting": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/A",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/AA",
+          "expected_native_banks": 1,
+          "capacity_native_banks": 1,
+          "cap_GiB": 46.0,
+          "metadata_headroom_GiB": 1.0
+        },
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_same_mode_p0_v1/G3/B",
+          "expected_native_banks": 2,
+          "capacity_native_banks": 3,
+          "cap_GiB": 136.0,
+          "metadata_headroom_GiB": 1.0
+        }
+      ]
+    },
+    {
+      "component": "Nu_P0_init0_and32",
+      "budget": "LOCAL_STORAGE_BUDGET",
+      "native_bank_count": 2,
+      "owned_runs": 1,
+      "estimated_payload_GiB": 84.56,
+      "metadata_headroom_GiB": 1.0,
+      "estimated_incremental_GiB_including_headroom": 85.56,
+      "existing_45GiB_upper_incremental_GiB_including_headroom": 91.0,
+      "active_owned_caps_GiB": 91.0,
+      "unused_capacity_above_planned_45GiB_plus_headroom_GiB": 0.0,
+      "owner_accounting": [
+        {
+          "path": "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/Nu_G1_P0_32",
+          "expected_native_banks": 2,
+          "capacity_native_banks": 2,
+          "cap_GiB": 91.0,
+          "metadata_headroom_GiB": 1.0
+        }
+      ]
+    }
+  ],
+  "LOCAL_total": {
+    "queued_native_banks": 16,
+    "owned_run_count": 13,
+    "native_payload_estimate_GiB": 676.48,
+    "per_run_metadata_headroom_total_GiB": 13,
+    "estimated_incremental_GiB_with_headroom": 689.48,
+    "unchanged45GiB_upper_incremental_GiB_with_headroom": 733.0,
+    "existing_selected_caps_GiB": 823.0,
+    "existing_unused_B_capacity_GiB": 90,
+    "estimated_post_queue_free_GiB": 217.52,
+    "upper_bound_post_queue_free_GiB": 174.0,
+    "existing_reserve_GiB": 100,
+    "existing_next_save_upper_GiB": 45,
+    "existing_reserve_plus_next_GiB": 145,
+    "estimated_margin_above145GiB_GiB": 72.52,
+    "upper_bound_margin_above145GiB_GiB": 29.0,
+    "hypothetical_all_active_caps_filled_free_GiB": 84.0,
+    "hypothetical_all_caps_filled_margin_vs145GiB_GiB": -61.0,
+    "interpretation": "Expected fixed 16-bank queue fits the stated snapshot, including metadata and the existing145GiB floor. Saturating every cooperative cap is not the fixed command plan and would not preserve that floor."
+  },
+  "prefix_projection_example": [
+    {
+      "through_component": "G1_early",
+      "estimated_free_GiB": 777.16,
+      "45GiB_upper_free_GiB": 769.0,
+      "upper_margin_above_existing145GiB_floor": 624.0
+    },
+    {
+      "through_component": "G3_early",
+      "estimated_free_GiB": 647.32,
+      "45GiB_upper_free_GiB": 631.0,
+      "upper_margin_above_existing145GiB_floor": 486.0
+    },
+    {
+      "through_component": "G1_same_mode_recovery",
+      "estimated_free_GiB": 475.2,
+      "45GiB_upper_free_GiB": 448.0,
+      "upper_margin_above_existing145GiB_floor": 303.0
+    },
+    {
+      "through_component": "G3_same_mode_recovery",
+      "estimated_free_GiB": 303.08,
+      "45GiB_upper_free_GiB": 265.0,
+      "upper_margin_above_existing145GiB_floor": 120.0
+    },
+    {
+      "through_component": "Nu_P0_init0_and32",
+      "estimated_free_GiB": 217.52,
+      "45GiB_upper_free_GiB": 174.0,
+      "upper_margin_above_existing145GiB_floor": 29.0
+    }
+  ],
+  "prefix_projection_conditions": [
+    "Any ordering of these same writes has its minimum free space at the final16-bank endpoint; no old banks/assets are deleted.",
+    "One native save staging payload is within the planned bank/45GiB upper, then renamed atomically; do not charge both writing directory and renamed checkpoint as two banks.",
+    "13GiB is existing in-owned-run metadata headroom. Additional controller/export/other-writer consumption is not independently reserved and reduces the29GiB conservative margin.",
+    "These are projections from parent-supplied free space. Cooperative caps do not guarantee free space against concurrent external writers."
+  ],
+  "reservation_deduplication": {
+    "no_duplicate_or_nested_owned_paths": true,
+    "all_13_queued_owners_have_existing_caps": true,
+    "budget_refs_deduplicated_by_path_and_sha256": true,
+    "early_manifest_unselected_zt3_mid_cases_not_counted_again": true,
+    "LOCAL_STORAGE_BUDGET": {
+      "declared_pool_cap_GiB": 550,
+      "queued_early_and_Nu_caps_GiB": 367,
+      "reference_only_mixed_mode_caps_GiB": 183,
+      "other_owned_reservation_bytes": 0
+    },
+    "ADDITIONAL_LOCAL_STORAGE_BUDGET": {
+      "declared_pool_cap_GiB": 456,
+      "queued_same_mode_caps_GiB": 456,
+      "other_owned_reservation_bytes": 0
+    },
+    "raw_two_pool_caps_GiB": 1006,
+    "raw_sum_is_not_current_queue_demand": true,
+    "inactive_legacy_roots": [
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G1_recovery/A",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G1_recovery/AA",
+      "/var/tmp/structured-world-fgtr-execution-20261011/native_zt4_after_benchmark_v1/G1_recovery/B"
+    ],
+    "cross_pool_other_field_gap": "Both other_owned_reservation_bytes fields are0. Neither books the other logical pool's pending writes globally (367 versus456GiB caps). This review includes both once; no global or exclusive reservation is claimed.",
+    "shared_physical_local_domain": "Both zt4 logical budgets probe /var/tmp; they are cooperative ownership pools, not separate physical free-space or quota credits.",
+    "other_unidentified_reservations": "Not inventoried as zero. Given current free space already includes existing consumption; any new writer requires refreshed admission."
+  },
+  "separate_domains": {
+    "zt4_queued_new_SHARED_bank_count": 0,
+    "zt3_LOCAL_budget": {
+      "host": "training-vlawm-zt3",
+      "pool_cap_GiB": 678.0,
+      "not_subtracted_from_zt4_local": "Different host; same /var/tmp pathname is not the same local disk."
+    },
+    "known_zt3_G3_SHARED_budget": {
+      "host": "training-vlawm-zt3",
+      "filesystem_probe_path": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011",
+      "pool_cap_GiB": 678.0,
+      "expected_full_triplet_banks": 15,
+      "metadata_headroom_GiB": 3,
+      "other_owned_reservation_bytes": 0,
+      "not_counted_in_zt4_LOCAL": true,
+      "current_remaining_unsaved_banks": "Not re-probed; do not debit all15 banks as newly pending when some are already included in shared975GiB free.",
+      "conservative_maximal_remaining_growth_GiB": 678.0,
+      "shared975_minus_full678_GiB": 297,
+      "shared_conservative_margin_over145GiB_GiB": 152,
+      "interpretation": "An intentionally conservative upper for known future growth only, not a second charge for already-persisted banks or an exclusive shared reservation."
+    },
+    "E3_and_dev_export_storage": "Not queued/bound by this16-bank report; no additional storage mechanism or limits introduced."
+  },
+  "existing_enforcement": {
+    "native_capture": {
+      "source": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/native_capture.py",
+      "owned_caps_and_payload_guard": "Before each captured save: OWN allocated+pending45<=per-run cap and current physical free>=100+45GiB.",
+      "other_pool_future_writes_globally_reserved": false,
+      "physical_free_after_actual_save_guaranteed145_by_guard_alone": false,
+      "guard_limit": "The existing pre-save145GiB guard preserves100GiB after a45GiB save. Maintaining145GiB at every queue prefix additionally relies on the bounded733GiB projection and fresh actual free space."
+    },
+    "Nu_non_origin_profile": "Existing frozen fresh-NU path does not use capture_storage_budget per-save ownership admission; manifest records external91GiB cap/two-bank preflight and the original100GiB save-space check. No per-save145GiB native guarantee is invented."
+  },
+  "conclusion": "Fixed16-bank queued writes fit the provided907GiB local snapshot with29GiB conservative margin above100+next45, provided no additional uncounted writes. All active cooperative caps cannot be simultaneously saturated while preserving145GiB; existing cooperative pool budgets are not exclusive reservations.",
+  "GPU_hours": "Not computed or rebound; parent will bind actual process ledger after matrix completion.",
+  "input_refs": [
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/records_v1/LOCAL_STORAGE_BUDGET.json",
+      "sha256": "f4eb6315938862a89863df72d0603d6b3a0bedd7628bcbd90c321fb2c7f4a8d3"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/same_mode_20261011T113145Z/records_v1/ADDITIONAL_LOCAL_STORAGE_BUDGET.json",
+      "sha256": "ac6d2023a7fd8514a0e30d4cb7825d344b94979c5cd5e9f01471ef1b62b95652"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/records_v1/EARLY_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "4ad6a902c003f239f99342894625a7bdad8c9327df93db8ef03bcc19b68c061a"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt4_after_benchmark_p0_20261011T101431Z/records_v1/NU_P0_REAL32_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "940a9e65070e601334011070e6027d6d6fa39687f968209d7eab0bee93bf971d"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt3_p0_mid_binding_20261011T093714Z/records_v2/LOCAL_STORAGE_BUDGET.json",
+      "sha256": "c3999bdeac71f6e1764aa626ec840365f2039b3171826582a7ecd86fb6527df4"
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/zt3_p0_mid_binding_20261011T093714Z/records_v2/SHARED_STORAGE_BUDGET.json",
+      "sha256": "92a440c0e66468429a206c30f3746e855c41674faa28eed5e18ceabc91c12e6e"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/G1_RECOVERY_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "89d03c5081bff462dda8a75f0eed58e6921497f9e9cc2116432829ea6867dcee"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/reports/structured_world/execution_20261011/recovery_only_v2/control_mode_routing_v1/G3_RECOVERY_MANIFEST_BUDGET_PENDING.json",
+      "sha256": "2a78288b17a77789e796393f3c77ce43a28da1ba792c7c640a854fbc1b20e04f"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-validation-v2-frozen-20261011/tools/structured_world/native_capture.py",
+      "sha256": "c7600b96626812d02304361890f42fff8646dcf8d100f3a96dbbe74d9c5497d3"
+    },
+    {
+      "path": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011/tools/structured_world/train_vla.py",
+      "sha256": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87"
+    }
+  ],
+  "new_limits_created": false,
+  "budgets_or_assets_modified": false,
+  "deletions": false,
+  "sampling_changes": false,
+  "CPU_only": true,
+  "passed": false,
+  "formal_authorized": false,
+  "GPU_jobs_started": 0,
+  "automatic_dispatch_authorization": false
+}
