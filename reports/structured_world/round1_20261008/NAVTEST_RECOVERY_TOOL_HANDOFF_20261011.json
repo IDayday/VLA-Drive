@@ -1,0 +1,157 @@
+{
+  "recorded_utc": "2026-10-11T03:27:28.802791+00:00",
+  "stable_tool_files_sha256": {
+    "prepare_navsim_navtest_assets.py": "511a105abd0ba56f4e07a72714a221063b8b7ee2a1b1749444b8b9675417335a",
+    "run_navsim_navtest.py": "6f633ef16281f43ba4c1e0f4bf7603f0112c8f5d99e136bcadee0cdb05f96989",
+    "stream_navsim_navtest_pdms.py": "c0dd547d8ee8a3ee3e732164236d8dba25fda247d0f06e55f57d4e98816f2eeb",
+    "test_navsim_navtest_routing.py": "e880f277b60ceec6eb5794676ccd82d412039889d5abc26d107be45026439bfa"
+  },
+  "frozen_model_source": "0c54f1c49e7ed2a76b22826b654d6c72625f5b6d",
+  "tests": {
+    "passed": 4,
+    "seconds": 15.24,
+    "log": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/RECOVERY_ROUTING_TESTS.log",
+    "checks": [
+      "5_to_2_workers_global_union_coverage",
+      "stale_generation_fencing",
+      "real_frozen_four_scene_hash_corruption",
+      "reject_one_line_CSV_claiming_12146",
+      "full_CSV_token_log_population_status_metric_bounds_means",
+      "reject_invalid_score_or_foreign_identity"
+    ]
+  },
+  "recovery_record": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/recoveries/20261011T031113_8d4eec724227/RECOVERY.json",
+  "original_failure_sha256": "0c8ac806542a7f11e0faeb6a303310dc972608888caf38f13952d24db3493648",
+  "original_classification": "scientific_or_unclassified",
+  "explicit_recovery_classification": "explicit reviewed infrastructure",
+  "verified_prior_scenes": 8699,
+  "all_prior_workers_exit_verified": 44,
+  "lease_ordinals": "bound current_inputs/index.json; token/log set matched against canonical metric INDEX",
+  "current_controller": {
+    "pid": 1317618,
+    "start_ticks": "1312706459",
+    "started_utc": "2026-10-11T03:14:11.424210+00:00",
+    "command": [
+      "/tmp/structured-world-round1/envs/qwen/bin/python",
+      "-B",
+      "-u",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/run_navsim_navtest.py",
+      "--serve",
+      "--score-workers",
+      "16"
+    ],
+    "tool_sha256": "6f633ef16281f43ba4c1e0f4bf7603f0112c8f5d99e136bcadee0cdb05f96989",
+    "immutable_tool_snapshot": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/code_revisions/recovery_6f633ef16281f43ba4c1e0f4bf7603f0112c8f5d99e136bcadee0cdb05f96989.py",
+    "original_launch_tool_sha256": "8101e21f9c2cf830f4dbcbfa29f3bcad33cca40e8f08e4069e6053c53c6fed59",
+    "verified_prior_scenes": 8699,
+    "remaining_scenes": 3447,
+    "tests_log": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/RECOVERY_ROUTING_TESTS.log",
+    "tests_passed": 4,
+    "current_inputs_index_used_for_lease_ordinals": true,
+    "no_training_signals": true
+  },
+  "route_policy": "dynamic physically idle qualified subset; high-utilization training GPUs and transport-quarantined zt5 excluded",
+  "no_training_signals": true,
+  "no_commit": true,
+  "status": "G3_50k_COMPLETE_VERIFIED_CONTROLLER_CONTINUES_QUEUE",
+  "current_attempt": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/attempts/20261011T031518_41fb4dc84844",
+  "selected_routes_by_host": {
+    "training-vlawm-zt": 8,
+    "training-vlawm-zt3": 8,
+    "training-vlawm-zt4": 8
+  },
+  "actual_launchers": 24,
+  "scorer": {
+    "pid": 1319231,
+    "command": [
+      "/root/miniconda3/envs/navsim/bin/python",
+      "-B",
+      "-u",
+      "/mnt/project/VLA-Drive-structured-world-fgtr-round1-20261008/tools/structured_world/stream_navsim_navtest_pdms.py",
+      "--predictions",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000",
+      "--index",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/navtest_cache_index.json",
+      "--devkit",
+      "/mnt/project/local-interaction-mask-v2-artifacts/20260927/reference_sources/navsim-v1.1",
+      "--output",
+      "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/scores",
+      "--workers",
+      "16"
+    ],
+    "launched_utc": "2026-10-11T03:15:18.542916+00:00",
+    "mode": "CPU process pool starts before GPU shards; atomic-ready predictions streamed immediately"
+  },
+  "current_G3_scorer_loaded_sha256": "c0093bd4ea0809e6d68db263051e1412bdb9d8f1efb66be034d14025a513f843",
+  "future_scorer_change": {
+    "source_sha256": "c0dd547d8ee8a3ee3e732164236d8dba25fda247d0f06e55f57d4e98816f2eeb",
+    "syntax_passed": true,
+    "actual_existing_q0_qfinal_shared_cache_guards_verified": {
+      "q0": true,
+      "q_final": true
+    },
+    "per_token_cache_hash_reused_for_both_variants": true,
+    "resume_progress_interval_seconds": 5,
+    "current_scorer_not_restarted": true
+  },
+  "G3_50k_result": {
+    "q0": {
+      "PDMS_percent": 86.68422888079593,
+      "scenes": 12146,
+      "failed": 0,
+      "valid": true,
+      "csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/scores/q0/scenes.csv",
+      "summary": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/scores/q0/summary.json"
+    },
+    "q_final": {
+      "PDMS_percent": 88.51954751927023,
+      "scenes": 12146,
+      "failed": 0,
+      "valid": true,
+      "csv": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/scores/q_final/scenes.csv",
+      "summary": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/jobs/G3_EVENT_LOCAL_0050000/scores/q_final/summary.json"
+    }
+  },
+  "independent_completion_verification": {
+    "valid": true,
+    "tool_sha256": "6f633ef16281f43ba4c1e0f4bf7603f0112c8f5d99e136bcadee0cdb05f96989",
+    "full_prediction_hash_union_and_CSV_population_means_checked": true,
+    "command": "run_navsim_navtest.py --verify-complete --request-key G3_EVENT_LOCAL_0050000"
+  },
+  "queued_requests": [
+    "G1_FULL_UNIFORM_0025000",
+    "G3_EVENT_LOCAL_0025000"
+  ],
+  "queued_request_actual_status": {
+    "G1_FULL_UNIFORM_0025000": {
+      "state": "QUALIFYING_MEMORY",
+      "profile_workers": [
+        {
+          "host": "training-vlawm-zt-worker-0",
+          "pid": 4133560,
+          "proc_start_ticks": "1312772378",
+          "status": "COMPLETE",
+          "scenes_done": 4
+        },
+        {
+          "host": "training-vlawm-zt3-worker-0",
+          "pid": 538412,
+          "proc_start_ticks": "1312781187",
+          "status": "INFERENCE",
+          "scenes_done": 1
+        },
+        {
+          "host": "training-vlawm-zt4-worker-0",
+          "pid": 2321058,
+          "proc_start_ticks": "1312786605",
+          "status": "LOADING",
+          "scenes_done": 0
+        }
+      ],
+      "formal_full_population_started": false,
+      "FP32_export_sha256": "b49a684d8e1ebeb29929e50f4043d1fc9a1e142d5edc627de9e339599e2e5282",
+      "FP32_export": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_navtest_dispatch_20261011T0225/FP32_exports/G1_FULL_UNIFORM_0025000/model_fp32.pt"
+    },
+    "G3_EVENT_LOCAL_0025000": "QUEUED_AFTER_G1"
+  }
+}

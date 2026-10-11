@@ -10,6 +10,13 @@ is installed under `/mnt/project/skill/navtest-parallel-eval`; it uses independe
 GPU shards and concurrent canonical CPU scoring. Existing development snapshots
 remain historical evidence, not new Navtest results.
 
+[完整 G3 50k Navtest](G3_50000_NAVTEST_RESULT_20261011.json)现已覆盖12146场景，
+q0/q_final均无评分失败；最终PDMS为88.5195。
+[配对分析](G3_50000_NAVTEST_ANALYSIS_20261011.json)显示内部修正+1.8353点，
+但相对历史S0/S3 50k的差异区间均包含零，尚未建立独立辅助监督收益。
+[动态执行、成本与恢复记录](NAVTEST_EXECUTION_ZH_20261011.md)披露44→24 GPU的
+实时路由变化、SSH故障恢复、训练干扰与有效结果完整性验证。
+
 [中文分析与差异总结](ANALYSIS_AND_DIFFERENCES_ZH_20261010.md)汇总ego输入、
 24epoch来源、公开工作训练准备/配方差异、nuScenes最终规划与场景指标，
 以及最新NAVSIM 50k与历史同步数比较。
