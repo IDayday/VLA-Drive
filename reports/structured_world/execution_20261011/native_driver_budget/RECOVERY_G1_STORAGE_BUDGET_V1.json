@@ -1,0 +1,29 @@
+{
+  "schema": "native_capture_storage_budget_v1",
+  "approved_for_pilot": true,
+  "host": "training-vlawm-zt4",
+  "reserve_bytes": 107374182400,
+  "checkpoint_upper_bytes": 48318382080,
+  "pool_cap_bytes": 193273528320,
+  "filesystem_probe_path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008",
+  "owned_runs": [
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_driver_budget_20261011/recovery_G1_v1/A",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 48318382080
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_driver_budget_20261011/recovery_G1_v1/AA",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 48318382080
+    },
+    {
+      "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_driver_budget_20261011/recovery_G1_v1/B",
+      "kind": "owned_numerical_pilot",
+      "cap_bytes": 96636764160
+    }
+  ],
+  "exclusive_filesystem_reservation": false,
+  "storage_admission": "180GiB OWN accounting, not an extra filesystem guarantee. Actual 100GiB+45GiB free checks before each native save; quota visibility honestly reported, EDQUOT/ENOSPC halt the owned pilot.",
+  "phase_scope": "One group triplet only; prior 135GiB recovery reservation is insufficient for four45GiB banks; parent includes this phase in total storage/GPU budgets at actual dispatch"
+}

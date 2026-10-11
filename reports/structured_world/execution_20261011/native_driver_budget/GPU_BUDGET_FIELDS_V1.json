@@ -1,0 +1,26 @@
+{
+  "schema": "native_driver_GPU_budget_fields_v1",
+  "native_manifest_budget": {
+    "phase_limit": 36.0,
+    "already_spent_external": null,
+    "total_internal_limit": 120.0,
+    "reserved_elsewhere": null,
+    "per_job_reserves": {
+      "early": 0.5,
+      "mid": 5.5
+    },
+    "accounting_sources": []
+  },
+  "unknown_counters_block_execute": true,
+  "counter_binding": "Parent supplies current actual external full8 process GPUh, including failed runs; reserved_elsewhere excludes this phase and covers dev/recovery/E3/other allocations. Optional source {path,sha256} entries are hashed independently; no stale 8/40 values reused.",
+  "native_whole_matrix_GPUh": 36.0,
+  "dispatch_rule": "Before first job and each subsequent job: actual current phase + ALL remaining job reserves <= phase_limit and + external spent + reserved_elsewhere <= total_internal_limit",
+  "in_flight_overrun": "Never terminate current job. Charge its actual wall on exit and refuse next if limits no longer admit all remaining reservations; final budget compliance reported separately.",
+  "source_records": [
+    "GPU_BUDGET_REGISTRATION.json",
+    "NATIVE_RNG_SOURCES.json",
+    "<key>_GPU_BUDGET_BEFORE.json",
+    "<key>_GPU_COST_AFTER.json",
+    "RESULTS.json actual_process_costs_including_failed"
+  ]
+}

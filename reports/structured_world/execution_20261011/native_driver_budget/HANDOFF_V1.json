@@ -1,0 +1,54 @@
+{
+  "schema": "native_driver_budget_and_recovery_handoff_v1",
+  "code_stable_for_parent_freeze": true,
+  "source_sha256": {
+    "tools/structured_world/test_native_driver_budget.py": "0150d15c4cd917c029d561af3f185eba947024878ff3142337329b1dfa0d066c",
+    "tools/structured_world/run_native_execution_continuation.py": "606e79348e2106a1d1cf6750871669d74e9827df3b1cd52c6797f50ceb4a9c1c",
+    "tools/structured_world/run_native_execution_recovery.py": "4da4cc653b68105633bad5f524570d76fbf8044655974768ef74411dd17e1468"
+  },
+  "training_source_kept": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "training_source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+  "training_source_sha256": "9a9d0fb67337686bc1f41f1b3fe2e2d80678ea2b5a276f3f68d9e80d997a5d87",
+  "trainer_model_and_old_guards_changed": false,
+  "CPU_tests": {
+    "driver_budget_recovery": 13,
+    "seconds": 1.2076676562428474,
+    "native_capture_regression": 15,
+    "regression_seconds": 3.450651390478015,
+    "all_passed": true
+  },
+  "actual_GPU_jobs_launched": 0,
+  "numerical_recovery_acceptance": false,
+  "budget_fields": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_driver_budget/GPU_BUDGET_FIELDS_V1.json",
+  "execute_budget": "Mandatory explicit finite phase_limit/already_spent_external/total_internal_limit<=120/reserved_elsewhere/per_job_reserves. Whole matrix checked before first job; actual exits+ALL remaining reserves checked before next. No implicit 8/40, no stale copied external accounting.",
+  "native_phase_example": "6early*0.5 +6mid*5.5=36GPUh; external spent and other reservations remain parent dispatch bindings",
+  "actual_charges": "Every actual PROCESS_EXIT wall_seconds*8/3600, including failed process/monitor exit; process paths unique, B two phases separately counted. Started process missing valid exit cost blocks next as unknown.",
+  "in_flight_cost_rule": "Do not terminate current owned finite job. On exit charge actual cost, refuse next on projected overrun; final budget compliance is reported separately even if last job overruns.",
+  "sources_separate": [
+    "GPU_BUDGET_REGISTRATION.json numeric/source snapshot and optional accounting_source hashes",
+    "NATIVE_RNG_SOURCES.json origin COMPLETE/all8 RNG payload bindings; native trainer does real payload+boundary verification"
+  ],
+  "driver_execution_source": "Parent must freeze a separate new clean driver source; training_root/source_sha remain be5. Existing frozen be5 runner is not patched in place.",
+  "native_operator_CLI": "<new-frozen-driver>/tools/structured_world/run_native_execution_continuation.py --manifest <fresh V2 manifest with explicit budget block> --output <fresh controller> [--execute]",
+  "recovery_operator_CLI": "<new-frozen-driver>/tools/structured_world/run_native_execution_recovery.py --manifest <recovery manifest> --output <fresh controller> [--execute]",
+  "recovery_manifest": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_driver_budget/RECOVERY_G1_MANIFEST_PENDING_BUDGET.json",
+  "recovery_storage_budget": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-20261011/reports/structured_world/execution_20261011/native_driver_budget/RECOVERY_G1_STORAGE_BUDGET_V1.json",
+  "recovery_sequence": "A32/AA32/B16/Bresume32 direct frozen trainer; every role has debug32/capture32/fixed origin+32 endpoint. B1 stops origin+16, B2 removes stop-after and only adds --resume; identity/source/output/origin/budget remain identical across B phases.",
+  "recovery_scope": "One group per invocation, G1 or G3; only own finite profiles may pause. Default CPU planning; no automatic retries or formal deployments.",
+  "recovery_stage_provenance": "Fresh process stage logs preserve B first boundary/logging evidence before resume overwrites small run JSON. Validate full8 native PAUSED latest16 and exact B identity/COMPLETE hash before resume; validate actual resumed boundary16, endpoint32 and all-rank count/scenes/horizon equality after exit.",
+  "recovery_4banks_GiB": {
+    "A": 45,
+    "AA": 45,
+    "B": 90,
+    "total": 180
+  },
+  "storage_caveat": "Original135GiB recovery reservation covers only3banks. New template is an OWN180GiB shared accounting phase, not exclusive extra capacity; parent includes it in total storage/GPU reserves and actual per-save physical admission.",
+  "remaining_bindings": [
+    "fresh parent GPUh counters and actual source receipts/reservations after24windows",
+    "parent candidate mode choice/qualification",
+    "new driver frozen source SHA",
+    "actual GPU recovery/native numeric receipts"
+  ],
+  "original_preregistration_numeric_thresholds_changed": false,
+  "commit_or_push_by_agent": false
+}

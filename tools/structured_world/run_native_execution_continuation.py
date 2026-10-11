@@ -25,6 +25,104 @@ POINTS = (1, 32, 100, 250, 500)
 REQUIRED = {('G1', 'early'), ('G3', 'early'), ('G1', 'mid'), ('G3', 'mid')}
 
 
+class BudgetRefused(ValueError):
+    """Boundary refusal only; never terminate a running job."""
+
+
+def validate_gpu_budget(manifest, jobs):
+    """Explicit dispatch snapshot; no guessed external spending or defaults."""
+    budget = manifest.get('budget')
+    bench.require(isinstance(budget, dict), 'Explicit known GPU-hour budget required at --execute')
+    required = ('phase_limit', 'already_spent_external', 'total_internal_limit', 'reserved_elsewhere')
+    for name in required:
+        value = budget.get(name)
+        bench.require(type(value) in (int, float) and math.isfinite(value) and value >= 0,
+                      'Explicit finite GPU-hour budget field required: '+name)
+    bench.require(0 < budget['phase_limit'] <= budget['total_internal_limit'] <= 120,
+                  'Positive phase budget within explicit joint limit <=120 GPUh required')
+    reserves = budget.get('per_job_reserves')
+    bench.require(isinstance(reserves, dict), 'Explicit per-job GPU-hour reserves required')
+    for stage in {j['stage'] for j in jobs}:
+        value = reserves.get(stage)
+        bench.require(type(value) in (int, float) and math.isfinite(value) and value > 0,
+                      'Finite positive job reserve required: '+stage)
+    for source in budget.get('accounting_sources', []):
+        bench.require(bench.digest(source['path']) == source['sha256'], 'External budget accounting source changed')
+    return budget
+
+
+def actual_process_charges(jobs):
+    """Charge actual exits, including failures; partial receipt costs are not zero."""
+    entries, paths = [], set()
+    for job in jobs:
+        root = Path(job.get('process_run', job['run']))
+        path = root/'PROCESS_EXIT.json'
+        bench.require(str(path.resolve()) not in paths, 'Process cost path reused between stages')
+        paths.add(str(path.resolve()))
+        if not path.exists():
+            bench.require(not (root/'PROCESS.json').exists(), 'Started process lacks exit cost; budget unknown, no next launch')
+            continue
+        record = bench.read(path)
+        wall = record.get('wall_seconds')
+        bench.require(type(wall) in (int, float) and math.isfinite(wall) and wall >= 0 and
+                      type(record.get('returncode')) is int, 'Invalid real process exit cost')
+        entries.append({'key': job['key'], 'path': str(path), 'sha256': bench.digest(path),
+            'returncode': record['returncode'], 'monitor_error': record.get('monitor_error'),
+            'wall_seconds': wall, 'GPU_hours': wall*8/3600,
+            'charged_despite_failure': record['returncode'] != 0 or record.get('monitor_error') is not None})
+    return {'entries': entries, 'actual_phase_GPU_hours': math.fsum(x['GPU_hours'] for x in entries),
+            'basis': 'full8 process wall including startup/IO/logging/save; failed exits charged; no native numeric acceptance implied'}
+
+
+def gpu_admission(budget, jobs, charges, *, whole_plan=False, next_job=None):
+    actual = charges['actual_phase_GPU_hours']
+    bench.require(type(actual) in (int, float) and math.isfinite(actual) and actual >= 0, 'Unknown actual phase cost')
+    completed = {x['key'] for x in charges.get('entries', [])}
+    remaining = [j for j in jobs if j['key'] not in completed]
+    if next_job is not None:
+        bench.require(remaining and remaining[0]['key'] == next_job['key'], 'Only next unstarted job admitted; no retry or skipped stage')
+    reserve = math.fsum(budget['per_job_reserves'][j['stage']] for j in remaining) if whole_plan or next_job else 0.
+    phase = actual+reserve
+    joint = budget['already_spent_external']+budget['reserved_elsewhere']+phase
+    if phase > budget['phase_limit'] or joint > budget['total_internal_limit']:
+        raise BudgetRefused('GPU-hour boundary refusal: actual '+str(actual)+' + reserve '+str(reserve)+
+                            '; phase '+str(phase)+'/'+str(budget['phase_limit'])+
+                            '; joint '+str(joint)+'/'+str(budget['total_internal_limit']))
+    return {'admitted': True, 'whole_plan': whole_plan, 'next_job': next_job['key'] if next_job else None,
+        'actual_phase_GPU_hours': actual, 'requested_reserve_GPU_hours': reserve,
+        'remaining_jobs': [j['key'] for j in remaining],
+        'next_job_reserve_GPU_hours': budget['per_job_reserves'][next_job['stage']] if next_job else None,
+        'projected_phase_GPU_hours': phase, 'projected_joint_GPU_hours': joint,
+        'phase_limit': budget['phase_limit'], 'total_internal_limit': budget['total_internal_limit'],
+        'already_spent_external': budget['already_spent_external'], 'reserved_elsewhere': budget['reserved_elsewhere']}
+
+
+def run_budgeted_job(job, locks, budget, jobs, output):
+    """Wait for real owned workers, then reconcile even when the monitor raises."""
+    before = actual_process_charges(jobs)
+    gate = gpu_admission(budget, jobs, before, next_job=job)
+    bench.write(output/(job['key']+'_GPU_BUDGET_BEFORE.json'), gate)
+    owned_process = {**job, 'run': job.get('process_run', job['run'])}
+    try:
+        return bench.run_job(owned_process, locks)
+    finally:
+        # run_job retains inherited leases and waits for actual child exit on
+        # its failures. Every written PROCESS_EXIT contributes, not just results.
+        after = actual_process_charges(jobs)
+        bench.write(output/(job['key']+'_GPU_COST_AFTER.json'), after)
+
+
+def native_rng_sources(manifest):
+    sources = []
+    for case in manifest['cases']:
+        native = bench.origin(case)
+        sources.append({'case': case['name'], 'run': native['run'], 'tag': native['tag'],
+            'COMPLETE_sha256': native['complete_sha256'], 'origin_identity': native['contract']['identity'],
+            'rng_payload_sha256_from_COMPLETE': {n: h for n, h in native['complete']['file_sha256'].items() if n.startswith('rng_rank')},
+            'verification': 'Original native trainer independently hashes payloads and checks all-rank recovery boundary; budget provenance is recorded separately'})
+    return sources
+
+
 def build_plan(manifest, output):
     bench.require(manifest['schema'] == 'native_execution_continuation_manifest_v1', 'Native manifest schema required')
     root = Path(manifest['source_root']).resolve()
@@ -100,11 +198,11 @@ def build_plan(manifest, output):
         'forced_restarts_at_observations': 0, 'quota_visibility': 'reported, not an invented proof prerequisite'}
 
 
-def capture_receipt(job, native, process):
+def capture_receipt(job, native, process, *, origin_boundary=None, save_updates=None):
     """Small metadata/JSON audit; leave real 42 GiB tensor comparisons to CPU tools."""
     run = Path(job['run'])
     identity, done = bench.read(run/'identity.json'), bench.read(run/'TRAINING_COMPLETE.json')
-    boundary = bench.read(run/'RESUME_BOUNDARY_VERIFIED.json')
+    boundary = origin_boundary if origin_boundary is not None else bench.read(run/'RESUME_BOUNDARY_VERIFIED.json')
     start, end = native['complete']['completed'], job['retained_global_updates'][-1]
     bench.require(identity['training_source_sha'] == job['training_source_sha'], 'Actual training source differs from registered source')
     bench.require(done['updates'] == end and done['identity'] == identity['identity'], 'Native endpoint not completed')
@@ -164,7 +262,7 @@ def capture_receipt(job, native, process):
                       cost['logging_wall_seconds'] >= 0, 'Pilot logging cost missing')
         logging.append(cost)
     admissions = bench.json_lines(run/'capture_storage_admissions.jsonl')
-    bench.require([x['completed'] for x in admissions] == job['retained_global_updates'] and
+    bench.require([x['completed'] for x in admissions] == (job['retained_global_updates'] if save_updates is None else save_updates) and
                   all(x['ok'] and x['budget_sha256'] == job['storage_budget']['sha256'] for x in admissions), 'Save admissions incomplete')
     return {'schema': 'native_execution_capture_receipt_v1', 'key': job['key'], 'captures_complete': True,
         'passed': False, 'qualification': 'PENDING actual native tensor/RNG comparisons, triplet count/horizon equality, canonical dev and recovery',
@@ -221,7 +319,14 @@ def main():
     results, status, error, stop, discrete = [], 'CAPTURES_COMPLETE_ACCEPTANCE_PENDING', None, [False], []
     def stop_after_current(*unused): stop[0] = True
     for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, stop_after_current)
+    gpu_budget = None
     try:
+        gpu_budget = validate_gpu_budget(manifest, plan['jobs'])
+        initial = gpu_admission(gpu_budget, plan['jobs'], actual_process_charges(plan['jobs']), whole_plan=True)
+        bench.write(output/'GPU_BUDGET_REGISTRATION.json', {'budget': gpu_budget, 'admission': initial,
+            'manifest_sha256': bench.digest(args.manifest), 'budget_block_sha256': hashlib.sha256(json.dumps(gpu_budget, sort_keys=True).encode()).hexdigest(),
+            'external_counters': 'Explicit manifest dispatch snapshot; not inferred from RNG or successful job receipts'})
+        bench.write(output/'NATIVE_RNG_SOURCES.json', {'sources': native_rng_sources(manifest)})
         driver_root = SCRIPT.parents[2]
         driver_sha = bench.checked(['git', 'rev-parse', 'HEAD'], driver_root)
         bench.immutable_source(driver_root, driver_sha)
@@ -252,7 +357,7 @@ def main():
                 bench.write(output/(job['key']+'_RESOURCE_GATE.json'), gate)
                 storage = storage_admission(job['storage_budget']['path'], job['run'], expected_digest=job['storage_budget']['sha256'])
                 bench.write(output/(job['key']+'_STORAGE_GATE.json'), storage)
-                process = bench.run_job(job, locks)
+                process = run_budgeted_job(job, locks, gpu_budget, plan['jobs'], output)
                 bench.require(bench.origin(case) == native, 'Read-only native origin changed during pilot')
                 receipt = capture_receipt(job, native, process)
                 results.append(receipt)
@@ -263,11 +368,19 @@ def main():
                 bench.write(output/'COUNT_SCENE_HORIZON_TRIPLETS.json', {'discrete_evidence': discrete, 'passed': False,
                     'numeric_acceptance': 'PENDING; exact data/count evidence alone is insufficient'})
     except BaseException as exc:
-        status, error = 'FAILED', repr(exc)
+        status, error = ('BUDGET_REFUSED_BEFORE_NEXT_JOB' if isinstance(exc, BudgetRefused) else 'FAILED'), repr(exc)
         bench.write(output/'FAILURE.json', {'error': error, 'completed_jobs': len(results),
             'preceding_checkpoints_preserved': True, 'no_cleanup_or_retry': True})
+    try:
+        costs = actual_process_charges(plan['jobs'])
+    except (ValueError, OSError, KeyError, TypeError) as exc:
+        costs = {'actual_phase_GPU_hours': None, 'cost_unknown': True, 'error': repr(exc)}
     bench.write(output/'RESULTS.json', {'status': status, 'passed': False, 'formal_authorized': False,
         'error': error, 'jobs': results, 'planned_jobs': len(plan['jobs']),
+        'gpu_budget': gpu_budget, 'actual_process_costs_including_failed': costs,
+        'final_budget_within_limits': (costs['actual_phase_GPU_hours'] is not None and gpu_budget is not None and
+            costs['actual_phase_GPU_hours'] <= gpu_budget['phase_limit'] and
+            costs['actual_phase_GPU_hours']+gpu_budget['already_spent_external']+gpu_budget['reserved_elsewhere'] <= gpu_budget['total_internal_limit']),
         'discrete_evidence': discrete,
         'capture_only_not_numerical_acceptance': True})
     print(json.dumps({'status': status, 'completed_jobs': len(results), 'error': error}), flush=True)

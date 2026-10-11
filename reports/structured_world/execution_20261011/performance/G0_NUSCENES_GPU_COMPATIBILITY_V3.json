@@ -1,0 +1,193 @@
+{
+  "schema": "G0_nuscenes_full_optimizer_compatibility_v1",
+  "compatibility_completed": true,
+  "formal_acceptance": false,
+  "cases": [
+    {
+      "case": "G0",
+      "run": "/var/tmp/structured-world-fgtr-execution-20261011/G0_compat_v3_32_corrected",
+      "identity": "2668ab3679c0c7ca5d23ac078b0ca53a1a1e57765b762a856731c062317c2a2c",
+      "training_source_sha": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+      "execution_mode": "engineering_fast",
+      "dataset": "navsim",
+      "scene_population": 101592,
+      "global_batch": 32,
+      "microbatch": 4,
+      "FM_repeat": 8,
+      "proposal_steps": 10,
+      "schedule_horizon": 100000,
+      "schedule_warmup": 5000,
+      "optimizer_updates": 32,
+      "scene_exposure": 1024,
+      "process": {
+        "returncode": 0,
+        "wall_seconds": 223.26143606752157,
+        "process_GPU_hours": 0.49613652459449237
+      },
+      "checkpoint": {
+        "checkpoint_GPU_hours": 0.07714242723253038,
+        "completed": 32,
+        "file_sha256": {
+          "mp_rank_00_model_states.pt": "fd176fbbb6f7eb3d146d8e64864ade36513f3adda23c3c7cfb37bd3d5b6812ec",
+          "rng_rank0.pt": "585fe1620b7776e0ef54a0e8f954bc15c901a0a6113953411c2a545c2cf596f4",
+          "rng_rank1.pt": "5adc344f625b5e09b1309f928de77fa660415326a9d4d351bbf6dc232e7bf6ad",
+          "rng_rank2.pt": "7cd70d08a2dfa28dfdf1b06c7132f9488a848a0af9bdf8ceff4486b90466937c",
+          "rng_rank3.pt": "ab083568816213beb14edd8f605c0ad31d1911d440f43ed9f5d855645c34cc60",
+          "rng_rank4.pt": "4f61273700e9819fbd51fd0cfae54d7ba7a49ff03e8096304c4bff72aceb1f08",
+          "rng_rank5.pt": "52921d1ce06dee1cc78e90e832d189d6f0a763023378eddb1f4410bfa5509776",
+          "rng_rank6.pt": "cab1af9112babc5ca1006a57303ac4ca3ac65313435582598614ee3c60a224f9",
+          "rng_rank7.pt": "65c50344e34f7b6ebd1eae8a86b581ed533f6e0b81cd5b8d08b01ddf5f3f8b16",
+          "zero_pp_rank_0_mp_rank_00_optim_states.pt": "d0cb21c2674a7431ea774fdec9753a37484a6d8b52ef9020e7447f320b7c251e",
+          "zero_pp_rank_1_mp_rank_00_optim_states.pt": "8e3a78a69d78abead77619b4aca7b74be9f9c5fcd289eabc177c1adc172a4faf",
+          "zero_pp_rank_2_mp_rank_00_optim_states.pt": "be56725a8b5b2bb3e78b8f7da2fa3d011a07615c2f6308111f188fdbf4bae416",
+          "zero_pp_rank_3_mp_rank_00_optim_states.pt": "745746c4c35dd966fcfdcf8bbd69710d552f375fb82baac7a5bdd88522574adc",
+          "zero_pp_rank_4_mp_rank_00_optim_states.pt": "0628c6609865adc102dea69f96373707ced7b1b890eba8eef34c63d9e7dbb83e",
+          "zero_pp_rank_5_mp_rank_00_optim_states.pt": "bf140561728033ece1be0864084c00278af09d99ea6ba9ac7c9c108a6bc2fd6d",
+          "zero_pp_rank_6_mp_rank_00_optim_states.pt": "ef55c87af3295088bb8136f4e8d866f6394e5136509606f322011bfb5974c064",
+          "zero_pp_rank_7_mp_rank_00_optim_states.pt": "0b3cd1532b770d42bca5060528d94e0e7312bf592812ef1d9f06d95167ae6981"
+        },
+        "identity": "2668ab3679c0c7ca5d23ac078b0ca53a1a1e57765b762a856731c062317c2a2c",
+        "ranks": 8,
+        "save_seconds": 34.71409225463867,
+        "status": "COMPLETE",
+        "tag": "milestone_0000032"
+      },
+      "last_weighted_loss": {
+        "current_DINO": 0.5263453125953674,
+        "current_geometry": 0.20595338940620422,
+        "future_semantics": 0.0,
+        "local_relations": 0.0016040701884776354,
+        "original_FM": 1.4879556894302368,
+        "refine": 0.03540877625346184
+      },
+      "all_rank_peaks": [
+        [
+          32834583552,
+          44352667648
+        ],
+        [
+          32833932800,
+          44476399616
+        ],
+        [
+          32837370880,
+          44457525248
+        ],
+        [
+          32834482688,
+          44463816704
+        ],
+        [
+          32836051968,
+          44553994240
+        ],
+        [
+          32833383936,
+          44658851840
+        ],
+        [
+          32833470464,
+          43593498624
+        ],
+        [
+          32834766336,
+          43392172032
+        ]
+      ],
+      "limits": "Real compatibility only; no numerical or formal acceptance, no 32-update research conclusion"
+    },
+    {
+      "case": "nuScenes_G1",
+      "run": "/mnt/project/structured-world-fgtr-execution-artifacts/20261011/compat_nuscenes_v3_G1_32",
+      "identity": "810e04f0556a2519e612e66a819c9c539edead6dc06208173ca927893bfd7ae5",
+      "training_source_sha": "1e5b10956c0af603400779d1cbcbc81b4b6882de",
+      "execution_mode": "engineering_timevec",
+      "dataset": "nuscenes",
+      "scene_population": 23230,
+      "global_batch": 32,
+      "microbatch": 4,
+      "FM_repeat": 8,
+      "proposal_steps": 10,
+      "schedule_horizon": 17424,
+      "schedule_warmup": 726,
+      "optimizer_updates": 32,
+      "scene_exposure": 1024,
+      "process": {
+        "returncode": 0,
+        "wall_seconds": 270.90075487084687,
+        "process_GPU_hours": 0.6020016774907708
+      },
+      "checkpoint": {
+        "checkpoint_GPU_hours": 0.09342888726128472,
+        "completed": 32,
+        "file_sha256": {
+          "mp_rank_00_model_states.pt": "c3abdcaa706bff22575364f73472bb60757ecbcb132e5b07ac77f0101fdba5e9",
+          "rng_rank0.pt": "8689224fdadcf8fa4189aedecb4256d35d15f9dfad619785fd4e56f740c4274a",
+          "rng_rank1.pt": "844b613b8801733c2b26a34d2baff8d1f712cb53cf63556e8110c1c8dece6257",
+          "rng_rank2.pt": "58f680b95c780600420272d84ab71d19d424757b5f767fb171387a9d6cfb89d8",
+          "rng_rank3.pt": "7bbf38e6986550e4f08c700177c6e4f09db4be769e10187f9085d8958ce6df7d",
+          "rng_rank4.pt": "3fe983c53921a6fff61f71f443826519aed3dc537688a70cd9e21714b6780d0a",
+          "rng_rank5.pt": "531d970b34bbbf179a7e8fafef02af62fa08c16101233e062576a95c400084f4",
+          "rng_rank6.pt": "3d0923b03757446a17810998bade4fe7999f9d135a2eed24c678ceeb452486cc",
+          "rng_rank7.pt": "e003c2a7514d6a0a6f25062f7e5dd89093a4a1a4bd593b18169cb47cf3d38335",
+          "zero_pp_rank_0_mp_rank_00_optim_states.pt": "f1cdbd27a0e463fe1ec3939d02b489459cb6c3ff7a9a08e9effc2648e9bfc07d",
+          "zero_pp_rank_1_mp_rank_00_optim_states.pt": "4b6bf70e1de0ba965a2d6f50f2271422aa31b1dfd01be78d6ebfa34cd5467c33",
+          "zero_pp_rank_2_mp_rank_00_optim_states.pt": "0241f6e5299eac18b51169c7758593b01513f3822cb1bb923c2ce18a80dad1f0",
+          "zero_pp_rank_3_mp_rank_00_optim_states.pt": "c855bf395d58631b5554bc479c24166adda7df8888a55b802632f7f3dd6c92e5",
+          "zero_pp_rank_4_mp_rank_00_optim_states.pt": "5a24864a30c0d0e5883ee0882fc97439f0730f54c7d47ad663d1c0c9dd910a0e",
+          "zero_pp_rank_5_mp_rank_00_optim_states.pt": "5e2a886fe2f63e7b0ff7a43ec0ded940359bf07ede83813464ed215e7a1e1c2b",
+          "zero_pp_rank_6_mp_rank_00_optim_states.pt": "2073b55eb678bd0eb04f6f11608180afe392f1b0b4970ff3bc88882b74b7e6d6",
+          "zero_pp_rank_7_mp_rank_00_optim_states.pt": "00269a8939304ed54807687e5d73724b133ab6b3779689bfe914574d18a40476"
+        },
+        "identity": "810e04f0556a2519e612e66a819c9c539edead6dc06208173ca927893bfd7ae5",
+        "ranks": 8,
+        "save_seconds": 42.042999267578125,
+        "status": "COMPLETE",
+        "tag": "milestone_0000032"
+      },
+      "last_weighted_loss": {
+        "current_DINO": 0.5058310031890869,
+        "current_geometry": 0.23961788415908813,
+        "future_semantics": 0.06193364039063454,
+        "local_relations": 0.057149454951286316,
+        "original_FM": 1.2362990379333496,
+        "refine": 0.027441978454589844
+      },
+      "all_rank_peaks": [
+        [
+          33194604544,
+          43434115072
+        ],
+        [
+          33192952320,
+          43557847040
+        ],
+        [
+          33194228736,
+          43536875520
+        ],
+        [
+          33192754688,
+          43488641024
+        ],
+        [
+          33192764416,
+          43576721408
+        ],
+        [
+          33194376704,
+          43738202112
+        ],
+        [
+          33195295232,
+          42620420096
+        ],
+        [
+          33195334144,
+          42448453632
+        ]
+      ],
+      "limits": "Real compatibility only; no numerical or formal acceptance, no 32-update research conclusion"
+    }
+  ]
+}

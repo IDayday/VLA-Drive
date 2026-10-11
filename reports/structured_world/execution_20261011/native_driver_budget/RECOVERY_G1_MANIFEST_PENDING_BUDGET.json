@@ -1,0 +1,77 @@
+{
+  "source_root": "/mnt/project/VLA-Drive-structured-world-fgtr-perf-native-v4-frozen-20261011",
+  "source_sha": "be5e72248a46afd43e1bf279c21134c391c5edad",
+  "python": "/var/tmp/structured-world-fgtr-round1-20261008/navtest_qwen_runtime_v1/bin/python",
+  "host": "training-vlawm-zt4",
+  "gpu_uuids": [
+    "GPU-8cf15b9f-04c1-7899-d3a5-5010a45b1d4e",
+    "GPU-9751d8e9-f0b3-ade1-6f79-6b8ced4e9ce4",
+    "GPU-43124f10-758c-9c9f-00d2-7b380f9aef42",
+    "GPU-0ec4f3b1-044b-6815-dac9-a45146ed1a9b",
+    "GPU-b97b79ac-0f20-154d-9531-3e370dc1281e",
+    "GPU-0600d28e-c299-c73d-bf25-39623f920c64",
+    "GPU-6633f3ba-0cfd-fbfc-d0b5-4dcc118767f9",
+    "GPU-3ba5ae06-4827-adbd-ed55-fcbe98301308"
+  ],
+  "qualification": {
+    "path": "/var/tmp/structured-world-fgtr-execution-20261011/HOST_QUALIFICATION.json",
+    "sha256": "01d93ea95304e39ea048608014441b5658b5ce87e1edfff108581cc209e20e19"
+  },
+  "artifact_root": "/var/tmp/structured-world-fgtr-execution-20261011",
+  "minimum_free_MiB": 68000,
+  "candidate_mode": "engineering_timevec",
+  "schema": "native_execution_recovery_manifest_v1",
+  "cases": [
+    {
+      "name": "G1_recovery",
+      "pilot_origin_run": "/var/tmp/structured-world-fgtr-execution-20261011/origins/G1",
+      "pilot_origin_tag": "milestone_0025000",
+      "origin_identity": "8f331622551d1f1c1c439a6d01411affe012a1777a63c61d8525470dc1e3ded5",
+      "origin_complete_sha256": "1dbaafc0ac4b94678f32175a400a6745c417e98fafc096f6c50d267b79d0177e",
+      "train_args": [
+        "--config",
+        "/mnt/project/VLA-Drive-structured-world-fgtr-perf-v3-frozen-20261011/configs/structured_world/navsim_G1_FULL_UNIFORM_seed42.yaml",
+        "--cache",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_train_full_label_v5_centered",
+        "--geometry",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_shared_geometry_5epoch_seed42_v1/shared_geometry.pt",
+        "--geometry-identity",
+        "e07c1a00d8961e10f88d71799957bcd647bc4a58009cd6cfbae22f42dfa9fecd",
+        "--dino-root",
+        "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/navsim_current_C1_only_v1",
+        "--dino-identity",
+        "bda28c73a00fa2d47df2720dd03007f09d006f34482e406b0418a2112ae6924e",
+        "--image-root",
+        "/var/tmp/ddp-full-foresight-20260929/images",
+        "--micro-batch",
+        "4"
+      ],
+      "group": "G1",
+      "stage": "recovery",
+      "output_root": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_driver_budget_20261011/recovery_G1_v1",
+      "storage_pool": "LOCAL",
+      "storage_budget": {
+        "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_driver_budget_20261011/RECOVERY_G1_STORAGE_BUDGET_V1.json",
+        "sha256": "f858ad1eafbb4893dae45f74ddab55e98834f0f048a9104dac05de1cf0cffb94"
+      }
+    }
+  ],
+  "master_port": 29591,
+  "budget": {
+    "phase_limit": 4.0,
+    "already_spent_external": null,
+    "total_internal_limit": 120.0,
+    "reserved_elsewhere": null,
+    "per_job_reserves": {
+      "recovery": 1.0
+    },
+    "accounting_sources": []
+  },
+  "status": "PLANNING_ONLY_PARENT_ACTUAL_BUDGET_AND_MODE_BINDING_PENDING",
+  "producer_native_manifest": {
+    "path": "/mnt/project/structured-world-fgtr-round1-artifacts/20261008/perf_native_continuation_20261011/bound_v4_20261011T084759Z/records_v1/BOUND_MANIFEST.json",
+    "sha256": "1379332479d1ae921bf37ae2115bc2716ecbf5378c812da5b765a3b9a87fcb93"
+  },
+  "fixed_contract": "A32/AA32/Bstop16/Bresume32; capture32/debug32/source/origin/output/budget identical across B stages; only B resume flag, stop-after removed after16",
+  "acceptance_passed": false
+}
