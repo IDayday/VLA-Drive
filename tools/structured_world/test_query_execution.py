@@ -37,22 +37,23 @@ STATS = dict(current_positive_weight=2., future_positive_weight=3.,
              arrival_positive_weight=4., release_positive_weight=2.)
 BODY = dict(length=2., width=1., rear_axle_to_center=.3)
 REFERENCE_COMMIT = '267701f3b2c6cf36a97ff3a5e6bfb535e5aab232'
+FORMAL_REFERENCE_COMMIT = '0c54f1c49e7ed2a76b22826b654d6c72625f5b6d'
 
 
-def reference_modules():
+def reference_modules(commit=REFERENCE_COMMIT):
     """Read the task's original reference directly from git without checkout."""
-    name = '_registered_query_reference'
+    name = '_registered_query_reference_'+commit[:8]
     package = types.ModuleType(name)
     package.__path__ = []
     sys.modules[name] = package
     modules, hashes = {}, {}
     for stem in ('grid', 'queries', 'losses'):
         path = 'starVLA/model/modules/structured_world/'+stem+'.py'
-        source = subprocess.run(['git', 'show', REFERENCE_COMMIT+':'+path], cwd=ROOT,
+        source = subprocess.run(['git', 'show', commit+':'+path], cwd=ROOT,
                                 check=True, capture_output=True).stdout
         module = types.ModuleType(name+'.'+stem)
         sys.modules[module.__name__] = module
-        exec(compile(source, REFERENCE_COMMIT+':'+path, 'exec'), module.__dict__)
+        exec(compile(source, commit+':'+path, 'exec'), module.__dict__)
         modules[stem], hashes[path] = module, hashlib.sha256(source).hexdigest()
     return modules, hashes
 
@@ -521,20 +522,23 @@ class QueryExecutionTests(unittest.TestCase):
                                     self.assertFalse(torch.count_nonzero(grad))
 
     def test_G0_zero_gradient_AdamW_decay_and_optimizer_state_are_retained(self):
+        original = reference_modules(FORMAL_REFERENCE_COMMIT)[0]
+        original_grid = original['grid'].GridSpec(**GRID.__dict__)
         with torch.random.fork_rng(devices=[]):
             torch.manual_seed(54)
             initial = StructuredSemantics('none', channels=2)
         target = labels(steps=6, batch=1)
         query = dict(poses=torch.zeros(1, 4, 3), time_index=torch.zeros(1, 4, dtype=torch.long))
         snapshots = []
-        for fast in (False, True):
+        for compute, grid, fast in ((original['losses'].compute_structured_losses, original_grid, False),
+                                    (compute_structured_losses, GRID, True)):
             model = copy.deepcopy(initial)
             optimizer = torch.optim.AdamW(model.parameters(), lr=.01, weight_decay=.2)
             for _ in range(3):
                 optimizer.zero_grad(set_to_none=True)
                 prediction = model(torch.ones(1, 2, GRID.height, GRID.width), torch.ones(1, 6, 2, GRID.height, GRID.width))
-                raw, _ = compute_structured_losses(prediction, target, query, [BODY], semantic_mode='none',
-                    statistics=STATS, grid=GRID, execution_fast=fast)
+                raw, _ = compute(prediction, target, query, [BODY], semantic_mode='none',
+                    statistics=STATS, grid=grid, **({'execution_fast': True} if fast else {}))
                 (sum(raw.values())+prediction['future_logits'].sum()*0.).backward()
                 self.assertTrue(all(p.grad is not None for p in model.future.parameters()))
                 self.assertTrue(all(not torch.count_nonzero(p.grad) for p in model.future.parameters()))
@@ -548,6 +552,93 @@ class QueryExecutionTests(unittest.TestCase):
         for name, parameter in initial.named_parameters():
             if name.startswith('future.'):
                 close(snapshots[1][0][name], parameter.detach()*(1-.01*.2)**3)
+
+    def test_loss_reuse_frozen0c54_all_prediction_gradients(self):
+        original = reference_modules(FORMAL_REFERENCE_COMMIT)[0]
+        original_grid = original['grid'].GridSpec(**GRID.__dict__)
+        for steps in (6, 8):
+            for group, mode in (('G0', 'none'), ('G1', 'full'), ('G3', 'event')):
+                for kind in ('random', 'tie', 'OOR', 'all_invalid', 'prediction_NaN', 'floating_valid_NaN'):
+                    with self.subTest(steps=steps, group=group, kind=kind):
+                        gen = torch.Generator().manual_seed(815)
+                        target = labels(steps)
+                        target['occupancy_valid'][:2].fill_(True)
+                        target['road_valid'][:2].fill_(True)
+                        target['occupancy'][:2] = torch.randint(2, target['occupancy'][:2].shape, generator=gen).byte()
+                        target['occupancy_valid'][1, :, 0, 0] = False
+                        target['road_valid'][1, 0, 0] = False
+                        poses = torch.rand(3, 12, 3, generator=gen)*2-1
+                        times = torch.randint(steps, (3, 12), generator=gen)
+                        source = {'road_distance_m': torch.randn(3, 1, GRID.height, GRID.width, generator=gen),
+                                  'current_logits': torch.randn(3, 1, GRID.height, GRID.width, generator=gen),
+                                  'future_logits': torch.randn(3, steps, 2, GRID.height, GRID.width, generator=gen),
+                                  'pt': torch.rand(3, steps, 1, GRID.height, GRID.width, generator=gen)}
+                        if kind == 'tie':
+                            target['road_distance'].fill_(1.)
+                            target['occupancy'][:2].fill_(1)
+                            for value in source.values(): value.zero_()
+                        elif kind == 'OOR':
+                            poses[0, :4, :2] = torch.tensor([[-100., 0.], [0., 100.], [6., 0.], [float('nan'), 0.]])
+                            times[1, :4] = torch.tensor([-1, steps, steps+1, 0])
+                        elif kind == 'all_invalid':
+                            target['road_valid'].zero_(); target['occupancy_valid'].zero_()
+                        elif kind == 'prediction_NaN':
+                            times.zero_()
+                            source['future_logits'][:, -1].fill_(float('nan'))
+                            source['pt'][:, -1].fill_(float('nan'))
+                        elif kind == 'floating_valid_NaN':
+                            times.zero_()
+                            target['occupancy_valid'] = target['occupancy_valid'].float()
+                            target['occupancy_valid'][:, -1].fill_(float('nan'))
+                        snapshots = []
+                        for compute, grid, fast in ((original['losses'].compute_structured_losses, original_grid, None),
+                                                   (compute_structured_losses, GRID, False),
+                                                   (compute_structured_losses, GRID, True)):
+                            prediction = {key: value.clone().requires_grad_() for key, value in source.items()}
+                            query = {'poses': poses.clone().requires_grad_(), 'time_index': times.clone()}
+                            rng = torch.get_rng_state().clone()
+                            raw, counts = compute(prediction, target, query, [BODY]*3, semantic_mode=mode,
+                                statistics=STATS, global_scenes=5, grid=grid,
+                                **({} if fast is None else {'execution_fast': fast}))
+                            # Same G0 zero term as the VLA wrapper; retain its
+                            # non-None zero gradient and AdamW participation.
+                            total = sum(raw.values())+(prediction['future_logits'].sum()*0. if mode == 'none' else 0.)
+                            leaves = list(prediction.values())+[query['poses']]
+                            gradients = torch.autograd.grad(total, leaves, allow_unused=True)
+                            self.assertTrue(torch.equal(rng, torch.get_rng_state()))
+                            snapshots.append((raw, counts, gradients))
+                        for at in (1, 2):
+                            for first, candidate in zip(snapshots[0][:2], snapshots[at][:2]):
+                                self.assertEqual(first.keys(), candidate.keys())
+                                for key in first: close(first[key], candidate[key], exact=at == 1)
+                            for first, candidate in zip(snapshots[0][2], snapshots[at][2]):
+                                if first is None: self.assertIsNone(candidate)
+                                else: close(first, candidate, exact=at == 1)
+                        if mode == 'none':
+                            self.assertIsNotNone(snapshots[2][2][2])
+                            self.assertFalse(torch.count_nonzero(snapshots[2][2][2]))
+
+    def test_loss_reuse_removes_only_discarded_valid_body_reads(self):
+        loss_module = sys.modules[compute_structured_losses.__module__]
+        query_module = sys.modules[read_time_field.__module__]
+        query = {'poses': torch.zeros(3, 8, 3), 'time_index': torch.arange(8)[None].expand(3, -1)}
+        target = labels()
+        prediction = {'road_distance_m': torch.zeros(3, 1, GRID.height, GRID.width),
+                      'current_logits': torch.zeros(3, 1, GRID.height, GRID.width),
+                      'future_logits': torch.zeros(3, 8, 2, GRID.height, GRID.width),
+                      'pt': torch.zeros(3, 8, 1, GRID.height, GRID.width)}
+        for semantic in ('none', 'full', 'event'):
+            calls = []
+            for fast in (False, True):
+                with patch.object(loss_module, 'body_relations', wraps=body_relations) as relations, \
+                     patch.object(loss_module, 'read_time_field', wraps=read_time_field) as direct_reads, \
+                     patch.object(query_module, 'read_time_field', wraps=read_time_field) as body_reads:
+                    compute_structured_losses(prediction, target, query, [BODY]*3,
+                        semantic_mode=semantic, statistics=STATS, grid=GRID, execution_fast=fast)
+                    calls.append((relations.call_count, direct_reads.call_count+body_reads.call_count))
+            self.assertEqual(calls[0][0], 3)
+            self.assertEqual(calls[1][0], 2)
+            self.assertEqual(calls[0][1]-calls[1][1], len(target['occupancy']))
 
 
 class EvidenceResult(unittest.TextTestResult):
@@ -568,11 +659,16 @@ class EvidenceResult(unittest.TextTestResult):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--loss-reuse-only', action='store_true', help='Bounded loss reuse / frozen0c54 gradient / G0 AdamW checks only')
     args = parser.parse_args()
     if args.output and args.output.exists(): raise ValueError('Evidence output must be fresh')
     torch.set_num_threads(2)
     start = time.monotonic()
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(QueryExecutionTests)
+    suite = (unittest.TestSuite(QueryExecutionTests(name) for name in (
+        'test_loss_reuse_frozen0c54_all_prediction_gradients',
+        'test_loss_reuse_removes_only_discarded_valid_body_reads',
+        'test_G0_zero_gradient_AdamW_decay_and_optimizer_state_are_retained')) if args.loss_reuse_only
+        else unittest.defaultTestLoader.loadTestsFromTestCase(QueryExecutionTests))
     result = unittest.TextTestRunner(verbosity=2, resultclass=EvidenceResult).run(suite)
     if args.output:
         files = ['starVLA/model/modules/structured_world/'+name+'.py' for name in ('queries', 'losses', 'grid')]
@@ -584,6 +680,9 @@ def main():
                       source_sha256={name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in files},
                       failures=[dict(case=test.id(), error=error) for test, error in result.failures+result.errors],
                       reference_commit=REFERENCE_COMMIT, reference_source_sha256=reference_modules()[1],
+                      formal_reference_commit=FORMAL_REFERENCE_COMMIT,
+                      formal_reference_source_sha256=reference_modules(FORMAL_REFERENCE_COMMIT)[1],
+                      loss_reuse_only=args.loss_reuse_only,
                       limits='Synthetic CPU queries/losses/optimizer; parent owns full-model GPU validation.')
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open('x') as handle: json.dump(report, handle, indent=2)

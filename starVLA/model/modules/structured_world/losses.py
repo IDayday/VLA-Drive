@@ -91,9 +91,25 @@ def compute_structured_losses(prediction, targets, queries, bodies, *, semantic_
     truth = body_relations(targets['road_distance'][:, None].float(), (targets['occupancy'][:, 1:, None] == 1).float(),
                             queries['poses'], time, bodies, grid=grid, execution_fast=execution_fast,
                             known_finite=True, finite_cache=finite_cache, _footprints=footprints)
-    road_support = body_relations(targets['road_valid'][:, None].float(),
-                        targets['occupancy_valid'][:, 1:, None].float(), queries['poses'], time, bodies, grid=grid,
-                        execution_fast=execution_fast, known_finite=valid_finite, finite_cache=finite_cache, _footprints=footprints)
+    if execution_fast:
+        road_margins, full_valid = [], []
+        for row, footprint in enumerate(footprints):
+            count_k, points_k = footprint['points'].shape[:2]
+            support, _ = grid.sample(targets['road_valid'][row:row+1, None].float(), footprint['xy'],
+                                      _prepared=footprint['prepared'])
+            # Same bilinear reads and amin tie rule as body_relations. Its
+            # discarded future-valid overlap/in_range are not needed here.
+            road_margins.append(support.reshape(count_k, points_k).amin(1))
+            if semantic_mode != 'none':
+                sampled, supported = read_time_field(targets['occupancy_valid'][row:row+1, 1:, None].float(),
+                    footprint['xy'], footprint['time'], grid, execution_fast=True, known_finite=valid_finite,
+                    finite_cache=finite_cache, _plan=footprint['plan'])
+                full_valid.append(((sampled[..., 0] >= 1.-1e-5) & supported).reshape(count_k, points_k).all(1))
+        road_support = {'road_margin_m': torch.stack(road_margins)}
+    else:
+        road_support = body_relations(targets['road_valid'][:, None].float(),
+                            targets['occupancy_valid'][:, 1:, None].float(), queries['poses'], time, bodies, grid=grid,
+                            execution_fast=execution_fast, known_finite=valid_finite, finite_cache=finite_cache, _footprints=footprints)
     # The minimum over all body points requires all road labels to be known.
     road_mask = (road_support['road_margin_m'] >= 1.-1e-5) & predicted['in_range']
     values, count = scene_means(F.smooth_l1_loss(predicted['road_margin_m']/10., truth['road_margin_m']/10., reduction='none'), road_mask)
@@ -102,18 +118,19 @@ def compute_structured_losses(prediction, targets, queries, bodies, *, semantic_
     if semantic_mode != 'none':
         # Verify that every future footprint cell is labeled.
         from .queries import body_points
-        full_valid = []
-        for row, body in enumerate(bodies):
-            footprint = footprints[row] if footprints is not None else None
-            points = footprint['points'] if footprint is not None else body_points(queries['poses'][row], body)
-            count_k, points_k = points.shape[:2]
-            t = footprint['time'] if footprint is not None else time[row, :, None].expand(-1, points_k).reshape(1, -1)
-            body_xy = footprint['xy'] if footprint is not None else points.reshape(1, -1, 2)
-            sampled, supported = read_time_field(targets['occupancy_valid'][row:row+1, 1:, None].float(),
-                                                  body_xy, t, grid, execution_fast=execution_fast,
-                                                  known_finite=valid_finite, finite_cache=finite_cache,
-                                                  _plan=footprint['plan'] if footprint is not None else None)
-            full_valid.append(((sampled[..., 0] >= 1.-1e-5) & supported).reshape(count_k, points_k).all(1))
+        if not execution_fast:
+            full_valid = []
+            for row, body in enumerate(bodies):
+                footprint = footprints[row] if footprints is not None else None
+                points = footprint['points'] if footprint is not None else body_points(queries['poses'][row], body)
+                count_k, points_k = points.shape[:2]
+                t = footprint['time'] if footprint is not None else time[row, :, None].expand(-1, points_k).reshape(1, -1)
+                body_xy = footprint['xy'] if footprint is not None else points.reshape(1, -1, 2)
+                sampled, supported = read_time_field(targets['occupancy_valid'][row:row+1, 1:, None].float(),
+                                                      body_xy, t, grid, execution_fast=execution_fast,
+                                                      known_finite=valid_finite, finite_cache=finite_cache,
+                                                      _plan=footprint['plan'] if footprint is not None else None)
+                full_valid.append(((sampled[..., 0] >= 1.-1e-5) & supported).reshape(count_k, points_k).all(1))
         mask = torch.stack(full_valid) & predicted['in_range']
         values, count = scene_means((predicted['occupancy_overlap_proxy']-truth['occupancy_overlap_proxy']).square(), mask)
         relation = relation+scene_reduce(values, global_scenes=global_scenes)

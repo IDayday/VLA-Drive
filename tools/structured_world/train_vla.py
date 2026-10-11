@@ -305,7 +305,11 @@ def main():
         atomic_json(args.output/'optimizer_groups.json', group_records)
     if pilot_origin and json.loads((args.pilot_origin_run/'optimizer_groups.json').read_text()) != group_records:
         raise ValueError('Pilot optimizer groups differ from origin')
-    end_update = (completed+args.debug_updates if pilot_origin else args.debug_updates) if (pilot_origin or args.use_formal_schedule) else horizon
+    # A pilot has an immutable origin and a finite registered exposure budget.
+    # Reloading an interrupted pilot must not add that budget a second time.
+    end_update = (pilot_origin['completed']+args.debug_updates if pilot_origin else args.debug_updates) if (pilot_origin or args.use_formal_schedule) else horizon
+    if completed > end_update:
+        raise ValueError('Recovery boundary is beyond the registered training endpoint')
     milestones = ({25000, 50000, 75000, 100000} if dataset == 'navsim' else
                   {epoch*updates_per_epoch for epoch in (6, 12, 18, 24)}) if args.scope == 'formal' else {end_update}
     def save(status):

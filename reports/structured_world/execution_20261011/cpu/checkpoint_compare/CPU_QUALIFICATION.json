@@ -1,0 +1,694 @@
+{
+  "passed": true,
+  "tests_run": 12,
+  "controls": [
+    {
+      "test": "test_AA_background_never_waives_original_strict_failure",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_BN_float_discrete_counter_and_nonfinite",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_BN_float_discrete_counter_and_nonfinite",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "discrete_model_buffer/geometry.bn.num_batches_tracked"
+          ]
+        },
+        "AA_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "discrete_model_buffer/geometry.bn.num_batches_tracked"
+          ]
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_BN_float_discrete_counter_and_nonfinite",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_E1_step_scheduler_data_rng_and_optimizer_group_changes",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "client_step_scheduler_data/epoch"
+          ]
+        },
+        "AA_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "client_step_scheduler_data/epoch"
+          ]
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_E1_step_scheduler_data_rng_and_optimizer_group_changes",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "client_step_scheduler_data/lr_scheduler/last_epoch"
+          ]
+        },
+        "AA_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "client_step_scheduler_data/lr_scheduler/last_epoch"
+          ]
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_E1_step_scheduler_data_rng_and_optimizer_group_changes",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "RNG/rank1/generators/proposal"
+          ]
+        },
+        "AA_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "RNG/rank1/generators/proposal"
+          ]
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_E1_step_scheduler_data_rng_and_optimizer_group_changes",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "optimizer/rank0/E1/scalar_state/0/step"
+          ]
+        },
+        "AA_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "optimizer/rank0/E1/scalar_state/0/step"
+          ]
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_E1_step_scheduler_data_rng_and_optimizer_group_changes",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "optimizer/rank0/E1/param_groups/0/lr"
+          ]
+        },
+        "AA_B": {
+          "passed": false,
+          "failure_count": 1,
+          "failure_paths": [
+            "optimizer/rank0/E1/param_groups/0/lr"
+          ]
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": false,
+          "FP32_bitwise": true,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_bitwise_failure_remains_when_fixed_numeric_gate_passes",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_changed_optimizer_moment_detected_when_model_identical",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_identical_full_native_state_and_independent_update_norm",
+      "comparison_performed": true,
+      "qualification_passed": true,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_master_fragment_norms_cross_rank_quantiles_and_padding",
+      "comparison_performed": true,
+      "qualification_passed": false,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": false,
+          "passed": false
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_missing_shard_corruption_and_shape_fail_closed",
+      "comparison_performed": false,
+      "qualification_passed": false,
+      "E1": null,
+      "original_strict": null,
+      "error": {
+        "type": "InvalidCheckpoint",
+        "message": "Missing native payload: zero_pp_rank_1_mp_rank_00_optim_states.pt"
+      }
+    },
+    {
+      "test": "test_missing_shard_corruption_and_shape_fail_closed",
+      "comparison_performed": false,
+      "qualification_passed": false,
+      "E1": null,
+      "original_strict": null,
+      "error": {
+        "type": "InvalidCheckpoint",
+        "message": "Native payload hash changed: zero_pp_rank_1_mp_rank_00_optim_states.pt"
+      }
+    },
+    {
+      "test": "test_missing_shard_corruption_and_shape_fail_closed",
+      "comparison_performed": false,
+      "qualification_passed": false,
+      "E1": null,
+      "original_strict": null,
+      "error": {
+        "type": "InvalidCheckpoint",
+        "message": "Trainable shape/model mismatch: refiner.weight"
+      }
+    },
+    {
+      "test": "test_origin_missing_moments_zero_initialization_explicit",
+      "comparison_performed": true,
+      "qualification_passed": true,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_unused_alignment_padding_is_excluded_but_no_parameter_is_dropped",
+      "comparison_performed": true,
+      "qualification_passed": true,
+      "E1": {
+        "A_A": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "A_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        },
+        "AA_B": {
+          "passed": true,
+          "failure_count": 0,
+          "failure_paths": []
+        }
+      },
+      "original_strict": {
+        "A_A": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "A_B": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        },
+        "AA_B": {
+          "E1_exact": true,
+          "FP32_bitwise": true,
+          "passed": true
+        }
+      },
+      "error": null
+    },
+    {
+      "test": "test_wrong_origin_binding_and_changed_scientific_population_fail_closed",
+      "comparison_performed": false,
+      "qualification_passed": false,
+      "E1": null,
+      "original_strict": null,
+      "error": {
+        "type": "InvalidCheckpoint",
+        "message": "Continuation origins differ"
+      }
+    },
+    {
+      "test": "test_wrong_origin_binding_and_changed_scientific_population_fail_closed",
+      "comparison_performed": false,
+      "qualification_passed": false,
+      "E1": null,
+      "original_strict": null,
+      "error": {
+        "type": "InvalidCheckpoint",
+        "message": "Continuation scientific/data/schedule contract changed from origin"
+      }
+    }
+  ],
+  "wall_seconds": 8.233018524944782,
+  "torch": "2.5.1+cu124",
+  "device": "cpu",
+  "source_sha256": {
+    "tools/structured_world/compare_execution_checkpoints.py": "9dede8df91b9def8623c608e9581cb5246647c4870c8e52cdca4f6a8c76cb703",
+    "tools/structured_world/test_compare_execution_checkpoints.py": "6c6b01a6b186d7bb2119339d529719bffc66a2ff1f03a986150048e14a2bd2cc"
+  },
+  "scope": "synthetic observed-native ZeRO-2 structure, 2 ranks, cross-rank parameter and alignment padding; no real optimizer training or GPU",
+  "failures": []
+}
